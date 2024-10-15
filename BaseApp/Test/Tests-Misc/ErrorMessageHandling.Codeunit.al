@@ -1,0 +1,1275 @@
+codeunit 132500 "Error Message Handling"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Error Message] [Error Handling]
+    end;
+
+    var
+        Assert: Codeunit Assert;
+        TestPageIsNotOpenErr: Label 'The TestPage is not open.';
+        LibraryErrorMessage: Codeunit "Library - Error Message";
+        HandledErr: Label 'Handled Error %1', Comment = '%1 - number';
+        UnhandledErr: Label 'Unhandled Error.';
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T001_SecondSubscriberCannotSubscribeOfficially()
+    var
+        ErrorMessageHandler: array[2] of Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        Result: Boolean;
+    begin
+        // [SCENARIO] The first handler only should show logged errors.
+        Initialize;
+        // [GIVEN] Two subscribers are subscribed correctly
+        ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
+        ErrorMessageMgt.Activate(ErrorMessageHandler[2]);
+        VerifyCountOfActiveSubscribers(1);
+        // [GIVEN] Run posting with the error
+        PostWithHandledError(HandledErr);
+
+        // [WHEN] ShowErrors of the first subscriber
+        Result := FindFirstLineOnErrorMessagePage(ErrorMessageHandler[1]);
+        // [THEN] Page "Error Messages" is open
+        Assert.IsTrue(Result, 'page is not open');
+
+        // [WHEN] ShowErrors of the second subscriber
+        asserterror FindFirstLineOnErrorMessagePage(ErrorMessageHandler[2]);
+        // [THEN] Page "Error Messages" is not open
+        Assert.ExpectedError(TestPageIsNotOpenErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T002_FirstUnofficialSubscriberGetsSkipped()
+    var
+        ErrorMessageHandler: array[2] of Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        Result: Boolean;
+    begin
+        // [SCENARIO] Directly subscribed handler before the activated handler should be inactive.
+        Initialize;
+        // [GIVEN] The unofficial subscriber is subscribed directly
+        BindSubscription(ErrorMessageHandler[1]);
+        ErrorMessageMgt.Activate(ErrorMessageHandler[2]);
+        VerifyCountOfActiveSubscribers(2);
+        // [GIVEN] Run posting with the error
+        PostWithHandledError(HandledErr);
+
+        // [WHEN] ShowErrors of the first subscriber
+        asserterror FindFirstLineOnErrorMessagePage(ErrorMessageHandler[1]);
+        // [THEN] Page "Error Messages" is not open
+        Assert.ExpectedError(TestPageIsNotOpenErr);
+
+        // [WHEN] ShowErrors of the second subscriber
+        Result := FindFirstLineOnErrorMessagePage(ErrorMessageHandler[2]);
+        // [THEN] Page "Error Messages" is open
+        Assert.IsTrue(Result, 'page is not open');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T003_FirstOfficialSecondUnofficialSubscriber()
+    var
+        ErrorMessageHandler: array[2] of Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        Result: Boolean;
+    begin
+        // [SCENARIO] Directly subscribed handler after the activated handler should be inactive.
+        Initialize;
+        // [GIVEN] Two subscribers are subscribed, but the second is unofficial
+        ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
+        BindSubscription(ErrorMessageHandler[2]);
+        VerifyCountOfActiveSubscribers(2);
+        // [GIVEN] Run posting with the error
+        PostWithHandledError(HandledErr);
+
+        // [WHEN] ShowErrors of the first subscriber
+        Result := FindFirstLineOnErrorMessagePage(ErrorMessageHandler[1]);
+        // [THEN] Page "Error Messages" is open
+        Assert.IsTrue(Result, 'page is not open');
+
+        // [WHEN] ShowErrors of the second subscriber
+        asserterror FindFirstLineOnErrorMessagePage(ErrorMessageHandler[2]);
+        // [THEN] Page "Error Messages" is not open
+        Assert.ExpectedError(TestPageIsNotOpenErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T004_TestOfficialSubscribers()
+    var
+        ErrorMessageHandler: array[4] of Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+    begin
+        // [SCENARIO] The first activation enabled handling, all others activations and subscriptions are ignored.
+        Initialize;
+        // [WHEN] Subscribe 1st directly: subscribers - 1, isActive - FALSE
+        BindSubscription(ErrorMessageHandler[1]);
+        VerifyCountOfActiveSubscribers(1);
+        Assert.IsFalse(ErrorMessageMgt.IsActive, 'after first one');
+
+        // [WHEN] Subscribe 2nd officially: subscribers - 2, isActive - TRUE
+        ErrorMessageMgt.Activate(ErrorMessageHandler[2]);
+        VerifyCountOfActiveSubscribers(2);
+        Assert.IsTrue(ErrorMessageMgt.IsActive, 'after second one');
+
+        // [WHEN] Subscribe 3rd directly: subscribers - 3, isActive - TRUE
+        BindSubscription(ErrorMessageHandler[3]);
+        VerifyCountOfActiveSubscribers(3);
+        Assert.IsTrue(ErrorMessageMgt.IsActive, 'after third one');
+
+        // [WHEN] Subscribe 4th officially: subscribers - 3, isActive - TRUE
+        ErrorMessageMgt.Activate(ErrorMessageHandler[4]);
+        VerifyCountOfActiveSubscribers(3);
+        Assert.IsTrue(ErrorMessageMgt.IsActive, 'after fourth one');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T005_SecondActivationShouldBeSkipped()
+    var
+        ErrorMessageHandler: array[2] of Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        Result: Boolean;
+    begin
+        // [SCENARIO] Second activated subscriber is not active and does not show error page.
+        Initialize;
+        // [GIVEN] Subscriber 'A' is subscribed correctly
+        ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
+        // [GIVEN] Subscriber 'B' is subscribed correctly
+        // [GIVEN] Error is logged and called 'B'.ShowErrors
+        ActivateAndShowErrors(ErrorMessageHandler[2]);
+
+        // [WHEN] Call 'A'.ShowErrors
+        Result := FindFirstLineOnErrorMessagePage(ErrorMessageHandler[1]);
+        // [THEN] Page "Error Messages" is open once
+        Assert.IsTrue(Result, 'page is not open');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T010_UnhandledErrorAfterHandledOneEnabledHandling()
+    var
+        TempActualErrorMessage: Record "Error Message" temporary;
+        TempErrorMessage: Record "Error Message" temporary;
+        PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
+    begin
+        // [SCENARIO] Unhandled error should be added to the list if happens after the collected one.
+        Initialize;
+        PushContext(TempErrorMessage, 'Global Context');
+        // [GIVEN] Unhandled error 'B' happens after one error 'A' is collected
+        PushContext(TempErrorMessage, 'Local Context');
+        AddHandledError(TempErrorMessage, StrSubstNo(HandledErr, 1));
+        PopContext(TempErrorMessage);
+        AddUnhandledError(TempErrorMessage, UnhandledErr);
+        AddFinishCall(TempErrorMessage);
+
+        // [WHEN] Run posting with enabled error handling
+        LibraryErrorMessage.TrapErrorMessages;
+        PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage);
+
+        // [THEN] Page "Error Messages" is open, where are both errors: 'A' and 'B'
+        LibraryErrorMessage.GetErrorMessages(TempActualErrorMessage);
+        Assert.RecordCount(TempActualErrorMessage, 2);
+        // [THEN] Handled error 'A', where "Additional Info" is 'Local Context'
+        TempActualErrorMessage.FindSet;
+        TempActualErrorMessage.TestField(Description, StrSubstNo(HandledErr, 1));
+        Assert.AreEqual('Local Context', TempActualErrorMessage."Additional Information", 'Additional info in the handled error');
+        // [THEN] Unhandled error 'B', where "Additional Info" is 'Global Context'
+        TempActualErrorMessage.Next;
+        TempActualErrorMessage.TestField(Description, UnhandledErr);
+        Assert.AreEqual('Global Context', TempActualErrorMessage."Additional Information", 'Additional info in the unhandled error');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T011_UnhandledErrorAfterHandledOneDisabledHanlding()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
+    begin
+        // [SCENARIO] First handled error should be thrown if handling is not enabled.
+        Initialize;
+        // [GIVEN] Unhandled error 'B' happens after one error 'A' is collected, but before error messages are shown
+        AddHandledError(TempErrorMessage, HandledErr);
+        AddUnhandledError(TempErrorMessage, UnhandledErr);
+        AddFinishCall(TempErrorMessage);
+
+        // [WHEN] Run posting with disabled error handling
+        PostingCodeunitMock.TryRun(TempErrorMessage);
+
+        // [THEN] Error 'A' is thrown; Page "Error Messages" is not open.
+        Assert.AreEqual(HandledErr, GetLastErrorText, 'unexpected last error text');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T015_HistoricalErrorShouldBeClearedOnFirstActivation()
+    var
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Historical error happened before activation should not be collected
+        Initialize;
+        // [GIVEN] A historical error 'XX'
+        ClearLastError;
+        asserterror Error(HandledErr);
+        Assert.AreEqual(HandledErr, GetLastErrorText, 'GETLASTERRORTEXT is empty');
+
+        // [WHEN] Subscriber 'A' is subscribed
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+
+        // [THEN] GETLASTERRORTEXT is <blank>
+        Assert.AreEqual('', GetLastErrorText, 'GETLASTERRORTEXT must be empty after activation');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T016_HistoricalErrorBetweenActivationsShouldNotBeClearedBySecondActivation()
+    var
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: array[2] of Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Historical error should not be cleared by second activation
+        Initialize;
+
+        // [GIVEN] Subscriber 'A' is subscribed
+        ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
+        // [GIVEN] A historical error 'XX'
+        ClearLastError;
+        asserterror Error(HandledErr);
+        Assert.AreEqual(HandledErr, GetLastErrorText, 'GETLASTERRORTEXT is empty');
+
+        // [WHEN] Subscriber 'B' is subscribed
+        ErrorMessageMgt.Activate(ErrorMessageHandler[2]);
+
+        // [THEN] GETLASTERRORTEXT is 'XX'
+        Assert.AreEqual(HandledErr, GetLastErrorText, 'GETLASTERRORTEXT must be not empty after second activation');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T020_RolbackErrorNotCollectedByAppendTo()
+    var
+        TempActualErrorMessage: Record "Error Message" temporary;
+        TempErrorMessage: Record "Error Message" temporary;
+        PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+    begin
+        // [SCENARIO] Rollback error should not be added to the error list if errors exist.
+        Initialize;
+
+        // [GIVEN] Expected one error to be logged
+        AddHandledError(TempErrorMessage, HandledErr);
+        AddFinishCall(TempErrorMessage);
+
+        // [GIVEN] Run posting with enabled error handling
+        LibraryErrorMessage.TrapErrorMessages;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        PostingCodeunitMock.TryRun(TempErrorMessage);
+
+        // [WHEN] Collect errors by AppendTo
+        ErrorMessageHandler.AppendTo(TempActualErrorMessage);
+
+        // [THEN] One error in the list
+        Assert.RecordCount(TempActualErrorMessage, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T021_AloneRolbackErrorNotCollectedByAppendTo()
+    var
+        TempActualErrorMessage: Record "Error Message" temporary;
+        TempErrorMessage: Record "Error Message" temporary;
+        PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+    begin
+        // [SCENARIO] Unhandled error should not be collected by AppendTo() if errors do not exist.
+        Initialize;
+
+        // [GIVEN] Expected no error to be logged
+        AddFinishCall(TempErrorMessage);
+
+        // [GIVEN] Run posting with enabled error handling
+        LibraryErrorMessage.TrapErrorMessages;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        PostingCodeunitMock.TryRun(TempErrorMessage);
+
+        // [WHEN] Collect errors by AppendTo
+        ErrorMessageHandler.AppendTo(TempActualErrorMessage);
+
+        // [THEN] Zero errors in the list
+        Assert.RecordCount(TempActualErrorMessage, 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T022_UnhandledErrorAfterHandledCollectedByAppendTo()
+    var
+        TempActualErrorMessage: Record "Error Message" temporary;
+        TempErrorMessage: Record "Error Message" temporary;
+        PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+    begin
+        // [SCENARIO] Unhandled error should be collected by AppendTo() if errors exist.
+        Initialize;
+
+        // [GIVEN] Expected unhandled error after a handled one during execution
+        AddHandledError(TempErrorMessage, HandledErr);
+        AddUnhandledError(TempErrorMessage, UnhandledErr);
+
+        // [GIVEN] Run posting with enabled error handling
+        LibraryErrorMessage.TrapErrorMessages;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        PostingCodeunitMock.TryRun(TempErrorMessage);
+
+        // [WHEN] Collect errors by AppendTo
+        ErrorMessageHandler.AppendTo(TempActualErrorMessage);
+
+        // [THEN] Two errors in the list
+        Assert.RecordCount(TempActualErrorMessage, 2);
+        TempActualErrorMessage.TestField(Description, UnhandledErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T023_AloneUnhandledErrorNotCollectedByAppendTo()
+    var
+        TempActualErrorMessage: Record "Error Message" temporary;
+        TempErrorMessage: Record "Error Message" temporary;
+        PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+    begin
+        // [SCENARIO] Rollback error should not be added to the error list if errors do not exist.
+        Initialize;
+
+        // [GIVEN] Expected unhandled error during execution
+        AddUnhandledError(TempErrorMessage, UnhandledErr);
+
+        // [GIVEN] Run posting with enabled error handling
+        LibraryErrorMessage.TrapErrorMessages;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        PostingCodeunitMock.TryRun(TempErrorMessage);
+
+        // [WHEN] Collect errors by AppendTo
+        ErrorMessageHandler.AppendTo(TempActualErrorMessage);
+
+        // [THEN] Zero errors in the list
+        Assert.RecordCount(TempActualErrorMessage, 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T030_FinishDoesNotAffectContext()
+    var
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+    begin
+        // [SCENARIO] Finish method pops context.
+        Initialize;
+
+        // [WHEN] PushContext on inactive handling
+        // [THEN] Context is not pushed
+        Assert.AreEqual(0, ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, '1'), 'Push#1 on inactive handling.');
+
+        // [WHEN] PushContext on active handling
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        // [THEN] One context level is added
+        Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, '2'), 'Push#2');
+
+        // [WHEN] Finish, while no errors logged
+        ErrorMessageMgt.Finish(4);
+        // [THEN] Context is popped
+        Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, '3'), 'Push#3');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T031_NestedContexts()
+    var
+        ErrorContextElement: array[3] of Codeunit "Error Context Element";
+        ErrorMessageHandler: array[3] of Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessagesPage: TestPage "Error Messages";
+    begin
+        // [SCENARIO] Error happened in the nested Activate-Finish module goes to the outer handler with local context
+        Initialize;
+
+        // [GIVEN] Initial activation with context '1'
+        ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
+        Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement[1], 4, 0, '1'), 'Push#1');
+
+        // [GIVEN] Nested (skipped) activation with context '2'
+        ErrorMessageMgt.Activate(ErrorMessageHandler[2]);
+        Assert.AreEqual(2, ErrorMessageMgt.PushContext(ErrorContextElement[2], 4, 0, '2'), 'Push#2');
+
+        // [GIVEN] Nested (skipped) activation with context '3'
+        ErrorMessageMgt.Activate(ErrorMessageHandler[3]);
+        Assert.AreEqual(3, ErrorMessageMgt.PushContext(ErrorContextElement[3], 4, 0, '3'), 'Push#3');
+        // [GIVEN] Error 'X' with context '3'
+        ErrorMessageMgt.LogError(0, 'Error3', '');
+
+        // [WHEN] Nested Finish
+        asserterror ErrorMessageMgt.Finish(4);
+        Assert.ExpectedError('');
+
+        // [THEN] "Error Messages" page shows error 'X' with context '3'
+        ErrorMessagesPage.Trap;
+        ErrorMessageHandler[1].ShowErrors;
+        ErrorMessagesPage.Description.AssertEquals('Error3');
+        ErrorMessagesPage."Additional Information".AssertEquals('3');
+        ErrorMessagesPage.Close;
+        // [THEN] Handlers 2, 3 collected no errors
+        ErrorMessageHandler[2].ShowErrors;
+        ErrorMessageHandler[3].ShowErrors;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T032_ContextsInBatch()
+    var
+        SalesInvoiceHeader: array[3] of Record "Sales Invoice Header";
+        ErrorContextElement: array[2] of Codeunit "Error Context Element";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessagesPage: TestPage "Error Messages";
+    begin
+        // [SCENARIO] Error logged in the first context is not shown for next contexts
+        Initialize;
+        // [GIVEN] Sales Invoice Header 'A' and 'B'
+        SalesInvoiceHeader[1]."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader[1].Insert;
+        SalesInvoiceHeader[2]."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader[2].Insert;
+        Clear(SalesInvoiceHeader[3]);
+
+        // [GIVEN] Initial activation with context 'blank SalesInvoiceHeader' (batch header)
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement[1], SalesInvoiceHeader[3].RecordId, 0, '1'), 'Push#1');
+
+        // [GIVEN] push context Sales Invoice Header 'A', Info is '2' (document #1 posting)
+        Assert.AreEqual(2, PushLocalContext(SalesInvoiceHeader[1].RecordId, '2', ''), 'Push#2');
+
+        // [GIVEN] push context Sales Invoice Header 'A', Info is '3' (document #1 validation)
+        // [GIVEN] Error 'X' with context '3'
+        Assert.AreEqual(2, PushLocalContext(SalesInvoiceHeader[1].RecordId, '3', 'Error3'), 'Push#3');
+
+        // [GIVEN] Finish #1 fails
+        asserterror ErrorMessageMgt.Finish(SalesInvoiceHeader[1].RecordId);
+        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped, 'Is Transaction #1 not Stopped');
+
+        // [GIVEN] push context '4' (document #2 posting)
+        Assert.AreEqual(2, ErrorMessageMgt.PushContext(ErrorContextElement[2], SalesInvoiceHeader[2].RecordId, 0, '4'), 'Push#4');
+
+        // [WHEN] Finish #2 does not fail
+        ErrorMessageMgt.Finish(SalesInvoiceHeader[2].RecordId);
+
+        // [THEN] "Error Messages" page shows error 'X' with Sales Invoice Header 'A', Info is '3'
+        ErrorMessagesPage.Trap;
+        ErrorMessageHandler.ShowErrors;
+        ErrorMessagesPage.Context.AssertEquals(Format(SalesInvoiceHeader[1].RecordId));
+        ErrorMessagesPage.Description.AssertEquals('Error3');
+        ErrorMessagesPage."Additional Information".AssertEquals('3');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T040_FinishStopsTransaction()
+    var
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] IsTransactionStopped is Yes if the last error was COD28.StopTransaction()
+        Initialize;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, 'Context');
+        ErrorMessageMgt.LogError(4, 'Error', '');
+        asserterror ErrorMessageMgt.Finish(4);
+        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T041_FinishMustMatchLoggedContext()
+    var
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Finish does not stop transaction if context does not match the logged error.
+        Initialize;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, 'Context');
+        ErrorMessageMgt.LogError(4, 'Error', '');
+        ErrorMessageMgt.Finish(15);
+        Assert.IsFalse(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T042_FinishSkipsLoggedWarnings()
+    var
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Finish does not stop transaction on a logged warning.
+        Initialize;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        ErrorMessageMgt.PushContext(ErrorContextElement, 15, 0, 'Context');
+        ErrorMessageMgt.LogWarning(0, 'Warning', 15, 0, '');
+        ErrorMessageMgt.Finish(15);
+        Assert.IsFalse(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T043_FinishIgnoresErrorsLoggedBeforeCurrContext()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorContextElement: array[3] of Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Finish includes errors logged after the original context with other context.
+        Initialize;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        ErrorMessageMgt.PushContext(ErrorContextElement[1], 4, 0, '4');
+        ErrorMessageMgt.LogError(4, 'Error4', '');
+        ErrorMessageMgt.PushContext(ErrorContextElement[2], 15, 0, '15');
+        ErrorMessageMgt.PushContext(ErrorContextElement[3], 17, 0, '17');
+        ErrorMessageMgt.LogError(17, 'Error17', '');
+        asserterror ErrorMessageMgt.Finish(15);
+        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
+        ErrorMessageMgt.GetErrorsInContext(15, TempErrorMessage);
+        Assert.RecordCount(TempErrorMessage, 1);
+        TempErrorMessage.TestField(Description, 'Error17');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T044_FinishCollectsAllErrorsLoggedUnderParentContext()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorContextElement: array[3] of Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Finish includes errors logged after the original context with other context.
+        Initialize;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        ErrorMessageMgt.PushContext(ErrorContextElement[1], 4, 0, '4');
+        ErrorMessageMgt.LogWarning(0, 'Warning4', 4, 0, '');
+        ErrorMessageMgt.PushContext(ErrorContextElement[2], 15, 0, '15');
+        ErrorMessageMgt.LogWarning(0, 'Warning15', 15, 0, '');
+        ErrorMessageMgt.PushContext(ErrorContextElement[3], 17, 0, '17');
+        ErrorMessageMgt.LogError(17, 'Error17', '');
+        asserterror ErrorMessageMgt.Finish(4);
+        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
+        ErrorMessageMgt.GetErrorsInContext(4, TempErrorMessage);
+        Assert.RecordCount(TempErrorMessage, 1);
+        TempErrorMessage.TestField(Description, 'Error17');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T045_FinishCollectsAllErrorsLoggedUnderFirstContextUsage()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorContextElement: array[4] of Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Finish includes errors logged after the first usage of the original context
+        Initialize;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        ErrorMessageMgt.PushContext(ErrorContextElement[1], 4, 0, '4');
+        ErrorMessageMgt.LogError(4, 'Error4', ''); // this error should be ignored by Finish(17)
+        ErrorMessageMgt.PushContext(ErrorContextElement[2], 17, 0, '17#1');
+        ErrorMessageMgt.LogError(17, 'Error17#1', '');
+        ErrorMessageMgt.PushContext(ErrorContextElement[3], 15, 0, '15');
+        ErrorMessageMgt.LogError(15, 'Error15', '');
+        ErrorMessageMgt.PushContext(ErrorContextElement[4], 17, 0, '17#2');
+        ErrorMessageMgt.LogError(17, 'Error17#2', '');
+        asserterror ErrorMessageMgt.Finish(17);
+        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
+        ErrorMessageMgt.GetErrorsInContext(17, TempErrorMessage);
+        Assert.RecordCount(TempErrorMessage, 3);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T046_GetErrorsInBlankContextReturnsAllErrorMessages()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorContextElement: array[4] of Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] GetErrorsInContext with blank context returns all logged 'Error' messages
+        Initialize;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        ErrorMessageMgt.PushContext(ErrorContextElement[1], 4, 0, '4');
+        ErrorMessageMgt.LogError(4, 'Error4', '');
+        ErrorMessageMgt.PushContext(ErrorContextElement[2], 17, 0, '17#1');
+        ErrorMessageMgt.LogError(17, 'Error17#1', '');
+        ErrorMessageMgt.PushContext(ErrorContextElement[3], 15, 0, '15');
+        ErrorMessageMgt.LogWarning(0, 'Warning15', 15, 0, '');
+        ErrorMessageMgt.PushContext(ErrorContextElement[4], 17, 0, '17#2');
+        ErrorMessageMgt.LogError(17, 'Error17#2', '');
+        ErrorMessageMgt.GetErrorsInContext(0, TempErrorMessage);
+        Assert.RecordCount(TempErrorMessage, 3);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T050_EmptyAdditionalInformationFilledFromStack()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] If the error logged without additional information it is filled from top of call stack
+        Initialize;
+        Commit;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        if not CODEUNIT.Run(CODEUNIT::TestCodeunitRunError) then
+            ErrorMessageMgt.LogError(0, GetLastErrorText, '');
+        Assert.IsTrue(ErrorMessageMgt.GetErrors(TempErrorMessage), 'GetErrors');
+        TempErrorMessage.FindFirst;
+        Assert.ExpectedMessage('(CodeUnit 132441).OnRun(Trigger)', TempErrorMessage."Additional Information");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T060_PushContextNonActive()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+    begin
+        // [FEATURE] [Context] [UT]
+        Initialize;
+        Assert.AreEqual(0, ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, ''), 'PushContext without active error handler');
+        Assert.IsFalse(ErrorMessageMgt.GetTopContext(TempErrorMessage), 'GetTopContext');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T061_PushErrorContextElement()
+    var
+        Currency: Record Currency;
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [Context] [UT]
+        Initialize;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, 4, 1, 'PushContext#1'), 'PushContext#1');
+        Assert.IsTrue(ErrorMessageMgt.GetTopContext(TempErrorMessage), 'GetTopContext');
+        TempErrorMessage.TestField("Additional Information", 'PushContext#1');
+        TempErrorMessage.TestField(ID, 1);
+        TempErrorMessage.TestField("Context Record ID", Currency.RecordId);
+        TempErrorMessage.TestField("Context Field Number", 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T062_PushErrorContextElementTwice()
+    var
+        Currency: Record Currency;
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [Context] [UT]
+        Initialize;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, 3, 1, 'PushContext#1'), 'PushContext#1');
+        Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, 4, 2, 'PushContext#2'), 'PushContext#2');
+
+        Assert.IsTrue(ErrorMessageMgt.GetTopContext(TempErrorMessage), 'GetTopContext');
+        TempErrorMessage.TestField("Additional Information", 'PushContext#2');
+        TempErrorMessage.TestField(ID, 1);
+        TempErrorMessage.TestField("Context Record ID", Currency.RecordId);
+        TempErrorMessage.TestField("Context Field Number", 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T063_PushLocalErrorContextElements()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [Context] [UT]
+        Initialize;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, 'PushContext#1'), 'PushContext#1');
+        Assert.AreEqual(2, PushLocalContext(4, 'LocalContext#1', ''), 'PushLocalContext#1');
+        Assert.AreEqual(2, PushLocalContext(4, 'LocalContext#2', ''), 'PushLocalContext#2');
+        Assert.IsTrue(ErrorMessageMgt.GetTopContext(TempErrorMessage), 'GetTopContext');
+        TempErrorMessage.TestField("Additional Information", 'PushContext#1');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T064_PushTwoErrorContextElements()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorContextElement: array[2] of Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [Context] [UT]
+        Initialize;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement[1], 4, 0, 'PushContext#1'), 'PushContext#1');
+        Assert.AreEqual(2, PushLocalContext(4, 'LocalContext#1', ''), 'PushLocalContext#1');
+        Assert.AreEqual(2, ErrorMessageMgt.PushContext(ErrorContextElement[2], 15, 0, 'PushContext#2'), 'PushContext#2');
+        Assert.AreEqual(3, PushLocalContext(4, 'LocalContext#2', ''), 'PushLocalContext#2');
+        Assert.IsTrue(ErrorMessageMgt.GetTopContext(TempErrorMessage), 'GetTopContext');
+        TempErrorMessage.TestField("Additional Information", 'PushContext#2');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T065_PushBlankErrorContextElement()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        BlankRecID: RecordID;
+    begin
+        // [FEATURE] [Context] [UT]
+        Initialize;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, 0, 0, 'PushContext#1'), 'PushContext#1');
+
+        Assert.IsTrue(ErrorMessageMgt.GetTopContext(TempErrorMessage), 'GetTopContext');
+        TempErrorMessage.TestField("Additional Information", 'PushContext#1');
+        TempErrorMessage.TestField(ID, 1);
+        Clear(BlankRecID);
+        TempErrorMessage.TestField("Context Record ID", BlankRecID);
+        TempErrorMessage.TestField("Context Field Number", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T066_PushNotExistingTableErrorContextElement()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        BlankRecID: RecordID;
+        TableNo: Integer;
+    begin
+        // [FEATURE] [Context] [UT]
+        Initialize;
+        TableNo := GetNotExistingTableNo;
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, TableNo, 0, 'PushContext#1'), 'PushContext#1');
+
+        Assert.IsTrue(ErrorMessageMgt.GetTopContext(TempErrorMessage), 'GetTopContext');
+        TempErrorMessage.TestField("Additional Information", 'PushContext#1');
+        TempErrorMessage.TestField(ID, 1);
+        Clear(BlankRecID);
+        TempErrorMessage.TestField("Context Record ID", BlankRecID);
+        TempErrorMessage.TestField("Context Field Number", 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ErrorMessagesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure T100_ErrorMessageRegisterPage()
+    var
+        ErrorMessage: Record "Error Message";
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageRegister: Record "Error Message Register";
+        ErrorMessageRegisterPage: TestPage "Error Message Register";
+    begin
+        // [FEATURE] [Register] [UI]
+        Initialize;
+        // [GIVEN] Error Message Register, where "Description" is 'A', "Created On" is '01.10.19 13:23', "User ID" is 'X'
+        ErrorMessageRegister.ID := CreateGuid;
+        ErrorMessageRegister."Created On" := CurrentDateTime;
+        ErrorMessageRegister."User ID" := UserId;
+        ErrorMessageRegister.Description := LibraryUtility.GenerateGUID;
+        ErrorMessageRegister.Insert;
+        // [GIVEN] 1 Error Message, where "Message Type" is 'Error'
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '1');
+        // [GIVEN] 2 Error Messages, where "Message Type" is 'Warning'
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '2');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '3');
+        // [GIVEN] 3 Error Messages, where "Message Type" is 'Information'
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '4');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '5');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '6');
+        // [GIVEN] 1 Error Message related to another register
+        LogSimpleMessage(TempErrorMessage, CreateGuid, ErrorMessage."Message Type"::Error, 'X');
+        TempErrorMessage.Reset;
+        ErrorMessage.CopyFromTemp(TempErrorMessage);
+
+        // [WHEN] Open Error Message Register page
+        ErrorMessageRegisterPage.OpenView;
+
+        // [THEN] One record in the page, where "Description" is 'A', "Created On" is '01.10.19 13:23', "User ID" is 'X',
+        ErrorMessageRegisterPage.Description.AssertEquals(ErrorMessageRegister.Description);
+        ErrorMessageRegisterPage."User ID".AssertEquals(ErrorMessageRegister."User ID");
+        ErrorMessageRegisterPage."Created On".AssertEquals(ErrorMessageRegister."Created On");
+        // [THEN] "Errors" is 1, "Warnings" is 2, "Information" is 3
+        ErrorMessageRegisterPage.Errors.AssertEquals('1');
+        ErrorMessageRegisterPage.Warnings.AssertEquals('2');
+        ErrorMessageRegisterPage.Information.AssertEquals('3');
+
+        // [WHEN] run action Show
+        ErrorMessageRegisterPage.Show.Invoke;
+
+        // [THEN] open Error Messages modal page, where are 3 records
+        Assert.AreEqual(6, LibraryVariableStorage.DequeueInteger, 'wrong number of records');
+        Assert.AreEqual('6', LibraryVariableStorage.DequeueText, 'wron Description in the last record');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ErrorMessagesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure T110_RegisterDrillDownErrors()
+    var
+        ErrorMessage: Record "Error Message";
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageRegister: Record "Error Message Register";
+        ErrorMessageRegisterPage: TestPage "Error Message Register";
+    begin
+        // [FEATURE] [Register] [UI]
+        Initialize;
+        // [GIVEN] Error Message Register
+        ErrorMessageRegister.ID := CreateGuid;
+        ErrorMessageRegister.Insert;
+        // [GIVEN] 3 Error Messages, where "Message Type" is 'Error'
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '1');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '2');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '3');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '4');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '5');
+        // [GIVEN] 1 'Error' Error Message related to another register
+        LogSimpleMessage(TempErrorMessage, CreateGuid, ErrorMessage."Message Type"::Error, 'X');
+        TempErrorMessage.Reset;
+        ErrorMessage.CopyFromTemp(TempErrorMessage);
+
+        // [WHEN] DrillDown on "Errors" in Error Message Register page
+        ErrorMessageRegisterPage.OpenView;
+        ErrorMessageRegisterPage.Errors.AssertEquals('3');
+        ErrorMessageRegisterPage.Errors.Drilldown();
+
+        // [THEN] open Error Messages modal page, where are 3 records with "Message Type" 'Error'
+        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger, 'wrong number of records');
+        Assert.AreEqual('4', LibraryVariableStorage.DequeueText, 'wron Description in the last record');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ErrorMessagesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure T111_RegisterDrillDownWarnings()
+    var
+        ErrorMessage: Record "Error Message";
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageRegister: Record "Error Message Register";
+        ErrorMessageRegisterPage: TestPage "Error Message Register";
+    begin
+        // [FEATURE] [Register] [UI]
+        Initialize;
+        // [GIVEN] Error Message Register
+        ErrorMessageRegister.ID := CreateGuid;
+        ErrorMessageRegister.Insert;
+        // [GIVEN] 3 Error Messages, where "Message Type" is 'Warning'
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '1');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '2');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '3');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '4');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '5');
+        // [GIVEN] 1 'Warning' Error Message related to another register
+        LogSimpleMessage(TempErrorMessage, CreateGuid, ErrorMessage."Message Type"::Warning, 'X');
+        TempErrorMessage.Reset;
+        ErrorMessage.CopyFromTemp(TempErrorMessage);
+
+        // [WHEN] DrillDown on "Errors" in Error Message Register page
+        ErrorMessageRegisterPage.OpenView;
+        ErrorMessageRegisterPage.Warnings.AssertEquals('3');
+        ErrorMessageRegisterPage.Warnings.Drilldown();
+
+        // [THEN] open Error Messages modal page, where are 3 records with "Message Type" 'Warning'
+        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger, 'wrong number of records');
+        Assert.AreEqual('4', LibraryVariableStorage.DequeueText, 'wron Description in the last record');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ErrorMessagesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure T112_RegisterDrillDownInformation()
+    var
+        ErrorMessage: Record "Error Message";
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageRegister: Record "Error Message Register";
+        ErrorMessageRegisterPage: TestPage "Error Message Register";
+    begin
+        // [FEATURE] [Register] [UI]
+        Initialize;
+        // [GIVEN] Error Message Register
+        ErrorMessageRegister.ID := CreateGuid;
+        ErrorMessageRegister.Insert;
+        // [GIVEN] 3 Error Messages, where "Message Type" is 'Information'
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '1');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '2');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '3');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '4');
+        LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '5');
+        // [GIVEN] 1 'Information' Error Message related to another register
+        LogSimpleMessage(TempErrorMessage, CreateGuid, ErrorMessage."Message Type"::Information, 'X');
+        TempErrorMessage.Reset;
+        ErrorMessage.CopyFromTemp(TempErrorMessage);
+
+        // [WHEN] DrillDown on "Errors" in Error Message Register page
+        ErrorMessageRegisterPage.OpenView;
+        ErrorMessageRegisterPage.Information.AssertEquals('3');
+        ErrorMessageRegisterPage.Information.Drilldown();
+
+        // [THEN] open Error Messages modal page, where are 3 records with "Message Type" 'Information'
+        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger, 'wrong number of records');
+        Assert.AreEqual('4', LibraryVariableStorage.DequeueText, 'wron Description in the last record');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T120_RegisterNew()
+    var
+        ErrorMessageRegister: Record "Error Message Register";
+        Description: Text[250];
+    begin
+        // [FEATURE] [Register] [UT]
+        Initialize;
+        Description := LibraryUtility.GenerateGUID;
+        ErrorMessageRegister.New(Description);
+        // [THEN] Register is inserted, "ID" is filled automatically, "User ID" and "Created On" are filled with current values.
+        ErrorMessageRegister.Find;
+        ErrorMessageRegister.TestField(ID);
+        ErrorMessageRegister.TestField(Description, Description);
+        Assert.AreNearlyEqual(0, CurrentDateTime - ErrorMessageRegister."Created On", 1000, 'Created On');
+        ErrorMessageRegister.TestField("User ID", UserId);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T121_RegisterDelete()
+    var
+        ErrorMessage: Record "Error Message";
+        ErrorMessageRegister: Record "Error Message Register";
+        RegisterID: Guid;
+    begin
+        // [FEATURE] [Register] [UT]
+        Initialize;
+        // [GIVEN] Error message for register 'A'
+        RegisterID := CreateGuid;
+        ErrorMessage."Register ID" := RegisterID;
+        ErrorMessage.ID := 0;
+        ErrorMessage.Insert(true);
+
+        // [GIVEN] Error message for register 'B'
+        ErrorMessageRegister.New('');
+        ErrorMessage."Register ID" := ErrorMessageRegister.ID;
+        ErrorMessage.ID := 0;
+        ErrorMessage.Insert(true);
+
+        // [WHEN] Delete error register 'B'
+        ErrorMessageRegister.Delete(true);
+
+        // [THEN] Exists message for register 'A'
+        ErrorMessage.SetRange("Register ID", RegisterID);
+        Assert.RecordIsNotEmpty(ErrorMessage);
+        // [THEN] Deleted message for register 'B'
+        ErrorMessage.SetRange("Register ID", ErrorMessageRegister.ID);
+        Assert.RecordIsEmpty(ErrorMessage);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T130_UnhandledErrorGetsRegistered()
+    var
+        ErrorMessage: Record "Error Message";
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageRegister: Record "Error Message Register";
+        PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
+        ErrorMessagesPage: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Register] [UT]
+        Initialize;
+        // [GIVEN] Unhandled error 'B' happens after error 'A' are collected
+        AddHandledError(TempErrorMessage, StrSubstNo(HandledErr, 2));
+        AddUnhandledError(TempErrorMessage, UnhandledErr);
+        AddFinishCall(TempErrorMessage);
+        // [WHEN] Run posting with enabled error handling
+        ErrorMessagesPage.Trap;
+        PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage);
+        // [THEN] Error Messages list page open
+        ErrorMessagesPage.Close;
+        // [THEN] Error Register contains 2 'Error' records: 'A' and 'B'.
+        ErrorMessageRegister.FindFirst;
+        ErrorMessageRegister.CalcFields(Errors, Warnings);
+        ErrorMessageRegister.TestField(Errors, 2);
+        ErrorMessage.SetRange("Register ID", ErrorMessageRegister.ID);
+        Assert.IsTrue(ErrorMessage.Find('-'), '1st error not found');
+        ErrorMessage.TestField(Description, StrSubstNo(HandledErr, 2));
+        Assert.IsTrue(ErrorMessage.Next <> 0, '2nd error not found');
+        ErrorMessage.TestField(Description, UnhandledErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T131_SecondRegisterInsertedOnError()
+    var
+        ErrorMessage: Record "Error Message";
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageRegister: Record "Error Message Register";
+        PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
+        ErrorMessagesPage: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Register] [UT]
+        Initialize;
+        // [GIVEN] Unhandled error 'B' happens after error 'A' are collected
+        AddHandledError(TempErrorMessage, StrSubstNo(HandledErr, 2));
+        AddUnhandledError(TempErrorMessage, UnhandledErr);
+        AddFinishCall(TempErrorMessage);
+        // [WHEN] Run posting with enabled error handling twice
+        ErrorMessagesPage.Trap;
+        PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage);
+        ErrorMessagesPage.Close;
+        ErrorMessagesPage.Trap;
+        PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage);
+        ErrorMessagesPage.Close;
+        // [THEN] 2 Error Registers each contains 2 'Error' records: 'A' and 'B'.
+        Assert.IsTrue(ErrorMessageRegister.Find('-'), '1st register not found');
+        ErrorMessage.SetRange("Register ID", ErrorMessageRegister.ID);
+        Assert.RecordCount(ErrorMessage, 2);
+        Assert.IsTrue(ErrorMessageRegister.Next <> 0, '2nd register not found');
+        ErrorMessage.SetRange("Register ID", ErrorMessageRegister.ID);
+        Assert.IsTrue(ErrorMessage.Find('-'), '1st error not found');
+        ErrorMessage.TestField(Description, StrSubstNo(HandledErr, 2));
+        Assert.IsTrue(ErrorMessage.Next <> 0, '2nd error not found');
+        ErrorMessage.TestField(Description, UnhandledErr);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure T990_ForwardLinkPageNameIsNotEditable()
+    var
+        NamedForwardLink: Record "Named Forward Link";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
+        ForwardLinks: TestPage "Forward Links";
+    begin
+        // [FEATURE] [UI] [Forward Link]
+        Initialize;
+
+        NamedForwardLink.DeleteAll;
+        NamedForwardLink.Init;
+        NamedForwardLink.Name := ForwardLinkMgt.GetHelpCodeForAllowedPostingDate;
+        NamedForwardLink.Description := NamedForwardLink.Name;
+        NamedForwardLink.Link := 'https://docs.microsoft.com/en-us/dynamics365/business-central/finance-how-specify-posting-periods';
+        NamedForwardLink.Insert;
+
+        ForwardLinks.OpenEdit;
+
+        Assert.IsFalse(ForwardLinks.Name.Editable, 'Name should not be editable');
+        Assert.IsTrue(ForwardLinks.Description.Editable, 'Description should be editable');
+        Assert.IsTrue(ForwardLinks.Link.Editable, 'Link should be editable');
+        asserterror ForwardLinks.New;
+        Assert.ExpectedError('Insert is not allowed. Page = Edit - Forward Links, Id = 1431.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T991_ForwardLinkPageLoadData()
+    var
+        NamedForwardLink: Record "Named Forward Link";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
+        ForwardLinks: TestPage "Forward Links";
+    begin
+        // [FEATURE] [UI] [Forward Link]
+        Initialize;
+        // [GIVEN] No Forward Links
+        NamedForwardLink.DeleteAll;
+
+        // [WHEN] Run action "Load" on the page
+        ForwardLinks.OpenView;
+        ForwardLinks.Load.Invoke;
+
+        // [THEN] 4 records added
+        Assert.RecordCount(NamedForwardLink, 4);
+        // [THEN] 'Allowed Posting Date', 'Working with dims', 'Blocked Item', 'Blocked Customer' links exist
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForAllowedPostingDate);
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForWorkingWithDimensions);
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForBlockedCustomer);
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForBlockedItem);
+
+        // [THEN] none of fields (Name, Description, Link) are blank.
+        NamedForwardLink.FilterGroup(-1);
+        NamedForwardLink.SetRange(Name, '');
+        NamedForwardLink.SetRange(Description, '');
+        NamedForwardLink.SetRange(Link, '');
+        Assert.RecordIsEmpty(NamedForwardLink);
+
+    end;
+
+    local procedure Initialize()
+    var
+        ErrorMessageRegister: Record "Error Message Register";
+    begin
+        ClearLastError;
+        LibraryApplicationArea.EnableFoundationSetup;
+        ErrorMessageRegister.DeleteAll(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ActivateAndShowErrors(var ErrorMessageHandler: Codeunit "Error Message Handler")
+    var
+        ErrorMessageMgt: Codeunit "Error Message Management";
+    begin
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        ErrorMessageMgt.LogError(700, 'ErrorB', '');
+        ErrorMessageHandler.ShowErrors;
+    end;
+
+    local procedure AddFinishCall(var TempErrorMessage: Record "Error Message" temporary)
+    begin
+        TempErrorMessage.LogMessage(700, 0, TempErrorMessage."Message Type"::Information, '');
+    end;
+
+    local procedure AddHandledError(var TempErrorMessage: Record "Error Message" temporary; ErrorMessage: Text[250])
+    begin
+        TempErrorMessage.LogMessage(700, 0, TempErrorMessage."Message Type"::Warning, ErrorMessage);
+    end;
+
+    local procedure AddUnhandledError(var TempErrorMessage: Record "Error Message" temporary; ErrorMessage: Text[250])
+    begin
+        TempErrorMessage.LogMessage(700, 0, TempErrorMessage."Message Type"::Error, ErrorMessage);
+    end;
+
+    local procedure FindFirstLineOnErrorMessagePage(var ErrorMessageHandler: Codeunit "Error Message Handler"): Boolean
+    var
+        ErrorMessagesPage: TestPage "Error Messages";
+    begin
+        LibraryErrorMessage.TrapErrorMessages;
+        ErrorMessageHandler.ShowErrors;
+        LibraryErrorMessage.GetTestPage(ErrorMessagesPage);
+        exit(ErrorMessagesPage.First);
+    end;
+
+    local procedure GetNotExistingTableNo() TableNo: Integer
+    var
+        AllObjWithCaption: Record AllObjWithCaption;
+    begin
+        repeat
+            TableNo += 1;
+        until not AllObjWithCaption.Get(AllObjWithCaption."Object Type", TableNo);
+    end;
+
+    local procedure LogSimpleMessage(var TempErrorMessage: Record "Error Message" temporary; RegID: guid; MessageType: Option; Descr: text)
+    begin
+        TempErrorMessage.LogSimpleMessage(MessageType, Descr);
+        TempErrorMessage."Register ID" := RegID;
+        TempErrorMessage.Modify();
+    end;
+
+    local procedure PostWithHandledError(ErrorMessage: Text[250]): Boolean
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
+    begin
+        AddHandledError(TempErrorMessage, ErrorMessage);
+        exit(PostingCodeunitMock.TryRun(TempErrorMessage));
+    end;
+
+    local procedure PushContext(var TempErrorMessage: Record "Error Message" temporary; AdditionalInfo: Text[250])
+    var
+        Int: Integer;
+    begin
+        Int := -1;
+        TempErrorMessage.LogSimpleMessage(Int, AdditionalInfo);
+    end;
+
+    local procedure PopContext(var TempErrorMessage: Record "Error Message" temporary)
+    var
+        Int: Integer;
+    begin
+        Int := -3;
+        TempErrorMessage.LogSimpleMessage(Int, '');
+    end;
+
+    local procedure PushLocalContext(ContextVariant: Variant; AddInfo: Text; ErrorMsg: Text[250]) ContextID: Integer
+    var
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+    begin
+        ContextID := ErrorMessageMgt.PushContext(ErrorContextElement, ContextVariant, 0, AddInfo);
+        if ErrorMsg <> '' then
+            ErrorMessageMgt.LogError(4, ErrorMsg, '');
+    end;
+
+    local procedure VerifyCountOfActiveSubscribers(ExpectedCount: Integer)
+    var
+        EventSubscription: Record "Event Subscription";
+    begin
+        EventSubscription.Get(CODEUNIT::"Error Message Handler", 'OnLogErrorHandler');
+        EventSubscription.TestField("Active Manual Instances", ExpectedCount);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ErrorMessagesModalPageHandler(var ErrorMessagesPage: TestPage "Error Messages")
+    var
+        Counter: Integer;
+    begin
+        Counter := 0;
+        if ErrorMessagesPage.First then
+            Counter := 1;
+        while ErrorMessagesPage.Next do
+            Counter += 1;
+        LibraryVariableStorage.Enqueue(Counter);
+        LibraryVariableStorage.Enqueue(ErrorMessagesPage.Description.Value);
+    end;
+}
+

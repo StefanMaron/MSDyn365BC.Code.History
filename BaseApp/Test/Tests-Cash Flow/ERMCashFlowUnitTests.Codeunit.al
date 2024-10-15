@@ -1,0 +1,2844 @@
+codeunit 134557 "ERM Cash Flow UnitTests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Cash Flow] [Worksheet]
+        IsInitialized := false;
+    end;
+
+    var
+        CashFlowChartSetup: Record "Cash Flow Chart Setup";
+        LibraryERM: Codeunit "Library - ERM";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryCF: Codeunit "Library - Cash Flow";
+        LibraryCFHelper: Codeunit "Library - Cash Flow Helper";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        Matrix1: Label 'Matrix 1x';
+        Matrix2: Label 'Matrix 2x';
+        Matrix3: Label 'Matrix 3x';
+        Matrix4: Label 'Matrix 4x';
+        Matrix5: Label 'Matrix 5';
+        Matrix7: Label 'Matrix 7';
+        Matrix9: Label 'Matrix 9';
+        TestForEmptyDocDate: Label 'Test for empty Document Date';
+        TestForEmptyDiscDateCalc: Label 'Test For Empty Discount Date Calculation Formula';
+        IncorrectField: Label 'Incorrect %1. Expected %2 current %3.';
+        IsInitialized: Boolean;
+        PlusOneDayFormula: DateFormula;
+        MinusOneDayFormula: DateFormula;
+        PosNegErrMsg: Label 'Wrong Positive = <%1> for Amount (LCY) = <%2>.';
+        NoDefaultCFMsg: Label 'Select the "Show in Chart on Role Center" field in the Cash Flow Forecast window to display the chart on the Role Center.';
+        UnexpectedValueInField: Label 'Unexpected value in field %1.';
+        CustLedgerEntryNotFoundErr: Label 'The field Source No. of table Cash Flow Forecast Entry contains a value (%1) that cannot be found in the related table (Cust. Ledger Entry).';
+        VendLedgerEntryNotFoundErr: Label 'The field Source No. of table Cash Flow Forecast Entry contains a value (%1) that cannot be found in the related table (Vendor Ledger Entry).';
+        NothingInsideFilterTok: Label 'NothingInsideFilter';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix1a()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // 1a Yes Yes Yes Yes Order Yes Jan. 04 96,00: Cash Flow discount date and Cash Flow discount amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix1;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - yes
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - yes
+        // Source / Document type 4) - SO
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-3D>', WorkDate);
+        CFForecast.Modify;
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
+            ExpectedAmount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix1c()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // Yes Yes Yes Yes LE: Cr. Memo Yes Yes Jan. 04 -96,00: Cash Flow discount date and Cash Flow discount amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix1;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - yes
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - yes
+        // Source / Document type 4) - Cr.Memo
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-3D>', WorkDate);
+        CFForecast.Modify;
+
+        CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
+        CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedAmount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix1d()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // Yes Yes Yes Yes LE: Cr. Memo No Yes Jan. 01 -100,00 Ledger entry due date and full amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix1;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - yes
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - yes
+        // Source / Document type 4) - Cr.Memo
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        CFForecast.Modify;
+        PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := false;
+        PaymentTerms.Modify;
+        DocumentDate := CalcDate('<-3D>', WorkDate);
+        CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
+        CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedAmount := "Amount (LCY)";
+            ExpectedDate := DocumentDate;
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix2a()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // 1a Yes Yes Yes Yes Order No Jan. 04 96,00: Cash Flow discount date and Cash Flow discount amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix2;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - yes
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - yes
+        // Source / Document type 4) - SO
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFForecast.Modify;
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedAmount := "Amount (LCY)";
+            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix2c()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // Yes Yes Yes Yes LE: Cr. Memo Yes No Jan. 04 -96,00: Cash Flow discount date and Cash Flow discount amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix2;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - yes
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - yes
+        // Source / Document type 4) - Cr.Memo
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFForecast.Modify;
+
+        CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
+        CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedAmount := "Amount (LCY)";
+            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix2d()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // Yes Yes Yes Yes LE: Cr. Memo No No Jan. 01 -100,00 Ledger entry due date and full amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix2;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - yes
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - yes
+        // Source / Document type 4) - Cr.Memo
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        CFForecast.Modify;
+        PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := false;
+        PaymentTerms.Modify;
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
+        CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedAmount := "Amount (LCY)";
+            ExpectedDate := "Document Date";
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix3a()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // 1a Yes Yes Yes No Order * * Jan. 22 100,00: Cash Flow due date and full amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix3;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - yes
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - No
+        PaymentTerms.Validate("Discount %", 0);
+        PaymentTerms.Modify;
+        // Source / Document type 4) - SO
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFForecast.Modify;
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedAmount := "Amount (LCY)";
+            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix3c()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // Yes Yes Yes No LE: Cr. Memo Yes * Jan. 22 -100,00:Cash Flow due date and full amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix3;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - yes
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - No
+        PaymentTerms.Validate("Discount %", 0);
+        PaymentTerms.Modify;
+        // Source / Document type 4) - Cr.Memo
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFForecast.Modify;
+
+        CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
+        CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedAmount := "Amount (LCY)";
+            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix3d()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // Yes Yes Yes No LE: Cr. Memo No No Jan. 01 -100,00 Ledger entry due date and full amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix3;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - yes
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - No
+        PaymentTerms.Validate("Discount %", 0);
+        PaymentTerms.Modify;
+        // Source / Document type 4) - Cr.Memo
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        CFForecast.Modify;
+        PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := false;
+        PaymentTerms.Modify;
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
+        CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedAmount := "Amount (LCY)";
+            ExpectedDate := "Document Date";
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix4a()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // 4a Yes Yes No No Order * * Jan. 22 100,00: Cash Flow due date and full amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix4;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - yes
+        CFForecast."Consider Discount" := false;
+        // Cash Flow Payment Terms with Cash Discount? 2) - No
+        PaymentTerms.Validate("Discount %", 0);
+        PaymentTerms.Modify;
+        // Source / Document type 4) - SO
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFForecast.Modify;
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedAmount := "Amount (LCY)";
+            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix4c()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // Yes Yes No No LE: Cr. Memo Yes * Jan. 22 -100,00:Cash Flow due date and full amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix4;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - yes
+        CFForecast."Consider Discount" := false;
+        // Cash Flow Payment Terms with Cash Discount? 2) - No
+        PaymentTerms.Validate("Discount %", 0);
+        PaymentTerms.Modify;
+        // Source / Document type 4) - Cr.Memo
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFForecast.Modify;
+
+        CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
+        CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedAmount := "Amount (LCY)";
+            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix4d()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // Yes Yes No No LE: Cr. Memo No No Jan. 01 -100,00 Ledger entry due date and full amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix4;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - yes
+        CFForecast."Consider Discount" := false;
+        // Cash Flow Payment Terms with Cash Discount? 2) - No
+        PaymentTerms.Validate("Discount %", 0);
+        PaymentTerms.Modify;
+        // Source / Document type 4) - Cr.Memo
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        CFForecast.Modify;
+        PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := false;
+        PaymentTerms.Modify;
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
+        CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedAmount := "Amount (LCY)";
+            ExpectedDate := "Document Date";
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix5()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // 5 Yes No Yes * Yes * * Yes Jan. 22 100,00: Cash Flow due date and full amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix5;
+
+        PaymentTerms.Get(Customer."Payment Terms Code");
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - No
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - *
+        // Source / Document type 4) - SO
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-3D>', WorkDate);
+        CFForecast.Modify;
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
+            ExpectedAmount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix7()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // Yes No Yes * Yes * * Yes Jan. 22 100,00: Cash Flow due date and full amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix7;
+
+        PaymentTerms.Get(Customer."Payment Terms Code");
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - No
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - *
+        // Source / Document type 4) - SO
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFForecast.Modify;
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+            ExpectedAmount := "Amount (LCY)";
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix8_3()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // Yes No No * Yes * * Yes Jan. 22 100,00: Cash Flow due date and full amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix7;
+
+        PaymentTerms.Get(Customer."Payment Terms Code");
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - No
+        CFForecast."Consider Discount" := false;
+        // Cash Flow Payment Terms with Cash Discount? 2) - *
+        // Source / Document type 4) - SO
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-3D>', WorkDate);
+        CFForecast.Modify;
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+            ExpectedAmount := "Amount (LCY)";
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix8_5()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // Yes No No * Yes * * Yes Jan. 22 100,00: Cash Flow due date and full amount
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix7;
+
+        PaymentTerms.Get(Customer."Payment Terms Code");
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := true;
+        // Cash Flow payment terms on customer - No
+        CFForecast."Consider Discount" := false;
+        // Cash Flow Payment Terms with Cash Discount? 2) - *
+        // Source / Document type 4) - SO
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFForecast.Modify;
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+            ExpectedAmount := "Amount (LCY)";
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix9_1()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // No * Yes * Yes * Yes * * Yes Jan. 06 98,00: Discount date and default discount amount from order or LE
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix9;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        PaymentTerms.Get(Customer."Payment Terms Code");
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := false;
+        // Cash Flow payment terms on customer - **
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - *
+        // Source / Document type 4) - SO
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-3D>', WorkDate);
+        CFForecast.Modify;
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
+            ExpectedAmount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix9_2()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // No * Yes * Yes * Yes * * Yes Jan. 06 98,00: Discount date and default discount amount from order or LE
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix9;
+
+        PaymentTerms.Get(Customer."Payment Terms Code");
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := false;
+        // Cash Flow payment terms on customer - **
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - *
+        // Source / Document type 4) - SO
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-3D>', WorkDate);
+        CFForecast.Modify;
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
+            ExpectedAmount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix12()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // No * No * * * * * *: Jan. 15 100,00: Due date and full amount from order or LE
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix1;
+
+        PaymentTerms.Get(Customer."Payment Terms Code");
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := false;
+        // Cash Flow payment terms on customer - **
+        CFForecast."Consider Discount" := false;
+        // Cash Flow Payment Terms with Cash Discount? 2) - *
+        // Source / Document type 4) - SO
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFForecast.Modify;
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+            ExpectedAmount := "Amount (LCY)";
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMatrix11()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        ExpectedAmount: Decimal;
+        DocumentDate: Date;
+        ExpectedDate: Date;
+    begin
+        // No * Yes * Yes * Yes * * No Jan. 15 100,00: Due date and full amount from order or LE
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := Matrix1;
+
+        CreateDefaultMatrixCFPT(Customer, PaymentTerms);
+
+        PaymentTerms.Get(Customer."Payment Terms Code");
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        // Setup
+        CFForecast."Consider CF Payment Terms" := false;
+        // Cash Flow payment terms on customer - **
+        CFForecast."Consider Discount" := true;
+        // Cash Flow Payment Terms with Cash Discount? 2) - *
+        // Source / Document type 4) - SO
+        // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
+        DocumentDate := CalcDate('<-5D>', WorkDate);
+        CFForecast.Modify;
+
+        with CFWorksheetLine do begin
+            "Document Date" := DocumentDate;
+            Insert;
+            ExpectedDate := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+            ExpectedAmount := "Amount (LCY)";
+
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date", ExpectedDate,
+              StrSubstNo(IncorrectField, FieldCaption("Cash Flow Date"), ExpectedDate, "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)", ExpectedAmount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), ExpectedAmount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EmptyDate()
+    var
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        Customer: Record Customer;
+    begin
+        // bug 261713
+        // CFForecast - no Doc.Date on orders (sales, service and purchase) result in error msg.
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := TestForEmptyDocDate;
+        Customer.Modify;
+        LibraryCF.CreateCashFlowCard(CFForecast);
+
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, '');
+
+        with CFWorksheetLine do begin
+            "Document Date" := 0D;
+            Insert;
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+            Delete;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EmptyDiscountDateCalculationFormula()
+    var
+        PaymentTerms: Record "Payment Terms";
+        Customer: Record Customer;
+        CFForecast: Record "Cash Flow Forecast";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        LibraryERM: Codeunit "Library - ERM";
+        Amount: Decimal;
+    begin
+        // bug 261712:
+        // CFForecast - Orders (sales, service, purchase) with doc. date = work date or future and CFForecast payment terms result in wrong CFForecast dates
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Address := TestForEmptyDiscDateCalc;
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        Evaluate(PaymentTerms."Due Date Calculation", '<1M>');
+        PaymentTerms.Validate("Discount %", LibraryRandom.RandInt(50));
+        PaymentTerms.Validate("Calc. Pmt. Disc. on Cr. Memos", true);
+        PaymentTerms.Modify;
+
+        Customer."Cash Flow Payment Terms Code" := PaymentTerms.Code;
+        Customer.Modify;
+
+        LibraryCF.CreateCashFlowCard(CFForecast);
+        CFForecast."Consider Discount" := true;
+        CFForecast."Consider CF Payment Terms" := true;
+        CFForecast.Modify;
+
+        PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
+
+        with CFWorksheetLine do begin
+            "Document Date" := WorkDate;
+            Insert;
+            Amount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
+            CalculateCFAmountAndCFDate;
+            // MODIFY;
+
+            Assert.AreEqual(
+              "Cash Flow Date",
+              CalcDate(PaymentTerms."Due Date Calculation", "Document Date"),
+              StrSubstNo(
+                IncorrectField, FieldCaption("Cash Flow Date"), CalcDate(PaymentTerms."Due Date Calculation", "Document Date"),
+                "Cash Flow Date"));
+
+            Assert.AreEqual(
+              "Amount (LCY)",
+              Amount,
+              StrSubstNo(IncorrectField, FieldCaption("Amount (LCY)"), Amount, "Amount (LCY)"));
+
+            Delete;
+        end;
+    end;
+
+    local procedure PreFillCFWorksheetLine(var CFWorksheetLine: Record "Cash Flow Worksheet Line"; CashFlowNo: Code[20]; TestDescription: Text[100]; PaymentTermsCode: Code[10])
+    begin
+        with CFWorksheetLine do begin
+            "Line No." := LibraryRandom.RandInt(100000);
+
+            "Document Type" := "Document Type"::Invoice;
+            "Cash Flow Forecast No." := CashFlowNo;
+            "Amount (LCY)" := LibraryRandom.RandInt(1001);
+            Description := TestDescription;
+            "Payment Terms Code" := PaymentTermsCode;
+        end;
+    end;
+
+    local procedure CreateDefaultMatrixCFPT(var Customer: Record Customer; var PaymentTerms: Record "Payment Terms")
+    var
+        LibraryERM: Codeunit "Library - ERM";
+    begin
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        Evaluate(PaymentTerms."Due Date Calculation", '<21D>');
+        Evaluate(PaymentTerms."Discount Date Calculation", '<3D>');
+        PaymentTerms.Validate("Discount %", LibraryRandom.RandInt(90));
+        PaymentTerms.Validate("Calc. Pmt. Disc. on Cr. Memos", true);
+        PaymentTerms.Modify;
+
+        Customer."Cash Flow Payment Terms Code" := PaymentTerms.Code;
+        Customer.Modify;
+    end;
+
+    local procedure InsertRndCFLedgEntries(CashFlowNo: Code[20]; SourceType: Option; CashFlowDate: Date; var TotalAmount: Decimal)
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        Amount: Decimal;
+        "Count": Integer;
+        i: Integer;
+    begin
+        Count := LibraryRandom.RandIntInRange(1, 3);
+        TotalAmount := 0;
+        for i := 1 to Count do begin
+            Amount := LibraryRandom.RandDec(100, 2);
+            if SourceType in
+               [CFForecastEntry."Source Type"::"Purchase Order",
+                CFForecastEntry."Source Type"::"Cash Flow Manual Expense",
+                CFForecastEntry."Source Type"::"Fixed Assets Budget",
+                CFForecastEntry."Source Type"::Payables]
+            then
+                Amount := -Amount;
+
+            LibraryCFHelper.InsertCFLedgerEntry(CashFlowNo, '', SourceType, CashFlowDate, Amount);
+            TotalAmount += Amount;
+        end;
+    end;
+
+    local procedure InsertCFLedgerEntries(var CashFlowForecast: Record "Cash Flow Forecast"; ConsiderSource: array[16] of Boolean; var PostedAmount: array[16, 2] of Decimal)
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        SourceType: Option;
+        Period: Option ,Before,After;
+        Amount: Decimal;
+    begin
+        Clear(PostedAmount);
+        CashFlowForecast.FindFirst;
+        CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
+        CFForecastEntry.DeleteAll;
+
+        for SourceType := 1 to ArrayLen(ConsiderSource) do
+            if ConsiderSource[SourceType] then begin
+                InsertRndCFLedgEntries(CashFlowForecast."No.", SourceType, CalcDate(MinusOneDayFormula, WorkDate), Amount);
+                PostedAmount[SourceType, Period::Before] := Amount;
+                InsertRndCFLedgEntries(CashFlowForecast."No.", SourceType, CalcDate(PlusOneDayFormula, WorkDate), Amount);
+                PostedAmount[SourceType, Period::After] := Amount;
+            end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCalculateAmountsOnCFLedgEntryFromToDate()
+    begin
+        Initialize;
+        VerifyCalculatedAmountsForPeriod(WorkDate, WorkDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCalculateAmountsOnCFLedgEntryFromDate()
+    begin
+        Initialize;
+        VerifyCalculatedAmountsForPeriod(WorkDate, 0D);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCalculateAmountsOnCFLedgEntryToDate()
+    begin
+        Initialize;
+        VerifyCalculatedAmountsForPeriod(0D, WorkDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCalculateAmountsOnCFLedgEntryNoDate()
+    begin
+        Initialize;
+        VerifyCalculatedAmountsForPeriod(0D, 0D);
+    end;
+
+    local procedure VerifyCalculatedAmountsForPeriod(FromDate: Date; ToDate: Date)
+    var
+        CFForecast: Record "Cash Flow Forecast";
+        PostedAmount: array[16, 2] of Decimal;
+        SumTotal: Decimal;
+        Values: array[16] of Decimal;
+        SourceType: Option;
+        expectedValue: Decimal;
+        expectedValueTotal: Decimal;
+        ConsiderSource: array[16] of Boolean;
+    begin
+        ConsiderAllSources(ConsiderSource);
+        InsertCFLedgerEntries(CFForecast, ConsiderSource, PostedAmount);
+        CFForecast.CalculateAllAmounts(FromDate, ToDate, Values, SumTotal);
+        for SourceType := 1 to ArrayLen(Values) do begin
+            expectedValue := CalcExpectedAmount(FromDate, ToDate, PostedAmount[SourceType]);
+            CFForecast."Source Type Filter" := SourceType;
+            Assert.AreEqual(
+              expectedValue, Values[SourceType],
+              StrSubstNo(IncorrectField, CFForecast."Source Type Filter", expectedValue, Values[SourceType]));
+
+            expectedValueTotal := expectedValueTotal + expectedValue;
+        end;
+
+        Assert.AreEqual(
+          expectedValueTotal, SumTotal,
+          StrSubstNo(IncorrectField, 'Total', expectedValueTotal, SumTotal));
+    end;
+
+    local procedure ConsiderAllSources(var ConsiderSource: array[16] of Boolean)
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(ConsiderSource) do
+            ConsiderSource[i] := true;
+    end;
+
+    local procedure CalcExpectedAmount(FromDate: Date; ToDate: Date; PostedAmount: array[2] of Decimal): Decimal
+    begin
+        case true of
+            (FromDate = 0D) and (ToDate = 0D):
+                exit(PostedAmount[1] + PostedAmount[2]);
+            (FromDate = 0D) and (ToDate = WorkDate):
+                exit(PostedAmount[1]);
+            (FromDate = WorkDate) and (ToDate = 0D):
+                exit(PostedAmount[2]);
+            (FromDate = WorkDate) and (ToDate = WorkDate):
+                exit(0);
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestXAxisCaption()
+    var
+        BusChartBuf: Record "Business Chart Buffer";
+        CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
+    begin
+        Initialize;
+        for BusChartBuf."Period Length" := BusChartBuf."Period Length"::Day to BusChartBuf."Period Length"::Year do begin
+            SetPeriodLengthInChartSetup(BusChartBuf."Period Length");
+            CFChartMgt.UpdateData(BusChartBuf);
+            Assert.AreEqual(
+              Format(BusChartBuf."Period Length"), BusChartBuf.GetXCaption, 'Expected X Axis caption to be related to the period length');
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestXAxisTypeForPeriods()
+    var
+        BusChartBuf: Record "Business Chart Buffer";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CashFlowSetup: Record "Cash Flow Setup";
+        ConsiderSource: array[16] of Boolean;
+        PostedAmount: array[16, 2] of Decimal;
+    begin
+        Initialize;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::Receivables] := true;
+        InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
+        CashFlowSetup.SetChartRoleCenterCFNo(CashFlowForecast."No.");
+
+        Assert.IsTrue(GetIsXAxisDateTimeForPeriod(BusChartBuf."Period Length"::Day), 'Expected DateTime type of X Axis for Period : Day');
+        for BusChartBuf."Period Length" := BusChartBuf."Period Length"::Week to BusChartBuf."Period Length"::Year do
+            Assert.IsFalse(
+              GetIsXAxisDateTimeForPeriod(BusChartBuf."Period Length"),
+              StrSubstNo('Not expected DateTime type of X Axis for Period : %1', BusChartBuf."Period Length"));
+    end;
+
+    local procedure GetIsXAxisDateTimeForPeriod(PeriodLength: Integer): Boolean
+    var
+        BusChartBuf: Record "Business Chart Buffer";
+        CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
+    begin
+        SetPeriodLengthInChartSetup(PeriodLength);
+        CFChartMgt.UpdateData(BusChartBuf);
+        exit(BusChartBuf.IsXAxisDateTime);
+    end;
+
+    local procedure SetPeriodLengthInChartSetup(PeriodLength: Integer)
+    var
+        CashFlowChartSetup: Record "Cash Flow Chart Setup";
+    begin
+        with CashFlowChartSetup do begin
+            if Get(UserId) then
+                Delete;
+
+            Init;
+            "User ID" := UserId;
+            "Period Length" := PeriodLength;
+            Insert;
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('NoDefaultMessageHandler')]
+    [Scope('OnPrem')]
+    procedure TestDataUpdateForNoDefaultCFCard()
+    var
+        BusChartBuf: Record "Business Chart Buffer";
+        CashFlowSetup: Record "Cash Flow Setup";
+        CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
+        CFForecastNo: Code[20];
+    begin
+        Initialize;
+
+        CFForecastNo := CashFlowSetup.GetChartRoleCenterCFNo;
+        CashFlowSetup.SetChartRoleCenterCFNo('');
+
+        Assert.IsFalse(CFChartMgt.UpdateData(BusChartBuf), 'Warning message expected.');
+        CashFlowSetup.SetChartRoleCenterCFNo(CFForecastNo);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure NoDefaultMessageHandler(Message: Text[1024])
+    begin
+        Assert.IsTrue(StrPos(Message, NoDefaultCFMsg) = 1, StrSubstNo('Expected message should start with ''%1 ...''', NoDefaultCFMsg));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestOnOpenInitChartSetup()
+    var
+        CashFlowChartSetup: Record "Cash Flow Chart Setup";
+        CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
+    begin
+        Initialize;
+
+        with CashFlowChartSetup do begin
+            if Get(UserId) then
+                Delete;
+            CFChartMgt.OnOpenPage(CashFlowChartSetup);
+
+            TestField("Start Date", "Start Date"::"Working Date");
+            TestField("Period Length", "Period Length"::Month);
+            TestField(Show, Show::Combined);
+            TestField("Chart Type", "Chart Type"::"Stacked Column");
+            TestField("Group By", "Group By"::"Source Type");
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestOnOpenWithExistingChartSetup()
+    var
+        CashFlowChartSetup: Record "Cash Flow Chart Setup";
+        ExistingCashFlowChartSetup: Record "Cash Flow Chart Setup";
+        CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
+    begin
+        Initialize;
+
+        with CashFlowChartSetup do begin
+            SetPeriodLengthInChartSetup("Period Length"::Year);
+            Get(UserId);
+            ExistingCashFlowChartSetup := CashFlowChartSetup;
+            CFChartMgt.OnOpenPage(CashFlowChartSetup);
+
+            TestField("Start Date", ExistingCashFlowChartSetup."Start Date");
+            TestField("Period Length", ExistingCashFlowChartSetup."Period Length");
+            TestField(Show, ExistingCashFlowChartSetup.Show);
+            TestField("Chart Type", ExistingCashFlowChartSetup."Chart Type");
+            TestField("Group By", ExistingCashFlowChartSetup."Group By");
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestZeroPeriodsForNoEntries()
+    var
+        CFForecast: Record "Cash Flow Forecast";
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        BusChartBuf: Record "Business Chart Buffer";
+        BusChartMap: Record "Business Chart Map";
+        CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
+    begin
+        Initialize;
+        CFForecast.FindFirst;
+        CFForecastEntry.SetRange("Cash Flow Forecast No.", CFForecast."No.");
+        CFForecastEntry.DeleteAll;
+
+        SetPeriodLengthInChartSetup(BusChartBuf."Period Length"::Day);
+        CFChartMgt.UpdateData(BusChartBuf);
+        Assert.IsFalse(BusChartBuf.FindFirstColumn(BusChartMap), 'No Periods expected for no entries');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCombinedChart()
+    var
+        CashFlowChartSetup: Record "Cash Flow Chart Setup";
+        CashFlowSetup: Record "Cash Flow Setup";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        BusChartBuf: Record "Business Chart Buffer";
+        MeasureBusChartMap: Record "Business Chart Map";
+        CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
+        Value: Variant;
+        AccumulatedMeasureName: Text[249];
+        PostedAmount: array[16, 2] of Decimal;
+        ExpectedAmount: Decimal;
+        ActualAmount: Decimal;
+        i: Integer;
+    begin
+        Initialize;
+        SetDayColumnGroupByChartSetup(CashFlowChartSetup.Show::Combined, CashFlowChartSetup."Group By"::"Source Type");
+
+        InsertCFReceivablesPayables(CashFlowForecast, PostedAmount);
+        for i := 1 to 2 do
+            ExpectedAmount += PostedAmount[i, 1] + PostedAmount[i, 2];
+        CashFlowSetup.SetChartRoleCenterCFNo(CashFlowForecast."No.");
+
+        CFChartMgt.UpdateData(BusChartBuf);
+
+        BusChartBuf.FindFirstMeasure(MeasureBusChartMap);
+        BusChartBuf.NextMeasure(MeasureBusChartMap);
+        BusChartBuf.NextMeasure(MeasureBusChartMap);
+        AccumulatedMeasureName := MeasureBusChartMap.Name;
+
+        BusChartBuf.GetValue(AccumulatedMeasureName, 2, Value);
+        Evaluate(ActualAmount, Format(Value));
+        Assert.AreEqual(ExpectedAmount, ActualAmount, 'Wrong Amount in the accumulated chart ' + AccumulatedMeasureName)
+    end;
+
+    local procedure InsertCFReceivablesPayables(var CashFlowForecast: Record "Cash Flow Forecast"; var PostedAmount: array[16, 2] of Decimal)
+    var
+        ConsiderSource: array[16] of Boolean;
+    begin
+        ConsiderSource[CashFlowForecast."Source Type Filter"::Receivables] := true;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::Payables] := true;
+        InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCombinedChartDrillDown()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CashFlowChartSetup: Record "Cash Flow Chart Setup";
+    begin
+        Initialize;
+        SetDayColumnGroupByChartSetup(CashFlowChartSetup.Show::Combined, CashFlowChartSetup."Group By"::"Positive/Negative");
+        VerifyDateAndSourceTypeOnChartDrillDown(2, CashFlowForecast."Source Type Filter"::" ");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestAccumulatedChartDrillDown()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CashFlowChartSetup: Record "Cash Flow Chart Setup";
+    begin
+        Initialize;
+        SetDayColumnGroupByChartSetup(CashFlowChartSetup.Show::"Accumulated Cash", CashFlowChartSetup."Group By"::"Positive/Negative");
+        VerifyDateAndSourceTypeOnChartDrillDown(0, CashFlowForecast."Source Type Filter"::" ");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPosNegChartDrillDown()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CashFlowChartSetup: Record "Cash Flow Chart Setup";
+    begin
+        Initialize;
+        SetDayColumnGroupByChartSetup(CashFlowChartSetup.Show::"Change in Cash", CashFlowChartSetup."Group By"::"Positive/Negative");
+        VerifyDateAndSourceTypeOnChartDrillDown(0, CashFlowForecast."Source Type Filter"::Payables);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSourceTypeChartDrillDown()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CashFlowChartSetup: Record "Cash Flow Chart Setup";
+    begin
+        Initialize;
+        SetDayColumnGroupByChartSetup(CashFlowChartSetup.Show::"Change in Cash", CashFlowChartSetup."Group By"::"Source Type");
+        VerifyDateAndSourceTypeOnChartDrillDown(0, CashFlowForecast."Source Type Filter"::Receivables);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestAccountNoChartDrillDown()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CashFlowChartSetup: Record "Cash Flow Chart Setup";
+    begin
+        Initialize;
+        SetDayColumnGroupByChartSetup(CashFlowChartSetup.Show::"Change in Cash", CashFlowChartSetup."Group By"::"Account No.");
+        VerifyDateAndSourceTypeOnChartDrillDown(0, CashFlowForecast."Source Type Filter"::Receivables);
+    end;
+
+    local procedure SetDayColumnGroupByChartSetup(NewShow: Integer; GroupBy: Integer)
+    var
+        CashFlowChartSetup: Record "Cash Flow Chart Setup";
+    begin
+        with CashFlowChartSetup do begin
+            if Get(UserId) then
+                Delete;
+
+            Init;
+            "User ID" := UserId;
+            "Period Length" := "Period Length"::Day;
+            "Start Date" := "Start Date"::"First Entry Date";
+            Show := NewShow;
+            "Group By" := GroupBy;
+
+            Insert;
+        end;
+    end;
+
+    local procedure VerifyDateAndSourceTypeOnChartDrillDown(MeasureIndex: Integer; ExpectedSourceType: Integer)
+    var
+        CashFlowSetup: Record "Cash Flow Setup";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        BusChartBuf: Record "Business Chart Buffer";
+        CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
+        CFForecastEntries: TestPage "Cash Flow Forecast Entries";
+        PostedAmount: array[16, 2] of Decimal;
+        Period: Option ,Before,After;
+        ExpectedDate: Date;
+        ActualTotalAmount: Decimal;
+        ExpectedTotalAmount: Decimal;
+    begin
+        InsertCFReceivablesPayables(CashFlowForecast, PostedAmount);
+
+        CashFlowSetup.SetChartRoleCenterCFNo(CashFlowForecast."No.");
+        CFChartMgt.UpdateData(BusChartBuf);
+
+        BusChartBuf."Drill-Down X Index" := 0;
+        BusChartBuf."Drill-Down Measure Index" := MeasureIndex;
+        ExpectedDate := BusChartBuf.GetXValueAsDate(BusChartBuf."Drill-Down X Index");
+
+        CFForecastEntries.Trap;
+        CFChartMgt.DrillDown(BusChartBuf);
+
+        CFForecastEntries.First;
+        repeat
+            CFForecastEntries."Cash Flow Forecast No.".AssertEquals(CashFlowForecast."No.");
+            CFForecastEntries."Cash Flow Date".AssertEquals(ExpectedDate);
+            if ExpectedSourceType <> 0 then
+                CFForecastEntries."Source Type".AssertEquals(ExpectedSourceType);
+            ActualTotalAmount += CFForecastEntries."Amount (LCY)".AsDEcimal;
+        until not CFForecastEntries.Next;
+
+        if ExpectedSourceType <> 0 then
+            ExpectedTotalAmount := PostedAmount[ExpectedSourceType, Period::Before]
+        else
+            ExpectedTotalAmount := CalcSum(PostedAmount, Period::Before);
+        Assert.AreEqual(ExpectedTotalAmount, ActualTotalAmount, 'Wrong expected sum of Amount (LCY) on the DrillDown page');
+    end;
+
+    local procedure CalcSum(PostedAmount: array[16, 2] of Decimal; Period: Option ,Before,After) "Sum": Decimal
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(PostedAmount, 1) do
+            Sum += PostedAmount[i, Period];
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSourceTypeCollection()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        BusChartBuf: Record "Business Chart Buffer";
+        CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
+        PostedAmount: array[16, 2] of Decimal;
+        ConsiderSource: array[16] of Boolean;
+        SourceType: Option;
+        ExpectedNoOfSourceTypes: Integer;
+        ActualNoOfSourceTypes: Integer;
+    begin
+        Initialize;
+        ExpectedNoOfSourceTypes := LibraryRandom.RandIntInRange(1, 10);
+        for SourceType := 1 to ExpectedNoOfSourceTypes do
+            ConsiderSource[SourceType] := true;
+        InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
+
+        BusChartBuf.Initialize;
+        ActualNoOfSourceTypes := CFChartMgt.CollectSourceTypes(CashFlowForecast, BusChartBuf);
+
+        Assert.AreEqual(ExpectedNoOfSourceTypes, ActualNoOfSourceTypes, 'Wrong number of collected Source Types');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestAccountNoCollection()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CFAccount: Record "Cash Flow Account";
+        BusChartBuf: Record "Business Chart Buffer";
+        CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
+        PostedAmount: array[16, 2] of Decimal;
+        ConsiderSource: array[16] of Boolean;
+        ExpectedNoOfAccounts: Integer;
+        ActualNoOfAccounts: Integer;
+        SourceType: Integer;
+    begin
+        Initialize;
+        ExpectedNoOfAccounts := LibraryRandom.RandIntInRange(1, 10);
+        CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
+        for SourceType := 1 to ExpectedNoOfAccounts do
+            ConsiderSource[SourceType] := true;
+        InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
+
+        BusChartBuf.Initialize;
+        ActualNoOfAccounts := CFChartMgt.CollectAccounts(CashFlowForecast, BusChartBuf);
+
+        Assert.AreEqual(ExpectedNoOfAccounts, ActualNoOfAccounts, 'Wrong number of collected Accounts');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPosNegCollection()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        BusChartBuf: Record "Business Chart Buffer";
+        CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
+        PostedAmount: array[16, 2] of Decimal;
+        ActualNoOfPosNeg: Integer;
+    begin
+        Initialize;
+        InsertCFReceivablesPayables(CashFlowForecast, PostedAmount);
+
+        BusChartBuf.Initialize;
+        ActualNoOfPosNeg := CFChartMgt.CollectPosNeg(CashFlowForecast, BusChartBuf);
+
+        Assert.AreEqual(2, ActualNoOfPosNeg, 'Wrong number of collected Positive-Negative');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPositiveCollection()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        BusChartBuf: Record "Business Chart Buffer";
+        CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
+        PostedAmount: array[16, 2] of Decimal;
+        ConsiderSource: array[16] of Boolean;
+        ActualNoOfPosNeg: Integer;
+    begin
+        Initialize;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::Receivables] := true;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::"Sales Order"] := true;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::"Service Orders"] := true;
+        InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
+
+        BusChartBuf.Initialize;
+        ActualNoOfPosNeg := CFChartMgt.CollectPosNeg(CashFlowForecast, BusChartBuf);
+
+        Assert.AreEqual(1, ActualNoOfPosNeg, 'Wrong number of collected Positive-Negative.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostPositiveAmount()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+    begin
+        Initialize;
+        PostJnlLine(1);
+        CFForecastEntry.FindLast;
+        Assert.IsTrue(CFForecastEntry.Positive, StrSubstNo(PosNegErrMsg, CFForecastEntry.Positive, CFForecastEntry."Amount (LCY)"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostZeroAmount()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+    begin
+        Initialize;
+        PostJnlLine(0);
+        CFForecastEntry.FindLast;
+        Assert.IsFalse(CFForecastEntry.Positive, StrSubstNo(PosNegErrMsg, CFForecastEntry.Positive, CFForecastEntry."Amount (LCY)"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPostNegativeAmount()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+    begin
+        Initialize;
+        PostJnlLine(-1);
+        CFForecastEntry.FindLast;
+        Assert.IsFalse(CFForecastEntry.Positive, StrSubstNo(PosNegErrMsg, CFForecastEntry.Positive, CFForecastEntry."Amount (LCY)"));
+    end;
+
+    local procedure PostJnlLine(Amount: Decimal)
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CashFlowWkshLine: Record "Cash Flow Worksheet Line";
+        CFAccount: Record "Cash Flow Account";
+        CFWkshRegisterLine: Codeunit "Cash Flow Wksh. -Register Line";
+    begin
+        with CashFlowWkshLine do begin
+            CashFlowForecast.FindFirst;
+            CFAccount.SetRange(Blocked, false);
+            CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
+            CFAccount.FindFirst;
+            Init;
+            "Cash Flow Forecast No." := CashFlowForecast."No.";
+            "Cash Flow Account No." := CFAccount."No.";
+            "Cash Flow Date" := WorkDate;
+            "Amount (LCY)" := Amount;
+
+            CFWkshRegisterLine.RunWithCheck(CashFlowWkshLine);
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnFactBoxForTotal()
+    var
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderAllSources(ConsiderSource);
+        SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowCard.Control1905906307.Total.DrillDown;
+        CashFlowCard.Control1905906307.Total.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnFactBoxForServiceOrders()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Service Orders"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::Receivables] := true;
+        SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowCard.Control1905906307.ServiceOrders.DrillDown;
+        CashFlowCard.Control1905906307.ServiceOrders.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnFactBoxForReceivables()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::Receivables] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::Payables] := true;
+        SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowCard.Control1905906307.Receivables.DrillDown;
+        CashFlowCard.Control1905906307.Receivables.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnFactBoxForPayables()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::Payables] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Sales Order"] := true;
+        SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowCard.Control1905906307.Payables.DrillDown;
+        CashFlowCard.Control1905906307.Payables.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnFactBoxForSalesOrders()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Sales Order"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Order"] := true;
+        SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowCard.Control1905906307.SalesOrders.DrillDown;
+        CashFlowCard.Control1905906307.SalesOrders.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnFactBoxForPurchOrders()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Order"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Liquid Funds"] := true;
+        SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowCard.Control1905906307.PurchaseOrders.DrillDown;
+        CashFlowCard.Control1905906307.PurchaseOrders.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnFactBoxForLiquidFunds()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Liquid Funds"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Expense"] := true;
+        SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowCard.Control1905906307.LiquidFunds.DrillDown;
+        CashFlowCard.Control1905906307.LiquidFunds.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnFactBoxForManualExpenses()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Expense"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue"] := true;
+        SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowCard.Control1905906307.ManualExpenses.DrillDown;
+        CashFlowCard.Control1905906307.ManualExpenses.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnFactBoxForManualRevenues()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Disposal"] := true;
+        SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowCard.Control1905906307.ManualRevenues.DrillDown;
+        CashFlowCard.Control1905906307.ManualRevenues.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnFactBoxForSaleOfFA()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Disposal"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Budget"] := true;
+        SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowCard.Control1905906307.SaleofFixedAssets.DrillDown;
+        CashFlowCard.Control1905906307.SaleofFixedAssets.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnFactBoxForBudgetedFA()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Budget"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Disposal"] := true;
+        SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowCard.Control1905906307.BudgetedFixedAssets.DrillDown;
+        CashFlowCard.Control1905906307.BudgetedFixedAssets.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnFactBoxForBudget()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        // Setup
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"G/L Budget"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Sales Order"] := true; // consider some unrelated values as well
+        SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
+
+        // Exercise
+        CFLedgerEntries.Trap;
+        CashFlowCard.Control1905906307.GLBudgets.DrillDown;
+
+        // Verify - CFLedgerEntries should be filtered on budget source type only through DRILLDOWN
+        CashFlowCard.Control1905906307.GLBudgets.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnPAG868ForTotal()
+    var
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderAllSources(ConsiderSource);
+        SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowStatistic.Total.DrillDown;
+        CashFlowStatistic.Total.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnPAG868ForServiceOrders()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Service Orders"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::Receivables] := true;
+        SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowStatistic.ServiceOrders.DrillDown;
+        CashFlowStatistic.ServiceOrders.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnPAG868ForReceivables()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::Receivables] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::Payables] := true;
+        SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowStatistic.Receivables.DrillDown;
+        CashFlowStatistic.Receivables.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnPAG868ForPayables()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::Payables] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Sales Order"] := true;
+        SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowStatistic.Payables.DrillDown;
+        CashFlowStatistic.Payables.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnPAG868ForSalesOrders()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Sales Order"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Order"] := true;
+        SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowStatistic.SalesOrders.DrillDown;
+        CashFlowStatistic.SalesOrders.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnPAG868ForPurchOrders()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Order"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Liquid Funds"] := true;
+        SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowStatistic.PurchaseOrders.DrillDown;
+        CashFlowStatistic.PurchaseOrders.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnPAG868ForLiquidFunds()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Liquid Funds"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Expense"] := true;
+        SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowStatistic.LiquidFunds.DrillDown;
+        CashFlowStatistic.LiquidFunds.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnPAG868ForManualExpenses()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Expense"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue"] := true;
+        SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowStatistic.ManualExpenses.DrillDown;
+        CashFlowStatistic.ManualExpenses.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnPAG868ForManualRevenues()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Disposal"] := true;
+        SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowStatistic.ManualRevenues.DrillDown;
+        CashFlowStatistic.ManualRevenues.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnPAG868ForSaleOfFA()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Disposal"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Budget"] := true;
+        SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowStatistic.SalesofFixedAssets.DrillDown;
+        CashFlowStatistic.SalesofFixedAssets.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnPAG868ForBudgetedFA()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Budget"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Disposal"] := true;
+        SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
+
+        CFLedgerEntries.Trap;
+        CashFlowStatistic.BudgetedFixedAssets.DrillDown;
+        CashFlowStatistic.BudgetedFixedAssets.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDrillDownOnPAG868ForBudget()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+    begin
+        // Setup
+        Initialize;
+        ConsiderSource[CFForecastEntry."Source Type"::"G/L Budget"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Sales Order"] := true; // create some unrelated entries as well
+        SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
+
+        // Exercise
+        CFLedgerEntries.Trap;
+        CashFlowStatistic.GLBudgets.DrillDown;
+
+        // Verify - ledger entries must be filtered on budget source through DRILLDOWN
+        CashFlowStatistic.GLBudgets.AssertEquals(CalcSumOnLedgEntries(CFLedgerEntries));
+    end;
+
+    local procedure SetupDrillDownOnFactBox(var CashFlowCard: TestPage "Cash Flow Forecast Card"; ConsiderSource: array[16] of Boolean)
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        PostedAmount: array[16, 2] of Decimal;
+    begin
+        // Setup
+        InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
+        // Exercise
+        CashFlowCard.OpenView;
+        CashFlowCard.GotoRecord(CashFlowForecast);
+    end;
+
+    local procedure SetupDrillDownOnPAG868(var CashFlowStatistic: TestPage "Cash Flow Forecast Statistics"; ConsiderSource: array[16] of Boolean)
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CashFlowCard: TestPage "Cash Flow Forecast Card";
+        PostedAmount: array[16, 2] of Decimal;
+    begin
+        // Setup
+        InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
+        // Exercise
+        CashFlowCard.OpenView;
+        CashFlowCard.GotoRecord(CashFlowForecast);
+        CashFlowStatistic.Trap;
+        CashFlowCard."&Statistics".Invoke;
+    end;
+
+    local procedure CalcSumOnLedgEntries(var CFLedgerEntries: TestPage "Cash Flow Forecast Entries") TotalAmountOnPage: Decimal
+    begin
+        CFLedgerEntries.First;
+        repeat
+            TotalAmountOnPage += CFLedgerEntries."Amount (LCY)".AsDEcimal;
+        until not CFLedgerEntries.Next;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGLBudgetNameValidation()
+    var
+        CFWkshLine: Record "Cash Flow Worksheet Line";
+        GLBudgetName: Record "G/L Budget Name";
+    begin
+        Initialize;
+
+        LibraryERM.CreateGLBudgetName(GLBudgetName);
+
+        CFWkshLine."Source Type" := CFWkshLine."Source Type"::"G/L Budget";
+        CFWkshLine.Validate("G/L Budget Name", GLBudgetName.Name);
+
+        CFWkshLine."Source Type" := LibraryRandom.RandIntInRange(1, CFWkshLine."Source Type"::"G/L Budget" - 1);
+        asserterror CFWkshLine.Validate("G/L Budget Name", GLBudgetName.Name);
+        Assert.ExpectedError(
+          StrSubstNo('%1 must be equal to ''%2''', CFWkshLine.FieldCaption("Source Type"), Format(CFWkshLine."Source Type"::"G/L Budget")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetChartTypeFunctionForStackedColumn()
+    begin
+        GetChartTypeFunction(CashFlowChartSetup."Chart Type"::"Stacked Column");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetChartTypeFunctionForStepLine()
+    begin
+        GetChartTypeFunction(CashFlowChartSetup."Chart Type"::"Step Line");
+    end;
+
+    local procedure GetChartTypeFunction(ChartType: Option)
+    var
+        Actual: Integer;
+    begin
+        Initialize;
+        CreateCashFlowChartSetup;
+        CashFlowChartSetup."Chart Type" := ChartType;
+        CashFlowChartSetup.Modify;
+        Actual := CashFlowChartSetup.GetChartType;
+        if ChartType = CashFlowChartSetup."Chart Type"::"Step Line" then
+            Assert.AreEqual(5, Actual, StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption("Chart Type")))
+        else
+            Assert.AreEqual(11, Actual, StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption("Chart Type")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetStartDateFunction()
+    var
+        Actual: Date;
+    begin
+        Initialize;
+        CreateCashFlowChartSetup;
+        CashFlowChartSetup."Start Date" := CashFlowChartSetup."Start Date"::"Working Date";
+        CashFlowChartSetup.Modify;
+        Actual := CashFlowChartSetup.GetStartDate;
+        Assert.AreEqual(WorkDate, Actual, StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption("Start Date")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetCurrentSelectionTextFunction()
+    begin
+        Initialize;
+        CreateAndUpdateCashFlowChartSetup(CashFlowChartSetup, CashFlowChartSetup."Start Date"::"First Entry Date",
+          CashFlowChartSetup."Period Length"::Week, CashFlowChartSetup.Show::"Change in Cash",
+          CashFlowChartSetup."Group By"::"Source Type");
+        VerifyCashFlowChartSetupCurrentSelectionText;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetCurrentSelectionTextFunctionWithMaxValues()
+    var
+        CFSetup: Record "Cash Flow Setup";
+        OldCFNo: Code[20];
+    begin
+        Initialize;
+        CreateAndUpdateCashFlowChartSetup(CashFlowChartSetup, CashFlowChartSetup."Start Date"::"First Entry Date",
+          CashFlowChartSetup."Period Length"::Quarter, CashFlowChartSetup.Show::"Accumulated Cash",
+          CashFlowChartSetup."Group By"::"Positive/Negative");
+        CFSetup.Get;
+        OldCFNo := SetChartCFNoInSetup(PadStr(CFSetup."CF No. on Chart in Role Center",
+              MaxStrLen(CFSetup."CF No. on Chart in Role Center"), 'A'));
+        VerifyCashFlowChartSetupCurrentSelectionText;
+        SetChartCFNoInSetup(OldCFNo);
+    end;
+
+    local procedure VerifyCashFlowChartSetupCurrentSelectionText()
+    var
+        CFSetup: Record "Cash Flow Setup";
+        Expected: Text[150];
+    begin
+        CFSetup.Get;
+        Expected := StrSubstNo('%1 | %2 | %3 | %4 | %5', CFSetup."CF No. on Chart in Role Center", CashFlowChartSetup.Show,
+            CashFlowChartSetup."Start Date", CashFlowChartSetup."Period Length", CashFlowChartSetup."Group By");
+        Assert.IsTrue(StrPos(CashFlowChartSetup.GetCurrentSelectionText, Expected) = 1,
+          'Unexpected value returned from function GetCurrentSelectionText');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetGroupByFunctionPositiveNegative()
+    begin
+        SetAndVerifyGroupByValue(CashFlowChartSetup."Group By"::"Source Type");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetGroupByFunctionAccountNo()
+    begin
+        SetAndVerifyGroupByValue(CashFlowChartSetup."Group By"::"Positive/Negative");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetGroupByFunctionSourceType()
+    begin
+        SetAndVerifyGroupByValue(CashFlowChartSetup."Group By"::"Account No.");
+    end;
+
+    local procedure SetAndVerifyGroupByValue(GroupBy: Option)
+    begin
+        Initialize;
+        CreateCashFlowChartSetup;
+        CashFlowChartSetup.SetGroupBy(GroupBy);
+        Assert.AreEqual(
+          GroupBy, CashFlowChartSetup."Group By", StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption("Group By")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetStartDateFunction()
+    begin
+        Initialize;
+        CreateCashFlowChartSetup;
+        CashFlowChartSetup.SetStartDate(CashFlowChartSetup."Start Date"::"Working Date");
+        Assert.AreEqual(CashFlowChartSetup."Start Date"::"Working Date", CashFlowChartSetup."Start Date",
+          StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption("Start Date")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetChartTypeFunctionStackedArea()
+    begin
+        SetAndVerifyChartTypeValue(CashFlowChartSetup."Chart Type"::"Stacked Area (%)");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetChartTypeFunctionStackedColumn()
+    begin
+        SetAndVerifyChartTypeValue(CashFlowChartSetup."Chart Type"::"Stacked Column");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetChartTypeFunctionStackedColumnPercentage()
+    begin
+        SetAndVerifyChartTypeValue(CashFlowChartSetup."Chart Type"::"Stacked Column (%)");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetChartTypeFunctionStepline()
+    begin
+        SetAndVerifyChartTypeValue(CashFlowChartSetup."Chart Type"::"Step Line");
+    end;
+
+    local procedure SetAndVerifyChartTypeValue(ChartType: Option)
+    begin
+        Initialize;
+        CreateCashFlowChartSetup;
+        CashFlowChartSetup.SetChartType(ChartType);
+        Assert.AreEqual(
+          ChartType, CashFlowChartSetup."Chart Type", StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption("Chart Type")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetShowFunctionAccumulatedCash()
+    begin
+        SetAndVerifyShowValue(CashFlowChartSetup.Show::"Accumulated Cash");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetShowFunctionChangeinCash()
+    begin
+        SetAndVerifyShowValue(CashFlowChartSetup.Show::"Change in Cash");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetShowFunctionCombined()
+    begin
+        SetAndVerifyShowValue(CashFlowChartSetup.Show::Combined);
+    end;
+
+    local procedure SetAndVerifyShowValue(ShowOption: Option)
+    begin
+        Initialize;
+        CreateCashFlowChartSetup;
+        CashFlowChartSetup.SetShow(ShowOption);
+        Assert.AreEqual(ShowOption, CashFlowChartSetup.Show, StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption(Show)));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPeriodLengthFunctionDay()
+    begin
+        SetAndVerifyPeriodLengthValue(CashFlowChartSetup."Period Length"::Day);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPeriodLengthFunctionWeek()
+    begin
+        SetAndVerifyPeriodLengthValue(CashFlowChartSetup."Period Length"::Week);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPeriodLengthFunctionMonth()
+    begin
+        SetAndVerifyPeriodLengthValue(CashFlowChartSetup."Period Length"::Month);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPeriodLengthFunctionQuarter()
+    begin
+        SetAndVerifyPeriodLengthValue(CashFlowChartSetup."Period Length"::Quarter);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPeriodLengthFunctionYear()
+    begin
+        SetAndVerifyPeriodLengthValue(CashFlowChartSetup."Period Length"::Year);
+    end;
+
+    local procedure SetAndVerifyPeriodLengthValue(PeriodLength: Option)
+    begin
+        Initialize;
+        CreateCashFlowChartSetup;
+        CashFlowChartSetup.SetPeriodLength(PeriodLength);
+        Assert.AreEqual(
+          PeriodLength, CashFlowChartSetup."Period Length",
+          StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption("Period Length")));
+    end;
+
+    local procedure SetChartCFNoInSetup(ChartCashFlowNo: Code[20]) OldCFNo: Code[20]
+    var
+        CashFlowSetup: Record "Cash Flow Setup";
+    begin
+        CashFlowSetup.Get;
+        OldCFNo := CashFlowSetup."CF No. on Chart in Role Center";
+        CashFlowSetup."CF No. on Chart in Role Center" := ChartCashFlowNo;
+        CashFlowSetup.Modify;
+    end;
+
+    local procedure CreateCashFlowChartSetup()
+    begin
+        with CashFlowChartSetup do begin
+            if Get(UserId) then
+                Delete;
+            Init;
+            "User ID" := UserId;
+            Insert;
+        end;
+    end;
+
+    local procedure CreateAndUpdateCashFlowChartSetup(var CashFlowChartSetup: Record "Cash Flow Chart Setup"; StartDate: Option; PeriodLength: Option; Show: Option; GroupBy: Option)
+    begin
+        CreateCashFlowChartSetup;
+        CashFlowChartSetup."Start Date" := StartDate;
+        CashFlowChartSetup."Period Length" := PeriodLength;
+        CashFlowChartSetup.Show := Show;
+        CashFlowChartSetup."Group By" := GroupBy;
+        CashFlowChartSetup.Modify;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPrintRecordsFromCashFlowForecastTable()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CFReportSelection: Record "Cash Flow Report Selection";
+    begin
+        Initialize;
+        with CFReportSelection do
+            DeleteAll;
+
+        CashFlowForecast.PrintRecords; // Can't be completely tested since it has REPORT.RUNMODAL
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestAssistEditFromCashFlowForecastTable()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        OldCashFlowForecast: Record "Cash Flow Forecast";
+    begin
+        if OldCashFlowForecast.FindFirst then;
+        asserterror CashFlowForecast.AssistEdit(OldCashFlowForecast);
+        Assert.ExpectedError('Unhandled UI: ModalPage 571'); // Can't be completely tested since it's running modal page
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestLookupCashFlowFilterFromCashFlowForecastTable()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        Text: Text[1024];
+    begin
+        asserterror CashFlowForecast.LookupCashFlowFilter(Text);
+        Assert.ExpectedError('Unhandled UI: ModalPage 849'); // Can't be completely tested since it's running modal page
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CashFlowMgt_RecurrenceToRecurringFrequency()
+    var
+        CashFlowMgt: Codeunit "Cash Flow Management";
+        Recurrence: Option " ",Daily,Weekly,Monthly,Quarterly,Yearly;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 216302] COD 841 "Cash Flow Management".RecurrenceToRecurringFrequency() maps recurrence option to language-independent dateformula values (i.e. "<1D>")
+
+        Assert.AreEqual('', CashFlowMgt.RecurrenceToRecurringFrequency(Recurrence::" "), '');
+        Assert.AreEqual('<1D>', CashFlowMgt.RecurrenceToRecurringFrequency(Recurrence::Daily), '');
+        Assert.AreEqual('<1W>', CashFlowMgt.RecurrenceToRecurringFrequency(Recurrence::Weekly), '');
+        Assert.AreEqual('<1M>', CashFlowMgt.RecurrenceToRecurringFrequency(Recurrence::Monthly), '');
+        Assert.AreEqual('<1Q>', CashFlowMgt.RecurrenceToRecurringFrequency(Recurrence::Quarterly), '');
+        Assert.AreEqual('<1Y>', CashFlowMgt.RecurrenceToRecurringFrequency(Recurrence::Yearly), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CashFlowMgt_RecurringFrequencyToRecurrence()
+    var
+        CashFlowMgt: Codeunit "Cash Flow Management";
+        RecurringFrequency: DateFormula;
+        Recurrence: Option " ",Daily,Weekly,Monthly,Quarterly,Yearly;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 216302] COD 841 "Cash Flow Management".RecurringFrequencyToRecurrence() maps language-dependent dateformula values to recurrence option
+
+        Evaluate(RecurringFrequency, '');
+        CashFlowMgt.RecurringFrequencyToRecurrence(RecurringFrequency, Recurrence);
+        Assert.AreEqual(Recurrence::" ", Recurrence, '');
+
+        Evaluate(RecurringFrequency, '<1D>');
+        CashFlowMgt.RecurringFrequencyToRecurrence(RecurringFrequency, Recurrence);
+        Assert.AreEqual(Recurrence::Daily, Recurrence, '');
+
+        Evaluate(RecurringFrequency, '<1W>');
+        CashFlowMgt.RecurringFrequencyToRecurrence(RecurringFrequency, Recurrence);
+        Assert.AreEqual(Recurrence::Weekly, Recurrence, '');
+
+        Evaluate(RecurringFrequency, '<1M>');
+        CashFlowMgt.RecurringFrequencyToRecurrence(RecurringFrequency, Recurrence);
+        Assert.AreEqual(Recurrence::Monthly, Recurrence, '');
+
+        Evaluate(RecurringFrequency, '<1Q>');
+        CashFlowMgt.RecurringFrequencyToRecurrence(RecurringFrequency, Recurrence);
+        Assert.AreEqual(Recurrence::Quarterly, Recurrence, '');
+
+        Evaluate(RecurringFrequency, '<1Y>');
+        CashFlowMgt.RecurringFrequencyToRecurrence(RecurringFrequency, Recurrence);
+        Assert.AreEqual(Recurrence::Yearly, Recurrence, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SourceNoTableRelationForReceivablesNegative()
+    var
+        CashFlowForecastEntry: Record "Cash Flow Forecast Entry";
+        SourceNo: Code[20];
+    begin
+        // [FEATURE] [Receivables] [Customer Ledger Entry] [UT]
+        // [SCENARIO 226697] "Source No." of receivables Cash Flow Forecast Entry must not allow to set values that are not in "Document No." of Customer Ledger Entries
+        CashFlowForecastEntry.Init;
+        CashFlowForecastEntry.Validate("Source Type", CashFlowForecastEntry."Source Type"::Receivables);
+        SourceNo := LibraryUtility.GenerateGUID;
+        asserterror CashFlowForecastEntry.Validate("Source No.", SourceNo);
+        Assert.ExpectedError(StrSubstNo(CustLedgerEntryNotFoundErr, SourceNo));
+        Assert.ExpectedErrorCode(NothingInsideFilterTok);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SourceNoTableRelationForReceivablesTrue()
+    var
+        CashFlowForecastEntry: Record "Cash Flow Forecast Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        // [FEATURE] [Receivables] [Customer Ledger Entry] [UT]
+        // [SCENARIO 226697] "Source No." of receivables Cash Flow Forecast Entry must allow to set values that are in "Document No." of Customer Ledger Entries
+        CustLedgerEntry.Init;
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
+        CustLedgerEntry.Insert;
+
+        CashFlowForecastEntry.Init;
+        CashFlowForecastEntry.Validate("Source Type", CashFlowForecastEntry."Source Type"::Receivables);
+        CashFlowForecastEntry.Validate("Source No.", CustLedgerEntry."Document No.");
+        CashFlowForecastEntry.TestField("Source No.", CustLedgerEntry."Document No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SourceNoTableRelationForPayablesNegative()
+    var
+        CashFlowForecastEntry: Record "Cash Flow Forecast Entry";
+        SourceNo: Code[20];
+    begin
+        // [FEATURE] [Payables] [Vendor Ledger Entry] [UT]
+        // [SCENARIO 226697] "Source No." of payables Cash Flow Forecast Entry must not allow to set values that are not in "Document No." of Vendor Ledger Entries
+        CashFlowForecastEntry.Init;
+        CashFlowForecastEntry.Validate("Source Type", CashFlowForecastEntry."Source Type"::Payables);
+        SourceNo := LibraryUtility.GenerateGUID;
+        asserterror CashFlowForecastEntry.Validate("Source No.", SourceNo);
+        Assert.ExpectedError(StrSubstNo(VendLedgerEntryNotFoundErr, SourceNo));
+        Assert.ExpectedErrorCode(NothingInsideFilterTok);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SourceNoTableRelationForPayablesTrue()
+    var
+        CashFlowForecastEntry: Record "Cash Flow Forecast Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [FEATURE] [Payables] [Vendor Ledger Entry] [UT]
+        // [SCENARIO 226697] "Source No." of payables Cash Flow Forecast Entry must allow to set values that are in "Document No." of Vendor Ledger Entries
+        VendorLedgerEntry.Init;
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
+        VendorLedgerEntry.Insert;
+
+        CashFlowForecastEntry.Init;
+        CashFlowForecastEntry.Validate("Source Type", CashFlowForecastEntry."Source Type"::Payables);
+        CashFlowForecastEntry.Validate("Source No.", VendorLedgerEntry."Document No.");
+        CashFlowForecastEntry.TestField("Source No.", VendorLedgerEntry."Document No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExcludeReverseChargesForTaxesFromVATEntries()
+    var
+        VATEntry: Record "VAT Entry";
+        CashFlowManagement: Codeunit "Cash Flow Management";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 269517] Reverse Charge VAT operations are excluded from VAT Entries for Taxes from VAT Entries
+
+        CashFlowManagement.SetViewOnVATEntryForTaxCalc(VATEntry, WorkDate);
+        Assert.AreEqual(
+          StrSubstNo('<>%1', VATEntry."VAT Calculation Type"::"Reverse Charge VAT"),
+          VATEntry.GetFilter("VAT Calculation Type"),
+          'Wrong filter of VAT Calculation Type');
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cash Flow UnitTests");
+        Evaluate(PlusOneDayFormula, '<+1D>');
+        Evaluate(MinusOneDayFormula, '<-1D>');
+        if IsInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Cash Flow UnitTests");
+
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+
+        IsInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Flow UnitTests");
+    end;
+}
+
