@@ -703,7 +703,7 @@ page 151 "Customer Statistics"
             DateFilterCalc.CreateFiscalYearFilter(CustDateFilter[3], CustDateName[3], CurrentDate, -1);
         end;
 
-        SetRange("Date Filter", 0D, CurrentDate);
+        SetDateFilter();
 
         for i := 1 to 4 do begin
             SetFilter("Date Filter", CustDateFilter[i]);
@@ -766,5 +766,17 @@ page 151 "Customer Statistics"
         i: Integer;
         InvAmountsLCY: array[4] of Decimal;
         Text001: Label 'Placeholder';
+
+    local procedure SetDateFilter()
+    begin
+        SetRange("Date Filter", 0D, CurrentDate);
+
+        OnAfterSetDateFilter(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDateFilter(var Customer: Record Customer)
+    begin
+    end;
 }
 

@@ -150,6 +150,7 @@ report 750 "Save as Standard Gen. Journal"
                     StdGenJnlLine."Bal. VAT Difference" := 0;
                     StdGenJnlLine."Balance (LCY)" := 0;
                 end;
+                OnBeforeStandardGenJnlLineInsert(StdGenJnlLine, GenJnlLine);
                 StdGenJnlLine.Insert(true);
                 CopyGenJnlLineDims(GenJnlLine, StdGenJnlLine);
             until GenJnlLine.Next = 0;
@@ -184,6 +185,11 @@ report 750 "Save as Standard Gen. Journal"
             StdGenJnl1.Copy(StdGenJnl);
 
         exit(StdJournalCreated);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStandardGenJnlLineInsert(var StandardGeneralJournalLine: Record "Standard General Journal Line"; GenJnlLine: Record "Gen. Journal Line")
+    begin
     end;
 }
 

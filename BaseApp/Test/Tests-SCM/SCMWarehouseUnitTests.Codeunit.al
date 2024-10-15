@@ -28,6 +28,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         NotificationMsg: Label 'The available inventory for item %1 is lower than the entered quantity at this location.', Comment = '%1=Item No.';
         CannotCreateBinWithoutLocationErr: Label 'Location Code must have a value';
         LibrarySales: Codeunit "Library - Sales";
+        ItemTrkgManagedByWhseMsg: Label 'You cannot assign a lot or serial number because item tracking for this document line is done through a warehouse activity.';
 
     [Test]
     [Scope('OnPrem')]
@@ -574,6 +575,43 @@ codeunit 137504 "SCM Warehouse Unit Tests"
           WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Place, ShelfNo[3], BinCode[1]);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler,MessageHandler,SendNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure NotificationWhenItemTrackingIsHandledByWhse()
+    var
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Item Tracking]
+        // [SCENARIO 356989] A user is notified when they cannot assign lot or serial no. via Item Tracking Lines page because a warehouse activity exists.
+        Initialize();
+
+        // [GIVEN] Lot-tracked item with "Lot Warehouse Tracking" = TRUE.
+        // [GIVEN] Location that requires put-away.
+        ItemNo := CreateItemWithLotTracking();
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, false, false, false);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 3, false);
+
+        // [GIVEN] Released purchase order.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, LibraryRandom.RandInt(10), Location.Code, WorkDate());
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create inventory put-away.
+        LibraryWarehouse.CreateInvtPutPickPurchaseOrder(PurchaseHeader);
+
+        // [WHEN] Go back to the purchase order and open item tracking lines.
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [THEN] A notification is raised pointing that the item tracking can only be set in put-away.
+        Assert.ExpectedMessage(ItemTrkgManagedByWhseMsg, LibraryVariableStorage.DequeueText());
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Unit Tests");
@@ -585,8 +623,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
     begin
-        Clear(Item);
-        MockItemWithBaseUOM(Item);
+        LibraryInventory.CreateItem(Item);
         ItemTrackingCode.Init();
         ItemTrackingCode.Code := LibraryUtility.GenerateGUID;
         ItemTrackingCode."Lot Specific Tracking" := true;
@@ -2279,7 +2316,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         PAGE.Run(PAGE::"Sales Order Subform", SalesLine);
         SalesOrderSubform."Unit of Measure Code".SetValue(BigItemUnitOfMeasure.Code);
         // VERIFY : An availabity notification is sent
+        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, Item."No."), LibraryVariableStorage.DequeueText());
         NotificationLifecycleMgt.RecallAllNotifications;
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2468,6 +2508,12 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         end;
     end;
 
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
     [RecallNotificationHandler]
     [Scope('OnPrem')]
     procedure RecallNotificationHandler(var Notification: Notification): Boolean
@@ -2478,7 +2524,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     [Scope('OnPrem')]
     procedure SendNotificationHandler(var Notification: Notification): Boolean
     begin
-        Assert.ExpectedMessage(Notification.Message, StrSubstNo(NotificationMsg, Notification.GetData('ItemNo')))
+        LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 }
 

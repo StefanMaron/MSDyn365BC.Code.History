@@ -1487,15 +1487,14 @@ table 5767 "Warehouse Activity Line"
                 repeat
                     ItemTrackingMgt.CalcWhseItemTrkgLine(WhseItemTrkgLine);
                     UpdateReservation(WhseActivLine, true);
-                    if WhseActivLine."Whse. Document Type" in
-                       [WhseActivLine."Whse. Document Type"::Production, WhseActivLine."Whse. Document Type"::Assembly]
+                    if (WhseActivLine."Whse. Document Type" in
+                        [WhseActivLine."Whse. Document Type"::Production, WhseActivLine."Whse. Document Type"::Assembly]) and
+                       not WhseActivLine."Assemble to Order"
                     then
                         if WhseItemTrkgLine."Quantity Handled (Base)" = 0 then
                             WhseItemTrkgLine.Delete
                         else begin
-                            WhseItemTrkgLine."Quantity (Base)" := WhseItemTrkgLine."Quantity Handled (Base)";
-                            WhseItemTrkgLine."Qty. to Handle (Base)" := 0;
-                            WhseItemTrkgLine."Qty. to Handle" := 0;
+                            WhseItemTrkgLine.Validate("Quantity (Base)", WhseItemTrkgLine."Quantity Handled (Base)");
                             WhseItemTrkgLine.Modify();
                         end
                     else

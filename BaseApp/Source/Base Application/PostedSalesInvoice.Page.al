@@ -804,10 +804,15 @@ page 132 "Posted Sales Invoice"
                 Visible = NOT IsOfficeAddin;
 
                 trigger OnAction()
+                var
+                    IsHandled: Boolean;
                 begin
                     SalesInvHeader := Rec;
                     CurrPage.SetSelectionFilter(SalesInvHeader);
-                    SalesInvHeader.PrintRecords(true);
+                    IsHandled := false;
+                    OnBeforeSalesInvHeaderPrintRecords(SalesInvHeader, IsHandled);
+                    if not IsHandled then
+                        SalesInvHeader.PrintRecords(true);
                 end;
             }
             action(Email)
@@ -1092,6 +1097,11 @@ page 132 "Posted Sales Invoice"
         PaymentServiceSetup: Record "Payment Service Setup";
     begin
         PaymentServiceEnabled := PaymentServiceSetup.CanChangePaymentService(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesInvHeaderPrintRecords(var SalesInvHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

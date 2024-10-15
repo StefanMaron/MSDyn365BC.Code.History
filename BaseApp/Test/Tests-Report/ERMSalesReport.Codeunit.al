@@ -3147,6 +3147,184 @@ codeunit 134976 "ERM Sales Report"
           StrSubstNo('%1: %2: %3', Customer.TableCaption, Customer.FieldCaption("No."), Customer."No."));
     end;
 
+    [Test]
+    [HandlerFunctions('StdSalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesInvoiceVATAmountSpecification()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Invoice]
+        // [SCENARIO 360359] Report "Standard Sales - Invoice" contains "VAT Amount Specification", when
+        // [SCENARIO 360359] "VAT %" = 0, "VAT Clause Code" = '', and Amount = "Amount Including VAT"
+        Initialize();
+
+        // [GIVEN] Using RDLC layout for "Standard Sales - Invoice" report
+
+        SetRDLCReportLayout(REPORT::"Standard Sales - Invoice");
+
+        // [GIVEN] Posted Sales Invoice with Sales Line, for which
+        // [GIVEN] "VAT %" = 0, "VAT Clause Code" = '', and Amount = "Amount Including VAT"
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        SalesLine.Validate("VAT %", 0);
+        SalesLine.Validate("VAT Clause Code", '');
+        SalesLine.Modify(true);
+        SalesLine.TestField(Amount, SalesLine."Amount Including VAT");
+
+        // [WHEN] Report "Standard Sales - Invoice" is run for Posted Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, false));
+        SalesInvoiceHeader.SetRecFilter();
+        REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [THEN] Report contains "VAT Amount Specification" section
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementTagExists('VATAmountSpecification_Lbl');
+    end;
+
+    [Test]
+    [HandlerFunctions('StdSalesCrMemoRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesCreditMemoVATAmountSpecification()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Credit Memo]
+        // [SCENARIO 360359] Report "Standard Sales - Credit Memo" contains "VAT Amount Specification", when
+        // [SCENARIO 360359] "VAT %" = 0, "VAT Clause Code" = '', and Amount = "Amount Including VAT"
+        Initialize();
+
+        // [GIVEN] Using RDLC layout for "Standard Sales - Credit Memo" report
+        SetRDLCReportLayout(REPORT::"Standard Sales - Credit Memo");
+
+        // [GIVEN] Posted Sales Credit Memo with Sales Line, for which
+        // [GIVEN] "VAT %" = 0, "VAT Clause Code" = '', and Amount = "Amount Including VAT"
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        SalesLine.Validate("VAT %", 0);
+        SalesLine.Validate("VAT Clause Code", '');
+        SalesLine.Modify(true);
+        SalesLine.TestField(Amount, SalesLine."Amount Including VAT");
+
+        // [WHEN] Report "Standard Sales - Credit Memo" is run for Posted Sales Credit Memo
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesCrMemoHeader.SetRecFilter();
+        REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
+
+        // [THEN] Report contains "VAT Amount Specification" section
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementTagExists('VATAmountSpecification_Lbl');
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerDetailedAgingRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerDetailedAgingDueMonthsCalculation()
+    var
+        GenJournalLine: array[4] of Record "Gen. Journal Line";
+        Customer: Record Customer;
+        DueDate: array[4] of Date;
+        EndingDate: Date;
+        i: Integer;
+        Year: Integer;
+        Month: Integer;
+        Day: Integer;
+    begin
+        // [FEATURE] [Customer] [Customer Detailed Aging]
+        // [SCENARIO 360075] Report "Customer Detailed Aging" shows consistent Due Months when dates are set in months with different amount of days
+        Initialize();
+
+        // [GIVEN] Customer was created
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Ending Date = 20/7/2022
+        Year := Date2DMY(WorkDate, 3) + LibraryRandom.RandInt(5);
+        Month := LibraryRandom.RandIntInRange(5, 10);
+        Day := LibraryRandom.RandIntInRange(10, 25);
+        EndingDate := DMY2Date(Day, Month, Year);
+
+        // [GIVEN] Due Date 1 = 01/03/2022
+        DueDate[1] := DMY2Date(1, Month - 4, Year);
+
+        // [GIVEN] Due Date 2 = 25/03/2022
+        DueDate[2] := DMY2Date(Day + LibraryRandom.RandIntInRange(2, 9), Month - 4, Year);
+
+        // [GIVEN] Due Date 3 = 15/04/2022
+        DueDate[3] := DMY2Date(Day - LibraryRandom.RandIntInRange(2, 8), Month - 3, Year);
+
+        // [GIVEN] Due Date 4 = 30/04/2021
+        DueDate[4] := CalcDate('<CM>', DMY2Date(1, Month - 3, Year - 1));
+
+        // [GIVEN] 4 invoices were posted for the Customer with Due Dates 1 to 4
+        for i := 1 to ArrayLen(GenJournalLine) do
+            CreatePostGeneralJournalLineWithDueDate(
+              GenJournalLine[i], GenJournalLine[i]."Document Type"::Invoice,
+              Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate, DueDate[i]);
+
+        // [WHEN] The Customer Detailed Aging report is ran for customer with Ending Date
+        LibraryVariableStorage.Enqueue(EndingDate);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        REPORT.Run(REPORT::"Customer Detailed Aging");
+        // UI handled by CustomerDetailedAgingRequestPageHandler
+
+        LibraryReportDataset.LoadDataSetFile;
+        // [THEN] DueMonths for Due Date 1 is 4
+        VerifyDueMonthsForDueDate(DueDate[1], 4);
+
+        // [THEN] DueMonths for Due Date 2 is 3
+        VerifyDueMonthsForDueDate(DueDate[2], 3);
+
+        // [THEN] DueMonths for Due Date 3 is 3
+        VerifyDueMonthsForDueDate(DueDate[3], 3);
+
+        // [THEN] DueMonths for Due Date 4 is 14
+        VerifyDueMonthsForDueDate(DueDate[4], 14);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesStatisticsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsReportForNonInventoryItem()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Non-Inventory Item]
+        // [SCENARIO 359883] Cost of a non-inventory item in Sales Statistics report.
+        Initialize();
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Non-inventory item with "Unit Cost" = 10 and "Unit Price" = 30.
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        Item.Validate("Unit Price", LibraryRandom.RandDecInRange(200, 400, 2));
+        Item.Modify(true);
+
+        // [GIVEN] Sales order for 1 pc of the non-inventory item.
+        // [GIVEN] Ship and invoice the sales order.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Run "Sales Statistics" report.
+        Commit;
+        Customer.SetRecFilter();
+        REPORT.Run(REPORT::"Sales Statistics", true, false, Customer);
+
+        // [THEN] The report shows "Profit" = 20, and "Adjusted Cost" = 10.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('CustProfitLCY2', Item."Unit Price" - Item."Unit Cost");
+        LibraryReportDataset.AssertElementWithValueExists('CustSalProfAdjmtCostLCY2', Item."Unit Cost");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Report");
@@ -3697,6 +3875,16 @@ codeunit 134976 "ERM Sales Report"
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         PostedCrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         YourReference := SalesHeader."Your Reference";
+    end;
+
+    local procedure CreatePostGeneralJournalLineWithDueDate(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; CustomerNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; PostingDate: Date; DueDate: Date)
+    var
+        LibraryERM: Codeunit "Library - ERM";
+    begin
+        CreateGeneralJournalLine(GenJournalLine, DocumentType, CustomerNo, CurrencyCode, Amount, PostingDate);
+        GenJournalLine.Validate("Due Date", DueDate);
+        GenJournalLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure CreateCurrencyWithFixedExchRates(RelExchRateAmount: Decimal): Code[10]
@@ -4462,6 +4650,12 @@ codeunit 134976 "ERM Sales Report"
         Assert.AreEqual(WorksheetsNumber, LibraryReportValidation.CountWorksheets, ExcelCountWorksheetsErr);
     end;
 
+    local procedure VerifyDueMonthsForDueDate(DueDate: Date; DueMonths: Integer)
+    begin
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Cust_Ledger_Entry_Due_Date_', Format(DueDate)) + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals('OverDueMonths', DueMonths);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -5016,6 +5210,13 @@ codeunit 134976 "ERM Sales Report"
     procedure StdSalesCreditMemoExcelRequestPageHandler(var StandardSalesCreditMemo: TestRequestPage "Standard Sales - Credit Memo")
     begin
         StandardSalesCreditMemo.SaveAsExcel(LibraryReportValidation.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsRequestPageHandler(var SalesStatistics: TestRequestPage "Sales Statistics")
+    begin
+        SalesStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

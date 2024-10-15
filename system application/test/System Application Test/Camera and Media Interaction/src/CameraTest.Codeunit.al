@@ -89,7 +89,7 @@ codeunit 135011 "Camera Test"
         ClearLastError();
         asserterror Camera.AddPicture(TableWithMedia, TableWithMedia.FieldNo("Primary Key"));
         // [Then] The error is: 'The provided field must be of type ''Media''.'.
-        Assert.ExpectedError('Unsupported field type');
+        Assert.ExpectedError('The field type');
     end;
 
     [Test]

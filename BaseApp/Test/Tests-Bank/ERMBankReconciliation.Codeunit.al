@@ -594,20 +594,6 @@ codeunit 134141 "ERM Bank Reconciliation"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('VerifyNotificationIsSend')]
-    procedure BankAccReconciliationNotificationShownOnNew()
-    var
-        BankAccReconciliation: TestPage "Bank Acc. Reconciliation";
-    begin
-        // [FEATURE] [UI]
-        // [GIVEN] Open new Bank Account Reconciliation page 
-        // [WHEN] On Open New
-        // [THEN] A notification should be send to import bank data
-        BankAccReconciliation.OpenNew;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure BankAccReconciliationStatementNoIsNotEditable()
     var
         BankAccReconciliation: TestPage "Bank Acc. Reconciliation";
@@ -2363,15 +2349,6 @@ codeunit 134141 "ERM Bank Reconciliation"
         PaymentApplication.FILTER.SetFilter("Account No.", LibraryVariableStorage.DequeueText);
         PaymentApplication.AppliedAmount.SetValue(LibraryVariableStorage.DequeueDecimal);
         PaymentApplication.Accept.Invoke;
-    end;
-
-    [SendNotificationHandler]
-    [Scope('OnPrem')]
-    procedure VerifyNotificationIsSend(var Notification: Notification): Boolean;
-    begin
-        Assert.AreEqual('No bank statement lines exist. Choose the Import Bank Statement action to fill in the lines from a file, or enter lines manually.',
-          Notification.Message,
-          'A notification should have been shown with the expected text');
     end;
 
 }

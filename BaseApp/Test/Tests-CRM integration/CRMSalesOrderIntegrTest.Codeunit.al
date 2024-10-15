@@ -1596,7 +1596,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         OutStream: OutStream;
     begin
         CRMAnnotation.AnnotationId := CreateGuid;
-        CRMAnnotation.IsDocument := true;
+        CRMAnnotation.IsDocument := false;
         CRMAnnotation.FileSize := 0;
         CRMAnnotation.ObjectId := CRMSalesorder.SalesOrderId;
         CRMAnnotation.ObjectTypeCode := CRMAnnotation.ObjectTypeCode::salesorder;
