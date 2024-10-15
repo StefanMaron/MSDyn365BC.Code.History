@@ -211,6 +211,7 @@ report 6030 "Create Contract Invoices"
         HideDialog: Boolean;
         SetOptionsCalled: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'You have not filled in the posting date.';
         Text001: Label 'The posting date is later than the work date.\\Confirm that this is the correct date.';
         Text002: Label 'The program has stopped the batch job at your request.';
@@ -218,9 +219,12 @@ report 6030 "Create Contract Invoices"
         Text004: Label 'The Invoice-to Date is later than the work date.\\Confirm that this is the correct date.';
         Text005: Label 'Creating contract invoices...\\';
         Text006: Label 'Service Order is missing.';
+#pragma warning disable AA0470
         Text009: Label '%1 is missing.';
         Text010: Label '%1 invoices were created.';
         Text011: Label '%1 invoice was created.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CheckIfCombinationExists(FromServContract: Record "Service Contract Header"): Boolean
     var

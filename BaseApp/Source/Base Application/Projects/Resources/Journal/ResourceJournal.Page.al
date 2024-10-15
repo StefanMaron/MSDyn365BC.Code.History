@@ -547,15 +547,6 @@ page 207 "Resource Journal"
                 actionref(Card_Promoted; Card)
                 {
                 }
-#if not CLEAN22
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
             group(Category_Category8)
             {

@@ -8,15 +8,8 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Job;
-using Microsoft.Projects.Project.Ledger;
-using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
-using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
-using Microsoft.Sales.History;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 
 codeunit 99000778 OrderTrackingManagement
 {
@@ -29,6 +22,7 @@ codeunit 99000778 OrderTrackingManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Counting records...';
         Text003: Label 'CURRENT LINE';
         Text004: Label 'CANCELLATION';
@@ -37,20 +31,27 @@ codeunit 99000778 OrderTrackingManagement
         Text007: Label 'RECEIPT';
         Text008: Label 'There are no order tracking entries for this line.';
         Text009: Label 'The order tracking entries for this line have a date conflict.';
+#pragma warning restore AA0074
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemLedgEntry2: Record "Item Ledger Entry";
         ItemLedgEntry3: Record "Item Ledger Entry";
+#if not CLEAN25
         SalesLine: Record "Sales Line";
+#endif
         PurchLine: Record "Purchase Line";
         ItemJnlLine: Record "Item Journal Line";
         ReqLine: Record "Requisition Line";
+#if not CLEAN25
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderComp: Record "Prod. Order Component";
         AsmHeader: Record "Assembly Header";
         AsmLine: Record "Assembly Line";
+#endif
         PlanningComponent: Record "Planning Component";
-        ServLine: Record "Service Line";
-        JobPlanningLine: Record "Job Planning Line";
+#if not CLEAN25
+        ServLine: Record Microsoft.Service.Document."Service Line";
+        JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line";
+#endif
         ReservEntry: Record "Reservation Entry";
         TempReservEntryList: Record "Reservation Entry" temporary;
         TempOrderTrackingEntry: Record "Order Tracking Entry" temporary;
@@ -81,9 +82,11 @@ codeunit 99000778 OrderTrackingManagement
         exit(CaptionText);
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line")
     var
-        SaleShptLine: Record "Sales Shipment Line";
+        SaleShptLine: Record Microsoft.Sales.History."Sales Shipment Line";
     begin
         CurrentSalesLine.TestField(Type, CurrentSalesLine.Type::Item);
         SalesLine := CurrentSalesLine;
@@ -104,6 +107,7 @@ codeunit 99000778 OrderTrackingManagement
                 until SaleShptLine.Next() = 0;
         end;
     end;
+#endif
 
     procedure SetReqLine(var CurrentReqLine: Record "Requisition Line")
     begin
@@ -115,9 +119,11 @@ codeunit 99000778 OrderTrackingManagement
         IsPlanning := ReqLine."Planning Line Origin" <> ReqLine."Planning Line Origin"::" ";
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
     procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line")
     var
-        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchRcptLine: Record Microsoft.Purchases.History."Purch. Rcpt. Line";
     begin
         CurrentPurchLine.TestField(Type, CurrentPurchLine.Type::Item);
         PurchLine := CurrentPurchLine;
@@ -137,7 +143,10 @@ codeunit 99000778 OrderTrackingManagement
                 until PurchRcptLine.Next() = 0;
         end;
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
     procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line")
     begin
         ProdOrderLine := CurrentProdOrderLine;
@@ -160,7 +169,10 @@ codeunit 99000778 OrderTrackingManagement
                 until ItemLedgEntry2.Next() = 0;
         end;
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
     procedure SetProdOrderComp(var CurrentProdOrderComp: Record "Prod. Order Component")
     begin
         ProdOrderComp := CurrentProdOrderComp;
@@ -191,7 +203,10 @@ codeunit 99000778 OrderTrackingManagement
                 until ItemLedgEntry2.Next() = 0;
         end;
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
     procedure SetAsmHeader(var CurrentAsmHeader: Record "Assembly Header")
     begin
         AsmHeader := CurrentAsmHeader;
@@ -211,7 +226,10 @@ codeunit 99000778 OrderTrackingManagement
                 until ItemLedgEntry2.Next() = 0;
         end;
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
     procedure SetAsmLine(var CurrentAsmLine: Record "Assembly Line")
     begin
         AsmLine := CurrentAsmLine;
@@ -231,6 +249,7 @@ codeunit 99000778 OrderTrackingManagement
                 until ItemLedgEntry2.Next() = 0;
         end;
     end;
+#endif
 
     procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component")
     begin
@@ -278,13 +297,15 @@ codeunit 99000778 OrderTrackingManagement
         MultipleItemLedgEntries := (TempItemLedgEntry.Count > 1);
     end;
 
-    procedure SetServLine(var CurrentServLine: Record "Service Line")
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    procedure SetServLine(var CurrentServLine: Record Microsoft.Service.Document."Service Line")
     var
-        ServShptLine: Record "Service Shipment Line";
+        ServShptLine: Record Microsoft.Service.History."Service Shipment Line";
     begin
         CurrentServLine.TestField(Type, CurrentServLine.Type::Item);
         ServLine := CurrentServLine;
-        ReservEntry."Source Type" := DATABASE::"Service Line";
+        ReservEntry."Source Type" := DATABASE::Microsoft.Service.Document."Service Line";
 
         ReservEntry.InitSortingAndFilters(false);
         ServLine.SetReservationFilters(ReservEntry);
@@ -301,15 +322,18 @@ codeunit 99000778 OrderTrackingManagement
                 until ServShptLine.Next() = 0;
         end;
     end;
+#endif
 
-    procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line")
+#if not CLEAN25
+    [Obsolete('Replaced by SetSourceLine()', '25.0')]
+    procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
     var
-        JobUsageLink: Record "Job Usage Link";
-        JobLedgEntry: Record "Job Ledger Entry";
+        JobUsageLink: Record Microsoft.Projects.Project.Job."Job Usage Link";
+        JobLedgEntry: Record Microsoft.Projects.Project.Ledger."Job Ledger Entry";
     begin
         CurrentJobPlanningLine.TestField(Type, CurrentJobPlanningLine.Type::Item);
         JobPlanningLine := CurrentJobPlanningLine;
-        ReservEntry."Source Type" := DATABASE::"Job Planning Line";
+        ReservEntry."Source Type" := DATABASE::Microsoft.Projects.Project.Planning."Job Planning Line";
 
         ReservEntry.InitSortingAndFilters(false);
         JobPlanningLine.SetReservationFilters(ReservEntry);
@@ -327,10 +351,14 @@ codeunit 99000778 OrderTrackingManagement
                 until JobUsageLink.Next() = 0;
         end;
     end;
+#endif
 
     procedure SetSourceRecord(var SourceRecordVar: Variant)
     begin
+        OnSetSourceRecord(SourceRecordVar, ReservEntry, CaptionText, ItemLedgEntry2);
+#if not CLEAN25
         OnAfterSetSoucreRecord(SourceRecordVar, ReservEntry, CaptionText, ItemLedgEntry2);
+#endif
     end;
 
     procedure TrackedQuantity(): Decimal
@@ -697,11 +725,6 @@ codeunit 99000778 OrderTrackingManagement
         RefNo := TempOrderTrackingEntry."For Ref. No.";
 
         case Type of
-            DATABASE::"Sales Line":
-                if SalesLine.Get(Subtype, ID, RefNo) then begin
-                    TempOrderTrackingEntry."Starting Date" := SalesLine."Shipment Date";
-                    TempOrderTrackingEntry."Ending Date" := SalesLine."Shipment Date";
-                end;
             DATABASE::"Purchase Line":
                 if PurchLine.Get(Subtype, ID, RefNo) then begin
                     TempOrderTrackingEntry."Starting Date" := PurchLine."Expected Receipt Date";
@@ -722,47 +745,11 @@ codeunit 99000778 OrderTrackingManagement
                     TempOrderTrackingEntry."Starting Date" := WorkDate();
                     TempOrderTrackingEntry."Ending Date" := WorkDate();
                 end;
-            DATABASE::"Prod. Order Line":
-                if ProdOrderLine.Get(Subtype, ID, ProdOrderLineNo) then begin
-                    TempOrderTrackingEntry."Starting Date" := ProdOrderLine."Starting Date";
-                    TempOrderTrackingEntry."Ending Date" := ProdOrderLine."Ending Date";
-                end;
-            DATABASE::"Prod. Order Component":
-                if ProdOrderComp.Get(Subtype, ID, ProdOrderLineNo, RefNo) then begin
-                    TempOrderTrackingEntry."Starting Date" := ProdOrderComp."Due Date";
-                    if ProdOrderLine.Get(Subtype, ID, ProdOrderLineNo) then
-                        TempOrderTrackingEntry."Ending Date" := ProdOrderLine."Ending Date";
-                end;
-            DATABASE::"Assembly Header":
-                if AsmHeader.Get(Subtype, ID) then begin
-                    TempOrderTrackingEntry."Starting Date" := AsmHeader."Due Date";
-                    TempOrderTrackingEntry."Ending Date" := AsmHeader."Due Date";
-                end;
-            DATABASE::"Assembly Line":
-                if AsmLine.Get(Subtype, ID, RefNo) then begin
-                    TempOrderTrackingEntry."Starting Date" := AsmLine."Due Date";
-                    TempOrderTrackingEntry."Ending Date" := AsmLine."Due Date";
-                end;
             DATABASE::"Planning Component":
                 if PlanningComponent.Get(ID, BatchName, ProdOrderLineNo, RefNo) then begin
                     TempOrderTrackingEntry."Starting Date" := PlanningComponent."Due Date";
                     if ReqLine.Get(ID, BatchName, ProdOrderLineNo) then
                         TempOrderTrackingEntry."Ending Date" := ReqLine."Ending Date";
-                end;
-            DATABASE::"Service Line":
-                if ServLine.Get(Subtype, ID, RefNo) then begin
-                    TempOrderTrackingEntry."Starting Date" := ServLine."Needed by Date";
-                    TempOrderTrackingEntry."Ending Date" := ServLine."Needed by Date";
-                end;
-            DATABASE::"Job Planning Line":
-                begin
-                    JobPlanningLine.SetRange("Job No.", ID);
-                    JobPlanningLine.SetRange(Status, Subtype);
-                    JobPlanningLine.SetRange("Job Contract Entry No.", RefNo);
-                    if JobPlanningLine.FindFirst() then begin
-                        TempOrderTrackingEntry."Starting Date" := JobPlanningLine."Planning Date";
-                        TempOrderTrackingEntry."Ending Date" := JobPlanningLine."Planning Date";
-                    end;
                 end;
             else
                 OnInsertOrderTrackingEntry(TempOrderTrackingEntry, Type, Subtype, ID, RefNo, BatchName, ProdOrderLineNo);
@@ -921,7 +908,7 @@ codeunit 99000778 OrderTrackingManagement
                         FilterReqLine."Ref. Order Type"::"Prod. Order":
                             begin
                                 ToReservEntry.SetSourceFilter(
-                                    DATABASE::"Prod. Order Line", FilterReqLine."Ref. Order Status", FilterReqLine."Ref. Order No.", -1, true);
+                                    DATABASE::"Prod. Order Line", FilterReqLine."Ref. Order Status".AsInteger(), FilterReqLine."Ref. Order No.", -1, true);
                                 ToReservEntry.SetRange("Source Prod. Order Line", FilterReqLine."Ref. Line No.");
                                 OK := ToReservEntry.Find('-');
                             end;
@@ -941,8 +928,16 @@ codeunit 99000778 OrderTrackingManagement
     begin
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by event with corrected name OnSetSourceRecord', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSoucreRecord(var SourceRecordVar: Variant; var ReservationEntry: Record "Reservation Entry"; var CaptionText: Text; var ItemLedgerEntry2: Record "Item Ledger Entry")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourceRecord(var SourceRecordVar: Variant; var ReservationEntry: Record "Reservation Entry"; var CaptionText: Text; var ItemLedgerEntry2: Record "Item Ledger Entry")
     begin
     end;
 
@@ -973,6 +968,11 @@ codeunit 99000778 OrderTrackingManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindRecordsInner(var SuppressMessages: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourceLine(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 }

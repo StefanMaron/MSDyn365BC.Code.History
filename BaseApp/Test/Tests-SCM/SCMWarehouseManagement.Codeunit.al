@@ -2408,13 +2408,10 @@ codeunit 137064 "SCM Warehouse Management"
 
         // [WHEN] Post "WS"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
-
         // [THEN] "L" has Shipment Date = "D2"
-        with SalesLine do begin
-            SetRange("Document No.", SalesHeader."No.");
-            FindFirst();
-            TestField("Shipment Date", WorkDate() + DeltaDate);
-        end;
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        SalesLine.TestField("Shipment Date", WorkDate() + DeltaDate);
     end;
 
     [Test]
@@ -2488,8 +2485,8 @@ codeunit 137064 "SCM Warehouse Management"
         ShipBin: Record Bin;
         BulkBin: Record Bin;
         WarehouseEntry: Record "Warehouse Entry";
-        WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
+        WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         LotNo: Code[50];
         SalesDocNo: Code[20];
         ShipmentDocNo: Code[20];
@@ -2816,15 +2813,13 @@ codeunit 137064 "SCM Warehouse Management"
     var
         BinContent: Record "Bin Content";
     begin
-        with BinContent do begin
-            SetRange("Location Code", LocationCode);
-            SetRange("Bin Code", BinCode);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
+        BinContent.SetRange("Location Code", LocationCode);
+        BinContent.SetRange("Bin Code", BinCode);
+        BinContent.SetRange("Item No.", ItemNo);
+        BinContent.FindFirst();
 
-            Validate("Block Movement", "Block Movement"::All);
-            Modify(true);
-        end;
+        BinContent.Validate("Block Movement", BinContent."Block Movement"::All);
+        BinContent.Modify(true);
     end;
 
     local procedure CreateLocationSetup()
@@ -3008,13 +3003,11 @@ codeunit 137064 "SCM Warehouse Management"
 
     local procedure CreateMockWarehouseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LocationCode: Code[10]; ItemNo: Code[20]; ZoneCode: Code[10])
     begin
-        with WhseWorksheetLine do begin
-            Init();
-            "Location Code" := LocationCode;
-            "Item No." := ItemNo;
-            "From Zone Code" := ZoneCode;
-            "To Zone Code" := ZoneCode;
-        end;
+        WhseWorksheetLine.Init();
+        WhseWorksheetLine."Location Code" := LocationCode;
+        WhseWorksheetLine."Item No." := ItemNo;
+        WhseWorksheetLine."From Zone Code" := ZoneCode;
+        WhseWorksheetLine."To Zone Code" := ZoneCode;
     end;
 
     local procedure CreateWhseShipmentForItemWithTwoBinContents(var Item: Record Item; var Bin: array[2] of Record Bin; IsDefault: array[2] of Boolean; Quantity: Decimal)
@@ -3116,14 +3109,12 @@ codeunit 137064 "SCM Warehouse Management"
     local procedure CreateBinContentWithMinAndMaxQty(BinContent: Record "Bin Content"; Item: Record Item; LocationCode: Code[10]; BinCode: Code[20]; ZoneCode: Code[10]; BinTypeCode: Code[10]; MinQty: Decimal; MaxQty: Decimal; BinRanking: Integer)
     begin
         LibraryWarehouse.CreateBinContent(BinContent, LocationCode, ZoneCode, BinCode, Item."No.", '', Item."Base Unit of Measure");
-        with BinContent do begin
-            Validate(Fixed, true);
-            Validate("Bin Type Code", BinTypeCode);
-            Validate("Min. Qty.", MinQty);
-            Validate("Max. Qty.", MaxQty);
-            Validate("Bin Ranking", BinRanking);
-            Modify(true);
-        end;
+        BinContent.Validate(Fixed, true);
+        BinContent.Validate("Bin Type Code", BinTypeCode);
+        BinContent.Validate("Min. Qty.", MinQty);
+        BinContent.Validate("Max. Qty.", MaxQty);
+        BinContent.Validate("Bin Ranking", BinRanking);
+        BinContent.Modify(true);
     end;
 
     local procedure ChangeBinCodeOnWarehouseReceiptLine(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; BinCode: Code[20]; LocationCode: Code[10])
@@ -3218,22 +3209,20 @@ codeunit 137064 "SCM Warehouse Management"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, FieldNo("Entry No."));
-            "Location Code" := LocationCode;
-            "Bin Code" := BinCode;
-            "Item No." := ItemNo;
-            "Lot No." := LotNo;
-            "Qty. (Base)" := QtyBase;
-            "Source Type" := SourceType;
-            "Source No." := SourceNo;
-            "Whse. Document Type" := WhseDocType;
-            "Whse. Document No." := WhseDocNo;
-            "Entry Type" := EntryType;
-            "Reference Document" := RefDoc;
-            Insert();
-        end;
+        WarehouseEntry.Init();
+        WarehouseEntry."Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, WarehouseEntry.FieldNo("Entry No."));
+        WarehouseEntry."Location Code" := LocationCode;
+        WarehouseEntry."Bin Code" := BinCode;
+        WarehouseEntry."Item No." := ItemNo;
+        WarehouseEntry."Lot No." := LotNo;
+        WarehouseEntry."Qty. (Base)" := QtyBase;
+        WarehouseEntry."Source Type" := SourceType;
+        WarehouseEntry."Source No." := SourceNo;
+        WarehouseEntry."Whse. Document Type" := WhseDocType;
+        WarehouseEntry."Whse. Document No." := WhseDocNo;
+        WarehouseEntry."Entry Type" := EntryType;
+        WarehouseEntry."Reference Document" := RefDoc;
+        WarehouseEntry.Insert();
     end;
 
     local procedure ClearWarehouseJournal()
@@ -3291,12 +3280,10 @@ codeunit 137064 "SCM Warehouse Management"
 
     local procedure FindPlaceWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeaderNo: Code[20]; QuantityFilter: Decimal)
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Action Type", "Action Type"::Place);
-            SetRange("No.", WarehouseActivityHeaderNo);
-            SetRange("Qty. (Base)", QuantityFilter);
-            FindFirst();
-        end;
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeaderNo);
+        WarehouseActivityLine.SetRange("Qty. (Base)", QuantityFilter);
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindBinType(var BinType: Record "Bin Type"; PutAway: Boolean; Pick: Boolean; Receive: Boolean; Ship: Boolean)
@@ -3364,11 +3351,9 @@ codeunit 137064 "SCM Warehouse Management"
 
     local procedure SplitWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; QuantityToSplit: Decimal)
     begin
-        with WarehouseActivityLine do begin
-            Validate("Qty. to Handle", QuantityToSplit);
-            Modify(true);
-            SplitLine(WarehouseActivityLine);
-        end;
+        WarehouseActivityLine.Validate("Qty. to Handle", QuantityToSplit);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.SplitLine(WarehouseActivityLine);
     end;
 
     local procedure UpdateAndRegisterWarehouseActivityLine(LocationCode: Code[10]; ItemNo: Code[20]; ItemNo2: Code[20]; BinCode: Code[20]; BinCode2: Code[20])
@@ -3471,11 +3456,9 @@ codeunit 137064 "SCM Warehouse Management"
 
     local procedure UpdateZoneCodeAndBinCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; ZoneCode: Code[10]; BinCode: Code[20])
     begin
-        with WarehouseActivityLine do begin
-            Validate("Zone Code", ZoneCode);
-            Validate("Bin Code", BinCode);
-            Modify(true);
-        end;
+        WarehouseActivityLine.Validate("Zone Code", ZoneCode);
+        WarehouseActivityLine.Validate("Bin Code", BinCode);
+        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure UpdateItemWithWarehouseClass(var Item: Record Item; var WarehouseClass: Record "Warehouse Class")
@@ -3580,15 +3563,13 @@ codeunit 137064 "SCM Warehouse Management"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Activity Type", "Activity Type"::Movement);
-            SetRange("Item No.", ItemNo);
-            SetRange("Action Type", ActionType);
-            SetRange("Unit of Measure Code", UnitOfMeasureCode);
-            SetFilter("Bin Code", '<>%1', BinCode);
-            FindFirst();
-            TestField(Quantity, ExpectedQuantity);
-        end;
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Movement);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.SetRange("Unit of Measure Code", UnitOfMeasureCode);
+        WarehouseActivityLine.SetFilter("Bin Code", '<>%1', BinCode);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField(Quantity, ExpectedQuantity);
     end;
 
     local procedure VerifyWarehouseActivityLineDetails(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal; BinCode: Code[20]; ActionType: Enum "Warehouse Action Type")

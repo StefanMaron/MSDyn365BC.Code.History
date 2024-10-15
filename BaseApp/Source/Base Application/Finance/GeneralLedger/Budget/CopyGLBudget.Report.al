@@ -335,17 +335,23 @@ report 96 "Copy G/L Budget"
         OldBUCode: Code[20];
         WindowUpdateDateTime: DateTime;
 
+#pragma warning disable AA0074
         Text001: Label 'Dimensions';
         Text002: Label 'You must specify a budget name to copy from.';
         Text003: Label 'You must specify a date interval to copy from.';
         Text004: Label 'You must specify a budget name to copy to.';
+#pragma warning disable AA0470
         Text005: Label 'Do you want to create G/L Budget Name %1?';
+#pragma warning restore AA0470
         Text006: Label 'Do you want to start the copy?';
         Text007: Label 'Copying budget...\\';
+#pragma warning disable AA0470
         Text008: Label 'G/L Account No. #1####################\';
         Text009: Label 'Posting Date    #2######';
+#pragma warning restore AA0470
         Text010: Label 'Budget has been successfully copied.';
         Text011: Label 'You can define only one G/L Account.';
+#pragma warning restore AA0074
 
     local procedure ProcessRecord(GLAccNo: Code[20]; BUCode: Code[20]; PostingDate: Date; PostingDescription: Text[100]; DimSetID: Integer; Amount: Decimal)
     var

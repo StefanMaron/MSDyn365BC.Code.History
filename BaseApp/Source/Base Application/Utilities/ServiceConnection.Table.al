@@ -1,8 +1,5 @@
 namespace Microsoft.Utilities;
 
-#if not CLEAN22
-#pragma warning disable AS0109
-#endif
 table 1400 "Service Connection"
 {
     Caption = 'Service Connection';

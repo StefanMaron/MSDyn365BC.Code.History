@@ -4,7 +4,6 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
 using System.Utilities;
 
 xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
@@ -256,7 +255,7 @@ xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
                         URI,
                         mimeCode,
                         EmbeddedDocumentBinaryObject,
-                        ProcessedDocType);
+                        ProcessedDocType.AsInteger());
 
                     if AdditionalDocumentReferenceID = '' then
                         currXMLport.Skip();
@@ -2163,19 +2162,18 @@ xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
     var
         GLSetup: Record "General Ledger Setup";
         TempVATAmtLine: Record "VAT Amount Line" temporary;
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        ServiceCrMemoLine: Record "Service Cr.Memo Line";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         TempSalesLineRounding: Record "Sales Line" temporary;
         PEPPOLMgt: Codeunit "PEPPOL Management";
+        SourceRecRef: RecordRef;
         DummyVar: Text;
+
         SpecifyASalesCreditMemoNoErr: Label 'You must specify a sales credit memo number.';
-        SpecifyAServCreditMemoNoErr: Label 'You must specify a service invoice number.';
         UnSupportedTableTypeErr: Label 'The %1 table is not supported.', Comment = '%1 is the table.';
-        ProcessedDocType: Option Sale,Service;
+        ProcessedDocType: Enum "PEPPOL Processing Type";
 
     procedure GetTotals()
     begin
@@ -2189,29 +2187,29 @@ xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
                             PEPPOLMgt.GetTotals(SalesLine, TempVATAmtLine);
                         until SalesCrMemoLine.Next() = 0;
                 end;
-            ProcessedDocType::Service:
-                begin
-                    ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-                    if ServiceCrMemoLine.FindSet() then
-                        repeat
-                            PEPPOLMgt.TransferLineToSalesLine(ServiceCrMemoLine, SalesLine);
-                            SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineTypeEnum(ServiceCrMemoLine.Type);
-                            PEPPOLMgt.GetTotals(SalesLine, TempVATAmtLine);
-                        until ServiceCrMemoLine.Next() = 0;
-                end;
+            else
+                OnGetTotals(SourceRecRef, SalesLine, TempVATAmtLine, ProcessedDocType);
         end;
     end;
 
-    local procedure FindNextCreditMemoRec(Position: Integer): Boolean
+    local procedure FindNextCreditMemoRec(Position: Integer) Found: Boolean
     begin
-        exit(
-          PEPPOLMgt.FindNextCreditMemoRec(SalesCrMemoHeader, ServiceCrMemoHeader, SalesHeader, ProcessedDocType, Position));
+        case ProcessedDocType of
+            ProcessedDocType::Sale:
+                exit(PEPPOLMgt.FindNextSalesCreditMemoRec(SalesCrMemoHeader, SalesHeader, Position));
+            else
+                OnFindNextCreditMemoRec(Position, SalesHeader, Found);
+        end;
     end;
 
-    local procedure FindNextCreditMemoLineRec(Position: Integer): Boolean
+    local procedure FindNextCreditMemoLineRec(Position: Integer) Found: Boolean
     begin
-        exit(
-          PEPPOLMgt.FindNextCreditMemoLineRec(SalesCrMemoLine, ServiceCrMemoLine, SalesLine, ProcessedDocType, Position));
+        case ProcessedDocType of
+            ProcessedDocType::Sale:
+                exit(PEPPOLMgt.FindNextSalesCreditMemoLineRec(SalesCrMemoLine, SalesLine, Position));
+            else
+                OnFindNextCreditMemoLineRec(Position, SalesLine, Found);
+        end;
     end;
 
     local procedure FindNextVATAmtRec(var VATAmtLine: Record "VAT Amount Line"; Position: Integer): Boolean
@@ -2223,13 +2221,13 @@ xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
 
     procedure Initialize(DocVariant: Variant)
     var
-        RecRef: RecordRef;
+        IsHandled: Boolean;
     begin
-        RecRef.GetTable(DocVariant);
-        case RecRef.Number of
+        SourceRecRef.GetTable(DocVariant);
+        case SourceRecRef.Number of
             DATABASE::"Sales Cr.Memo Header":
                 begin
-                    RecRef.SetTable(SalesCrMemoHeader);
+                    SourceRecRef.SetTable(SalesCrMemoHeader);
                     if SalesCrMemoHeader."No." = '' then
                         Error(SpecifyASalesCreditMemoNoErr);
                     SalesCrMemoHeader.SetRecFilter();
@@ -2237,18 +2235,12 @@ xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
 
                     ProcessedDocType := ProcessedDocType::Sale;
                 end;
-            DATABASE::"Service Cr.Memo Header":
-                begin
-                    RecRef.SetTable(ServiceCrMemoHeader);
-                    if ServiceCrMemoHeader."No." = '' then
-                        Error(SpecifyAServCreditMemoNoErr);
-                    ServiceCrMemoHeader.SetRecFilter();
-                    ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-
-                    ProcessedDocType := ProcessedDocType::Service;
-                end;
-            else
-                Error(UnSupportedTableTypeErr, RecRef.Number);
+            else begin
+                IsHandled := false;
+                OnInitialize(SourceRecRef, ProcessedDocType, IsHandled);
+                if not IsHandled then
+                    Error(UnSupportedTableTypeErr, SourceRecRef.Number);
+            end;
         end;
     end;
 
@@ -2265,6 +2257,26 @@ xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
     local procedure GetProfileID(): Text
     begin
         exit('urn:www.cenbii.eu:profile:bii05:ver2.0');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetTotals(SourceRecRef: RecordRef; var SalesLine: Record "Sales Line"; var TempVATAmtLine: Record "VAT Amount Line" temporary; ProcessedDocType: Enum "PEPPOL Processing Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitialize(SourceRecRef: RecordRef; var ProcessedDocType: Enum "PEPPOL Processing Type"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindNextCreditMemoRec(Position: Integer; var SalesHeader: Record "Sales Header"; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindNextCreditMemoLineRec(Position: Integer; var SalesLine: Record "Sales Line"; var Found: Boolean)
+    begin
     end;
 }
 

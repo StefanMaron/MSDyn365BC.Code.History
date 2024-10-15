@@ -59,7 +59,9 @@ table 9057 "Job Cue"
         {
             CalcFormula = count(Resource where("Qty. on Order (Job)" = filter(0),
                                                 "Qty. Quoted (Job)" = filter(0),
+#if not CLEAN25
                                                 "Qty. on Service Order" = filter(0),
+#endif
                                                 "Date Filter" = field("Date Filter")));
             Caption = 'Available Resources';
             Editable = false;

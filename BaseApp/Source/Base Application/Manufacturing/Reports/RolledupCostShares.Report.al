@@ -347,7 +347,9 @@ report 99000754 "Rolled-up Cost Shares"
         TotalCost: Decimal;
         CompItemQtyBase: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'As of ';
+#pragma warning restore AA0074
         RolledupCostSharesCaptLbl: Label 'Rolled-up Cost Shares';
         PageCaptionLbl: Label 'Page';
         TotalCostCaptionLbl: Label 'Total Cost';
@@ -360,7 +362,9 @@ report 99000754 "Rolled-up Cost Shares"
         FormatLevelCaptLbl: Label 'Level';
         CompItemBaseUOMCaptLbl: Label 'Base Unit of Measure Code';
         CostShareItemCaptLbl: Label 'Cost Shares for this Item';
+#pragma warning disable AA0470
         ProductionBomErr: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.';
+#pragma warning restore AA0470
 
     protected var
         ProdBOMLine: array[99] of Record "Production BOM Line";

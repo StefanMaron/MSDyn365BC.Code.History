@@ -65,6 +65,12 @@ page 5981 "Service Item List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns this item.';
                 }
+                field("Customer Name"; Rec.Name)
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the name of the customer who owns this item.';
+                    Visible = false;
+                }
                 field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
@@ -158,10 +164,23 @@ page 5981 "Service Item List"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Item"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Item"),
                               "No." = field("No.");
             }
@@ -614,16 +633,6 @@ page 5981 "Service Item List"
             group(Category_New)
             {
                 Caption = 'New';
-
-#if not CLEAN22
-                actionref("New Item_Promoted"; "New Item")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
             group(Category_Process)
             {
@@ -719,10 +728,10 @@ page 5981 "Service Item List"
     procedure GetSelectionFilter(): Text
     var
         ServiceItem: Record "Service Item";
-        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        ServSelectionFilterMgt: Codeunit "Serv. Selection Filter Mgt.";
     begin
         CurrPage.SetSelectionFilter(ServiceItem);
-        exit(SelectionFilterManagement.GetSelectionFilterForServiceItem(ServiceItem));
+        exit(ServSelectionFilterMgt.GetSelectionFilterForServiceItem(ServiceItem));
     end;
 
     [IntegrationEvent(false, false)]

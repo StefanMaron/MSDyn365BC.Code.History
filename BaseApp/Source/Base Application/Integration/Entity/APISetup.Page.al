@@ -174,23 +174,6 @@ page 5469 "API Setup"
                 end;
             }
 
-            action(FixSalesCrMemoReasonCode)
-            {
-                ApplicationArea = All;
-                Caption = 'Fix Sales Credit Memo API Records Reason Codes';
-                Image = Setup;
-                ToolTip = 'Updates reason codes of the records that are used by the salesCreditMemos API';
-                ObsoleteReason = 'This action will be removed together with the upgrade code.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '19.0';
-
-                trigger OnAction()
-                var
-                    GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-                begin
-                    GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Sales Cr. Memo");
-                end;
-            }
 #if not CLEAN23
             action(FixSalesInvoiceShortcutDimension)
             {
@@ -259,6 +242,13 @@ page 5469 "API Setup"
     begin
         Rec.SetAutoCalcFields("Selection Criteria");
         SetupActionVisible := EnvironmentInformation.IsOnPrem();
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        APISetupRecordCreatedLbl: Label 'The new API Setup record Table ID %1, Template Code %2, Page ID %3 is created by the UserSecurityId %4.', Locked = true;
+    begin
+        Session.LogAuditMessage(StrSubstNo(APISetupRecordCreatedLbl, Rec."Table ID", Rec."Template Code", Rec."Page ID", UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
     end;
 
     var

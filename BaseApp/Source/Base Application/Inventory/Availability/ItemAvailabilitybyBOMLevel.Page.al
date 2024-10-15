@@ -301,7 +301,7 @@ page 5871 "Item Availability by BOM Level"
 
                         trigger OnAction()
                         begin
-                            ShowItemAvailability(ItemAvailabilityFormsMgt.ByEvent());
+                            ShowItemAvailability("Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -313,7 +313,7 @@ page 5871 "Item Availability by BOM Level"
 
                         trigger OnAction()
                         begin
-                            ShowItemAvailability(ItemAvailabilityFormsMgt.ByPeriod());
+                            ShowItemAvailability("Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -325,7 +325,7 @@ page 5871 "Item Availability by BOM Level"
 
                         trigger OnAction()
                         begin
-                            ShowItemAvailability(ItemAvailabilityFormsMgt.ByVariant());
+                            ShowItemAvailability("Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -338,7 +338,7 @@ page 5871 "Item Availability by BOM Level"
 
                         trigger OnAction()
                         begin
-                            ShowItemAvailability(ItemAvailabilityFormsMgt.ByLocation());
+                            ShowItemAvailability("Item Availability Type"::Location);
                         end;
                     }
                 }
@@ -464,7 +464,6 @@ page 5871 "Item Availability by BOM Level"
     var
         AssemblyHeader: Record "Assembly Header";
         ProdOrderLine: Record "Prod. Order Line";
-        ItemAvailabilityFormsMgt: Codeunit "Item Availability Forms Mgt";
         IsParentExpr: Boolean;
         DemandDate: Date;
         IsCalculated: Boolean;
@@ -552,9 +551,10 @@ page 5871 "Item Availability by BOM Level"
         exit(DemandDate);
     end;
 
-    local procedure ShowItemAvailability(AvailType: Option)
+    local procedure ShowItemAvailability(AvailType: Enum "Item Availability Type")
     var
         ItemForShowAvailability: Record Item;
+        ItemAvailabilityFormsMgt: Codeunit "Item Availability Forms Mgt";
     begin
         Rec.TestField(Rec.Type, Rec.Type::Item);
 
@@ -568,7 +568,7 @@ page 5871 "Item Availability by BOM Level"
         if Rec.Indentation = 0 then
             ItemForShowAvailability.SetFilter("Variant Filter", VariantFilter);
 
-        ItemAvailabilityFormsMgt.ShowItemAvailFromItem(ItemForShowAvailability, AvailType);
+        ItemAvailabilityFormsMgt.ShowItemAvailabilityFromItem(ItemForShowAvailability, AvailType);
     end;
 
     local procedure ShowAbleToMakeTimeline()

@@ -430,8 +430,10 @@ page 5097 "Create Task"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label '(Multiple)';
         Text001: Label 'untitled';
+#pragma warning restore AA0074
         Cont: Record Contact;
         SalesPurchPerson: Record "Salesperson/Purchaser";
         Campaign: Record Campaign;

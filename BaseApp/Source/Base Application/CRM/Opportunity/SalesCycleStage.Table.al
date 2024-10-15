@@ -149,6 +149,8 @@ table 5091 "Sales Cycle Stage"
     var
         RMCommentLine: Record "Rlshp. Mgt. Comment Line";
 
+#pragma warning disable AA0074
         Text000: Label 'You cannot delete a stage which has active entries.';
+#pragma warning restore AA0074
 }
 

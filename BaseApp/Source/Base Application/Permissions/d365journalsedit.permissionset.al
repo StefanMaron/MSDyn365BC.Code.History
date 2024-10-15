@@ -49,9 +49,6 @@ permissionset 242 "D365 JOURNALS, EDIT"
                   tabledata "G/L Account" = R,
                   tabledata "G/L Register" = Rimd,
                   tabledata "Gen. Journal Line" = RIMD,
-#if not CLEAN22
-                  tabledata "Intrastat Jnl. Line" = RIMD,
-#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Journal Line" = RIMD,
                   tabledata "Item Tracing Buffer" = Rimd,

@@ -181,12 +181,10 @@ codeunit 134285 "Non-Deductible VAT Post. Basic"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusPostingGroup));
-            Validate("Currency Code", CurrencyCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusPostingGroup));
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendor(VATBusPostingGroup: Code[20]): Code[20]
@@ -242,16 +240,14 @@ codeunit 134285 "Non-Deductible VAT Post. Basic"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Bus. Posting Group", VATProductPostingGroup.Code);
-        with VATPostingSetup do begin
-            Validate("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            Validate("VAT %", LibraryRandom.RandInt(10));
-            AssignDeductibleVATPct(VATPostingSetup, 0);
-            Validate("Purchase VAT Account", CreateSimpleGLAccount());
-            Validate("Reverse Chrg. VAT Acc.", CreateSimpleGLAccount());
-            Validate("Sales VAT Account", CreateSimpleGLAccount());
-            AssignNonDeductibleVATAccount(VATPostingSetup, CreateSimpleGLAccount());
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandInt(10));
+        AssignDeductibleVATPct(VATPostingSetup, 0);
+        VATPostingSetup.Validate("Purchase VAT Account", CreateSimpleGLAccount());
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", CreateSimpleGLAccount());
+        VATPostingSetup.Validate("Sales VAT Account", CreateSimpleGLAccount());
+        AssignNonDeductibleVATAccount(VATPostingSetup, CreateSimpleGLAccount());
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure UpdateNondeductibleVATAccOnVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; GLAccountNo: Code[20]; DeductiblePct: Decimal)
@@ -326,30 +322,26 @@ codeunit 134285 "Non-Deductible VAT Post. Basic"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange("G/L Account No.", GLAccNo);
-            Assert.IsTrue(FindFirst(), StrSubstNo(EntryDoesNotExistErr, TableCaption(), GetFilters));
-            Assert.AreEqual(Abs(Amount), "Credit Amount", StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Credit Amount")));
-        end;
+        GLEntry.SetRange("Document Type", DocType);
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        Assert.IsTrue(GLEntry.FindFirst(), StrSubstNo(EntryDoesNotExistErr, GLEntry.TableCaption(), GLEntry.GetFilters));
+        Assert.AreEqual(Abs(GLEntry.Amount), GLEntry."Credit Amount", StrSubstNo(WrongValueErr, GLEntry.TableCaption(), GLEntry.FieldCaption("Credit Amount")));
     end;
 
     local procedure VerifyReverseChargeDeductibleVATEntries(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange(Type, Type::Purchase);
-            FindFirst();
-            Assert.AreEqual(0, Base, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Base)));
-            Assert.AreEqual(0, Amount, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption(Amount)));
-            Assert.IsTrue(
-              "Non-Deductible VAT Base" <> 0, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Non-Deductible VAT Base")));
-            Assert.IsTrue(
-              "Non-Deductible VAT Amount" <> 0, StrSubstNo(WrongValueErr, TableCaption(), FieldCaption("Non-Deductible VAT Amount")));
-        end;
+        VATEntry.SetRange("Document Type", DocType);
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.FindFirst();
+        Assert.AreEqual(0, VATEntry.Base, StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption(Base)));
+        Assert.AreEqual(0, VATEntry.Amount, StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption(Amount)));
+        Assert.IsTrue(
+          VATEntry."Non-Deductible VAT Base" <> 0, StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption("Non-Deductible VAT Base")));
+        Assert.IsTrue(
+          VATEntry."Non-Deductible VAT Amount" <> 0, StrSubstNo(WrongValueErr, VATEntry.TableCaption(), VATEntry.FieldCaption("Non-Deductible VAT Amount")));
     end;
 }

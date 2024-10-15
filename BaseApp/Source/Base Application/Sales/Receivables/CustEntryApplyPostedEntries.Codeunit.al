@@ -57,13 +57,19 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         MustNotBeBeforeErr: Label 'The posting date entered must not be before the posting date on the Cust. Ledger Entry.';
         NoEntriesAppliedErr: Label 'Cannot post because you did not specify which entry to apply. You must specify an entry in the %1 field for one or more open entries.', Comment = '%1 - Caption of "Applies to ID" field of Gen. Journal Line';
         UnapplyPostedAfterThisEntryErr: Label 'Before you can unapply this entry, you must first unapply all application entries that were posted after this entry.';
+#pragma warning disable AA0470
         NoApplicationEntryErr: Label 'Cust. Ledger Entry No. %1 does not have an application entry.';
+#pragma warning restore AA0470
         UnapplyingMsg: Label 'Unapplying and posting...';
+#pragma warning disable AA0470
         UnapplyAllPostedAfterThisEntryErr: Label 'Before you can unapply this entry, you must first unapply all application entries in Cust. Ledger Entry No. %1 that were posted after this entry.';
+#pragma warning restore AA0470
         NotAllowedPostingDatesErr: Label 'Posting date is not within the range of allowed posting dates.';
+#pragma warning disable AA0470
         LatestEntryMustBeApplicationErr: Label 'The latest Transaction No. must be an application in Cust. Ledger Entry No. %1.';
         CannotUnapplyExchRateErr: Label 'You cannot unapply the entry with the posting date %1, because the exchange rate for the additional reporting currency has been changed.';
         CannotUnapplyInReversalErr: Label 'You cannot unapply Cust. Ledger Entry No. %1 because the entry is part of a reversal.';
+#pragma warning restore AA0470
         CannotApplyClosedEntriesErr: Label 'One or more of the entries that you selected is closed. You cannot apply closed entries.';
 
     procedure Apply(CustLedgEntry: Record "Cust. Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters"): Boolean

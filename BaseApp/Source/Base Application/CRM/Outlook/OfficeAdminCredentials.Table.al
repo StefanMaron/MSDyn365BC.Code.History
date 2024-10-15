@@ -68,20 +68,32 @@ table 1612 "Office Admin. Credentials"
     [NonDebuggable]
     [Scope('OnPrem')]
     procedure SavePassword(PasswordText: Text)
+    var
+        PasswordAsSecretText: SecretText;
     begin
         PasswordText := DelChr(PasswordText, '=', ' ');
         if Password = '' then
             Password := CreateGuid();
 
-        IsolatedStorageManagement.Set(Password, PasswordText, DATASCOPE::Company);
+        PasswordAsSecretText := PasswordText;
+        IsolatedStorageManagement.Set(Password, PasswordAsSecretText, DATASCOPE::Company);
         Modify();
     end;
 
+#if not CLEAN25
     [NonDebuggable]
+    [Obsolete('Replaced by GetPasswordAsSecretText.', '25.0')]
     [Scope('OnPrem')]
     procedure GetPassword(): Text
+    begin
+        exit(GetPasswordAsSecretText().Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetPasswordAsSecretText(): SecretText
     var
-        Value: Text;
+        Value: SecretText;
     begin
         if Password <> '' then
             IsolatedStorageManagement.Get(Password, DATASCOPE::Company, Value);

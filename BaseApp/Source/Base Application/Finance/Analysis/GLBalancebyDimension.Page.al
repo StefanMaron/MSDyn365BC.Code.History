@@ -448,9 +448,13 @@ page 408 "G/L Balance by Dimension"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'Period';
+#pragma warning disable AA0470
         Text002: Label '%1 is not a valid line definition.';
         Text003: Label '%1 is not a valid column definition.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
         LineDimCode: Text[30];

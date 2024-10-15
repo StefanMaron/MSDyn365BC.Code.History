@@ -74,6 +74,10 @@ page 9013 "Machine Operator Role Center"
             {
                 ApplicationArea = Suite;
             }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part(Control3; "My Job Queue")
             {
                 ApplicationArea = Manufacturing;

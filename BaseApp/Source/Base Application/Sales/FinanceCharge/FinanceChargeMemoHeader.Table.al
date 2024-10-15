@@ -453,61 +453,6 @@ table 302 "Finance Charge Memo Header"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
-        field(13600; "EAN No."; Code[13])
-        {
-            Caption = 'EAN No.';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13602; "Account Code"; Text[30])
-        {
-            Caption = 'Account Code';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13605; "Contact Phone No."; Text[30])
-        {
-            Caption = 'Contact Phone No.';
-            ExtendedDatatype = PhoneNo;
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13606; "Contact Fax No."; Text[30])
-        {
-            Caption = 'Contact Fax No.';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13607; "Contact E-Mail"; Text[80])
-        {
-            Caption = 'Contact E-Mail';
-            ExtendedDatatype = EMail;
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13608; "Contact Role"; Option)
-        {
-            Caption = 'Contact Role';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            OptionCaption = ' ,,,Purchase Responsible,,,Accountant,,,Budget Responsible,,,Requisitioner';
-            OptionMembers = " ",,,"Purchase Responsible",,,Accountant,,,"Budget Responsible",,,Requisitioner;
-            ObsoleteTag = '15.0';
-        }
-        field(13620; "Payment Channel"; Option)
-        {
-            Caption = 'Payment Channel';
-            ObsoleteReason = 'Deprecated.';
-            ObsoleteState = Removed;
-            OptionCaption = ' ,Payment Slip,Account Transfer,National Clearing,Direct Debit';
-            OptionMembers = " ","Payment Slip","Account Transfer","National Clearing","Direct Debit";
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
@@ -545,9 +490,9 @@ table 302 "Finance Charge Memo Header"
 
     trigger OnInsert()
     var
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;                
-#endif    
+#if not CLEAN24    
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         SalesSetup.GetRecordOnce();
@@ -558,9 +503,9 @@ table 302 "Finance Charge Memo Header"
             NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
             if not IsHandled then begin
 #endif
-            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                "No. Series" := xRec."No. Series";
-            "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
 #if not CLEAN24
                 NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "Posting Date", "No.");
             end;
@@ -625,13 +570,19 @@ table 302 "Finance Charge Memo Header"
         OK: Boolean;
         SelectNoSeriesAllowed: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Finance Charge Memo %1';
         Text001: Label 'Do you want to print finance charge memo %1?';
+#pragma warning restore AA0470
         Text002: Label 'This change will cause the existing lines to be deleted for this finance charge memo.\\';
         Text003: Label 'Do you want to continue?';
         Text004: Label 'There is not enough space to insert the text.';
         Text005: Label 'Deleting this document will cause a gap in the number series for finance charge memos.';
+#pragma warning disable AA0470
         Text006: Label 'An empty finance charge memo %1 will be created to fill this gap in the number series.\\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AssistEdit(OldFinChrgMemoHeader: Record "Finance Charge Memo Header"): Boolean
     begin

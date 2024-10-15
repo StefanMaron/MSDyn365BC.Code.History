@@ -10,7 +10,7 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Period;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -272,7 +272,7 @@ page 9243 "Res. Group Capacity Matrix"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN23
+#if not CLEAN25
                 action(Costs)
                 {
                     ApplicationArea = Jobs;

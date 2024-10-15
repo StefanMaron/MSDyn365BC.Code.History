@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Service.Setup;
+namespace Microsoft.Service.Setup;
 
 using Microsoft.CRM.Setup;
 using Microsoft.CRM.Team;
@@ -6,6 +6,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.Service.Archive;
 using Microsoft.Service.Contract;
 using Microsoft.Service.Posting;
 using Microsoft.Service.Pricing;
@@ -335,6 +336,19 @@ table 5911 "Service Mgt. Setup"
             Caption = 'Check Multiple Posting Groups';
             DataClassification = SystemMetadata;
         }
+        field(185; "Archive Quotes"; Enum "Archive Service Quotes")
+        {
+            Caption = 'Archive Quotes';
+        }
+        field(186; "Archive Orders"; Boolean)
+        {
+            Caption = 'Archive Orders';
+        }
+        field(190; "Del. Filed Cont. w. main Cont."; Boolean)
+        {
+            Caption = 'Delete Filed Contracts with related main Contract';
+            ToolTip = 'Specifies whether to automatically delete all Filed Contracts when related main Contract / Contract Quote is deleted.';
+        }
         field(200; "Serv. Inv. Template Name"; Code[10])
         {
             Caption = 'Serv. Invoice Template Name';
@@ -381,20 +395,6 @@ table 5911 "Service Mgt. Setup"
             AccessByPermission = TableData "Service Contract Line" = R;
             Caption = 'Contract Credit Memo Nos.';
             TableRelation = "No. Series";
-        }
-        field(13600; "OIOUBL Service Invoice Path"; Text[250])
-        {
-            Caption = 'OIOUBL Service Invoice Path';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13601; "OIOUBL Service Cr. Memo Path"; Text[250])
-        {
-            Caption = 'OIOUBL Service Cr. Memo Path';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
     }
 

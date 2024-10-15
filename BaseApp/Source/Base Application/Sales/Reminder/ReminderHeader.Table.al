@@ -526,61 +526,6 @@ table 295 "Reminder Header"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
-        field(13600; "EAN No."; Code[13])
-        {
-            Caption = 'EAN No.';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13602; "Account Code"; Text[30])
-        {
-            Caption = 'Account Code';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13605; "Contact Phone No."; Text[30])
-        {
-            Caption = 'Contact Phone No.';
-            ExtendedDatatype = PhoneNo;
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13606; "Contact Fax No."; Text[30])
-        {
-            Caption = 'Contact Fax No.';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13607; "Contact E-Mail"; Text[80])
-        {
-            Caption = 'Contact E-Mail';
-            ExtendedDatatype = EMail;
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13608; "Contact Role"; Option)
-        {
-            Caption = 'Contact Role';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            OptionCaption = ' ,,,Purchase Responsible,,,Accountant,,,Budget Responsible,,,Requisitioner';
-            OptionMembers = " ",,,"Purchase Responsible",,,Accountant,,,"Budget Responsible",,,Requisitioner;
-            ObsoleteTag = '15.0';
-        }
-        field(13620; "Payment Channel"; Option)
-        {
-            Caption = 'Payment Channel';
-            ObsoleteReason = 'Deprecated.';
-            ObsoleteState = Removed;
-            OptionCaption = ' ,Payment Slip,Account Transfer,National Clearing,Direct Debit';
-            OptionMembers = " ","Payment Slip","Account Transfer","National Clearing","Direct Debit";
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
@@ -1040,8 +985,8 @@ table 295 "Reminder Header"
 
     procedure InsertTextLines(var LocalReminderHeader: Record "Reminder Header"; var ReminderAttachmentText: Record "Reminder Attachment Text"; LineType: Enum "Reminder Line Type"; var NextLineNumber: Integer; LineSpace: Integer)
     var
+        ReminderAttachmentTextLine: Record "Reminder Attachment Text Line";
         ReminderCommunication: Codeunit "Reminder Communication";
-        SourceDescriptionText: Text[100];
     begin
         if not ReminderAttachmentText.IsEmpty() then begin
             NextLineNo := NextLineNumber;
@@ -1064,27 +1009,35 @@ table 295 "Reminder Header"
                             + LocalReminderHeader."VAT Amount"
                             + LocalReminderHeader."Add. Fee per Line";
 
-            NextLineNo := NextLineNo + LineSpacing;
-            ReminderLine.Init();
-            ReminderLine."Reminder No." := LocalReminderHeader."No.";
-            ReminderLine."Line No." := NextLineNo;
-            ReminderLine.Type := ReminderLine.Type::" ";
+            ReminderAttachmentTextLine.SetRange(Id, ReminderAttachmentText."Id");
+            ReminderAttachmentTextLine.SetRange("Language Code", ReminderAttachmentText."Language Code");
             case LineType of
                 Enum::"Reminder Line Type"::"Beginning Text":
-                    begin
-                        ReminderLine."Line Type" := ReminderLine."Line Type"::"Beginning Text";
-                        SourceDescriptionText := ReminderAttachmentText."Beginning Line";
-                    end;
+                    ReminderAttachmentTextLine.SetRange(Position, ReminderAttachmentTextLine.Position::"Beginning Line");
                 Enum::"Reminder Line Type"::"Ending Text":
-                    begin
-                        ReminderLine."Line Type" := ReminderLine."Line Type"::"Ending Text";
-                        SourceDescriptionText := ReminderAttachmentText."Ending Line";
-                    end;
+                    ReminderAttachmentTextLine.SetRange(Position, ReminderAttachmentTextLine.Position::"Ending Line");
                 else
                     Error(UnexpectedLineTypeErr, LineType, LocalReminderHeader."No.");
             end;
-            ReminderLine.Description := ReminderCommunication.SubstituteBeginningOrEndingDescription(SourceDescriptionText, ReminderTotal, MaxStrLen(ReminderLine.Description), LocalReminderHeader, FinChrgTerms);
-            ReminderLine.Insert();
+            if ReminderAttachmentTextLine.IsEmpty() then
+                exit;
+
+            ReminderAttachmentTextLine.FindSet();
+            repeat
+                NextLineNo := NextLineNo + LineSpacing;
+                ReminderLine.Init();
+                ReminderLine.Type := ReminderLine.Type::" ";
+                case LineType of
+                    Enum::"Reminder Line Type"::"Beginning Text":
+                        ReminderLine."Line Type" := ReminderLine."Line Type"::"Beginning Text";
+                    Enum::"Reminder Line Type"::"Ending Text":
+                        ReminderLine."Line Type" := ReminderLine."Line Type"::"Ending Text";
+                end;
+                ReminderLine."Reminder No." := LocalReminderHeader."No.";
+                ReminderLine."Line No." := NextLineNo;
+                ReminderLine.Description := ReminderCommunication.SubstituteBeginningOrEndingDescription(ReminderAttachmentTextLine.Text, ReminderTotal, MaxStrLen(ReminderLine.Description), LocalReminderHeader, FinChrgTerms);
+                ReminderLine.Insert();
+            until ReminderAttachmentTextLine.Next() = 0;
 
             if LineType = Enum::"Reminder Line Type"::"Beginning Text" then
                 InsertBlankLine(ReminderLine."Line Type"::"Beginning Text");

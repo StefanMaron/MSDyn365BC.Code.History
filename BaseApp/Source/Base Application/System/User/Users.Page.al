@@ -1,7 +1,12 @@
 namespace System.Security.User;
 
+using Microsoft.AccountantPortal;
+using Microsoft.CRM.Team;
 using Microsoft.FixedAssets.Journal;
+using Microsoft.Foundation.Task;
+using Microsoft.HumanResources.Employee;
 using Microsoft.Inventory.Item;
+using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Warehouse.Setup;
@@ -14,8 +19,6 @@ using System.Email;
 using System.Environment;
 using System.Environment.Configuration;
 using System.Security.AccessControl;
-using Microsoft.Foundation.Task;
-using Microsoft.AccountantPortal;
 
 page 9800 Users
 {
@@ -148,18 +151,6 @@ page 9800 Users
                 SubPageLink = "User Security ID" = field("User Security ID");
                 Visible = CanManageUsersOnTenant or IsOwnUser;
             }
-#if not CLEAN22
-            part("User Group Memberships"; "User Group Memberships FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'User Group Memberships';
-                SubPageLink = "User Security ID" = field("User Security ID");
-                Visible = LegacyUserGroupsVisible and (CanManageUsersOnTenant or IsOwnUser);
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by the User Security Groups part.';
-                ObsoleteTag = '22.0';
-            }
-#endif
             part(Plans; "User Plans FactBox")
             {
                 Caption = 'Licenses';
@@ -227,20 +218,6 @@ page 9800 Users
             group("User Groups")
             {
                 Caption = 'Groups';
-#if not CLEAN22
-                action(Action15)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'User Groups';
-                    Image = Users;
-                    RunObject = Page "User Groups";
-                    ToolTip = 'Set up or modify user groups as a fast way of giving users access to the functionality that is relevant to their work.';
-                    Visible = LegacyUserGroupsVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the Security Groups action.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 action("User Details")
                 {
                     ApplicationArea = Basic, Suite;
@@ -300,20 +277,6 @@ page 9800 Users
                     RunObject = Page "Permission Set by User";
                     ToolTip = 'View or edit the available permission sets and apply permission sets to existing users.';
                 }
-#if not CLEAN22
-                action("Permission Set by User Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Permission Set by User Group';
-                    Image = Permission;
-                    RunObject = Page "Permission Set by User Group";
-                    ToolTip = 'View or edit the available permission sets and apply permission sets to existing user groups.';
-                    Visible = LegacyUserGroupsVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the Permission Set By Security Group action.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 action("Permission Set By Security Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -398,6 +361,31 @@ page 9800 Users
                 Image = WarehouseSetup;
                 RunObject = Page "Warehouse Employees";
                 ToolTip = 'View the warehouse employees that exist in the system.';
+            }
+
+            action("Employees")
+            {
+                ApplicationArea = BasicHR;
+                Caption = 'Employees';
+                Image = Employee;
+                RunObject = Page "Employee List";
+                ToolTip = 'View the employees that exist in the system.';
+            }
+            action("Resources")
+            {
+                ApplicationArea = Jobs;
+                Caption = 'Resources';
+                Image = Resource;
+                RunObject = Page "Resource List";
+                ToolTip = 'View the resources that exist in the system.';
+            }
+            action("Salespersons/Purchasers")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Salespersons/Purchasers';
+                Image = Users;
+                RunObject = Page "Salespersons/Purchasers";
+                ToolTip = 'View the salespersons/purchasers that exist in the system.';
             }
             action("FA Journal Setup")
             {
@@ -525,14 +513,6 @@ page 9800 Users
                 actionref("Security Groups_Promoted"; "Security Groups")
                 {
                 }
-#if not CLEAN22
-                actionref(Action15_Promoted; Action15)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'User groups functionality is deprecated.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 actionref("User Task Groups_Promoted"; "User Task Groups")
                 {
                 }
@@ -591,14 +571,13 @@ page 9800 Users
         NoUserExists: Boolean;
         CreateQst: Label 'Do you want to create %1 as super user?', Comment = '%1=user name, e.g. europe\myaccountname';
         CanSendEmail: Boolean;
+#pragma warning disable AA0470
         RestoreUserGroupsToDefaultQst: Label 'Do you want to restore the default permissions for user %1?', Comment = 'Do you want to restore the default permissions for user Annie?';
+#pragma warning restore AA0470
         CanManageUsersOnTenant: Boolean;
         HasSuperForAllCompanies: Boolean;
         IsSaaS: Boolean;
         IsOwnUser: Boolean;
-#if not CLEAN22
-        LegacyUserGroupsVisible: Boolean;
-#endif
         TelemetryUserId: Guid;
 
     trigger OnAfterGetCurrRecord()
@@ -664,16 +643,10 @@ page 9800 Users
         UserManagement: Codeunit "User Management";
         EnvironmentInfo: Codeunit "Environment Information";
 #endif
-#if not CLEAN22
-        LegacyUserGroups: Codeunit "Legacy User Groups";
-#endif
 #if not CLEAN23
         NavTenantSettingsHelper: DotNet NavTenantSettingsHelper;
 #endif
     begin
-#if not CLEAN22
-        LegacyUserGroupsVisible := LegacyUserGroups.UiElementsVisible();
-#endif
         NoUserExists := Rec.IsEmpty();
         UserSelection.HideExternalUsers(Rec);
 

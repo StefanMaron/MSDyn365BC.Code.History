@@ -167,8 +167,10 @@ table 1113 "Cost Object"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'There are general ledger entries, cost entries, or cost budget entries that are posted to the selected cost object. Are you sure that you want to delete the cost object?';
         Text002: Label 'There are general ledger entries, cost entries, or cost budget entries that are posted to the selected cost object. Are you sure that you want to modify the cost object?';
+#pragma warning restore AA0074
 
     local procedure EntriesExist(var CostObject: Record "Cost Object") EntriesFound: Boolean
     var

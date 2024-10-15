@@ -140,6 +140,10 @@ page 9971 "Posted Purchase Invoice API"
                 {
                     Caption = 'Ship-to Post Code';
                 }
+                field(shipToPhoneNo; Rec."Ship-to Phone No.")
+                {
+                    Caption = 'Ship-to Phone No.';
+                }
                 field(payToAddressLine1; Rec."Pay-to Address")
                 {
                     Caption = 'Pay To Address Line 1';

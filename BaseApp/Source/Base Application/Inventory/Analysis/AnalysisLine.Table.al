@@ -275,14 +275,22 @@ table 7114 "Analysis Line"
         ItemAnalysisView: Record "Item Analysis View";
         HasGLSetup: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The parenthesis at position %1 is misplaced.';
         Text002: Label 'You cannot have two consecutive operators. The error occurred at position %1.';
         Text003: Label 'There is an operand missing after position %1.';
+#pragma warning restore AA0470
         Text004: Label 'There are more left parentheses than right parentheses.';
         Text005: Label 'There are more right parentheses than left parentheses.';
+#pragma warning disable AA0470
         Text009: Label '1,6,,Dimension %1 Filter';
+#pragma warning restore AA0470
         Text010: Label ',, Totaling';
+#pragma warning disable AA0470
         Text011: Label '1,5,,Dimension %1 Totaling';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CheckFormula(Formula: Code[250])
     var

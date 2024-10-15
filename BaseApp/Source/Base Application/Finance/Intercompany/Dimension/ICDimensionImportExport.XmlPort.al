@@ -190,12 +190,16 @@ xmlport 11 "IC Dimension Import/Export"
         Inserted: array[2] of Integer;
         Deleted: array[2] of Integer;
         Modified: array[2] of Integer;
+#pragma warning disable AA0074
         Text000: Label 'There were no changes.';
+#pragma warning disable AA0470
         Text001: Label '%1 record was added.';
         Text002: Label '%1 records were added.';
         Text003: Label '%1 record was updated.';
         Text004: Label '%1 records were updated.';
         Text005: Label '%1 record was deleted.';
         Text006: Label '%1 records were deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

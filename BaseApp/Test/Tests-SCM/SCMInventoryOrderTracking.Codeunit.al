@@ -850,21 +850,13 @@ codeunit 137250 "SCM Inventory Order Tracking"
     end;
 
     local procedure OpenOrderTrkgForProduction(ProdOrderLine: Record "Prod. Order Line")
-    var
-        OrderTracking: Page "Order Tracking";
     begin
-        // Open Order Tracking page for required Production Order.
-        OrderTracking.SetProdOrderLine(ProdOrderLine);
-        OrderTracking.RunModal();
+        ProdOrderLine.ShowOrderTracking();
     end;
 
     local procedure OpenOrderTrkgForProductionComponent(ProdOrderComponent: Record "Prod. Order Component")
-    var
-        OrderTracking: Page "Order Tracking";
     begin
-        // Open Order Tracking page for required Production Order Component.
-        OrderTracking.SetProdOrderComponent(ProdOrderComponent);
-        OrderTracking.RunModal();
+        ProdOrderComponent.ShowOrderTracking();
     end;
 
     local procedure OpenOrderTrkgForPurchaseReceipt(No: Code[20])
@@ -878,12 +870,9 @@ codeunit 137250 "SCM Inventory Order Tracking"
     end;
 
     local procedure OpenOrderTrkgForSales(SalesLine: Record "Sales Line")
-    var
-        OrderTracking: Page "Order Tracking";
     begin
         // Open Order Tracking page for required Sales Order.
-        OrderTracking.SetSalesLine(SalesLine);
-        OrderTracking.RunModal();
+        SalesLine.ShowOrderTracking();
     end;
 
     local procedure SetupForOrderTracking(var ProductionOrder2: Record "Production Order"; Quantity: Decimal)

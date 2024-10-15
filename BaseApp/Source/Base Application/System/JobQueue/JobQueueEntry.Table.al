@@ -102,7 +102,9 @@ table 472 "Job Queue Entry"
 
             trigger OnValidate()
             var
+                SelectedLayoutType: ReportLayoutType;
                 AllObj: Record AllObj;
+                ReportManagementHelper: Codeunit "Report Management Helper";
             begin
                 if "Object ID to Run" <> xRec."Object ID to Run" then begin
                     Clear(XML);
@@ -121,12 +123,16 @@ table 472 "Job Queue Entry"
 
                 if "Object Type to Run" <> "Object Type to Run"::Report then
                     exit;
-                if REPORT.DefaultLayout("Object ID to Run") = DEFAULTLAYOUT::None then // Processing-only
+
+                "Report Output Type" := "Report Output Type"::PDF;
+                if ReportManagementHelper.IsProcessingOnly("Object ID to Run") then
                     "Report Output Type" := "Report Output Type"::"None (Processing only)"
                 else begin
-                    "Report Output Type" := "Report Output Type"::PDF;
-                    if REPORT.DefaultLayout("Object ID to Run") = DEFAULTLAYOUT::Word then
-                        "Report Output Type" := "Report Output Type"::Word;
+                    SelectedLayoutType := ReportManagementHelper.SelectedLayoutType("Object ID to Run");
+                    if SelectedLayoutType in [ReportLayoutType::Rdlc, ReportLayoutType::Word, ReportLayoutType::Custom] then
+                        "Report Output Type" := "Report Output Type"::Pdf
+                    else
+                        "Report Output Type" := "Report Output Type"::Excel;
                 end;
             end;
         }
@@ -144,22 +150,39 @@ table 472 "Job Queue Entry"
 
             trigger OnValidate()
             var
-                ReportLayoutSelection: Record "Report Layout Selection";
                 InitServerPrinterTable: Codeunit "Init. Server Printer Table";
                 EnvironmentInfo: Codeunit "Environment Information";
+                ReportManagementHelper: Codeunit "Report Management Helper";
+                ReportLayoutType: ReportLayoutType;
                 IsHandled: Boolean;
             begin
                 TestField("Object Type to Run", "Object Type to Run"::Report);
 
-                if REPORT.DefaultLayout("Object ID to Run") = DEFAULTLAYOUT::None then // Processing-only
+                if ReportManagementHelper.IsProcessingOnly("Object ID to Run") then
                     TestField("Report Output Type", "Report Output Type"::"None (Processing only)")
                 else begin
                     if "Report Output Type" = "Report Output Type"::"None (Processing only)" then
                         Error(ReportOutputTypeCannotBeNoneErr);
-                    if ReportLayoutSelection.HasCustomLayout("Object ID to Run") = 2 then // Word layout
+
+                    ReportLayoutType := ReportManagementHelper.SelectedLayoutType("Object ID to Run");
+
+                    if ReportLayoutType = ReportLayoutType::Custom then
                         if not ("Report Output Type" in ["Report Output Type"::Print, "Report Output Type"::Word, "Report Output Type"::PDF]) then
                             Error(CustomLayoutReportCanHaveLimitedOutputTypeErr);
+
+                    case "Report Output Type" of
+                        "Job Queue Report Output Type"::PDF:
+                            if ReportLayoutType in [ReportLayoutType::Excel] then
+                                Error(UnsupportedOutputForSelectedLayoutErr, ReportLayoutType, "Report Output Type");
+                        "Job Queue Report Output Type"::Print:
+                            if ReportLayoutType in [ReportLayoutType::Excel] then
+                                Error(UnsupportedOutputForSelectedLayoutErr, ReportLayoutType, "Report Output Type");
+                        "Job Queue Report Output Type"::Word:
+                            if not (ReportLayoutType in [ReportLayoutType::Word, ReportLayoutType::RDLC]) then
+                                Error(UnsupportedOutputForSelectedLayoutErr, ReportLayoutType, "Report Output Type");
+                    end;
                 end;
+
                 if "Report Output Type" = "Report Output Type"::Print then begin
                     if EnvironmentInfo.IsSaaS() then begin
                         IsHandled := false;
@@ -546,6 +569,9 @@ table 472 "Job Queue Entry"
         {
             IncludedFields = Status, "User ID", "System Task ID", "Job Queue Category Code", "Earliest Start Date/Time";
         }
+        key(Key8; "Error Message Register Id")
+        {
+        }
     }
 
     fieldgroups
@@ -599,6 +625,7 @@ table 472 "Job Queue Entry"
         NoPermissionsErr: Label 'You are not allowed to schedule background tasks. Ask your system administrator to give you permission to do so. Specifically, you need Insert, Modify and Delete Permissions for the %1 table.', Comment = '%1 Table Name';
         ReportOutputTypeCannotBeNoneErr: Label 'You cannot set the report output to None because users can view the report. Use the None option when the report does something in the background. For example, when it is part of a batch job.';
         CustomLayoutReportCanHaveLimitedOutputTypeErr: Label 'This report uses a custom layout. To view the report you can open it in Word, print it, or save it as PDF.';
+        UnsupportedOutputForSelectedLayoutErr: Label 'The selected layout type %1 does not support the selected output format %2.', Comment = '%1=Layout Type, %2=Output Format';
 
     procedure DoesExistLocked(): Boolean
     begin
@@ -696,7 +723,6 @@ table 472 "Job Queue Entry"
     begin
         Status := Status::Error;
         "Error Message" := DeletedEntryErr;
-        Modify();
     end;
 
     procedure FinalizeRun()
@@ -809,8 +835,11 @@ table 472 "Job Queue Entry"
 
     procedure CheckRequiredPermissions()
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         DummyJobQueueLogEntry: Record "Job Queue Log Entry";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         DummyErrorMessageRegister: Record "Error Message Register";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         DummyErrorMessage: Record "Error Message";
     begin
         if not DummyJobQueueLogEntry.WritePermission() then
@@ -825,8 +854,11 @@ table 472 "Job Queue Entry"
 
     procedure HasRequiredPermissions(): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         DummyJobQueueLogEntry: Record "Job Queue Log Entry";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         DummyErrorMessageRegister: Record "Error Message Register";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         DummyErrorMessage: Record "Error Message";
     begin
         if not DummyJobQueueLogEntry.WritePermission() then

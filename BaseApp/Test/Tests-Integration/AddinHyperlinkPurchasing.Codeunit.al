@@ -782,6 +782,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         NoSeriesLine: Record "No. Series Line";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryNoSeries: Codeunit "Library - No. Series";
     begin
         case DocType of
             DocType::"Credit Memo":
@@ -789,12 +790,12 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
                     PurchasesPayablesSetup.Get();
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'PCRM0000', 'PCRM9999');
-                    LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
+                    LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     PurchasesPayablesSetup."Credit Memo Nos." := NoSeries.Code;
 
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'PPCRM0000', 'PPCRM9999');
-                    LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
+                    LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     PurchasesPayablesSetup."Posted Credit Memo Nos." := NoSeries.Code;
                     PurchasesPayablesSetup.Modify();
                 end;
@@ -803,12 +804,12 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
                     PurchasesPayablesSetup.Get();
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'PINV0000', 'PINV9999');
-                    LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
+                    LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     PurchasesPayablesSetup."Invoice Nos." := NoSeries.Code;
 
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'PPINV0000', 'PPINV9999');
-                    LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
+                    LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     PurchasesPayablesSetup."Posted Invoice Nos." := NoSeries.Code;
                     PurchasesPayablesSetup.Modify();
                 end;

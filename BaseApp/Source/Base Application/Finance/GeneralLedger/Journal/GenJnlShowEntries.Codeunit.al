@@ -98,7 +98,9 @@ codeunit 14 "Gen. Jnl.-Show Entries"
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         FALedgEntry: Record "FA Ledger Entry";
         MaintenanceLedgEntry: Record "Maintenance Ledger Entry";
+#pragma warning disable AA0074
         Text001: Label 'Intercompany partners do not have ledger entries.';
+#pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRun(GenJournalLine: Record "Gen. Journal Line")

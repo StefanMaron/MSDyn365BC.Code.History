@@ -164,12 +164,10 @@ codeunit 137202 "SCM Analysis Line"
         InsertAnalysisLine.InsertItems(AnalysisLine);
 
         // [THEN] Analyses Line is created with "Row Ref No." = "X"
-        with AnalysisLine do begin
-            SetRange("Analysis Line Template Name", AnalysisLineTemplateName);
-            SetRange(Type, Type::Item);
-            FindFirst();
-            TestField("Row Ref. No.", ItemNo);
-        end;
+        AnalysisLine.SetRange("Analysis Line Template Name", AnalysisLineTemplateName);
+        AnalysisLine.SetRange(Type, AnalysisLine.Type::Item);
+        AnalysisLine.FindFirst();
+        AnalysisLine.TestField("Row Ref. No.", ItemNo);
     end;
 
     local procedure Initialize()

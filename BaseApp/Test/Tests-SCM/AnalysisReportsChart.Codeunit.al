@@ -17,7 +17,7 @@ codeunit 137409 "Analysis Reports Chart"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
-#if not CLEAN23
+#if not CLEAN25
         LibrarySales: Codeunit "Library - Sales";
 #endif
         Assert: Codeunit Assert;
@@ -518,7 +518,7 @@ codeunit 137409 "Analysis Reports Chart"
         ItemLedgerEntries.Quantity.AssertEquals(ItemLedgerEntry.Quantity);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('GetSalesPriceHandler')]
     [Scope('OnPrem')]
@@ -1018,7 +1018,7 @@ codeunit 137409 "Analysis Reports Chart"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Analysis Reports Chart");
-#if not CLEAN23
+#if not CLEAN25
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
 #else
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
@@ -1711,7 +1711,7 @@ codeunit 137409 "Analysis Reports Chart"
               DrillDownAnalysisLine.GetFilter("Date Filter")), 1, 250));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPriceHandler(var GetSalesPrice: TestPage "Get Sales Price")

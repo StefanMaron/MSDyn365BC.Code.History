@@ -163,10 +163,14 @@ report 99001046 "Calculate Work Center Calendar"
         EndingDate: Date;
         LastTime: Time;
 
+#pragma warning disable AA0074
         Text000: Label 'Calculating Work Centers...\\';
+#pragma warning disable AA0470
         Text001: Label 'No.            #1##########';
+#pragma warning restore AA0470
         Text004: Label 'You must fill in the starting date field.';
         Text005: Label 'You must fill in the ending date field.';
+#pragma warning restore AA0074
 
     procedure InitializeRequest(NewStartingDate: Date; NewEndingDate: Date)
     begin

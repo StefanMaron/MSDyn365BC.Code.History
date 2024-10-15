@@ -432,7 +432,7 @@ page 5936 "Service Credit Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByEvent());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -444,7 +444,7 @@ page 5936 "Service Credit Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByPeriod());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::"Period");
                         end;
                     }
                     action(Variant)
@@ -456,7 +456,7 @@ page 5936 "Service Credit Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByVariant());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -469,7 +469,7 @@ page 5936 "Service Credit Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByLocation());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -492,7 +492,7 @@ page 5936 "Service Credit Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByBOM());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -516,7 +516,7 @@ page 5936 "Service Credit Memo Subform"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -617,8 +617,8 @@ page 5936 "Service Credit Memo Subform"
     end;
 
     var
-        TransferExtendedText: Codeunit "Transfer Extended Text";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        ServiceTransferExtText: Codeunit "Service Transfer Ext. Text";
+        ServAvailabilityMgt: Codeunit "Serv. Availability Mgt.";
         BackgroundErrorCheck: Boolean;
         ItemReferenceVisible: Boolean;
         ShowAllLinesEnabled: Boolean;
@@ -643,11 +643,11 @@ page 5936 "Service Credit Memo Subform"
     procedure InsertExtendedText(Unconditionally: Boolean)
     begin
         OnBeforeInsertExtendedText(Rec);
-        if TransferExtendedText.ServCheckIfAnyExtText(Rec, Unconditionally) then begin
+        if ServiceTransferExtText.ServCheckIfAnyExtText(Rec, Unconditionally) then begin
             CurrPage.SaveRecord();
-            TransferExtendedText.InsertServExtText(Rec);
+            ServiceTransferExtText.InsertServExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate() then
+        if ServiceTransferExtText.MakeUpdate() then
             UpdateForm(true);
     end;
 

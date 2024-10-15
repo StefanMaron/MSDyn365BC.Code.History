@@ -52,11 +52,13 @@ codeunit 5814 "Undo Return Shipment Line"
         JobItem: Boolean;
         NextLineNo: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Do you really want to undo the selected Return Shipment lines?';
         Text001: Label 'Undo quantity posting...';
         Text002: Label 'There is not enough space to insert correction lines.';
         Text003: Label 'Checking lines...';
         Text004: Label 'This shipment has already been invoiced. Undo Return Shipment can be applied only to posted, but not invoiced shipments.';
+#pragma warning restore AA0074
         AlreadyReversedErr: Label 'This return shipment has already been reversed.';
 
     procedure SetHideDialog(NewHideDialog: Boolean)

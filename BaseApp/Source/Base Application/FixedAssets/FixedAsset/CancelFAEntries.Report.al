@@ -65,9 +65,11 @@ report 5686 "Cancel FA Entries"
         UseNewPosting: Boolean;
         NewPostingDate: Date;
 
+#pragma warning disable AA0074
         Text000: Label 'You must specify New Posting Date.';
         Text001: Label 'You must not specify New Posting Date.';
         Text002: Label 'You must not specify a closing date.';
+#pragma warning restore AA0074
 
     procedure GetFALedgEntry(var FALedgEntry2: Record "FA Ledger Entry")
     begin

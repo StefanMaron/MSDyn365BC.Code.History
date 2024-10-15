@@ -58,12 +58,14 @@ table 9183 "Generic Chart Query Column"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'NONE', Comment = 'NONE';
         Text001: Label 'COUNT', Comment = 'COUNT';
         Text002: Label 'SUM', Comment = 'SUM';
         Text003: Label 'MIN', Comment = 'MIN';
         Text004: Label 'MAX', Comment = 'MAX';
         Text005: Label 'AVERAGE', Comment = 'AVERAGE';
+#pragma warning restore AA0074
 
     procedure SetAggregationType(InputTxt: Text)
     begin

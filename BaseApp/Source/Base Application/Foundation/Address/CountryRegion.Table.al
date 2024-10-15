@@ -105,13 +105,6 @@ table 9 "Country/Region"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
-        field(13600; "OIOUBL Country/Region Code"; Code[10])
-        {
-            Caption = 'OIOUBL Country/Region Code';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
@@ -295,6 +288,8 @@ table 9 "Country/Region"
                     CreateAddressFormatLine(Code, 3, CompanyInformation.FieldNo("Post Code"), LineNo);
                 end;
         end;
+        CreateAddressFormat(Rec.Code, 7, CompanyInformation.FieldNo("Country/Region Code"));
+        
         if LineNo <> 0 then begin
             CustomAddressFormat.Get(Code, LineNo);
             CustomAddressFormat.BuildAddressFormat();

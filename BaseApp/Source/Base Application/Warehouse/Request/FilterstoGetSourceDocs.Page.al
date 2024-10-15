@@ -155,11 +155,11 @@ page 5784 "Filters to Get Source Docs."
     end;
 
     var
-        WhseReceiptHeader: Record "Warehouse Receipt Header";
         DataCaption: Text[250];
         ShowRequestForm: Boolean;
 
     protected var
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
         WhseShptHeader: Record "Warehouse Shipment Header";
         RequestType: Option Receive,Ship;
 

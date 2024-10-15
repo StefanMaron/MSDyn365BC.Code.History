@@ -675,12 +675,10 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     var
         NoSeries: Record "No. Series";
     begin
-        with NoSeries do begin
-            Get(NoSeriesCode);
-            ManualNos := "Manual Nos.";
-            "Manual Nos." := NewManualNos;
-            Modify();
-        end
+        NoSeries.Get(NoSeriesCode);
+        ManualNos := NoSeries."Manual Nos.";
+        NoSeries."Manual Nos." := NewManualNos;
+        NoSeries.Modify();
     end;
 
     local procedure RestoreDimSetEntry(var DimensionSetEntry: Record "Dimension Set Entry"; OldDimValue: Code[20])

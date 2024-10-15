@@ -20,8 +20,12 @@ codeunit 5651 "Insurance Jnl.-Check Line"
         DimMgt: Codeunit DimensionManagement;
         CallNo: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
         Text001: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure RunCheck(var InsuranceJnlLine: Record "Insurance Journal Line")
     var

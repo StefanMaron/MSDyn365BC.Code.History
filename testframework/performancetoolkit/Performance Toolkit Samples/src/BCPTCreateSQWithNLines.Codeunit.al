@@ -31,6 +31,7 @@ codeunit 149105 "BCPT Create SQ with N Lines" implements "BCPT Test Param. Provi
     var
         SalesSetup: Record "Sales & Receivables Setup";
         NoSeriesLine: Record "No. Series Line";
+        RecordModified: Boolean;
     begin
         SalesSetup.Get();
         SalesSetup.TestField("Quote Nos.");
@@ -41,9 +42,12 @@ codeunit 149105 "BCPT Create SQ with N Lines" implements "BCPT Test Param. Provi
                 NoSeriesLine."Ending No." := '';
                 NoSeriesLine.Validate(Implementation, Enum::"No. Series Implementation"::Sequence);
                 NoSeriesLine.Modify(true);
+                RecordModified := true;
             end;
         until NoSeriesLine.Next() = 0;
-        commit();
+
+        if RecordModified then
+            Commit();
 
         if Evaluate(NoOfLinesToCreate, GlobalBCPTTestContext.GetParameter(NoOfLinesParamLbl)) then;
     end;

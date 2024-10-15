@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Service.History;
+namespace Microsoft.Service.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.DirectDebit;
@@ -836,53 +836,6 @@ table 5992 "Service Invoice Header"
         field(9001; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
-        }	
-        field(13600; "EAN No."; Code[13])
-        {
-            Caption = 'EAN No.';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13601; "Account Code"; Text[30])
-        {
-            Caption = 'Account Code';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13602; "Electronic Invoice Created"; Boolean)
-        {
-            Caption = 'Electronic Invoice Created';
-            Editable = false;
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13604; "OIOUBL Profile Code"; Code[10])
-        {
-            Caption = 'OIOUBL Profile Code';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13608; "Contact Role"; Option)
-        {
-            Caption = 'Contact Role';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            OptionCaption = ' ,,,Purchase Responsible,,,Accountant,,,Budget Responsible,,,Requisitioner';
-            OptionMembers = " ",,,"Purchase Responsible",,,Accountant,,,"Budget Responsible",,,Requisitioner;
-            ObsoleteTag = '15.0';
-        }
-        field(13620; "Payment Channel"; Option)
-        {
-            Caption = 'Payment Channel';
-            ObsoleteReason = 'Deprecated.';
-            ObsoleteState = Removed;
-            OptionCaption = ' ,Payment Slip,Account Transfer,National Clearing,Direct Debit';
-            OptionMembers = " ","Payment Slip","Account Transfer","National Clearing","Direct Debit";
-            ObsoleteTag = '15.0';
         }
     }
 
@@ -1034,6 +987,15 @@ table 5992 "Service Invoice Header"
         end;
     end;
 
+    procedure OpenStatistics()
+    var
+        StatPageID: Integer;
+    begin
+        StatPageID := Page::"Service Invoice Statistics";
+        OnOpenStatisticsOnAfterSetStatPageID(Rec, StatPageID);
+        Page.RunModal(StatPageID, Rec);
+    end;
+
     procedure ShowActivityLog()
     var
         ActivityLog: Record "Activity Log";
@@ -1093,6 +1055,11 @@ table 5992 "Service Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceInvoiceHeader: Record "Service Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenStatisticsOnAfterSetStatPageID(var ServiceInvoiceHeader: Record "Service Invoice Header"; var StatPageID: Integer);
     begin
     end;
 }

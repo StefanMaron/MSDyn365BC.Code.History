@@ -67,7 +67,7 @@ page 9090 "Item Replenishment FactBox"
                 {
                     ApplicationArea = Manufacturing;
                     Lookup = false;
-                    ToolTip = 'Specifies the number of the routing.';
+                    ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
 
                     trigger OnDrillDown()
                     var
@@ -82,7 +82,7 @@ page 9090 "Item Replenishment FactBox"
                 {
                     ApplicationArea = Manufacturing;
                     Lookup = false;
-                    ToolTip = 'Specifies the number of the production BOM that the item represents.';
+                    ToolTip = 'Specifies the production BOM that is used to manufacture this item.';
 
                     trigger OnDrillDown()
                     var

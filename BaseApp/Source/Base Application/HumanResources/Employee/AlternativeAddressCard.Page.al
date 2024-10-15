@@ -143,7 +143,9 @@ page 5203 "Alternative Address Card"
         FormatAddress: Codeunit "Format Address";
         IsCountyVisible: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'untitled';
+#pragma warning restore AA0074
 
     procedure Caption(): Text
     begin

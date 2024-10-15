@@ -53,17 +53,6 @@ page 840 "CF Forecast Statistics FactBox"
                     Rec.DrillDownSourceTypeEntries("Cash Flow Source Type"::"Sales Orders");
                 end;
             }
-            field(ServiceOrders; Rec.CalcSourceTypeAmount(CashFlowForecastEntry."Source Type"::"Service Orders"))
-            {
-                ApplicationArea = Service;
-                Caption = 'Service Orders';
-                ToolTip = 'Specifies the amount of the service order to be received and paid out by your business for the cash flow forecast.';
-
-                trigger OnDrillDown()
-                begin
-                    Rec.DrillDownSourceTypeEntries("Cash Flow Source Type"::"Service Orders");
-                end;
-            }
             field(SaleofFixedAssets; Rec.CalcSourceTypeAmount(CashFlowForecastEntry."Source Type"::"Fixed Assets Disposal"))
             {
                 ApplicationArea = Suite;
@@ -200,6 +189,10 @@ page 840 "CF Forecast Statistics FactBox"
         CashFlowForecastEntry: Record "Cash Flow Forecast Entry";
         CurrentDate: Date;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text1000: Label 'Liquid Funds at %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

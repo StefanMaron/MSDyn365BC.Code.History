@@ -54,15 +54,6 @@ page 6711 "OData Setup Wizard"
                 group("Para1.1")
                 {
                     Caption = 'Welcome to Reporting Data Setup';
-                    group("Para1.1.1")
-                    {
-                        Caption = '';
-                        InstructionalText = 'You can create data sets that you can use for building reports in Excel, Power BI or any other reporting tool that works with an OData data source.';
-                        ObsoleteReason = 'For improved rendering, this text is now moved to a label "Para1.1.1_aslabel".';
-                        ObsoleteState = Pending;
-                        Visible = false;
-                        ObsoleteTag = '19.0';
-                    }
                     label("Para1.1.1_aslabel")
                     {
                         ApplicationArea = Basic, Suite;
@@ -82,15 +73,6 @@ page 6711 "OData Setup Wizard"
                 group("Para1.2")
                 {
                     Caption = 'Let''s go!';
-                    group("Para1.2.1")
-                    {
-                        Caption = '';
-                        InstructionalText = 'Choose Next so you can create reporting data sets.';
-                        ObsoleteReason = 'For improved rendering, this text is now moved to a label "Para1.2.1_aslabel".';
-                        ObsoleteState = Pending;
-                        Visible = false;
-                        ObsoleteTag = '19.0';
-                    }
                     label("Para1.2.1_aslabel")
                     {
                         ApplicationArea = Basic, Suite;
@@ -305,15 +287,6 @@ page 6711 "OData Setup Wizard"
                 group("Para5.1")
                 {
                     Caption = 'Success!';
-                    group("Para5.1.1")
-                    {
-                        Caption = '';
-                        InstructionalText = 'Your data set has been successfully created!';
-                        ObsoleteReason = 'For improved rendering, this text is now moved to a label "Para5.1.1_aslabel".';
-                        ObsoleteState = Pending;
-                        Visible = false;
-                        ObsoleteTag = '19.0';
-                    }
                     label("Para5.1.1_aslabel")
                     {
                         ApplicationArea = Basic, Suite;
@@ -686,7 +659,7 @@ page 6711 "OData Setup Wizard"
                         FilterEDMType := ConvertFieldTypeToEdmType(FieldRef.Type);
                         FilterType := Enum::"Edit in Excel Filter Type"::Equal;
                         FilterEDMValue := ConvertToEDMValue(FilterValueEnglish, FilterEDMType);
-                        EditinExcelFilters.AddField(FieldName, FilterType, FilterEDMValue, FilterEDMType);
+                        EditinExcelFilters.AddFieldV2(FieldName, FilterType, FilterEDMValue, FilterEDMType);
                     end
         end
     end;

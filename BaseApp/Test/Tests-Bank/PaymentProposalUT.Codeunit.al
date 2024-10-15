@@ -2662,16 +2662,14 @@ codeunit 134267 "Payment Proposal UT"
     var
         AccountNo: Code[20];
     begin
-        with AppliedPaymentEntry do begin
-            // Populate Payment Application Proposal with dummy line (2 Inv and 2 CrMemo)
-            "Statement Type" := BankAccReconLine."Statement Type";
-            "Bank Account No." := BankAccReconLine."Bank Account No.";
-            "Statement No." := BankAccReconLine."Statement No.";
-            "Statement Line No." := BankAccReconLine."Statement Line No.";
-            "Account Type" := BankAccReconLine."Account Type";
+        // Populate Payment Application Proposal with dummy line (2 Inv and 2 CrMemo)
+        AppliedPaymentEntry."Statement Type" := BankAccReconLine."Statement Type";
+        AppliedPaymentEntry."Bank Account No." := BankAccReconLine."Bank Account No.";
+        AppliedPaymentEntry."Statement No." := BankAccReconLine."Statement No.";
+        AppliedPaymentEntry."Statement Line No." := BankAccReconLine."Statement Line No.";
+        AppliedPaymentEntry."Account Type" := BankAccReconLine."Account Type";
 
-            CreateAppliedPaymentEntry(AppliedPaymentEntry, "Document Type"::"Credit Memo", AccountNo);
-        end;
+        CreateAppliedPaymentEntry(AppliedPaymentEntry, AppliedPaymentEntry."Document Type"::"Credit Memo", AccountNo);
     end;
 
     local procedure CreateAppliedPaymentEntry(var AppliedPaymentEntry: Record "Applied Payment Entry"; DocType: Enum "Gen. Journal Document Type"; var AccountNo: Code[20])
@@ -2679,40 +2677,36 @@ codeunit 134267 "Payment Proposal UT"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Amount: Decimal;
     begin
-        with AppliedPaymentEntry do begin
-            Amount := LibraryRandom.RandIntInRange(100, 200);
-            CreateAndPostSalesDocWithOneLine(CustLedgerEntry, Amount, AccountNo, true, DocType);
+        Amount := LibraryRandom.RandIntInRange(100, 200);
+        CreateAndPostSalesDocWithOneLine(CustLedgerEntry, Amount, AccountNo, true, DocType);
 
-            if DocType = "Document Type"::"Credit Memo" then
-                Amount := -Amount;
+        if DocType = AppliedPaymentEntry."Document Type"::"Credit Memo" then
+            Amount := -Amount;
 
-            if AccountNo = '' then
-                AccountNo := CustLedgerEntry."Customer No.";
+        if AccountNo = '' then
+            AccountNo := CustLedgerEntry."Customer No.";
 
-            "Account No." := AccountNo;
-            "Applies-to Entry No." := CustLedgerEntry."Entry No.";
-            "Document Type" := DocType;
-            Insert();
-        end;
+        AppliedPaymentEntry."Account No." := AccountNo;
+        AppliedPaymentEntry."Applies-to Entry No." := CustLedgerEntry."Entry No.";
+        AppliedPaymentEntry."Document Type" := DocType;
+        AppliedPaymentEntry.Insert();
     end;
 
     local procedure PopulatePaymentApplicationProposal(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary)
     var
         AccountNo: Code[20];
     begin
-        with TempPaymentApplicationProposal do begin
-            // Populate Payment Application Proposal with dummy line (2 Inv and 2 CrMemo)
-            "Statement Type" := BankAccReconLine."Statement Type";
-            "Bank Account No." := BankAccReconLine."Bank Account No.";
-            "Statement No." := BankAccReconLine."Statement No.";
-            "Statement Line No." := BankAccReconLine."Statement Line No.";
-            "Account Type" := BankAccReconLine."Account Type";
+        // Populate Payment Application Proposal with dummy line (2 Inv and 2 CrMemo)
+        TempPaymentApplicationProposal."Statement Type" := BankAccReconLine."Statement Type";
+        TempPaymentApplicationProposal."Bank Account No." := BankAccReconLine."Bank Account No.";
+        TempPaymentApplicationProposal."Statement No." := BankAccReconLine."Statement No.";
+        TempPaymentApplicationProposal."Statement Line No." := BankAccReconLine."Statement Line No.";
+        TempPaymentApplicationProposal."Account Type" := BankAccReconLine."Account Type";
 
-            CreatePaymentApplicationProposal(TempPaymentApplicationProposal, "Document Type"::Invoice, AccountNo);
-            CreatePaymentApplicationProposal(TempPaymentApplicationProposal, "Document Type"::Invoice, AccountNo);
-            CreatePaymentApplicationProposal(TempPaymentApplicationProposal, "Document Type"::"Credit Memo", AccountNo);
-            CreatePaymentApplicationProposal(TempPaymentApplicationProposal, "Document Type"::"Credit Memo", AccountNo);
-        end;
+        CreatePaymentApplicationProposal(TempPaymentApplicationProposal, TempPaymentApplicationProposal."Document Type"::Invoice, AccountNo);
+        CreatePaymentApplicationProposal(TempPaymentApplicationProposal, TempPaymentApplicationProposal."Document Type"::Invoice, AccountNo);
+        CreatePaymentApplicationProposal(TempPaymentApplicationProposal, TempPaymentApplicationProposal."Document Type"::"Credit Memo", AccountNo);
+        CreatePaymentApplicationProposal(TempPaymentApplicationProposal, TempPaymentApplicationProposal."Document Type"::"Credit Memo", AccountNo);
     end;
 
     local procedure CreatePaymentApplicationProposal(var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; DocType: Enum "Gen. Journal Document Type"; var AccountNo: Code[20])
@@ -2720,22 +2714,20 @@ codeunit 134267 "Payment Proposal UT"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Amount: Decimal;
     begin
-        with TempPaymentApplicationProposal do begin
-            Amount := LibraryRandom.RandIntInRange(100, 200);
-            CreateAndPostSalesDocWithOneLine(CustLedgerEntry, Amount, AccountNo, true, DocType);
+        Amount := LibraryRandom.RandIntInRange(100, 200);
+        CreateAndPostSalesDocWithOneLine(CustLedgerEntry, Amount, AccountNo, true, DocType);
 
-            if DocType = "Document Type"::"Credit Memo" then
-                Amount := -Amount;
+        if DocType = TempPaymentApplicationProposal."Document Type"::"Credit Memo" then
+            Amount := -Amount;
 
-            if AccountNo = '' then
-                AccountNo := CustLedgerEntry."Customer No.";
+        if AccountNo = '' then
+            AccountNo := CustLedgerEntry."Customer No.";
 
-            "Account No." := AccountNo;
-            "Applies-to Entry No." := CustLedgerEntry."Entry No.";
-            "Document Type" := DocType;
-            "Remaining Amount" := Amount;
-            Insert();
-        end;
+        TempPaymentApplicationProposal."Account No." := AccountNo;
+        TempPaymentApplicationProposal."Applies-to Entry No." := CustLedgerEntry."Entry No.";
+        TempPaymentApplicationProposal."Document Type" := DocType;
+        TempPaymentApplicationProposal."Remaining Amount" := Amount;
+        TempPaymentApplicationProposal.Insert();
     end;
 
     local procedure PopulateBankAccReconLine(var BankAccReconLine: Record "Bank Acc. Reconciliation Line")

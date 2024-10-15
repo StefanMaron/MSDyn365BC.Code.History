@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Setup;
+namespace Microsoft.Sales.Setup;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -357,6 +357,10 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Archive Return Orders';
         }
+        field(56; "Default G/L Account Quantity"; Boolean)
+        {
+            Caption = 'Default G/L Account Quantity';
+        }
         field(57; "Create Item from Item No."; Boolean)
         {
             Caption = 'Create Item from Item No.';
@@ -705,41 +709,6 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
             InitValue = true;
-        }
-        field(13600; "OIOUBL Invoice Path"; Text[250])
-        {
-            Caption = 'OIOUBL Invoice Path';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13601; "OIOUBL Cr. Memo Path"; Text[250])
-        {
-            Caption = 'OIOUBL Cr. Memo Path';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13602; "OIOUBL Reminder Path"; Text[250])
-        {
-            Caption = 'OIOUBL Reminder Path';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13603; "OIOUBL Fin. Chrg. Memo Path"; Text[250])
-        {
-            Caption = 'OIOUBL Fin. Chrg. Memo Path';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13604; "Default OIOUBL Profile Code"; Code[10])
-        {
-            Caption = 'Default OIOUBL Profile Code';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
     }
 

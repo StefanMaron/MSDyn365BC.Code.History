@@ -168,22 +168,23 @@ codeunit 138021 "O365 Purchase Invoice Stat."
     begin
         GenJnlBatch.FindLast();
 
-        with PaymentJournal do begin
-            OpenEdit();
-            "Document No.".SetValue(NoSeries.PeekNextNo(GenJnlBatch."No. Series", PurchInvHeader."Posting Date"));
-            "Account Type".SetValue(GenJnlLine."Account Type"::Vendor);
-            "Account No.".SetValue(PurchInvHeader."Buy-from Vendor No.");
-            Amount.SetValue(PaymentAmount);
-            "Applies-to Doc. Type".SetValue(GenJnlLine."Applies-to Doc. Type"::Invoice);
-            AppliesToDocNo.SetValue(PurchInvHeader."No.");
+        PaymentJournal.OpenEdit();
+        PaymentJournal."Document No.".SetValue(NoSeries.PeekNextNo(GenJnlBatch."No. Series", PurchInvHeader."Posting Date"));
+        PaymentJournal."Account Type".SetValue(GenJnlLine."Account Type"::Vendor);
+        PaymentJournal."Account No.".SetValue(PurchInvHeader."Buy-from Vendor No.");
+        PaymentJournal.Amount.SetValue(PaymentAmount);
+        PaymentJournal."Applies-to Doc. Type".SetValue(GenJnlLine."Applies-to Doc. Type"::Invoice);
+        PaymentJournal.AppliesToDocNo.SetValue(PurchInvHeader."No.");
 
-            LibraryVariableStorage.Enqueue(ConfirmationMsg); // message for the confirm handler
-            LibraryVariableStorage.Enqueue(true); // reply for the confirm handler
-            LibraryVariableStorage.Enqueue(LinesPostedMsg); // message for the message handler
-            Post.Invoke();
+        LibraryVariableStorage.Enqueue(ConfirmationMsg);
+        // message for the confirm handler
+        LibraryVariableStorage.Enqueue(true);
+        // reply for the confirm handler
+        LibraryVariableStorage.Enqueue(LinesPostedMsg);
+        // message for the message handler
+        PaymentJournal.Post.Invoke();
 
-            Close();
-        end;
+        PaymentJournal.Close();
 
         Commit();
     end;
@@ -192,13 +193,11 @@ codeunit 138021 "O365 Purchase Invoice Stat."
     var
         PostedPurchaseInvoices: TestPage "Posted Purchase Invoices";
     begin
-        with PostedPurchaseInvoices do begin
-            OpenView();
-            GotoRecord(PurchInvHeader);
-            Closed.AssertEquals(ExpectedPaymentStatus);
-            "Remaining Amount".AssertEquals(ExpectedRemainingAmount);
-            Close();
-        end;
+        PostedPurchaseInvoices.OpenView();
+        PostedPurchaseInvoices.GotoRecord(PurchInvHeader);
+        PostedPurchaseInvoices.Closed.AssertEquals(ExpectedPaymentStatus);
+        PostedPurchaseInvoices."Remaining Amount".AssertEquals(ExpectedRemainingAmount);
+        PostedPurchaseInvoices.Close();
     end;
 
     [ConfirmHandler]

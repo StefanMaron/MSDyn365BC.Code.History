@@ -149,7 +149,9 @@ report 99000757 "Where-Used (Top Level)"
         CalculateDate: Date;
         First: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'As of ';
+#pragma warning restore AA0074
         WhereUsedListTopLevelCaptLbl: Label 'Where-Used List (Top Level)';
         CurrReportPageNoCaptLbl: Label 'Page';
         LevelCodeCaptionLbl: Label 'Level';

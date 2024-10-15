@@ -17,7 +17,6 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         LibraryAssembly: Codeunit "Library - Assembly";
         ERR_ATS_QTY_TO_ASM: Label 'Quantity to Assemble cannot be higher than the Remaining Quantity, which is %1.';
         ERR_ATO_QTY_TO_ASM: Label 'Quantity to Assemble cannot be lower than %1 or higher than %2.';
-        ERR_BIN_CODE_CHANGE: Label 'Assemble to Order must be equal to ''No''  in Assembly Header:';
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryRandom: Codeunit "Library - Random";
@@ -50,7 +49,6 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         ChildItemSN3: Label 'ChilSN3';
         ERR_NO_WHSE_WKSH_LINES_CREATED: Label 'There are no Warehouse Worksheet Lines created.';
         ERR_NOTHING_TO_HANDLE: Label 'There is nothing to handle, because the worksheet lines do not contain a value for quantity to handle.';
-        ERR_BIN_CODE_NOT_EMPTY: Label 'Bin Code must have a value in Assembly Line: Document Type=%1, Document No.=%2, Line No.=%3. It cannot be zero or empty.';
 
     [Normal]
     local procedure Initialize()
@@ -266,16 +264,14 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         Commit();
-        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false); // try to ship sales but it will fail with nothing to post
-
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        // try to ship sales but it will fail with nothing to post
         // verify that "Qty consumed" on asm lines = 0
-        with AsmLine do begin
-            Assert.AreEqual(1, Count, '');
-            if FindSet() then
-                repeat
-                    Assert.AreEqual(0, "Consumed Quantity", StrSubstNo(TXT_CHECKING, FieldCaption("Consumed Quantity")));
-                until Next() = 0;
-        end;
+        Assert.AreEqual(1, AsmLine.Count, '');
+        if AsmLine.FindSet() then
+            repeat
+                Assert.AreEqual(0, AsmLine."Consumed Quantity", StrSubstNo(TXT_CHECKING, AsmLine.FieldCaption("Consumed Quantity")));
+            until AsmLine.Next() = 0;
     end;
 
     [Test]
@@ -396,7 +392,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         // Try to change the Bin Code to raise error
         MockBin(Bin, Location.Code);
         asserterror AsmHeader.Validate("Bin Code", Bin.Code);
-        Assert.IsTrue(StrPos(GetLastErrorText, ERR_BIN_CODE_CHANGE) > 0, '');
+        Assert.ExpectedTestFieldError(AsmHeader.FieldCaption("Assemble to Order"), Format(false));
     end;
 
     [Test]
@@ -1271,47 +1267,45 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
-
         // [THEN] Verify Invt pick lines and fill in new bin codes for ATO lines
-        with WhseActivityLine do begin
-            SetRange("Activity Type", "Activity Type"::"Invt. Pick");
-            SetRange("Source Type", DATABASE::"Sales Line");
-            SetRange("Source Subtype", SalesLine."Document Type");
-            SetRange("Source No.", SalesLine."Document No.");
-            SetRange("Source Line No.", SalesLine."Line No.");
-            // [THEN] Should be 1 ATO line for Lot2 with Lot2qty
-            SetRange("Assemble to Order", true);
-            SetRange("Lot No.", Lot2);
-            SetRange(Quantity, Lot2Qty);
-            Assert.AreEqual(1, Count, '');
-            VSTF279916_FillBinCode(WhseActivityLine, ATOLot2Bin);
-            // [THEN] Should be 1 ATO line for Lot3 with Lot3qty
-            SetRange("Assemble to Order", true);
-            SetRange("Lot No.", Lot3);
-            SetRange(Quantity, Lot3Qty);
-            Assert.AreEqual(1, Count, '');
-            VSTF279916_FillBinCode(WhseActivityLine, ATOLot3Bin);
-            // [THEN] Should be 1 ATO line for blank lot and remaining qty
-            SetRange("Assemble to Order", true);
-            SetRange("Lot No.", '');
-            SetRange(Quantity, AsmHeader.Quantity - (Lot2Qty + Lot3Qty));
-            Assert.AreEqual(1, Count, '');
-            VSTF279916_FillBinCode(WhseActivityLine, ATONoLotBin);
-            VSTF279916_FillLotNo(WhseActivityLine, IncStr(Lot3)); // new lot
-                                                                  // [THEN] Should be 1 non ATO line with lot and Lot1 qty
-            SetRange("Assemble to Order", false);
-            SetRange("Bin Code", ParentBin.Code);
-            SetRange("Lot No.", Lot1);
-            SetRange(Quantity, Lot1Qty);
-            Assert.AreEqual(1, Count, '');
-            // [THEN] Should be 1 non ATO line with blank lot and remaining nonATO qty
-            SetRange("Assemble to Order", false);
-            SetRange("Bin Code", ParentBin.Code);
-            SetRange("Lot No.", '');
-            SetRange(Quantity, SalesLine.Quantity - AsmHeader.Quantity - Lot1Qty);
-            Assert.AreEqual(1, Count, '');
-            VSTF279916_FillLotNo(WhseActivityLine, Lot1); // new lot
-        end;
+        WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
+        WhseActivityLine.SetRange("Source Type", DATABASE::"Sales Line");
+        WhseActivityLine.SetRange("Source Subtype", SalesLine."Document Type");
+        WhseActivityLine.SetRange("Source No.", SalesLine."Document No.");
+        WhseActivityLine.SetRange("Source Line No.", SalesLine."Line No.");
+        // [THEN] Should be 1 ATO line for Lot2 with Lot2qty
+        WhseActivityLine.SetRange("Assemble to Order", true);
+        WhseActivityLine.SetRange("Lot No.", Lot2);
+        WhseActivityLine.SetRange(Quantity, Lot2Qty);
+        Assert.AreEqual(1, WhseActivityLine.Count, '');
+        VSTF279916_FillBinCode(WhseActivityLine, ATOLot2Bin);
+        // [THEN] Should be 1 ATO line for Lot3 with Lot3qty
+        WhseActivityLine.SetRange("Assemble to Order", true);
+        WhseActivityLine.SetRange("Lot No.", Lot3);
+        WhseActivityLine.SetRange(Quantity, Lot3Qty);
+        Assert.AreEqual(1, WhseActivityLine.Count, '');
+        VSTF279916_FillBinCode(WhseActivityLine, ATOLot3Bin);
+        // [THEN] Should be 1 ATO line for blank lot and remaining qty
+        WhseActivityLine.SetRange("Assemble to Order", true);
+        WhseActivityLine.SetRange("Lot No.", '');
+        WhseActivityLine.SetRange(Quantity, AsmHeader.Quantity - (Lot2Qty + Lot3Qty));
+        Assert.AreEqual(1, WhseActivityLine.Count, '');
+        VSTF279916_FillBinCode(WhseActivityLine, ATONoLotBin);
+        VSTF279916_FillLotNo(WhseActivityLine, IncStr(Lot3));
+        // new lot
+        // [THEN] Should be 1 non ATO line with lot and Lot1 qty
+        WhseActivityLine.SetRange("Assemble to Order", false);
+        WhseActivityLine.SetRange("Bin Code", ParentBin.Code);
+        WhseActivityLine.SetRange("Lot No.", Lot1);
+        WhseActivityLine.SetRange(Quantity, Lot1Qty);
+        Assert.AreEqual(1, WhseActivityLine.Count, '');
+        // [THEN] Should be 1 non ATO line with blank lot and remaining nonATO qty
+        WhseActivityLine.SetRange("Assemble to Order", false);
+        WhseActivityLine.SetRange("Bin Code", ParentBin.Code);
+        WhseActivityLine.SetRange("Lot No.", '');
+        WhseActivityLine.SetRange(Quantity, SalesLine.Quantity - AsmHeader.Quantity - Lot1Qty);
+        Assert.AreEqual(1, WhseActivityLine.Count, '');
+        VSTF279916_FillLotNo(WhseActivityLine, Lot1); // new lot
 
         // [THEN] Post inventory pick
         WhseActivityHeader.Get(WhseActivityLine."Activity Type", WhseActivityLine."No.");
@@ -1349,21 +1343,17 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
     local procedure VSTF279916_FillBinCode(var WhseActivityLine: Record "Warehouse Activity Line"; var Bin: Record Bin)
     begin
-        with WhseActivityLine do begin
-            FindFirst();
-            MockBin(Bin, "Location Code");
-            Validate("Bin Code", Bin.Code);
-            Modify(true);
-        end;
+        WhseActivityLine.FindFirst();
+        MockBin(Bin, WhseActivityLine."Location Code");
+        WhseActivityLine.Validate("Bin Code", Bin.Code);
+        WhseActivityLine.Modify(true);
     end;
 
     local procedure VSTF279916_FillLotNo(var WhseActivityLine: Record "Warehouse Activity Line"; LotNo: Code[50])
     begin
-        with WhseActivityLine do begin
-            FindFirst();
-            Validate("Lot No.", LotNo);
-            Modify(true);
-        end;
+        WhseActivityLine.FindFirst();
+        WhseActivityLine.Validate("Lot No.", LotNo);
+        WhseActivityLine.Modify(true);
     end;
 
     [Test]
@@ -2035,9 +2025,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         // EXERCISE & VERIFY
         // release warehouse shipment and check for error that bin code is blank
         asserterror WhseShipmentRelease.Release(WhseShptHeader);
-        Assert.IsTrue(
-          StrPos(GetLastErrorText, StrSubstNo(ERR_BIN_CODE_NOT_EMPTY, AsmLine."Document Type", AsmLine."Document No.", AsmLine."Line No.")) >
-          0, '');
+        Assert.ExpectedTestFieldError(AsmLine.FieldCaption("Bin Code"), '');
     end;
 
     [Test]

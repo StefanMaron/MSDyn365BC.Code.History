@@ -323,13 +323,15 @@ codeunit 139160 "CRM Setup Test"
     procedure ServerAddressRequiredToEnable()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        DummyPassword: Text;
     begin
         // [FEATURE] [UT]
         Initialize();
 
         CRMConnectionSetup.Init();
         CRMConnectionSetup."User Name" := 'tester@domain.net';
-        CRMConnectionSetup.SetPassword('T3sting!');
+        DummyPassword := 'T3sting!';
+        CRMConnectionSetup.SetPassword(DummyPassword);
         CRMConnectionSetup.Insert();
 
         asserterror CRMConnectionSetup.Validate("Is Enabled", true);
@@ -342,13 +344,15 @@ codeunit 139160 "CRM Setup Test"
     procedure UserNameRequiredToEnable()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        DummyPassword: Text;
     begin
         // [FEATURE] [UT]
         Initialize();
 
         CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := '@@test@@';
-        CRMConnectionSetup.SetPassword('T3sting!');
+        DummyPassword := 'T3sting!';
+        CRMConnectionSetup.SetPassword(DummyPassword);
         CRMConnectionSetup.Insert();
 
         asserterror CRMConnectionSetup.Validate("Is Enabled", true);
@@ -361,6 +365,7 @@ codeunit 139160 "CRM Setup Test"
     procedure WorkingConnectionRequiredToEnable()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        DummyPassword: Text;
     begin
         // [FEATURE] [UT]
         Initialize();
@@ -370,7 +375,8 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := 'https://nocrmhere.gov';
         CRMConnectionSetup.Validate("User Name", 'tester@domain.net');
-        CRMConnectionSetup.SetPassword('T3sting!');
+        DummyPassword := 'T3sting!';
+        CRMConnectionSetup.SetPassword(DummyPassword);
         CRMConnectionSetup.Insert();
 
         asserterror CRMConnectionSetup.Validate("Is Enabled", true);
@@ -448,6 +454,7 @@ codeunit 139160 "CRM Setup Test"
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
         GLSetup: Record "General Ledger Setup";
         User: Record User;
+        DummyPassword: Text;
     begin
         // [FEATURE] [Currency] [LCY] [UT]
         // [SCENARIO] Connection cannot be enabled if CRM base currencydoes not match LCY
@@ -471,7 +478,8 @@ codeunit 139160 "CRM Setup Test"
         // [GIVEN] CRM Connection Setup is set, but not enabled
         LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', false);
         CRMConnectionSetup.Get();
-        CRMConnectionSetup.SetPassword('value');
+        DummyPassword := 'value';
+        CRMConnectionSetup.SetPassword(DummyPassword);
         CRMConnectionSetup.Modify();
 
         // [WHEN] Enable connection on CRM Connection Setup
@@ -489,6 +497,7 @@ codeunit 139160 "CRM Setup Test"
     procedure CanTestConnectionWhenNotIsEnabled()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        DummyPassword: Text;
     begin
         Initialize();
         LibraryCRMIntegration.RegisterTestTableConnection();
@@ -497,7 +506,8 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := '@@test@@';
         CRMConnectionSetup.Validate("User Name", 'tester@domain.net');
-        CRMConnectionSetup.SetPassword('value');
+        DummyPassword := 'value';
+        CRMConnectionSetup.SetPassword(DummyPassword);
         CRMConnectionSetup.Insert();
 
         CRMConnectionSetup.PerformTestConnection();
@@ -1077,12 +1087,14 @@ codeunit 139160 "CRM Setup Test"
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CRMConnectionSetup."Unit Group Mapping Enabled" := false;
@@ -1933,6 +1945,7 @@ codeunit 139160 "CRM Setup Test"
     local procedure InitializeCDSConnectionSetup()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        ClientSecret: Text;
     begin
         CDSConnectionSetup.DeleteAll();
         CDSConnectionSetup."Is Enabled" := true;
@@ -1942,7 +1955,8 @@ codeunit 139160 "CRM Setup Test"
         CDSConnectionSetup."Proxy Version" := LibraryCRMIntegration.GetLastestSDKVersion();
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
     end;
 
     local procedure AssertConnectionNotRegistered(ConnectionName: Code[10])
@@ -1959,21 +1973,19 @@ codeunit 139160 "CRM Setup Test"
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        with IntegrationTableMapping do begin
-            Init();
-            "Table ID" := DATABASE::Currency;
-            "Integration Table ID" := DATABASE::"CRM Transactioncurrency";
-            Validate("Integration Table UID Fld. No.", CRMTransactioncurrency.FieldNo(TransactionCurrencyId));
-            "Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
+        IntegrationTableMapping.Init();
+        IntegrationTableMapping."Table ID" := DATABASE::Currency;
+        IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Transactioncurrency";
+        IntegrationTableMapping.Validate("Integration Table UID Fld. No.", CRMTransactioncurrency.FieldNo(TransactionCurrencyId));
+        IntegrationTableMapping."Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
 
-            Name := 'FIRST';
-            Direction := Direction::FromIntegrationTable;
-            Insert();
+        IntegrationTableMapping.Name := 'FIRST';
+        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
+        IntegrationTableMapping.Insert();
 
-            Name := 'SECOND';
-            Direction := Direction::Bidirectional;
-            Insert();
-        end;
+        IntegrationTableMapping.Name := 'SECOND';
+        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::Bidirectional;
+        IntegrationTableMapping.Insert();
     end;
 
     local procedure CreateIntTableMappingWithJobQueueEntries()
@@ -2001,13 +2013,15 @@ codeunit 139160 "CRM Setup Test"
     local procedure InitSetup(Enable: Boolean; Version: Text[30])
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        DummyPassword: Text;
     begin
         CRMConnectionSetup.Init();
         CRMConnectionSetup."Is Enabled" := Enable;
         CRMConnectionSetup."Is CRM Solution Installed" := Enable;
         CRMConnectionSetup."Server Address" := '@@test@@';
         CRMConnectionSetup.Validate("User Name", 'tester@domain.net');
-        CRMConnectionSetup.SetPassword('Password');
+        DummyPassword := 'Password';
+        CRMConnectionSetup.SetPassword(DummyPassword);
         CRMConnectionSetup."CRM Version" := Version;
         CRMConnectionSetup.Insert();
 
@@ -2047,11 +2061,13 @@ codeunit 139160 "CRM Setup Test"
     local procedure MockCRMConnectionSetupWithEnableValidConnection()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        DummyPassword: Text;
     begin
         CRMConnectionSetup.DeleteAll();
         LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', false);
         CRMConnectionSetup.Get();
-        CRMConnectionSetup.SetPassword('password');
+        DummyPassword := 'password';
+        CRMConnectionSetup.SetPassword(DummyPassword);
         CRMConnectionSetup."Restore Connection" := true;
         CRMConnectionSetup.Modify();
     end;

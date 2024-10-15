@@ -322,7 +322,7 @@ page 99000829 "Firm Planned Prod. Order"
                     var
                         OrderPlanning: Page "Order Planning";
                     begin
-                        OrderPlanning.SetProdOrder(Rec);
+                        OrderPlanning.SetProdOrderDemand(Rec.Status.AsInteger(), Rec."No.");
                         OrderPlanning.RunModal();
                     end;
                 }

@@ -24,7 +24,9 @@ codeunit 744 "VAT Report Validate"
         VATStatementReportLine: Record "VAT Statement Report Line";
         ErrorID: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'You cannot release the VAT report because no lines exist.';
+#pragma warning restore AA0074
 
     local procedure ClearErrorLog()
     begin

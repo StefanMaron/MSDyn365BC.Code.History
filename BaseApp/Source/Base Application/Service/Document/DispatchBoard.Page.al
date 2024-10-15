@@ -371,7 +371,7 @@ page 6000 "Dispatch Board"
                         DemandOverview: Page "Demand Overview";
                     begin
                         DemandOverview.SetCalculationParameter(true);
-                        DemandOverview.Initialize(0D, 4, '', '', '');
+                        DemandOverview.SetParameters(0D, Microsoft.Inventory.Requisition."Demand Order Source Type"::"Service Demand", '', '', '');
                         DemandOverview.RunModal();
                     end;
                 }

@@ -208,8 +208,12 @@ report 31 "VAT Exceptions"
         MinVATDiffText: Text[250];
         PrintReversedEntries: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Amounts are shown in %1.';
         Text001: Label 'Show %1 equal to or greater than';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         VATExceptionsCaptionLbl: Label 'VAT Exceptions';
         CurrReportPageNoOCaptionLbl: Label 'Page';
         FORMATEU3PartyTradeCapLbl: Label 'EU 3-Party Trade';

@@ -1162,30 +1162,26 @@ codeunit 137617 "Production & Assembly Costing"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", EntryType);
-            SetAutoCalcFields("Cost Amount (Actual)");
-            FindSet();
-            repeat
-                TestField("Cost Amount (Actual)", ActualCost);
-            until Next() = 0;
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetAutoCalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.FindSet();
+        repeat
+            ItemLedgerEntry.TestField("Cost Amount (Actual)", ActualCost);
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyInvtIsZero(ItemNo: Code[20])
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindSet();
-            repeat
-                CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
-                TestField("Cost Amount (Expected)", 0);
-                TestField("Cost Amount (Actual)", 0);
-            until Next() = 0;
-        end;
+        ItemLedgEntry.SetRange("Item No.", ItemNo);
+        ItemLedgEntry.FindSet();
+        repeat
+            ItemLedgEntry.CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
+            ItemLedgEntry.TestField("Cost Amount (Expected)", 0);
+            ItemLedgEntry.TestField("Cost Amount (Actual)", 0);
+        until ItemLedgEntry.Next() = 0;
     end;
 
     local procedure VerifyZeroActualCostRemains(ItemNo: Code[20])

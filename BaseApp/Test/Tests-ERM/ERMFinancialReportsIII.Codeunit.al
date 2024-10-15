@@ -935,20 +935,17 @@ codeunit 134987 "ERM Financial Reports III"
         MaxEntries := 30;
         PurchaseAmount := -LibraryRandom.RandInt(10);
 
-        with GenJournalLine do begin
-            // [GIVEN] Payment Gen. Jnl Line with Payment amount larger than sum of posted Purchases
-            PaymentAmount := LibraryRandom.RandIntInRange(-(MaxEntries + 1) * PurchaseAmount, -(MaxEntries + 10) * PurchaseAmount);
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::Payment, "Account Type"::Vendor,
-              Vendor."No.", PaymentAmount, "Bank Payment Type"::"Computer Check");
-            Validate("Applies-to ID", UserId);
-            Modify(true);
-
-            // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
-            CreateAndPostGenJournalLines(
-              GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
-              "Document Type"::Invoice, "Account Type"::Vendor, Vendor."No.", MaxEntries, PurchaseAmount);
-        end;
+        // [GIVEN] Payment Gen. Jnl Line with Payment amount larger than sum of posted Purchases
+        PaymentAmount := LibraryRandom.RandIntInRange(-(MaxEntries + 1) * PurchaseAmount, -(MaxEntries + 10) * PurchaseAmount);
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
+          Vendor."No.", PaymentAmount, GenJournalLine."Bank Payment Type"::"Computer Check");
+        GenJournalLine.Validate("Applies-to ID", UserId);
+        GenJournalLine.Modify(true);
+        // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
+        CreateAndPostGenJournalLines(
+          GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.", MaxEntries, PurchaseAmount);
 
         // [GIVEN] Ledger Entries "Applies-to ID" is set to Paymet Gen. Jnl. Line "Document No."
         VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
@@ -993,19 +990,18 @@ codeunit 134987 "ERM Financial Reports III"
         MaxEntries := 30;
         PurchaseAmount := LibraryRandom.RandInt(10);
 
-        with GenJournalLine do begin
-            // [GIVEN] Payment Gen. Jnl Line with Payment amount larger than sum of posted Purchases
-            PaymentAmount := LibraryRandom.RandIntInRange((MaxEntries + 1) * PurchaseAmount, (MaxEntries + 10) * PurchaseAmount);
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::Payment, "Account Type"::Customer,
-              Customer."No.", PaymentAmount, "Bank Payment Type"::"Computer Check");
-            Validate("Applies-to ID", UserId);
-            Modify(true);
-            // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
-            CreateAndPostGenJournalLines(
-              GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
-              "Document Type"::Invoice, "Account Type"::Customer, Customer."No.", MaxEntries, PurchaseAmount);
-        end;
+        // [GIVEN] Payment Gen. Jnl Line with Payment amount larger than sum of posted Purchases
+        PaymentAmount := LibraryRandom.RandIntInRange((MaxEntries + 1) * PurchaseAmount, (MaxEntries + 10) * PurchaseAmount);
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer,
+          Customer."No.", PaymentAmount, GenJournalLine."Bank Payment Type"::"Computer Check");
+        GenJournalLine.Validate("Applies-to ID", UserId);
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
+        CreateAndPostGenJournalLines(
+          GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.", MaxEntries, PurchaseAmount);
 
         // [GIVEN] Ledger Entries "Applies-to ID" is set to Paymet Gen. Jnl. Line "Document No."
         CustLedgerEntry.SetRange("Customer No.", Customer."No.");
@@ -1435,17 +1431,15 @@ codeunit 134987 "ERM Financial Reports III"
         VendorNo := CreateVendorWithPaymentTerms(PaymentTerms.Code);
 
         InvoiceAmount := LibraryRandom.RandDecInDecimalRange(50, 100, Precision) * 2;
-        CrMemoAmount := LibraryRandom.RandDecInDecimalRange(10, 50, Precision) * 2; // credit memo amount should be less then invoice's
+        CrMemoAmount := LibraryRandom.RandDecInDecimalRange(10, 50, Precision) * 2;
+        // credit memo amount should be less then invoice's
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, -InvoiceAmount, GenJournalLine."Bank Payment Type"::" ");
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        with GenJournalLine do begin
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::Invoice, "Account Type"::Vendor, VendorNo, -InvoiceAmount, "Bank Payment Type"::" ");
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::"Credit Memo", "Account Type"::Vendor, VendorNo, CrMemoAmount, "Bank Payment Type"::" ");
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Vendor, VendorNo, CrMemoAmount, GenJournalLine."Bank Payment Type"::" ");
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         BankAccount.Get(CreateBankAccount());
         CreatePaymentGeneralBatch(GenJournalBatch);
@@ -1483,24 +1477,20 @@ codeunit 134987 "ERM Financial Reports III"
 
     local procedure CreateCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; CustNo: Code[20])
     begin
-        with CustLedgerEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            "Document Type" := DocType;
-            "Document No." := LibraryUTUtility.GetNewCode();
-            "Customer No." := CustNo;
-            Insert();
-        end;
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Document Type" := DocType;
+        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
+        CustLedgerEntry."Customer No." := CustNo;
+        CustLedgerEntry.Insert();
     end;
 
     local procedure CreateVendLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; VendNo: Code[20])
     begin
-        with VendLedgerEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(VendLedgerEntry, FieldNo("Entry No."));
-            "Document Type" := DocType;
-            "Document No." := LibraryUTUtility.GetNewCode();
-            "Vendor No." := VendNo;
-            Insert();
-        end;
+        VendLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendLedgerEntry, VendLedgerEntry.FieldNo("Entry No."));
+        VendLedgerEntry."Document Type" := DocType;
+        VendLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
+        VendLedgerEntry."Vendor No." := VendNo;
+        VendLedgerEntry.Insert();
     end;
 
     local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; PurchaserCode: Code[10])
@@ -1546,55 +1536,47 @@ codeunit 134987 "ERM Financial Reports III"
 
     local procedure CreateCustLedgerEntryWithSpecificAmountAndAppliesToID(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Account Type"; CustNo: Code[20]; EntryAmount: Decimal; AppliesToID: Code[20])
     begin
-        with CustLedgerEntry do begin
-            Init();
-            CreateCustLedgerEntry(CustLedgerEntry, DocType, CustNo);
-            Validate("Amount (LCY)", EntryAmount);
-            Validate("Remaining Amount", EntryAmount);
-            Positive := "Amount (LCY)" > 0;
-            "Applies-to ID" := AppliesToID;
-            "Amount to Apply" := "Remaining Amount";
-            "Accepted Pmt. Disc. Tolerance" := true;
-            Modify();
-        end;
+        CustLedgerEntry.Init();
+        CreateCustLedgerEntry(CustLedgerEntry, DocType, CustNo);
+        CustLedgerEntry.Validate("Amount (LCY)", EntryAmount);
+        CustLedgerEntry.Validate("Remaining Amount", EntryAmount);
+        CustLedgerEntry.Positive := CustLedgerEntry."Amount (LCY)" > 0;
+        CustLedgerEntry."Applies-to ID" := AppliesToID;
+        CustLedgerEntry."Amount to Apply" := CustLedgerEntry."Remaining Amount";
+        CustLedgerEntry."Accepted Pmt. Disc. Tolerance" := true;
+        CustLedgerEntry.Modify();
     end;
 
     local procedure CreateVendLedgerEntryWithSpecificAmountAndAppliesToID(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; VendNo: Code[20]; EntryAmount: Decimal; AppliesToID: Code[20])
     begin
-        with VendLedgerEntry do begin
-            Init();
-            CreateVendLedgerEntry(VendLedgerEntry, DocType, VendNo);
-            Validate("Amount (LCY)", EntryAmount);
-            Validate("Remaining Amount", EntryAmount);
-            Positive := "Amount (LCY)" > 0;
-            "Applies-to ID" := AppliesToID;
-            "Amount to Apply" := "Remaining Amount";
-            "Accepted Pmt. Disc. Tolerance" := true;
-            Modify();
-        end;
+        VendLedgerEntry.Init();
+        CreateVendLedgerEntry(VendLedgerEntry, DocType, VendNo);
+        VendLedgerEntry.Validate("Amount (LCY)", EntryAmount);
+        VendLedgerEntry.Validate("Remaining Amount", EntryAmount);
+        VendLedgerEntry.Positive := VendLedgerEntry."Amount (LCY)" > 0;
+        VendLedgerEntry."Applies-to ID" := AppliesToID;
+        VendLedgerEntry."Amount to Apply" := VendLedgerEntry."Remaining Amount";
+        VendLedgerEntry."Accepted Pmt. Disc. Tolerance" := true;
+        VendLedgerEntry.Modify();
     end;
 
     local procedure CreatePostGenJnlInvoiceWithPmtTerms(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PaymentTermsCode: Code[10]; LineAmount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, "Document Type"::Invoice, AccountType, AccountNo, LineAmount);
-            Validate("Payment Terms Code", PaymentTermsCode);
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            exit("Document No.");
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, LineAmount);
+        GenJournalLine.Validate("Payment Terms Code", PaymentTermsCode);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreatePmtJournalLineWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; LineAmount: Decimal)
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, "Document Type"::Payment, AccountType, AccountNo, LineAmount);
-            Validate("Posting Date", PostingDate);
-            Validate("Applies-to ID", UserId);
-            Modify(true);
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo, LineAmount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Applies-to ID", UserId);
+        GenJournalLine.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -1609,15 +1591,13 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryERM.CreateGLAccount(GLAccount);
         GenJournalTemplate.Get(LibraryJournals.SelectGenJournalTemplate(GenJnlTemplateType, Page));
         LibraryJournals.SelectGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        with GenJournalLine do begin
-            for i := 1 to GenJnlLinesCount do
-                LibraryJournals.CreateGenJournalLine2(
-                  GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, DocumentType,
-                  AccountType, AccountNo, "Account Type"::"G/L Account", GLAccount."No.", PurchaseAmount);
+        for i := 1 to GenJnlLinesCount do
+            LibraryJournals.CreateGenJournalLine2(
+              GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, DocumentType,
+              AccountType, AccountNo, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", PurchaseAmount);
 
-            SetRange("Account No.", AccountNo);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        GenJournalLine.SetRange("Account No.", AccountNo);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure SuggestVendorPayment(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; BalAccountNo: Code[20]; SummarizePerVend: Boolean)
@@ -1737,13 +1717,11 @@ codeunit 134987 "ERM Financial Reports III"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            SetRange("Account No.", AccountNo);
-            SetRange("Applies-to Doc. Type", AppToDocType);
-            FindFirst();
-            Validate(Amount, NewAmount);
-            Modify(true);
-        end;
+        GenJournalLine.SetRange("Account No.", AccountNo);
+        GenJournalLine.SetRange("Applies-to Doc. Type", AppToDocType);
+        GenJournalLine.FindFirst();
+        GenJournalLine.Validate(Amount, NewAmount);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure GetIndentValue(Indentation: Integer) IndentValue: Integer
@@ -1832,13 +1810,11 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryPmtDiscSetup.SetPmtDiscToleranceWarning(true);
         Evaluate(PmtDiscGracePeriod, '<' + Format(LibraryRandom.RandIntInRange(10, 20)) + 'D>');
         LibraryPmtDiscSetup.SetPmtDiscGracePeriod(PmtDiscGracePeriod);
-        with GLSetup do begin
-            Get();
-            Validate("Pmt. Disc. Tolerance Posting", "Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts");
-            Validate("Payment Tolerance Posting", "Payment Tolerance Posting"::"Payment Tolerance Accounts");
-            Validate("Payment Tolerance %", LibraryRandom.RandIntInRange(10, 20));
-            Modify(true);
-        end;
+        GLSetup.Get();
+        GLSetup.Validate("Pmt. Disc. Tolerance Posting", GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts");
+        GLSetup.Validate("Payment Tolerance Posting", GLSetup."Payment Tolerance Posting"::"Payment Tolerance Accounts");
+        GLSetup.Validate("Payment Tolerance %", LibraryRandom.RandIntInRange(10, 20));
+        GLSetup.Modify(true);
     end;
 
     local procedure UpdatePmtToleranceOnGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -1852,24 +1828,20 @@ codeunit 134987 "ERM Financial Reports III"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", InvoiceNo);
-            LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        VendorLedgerEntry.SetRange("Document No.", InvoiceNo);
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
     end;
 
     local procedure UpdateCustomerInvoiceLedgerEntryAppliesToID(CustomerNo: Code[20]; InvoiceNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", InvoiceNo);
-            LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.SetRange("Document No.", InvoiceNo);
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
     end;
 
     local procedure UpdateBankAccountLastCheckNo(var BankAccount: Record "Bank Account"; BankAccountNo: Code[20])

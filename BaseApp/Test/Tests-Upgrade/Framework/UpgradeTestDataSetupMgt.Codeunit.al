@@ -26,9 +26,8 @@ codeunit 132800 "Upgrade Test Data Setup Mgt."
         SourceTableId: Integer;
     begin
         OnGetTablesToBackupPerDatabase(TableMapping);
-        foreach SourceTableId in TableMapping.Keys() do begin
-            BackupTable(SourceTableId, TableMapping.Get(SourceTableId))
-        end;
+        foreach SourceTableId in TableMapping.Keys() do
+            BackupTable(SourceTableId, TableMapping.Get(SourceTableId));
     end;
 
     procedure BackupTablesPerCompany()
@@ -37,9 +36,8 @@ codeunit 132800 "Upgrade Test Data Setup Mgt."
         SourceTableId: Integer;
     begin
         OnGetTablesToBackupPerCompany(TableMapping);
-        foreach SourceTableId in TableMapping.Keys() do begin
-            BackupTable(SourceTableId, TableMapping.Get(SourceTableId))
-        end;
+        foreach SourceTableId in TableMapping.Keys() do
+            BackupTable(SourceTableId, TableMapping.Get(SourceTableId));
     end;
 
     local procedure BackupTable(SourceTableId: Integer; TargetTableId: Integer)

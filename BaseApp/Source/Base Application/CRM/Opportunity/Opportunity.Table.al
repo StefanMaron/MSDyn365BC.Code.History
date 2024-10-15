@@ -659,28 +659,48 @@ table 5092 Opportunity
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'You cannot delete this opportunity while it is active.';
         Text001: Label 'You cannot create opportunities on an empty segment.';
+#pragma warning disable AA0470
         Text002: Label 'Do you want to create an opportunity for all contacts in the %1 segment?';
+#pragma warning restore AA0470
         Text003: Label 'There is no sales quote that is assigned to this opportunity.';
+#pragma warning disable AA0470
         Text004: Label 'Sales quote %1 does not exist.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         RMSetup: Record "Marketing Setup";
         Opp: Record Opportunity;
         RMCommentLine: Record "Rlshp. Mgt. Comment Line";
         OppEntry: Record "Opportunity Entry";
         TempRlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line" temporary;
         NoSeries: Codeunit "No. Series";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'Sales %1 %2 is already assigned to opportunity %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ChangeConfirmQst: Label 'Do you want to change %1 on the related open tasks with the same %1?', Comment = '%1 = Field Caption';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text009: Label 'Contact %1 %2 is related to another company.';
+#pragma warning restore AA0470
         Text011: Label 'A sales quote has already been assigned to this opportunity.';
         Text012: Label 'Current process @1@@@@@@@@@@@@@@@\';
+#pragma warning disable AA0470
         Text013: Label 'Current status  #2###############';
+#pragma warning restore AA0470
         Text014: Label 'Updating Tasks';
+#pragma warning disable AA0470
         Text022: Label 'You must fill in the %1 field.';
+#pragma warning restore AA0470
         Text023: Label 'You must fill in the contact that is involved in the opportunity.';
+#pragma warning disable AA0470
         Text024: Label '%1 must be greater than 0.';
+#pragma warning restore AA0470
         Text025: Label 'The Estimated closing date has to be later than this change';
+#pragma warning restore AA0074
         ActivateFirstStageQst: Label 'Would you like to activate first stage for this opportunity?';
         SalesCycleNotFoundErr: Label 'Sales Cycle Stage not found.';
         UpdateSalesQuoteWithCustTemplateQst: Label 'Do you want to update the sales quote with a customer template?';

@@ -15,7 +15,11 @@ codeunit 376 "Check Entry Set Recon.-No."
     var
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         BLEMissmatchErr: Label 'Bank Ledger Entry has %1 %2, but Bank Reconciliation Line has %3.', Comment = '%1 - Either "Statement No." or "Statement Line No.", %2 - A number, %3 - a number';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'cannot be %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure ToggleReconNo(var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; ChangeAmount: Boolean)
     var

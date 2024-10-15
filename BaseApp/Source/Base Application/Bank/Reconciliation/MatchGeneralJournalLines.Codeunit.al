@@ -22,8 +22,10 @@ codeunit 1250 "Match General Journal Lines"
     end;
 
     var
+#pragma warning disable AA0470
         MatchSummaryMsg: Label '%1 payment lines out of %2 are matched.\\';
         MissingMatchMsg: Label 'Text shorter than %1 characters cannot be matched.';
+#pragma warning restore AA0470
         ProgressBarMsg: Label 'Please wait while the operation is being completed.';
         MatchLengthTreshold: Integer;
         NormalizingFactor: Integer;

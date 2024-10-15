@@ -486,7 +486,7 @@ codeunit 134065 "Test Reten. Pol. Doc. Arch."
         RetentionPolicySetupLine."Date Field No." := RetentionPolicySetup."Date Field No.";
         RetentionPolicySetupLine.Validate("Retention Period", RetentionPeriod.Code);
         RetentionPolicySetupLine."Keep Last Version" := false;
-        RetentionPolicySetupLine.Insert(True);
+        RetentionPolicySetupLine.Insert(true);
 
         CreateOneWeekRetentionPeriod(RetentionPeriod);
         RetentionPolicySetupLine.Validate("Table ID", Database::"Sales Header Archive");
@@ -494,7 +494,7 @@ codeunit 134065 "Test Reten. Pol. Doc. Arch."
         RetentionPolicySetupLine."Date Field No." := RetentionPolicySetup."Date Field No.";
         RetentionPolicySetupLine.Validate("Retention Period", RetentionPeriod.Code);
         RetentionPolicySetupLine."Keep Last Version" := true;
-        RetentionPolicySetupLine.Insert(True);
+        RetentionPolicySetupLine.Insert(true);
     end;
 
     local procedure CreatePurchaseHeaderArchiveRetentionPolicySetup(var RetentionPolicySetup: Record "Retention Policy Setup")
@@ -521,7 +521,7 @@ codeunit 134065 "Test Reten. Pol. Doc. Arch."
         RetentionPolicySetupLine."Date Field No." := RetentionPolicySetup."Date Field No.";
         RetentionPolicySetupLine.Validate("Retention Period", RetentionPeriod.Code);
         RetentionPolicySetupLine."Keep Last Version" := false;
-        RetentionPolicySetupLine.Insert(True);
+        RetentionPolicySetupLine.Insert(true);
 
         CreateOneWeekRetentionPeriod(RetentionPeriod);
         RetentionPolicySetupLine.Validate("Table ID", Database::"Purchase Header Archive");
@@ -529,7 +529,7 @@ codeunit 134065 "Test Reten. Pol. Doc. Arch."
         RetentionPolicySetupLine."Date Field No." := RetentionPolicySetup."Date Field No.";
         RetentionPolicySetupLine.Validate("Retention Period", RetentionPeriod.Code);
         RetentionPolicySetupLine."Keep Last Version" := true;
-        RetentionPolicySetupLine.Insert(True);
+        RetentionPolicySetupLine.Insert(true);
     end;
 
     [ConfirmHandler]

@@ -18,9 +18,11 @@ codeunit 762 "Acc. Sched. Chart Management"
         GeneralLedgerSetup: Record "General Ledger Setup";
         AccSchedManagement: Codeunit AccSchedManagement;
         GLSetupLoaded: Boolean;
+#pragma warning disable AA0470
         DuplicateRowDescriptionsMsg: Label 'Row Definition %1 has duplicate Description values: %2.';
         DuplicateColumnHeaderMsg: Label 'Column Definition %1 has duplicate Column Header values: %2.';
         ColumnFormulaMsg: Label 'Column formula: %1.';
+#pragma warning restore AA0470
         DefaultAccSchedTok: Label 'DEFAULT', Comment = 'The default name of the chart setup.';
         DefinitionsModifiedMsg: Label 'The row definition or column definition has been modified since the chart setup was created. Please reset your chart setup.';
 

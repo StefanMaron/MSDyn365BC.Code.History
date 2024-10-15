@@ -35,12 +35,20 @@ codeunit 1000 "Job Calculate WIP"
         ErrorMessageHandler: Codeunit "Error Message Handler";
         WIPPostingDate: Date;
         DocNo: Code[20];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'WIP %1', Comment = 'WIP GUILDFORD, 10 CR';
         Text002: Label 'Recognition %1', Comment = 'Recognition GUILDFORD, 10 CR';
         Text003: Label 'Completion %1', Comment = 'Completion GUILDFORD, 10 CR';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         JobComplete: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'WIP G/L entries posted for Project %1 cannot be reversed at an earlier date than %2.';
         Text005: Label '..%1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         HasGotGLSetup: Boolean;
         JobWIPTotalChanged: Boolean;
         WIPAmount: Decimal;

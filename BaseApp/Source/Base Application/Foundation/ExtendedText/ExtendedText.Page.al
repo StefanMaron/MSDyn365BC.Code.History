@@ -108,6 +108,11 @@ page 386 "Extended Text"
                     Importance = Additional;
                     ToolTip = 'Specifies whether the text will be available on prepayment sales credit memos.';
                 }
+                field(Job; Rec.Job)
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies whether the text will be available on projects.';
+                }
             }
             group(Purchases)
             {
@@ -151,30 +156,6 @@ page 386 "Extended Text"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the text will be available on prepayment purchase credit memos.';
-                }
-            }
-            group(Service)
-            {
-                Caption = 'Service';
-                field("Service Quote"; Rec."Service Quote")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies that the extended text for an item, account or other factor will be available on service lines in service orders.';
-                }
-                field("Service Order"; Rec."Service Order")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies that the extended text for an item, account or other factor will be available on service lines in service orders.';
-                }
-                field("Service Invoice"; Rec."Service Invoice")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies that the extended text for an item, account or other factor will be available on service lines in service orders.';
-                }
-                field("Service Credit Memo"; Rec."Service Credit Memo")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies that the extended text for an item, account or other factor will be available on service lines in service orders.';
                 }
             }
         }

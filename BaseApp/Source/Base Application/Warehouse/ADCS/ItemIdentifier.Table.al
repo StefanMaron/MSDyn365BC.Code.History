@@ -79,7 +79,11 @@ table 7704 "Item Identifier"
     var
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'For Item %1 Identifier exists.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure GetItem()
     begin

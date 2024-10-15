@@ -407,13 +407,11 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
 
     local procedure CreateDimensionSelectionBuffer(var TempDimensionSelectionBuffer: Record "Dimension Selection Buffer" temporary; LevelValue: Option; CodeValue: Code[20])
     begin
-        with TempDimensionSelectionBuffer do begin
-            Init();
-            Level := LevelValue;
-            Code := CodeValue;
-            Selected := true;
-            Insert();
-        end;
+        TempDimensionSelectionBuffer.Init();
+        TempDimensionSelectionBuffer.Level := LevelValue;
+        TempDimensionSelectionBuffer.Code := CodeValue;
+        TempDimensionSelectionBuffer.Selected := true;
+        TempDimensionSelectionBuffer.Insert();
     end;
 
     local procedure CreateDimensionsWithConsolidationCodes(var DimensionFilter: Text; var DimConsolidationCodeFilter: Text)
@@ -425,14 +423,12 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         Separator := '|';
         for I := 1 to LibraryRandom.RandInt(10) do begin
             LibraryDimension.CreateDimension(Dimension);
-            with Dimension do begin
-                Validate(
-                  "Consolidation Code",
-                  LibraryUtility.GenerateRandomCode(FieldNo("Consolidation Code"), DATABASE::Dimension));
-                Modify(true);
-                DimensionFilter += Code + Separator;
-                DimConsolidationCodeFilter += "Consolidation Code" + Separator;
-            end;
+            Dimension.Validate(
+              "Consolidation Code",
+              LibraryUtility.GenerateRandomCode(Dimension.FieldNo("Consolidation Code"), DATABASE::Dimension));
+            Dimension.Modify(true);
+            DimensionFilter += Dimension.Code + Separator;
+            DimConsolidationCodeFilter += Dimension."Consolidation Code" + Separator;
         end;
         DimensionFilter := DelChr(DimensionFilter, '>', Separator);
         DimConsolidationCodeFilter := DelChr(DimConsolidationCodeFilter, '>', Separator);

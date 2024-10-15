@@ -6,22 +6,13 @@ using Microsoft.CRM.Contact;
 using Microsoft.CRM.Duplicates;
 using Microsoft.CRM.Interaction;
 using Microsoft.CRM.Opportunity;
-#if not CLEAN22
-using Microsoft.CRM.Outlook;
-#endif
 using Microsoft.CRM.Team;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Sales.Customer;
-#if not CLEAN22
-using System;
-#endif
 using System.Globalization;
 using System.Integration;
-#if not CLEAN22
-using System.Security.Encryption;
-#endif
 using System.Utilities;
 
 table 5079 "Marketing Setup"
@@ -210,50 +201,30 @@ table 5079 "Marketing Setup"
             Caption = 'Queue Folder Path';
             Editable = false;
             ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif   
         }
         field(57; "Queue Folder UID"; BLOB)
         {
             Caption = 'Queue Folder UID';
             ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif   
         }
         field(59; "Storage Folder Path"; Text[250])
         {
             Caption = 'Storage Folder Path';
             Editable = false;
             ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif   
         }
         field(60; "Storage Folder UID"; BLOB)
         {
             Caption = 'Storage Folder UID';
             ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
         }
         field(67; "Default To-do Date Calculation"; DateFormula)
         {
@@ -263,65 +234,31 @@ table 5079 "Marketing Setup"
         {
             Caption = 'Autodiscovery Email Address';
             ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
-
-#if not CLEAN22
-            trigger OnValidate()
-            begin
-                ResetExchangeTenantId();
-            end;
-#endif
         }
         field(70; "Email Batch Size"; Integer)
         {
             Caption = 'Email Batch Size';
             MinValue = 0;
             ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
         }
         field(71; "Exchange Service URL"; Text[250])
         {
             Caption = 'Exchange Service URL';
             ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
-
-#if not CLEAN22
-            trigger OnValidate()
-            begin
-                ResetExchangeTenantId();
-            end;
-#endif
         }
         field(72; "Exchange Account User Name"; Text[250])
         {
             Caption = 'Exchange Account User Name';
             DataClassification = EndUserIdentifiableInformation;
             ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
         }
         field(73; "Exchange Account Password Key"; Guid)
         {
@@ -357,73 +294,32 @@ table 5079 "Marketing Setup"
             Caption = 'Exchange Client Id';
             DataClassification = EndUserIdentifiableInformation;
             ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
-
-#if not CLEAN22
-            trigger OnValidate()
-            begin
-                ResetExchangeTenantId();
-            end;
-#endif
         }
         field(80; "Exchange Client Secret Key"; Guid)
         {
             Caption = 'Exchange Client Secret Key';
             DataClassification = EndUserPseudonymousIdentifiers;
             ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
-
-#if not CLEAN22
-            trigger OnValidate()
-            begin
-                ResetExchangeTenantId();
-            end;
-#endif
         }
         field(81; "Email Logging Enabled"; Boolean)
         {
             Caption = 'Email Logging Enabled';
             DataClassification = CustomerContent;
             ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
         }
         field(82; "Exchange Redirect URL"; Text[2048])
         {
             Caption = 'Exchange Redirect URL';
             DataClassification = EndUserIdentifiableInformation;
             ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
-
-#if not CLEAN22
-            trigger OnValidate()
-            begin
-                ResetExchangeTenantId();
-            end;
-#endif
         }
         field(83; "Inherit Format Region"; Boolean)
         {
@@ -445,151 +341,7 @@ table 5079 "Marketing Setup"
     }
 
     var
-#if not CLEAN22
-        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
-        Text010: Label 'The queue and storage folders cannot be the same. Choose a different folder.';
-        ExchangeAccountNotConfiguredErr: Label 'You must set up an Exchange account for email logging.';
-#endif
         DuplicateSearchQst: Label 'Do you want to generate duplicate search strings?';
-#if not CLEAN22
-        EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
-        ConfigureExchangeAccountTxt: Label 'Configure Exchange account.', Locked = true;
-        ExchangeAccountNotConfiguredTxt: Label 'Exchange account is not configured.', Locked = true;
-        ExchangeAccountConfiguredTxt: Label 'Exchange account is configured.', Locked = true;
-        QueueFolderNotSetTxt: Label 'Queue folder is not set.', Locked = true;
-        QueueFolderSetTxt: Label 'Queue folder is set.', Locked = true;
-        StorageFolderNotSetTxt: Label 'Storage folder is not set.', Locked = true;
-        StorageFolderSetTxt: Label 'Storage folder is set.', Locked = true;
-        SetExchangeAccountPasswordTxt: Label 'Set Exchange account password.', Locked = true;
-        ExchangeTenantIdClearedTxt: Label 'Exchange tenant ID is cleared.', Locked = true;
-        ExchangeTenantIdSetTxt: Label 'Exchange tenant ID is set.', Locked = true;
-#endif
-
-#if not CLEAN22
-    [Obsolete('Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0', '22.0')]
-    [Scope('OnPrem')]
-    procedure SetQueueFolder(ExchangeFolder: Record "Exchange Folder")
-    var
-        InStream: InStream;
-        OutStream: OutStream;
-    begin
-        if (ExchangeFolder.FullPath = "Storage Folder Path") and (ExchangeFolder.FullPath <> '') then begin
-            Session.LogMessage('0000BXS', QueueFolderNotSetTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            Error(Text010);
-        end;
-        if (ExchangeFolder.ReadUniqueID() = GetStorageFolderUID()) and ExchangeFolder."Unique ID".HasValue() then begin
-            Session.LogMessage('0000BXT', QueueFolderNotSetTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            Error(Text010);
-        end;
-
-        Session.LogMessage('0000BXU', QueueFolderSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-
-        "Queue Folder Path" := ExchangeFolder.FullPath;
-
-        ExchangeFolder."Unique ID".CreateInStream(InStream);
-        "Queue Folder UID".CreateOutStream(OutStream);
-        CopyStream(OutStream, InStream);
-        Modify();
-    end;
-
-    [Obsolete('Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0', '22.0')]
-    [Scope('OnPrem')]
-    procedure SetStorageFolder(ExchangeFolder: Record "Exchange Folder")
-    var
-        InStream: InStream;
-        OutStream: OutStream;
-    begin
-        if (ExchangeFolder.FullPath = "Queue Folder Path") and (ExchangeFolder.FullPath <> '') then begin
-            Session.LogMessage('0000BXV', StorageFolderNotSetTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            Error(Text010);
-        end;
-        if (ExchangeFolder.ReadUniqueID() = GetQueueFolderUID()) and ExchangeFolder."Unique ID".HasValue() then begin
-            Session.LogMessage('0000BXW', StorageFolderNotSetTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            Error(Text010);
-        end;
-
-        Session.LogMessage('0000BXX', StorageFolderSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-
-        "Storage Folder Path" := ExchangeFolder.FullPath;
-
-        ExchangeFolder."Unique ID".CreateInStream(InStream);
-        "Storage Folder UID".CreateOutStream(OutStream);
-        CopyStream(OutStream, InStream);
-        Modify();
-    end;
-
-    [Obsolete('Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0', '22.0')]
-    procedure GetQueueFolderUID() Return: Text
-    var
-        Stream: InStream;
-    begin
-        CalcFields("Queue Folder UID");
-        "Queue Folder UID".CreateInStream(Stream);
-        Stream.ReadText(Return);
-    end;
-
-    [Obsolete('Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0', '22.0')]
-    procedure GetStorageFolderUID() Return: Text
-    var
-        Stream: InStream;
-    begin
-        CalcFields("Storage Folder UID");
-        "Storage Folder UID".CreateInStream(Stream);
-        Stream.ReadText(Return);
-    end;
-
-    [Obsolete('Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0', '22.0')]
-    [Scope('OnPrem')]
-    procedure SetExchangeAccountPassword(Password: SecretText)
-    begin
-        Session.LogMessage('0000BY0', SetExchangeAccountPasswordTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-
-        if Password.IsEmpty() then
-            if not IsNullGuid("Exchange Account Password Key") then begin
-                IsolatedStorageManagement.Delete("Exchange Account Password Key", DATASCOPE::Company);
-                exit;
-            end;
-
-        if IsNullGuid("Exchange Account Password Key") then begin
-            "Exchange Account Password Key" := CreateGuid();
-            Modify();
-        end;
-
-        IsolatedStorageManagement.Set("Exchange Account Password Key", Password, DATASCOPE::Company);
-    end;
-
-    [Obsolete('Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0', '22.0')]
-    [Scope('OnPrem')]
-    procedure CreateExchangeAccountCredentials(var WebCredentials: DotNet WebCredentials)
-    var
-        Value: SecretText;
-    begin
-        Session.LogMessage('0000BY1', ConfigureExchangeAccountTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-
-        if "Exchange Account User Name" = '' then begin
-            Session.LogMessage('0000BY2', ExchangeAccountNotConfiguredTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            Error(ExchangeAccountNotConfiguredErr);
-        end;
-        if IsNullGuid("Exchange Account Password Key") or
-           not ISOLATEDSTORAGE.Contains("Exchange Account Password Key", DATASCOPE::Company)
-        then begin
-            Session.LogMessage('0000BY3', ExchangeAccountNotConfiguredTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            Error(ExchangeAccountNotConfiguredErr);
-        end;
-
-        IsolatedStorageManagement.Get("Exchange Account Password Key", DATASCOPE::Company, Value);
-        CreateWebCredentials(WebCredentials, Value);
-
-        Session.LogMessage('0000BY4', ExchangeAccountConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-    end;
-
-    [NonDebuggable]
-    [Scope('OnPrem')]
-    procedure CreateWebCredentials(var WebCredentials: DotNet WebCredentials; PasswordKey: SecretText)
-    begin
-        WebCredentials := WebCredentials.WebCredentials("Exchange Account User Name", PasswordKey.Unwrap());
-    end;
-#endif
 
     procedure TrySetWebhookSubscriptionUser(UserSecurityID: Guid): Boolean
     var
@@ -621,7 +373,9 @@ table 5079 "Marketing Setup"
 
     local procedure CurrentUserHasPermissionsForWebhookSubscription(): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         Contact: Record Contact;
+        [SecurityFiltering(SecurityFilter::Ignored)]
         Customer: Record Customer;
     begin
         exit(Customer.WritePermission and Contact.WritePermission)
@@ -655,86 +409,5 @@ table 5079 "Marketing Setup"
                 exit(MarketingSetup."Cust. Template Person Code");
         end
     end;
-
-#if not CLEAN22
-    [Obsolete('Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0', '22.0')]
-    [Scope('OnPrem')]
-    [NonDebuggable]
-    procedure ResetExchangeTenantId()
-    begin
-        SetExchangeTenantId('');
-    end;
-
-    [Obsolete('Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0', '22.0')]
-    [Scope('OnPrem')]
-    procedure SetExchangeTenantId(TenantId: Text)
-    begin
-        if TenantId = '' then
-            if not IsNullGuid("Exchange Tenant Id Key") then begin
-                IsolatedStorageManagement.Delete("Exchange Tenant Id Key", DATASCOPE::Company);
-                Session.LogMessage('0000D9K', ExchangeTenantIdClearedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-                exit;
-            end;
-
-        if IsNullGuid("Exchange Tenant Id Key") then begin
-            "Exchange Tenant Id Key" := CreateGuid();
-            Modify();
-        end;
-
-        IsolatedStorageManagement.Set("Exchange Tenant Id Key", TenantId, DATASCOPE::Company);
-        Session.LogMessage('0000D9J', ExchangeTenantIdSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-    end;
-
-    [Obsolete('Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0', '22.0')]
-    [Scope('OnPrem')]
-    [NonDebuggable]
-    procedure GetExchangeTenantId(): Text
-    var
-        TenantId: Text;
-    begin
-        if IsNullGuid("Exchange Tenant Id Key") or
-           not IsolatedStorage.Contains("Exchange Tenant Id Key", DATASCOPE::Company)
-        then
-            exit('');
-
-        IsolatedStorageManagement.Get("Exchange Tenant Id Key", DATASCOPE::Company, TenantId);
-        exit(TenantId);
-    end;
-
-    [Scope('OnPrem')]
-    procedure SetExchangeClientSecret(ClientSecret: SecretText)
-    begin
-        if ClientSecret.IsEmpty() then
-            if not IsNullGuid("Exchange Client Secret Key") then begin
-                IsolatedStorageManagement.Delete("Exchange Client Secret Key", DATASCOPE::Company);
-                exit;
-            end;
-
-        if IsNullGuid("Exchange Client Secret Key") then begin
-            "Exchange Client Secret Key" := CreateGuid();
-            Modify();
-        end;
-
-        IsolatedStorageManagement.Set("Exchange Client Secret Key", ClientSecret, DATASCOPE::Company);
-    end;
-
-    [Obsolete('Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0', '22.0')]
-    [Scope('OnPrem')]
-    [NonDebuggable]
-    procedure GetExchangeClientSecret(): Text
-    var
-        ClientSecret: Text;
-    begin
-        if IsNullGuid("Exchange Client Secret Key") or
-           not IsolatedStorage.Contains("Exchange Client Secret Key", DATASCOPE::Company)
-        then begin
-            Session.LogMessage('0000CF9', ExchangeAccountNotConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            exit('');
-        end;
-
-        IsolatedStorageManagement.Get("Exchange Client Secret Key", DATASCOPE::Company, ClientSecret);
-        exit(ClientSecret);
-    end;
-#endif
 }
 

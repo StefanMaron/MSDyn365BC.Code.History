@@ -284,13 +284,6 @@ table 274 "Bank Acc. Reconciliation Line"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
-        field(13600; "Payment Reference"; Code[20])
-        {
-            Caption = 'Payment Reference';
-            ObsoleteReason = 'Moved to Payment and Reconciliation Formats (DK) extension to field name: PaymentReference';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys

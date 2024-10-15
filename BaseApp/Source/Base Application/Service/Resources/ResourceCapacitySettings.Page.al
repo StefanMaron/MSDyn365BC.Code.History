@@ -280,13 +280,17 @@ page 6013 "Resource Capacity Settings"
         LastEntry: Decimal;
         Holiday: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'The starting date is later than the ending date.';
         Text002: Label 'You must fill in the Starting Date field.';
         Text003: Label 'You must fill in the Ending Date field.';
+#pragma warning disable AA0470
         Text004: Label 'Do you want to change the capacity for %1 %2?', Comment = 'Do you want to change the capacity for NO No.?';
         Text006: Label 'The capacity for %1 days was changed successfully.';
         Text007: Label 'The capacity for %1 day was changed successfully.';
+#pragma warning restore AA0470
         Text008: Label 'The capacity change was unsuccessful.';
+#pragma warning restore AA0074
 
     local procedure SelectCapacity(var CustomizedCalendarChange: Record "Customized Calendar Change") Hours: Decimal
     var

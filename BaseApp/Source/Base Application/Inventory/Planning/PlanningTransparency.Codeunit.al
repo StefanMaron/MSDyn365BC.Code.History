@@ -22,6 +22,7 @@ codeunit 99000856 "Planning Transparency"
         CurrReqLine: Record "Requisition Line";
         CurrTemplateName: Code[10];
         CurrWorksheetName: Code[10];
+#pragma warning disable AA0074
         Text000: Label 'Undefined';
         Text001: Label 'Demand Forecast';
         Text002: Label 'Blanket Order';
@@ -34,6 +35,7 @@ codeunit 99000856 "Planning Transparency"
         Text009: Label 'Order Multiple';
         Text010: Label 'Dampener (% of Lot Size)';
         Text011: Label 'Emergency Order';
+#pragma warning restore AA0074
         SequenceNo: Integer;
 
     procedure SetTemplAndWorksheet(TemplateName: Code[10]; WorksheetName: Code[10])

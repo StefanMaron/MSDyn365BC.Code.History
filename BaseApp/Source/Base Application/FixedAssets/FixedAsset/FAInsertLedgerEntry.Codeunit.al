@@ -51,14 +51,20 @@ codeunit 5600 "FA Insert Ledger Entry"
         LastEntryNo: Integer;
         GLRegisterNo: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%2 = %3 does not exist for %1.';
         Text001: Label '%2 = %3 does not match the journal line for %1.';
         Text002: Label '%1 is a %2. %3 must be %4 in %5.';
         Text003: Label '%1 must not be %2 in %3 %4.';
         Text004: Label 'Reversal found a %1 without a matching %2.';
+#pragma warning restore AA0470
         Text005: Label 'You cannot reverse the transaction, because it has already been reversed.';
+#pragma warning disable AA0470
         Text006: Label 'The combination of dimensions used in %1 %2 is blocked. %3';
         Text007: Label '%1 = %2 already exists for %5 (%3 = %4).';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure InsertFA(var FALedgEntry3: Record "FA Ledger Entry")
     var

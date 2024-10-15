@@ -1,6 +1,6 @@
 namespace System.IO;
 
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Purchases.Pricing;
 #endif
 using Microsoft.Sales.Pricing;
@@ -23,15 +23,21 @@ codeunit 8616 "Config. Management"
         ConfigPackageMgt: Codeunit "Config. Package Management";
         HideDialog: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'You must specify a company name.';
+#pragma warning disable AA0470
         Text001: Label 'Do you want to copy the data from the %1 table in %2?';
         Text002: Label 'Data from the %1 table in %2 has been copied successfully.';
         Text003: Label 'Do you want to copy the data from the selected tables in %1?';
         Text004: Label 'Data from the selected tables in %1 has been copied successfully.';
+#pragma warning restore AA0470
         Text006: Label 'The base company must not be the same as the current company.';
+#pragma warning disable AA0470
         Text007: Label 'The %1 table in %2 already contains data.\\You must delete the data from the table before you can use this function.';
         Text009: Label 'There is no data in the %1 table in %2.\\You must set up the table in %3 manually.';
+#pragma warning restore AA0470
         Text023: Label 'Processing tables';
+#pragma warning restore AA0074
 
     procedure CopyDataDialog(NewCompanyName: Text[30]; var ConfigLine: Record "Config. Line")
     var
@@ -323,62 +329,6 @@ codeunit 8616 "Config. Management"
                 exit(Page::Microsoft.CRM.Opportunity."Sales Cycles");
             Database::Microsoft.CRM.Opportunity."Close Opportunity Code":
                 exit(Page::Microsoft.CRM.Opportunity."Close Opportunity Codes");
-            Database::Microsoft.Service.Setup."Service Mgt. Setup":
-                exit(Page::Microsoft.Service.Setup."Service Mgt. Setup");
-            Database::Microsoft.Service.Item."Service Item":
-                exit(Page::Microsoft.Service.Item."Service Item List");
-            Database::Microsoft.Service.Contract."Service Hour":
-                exit(Page::Microsoft.Service.Contract."Default Service Hours");
-            Database::Microsoft.Service.Setup."Work-Hour Template":
-                exit(Page::Microsoft.Service.Setup."Work-Hour Templates");
-            Database::Microsoft.Service.Resources."Resource Service Zone":
-                exit(Page::Microsoft.Service.Resources."Resource Service Zones");
-            Database::Microsoft.Service.Loaner.Loaner:
-                exit(Page::Microsoft.Service.Loaner."Loaner List");
-            Database::Microsoft.Service.Setup."Skill Code":
-                exit(Page::Microsoft.Service.Setup."Skill Codes");
-            Database::Microsoft.Service.Maintenance."Fault Reason Code":
-                exit(Page::Microsoft.Service.Maintenance."Fault Reason Codes");
-            Database::Microsoft.Service.Pricing."Service Cost":
-                exit(Page::Microsoft.Service.Pricing."Service Costs");
-            Database::Microsoft.Service.Setup."Service Zone":
-                exit(Page::Microsoft.Service.Setup."Service Zones");
-            Database::Microsoft.Service.Setup."Service Order Type":
-                exit(Page::Microsoft.Service.Setup."Service Order Types");
-            Database::Microsoft.Service.Item."Service Item Group":
-                exit(Page::Microsoft.Service.Item."Service Item Groups");
-            Database::Microsoft.Service.Setup."Service Shelf":
-                exit(Page::Microsoft.Service.Setup."Service Shelves");
-            Database::Microsoft.Service.Document."Service Status Priority Setup":
-                exit(Page::Microsoft.Service.Document."Service Order Status Setup");
-            Database::Microsoft.Service.Maintenance."Repair Status":
-                exit(Page::Microsoft.Service.Maintenance."Repair Status Setup");
-            Database::Microsoft.Service.Pricing."Service Price Group":
-                exit(Page::Microsoft.Service.Pricing."Service Price Groups");
-            Database::Microsoft.Service.Pricing."Serv. Price Group Setup":
-                exit(Page::Microsoft.Service.Pricing."Serv. Price Group Setup");
-            Database::Microsoft.Service.Pricing."Service Price Adjustment Group":
-                exit(Page::Microsoft.Service.Pricing."Serv. Price Adjmt. Group");
-            Database::Microsoft.Service.Pricing."Serv. Price Adjustment Detail":
-                exit(Page::Microsoft.Service.Pricing."Serv. Price Adjmt. Detail");
-            Database::Microsoft.Service.Maintenance."Resolution Code":
-                exit(Page::Microsoft.Service.Maintenance."Resolution Codes");
-            Database::Microsoft.Service.Maintenance."Fault Area":
-                exit(Page::Microsoft.Service.Maintenance."Fault Areas");
-            Database::Microsoft.Service.Maintenance."Symptom Code":
-                exit(Page::Microsoft.Service.Maintenance."Symptom Codes");
-            Database::Microsoft.Service.Maintenance."Fault Code":
-                exit(Page::Microsoft.Service.Maintenance."Fault Codes");
-            Database::Microsoft.Service.Maintenance."Fault/Resol. Cod. Relationship":
-                exit(Page::Microsoft.Service.Maintenance."Fault/Resol. Cod. Relationship");
-            Database::Microsoft.Service.Contract."Contract Group":
-                exit(Page::Microsoft.Service.Contract."Service Contract Groups");
-            Database::Microsoft.Service.Contract."Service Contract Template":
-                exit(Page::Microsoft.Service.Contract."Service Contract Template");
-            Database::Microsoft.Service.Contract."Service Contract Account Group":
-                exit(Page::Microsoft.Service.Contract."Serv. Contract Account Groups");
-            Database::Microsoft.Service.Maintenance."Troubleshooting Header":
-                exit(Page::Microsoft.Service.Maintenance.Troubleshooting);
             Database::Microsoft.Purchases.Setup."Purchases & Payables Setup":
                 exit(Page::Microsoft.Purchases.Setup."Purchases & Payables Setup");
             Database::Microsoft.Purchases.Vendor.Vendor:
@@ -619,7 +569,7 @@ codeunit 8616 "Config. Management"
                 exit(Page::Microsoft.Purchases.History."Posted Purchase Invoices");
             Database::Microsoft.Purchases.History."Purch. Cr. Memo Hdr.":
                 exit(Page::Microsoft.Purchases.History."Posted Purchase Credit Memos");
-#if not CLEAN23
+#if not CLEAN25
             Database::"Sales Price":
                 exit(Page::"Sales Prices");
             Database::"Purchase Price":

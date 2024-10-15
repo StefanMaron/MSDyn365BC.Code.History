@@ -1,4 +1,4 @@
-﻿#if not CLEAN23
+﻿#if not CLEAN25
 namespace Microsoft.Sales.Pricing;
 
 using Microsoft.CRM.Campaign;
@@ -16,8 +16,6 @@ using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Pricing;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
-using Microsoft.Service.Pricing;
 
 codeunit 7000 "Sales Price Calc. Mgt."
 {
@@ -53,10 +51,14 @@ codeunit 7000 "Sales Price Calc. Mgt."
         HideResUnitPriceMessage: Boolean;
         DateCaption: Text[30];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 is less than %2 in the %3.';
         Text010: Label 'Prices including VAT cannot be calculated when %1 is %2.';
         Text018: Label '%1 %2 is greater than %3 and was adjusted to %4.';
         Text001: Label 'The %1 in the %2 must be same as in the %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TempTableErr: Label 'The table passed as a parameter must be temporary.';
 
     procedure FindSalesLinePrice(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CalledByFieldNo: Integer)
@@ -141,9 +143,9 @@ codeunit 7000 "Sales Price Calc. Mgt."
         OnAfterFindItemJnlLinePrice(ItemJnlLine, TempSalesPrice, CalledByFieldNo, FoundSalesPrice);
     end;
 
-    procedure FindServLinePrice(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; CalledByFieldNo: Integer)
+    procedure FindServLinePrice(ServHeader: Record Microsoft.Service.Document."Service Header"; var ServLine: Record Microsoft.Service.Document."Service Line"; CalledByFieldNo: Integer)
     var
-        ServCost: Record "Service Cost";
+        ServCost: Record Microsoft.Service.Pricing."Service Cost";
         Res: Record Resource;
         IsHandled: Boolean;
     begin
@@ -248,7 +250,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         OnAfterFindSalesLineLineDisc(SalesLine, SalesHeader, TempSalesLineDisc);
     end;
 
-    procedure FindServLineDisc(ServHeader: Record "Service Header"; var ServLine: Record "Service Line")
+    procedure FindServLineDisc(ServHeader: Record Microsoft.Service.Document."Service Header"; var ServLine: Record Microsoft.Service.Document."Service Line")
     var
         IsHandled: Boolean;
     begin
@@ -894,7 +896,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         exit(false);
     end;
 
-    procedure GetServLinePrice(ServHeader: Record "Service Header"; var ServLine: Record "Service Line")
+    procedure GetServLinePrice(ServHeader: Record Microsoft.Service.Document."Service Header"; var ServLine: Record Microsoft.Service.Document."Service Line")
     var
         IsHandled: Boolean;
     begin
@@ -953,7 +955,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         end;
     end;
 
-    procedure GetServLineLineDisc(ServHeader: Record "Service Header"; var ServLine: Record "Service Line")
+    procedure GetServLineLineDisc(ServHeader: Record Microsoft.Service.Document."Service Header"; var ServLine: Record Microsoft.Service.Document."Service Line")
     var
         IsHandled: Boolean;
     begin
@@ -1010,7 +1012,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [Scope('OnPrem')]
-    procedure ServLinePriceExists(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean): Boolean
+    procedure ServLinePriceExists(ServHeader: Record Microsoft.Service.Document."Service Header"; var ServLine: Record Microsoft.Service.Document."Service Line"; ShowAll: Boolean): Boolean
     var
         IsHandled: Boolean;
     begin
@@ -1029,7 +1031,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [Scope('OnPrem')]
-    procedure ServLineLineDiscExists(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean): Boolean
+    procedure ServLineLineDiscExists(ServHeader: Record Microsoft.Service.Document."Service Header"; var ServLine: Record Microsoft.Service.Document."Service Line"; ShowAll: Boolean): Boolean
     var
         IsHandled: Boolean;
     begin
@@ -1115,7 +1117,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         end;
     end;
 
-    procedure ServHeaderExchDate(ServHeader: Record "Service Header"): Date
+    procedure ServHeaderExchDate(ServHeader: Record Microsoft.Service.Document."Service Header"): Date
     begin
         if (ServHeader."Document Type" = ServHeader."Document Type"::Quote) and
            (ServHeader."Posting Date" = 0D)
@@ -1124,7 +1126,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         exit(ServHeader."Posting Date");
     end;
 
-    procedure ServHeaderStartDate(ServHeader: Record "Service Header"; var DateCaption: Text[30]): Date
+    procedure ServHeaderStartDate(ServHeader: Record Microsoft.Service.Document."Service Header"; var DateCaption: Text[30]): Date
     begin
         if ServHeader."Document Type" in [ServHeader."Document Type"::Invoice, ServHeader."Document Type"::"Credit Memo"] then begin
             DateCaption := ServHeader.FieldCaption("Posting Date");
@@ -1161,7 +1163,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             exit(TempSalesLineDisc.Count);
     end;
 
-    procedure NoOfServLinePrice(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean) Result: Integer
+    procedure NoOfServLinePrice(ServHeader: Record Microsoft.Service.Document."Service Header"; var ServLine: Record Microsoft.Service.Document."Service Line"; ShowAll: Boolean) Result: Integer
     var
         IsHandled: Boolean;
     begin
@@ -1174,7 +1176,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             exit(TempSalesPrice.Count);
     end;
 
-    procedure NoOfServLineLineDisc(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean) Result: Integer
+    procedure NoOfServLineLineDisc(ServHeader: Record Microsoft.Service.Document."Service Header"; var ServLine: Record Microsoft.Service.Document."Service Line"; ShowAll: Boolean) Result: Integer
     var
         IsHandled: Boolean;
     begin
@@ -1747,17 +1749,17 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindServLinePrice(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; var SalesPrice: Record "Sales Price"; var ResourcePrice: Record "Resource Price"; var ServiceCost: Record "Service Cost"; CalledByFieldNo: Integer)
+    local procedure OnAfterFindServLinePrice(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var SalesPrice: Record "Sales Price"; var ResourcePrice: Record "Resource Price"; var ServiceCost: Record Microsoft.Service.Pricing."Service Cost"; CalledByFieldNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindServLineResPrice(var ServiceLine: Record "Service Line"; var ResPrice: Record "Resource Price"; var HideResUnitPriceMessage: Boolean; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnAfterFindServLineResPrice(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var ResPrice: Record "Resource Price"; var HideResUnitPriceMessage: Boolean; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindServLineDisc(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; var SalesLineDiscount: Record "Sales Line Discount")
+    local procedure OnAfterFindServLineDisc(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var SalesLineDiscount: Record "Sales Line Discount")
     begin
     end;
 
@@ -1812,12 +1814,12 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterServLinePriceExists(var ServiceLine: Record "Service Line")
+    local procedure OnAfterServLinePriceExists(var ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterServLineLineDiscExists(var ServiceLine: Record "Service Line")
+    local procedure OnAfterServLineLineDiscExists(var ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
     end;
 
@@ -1903,12 +1905,12 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindServLinePrice(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeFindServLinePrice(var ServiceLine: Record Microsoft.Service.Document."Service Line"; ServiceHeader: Record Microsoft.Service.Document."Service Header"; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindServLineDisc(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    local procedure OnBeforeFindServLineDisc(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1928,12 +1930,12 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetServLinePrice(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; var IsHandled: Boolean)
+    local procedure OnBeforeGetServLinePrice(ServHeader: Record Microsoft.Service.Document."Service Header"; var ServLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetServLineDisc(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    local procedure OnBeforeGetServLineDisc(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1968,12 +1970,12 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNoOfServLineLineDisc(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ShowAll: Boolean; var Result: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeNoOfServLineLineDisc(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var ServiceLine: Record Microsoft.Service.Document."Service Line"; ShowAll: Boolean; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNoOfServLinePrice(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ShowAll: Boolean; var Result: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeNoOfServLinePrice(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var ServiceLine: Record Microsoft.Service.Document."Service Line"; ShowAll: Boolean; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -1993,12 +1995,12 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServLinePriceExists(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; var TempSalesPrice: Record "Sales Price" temporary; ShowAll: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeServLinePriceExists(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var TempSalesPrice: Record "Sales Price" temporary; ShowAll: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServLineLineDiscExists(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; var TempSalesLineDisc: Record "Sales Line Discount" temporary; ShowAll: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeServLineLineDiscExists(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var TempSalesLineDisc: Record "Sales Line Discount" temporary; ShowAll: Boolean; var IsHandled: Boolean)
     begin
     end;
 

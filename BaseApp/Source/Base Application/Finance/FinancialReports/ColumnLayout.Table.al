@@ -184,6 +184,7 @@ table 334 "Column Layout"
         HasGLSetup: Boolean;
 
         PeriodFormulaErr: Label '%1 is not a valid Period Formula.', Comment = '%1 - value of Comparison Period Formula field';
+#pragma warning disable AA0074
         Text002: Label 'P', Comment = 'Period';
         Text003: Label 'FY', Comment = 'Fiscal year';
         Text004: Label 'CP', Comment = 'Current Period';
@@ -197,7 +198,10 @@ table 334 "Column Layout"
         Text012: Label '1,5,,Dimension 2 Totaling';
         Text013: Label '1,5,,Dimension 3 Totaling';
         Text014: Label '1,5,,Dimension 4 Totaling';
+#pragma warning disable AA0470
         Text015: Label 'The %1 refers to %2 %3, which does not exist. The field %4 on table %5 has now been deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure ParsePeriodFormula(FormulaExpression: Code[20]; var Steps: Integer; var Type: Option " ",Period,"Fiscal Year"; var RangeFromType: Option Int,CP,LP; var RangeToType: Option Int,CP,LP; var RangeFromInt: Integer; var RangeToInt: Integer)
     var

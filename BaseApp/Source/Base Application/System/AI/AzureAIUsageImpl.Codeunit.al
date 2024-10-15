@@ -11,9 +11,25 @@ codeunit 2005 "Azure AI Usage Impl."
         AzureMLCategoryTxt: Label 'AzureMLCategory', Locked = true;
         AzureMLLimitReachedTxt: Label 'The Azure ML usage limit has been reached', Locked = true;
         ProcessingTimeLessThanZeroErr: Label 'The available Azure Machine Learning processing time is less than or equal to zero.';
+        CannotSetInfiniteAccessErr: Label 'Cannot set infinite access for user''s own service because the API key or API URI is empty.';
         ImageAnalysisIsSetup: Boolean;
         TestMode: Boolean;
         CurrentDateTimeMock: DateTime;
+
+    internal procedure SetInfiniteImageAnalysisAccess(ImageAnalysisSetupRec: Record "Image Analysis Setup")
+    var
+        AzureAIUsageRec: Record "Azure AI Usage";
+    begin
+        if (ImageAnalysisSetupRec.GetApiKeyAsSecret().IsEmpty()) or (ImageAnalysisSetupRec."Api Uri" = '') then
+            Error(CannotSetInfiniteAccessErr);
+
+        SetImageAnalysisIsSetup(true);
+        if (GetSingleInstance("Azure AI Service"::"Computer Vision", AzureAIUsageRec)) then begin
+            AzureAIUsageRec."Limit Period" := AzureAIUsageRec."Limit Period"::Year;
+            AzureAIUsageRec."Original Resource Limit" := 999;
+            AzureAIUsageRec.Modify();
+        end;
+    end;
 
     procedure IncrementTotalProcessingTime(Service: Enum "Azure AI Service"; ProcessingTime: Decimal)
     var

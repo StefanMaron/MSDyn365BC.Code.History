@@ -2,9 +2,6 @@ namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 
-#if not CLEAN22
-#pragma warning disable AS0109
-#endif
 table 1250 "Bank Statement Matching Buffer"
 {
     Caption = 'Bank Statement Matching Buffer';
@@ -75,24 +72,6 @@ table 1250 "Bank Statement Matching Buffer"
         field(19; "Date Difference"; Integer)
         {
             Caption = 'Date Matches';
-        }
-        field(13600; Description; Text[50])
-        {
-            Caption = 'Description';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Moved to Payment and Reconciliation Formats (DK) extension to field name: DescriptionBankStatment';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13601; "Match Status"; Option)
-        {
-            Caption = 'Match Status';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Moved to Payment and Reconciliation Formats (DK) extension to field name: MatchStatus';
-            ObsoleteState = Removed;
-            OptionCaption = ' ,NoMatch,Duplicate,IsPaid,Partial,Extra,Fully';
-            OptionMembers = " ",NoMatch,Duplicate,IsPaid,Partial,Extra,Fully;
-            ObsoleteTag = '15.0';
         }
         field(20; "Doc. No. Exact Score"; Integer)
         {

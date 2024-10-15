@@ -64,11 +64,15 @@ codeunit 99000810 "Calculate Planning Route Line"
         CurrentTimeFactor: Decimal;
         CurrentRounding: Decimal;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Error when calculating %1. Calendar is not available %2 %3 for %4 %5.';
+#pragma warning restore AA0470
         Text001: Label 'backward';
         Text002: Label 'before';
         Text003: Label 'forward';
         Text004: Label 'after';
+#pragma warning restore AA0074
 
     local procedure TestForError(DirectionTxt: Text[30]; BefAfterTxt: Text[30]; Date: Date)
     var
@@ -129,7 +133,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         ProdOrderCapNeed."Operation No." := PlanningRoutingLine."Operation No.";
         ProdOrderCapNeed."Work Center Group Code" := PlanningRoutingLine."Work Center Group Code";
 
-        ProdOrderCapNeed.Status := "Production Order Status".FromInteger(ReqLine."Ref. Order Status");
+        ProdOrderCapNeed.Status := ReqLine."Ref. Order Status";
         ProdOrderCapNeed."Prod. Order No." := ReqLine."Ref. Order No.";
         ProdOrderCapNeed."Routing No." := ReqLine."Routing No.";
         ProdOrderCapNeed."Routing Reference No." := ReqLine."Line No.";

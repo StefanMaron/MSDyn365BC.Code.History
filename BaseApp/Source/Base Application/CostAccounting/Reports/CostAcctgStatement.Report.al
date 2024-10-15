@@ -151,7 +151,11 @@ report 1126 "Cost Acctg. Statement"
         LineType: Integer;
         ShowAddCurr: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Date Filter: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AllAmountAreLbl: Label 'All amounts are in';
         CAProfitLossStatementCaptionLbl: Label 'Cost Acctg. Statement';
         CurrReportPageNoCaptionLbl: Label 'Page';

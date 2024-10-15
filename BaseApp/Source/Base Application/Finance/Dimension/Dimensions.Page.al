@@ -177,6 +177,8 @@ page 536 Dimensions
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Are you sure you want to map the selected lines?';
+#pragma warning restore AA0074
 }
 

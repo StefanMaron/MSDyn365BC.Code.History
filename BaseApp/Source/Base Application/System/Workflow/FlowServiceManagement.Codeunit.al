@@ -94,6 +94,7 @@ codeunit 6400 "Flow Service Management"
 
     procedure CanApproveForAll(): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         FlowUserEnvironmentConfig: Record "Flow User Environment Config";
     begin
         exit(FlowUserEnvironmentConfig.WritePermission());
@@ -130,21 +131,20 @@ codeunit 6400 "Flow Service Management"
                 FlowEnvironmentName := FlowUserEnvironmentConfig."Environment Display Name"
     end;
 
-    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetEnvironments(var TempFlowUserEnvironmentBuffer: Record "Flow User Environment Buffer" temporary)
     var
         WebRequestHelper: Codeunit "Web Request Helper";
         ResponseText: Text;
         Handled: Boolean;
-        AccessToken: Text;
+        AccessToken: SecretText;
     begin
         Handled := false;
         OnBeforeSendGetEnvironmentRequest(ResponseText, Handled);
         if not Handled then begin
-            AccessToken := AzureAdMgt.GetAccessToken(FlowARMResourceUrlTxt, FlowResourceNameTxt, false);
+            AccessToken := AzureAdMgt.GetAccessTokenAsSecretText(FlowARMResourceUrlTxt, FlowResourceNameTxt, false);
 
-            if AccessToken = '' then
+            if AccessToken.IsEmpty() then
                 Session.LogMessage('0000MJX', EmptyAccessTokenTelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerAutomatePickerTelemetryCategoryLbl);
 
             // Gets a list of Flow user environments from the Flow API.
@@ -397,7 +397,7 @@ codeunit 6400 "Flow Service Management"
         if not AzureAdMgt.IsAzureADAppSetupDone() then
             exit(false);
 
-        exit(not DotNetString.IsNullOrWhiteSpace(AzureAdMgt.GetAccessToken(GetFlowARMResourceUrl(), GetFlowResourceName(), false)));
+        exit(not DotNetString.IsNullOrWhiteSpace(AzureAdMgt.GetAccessTokenAsSecretText(GetFlowARMResourceUrl(), GetFlowResourceName(), false).Unwrap()));
     end;
 
     [Obsolete('This function is not used anymore. We rely on Power Automate internal services instead.', '25.0')]
@@ -462,7 +462,6 @@ codeunit 6400 "Flow Service Management"
     end;
 
     [Obsolete('This function is not used anymore. We do not set the default environment anymore. We rely on Power Automate instead.', '25.0')]
-    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetSelectedFlowEnvironmentIDToDefault()
     var
@@ -471,7 +470,7 @@ codeunit 6400 "Flow Service Management"
         ResponseText: Text;
         PostResult: Boolean;
         Handled: Boolean;
-        AccessToken: Text;
+        AccessToken: SecretText;
     begin
         Handled := false;
         OnBeforeSetDefaultEnvironmentRequest(ResponseText, Handled);
@@ -481,9 +480,9 @@ codeunit 6400 "Flow Service Management"
             if TempFlowUserEnvironmentBuffer.FindFirst() then
                 SaveFlowUserEnvironmentSelection(TempFlowUserEnvironmentBuffer)
             else begin
-                AccessToken := AzureAdMgt.GetAccessToken(FlowARMResourceUrlTxt, FlowResourceNameTxt, false);
+                AccessToken := AzureAdMgt.GetAccessTokenAsSecretText(FlowARMResourceUrlTxt, FlowResourceNameTxt, false);
 
-                if AccessToken = '' then
+                if AccessToken.IsEmpty() then
                     Session.LogMessage('0000MJY', EmptyAccessTokenTelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerAutomatePickerTelemetryCategoryLbl);
 
                 // No environment found so make a post call to create default environment. Post call returns error but actually creates environment

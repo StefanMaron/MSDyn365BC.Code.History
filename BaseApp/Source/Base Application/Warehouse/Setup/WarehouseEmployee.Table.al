@@ -87,8 +87,10 @@ table 7301 "Warehouse Employee"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'You can only have one default location per user ID.';
         Text001: Label 'You can only assign an ADCS user name once.';
+#pragma warning restore AA0074
 
     local procedure CheckDefault()
     var

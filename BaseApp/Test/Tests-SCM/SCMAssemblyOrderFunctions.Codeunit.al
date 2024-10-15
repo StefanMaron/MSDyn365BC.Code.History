@@ -499,18 +499,14 @@ codeunit 137907 "SCM Assembly Order Functions"
 
         // [GIVEN] Parent Assembly Item PAI with populated Description 2.
         LibraryInventory.CreateItem(ParentItem);
-        with ParentItem do begin
-            Validate("Replenishment System", "Replenishment System"::Assembly);
-            Validate("Description 2", LibraryUtility.GenerateRandomCode(FieldNo("Description 2"), DATABASE::Item));
-            Modify(true);
-        end;
+        ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::Assembly);
+        ParentItem.Validate("Description 2", LibraryUtility.GenerateRandomCode(ParentItem.FieldNo("Description 2"), DATABASE::Item));
+        ParentItem.Modify(true);
 
         // [GIVEN] Child Item CI with populated Description 2 as a BOM Component of type Item for PAI.
         LibraryInventory.CreateItem(ChildItem);
-        with ChildItem do begin
-            Validate("Description 2", LibraryUtility.GenerateRandomCode(FieldNo("Description 2"), DATABASE::Item));
-            Modify(true);
-        end;
+        ChildItem.Validate("Description 2", LibraryUtility.GenerateRandomCode(ChildItem.FieldNo("Description 2"), DATABASE::Item));
+        ChildItem.Modify(true);
         LibraryManufacturing.CreateBOMComponent(
           BOMComponent, ParentItem."No.", BOMComponent.Type::Item, ChildItem."No.", 1, '');
 
@@ -521,21 +517,17 @@ codeunit 137907 "SCM Assembly Order Functions"
         // [WHEN] Create Assembly Header for PAI and populate Quantity
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), ParentItem."No.", '', LibraryRandom.RandInt(10), '');
 
-        with AssemblyLine do begin
-            SetRange("Document Type", AssemblyHeader."Document Type");
-            SetRange("Document No.", AssemblyHeader."No.");
-            SetRange(Type, Type::Resource);
-            FindFirst();
+        AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.SetRange(Type, AssemblyLine.Type::Resource);
+        AssemblyLine.FindFirst();
+        // [THEN] the field "Description 2" of related Assembly Line of Type Resource is blank.
+        Assert.AreEqual('', AssemblyLine."Description 2", Description2AssemblyLineResourceNotBlankErr);
 
-            // [THEN] the field "Description 2" of related Assembly Line of Type Resource is blank.
-            Assert.AreEqual('', "Description 2", Description2AssemblyLineResourceNotBlankErr);
-
-            SetRange(Type, Type::Item);
-            FindFirst();
-
-            // [THEN] The field "Description 2" of related Assembly Line of Type Item is equal to CI."Description 2".
-            Assert.AreEqual(ChildItem."Description 2", "Description 2", Description2AssemblyLineItemDoesntMatchErr);
-        end;
+        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
+        AssemblyLine.FindFirst();
+        // [THEN] The field "Description 2" of related Assembly Line of Type Item is equal to CI."Description 2".
+        Assert.AreEqual(ChildItem."Description 2", AssemblyLine."Description 2", Description2AssemblyLineItemDoesntMatchErr);
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -800,11 +792,9 @@ codeunit 137907 "SCM Assembly Order Functions"
     var
         AssemblySetup: Record "Assembly Setup";
     begin
-        with AssemblySetup do begin
-            Get();
-            Validate("Copy Component Dimensions from", CopyComponentDimensionsFrom);
-            Modify(true);
-        end;
+        AssemblySetup.Get();
+        AssemblySetup.Validate("Copy Component Dimensions from", CopyComponentDimensionsFrom);
+        AssemblySetup.Modify(true);
     end;
 
     local procedure CreateItemWithDefaultDimension(var Item: Record Item; DimensionValue: Record "Dimension Value"): Integer
@@ -812,11 +802,9 @@ codeunit 137907 "SCM Assembly Order Functions"
         DefaultDimension: Record "Default Dimension";
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Replenishment System", "Replenishment System"::Assembly);
-            Validate("Reordering Policy", "Reordering Policy"::Order);
-            Modify(true);
-        end;
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Modify(true);
         LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, Item."No.", DimensionValue."Dimension Code", DimensionValue.Code);
         exit(MockDimSetEntry(DimensionValue));
     end;
@@ -826,23 +814,19 @@ codeunit 137907 "SCM Assembly Order Functions"
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
         DimMgt: Codeunit DimensionManagement;
     begin
-        with TempDimSetEntry do begin
-            Init();
-            "Dimension Code" := DimensionValue."Dimension Code";
-            "Dimension Value Code" := DimensionValue.Code;
-            "Dimension Value ID" := DimensionValue."Dimension Value ID";
-            Insert();
-        end;
+        TempDimSetEntry.Init();
+        TempDimSetEntry."Dimension Code" := DimensionValue."Dimension Code";
+        TempDimSetEntry."Dimension Value Code" := DimensionValue.Code;
+        TempDimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
+        TempDimSetEntry.Insert();
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;
 
     local procedure AcceptActionMessageOnReqLines(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
-        with RequisitionLine do begin
-            SetRange("No.", ItemNo);
-            FindSet();
-            ModifyAll("Accept Action Message", true, true);
-        end;
+        RequisitionLine.SetRange("No.", ItemNo);
+        RequisitionLine.FindSet();
+        RequisitionLine.ModifyAll("Accept Action Message", true, true);
     end;
 
     local procedure CreateSalesOrderForAssemblyItemWithDim(var DimSetID: array[2] of Integer; var Item: array[2] of Record Item): Code[20]
@@ -1048,19 +1032,17 @@ codeunit 137907 "SCM Assembly Order Functions"
     var
         AssemblyLine: Record "Assembly Line";
     begin
-        with AssemblyLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
+        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
+        AssemblyLine.SetRange("No.", ItemNo);
+        AssemblyLine.FindFirst();
 
-            TestField(Quantity, ExpectedQty);
-            TestField("Quantity (Base)", ExpectedQtyBase);
-            TestField("Quantity per", ExpectedQty);
-            TestField("Remaining Quantity", ExpectedQty);
-            TestField("Remaining Quantity (Base)", ExpectedQtyBase);
-            TestField("Quantity to Consume", ExpectedQty);
-            TestField("Quantity to Consume (Base)", ExpectedQtyBase);
-        end;
+        AssemblyLine.TestField(Quantity, ExpectedQty);
+        AssemblyLine.TestField("Quantity (Base)", ExpectedQtyBase);
+        AssemblyLine.TestField("Quantity per", ExpectedQty);
+        AssemblyLine.TestField("Remaining Quantity", ExpectedQty);
+        AssemblyLine.TestField("Remaining Quantity (Base)", ExpectedQtyBase);
+        AssemblyLine.TestField("Quantity to Consume", ExpectedQty);
+        AssemblyLine.TestField("Quantity to Consume (Base)", ExpectedQtyBase);
     end;
 
     local procedure VerifyDimOnAssemblyLine(ItemNo: Code[20]; DimSetID: Integer)
@@ -1070,12 +1052,10 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         AssemblyHeader.SetRange("Item No.", ItemNo);
         AssemblyHeader.FindFirst();
-        with AssemblyLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", AssemblyHeader."No.");
-            FindFirst();
-            Assert.AreEqual(DimSetID, "Dimension Set ID", DimErr);
-        end;
+        AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.FindFirst();
+        Assert.AreEqual(DimSetID, AssemblyLine."Dimension Set ID", DimErr);
     end;
 
     [MessageHandler]

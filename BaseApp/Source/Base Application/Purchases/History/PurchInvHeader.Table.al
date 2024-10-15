@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -523,6 +523,11 @@ table 122 "Purch. Inv. Header"
             Caption = 'VAT Date';
             Editable = false;
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -622,13 +627,6 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Draft Invoice SystemId';
             DataClassification = SystemMetadata;
-        }
-        field(13650; "Giro Acc. No."; Code[8])
-        {
-            Caption = 'Giro Acc. No.';
-            ObsoleteReason = 'Moved to Payment and Reconciliation Formats (DK) extension to field name: GiroAccNo';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
     }
 

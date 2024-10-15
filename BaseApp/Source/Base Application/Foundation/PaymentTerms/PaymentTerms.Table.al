@@ -65,15 +65,6 @@ table 3 "Payment Terms"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '22.0';
         }
-        field(13600; "OIOUBL Code"; Option)
-        {
-            Caption = 'OIOUBL Code';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            OptionCaption = ' ,Contract,Specific';
-            OptionMembers = " ",Contract,Specific;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys

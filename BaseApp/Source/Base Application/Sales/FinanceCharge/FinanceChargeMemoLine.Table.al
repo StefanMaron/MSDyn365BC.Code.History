@@ -376,13 +376,6 @@ table 303 "Finance Charge Memo Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
-        field(13600; "Account Code"; Text[30])
-        {
-            Caption = 'Account Code';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
@@ -454,10 +447,16 @@ table 303 "Finance Charge Memo Line"
         NrOfLinesToInsert: Integer;
         NrOfLines: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The %1 on the %2 and the %3 must be the same.';
         Text001: Label '%1 must be %2 or %3.';
+#pragma warning restore AA0470
         Text002: Label 'Document';
+#pragma warning disable AA0470
         Text004: Label 'There is no open %1 with %2 %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NotEnoughSpaceToInsertErr: Label 'There is not enough space to insert lines with additional interest rates.';
         InvalidInterestRateDateErr: Label 'Create interest rate with start date prior to %1.', Comment = '%1 - date';
 

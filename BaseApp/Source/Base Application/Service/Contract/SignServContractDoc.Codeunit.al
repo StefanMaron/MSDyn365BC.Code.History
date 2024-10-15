@@ -9,7 +9,7 @@ using System.Utilities;
 
 codeunit 5944 SignServContractDoc
 {
-    Permissions = TableData "Filed Service Contract Header" = rimd;
+    Permissions = tabledata "Filed Service Contract Header" = rimd;
     TableNo = "Service Contract Header";
 
     trigger OnRun()
@@ -22,7 +22,6 @@ codeunit 5944 SignServContractDoc
         FromServContractHeader: Record "Service Contract Header";
         FromServContractLine: Record "Service Contract Line";
         ToServContractLine: Record "Service Contract Line";
-        FiledServContractHeader: Record "Filed Service Contract Header";
         ContractChangeLog: Record "Contract Change Log";
         ContractGainLossEntry: Record "Contract Gain/Loss Entry";
         ServContractMgt: Codeunit ServContractManagement;
@@ -32,36 +31,55 @@ codeunit 5944 SignServContractDoc
         InvoicingStartingPeriod: Boolean;
         InvoiceNow: Boolean;
         GoOut: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot convert the service contract quote %1 to a contract,\because some Service Contract Lines have a missing %2.';
         Text003: Label '%1 must be the first day of the month.';
         Text004: Label 'You cannot sign service contract %1,\because some Service Contract Lines have a missing %2.';
         Text005: Label '%1 is not the last day of the month.\\Confirm that this is the correct date.';
         Text010: Label 'Do you want to sign service contract %1?';
+#pragma warning restore AA0470
         Text011: Label 'Do you want to convert the contract quote into a contract?';
+#pragma warning disable AA0470
         Text012: Label 'Signing contract          #1######\';
         Text013: Label 'Processing contract lines #2######\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         WPostLine: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text015: Label 'Do you want to create an invoice for the period %1 .. %2?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AppliedEntry: Integer;
         InvoiceFrom: Date;
         InvoiceTo: Date;
         FirstPrepaidPostingDate: Date;
         LastPrepaidPostingDate: Date;
         PostingDate: Date;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text016: Label 'Service Invoice %1 was created.';
+#pragma warning restore AA0470
         Text018: Label 'It is not possible to add new lines to this service contract with the current working date\because it will cause a gap in the invoice period.';
+#pragma warning restore AA0074
         HideDialog: Boolean;
+#pragma warning disable AA0074
         Text019: Label 'You cannot sign service contract with negative annual amount.';
         Text020: Label 'You cannot sign service contract with zero annual amount when invoice period is different from None.';
+#pragma warning disable AA0470
         Text021: Label 'One or more service items on contract quote %1 does not belong to customer %2.';
         Text022: Label 'The %1 field is empty on one or more service contract lines, and service orders cannot be created automatically. Do you want to continue?';
         Text023: Label 'You cannot sign a service contract if its %1 is not equal to the %2 value.';
+#pragma warning restore AA0470
         Text024: Label 'You cannot sign a canceled service contract.';
+#pragma warning restore AA0074
 
     procedure SignContractQuote(FromServContractHeader: Record "Service Contract Header")
     var
         ToServContractHeader: Record "Service Contract Header";
-        FiledServContractHeader2: Record "Filed Service Contract Header";
+        FiledServiceContractHeader: Record "Filed Service Contract Header";
+        FiledServiceContractHeaderToModify: Record "Filed Service Contract Header";
         RecordLinkManagement: Codeunit "Record Link Management";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
@@ -81,7 +99,7 @@ codeunit 5944 SignServContractDoc
           Text012 +
           Text013);
 
-        FiledServContractHeader.FileQuotationBeforeSigning(FromServContractHeader);
+        FiledServiceContractHeader.FileQuotationBeforeSigning(FromServContractHeader);
 
         Window.Update(1, 1);
         WPostLine := 0;
@@ -110,17 +128,16 @@ codeunit 5944 SignServContractDoc
               ToServContractHeader."Contract No.", 0, ToServContractHeader.FieldCaption(Status), 0,
               '', Format(ToServContractHeader.Status), '', 0);
 
-        FiledServContractHeader.Reset();
-        FiledServContractHeader.SetCurrentKey("Contract Type Relation", "Contract No. Relation");
-        FiledServContractHeader.SetRange("Contract Type Relation", FromServContractHeader."Contract Type");
-        FiledServContractHeader.SetRange("Contract No. Relation", FromServContractHeader."Contract No.");
-        if FiledServContractHeader.FindSet() then
+        FiledServiceContractHeader.SetCurrentKey("Contract Type Relation", "Contract No. Relation");
+        FiledServiceContractHeader.SetRange("Contract Type Relation", FromServContractHeader."Contract Type");
+        FiledServiceContractHeader.SetRange("Contract No. Relation", FromServContractHeader."Contract No.");
+        if FiledServiceContractHeader.FindSet() then
             repeat
-                FiledServContractHeader2 := FiledServContractHeader;
-                FiledServContractHeader2."Contract Type Relation" := ToServContractHeader."Contract Type";
-                FiledServContractHeader2."Contract No. Relation" := ToServContractHeader."Contract No.";
-                FiledServContractHeader2.Modify();
-            until FiledServContractHeader.Next() = 0;
+                FiledServiceContractHeaderToModify := FiledServiceContractHeader;
+                FiledServiceContractHeaderToModify."Contract Type Relation" := ToServContractHeader."Contract Type";
+                FiledServiceContractHeaderToModify."Contract No. Relation" := ToServContractHeader."Contract No.";
+                FiledServiceContractHeaderToModify.Modify();
+            until FiledServiceContractHeader.Next() = 0;
 
         OnSignContractQuoteOnBeforeSetFromServContractLineFilters(FromServContractHeader, ToServContractHeader);
         FromServContractLine.Reset();
@@ -194,6 +211,7 @@ codeunit 5944 SignServContractDoc
     var
         ServContractLine: Record "Service Contract Line";
         ServContractHeader: Record "Service Contract Header";
+        FiledServiceContractHeader: Record "Filed Service Contract Header";
         LockOpenServContract: Codeunit "Lock-OpenServContract";
         ConfirmManagement: Codeunit "Confirm Management";
         IsHandled: Boolean;
@@ -224,7 +242,7 @@ codeunit 5944 SignServContractDoc
 
         Window.Open(Text012 + Text013);
 
-        FiledServContractHeader.FileQuotationBeforeSigning(ServContractHeader);
+        FiledServiceContractHeader.FileQuotationBeforeSigning(ServContractHeader);
 
         Window.Update(1, 1);
         WPostLine := 0;
@@ -310,6 +328,7 @@ codeunit 5944 SignServContractDoc
     var
         Currency: Record Currency;
         ServContractLine: Record "Service Contract Line";
+        FiledServiceContractHeader: Record "Filed Service Contract Header";
         ConfirmManagement: Codeunit "Confirm Management";
         TempDate: Date;
         StartingDate: Date;
@@ -373,7 +392,7 @@ codeunit 5944 SignServContractDoc
 
         Window.Open(Text012 + Text013);
 
-        FiledServContractHeader.FileQuotationBeforeSigning(FromServContractHeader);
+        FiledServiceContractHeader.FileQuotationBeforeSigning(FromServContractHeader);
 
         Window.Update(1, 1);
         WPostLine := 0;

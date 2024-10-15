@@ -792,16 +792,20 @@ page 113 Budget
         LastColumn: Text;
         MATRIX_PrimKeyFirstCaptionInCu: Text;
         MATRIX_CurrentNoOfColumns: Integer;
+#pragma warning disable AA0074
         Text001: Label 'Period';
         Text003: Label 'Do you want to delete the budget entries shown?';
         Text004: Label 'DEFAULT';
         Text005: Label 'Default budget';
+#pragma warning disable AA0470
         Text006: Label '%1 is not a valid line definition.';
         Text007: Label '%1 is not a valid column definition.';
+#pragma warning restore AA0470
         Text008: Label '1,6,,Budget Dimension 1 Filter';
         Text009: Label '1,6,,Budget Dimension 2 Filter';
         Text010: Label '1,6,,Budget Dimension 3 Filter';
         Text011: Label '1,6,,Budget Dimension 4 Filter';
+#pragma warning restore AA0074
         InternalDateFilter: Text[30];
         GlobalDim1FilterEnable: Boolean;
         GlobalDim2FilterEnable: Boolean;

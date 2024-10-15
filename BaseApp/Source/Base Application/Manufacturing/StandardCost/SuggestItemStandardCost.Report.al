@@ -158,9 +158,13 @@ report 5851 "Suggest Item Standard Cost"
         AmtAdjustFactor: array[3] of Decimal;
         WindowUpdateDateTime: DateTime;
 
+#pragma warning disable AA0074
         Text004: Label 'You must specify a worksheet name to copy to.';
         Text007: Label 'Copying worksheet...\\';
+#pragma warning disable AA0470
         Text008: Label 'Item No. #1####################\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure InsertStdCostWksh(No2: Code[20])
     begin

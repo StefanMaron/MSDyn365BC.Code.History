@@ -30,7 +30,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
         Initialize();
 
         // Setup - Create a customer with address
-        LibrarySales.CreateCustomerWithAddress(Customer);
+        LibrarySales.CreateCustomerWithAddressAndContactInfo(Customer);
 
         // Excercise - Open a New Sales Quote for the customer
         SalesQuote.OpenNew();
@@ -93,7 +93,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
         Initialize();
 
         // Setup - Create Customer with an alternative shipping address
-        LibrarySales.CreateCustomerWithAddress(Customer);
+        LibrarySales.CreateCustomerWithAddressAndContactInfo(Customer);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote,
@@ -152,7 +152,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
         Initialize();
 
         // Setup - Create Customer with an alternative shipping address
-        LibrarySales.CreateCustomerWithAddress(Customer);
+        LibrarySales.CreateCustomerWithAddressAndContactInfo(Customer);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote,
@@ -184,7 +184,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
         Initialize();
 
         // Setup - Create Customer with an alternative shipping address
-        LibrarySales.CreateCustomerWithAddress(Customer);
+        LibrarySales.CreateCustomerWithAddressAndContactInfo(Customer);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
 
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote,
@@ -218,7 +218,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
         // Setup - Create a Sales Quote for a customer
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote,
           LibrarySales.CreateCustomerNo(), '', LibraryRandom.RandInt(10), '', 0D);
-        LibrarySales.CreateCustomerWithAddress(ArgCustomer);
+        LibrarySales.CreateCustomerWithAddressAndContactInfo(ArgCustomer);
         LibrarySales.CopySalesHeaderShipToAddressFromCustomer(SalesHeader, ArgCustomer);
 
         // Excercise
@@ -245,7 +245,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
         Initialize();
 
         // Setup - Create Customer with an alternative shipping address
-        LibrarySales.CreateCustomerWithAddress(Customer);
+        LibrarySales.CreateCustomerWithAddressAndContactInfo(Customer);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote,
           Customer."No.", '', LibraryRandom.RandInt(10), '', 0D);
 
@@ -312,6 +312,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
                     Assert.IsTrue(SalesQuote."Ship-to Contact".Visible(), 'Ship-To Contact is not visible');
                     Assert.IsFalse(SalesQuote."Ship-to Name".Visible(), 'Ship-To Name is visible');
                     Assert.IsFalse(SalesQuote."Ship-to Post Code".Visible(), 'Ship-To Post Code is visible');
+                    Assert.IsTrue(SalesQuote."Ship-to Phone No.".Visible(), 'Ship-To Phone No. is not visible');
                 end;
             ShipToOptions::"Alternate Shipping Address":
                 begin
@@ -322,6 +323,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
                     Assert.IsTrue(SalesQuote."Ship-to Contact".Visible(), 'Ship-To Contact is not visible');
                     Assert.IsTrue(SalesQuote."Ship-to Name".Visible(), 'Ship-To Name is not visible');
                     Assert.IsTrue(SalesQuote."Ship-to Post Code".Visible(), 'Ship-To Post Code is not visible');
+                    Assert.IsTrue(SalesQuote."Ship-to Phone No.".Visible(), 'Ship-To Phone No. is not visible');
                     Assert.IsTrue(SalesQuote."Ship-to Code".Editable(), 'Ship-To Code is not editable');
                     Assert.IsFalse(SalesQuote."Ship-to Address".Editable(), 'Ship-To Address is editable');
                     Assert.IsFalse(SalesQuote."Ship-to Address 2".Editable(), 'Ship-To Address 2 is editable');
@@ -329,6 +331,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
                     Assert.IsTrue(SalesQuote."Ship-to Contact".Editable(), 'Ship-To Contact is not editable');
                     Assert.IsFalse(SalesQuote."Ship-to Name".Editable(), 'Ship-To Name is editable');
                     Assert.IsFalse(SalesQuote."Ship-to Post Code".Editable(), 'Ship-To Post Code is editable');
+                    Assert.IsTrue(SalesQuote."Ship-to Phone No.".Editable(), 'Ship-To Phone No. is not editable');
                 end;
             ShipToOptions::"Custom Address":
                 begin
@@ -339,6 +342,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
                     Assert.IsTrue(SalesQuote."Ship-to Contact".Visible(), 'Ship-To Contact is not visible');
                     Assert.IsTrue(SalesQuote."Ship-to Name".Visible(), 'Ship-To Name is not visible');
                     Assert.IsTrue(SalesQuote."Ship-to Post Code".Visible(), 'Ship-To Post Code is not visible');
+                    Assert.IsTrue(SalesQuote."Ship-to Phone No.".Visible(), 'Ship-To Phone No. is not visible');
                     Assert.IsFalse(SalesQuote."Ship-to Code".Editable(), 'Ship-To Code is editable');
                     Assert.IsTrue(SalesQuote."Ship-to Address".Editable(), 'Ship-To Address is not editable');
                     Assert.IsTrue(SalesQuote."Ship-to Address 2".Editable(), 'Ship-To Address 2 is not editable');
@@ -346,6 +350,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
                     Assert.IsTrue(SalesQuote."Ship-to Contact".Editable(), 'Ship-To Contact is not editable');
                     Assert.IsTrue(SalesQuote."Ship-to Name".Editable(), 'Ship-To Name is not editable');
                     Assert.IsTrue(SalesQuote."Ship-to Post Code".Editable(), 'Ship-To Post Code is not editable');
+                    Assert.IsTrue(SalesQuote."Ship-to Phone No.".Editable(), 'Ship-To Phone No. is not editable');
                 end;
         end;
     end;

@@ -84,15 +84,6 @@ table 5800 "Item Charge"
                 Rec.ValidateShortcutDimCode(2, "Global Dimension 2 Code");
             end;
         }
-        field(13600; "Charge Category"; Option)
-        {
-            Caption = 'Charge Category';
-            ObsoleteReason = 'Moved to OIOUBL extension, the same table, same field name prefixed with OIOUBL-.';
-            ObsoleteState = Removed;
-            OptionCaption = 'General Rebate,General Fine,Freight Charge,Duty,Tax';
-            OptionMembers = "General Rebate","General Fine","Freight Charge",Duty,Tax;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
