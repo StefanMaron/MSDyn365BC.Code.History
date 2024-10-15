@@ -105,6 +105,7 @@ codeunit 144090 "ERM Withhold"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         MultiApplyErr: Label 'To calculate taxes correctly, the payment must be applied to only one document.';
         PayableAmtErr: Label 'Payble amount is 0.';
+        ValueExistsErr: Label '%1 must have a value.', Comment = '%1=Field Caption';
 
     [Test]
     [HandlerFunctions('ContributionCodesINPSModalPageHandler')]
@@ -2233,6 +2234,54 @@ codeunit 144090 "ERM Withhold"
         // [VERIFY] "Withholding Taxes Payable Acc." on Payment Journal
         FindWithHoldingTaxGenJournalLine(GenJournalLine2, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Account Type"::"G/L Account", WithholdCodeRec."Withholding Taxes Payable Acc.");
         Assert.AreEqual(GenJournalLine2."Account No.", WithholdCodeRec."Withholding Taxes Payable Acc.", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ShowComputedWithholdContribModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyLineCreatedInPaymentJournalAfterWithholdingTaxCalculated()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        TmpWithholdingContribution: Record "Tmp Withholding Contribution";
+        PurchaseHeader: Record "Purchase Header";
+        VendorNo: Code[20];
+        ContributionCode: Code[20];
+        WithholdCode: Code[20];
+        InvoiceAmount: Decimal;
+        PostedDocumentNo: Code[20];
+    begin
+        // [SCENARIO 466235] Wrong line created in payment journal for withholding tax when you don't use bal. account in the first line in the italian localization
+        Initialize();
+
+        // [GIVEN] Vendor with Social Security Contribution having Contribution Brackets.
+        SetupWithhAndSocSec(ContributionCode, WithholdCode);
+        VendorNo := CreateVendorWithSocSecAndWithholdCodes(WithholdCode, ContributionCode, '');
+
+        // [GIVEN] Posted Purchase Invoice
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        CreatePurchaseInvoiceWithAmount(PurchaseHeader, WorkDate(), VendorNo, 1, InvoiceAmount);
+        InitTmpWithholdingContribution(TmpWithholdingContribution, VendorNo);
+
+        // [WHEN] Validate "Gross Amount"
+        TmpWithholdingContribution.Validate("Gross Amount", InvoiceAmount);
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Create Payment Journal with applies to Posted Invoice
+        CreateAndApplyGeneralJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, PostedDocumentNo, GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Calculate payment withholding taxes ("Withh.Tax-Soc.Sec." action from the journal page), and find created entry
+        ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name");
+        GenJournalLine2.SetCurrentKey("Applies-to Doc. No.");
+        GenJournalLine2.SetRange("Applies-to Doc. No.", GenJournalLine."Applies-to Doc. No.");
+        GenJournalLine2.FindLast();
+
+        // [THEN] Verify TempWithholdingSocSec exist for Posted Invoice, validate Applies-to Doc. No., and Bal. Account No.
+        VerifyTmpWithholdingContributionNotEmpty(PostedDocumentNo);
+        Assert.AreEqual(GenJournalLine."Applies-to Doc. No.", GenJournalLine2."Applies-to Doc. No.", ValueMustBeSameMsg);
+        Assert.IsTrue(GenJournalLine2."Bal. Account No." <> '', StrSubstNo(ValueExistsErr, GenJournalLine2.FieldCaption("Bal. Account No.")));
     end;
 
     local procedure Initialize()

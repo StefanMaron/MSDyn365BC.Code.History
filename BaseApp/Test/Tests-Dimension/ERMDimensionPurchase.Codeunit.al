@@ -34,6 +34,7 @@
         UpdateFromHeaderLinesQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         UpdateLineDimQst: Label 'You have changed one or more dimensions on the';
         DimensionSetIDErr: Label 'Invalid Dimension Set ID';
+        NotEqualDimensionsErr: Label 'Dimensions are equal.';
         LocationChangesMsg: Label 'You have changed Location Code on the purchase header, but it has not been changed on the existing purchase lines.\You must update the existing purchase lines manually.';
         LocationChangeErr: Label 'Location Change message expected';
 
@@ -1827,7 +1828,7 @@
         // [GIVEN] Update global dimension 1 on Purchase Line
         UpdateGlobalDimensionOnPurchaseHeader(PurchaseHeader, DimensionValue);
 
-        // [WHEN] Open Purchase Order page and set "Ship to" as location
+        // [WHEN] Open Purchase Order page and set "Ship to" as Customer Address
         PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder.ShippingOptionWithLocation.SetValue(ShipToOptions::"Customer Address");
@@ -1838,6 +1839,106 @@
         DimensionSetEntry.SetRange("Dimension Set ID", PurchaseHeader."Dimension Set ID");
         DimensionSetEntry.FindFirst();
         Assert.AreEqual(PurchaseHeader."Dimension Set ID", DimensionSetEntry."Dimension Set ID", DimensionSetIDErr);
+    end;
+
+    [Test]
+    procedure VerifyAccountTypeDefaultDimensionsIsPulledOnPurchaseLine()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DimensionValue: Record "Dimension Value";
+    begin
+        // [SCENARIO 465518] Verify Dimension Code is pulled from Account Type Def. Dimension to Purchase Line, if Vendor and Item doesn't have def. dimensions
+        Initialize();
+
+        // [GIVEN] Create Vendor without default dimension
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Item without Default Dimension
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Account Type Default Dimension for Item table
+        CreateAccountTypeDefaultDimension(DimensionValue, Vendor."No.", Database::Item);
+
+        // [WHEN] Create Purchase Order
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", Item."No.");
+
+        // [VERIFY] Verify Dimension are puled from Account Type to Purchase Line
+        Assert.AreEqual(PurchaseLine."Shortcut Dimension 1 Code", DimensionValue.Code,
+            StrSubstNo(DimensionValueCodeError, PurchaseLine.FieldCaption("Shortcut Dimension 1 Code"), DimensionValue.Code));
+    end;
+
+    [Test]
+    procedure VerifyWarningMessageAboutChangeDimensionsIsNotShownWhenPurchInvoiceIsCreatedFromVendor()
+    var
+        Vendor: Record Vendor;
+        Location: Record Location;
+        DimensionValue: Record "Dimension Value";
+        VendorCard: TestPage "Vendor Card";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [SCENARIO 467051] Verify warning message about dimension change is not shown when Purchase Invoice is created from Vendor 
+        Initialize();
+
+        // [GIVEN] Create Dimension Value for Global Dimension 1
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+
+        // [GIVEN] Create Location with default dimension
+        CreateLocationWithDefaultDimension(Location, DimensionValue);
+
+        // [GIVEN] Create Vendor 
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Update Location on Vendor
+        Vendor.Validate("Location Code", Location.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Open Vendor Card
+        OpenVendorCard(VendorCard, Vendor."No.");
+
+        // [WHEN] Create Purchase Invoice from Vendor Card
+        PurchaseInvoice.Trap();
+        VendorCard.NewPurchaseInvoice.Invoke();
+
+        // [THEN] Verify Confirmation message is not shown
+        PurchaseInvoice."Vendor Invoice No.".Activate();
+    end;
+
+    [Test]
+    procedure VerifyWarningMessageAboutChangeDimensionsIsNotShownWhenPurchOrderIsCreatedFromListWithLocationAssignToVendor()
+    var
+        Vendor: Record Vendor;
+        Location: Record Location;
+        DimensionValue: array[2] of Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 467051] Verify warning message about dimension change is not shown when Purchase Order is created from List with Location assigned to Vendor
+        Initialize();
+
+        // [GIVEN] Create Dimension Value for Global Dimension 1
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], LibraryERM.GetGlobalDimensionCode(1));
+
+        // [GIVEN] Create Location with default dimension
+        CreateLocationWithDefaultDimension(Location, DimensionValue[1]);
+
+        // [GIVEN] Create Dimension with Dimension Value
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[2]);
+
+        // [GIVEN] Create Vendor with Dimension
+        Vendor.Get(CreateVendorWithDimension(DefaultDimension, DefaultDimension."Value Posting"::" ", DimensionValue[2]."Dimension Code"));
+
+        // [GIVEN] Update Location on Vendor
+        Vendor.Validate("Location Code", Location.Code);
+        Vendor.Modify(true);
+
+        // [WHEN] Create new Purchase Order for Vendor
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [THEN] Verify results
+        VerifyDimensionsInDimensionSet(PurchaseHeader, DimensionValue);
     end;
 
     local procedure Initialize()
@@ -2739,6 +2840,46 @@
         LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
         LibraryDimension.CreateDefaultDimensionVendor(
           DefaultDimension, Vendor."No.", DimensionValue."Dimension Code", DimensionValue.Code);
+    end;
+
+    local procedure CreateAccountTypeDefaultDimension(var DimensionValue: Record "Dimension Value"; VendorNo: Code[20]; TableId: Integer)
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimensionVendor(
+          DefaultDimension, VendorNo, DimensionValue."Dimension Code", DimensionValue.Code);
+        LibraryDimension.CreateAccTypeDefaultDimension(DefaultDimension, TableId, DimensionValue."Dimension Code",
+            DimensionValue.Code, DefaultDimension."Value Posting"::" ");
+    end;
+
+    local procedure OpenVendorCard(var VendorCard: TestPage "Vendor Card"; VendorNo: Code[20])
+    begin
+        VendorCard.OpenEdit;
+        VendorCard.Filter.SetFilter("No.", VendorNo);
+    end;
+
+    local procedure CreateLocationWithDefaultDimension(var Location: Record Location; DimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, Database::Location, Location.Code, DimensionValue."Dimension Code", DimensionValue.Code);
+    end;
+
+    local procedure VerifyDimensionsInDimensionSet(var PurchaseHeader: Record "Purchase Header"; var DimensionValue: array[2] of Record "Dimension Value")
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        DimensionSetEntry.SetRange("Dimension Set ID", PurchaseHeader."Dimension Set ID");
+        DimensionSetEntry.FindSet();
+        repeat
+            if DimensionSetEntry."Dimension Code" = DimensionValue[1].Code then
+                Assert.AreEqual(DimensionSetEntry."Dimension Value Code", DimensionValue[1]."Dimension Code", NotEqualDimensionsErr);
+            if DimensionSetEntry."Dimension Code" = DimensionValue[2].Code then
+                Assert.AreEqual(DimensionSetEntry."Dimension Value Code", DimensionValue[2]."Dimension Code", NotEqualDimensionsErr);
+        until DimensionSetEntry.Next() = 0;
     end;
 
     [ConfirmHandler]

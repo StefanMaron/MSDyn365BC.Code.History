@@ -2635,6 +2635,30 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // Verified in Handler function
     end;
 
+    [Test]
+    procedure TestVATDatePostedRecurringJournal()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringFrequency: array[6] of DateFormula;
+        ExternaDocNo: Code[35];
+        VATDate: Date;
+    begin
+        // [FEATURE] [VAT]
+        // [GIVEN] Recurring Journal Line, with VAT Reporting Date different than Posting Date
+        CreateRecurringJournalLine(GenJournalLine, RecurringFrequency);
+        VatDate := CalcDate('<+5D>', GenJournalLine."Posting Date");
+        GenJournalLine.Validate("VAT Reporting Date", VatDate);
+        GenJournalLine.Modify(true);
+
+        ExternaDocNo := GenJournalLine."External Document No.";
+
+        // [WHEN] Recurring Journal got posted 
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Two VAT Entries are created (one recurring line with VAT Reporting Date = VAT Date, one allocation line wiyth VAT Reporrting Date = Posting Date + 1)  
+        VerifyVATDateRecurringJournal(ExternaDocNo, GenJournalLine."Posting Date", VATDate);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2825,6 +2849,22 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchInvoiceHeader.TestField("Posting Date", PostingDate);
         PurchInvoiceHeader.TestField("Document Date", WorkDate());
         PurchInvoiceHeader.TestField("VAT Reporting Date", VATDate);
+    end;
+
+    local procedure VerifyVATDateRecurringJournal(ExternalDocNo: Code[35]; Postingdate: Date; VATDate: Date)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.Reset();
+        VATEntry.SetRange("External Document No.", ExternalDocNo);
+
+        // recurring gen. journal line
+        VATEntry.SetRange("VAT Reporting Date", VATDate);
+        Assert.IsTrue(VATEntry.FindFirst(), VATDateOnRecordErr);
+
+        // allocation
+        VATEntry.SetRange("VAT Reporting Date", CalcDate('<+1D>', Postingdate));
+        Assert.IsTrue(VATEntry.FindFirst(), VATDateOnRecordErr);
     end;
 
     local procedure SetupForSalesOrderAndVAT(var VATAmountLine: Record "VAT Amount Line")
@@ -3517,6 +3557,67 @@ codeunit 134045 "ERM VAT Sales/Purchase"
           StrSubstNo(VATDifferenceErr, GeneralLedgerSetup."Max. VAT Difference Allowed", VATAmountLine.TableCaption()));
     end;
 
+    local procedure CreateRecurringJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var RecurringFrequency: array[6] of DateFormula)
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // Find G/L Account without VAT.
+        GLAccount.SetFilter("VAT Prod. Posting Group", '<>%1', '');
+        GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
+        LibraryERM.FindDirectPostingGLAccount(GLAccount);
+
+        // Create Recurring Journal Lines with Allocation and with random values.
+        LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
+        LibraryERM.CreateRecurringBatchName(GenJournalBatch, GenJournalTemplate.Name);
+
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RF Reversing Fixed", GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+
+        CreateAllocationLine(GenJournalLine);
+    end;
+
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch";
+        RecurringMethod: Enum "Gen. Journal Recurring Method"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
+    var
+        RecurringFrequency: DateFormula;
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Recurring Method", RecurringMethod);
+        Evaluate(RecurringFrequency, '<' + Format(LibraryRandom.RandInt(10)) + 'M >');
+        GenJournalLine.Validate("Recurring Frequency", RecurringFrequency);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateAllocationLine(GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJnlAllocation: Record "Gen. Jnl. Allocation";
+        GLAccount: Record "G/L Account";
+    begin
+        // Create GL Account to use in General Journal Allocation Lines.
+        LibraryERM.CreateGLAccount(GLAccount);
+        FindGeneralJournalLine(GenJournalLine);
+
+        // Create Allocation Line for each Recurring Journal Line.
+        repeat
+            LibraryERM.CreateGenJnlAllocation(
+              GenJnlAllocation, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+            GenJnlAllocation.Validate("Account No.", GLAccount."No.");
+            GenJnlAllocation.Validate("Allocation %", 100);  // Using complete allocation for the Allocation Line.
+            GenJnlAllocation.Modify(true);
+        until GenJournalLine.Next() = 0;
+    end;
+
+    local procedure FindGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.FindSet();
+    end;
+
     local procedure VerifyGLEntry(DocumentNo: Code[20]; VATAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
@@ -3840,10 +3941,10 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     begin
         LibraryVariableStorage.Dequeue(PostingDate);
         LibraryVariableStorage.Dequeue(VATDate);
-        BatchPostSalesInvoices.PostingDate.SetValue(PostingDate);
-        BatchPostSalesInvoices.VATDate.SetValue(VATDate);
         BatchPostSalesInvoices.ReplacePostingDate.SetValue(true);
         BatchPostSalesInvoices.ReplaceVATDate.SetValue(true);
+        BatchPostSalesInvoices.PostingDate.SetValue(PostingDate);
+        BatchPostSalesInvoices.VATDate.SetValue(VATDate);
         BatchPostSalesInvoices.OK.Invoke;
     end;
 
@@ -3861,10 +3962,10 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         BatchPostSalesOrders.Invoice.SetValue(true);
         BatchPostSalesOrders."Sales Header".SetFilter("No.", DocumentNoFilter);
         BatchPostSalesOrders."Sales Header".SetFilter("Document Type", Format(Enum::"Sales Document Type"::Order));
-        BatchPostSalesOrders.PostingDate.SetValue(PostingDate);
-        BatchPostSalesOrders.VATDate.SetValue(VATDate);
         BatchPostSalesOrders.ReplacePostingDate.SetValue(true);
         BatchPostSalesOrders.ReplaceVATDate.SetValue(true);
+        BatchPostSalesOrders.PostingDate.SetValue(PostingDate);
+        BatchPostSalesOrders.VATDate.SetValue(VATDate);
         BatchPostSalesOrders.OK.Invoke;
     end;
 
@@ -3875,10 +3976,10 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     begin
         LibraryVariableStorage.Dequeue(PostingDate);
         LibraryVariableStorage.Dequeue(VATDate);
-        BatchPostSalesCreditMemos.PostingDate.SetValue(PostingDate);
-        BatchPostSalesCreditMemos.VATDate.SetValue(VATDate);
         BatchPostSalesCreditMemos.ReplacePostingDate.SetValue(true);
         BatchPostSalesCreditMemos.ReplaceVATDate.SetValue(true);
+        BatchPostSalesCreditMemos.PostingDate.SetValue(PostingDate);
+        BatchPostSalesCreditMemos.VATDate.SetValue(VATDate);
         BatchPostSalesCreditMemos.OK.Invoke;
     end;
 
@@ -3891,10 +3992,10 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         LibraryVariableStorage.Dequeue(VATDate);
         BatchPostPurchOrders.Receive.SetValue(true);
         BatchPostPurchOrders.Invoice.SetValue(true);
-        BatchPostPurchOrders.PostingDate.SetValue(PostingDate);
-        BatchPostPurchOrders.VATDate.SetValue(VATDate);
         BatchPostPurchOrders.ReplacePostingDate.SetValue(true);
         BatchPostPurchOrders.ReplaceVATDate.SetValue(true);
+        BatchPostPurchOrders.PostingDate.SetValue(PostingDate);
+        BatchPostPurchOrders.VATDate.SetValue(VATDate);
         BatchPostPurchOrders.OK.Invoke;
     end;
 
@@ -3905,10 +4006,10 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     begin
         LibraryVariableStorage.Dequeue(PostingDate);
         LibraryVariableStorage.Dequeue(VATDate);
-        BatchPostPurchCreditMemos.PostingDate.SetValue(PostingDate);
-        BatchPostPurchCreditMemos.VATDate.SetValue(VATDate);
         BatchPostPurchCreditMemos.ReplacePostingDate.SetValue(true);
         BatchPostPurchCreditMemos.ReplaceVATDate.SetValue(true);
+        BatchPostPurchCreditMemos.PostingDate.SetValue(PostingDate);
+        BatchPostPurchCreditMemos.VATDate.SetValue(VATDate);
         BatchPostPurchCreditMemos.OK.Invoke;
     end;
 
@@ -3975,10 +4076,10 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     begin
         LibraryVariableStorage.Dequeue(PostingDate);
         LibraryVariableStorage.Dequeue(VATDate);
-        BatchPostPurchInvoices.PostingDate.SetValue(PostingDate);
-        BatchPostPurchInvoices.VATDate.SetValue(VATDate);
         BatchPostPurchInvoices.ReplacePostingDate.SetValue(true);
         BatchPostPurchInvoices.ReplaceVATDate.SetValue(true);
+        BatchPostPurchInvoices.PostingDate.SetValue(PostingDate);
+        BatchPostPurchInvoices.VATDate.SetValue(VATDate);
         BatchPostPurchInvoices.OK.Invoke;
     end;
 }

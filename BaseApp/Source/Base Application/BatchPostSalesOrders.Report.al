@@ -58,6 +58,11 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date that the program will use as the document and/or posting date when you post if you place a checkmark in one or both of the following boxes.';
+
+                        trigger OnValidate()
+                        begin
+                            UpdateVATDate();
+                        end;
                     }
                     field(VATDate; VATDateReq)
                     {
@@ -80,6 +85,10 @@
                                 Message(Text1130000, "Sales Header".FieldCaption("Document Date"), "Sales Header".FieldCaption("Operation Occurred Date"),
                                   "Sales Header".FieldCaption("Posting Date"));
                             end;
+
+                            if VATReportingDateMgt.IsVATDateUsageSetToPostingDate() then
+                                ReplaceVATDateReq := ReplacePostingDate;
+                            UpdateVATDate();
                         end;
                     }
                     field(ReplaceDocumentDate; ReplaceDocumentDate)
@@ -87,6 +96,13 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Replace Document Date';
                         ToolTip = 'Specifies if you want to replace the sales orders'' document date with the date in the Posting Date field.';
+
+                        trigger OnValidate()
+                        begin
+                            if VATReportingDateMgt.IsVATDateUsageSetToDocumentDate() then
+                                ReplaceVATDateReq := ReplaceDocumentDate;
+                            UpdateVATDate();
+                        end;
                     }
                     field(ReplaceVATDate; ReplaceVATDateReq)
                     {
@@ -164,6 +180,7 @@
     }
 
     var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         Text003: Label 'The exchange rate associated with the new posting date on the sales header will apply to the sales lines.';
         PrintDoc: Boolean;
         [InDataSet]
@@ -203,6 +220,12 @@
         ReplaceDocumentDate := ReplaceDocumentDateParam;
         ReplaceVATDateReq := ReplaceVATDateParam; 
         CalcInvDisc := CalcInvDiscParam;
+    end;
+
+    local procedure UpdateVATDate()
+    begin
+        if ReplaceVATDateReq then
+            VATDateReq := PostingDateReq;
     end;
 
     [IntegrationEvent(false, false)]

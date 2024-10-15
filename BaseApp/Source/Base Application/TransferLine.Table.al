@@ -144,6 +144,8 @@
 
                 if ("In-Transit Code" = '') and ("Quantity Shipped" = "Quantity Received") then
                     Validate("Qty. to Receive", "Qty. to Ship");
+
+                CheckDirectTransferQtyToShip();
             end;
         }
         field(7; "Qty. to Receive"; Decimal)
@@ -1463,6 +1465,20 @@
                   "Outstanding Quantity")
             else
                 Error(Text006);
+    end;
+
+    procedure CheckDirectTransferQtyToShip()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        if InventorySetup."Direct Transfer Posting" = InventorySetup."Direct Transfer Posting"::"Direct Transfer" then begin
+            GetTransferHeaderNoVerification();
+            if TransHeader."Direct Transfer" and ("Qty. to Ship" <> 0) then begin
+                TestField("Qty. to Ship", Quantity);
+                TestField("Qty. to Ship (Base)", "Quantity (Base)");
+            end;
+        end;
     end;
 
     procedure OpenItemTrackingLines(Direction: Enum "Transfer Direction")

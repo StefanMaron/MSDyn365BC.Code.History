@@ -330,4 +330,3 @@ table 12116 "Withholding Tax"
     begin
     end;
 }
-

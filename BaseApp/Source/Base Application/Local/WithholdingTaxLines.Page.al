@@ -25,13 +25,25 @@ page 12210 "Withholding Tax Lines"
                 field("Base - Excluded Amount"; Rec."Base - Excluded Amount")
                 {
                     ApplicationArea = Basic, Suite;
+                    Style = Unfavorable;
+                    StyleExpr = EmptyIncomeTypeStyleExpr;
                     ToolTip = 'Specifies the amount of the original purchase that is excluded from the withholding tax calculation, based on exclusions allowed by law.';
+
+                    trigger OnValidate()
+                    begin
+                        UpdateStyle();
+                    end;
                 }
                 field("Non-Taxable Income Type"; Rec."Non-Taxable Income Type")
                 {
                     ApplicationArea = Basic, Suite;
                     OptionCaption = ' ,,2,,6,,8,9,,,,13,4,14,21,22,23,24';
                     ToolTip = 'Specifies the type of non-taxable income.';
+
+                    trigger OnValidate()
+                    begin
+                        UpdateStyle();
+                    end;
                 }
             }
         }
@@ -41,12 +53,17 @@ page 12210 "Withholding Tax Lines"
     {
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        UpdateStyle();
+    end;
+
     trigger OnOpenPage()
     var
         WithholdingTax: Record "Withholding Tax";
     begin
         if GetFilter("Withholding Tax Entry No.") <> '' then
-            Evaluate(WithholdingTax."Entry No.", GetFilter("Withholding Tax Entry No.")); 
+            Evaluate(WithholdingTax."Entry No.", GetFilter("Withholding Tax Entry No."));
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -55,8 +72,9 @@ page 12210 "Withholding Tax Lines"
     end;
 
     var
-        AmountNotEqualQst: Label 'The total amount of all lines is %1, which is not equal to the value of the Base - Excluded Amount field (%2) on the Withholding Tax Card. This will result in an error when you export the entry. \ Do you want to close the page anyway?', Comment = '%1=amount,%2=another amount';
+        AmountNotEqualQst: Label 'The total amount of all valid lines is %1, which is not equal to the value of the Base - Excluded Amount field (%2) on the Withholding Tax Card. This will result in an error when you export the entry. \ Do you want to close the page anyway?', Comment = '%1=amount,%2=another amount';
         TotalAmount: Decimal;
+        EmptyIncomeTypeStyleExpr: Boolean;
 
     procedure SetTotalAmount(TotAmount: Decimal)
     begin
@@ -78,6 +96,11 @@ page 12210 "Withholding Tax Lines"
             exit(true);
         exit(ConfirmManagement.GetResponse(
             StrSubstNo(AmountNotEqualQst, TotalLineAmount, WithholdingTax."Base - Excluded Amount"), false));
+    end;
+
+    local procedure UpdateStyle()
+    begin
+        EmptyIncomeTypeStyleExpr := Rec."Non-Taxable Income Type" = Rec."Non-Taxable Income Type"::" ";
     end;
 }
 

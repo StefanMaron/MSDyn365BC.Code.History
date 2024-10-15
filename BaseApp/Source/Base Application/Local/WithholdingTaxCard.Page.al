@@ -165,6 +165,10 @@ page 12112 "Withholding Tax Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the original purchase that is excluded from the withholding tax calculation based on residency. ';
+                    trigger OnValidate()
+                    begin
+                        SetBaseExcludedStyleExpr();
+                    end;
                 }
                 field("Non Taxable Amount %"; Rec."Non Taxable Amount %")
                 {
@@ -235,6 +239,7 @@ page 12112 "Withholding Tax Card"
     trigger OnAfterGetRecord()
     begin
         if Vendor.Get("Vendor No.") then;
+        SetBaseExcludedStyleExpr();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -245,7 +250,6 @@ page 12112 "Withholding Tax Card"
     trigger OnOpenPage()
     begin
         FeatureTelemetry.LogUptake('1000HQ2', ITTaxTok, Enum::"Feature Uptake Status"::Discovered);
-        SetBaseExcludedStyleExpr();
     end;
 
     var

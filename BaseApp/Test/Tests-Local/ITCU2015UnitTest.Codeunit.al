@@ -163,8 +163,8 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         LoadFile(Filename);
         // Bug id 438543: A "0" char must be exported on the 527 position for the header's line
         ValidateHeader(SigningCompanyOfficialNo);
-        ValidateRecordDAndH(VendorNo, SigningCompanyOfficialNo, ConstReason::A, 3, '', WithholdingTax."Non-Taxable Income Type"::"1");
-        ValidateRecordDAndH(VendorNo, SigningCompanyOfficialNo, ConstReason::B, 5, '', WithholdingTax."Non-Taxable Income Type"::"1");
+        ValidateRecordDAndH(VendorNo, SigningCompanyOfficialNo, ConstReason::A, 3, '', WithholdingTax."Non-Taxable Income Type"::"1", 1);
+        ValidateRecordDAndH(VendorNo, SigningCompanyOfficialNo, ConstReason::B, 5, '', WithholdingTax."Non-Taxable Income Type"::"1", 2);
         ValidateFooter(7, 2);
     end;
 
@@ -204,7 +204,13 @@ codeunit 144021 "IT - CU 2015 Unit Test"
 
         // [GIVEN] Withholding Tax for current and previous periods with Reason = ""
         WHTEntryNo := CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::" ", 0, WorkDate(), WorkDate());
-        CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::" ", -1, WorkDate(), WorkDate());
+        // Make sure Confirm is raised 
+        WithholdingTax.Get(CreateWithholdingTaxAndContributionEntry(VendorNo, ConstReason::" ", -1, WorkDate(), WorkDate()));
+        if WithholdingTax."Withholding Tax Amount" <= WithholdingTax."Taxable Base" + 1 then begin
+            WithholdingTax."Withholding Tax Amount" := WithholdingTax."Taxable Base" + 2;
+            WithholdingTax.Modify();
+        end;
+
         SigningCompanyOfficialNo := CreateCompanyOfficial;
 
         // [WHEN] Run Withholding Tax Export
@@ -421,21 +427,21 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [THEN] Record with "AU001001" = "G", field "AU001002" = 2016, "AU001006" = 1
         ValidateRecordDAndH(
           VendorNo, SigningCompanyOfficialNo, ConstReason::G, 3, Format(Date2DMY(WorkDate(), 3) - 1),
-          WithholdingTax."Non-Taxable Income Type"::"1");
+          WithholdingTax."Non-Taxable Income Type"::"1", 1);
 
         // [THEN] Record with "AU001001" = "H", field "AU001002" = 2016, "AU001006" = 2
         ValidateRecordDAndH(
           VendorNo, SigningCompanyOfficialNo, ConstReason::H, 5, Format(Date2DMY(WorkDate(), 3) - 1),
-          WithholdingTax."Non-Taxable Income Type"::"2");
+          WithholdingTax."Non-Taxable Income Type"::"2", 2);
 
         // [THEN] Record with "AU001001" = "I", field "AU001002" = 2016, "AU001006" = 5
         ValidateRecordDAndH(
           VendorNo, SigningCompanyOfficialNo, ConstReason::I, 7, Format(Date2DMY(WorkDate(), 3) - 1),
-          WithholdingTax."Non-Taxable Income Type"::"5");
+          WithholdingTax."Non-Taxable Income Type"::"5", 3);
 
         // [THEN] Record with "AU001001" = "ZO", without field "AU001002", "AU001006" = 6
         ValidateRecordDAndH(
-          VendorNo, SigningCompanyOfficialNo, ConstReason::ZO, 9, '', WithholdingTax."Non-Taxable Income Type"::"6");
+          VendorNo, SigningCompanyOfficialNo, ConstReason::ZO, 9, '', WithholdingTax."Non-Taxable Income Type"::"6", 4);
     end;
 
     [Test]
@@ -484,6 +490,10 @@ codeunit 144021 "IT - CU 2015 Unit Test"
           CreateWithholdingTaxWithAU001006AndContributionEntry(
             CreateVendor(), ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
 
+        WithholdingTax."Base - Excluded Amount" := LibraryRandom.RandDec(100, 2);
+        WithholdingTax."Non Taxable Amount By Treaty" := 0;
+        WithholdingTax.Modify();
+
         // [GIVEN] Created Withholding tax lines for entry. Line 1 = Amount X and Non-taxable income type 1
         // [GIVEN] Line 2 = Amount Y and Non-taxable income type 2
         CreateBaseExcludedSplit(WithholdingTaxLine, WithholdingTax."Entry No.");
@@ -525,6 +535,10 @@ codeunit 144021 "IT - CU 2015 Unit Test"
 
         // [GIVEN] Created Withholding tax lines for entry. Line 1 = Amount X and Non-taxable income type 1
         // [GIVEN] Line 2 = Amount Y + 50 and Non-taxable income type 2
+        WithholdingTax."Base - Excluded Amount" := LibraryRandom.RandDec(100, 2);
+        WithholdingTax."Non Taxable Amount By Treaty" := 0;
+        WithholdingTax.Modify();
+
         CreateBaseExcludedSplit(WithholdingTaxLine, WithholdingTax."Entry No.");
         WithholdingTaxLine[2]."Base - Excluded Amount" := WithholdingTaxLine[2]."Base - Excluded Amount" + LibraryRandom.RandDec(50, 2);
         WithholdingTaxLine[2].Modify();
@@ -725,6 +739,10 @@ codeunit 144021 "IT - CU 2015 Unit Test"
           CreateWithholdingTaxWithAU001006AndContributionEntry(
             CreateVendor(), ConstReason::A, 0, WorkDate(), WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
 
+        WithholdingTax."Base - Excluded Amount" := LibraryRandom.RandDec(100, 2);
+        WithholdingTax."Non Taxable Amount By Treaty" := 0;
+        WithholdingTax.Modify();
+
         // [GIVEN] Withholding Tax card page was open
         WithholdingTaxCard.OpenEdit();
         WithholdingTaxCard.Filter.SetFilter("Entry No.", Format(WithholdingTax."Entry No."));
@@ -804,7 +822,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [THEN] Record D Field DA002004 = "M"
         // [THEN] Record D Field DA002011 = "123"
         LoadFile(Filename);
-        ValidateTextFileValue(1, 16, 5, StrSubstNo(CURTxt, Date2DMY(Date, 3) mod 100 + 1));
+        ValidateTextFileValue(1, 16, 5, StrSubstNo(CURTxt, Date2DMY(Date, 3) mod 100));
         ValidateTextFileValue(2, 309, 2, ExceptionalEventCode);
         ValidateTextFileValue(2, 402, 8, '00000001');
         ValidateBlockValue(3, 'DA002004', ConstFormat::AN, 'M');
@@ -919,6 +937,9 @@ codeunit 144021 "IT - CU 2015 Unit Test"
             WithholdingTax.Get(
               CreateWithholdingTaxWithAU001006AndContributionEntry(
                 VendorNo, ConstReason::A, 0, WorkDate(), WorkDate(), WithholdingTax."Non-Taxable Income Type"::" "));
+            WithholdingTax."Base - Excluded Amount" := LibraryRandom.RandDec(100, 2);
+            WithholdingTax.Modify();
+
             CreateWithholdingTaxLine(
               WithholdingTaxLine[i], WithholdingTax."Entry No.", i * 10000,
               WithholdingTax."Base - Excluded Amount", WithholdingTax."Non-Taxable Income Type"::"24");
@@ -934,6 +955,10 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         WithholdingTax.Get(
           CreateWithholdingTaxWithAU001006AndContributionEntry(
             VendorNo, ConstReason::A, 0, WorkDate(), WorkDate(), WithholdingTax."Non-Taxable Income Type"::" "));
+
+        WithholdingTax."Base - Excluded Amount" := LibraryRandom.RandDec(100, 2);
+        WithholdingTax.Modify();
+
         CreateWithholdingTaxLine(
           WithholdingTaxLine[3], WithholdingTax."Entry No.", 30000,
           WithholdingTax."Base - Excluded Amount", WithholdingTax."Non-Taxable Income Type"::"6");
@@ -967,12 +992,13 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [THEN] AU001005 equals the total non-taxable amount by trety of the first and second lines (5 + 10 = 15)
         // [THEN] AU001006 equals the sum of the total amount and non-taxable amount (300 + 30 = 330)
         ValidateBlockAbsence(5, 'AU001004');
-        ValidateBlockValueOfStrictPosition(5, 'AU001005', ConstFormat::VP, CombinedNonTaxAmtByTreaty, 138);
-        ValidateBlockValueOfStrictPosition(5, 'AU001006', ConstFormat::NP, Format(WithholdingTaxLine[1]."Non-Taxable Income Type"), 162);
+        // Tfs Id 457147: A record does not contain blank reason and total amount values
+        ValidateBlockValueOfStrictPosition(5, 'AU001005', ConstFormat::VP, CombinedNonTaxAmtByTreaty, 90);
+        ValidateBlockValueOfStrictPosition(5, 'AU001006', ConstFormat::NP, Format(WithholdingTaxLine[1]."Non-Taxable Income Type"), 114);
         ValidateBlockValueOfStrictPosition(
           5, 'AU001007', ConstFormat::VP,
           WithholdingTaxLine[1]."Base - Excluded Amount" + WithholdingTaxLine[2]."Base - Excluded Amount" +
-          CombinedNonTaxableAmount, 186);
+          CombinedNonTaxableAmount, 138);
         ValidateBlockAbsence(5, 'AU001008');
         ValidateBlockAbsence(5, 'AU001009');
     end;
@@ -1191,7 +1217,6 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         with WithholdingTax do begin
             Get(CreateWithholdingTaxWithAU001006WithEmptyNonTaxable(VendorNo, WithholdingTaxReason, CalcYear, Date, RelatedDate));
             "Non Taxable Amount By Treaty" := LibraryRandom.RandDec(100, 2);
-            "Base - Excluded Amount" := LibraryRandom.RandDec(100, 2);
             "Non-Taxable Income Type" := NonTaxableIncomeType;
             Modify();
         end;
@@ -1295,7 +1320,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
     begin
         LoadFile(Filename);
         ValidateHeader(SigningCompanyOfficialNo);
-        ValidateRecordDAndH(VendorNo, SigningCompanyOfficialNo, ConstReason::A, 3, '', WithholdingTax."Non-Taxable Income Type"::"1");
+        ValidateRecordDAndH(VendorNo, SigningCompanyOfficialNo, ConstReason::A, 3, '', WithholdingTax."Non-Taxable Income Type"::"1", 1);
         ValidateFooter(5, 1);
     end;
 
@@ -1344,7 +1369,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         Assert.AreEqual(Expected, DelChr(LibrarySpesometro.ReadValue(TextFile, LineNumber, Position, Length), '<>', ' '), '');
     end;
 
-    local procedure ValidateRecordDAndH(VendorNo: Code[20]; SigningCompanyOfficialNo: Code[20]; WithholdingTaxReason: Option; LineNumber: Integer; Year: Text; NonTaxableIncomeType: Option " ","1","2","5","6")
+    local procedure ValidateRecordDAndH(VendorNo: Code[20]; SigningCompanyOfficialNo: Code[20]; WithholdingTaxReason: Option; LineNumber: Integer; Year: Text; NonTaxableIncomeType: Option " ","1","2","5","6"; RecordHEntryNumber: Integer)
     var
         WithholdingTax: Record "Withholding Tax";
         TempWithholdingTax: Record "Withholding Tax" temporary;
@@ -1388,7 +1413,8 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         ValidateBlockValue(LineNumber, 'DA001009', ConstFormat::AN, CompanyInformation."E-Mail");
         ValidateBlockValue(LineNumber, 'DA001011', ConstFormat::AN, CompanyInformation."Office Code");
 
-        ValidateBlockValue(LineNumber, 'DA002001', ConstFormat::CF, Vendor."Contribution Fiscal Code");
+        // Bug id 468097: DA002001 tag must contain the fiscal code of the vendor
+        ValidateBlockValue(LineNumber, 'DA002001', ConstFormat::CF, Vendor."Fiscal Code");
         ValidateBlockValue(LineNumber, 'DA002002', ConstFormat::AN, Vendor."Last Name");
         ValidateBlockValue(LineNumber, 'DA002003', ConstFormat::AN, Vendor."First Name");
         ValidateBlockValue(LineNumber, 'DA002006', ConstFormat::AN, Vendor."Birth City");
@@ -1402,7 +1428,8 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // Validate H-Record
         ValidateTextFileValue(LineNumber + 1, 1, 1, 'H');
         ValidateTextFileValue(LineNumber + 1, 2, 16, CompanyInformation."Fiscal Code");
-        ValidateTextFileValue(LineNumber + 1, 18, 8, '00000001'); // We only export a single file
+        // Bug id 468097: H record must contain the progressive entry number
+        ValidateTextFileValue(LineNumber + 1, 18, 8, '0000000' + Format(RecordHEntryNumber)); // We only export a single file
         ValidateTextFileValue(LineNumber + 1, 26, 16, Vendor."Fiscal Code");
 
         ValidateBlockValue(LineNumber + 1, 'AU001001', 0, Format(WithholdingTax.Reason));
@@ -1428,7 +1455,8 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // Validate A-Record
         ValidateTextFileValue(1, 1, 1, 'A');
 
-        ValidateTextFileValue(1, 16, 5, StrSubstNo(CURTxt, Date2DMY(WorkDate(), 3) mod 100 + 1)); // TFS 397347
+        // Tfs Id 468096: A record contains the correct period exports into CUR
+        ValidateTextFileValue(1, 16, 5, StrSubstNo(CURTxt, Date2DMY(WorkDate, 3) mod 100)); // TFS 397347
 
         if VendorTaxRepresentative.Get(CompanyInformation."Tax Representative No.") then begin
             ValidateTextFileValue(1, 21, 2, '10');
@@ -1557,18 +1585,17 @@ codeunit 144021 "IT - CU 2015 Unit Test"
     [Scope('OnPrem')]
     procedure WithholdingTaxLinesModalPageHandlerWithCorrectSplit(var WithholdingTaxLines: TestPage "Withholding Tax Lines")
     var
+        WithholdingTaxLine: Record "Withholding Tax Line";
         FirstLineAmount: Decimal;
         TotalAmount: Decimal;
-        FirstLineType: Integer;
     begin
         TotalAmount := LibraryVariableStorage.DequeueDecimal();
         FirstLineAmount := Round(TotalAmount / 2);
-        FirstLineType := LibraryRandom.RandInt(7);
         WithholdingTaxLines."Base - Excluded Amount".SetValue(FirstLineAmount);
-        WithholdingTaxLines."Non-Taxable Income Type".SetValue(FirstLineType);
+        WithholdingTaxLines."Non-Taxable Income Type".SetValue(WithholdingTaxLine."Non-Taxable Income Type"::"2");
         WithholdingTaxLines.Next();
         WithholdingTaxLines."Base - Excluded Amount".SetValue(TotalAmount - FirstLineAmount);
-        WithholdingTaxLines."Non-Taxable Income Type".SetValue(FirstLineType + 1);
+        WithholdingTaxLines."Non-Taxable Income Type".SetValue(WithholdingTaxLine."Non-Taxable Income Type"::"6");
         WithholdingTaxLines.OK.Invoke();
     end;
 }

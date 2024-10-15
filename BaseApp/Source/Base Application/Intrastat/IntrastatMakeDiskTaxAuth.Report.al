@@ -114,6 +114,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
                             TestField("Transaction Specification");
                             CheckCorrectiveStatPeriod(IntrastatJnlLine, "Intrastat Jnl. Batch"."Statistics Period");
                             "Intra - form Buffer".TransferFields(IntrastatJnlLine);
+                            "Intra - form Buffer"."VAT Registration No." :=
+                                CopyStr("Partner VAT ID", 1, MaxStrLen("Intra - form Buffer"."VAT Registration No."));                            
                             "Intra - form Buffer"."User ID" := UserId;
                             "Intra - form Buffer".Insert();
                             TotalAmount += Round(Amount, 1);

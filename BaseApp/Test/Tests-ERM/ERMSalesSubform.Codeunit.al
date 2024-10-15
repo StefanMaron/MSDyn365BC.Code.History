@@ -38,6 +38,7 @@ codeunit 134393 "ERM Sales Subform"
         NotEditableErr: Label '%1 should NOT be editable';
         ChangeCurrencyConfirmQst: Label 'If you change %1, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.';
         ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
+        SalesLCYAmountErr: Label 'Sales LCY are not correct';
 
     [Test]
     [HandlerFunctions('SalesStatisticsModalHandler')]
@@ -4383,6 +4384,61 @@ codeunit 134393 "ERM Sales Subform"
         SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLineType[2]);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifySalesLCYOnSalesInvoiceStats()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PaymentTermsCode: Code[10];
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        SalesInvoiceStatistics: TestPage "Sales Invoice Statistics";
+        ItemUnitPrice: Decimal;
+    begin
+        // [SCENARIO 467204]  The Sales(LCY) amount in posted sales invoice Statistics is not correct if the Payment term used considers different installments in the Italian version.
+        Initialize();
+
+        // [GIVEN] Save Item Unit Price.
+        ItemUnitPrice := LibraryRandom.RandDecInDecimalRange(100, 10000, 2);
+
+        // [GIVEN] Create Item with Item unit Price.
+        CreateItem(Item, ItemUnitPrice);
+
+        // [GIVEN] Create Payment Terms with multiple Payment Lines.
+        PaymentTermsCode := CreatePaymentTermsWithMultiplePaymentLines();
+
+        // [GIVEN] Create Customer and update "Payment Term Code";
+        CreateCustomer(Customer);
+        Customer.Validate("Payment Terms Code", PaymentTermsCode);
+        Customer.Modify();
+
+        // [GIVEN] Create Sales order with 1 Sales Line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [GIVEN] Post Sales Order with Ship and Invoice.
+        SalesHeader.Validate(Invoice, true);
+        SalesHeader.Validate(Ship, true);
+        CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
+
+        // [WHEN] Get the Posted Sales Invoice and open the page
+        SalesInvoiceHeader.FindLast();
+        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
+
+        // [WHEN] Open the Sales Invoice Statistics page.
+        SalesInvoiceStatistics.Trap;
+        PostedSalesInvoice.Statistics.Invoke;
+
+        // [VERIFY] Verify the Sales LCY  
+        Assert.AreEqual(PostedSalesInvoice.SalesInvLines."Line Amount".AsDecimal(),
+                        SalesInvoiceStatistics.AmountLCY.AsDecimal(),
+                        SalesLCYAmountErr);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -5270,6 +5326,28 @@ codeunit 134393 "ERM Sales Subform"
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Document Default Line Type" := SalesLineType;
         SalesReceivablesSetup.Modify();
+    end;
+
+    local procedure CreatePaymentTermsWithMultiplePaymentLines(): Code[10]
+    var
+        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
+        PaymentPct: Integer;
+    begin
+        LibraryERM.CreatePaymentTermsIT(PaymentTerms);
+        CreatePaymentLines(PaymentTerms.Code, 30);
+        CreatePaymentLines(PaymentTerms.Code, 30);
+        CreatePaymentLines(PaymentTerms.Code, 40);
+        exit(PaymentTerms.Code);
+    end;
+
+    local procedure CreatePaymentLines(PaymentTermsCode: Code[10]; PaymentPct: Integer)
+    var
+        PaymentLines: Record "Payment Lines";
+    begin
+        LibraryERM.CreatePaymentLinesDiscount(PaymentLines, PaymentTermsCode);
+        PaymentLines.Validate("Payment %", PaymentPct);
+        PaymentLines.Modify(true);
     end;
 
     [ConfirmHandler]

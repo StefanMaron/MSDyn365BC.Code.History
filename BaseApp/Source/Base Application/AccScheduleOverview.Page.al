@@ -31,11 +31,11 @@ page 490 "Acc. Schedule Overview"
             group(General)
             {
                 Caption = 'Options';
+                Visible = (not ViewOnlyMode or (ViewLayout = "Financial Report View Layout"::"Show All"));
 
                 field(FinancialReportName; TempFinancialReport.Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = not ViewOnlyMode;
                     Editable = false;
                     Caption = 'Name';
                     Tooltip = 'Specifies the name of the financial report.';
@@ -49,7 +49,7 @@ page 490 "Acc. Schedule Overview"
                 field(FinancialReportDesc; TempFinancialReport.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = not ViewOnlyMode;
+                    Editable = not ViewOnlyMode;
                     Caption = 'Description';
                     Tooltip = 'Specifies a description for the financial report.';
                 }
@@ -57,8 +57,7 @@ page 490 "Acc. Schedule Overview"
                 field(CurrentSchedName; TempFinancialReport."Financial Report Row Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = not ViewOnlyMode;
-                    Editable = not ViewOnlyMode;
+                    Editable = (not ViewOnlyMode or (ViewLayout = "Financial Report View Layout"::"Show All"));
                     Caption = 'Row Definition';
                     Importance = Promoted;
                     Lookup = true;
@@ -88,11 +87,10 @@ page 490 "Acc. Schedule Overview"
                 field(CurrentColumnName; TempFinancialReport."Financial Report Column Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = not ViewOnlyMode;
+                    Editable = (not ViewOnlyMode or (ViewLayout = "Financial Report View Layout"::"Show All"));
                     Caption = 'Column Definition';
                     Lookup = true;
                     LookupPageId = "Column Layout Names";
-                    TableRelation = "Column Layout Name".Name;
                     ToolTip = 'Specifies the name of the column definition that you want to use in the window.';
                     AboutTitle = 'About column definition';
                     AboutText = 'Change the column definition of the analysis. You can use the built-in column definitions, or create your own.';
@@ -184,6 +182,7 @@ page 490 "Acc. Schedule Overview"
             group("Dimension Filters")
             {
                 Caption = 'Dimensions';
+                Visible = ((ViewLayout <> "Financial Report View Layout"::"Show None") or (not ViewOnlyMode));
                 field(Dim1Filter; TempFinancialReport.Dim1Filter)
                 {
                     ApplicationArea = Dimensions;
@@ -760,7 +759,7 @@ page 490 "Acc. Schedule Overview"
             action(RestoreFinRepFilters)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Restore to default filters';
+                Caption = 'Revert to defaults';
                 Image = Restore;
                 ToolTip = 'Restore the user defined filters to the default filters stored on the financial report';
                 Visible = ViewOnlyMode;
@@ -773,7 +772,7 @@ page 490 "Acc. Schedule Overview"
             action(EditDefinition)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Edit financial report';
+                Caption = 'Edit defaults';
                 Image = Edit;
                 ToolTip = 'Edit the definition for all users';
                 Enabled = ViewOnlyMode;
@@ -818,6 +817,48 @@ page 490 "Acc. Schedule Overview"
                     ColumnLayout.SetColumnLayoutName(TempFinancialReport."Financial Report Column Group");
                     ColumnLayout.Run();
                 end;
+            }
+
+            group(DisplayOptions)
+            {
+                Caption = 'Show';
+                Enabled = ViewOnlyMode;
+                AboutTitle = 'Toggle between different display options in view mode';
+                AboutText = 'From this menu, select one of three view options. The first option None will hide everything besides the sheet. The second option Show Filters will show the dimension filters and the sheet. The third option All will show the Options for Row, Column and Periods and the dimension filters';
+
+                action(DisplayNone)
+                {
+                    Caption = 'None';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the page should be viewed with no filter options displayed';
+                    trigger OnAction()
+                    begin
+                        ViewLayout := "Financial Report View Layout"::"Show None";
+                        CurrPage.Update(false);
+                    end;
+                }
+                action(DisplayFiltersOnly)
+                {
+                    Caption = 'Filters only';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the page should be viewed with dimension filter options displayed';
+                    trigger OnAction()
+                    begin
+                        ViewLayout := "Financial Report View Layout"::"Show Filters Only";
+                        CurrPage.Update(false);
+                    end;
+                }
+                action(DisplayAll)
+                {
+                    Caption = 'All';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the page should be viewed with options and dimension filters';
+                    trigger OnAction()
+                    begin
+                        ViewLayout := "Financial Report View Layout"::"Show All";
+                        CurrPage.Update(false);
+                    end;
+                }
             }
 
             group(Excel)
@@ -876,6 +917,19 @@ page 490 "Acc. Schedule Overview"
                 }
                 actionref(EditDefinition_Promoted; EditDefinition)
                 {
+                }
+                group(DisplayPromoted)
+                {
+                    Caption = 'Show';
+                    actionref(ShowNone_Promoted; DisplayNone)
+                    {
+                    }
+                    actionref(ShowFiltersOnly_Promoted; DisplayFiltersOnly)
+                    {
+                    }
+                    actionref(ShowAll_Promoted; DisplayAll)
+                    {
+                    }
                 }
             }
             group(Category_Definitions)
@@ -985,6 +1039,7 @@ page 490 "Acc. Schedule Overview"
     var
         EditModeNotification: Notification;
     begin
+        ViewLayout := "Financial Report View Layout"::"Show All";
         EditModeNotification.Message := EditModeMessage;
         EditModeNotification.Scope := NotificationScope::LocalScope;
         ReloadPage();
@@ -1010,6 +1065,7 @@ page 490 "Acc. Schedule Overview"
         ModifiedPeriodType: Enum "Analysis Period Type";
         ViewOnlyMode: Boolean;
         // Helper page state variables
+        ViewLayout: Enum "Financial Report View Layout";
         ViewOnlyModeSet: Boolean;
         FinancialReportSummaryTxt: Text;
         CurrentFinancialReportNameTxt: Text;
@@ -1022,7 +1078,7 @@ page 490 "Acc. Schedule Overview"
         // Constants
         Text000Tok: Label 'DEFAULT', MaxLength = 10;
         Text005Tok: Label '1,6,,Dimension %1 Filter';
-        EditModeMessage: Label 'All changes made to this page are permanent and visible to all users immediately';
+        EditModeMessage: Label 'All changes made to this page are persistent and visible to all users immediately';
         AccountPeriodErr: Label 'Accounting period doesn''t exist for the Date Filter: %1', Comment = '%1= Date Filter';
         // Other page state
         [InDataSet]
@@ -1245,9 +1301,9 @@ page 490 "Acc. Schedule Overview"
         UserIDCode: Code[50];
     begin
         UserIDCode := CopyStr(UserId(), 1, MaxStrLen(UserIDCode));
-        if not FinancialReportUserFilters.Get(UserIDCode, TempFinancialReport.Name) then
-            exit;
-        FinancialReportUserFilters.Delete();
+
+        if FinancialReportUserFilters.Get(UserIDCode, TempFinancialReport.Name) then
+            FinancialReportUserFilters.Delete();
         LoadPageState();
     end;
 

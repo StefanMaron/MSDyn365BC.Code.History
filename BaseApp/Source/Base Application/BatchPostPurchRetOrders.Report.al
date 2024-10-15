@@ -56,6 +56,11 @@
                         ApplicationArea = PurchReturnOrder;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date that you want to use as the document date or the posting date when you post if you select the Replace Document Date check box or the Replace Posting Date check box.';
+
+                        trigger OnValidate()
+                        begin
+                            UpdateVATDate();
+                        end;
                     }
                     field(VATDate; VATDateReq)
                     {
@@ -78,6 +83,10 @@
                                 Message(Text1130000, "Purchase Header".FieldCaption("Document Date"), "Purchase Header".FieldCaption("Operation Occurred Date"),
                                   "Purchase Header".FieldCaption("Posting Date"));
                             end;
+                            
+                            if VATReportingDateMgt.IsVATDateUsageSetToPostingDate() then
+                                ReplaceVATDateReq := ReplacePostingDate;
+                            UpdateVATDate();
                         end;
                     }
                     field(ReplaceDocumentDate; ReplaceDocumentDate)
@@ -85,6 +94,13 @@
                         ApplicationArea = PurchReturnOrder;
                         Caption = 'Replace Document Date';
                         ToolTip = 'Specifies if you want to replace the document date of the orders with the date in the Posting Date field.';
+
+                        trigger OnValidate()
+                        begin
+                            if VATReportingDateMgt.IsVATDateUsageSetToDocumentDate() then
+                                ReplaceVATDateReq := ReplaceDocumentDate;
+                            UpdateVATDate();
+                        end;
                     }
                     field(ReplaceVATDate; ReplaceVATDateReq)
                     {
@@ -157,6 +173,7 @@
     }
 
     var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
         Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
 
@@ -171,6 +188,12 @@
         [InDataSet]
         PrintDocVisible: Boolean;
         VATDateEnabled: Boolean;
+
+    local procedure UpdateVATDate()
+    begin
+        if ReplaceVATDateReq then
+            VATDateReq := PostingDateReq;
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnOpenPage(var ShipReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean)

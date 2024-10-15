@@ -437,7 +437,10 @@
             var
                 VATDateReportingMgt: Codeunit "VAT Reporting Date Mgt";
             begin
-                if not VATDateReportingMgt.IsVATDateModifiable() or not VATDateReportingMgt.IsValidDate("VAT Reporting Date") then
+                if (Rec."VAT Reporting Date" = xRec."VAT Reporting Date") and (CurrFieldNo <> 0) then
+                    exit;
+
+                if not VATDateReportingMgt.IsVATDateModifiable() or not VATDateReportingMgt.IsValidVATDate(Rec) or not VATDateReportingMgt.IsValidDate(xRec."VAT Reporting Date", true) then
                     Error('');
 
                 VATDateReportingMgt.UpdateLinkedEntries(Rec);
@@ -950,7 +953,10 @@
     procedure CopyPostingDataFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     begin
         "Posting Date" := GenJnlLine."Posting Date";
-        "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
+        if GenJnlLine."VAT Reporting Date" = 0D then
+            "VAT Reporting Date" := GLSetup.GetVATDate(GenJnlLine."Posting Date", GenJnlLine."Document Date")
+        else 
+            "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
         "Document Type" := GenJnlLine."Document Type";
         "Document Date" := GenJnlLine."Document Date";
         "Document No." := GenJnlLine."Document No.";
