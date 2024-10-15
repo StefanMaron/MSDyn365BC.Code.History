@@ -965,7 +965,14 @@
     end;
 
     procedure AltAddr(var AddrArray: array[8] of Text[100]; var Employee: Record Employee; var AlternativeAddr: Record "Alternative Address")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAltAddr(AddrArray, Employee, AlternativeAddr, IsHandled);
+        if IsHandled then
+            exit;
+
         with AlternativeAddr do begin
             FormatAddr(
               AddrArray, CopyStr(Employee.FullName, 1, 50), '', '', Address,
@@ -976,7 +983,14 @@
     end;
 
     procedure Employee(var AddrArray: array[8] of Text[100]; var Employee: Record Employee)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEmployee(AddrArray, Employee, IsHandled);
+        if IsHandled then
+            exit;
+
         with Employee do begin
             FormatAddr(
               AddrArray, CopyStr(FullName, 1, 50), '', '', Address, "Address 2",
@@ -1953,6 +1967,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBankAcc(var AddrArray: array[8] of Text[100]; var BankAccount: Record "Bank Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAltAddr(var AddrArray: array[8] of Text[100]; var Employee: Record Employee; var AlternativeAddress: Record "Alternative Address"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEmployee(var AddrArray: array[8] of Text[100]; var Employee: Record Employee; var IsHandled: Boolean)
     begin
     end;
 

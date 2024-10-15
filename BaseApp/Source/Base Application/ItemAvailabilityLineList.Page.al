@@ -294,6 +294,7 @@ page 99000902 "Item Availability Line List"
                     else
                         PurchLine.FindLinesWithItemToPlan(Item, PurchLine."Document Type"::"Return Order");
                     PurchLine.SetRange("Drop Shipment", false);
+                    OnLookupEntriesOnAfterPurchLineSetFilters(Item, PurchLine);
                     PAGE.RunModal(0, PurchLine);
                 end;
             DATABASE::"Transfer Line":
@@ -376,7 +377,7 @@ page 99000902 "Item Availability Line List"
                     PAGE.RunModal(0, AssemblyLine);
                 end;
             else
-                OnLookupExtensionTable(Item, "Table No.");
+                OnLookupExtensionTable(Item, "Table No.", QuerySource, SalesLine);
         end;
 
         OnAfterLookupEntries(Item, "Table No.", Rec);
@@ -432,12 +433,17 @@ page 99000902 "Item Availability Line List"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLookupExtensionTable(var Item: Record Item; TableID: Integer)
+    local procedure OnLookupExtensionTable(var Item: Record Item; TableID: Integer; QuerySource: Integer; SalesLine: Record "Sales Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupEntries(ItemAvailabilityLine: Record "Item Availability Line"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupEntriesOnAfterPurchLineSetFilters(var Item: Record Item; var PurchLine: Record "Purchase Line")
     begin
     end;
 }

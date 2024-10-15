@@ -50,9 +50,7 @@ codeunit 393 "Reminder-Issue"
                   TableCaption, "No.", DimMgt.GetDimValuePostingErr);
 
             CustPostingGr.Get("Customer Posting Group");
-            CalcFields("Interest Amount", "Additional Fee", "Remaining Amount", "Add. Fee per Line");
-            if ("Interest Amount" = 0) and ("Additional Fee" = 0) and ("Add. Fee per Line" = 0) and ("Remaining Amount" = 0) then
-                Error(Text000);
+            CalcAndEnsureAmountsNotEmpty();
             SourceCodeSetup.Get();
             SourceCodeSetup.TestField(Reminder);
             SrcCode := SourceCodeSetup.Reminder;
@@ -212,7 +210,6 @@ codeunit 393 "Reminder-Issue"
     local procedure SetGenJnlLine2Dim()
     var
         DimSetIDArr: array[10] of Integer;
-        DummyGlobalDimCode: Code[20];
     begin
         with ReminderHeader do begin
             GenJnlLine2."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
@@ -221,10 +218,24 @@ codeunit 393 "Reminder-Issue"
             DimSetIDArr[2] := GenJnlLine."Dimension Set ID";
             GenJnlLine2."Dimension Set ID" :=
                 DimMgt.GetCombinedDimensionSetID(
-                    DimSetIDArr, DummyGlobalDimCode, DummyGlobalDimCode);
+                    DimSetIDArr, GenJnlLine2."Shortcut Dimension 1 Code", GenJnlLine2."Shortcut Dimension 2 Code");
         end;
 
         OnAfterSetGenJnlLine2Dim(ReminderHeader, GenJnlLine2);
+    end;
+
+    local procedure CalcAndEnsureAmountsNotEmpty()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcAndEnsureAmountsNotEmpty(ReminderHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReminderHeader.CalcFields("Interest Amount", "Additional Fee", "Remaining Amount", "Add. Fee per Line");
+        if (ReminderHeader."Interest Amount" = 0) and (ReminderHeader."Additional Fee" = 0) and (ReminderHeader."Remaining Amount" = 0) and (ReminderHeader."Add. Fee per Line" = 0) then
+            Error(Text000);
     end;
 
     procedure GetIssuedReminder(var NewIssuedReminderHeader: Record "Issued Reminder Header")
@@ -627,6 +638,11 @@ codeunit 393 "Reminder-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCustLedgEntriesCalculateInterestOnBeforeCustLedgerEntry2ModifyAll(var CustLedgEntry2: Record "Cust. Ledger Entry"; CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAndEnsureAmountsNotEmpty(var ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
     begin
     end;
 

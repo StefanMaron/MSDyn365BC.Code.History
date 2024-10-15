@@ -269,7 +269,7 @@
 
             trigger OnValidate()
             begin
-                CheckIsNotAsmToOrder();
+                CheckIsNotAsmToOrder(Rec.FieldNo("Bin Code"));
                 ValidateBinCode("Bin Code");
             end;
         }
@@ -1682,11 +1682,16 @@
     end;
 
     procedure CheckIsNotAsmToOrder()
+    begin
+        CheckIsNotAsmToOrder(0);
+    end;
+
+    procedure CheckIsNotAsmToOrder(CallingFieldNo: Integer)
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckIsNotAsmToOrder(Rec, IsHandled, xRec, CurrFieldNo);
+        OnBeforeCheckIsNotAsmToOrder(Rec, IsHandled, xRec, CurrFieldNo, CallingFieldNo);
         if IsHandled then
             exit;
 
@@ -1717,13 +1722,12 @@
     var
         TempAssemblyHeader: Record "Assembly Header" temporary;
         TempAssemblyLine: Record "Assembly Line" temporary;
-        AsmLineMgt: Codeunit "Assembly Line Management";
     begin
-        AsmLineMgt.CopyAssemblyData(Rec, TempAssemblyHeader, TempAssemblyLine);
+        AssemblyLineMgt.CopyAssemblyData(Rec, TempAssemblyHeader, TempAssemblyLine);
         if TempAssemblyLine.FindSet() then
             repeat
                 if (TempAssemblyLine."Due Date" < WorkDate()) and (TempAssemblyLine."Remaining Quantity" <> 0) then begin
-                    AsmLineMgt.ShowDueDateBeforeWorkDateMsg(TempAssemblyLine."Due Date");
+                    AssemblyLineMgt.ShowDueDateBeforeWorkDateMsg(TempAssemblyLine."Due Date");
                     exit;
                 end;
             until TempAssemblyLine.Next() = 0;
@@ -1779,7 +1783,12 @@
 
     procedure SetWarningsOff()
     begin
-        AssemblyLineMgt.SetWarningsOff;
+        AssemblyLineMgt.SetWarningsOff();
+    end;
+
+    procedure SetWarningsOn()
+    begin
+        AssemblyLineMgt.SetWarningsOn();
     end;
 
     local procedure SetDescriptionsFromItem()
@@ -2041,7 +2050,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckIsNotAsmToOrder(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean; xAssemblyHeader: Record "Assembly Header"; CurrentFieldNo: Integer)
+    local procedure OnBeforeCheckIsNotAsmToOrder(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean; xAssemblyHeader: Record "Assembly Header"; CurrentFieldNo: Integer; CallingFieldNo: Integer)
     begin
     end;
 

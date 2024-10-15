@@ -1,4 +1,4 @@
-codeunit 5818 "Undo Service Shipment Line"
+﻿codeunit 5818 "Undo Service Shipment Line"
 {
     Permissions = TableData "Item Application Entry" = rmd,
                   TableData "Service Line" = imd,
@@ -159,8 +159,9 @@ codeunit 5818 "Undo Service Shipment Line"
                 "Qty. Shipped Not Invoiced" := 0;
                 "Qty. Shipped Not Invd. (Base)" := 0;
                 Correction := true;
-                Modify;
-
+                OnCodeOnBeforeServShptLineModify(ServShptLine, TempWhseJnlLine);
+                Modify();
+                OnCodeOnAfterServShptLineModify(ServShptLine, TempWhseJnlLine);
             until Next() = 0;
             ServLedgEntriesPost.FinishServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
 
@@ -438,6 +439,16 @@ codeunit 5818 "Undo Service Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var ServiceShipmentLine: Record "Service Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterServShptLineModify(var ServShptLine: Record "Service Shipment Line"; var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeServShptLineModify(var ServShptLine: Record "Service Shipment Line"; var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary)
     begin
     end;
 

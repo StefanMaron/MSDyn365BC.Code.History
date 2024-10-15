@@ -156,6 +156,15 @@ codeunit 131305 "Library - ERM Country Data"
         exit;
     end;
 
+    procedure UpdateJournalTemplMandatory(Mandatory: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Journal Templ. Name Mandatory", Mandatory);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     procedure CreateNewFiscalYear()
     begin
         exit;

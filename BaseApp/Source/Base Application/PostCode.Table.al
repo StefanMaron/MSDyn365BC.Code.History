@@ -110,41 +110,45 @@ table 225 "Post Code"
         SearchCity: Code[30];
         IsHandled: Boolean;
     begin
-        if not GuiAllowed then
-            exit;
-
         IsHandled := false;
-        OnBeforeValidateCity(CityTxt, PostCode, CountyTxt, CountryCode, UseDialog, IsHandled);
-        if IsHandled then
-            exit;
-
-        PostCodeCheck.AddressValIsPostCodeCity;
-        if CityTxt <> '' then begin
-            SearchCity := CityTxt;
-            PostCodeRec.SetCurrentKey("Search City");
-            if StrPos(SearchCity, '*') = StrLen(SearchCity) then
-                PostCodeRec.SetFilter("Search City", SearchCity)
-            else
-                PostCodeRec.SetRange("Search City", SearchCity);
-            if not PostCodeRec.FindFirst() then
+        OnBeforeValidateCityProcedure(CityTxt, PostCode, CountyTxt, CountryCode, UseDialog, IsHandled);
+        if not IsHandled then begin
+            if not GuiAllowed then
                 exit;
 
-            if CountryCode <> '' then begin
-                PostCodeRec.SetRange("Country/Region Code", CountryCode);
+#if not CLEAN21
+            IsHandled := false;
+            OnBeforeValidateCity(CityTxt, PostCode, CountyTxt, CountryCode, UseDialog, IsHandled);
+            if IsHandled then
+                exit;
+#endif
+            PostCodeCheck.AddressValIsPostCodeCity;
+            if CityTxt <> '' then begin
+                SearchCity := CityTxt;
+                PostCodeRec.SetCurrentKey("Search City");
+                if StrPos(SearchCity, '*') = StrLen(SearchCity) then
+                    PostCodeRec.SetFilter("Search City", SearchCity)
+                else
+                    PostCodeRec.SetRange("Search City", SearchCity);
                 if not PostCodeRec.FindFirst() then
-                    PostCodeRec.SetRange("Country/Region Code");
+                    exit;
+
+                if CountryCode <> '' then begin
+                    PostCodeRec.SetRange("Country/Region Code", CountryCode);
+                    if not PostCodeRec.FindFirst() then
+                        PostCodeRec.SetRange("Country/Region Code");
+                end;
+
+                PostCodeRec2.Copy(PostCodeRec);
+                if UseDialog and (PostCodeRec2.Next = 1) then
+                    if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
+                        Error('');
+                PostCode := PostCodeRec.Code;
+                CityTxt := PostCodeRec.City;
+                CountryCode := PostCodeRec."Country/Region Code";
+                CountyTxt := PostCodeRec.County;
             end;
-
-            PostCodeRec2.Copy(PostCodeRec);
-            if UseDialog and (PostCodeRec2.Next = 1) then
-                if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
-                    Error('');
-            PostCode := PostCodeRec.Code;
-            CityTxt := PostCodeRec.City;
-            CountryCode := PostCodeRec."Country/Region Code";
-            CountyTxt := PostCodeRec.County;
         end;
-
         OnAfterValidateCity(Rec, CityTxt, PostCode, CountyTxt, CountryCode, UseDialog);
     end;
 
@@ -334,8 +338,15 @@ table 225 "Post Code"
     begin
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by OnBeforeValidateCityProcedure', '21.0')]
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateCity(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeValidateCityProcedure(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

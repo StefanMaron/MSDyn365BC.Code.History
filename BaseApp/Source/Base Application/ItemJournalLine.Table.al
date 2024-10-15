@@ -26,6 +26,7 @@
                 ProdOrderComp: Record "Prod. Order Component";
                 PriceType: Enum "Price Type";
                 ShouldCopyFromSingleProdOrderLine: Boolean;
+                ShouldThrowRevaluationError: Boolean;
             begin
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
@@ -135,11 +136,12 @@
                                 "Routing No." := ProdOrderLine."Routing No.";
                                 "Source Type" := "Source Type"::Item;
                                 "Source No." := ProdOrderLine."Item No.";
-                            end else
-                                if ("Value Entry Type" <> "Value Entry Type"::Revaluation) and
-                                   (CurrFieldNo <> 0)
-                                then
+                            end else begin
+                                ShouldThrowRevaluationError := ("Value Entry Type" <> "Value Entry Type"::Revaluation) and (CurrFieldNo <> 0);
+                                OnValidateItemNoOnAfterCalcShouldThrowRevaluationError(Rec, ShouldThrowRevaluationError);
+                                if ShouldThrowRevaluationError then
                                     Error(Text031, "Item No.", "Order No.");
+                            end;
 
                             ShouldCopyFromSingleProdOrderLine := ProdOrderLine.Count = 1;
                             OnValidateItemNoOnAfterCalcShouldCopyFromSingleProdOrderLine(Rec, xRec, ProdOrderLine, ShouldCopyFromSingleProdOrderLine);
@@ -3594,13 +3596,18 @@
         end;
     end;
 
-    procedure LastOutputOperation(ItemJnlLine: Record "Item Journal Line"): Boolean
+    procedure LastOutputOperation(ItemJnlLine: Record "Item Journal Line") Result: Boolean
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         Operation: Boolean;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLastOutputOperation(ItemJnlLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with ItemJnlLine do begin
             if "Operation No." <> '' then begin
                 IsHandled := false;
@@ -4159,7 +4166,7 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FieldNo = Rec.FieldNo("Salespers./Purch. Code"));
         DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.", FieldNo = Rec.FieldNo("Work Center No."));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
 #if not CLEAN20
@@ -4194,7 +4201,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var ItemJournalLine: Record "Item Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var ItemJournalLine: Record "Item Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
@@ -4446,6 +4453,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLastOutputOperation(ItemJournalLine: Record "Item Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupItemNo(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -4593,6 +4605,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterGetItem(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterCalcShouldThrowRevaluationError(var ItemJournalLine: Record "Item Journal Line"; var ShouldThrowRevaluationError: Boolean)
     begin
     end;
 

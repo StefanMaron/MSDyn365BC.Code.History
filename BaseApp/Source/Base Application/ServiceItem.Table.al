@@ -148,12 +148,21 @@ table 5940 "Service Item"
             trigger OnValidate()
             var
                 ConfirmManagement: Codeunit "Confirm Management";
+                IsHandled: Boolean;
+                ShouldConfirmChange: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCustomerNo(Rec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Customer No." <> xRec."Customer No." then begin
                     if CheckifActiveServContLineExist then
                         Error(Text004, FieldCaption("Customer No."), "Customer No.", TableCaption, "No.");
                     ServItemLinesExistErr(FieldCaption("Customer No."));
-                    if ServLedgEntryExist then
+                    ShouldConfirmChange := ServLedgEntryExist();
+                    OnValidateCustomerNoOnAfterCalcShouldConfirmChange(Rec, CurrFieldNo, ShouldConfirmChange);
+                    if ShouldConfirmChange then
                         if not ConfirmManagement.GetResponseOrDefault(
                              StrSubstNo(Text017, TableCaption, FieldCaption("Customer No.")), true)
                         then begin
@@ -775,6 +784,7 @@ table 5940 "Service Item"
                     SkilledResourceList.GetRecord(Resource);
                     "Preferred Resource" := Resource."No.";
                 end;
+                OnAfterValidatePreferredResource(Rec, ServItem);
             end;
         }
         field(76; "Variant Code"; Code[10])
@@ -1135,6 +1145,7 @@ table 5940 "Service Item"
         ServContractLine.SetCurrentKey("Service Item No.", "Contract Status");
         ServContractLine.SetRange("Service Item No.", "No.");
         ServContractLine.SetFilter("Contract Status", '<>%1', ServContractLine."Contract Status"::Cancelled);
+        OnCheckifActiveServContLineExistOnAfterSetFilters(ServContractLine);
         exit(ServContractLine.Find('-'));
     end;
 
@@ -1192,6 +1203,11 @@ table 5940 "Service Item"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterValidatePreferredResource(var ServiceItem: Record "Service Item"; var ServiceItemGlobal: Record "Service Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeMessageIfServItemLinesExist(ServiceItem: Record "Service Item"; ChangedFieldName: Text[100]; var MessageText: Text; var ShowMessage: Boolean)
     begin
     end;
@@ -1208,6 +1224,21 @@ table 5940 "Service Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateSerialNo(var ServiceItem: Record "Service Item"; var xServiceItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCustomerNo(var ServiceItem: Record "Service Item"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckifActiveServContLineExistOnAfterSetFilters(var ServiceContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCustomerNoOnAfterCalcShouldConfirmChange(var ServiceItem: Record "Service Item"; CurrFieldNo: Integer; var ShouldConfirmChange: Boolean)
     begin
     end;
 }

@@ -240,61 +240,60 @@ codeunit 5804 ItemCostManagement
         IsHandled: Boolean;
     begin
         OnBeforeUpdateUnitCostSKU(Item, SKU, LastDirectCost, NewStdCost, MatchSKU, CalledByFieldNo, UnitCostUpdated, CalledFromAdjustment);
-        if UnitCostUpdated then
-            exit;
-
-        with SKU do begin
-            if NewStdCost <> 0 then
-                "Standard Cost" := NewStdCost;
-            if Item."Costing Method" <> Item."Costing Method"::Standard then begin
-                GetInvtSetup();
-                if InvtSetup."Average Cost Calc. Type" <> InvtSetup."Average Cost Calc. Type"::Item then begin
-                    IsHandled := false;
-                    OnUpdateUnitCostSKUOnBeforeCalcNonItemAvgCostCalcType(Item, SKU, CalledFromAdjustment, IsHandled);
-                    if not IsHandled then
-                        if CalledFromAdjustment then begin
-                            ValueEntry."Item No." := Item."No.";
-                            ValueEntry."Valuation Date" := DMY2Date(31, 12, 9999);
-                            ValueEntry."Location Code" := "Location Code";
-                            ValueEntry."Variant Code" := "Variant Code";
-                            ValueEntry.SumCostsTillValuationDate(ValueEntry);
-                            if ValueEntry."Item Ledger Entry Quantity" <> 0 then begin
-                                AverageCost :=
-                                  (ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)") /
-                                  ValueEntry."Item Ledger Entry Quantity";
-                                if AverageCost < 0 then
-                                    AverageCost := 0;
-                            end else begin
-                                Item.SetRange("Location Filter", "Location Code");
-                                Item.SetRange("Variant Filter", "Variant Code");
-                                CalcLastAdjEntryAvgCost(Item, AverageCost, AverageCostACY);
-                            end;
-                            if AverageCost <> 0 then
-                                "Unit Cost" := Round(AverageCost, GLSetup."Unit-Amount Rounding Precision");
-                        end else
-                            if ("Unit Cost" = 0) or ((InvoicedQty > 0) and MatchSKU and (LastDirectCost <> 0)) then begin
-                                Item.SetRange("Location Filter", "Location Code");
-                                Item.SetRange("Variant Filter", "Variant Code");
-                                Item.CalcFields("Net Invoiced Qty.");
-                                Item.SetRange("Location Filter");
-                                Item.SetRange("Variant Filter");
-                                if (Item."Net Invoiced Qty." > 0) and (Item."Net Invoiced Qty." <= InvoicedQty) then
-                                    "Unit Cost" := LastDirectCost;
-                            end;
+        if not UnitCostUpdated then
+            with SKU do begin
+                if NewStdCost <> 0 then
+                    "Standard Cost" := NewStdCost;
+                if Item."Costing Method" <> Item."Costing Method"::Standard then begin
+                    GetInvtSetup();
+                    if InvtSetup."Average Cost Calc. Type" <> InvtSetup."Average Cost Calc. Type"::Item then begin
+                        IsHandled := false;
+                        OnUpdateUnitCostSKUOnBeforeCalcNonItemAvgCostCalcType(Item, SKU, CalledFromAdjustment, IsHandled);
+                        if not IsHandled then
+                            if CalledFromAdjustment then begin
+                                ValueEntry."Item No." := Item."No.";
+                                ValueEntry."Valuation Date" := DMY2Date(31, 12, 9999);
+                                ValueEntry."Location Code" := "Location Code";
+                                ValueEntry."Variant Code" := "Variant Code";
+                                ValueEntry.SumCostsTillValuationDate(ValueEntry);
+                                if ValueEntry."Item Ledger Entry Quantity" <> 0 then begin
+                                    AverageCost :=
+                                      (ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)") /
+                                      ValueEntry."Item Ledger Entry Quantity";
+                                    if AverageCost < 0 then
+                                        AverageCost := 0;
+                                end else begin
+                                    Item.SetRange("Location Filter", "Location Code");
+                                    Item.SetRange("Variant Filter", "Variant Code");
+                                    CalcLastAdjEntryAvgCost(Item, AverageCost, AverageCostACY);
+                                end;
+                                if AverageCost <> 0 then
+                                    "Unit Cost" := Round(AverageCost, GLSetup."Unit-Amount Rounding Precision");
+                            end else
+                                if ("Unit Cost" = 0) or ((InvoicedQty > 0) and MatchSKU and (LastDirectCost <> 0)) then begin
+                                    Item.SetRange("Location Filter", "Location Code");
+                                    Item.SetRange("Variant Filter", "Variant Code");
+                                    Item.CalcFields("Net Invoiced Qty.");
+                                    Item.SetRange("Location Filter");
+                                    Item.SetRange("Variant Filter");
+                                    if (Item."Net Invoiced Qty." > 0) and (Item."Net Invoiced Qty." <= InvoicedQty) then
+                                        "Unit Cost" := LastDirectCost;
+                                end;
+                    end else
+                        "Unit Cost" := Item."Unit Cost";
                 end else
-                    "Unit Cost" := Item."Unit Cost";
-            end else
-                "Unit Cost" := "Standard Cost";
+                    "Unit Cost" := "Standard Cost";
 
-            OnUpdateUnitCostSKUOnBeforeMatchSKU(SKU, Item);
-            if MatchSKU and (LastDirectCost <> 0) then
-                "Last Direct Cost" := LastDirectCost;
+                OnUpdateUnitCostSKUOnBeforeMatchSKU(SKU, Item);
+                if MatchSKU and (LastDirectCost <> 0) then
+                    "Last Direct Cost" := LastDirectCost;
 
-            if CalledByFieldNo <> 0 then
-                Modify(true)
-            else
-                Modify();
-        end;
+                if CalledByFieldNo <> 0 then
+                    Modify(true)
+                else
+                    Modify();
+            end;
+        OnAfterUpdateUnitCostSKU(Item, SKU);
     end;
 
     local procedure RecalcStdCostItem(var Item: Record Item)
@@ -649,6 +648,11 @@ codeunit 5804 ItemCostManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetFilters(var ValueEntry: Record "Value Entry"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateUnitCostSKU(Item: Record Item; var StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
 

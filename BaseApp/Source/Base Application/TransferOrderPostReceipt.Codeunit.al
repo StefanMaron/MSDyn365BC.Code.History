@@ -30,8 +30,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         with TransHeader do begin
             CheckBeforePost;
 
-            WhseReference := "Posting from Whse. Ref.";
-            "Posting from Whse. Ref." := 0;
+            SaveAndClearPostingFromWhseRef();
 
             CheckDim;
             CheckLines(TransHeader, TransLine);
@@ -349,6 +348,14 @@ codeunit 5705 "TransferOrder-Post Receipt"
         HideValidationDialog := NewHideValidationDialog;
     end;
 
+    local procedure SaveAndClearPostingFromWhseRef()
+    begin
+        WhseReference := TransHeader."Posting from Whse. Ref.";
+        TransHeader."Posting from Whse. Ref." := 0;
+
+        OnAfterSaveAndClearPostingFromWhseRef(TransHeader, Location);
+    end;
+
     local procedure WriteDownDerivedLines(var TransLine3: Record "Transfer Line")
     var
         TransLine4: Record "Transfer Line";
@@ -525,7 +532,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreatePostedRcptLineFromWhseRcptLine(TransferReceiptLine, WhseRcptLine, PostedWhseRcptHeader, PostedWhseRcptLine, TempWhseSplitSpecification, IsHandled);
+        OnBeforeCreatePostedRcptLineFromWhseRcptLine(TransferReceiptLine, WhseRcptLine, PostedWhseRcptHeader, PostedWhseRcptLine, TempWhseSplitSpecification, IsHandled, WhsePostRcpt, TempItemEntryRelation2);
         if IsHandled then
             exit;
 
@@ -724,6 +731,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSaveAndClearPostingFromWhseRef(var TransferHeader: Record "Transfer Header"; var Location: Record Location)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTransferOrderPostReceipt(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; var TransferReceiptHeader: Record "Transfer Receipt Header")
     begin
     end;
@@ -754,7 +766,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePostedRcptLineFromWhseRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; var WhseRcptLine: Record "Warehouse Receipt Line"; var PostedWhseRcptHeader: Record "Posted Whse. Receipt Header"; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempWhseSplitSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeCreatePostedRcptLineFromWhseRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; var WhseRcptLine: Record "Warehouse Receipt Line"; var PostedWhseRcptHeader: Record "Posted Whse. Receipt Header"; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempWhseSplitSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean; var WhsePostReceipt: Codeunit "Whse.-Post Receipt"; var TempItemEntryRelation2: Record "Item Entry Relation" temporary)
     begin
     end;
 

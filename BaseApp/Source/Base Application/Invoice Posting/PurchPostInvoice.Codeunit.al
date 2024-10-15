@@ -1209,6 +1209,7 @@
                 CurrExchRate.ExchangeAmtFCYToLCY(
                   PurchHeader.GetUseDate(), PurchHeader."Currency Code",
                   TempDeferralHeader."Amount to Defer", PurchHeader."Currency Factor"));
+            PurchPostInvoiceEvents.RunOnCalcDeferralAmountsOnBeforeTempDeferralHeaderInsert(TempDeferralHeader, DeferralHeader, PurchLine);
             TempDeferralHeader.Insert();
 
             with DeferralLine do begin
