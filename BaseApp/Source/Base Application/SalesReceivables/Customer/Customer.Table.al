@@ -1169,6 +1169,10 @@
         {
             Caption = 'Intrastat Partner Type';
         }
+        field(134; "Exclude from Pmt. Practices"; Boolean)
+        {
+            Caption = 'Exclude from Payment Practices';
+        }
         field(140; Image; Media)
         {
             Caption = 'Image';

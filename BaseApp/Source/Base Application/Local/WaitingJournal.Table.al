@@ -716,6 +716,11 @@ table 15000004 "Waiting Journal"
 #else
             ObsoleteState = Pending;
             ObsoleteTag = '23.0';
+
+            trigger OnValidate()
+            begin
+                "VAT Number" := "VAT Code";
+            end;
 #endif
         }
         field(10605; "Bal. VAT Code"; Code[10])
@@ -729,6 +734,11 @@ table 15000004 "Waiting Journal"
 #else
             ObsoleteState = Pending;
             ObsoleteTag = '23.0';
+
+            trigger OnValidate()
+            begin
+                "Bal. VAT Number" := "Bal. VAT Code";
+            end;
 #endif
         }
         field(10606; "Source Curr. Inv.tax Amount"; Decimal)
