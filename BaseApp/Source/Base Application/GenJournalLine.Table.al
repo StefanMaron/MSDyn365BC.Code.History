@@ -3277,8 +3277,10 @@
             exit;
 
         if (LastDocNo = '') or ("Document No." <> LastDocNo) then
-            if "Document No." <> NoSeriesMgtInstance.GetNextNo(NoSeriesCode, "Posting Date", false) then
+            if "Document No." <> NoSeriesMgtInstance.GetNextNo(NoSeriesCode, "Posting Date", false) then begin
                 NoSeriesMgtInstance.TestManualWithDocumentNo(NoSeriesCode, "Document No.");  // allow use of manual document numbers.
+                NoSeriesMgtInstance.ClearNoSeriesLine();
+            end;
     end;
 
     procedure RenumberDocumentNo()
