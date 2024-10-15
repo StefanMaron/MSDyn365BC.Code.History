@@ -201,7 +201,9 @@ page 868 "Cash Flow Forecast Statistics"
     trigger OnAfterGetRecord()
     begin
         if CurrentDate <> WorkDate then
-            CurrentDate := WorkDate;
+            CurrentDate := WorkDate();
+        if "Manual Payments To" <> 0D then
+            CurrentDate := "Manual Payments To";
 
         SetCashFlowDateFilter(0D, CurrentDate);
     end;

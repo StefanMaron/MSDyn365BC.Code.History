@@ -1436,6 +1436,7 @@
             if ("Recurring Method" >= "Recurring Method"::"RF Reversing Fixed") and ("Posting Date" <> 0D) then begin
                 "Posting Date" := "Posting Date" + 1;
                 "Document Date" := "Posting Date";
+                "Due Date" := "Posting Date";
                 MultiplyAmounts(GenJournalLine, -1);
                 TempGenJnlLine4 := GenJournalLine;
                 TempGenJnlLine4."Reversing Entry" := true;
@@ -1450,6 +1451,7 @@
                 NoOfReversingRecords := NoOfReversingRecords + 1;
                 "Posting Date" := "Posting Date" - 1;
                 "Document Date" := "Posting Date";
+                "Due Date" := "Posting Date";
             end;
             PostAllocations(GenJournalLine, false);
         end;
