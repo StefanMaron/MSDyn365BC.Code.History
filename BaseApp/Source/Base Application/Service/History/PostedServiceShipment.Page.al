@@ -193,11 +193,24 @@ page 5975 "Posted Service Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the priority of the posted service order.';
                 }
+                field("Quote No."; Rec."Quote No.")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    ToolTip = 'Specifies the number of the service quote document if a quote was used to start the service process.';
+                }
                 field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the service order from which the shipment was created.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the external document number that is entered on the service header that this line was posted from.';
                 }
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {
@@ -631,11 +644,11 @@ page 5975 "Posted Service Shipment"
                 action("&Job Ledger Entries")
                 {
                     ApplicationArea = Jobs;
-                    Caption = '&Job Ledger Entries';
+                    Caption = '&Project Ledger Entries';
                     Image = JobLedger;
                     RunObject = Page "Job Ledger Entries";
                     RunPageLink = "Document No." = field("No.");
-                    ToolTip = 'View all the job ledger entries that result from posting transactions in the service document that involve a job.';
+                    ToolTip = 'View all the project ledger entries that result from posting transactions in the service document that involve a project.';
                 }
                 action("&Allocations")
                 {

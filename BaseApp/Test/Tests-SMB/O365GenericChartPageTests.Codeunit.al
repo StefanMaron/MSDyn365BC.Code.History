@@ -46,7 +46,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         ChartMgt: Codeunit "Chart Management";
     begin
         ChartDefinition.DeleteAll();
-        ChartMgt.PopulateChartDefinitionTable;
+        ChartMgt.PopulateChartDefinitionTable();
         Assert.RecordCount(ChartDefinition, 8);
     end;
 
@@ -67,19 +67,19 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         ChartDefinition.Get(CODEUNIT::"Top Ten Customers Chart Mgt.", TopTenCustomerChartNameTxt);
         LibraryVariableStorage.Enqueue(TopTenCustomerChartNameTxt);
         ChartMgt.SelectChart(BusinessChartBuffer, ChartDefinition);
-        Assert.AreEqual(TopTenCustomerChartXCaptionTxt, BusinessChartBuffer.GetXCaption, WrongChartMsg);
+        Assert.AreEqual(TopTenCustomerChartXCaptionTxt, BusinessChartBuffer.GetXCaption(), WrongChartMsg);
         Assert.AreEqual(TopTenCustomerChartDescriptionTxt, ChartMgt.ChartDescription(ChartDefinition), WrongChartMsg);
 
         ChartDefinition.Get(CODEUNIT::"Top Five Customers Chart Mgt.", TopfiveCustomerChartNameTxt);
         LibraryVariableStorage.Enqueue(TopfiveCustomerChartNameTxt);
         ChartMgt.SelectChart(BusinessChartBuffer, ChartDefinition);
-        Assert.AreEqual(TopTenCustomerChartXCaptionTxt, BusinessChartBuffer.GetXCaption, WrongChartMsg);
+        Assert.AreEqual(TopTenCustomerChartXCaptionTxt, BusinessChartBuffer.GetXCaption(), WrongChartMsg);
         Assert.AreEqual(TopFiveCustomerChartDescriptionTxt, ChartMgt.ChartDescription(ChartDefinition), WrongChartMsg);
 
         ChartDefinition.Get(CODEUNIT::"Aged Acc. Receivable", AgedAccReceivableNameTxt);
         LibraryVariableStorage.Enqueue(AgedAccReceivableNameTxt);
         ChartMgt.SelectChart(BusinessChartBuffer, ChartDefinition);
-        Assert.AreEqual(OverdueTxt, BusinessChartBuffer.GetXCaption, WrongChartMsg);
+        Assert.AreEqual(OverdueTxt, BusinessChartBuffer.GetXCaption(), WrongChartMsg);
         Assert.AreEqual(
           1, StrPos(ChartMgt.ChartDescription(ChartDefinition), AgedAccReceivableDescriptionTxt), WrongChartMsg);
         Assert.IsTrue(
@@ -93,7 +93,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         ChartDefinition.Get(CODEUNIT::"Aged Acc. Payable", AgedAccPayableNameTxt);
         LibraryVariableStorage.Enqueue(AgedAccPayableNameTxt);
         ChartMgt.SelectChart(BusinessChartBuffer, ChartDefinition);
-        Assert.AreEqual(OverdueTxt, BusinessChartBuffer.GetXCaption, WrongChartMsg);
+        Assert.AreEqual(OverdueTxt, BusinessChartBuffer.GetXCaption(), WrongChartMsg);
         Assert.AreEqual(
           1, StrPos(ChartMgt.ChartDescription(ChartDefinition), AgedAccPayableDescriptionTxt), WrongChartMsg);
         Assert.IsTrue(
@@ -125,7 +125,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         PeriodLength := BusinessChartBuffer."Period Length";
         Assert.AreEqual(BusinessChartBuffer."Period Length"::Month, PeriodLength, UnexpectedPeriodLengthMsg);
 
-        SalesByCustGrpChartMgt.OnInitPage;
+        SalesByCustGrpChartMgt.OnInitPage();
         ChartDefinition.Get(CODEUNIT::"Sales by Cust. Grp. Chart Mgt.", SalesByCustomerGroupNameTxt);
         ChartMgt.SetPeriodLength(ChartDefinition, BusinessChartBuffer, BusinessChartBuffer."Period Length"::Year, true);
         PeriodLength := BusinessChartBuffer."Period Length";
@@ -217,13 +217,13 @@ codeunit 138023 "O365 Generic Chart Page Tests"
     begin
         Initialize();
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
-        XCaptionPriorToSelectingDisabledChart := BusinessChartBuffer.GetXCaption;
+        XCaptionPriorToSelectingDisabledChart := BusinessChartBuffer.GetXCaption();
 
         ChartDefinition.Get(CODEUNIT::"Top Ten Customers Chart Mgt.", TopTenCustomerChartNameTxt);
         LibraryVariableStorage.Enqueue(TopTenCustomerChartNameTxt);
         ChartMgt.SelectChart(BusinessChartBuffer, ChartDefinition);
         // no change should happen, because we selected a disabled chart and clicked Cancel
-        Assert.AreEqual(XCaptionPriorToSelectingDisabledChart, BusinessChartBuffer.GetXCaption, WrongChartMsg);
+        Assert.AreEqual(XCaptionPriorToSelectingDisabledChart, BusinessChartBuffer.GetXCaption(), WrongChartMsg);
     end;
 
     [Test]
@@ -240,7 +240,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
 
         // Verify that when you reopen the Generic Chart page, you get the chart that was used last time
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
-        XCaptionAfterChange := BusinessChartBuffer.GetXCaption;
+        XCaptionAfterChange := BusinessChartBuffer.GetXCaption();
         Assert.AreEqual(TopTenCustomerChartXCaptionTxt, XCaptionAfterChange, WrongChartMsg);
     end;
 
@@ -262,7 +262,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
 
         // Verify that when you reopen the Generic Chart page, you get some other chart, because the last used chart is disabled
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
-        Assert.AreNotEqual(TopTenCustomerChartXCaptionTxt, BusinessChartBuffer.GetXCaption, WrongChartMsg);
+        Assert.AreNotEqual(TopTenCustomerChartXCaptionTxt, BusinessChartBuffer.GetXCaption(), WrongChartMsg);
     end;
 
     [Test]
@@ -276,9 +276,9 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         CustomerCard: TestPage "Customer Card";
     begin
         Initialize();
-        CreateCustomer;
+        CreateCustomer();
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
-        CustomerCard.Trap;
+        CustomerCard.Trap();
         DatapointClicked(
           CODEUNIT::"Top Ten Customers Chart Mgt.", TopTenCustomerChartNameTxt, BusinessChartBuffer);
         Assert.AreNotEqual('', CustomerCard."No.".Value, SelectedCustomerExpectedMsg);
@@ -295,9 +295,9 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         CustomerCard: TestPage "Customer Card";
     begin
         Initialize();
-        CreateCustomer;
+        CreateCustomer();
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
-        CustomerCard.Trap;
+        CustomerCard.Trap();
         DatapointClicked(
           CODEUNIT::"Top Five Customers Chart Mgt.", TopfiveCustomerChartNameTxt, BusinessChartBuffer);
         Assert.AreNotEqual('', CustomerCard."No.".Value, SelectedCustomerExpectedMsg);
@@ -314,9 +314,9 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         CustLedgEntries: TestPage "Customer Ledger Entries";
     begin
         Initialize();
-        CreateCustLedgEntry;
+        CreateCustLedgEntry();
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
-        CustLedgEntries.Trap;
+        CustLedgEntries.Trap();
         DatapointClicked(
           CODEUNIT::"Aged Acc. Receivable", AgedAccReceivableNameTxt, BusinessChartBuffer);
         Assert.AreNotEqual(
@@ -335,9 +335,9 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         VendLedgEntries: TestPage "Vendor Ledger Entries";
     begin
         Initialize();
-        CreateVendLedgEntry;
+        CreateVendLedgEntry();
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
-        VendLedgEntries.Trap;
+        VendLedgEntries.Trap();
         DatapointClicked(
           CODEUNIT::"Aged Acc. Payable", AgedAccPayableNameTxt, BusinessChartBuffer);
         Assert.AreNotEqual(
@@ -355,7 +355,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         ChartMgt: Codeunit "Chart Management";
     begin
         Initialize();
-        CreateCustomer;
+        CreateCustomer();
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
         DatapointClicked(
           CODEUNIT::"Sales by Cust. Grp. Chart Mgt.", SalesByCustomerGroupNameTxt, BusinessChartBuffer);
@@ -377,7 +377,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         // [SCENARIO] System must restore selected chart when chart is reopened / reinitialized by the same user
 
         Initialize();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         if LastUsedChart.Get(UserId) then begin
             RestoreLastUsedChart := LastUsedChart;
@@ -386,17 +386,17 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         end;
 
         // [GIVEN] Cassie selected chart type "Cash Flow" on Business Assistance part of "Business Manager" role center
-        BusinessManagerRoleCenter.OpenView;
-        BusinessManagerRoleCenter.Control55."Select Chart".Invoke;
+        BusinessManagerRoleCenter.OpenView();
+        BusinessManagerRoleCenter.Control55."Select Chart".Invoke();
         BusinessManagerRoleCenter.Close();
 
         // [GIVEN] "Last Used Chart" entry for "UID" = "Cassie" has "Chart Name" = "Cash Flow" and "Code Unit ID" = 762
         SavedLastUsedChart.Get(UserId);
-        SavedLastUsedChart.TestField("Chart Name", LibraryVariableStorage.DequeueText);
-        SavedLastUsedChart.TestField("Code Unit ID", LibraryVariableStorage.DequeueInteger);
+        SavedLastUsedChart.TestField("Chart Name", LibraryVariableStorage.DequeueText());
+        SavedLastUsedChart.TestField("Code Unit ID", LibraryVariableStorage.DequeueInteger());
 
         // [WHEN] When Cassie reopens role center
-        BusinessManagerRoleCenter.OpenView;
+        BusinessManagerRoleCenter.OpenView();
 
         // [THEN] "Last Used Chart" entry for "UID" = "Cassie" remains unchanged and has "Chart Name" = "Cash Flow" and "Code Unit ID" = 762
         LastUsedChart.Get(UserId);
@@ -407,7 +407,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         if Restore then
             RestoreLastUsedChart.Insert();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -436,7 +436,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Generic Chart Page Tests");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         isInitialized := true;
@@ -531,17 +531,17 @@ codeunit 138023 "O365 Generic Chart Page Tests"
     [Scope('OnPrem')]
     procedure ChartListPageHandler(var ChartList: TestPage "Chart List")
     begin
-        ChartList.FindFirstField(ChartList."Chart Name", LibraryVariableStorage.DequeueText);
-        ChartList.OK.Invoke;
+        ChartList.FindFirstField(ChartList."Chart Name", LibraryVariableStorage.DequeueText());
+        ChartList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SelectDisabledChartPageHandler(var ChartList: TestPage "Chart List")
     begin
-        ChartList.FindFirstField(ChartList."Chart Name", LibraryVariableStorage.DequeueText);
+        ChartList.FindFirstField(ChartList."Chart Name", LibraryVariableStorage.DequeueText());
         ChartList.Enabled.SetValue(false);
-        ChartList.Cancel.Invoke;
+        ChartList.Cancel().Invoke();
     end;
 
     [PageHandler]
@@ -566,7 +566,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         LibraryVariableStorage.Enqueue(ChartDefinition."Code Unit ID");
 
         ChartList.GotoRecord(ChartDefinition);
-        ChartList.OK.Invoke;
+        ChartList.OK().Invoke();
     end;
 }
 

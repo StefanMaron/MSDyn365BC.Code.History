@@ -47,8 +47,8 @@ codeunit 134344 "Document Totals Pages"
 
         SalesQuote.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
-        InvoiceDiscountAmount := SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal;
-        InvoiceDiscountPercent := SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal;
+        InvoiceDiscountAmount := SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal();
+        InvoiceDiscountPercent := SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal();
         Assert.AreNotEqual(0, InvoiceDiscountAmount, InvoiceDiscountAmountErr);
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
@@ -81,8 +81,8 @@ codeunit 134344 "Document Totals Pages"
 
         SalesInvoice.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
-        InvoiceDiscountAmount := SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal;
-        InvoiceDiscountPercent := SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal;
+        InvoiceDiscountAmount := SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal();
+        InvoiceDiscountPercent := SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal();
         Assert.AreNotEqual(0, InvoiceDiscountAmount, InvoiceDiscountAmountErr);
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
@@ -98,7 +98,7 @@ codeunit 134344 "Document Totals Pages"
 
         // Bug 301110
         SalesInvoice.Release.Invoke();
-        SalesInvoice."Posting Date".SetValue(SalesInvoice."Posting Date".AsDate + 1);
+        SalesInvoice."Posting Date".SetValue(SalesInvoice."Posting Date".AsDate() + 1);
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
@@ -143,8 +143,8 @@ codeunit 134344 "Document Totals Pages"
 
         SalesOrder.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
-        InvoiceDiscountAmount := SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal;
-        InvoiceDiscountPercent := SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal;
+        InvoiceDiscountAmount := SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal();
+        InvoiceDiscountPercent := SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal();
         Assert.AreNotEqual(0, InvoiceDiscountAmount, InvoiceDiscountAmountErr);
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
@@ -160,7 +160,7 @@ codeunit 134344 "Document Totals Pages"
 
         // Bug 301110
         SalesOrder.Release.Invoke();
-        SalesOrder."Posting Date".SetValue(SalesOrder."Posting Date".AsDate + 1);
+        SalesOrder."Posting Date".SetValue(SalesOrder."Posting Date".AsDate() + 1);
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
@@ -206,8 +206,8 @@ codeunit 134344 "Document Totals Pages"
 
         SalesCreditMemo.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
-        InvoiceDiscountAmount := SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDEcimal;
-        InvoiceDiscountPercent := SalesCreditMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal;
+        InvoiceDiscountAmount := SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDecimal();
+        InvoiceDiscountPercent := SalesCreditMemo.SalesLines."Invoice Disc. Pct.".AsDecimal();
         Assert.AreNotEqual(0, InvoiceDiscountAmount, InvoiceDiscountAmountErr);
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
@@ -223,7 +223,7 @@ codeunit 134344 "Document Totals Pages"
 
         // Bug 301110
         SalesCreditMemo.Release.Invoke();
-        SalesCreditMemo."Posting Date".SetValue(SalesCreditMemo."Posting Date".AsDate + 1);
+        SalesCreditMemo."Posting Date".SetValue(SalesCreditMemo."Posting Date".AsDate() + 1);
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
@@ -268,8 +268,8 @@ codeunit 134344 "Document Totals Pages"
 
         SalesReturnOrder.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
-        InvoiceDiscountAmount := SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal;
-        InvoiceDiscountPercent := SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal;
+        InvoiceDiscountAmount := SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDecimal();
+        InvoiceDiscountPercent := SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDecimal();
         Assert.AreNotEqual(0, InvoiceDiscountAmount, InvoiceDiscountAmountErr);
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
@@ -285,7 +285,7 @@ codeunit 134344 "Document Totals Pages"
 
         // Bug 301110
         SalesReturnOrder.Release.Invoke();
-        SalesReturnOrder."Posting Date".SetValue(SalesReturnOrder."Posting Date".AsDate + 1);
+        SalesReturnOrder."Posting Date".SetValue(SalesReturnOrder."Posting Date".AsDate() + 1);
 
         VerifySalesHeaderInvoiceDiscountAmount(SalesHeader, InvoiceDiscountAmount);
 
@@ -330,8 +330,8 @@ codeunit 134344 "Document Totals Pages"
 
         BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
-        InvoiceDiscountAmount := BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal;
-        InvoiceDiscountPercent := BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal;
+        InvoiceDiscountAmount := BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDecimal();
+        InvoiceDiscountPercent := BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal();
         Assert.AreNotEqual(0, InvoiceDiscountAmount, InvoiceDiscountAmountErr);
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
@@ -364,8 +364,8 @@ codeunit 134344 "Document Totals Pages"
 
         PurchaseQuote.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
 
-        InvoiceDiscountAmount := PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal;
-        InvoiceDiscountPercent := PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDEcimal;
+        InvoiceDiscountAmount := PurchaseQuote.PurchLines."Invoice Discount Amount".AsDecimal();
+        InvoiceDiscountPercent := PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDecimal();
         Assert.AreNotEqual(0, InvoiceDiscountAmount, InvoiceDiscountAmountErr);
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
@@ -398,8 +398,8 @@ codeunit 134344 "Document Totals Pages"
 
         PurchaseInvoice.PurchLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
 
-        InvoiceDiscountAmount := PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal;
-        InvoiceDiscountPercent := PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal;
+        InvoiceDiscountAmount := PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal();
+        InvoiceDiscountPercent := PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal();
         Assert.AreNotEqual(0, InvoiceDiscountAmount, InvoiceDiscountAmountErr);
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
@@ -414,8 +414,8 @@ codeunit 134344 "Document Totals Pages"
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
         // Bug 301110
-        PurchaseInvoice."Re&lease".Invoke; // Release
-        PurchaseInvoice."Posting Date".SetValue(PurchaseInvoice."Posting Date".AsDate + 1);
+        PurchaseInvoice."Re&lease".Invoke(); // Release
+        PurchaseInvoice."Posting Date".SetValue(PurchaseInvoice."Posting Date".AsDate() + 1);
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
@@ -460,8 +460,8 @@ codeunit 134344 "Document Totals Pages"
 
         PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
 
-        InvoiceDiscountAmount := PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal;
-        InvoiceDiscountPercent := PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal;
+        InvoiceDiscountAmount := PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal();
+        InvoiceDiscountPercent := PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal();
         Assert.AreNotEqual(0, InvoiceDiscountAmount, InvoiceDiscountAmountErr);
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
@@ -477,7 +477,7 @@ codeunit 134344 "Document Totals Pages"
 
         // Bug 301110
         PurchaseOrder.Release.Invoke();
-        PurchaseOrder."Posting Date".SetValue(PurchaseOrder."Posting Date".AsDate + 1);
+        PurchaseOrder."Posting Date".SetValue(PurchaseOrder."Posting Date".AsDate() + 1);
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
@@ -523,8 +523,8 @@ codeunit 134344 "Document Totals Pages"
 
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
 
-        InvoiceDiscountAmount := PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal;
-        InvoiceDiscountPercent := PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal;
+        InvoiceDiscountAmount := PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal();
+        InvoiceDiscountPercent := PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal();
         Assert.AreNotEqual(0, InvoiceDiscountAmount, InvoiceDiscountAmountErr);
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
@@ -540,7 +540,7 @@ codeunit 134344 "Document Totals Pages"
 
         // Bug 301110
         PurchaseCreditMemo.Release.Invoke();
-        PurchaseCreditMemo."Posting Date".SetValue(PurchaseCreditMemo."Posting Date".AsDate + 1);
+        PurchaseCreditMemo."Posting Date".SetValue(PurchaseCreditMemo."Posting Date".AsDate() + 1);
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
@@ -585,8 +585,8 @@ codeunit 134344 "Document Totals Pages"
 
         PurchaseReturnOrder.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
 
-        InvoiceDiscountAmount := PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal;
-        InvoiceDiscountPercent := PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal;
+        InvoiceDiscountAmount := PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal();
+        InvoiceDiscountPercent := PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDecimal();
         Assert.AreNotEqual(0, InvoiceDiscountAmount, InvoiceDiscountAmountErr);
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
@@ -601,8 +601,8 @@ codeunit 134344 "Document Totals Pages"
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
         // Bug 301110
-        PurchaseReturnOrder."Re&lease".Invoke; // Release
-        PurchaseReturnOrder."Posting Date".SetValue(PurchaseReturnOrder."Posting Date".AsDate + 1);
+        PurchaseReturnOrder."Re&lease".Invoke(); // Release
+        PurchaseReturnOrder."Posting Date".SetValue(PurchaseReturnOrder."Posting Date".AsDate() + 1);
 
         VerifyPurchaseHeaderInvoiceDiscountAmount(PurchaseHeader, InvoiceDiscountAmount);
 
@@ -647,8 +647,8 @@ codeunit 134344 "Document Totals Pages"
 
         BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
 
-        InvoiceDiscountAmount := BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal;
-        InvoiceDiscountPercent := BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal;
+        InvoiceDiscountAmount := BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal();
+        InvoiceDiscountPercent := BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal();
         Assert.AreNotEqual(0, InvoiceDiscountAmount, InvoiceDiscountAmountErr);
         Assert.AreNotEqual(0, InvoiceDiscountPercent, InvoiceDiscountPercentErr);
 
@@ -681,7 +681,7 @@ codeunit 134344 "Document Totals Pages"
         SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
         SalesQuote.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
-        Assert.IsTrue(SalesQuote.SalesLines.Next, 'Stan must be able to go to next line');
+        Assert.IsTrue(SalesQuote.SalesLines.Next(), 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
@@ -708,7 +708,7 @@ codeunit 134344 "Document Totals Pages"
         SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
-        Assert.IsTrue(SalesOrder.SalesLines.Next, 'Stan must be able to go to next line');
+        Assert.IsTrue(SalesOrder.SalesLines.Next(), 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
@@ -735,7 +735,7 @@ codeunit 134344 "Document Totals Pages"
         SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
-        Assert.IsTrue(SalesInvoice.SalesLines.Next, 'Stan must be able to go to next line');
+        Assert.IsTrue(SalesInvoice.SalesLines.Next(), 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
@@ -762,7 +762,7 @@ codeunit 134344 "Document Totals Pages"
         SalesCreditMemo.Filter.SetFilter("No.", SalesHeader."No.");
         SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
-        Assert.IsTrue(SalesCreditMemo.SalesLines.Next, 'Stan must be able to go to next line');
+        Assert.IsTrue(SalesCreditMemo.SalesLines.Next(), 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
@@ -789,7 +789,7 @@ codeunit 134344 "Document Totals Pages"
         SalesReturnOrder.Filter.SetFilter("No.", SalesHeader."No.");
         SalesReturnOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
-        Assert.IsTrue(SalesReturnOrder.SalesLines.Next, 'Stan must be able to go to next line');
+        Assert.IsTrue(SalesReturnOrder.SalesLines.Next(), 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
@@ -816,7 +816,7 @@ codeunit 134344 "Document Totals Pages"
         BlanketSalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         BlanketSalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
-        Assert.IsTrue(BlanketSalesOrder.SalesLines.Next, 'Stan must be able to go to next line');
+        Assert.IsTrue(BlanketSalesOrder.SalesLines.Next(), 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
@@ -848,7 +848,7 @@ codeunit 134344 "Document Totals Pages"
         Commit(); // It is important to COMMIT changes
         PurchaseQuote.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
-        Assert.IsTrue(PurchaseQuote.PurchLines.Next, 'Stan must be able to go to next line');
+        Assert.IsTrue(PurchaseQuote.PurchLines.Next(), 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
     end;
 
@@ -878,7 +878,7 @@ codeunit 134344 "Document Totals Pages"
         Commit(); // It is important to COMMIT changes
         PurchaseOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
-        Assert.IsTrue(PurchaseOrder.PurchLines.Next, 'Stan must be able to go to next line');
+        Assert.IsTrue(PurchaseOrder.PurchLines.Next(), 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
     end;
 
@@ -908,7 +908,7 @@ codeunit 134344 "Document Totals Pages"
         Commit(); // It is important to COMMIT changes
         PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
-        Assert.IsTrue(PurchaseInvoice.PurchLines.Next, 'Stan must be able to go to next line');
+        Assert.IsTrue(PurchaseInvoice.PurchLines.Next(), 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
     end;
 
@@ -938,7 +938,7 @@ codeunit 134344 "Document Totals Pages"
         Commit(); // It is important to COMMIT changes
         PurchaseCreditMemo.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
-        Assert.IsTrue(PurchaseCreditMemo.PurchLines.Next, 'Stan must be able to go to next line');
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines.Next(), 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
     end;
 
@@ -968,7 +968,7 @@ codeunit 134344 "Document Totals Pages"
         Commit(); // It is important to COMMIT changes
         PurchaseReturnOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
-        Assert.IsTrue(PurchaseReturnOrder.PurchLines.Next, 'Stan must be able to go to next line');
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines.Next(), 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
     end;
 
@@ -998,7 +998,7 @@ codeunit 134344 "Document Totals Pages"
         Commit(); // It is important to COMMIT changes
         BlanketPurchaseOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
-        Assert.IsTrue(BlanketPurchaseOrder.PurchLines.Next, 'Stan must be able to go to next line');
+        Assert.IsTrue(BlanketPurchaseOrder.PurchLines.Next(), 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
     end;
 
@@ -1548,7 +1548,7 @@ codeunit 134344 "Document Totals Pages"
 
         // [WHEN] User updates "Unit Price" on the second line
         SalesInvoicePage.SalesLines."Unit Price".SetValue(SalesLineGLAccount."Unit Price" + 1);
-        SalesInvoicePage.SalesLines.Prev();
+        SalesInvoicePage.SalesLines.Previous();
         SalesInvoicePage.SalesLines.Next();
 
         // [THEN] "VAT Diferrence" and "Amount Including VAT" have been reset.
@@ -1636,7 +1636,7 @@ codeunit 134344 "Document Totals Pages"
 
         // [WHEN] User updates "Unit Price" on the second line
         PurchaseInvoicePage.PurchLines."Direct Unit Cost".SetValue(PurchaseLineGLAccount."Direct Unit Cost" + 1);
-        PurchaseInvoicePage.PurchLines.Prev();
+        PurchaseInvoicePage.PurchLines.Previous();
         PurchaseInvoicePage.PurchLines.Next();
 
         // [THEN] "VAT Diferrence" and "Amount Including VAT" have been reset.
@@ -1965,7 +1965,7 @@ codeunit 134344 "Document Totals Pages"
         Initialize();
 
         // [GIVEN] Blanket Purchase Order is opened on Blanket Purchase Order page.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
@@ -2112,7 +2112,7 @@ codeunit 134344 "Document Totals Pages"
 
     local procedure CreateSalesHeaderWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
 
         SalesHeader.SetHideValidationDialog(true);
         SalesHeader.Validate(
@@ -2136,7 +2136,7 @@ codeunit 134344 "Document Totals Pages"
 
     local procedure CreatePurchaseHeaderWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
 
         PurchaseHeader.SetHideValidationDialog(true);
         PurchaseHeader.Validate(
@@ -2220,7 +2220,7 @@ codeunit 134344 "Document Totals Pages"
     procedure ChangeExchangeRateMPH(var ChangeExchangeRate: TestPage "Change Exchange Rate")
     begin
         ChangeExchangeRate.CurrentExchRate.SetValue(LibraryVariableStorage.DequeueDecimal());
-        ChangeExchangeRate.OK.Invoke();
+        ChangeExchangeRate.OK().Invoke();
     end;
 
     local procedure DeleteAllLinesFromSalesDocument(var SalesHeader: Record "Sales Header")
@@ -2279,7 +2279,7 @@ codeunit 134344 "Document Totals Pages"
     procedure SalesOrderStatisticsModalPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         SalesOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal());
-        SalesOrderStatistics.OK.Invoke();
+        SalesOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2288,7 +2288,7 @@ codeunit 134344 "Document Totals Pages"
     begin
         SalesStatistics.SubForm.Last();
         SalesStatistics.SubForm."VAT Amount".SetValue(
-          SalesStatistics.SubForm."VAT Amount".AsDEcimal + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
+          SalesStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
     end;
 
     [ModalPageHandler]
@@ -2297,7 +2297,7 @@ codeunit 134344 "Document Totals Pages"
     begin
         PurchaseStatistics.SubForm.Last();
         PurchaseStatistics.SubForm."VAT Amount".SetValue(
-          PurchaseStatistics.SubForm."VAT Amount".AsDEcimal + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
+          PurchaseStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
     end;
 
     [ModalPageHandler]
@@ -2305,7 +2305,7 @@ codeunit 134344 "Document Totals Pages"
     procedure PurchaseOrderStatisticsModalPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
         PurchaseOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal());
-        PurchaseOrderStatistics.OK.Invoke();
+        PurchaseOrderStatistics.OK().Invoke();
     end;
 }
 

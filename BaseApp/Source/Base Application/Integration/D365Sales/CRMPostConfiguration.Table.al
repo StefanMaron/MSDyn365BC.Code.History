@@ -12,6 +12,7 @@ table 5388 "CRM Post Configuration"
     Description = 'Enable or disable entities for Activity Feeds and Yammer collaboration.';
     ExternalName = 'msdyn_postconfig';
     TableType = CRM;
+    DataClassification = CustomerContent;
 
     fields
     {

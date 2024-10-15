@@ -40,7 +40,7 @@ codeunit 134095 "Report Visibility Test"
 
         // [WHEN] ECSL report is created with status Open and the card page is opened
         InsertVATReportHeader(ReportType);
-        ECSLReportList.OpenView;
+        ECSLReportList.OpenView();
 
         // [THEN] Controls visibility should depend on the status of the report as following
         AssertECSLControllerVisibility(VATReportHeader.Status::Open);
@@ -66,7 +66,7 @@ codeunit 134095 "Report Visibility Test"
 
         // [WHEN] VAT report is created with status Open and the card page is opened
         InsertVATReportHeader(ReportType);
-        VATReportList.OpenView;
+        VATReportList.OpenView();
 
         // [THEN] Controls visibility should depend on the status of the report as following
         AssertVATReportControllerVisibility(VATReportHeader.Status::Open);
@@ -88,7 +88,7 @@ codeunit 134095 "Report Visibility Test"
         ECSLReport.OpenNew();
         // [THEN] Field No should be blank and all controls should be disabled
         Assert.AreEqual(ECSLReport."No.".Value, '', 'No field should be empty for new page');
-        Assert.IsFalse(ECSLReport.SuggestLines.Enabled or ECSLReport.Release.Enabled,
+        Assert.IsFalse(ECSLReport.SuggestLines.Enabled() or ECSLReport.Release.Enabled(),
           'All control should be disabled until the page gets a value in No field');
     end;
 
@@ -103,7 +103,7 @@ codeunit 134095 "Report Visibility Test"
         VATReport.OpenNew();
         // [THEN] The No field is empty
         Assert.AreEqual(VATReport."No.".Value, '', 'No field should be empty for new page');
-        Assert.IsFalse(VATReport.SuggestLines.Enabled or VATReport.Release.Enabled,
+        Assert.IsFalse(VATReport.SuggestLines.Enabled() or VATReport.Release.Enabled(),
           'All control should be disabled until the page gets a value in No field');
     end;
 
@@ -117,7 +117,7 @@ codeunit 134095 "Report Visibility Test"
         LibraryLowerPermissions.SetO365Setup();
 
         // [GIVEN] Basic Applicateion are is set
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [WHEN] Run 'Vendor - Balance to Date' report
         Commit();
@@ -125,10 +125,10 @@ codeunit 134095 "Report Visibility Test"
 
         // [THEN] Actions are enabled on the request page
         Assert.IsTrue(
-          LibraryVariableStorage.DequeueBoolean and LibraryVariableStorage.DequeueBoolean and LibraryVariableStorage.DequeueBoolean and
-          LibraryVariableStorage.DequeueBoolean and LibraryVariableStorage.DequeueBoolean, '');
-        LibraryVariableStorage.AssertEmpty;
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+          LibraryVariableStorage.DequeueBoolean() and LibraryVariableStorage.DequeueBoolean() and LibraryVariableStorage.DequeueBoolean() and
+          LibraryVariableStorage.DequeueBoolean() and LibraryVariableStorage.DequeueBoolean(), '');
+        LibraryVariableStorage.AssertEmpty();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -141,7 +141,7 @@ codeunit 134095 "Report Visibility Test"
         LibraryLowerPermissions.SetO365Setup();
 
         // [GIVEN] Basic Applicateion are is set
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [WHEN] Run 'Customer - Balance to Date' report
         Commit();
@@ -149,18 +149,18 @@ codeunit 134095 "Report Visibility Test"
 
         // [THEN] Actions are enabled on the request page
         Assert.IsTrue(
-          LibraryVariableStorage.DequeueBoolean and LibraryVariableStorage.DequeueBoolean and
-          LibraryVariableStorage.DequeueBoolean and LibraryVariableStorage.DequeueBoolean, '');
-        LibraryVariableStorage.AssertEmpty;
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+          LibraryVariableStorage.DequeueBoolean() and LibraryVariableStorage.DequeueBoolean() and
+          LibraryVariableStorage.DequeueBoolean() and LibraryVariableStorage.DequeueBoolean(), '');
+        LibraryVariableStorage.AssertEmpty();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Scope('OnPrem')]
     procedure AssertECSLControllerVisibility(Status: Option)
     begin
         ModifyVATReportStatus(Status);
-        OpenECSLRecordCard;
-        GetECSLControlStatus;
+        OpenECSLRecordCard();
+        GetECSLControlStatus();
         case Status of
             VATReportHeader.Status::Open:
                 begin
@@ -200,8 +200,8 @@ codeunit 134095 "Report Visibility Test"
     procedure AssertVATReportControllerVisibility(Status: Option)
     begin
         ModifyVATReportStatus(Status);
-        OpenVATReportRecordCard;
-        GetVATReportControlStatus;
+        OpenVATReportRecordCard();
+        GetVATReportControlStatus();
         case Status of
             VATReportHeader.Status::Open:
                 begin
@@ -262,16 +262,16 @@ codeunit 134095 "Report Visibility Test"
     procedure OpenECSLRecordCard()
     begin
         ECSLReportList.GotoRecord(VATReportHeader);
-        ECSLReport.Trap;
-        ECSLReportList.View.Invoke;
+        ECSLReport.Trap();
+        ECSLReportList.View().Invoke();
     end;
 
     [Scope('OnPrem')]
     procedure OpenVATReportRecordCard()
     begin
         VATReportList.GotoRecord(VATReportHeader);
-        VATReport.Trap;
-        VATReportList.View.Invoke;
+        VATReport.Trap();
+        VATReportList.View().Invoke();
     end;
 
     [Scope('OnPrem')]
@@ -288,44 +288,44 @@ codeunit 134095 "Report Visibility Test"
     [Scope('OnPrem')]
     procedure GetECSLControlStatus()
     begin
-        PageSuggestLines := ECSLReport.SuggestLines.Enabled;
-        PageRelease := ECSLReport.Release.Enabled;
-        PageSubmit := ECSLReport.Submit.Enabled;
-        PageReopen := ECSLReport.Reopen.Enabled;
+        PageSuggestLines := ECSLReport.SuggestLines.Enabled();
+        PageRelease := ECSLReport.Release.Enabled();
+        PageSubmit := ECSLReport.Submit.Enabled();
+        PageReopen := ECSLReport.Reopen.Enabled();
     end;
 
     [Scope('OnPrem')]
     procedure GetVATReportControlStatus()
     begin
-        PageSuggestLines := VATReport.SuggestLines.Enabled;
-        PageSubmit := VATReport.Submit.Enabled;
-        PageMarkAsSubmitted := VATReport."Mark as Submitted".Enabled;
-        PageRelease := VATReport.Release.Enabled;
-        PageReopen := VATReport.Reopen.Enabled;
-        PageCalcAndPost := VATReport."Calc. and Post VAT Settlement".Enabled;
+        PageSuggestLines := VATReport.SuggestLines.Enabled();
+        PageSubmit := VATReport.Submit.Enabled();
+        PageMarkAsSubmitted := VATReport."Mark as Submitted".Enabled();
+        PageRelease := VATReport.Release.Enabled();
+        PageReopen := VATReport.Reopen.Enabled();
+        PageCalcAndPost := VATReport."Calc. and Post VAT Settlement".Enabled();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RPHCustomerBalanceToDate(var CustomerBalanceToDate: TestRequestPage "Customer - Balance to Date")
     begin
-        LibraryVariableStorage.Enqueue(CustomerBalanceToDate."Ending Date".Enabled);
-        LibraryVariableStorage.Enqueue(CustomerBalanceToDate.PrintAmountInLCY.Enabled);
-        LibraryVariableStorage.Enqueue(CustomerBalanceToDate.PrintOnePrPage.Enabled);
-        LibraryVariableStorage.Enqueue(CustomerBalanceToDate.PrintUnappliedEntries.Enabled);
-        LibraryVariableStorage.Enqueue(CustomerBalanceToDate.ShowEntriesWithZeroBalance.Enabled);
-        CustomerBalanceToDate.Cancel.Invoke;
+        LibraryVariableStorage.Enqueue(CustomerBalanceToDate."Ending Date".Enabled());
+        LibraryVariableStorage.Enqueue(CustomerBalanceToDate.PrintAmountInLCY.Enabled());
+        LibraryVariableStorage.Enqueue(CustomerBalanceToDate.PrintOnePrPage.Enabled());
+        LibraryVariableStorage.Enqueue(CustomerBalanceToDate.PrintUnappliedEntries.Enabled());
+        LibraryVariableStorage.Enqueue(CustomerBalanceToDate.ShowEntriesWithZeroBalance.Enabled());
+        CustomerBalanceToDate.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RPHVendorBalanceToDate(var VendorBalanceToDate: TestRequestPage "Vendor - Balance to Date")
     begin
-        LibraryVariableStorage.Enqueue(VendorBalanceToDate.ShowAmountsInLCY.Enabled);
-        LibraryVariableStorage.Enqueue(VendorBalanceToDate.PrintOnePrPage.Enabled);
-        LibraryVariableStorage.Enqueue(VendorBalanceToDate.PrintUnappliedEntries.Enabled);
-        LibraryVariableStorage.Enqueue(VendorBalanceToDate.ShowEntriesWithZeroBalance.Enabled);
-        VendorBalanceToDate.Cancel.Invoke;
+        LibraryVariableStorage.Enqueue(VendorBalanceToDate.ShowAmountsInLCY.Enabled());
+        LibraryVariableStorage.Enqueue(VendorBalanceToDate.PrintOnePrPage.Enabled());
+        LibraryVariableStorage.Enqueue(VendorBalanceToDate.PrintUnappliedEntries.Enabled());
+        LibraryVariableStorage.Enqueue(VendorBalanceToDate.ShowEntriesWithZeroBalance.Enabled());
+        VendorBalanceToDate.Cancel().Invoke();
     end;
 }
 

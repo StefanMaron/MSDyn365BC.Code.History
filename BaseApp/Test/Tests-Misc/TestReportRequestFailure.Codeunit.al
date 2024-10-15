@@ -26,8 +26,8 @@ codeunit 139302 "Test Report Request Failure"
         TestReport.UseRequestPage := true;
         TestReport.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreNotEqual(0, LibraryReportDataset.RowCount, 'A positive count is expected');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreNotEqual(0, LibraryReportDataset.RowCount(), 'A positive count is expected');
     end;
 
     [RequestPageHandler]
@@ -35,7 +35,7 @@ codeunit 139302 "Test Report Request Failure"
     procedure HandleReportRequestPage(var handler: TestRequestPage TestReport)
     begin
         handler.Datefilter.SetValue('010110..011110');
-        handler.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        handler.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

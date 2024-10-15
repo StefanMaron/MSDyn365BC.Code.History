@@ -322,38 +322,34 @@ report 5808 "Item Age Composition - Value"
 
     local procedure CalcRemainingQty()
     begin
-        with "Item Ledger Entry" do begin
-            for i := 1 to 5 do
-                InvtQty[i] := 0;
+        for i := 1 to 5 do
+            InvtQty[i] := 0;
 
-            TotalInvtQty := "Remaining Quantity";
-            for i := 1 to 5 do
-                if ("Posting Date" > PeriodStartDate[i]) and
-                   ("Posting Date" <= PeriodStartDate[i + 1])
-                then
-                    if "Remaining Quantity" <> 0 then begin
-                        InvtQty[i] := "Remaining Quantity";
-                        exit;
-                    end;
-        end;
+        TotalInvtQty := "Item Ledger Entry"."Remaining Quantity";
+        for i := 1 to 5 do
+            if ("Item Ledger Entry"."Posting Date" > PeriodStartDate[i]) and
+               ("Item Ledger Entry"."Posting Date" <= PeriodStartDate[i + 1])
+            then
+                if "Item Ledger Entry"."Remaining Quantity" <> 0 then begin
+                    InvtQty[i] := "Item Ledger Entry"."Remaining Quantity";
+                    exit;
+                end;
     end;
 
     local procedure CalcUnitCost()
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
-            UnitCost := 0;
+        ValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
+        UnitCost := 0;
 
-            if Find('-') then
-                repeat
-                    if "Partial Revaluation" then
-                        SumUnitCost(UnitCost, "Cost Amount (Actual)" + "Cost Amount (Expected)", "Valued Quantity")
-                    else
-                        SumUnitCost(UnitCost, "Cost Amount (Actual)" + "Cost Amount (Expected)", "Item Ledger Entry".Quantity);
-                until Next() = 0;
-        end;
+        if ValueEntry.Find('-') then
+            repeat
+                if ValueEntry."Partial Revaluation" then
+                    SumUnitCost(UnitCost, ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)", ValueEntry."Valued Quantity")
+                else
+                    SumUnitCost(UnitCost, ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)", "Item Ledger Entry".Quantity);
+            until ValueEntry.Next() = 0;
     end;
 
     local procedure SumUnitCost(var UnitCost: Decimal; CostAmount: Decimal; Quantity: Decimal)

@@ -3,6 +3,7 @@ namespace Microsoft.Projects.Project.Journal;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Reporting;
+using Microsoft.Integration.FieldService;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Ledger;
@@ -15,10 +16,10 @@ using System.Integration;
 
 page 201 "Job Journal"
 {
-    AdditionalSearchTerms = 'project posting';
+    AdditionalSearchTerms = 'project posting, Job Journals';
     ApplicationArea = Jobs;
     AutoSplitKey = true;
-    Caption = 'Job Journals';
+    Caption = 'Project Journals';
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
@@ -57,7 +58,7 @@ page 201 "Job Journal"
                 field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the type of planning line to create when a job ledger entry is posted. If the field is empty, no planning lines are created.';
+                    ToolTip = 'Specifies the type of planning line to create when a project ledger entry is posted. If the field is empty, no planning lines are created.';
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {
@@ -85,7 +86,7 @@ page 201 "Job Journal"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the job.';
+                    ToolTip = 'Specifies the number of the project.';
 
                     trigger OnValidate()
                     begin
@@ -96,7 +97,7 @@ page 201 "Job Journal"
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
 
                     trigger OnValidate()
                     begin
@@ -106,7 +107,7 @@ page 201 "Job Journal"
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies an account type for job usage to be posted in the job journal. You can choose from the following options:';
+                    ToolTip = 'Specifies an account type for project usage to be posted in the project journal. You can choose from the following options:';
 
                     trigger OnValidate()
                     begin
@@ -150,7 +151,7 @@ page 201 "Job Journal"
                 field("Job Planning Line No."; Rec."Job Planning Line No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job planning line number that the usage should be linked to when the job journal is posted. You can only link to job planning lines that have the Apply Usage Link option enabled.';
+                    ToolTip = 'Specifies the project planning line number that the usage should be linked to when the project journal is posted. You can only link to project planning lines that have the Apply Usage Link option enabled.';
                     Visible = false;
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
@@ -189,7 +190,7 @@ page 201 "Job Journal"
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job''s currency code that listed in the Currency Code field in the Job Card. You can only create a Job Journal using this currency code.';
+                    ToolTip = 'Specifies the project''s currency code that listed in the Currency Code field in the Project Card. You can only create a Project Journal using this currency code.';
                     Visible = false;
 
                     trigger OnAssistEdit()
@@ -211,13 +212,19 @@ page 201 "Job Journal"
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of units of the job journal''s No. field, that is, either the resource, item, or G/L account number, that applies. If you later change the value in the No. field, the quantity does not change on the journal line.';
+                    ToolTip = 'Specifies the number of units of the project journal''s No. field, that is, either the resource, item, or G/L account number, that applies. If you later change the value in the No. field, the quantity does not change on the journal line.';
                 }
                 field("Remaining Qty."; Rec."Remaining Qty.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the quantity of the resource or item that remains to complete a job. The remaining quantity is calculated as the difference between Quantity and Qty. Posted. You can modify this field to indicate the quantity you want to remain on the job planning line after you post usage.';
+                    ToolTip = 'Specifies the quantity of the resource or item that remains to complete a project. The remaining quantity is calculated as the difference between Quantity and Qty. Posted. You can modify this field to indicate the quantity you want to remain on the project planning line after you post usage.';
                     Visible = false;
+                }
+                field(QuantityToTransferToInvoice; Rec."Qty. to Transfer to Invoice")
+                {
+                    ApplicationArea = Jobs;
+                    Visible = FSRelatedFieldsVisible;
+                    ToolTip = 'Specifies the number of units of the project journal''s No. field, that is, either the resource, item, or G/L account number, that applies. If you later change the value in the No. field, the quantity does not change on the journal line.';
                 }
                 field("Direct Unit Cost (LCY)"; Rec."Direct Unit Cost (LCY)")
                 {
@@ -238,7 +245,7 @@ page 201 "Job Journal"
                 field("Total Cost"; Rec."Total Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total cost for the journal line. The total cost is calculated based on the job currency, which comes from the Currency Code field on the Job card.';
+                    ToolTip = 'Specifies the total cost for the journal line. The total cost is calculated based on the project currency, which comes from the Currency Code field on the Project card.';
                 }
                 field("Total Cost (LCY)"; Rec."Total Cost (LCY)")
                 {
@@ -259,12 +266,12 @@ page 201 "Job Journal"
                 field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the amount that will be posted to the job ledger.';
+                    ToolTip = 'Specifies the amount that will be posted to the project ledger.';
                 }
                 field("Line Amount (LCY)"; Rec."Line Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the amount in the local currency that will be posted to the job ledger.';
+                    ToolTip = 'Specifies the amount in the local currency that will be posted to the project ledger.';
                     Visible = false;
                 }
                 field("Line Discount Amount"; Rec."Line Discount Amount")
@@ -280,7 +287,7 @@ page 201 "Job Journal"
                 field("Total Price"; Rec."Total Price")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total price in the job currency on the journal line.';
+                    ToolTip = 'Specifies the total price in the project currency on the journal line.';
                     Visible = false;
                 }
                 field("Total Price (LCY)"; Rec."Total Price (LCY)")
@@ -292,12 +299,12 @@ page 201 "Job Journal"
                 field("Applies-to Entry"; Rec."Applies-to Entry")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies if the job journal line has of type Item and the usage of the item will be applied to an already-posted item ledger entry. If this is the case, enter the entry number that the usage will be applied to.';
+                    ToolTip = 'Specifies if the project journal line has of type Item and the usage of the item will be applied to an already-posted item ledger entry. If this is the case, enter the entry number that the usage will be applied to.';
                 }
                 field("Applies-from Entry"; Rec."Applies-from Entry")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the item ledger entry that the journal line costs have been applied from. This should be done when you reverse the usage of an item in a job and you want to return the item to inventory at the same cost as before it was used in the job.';
+                    ToolTip = 'Specifies the number of the item ledger entry that the journal line costs have been applied from. This should be done when you reverse the usage of an item in a project and you want to return the item to inventory at the same cost as before it was used in the project.';
                     Visible = false;
                 }
                 field("Country/Region Code"; Rec."Country/Region Code")
@@ -465,13 +472,13 @@ page 201 "Job Journal"
                     }
                     group("Job Description")
                     {
-                        Caption = 'Job Description';
+                        Caption = 'Project Description';
                         field(JobDescription; JobDescription)
                         {
                             ApplicationArea = Jobs;
                             Editable = false;
                             ShowCaption = false;
-                            ToolTip = 'Specifies a description of the job.';
+                            ToolTip = 'Specifies a description of the project.';
                         }
                     }
                     group("Account Name")
@@ -482,7 +489,7 @@ page 201 "Job Journal"
                             ApplicationArea = Jobs;
                             Caption = 'Account Name';
                             Editable = false;
-                            ToolTip = 'Specifies the name of the customer or vendor that the job is related to.';
+                            ToolTip = 'Specifies the name of the customer or vendor that the project is related to.';
                         }
                     }
                 }
@@ -551,7 +558,7 @@ page 201 "Job Journal"
             }
             group("&Job")
             {
-                Caption = '&Job';
+                Caption = '&Project';
                 Image = Job;
                 action(Card)
                 {
@@ -588,7 +595,7 @@ page 201 "Job Journal"
                     Caption = 'Calc. Remaining Usage';
                     Ellipsis = true;
                     Image = CalculateRemainingUsage;
-                    ToolTip = 'Calculate the remaining usage for the job. The batch job calculates, for each job task, the difference between scheduled usage of items, resources, and expenses and actual usage posted in job ledger entries. The remaining usage is then displayed in the job journal from where you can post it.';
+                    ToolTip = 'Calculate the remaining usage for the project. The batch job calculates, for each project task, the difference between scheduled usage of items, resources, and expenses and actual usage posted in project ledger entries. The remaining usage is then displayed in the project journal from where you can post it.';
 
                     trigger OnAction()
                     var
@@ -629,7 +636,7 @@ page 201 "Job Journal"
                     Caption = 'Reconcile';
                     Image = Reconcile;
                     ShortCutKey = 'Ctrl+F11';
-                    ToolTip = 'View what has been reconciled for the job. The window shows the quantity entered on the job journal lines, totaled by unit of measure and by work type.';
+                    ToolTip = 'View what has been reconciled for the project. The window shows the quantity entered on the project journal lines, totaled by unit of measure and by work type.';
 
                     trigger OnAction()
                     begin
@@ -788,26 +795,8 @@ page 201 "Job Journal"
             }
             group(Category_Category7)
             {
-                Caption = 'Job', Comment = 'Generated from the PromotedActionCategories property index 6.';
+                Caption = 'Project', Comment = 'Generated from the PromotedActionCategories property index 6.';
 
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category8)
             {
@@ -881,6 +870,7 @@ page 201 "Job Journal"
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
+        SetFSFieldsVisibility();
         SetDimensionsVisibility();
 
         OpenJournal();
@@ -900,6 +890,7 @@ page 201 "Job Journal"
         IsSaaSExcelAddinEnabled: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
+        FSRelatedFieldsVisible: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -941,6 +932,13 @@ page 201 "Job Journal"
             Error('');
         JobJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
+    end;
+
+    local procedure SetFSFieldsVisibility()
+    var
+        FSConnectionSetup: Record "FS Connection Setup";
+    begin
+        FSRelatedFieldsVisible := (FSConnectionSetup.IsEnabled());
     end;
 
     local procedure SetDimensionsVisibility()

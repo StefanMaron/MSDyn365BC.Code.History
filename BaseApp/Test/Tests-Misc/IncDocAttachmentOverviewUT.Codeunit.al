@@ -80,7 +80,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         CreateIncomingDocument(IncomingDocument, '');
         TempIncDocAttachmentOverview.InsertFromIncomingDocument(IncomingDocument, TempIncDocAttachmentOverview);
 
-        Assert.IsFalse(TempIncDocAttachmentOverview.FindFirst, 'Table should be empty');
+        Assert.IsFalse(TempIncDocAttachmentOverview.FindFirst(), 'Table should be empty');
     end;
 
     [Test]
@@ -106,7 +106,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
           TempIncDocAttachmentOverview."Incoming Document Entry No.", IncomingDocument."Entry No.", 'Entry No. Does not match');
         Assert.AreEqual(TempIncDocAttachmentOverview."Line No.", 0, 'Line No. does not match');
         Assert.AreEqual(
-          TempIncDocAttachmentOverview.Name, CopyStr(IncomingDocument.GetURL, 1, MaxStrLen(TempIncDocAttachmentOverview.Name)),
+          TempIncDocAttachmentOverview.Name, CopyStr(IncomingDocument.GetURL(), 1, MaxStrLen(TempIncDocAttachmentOverview.Name)),
           'Name was not set correctly');
         Assert.AreEqual(TempIncDocAttachmentOverview.Type, TempIncDocAttachmentOverview.Type::" ", 'Type was not set correctly');
         Assert.AreEqual(
@@ -266,20 +266,20 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         PurchInvHeader.Get(VendorLedgerEntry."Document No.");
 
         // Execute
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
 
-        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.OpenEdit();
         VendorLedgerEntries.GotoRecord(VendorLedgerEntry);
 
         // Verify
         Assert.AreEqual(
           PostedPurchaseInvoice.IncomingDocAttachFactBox.Name.Value, IncomingDocumentAttachment.Name, 'Name value should be set');
-        Assert.IsFalse(PostedPurchaseInvoice.IncomingDocAttachFactBox.Next, 'There should not be more records');
+        Assert.IsFalse(PostedPurchaseInvoice.IncomingDocAttachFactBox.Next(), 'There should not be more records');
 
         Assert.AreEqual(
           VendorLedgerEntries.IncomingDocAttachFactBox.Name.Value, IncomingDocumentAttachment.Name, 'Name value should be set');
-        Assert.IsFalse(VendorLedgerEntries.IncomingDocAttachFactBox.Next, 'There should not be more records');
+        Assert.IsFalse(VendorLedgerEntries.IncomingDocAttachFactBox.Next(), 'There should not be more records');
     end;
 
     [Test]
@@ -298,12 +298,12 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         CreatePurchaseInvoice(PurchaseHeader, IncomingDocument);
 
         // Execute
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         // Verify
         Assert.AreEqual(PurchaseInvoice.IncomingDocAttachFactBox.Name.Value, IncomingDocumentAttachment.Name, 'Name value should be set');
-        Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFactBox.Next, 'There should not be more records');
+        Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFactBox.Next(), 'There should not be more records');
     end;
 
     [Test]
@@ -324,14 +324,14 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         CreateGenJournalLine(GenJournalLine, IncomingDocument);
 
         // Execute
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.GotoRecord(GenJournalLine);
 
         // Verify
-        GeneralJournal.IncomingDocAttachFactBox.First;
+        GeneralJournal.IncomingDocAttachFactBox.First();
         Assert.AreEqual(GeneralJournal.IncomingDocAttachFactBox.Name.Value, IncomingDocumentAttachment.Name, 'Name value should be set');
-        Assert.IsTrue(GeneralJournal.IncomingDocAttachFactBox.Next, 'There should be more records');
-        Assert.IsTrue(GeneralJournal.IncomingDocAttachFactBox.Next, 'There should be more records');
+        Assert.IsTrue(GeneralJournal.IncomingDocAttachFactBox.Next(), 'There should be more records');
+        Assert.IsTrue(GeneralJournal.IncomingDocAttachFactBox.Next(), 'There should be more records');
         Assert.AreEqual(GeneralJournal.IncomingDocAttachFactBox.Name.Value, IncomingDocumentAttachment2.Name, 'Name value should be set');
     end;
 
@@ -349,15 +349,15 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         CreateIncomingDocument(IncomingDocument, '');
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
         CreatePurchaseInvoice(PurchaseHeader, IncomingDocument);
-        IncomingDocument.Reject;
+        IncomingDocument.Reject();
         IncomingDocument.Delete(true);
 
         // Execute
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         // Verify
-        Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFactBox.Next, 'There should not be any records');
+        Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFactBox.Next(), 'There should not be any records');
     end;
 
     [Test]
@@ -374,13 +374,13 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment);
 
         // Execute
-        IncomingDocuments.OpenEdit;
+        IncomingDocuments.OpenEdit();
         IncomingDocuments.GotoRecord(IncomingDocument);
 
         // Verify
         Assert.AreEqual(
           IncomingDocuments.IncomingDocAttachFactBox.Name.Value, IncomingDocumentAttachment.Name, 'Name value should be set');
-        Assert.IsFalse(IncomingDocuments.IncomingDocAttachFactBox.Next, 'There should not be more records');
+        Assert.IsFalse(IncomingDocuments.IncomingDocAttachFactBox.Next(), 'There should not be more records');
     end;
 
     [Test]
@@ -400,12 +400,12 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         CreatePurchaseInvoice(PurchaseHeader, IncomingDocument);
 
         // Execute
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.IncomingDocAttachFactBox.IncomingDoc.Invoke;
+        PurchaseInvoice.IncomingDocAttachFactBox.IncomingDoc.Invoke();
 
         // Verify
-        Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFactBox.Next, 'There should not be any records');
+        Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFactBox.Next(), 'There should not be any records');
     end;
 
     local procedure GetCommonFields(var FieldRefArray: array[7] of FieldRef)
@@ -471,7 +471,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
     begin
         CreatePurchaseInvoice(PurchaseHeader, IncomingDocument);
 
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         VendLedgEntry.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
         VendLedgEntry.SetRange("Document No.", LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -489,7 +489,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, Vendor."No.");
         PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateRandomText(10));
-        PurchHeader.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        PurchHeader.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         PurchHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
         PurchHeader.Modify(true);
 
@@ -602,7 +602,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
             'Field ' +
             MismatchType +
             ' on fields ' +
-            FieldRef1.Record.Name + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record.Name + '.' + FieldRef2.Name + ' do not match.'));
+            FieldRef1.Record().Name() + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record().Name() + '.' + FieldRef2.Name + ' do not match.'));
     end;
 
     [ModalPageHandler]

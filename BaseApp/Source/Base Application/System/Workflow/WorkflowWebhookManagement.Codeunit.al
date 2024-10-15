@@ -34,7 +34,7 @@ codeunit 1543 "Workflow Webhook Management"
         TelemetryCategoryTxt: Label 'AL Workflow Webhook', Locked = true;
         CheckingUserActionsTelemetryMsg: Label 'Checking if the user can act on the webhook. Response type: %1. Response argument null: %2.', Locked = true;
 
-    [IntegrationEvent(false, FALSE)]
+    [IntegrationEvent(false, false)]
     local procedure OnCancelWorkflow(WorkflowWebhookEntry: Record "Workflow Webhook Entry"; OnDeletion: Boolean)
     begin
     end;

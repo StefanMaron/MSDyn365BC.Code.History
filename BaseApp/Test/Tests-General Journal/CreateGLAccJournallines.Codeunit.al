@@ -84,7 +84,7 @@ codeunit 136401 "Create G/L Acc. Journal lines"
     var
         StandardGenJnl: Record "Standard General Journal";
     begin
-        GLAcc := FindGLAcc;
+        GLAcc := FindGLAcc();
         StandardGenJnl.FindFirst();
         StandJnlCode := StandardGenJnl.Code;
         JnlTemplate := StandardGenJnl."Journal Template Name";

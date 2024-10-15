@@ -30,15 +30,15 @@ codeunit 139300 "Assis. Comp. Setup Plat. Tests"
     begin
         // [GIVEN] A newly provisioned database, which has been initialized and only contains base data.
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        InitializeCompanyAndEnableAssistedCompanySetup;
+        InitializeCompanyAndEnableAssistedCompanySetup();
         Assert.RecordIsEmpty(GLAccount);
 
         // [WHEN] The wizard is executed
-        ImportConfigurationPackageFiles;
+        ImportConfigurationPackageFiles();
         AccountingPeriodStartDate := CalcDate('<-CY>', Today);
         InsertWizardData(TempConfigSetup);
         AssistedCompanySetup.ApplyUserInput(TempConfigSetup, BankAccount, AccountingPeriodStartDate, false);
-        CompleteWizardStep;
+        CompleteWizardStep();
 
         // [THEN] The RapidStart pack was imported (e.g. Chart of Account)
         Assert.RecordIsNotEmpty(GLAccount);
@@ -69,7 +69,7 @@ codeunit 139300 "Assis. Comp. Setup Plat. Tests"
         // Assert.RecordCount(SalesInvoiceHeader,0);
 
         // [WHEN] A sales invoice is created and posted
-        DocumentNo := CreateAndPostSalesInvoice;
+        DocumentNo := CreateAndPostSalesInvoice();
 
         // [THEN] NAV is able to post that sales invoice
         Assert.IsTrue(SalesInvoiceHeader.Get(DocumentNo), 'Sales Invoice Header was not found');
@@ -85,7 +85,7 @@ codeunit 139300 "Assis. Comp. Setup Plat. Tests"
         // Assert.RecordCount(PurchInvHeader,0);
 
         // [WHEN] A purchase invoice is created
-        DocumentNo := CreateAndPostPurchaseInvoice;
+        DocumentNo := CreateAndPostPurchaseInvoice();
 
         // [THEN] NAV is able to post that purchase invoice
         Assert.IsTrue(PurchInvHeader.Get(DocumentNo), 'Purchase Invoice Header was not found');

@@ -74,17 +74,15 @@ report 5190 "Delete Interaction Log Entries"
         PurchHeader: Record "Purchase Header";
         PurchHeaderArchive: Record "Purchase Header Archive";
     begin
-        with InteractionLogEntry do begin
-            PurchHeaderArchive.Get(DocumentType, "Document No.", "Doc. No. Occurrence", "Version No.");
-            PurchHeader.SetRange("Document Type", DocumentType);
-            PurchHeader.SetRange("No.", "Document No.");
-            PurchHeader.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-            if not PurchHeader.IsEmpty() then begin
-                PurchHeaderArchive."Interaction Exist" := false;
-                PurchHeaderArchive.Modify();
-            end else
-                PurchHeaderArchive.Delete(true);
-        end;
+        PurchHeaderArchive.Get(DocumentType, InteractionLogEntry."Document No.", InteractionLogEntry."Doc. No. Occurrence", InteractionLogEntry."Version No.");
+        PurchHeader.SetRange("Document Type", DocumentType);
+        PurchHeader.SetRange("No.", InteractionLogEntry."Document No.");
+        PurchHeader.SetRange("Doc. No. Occurrence", InteractionLogEntry."Doc. No. Occurrence");
+        if not PurchHeader.IsEmpty() then begin
+            PurchHeaderArchive."Interaction Exist" := false;
+            PurchHeaderArchive.Modify();
+        end else
+            PurchHeaderArchive.Delete(true);
     end;
 
     local procedure SetSalesDocInteraction(InteractionLogEntry: Record "Interaction Log Entry"; DocumentType: Enum "Sales Document Type")
@@ -92,17 +90,15 @@ report 5190 "Delete Interaction Log Entries"
         SalesHeader: Record "Sales Header";
         SalesHeaderArchive: Record "Sales Header Archive";
     begin
-        with InteractionLogEntry do begin
-            SalesHeaderArchive.Get(DocumentType, "Document No.", "Doc. No. Occurrence", "Version No.");
-            SalesHeader.SetRange("Document Type", DocumentType);
-            SalesHeader.SetRange("No.", "Document No.");
-            SalesHeader.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-            if not SalesHeader.IsEmpty() then begin
-                SalesHeaderArchive."Interaction Exist" := false;
-                SalesHeaderArchive.Modify();
-            end else
-                SalesHeaderArchive.Delete(true);
-        end;
+        SalesHeaderArchive.Get(DocumentType, InteractionLogEntry."Document No.", InteractionLogEntry."Doc. No. Occurrence", InteractionLogEntry."Version No.");
+        SalesHeader.SetRange("Document Type", DocumentType);
+        SalesHeader.SetRange("No.", InteractionLogEntry."Document No.");
+        SalesHeader.SetRange("Doc. No. Occurrence", InteractionLogEntry."Doc. No. Occurrence");
+        if not SalesHeader.IsEmpty() then begin
+            SalesHeaderArchive."Interaction Exist" := false;
+            SalesHeaderArchive.Modify();
+        end else
+            SalesHeaderArchive.Delete(true);
     end;
 }
 

@@ -43,7 +43,7 @@ page 1515 "Workflow Step Responses"
             group(Control4)
             {
                 ShowCaption = false;
-                Visible = NOT ShowResponseList;
+                Visible = not ShowResponseList;
                 field(ResponseDescriptionCardControl; Rec."Response Description")
                 {
                     ApplicationArea = Suite;

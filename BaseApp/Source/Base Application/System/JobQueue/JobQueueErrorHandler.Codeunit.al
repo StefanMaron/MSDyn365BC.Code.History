@@ -51,12 +51,16 @@ codeunit 450 "Job Queue Error Handler"
             JobQueueLogEntry.SetErrorCallStack(GetLastErrorCallStack()); // Need to save callstack before deleted above
             JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
             JobQueueLogEntry.Modify();
+#if CLEAN24
+        end;
+#else
             OnLogErrorOnAfterJobQueueLogEntryModify(JobQueueEntry);
         end else begin
             JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
             JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry, GetLastErrorCallStack());
             OnLogErrorOnAfterJobQueueLogEntryFinalizeLogEntry(JobQueueEntry);
         end;
+#endif
 
         OnAfterLogError(JobQueueEntry);
 
@@ -74,14 +78,20 @@ codeunit 450 "Job Queue Error Handler"
     begin
     end;
 
+#if not CLEAN24
     [IntegrationEvent(false, false)]
+    [Obsolete('Event no longer relevant, it does the exact same as OnAfterLogError() and OnLogErrorOnAfterJobQueueLogEntryFinalizeLogEntry() is obsoleted.', '24.0')]
     local procedure OnLogErrorOnAfterJobQueueLogEntryModify(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
+#endif
 
+#if not CLEAN24
     [IntegrationEvent(false, false)]
+    [Obsolete('Event no longer relevant. Log entries should not be inserted if the job queue dispatcher did not manage to run the job.', '24.0')]
     local procedure OnLogErrorOnAfterJobQueueLogEntryFinalizeLogEntry(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
+#endif
 }
 

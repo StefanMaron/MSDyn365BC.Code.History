@@ -14,6 +14,7 @@ table 5611 "Depreciation Book"
     LookupPageID = "Depreciation Book List";
     Permissions = TableData "FA Posting Type Setup" = rimd,
                   TableData "FA Depreciation Book" = rm;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -299,29 +300,27 @@ table 5611 "Depreciation Book"
 
     trigger OnInsert()
     begin
-        with FAPostingTypeSetup do begin
-            "Depreciation Book Code" := Code;
-            "FA Posting Type" := "FA Posting Type"::Appreciation;
-            "Part of Book Value" := true;
-            "Part of Depreciable Basis" := true;
-            "Include in Depr. Calculation" := true;
-            "Include in Gain/Loss Calc." := false;
-            "Depreciation Type" := false;
-            "Acquisition Type" := true;
-            Sign := Sign::Debit;
-            Insert();
-            "FA Posting Type" := "FA Posting Type"::"Write-Down";
-            "Part of Depreciable Basis" := false;
-            "Include in Gain/Loss Calc." := true;
-            "Depreciation Type" := true;
-            "Acquisition Type" := false;
-            Sign := Sign::Credit;
-            Insert();
-            "FA Posting Type" := "FA Posting Type"::"Custom 1";
-            Insert();
-            "FA Posting Type" := "FA Posting Type"::"Custom 2";
-            Insert();
-        end;
+        FAPostingTypeSetup."Depreciation Book Code" := Code;
+        FAPostingTypeSetup."FA Posting Type" := FAPostingTypeSetup."FA Posting Type"::Appreciation;
+        FAPostingTypeSetup."Part of Book Value" := true;
+        FAPostingTypeSetup."Part of Depreciable Basis" := true;
+        FAPostingTypeSetup."Include in Depr. Calculation" := true;
+        FAPostingTypeSetup."Include in Gain/Loss Calc." := false;
+        FAPostingTypeSetup."Depreciation Type" := false;
+        FAPostingTypeSetup."Acquisition Type" := true;
+        FAPostingTypeSetup.Sign := FAPostingTypeSetup.Sign::Debit;
+        FAPostingTypeSetup.Insert();
+        FAPostingTypeSetup."FA Posting Type" := FAPostingTypeSetup."FA Posting Type"::"Write-Down";
+        FAPostingTypeSetup."Part of Depreciable Basis" := false;
+        FAPostingTypeSetup."Include in Gain/Loss Calc." := true;
+        FAPostingTypeSetup."Depreciation Type" := true;
+        FAPostingTypeSetup."Acquisition Type" := false;
+        FAPostingTypeSetup.Sign := FAPostingTypeSetup.Sign::Credit;
+        FAPostingTypeSetup.Insert();
+        FAPostingTypeSetup."FA Posting Type" := FAPostingTypeSetup."FA Posting Type"::"Custom 1";
+        FAPostingTypeSetup.Insert();
+        FAPostingTypeSetup."FA Posting Type" := FAPostingTypeSetup."FA Posting Type"::"Custom 2";
+        FAPostingTypeSetup.Insert();
     end;
 
     trigger OnModify()

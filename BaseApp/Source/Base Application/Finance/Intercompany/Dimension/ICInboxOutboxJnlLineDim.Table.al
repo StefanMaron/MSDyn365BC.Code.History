@@ -10,6 +10,7 @@ using Microsoft.Intercompany.Partner;
 table 423 "IC Inbox/Outbox Jnl. Line Dim."
 {
     Caption = 'IC Inbox/Outbox Jnl. Line Dim.';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -320,7 +320,6 @@ codeunit 138035 "O365 Correct Purchase Dim."
 
     local procedure Initialize()
     var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
@@ -335,21 +334,44 @@ codeunit 138035 "O365 Correct Purchase Dim."
         ClearTable(DATABASE::"Production BOM Line");
         ClearTable(DATABASE::Resource);
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
 
-        LibrarySmallBusiness.SetNoSeries;
-        PurchasesPayablesSetup.Get();
-        if PurchasesPayablesSetup."Order Nos." = '' then
-            PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
-        PurchasesPayablesSetup.Modify();
+        SetGlobalNoSeriesInSetups();
 
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Correct Purchase Dim.");
+    end;
+
+    local procedure SetGlobalNoSeriesInSetups()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Posted Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Customer Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup.Modify();
+
+        MarketingSetup.Get();
+        MarketingSetup."Contact Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        MarketingSetup.Modify();
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := false;
+        PurchasesPayablesSetup."Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Posted Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Vendor Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure ClearTable(TableID: Integer)
@@ -364,7 +386,7 @@ codeunit 138035 "O365 Correct Purchase Dim."
             DATABASE::Resource:
                 Resource.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     local procedure CreateItemWithCost(var Item: Record Item; ItemType: Enum "Item Type"; UnitCost: Decimal)

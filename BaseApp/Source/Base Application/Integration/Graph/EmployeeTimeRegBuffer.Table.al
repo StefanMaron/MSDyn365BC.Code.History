@@ -16,6 +16,7 @@ table 5510 "Employee Time Reg Buffer"
     Caption = 'Employee Time Reg Buffer';
     ReplicateData = false;
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -114,7 +115,7 @@ table 5510 "Employee Time Reg Buffer"
         }
         field(8002; "Job Id"; Guid)
         {
-            Caption = 'Job Id';
+            Caption = 'Project Id';
             DataClassification = SystemMetadata;
         }
     }

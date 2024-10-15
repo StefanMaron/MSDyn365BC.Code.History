@@ -7,6 +7,7 @@ table 6703 "Booking Service"
     Caption = 'Booking Service';
     ExternalName = 'BookingService';
     TableType = Exchange;
+    DataClassification = CustomerContent;
 
     fields
     {

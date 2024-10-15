@@ -1,7 +1,11 @@
+#if not CLEAN24
 codeunit 2160 "Calendar Event Mangement"
 {
     Permissions = TableData "Calendar Event" = rimd,
                   TableData "Calendar Event User Config." = rimd;
+    ObsoleteReason = 'Invoicing';
+    ObsoleteState = Pending;
+    ObsoleteTag = '24.0';
 
     trigger OnRun()
     begin
@@ -10,6 +14,7 @@ codeunit 2160 "Calendar Event Mangement"
     var
         JobQueueEntryDescTxt: Label 'Auto-created for communicating with Microsoft Invoicing. Can be deleted if not used. Will be recreated when the feature is activated.';
 
+    [Obsolete('Invoicing', '24.0')]
     procedure CreateCalendarEvent(ScheduledDate: Date; Description: Text[100]; CodeunitNo: Integer; RecId: RecordID; QueueEvent: Boolean): Integer
     var
         CalendarEvent: Record "Calendar Event";
@@ -26,6 +31,7 @@ codeunit 2160 "Calendar Event Mangement"
         exit(CalendarEvent."No.")
     end;
 
+    [Obsolete('Invoicing', '24.0')]
     procedure CreateCalendarEventForCodeunit(ScheduledDate: Date; Description: Text[100]; CodeunitNo: Integer): Integer
     var
         CalendarEvent: Record "Calendar Event";
@@ -40,6 +46,7 @@ codeunit 2160 "Calendar Event Mangement"
         exit(CalendarEvent."No.")
     end;
 
+    [Obsolete('Invoicing', '24.0')]
     procedure QueueBackgroundSystemEvent(Description: Text[100]; CodeunitNo: Integer; RecId: RecordID): Integer
     var
         CalendarEvent: Record "Calendar Event";
@@ -55,6 +62,7 @@ codeunit 2160 "Calendar Event Mangement"
         exit(CalendarEvent."No.")
     end;
 
+    [Obsolete('Invoicing', '24.0')]
     procedure CreateOrUpdateJobQueueEntry(CalendarEvent: Record "Calendar Event")
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -63,6 +71,7 @@ codeunit 2160 "Calendar Event Mangement"
         UpdateJobQueueWithSuggestedDate(JobQueueEntry, CalendarEvent);
     end;
 
+    [Obsolete('Invoicing', '24.0')]
     procedure DescheduleCalendarEvent(var CalendarEvent: Record "Calendar Event")
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -76,6 +85,7 @@ codeunit 2160 "Calendar Event Mangement"
             UpdateJobQueue(JobQueueEntry);
     end;
 
+    [Obsolete('Invoicing', '24.0')]
     procedure DescheduleCalendarEventForCodeunit(CodeunitID: Integer)
     var
         CalendarEvent: Record "Calendar Event";
@@ -85,6 +95,7 @@ codeunit 2160 "Calendar Event Mangement"
         CalendarEvent.DeleteAll(true);
     end;
 
+    [Obsolete('Invoicing', '24.0')]
     procedure FindJobQueue(var JobQueueEntry: Record "Job Queue Entry"): Boolean
     var
         CalendarEventUserConfig: Record "Calendar Event User Config.";
@@ -97,6 +108,7 @@ codeunit 2160 "Calendar Event Mangement"
         exit(JobQueueEntry.Get(CalendarEventUserConfig."Current Job Queue Entry"));
     end;
 
+    [Obsolete('Invoicing', '24.0')]
     procedure SetJobQueueOnHold(var JobQueueEntry: Record "Job Queue Entry")
     var
         IsHandled: Boolean;
@@ -117,6 +129,7 @@ codeunit 2160 "Calendar Event Mangement"
         JobQueueEntry.Modify(true);
     end;
 
+    [Obsolete('Invoicing', '24.0')]
     procedure UpdateJobQueue(var JobQueueEntry: Record "Job Queue Entry")
     var
         CalendarEvent: Record "Calendar Event";
@@ -257,23 +270,28 @@ codeunit 2160 "Calendar Event Mangement"
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Invoicing', '24.0')]
     local procedure OnBeforeFindOrCreateJobQueue(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Invoicing', '24.0')]
     local procedure OnBeforeSetNextJobQueueRunDate(var JobQueueEntry: Record "Job Queue Entry"; NewDate: Date; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Invoicing', '24.0')]
     local procedure OnBeforeSetJobQueueOnHold(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Invoicing', '24.0')]
     local procedure OnBeforeUpdateJobQueueWithSuggestedDate(var JobQueueEntry: Record "Job Queue Entry"; CalendarEvent: Record "Calendar Event"; var IsHandled: Boolean)
     begin
     end;
 }
+#endif
 

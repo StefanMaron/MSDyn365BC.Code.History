@@ -5,8 +5,9 @@ using Microsoft.Projects.Project.Job;
 
 table 1018 "Job WIP Buffer"
 {
-    Caption = 'Job WIP Buffer';
+    Caption = 'Project WIP Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -45,7 +46,7 @@ table 1018 "Job WIP Buffer"
         }
         field(7; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             DataClassification = SystemMetadata;
             Editable = false;
             NotBlank = true;
@@ -53,12 +54,12 @@ table 1018 "Job WIP Buffer"
         }
         field(8; "Job Complete"; Boolean)
         {
-            Caption = 'Job Complete';
+            Caption = 'Project Complete';
             DataClassification = SystemMetadata;
         }
         field(9; "Job WIP Total Entry No."; Integer)
         {
-            Caption = 'Job WIP Total Entry No.';
+            Caption = 'Project WIP Total Entry No.';
             DataClassification = SystemMetadata;
             TableRelation = "Job WIP Total";
         }
@@ -72,7 +73,7 @@ table 1018 "Job WIP Buffer"
         {
             Caption = 'WIP Posting Method Used';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Per Job,Per Job Ledger Entry';
+            OptionCaption = 'Per Project,Per Project Ledger Entry';
             OptionMembers = "Per Job","Per Job Ledger Entry";
         }
         field(71; "Dim Combination ID"; Integer)

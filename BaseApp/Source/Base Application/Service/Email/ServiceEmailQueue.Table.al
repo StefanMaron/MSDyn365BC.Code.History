@@ -5,6 +5,7 @@ using System.Threading;
 table 5935 "Service Email Queue"
 {
     Caption = 'Service Email Queue';
+    DataClassification = CustomerContent;
 
     fields
     {

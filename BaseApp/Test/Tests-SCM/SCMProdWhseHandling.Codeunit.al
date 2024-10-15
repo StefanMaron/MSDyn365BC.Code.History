@@ -362,6 +362,29 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         CreateAndPostProductionConsumption("Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
     end;
 
+    local procedure CreateAndPostProductionConsumption(ProdConsumpWhseHandling: Enum "Prod. Consump. Whse. Handling")
+    var
+        Item: Record Item;
+        CompItem1: Record Item;
+        CompItem2: Record Item;
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+    begin
+        // [SCENARIO] Prod. consumption Posting fails if pick is mandatory.
+        Initialize();
+
+        // [GIVEN] Create needed setup with production order for a item with 2 components
+        CreateProductionOrderWithLocationBinsAndTwoComponents(ProductionOrder, Location, Item, CompItem1, CompItem2);
+        Location."Prod. Consump. Whse. Handling" := ProdConsumpWhseHandling;
+        Location.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        //[WHEN] Consumption is posted.
+        CreateAndPostConsumptionJournal(ProductionOrder."No.");
+
+        // [THEN] No error is thrown if "Prod. Consump. Whse. Handling" is not set to "Warehouse Pick (Mandatory)".
+        // [THEN] Error is thrown if "Prod. Consump. Whse. Handling" is set to "Warehouse Pick (Mandatory)" and the caller validates the error thrown.
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -850,6 +873,65 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         Item.TestField(Inventory, 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PickForwardFlushingBehaviorOnFirmToReleasedProdOrder()
+    begin
+        // https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/494761
+        // Production order finishes without any error
+        PickForwardFlushingBehaviorOnFirmToReleasedProdOrder("Prod. Consump. Whse. Handling"::"No Warehouse Handling");
+        PickForwardFlushingBehaviorOnFirmToReleasedProdOrder("Prod. Consump. Whse. Handling"::"Inventory Pick/Movement");
+        PickForwardFlushingBehaviorOnFirmToReleasedProdOrder("Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+
+        // Production order does not get released but throws an error.
+        asserterror PickForwardFlushingBehaviorOnFirmToReleasedProdOrder("Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
+        Assert.ExpectedError('must not be 0');
+    end;
+
+    procedure PickForwardFlushingBehaviorOnFirmToReleasedProdOrder(ProdConsumpWhseHanling: Enum "Prod. Consump. Whse. Handling")
+    var
+        ParentItem, CompItem : Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        Location: Record Location;
+        OpenShopFloorBin: Record Bin;
+        ProductionOrder: Record "Production Order";
+    begin
+        Initialize();
+
+        // [GIVEN] Create Location with 5 bins where "Prod. Consump. Whse. Handling is set to the value passed.".
+        CreateLocationSetupWithBins(Location, false, false, false, false, true, 5, false);
+        OpenShopFloorBin.SetRange("Location Code", Location.Code);
+        OpenShopFloorBin.FindFirst();
+        Location."Prod. Consump. Whse. Handling" := ProdConsumpWhseHanling;
+        Location.Validate("Open Shop Floor Bin Code", OpenShopFloorBin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create an production item.
+        LibraryInventory.CreateItem(ParentItem);
+
+        // [GIVEN] Create a component with "Pick + Forward" flushing method.
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Flushing Method", "Flushing Method"::"Pick + Forward");
+        CompItem.Modify(true);
+
+        // [GIVEN] Create Production BOM with a component and assign it to the production item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+        ParentItem."Production BOM No." := ProductionBOMHeader."No.";
+        ParentItem."Replenishment System" := ParentItem."Replenishment System"::"Prod. Order";
+        ParentItem.Modify(true);
+
+        // [GIVEN] Ensure necessary quantity of component is available on the Open Shop Floor bin.
+        CreateAndPostItemJournalLine(CompItem."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, OpenShopFloorBin.Code, false);
+
+        // [GIVEN] Create Form-Planned Produciton Order for 1 quantity of the parent item.
+        CreateAndRefreshProductionOrder(ProductionOrder, "Production Order Status"::"Firm Planned", "Prod. Order Source Type"::Item, ParentItem."No.", 1, Location.Code);
+
+        // [WHEN] Production Order is released.
+        LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.");
+
+        // [THEN] Caller validates the outcome.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -875,30 +957,6 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Prod. Whse. Handling");
-    end;
-
-    local procedure CreateAndPostProductionConsumption(ProdConsumpWhseHandling: Enum "Prod. Consump. Whse. Handling")
-    var
-        Item: Record Item;
-        CompItem1: Record Item;
-        CompItem2: Record Item;
-        Location: Record Location;
-        ProductionOrder: Record "Production Order";
-    begin
-        // [SCENARIO] Prod. consumption Posting fails if pick is mandatory.
-        Initialize();
-
-        // [GIVEN] Create needed setup with production order for a item with 2 components
-        CreateProductionOrderWithLocationBinsAndTwoComponents(ProductionOrder, Location, Item, CompItem1, CompItem2);
-        Location."Prod. Consump. Whse. Handling" := ProdConsumpWhseHandling;
-        Location.Modify(true);
-        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
-
-        //[WHEN] Consumption is posted.
-        CreateAndPostConsumptionJournal(ProductionOrder."No.");
-
-        // [THEN] No error is thrown if "Prod. Consump. Whse. Handling" is not set to "Warehouse Pick (Mandatory)".
-        // [THEN] Error is thrown if "Prod. Consump. Whse. Handling" is set to "Warehouse Pick (Mandatory)" and the caller validates the error thrown.
     end;
 
     local procedure CreateConsumptionJournal(var ItemJournalLine: Record "Item Journal Line"; ProductionOrderNo: Code[20])
@@ -1139,8 +1197,6 @@ codeunit 137298 "SCM Prod. Whse. Handling"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ProductionJournalHandlerWithQtyCheckAndPost(var ProductionJournal: TestPage "Production Journal")
-    var
-        Bin: Record Bin;
     begin
         ProductionJournal.First();
         repeat

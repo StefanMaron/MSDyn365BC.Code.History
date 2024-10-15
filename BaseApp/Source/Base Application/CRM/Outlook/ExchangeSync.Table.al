@@ -8,6 +8,7 @@ using System.Security.Encryption;
 table 6700 "Exchange Sync"
 {
     Caption = 'Exchange Sync';
+    DataClassification = CustomerContent;
 
     fields
     {

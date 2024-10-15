@@ -14,6 +14,9 @@ codeunit 132214 "Library - Permissions"
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure AddPermissionSetToUserGroup(AggregatePermissionSet: Record "Aggregate Permission Set"; UserGroupCode: Code[20])
     var
         UserGroupPermissionSet: Record "User Group Permission Set";
@@ -102,6 +105,9 @@ codeunit 132214 "Library - Permissions"
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure AddUserGroupToPlan(UserGroupCode: Code[20]; PlanID: Guid)
     var
         UserGroupPlan: Record "User Group Plan";
@@ -136,6 +142,9 @@ codeunit 132214 "Library - Permissions"
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure AddUserToUserGroup(var UserGroup: Record "User Group"; var User: Record User; NewCompanyName: Text[30])
     var
         UserGroupMember: Record "User Group Member";
@@ -147,6 +156,9 @@ codeunit 132214 "Library - Permissions"
         UserGroupMember.Insert(true);
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure AddUserToUserGroupByCode(UserID: Guid; UserGroupCode: Code[20])
     var
         UserGroupMember: Record "User Group Member";
@@ -160,6 +172,9 @@ codeunit 132214 "Library - Permissions"
         UserGroupMember.Insert(true);
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure ChangeUserGroupOfUser(UserID: Guid; OldUserGroupCode: Code[20]; NewUserGroupCode: Code[20])
     var
         UserGroupMember: Record "User Group Member";
@@ -177,7 +192,7 @@ codeunit 132214 "Library - Permissions"
         User.Init();
         User."User Security ID" := CreateGuid();
         if NewUserName = '' then
-            User."User Name" := CopyStr(GetGuidString, 1, MaxStrLen(User."User Name"))
+            User."User Name" := CopyStr(GetGuidString(), 1, MaxStrLen(User."User Name"))
         else
             User."User Name" := NewUserName;
         User."Full Name" := User."User Name";
@@ -238,25 +253,34 @@ codeunit 132214 "Library - Permissions"
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure CreateUserGroup(var UserGroup: Record "User Group"; NewCode: Code[20])
     begin
         if UserGroup.Get(NewCode) then
             exit;
         UserGroup.Init();
         if NewCode = '' then
-            UserGroup.Code := CopyStr(GetGuidString, 1, MaxStrLen(UserGroup.Code))
+            UserGroup.Code := CopyStr(GetGuidString(), 1, MaxStrLen(UserGroup.Code))
         else
             UserGroup.Code := NewCode;
         UserGroup.Name := UserGroup.Code;
         UserGroup.Insert(true);
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure CreateUserGroupInPlan(UserGroupCode: Code[20]; PlanID: Guid)
     begin
         CreateUserGroupWithCode(UserGroupCode);
         AddUserGroupToPlan(UserGroupCode, PlanID);
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure CreateUserGroupWithCode("Code": Code[20])
     var
         UserGroup: Record "User Group";
@@ -264,6 +288,9 @@ codeunit 132214 "Library - Permissions"
         CreateUserGroup(UserGroup, Code);
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure CreateUserGroupMember(var UserGroup: Record "User Group"; var UserGroupMember: Record "User Group Member")
     var
         User: Record User;
@@ -296,7 +323,7 @@ codeunit 132214 "Library - Permissions"
         if NewCode <> '' then
             TenantPermissionSet."Role ID" := NewCode
         else
-            TenantPermissionSet."Role ID" := CopyStr(GetGuidString, 1, MaxStrLen(TenantPermissionSet."Role ID"));
+            TenantPermissionSet."Role ID" := CopyStr(GetGuidString(), 1, MaxStrLen(TenantPermissionSet."Role ID"));
         TenantPermissionSet.Name := TenantPermissionSet."Role ID" + ' Name';
         TenantPermissionSet.Insert(true);
     end;
@@ -319,13 +346,16 @@ codeunit 132214 "Library - Permissions"
         if NewCode <> '' then
             TenantPermissionSet."Role ID" := NewCode
         else
-            TenantPermissionSet."Role ID" := CopyStr(GetGuidString, 1, MaxStrLen(TenantPermissionSet."Role ID"));
+            TenantPermissionSet."Role ID" := CopyStr(GetGuidString(), 1, MaxStrLen(TenantPermissionSet."Role ID"));
         TenantPermissionSet.Name := TenantPermissionSet."Role ID" + ' Name';
         TenantPermissionSet."App ID" := AppID;
         TenantPermissionSet.Insert(true);
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure CreateUsersUserGroupsPermissionSets()
     var
         User: Record User;
@@ -369,6 +399,9 @@ codeunit 132214 "Library - Permissions"
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure RemoveUserFromAllUserGroups(UserID: Guid)
     var
         UserGroupMember: Record "User Group Member";
@@ -379,6 +412,9 @@ codeunit 132214 "Library - Permissions"
             UserGroupMember.DeleteAll(true);
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure RemoveUserFromUserGroup(UserID: Guid; UserGroupCode: Code[20])
     var
         UserGroupMember: Record "User Group Member";
@@ -387,6 +423,9 @@ codeunit 132214 "Library - Permissions"
             UserGroupMember.Delete(true);
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure RemoveUserGroup(UserGroupCode: Code[20])
     var
         UserGroup: Record "User Group";
@@ -402,6 +441,9 @@ codeunit 132214 "Library - Permissions"
         end;
     end;
 
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure RemovePermissionSetFromUserGroup(PermissionSetRoleID: Code[20]; UserGroupCode: Code[20])
     var
         UserGroupPermissionSet: Record "User Group Permission Set";

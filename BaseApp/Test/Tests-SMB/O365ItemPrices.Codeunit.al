@@ -1,8 +1,12 @@
-#if not CLEAN21
+#if not CLEAN23
+#pragma warning disable AS0072
 codeunit 138019 "O365 Item Prices"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -743,7 +747,7 @@ codeunit 138019 "O365 Item Prices"
         OldPriceIncludesVAT: Boolean;
     begin
         Initialize();
-        LibraryApplicationArea.EnableVATSetup;
+        LibraryApplicationArea.EnableVATSetup();
         OldPriceIncludesVAT := false;
 
         CreateBlankItem(Item);
@@ -794,7 +798,7 @@ codeunit 138019 "O365 Item Prices"
         OldPriceIncludesVAT: Boolean;
     begin
         Initialize();
-        LibraryApplicationArea.EnableVATSetup;
+        LibraryApplicationArea.EnableVATSetup();
         OldPriceIncludesVAT := true;
 
         CreateBlankItem(Item);
@@ -836,13 +840,13 @@ codeunit 138019 "O365 Item Prices"
         ItemCard: TestPage "Item Card";
     begin
         Initialize();
-        LibraryApplicationArea.EnableVATSetup;
+        LibraryApplicationArea.EnableVATSetup();
 
         CreateItem(Item);
         CreateSalesPrices(Item."No.");
         SalesPrice.ModifyAll("Price Includes VAT", Item."Price Includes VAT");
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.Filter.SetFilter("No.", Item."No.");
 
         // Validation part
@@ -860,14 +864,14 @@ codeunit 138019 "O365 Item Prices"
         ItemCard: TestPage "Item Card";
     begin
         Initialize();
-        LibraryApplicationArea.EnableVATSetup;
+        LibraryApplicationArea.EnableVATSetup();
 
         CreateItem(Item);
         CreateSalesPrices(Item."No.");
         SalesPrice.ModifyAll("Price Includes VAT", not Item."Price Includes VAT");
         EditSalesSetupWithVATBusPostGrPrice();
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.Filter.SetFilter("No.", Item."No.");
 
         // Validation part
@@ -885,14 +889,14 @@ codeunit 138019 "O365 Item Prices"
         ItemCard: TestPage "Item Card";
     begin
         Initialize();
-        LibraryApplicationArea.EnableVATSetup;
+        LibraryApplicationArea.EnableVATSetup();
 
         CreateItem(Item);
         CreateSalesPrices(Item."No.");
         SalesPrice.ModifyAll("Price Includes VAT", not Item."Price Includes VAT");
         EditSalesSetupWithVATBusPostGrPrice();
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.Filter.SetFilter("No.", Item."No.");
 
         // Validation part
@@ -917,7 +921,7 @@ codeunit 138019 "O365 Item Prices"
 
         CreateItem(Item);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.Filter.SetFilter("No.", Item."No.");
         ItemCard.PricesDiscountsOverview.Invoke();
         ItemCard.Close();
@@ -943,11 +947,11 @@ codeunit 138019 "O365 Item Prices"
         CreateItem(Item);
         CreateSalesPrices(Item."No.");
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.Filter.SetFilter("No.", Item."No.");
 
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
-        ItemCard.PricesDiscountsOverview.Invoke;
+        ItemCard.PricesDiscountsOverview.Invoke();
         ItemCard.Close();
     end;
 
@@ -961,16 +965,16 @@ codeunit 138019 "O365 Item Prices"
         ItemList: TestPage "Item List";
     begin
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         CreateItem(Item);
         CreateSalesPrices(Item."No.");
 
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
 
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
-        ItemList.PricesDiscountsOverview.Invoke;
+        ItemList.PricesDiscountsOverview.Invoke();
         ItemList.Close();
     end;
 
@@ -987,11 +991,11 @@ codeunit 138019 "O365 Item Prices"
         CreateItem(Item);
         CreateSalesPrices(Item."No.");
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.Filter.SetFilter("No.", Item."No.");
 
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
-        ItemCard.SpecialPricesAndDiscountsTxt.DrillDown;
+        ItemCard.SpecialPricesAndDiscountsTxt.DrillDown();
         ItemCard.Close();
     end;
 
@@ -1007,12 +1011,12 @@ codeunit 138019 "O365 Item Prices"
 
         CreateItem(Item);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.Filter.SetFilter("No.", Item."No.");
 
         LibraryVariableStorage.Enqueue(1); // choose to create a new special price
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
-        ItemCard.SpecialPricesAndDiscountsTxt.DrillDown;
+        ItemCard.SpecialPricesAndDiscountsTxt.DrillDown();
         ItemCard.Close();
     end;
 
@@ -1028,12 +1032,12 @@ codeunit 138019 "O365 Item Prices"
 
         CreateItem(Item);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.Filter.SetFilter("No.", Item."No.");
 
         LibraryVariableStorage.Enqueue(2); // choose to create a new special discount
         LibraryVariableStorage.Enqueue(Item); // verify correct item in the handler
-        ItemCard.SpecialPricesAndDiscountsTxt.DrillDown;
+        ItemCard.SpecialPricesAndDiscountsTxt.DrillDown();
         ItemCard.Close();
     end;
 
@@ -1123,7 +1127,7 @@ codeunit 138019 "O365 Item Prices"
 
                 Assert.AreEqual("Ending Date", TempSalesPriceAndLineDiscBuff."Ending Date", 'Wrong value');
                 Assert.AreEqual("Line Discount %", TempSalesPriceAndLineDiscBuff."Line Discount %", 'Wrong value');
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1160,7 +1164,7 @@ codeunit 138019 "O365 Item Prices"
                   "VAT Bus. Posting Gr. (Price)", TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)",
                   'Wrong value in VAT Bus. Posting Gr. (Price)');
 
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1183,7 +1187,7 @@ codeunit 138019 "O365 Item Prices"
 
                 Assert.AreEqual("Ending Date", SalesLineDiscount."Ending Date", 'Wrong value in Ending Date');
                 Assert.AreEqual("Line Discount %", SalesLineDiscount."Line Discount %", 'Wrong value in Line Discount %');
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1214,7 +1218,7 @@ codeunit 138019 "O365 Item Prices"
                   "VAT Bus. Posting Gr. (Price)", SalesPrice."VAT Bus. Posting Gr. (Price)",
                   'Wrong value in VAT Bus. Posting Gr. (Price)');
 
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1241,7 +1245,7 @@ codeunit 138019 "O365 Item Prices"
                 Assert.AreEqual("Price Includes VAT", ActualSalesPrice."Price Includes VAT", 'Wrong Price Includes VAT');
                 Assert.AreEqual(
                   "VAT Bus. Posting Gr. (Price)", ActualSalesPrice."VAT Bus. Posting Gr. (Price)", 'Wrong VAT Bus. Posting Gr. (Price)');
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1264,7 +1268,7 @@ codeunit 138019 "O365 Item Prices"
 
                 Assert.AreEqual("Line Discount %", ActualSalesLnDisc."Line Discount %", 'Wrong Line Discount %');
                 Assert.AreEqual("Ending Date", ActualSalesLnDisc."Ending Date", 'Wrong Ending Date');
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1526,7 +1530,7 @@ codeunit 138019 "O365 Item Prices"
                 end;
 
                 Modify(true);
-                Next;
+                Next();
             end;
         end;
     end;
@@ -1537,9 +1541,9 @@ codeunit 138019 "O365 Item Prices"
             FindFirst();
 
             Delete(true);
-            Next;
+            Next();
             Delete(true);
-            Next;
+            Next();
         end;
     end;
 
@@ -1584,7 +1588,7 @@ codeunit 138019 "O365 Item Prices"
         LibraryVariableStorage.Dequeue(ItemVar);
         Item := ItemVar;
         Assert.AreEqual(Item."No.", SalesPriceAndLineDiscounts.Code.Value, '');
-        SalesPriceAndLineDiscounts.OK.Invoke;
+        SalesPriceAndLineDiscounts.OK().Invoke();
     end;
 
     [StrMenuHandler]
@@ -1607,7 +1611,7 @@ codeunit 138019 "O365 Item Prices"
         LibraryVariableStorage.Dequeue(ItemVar);
         Item := ItemVar;
         Assert.AreEqual(Item."No.", SalesPrices."Item No.".Value, '');
-        SalesPrices.OK.Invoke;
+        SalesPrices.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1620,7 +1624,7 @@ codeunit 138019 "O365 Item Prices"
         LibraryVariableStorage.Dequeue(ItemVar);
         Item := ItemVar;
         Assert.AreEqual(Item."No.", SalesLineDiscounts.Code.Value, '');
-        SalesLineDiscounts.OK.Invoke;
+        SalesLineDiscounts.OK().Invoke();
     end;
 }
 #endif

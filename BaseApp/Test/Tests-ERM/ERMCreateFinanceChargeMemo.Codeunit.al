@@ -37,7 +37,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         // Create and Issue Finance Charge Memo with Currency.
         // Setup.
         Initialize();
-        FinanceChargeMemo(CreateCurrencyAndUpdateExcRate);
+        FinanceChargeMemo(CreateCurrencyAndUpdateExcRate());
     end;
 
     [Test]
@@ -89,7 +89,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
 
         // 1. Setup: Create Customer and Sales Invoice.
         Initialize();
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         MIRHelperFunctions.CreateAndPostSalesInvoiceBySalesJournal(Customer."No.");
         CreationDate := CalcDate('<' + Format(2 * LibraryRandom.RandInt(5)) + 'M>', WorkDate());
 
@@ -114,7 +114,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
 
         // 1. Setup: Create Customer and Sales Invoice.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         MIRHelperFunctions.CreateAndPostSalesInvoiceBySalesJournal(CustomerNo);
 
         // 2. Exercise: Create Finance Charge Memo using suggest line.
@@ -144,7 +144,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         FinanceChargeMemoHeader.Insert();
 
         // Exercise: Open Statistics Page.
-        FinanceChargeMemoStatistics.Trap;
+        FinanceChargeMemoStatistics.Trap();
         PAGE.Run(PAGE::"Finance Charge Memo Statistics", FinanceChargeMemoHeader);
 
         // Verify: Verify that no error exists on opening Statistics Page without Customer No.
@@ -163,20 +163,20 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         // Verify No. is filled in Finance Charge Memo test report when clicking Finance Charge Memo Test button from Finance Charge Memo Card
 
         // Setup: Create Finance Charge Memo
-        LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, CreateCustomer);
+        LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, CreateCustomer());
         Commit(); // Use COMMIT to finish write transaction so that Report can run in Exercise step
 
         // Exercise: Navigate to the created Finance Charge Memo, open its card and run Report 'Finance Charge Memo - Test'
-        FinanceChargeMemoPage.OpenEdit;
+        FinanceChargeMemoPage.OpenEdit();
         FinanceChargeMemoPage.FILTER.SetFilter("No.", FinanceChargeMemoHeader."No.");
 
         // Run Report 'Finance Charge Memo - Test'. Note, before importing bug solution, this case will fail at this step with error 'The method
         // RunReport is not supported for TestPages', because the original code for this Action runs report by setting the RunObject Property.
         // After importing bug solution, this step can be executed successfully
-        FinanceChargeMemoPage.TestReport.Invoke;
+        FinanceChargeMemoPage.TestReport.Invoke();
 
         // Verify: Finance Charge Memo Header Filter "No." is set to the No. of current Finance Charge Memo
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // The Finance Charge Memo Filter value cannot be read from the Test Request Page, so we verify it in the Report
         // Below element indicates the Finance Charge Memo Filter value set in the request page
@@ -203,15 +203,12 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         CreateAndPostSalesInvoiceWithCustomerAtDate(SalesHeader, '', Customer."No.", WorkDate());
         WorkDate(CalcDate('<1M>', SalesHeader."Posting Date"));
         CreateAndPostSalesInvoiceWithCustomerAtDate(
-          SalesHeader, CreateCurrencyAndUpdateExcRate, Customer."No.", WorkDate());
-
+          SalesHeader, CreateCurrencyAndUpdateExcRate(), Customer."No.", WorkDate());
         // 2. Exercise: Run Create Finance Charge Memos Report.
-        with CreateFinanceChargeMemos do begin
-            SetTableView(Customer);
-            InitializeRequest(SalesHeader."Posting Date", SalesHeader."Posting Date");
-            UseRequestPage(false);
-            Run;
-        end;
+        CreateFinanceChargeMemos.SetTableView(Customer);
+        CreateFinanceChargeMemos.InitializeRequest(SalesHeader."Posting Date", SalesHeader."Posting Date");
+        CreateFinanceChargeMemos.UseRequestPage(false);
+        CreateFinanceChargeMemos.Run();
 
         // 3. Verify: Check Finance Charge Memo Document.
         VerifyNumberOfFinChargeMemos(Customer."No.", 1);
@@ -237,7 +234,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         LibraryVariableStorage.Enqueue(CreateFinChargeMemoAtDate(Customer, CalcDate('<-1D>', WorkDate())));
         LibraryVariableStorage.Enqueue(0); // Initial no of prints
         Commit();
-        IssueAndPrintFinChargeMemo;
+        IssueAndPrintFinChargeMemo();
 
         LibraryERM.SetAllowPostingFromTo(CalcDate('<-1M>', WorkDate()), WorkDate());
 
@@ -250,7 +247,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         LibraryVariableStorage.Dequeue(PrintCountVar); // Extract no of prints
         LibraryVariableStorage.Enqueue(FinChargeMemoHeaderFilter);
         LibraryVariableStorage.Enqueue(PrintCountVar); // Push no of prints
-        IssueAndPrintFinChargeMemo;
+        IssueAndPrintFinChargeMemo();
 
         // 3. Verify: Verify number of printed Fin Charge Memos
         LibraryVariableStorage.Dequeue(PrintCountVar); // Extract no of prints
@@ -284,7 +281,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         Commit();
 
         // [WHEN] Issue Finance Charge Memo Print = E-Mail and Hide Email-Dialog = No
-        IssueAndPrintFinChargeMemo;
+        IssueAndPrintFinChargeMemo();
 
         // [THEN] Cancel on Email Dialog appeared
         // [THEN] Issued Finance Charge Memo for Customer "A" exists
@@ -449,7 +446,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         CreateFinChargeMemoLineForInvRounding(
           FinanceChargeMemoLine, FinanceChargeMemoHeader, GeneralLedgerSetup."Amount Rounding Precision");
         FinChargeMemoNo := FinanceChargeMemoHeader."No.";
-        
+
         //[THEN] Calculate Invoice Rounding Amount
         FinanceChargeMemoHeader.CalcFields("Additional Fee", "Interest Amount");
         InvRoundingAmountAmount := FinanceChargeMemoHeader."Additional Fee" + FinanceChargeMemoHeader."Interest Amount";
@@ -465,7 +462,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         // [VERIFY] Finance Charge Memo Issue when negative Invoice Rounding.
         asserterror Error('');
         asserterror FinanceChargeMemoHeader.Get(FinChargeMemoNo);
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
 
     end;
 
@@ -560,7 +557,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
 
     local procedure CreateCustomer(): Code[20]
     begin
-        exit(CreateCustomerWithFinanceChargeTerms(FindFinChargeTermsWithoutMIR));
+        exit(CreateCustomerWithFinanceChargeTerms(FindFinChargeTermsWithoutMIR()));
     end;
 
     local procedure FindFinChargeTermsWithoutMIR(): Code[10]
@@ -619,7 +616,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
 
     local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]): Decimal
     begin
-        exit(CreateAndPostSalesInvoiceWithCustomerAtDate(SalesHeader, CurrencyCode, CreateCustomer, WorkDate()));
+        exit(CreateAndPostSalesInvoiceWithCustomerAtDate(SalesHeader, CurrencyCode, CreateCustomer(), WorkDate()));
     end;
 
     local procedure CreateAndPostSalesInvoiceWithCustomerAtDate(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]; CustomerNo: Code[20]; PostingDate: Date): Decimal
@@ -636,7 +633,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
             Validate("Due Date", PostingDate);
             Modify(true);
         end;
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         exit(SalesInvoiceHeader."Amount Including VAT");
@@ -692,7 +689,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         LibraryERM.CreateFinanceChargeMemoLine(
             FinanceChargeMemoLine, FinanceChargeMemoHeader."No.", FinanceChargeMemoLine.Type::"G/L Account");
 
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         GenProductPostingGroup.Get(GLAccount."Gen. Prod. Posting Group");
         GenProductPostingGroup.Validate("Def. VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
         GenProductPostingGroup.Modify(true);
@@ -802,10 +799,10 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     [Scope('OnPrem')]
     procedure IssueFinanceChargeMemosHandler(var IssueFinanceChargeMemos: TestRequestPage "Issue Finance Charge Memos")
     begin
-        IssueFinanceChargeMemos.PrintDoc.SetValue(LibraryVariableStorage.DequeueInteger);
-        IssueFinanceChargeMemos.HideEmailDialog.SetValue(LibraryVariableStorage.DequeueBoolean);
-        IssueFinanceChargeMemos."Finance Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
-        IssueFinanceChargeMemos.OK.Invoke;
+        IssueFinanceChargeMemos.PrintDoc.SetValue(LibraryVariableStorage.DequeueInteger());
+        IssueFinanceChargeMemos.HideEmailDialog.SetValue(LibraryVariableStorage.DequeueBoolean());
+        IssueFinanceChargeMemos."Finance Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
+        IssueFinanceChargeMemos.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -865,7 +862,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         IssuedFinChargeMemoLine.FindFirst();
 
         Assert.AreNearlyEqual(
-          CalcFinanceChargeMemoAmount, IssuedFinChargeMemoLine.Amount, LibraryERM.GetAmountRoundingPrecision,
+          CalcFinanceChargeMemoAmount, IssuedFinChargeMemoLine.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, CalcFinanceChargeMemoAmount, PreAssignedNo));
     end;
 
@@ -893,7 +890,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     [Scope('OnPrem')]
     procedure FinChargeMemoReportTestRequestPageHandler(var FinChargeMemoTest: TestRequestPage "Finance Charge Memo - Test")
     begin
-        FinChargeMemoTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinChargeMemoTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -911,10 +908,10 @@ codeunit 134911 "ERM Create Finance Charge Memo"
 
     local procedure BindActiveDirectoryMockEvents()
     begin
-        if ActiveDirectoryMockEvents.Enabled then
+        if ActiveDirectoryMockEvents.Enabled() then
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable;
+        ActiveDirectoryMockEvents.Enable();
     end;
 }
 

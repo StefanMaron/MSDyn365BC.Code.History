@@ -23,6 +23,7 @@ table 7311 "Warehouse Journal Line"
     Caption = 'Warehouse Journal Line';
     DrillDownPageID = "Warehouse Journal Lines";
     LookupPageID = "Warehouse Journal Lines";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -727,6 +728,8 @@ table 7311 "Warehouse Journal Line"
 
     fieldgroups
     {
+        fieldgroup(Brick; "Item No.", Description, Quantity, "Whse. Document No.", "Registering Date")
+        { }
     }
 
     trigger OnDelete()
@@ -751,7 +754,6 @@ table 7311 "Warehouse Journal Line"
         WhseJnlTemplate: Record "Warehouse Journal Template";
         WhseJnlBatch: Record "Warehouse Journal Batch";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         WMSMgt: Codeunit "WMS Management";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -785,6 +787,8 @@ table 7311 "Warehouse Journal Line"
     end;
 
     procedure SetUpNewLine(LastWhseJnlLine: Record "Warehouse Journal Line")
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         WhseJnlTemplate.Get("Journal Template Name");
         WhseJnlLine.SetRange("Journal Template Name", "Journal Template Name");
@@ -801,11 +805,8 @@ table 7311 "Warehouse Journal Line"
         end else begin
             "Registering Date" := WorkDate();
             GetWhseJnlBatch();
-            if WhseJnlBatch."No. Series" <> '' then begin
-                Clear(NoSeriesMgt);
-                "Whse. Document No." :=
-                  NoSeriesMgt.TryGetNextNo(WhseJnlBatch."No. Series", "Registering Date");
-            end;
+            if WhseJnlBatch."No. Series" <> '' then
+                "Whse. Document No." := NoSeries.PeekNextNo(WhseJnlBatch."No. Series", "Registering Date");
         end;
         if WhseJnlTemplate.Type = WhseJnlTemplate.Type::"Physical Inventory" then begin
             "Source Document" := "Source Document"::"Phys. Invt. Jnl.";
@@ -1289,14 +1290,13 @@ table 7311 "Warehouse Journal Line"
         if not IsReclass(TemplateName) then
             exit(false);
 
-        with WhseItemTrkgLine do
-            if ItemTrackingMgt.WhseItemTrackingLineExists(TemplateName, BatchName, LocationCode, LineNo, WhseItemTrkgLine) then begin
-                FindSet();
-                repeat
-                    if not HasSameNewTracking() or ("Expiration Date" <> "New Expiration Date") then
-                        exit(true);
-                until Next() = 0;
-            end;
+        if ItemTrackingMgt.WhseItemTrackingLineExists(TemplateName, BatchName, LocationCode, LineNo, WhseItemTrkgLine) then begin
+            WhseItemTrkgLine.FindSet();
+            repeat
+                if not WhseItemTrkgLine.HasSameNewTracking() or (WhseItemTrkgLine."Expiration Date" <> WhseItemTrkgLine."New Expiration Date") then
+                    exit(true);
+            until WhseItemTrkgLine.Next() = 0;
+        end;
 
         exit(false);
     end;

@@ -9,6 +9,7 @@ table 5998 "Standard Service Item Gr. Code"
 {
     Caption = 'Standard Service Item Gr. Code';
     DataCaptionFields = "Service Item Group Code";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -25,7 +26,7 @@ table 5998 "Standard Service Item Gr. Code"
         }
         field(3; Description; Text[100])
         {
-            CalcFormula = Lookup("Standard Service Code".Description where(Code = field(Code)));
+            CalcFormula = lookup("Standard Service Code".Description where(Code = field(Code)));
             Caption = 'Description';
             Editable = false;
             FieldClass = FlowField;

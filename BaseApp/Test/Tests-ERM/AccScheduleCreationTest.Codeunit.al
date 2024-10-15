@@ -133,7 +133,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
         GeneralLedgerSetup.Modify(true);
 
         // [WHEN] Run InitializeStandardAccountSchedules
-        GLAccountCategoryMgt.InitializeStandardAccountSchedules;
+        GLAccountCategoryMgt.InitializeStandardAccountSchedules();
 
         // [THEN] "Fin. Rep. for Balance Sheet" is updated in General Ledger Setup
         // [THEN] Other Acc. schedules stayed unchanged
@@ -162,7 +162,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
         GeneralLedgerSetup.Modify(true);
 
         // [WHEN] Run InitializeStandardAccountSchedules
-        GLAccountCategoryMgt.InitializeStandardAccountSchedules;
+        GLAccountCategoryMgt.InitializeStandardAccountSchedules();
 
         // [THEN] "Fin. Rep. for Income Stmt." is updated in General Ledger Setup
         // [THEN] Other Acc. schedules stayed unchanged
@@ -191,7 +191,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
         GeneralLedgerSetup.Modify(true);
 
         // [WHEN] Run InitializeStandardAccountSchedules
-        GLAccountCategoryMgt.InitializeStandardAccountSchedules;
+        GLAccountCategoryMgt.InitializeStandardAccountSchedules();
 
         // [THEN] "Fin. Rep. for Cash Flow Stmt" is updated in General Ledger Setup
         // [THEN] Other Acc. schedules stayed unchanged
@@ -220,7 +220,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
         GeneralLedgerSetup.Modify(true);
 
         // [WHEN] Run InitializeStandardAccountSchedules
-        GLAccountCategoryMgt.InitializeStandardAccountSchedules;
+        GLAccountCategoryMgt.InitializeStandardAccountSchedules();
 
         // [THEN] "Fin. Rep. for Retained Earn." is updated in General Ledger Setup
         // [THEN] Other Acc. schedules stayed unchanged

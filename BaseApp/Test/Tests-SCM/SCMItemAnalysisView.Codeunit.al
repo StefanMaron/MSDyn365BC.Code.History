@@ -40,7 +40,7 @@ codeunit 137229 "SCM Item Analysis View"
         ItemAnalysisView.Find();
         ItemAnalysisView.TestField("Last Entry No.");
         LastEntryNo := ItemAnalysisView."Last Entry No.";
-        PostSalesOrder;
+        PostSalesOrder();
         CODEUNIT.Run(CODEUNIT::"Update Item Analysis View", ItemAnalysisView);
         ItemAnalysisView.Find();
         ItemAnalysisView.TestField("Last Entry No.");
@@ -237,7 +237,7 @@ codeunit 137229 "SCM Item Analysis View"
     var
         Bin: Record Bin;
     begin
-        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID(), '', '');
         exit(Bin.Code);
     end;
 

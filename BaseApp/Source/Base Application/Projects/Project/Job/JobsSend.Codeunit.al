@@ -5,6 +5,7 @@
 namespace Microsoft.Projects.Project.Job;
 
 using Microsoft.CRM.Outlook;
+using Microsoft.Projects.Project.Archive;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.Customer;
 
@@ -21,6 +22,7 @@ codeunit 1016 "Jobs-Send"
 
     var
         Job: Record Job;
+        JobArchiveManagement: Codeunit "Job Archive Management";
 
     local procedure "Code"()
     var
@@ -31,11 +33,10 @@ codeunit 1016 "Jobs-Send"
 
         ValidateElectronicFormats(TempDocumentSendingProfile);
 
-        with Job do begin
-            Get("No.");
-            SetRecFilter();
-            SendProfile(TempDocumentSendingProfile);
-        end;
+        Job.Get(Job."No.");
+        Job.SetRecFilter();
+        Job.SendProfile(TempDocumentSendingProfile);
+        JobArchiveManagement.AutoArchiveJob(Job);
     end;
 
     local procedure ConfirmSend(Job: Record Job; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary): Boolean
@@ -52,11 +53,9 @@ codeunit 1016 "Jobs-Send"
                 DocumentSendingProfile.GetDefault(DocumentSendingProfile);
 
             Commit();
-            with TempDocumentSendingProfile do begin
-                Copy(DocumentSendingProfile);
-                SetDocumentUsage(Job);
-                Insert();
-            end;
+            TempDocumentSendingProfile.Copy(DocumentSendingProfile);
+            TempDocumentSendingProfile.SetDocumentUsage(Job);
+            TempDocumentSendingProfile.Insert();
             if PAGE.RunModal(PAGE::"Post and Send Confirmation", TempDocumentSendingProfile) <> ACTION::Yes then
                 exit(false);
         end;

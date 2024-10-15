@@ -343,7 +343,7 @@ codeunit 134824 "UT Vendor Table"
         Vendor.Address := DummyValueForAddressTxt;
 
         // Exercise
-        Assert.IsTrue(Vendor.HasAddress, 'The Vendor should have an address');
+        Assert.IsTrue(Vendor.HasAddress(), 'The Vendor should have an address');
     end;
 
     [Test]
@@ -359,7 +359,7 @@ codeunit 134824 "UT Vendor Table"
         Vendor."Address 2" := DummyValueForAddressTxt;
 
         // Exercise
-        Assert.IsTrue(Vendor.HasAddress, 'The Vendor should have an address');
+        Assert.IsTrue(Vendor.HasAddress(), 'The Vendor should have an address');
     end;
 
     [Test]
@@ -375,7 +375,7 @@ codeunit 134824 "UT Vendor Table"
         Vendor.City := DummyValueForAddressTxt;
 
         // Exercise
-        Assert.IsTrue(Vendor.HasAddress, 'The Vendor should have an address');
+        Assert.IsTrue(Vendor.HasAddress(), 'The Vendor should have an address');
     end;
 
     [Test]
@@ -391,7 +391,7 @@ codeunit 134824 "UT Vendor Table"
         Vendor.County := DummyValueForAddressTxt;
 
         // Exercise
-        Assert.IsTrue(Vendor.HasAddress, 'The Vendor should have an address');
+        Assert.IsTrue(Vendor.HasAddress(), 'The Vendor should have an address');
     end;
 
     [Test]
@@ -407,7 +407,7 @@ codeunit 134824 "UT Vendor Table"
         Vendor."Post Code" := DummyValueForAddressTxt;
 
         // Exercise
-        Assert.IsTrue(Vendor.HasAddress, 'The Vendor should have an address');
+        Assert.IsTrue(Vendor.HasAddress(), 'The Vendor should have an address');
     end;
 
     [Test]
@@ -423,7 +423,7 @@ codeunit 134824 "UT Vendor Table"
         Vendor.Contact := DummyValueForAddressTxt;
 
         // Exercise
-        Assert.IsTrue(Vendor.HasAddress, 'The Vendor should have an address');
+        Assert.IsTrue(Vendor.HasAddress(), 'The Vendor should have an address');
     end;
 
     [Test]
@@ -721,7 +721,7 @@ codeunit 134824 "UT Vendor Table"
     [Scope('OnPrem')]
     procedure CancelSelectionOfVendorFromVendorListModalPageHandler(var VendorList: TestPage "Vendor List")
     begin
-        VendorList.Cancel.Invoke;
+        VendorList.Cancel().Invoke();
     end;
 
     local procedure CreatePurchaseDocument(PurchaseDocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
@@ -731,7 +731,7 @@ codeunit 134824 "UT Vendor Table"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseDocumentType, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup,
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(),
           LibraryRandom.RandInt(10));
     end;
 
@@ -760,7 +760,7 @@ codeunit 134824 "UT Vendor Table"
     var
         Vendor: Record Vendor;
     begin
-        UpdatePurchasesPayablesSetupNoS;
+        UpdatePurchasesPayablesSetupNoS();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseDocument(DocType, Vendor."No.");
 
@@ -778,15 +778,15 @@ codeunit 134824 "UT Vendor Table"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         with PurchasesPayablesSetup do begin
-            Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode());
             Modify(true);
         end;
     end;
@@ -795,7 +795,7 @@ codeunit 134824 "UT Vendor Table"
     [Scope('OnPrem')]
     procedure SelectionFirstVendorFromVendorListModalPageHandler(var VendorList: TestPage "Vendor List")
     begin
-        VendorList.OK.Invoke;
+        VendorList.OK().Invoke();
     end;
 
     [StrMenuHandler]

@@ -36,28 +36,28 @@ codeunit 139312 "Excel Data Migration Test"
         Initialize();
 
         // [WHEN] Excel file is imported
-        ExcelDataMigrator.ImportExcelDataByFileName(LibraryUtility.GetInetRoot + GetExcelFileName);
+        ExcelDataMigrator.ImportExcelDataByFileName(LibraryUtility.GetInetRoot() + GetExcelFileName());
 
         // [THEN] A Config. Package was created
-        ConfigPackage.SetRange(Code, ExcelDataMigrator.GetPackageCode);
+        ConfigPackage.SetRange(Code, ExcelDataMigrator.GetPackageCode());
         ConfigPackage.FindFirst();
         Assert.RecordIsNotEmpty(ConfigPackage);
 
         // [THEN] The Config. Package contains a Customer, Item Package Table
-        ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
+        ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode());
         ConfigPackageTable.SetRange("Table ID", DATABASE::Customer);
         ConfigPackageTable.FindFirst();
         Assert.RecordIsNotEmpty(ConfigPackageTable);
 
         ConfigPackageTable.Reset();
-        ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
+        ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode());
         ConfigPackageTable.SetRange("Table ID", DATABASE::Item);
         ConfigPackageTable.FindFirst();
         Assert.RecordIsNotEmpty(ConfigPackageTable);
 
         // [THEN] The Customer Package Table does not contain all fields
         ConfigPackageTable.Reset();
-        ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
+        ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode());
         ConfigPackageTable.SetRange("Table ID", DATABASE::Customer);
         ConfigPackageTable.FindFirst();
         ConfigPackageTable.CalcFields("No. of Fields Available", "No. of Fields Included");
@@ -65,7 +65,7 @@ codeunit 139312 "Excel Data Migration Test"
           'Package should only contain a subset of fields');
 
         // [THEN] The Customer Package Table contains a Name field
-        ConfigPackageField.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
+        ConfigPackageField.SetRange("Package Code", ExcelDataMigrator.GetPackageCode());
         ConfigPackageField.SetRange("Table ID", DATABASE::Customer);
         ConfigPackageField.SetRange("Field ID", Customer.FieldNo(Name));
         ConfigPackageField.FindFirst();
@@ -73,19 +73,19 @@ codeunit 139312 "Excel Data Migration Test"
         Assert.IsTrue(ConfigPackageField."Include Field", 'Name field not included in customer package');
 
         // [THEN] There is a Customer, Item record in the package
-        ConfigPackageRecord.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
+        ConfigPackageRecord.SetRange("Package Code", ExcelDataMigrator.GetPackageCode());
         ConfigPackageRecord.SetRange("Table ID", DATABASE::Customer);
         ConfigPackageRecord.FindFirst();
         Assert.RecordIsNotEmpty(ConfigPackageRecord);
 
         ConfigPackageRecord.Reset();
-        ConfigPackageRecord.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
+        ConfigPackageRecord.SetRange("Package Code", ExcelDataMigrator.GetPackageCode());
         ConfigPackageRecord.SetRange("Table ID", DATABASE::Item);
         ConfigPackageRecord.FindFirst();
         Assert.RecordIsNotEmpty(ConfigPackageRecord);
 
         // [THEN] There is data in the Customer Record for the Country/Region Code field
-        ConfigPackageData.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
+        ConfigPackageData.SetRange("Package Code", ExcelDataMigrator.GetPackageCode());
         ConfigPackageData.SetRange("Table ID", DATABASE::Customer);
         ConfigPackageData.SetRange("Field ID", Customer.FieldNo("Country/Region Code"));
         ConfigPackageData.FindFirst();
@@ -107,14 +107,14 @@ codeunit 139312 "Excel Data Migration Test"
         Initialize();
 
         // [WHEN] An Excel file is imported and applied
-        ImportAndApplyPackage;
+        ImportAndApplyPackage();
 
         // [THEN] Customers are created
         Assert.IsTrue(Customer.Count = 5,
           StrSubstNo('Incorrect number of Customers imported (%1)', Customer.Count));
 
         // [THEN] Each new customer contains data from Excel
-        VerifyImportedData(LibraryUtility.GetInetRoot + GetExcelFileName, DATABASE::Customer);
+        VerifyImportedData(LibraryUtility.GetInetRoot() + GetExcelFileName(), DATABASE::Customer);
     end;
 
     [Test]
@@ -127,14 +127,14 @@ codeunit 139312 "Excel Data Migration Test"
         Initialize();
 
         // [WHEN] An Excel file is imported and applied
-        ImportAndApplyPackage;
+        ImportAndApplyPackage();
 
         // [THEN] Vendor are created
         Assert.IsTrue(Vendor.Count = 5,
           StrSubstNo('Incorrect number of Vendors imported (%1)', Vendor.Count));
 
         // [THEN] Each new vendor contains data from Excel
-        VerifyImportedData(LibraryUtility.GetInetRoot + GetExcelFileName, DATABASE::Vendor);
+        VerifyImportedData(LibraryUtility.GetInetRoot() + GetExcelFileName(), DATABASE::Vendor);
     end;
 
     [Test]
@@ -147,14 +147,14 @@ codeunit 139312 "Excel Data Migration Test"
         Initialize();
 
         // [WHEN] An Excel file is imported and applied
-        ImportAndApplyPackage;
+        ImportAndApplyPackage();
 
         // [THEN] Items are created
         Assert.IsTrue(Item.Count = 15,
           StrSubstNo('Incorrect number of Items imported (%1)', Item.Count));
 
         // [THEN] Each new item contains data from Excel
-        VerifyImportedData(LibraryUtility.GetInetRoot + GetExcelFileName, DATABASE::Item);
+        VerifyImportedData(LibraryUtility.GetInetRoot() + GetExcelFileName(), DATABASE::Item);
     end;
 
     [Test]
@@ -195,7 +195,7 @@ codeunit 139312 "Excel Data Migration Test"
         Initialize();
 
         // [WHEN] An Excel file is imported and applied
-        ImportAndApplyPackage;
+        ImportAndApplyPackage();
 
         // [THEN] Post processing of items has occured (inventory was updated)
         Assert.AreEqual(15, Item.Count, 'Incorrect number of Items imported');
@@ -226,7 +226,7 @@ codeunit 139312 "Excel Data Migration Test"
 
         // [THEN] Apply summary message has been shown: "1 tables are processed.\1 errors found.\1 records inserted.\0 records modified."
         // [THEN] The data has been applied and there is a new Customer
-        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 1, 1, 1, 0), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 1, 1, 1, 0), LibraryVariableStorage.DequeueText());
         VerifyCustomerAndVendorAfterWizardApply(1, 0);
     end;
 
@@ -279,7 +279,7 @@ codeunit 139312 "Excel Data Migration Test"
 
         // [THEN] Apply summary message has been shown: "1 tables are processed.\1 errors found.\1 records inserted.\0 records modified."
         // [THEN] The data has been applied and there is a new Customer
-        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 1, 1, 1, 0), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 1, 1, 1, 0), LibraryVariableStorage.DequeueText());
         VerifyCustomerAndVendorAfterWizardApply(1, 0);
     end;
 
@@ -305,7 +305,7 @@ codeunit 139312 "Excel Data Migration Test"
         RunWizardToApplyContinueApplyAgainAndFinish(DataMigrationWizard, true, false, false, true);
 
         // [THEN] Apply summary message has been shown: "1 tables are processed.\0 errors found.\1 records inserted.\0 records modified."
-        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 1, 0, 1, 0), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 1, 0, 1, 0), LibraryVariableStorage.DequeueText());
         // [THEN] The data has been applied and there is a new Vendor
         VerifyCustomerAndVendorAfterWizardApply(0, 1);
     end;
@@ -334,7 +334,7 @@ codeunit 139312 "Excel Data Migration Test"
         RunWizardToApplyContinueApplyAgainAndFinish(DataMigrationWizard, true, false, true, true);
 
         // [THEN] Apply summary message has been shown: "2 tables are processed.\1 errors found.\2 records inserted.\0 records modified."
-        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 2, 1, 2, 0), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 2, 1, 2, 0), LibraryVariableStorage.DequeueText());
         // [THEN] The data has been applied and there is a new Customer and Vendor
         VerifyCustomerAndVendorAfterWizardApply(1, 1);
     end;
@@ -358,7 +358,7 @@ codeunit 139312 "Excel Data Migration Test"
         RunWizardToApplyAndFinish(DataMigrationWizard, false, true);
 
         // [THEN] Apply summary message has been shown: "1 tables are processed.\0 errors found.\1 records inserted.\0 records modified."
-        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 1, 0, 1, 0), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 1, 0, 1, 0), LibraryVariableStorage.DequeueText());
         // [THEN] The data has been applied and there is a new Vendor
         VerifyCustomerAndVendorAfterWizardApply(0, 1);
     end;
@@ -384,7 +384,7 @@ codeunit 139312 "Excel Data Migration Test"
         RunWizardToApplyAndFinish(DataMigrationWizard, true, true);
 
         // [THEN] Apply summary message has been shown: "2 tables are processed.\1 errors found.\2 records inserted.\0 records modified."
-        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 2, 1, 2, 0), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 2, 1, 2, 0), LibraryVariableStorage.DequeueText());
         // [THEN] The data has been applied and there is a new Customer and Vendor
         VerifyCustomerAndVendorAfterWizardApply(1, 1);
     end;
@@ -438,7 +438,7 @@ codeunit 139312 "Excel Data Migration Test"
 
         // [THEN] Apply summary message has been shown: "1 tables are processed.\1 errors found.\1 records inserted.\0 records modified."
         // [THEN] The data has been applied and there is a new Customer
-        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 1, 1, 1, 0), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 1, 1, 1, 0), LibraryVariableStorage.DequeueText());
         VerifyCustomerAndVendorAfterWizardApply(1, 0);
     end;
 
@@ -464,7 +464,7 @@ codeunit 139312 "Excel Data Migration Test"
         RunWizardToApplyContinueApplyAgainAndFinish(DataMigrationWizard, true, true, false, true);
 
         // [THEN] Apply summary message has been shown: "1 tables are processed.\0 errors found.\1 records inserted.\0 records modified."
-        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 1, 0, 1, 0), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 1, 0, 1, 0), LibraryVariableStorage.DequeueText());
         // [THEN] The data has been applied and there is a new Vendor
         VerifyCustomerAndVendorAfterWizardApply(0, 1);
     end;
@@ -493,7 +493,7 @@ codeunit 139312 "Excel Data Migration Test"
         RunWizardToApplyContinueApplyAgainAndFinish(DataMigrationWizard, true, true, true, true);
 
         // [THEN] Apply summary message has been shown: "2 tables are processed.\1 errors found.\2 records inserted.\0 records modified."
-        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 2, 1, 2, 0), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ApplySummaryTxt, 2, 1, 2, 0), LibraryVariableStorage.DequeueText());
         // [THEN] The data has been applied and there is a new Customer and Vendor
         VerifyCustomerAndVendorAfterWizardApply(1, 1);
     end;
@@ -557,11 +557,11 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         LibraryVariableStorage.Clear();
         LibraryRapidStart.SetAPIServicesEnabled(false);
-        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
+        LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider();
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
 
         ConfigPackage.Init();
-        ConfigPackage.SetRange(Code, ExcelDataMigrator.GetPackageCode);
+        ConfigPackage.SetRange(Code, ExcelDataMigrator.GetPackageCode());
         ConfigPackage.DeleteAll(true);
 
         AssistedSetupTestLibrary.DeleteAll();
@@ -614,11 +614,11 @@ codeunit 139312 "Excel Data Migration Test"
         ColumnHeaderRow: Integer;
         FieldID: array[250] of Integer;
     begin
-        ConfigPackageField.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
+        ConfigPackageField.SetRange("Package Code", ExcelDataMigrator.GetPackageCode());
         ConfigPackageField.SetRange("Table ID", TableId);
         ConfigPackageField.SetRange("Include Field", true);
 
-        ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
+        ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode());
         ConfigPackageTable.SetRange("Table ID", TableId);
         ConfigPackageTable.FindFirst();
         ConfigPackageTable.CalcFields("Table Name");
@@ -691,7 +691,7 @@ codeunit 139312 "Excel Data Migration Test"
         Attachment: Record Attachment;
     begin
         Attachment.FindLast();
-        ServerFileName := LibraryUtility.GetInetRoot + Attachment."Storage Pointer";
+        ServerFileName := LibraryUtility.GetInetRoot() + Attachment."Storage Pointer";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Excel Data Migrator", 'OnDownloadTemplate', '', false, false)]
@@ -702,49 +702,49 @@ codeunit 139312 "Excel Data Migration Test"
 
     local procedure ImportExcelFile()
     begin
-        ExcelDataMigrator.ImportExcelDataByFileName(LibraryUtility.GetInetRoot + GetExcelFileName);
+        ExcelDataMigrator.ImportExcelDataByFileName(LibraryUtility.GetInetRoot() + GetExcelFileName());
     end;
 
     local procedure ImportAndApplyPackage()
     var
         ConfigPackage: Record "Config. Package";
     begin
-        ImportExcelFile;
+        ImportExcelFile();
         ConfigPackage.Init();
-        ConfigPackage.Code := ExcelDataMigrator.GetPackageCode;
+        ConfigPackage.Code := ExcelDataMigrator.GetPackageCode();
         LibraryRapidStart.ApplyPackage(ConfigPackage, false);
     end;
 
     local procedure RunWizardToCompletion(var DataMigrationWizard: TestPage "Data Migration Wizard")
     begin
-        CreateAttachmentWithFileName(GetExcelFileName);
-        DataMigrationWizard.Trap;
+        CreateAttachmentWithFileName(GetExcelFileName());
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
 
         with DataMigrationWizard do begin
-            ActionNext.Invoke; // Choose Data Source page
-            Description.Lookup;
-            ActionDownloadTemplate.Invoke; // Download the Excel template silently
-            ActionNext.Invoke; // Upload Data File page
-            ActionNext.Invoke; // Apply Imported Data page
-            ActionShowErrors.Invoke;
-            ActionApply.Invoke; // That's it page
-            ActionFinish.Invoke;
+            ActionNext.Invoke(); // Choose Data Source page
+            Description.Lookup();
+            ActionDownloadTemplate.Invoke(); // Download the Excel template silently
+            ActionNext.Invoke(); // Upload Data File page
+            ActionNext.Invoke(); // Apply Imported Data page
+            ActionShowErrors.Invoke();
+            ActionApply.Invoke(); // That's it page
+            ActionFinish.Invoke();
         end;
     end;
 
     local procedure RunWizardToApply(var DataMigrationWizard: TestPage "Data Migration Wizard"; CustomerSelected: Boolean; VendorSelected: Boolean)
     begin
-        CreateAttachmentWithFileName(GetBrokenExcelFileName);
-        DataMigrationWizard.Trap;
+        CreateAttachmentWithFileName(GetBrokenExcelFileName());
+        DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
 
         with DataMigrationWizard do begin
-            ActionNext.Invoke;
-            Description.Lookup;
-            ActionDownloadTemplate.Invoke; // Download the Excel template silently
-            ActionNext.Invoke;
-            ActionNext.Invoke; // Import
+            ActionNext.Invoke();
+            Description.Lookup();
+            ActionDownloadTemplate.Invoke(); // Download the Excel template silently
+            ActionNext.Invoke();
+            ActionNext.Invoke(); // Import
         end;
 
         ContinueWizardToApply(DataMigrationWizard, CustomerSelected, VendorSelected);
@@ -753,7 +753,7 @@ codeunit 139312 "Excel Data Migration Test"
     local procedure RunWizardToApplyAndFinish(var DataMigrationWizard: TestPage "Data Migration Wizard"; CustomerSelected: Boolean; VendorSelected: Boolean)
     begin
         RunWizardToApply(DataMigrationWizard, CustomerSelected, VendorSelected);
-        DataMigrationWizard.ActionFinish.Invoke;
+        DataMigrationWizard.ActionFinish.Invoke();
     end;
 
     local procedure ContinueWizardToApply(var DataMigrationWizard: TestPage "Data Migration Wizard"; CustomerSelected: Boolean; VendorSelected: Boolean)
@@ -765,7 +765,7 @@ codeunit 139312 "Excel Data Migration Test"
             DataMigrationEntities.FILTER.SetFilter("Table Name", 'Vendor');
             DataMigrationEntities.Selected.SetValue(VendorSelected);
             DataMigrationEntities.FILTER.SetFilter("Table Name", '');
-            ActionApply.Invoke; // Apply
+            ActionApply.Invoke(); // Apply
         end;
     end;
 
@@ -773,7 +773,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         RunWizardToApply(DataMigrationWizard, CustomerSelected, VendorSelected);
         ContinueWizardToApply(DataMigrationWizard, CustomerSelectedAgain, VendorSelectedAgain);
-        DataMigrationWizard.ActionFinish.Invoke;
+        DataMigrationWizard.ActionFinish.Invoke();
     end;
 
     local procedure VerifyCustomerAndVendorAfterWizardApply(ExpectedCustomerCount: Integer; ExpectedVendorCount: Integer)
@@ -783,7 +783,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         Assert.RecordCount(Customer, ExpectedCustomerCount);
         Assert.RecordCount(Vendor, ExpectedVendorCount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [ModalPageHandler]
@@ -791,15 +791,15 @@ codeunit 139312 "Excel Data Migration Test"
     procedure DataMigratorsPageHandler(var DataMigrators: TestPage "Data Migrators")
     begin
         DataMigrators.GotoKey(CODEUNIT::"Excel Data Migrator");
-        DataMigrators.OK.Invoke;
+        DataMigrators.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ConfigPackageErrorspageHandler(var ConfigPackageErrors: TestPage "Config. Package Errors")
     begin
-        ConfigPackageErrors.First;
-        ConfigPackageErrors.OK.Invoke;
+        ConfigPackageErrors.First();
+        ConfigPackageErrors.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -814,7 +814,7 @@ codeunit 139312 "Excel Data Migration Test"
     procedure ConfirmBeforeApplyHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Assert.ExpectedMessage(ValidateErrorsBeforeApplyQst, Question);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

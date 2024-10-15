@@ -36,16 +36,16 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1.5);
-        BankAccReconciliationPage.MatchManually.Invoke;
+        BankAccReconciliationPage.MatchManually.Invoke();
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
         BankAccReconciliationLine.FindFirst();
 
         // Exercise: Add to Match.
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliationPage.ApplyBankLedgerEntries.Last;
-        BankAccReconciliationPage.MatchManually.Invoke;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliationPage.ApplyBankLedgerEntries.Last();
+        BankAccReconciliationPage.MatchManually.Invoke();
 
         // Verify.
         VerifyOneToManyMatch(BankAccReconciliation, BankAccReconciliationLine."Statement Line No.", 2, 2 * Amount);
@@ -65,16 +65,16 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 2.5);
-        BankAccReconciliationPage.MatchManually.Invoke;
+        BankAccReconciliationPage.MatchManually.Invoke();
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
         BankAccReconciliationLine.FindFirst();
 
         // Exercise: Add to Match.
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliationPage.ApplyBankLedgerEntries.Last;
-        BankAccReconciliationPage.MatchManually.Invoke;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliationPage.ApplyBankLedgerEntries.Last();
+        BankAccReconciliationPage.MatchManually.Invoke();
 
         // Verify.
         VerifyOneToManyMatch(BankAccReconciliation, BankAccReconciliationLine."Statement Line No.", 2, 2 * Amount);
@@ -94,17 +94,17 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1);
-        BankAccReconciliationPage.MatchManually.Invoke;
+        BankAccReconciliationPage.MatchManually.Invoke();
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
         BankAccReconciliationLine.FindLast();
 
         // Exercise: Replace Match.
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
         BankAccReconciliationPage.StmtLine.GotoRecord(BankAccReconciliationLine);
-        BankAccReconciliationPage.ApplyBankLedgerEntries.First;
-        BankAccReconciliationPage.MatchManually.Invoke;
+        BankAccReconciliationPage.ApplyBankLedgerEntries.First();
+        BankAccReconciliationPage.MatchManually.Invoke();
 
         // Verify.
         VerifyOneToManyMatch(BankAccReconciliation, BankAccReconciliationLine."Statement Line No.", 1, Amount);
@@ -126,16 +126,16 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1);
-        BankAccReconciliationPage.MatchManually.Invoke;
-        BankAccReconciliationPage.StmtLine.Last;
-        BankAccReconciliationPage.ApplyBankLedgerEntries.Last;
-        BankAccReconciliationPage.MatchManually.Invoke;
+        BankAccReconciliationPage.MatchManually.Invoke();
+        BankAccReconciliationPage.StmtLine.Last();
+        BankAccReconciliationPage.ApplyBankLedgerEntries.Last();
+        BankAccReconciliationPage.MatchManually.Invoke();
 
         // Exercise: Remove Match.
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliationPage.StmtLine.First;
-        BankAccReconciliationPage.ApplyBankLedgerEntries.Last;
-        BankAccReconciliationPage.RemoveMatch.Invoke;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliationPage.StmtLine.First();
+        BankAccReconciliationPage.ApplyBankLedgerEntries.Last();
+        BankAccReconciliationPage.RemoveMatch.Invoke();
 
         // Verify.
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
@@ -179,8 +179,8 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // Exercise: Transfer to Gen Jnl.
         Commit();
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliationPage."Transfer to General Journal".Invoke;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliationPage."Transfer to General Journal".Invoke();
 
         // Verify: In the page handler.
     end;
@@ -199,8 +199,8 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1);
 
         // Exercise: Filter.
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliationPage.NotMatched.Invoke;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliationPage.NotMatched.Invoke();
 
         // Verify.
         Assert.AreEqual('<>0', BankAccReconciliationPage.StmtLine.FILTER.GetFilter(Difference), 'Wrong filter.');
@@ -222,9 +222,9 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1);
 
         // Exercise: Filter.
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliationPage.NotMatched.Invoke;
-        BankAccReconciliationPage.All.Invoke;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliationPage.NotMatched.Invoke();
+        BankAccReconciliationPage.All.Invoke();
 
         // Verify.
         Assert.AreEqual('', BankAccReconciliationPage.StmtLine.FILTER.GetFilter(Difference), 'Wrong filter.');
@@ -247,12 +247,12 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1);
         LibraryVariableStorage.Enqueue(BankAccReconciliationPage.StatementNo.Value);
         Commit();
-        BankAccReconciliationPage.MatchAutomatically.Invoke;
-        BankAccReconciliationPage.StatementEndingBalance.SetValue(BankAccReconciliationPage.StmtLine.TotalBalance.AsDEcimal);
+        BankAccReconciliationPage.MatchAutomatically.Invoke();
+        BankAccReconciliationPage.StatementEndingBalance.SetValue(BankAccReconciliationPage.StmtLine.TotalBalance.AsDecimal());
 
         // Exercise: Add to Match.
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliationPage.Post.Invoke;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliationPage.Post.Invoke();
 
         // Verify.
         VerifyPosting(BankAccReconciliation, 2);
@@ -310,7 +310,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         // [GIVEN] Each Reconciliation Line has three applied Check Ledger Entries C1..C9.
         BankAccountNo := CreateBankAccount();
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, BankAccountNo, 3);
+        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, 3);
         foreach StatementLineNo in BankAccReconStmtLineNos do begin
             CreateBankAccLedgerEntriesWithCheckLedgerEntries(BankAccLedgerEntryNos, CheckLedgerEntryNos, BankAccountNo, 3);
             BankAccReconciliationLine.Get(
@@ -363,7 +363,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         // [GIVEN] Each Reconciliation Line has three applied Check Ledger Entries.
         BankAccountNo := CreateBankAccount();
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, BankAccountNo, 2);
+        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, 2);
         foreach StatementLineNo in BankAccReconStmtLineNos do begin
             CreateBankAccLedgerEntriesWithCheckLedgerEntries(BankAccLedgerEntryNos, CheckLedgerEntryNos, BankAccountNo, 3);
             BankAccReconciliationLine.Get(
@@ -375,7 +375,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
             TempBankAccReconciliationLine.Insert();
         end;
 
-        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, BankAccountNo, 1);
+        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, 1);
         CreateBankAccLedgerEntriesWithCheckLedgerEntries(BankAccLedgerEntryNos, CheckLedgerEntryNos, BankAccountNo, 3);
         BankAccReconciliationLine.Get(
             BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", BankAccReconStmtLineNos.Get(1));
@@ -417,7 +417,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         // [GIVEN] Each Check Ledger Entry has linked Bank Account Ledger Entry B1, B2, B3.
         BankAccountNo := CreateBankAccount();
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, BankAccountNo, 1);
+        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, 1);
         CreateBankAccLedgerEntriesWithCheckLedgerEntries(BankAccLedgerEntryNos, CheckLedgerEntryNos, BankAccountNo, 3);
         BankAccReconciliationLine.Get(
             BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", BankAccReconStmtLineNos.Get(1));
@@ -467,7 +467,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         // [GIVEN] Each Reconciliation Line has three applied Check Ledger Entries C1..C6.
         BankAccountNo := CreateBankAccount();
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, BankAccountNo, 2);
+        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, 2);
         foreach StatementLineNo in BankAccReconStmtLineNos do begin
             CreateBankAccLedgerEntriesWithCheckLedgerEntries(BankAccLedgerEntryNos, CheckLedgerEntryNos, BankAccountNo, 3);
             BankAccReconciliationLine.Get(
@@ -526,7 +526,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         // [GIVEN] Reconciliation Line has three applied Check Ledger Entries.
         BankAccountNo := CreateBankAccount();
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Payment Application");
-        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, BankAccountNo, 1);
+        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, 1);
         CreateBankAccLedgerEntriesWithCheckLedgerEntries(BankAccLedgerEntryNos, CheckLedgerEntryNos, BankAccountNo, 3);
         BankAccReconciliationLine.Get(
             BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", BankAccReconStmtLineNos.Get(1));
@@ -587,8 +587,8 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // [GIVEN] Run action Transfer to Gen Jnl.
         Commit();
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliationPage."Transfer to General Journal".Invoke;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliationPage."Transfer to General Journal".Invoke();
 
         // [WHEN] Change account type to Vendor and Account No. to "V" (GenJnlPageHandlerUpdateAccountNo)
         // [THEN] Gen. Journal Line has same description "XYZ"
@@ -632,8 +632,8 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // [GIVEN] Run action Transfer to Gen Jnl. and set for created gen. journal line "Account Type" = "Bank", "Account No" = "B2"
         Commit();
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliationPage."Transfer to General Journal".Invoke;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliationPage."Transfer to General Journal".Invoke();
 
         // [WHEN] Post gen journal line
         GenJnlLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
@@ -661,7 +661,6 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         GenJnlLine: Record "Gen. Journal Line";
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
         CustomerNo: Variant;
-        Amount: Decimal;
     begin
         // [SCENARIO 417646] Bank Acc. Reconciliation Line field Applied Entries should be correct after posting linked Gen. Journal line
         Initialize();
@@ -683,8 +682,8 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // [GIVEN] Transfer to General Journal is invoked
         Commit();
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliationPage."Transfer to General Journal".Invoke;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliationPage."Transfer to General Journal".Invoke();
 
         // [WHEN] Gen. Journal Line is posted
         GenJnlLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
@@ -743,9 +742,9 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationLine.Validate("Statement Amount", OriginalAmount);
         BankAccReconciliationLine.Modify(true);
         BankAccReconciliationPage.GotoRecord(BankAccReconciliation);
-        BankAccReconciliationPage.StmtLine.First;
-        BankAccReconciliationPage.ApplyBankLedgerEntries.First;
-        BankAccReconciliationPage.MatchManually.Invoke;
+        BankAccReconciliationPage.StmtLine.First();
+        BankAccReconciliationPage.ApplyBankLedgerEntries.First();
+        BankAccReconciliationPage.MatchManually.Invoke();
 
         // [GIVEN] A Journal and Batch to use for transfer
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -760,8 +759,8 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // [GIVEN] Transfer to General Journal is invoked
         Commit();
-        LibraryLowerPermissions.SetBanking;
-        BankAccReconciliationPage."Transfer to General Journal".Invoke;
+        LibraryLowerPermissions.SetBanking();
+        BankAccReconciliationPage."Transfer to General Journal".Invoke();
 
         // [WHEN] Gen. Journal Line is posted
         GenJnlLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
@@ -969,7 +968,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliation.Insert(true);
     end;
 
-    local procedure CreateBankAccReconLinesWithCheckType(var StatementLineNos: List of [Integer]; BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20]; LineCount: Integer)
+    local procedure CreateBankAccReconLinesWithCheckType(var StatementLineNos: List of [Integer]; BankAccReconciliation: Record "Bank Acc. Reconciliation"; LineCount: Integer)
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         i: Integer;
@@ -1033,10 +1032,10 @@ codeunit 134253 "Match Bank Rec. Scenarios"
             BankAccReconciliationLine.Modify(true);
         end;
 
-        BankAccReconciliationPage.OpenEdit;
+        BankAccReconciliationPage.OpenEdit();
         BankAccReconciliationPage.GotoRecord(BankAccReconciliation);
-        BankAccReconciliationPage.StmtLine.First;
-        BankAccReconciliationPage.ApplyBankLedgerEntries.First;
+        BankAccReconciliationPage.StmtLine.First();
+        BankAccReconciliationPage.ApplyBankLedgerEntries.First();
     end;
 
     local procedure CreateBankReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation"; StatementDescription: Text[100])
@@ -1055,7 +1054,6 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
         Customer: Record Customer;
-        "count": Integer;
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         LibrarySales.CreateCustomer(Customer);
@@ -1076,10 +1074,10 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationLine.Description := StatementDescription;
         BankAccReconciliationLine.Modify(true);
 
-        BankAccReconciliationPage.OpenEdit;
+        BankAccReconciliationPage.OpenEdit();
         BankAccReconciliationPage.GotoRecord(BankAccReconciliation);
-        BankAccReconciliationPage.StmtLine.First;
-        BankAccReconciliationPage.ApplyBankLedgerEntries.First;
+        BankAccReconciliationPage.StmtLine.First();
+        BankAccReconciliationPage.ApplyBankLedgerEntries.First();
     end;
 
     local procedure VerifyOneToManyMatch(BankAccReconciliation: Record "Bank Acc. Reconciliation"; ExpRecLineNo: Integer; ExpBankEntryMatches: Integer; ExpAmount: Decimal)
@@ -1109,11 +1107,11 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     begin
         BankAccount.Get(BankAccNo);
         BankAccount.CalcFields(Balance, "Total on Checks");
-        Assert.AreEqual(BankAccount.Balance, BankAccReconciliationPage.ApplyBankLedgerEntries.Balance.AsDEcimal, 'Wrong acc. balance');
-        Assert.AreEqual(BankAccount."Total on Checks", BankAccReconciliationPage.ApplyBankLedgerEntries.CheckBalance.AsDEcimal,
+        Assert.AreEqual(BankAccount.Balance, BankAccReconciliationPage.ApplyBankLedgerEntries.Balance.AsDecimal(), 'Wrong acc. balance');
+        Assert.AreEqual(BankAccount."Total on Checks", BankAccReconciliationPage.ApplyBankLedgerEntries.CheckBalance.AsDecimal(),
           'Wrong check balance');
         Assert.AreEqual(BankAccount.Balance + BankAccount."Total on Checks",
-          BankAccReconciliationPage.ApplyBankLedgerEntries.BalanceToReconcile.AsDEcimal, 'Wrong remaining balance');
+          BankAccReconciliationPage.ApplyBankLedgerEntries.BalanceToReconcile.AsDecimal(), 'Wrong remaining balance');
     end;
 
     local procedure VerifyPosting(BankAccReconciliation: Record "Bank Acc. Reconciliation"; ExpEntriesNo: Integer)
@@ -1235,7 +1233,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     [Scope('OnPrem')]
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
-        PostPmtsAndRecBankAcc.OK.Invoke();
+        PostPmtsAndRecBankAcc.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1256,7 +1254,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         LibraryVariableStorage.Dequeue(BatchName);
         TransBankRecToGenJnl."GenJnlLine.""Journal Template Name""".SetValue(TemplateName);
         TransBankRecToGenJnl."GenJnlLine.""Journal Batch Name""".SetValue(BatchName);
-        TransBankRecToGenJnl.OK.Invoke;
+        TransBankRecToGenJnl.OK().Invoke();
     end;
 
     [PageHandler]
@@ -1285,7 +1283,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     [Scope('OnPrem')]
     procedure MatchRecLinesReqPageHandler(var MatchBankAccReconciliation: TestRequestPage "Match Bank Entries")
     begin
-        MatchBankAccReconciliation.OK.Invoke;
+        MatchBankAccReconciliation.OK().Invoke();
     end;
 
     [ReportHandler]
@@ -1313,7 +1311,6 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     [Scope('OnPrem')]
     procedure GenJnlPageHandlerUpdateAccountNo(var GeneralJournal: TestPage "General Journal")
     var
-        GenJnlLine: Record "Gen. Journal Line";
         AccountType: Integer;
         AccountNo: Code[20];
     begin

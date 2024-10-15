@@ -42,11 +42,11 @@ codeunit 134215 "WFWH Purch. Document Approval"
         LibraryVariableStorage.Clear();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         UserSetup.DeleteAll();
         WorkflowWebhookEntry.DeleteAll();
-        LibraryWorkflow.DisableAllWorkflows;
-        RemoveBogusUser;
+        LibraryWorkflow.DisableAllWorkflows();
+        RemoveBogusUser();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WFWH Purch. Document Approval");
@@ -76,9 +76,9 @@ codeunit 134215 "WFWH Purch. Document Approval"
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
 
         // Exercise
-        PurchaseOrderList.OpenView;
+        PurchaseOrderList.OpenView();
         PurchaseOrderList.GotoRecord(PurchaseHeader);
-        asserterror PurchaseOrderList.Release.Invoke;
+        asserterror PurchaseOrderList.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(DocCannotBeReleasedErr);
@@ -106,9 +106,9 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Commit();
 
         // Exercise
-        PurchaseOrderList.OpenView;
+        PurchaseOrderList.OpenView();
         PurchaseOrderList.GotoRecord(PurchaseHeader);
-        asserterror PurchaseOrderList.Release.Invoke;
+        asserterror PurchaseOrderList.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(PurchaseHeader.RecordId, 0, 1)));
@@ -137,9 +137,9 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Commit();
 
         // Exercise
-        PurchaseOrderList.OpenView;
+        PurchaseOrderList.OpenView();
         PurchaseOrderList.GotoRecord(PurchaseHeader);
-        asserterror PurchaseOrderList.Reopen.Invoke;
+        asserterror PurchaseOrderList.Reopen.Invoke();
 
         // Verify
         Assert.ExpectedError(ApprovalShouldBeHandledErr);
@@ -165,9 +165,9 @@ codeunit 134215 "WFWH Purch. Document Approval"
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
 
         // Exercise
-        PurchaseOrderList.OpenView;
+        PurchaseOrderList.OpenView();
         PurchaseOrderList.GotoRecord(PurchaseHeader);
-        asserterror PurchaseOrderList.Post.Invoke;
+        asserterror PurchaseOrderList.Post.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(DocCannotBePostedErr, PurchaseHeader."Document Type", PurchaseHeader."No."));
@@ -188,7 +188,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         // [THEN] Workflow table relations for purchase order and workflow webhook entry exist.
 
         // Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
 
         // Excercise
         WorkflowSetup.InitWorkflow();
@@ -256,7 +256,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
         PurchaseOrderPageSendForApproval(PurchaseHeader);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
 
         Commit();
 
@@ -288,7 +288,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
         PurchaseOrderPageSendForApproval(PurchaseHeader);
-        MakeCurrentUserAnApprover;
+        MakeCurrentUserAnApprover();
 
         Commit();
 
@@ -449,12 +449,12 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WebhookHelper.CreatePendingFlowApproval(PurchaseHeader.RecordId);
 
         // [WHEN] Purchase Order card is opened.
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(PurchaseOrder.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseOrder.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseOrder.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseOrder.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         PurchaseOrder.Close();
@@ -475,12 +475,12 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WebhookHelper.CreatePendingFlowApproval(PurchaseHeader.RecordId);
 
         // [WHEN] Purchase Order list is opened.
-        PurchaseOrderList.OpenEdit;
+        PurchaseOrderList.OpenEdit();
         PurchaseOrderList.GotoRecord(PurchaseHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(PurchaseOrderList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseOrderList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseOrderList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseOrderList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         PurchaseOrderList.Close();
@@ -501,12 +501,12 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WebhookHelper.CreatePendingFlowApproval(PurchaseHeader.RecordId);
 
         // [WHEN] Purchase Invoice card is opened.
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(PurchaseInvoice.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseInvoice.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseInvoice.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseInvoice.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         PurchaseInvoice.Close();
@@ -527,12 +527,12 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WebhookHelper.CreatePendingFlowApproval(PurchaseHeader.RecordId);
 
         // [WHEN] Purchase Invoice list is opened.
-        PurchaseInvoices.OpenEdit;
+        PurchaseInvoices.OpenEdit();
         PurchaseInvoices.GotoRecord(PurchaseHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(PurchaseInvoices.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseInvoices.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseInvoices.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseInvoices.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         PurchaseInvoices.Close();
@@ -553,12 +553,12 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WebhookHelper.CreatePendingFlowApproval(PurchaseHeader.RecordId);
 
         // [WHEN] Purchase Credit Memo card is opened.
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(PurchaseCreditMemo.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseCreditMemo.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseCreditMemo.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseCreditMemo.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         PurchaseCreditMemo.Close();
@@ -579,12 +579,12 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WebhookHelper.CreatePendingFlowApproval(PurchaseHeader.RecordId);
 
         // [WHEN] Purchase Credit Memo list is opened.
-        PurchaseCreditMemos.OpenEdit;
+        PurchaseCreditMemos.OpenEdit();
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
 
         // [THEN] Cancel is enabled and Send is disabled.
-        Assert.IsFalse(PurchaseCreditMemos.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseCreditMemos.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseCreditMemos.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseCreditMemos.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Cleanup
         PurchaseCreditMemos.Close();
@@ -606,9 +606,9 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WebhookHelper.CreatePendingFlowApproval(PurchaseHeader.RecordId);
 
         // [WHEN] Purchase Order card is opened and Cancel button is clicked.
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
-        PurchaseOrder.CancelApprovalRequest.Invoke;
+        PurchaseOrder.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -634,9 +634,9 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WebhookHelper.CreatePendingFlowApproval(PurchaseHeader.RecordId);
 
         // [WHEN] Purchase Order list is opened and Cancel button is clicked.
-        PurchaseOrderList.OpenEdit;
+        PurchaseOrderList.OpenEdit();
         PurchaseOrderList.GotoRecord(PurchaseHeader);
-        PurchaseOrderList.CancelApprovalRequest.Invoke;
+        PurchaseOrderList.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -662,9 +662,9 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WebhookHelper.CreatePendingFlowApproval(PurchaseHeader.RecordId);
 
         // [WHEN] Purchase Invoice card is opened and Cancel button is clicked.
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.CancelApprovalRequest.Invoke;
+        PurchaseInvoice.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -690,9 +690,9 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WebhookHelper.CreatePendingFlowApproval(PurchaseHeader.RecordId);
 
         // [WHEN] Purchase Invoice list is opened and Cancel button is clicked.
-        PurchaseInvoices.OpenEdit;
+        PurchaseInvoices.OpenEdit();
         PurchaseInvoices.GotoRecord(PurchaseHeader);
-        PurchaseInvoices.CancelApprovalRequest.Invoke;
+        PurchaseInvoices.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -718,9 +718,9 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WebhookHelper.CreatePendingFlowApproval(PurchaseHeader.RecordId);
 
         // [WHEN] Purchase Credit Memo card is opened and Cancel button is clicked.
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        PurchaseCreditMemo.CancelApprovalRequest.Invoke;
+        PurchaseCreditMemo.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -746,9 +746,9 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WebhookHelper.CreatePendingFlowApproval(PurchaseHeader.RecordId);
 
         // [WHEN] Purchase Credit Memo list is opened and Cancel button is clicked.
-        PurchaseCreditMemos.OpenEdit;
+        PurchaseCreditMemos.OpenEdit();
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
-        PurchaseCreditMemos.CancelApprovalRequest.Invoke;
+        PurchaseCreditMemos.CancelApprovalRequest.Invoke();
 
         // [THEN] Workflow Webhook Entry record is cancelled
         WorkflowWebhookEntry.FindFirst();
@@ -779,7 +779,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
         WorkflowWebhookSetup: Codeunit "Workflow Webhook Setup";
         WorkflowCode: Code[20];
     begin
-        WorkflowCode := WorkflowWebhookSetup.CreateWorkflowDefinition(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
+        WorkflowCode := WorkflowWebhookSetup.CreateWorkflowDefinition(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(),
             '', DynamicRequestPageParametersOpenPurchaseOrderTxt, ResponseUserID);
         Workflow.Get(WorkflowCode);
         LibraryWorkflow.EnableWorkflow(Workflow);
@@ -852,9 +852,9 @@ codeunit 134215 "WFWH Purch. Document Approval"
     var
         PurchaseOrderList: TestPage "Purchase Order List";
     begin
-        PurchaseOrderList.OpenView;
+        PurchaseOrderList.OpenView();
         PurchaseOrderList.GotoRecord(PurchaseHeader);
-        PurchaseOrderList.SendApprovalRequest.Invoke;
+        PurchaseOrderList.SendApprovalRequest.Invoke();
         PurchaseOrderList.Close();
 
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::"Pending Approval");

@@ -1,9 +1,9 @@
 namespace Microsoft.Sales.Analysis;
 
 using Microsoft.Finance.ReceivablesPayables;
+using System.Integration;
 using Microsoft.Sales.Customer;
 using Microsoft.Utilities;
-using System;
 using System.Visualization;
 
 page 768 "Aged Acc. Receivable Chart"
@@ -28,17 +28,17 @@ page 768 "Aged Acc. Receivable Chart"
                 ShowCaption = false;
                 ToolTip = 'Specifies the status of the chart.';
             }
-            usercontrol(BusinessChart; "Microsoft.Dynamics.Nav.Client.BusinessChart")
+            usercontrol(BusinessChart; BusinessChart)
             {
                 ApplicationArea = Basic, Suite;
 
-                trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
+                trigger DataPointClicked(Point: JsonObject)
                 begin
-                    BusinessChartBuffer.SetDrillDownIndexes(point);
+                    BusinessChartBuffer.SetDrillDownIndexes(Point);
                     AgedAccReceivable.DrillDown(BusinessChartBuffer, CustomerNo, TempEntryNoAmountBuf);
                 end;
 
-                trigger DataPointDoubleClicked(point: DotNet BusinessChartDataPoint)
+                trigger DataPointDoubleClicked(Point: JsonObject)
                 begin
                 end;
 
@@ -185,7 +185,7 @@ page 768 "Aged Acc. Receivable Chart"
             if isInitialized then
                 BusinessChartBuffer.Initialize();
         if UpdatePending then begin
-            BusinessChartBuffer.Update(CurrPage.BusinessChart);
+            BusinessChartBuffer.UpdateChart(CurrPage.BusinessChart);
             UpdatePending := false;
         end else
             UpdateChart();
@@ -205,7 +205,7 @@ page 768 "Aged Acc. Receivable Chart"
 
         BusinessChartBuffer.Initialize();
         BusinessChartBuffer."Period Filter Start Date" := WorkDate();
-        BusinessChartBuffer.Update(CurrPage.BusinessChart);
+        BusinessChartBuffer.UpdateChart(CurrPage.BusinessChart);
 
         UpdatePage();
     end;
@@ -239,7 +239,7 @@ page 768 "Aged Acc. Receivable Chart"
         end;
         AgedAccReceivable.UpdateDataPerCustomer(BusinessChartBuffer, CustomerNo, TempEntryNoAmountBuf, true);
         UpdatedCustomerNo := CustomerNo;
-        BusinessChartBuffer.Update(CurrPage.BusinessChart);
+        BusinessChartBuffer.UpdateChart(CurrPage.BusinessChart);
         UpdatePending := false;
     end;
 
@@ -273,7 +273,7 @@ page 768 "Aged Acc. Receivable Chart"
 
         if UpdatedCustomerNo <> '' then begin
             BusinessChartBuffer.Initialize();
-            BusinessChartBuffer.Update(CurrPage.BusinessChart);
+            BusinessChartBuffer.UpdateChart(CurrPage.BusinessChart);
         end;
         BusinessChartBuffer."Period Filter Start Date" := WorkDate();
 

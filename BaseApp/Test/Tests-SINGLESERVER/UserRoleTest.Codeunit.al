@@ -9,7 +9,7 @@ codeunit 132900 UserRoleTest
     begin
         // [FEATURE] [User] [Permissions]
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         Commit();
     end;
 
@@ -35,8 +35,6 @@ codeunit 132900 UserRoleTest
         NoOfFilters: Integer;
         Stages: Option Set,Validate,SetInvalidFieldNo,SetInvalidFilter;
         NewRoleId: Code[20];
-        YesTxt: Label 'Yes';
-        IndirectTxt: Label 'Indirect';
         IsInitialized: Boolean;
         SUPERPermissionErr: Label 'There should be at least one enabled ''SUPER'' user.';
         LibrarySingleServer: Codeunit "Library - Single Server";
@@ -72,7 +70,7 @@ codeunit 132900 UserRoleTest
         // Test function property TransactionModel = AutoRollback
         // Bug Sicily 6812
         Initialize();
-        RandomUserName := SelectRandomADUser;
+        RandomUserName := SelectRandomADUser();
         AddUserHelper(RandomUserName);
         TestValidateUserHelper(RandomUserName);
         UserCardPage.OpenNew();
@@ -110,7 +108,7 @@ codeunit 132900 UserRoleTest
         UserCardPage.OpenNew();
         UserCardPage."User Name".Value := 'Test User';
         UserCardPage."Authentication Email".Value := 'test@email.com';
-        UserCardPage.OK.Invoke;
+        UserCardPage.OK().Invoke();
     end;
 
     [Test]
@@ -122,10 +120,10 @@ codeunit 132900 UserRoleTest
         UserCardPage: TestPage "User Card";
     begin
         Initialize();
-        AddUserHelper(SelectRandomADUser);
+        AddUserHelper(SelectRandomADUser());
         UserCardPage.OpenNew();
         UserCardPage."User Name".Value := 'Test User';
-        UserCardPage.OK.Invoke;
+        UserCardPage.OK().Invoke();
     end;
 
     [Test]
@@ -137,11 +135,11 @@ codeunit 132900 UserRoleTest
         UserCardPage: TestPage "User Card";
     begin
         Initialize();
-        AddUserHelper(SelectRandomADUser);
+        AddUserHelper(SelectRandomADUser());
         UserCardPage.OpenNew();
         UserCardPage."User Name".Value := 'Test User';
         UserCardPage."Authentication Email".Value := 'test@email.com';
-        UserCardPage.OK.Invoke;
+        UserCardPage.OK().Invoke();
     end;
 
     [Test]
@@ -155,13 +153,13 @@ codeunit 132900 UserRoleTest
         // test function property TransactionModel = AutoRollback
         Initialize();
         AddUserHelper(UserName[1]);
-        UserCardPage.OpenEdit;
+        UserCardPage.OpenEdit();
 
         UserCardPage.FindFirstField("User Name", UserName[1]);
         UserCardPage."User Name".AssertEquals(UserName[1]);
 
         UserCardPage."User Name".SetValue(UserName[2]);
-        UserCardPage.OK.Invoke;
+        UserCardPage.OK().Invoke();
         TestValidateUserHelper(UserName[2]);
     end;
 
@@ -176,12 +174,12 @@ codeunit 132900 UserRoleTest
         // test function property TransactionModel = AutoRollback
         Initialize();
         AddUserHelper(UserName[1]);
-        UserCardPage.OpenEdit;
+        UserCardPage.OpenEdit();
 
         UserCardPage.FindFirstField("User Name", UserName[1]);
         UserCardPage."User Name".AssertEquals(UserName[1]);
         UserCardPage."License Type".Value := Format(UserTable."License Type"::"External User");
-        UserCardPage.OK.Invoke;
+        UserCardPage.OK().Invoke();
         TestValidateUserWithLicenseTypeHelper(UserName[1], Format(UserTable."License Type"::"External User"));
     end;
 
@@ -197,19 +195,19 @@ codeunit 132900 UserRoleTest
         // Doesn't work can not invoke the delete button on a page - workaround implemented - deleting the record directly in the table
         Initialize();
         AddUserHelper(UserName[2]);
-        UserCardPage.OpenEdit;
+        UserCardPage.OpenEdit();
         UserCardPage.FindFirstField("User Name", UserName[2]);
         UserCardPage."User Name".AssertEquals(UserName[2]);
         UserCardPage.Close();
         // GETACTION is not getting the DELETE ID from the MetadataEditor bug 273002
-        // UserCardPage.GETACTION(2000000152).INVOKE;
+        // UserCardPage.GETACTION(2000000152).Invoke();
         // UserCardPage.Close();}
         // Bug 273002 --Removed the UI handler until the bug is resolved."EventYesHandler"
         // Workaround deleting the user from the table
         DeleteUser(UserName[2]);
         UserTable.SetRange("User Name");
-        UserCardPage.Trap;
-        UserCardPage.OpenView;
+        UserCardPage.Trap();
+        UserCardPage.OpenView();
         asserterror UserCardPage.FindFirstField("User Name", UserName[2]);
         if GetLastErrorText <> RowNotfound001Err then begin
             DeleteUser(UserName[2]);
@@ -246,7 +244,7 @@ codeunit 132900 UserRoleTest
         // Test function property TransactionModel = AutoRollback
         Initialize();
         AddUserHelper(UserName[1]);
-        UserCardPage.OpenEdit;
+        UserCardPage.OpenEdit();
         UserCardPage.FindFirstField("User Name", UserName[1]);
         asserterror UserCardPage.Permissions.PermissionSet.SetValue('RoleDoNotExist');
     end;
@@ -261,14 +259,14 @@ codeunit 132900 UserRoleTest
     begin
         Initialize();
         UserCardPage.OpenNew();
-        UserCardPage."User Name".Value := SelectRandomADUser;
+        UserCardPage."User Name".Value := SelectRandomADUser();
         UserCardPage.Permissions.PermissionSet.SetValue('SUPER');
         UserCardPage.Permissions.Next();
         UserCardPage.Permissions.PermissionSet.SetValue('D365 BASIC');
-        UserCardPage.Permissions.First;
-        if 0 <> UserCardPage.Permissions.PermissionSet.ValidationErrorCount then begin
+        UserCardPage.Permissions.First();
+        if 0 <> UserCardPage.Permissions.PermissionSet.ValidationErrorCount() then begin
             UserCardPage.Close();
-            Error(ErrorStringCom002Err, UserCardPage.Permissions.PermissionSet.ValidationErrorCount, 0);
+            Error(ErrorStringCom002Err, UserCardPage.Permissions.PermissionSet.ValidationErrorCount(), 0);
         end;
 
         UserCardPage.Close();
@@ -282,23 +280,22 @@ codeunit 132900 UserRoleTest
     var
         TenantPermissionSet: Record "Tenant Permission Set";
         UserCardPage: TestPage "User Card";
-        NullGUID: Guid;
     begin
         // Init: Add two permission sets, one at system level, one at tenant level.
         //       See: TestSet.PermissionSet.al
         Initialize();
         UserCardPage.OpenNew();
-        UserCardPage."User Name".Value := SelectRandomADUser;
+        UserCardPage."User Name".Value := SelectRandomADUser();
 
         LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET', LibrarySingleServer.GetAppIdGuid());
 
         // Exercise: Adding the role ID should trigger a validation error
-        UserCardPage.Permissions.First;
+        UserCardPage.Permissions.First();
         asserterror UserCardPage.Permissions.PermissionSet.SetValue('TESTSET');
 
         Assert.ExpectedError('Validation error for Field');
 
-        UserCardPage.OK.Invoke;
+        UserCardPage.OK().Invoke();
     end;
 
     //[Test]ignore 426467
@@ -311,7 +308,6 @@ codeunit 132900 UserRoleTest
         TenantPermissionSet: Record "Tenant Permission Set";
         UserCardPage: TestPage "User Card";
         NullGUID: Guid;
-        i: Integer;
     begin
         Initialize();
         LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET3', NullGUID);
@@ -319,23 +315,23 @@ codeunit 132900 UserRoleTest
 
         // Init
         UserCardPage.OpenNew();
-        UserCardPage."User Name".Value := SelectRandomADUser;
+        UserCardPage."User Name".Value := SelectRandomADUser();
 
         // Use the lookup to select both, this should succeed
         LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET2', NullGUID);
-        UserCardPage.Permissions.First;
-        UserCardPage.Permissions.PermissionSet.Lookup;
+        UserCardPage.Permissions.First();
+        UserCardPage.Permissions.PermissionSet.Lookup();
 
         LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'TESTSET2', LibrarySingleServer.GetTestLibraryAppIdGuid());
         UserCardPage.Permissions.Next();
-        UserCardPage.Permissions.PermissionSet.Lookup;
+        UserCardPage.Permissions.PermissionSet.Lookup();
 
         UserCardPage.Permissions.Next();
 
         // Verify that there are no validation errors
-        if UserCardPage.Permissions.PermissionSet.ValidationErrorCount <> 0 then begin
+        if UserCardPage.Permissions.PermissionSet.ValidationErrorCount() <> 0 then begin
             UserCardPage.Close();
-            Error(ErrorStringCom002Err, UserCardPage.Permissions.PermissionSet.ValidationErrorCount, 0);
+            Error(ErrorStringCom002Err, UserCardPage.Permissions.PermissionSet.ValidationErrorCount(), 0);
         end;
 
         // AccessControl should now contain two entries - one for each permission set
@@ -356,12 +352,12 @@ codeunit 132900 UserRoleTest
     begin
         Initialize();
         UserCardPage.OpenNew();
-        UserCardPage."User Name".Value := SelectRandomADUser;
+        UserCardPage."User Name".Value := SelectRandomADUser();
         UserCardPage.Permissions.PermissionSet.SetValue('SUPER');
 
         PermissionsPage.Trap();
 
-        UserCardPage.Permissions.Permissions.Invoke;
+        UserCardPage.Permissions.Permissions.Invoke();
 
         PermissionsPage.Close();
         UserCardPage.Close();
@@ -374,18 +370,18 @@ codeunit 132900 UserRoleTest
     begin
         // TODO FIX THE DIALOG ERROR HANDLING WHEN SETTING 'SUPER'
         UserCardPage.OpenNew();
-        UserCardPage."User Name".Value := SelectRandomADUser;
+        UserCardPage."User Name".Value := SelectRandomADUser();
         asserterror UserCardPage.Permissions.PermissionSet.SetValue('AdfLL');
-        if 1 <> UserCardPage.Permissions.PermissionSet.ValidationErrorCount then begin
+        if 1 <> UserCardPage.Permissions.PermissionSet.ValidationErrorCount() then begin
             UserCardPage.Close();
-            Error(ErrorStringCom002Err, UserCardPage.Permissions.PermissionSet.ValidationErrorCount, 0);
+            Error(ErrorStringCom002Err, UserCardPage.Permissions.PermissionSet.ValidationErrorCount(), 0);
         end;
 
         UserCardPage.Permissions.PermissionSet.SetValue('SUPER');
-        UserCardPage.Permissions.First;
-        if 0 <> UserCardPage.Permissions.PermissionSet.ValidationErrorCount then begin
+        UserCardPage.Permissions.First();
+        if 0 <> UserCardPage.Permissions.PermissionSet.ValidationErrorCount() then begin
             UserCardPage.Close();
-            Error(ErrorStringCom002Err, UserCardPage.Permissions.PermissionSet.ValidationErrorCount, 0);
+            Error(ErrorStringCom002Err, UserCardPage.Permissions.PermissionSet.ValidationErrorCount(), 0);
         end;
 
         UserCardPage.Close();
@@ -411,14 +407,14 @@ codeunit 132900 UserRoleTest
 
         Assert.IsFalse(TenantPermissionSet.Get(ZeroGUID, NewRoleId), '''NEWROLE'' Permission Set already exists.');
 
-        PermissionSetsPage.OpenEdit;
+        PermissionSetsPage.OpenEdit();
         PermissionSetsPage.Filter.SetFilter(Type, 'System');
         // Copy first Permission Set to 'NEWROLE'
-        PermissionSetsPage.First;
-        RoleId := PermissionSetsPage.PermissionSet.Value;
-        Name := PermissionSetsPage.Name.Value;
+        PermissionSetsPage.First();
+        RoleId := PermissionSetsPage.PermissionSet.Value();
+        Name := PermissionSetsPage.Name.Value();
         LibraryVariableStorage.Enqueue(NewRoleId);
-        PermissionSetsPage.CopyPermissionSet.Invoke;
+        PermissionSetsPage.CopyPermissionSet.Invoke();
 
         Assert.IsTrue(TenantPermissionSet.Get(ZeroGUID, NewRoleId), '''NEWROLE'' Permission Set not copied.');
         Assert.AreEqual(TenantPermissionSet.Name, Name, 'Permission Set name not copied');
@@ -431,7 +427,7 @@ codeunit 132900 UserRoleTest
         NewTenantPermission.SetRange("Role ID", NewRoleId);
 
         Assert.AreEqual(OrgPermission.Count, NewTenantPermission.Count, 'Number of permissions invalid');
-        Assert.IsTrue(NewTenantPermission.FindSet, 'Permissions not copied');
+        Assert.IsTrue(NewTenantPermission.FindSet(), 'Permissions not copied');
 
         repeat
             Assert.AreEqual(OrgPermission."Role ID", RoleId, 'System Role ID differ');
@@ -446,11 +442,11 @@ codeunit 132900 UserRoleTest
             Assert.IsTrue(OrgPermission."Security Filter" = NewTenantPermission."Security Filter", 'Security Filter differ');
 
             Steps := OrgPermission.Next();
-            Assert.AreEqual(Steps, NewTenantPermission.Next, 'Number of Permissions differ.');
+            Assert.AreEqual(Steps, NewTenantPermission.Next(), 'Number of Permissions differ.');
         until Steps = 0;
 
         PermissionSetsPage.Close();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -534,7 +530,7 @@ codeunit 132900 UserRoleTest
 
         // Setting Application ID, sets the License Type to External User
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        UserCard.OpenEdit;
+        UserCard.OpenEdit();
         UserCard.GotoRecord(User);
         UserCard.ApplicationID.Value := CreateGuid();
         UserCard."License Type".AssertEquals(User."License Type"::"External User");
@@ -542,7 +538,7 @@ codeunit 132900 UserRoleTest
         // Setting Application ID to empty, sets the License Type to Full User
         UserCard.ApplicationID.Value := '';
         UserCard."License Type".AssertEquals(User."License Type"::"Full User");
-        UserCard.OK.Invoke;
+        UserCard.OK().Invoke();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
@@ -551,7 +547,7 @@ codeunit 132900 UserRoleTest
         if IsInitialized then
             exit;
 
-        InitializeTestUsers;
+        InitializeTestUsers();
         IsInitialized := true;
     end;
 
@@ -586,7 +582,7 @@ codeunit 132900 UserRoleTest
         UserCardPage.OpenNew();
         UserCardPage."User Name".Value := NewUserName;
         UserCardPage."License Type".Value := LicenseType;
-        UserCardPage.OK.Invoke;
+        UserCardPage.OK().Invoke();
     end;
 
     local procedure AddAndTestUserWithLicenseType(Index: Integer; LicenseType: Text)
@@ -646,91 +642,6 @@ codeunit 132900 UserRoleTest
             Error(LicenseTypeIsWrongErr, LicenseType, Format(WindowLoginTab."License Type"));
     end;
 
-#if not CLEAN21
-    local procedure PermissionFilterWithAssistEditHelper(RoleNameSuffix: Text; ObjectID: Integer)
-    var
-        TenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermissionsPage: TestPage "Tenant Permissions";
-        ZeroGUID: Guid;
-    begin
-        if not TenantPermissionSet.Get(ZeroGUID, 'Role' + RoleNameSuffix) then begin
-            TenantPermissionSet.Init();
-            TenantPermissionSet."App ID" := ZeroGUID;
-            TenantPermissionSet."Role ID" := CopyStr('Role' + RoleNameSuffix, 1, 20);
-            TenantPermissionSet.Name := CopyStr('Name' + RoleNameSuffix, 1, 30);
-            TenantPermissionSet.Insert();
-        end;
-
-        PermissionSetsPage.OpenView;
-        PointPermissionSetPageToRole(PermissionSetsPage, TenantPermissionSet."Role ID");
-
-        TenantPermissionsPage.Trap;
-        PermissionSetsPage.Permissions.Invoke;
-        TenantPermissionsPage.FILTER.SetFilter("Object ID", Format(ObjectID));
-
-        if not TenantPermissionsPage.First then begin
-            TenantPermissionsPage.New;
-            TenantPermissionsPage."Object ID".SetValue(ObjectID);
-        end;
-
-        LibraryVariableStorage.Enqueue(Stages::Set);
-
-        TenantPermissionsPage."Security Filter".Activate;
-        TenantPermissionsPage."Security Filter".AssistEdit;
-
-        LibraryVariableStorage.Enqueue(Stages::Validate);
-        TenantPermissionsPage."Security Filter".AssistEdit;
-
-        TenantPermissionsPage.Close();
-        PermissionSetsPage.Close();
-    end;
-
-    local procedure InvalidPermissionFilterWithAssistEditHelper(RoleNameSuffix: Text; ObjectID: Integer; InvalidValue: Text)
-    var
-        TenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermissionsPage: TestPage "Tenant Permissions";
-        ZeroGUID: Guid;
-    begin
-        if not TenantPermissionSet.Get(ZeroGUID, 'Role' + RoleNameSuffix) then begin
-            TenantPermissionSet.Init();
-            TenantPermissionSet."App ID" := ZeroGUID;
-            TenantPermissionSet."Role ID" := CopyStr('Role' + RoleNameSuffix, 1, 20);
-            TenantPermissionSet.Name := CopyStr('Name' + RoleNameSuffix, 1, 30);
-            TenantPermissionSet.Insert();
-        end;
-
-        PermissionSetsPage.OpenView;
-        PointPermissionSetPageToRole(PermissionSetsPage, TenantPermissionSet."Role ID");
-
-        TenantPermissionsPage.Trap;
-        PermissionSetsPage.Permissions.Invoke;
-        TenantPermissionsPage.FILTER.SetFilter("Object ID", Format(ObjectID));
-
-        if not TenantPermissionsPage.First then begin
-            TenantPermissionsPage.New;
-            TenantPermissionsPage."Object ID".SetValue(ObjectID);
-        end;
-
-        case InvalidValue of
-            'FieldNo':
-                begin
-                    LibraryVariableStorage.Enqueue(Stages::SetInvalidFieldNo);
-                    TenantPermissionsPage."Security Filter".Activate;
-                    TenantPermissionsPage."Security Filter".AssistEdit;
-                end;
-            'FilterValue':
-                begin
-                    LibraryVariableStorage.Enqueue(Stages::SetInvalidFilter);
-                    TenantPermissionsPage."Security Filter".Activate;
-                    TenantPermissionsPage."Security Filter".AssistEdit;
-                end;
-        end;
-
-        TenantPermissionsPage.Close();
-        PermissionSetsPage.Close();
-    end;
-#endif
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure TableFilterModalHandler(var TableFilterPage: TestPage "Table Filter")
@@ -744,13 +655,13 @@ codeunit 132900 UserRoleTest
         case Stages2 of
             Stages2::Set:
                 begin
-                    TableFilterPage.Last;
+                    TableFilterPage.Last();
                     for i := 1 to NoOfFilters do begin
                         TableFilterPage."Field Number".SetValue(Filters[i] [1]);
                         TableFilterPage."Field Filter".SetValue(Filters[i] [2]);
                         TableFilterPage.Next();
                     end;
-                    TableFilterPage.OK.Invoke;
+                    TableFilterPage.OK().Invoke();
                 end;
             Stages::Validate:
                 begin
@@ -760,17 +671,17 @@ codeunit 132900 UserRoleTest
                         then
                             Error(FailedPermissionFilterErr, Format(Filters[i] [1]));
                     end;
-                    TableFilterPage.OK.Invoke;
+                    TableFilterPage.OK().Invoke();
                 end;
             Stages::SetInvalidFieldNo:
                 begin
-                    TableFilterPage.Last;
+                    TableFilterPage.Last();
                     for i := 1 to NoOfFilters do
                         asserterror TableFilterPage."Field Number".SetValue(Filters[i] [1]);
                 end;
             Stages2::SetInvalidFilter:
                 begin
-                    TableFilterPage.Last;
+                    TableFilterPage.Last();
                     for i := 1 to NoOfFilters do begin
                         TableFilterPage."Field Number".SetValue(Filters[i] [1]);
                         asserterror TableFilterPage."Field Filter".SetValue(Filters[i] [2]);
@@ -778,60 +689,6 @@ codeunit 132900 UserRoleTest
                 end;
         end;
     end;
-
-#if not CLEAN21
-    [Test]
-    [HandlerFunctions('TableFilterModalHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure SecFilterTestWithAssistEdit()
-    var
-        salesPurchaserRecord: Record "Salesperson/Purchaser";
-        customerRecord: Record Customer;
-        RoundingMethodRecord: Record "Rounding Method";
-    begin
-        Filters[1] [1] := salesPurchaserRecord.FieldNo("Estimated Value (LCY)");
-        Filters[1] [2] := '0';
-        Filters[2] [1] := salesPurchaserRecord.FieldNo("Sales Cycle Filter");
-        Filters[2] [2] := 'FIRSTLARGE';
-        NoOfFilters := 2;
-        PermissionFilterWithAssistEditHelper('0001', 13);
-
-        NoOfFilters := 0;
-        PermissionFilterWithAssistEditHelper('0002', 13);
-
-        Filters[1] [1] := salesPurchaserRecord.FieldNo("Estimated Value (LCY)");
-        Filters[1] [2] := '0';
-        NoOfFilters := 1;
-        PermissionFilterWithAssistEditHelper('0003', 13);
-
-        Filters[1] [1] := customerRecord.FieldNo(Blocked);
-        Filters[1] [2] := 'Invoice';
-        Filters[2] [1] := customerRecord.FieldNo("Credit Limit (LCY)");
-        Filters[2] [2] := '>12';
-        Filters[3] [1] := customerRecord.FieldNo(Name);
-        Filters[3] [2] := 'sd';
-        Filters[4] [1] := customerRecord.FieldNo("No. of Quotes");
-        Filters[4] [2] := '3';
-        NoOfFilters := 4;
-        PermissionFilterWithAssistEditHelper('0004', 18);
-
-        Filters[1] [1] := RoundingMethodRecord.FieldNo(Code);
-        Filters[1] [2] := 'DF';
-        NoOfFilters := 1;
-        PermissionFilterWithAssistEditHelper('0005', 42);
-
-        Filters[1] [1] := '12345689';
-        Filters[1] [2] := '0';
-        NoOfFilters := 1;
-        InvalidPermissionFilterWithAssistEditHelper('0006', 13, 'FieldNo');
-
-        Filters[1] [1] := salesPurchaserRecord.FieldNo("Estimated Value (LCY)");
-        Filters[1] [2] := '"#?%&';
-        NoOfFilters := 1;
-        InvalidPermissionFilterWithAssistEditHelper('0007', 13, 'FilterValue');
-    end;
-#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]
@@ -846,7 +703,7 @@ codeunit 132900 UserRoleTest
     begin
         CopyPermissionSet.NewPermissionSet.SetValue(NewRoleId);
         CopyPermissionSet.CopyType.SetValue("Permission Set Copy Type"::Flat);
-        CopyPermissionSet.OK.Invoke;
+        CopyPermissionSet.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -856,7 +713,7 @@ codeunit 132900 UserRoleTest
         TenantPermissionSet: Record "Tenant Permission Set";
         CopiedRoleID: Code[20];
     begin
-        CopiedRoleID := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TenantPermissionSet."Role ID"));
+        CopiedRoleID := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(TenantPermissionSet."Role ID"));
         Assert.ExpectedMessage(StrSubstNo(CopySuccessMsg, CopiedRoleID), Message);
     end;
 
@@ -879,7 +736,7 @@ codeunit 132900 UserRoleTest
     begin
         LookupPermissionSet.FindFirstField("Role ID", 'TESTSET2');
         if not LookupPermissionSet.FindNextField("Role ID", 'TESTSET2') then; // Go to the second one if it exists.
-        LookupPermissionSet.OK.Invoke;
+        LookupPermissionSet.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -892,7 +749,7 @@ codeunit 132900 UserRoleTest
     [Scope('OnPrem')]
     procedure PointPermissionSetPageToRole(var PermissionSetsPage: TestPage "Permission Sets"; RoleId: Code[20])
     begin
-        PermissionSetsPage.First;
+        PermissionSetsPage.First();
         if PermissionSetsPage.PermissionSet.Value = RoleId then
             exit;
 

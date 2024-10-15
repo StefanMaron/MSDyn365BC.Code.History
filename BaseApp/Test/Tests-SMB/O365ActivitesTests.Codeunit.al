@@ -40,7 +40,7 @@ codeunit 139126 "O365 Activites Tests"
             until CustLedgerEntry.Next() = 0;
 
         // Execute & Verify
-        Assert.AreEqual(RemainingAmountSum, ActivitiesMgt.CalcOverdueSalesInvoiceAmount(false), 'Unexpected Sum');
+        Assert.AreEqual(RemainingAmountSum, ActivitiesMgt.OverdueSalesInvoiceAmount(false, false), 'Unexpected Sum');
     end;
 
     [Test]
@@ -62,7 +62,7 @@ codeunit 139126 "O365 Activites Tests"
             until VendorLedgerEntry.Next() = 0;
 
         // Execute & Verify
-        Assert.AreEqual(Abs(RemainingAmountSum), ActivitiesMgt.CalcOverduePurchaseInvoiceAmount(false), 'Unexpected Sum');
+        Assert.AreEqual(Abs(RemainingAmountSum), ActivitiesMgt.OverduePurchaseInvoiceAmount(false, false), 'Unexpected Sum');
     end;
 
     [Test]
@@ -103,7 +103,7 @@ codeunit 139126 "O365 Activites Tests"
             until CustLedgerEntry.Next() = 0;
 
         // Execute & Verify
-        Assert.AreEqual(AmountSum, ActivitiesMgt.CalcSalesYTD, 'Unexpected Sum');
+        Assert.AreEqual(AmountSum, ActivitiesMgt.CalcSalesYTD(), 'Unexpected Sum');
     end;
 
     [Test]
@@ -118,8 +118,8 @@ codeunit 139126 "O365 Activites Tests"
         CalcCustomerSalesYTD(TopCustomerSales, TotalSales);
 
         // Verify
-        Assert.AreEqual(TotalSales, ActivitiesMgt.CalcSalesYTD, 'Unexpected Amount for Total SalesYTD');
-        Assert.AreEqual(TopCustomerSales, ActivitiesMgt.CalcTop10CustomerSalesYTD,
+        Assert.AreEqual(TotalSales, ActivitiesMgt.CalcSalesYTD(), 'Unexpected Amount for Total SalesYTD');
+        Assert.AreEqual(TopCustomerSales, ActivitiesMgt.CalcTop10CustomerSalesYTD(),
           'Unexpected Amount for Top10 Customer Sales YTD');
     end;
 
@@ -137,7 +137,7 @@ codeunit 139126 "O365 Activites Tests"
         // Verify
         if TotalSales <> 0 then
             Assert.AreEqual(TopCustomerSales / TotalSales,
-              ActivitiesMgt.CalcTop10CustomerSalesRatioYTD,
+              ActivitiesMgt.CalcTop10CustomerSalesRatioYTD(),
               'Unexpected Amount for Top 10 Customer Sales Ratio YTD');
     end;
 
@@ -169,10 +169,10 @@ codeunit 139126 "O365 Activites Tests"
         Initialize();
 
         // The expected average collecation days is calculated when creating the test records
-        CreateTestPayments;
+        CreateTestPayments();
 
         // Execute & Verify
-        Assert.AreEqual(ExpectedAvergeCollectionDays, ActivitiesMgt.CalcAverageCollectionDays, 'Unexpected Average Days');
+        Assert.AreEqual(ExpectedAvergeCollectionDays, ActivitiesMgt.CalcAverageCollectionDays(), 'Unexpected Average Days');
     end;
 
     [Test]
@@ -188,10 +188,10 @@ codeunit 139126 "O365 Activites Tests"
         CustLedgerEntry.SetFilter("Due Date", '<%1', WorkDate());
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.FindSet();
-        CustomerLedgerEntries.Trap;
+        CustomerLedgerEntries.Trap();
 
         // Execute
-        ActivitiesMgt.DrillDownCalcOverdueSalesInvoiceAmount;
+        ActivitiesMgt.DrillDownCalcOverdueSalesInvoiceAmount();
 
         // Verify
         repeat
@@ -212,10 +212,10 @@ codeunit 139126 "O365 Activites Tests"
         VendorLedgerEntry.SetFilter("Due Date", '<%1', WorkDate());
         VendorLedgerEntry.SetFilter("Remaining Amt. (LCY)", '<>0');
         VendorLedgerEntry.FindSet();
-        VendorLedgerEntries.Trap;
+        VendorLedgerEntries.Trap();
 
         // Execute
-        ActivitiesMgt.DrillDownOverduePurchaseInvoiceAmount;
+        ActivitiesMgt.DrillDownOverduePurchaseInvoiceAmount();
 
         // Verify
         repeat
@@ -236,7 +236,7 @@ codeunit 139126 "O365 Activites Tests"
         CustLedgerEntry.SetRange("Posting Date", CalcDate('<-CM>', WorkDate()), WorkDate());
         CustLedgerEntry.FindSet();
 
-        CustomerLedgerEntries.Trap;
+        CustomerLedgerEntries.Trap();
 
         // Execute
         ActivitiesMgt.DrillDownSalesThisMonth();
@@ -258,19 +258,19 @@ codeunit 139126 "O365 Activites Tests"
     begin
         // Setup
         Initialize();
-        VendorLedgerEntries.Trap;
+        VendorLedgerEntries.Trap();
 
         // Execute
-        ActivitiesMgt.DrillDownOverduePurchaseInvoiceAmount;
+        ActivitiesMgt.DrillDownOverduePurchaseInvoiceAmount();
 
         // Verify
         // in order to verify, since fields which are not visible by default are inaccesible in a TestPage, a record is used;
         // to verify that the sorting was done correctly, the records are iterated through one by one and each time
         // the value of Remaining Amt. (LCY) is checked to be smaller then the previous Remaining Amt. (LCY) value
-        VendorLedgerEntries.First;
+        VendorLedgerEntries.First();
         PreviousRemainingAmtLCY := 0;
         repeat
-            CurrentEntryNo := VendorLedgerEntries."Entry No.".AsInteger;
+            CurrentEntryNo := VendorLedgerEntries."Entry No.".AsInteger();
             VendLedgerEntry.Get(CurrentEntryNo);
             VendLedgerEntry.CalcFields("Remaining Amt. (LCY)");
             if PreviousRemainingAmtLCY <> 0 then
@@ -286,7 +286,7 @@ codeunit 139126 "O365 Activites Tests"
     procedure OverduePurchInvoiceRemainingAmountLCYVisibleTest()
     begin
         // Setup and Execute
-        ActivitiesMgt.DrillDownOverduePurchaseInvoiceAmount;
+        ActivitiesMgt.DrillDownOverduePurchaseInvoiceAmount();
     end;
 
     [Test]
@@ -300,19 +300,19 @@ codeunit 139126 "O365 Activites Tests"
     begin
         // Setup
         Initialize();
-        CustomerLedgerEntries.Trap;
+        CustomerLedgerEntries.Trap();
 
         // Execute
-        ActivitiesMgt.DrillDownCalcOverdueSalesInvoiceAmount;
+        ActivitiesMgt.DrillDownCalcOverdueSalesInvoiceAmount();
 
         // Verify
         // in order to verify, since fields which are not visible by default are inaccesible in a TestPage, a record is used;
         // to verify that the sorting was done correctly, the records are iterated through one by one and each time
         // the value of Remaining Amt. (LCY) is checked to be smaller then the previous Remaining Amt. (LCY) value
-        CustomerLedgerEntries.First;
+        CustomerLedgerEntries.First();
         PreviousRemainingAmtLCY := 0;
         repeat
-            CurrentEntryNo := CustomerLedgerEntries."Entry No.".AsInteger;
+            CurrentEntryNo := CustomerLedgerEntries."Entry No.".AsInteger();
             CustLedgerEntry.Get(CurrentEntryNo);
             CustLedgerEntry.CalcFields("Remaining Amt. (LCY)");
             if PreviousRemainingAmtLCY <> 0 then
@@ -328,7 +328,7 @@ codeunit 139126 "O365 Activites Tests"
     procedure OverdueSalesInvoiceRemainingAmountLCYVisibleTest()
     begin
         // Setup and Execute
-        ActivitiesMgt.DrillDownCalcOverdueSalesInvoiceAmount;
+        ActivitiesMgt.DrillDownCalcOverdueSalesInvoiceAmount();
     end;
 
     [Test]
@@ -352,7 +352,7 @@ codeunit 139126 "O365 Activites Tests"
         Commit();
 
         // WHEN - O365 Activities page is opened
-        O365Activities.OpenView;
+        O365Activities.OpenView();
         O365Activities.Close();
 
         // THEN - Amounts are calculated
@@ -383,7 +383,7 @@ codeunit 139126 "O365 Activites Tests"
         Commit();
 
         // WHEN - O365 Activities page is opened
-        O365Activities.OpenView;
+        O365Activities.OpenView();
         O365Activities.Close();
 
         // THEN - Amounts are calculated
@@ -414,7 +414,7 @@ codeunit 139126 "O365 Activites Tests"
         Commit();
 
         // WHEN - O365 Activities page is opened
-        O365Activities.OpenView;
+        O365Activities.OpenView();
         Sleep(1000); // Let the child session do the calculations
         O365Activities.Close();
 
@@ -434,14 +434,14 @@ codeunit 139126 "O365 Activites Tests"
     var
         ActivitiesCue: Record "Activities Cue";
     begin
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         if isInitialized then
             exit;
 
         // Create test invoice records to get a clean dataset
-        DeleteSalesInvoices;
-        CreateTestSalesInvoices;
-        CreateTestPurchaseInvoices;
+        DeleteSalesInvoices();
+        CreateTestSalesInvoices();
+        CreateTestPurchaseInvoices();
 
         // Insert Activities Cue if not found
         if not ActivitiesCue.Get() then begin
@@ -528,7 +528,7 @@ codeunit 139126 "O365 Activites Tests"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         LineNo: Integer;
     begin
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
@@ -547,7 +547,7 @@ codeunit 139126 "O365 Activites Tests"
         GLAccount.SetRange("Account Subcategory Entry No.", 0);
         GLAccount.FindFirst();
 
-        GenJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false));
+        GenJournalLine.Validate("Document No.", NoSeries.PeekNextNo(GenJournalBatch."No. Series"));
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
@@ -611,7 +611,7 @@ codeunit 139126 "O365 Activites Tests"
     procedure CustomerLedgerEntriesPageHandler(var CustomerLedgerEntries: TestPage "Customer Ledger Entries")
     begin
         // Verify
-        Assert.IsTrue(CustomerLedgerEntries."Remaining Amt. (LCY)".Visible, 'Remaining Amt. (LCY) column not visible');
+        Assert.IsTrue(CustomerLedgerEntries."Remaining Amt. (LCY)".Visible(), 'Remaining Amt. (LCY) column not visible');
     end;
 
     [PageHandler]
@@ -619,7 +619,7 @@ codeunit 139126 "O365 Activites Tests"
     procedure VendorLedgerEntriesPageHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
         // Verify
-        Assert.IsTrue(VendorLedgerEntries."Remaining Amt. (LCY)".Visible, 'Remaining Amt. (LCY) column not visible');
+        Assert.IsTrue(VendorLedgerEntries."Remaining Amt. (LCY)".Visible(), 'Remaining Amt. (LCY) column not visible');
     end;
 }
 

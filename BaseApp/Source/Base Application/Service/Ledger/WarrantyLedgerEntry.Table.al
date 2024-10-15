@@ -19,6 +19,7 @@ table 5908 "Warranty Ledger Entry"
     Caption = 'Warranty Ledger Entry';
     DrillDownPageID = "Warranty Ledger Entries";
     LookupPageID = "Warranty Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

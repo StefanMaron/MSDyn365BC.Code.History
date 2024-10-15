@@ -53,7 +53,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         // Check Application, Amount LCY after Posting Application of Credit Memo over Invoice with same Amount and FCY.
         Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
-        ApplyCreditMemoToInvoice(CreateCurrency, Amount, -Amount);
+        ApplyCreditMemoToInvoice(CreateCurrency(), Amount, -Amount);
     end;
 
     local procedure ApplyCreditMemoToInvoice(CurrencyCode: Code[10]; Amount: Decimal; Amount2: Decimal)
@@ -167,7 +167,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         SelectGenJournalBatch(GenJournalBatch);
         Amount := LibraryRandom.RandDec(1000, 2);  // Using Random value for Amount.
-        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, CreateCustomer, GenJournalLine."Document Type"::Invoice, Amount, '');
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, CreateCustomer(), GenJournalLine."Document Type"::Invoice, Amount, '');
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account No.", GenJournalLine."Document Type"::"Credit Memo", -Amount / 2, '');
         CreateGeneralJournalLine(
@@ -193,7 +193,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Apply Diff Entries - Cust.");
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
@@ -254,7 +254,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         PaymentTerms: Record "Payment Terms";
     begin
         // Calculate Payment Discount Amount for a given Amount. Make sure that Amount has correct decimal places using Round.
-        PaymentTerms.Get(GetPaymentTerms);
+        PaymentTerms.Get(GetPaymentTerms());
         exit(Round(Amount * PaymentTerms."Discount %" / 100));
     end;
 
@@ -264,7 +264,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
     begin
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, CreateCustomer, GenJournalLine."Document Type"::Invoice, Amount, CurrencyCode);
+          GenJournalLine, GenJournalBatch, CreateCustomer(), GenJournalLine."Document Type"::Invoice, Amount, CurrencyCode);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account No.", GenJournalLine."Document Type"::"Credit Memo", Amount2,
           CurrencyCode);
@@ -286,7 +286,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         LibrarySales: Codeunit "Library - Sales";
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Terms Code", GetPaymentTerms);
+        Customer.Validate("Payment Terms Code", GetPaymentTerms());
         Customer.Validate("Application Method", Customer."Application Method"::Manual);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -366,7 +366,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
     [Scope('OnPrem')]
     procedure UnapplyCustomerEntriesPageHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
     begin
-        UnapplyCustomerEntries.Unapply.Invoke;
+        UnapplyCustomerEntries.Unapply.Invoke();
     end;
 
     [ConfirmHandler]

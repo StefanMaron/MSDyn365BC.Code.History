@@ -148,7 +148,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
 
         // [GIVEN] Create and Post a Manual Check so that it can be exported
         Initialize();
-        DocumentNo := CreateAndPostCheckLedgerEntry(GenJournalLine."Account Type"::Vendor, CreateVendor);
+        DocumentNo := CreateAndPostCheckLedgerEntry(GenJournalLine."Account Type"::Vendor, CreateVendor());
 
         // [GIVEN] Create the Data Exch Def, Bank Export/Import Setup, Bank Account, Vendor
         CreateDataExchDefWithBankExpImpSetup(DataExchDef, BankExportImportSetup);
@@ -287,7 +287,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
 
         // [GIVEN] Create and Post a Manual Check so that it can be exported
         Initialize();
-        DocumentNo := CreateAndPostCheckLedgerEntry(GenJournalLine."Account Type"::Vendor, CreateVendor);
+        DocumentNo := CreateAndPostCheckLedgerEntry(GenJournalLine."Account Type"::Vendor, CreateVendor());
 
         // [GIVEN] Create the Data Exch Def, Bank Export/Import Setup, Bank Account, Vendor
         CreateDataExchDefWithBankExpImpSetup(DataExchDef, BankExportImportSetup);

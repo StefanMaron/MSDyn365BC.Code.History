@@ -89,17 +89,6 @@ page 9010 "Production Planner Role Center"
                 ApplicationArea = Manufacturing;
                 Visible = false;
             }
-#if not CLEAN21
-            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
-            {
-                AccessByPermission = TableData "Power BI Context Settings" = I;
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(Control1901377608; MyNotes)
             {
                 ApplicationArea = Manufacturing;
@@ -704,15 +693,21 @@ page 9010 "Production Planner Role Center"
                     RunObject = Page "Planning Worksheet";
                     ToolTip = 'Plan supply orders automatically to fulfill new demand.';
                 }
+#if not CLEAN24
                 action("Item Availability by Timeline")
                 {
                     ApplicationArea = Planning;
                     Caption = 'Item Availability by Timeline';
                     Image = Timeline;
-                    RunObject = Page "Item Availability by Timeline";
+                    RunObject = Page "Item Avail. by Location Lines";
                     ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
+                    Enabled = false;
                     Visible = false;
+                    ObsoleteReason = 'Page Item Availability by Timeline obsoleted and removed in 24.0, temporarily replaced by page Item Avail. by Location Lines';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
+#endif
                 action("Subcontracting &Worksheet")
                 {
                     ApplicationArea = Manufacturing;

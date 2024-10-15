@@ -36,7 +36,7 @@ codeunit 134636 "API Setup UT"
         Customer: Record Customer;
     begin
         // Setup
-        Initialze;
+        Initialze();
         Customer.Init();
         SetReferencedRecordCodesOnCustomer(Customer);
 
@@ -54,7 +54,7 @@ codeunit 134636 "API Setup UT"
         Customer: Record Customer;
     begin
         // Setup
-        Initialze;
+        Initialze();
         Customer.Init();
         SetReferencedRecordCodesOnCustomer(Customer);
 
@@ -72,7 +72,7 @@ codeunit 134636 "API Setup UT"
         Customer: Record Customer;
     begin
         // Setup
-        Initialze;
+        Initialze();
         Customer.Init();
         Customer.Insert(true);
         SetReferencedRecordCodesOnCustomer(Customer);
@@ -91,7 +91,7 @@ codeunit 134636 "API Setup UT"
         Customer: Record Customer;
     begin
         // Setup
-        Initialze;
+        Initialze();
         Customer.Init();
         Customer.Insert(true);
         SetReferencedRecordCodesOnCustomer(Customer);
@@ -111,7 +111,7 @@ codeunit 134636 "API Setup UT"
         PreviousCustomer: Record Customer;
     begin
         // Setup
-        Initialze;
+        Initialze();
         CreateCustomerRunInsertTrigger(Customer);
         PreviousCustomer.Copy(Customer);
 
@@ -139,7 +139,7 @@ codeunit 134636 "API Setup UT"
         PreviousCustomer: Record Customer;
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        Initialze;
+        Initialze();
 
         // Setup
         CreateCustomerRunInsertTrigger(Customer);
@@ -169,7 +169,7 @@ codeunit 134636 "API Setup UT"
         Vendor: Record Vendor;
     begin
         // Setup
-        Initialze;
+        Initialze();
         Vendor.Init();
         SetReferencedRecordCodesOnVendor(Vendor);
 
@@ -187,7 +187,7 @@ codeunit 134636 "API Setup UT"
         Vendor: Record Vendor;
     begin
         // Setup
-        Initialze;
+        Initialze();
         Vendor.Init();
         SetReferencedRecordCodesOnVendor(Vendor);
 
@@ -205,7 +205,7 @@ codeunit 134636 "API Setup UT"
         Vendor: Record Vendor;
     begin
         // Setup
-        Initialze;
+        Initialze();
         Vendor.Init();
         Vendor.Insert(true);
         SetReferencedRecordCodesOnVendor(Vendor);
@@ -224,7 +224,7 @@ codeunit 134636 "API Setup UT"
         Vendor: Record Vendor;
     begin
         // Setup
-        Initialze;
+        Initialze();
         Vendor.Init();
         Vendor.Insert(true);
         SetReferencedRecordCodesOnVendor(Vendor);
@@ -244,7 +244,7 @@ codeunit 134636 "API Setup UT"
         PreviousVendor: Record Vendor;
     begin
         // Setup
-        Initialze;
+        Initialze();
         CreateVendorRunInsertTrigger(Vendor);
         PreviousVendor.Copy(Vendor);
 
@@ -270,7 +270,7 @@ codeunit 134636 "API Setup UT"
         PreviousVendor: Record Vendor;
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        Initialze;
+        Initialze();
 
         // Setup
         CreateVendorRunInsertTrigger(Vendor);
@@ -298,7 +298,7 @@ codeunit 134636 "API Setup UT"
         item: Record Item;
     begin
         // Setup
-        Initialze;
+        Initialze();
         item.Init();
         SetReferencedRecordCodesOnItem(item);
 
@@ -316,7 +316,7 @@ codeunit 134636 "API Setup UT"
         Item: Record Item;
     begin
         // Setup
-        Initialze;
+        Initialze();
         Item.Init();
         SetReferencedRecordCodesOnItem(Item);
 
@@ -334,7 +334,7 @@ codeunit 134636 "API Setup UT"
         Item: Record Item;
     begin
         // Setup
-        Initialze;
+        Initialze();
         Item.Init();
         Item.Insert(true);
         SetReferencedRecordCodesOnItem(Item);
@@ -353,7 +353,7 @@ codeunit 134636 "API Setup UT"
         Item: Record Item;
     begin
         // Setup
-        Initialze;
+        Initialze();
         Item.Init();
         Item.Insert(true);
         SetReferencedRecordCodesOnItem(Item);
@@ -373,7 +373,7 @@ codeunit 134636 "API Setup UT"
         PreviousItem: Record Item;
     begin
         // Setup
-        Initialze;
+        Initialze();
         CreateItemRunInsertTrigger(Item);
         PreviousItem.Copy(Item);
 
@@ -396,7 +396,7 @@ codeunit 134636 "API Setup UT"
         PreviousItem: Record Item;
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        Initialze;
+        Initialze();
 
         // Setup
         CreateItemRunInsertTrigger(Item);
@@ -425,11 +425,11 @@ codeunit 134636 "API Setup UT"
         NewSalesHeader2: Record "Sales Header";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        Initialze;
+        Initialze();
 
         // Setup
         APIMockEvents.SetIsAPIEnabled(false);
-        ClearExistingInvoices;
+        ClearExistingInvoices();
 
         LibrarySales.CreateSalesInvoice(NewSalesHeader);
         LibrarySales.CreateSalesInvoice(NewSalesHeader2);
@@ -459,10 +459,10 @@ codeunit 134636 "API Setup UT"
         NewSalesHeader2: Record "Sales Header";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        Initialze;
+        Initialze();
 
         // Setup
-        ClearExistingInvoices;
+        ClearExistingInvoices();
 
         CreatePostedInvoice(NewSalesInvoiceHeader);
         CreatePostedInvoice(NewSalesInvoiceHeader2);
@@ -501,11 +501,11 @@ codeunit 134636 "API Setup UT"
         NewSalesHeader2: Record "Sales Header";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        Initialze;
+        Initialze();
 
         // Setup
         APIMockEvents.SetIsAPIEnabled(false);
-        ClearExistingQuotes;
+        ClearExistingQuotes();
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesQuoteForCustomerNo(NewSalesHeader, Customer."No.");
@@ -531,10 +531,10 @@ codeunit 134636 "API Setup UT"
         NewSalesHeader2: Record "Sales Header";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        Initialze;
+        Initialze();
 
         // Setup
-        ClearExistingQuotes;
+        ClearExistingQuotes();
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesQuoteForCustomerNo(NewSalesHeader, Customer."No.");
@@ -564,11 +564,11 @@ codeunit 134636 "API Setup UT"
         NewSalesHeader2: Record "Sales Header";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        Initialze;
+        Initialze();
 
         // Setup
         APIMockEvents.SetIsAPIEnabled(false);
-        ClearExistingCreditMemos;
+        ClearExistingCreditMemos();
 
         LibrarySales.CreateSalesCreditMemo(NewSalesHeader);
         LibrarySales.CreateSalesCreditMemo(NewSalesHeader2);
@@ -598,10 +598,10 @@ codeunit 134636 "API Setup UT"
         NewSalesHeader2: Record "Sales Header";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        Initialze;
+        Initialze();
 
         // Setup
-        ClearExistingCreditMemos;
+        ClearExistingCreditMemos();
 
         LibrarySales.CreateSalesCreditMemo(NewSalesHeader);
         LibrarySales.CreateSalesCreditMemo(NewSalesHeader2);
@@ -640,11 +640,11 @@ codeunit 134636 "API Setup UT"
         NewSalesHeader2: Record "Sales Header";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        Initialze;
+        Initialze();
 
         // Setup
         APIMockEvents.SetIsAPIEnabled(false);
-        ClearExistingOrders;
+        ClearExistingOrders();
 
         LibrarySales.CreateSalesOrder(NewSalesHeader);
         LibrarySales.CreateSalesOrder(NewSalesHeader2);
@@ -668,11 +668,11 @@ codeunit 134636 "API Setup UT"
         NewSalesHeader2: Record "Sales Header";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        Initialze;
+        Initialze();
 
         // Setup
         APIMockEvents.SetIsAPIEnabled(true);
-        ClearExistingOrders;
+        ClearExistingOrders();
 
         LibrarySales.CreateSalesOrder(NewSalesHeader);
         LibrarySales.CreateSalesOrder(NewSalesHeader2);
@@ -702,9 +702,9 @@ codeunit 134636 "API Setup UT"
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
         // Setup
-        Initialze;
+        Initialze();
         APIMockEvents.SetIsAPIEnabled(false);
-        ClearExistingPurchaseInvoices;
+        ClearExistingPurchaseInvoices();
 
         LibraryPurchase.CreatePurchaseInvoice(NewPurchaseHeader);
         LibraryPurchase.CreatePurchaseInvoice(NewPurchaseHeader2);
@@ -735,8 +735,8 @@ codeunit 134636 "API Setup UT"
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
         // Setup
-        Initialze;
-        ClearExistingPurchaseInvoices;
+        Initialze();
+        ClearExistingPurchaseInvoices();
 
         LibraryPurchase.CreatePurchaseInvoice(NewPurchaseHeader);
         LibraryPurchase.CreatePurchaseInvoice(NewPurchaseHeader2);

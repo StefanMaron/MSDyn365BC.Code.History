@@ -36,6 +36,8 @@ codeunit 5350 "CRM Statistics Job"
         UnexpectedErrorWhenGettingInvoiceErr: Label 'Unexpected error when trying to get the CRM Invoice %1: %2', Locked = true;
         UnexpectedErrorsDetectedErr: Label 'Unexpected errors detected while updating CRM Invoices. Not moving the last processed ledger entry number.', Locked = true;
         TelemetryCategoryTok: Label 'AL CRM Integration';
+        DeleteAccountStatisticsFailedMsg: Label 'Failed to delete account statistics: %1', Locked = true;
+        CustomerRecordDeletedMsg: Label 'The local customer record have been deleted.', Locked = true;
 
     local procedure UpdateStatisticsAndInvoices(JobLogEntryNo: Integer)
     var
@@ -257,33 +259,31 @@ codeunit 5350 "CRM Statistics Job"
         Customer.CalcFields("Balance (LCY)", "Outstanding Orders (LCY)", "Shipped Not Invoiced (LCY)",
           "Outstanding Invoices (LCY)", "Outstanding Serv. Orders (LCY)", "Serv Shipped Not Invoiced(LCY)",
           "Outstanding Serv.Invoices(LCY)");
-        with CRMAccountStatistics do begin
-            Name := Customer.Name;
-            "Customer No" := Customer."No.";
-            "Balance (LCY)" := Customer."Balance (LCY)";
-            "Outstanding Orders (LCY)" := Customer."Outstanding Orders (LCY)";
-            "Shipped Not Invoiced (LCY)" := Customer."Shipped Not Invoiced (LCY)";
-            "Outstanding Invoices (LCY)" := Customer."Outstanding Invoices (LCY)";
-            "Outstanding Serv Orders (LCY)" := Customer."Outstanding Serv. Orders (LCY)";
-            "Serv Shipped Not Invd (LCY)" := Customer."Serv Shipped Not Invoiced(LCY)";
-            "Outstd Serv Invoices (LCY)" := Customer."Outstanding Serv.Invoices(LCY)";
-            "Total (LCY)" := Customer.GetTotalAmountLCY();
-            "Credit Limit (LCY)" := Customer."Credit Limit (LCY)";
-            "Overdue Amounts (LCY)" := Customer.CalcOverdueBalance();
-            "Overdue Amounts As Of Date" := WorkDate();
-            "Total Sales (LCY)" := Customer.GetSalesLCY();
-            "Invd Prepayment Amount (LCY)" := Customer.GetInvoicedPrepmtAmountLCY();
-            TransactionCurrencyId := CRMSynchHelper.FindNAVLocalCurrencyInCRM(LcyCRMTransactioncurrency);
-            if xCRMAccountStatistics."Customer No" = '' then begin
-                Modify();
-                exit(SynchActionType::Insert);
-            end;
-            if IsCRMAccountStatisticsModified(xCRMAccountStatistics, CRMAccountStatistics) then begin
-                Modify();
-                exit(SynchActionType::Modify);
-            end;
-            exit(SynchActionType::IgnoreUnchanged);
+        CRMAccountStatistics.Name := Customer.Name;
+        CRMAccountStatistics."Customer No" := Customer."No.";
+        CRMAccountStatistics."Balance (LCY)" := Customer."Balance (LCY)";
+        CRMAccountStatistics."Outstanding Orders (LCY)" := Customer."Outstanding Orders (LCY)";
+        CRMAccountStatistics."Shipped Not Invoiced (LCY)" := Customer."Shipped Not Invoiced (LCY)";
+        CRMAccountStatistics."Outstanding Invoices (LCY)" := Customer."Outstanding Invoices (LCY)";
+        CRMAccountStatistics."Outstanding Serv Orders (LCY)" := Customer."Outstanding Serv. Orders (LCY)";
+        CRMAccountStatistics."Serv Shipped Not Invd (LCY)" := Customer."Serv Shipped Not Invoiced(LCY)";
+        CRMAccountStatistics."Outstd Serv Invoices (LCY)" := Customer."Outstanding Serv.Invoices(LCY)";
+        CRMAccountStatistics."Total (LCY)" := Customer.GetTotalAmountLCY();
+        CRMAccountStatistics."Credit Limit (LCY)" := Customer."Credit Limit (LCY)";
+        CRMAccountStatistics."Overdue Amounts (LCY)" := Customer.CalcOverdueBalance();
+        CRMAccountStatistics."Overdue Amounts As Of Date" := WorkDate();
+        CRMAccountStatistics."Total Sales (LCY)" := Customer.GetSalesLCY();
+        CRMAccountStatistics."Invd Prepayment Amount (LCY)" := Customer.GetInvoicedPrepmtAmountLCY();
+        CRMAccountStatistics.TransactionCurrencyId := CRMSynchHelper.FindNAVLocalCurrencyInCRM(LcyCRMTransactioncurrency);
+        if xCRMAccountStatistics."Customer No" = '' then begin
+            CRMAccountStatistics.Modify();
+            exit(SynchActionType::Insert);
         end;
+        if IsCRMAccountStatisticsModified(xCRMAccountStatistics, CRMAccountStatistics) then begin
+            CRMAccountStatistics.Modify();
+            exit(SynchActionType::Modify);
+        end;
+        exit(SynchActionType::IgnoreUnchanged);
     end;
 
     procedure GetAccStatsUpdateFinalMessage(): Text
@@ -318,24 +318,22 @@ codeunit 5350 "CRM Statistics Job"
 
     local procedure InitCRMAccountStatistics(var CRMAccountStatistics: Record "CRM Account Statistics")
     begin
-        with CRMAccountStatistics do begin
-            Init();
-            AccountStatisticsId := CreateGuid();
-            // Set all Money type fields to 1 temporarily, because if they have always been zero they show as '--' in CRM
-            "Balance (LCY)" := 1;
-            "Total (LCY)" := 1;
-            "Credit Limit (LCY)" := 1;
-            "Overdue Amounts (LCY)" := 1;
-            "Total Sales (LCY)" := 1;
-            "Invd Prepayment Amount (LCY)" := 1;
-            "Outstanding Orders (LCY)" := 1;
-            "Shipped Not Invoiced (LCY)" := 1;
-            "Outstanding Invoices (LCY)" := 1;
-            "Outstanding Serv Orders (LCY)" := 1;
-            "Serv Shipped Not Invd (LCY)" := 1;
-            "Outstd Serv Invoices (LCY)" := 1;
-            Insert();
-        end;
+        CRMAccountStatistics.Init();
+        CRMAccountStatistics.AccountStatisticsId := CreateGuid();
+        // Set all Money type fields to 1 temporarily, because if they have always been zero they show as '--' in CRM
+        CRMAccountStatistics."Balance (LCY)" := 1;
+        CRMAccountStatistics."Total (LCY)" := 1;
+        CRMAccountStatistics."Credit Limit (LCY)" := 1;
+        CRMAccountStatistics."Overdue Amounts (LCY)" := 1;
+        CRMAccountStatistics."Total Sales (LCY)" := 1;
+        CRMAccountStatistics."Invd Prepayment Amount (LCY)" := 1;
+        CRMAccountStatistics."Outstanding Orders (LCY)" := 1;
+        CRMAccountStatistics."Shipped Not Invoiced (LCY)" := 1;
+        CRMAccountStatistics."Outstanding Invoices (LCY)" := 1;
+        CRMAccountStatistics."Outstanding Serv Orders (LCY)" := 1;
+        CRMAccountStatistics."Serv Shipped Not Invd (LCY)" := 1;
+        CRMAccountStatistics."Outstd Serv Invoices (LCY)" := 1;
+        CRMAccountStatistics.Insert();
     end;
 
     local procedure FindCRMAccountStatistics(var CRMAccountStatistics: Record "CRM Account Statistics"; var CRMAccount: Record "CRM Account")
@@ -352,12 +350,11 @@ codeunit 5350 "CRM Statistics Job"
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        with CRMAccount do
-            if not CRMIntegrationRecord.IsModifiedAfterLastSynchonizedCRMRecord(AccountId, DATABASE::Customer, ModifiedOn) then begin
-                Modify();
-                CRMIntegrationRecord.SetLastSynchCRMModifiedOn(AccountId, DATABASE::Customer, ModifiedOn);
-            end else
-                Modify();
+        if not CRMIntegrationRecord.IsModifiedAfterLastSynchonizedCRMRecord(CRMAccount.AccountId, DATABASE::Customer, CRMAccount.ModifiedOn) then begin
+            CRMAccount.Modify();
+            CRMIntegrationRecord.SetLastSynchCRMModifiedOn(CRMAccount.AccountId, DATABASE::Customer, CRMAccount.ModifiedOn);
+        end else
+            CRMAccount.Modify();
     end;
 
     procedure UpdateStatusOfPaidInvoices(CustomerNo: Code[20]) UpdatedInvoiceCounter: Integer
@@ -441,12 +438,38 @@ codeunit 5350 "CRM Statistics Job"
         if Result then
             exit;
 
-        with Sender do
-            if ("Object Type to Run" = "Object Type to Run"::Codeunit) and ("Object ID to Run" = CODEUNIT::"CRM Statistics Job") then
-                if CRMConnectionSetup.Get() and CRMConnectionSetup."Is Enabled" and CRMSynchStatus.Get() then
-                    if DetailedCustLedgEntry.FindLast() then
-                        if CRMSynchStatus."Last Update Invoice Entry No." < DetailedCustLedgEntry."Entry No." then
-                            Result := true;
+        if (Sender."Object Type to Run" = Sender."Object Type to Run"::Codeunit) and (Sender."Object ID to Run" = CODEUNIT::"CRM Statistics Job") then
+            if CRMConnectionSetup.Get() and CRMConnectionSetup."Is Enabled" and CRMSynchStatus.Get() then
+                if DetailedCustLedgEntry.FindLast() then
+                    if CRMSynchStatus."Last Update Invoice Entry No." < DetailedCustLedgEntry."Entry No." then
+                        Result := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Int. Rec. Uncouple Invoke", 'OnAfterUncoupleRecord', '', false, false)]
+    local procedure DeleteAccountStatisticsOnAfterUncoupleRecord(IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationRecordRef: RecordRef; var LocalRecordRef: RecordRef)
+    var
+        Customer: Record Customer;
+    begin
+        if not ((IntegrationTableMapping."Table ID" = Database::Customer) and (IntegrationTableMapping."Integration Table ID" = Database::"CRM Account")) then
+            exit;
+
+        if LocalRecordRef.Number <> Database::Customer then begin
+            Session.LogMessage('0000MI1', CustomerRecordDeletedMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            exit;
+        end;
+
+        if not TryDeleteAccountStatistics(LocalRecordRef.Field(Customer.FieldNo("No.")).Value) then
+            Session.LogMessage('0000MHS', StrSubstNo(DeleteAccountStatisticsFailedMsg, GetLastErrorText()), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+    end;
+
+    [TryFunction]
+    local procedure TryDeleteAccountStatistics(CustomerNo: Code[20])
+    var
+        CRMAccountStatistics: Record "CRM Account Statistics";
+    begin
+        CRMAccountStatistics.SetRange("Customer No", CustomerNo);
+        if CRMAccountStatistics.FindFirst() then
+            CRMAccountStatistics.Delete();
     end;
 }
 

@@ -232,7 +232,7 @@ codeunit 137303 "SCM Order Reports"
 
         // Verify: Check that the value of Unit Cost in Compare List is equal to the value of Unit Cost in corresponding Production
         // BOM Item. Check that Exploded Quantity.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCompareListReport(Item[3]);
         VerifyCompareListReport(Item[4]);
     end;
@@ -362,7 +362,7 @@ codeunit 137303 "SCM Order Reports"
         // Taking Random value for Quantity.
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
     end;
 
     [Normal]
@@ -371,7 +371,7 @@ codeunit 137303 "SCM Order Reports"
         // Taking Random value for Quantity.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
     end;
 
     local procedure CreateProductionBOMAndLine(var Item: array[4] of Record Item; "Count": Integer)
@@ -405,18 +405,18 @@ codeunit 137303 "SCM Order Reports"
     [Normal]
     local procedure VerifyBinCreationWorksheet(var BinCreationWorksheetLine: Record "Bin Creation Worksheet Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('BinCode_BinCreateWkshLine', BinCreationWorksheetLine."Bin Code");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('MaxCubage_BinCreateWkshLine', BinCreationWorksheetLine."Maximum Cubage");
     end;
 
     [Normal]
     local procedure VerifyInventoryMovement(ItemJournalLine: Record "Item Journal Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemNo_ItemJournalLine', ItemJournalLine."Item No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_ItemJournalLine', ItemJournalLine.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('LocationCode_ItemJournalLine', ItemJournalLine."Location Code");
     end;
@@ -424,9 +424,9 @@ codeunit 137303 "SCM Order Reports"
     [Normal]
     local procedure VerifyPhysicalInventory(ItemJournalLine: Record "Item Journal Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemNo_ItemJournalLine', ItemJournalLine."Item No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('LocCode_ItemJournalLine', ItemJournalLine."Location Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('QtyCalculated_ItemJnlLin', ItemJournalLine."Qty. (Calculated)");
     end;
@@ -434,43 +434,43 @@ codeunit 137303 "SCM Order Reports"
     [Normal]
     local procedure VerifyLocationCode(ItemJournalLine: Record "Item Journal Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemNo_ItemJournalLine', ItemJournalLine."Item No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('LocCode_ItemJournalLine', ItemJournalLine."Location Code");
     end;
 
     [Normal]
     local procedure VerifyQuantityOnWorkOrderReport(SalesLine: Record "Sales Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_SalesLine', Format(SalesLine."No."));
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_SalesLine', SalesLine.Quantity);
     end;
 
     [Normal]
     local procedure VerifyQuantityOnReturnOrderConfReport(SalesLine: Record "Sales Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No2_SalesLine', Format(SalesLine."No."));
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_SalesLine', SalesLine.Quantity);
     end;
 
     [Normal]
     local procedure VerifyReturnOrder(PurchaseLine: Record "Purchase Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_PurchLine', PurchaseLine."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_PurchLine', PurchaseLine.Quantity);
     end;
 
     local procedure VerifyCompareListReport(var Item: Record Item)
     begin
         LibraryReportDataset.SetRange('BOMMatrixListItemNo', Item."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CompItemUnitCost', Item."Unit Cost");
     end;
 
@@ -478,29 +478,29 @@ codeunit 137303 "SCM Order Reports"
     [Scope('OnPrem')]
     procedure ReturnOrderConfirmationRepRequestPageHandler(var ReturnOrderConfirmation: TestRequestPage "Return Order Confirmation")
     begin
-        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName,
-          LibraryReportDataset.GetFileName);
+        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName(),
+          LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WorkOrderRepRequestPageHandler(var WorkOrder: TestRequestPage "Work Order")
     begin
-        WorkOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WorkOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReturnOrderRequestPageHandler(var ReturnOrder: TestRequestPage "Return Order")
     begin
-        ReturnOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReturnOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BinCreationWorksheetRequestPageHandler(var BinCreationWkshReport: TestRequestPage "Bin Creation Wksh. Report")
     begin
-        BinCreationWkshReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BinCreationWkshReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -519,7 +519,7 @@ codeunit 137303 "SCM Order Reports"
         CompareList.ItemNo2.SetValue(ItemNo2);
         CompareList.CalculationDt.SetValue(CalcDate);
 
-        CompareList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CompareList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -530,7 +530,7 @@ codeunit 137303 "SCM Order Reports"
     begin
         LibraryVariableStorage.Dequeue(ActivityType);
         InventoryMovement.ActivityType.SetValue(ActivityType);
-        InventoryMovement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryMovement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -542,7 +542,7 @@ codeunit 137303 "SCM Order Reports"
         LibraryVariableStorage.Dequeue(ShowQtyCalculated);
         PhysInventoryList.ShowCalculatedQty.SetValue(ShowQtyCalculated);
 
-        PhysInventoryList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PhysInventoryList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

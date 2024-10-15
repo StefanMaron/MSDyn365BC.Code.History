@@ -496,57 +496,49 @@ page 408 "G/L Balance by Dimension"
 
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheGLAcc."No.";
-            Name := TheGLAcc.Name;
-            Totaling := TheGLAcc.Totaling;
-            Indentation := TheGLAcc.Indentation;
-            "Show in Bold" := TheGLAcc."Account Type" <> TheGLAcc."Account Type"::Posting;
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheGLAcc."No.";
+        TheDimCodeBuf.Name := TheGLAcc.Name;
+        TheDimCodeBuf.Totaling := TheGLAcc.Totaling;
+        TheDimCodeBuf.Indentation := TheGLAcc.Indentation;
+        TheDimCodeBuf."Show in Bold" := TheGLAcc."Account Type" <> TheGLAcc."Account Type"::Posting;
     end;
 
     local procedure CopyPeriodToBuf(var ThePeriod: Record Date; var TheDimCodeBuf: Record "Dimension Code Buffer")
     var
         Period2: Record Date;
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := Format(ThePeriod."Period Start");
-            "Period Start" := ThePeriod."Period Start";
-            if Rec."Closing Entries" = Rec."Closing Entries"::Include then
-                "Period End" := ClosingDate(ThePeriod."Period End")
-            else
-                "Period End" := ThePeriod."Period End";
-            if Rec."Date Filter" <> '' then begin
-                Period2.SetFilter("Period End", Rec."Date Filter");
-                if Period2.GetRangeMax("Period End") < "Period End" then
-                    "Period End" := Period2.GetRangeMax("Period End");
-            end;
-            Name := ThePeriod."Period Name";
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := Format(ThePeriod."Period Start");
+        TheDimCodeBuf."Period Start" := ThePeriod."Period Start";
+        if Rec."Closing Entries" = Rec."Closing Entries"::Include then
+            TheDimCodeBuf."Period End" := ClosingDate(ThePeriod."Period End")
+        else
+            TheDimCodeBuf."Period End" := ThePeriod."Period End";
+        if Rec."Date Filter" <> '' then begin
+            Period2.SetFilter("Period End", Rec."Date Filter");
+            if Period2.GetRangeMax("Period End") < TheDimCodeBuf."Period End" then
+                TheDimCodeBuf."Period End" := Period2.GetRangeMax("Period End");
         end;
+        TheDimCodeBuf.Name := ThePeriod."Period Name";
     end;
 
     local procedure CopyBusUnitToBuf(var TheBusUnit: Record "Business Unit"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheBusUnit.Code;
-            Name := TheBusUnit.Name;
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheBusUnit.Code;
+        TheDimCodeBuf.Name := TheBusUnit.Name;
     end;
 
     local procedure CopyDimValueToBuf(var TheDimVal: Record "Dimension Value"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheDimVal.Code;
-            Name := TheDimVal.Name;
-            Totaling := TheDimVal.Totaling;
-            Indentation := TheDimVal.Indentation;
-            "Show in Bold" :=
-              TheDimVal."Dimension Value Type" <> TheDimVal."Dimension Value Type"::Standard;
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheDimVal.Code;
+        TheDimCodeBuf.Name := TheDimVal.Name;
+        TheDimCodeBuf.Totaling := TheDimVal.Totaling;
+        TheDimCodeBuf.Indentation := TheDimVal.Indentation;
+        TheDimCodeBuf."Show in Bold" :=
+          TheDimVal."Dimension Value Type" <> TheDimVal."Dimension Value Type"::Standard;
     end;
 
     local procedure FindPeriod(SearchText: Code[10])

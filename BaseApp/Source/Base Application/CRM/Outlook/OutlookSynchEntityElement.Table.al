@@ -5,6 +5,7 @@ using System.Reflection;
 table 5301 "Outlook Synch. Entity Element"
 {
     Caption = 'Outlook Synch. Entity Element';
+    DataClassification = CustomerContent;
     PasteIsValid = false;
     ReplicateData = false;
     ObsoleteState = Removed;
@@ -30,7 +31,7 @@ table 5301 "Outlook Synch. Entity Element"
         }
         field(4; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Table No.")));
             Caption = 'Table Caption';
             Editable = false;

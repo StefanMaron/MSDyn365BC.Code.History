@@ -212,7 +212,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Cancel Purch Cr Memo Dim.");
         LibraryApplicationArea.EnableFoundationSetup();
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddAccountPayables;
+        LibraryLowerPermissions.AddAccountPayables();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Cancel Purch Cr Memo Dim.");

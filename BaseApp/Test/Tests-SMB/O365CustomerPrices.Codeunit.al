@@ -9,14 +9,20 @@ codeunit 138020 "O365 Customer Prices"
     end;
 
     var
+#if not CLEAN23
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
+#endif
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+#if not CLEAN23
         LibraryUtility: Codeunit "Library - Utility";
+#endif
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+#if not CLEAN23
         Assert: Codeunit Assert;
+#endif
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
@@ -36,7 +42,7 @@ codeunit 138020 "O365 Customer Prices"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Customer Prices");
 
         LibraryTemplates.EnableTemplatesFeature();
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         isInitialized := true;
@@ -56,10 +62,10 @@ codeunit 138020 "O365 Customer Prices"
             DATABASE::Job:
                 Job.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [HandlerFunctions('ShowItemPage')]
     [Scope('OnPrem')]
@@ -74,9 +80,9 @@ codeunit 138020 "O365 Customer Prices"
         Item.Init();
         Item.Insert(true);
         SalesPriceAndLineDiscountsPage.LoadItem(Item);
-        SalesPriceAndLineDiscountsTestPage.Trap;
+        SalesPriceAndLineDiscountsTestPage.Trap();
         SalesPriceAndLineDiscountsPage.Run();
-        SalesPriceAndLineDiscountsTestPage.Code.Lookup; // handled by ShowItemPage
+        SalesPriceAndLineDiscountsTestPage.Code.Lookup(); // handled by ShowItemPage
         SalesPriceAndLineDiscountsPage.Close();
     end;
 
@@ -109,12 +115,12 @@ codeunit 138020 "O365 Customer Prices"
         SalesLineDiscount.Insert(true);
 
         SalesPriceAndLineDiscountsPage.LoadItem(Item);
-        SalesPriceAndLineDiscounts.Trap;
+        SalesPriceAndLineDiscounts.Trap();
         SalesPriceAndLineDiscountsPage.Run();
         SalesPriceAndLineDiscounts."Line Type".Value :=
           Format(SalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount");
         SalesPriceAndLineDiscounts.Type.Value := Format(SalesPriceAndLineDiscBuff.Type::"Item Disc. Group");
-        SalesPriceAndLineDiscounts.Code.Lookup; // handled by ShowItemDiscGroupsPage
+        SalesPriceAndLineDiscounts.Code.Lookup(); // handled by ShowItemDiscGroupsPage
         SalesPriceAndLineDiscounts.Close();
     end;
 
@@ -186,7 +192,7 @@ codeunit 138020 "O365 Customer Prices"
             Validate("Starting Date", Today);
             Validate("Ending Date", Today);
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -205,7 +211,7 @@ codeunit 138020 "O365 Customer Prices"
               Validate("Ending Date", Today - 2);
             Assert.ExpectedError('Starting Date cannot be after Ending Date.');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -228,7 +234,7 @@ codeunit 138020 "O365 Customer Prices"
 
             Assert.AreEqual(Item."No.", Code, 'Wrong Code.');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -254,7 +260,7 @@ codeunit 138020 "O365 Customer Prices"
               Validate(Type, Type::"Item Disc. Group");
             Assert.ExpectedError('that cannot be found in the related table');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -279,7 +285,7 @@ codeunit 138020 "O365 Customer Prices"
               Validate(Type, Type::"Item Disc. Group");
             Assert.ExpectedError('This item is not assigned to any discount group, therefore a discount group could not be used');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -338,7 +344,7 @@ codeunit 138020 "O365 Customer Prices"
             Assert.AreEqual('', "Unit of Measure Code", 'Unit of Measure Code should be removed.');
             Assert.AreEqual('', "Variant Code", 'Variant Code should be removed.');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -370,7 +376,7 @@ codeunit 138020 "O365 Customer Prices"
 
             Assert.AreEqual(Item."Allow Invoice Disc.", "Allow Invoice Disc.", 'Wrong Allow Invoice Disc.');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -409,7 +415,7 @@ codeunit 138020 "O365 Customer Prices"
               "VAT Bus. Posting Gr. (Price)",
               'Wrong "VAT Bus. Posting Gr. (Price)"');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -430,7 +436,7 @@ codeunit 138020 "O365 Customer Prices"
 
             Assert.AreEqual('', "Sales Code", 'Wrong "Sales Code"');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -451,7 +457,7 @@ codeunit 138020 "O365 Customer Prices"
 
             Assert.AreEqual('', "Sales Code", 'Wrong "Sales Code"');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -473,7 +479,7 @@ codeunit 138020 "O365 Customer Prices"
 
             Assert.AreEqual('', "Sales Code", 'Wrong "Sales Code"');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -497,7 +503,7 @@ codeunit 138020 "O365 Customer Prices"
               Validate("Sales Type", "Sales Type"::"Customer Price/Disc. Group");
             Assert.ExpectedError('that cannot be found in the related table');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -521,7 +527,7 @@ codeunit 138020 "O365 Customer Prices"
               Validate("Sales Type", "Sales Type"::"Customer Price/Disc. Group");
             Assert.ExpectedError('This customer is not assigned to any price group, therefore a price group could not be used');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -545,7 +551,7 @@ codeunit 138020 "O365 Customer Prices"
               Validate("Sales Type", "Sales Type"::"Customer Price/Disc. Group");
             Assert.ExpectedError('that cannot be found in the related table');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -569,7 +575,7 @@ codeunit 138020 "O365 Customer Prices"
               Validate("Sales Type", "Sales Type"::"Customer Price/Disc. Group");
             Assert.ExpectedError('This customer is not assigned to any discount group, therefore a discount group could not be used');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -590,7 +596,7 @@ codeunit 138020 "O365 Customer Prices"
               Validate("Sales Code", 'R');
             Assert.ExpectedError('Sales Code must be blank.');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -715,7 +721,7 @@ codeunit 138020 "O365 Customer Prices"
 
         with TempSalesPriceAndLineDiscBuff do begin
             LoadDataForCustomer(Customer);
-            FilterToActualRecords;
+            FilterToActualRecords();
             ExpectedCount := Count;
 
             FindFirst();
@@ -723,10 +729,10 @@ codeunit 138020 "O365 Customer Prices"
             Modify(true);
 
             Reset();
-            FilterToActualRecords;
+            FilterToActualRecords();
             Assert.AreEqual(ExpectedCount - 1, Count, 'Wrong filter after run FilterToActualRecords');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -736,7 +742,6 @@ codeunit 138020 "O365 Customer Prices"
     procedure Validate_PageInit4CustCard()
     var
         CustomerCard: TestPage "Customer Card";
-        SalesPrLineDiscPart: TestPage "Sales Pr. & Line Disc. Part";
     begin
         Initialize();
         ClearTable(DATABASE::Job);
@@ -746,7 +751,7 @@ codeunit 138020 "O365 Customer Prices"
         CustomerCard."Prices and Discounts Overview".Invoke();
 
         // Verification is done in the modal page handler
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
     end;
 
     [Test]
@@ -941,7 +946,7 @@ codeunit 138020 "O365 Customer Prices"
 
             Assert.AreEqual('', GetFilters, 'Filters was not removed');
 
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -1506,7 +1511,6 @@ codeunit 138020 "O365 Customer Prices"
         Item: Record Item;
         SalesPrice: Record "Sales Price";
         CustomerCard: TestPage "Customer Card";
-        SalesPrices: TestPage "Sales Prices";
     begin
         // [FEATURE] [Customer] [UT]
         // [SCENARIO 296601] "Set Special Prices" action on "Special Prices & Discounts" subpage on customer card shows Sales Prices page filtered by current customer and item.
@@ -1518,7 +1522,7 @@ codeunit 138020 "O365 Customer Prices"
           SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Customer."No.", 0D, '', '',
           Item."Base Unit of Measure", 0, LibraryRandom.RandDec(10, 2));
 
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoKey(Customer."No.");
 
         LibraryVariableStorage.Enqueue(Customer."No.");
@@ -1553,7 +1557,7 @@ codeunit 138020 "O365 Customer Prices"
         CreateSalesLineDiscountLine(Customer."No.", SalesLineDiscount.Type::Item, false);
         FindSalesLineDiscount(SalesLineDiscount, Customer."No.");
 
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoKey(Customer."No.");
 
         LibraryVariableStorage.Enqueue(Customer."No.");
@@ -1571,7 +1575,6 @@ codeunit 138020 "O365 Customer Prices"
         Customer: Record Customer;
         SalesLineDiscount: Record "Sales Line Discount";
         CustomerCard: TestPage "Customer Card";
-        SalesLineDiscounts: TestPage "Sales Line Discounts";
     begin
         // [FEATURE] [Customer] [UT]
         // [SCENARIO 296601] "Set Special Discounts" action on "Special Prices & Discounts" subpage on customer card shows Sales Line Discounts page filtered by current customer and item.
@@ -1581,7 +1584,7 @@ codeunit 138020 "O365 Customer Prices"
         CreateSalesLineDiscountLine(Customer."No.", SalesLineDiscount.Type::Item, false);
         FindSalesLineDiscount(SalesLineDiscount, Customer."No.");
 
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoKey(Customer."No.");
 
         LibraryVariableStorage.Enqueue(Customer."No.");
@@ -1599,7 +1602,6 @@ codeunit 138020 "O365 Customer Prices"
         Customer: Record Customer;
         SalesLineDiscount: Record "Sales Line Discount";
         CustomerCard: TestPage "Customer Card";
-        SalesLineDiscounts: TestPage "Sales Line Discounts";
     begin
         // [FEATURE] [Customer] [UT]
         // [SCENARIO 296601] "Set Special Discounts" action on "Special Prices & Discounts" subpage on customer card shows Sales Line Discounts page filtered by current customer and item discount group.
@@ -1609,7 +1611,7 @@ codeunit 138020 "O365 Customer Prices"
         CreateSalesLineDiscountLine(Customer."No.", SalesLineDiscount.Type::"Item Disc. Group", false);
         FindSalesLineDiscount(SalesLineDiscount, Customer."No.");
 
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoKey(Customer."No.");
 
         LibraryVariableStorage.Enqueue(Customer."No.");
@@ -1693,7 +1695,7 @@ codeunit 138020 "O365 Customer Prices"
 
                     Assert.AreEqual("Ending Date", TempSalesPriceAndLineDiscBuff."Ending Date", 'Wrong value');
                     Assert.AreEqual("Line Discount %", TempSalesPriceAndLineDiscBuff."Line Discount %", 'Wrong value');
-                until Next = 0
+                until Next() = 0;
         end;
     end;
 
@@ -1729,7 +1731,7 @@ codeunit 138020 "O365 Customer Prices"
                       "VAT Bus. Posting Gr. (Price)", TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)",
                       'Wrong value in VAT Bus. Posting Gr. (Price)');
 
-                until Next = 0
+                until Next() = 0;
         end;
     end;
 
@@ -1800,7 +1802,7 @@ codeunit 138020 "O365 Customer Prices"
         Customer.Insert(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure InitCustomerAndDiscAndPrices(var Customer: Record Customer)
     begin
         CreateBlankCustomer(Customer);
@@ -1962,7 +1964,7 @@ codeunit 138020 "O365 Customer Prices"
                 end;
 
                 Modify(true);
-                Next;
+                Next();
             end;
 
             SetRange(Type);
@@ -1975,9 +1977,9 @@ codeunit 138020 "O365 Customer Prices"
             FindFirst();
 
             Delete(true);
-            Next;
+            Next();
             Delete(true);
-            Next;
+            Next();
         end;
     end;
 
@@ -1999,7 +2001,7 @@ codeunit 138020 "O365 Customer Prices"
         exit(CopyStr('P_GR_' + CustomerNo, 1, 10))
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure SetBufferOnlyToSLDiscounts(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
         TempSalesPriceAndLineDiscBuff.SetRange("Line Type", TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount");
@@ -2069,25 +2071,25 @@ codeunit 138020 "O365 Customer Prices"
     [Scope('OnPrem')]
     procedure ShowItemPage(var ItemListPage: TestPage "Item List")
     begin
-        ItemListPage.OK.Invoke;
+        ItemListPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ShowItemDiscGroupsPage(var ItemDiscGroupsPage: TestPage "Item Disc. Groups")
     begin
-        ItemDiscGroupsPage.OK.Invoke;
+        ItemDiscGroupsPage.OK().Invoke();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VerifyFieldVisibilityOnSalesPriceAndLineDiscountsPageHandler(var SalesPrLineDisc: TestPage "Sales Price and Line Discounts")
     begin
         Assert.IsFalse(
-          SalesPrLineDisc."Sales Code".Visible, 'Sales Code should NOT be visible');
+          SalesPrLineDisc."Sales Code".Visible(), 'Sales Code should NOT be visible');
         Assert.IsTrue(
-          SalesPrLineDisc.Code.Visible, 'Code should be visible');
+          SalesPrLineDisc.Code.Visible(), 'Code should be visible');
         SalesPrLineDisc.OK().Invoke();
     end;
 
@@ -2103,13 +2105,13 @@ codeunit 138020 "O365 Customer Prices"
         ItemNo := LibraryVariableStorage.DequeueText();
 
         SalesPrLineDisc.FILTER.SetFilter(Code, ItemNo);
-        Assert.IsTrue(SalesPrLineDisc."Set Special Prices".Enabled, 'Set Special Prices.Enabled');
+        Assert.IsTrue(SalesPrLineDisc."Set Special Prices".Enabled(), 'Set Special Prices.Enabled');
 
         SalesPrLineDisc.Filter.SetFilter("Sales Type", 'All Customers');
         SalesPrLineDisc.FILTER.SetFilter("Sales Code", SalesCode);
 
         Assert.IsFalse(SalesPrLineDisc.First(), 'should be no filtered lines in the list');
-        Assert.IsTrue(SalesPrLineDisc."Set Special Prices".Enabled, 'Set Special Prices.Enabled on empty list');
+        Assert.IsTrue(SalesPrLineDisc."Set Special Prices".Enabled(), 'Set Special Prices.Enabled on empty list');
 
         SalesPrices.Trap();
         SalesPrLineDisc."Set Special Prices".Invoke();
@@ -2134,7 +2136,7 @@ codeunit 138020 "O365 Customer Prices"
 
         SalesPrLineDisc.Filter.SetFilter(Code, DiscountCode);
 
-        SalesPrices.Trap;
+        SalesPrices.Trap();
         SalesPrLineDisc."Set Special Prices".Invoke();
 
         Assert.AreEqual(DiscountCode, SalesPrices.FILTER.GetFilter("Item No."), '');
@@ -2155,7 +2157,7 @@ codeunit 138020 "O365 Customer Prices"
         SalesPrLineDisc.Filter.SetFilter("Sales Code", SalesCode);
         SalesPrLineDisc.Filter.SetFilter(Code, DiscountCode);
 
-        SalesLineDiscounts.Trap;
+        SalesLineDiscounts.Trap();
         SalesPrLineDisc."Set Special Discounts".Invoke();
 
         Assert.AreEqual(DiscountCode, SalesLineDiscounts.FILTER.GetFilter(Code), '');
@@ -2172,7 +2174,7 @@ codeunit 138020 "O365 Customer Prices"
         LibraryVariableStorage.Dequeue(ItemVar);
         Item := ItemVar;
         Assert.AreEqual(Item."No.", SalesPriceAndLineDiscounts.Code.Value, '');
-        SalesPriceAndLineDiscounts.OK.Invoke;
+        SalesPriceAndLineDiscounts.OK().Invoke();
     end;
 
     [ModalPageHandler]

@@ -113,12 +113,12 @@ codeunit 134631 "Graph Collect Mgt Customer"
     begin
         Customer.FindFirst();
         CountryRegion.FindLast();
-        Customer.Address := RandomCode10;
-        Customer."Address 2" := RandomCode10;
-        Customer.City := RandomCode10;
-        Customer.County := RandomCode10;
+        Customer.Address := RandomCode10();
+        Customer."Address 2" := RandomCode10();
+        Customer.City := RandomCode10();
+        Customer.County := RandomCode10();
         Customer."Country/Region Code" := CountryRegion.Code;
-        Customer."Post Code" := RandomCode10;
+        Customer."Post Code" := RandomCode10();
     end;
 
     local procedure RandomCode10(): Code[10]

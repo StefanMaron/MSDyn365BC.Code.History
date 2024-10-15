@@ -49,6 +49,25 @@ page 1355 "Posted Sales Inv. - Update"
                     Editable = true;
                     ToolTip = 'Specifies any text that is entered to accompany the posting, for example for information to auditors.';
                 }
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the date on which the invoice is due for payment.';
+                }
+                field("Promised Pay Date"; Rec."Promised Pay Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the date on which the customer have promised to pay this invoice.';
+                }
+                field("Dispute Status"; Rec."Dispute Status")
+                {
+                    ApplicationArea = Basic, Suite;
+                    DrillDown = false;
+                    Importance = Promoted;
+                    Tooltip = 'Specifies if there is an ongoing dispute for this Invoice';
+                }
             }
             group(Payment)
             {
@@ -99,7 +118,9 @@ page 1355 "Posted Sales Inv. - Update"
         IsChanged := (Rec."Payment Method Code" <> xSalesInvoiceHeader."Payment Method Code") or
           (Rec."Payment Reference" <> xSalesInvoiceHeader."Payment Reference") or
           (Rec."Company Bank Account Code" <> xSalesInvoiceHeader."Company Bank Account Code") or
-          (Rec."Posting Description" <> xSalesInvoiceHeader."Posting Description");
+          (Rec."Posting Description" <> xSalesInvoiceHeader."Posting Description") or
+          (Rec."Promised Pay Date" <> xSalesInvoiceHeader."Promised Pay Date") or
+          (Rec."Dispute Status" <> xSalesInvoiceHeader."Dispute Status");
 
         OnAfterRecordChanged(Rec, xSalesInvoiceHeader, IsChanged);
     end;

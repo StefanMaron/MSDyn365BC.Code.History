@@ -17,7 +17,7 @@ codeunit 5360 "CDS Int. Table Couple"
         Handled: Boolean;
     begin
         OnBeforeRun(Rec, Handled);
-        If Handled then
+        if Handled then
             exit;
 
         ConnectionName := CRMIntegrationTableSynch.InitConnection();

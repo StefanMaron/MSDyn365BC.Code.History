@@ -212,7 +212,7 @@ codeunit 138036 "O365 Cancel Sales Cr Memo Dim."
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Cancel Sales Cr Memo Dim.");
         LibraryApplicationArea.EnableFoundationSetup();
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddAccountReceivables;
+        LibraryLowerPermissions.AddAccountReceivables();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Cancel Sales Cr Memo Dim.");

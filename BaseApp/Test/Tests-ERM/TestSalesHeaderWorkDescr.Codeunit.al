@@ -23,7 +23,7 @@ codeunit 134112 "Test Sales Header Work Descr."
         SalesHeader.Init();
 
         // Execute + Verify
-        Assert.AreEqual('', SalesHeader.GetWorkDescription, '');
+        Assert.AreEqual('', SalesHeader.GetWorkDescription(), '');
     end;
 
     [Test]
@@ -44,7 +44,7 @@ codeunit 134112 "Test Sales Header Work Descr."
         SalesHeader2.Get(SalesHeader."Document Type", SalesHeader."No.");
 
         // Verify
-        Assert.AreEqual(Text, SalesHeader2.GetWorkDescription, '');
+        Assert.AreEqual(Text, SalesHeader2.GetWorkDescription(), '');
     end;
 
     [Test]
@@ -98,8 +98,8 @@ codeunit 134112 "Test Sales Header Work Descr."
         SalesQuote.WorkDescription.SetValue('Hello World!');
         SalesQuote.Close();
         Commit();
-        SalesQuote.OpenView;
-        SalesQuote.Last;
+        SalesQuote.OpenView();
+        SalesQuote.Last();
 
         // Verify
         Assert.AreEqual('Hello World!', SalesQuote.WorkDescription.Value, '');
@@ -127,10 +127,10 @@ codeunit 134112 "Test Sales Header Work Descr."
         // [WHEN] Set value of "Work Description" = 'Hello World!'
         ExpectedResult := LibraryUtility.GenerateGUID();
         SalesOrder.WorkDescription.SetValue(ExpectedResult);
-        SalesOrderNo := SalesOrder."No.".Value;
+        SalesOrderNo := SalesOrder."No.".Value();
         SalesOrder.Close();
         Commit();
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoKey(SalesHeader."Document Type"::Order, SalesOrderNo);
 
         // [THEN] "Work Description" = 'Hello World!'

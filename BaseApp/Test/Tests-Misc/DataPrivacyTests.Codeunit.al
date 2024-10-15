@@ -63,7 +63,7 @@ codeunit 135155 "Data Privacy Tests"
             Assert.AreEqual(PackageName, ConfigPackage."Package Name", 'The Package Name of the Config. Package is incorrect');
 
             // [THEN] The Config. Package's Language ID is the Application Language
-            Assert.AreEqual(Language.GetDefaultApplicationLanguageId, ConfigPackage."Language ID",
+            Assert.AreEqual(Language.GetDefaultApplicationLanguageId(), ConfigPackage."Language ID",
               'The Language ID of the Config. Package is incorrect');
         end;
     end;
@@ -111,7 +111,7 @@ codeunit 135155 "Data Privacy Tests"
         ConfigPackageCode: Code[20];
         ConfigPackageFieldCreated: Boolean;
     begin
-        InitTableAndFieldIds;
+        InitTableAndFieldIds();
 
         // [GIVEN] The Config. Package Field is empty
         ConfigPackageField.DeleteAll();
@@ -204,7 +204,7 @@ codeunit 135155 "Data Privacy Tests"
         ConfigPackageCode: Code[20];
         ConfigPackageFilterCreated: Boolean;
     begin
-        InitTableAndFieldIds;
+        InitTableAndFieldIds();
 
         // [GIVEN] The Config. Package Filter and Config. Package tables are empty
         ConfigPackageFilter.DeleteAll();
@@ -384,7 +384,7 @@ codeunit 135155 "Data Privacy Tests"
         "Field": Record "Field";
         CouldGetField: Boolean;
     begin
-        InitTableAndFieldIds;
+        InitTableAndFieldIds();
 
         // [WHEN] Trying to get a Field record corresponding to an inexistent table and field id
         CouldGetField := Field.Get(InexistentTableId, InexistentFieldId);
@@ -668,7 +668,6 @@ codeunit 135155 "Data Privacy Tests"
         Customer: Record Customer;
         DataSensitivity: Record "Data Sensitivity";
         ChangeLogEntry: Record "Change Log Entry";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
         DataPrivacyMgmt: Codeunit "Data Privacy Mgmt";
         TableNo: Integer;

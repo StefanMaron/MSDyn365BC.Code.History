@@ -32,11 +32,11 @@ codeunit 134298 "Test Platform Event"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDecInRange(1, 10, 0));
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         // Exercise
-        SalesOrder.Release.Invoke;
+        SalesOrder.Release.Invoke();
 
         // Verify;
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");

@@ -70,7 +70,7 @@ codeunit 134212 "WF Demo Item Approval"
         SendItemForApproval(Workflow, Item, ItemCard);
 
         // Exercise
-        ItemCard.CancelApprovalRequest.Invoke;
+        ItemCard.CancelApprovalRequest.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Item.RecordId);
@@ -139,7 +139,7 @@ codeunit 134212 "WF Demo Item Approval"
         Initialize();
 
         SendItemForApproval(Workflow, Item, ItemCard);
-        ItemCard.OK.Invoke;
+        ItemCard.OK().Invoke();
 
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Item.RecordId);
         AddApprovalComment(ApprovalEntry);
@@ -175,43 +175,43 @@ codeunit 134212 "WF Demo Item Approval"
         // [WHEN] Item card is opened.
         LibraryInventory.CreateItem(Item);
         Commit();
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [THEN] Send and Cancel are disabled.
-        Assert.IsFalse(ItemCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsFalse(ItemCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(ItemCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsFalse(ItemCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // Cleanup
         ItemCard.Close();
 
         // [GIVEN] Item approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode());
 
         // [WHEN] Item card is opened.
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(ItemCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(ItemCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(ItemCard.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(ItemCard.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(ItemCard.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(ItemCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(ItemCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(ItemCard.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(ItemCard.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(ItemCard.Delegate.Visible(), 'Delegate should NOT be visible');
         ItemCard.Close();
 
         // [GIVEN] Approval exist on Item.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [WHEN] Item send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        ItemCard.SendApprovalRequest.Invoke;
+        ItemCard.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(ItemCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(ItemCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(ItemCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(ItemCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         ItemCard.Close();
@@ -220,13 +220,13 @@ codeunit 134212 "WF Demo Item Approval"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Item.RecordId);
 
         // [WHEN] Item card is opened.
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(ItemCard.Approve.Visible, 'Approve should be visible');
-        Assert.IsTrue(ItemCard.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(ItemCard.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(ItemCard.Approve.Visible(), 'Approve should be visible');
+        Assert.IsTrue(ItemCard.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(ItemCard.Delegate.Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -246,40 +246,40 @@ codeunit 134212 "WF Demo Item Approval"
         // [WHEN] Item card is opened.
         LibraryInventory.CreateItem(Item);
         Commit();
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(ItemList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(ItemList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // Cleanup
         ItemList.Close();
 
         // [GIVEN] Item approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode());
 
         // [WHEN] Item card is opened.
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(ItemList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(ItemList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         ItemList.Close();
 
         // [GIVEN] Approval exist on Item.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
 
         // [WHEN] Item send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        ItemList.SendApprovalRequest.Invoke;
+        ItemList.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(ItemList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(ItemList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(ItemList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [MessageHandler]
@@ -314,9 +314,9 @@ codeunit 134212 "WF Demo Item Approval"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Item.RecordId);
 
         // Exercise
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
-        ItemCard.Approve.Invoke;
+        ItemCard.Approve.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Item.RecordId);
@@ -345,9 +345,9 @@ codeunit 134212 "WF Demo Item Approval"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Item.RecordId);
 
         // Exercise
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
-        ItemCard.Reject.Invoke;
+        ItemCard.Reject.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Item.RecordId);
@@ -378,20 +378,20 @@ codeunit 134212 "WF Demo Item Approval"
         LibraryDocumentApprovals.SetApprover(CurrentUserSetup, ApproverUserSetup);
         LibraryDocumentApprovals.SetSubstitute(CurrentUserSetup, ApproverUserSetup);
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode());
         LibraryInventory.CreateItem(Item);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
-        ItemCard.SendApprovalRequest.Invoke;
+        ItemCard.SendApprovalRequest.Invoke();
         ItemCard.Close();
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(Item.RecordId);
 
         // Exercise
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
-        ItemCard.Delegate.Invoke;
+        ItemCard.Delegate.Invoke();
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, Item.RecordId);
@@ -404,13 +404,13 @@ codeunit 134212 "WF Demo Item Approval"
         ApprovalUserSetup: Record "User Setup";
     begin
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.ItemWorkflowCode());
 
         LibraryInventory.CreateItem(Item);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
-        ItemCard.SendApprovalRequest.Invoke;
+        ItemCard.SendApprovalRequest.Invoke();
     end;
 
     [MessageHandler]
@@ -455,7 +455,7 @@ codeunit 134212 "WF Demo Item Approval"
     begin
         LibraryVariableStorage.Clear();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         UserSetup.DeleteAll();
         if IsInitialized then
             exit;

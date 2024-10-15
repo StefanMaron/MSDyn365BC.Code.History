@@ -27,6 +27,8 @@ report 6036 "Create Contract Service Orders"
                 DataItemTableView = where("Service Period" = filter(<> ''));
 
                 trigger OnAfterGetRecord()
+                var
+                    ServContractManagement: Codeunit ServContractManagement;
                 begin
                     if "Contract Expiration Date" <> 0D then begin
                         if "Contract Expiration Date" <= "Next Planned Service Date" then
@@ -40,6 +42,9 @@ report 6036 "Create Contract Service Orders"
                     Cust.Get("Service Contract Header"."Bill-to Customer No.");
                     if Cust.Blocked = Cust.Blocked::All then
                         CurrReport.Skip();
+
+                    ServContractManagement.CheckServiceItemBlockedForAll("Service Contract Line");
+                    ServContractManagement.CheckItemServiceBlocked("Service Contract Line");
 
                     ServHeader.SetCurrentKey("Contract No.", Status, "Posting Date");
                     ServHeader.SetRange("Document Type", ServHeader."Document Type"::Order);
@@ -234,31 +239,29 @@ report 6036 "Create Contract Service Orders"
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header")
     begin
         Clear(ServiceHeader);
-        with ServiceHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Order;
-            OnBeforeInsertServiceHeader(ServHeader, "Service Contract Header", "Service Contract Line");
-            Insert(true);
-            SetHideValidationDialog(true);
-            "Contract No." := ServiceContractHeader."Contract No.";
-            Validate("Order Date", "Service Contract Line"."Next Planned Service Date");
-            Validate("Customer No.", ServiceContractHeader."Customer No.");
-            Validate("Bill-to Customer No.", ServiceContractHeader."Bill-to Customer No.");
-            "Default Response Time (Hours)" := ServiceContractHeader."Response Time (Hours)";
-            Validate("Ship-to Code", ServiceContractHeader."Ship-to Code");
-            "Service Order Type" := ServiceContractHeader."Service Order Type";
-            Validate("Currency Code", ServiceContractHeader."Currency Code");
-            SetSalespersonCode(ServiceContractHeader."Salesperson Code", "Salesperson Code");
-            "Max. Labor Unit Price" := ServiceContractHeader."Max. Labor Unit Price";
-            "Your Reference" := ServiceContractHeader."Your Reference";
-            "Service Zone Code" := ServiceContractHeader."Service Zone Code";
-            "Shortcut Dimension 1 Code" := ServiceContractHeader."Shortcut Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := ServiceContractHeader."Shortcut Dimension 2 Code";
-            Validate("Service Order Type", ServiceContractHeader."Service Order Type");
-            "Dimension Set ID" := ServiceContractHeader."Dimension Set ID";
-            OnBeforeModifyServiceHeader(ServHeader, "Service Contract Header", "Service Contract Line");
-            Modify(true);
-        end;
+        ServiceHeader.Init();
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
+        OnBeforeInsertServiceHeader(ServHeader, "Service Contract Header", "Service Contract Line");
+        ServiceHeader.Insert(true);
+        ServiceHeader.SetHideValidationDialog(true);
+        ServiceHeader."Contract No." := ServiceContractHeader."Contract No.";
+        ServiceHeader.Validate("Order Date", "Service Contract Line"."Next Planned Service Date");
+        ServiceHeader.Validate("Customer No.", ServiceContractHeader."Customer No.");
+        ServiceHeader.Validate("Bill-to Customer No.", ServiceContractHeader."Bill-to Customer No.");
+        ServiceHeader."Default Response Time (Hours)" := ServiceContractHeader."Response Time (Hours)";
+        ServiceHeader.Validate("Ship-to Code", ServiceContractHeader."Ship-to Code");
+        ServiceHeader."Service Order Type" := ServiceContractHeader."Service Order Type";
+        ServiceHeader.Validate("Currency Code", ServiceContractHeader."Currency Code");
+        SetSalespersonCode(ServiceContractHeader."Salesperson Code", ServiceHeader."Salesperson Code");
+        ServiceHeader."Max. Labor Unit Price" := ServiceContractHeader."Max. Labor Unit Price";
+        ServiceHeader."Your Reference" := ServiceContractHeader."Your Reference";
+        ServiceHeader."Service Zone Code" := ServiceContractHeader."Service Zone Code";
+        ServiceHeader."Shortcut Dimension 1 Code" := ServiceContractHeader."Shortcut Dimension 1 Code";
+        ServiceHeader."Shortcut Dimension 2 Code" := ServiceContractHeader."Shortcut Dimension 2 Code";
+        ServiceHeader.Validate("Service Order Type", ServiceContractHeader."Service Order Type");
+        ServiceHeader."Dimension Set ID" := ServiceContractHeader."Dimension Set ID";
+        OnBeforeModifyServiceHeader(ServHeader, "Service Contract Header", "Service Contract Line");
+        ServiceHeader.Modify(true);
         OnAfterCreateServiceHeader(ServiceHeader, ServiceContractHeader);
     end;
 
@@ -266,32 +269,30 @@ report 6036 "Create Contract Service Orders"
     var
         RepairStatus: Record "Repair Status";
     begin
-        with ServItemLine do begin
-            Init();
-            SetHideDialogBox(true);
-            "Document No." := ServiceHeader."No.";
-            "Document Type" := ServiceHeader."Document Type";
-            RepairStatus.Reset();
-            RepairStatus.Initial := true;
-            "Repair Status Code" := RepairStatus.ReturnStatusCode(RepairStatus);
-            NextLineNo := NextLineNo + 10000;
-            "Line No." := NextLineNo;
-            if "Service Contract Line"."Service Item No." <> '' then begin
-                ServItem.Get("Service Contract Line"."Service Item No.");
-                Validate("Service Item No.", ServItem."No.");
-                "Location of Service Item" := ServItem."Location of Service Item";
-                Priority := ServItem.Priority;
-            end else
-                Description := "Service Contract Line".Description;
-            "Serial No." := "Service Contract Line"."Serial No.";
-            "Item No." := "Service Contract Line"."Item No.";
-            "Variant Code" := "Service Contract Line"."Variant Code";
-            "Contract No." := "Service Contract Line"."Contract No.";
-            "Contract Line No." := "Service Contract Line"."Line No.";
-            UpdateResponseTimeHours();
-            OnBeforeInsertServiceItemLine(ServItemLine, ServHeader, "Service Contract Header", "Service Contract Line");
-            Insert(true);
-        end;
+        ServItemLine.Init();
+        ServItemLine.SetHideDialogBox(true);
+        ServItemLine."Document No." := ServiceHeader."No.";
+        ServItemLine."Document Type" := ServiceHeader."Document Type";
+        RepairStatus.Reset();
+        RepairStatus.Initial := true;
+        ServItemLine."Repair Status Code" := RepairStatus.ReturnStatusCode(RepairStatus);
+        NextLineNo := NextLineNo + 10000;
+        ServItemLine."Line No." := NextLineNo;
+        if "Service Contract Line"."Service Item No." <> '' then begin
+            ServItem.Get("Service Contract Line"."Service Item No.");
+            ServItemLine.Validate("Service Item No.", ServItem."No.");
+            ServItemLine."Location of Service Item" := ServItem."Location of Service Item";
+            ServItemLine.Priority := ServItem.Priority;
+        end else
+            ServItemLine.Description := "Service Contract Line".Description;
+        ServItemLine."Serial No." := "Service Contract Line"."Serial No.";
+        ServItemLine."Item No." := "Service Contract Line"."Item No.";
+        ServItemLine."Variant Code" := "Service Contract Line"."Variant Code";
+        ServItemLine."Contract No." := "Service Contract Line"."Contract No.";
+        ServItemLine."Contract Line No." := "Service Contract Line"."Line No.";
+        ServItemLine.UpdateResponseTimeHours();
+        OnBeforeInsertServiceItemLine(ServItemLine, ServHeader, "Service Contract Header", "Service Contract Line");
+        ServItemLine.Insert(true);
 
         OnAfterInsertServItemLine(ServItemLine, ServiceContractLine);
     end;
@@ -312,12 +313,11 @@ report 6036 "Create Contract Service Orders"
     var
         ShipToAddress: Record "Ship-to Address";
     begin
-        with "Service Contract Header" do
-            if "Ship-to Code" <> '' then
-                if not ShipToAddress.Get("Customer No.", "Ship-to Code") then begin
-                    Message(Text005, "Contract No.", "Customer No.", "Ship-to Code");
-                    CurrReport.Skip();
-                end;
+        if "Service Contract Header"."Ship-to Code" <> '' then
+            if not ShipToAddress.Get("Service Contract Header"."Customer No.", "Service Contract Header"."Ship-to Code") then begin
+                Message(Text005, "Service Contract Header"."Contract No.", "Service Contract Header"."Customer No.", "Service Contract Header"."Ship-to Code");
+                CurrReport.Skip();
+            end;
     end;
 
     local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])

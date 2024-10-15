@@ -23,7 +23,6 @@ codeunit 139318 "Company Creation Wizard - User"
 #endif
         Company: Record Company;
         User: Record User;
-        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         CompanyCreationWizard: TestPage "Company Creation Wizard";
         NewCompanyData: Option "ENU=Evaluation - Sample Data","Production - Setup Data Only","No Data","Advanced Evaluation - Complete Sample Data","Create New - No Data";
         NewCompanyName: Text[30];
@@ -73,7 +72,6 @@ codeunit 139318 "Company Creation Wizard - User"
         AccessControl: Record "Access Control";
         Company: Record Company;
         AzureADPlan: Codeunit "Azure AD Plan";
-        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
         CompanyCreationWizard: TestPage "Company Creation Wizard";
         NewCompanyData: Option "ENU=Evaluation - Sample Data","Production - Setup Data Only","No Data","Advanced Evaluation - Complete Sample Data","Create New - No Data";
@@ -129,27 +127,27 @@ codeunit 139318 "Company Creation Wizard - User"
         LibraryPermissions.AddUserToPlan(User2."User Security ID", PlanBID);
 
         // [WHEN] Company Creation Wizard run and users are added
-        CompanyCreationWizard.Trap;
+        CompanyCreationWizard.Trap();
         PAGE.Run(PAGE::"Company Creation Wizard");
 
-        CompanyCreationWizard.ActionNext.Invoke; // Basic Information page
-        CompanyCreationWizard.ActionBack.Invoke; // Welcome page
-        CompanyCreationWizard.ActionNext.Invoke; // Basic Information page
+        CompanyCreationWizard.ActionNext.Invoke(); // Basic Information page
+        CompanyCreationWizard.ActionBack.Invoke(); // Welcome page
+        CompanyCreationWizard.ActionNext.Invoke(); // Basic Information page
         CompanyCreationWizard.CompanyName.SetValue(NewCompanyName);
         CompanyCreationWizard.CompanyData.SetValue(NewCompanyData::"No Data"); // Set to None to avoid lengthy data import
-        CompanyCreationWizard.ActionNext.Invoke; // Manage Users page
+        CompanyCreationWizard.ActionNext.Invoke(); // Manage Users page
         Commit();
 
         // Add User1 UserLookupModalPageHandler
         LibraryVariableStorage.Enqueue(User1);
-        CompanyCreationWizard.ManageUserLabel.DrillDown;
+        CompanyCreationWizard.ManageUserLabel.DrillDown();
 
-        CompanyCreationWizard.First;
-        Assert.IsFalse(CompanyCreationWizard.Next, 'More than one item was found in the list.');
+        CompanyCreationWizard.First();
+        Assert.IsFalse(CompanyCreationWizard.Next(), 'More than one item was found in the list.');
 
-        Assert.IsTrue(CompanyCreationWizard.First, 'No rows found in the User List.');
-        CompanyCreationWizard.ActionNext.Invoke; // That's it page
-        CompanyCreationWizard.ActionFinish.Invoke;
+        Assert.IsTrue(CompanyCreationWizard.First(), 'No rows found in the User List.');
+        CompanyCreationWizard.ActionNext.Invoke(); // That's it page
+        CompanyCreationWizard.ActionFinish.Invoke();
 
 #if not CLEAN22
         // [THEN] Users are added to the newly added company
@@ -199,7 +197,7 @@ codeunit 139318 "Company Creation Wizard - User"
         LibraryVariableStorage.Dequeue(Variant);
         User := Variant;
         UserLookup.FILTER.SetFilter("User Security ID", User."User Security ID");
-        UserLookup.OK.Invoke;
+        UserLookup.OK().Invoke();
     end;
 }
 

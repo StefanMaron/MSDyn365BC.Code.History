@@ -5,6 +5,7 @@ using Microsoft.Service.Item;
 table 5920 "Fault/Resol. Cod. Relationship"
 {
     Caption = 'Fault/Resol. Cod. Relationship';
+    DataClassification = CustomerContent;
 
     fields
     {

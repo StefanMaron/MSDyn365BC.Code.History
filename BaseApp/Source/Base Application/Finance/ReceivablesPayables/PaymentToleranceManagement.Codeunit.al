@@ -485,95 +485,92 @@ codeunit 426 "Payment Tolerance Management"
                 end else
                     i := 2;
 
-                with AppliedCustLedgEntry do begin
-                    if Find('-') then
-                        repeat
-                            CalcFields("Remaining Amount");
-                            TempAppliedCustLedgerEntry := AppliedCustLedgEntry;
-                            if "Currency Code" <> ApplnCurrencyCode then
-                                UpdateAmountsForApplication(ApplnDate, ApplnCurrencyCode, false, true);
-                            // Check Payment Discount
-                            UseDisc := false;
-                            if CheckCalcPmtDiscCust(
-                                 CustLedgEntry2, AppliedCustLedgEntry, ApplnRoundingPrecision, false, false) and
-                               (((CustledgEntry.Amount > 0) and (i = 1)) or
-                                (("Remaining Amount" < 0) and (i = 1)) or
-                                (Abs(Abs(CustLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
-                                   Abs("Remaining Amount")) >= Abs(GetRemainingPmtDiscPossible(CustLedgEntry2."Posting Date") + "Max. Payment Tolerance")) or
-                                (Abs(Abs(CustLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
-                                   Abs("Remaining Amount")) <= Abs(GetRemainingPmtDiscPossible(CustLedgEntry2."Posting Date") + MaxPmtTolAmount)))
-                            then begin
-                                PmtDiscAmount := PmtDiscAmount + GetRemainingPmtDiscPossible(CustLedgEntry2."Posting Date");
-                                UseDisc := true;
+                if AppliedCustLedgEntry.Find('-') then
+                    repeat
+                        AppliedCustLedgEntry.CalcFields("Remaining Amount");
+                        TempAppliedCustLedgerEntry := AppliedCustLedgEntry;
+                        if AppliedCustLedgEntry."Currency Code" <> ApplnCurrencyCode then
+                            AppliedCustLedgEntry.UpdateAmountsForApplication(ApplnDate, ApplnCurrencyCode, false, true);
+                        // Check Payment Discount
+                        UseDisc := false;
+                        if CheckCalcPmtDiscCust(
+                             CustLedgEntry2, AppliedCustLedgEntry, ApplnRoundingPrecision, false, false) and
+                           (((CustledgEntry.Amount > 0) and (i = 1)) or
+                            ((AppliedCustLedgEntry."Remaining Amount" < 0) and (i = 1)) or
+                            (Abs(Abs(CustLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
+                               Abs(AppliedCustLedgEntry."Remaining Amount")) >= Abs(AppliedCustLedgEntry.GetRemainingPmtDiscPossible(CustLedgEntry2."Posting Date") + AppliedCustLedgEntry."Max. Payment Tolerance")) or
+                            (Abs(Abs(CustLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
+                               Abs(AppliedCustLedgEntry."Remaining Amount")) <= Abs(AppliedCustLedgEntry.GetRemainingPmtDiscPossible(CustLedgEntry2."Posting Date") + MaxPmtTolAmount)))
+                        then begin
+                            PmtDiscAmount := PmtDiscAmount + AppliedCustLedgEntry.GetRemainingPmtDiscPossible(CustLedgEntry2."Posting Date");
+                            UseDisc := true;
+                        end;
+                        // Check Payment Discount Tolerance
+                        if AppliedCustLedgEntry."Amount to Apply" = AppliedCustLedgEntry."Remaining Amount" then
+                            AvailableAmount := CustLedgEntry2."Remaining Amount"
+                        else
+                            AvailableAmount := -AppliedCustLedgEntry."Amount to Apply";
+                        if CheckPmtDiscTolCust(CustLedgEntry2."Posting Date",
+                             CustledgEntry."Document Type", AvailableAmount,
+                             AppliedCustLedgEntry, ApplnRoundingPrecision, MaxPmtTolAmount) and
+                           (((CustledgEntry.Amount > 0) and (i = 1)) or
+                            ((AppliedCustLedgEntry."Remaining Amount" < 0) and (i = 1)) or
+                            (Abs(Abs(CustLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
+                               Abs(AppliedCustLedgEntry."Remaining Amount")) >= Abs(AppliedCustLedgEntry."Remaining Pmt. Disc. Possible" + AppliedCustLedgEntry."Max. Payment Tolerance")) or
+                            (Abs(Abs(CustLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
+                               Abs(AppliedCustLedgEntry."Remaining Amount")) <= Abs(AppliedCustLedgEntry."Remaining Pmt. Disc. Possible" + MaxPmtTolAmount)))
+                        then begin
+                            PmtDiscAmount := PmtDiscAmount + AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
+                            UseDisc := true;
+                            AppliedCustLedgEntry."Accepted Pmt. Disc. Tolerance" := true;
+                            if CustledgEntry."Currency Code" <> AppliedCustLedgEntry."Currency Code" then begin
+                                RemainingPmtDiscPossible := AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
+                                AppliedCustLedgEntry."Remaining Pmt. Disc. Possible" := TempAppliedCustLedgerEntry."Remaining Pmt. Disc. Possible";
+                                AppliedCustLedgEntry."Max. Payment Tolerance" := TempAppliedCustLedgerEntry."Max. Payment Tolerance";
                             end;
+                            AppliedCustLedgEntry.Modify();
+                            if CustledgEntry."Currency Code" <> AppliedCustLedgEntry."Currency Code" then
+                                AppliedCustLedgEntry."Remaining Pmt. Disc. Possible" := RemainingPmtDiscPossible;
+                        end;
 
-                            // Check Payment Discount Tolerance
-                            if "Amount to Apply" = "Remaining Amount" then
-                                AvailableAmount := CustLedgEntry2."Remaining Amount"
-                            else
-                                AvailableAmount := -"Amount to Apply";
-                            if CheckPmtDiscTolCust(CustLedgEntry2."Posting Date",
-                                 CustledgEntry."Document Type", AvailableAmount,
-                                 AppliedCustLedgEntry, ApplnRoundingPrecision, MaxPmtTolAmount) and
-                               (((CustledgEntry.Amount > 0) and (i = 1)) or
-                                (("Remaining Amount" < 0) and (i = 1)) or
-                                (Abs(Abs(CustLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
-                                   Abs("Remaining Amount")) >= Abs("Remaining Pmt. Disc. Possible" + "Max. Payment Tolerance")) or
-                                (Abs(Abs(CustLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
-                                   Abs("Remaining Amount")) <= Abs("Remaining Pmt. Disc. Possible" + MaxPmtTolAmount)))
-                            then begin
-                                PmtDiscAmount := PmtDiscAmount + "Remaining Pmt. Disc. Possible";
-                                UseDisc := true;
-                                "Accepted Pmt. Disc. Tolerance" := true;
-                                if CustledgEntry."Currency Code" <> "Currency Code" then begin
-                                    RemainingPmtDiscPossible := "Remaining Pmt. Disc. Possible";
-                                    "Remaining Pmt. Disc. Possible" := TempAppliedCustLedgerEntry."Remaining Pmt. Disc. Possible";
-                                    "Max. Payment Tolerance" := TempAppliedCustLedgerEntry."Max. Payment Tolerance";
-                                end;
-                                Modify();
-                                if CustledgEntry."Currency Code" <> "Currency Code" then
-                                    "Remaining Pmt. Disc. Possible" := RemainingPmtDiscPossible;
+                        if CustledgEntry."Entry No." <> AppliedCustLedgEntry."Entry No." then begin
+                            MaxPmtTolAmount := Round(MaxPmtTolAmount, AmountRoundingPrecision);
+                            PmtDiscAmount := Round(PmtDiscAmount, AmountRoundingPrecision);
+                            AppliedAmount := AppliedAmount + Round(AppliedCustLedgEntry."Remaining Amount", AmountRoundingPrecision);
+                            if UseDisc then begin
+                                AmounttoApply :=
+                                  AmounttoApply +
+                                  Round(
+                                    ABSMinTol(
+                                      AppliedCustLedgEntry."Remaining Amount" -
+                                      AppliedCustLedgEntry."Remaining Pmt. Disc. Possible",
+                                      AppliedCustLedgEntry."Amount to Apply",
+                                      MaxPmtTolAmount),
+                                    AmountRoundingPrecision);
+                                CustLedgEntry2."Remaining Amount" :=
+                                  CustLedgEntry2."Remaining Amount" +
+                                  Round(AppliedCustLedgEntry."Remaining Amount" - AppliedCustLedgEntry."Remaining Pmt. Disc. Possible", AmountRoundingPrecision)
+                            end else begin
+                                AmounttoApply := AmounttoApply + Round(AppliedCustLedgEntry."Amount to Apply", AmountRoundingPrecision);
+                                CustLedgEntry2."Remaining Amount" :=
+                                  CustLedgEntry2."Remaining Amount" + Round(AppliedCustLedgEntry."Remaining Amount", AmountRoundingPrecision);
                             end;
+                            if CustledgEntry."Remaining Amount" > 0 then begin
+                                CustledgEntry."Remaining Amount" := CustledgEntry."Remaining Amount" + AppliedCustLedgEntry."Remaining Amount";
+                                if CustledgEntry."Remaining Amount" < 0 then
+                                    CustledgEntry."Remaining Amount" := 0;
+                            end;
+                            if CustledgEntry."Remaining Amount" < 0 then begin
+                                CustledgEntry."Remaining Amount" := CustledgEntry."Remaining Amount" + AppliedCustLedgEntry."Remaining Amount";
+                                if CustledgEntry."Remaining Amount" > 0 then
+                                    CustledgEntry."Remaining Amount" := 0;
+                            end;
+                        end else
+                            ApplyingAmount := AppliedCustLedgEntry."Remaining Amount";
+                    until AppliedCustLedgEntry.Next() = 0;
 
-                            if CustledgEntry."Entry No." <> "Entry No." then begin
-                                MaxPmtTolAmount := Round(MaxPmtTolAmount, AmountRoundingPrecision);
-                                PmtDiscAmount := Round(PmtDiscAmount, AmountRoundingPrecision);
-                                AppliedAmount := AppliedAmount + Round("Remaining Amount", AmountRoundingPrecision);
-                                if UseDisc then begin
-                                    AmounttoApply :=
-                                      AmounttoApply +
-                                      Round(
-                                        ABSMinTol(
-                                          "Remaining Amount" -
-                                          "Remaining Pmt. Disc. Possible",
-                                          "Amount to Apply",
-                                          MaxPmtTolAmount),
-                                        AmountRoundingPrecision);
-                                    CustLedgEntry2."Remaining Amount" :=
-                                      CustLedgEntry2."Remaining Amount" +
-                                      Round("Remaining Amount" - "Remaining Pmt. Disc. Possible", AmountRoundingPrecision)
-                                end else begin
-                                    AmounttoApply := AmounttoApply + Round("Amount to Apply", AmountRoundingPrecision);
-                                    CustLedgEntry2."Remaining Amount" :=
-                                      CustLedgEntry2."Remaining Amount" + Round("Remaining Amount", AmountRoundingPrecision);
-                                end;
-                                if CustledgEntry."Remaining Amount" > 0 then begin
-                                    CustledgEntry."Remaining Amount" := CustledgEntry."Remaining Amount" + "Remaining Amount";
-                                    if CustledgEntry."Remaining Amount" < 0 then
-                                        CustledgEntry."Remaining Amount" := 0;
-                                end;
-                                if CustledgEntry."Remaining Amount" < 0 then begin
-                                    CustledgEntry."Remaining Amount" := CustledgEntry."Remaining Amount" + "Remaining Amount";
-                                    if CustledgEntry."Remaining Amount" > 0 then
-                                        CustledgEntry."Remaining Amount" := 0;
-                                end;
-                            end else
-                                ApplyingAmount := "Remaining Amount";
-                        until Next() = 0;
-
-                    if not SuppressCommit then
-                        Commit();
-                end;
+                if not SuppressCommit then
+                    Commit();
                 OnCalcCustApplnAmountOnAfterAppliedCustLedgEntryLoop(AppliedCustLedgEntry);
             end;
         end else
@@ -663,96 +660,93 @@ codeunit 426 "Payment Tolerance Management"
                 end else
                     i := 2;
 
-                with AppliedVendLedgEntry do begin
-                    if Find('-') then
-                        repeat
-                            CalcFields("Remaining Amount");
-                            TempAppliedVendorLedgerEntry := AppliedVendLedgEntry;
-                            if "Currency Code" <> ApplnCurrencyCode then
-                                UpdateAmountsForApplication(ApplnDate, ApplnCurrencyCode, false, true);
-                            // Check Payment Discount
-                            UseDisc := false;
-                            if CheckCalcPmtDiscVend(
-                                 VendLedgEntry2, AppliedVendLedgEntry, ApplnRoundingPrecision, false, false) and
-                               (((VendledgEntry.Amount < 0) and (i = 1)) or
-                                (("Remaining Amount" > 0) and (i = 1)) or
-                                (Abs(Abs(VendLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
-                                   Abs("Remaining Amount")) >= Abs(GetRemainingPmtDiscPossible(VendLedgEntry2."Posting Date") + "Max. Payment Tolerance")) or
-                                (Abs(Abs(VendLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
-                                   Abs("Remaining Amount")) <= Abs(GetRemainingPmtDiscPossible(VendLedgEntry2."Posting Date") + MaxPmtTolAmount)))
-                            then begin
-                                PmtDiscAmount := PmtDiscAmount + GetRemainingPmtDiscPossible(VendLedgEntry2."Posting Date");
-                                UseDisc := true;
+                if AppliedVendLedgEntry.Find('-') then
+                    repeat
+                        AppliedVendLedgEntry.CalcFields("Remaining Amount");
+                        TempAppliedVendorLedgerEntry := AppliedVendLedgEntry;
+                        if AppliedVendLedgEntry."Currency Code" <> ApplnCurrencyCode then
+                            AppliedVendLedgEntry.UpdateAmountsForApplication(ApplnDate, ApplnCurrencyCode, false, true);
+                        // Check Payment Discount
+                        UseDisc := false;
+                        if CheckCalcPmtDiscVend(
+                             VendLedgEntry2, AppliedVendLedgEntry, ApplnRoundingPrecision, false, false) and
+                           (((VendledgEntry.Amount < 0) and (i = 1)) or
+                            ((AppliedVendLedgEntry."Remaining Amount" > 0) and (i = 1)) or
+                            (Abs(Abs(VendLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
+                               Abs(AppliedVendLedgEntry."Remaining Amount")) >= Abs(AppliedVendLedgEntry.GetRemainingPmtDiscPossible(VendLedgEntry2."Posting Date") + AppliedVendLedgEntry."Max. Payment Tolerance")) or
+                            (Abs(Abs(VendLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
+                               Abs(AppliedVendLedgEntry."Remaining Amount")) <= Abs(AppliedVendLedgEntry.GetRemainingPmtDiscPossible(VendLedgEntry2."Posting Date") + MaxPmtTolAmount)))
+                        then begin
+                            PmtDiscAmount := PmtDiscAmount + AppliedVendLedgEntry.GetRemainingPmtDiscPossible(VendLedgEntry2."Posting Date");
+                            UseDisc := true;
+                        end;
+                        // Check Payment Discount Tolerance
+                        if AppliedVendLedgEntry."Amount to Apply" = AppliedVendLedgEntry."Remaining Amount" then
+                            AvailableAmount := VendLedgEntry2."Remaining Amount"
+                        else
+                            AvailableAmount := -AppliedVendLedgEntry."Amount to Apply";
+
+                        if CheckPmtDiscTolVend(
+                             VendLedgEntry2."Posting Date", VendledgEntry."Document Type", AvailableAmount,
+                             AppliedVendLedgEntry, ApplnRoundingPrecision, MaxPmtTolAmount) and
+                           (((VendledgEntry.Amount < 0) and (i = 1)) or
+                            ((AppliedVendLedgEntry."Remaining Amount" > 0) and (i = 1)) or
+                            (Abs(Abs(VendLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
+                               Abs(AppliedVendLedgEntry."Remaining Amount")) >= Abs(AppliedVendLedgEntry."Remaining Pmt. Disc. Possible" + AppliedVendLedgEntry."Max. Payment Tolerance")) or
+                            (Abs(Abs(VendLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
+                               Abs(AppliedVendLedgEntry."Remaining Amount")) <= Abs(AppliedVendLedgEntry."Remaining Pmt. Disc. Possible" + MaxPmtTolAmount)))
+                        then begin
+                            PmtDiscAmount := PmtDiscAmount + AppliedVendLedgEntry."Remaining Pmt. Disc. Possible";
+                            UseDisc := true;
+                            AppliedVendLedgEntry."Accepted Pmt. Disc. Tolerance" := true;
+                            if VendledgEntry."Currency Code" <> AppliedVendLedgEntry."Currency Code" then begin
+                                RemainingPmtDiscPossible := AppliedVendLedgEntry."Remaining Pmt. Disc. Possible";
+                                AppliedVendLedgEntry."Remaining Pmt. Disc. Possible" := TempAppliedVendorLedgerEntry."Remaining Pmt. Disc. Possible";
+                                AppliedVendLedgEntry."Max. Payment Tolerance" := TempAppliedVendorLedgerEntry."Max. Payment Tolerance";
                             end;
+                            AppliedVendLedgEntry.Modify();
+                            if VendledgEntry."Currency Code" <> AppliedVendLedgEntry."Currency Code" then
+                                AppliedVendLedgEntry."Remaining Pmt. Disc. Possible" := RemainingPmtDiscPossible;
+                        end;
 
-                            // Check Payment Discount Tolerance
-                            if "Amount to Apply" = "Remaining Amount" then
-                                AvailableAmount := VendLedgEntry2."Remaining Amount"
-                            else
-                                AvailableAmount := -"Amount to Apply";
-
-                            if CheckPmtDiscTolVend(
-                                 VendLedgEntry2."Posting Date", VendledgEntry."Document Type", AvailableAmount,
-                                 AppliedVendLedgEntry, ApplnRoundingPrecision, MaxPmtTolAmount) and
-                               (((VendledgEntry.Amount < 0) and (i = 1)) or
-                                (("Remaining Amount" > 0) and (i = 1)) or
-                                (Abs(Abs(VendLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
-                                   Abs("Remaining Amount")) >= Abs("Remaining Pmt. Disc. Possible" + "Max. Payment Tolerance")) or
-                                (Abs(Abs(VendLedgEntry2."Remaining Amount") + ApplnRoundingPrecision -
-                                   Abs("Remaining Amount")) <= Abs("Remaining Pmt. Disc. Possible" + MaxPmtTolAmount)))
-                            then begin
-                                PmtDiscAmount := PmtDiscAmount + "Remaining Pmt. Disc. Possible";
-                                UseDisc := true;
-                                "Accepted Pmt. Disc. Tolerance" := true;
-                                if VendledgEntry."Currency Code" <> "Currency Code" then begin
-                                    RemainingPmtDiscPossible := "Remaining Pmt. Disc. Possible";
-                                    "Remaining Pmt. Disc. Possible" := TempAppliedVendorLedgerEntry."Remaining Pmt. Disc. Possible";
-                                    "Max. Payment Tolerance" := TempAppliedVendorLedgerEntry."Max. Payment Tolerance";
-                                end;
-                                Modify();
-                                if VendledgEntry."Currency Code" <> "Currency Code" then
-                                    "Remaining Pmt. Disc. Possible" := RemainingPmtDiscPossible;
+                        if VendledgEntry."Entry No." <> AppliedVendLedgEntry."Entry No." then begin
+                            PmtDiscAmount := Round(PmtDiscAmount, AmountRoundingPrecision);
+                            MaxPmtTolAmount := Round(MaxPmtTolAmount, AmountRoundingPrecision);
+                            AppliedAmount := AppliedAmount + Round(AppliedVendLedgEntry."Remaining Amount", AmountRoundingPrecision);
+                            if UseDisc then begin
+                                AmounttoApply :=
+                                  AmounttoApply +
+                                  Round(
+                                    ABSMinTol(
+                                      AppliedVendLedgEntry."Remaining Amount" -
+                                      AppliedVendLedgEntry."Remaining Pmt. Disc. Possible",
+                                      AppliedVendLedgEntry."Amount to Apply",
+                                      MaxPmtTolAmount),
+                                    AmountRoundingPrecision);
+                                VendLedgEntry2."Remaining Amount" :=
+                                  VendLedgEntry2."Remaining Amount" +
+                                  Round(AppliedVendLedgEntry."Remaining Amount" - AppliedVendLedgEntry."Remaining Pmt. Disc. Possible", AmountRoundingPrecision)
+                            end else begin
+                                AmounttoApply := AmounttoApply + Round(AppliedVendLedgEntry."Amount to Apply", AmountRoundingPrecision);
+                                VendLedgEntry2."Remaining Amount" :=
+                                  VendLedgEntry2."Remaining Amount" + Round(AppliedVendLedgEntry."Remaining Amount", AmountRoundingPrecision);
                             end;
+                            if VendledgEntry."Remaining Amount" > 0 then begin
+                                VendledgEntry."Remaining Amount" := VendledgEntry."Remaining Amount" + AppliedVendLedgEntry."Remaining Amount";
+                                if VendledgEntry."Remaining Amount" < 0 then
+                                    VendledgEntry."Remaining Amount" := 0;
+                            end;
+                            if VendledgEntry."Remaining Amount" < 0 then begin
+                                VendledgEntry."Remaining Amount" := VendledgEntry."Remaining Amount" + AppliedVendLedgEntry."Remaining Amount";
+                                if VendledgEntry."Remaining Amount" > 0 then
+                                    VendledgEntry."Remaining Amount" := 0;
+                            end;
+                        end else
+                            ApplyingAmount := AppliedVendLedgEntry."Remaining Amount";
+                    until AppliedVendLedgEntry.Next() = 0;
 
-                            if VendledgEntry."Entry No." <> "Entry No." then begin
-                                PmtDiscAmount := Round(PmtDiscAmount, AmountRoundingPrecision);
-                                MaxPmtTolAmount := Round(MaxPmtTolAmount, AmountRoundingPrecision);
-                                AppliedAmount := AppliedAmount + Round("Remaining Amount", AmountRoundingPrecision);
-                                if UseDisc then begin
-                                    AmounttoApply :=
-                                      AmounttoApply +
-                                      Round(
-                                        ABSMinTol(
-                                          "Remaining Amount" -
-                                          "Remaining Pmt. Disc. Possible",
-                                          "Amount to Apply",
-                                          MaxPmtTolAmount),
-                                        AmountRoundingPrecision);
-                                    VendLedgEntry2."Remaining Amount" :=
-                                      VendLedgEntry2."Remaining Amount" +
-                                      Round("Remaining Amount" - "Remaining Pmt. Disc. Possible", AmountRoundingPrecision)
-                                end else begin
-                                    AmounttoApply := AmounttoApply + Round("Amount to Apply", AmountRoundingPrecision);
-                                    VendLedgEntry2."Remaining Amount" :=
-                                      VendLedgEntry2."Remaining Amount" + Round("Remaining Amount", AmountRoundingPrecision);
-                                end;
-                                if VendledgEntry."Remaining Amount" > 0 then begin
-                                    VendledgEntry."Remaining Amount" := VendledgEntry."Remaining Amount" + "Remaining Amount";
-                                    if VendledgEntry."Remaining Amount" < 0 then
-                                        VendledgEntry."Remaining Amount" := 0;
-                                end;
-                                if VendledgEntry."Remaining Amount" < 0 then begin
-                                    VendledgEntry."Remaining Amount" := VendledgEntry."Remaining Amount" + "Remaining Amount";
-                                    if VendledgEntry."Remaining Amount" > 0 then
-                                        VendledgEntry."Remaining Amount" := 0;
-                                end;
-                            end else
-                                ApplyingAmount := "Remaining Amount";
-                        until Next() = 0;
-
-                    if not SuppressCommit then
-                        Commit();
-                end;
+                if not SuppressCommit then
+                    Commit();
                 OnCalcVendApplnAmountOnAfterAppliedVendLedgEntryLoop(AppliedVendLedgEntry);
             end;
         end else
@@ -954,7 +948,7 @@ codeunit 426 "Payment Tolerance Management"
         OnPutCustPmtTolAmountOnAfterAppliedCustLedgEntrySetFilters(AppliedCustLedgEntry, CustledgEntry);
 
         AppliedCustLedgEntry.SetLoadFields("Currency Code");
-        if AppliedCustLedgEntry.FindSet(false, false) then
+        if AppliedCustLedgEntry.FindSet(false) then
             repeat
                 AppliedCustLedgEntry.CalcFields(Amount);
                 if CustledgEntry."Currency Code" <> AppliedCustLedgEntry."Currency Code" then
@@ -972,7 +966,7 @@ codeunit 426 "Payment Tolerance Management"
         AcceptedTolAmount := Amount + AppliedAmount;
         Number := AppliedCustLedgEntry.Count();
 
-        if AppliedCustLedgEntry.FindSet(true, false) then
+        if AppliedCustLedgEntry.FindSet(true) then
             repeat
                 AppliedCustLedgEntry.CalcFields("Remaining Amount");
                 AppliedCustLedgerEntry2 := AppliedCustLedgEntry;
@@ -1037,7 +1031,7 @@ codeunit 426 "Payment Tolerance Management"
         OnPutVendPmtTolAmountOnAfterVendLedgEntrySetFilters(AppliedVendLedgEntry, VendLedgEntry);
 
         AppliedVendLedgEntry.SetLoadFields("Currency Code");
-        if AppliedVendLedgEntry.FindSet(false, false) then
+        if AppliedVendLedgEntry.FindSet(false) then
             repeat
                 AppliedVendLedgEntry.CalcFields(Amount);
                 if VendLedgEntry."Currency Code" <> AppliedVendLedgEntry."Currency Code" then
@@ -1055,7 +1049,7 @@ codeunit 426 "Payment Tolerance Management"
         AcceptedTolAmount := Amount + AppliedAmount;
         Number := AppliedVendLedgEntry.Count();
 
-        if AppliedVendLedgEntry.FindSet(true, false) then
+        if AppliedVendLedgEntry.FindSet(true) then
             repeat
                 AppliedVendLedgEntry.CalcFields("Remaining Amount");
                 AppliedVendorLedgerEntry2 := AppliedVendLedgEntry;
@@ -1992,45 +1986,43 @@ codeunit 426 "Payment Tolerance Management"
         AppliedCustLedgEntry: Record "Cust. Ledger Entry";
         RemainingAmountTest: Boolean;
     begin
-        with AppliedCustLedgEntry do begin
-            SetCurrentKey("Customer No.", "Applies-to ID", Open, Positive);
-            SetRange("Customer No.", NewCustLedgEntry."Customer No.");
-            if AppliesToDocNo <> '' then
-                SetRange("Document No.", AppliesToDocNo)
-            else
-                SetRange("Applies-to ID", GenJnlLineApplID);
-            SetRange(Open, true);
-            SetRange("Accepted Pmt. Disc. Tolerance", true);
-            if FindSet() then
-                repeat
-                    CalcFields("Remaining Amount");
-                    if CallPmtDiscTolWarning(
-                         "Posting Date", "Customer No.",
-                         "Document No.", "Currency Code",
-                         "Remaining Amount", 0,
-                         "Remaining Pmt. Disc. Possible", RemainingAmountTest, "Payment Tolerance Account Type"::Customer)
-                    then begin
-                        if RemainingAmountTest then begin
-                            "Accepted Pmt. Disc. Tolerance" := false;
-                            Modify();
-                            if not SuppressCommit then
-                                Commit();
-                            if NewCustLedgEntry."Currency Code" <> "Currency Code" then
-                                "Remaining Pmt. Disc. Possible" :=
-                                  CurrExchRate.ExchangeAmount(
-                                    "Remaining Pmt. Disc. Possible",
-                                    "Currency Code",
-                                    NewCustLedgEntry."Currency Code",
-                                    NewCustLedgEntry."Posting Date");
-                            AppliedAmount := AppliedAmount + "Remaining Pmt. Disc. Possible";
-                            AmountToApply := AmountToApply + "Remaining Pmt. Disc. Possible";
-                        end
-                    end else begin
-                        DelCustPmtTolAcc(NewCustLedgEntry, GenJnlLineApplID);
-                        exit(false);
-                    end;
-                until Next() = 0;
-        end;
+        AppliedCustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID", Open, Positive);
+        AppliedCustLedgEntry.SetRange("Customer No.", NewCustLedgEntry."Customer No.");
+        if AppliesToDocNo <> '' then
+            AppliedCustLedgEntry.SetRange("Document No.", AppliesToDocNo)
+        else
+            AppliedCustLedgEntry.SetRange("Applies-to ID", GenJnlLineApplID);
+        AppliedCustLedgEntry.SetRange(Open, true);
+        AppliedCustLedgEntry.SetRange("Accepted Pmt. Disc. Tolerance", true);
+        if AppliedCustLedgEntry.FindSet() then
+            repeat
+                AppliedCustLedgEntry.CalcFields("Remaining Amount");
+                if CallPmtDiscTolWarning(
+                     AppliedCustLedgEntry."Posting Date", AppliedCustLedgEntry."Customer No.",
+                     AppliedCustLedgEntry."Document No.", AppliedCustLedgEntry."Currency Code",
+                     AppliedCustLedgEntry."Remaining Amount", 0,
+                     AppliedCustLedgEntry."Remaining Pmt. Disc. Possible", RemainingAmountTest, "Payment Tolerance Account Type"::Customer)
+                then begin
+                    if RemainingAmountTest then begin
+                        AppliedCustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
+                        AppliedCustLedgEntry.Modify();
+                        if not SuppressCommit then
+                            Commit();
+                        if NewCustLedgEntry."Currency Code" <> AppliedCustLedgEntry."Currency Code" then
+                            AppliedCustLedgEntry."Remaining Pmt. Disc. Possible" :=
+                              CurrExchRate.ExchangeAmount(
+                                AppliedCustLedgEntry."Remaining Pmt. Disc. Possible",
+                                AppliedCustLedgEntry."Currency Code",
+                                NewCustLedgEntry."Currency Code",
+                                NewCustLedgEntry."Posting Date");
+                        AppliedAmount := AppliedAmount + AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
+                        AmountToApply := AmountToApply + AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
+                    end
+                end else begin
+                    DelCustPmtTolAcc(NewCustLedgEntry, GenJnlLineApplID);
+                    exit(false);
+                end;
+            until AppliedCustLedgEntry.Next() = 0;
 
         exit(true);
     end;
@@ -2040,44 +2032,42 @@ codeunit 426 "Payment Tolerance Management"
         AppliedVendLedgEntry: Record "Vendor Ledger Entry";
         RemainingAmountTest: Boolean;
     begin
-        with AppliedVendLedgEntry do begin
-            SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive);
-            SetRange("Vendor No.", NewVendLedgEntry."Vendor No.");
-            if AppliesToDocNo <> '' then
-                SetRange("Document No.", AppliesToDocNo)
-            else
-                SetRange("Applies-to ID", GenJnlLineApplID);
-            SetRange(Open, true);
-            SetRange("Accepted Pmt. Disc. Tolerance", true);
-            if FindSet() then
-                repeat
-                    CalcFields("Remaining Amount");
-                    if CallPmtDiscTolWarning(
-                         "Posting Date", "Vendor No.",
-                         "Document No.", "Currency Code",
-                         "Remaining Amount", 0,
-                         "Remaining Pmt. Disc. Possible", RemainingAmountTest, "Payment Tolerance Account Type"::Vendor)
-                    then begin
-                        if RemainingAmountTest then begin
-                            "Accepted Pmt. Disc. Tolerance" := false;
-                            Modify();
-                            if not SuppressCommit then
-                                Commit();
-                            if NewVendLedgEntry."Currency Code" <> "Currency Code" then
-                                "Remaining Pmt. Disc. Possible" :=
-                                  CurrExchRate.ExchangeAmount(
-                                    "Remaining Pmt. Disc. Possible",
-                                    "Currency Code",
-                                    NewVendLedgEntry."Currency Code", NewVendLedgEntry."Posting Date");
-                            AppliedAmount := AppliedAmount + "Remaining Pmt. Disc. Possible";
-                            AmountToApply := AmountToApply + "Remaining Pmt. Disc. Possible";
-                        end
-                    end else begin
-                        DelVendPmtTolAcc(NewVendLedgEntry, GenJnlLineApplID);
-                        exit(false);
-                    end;
-                until Next() = 0;
-        end;
+        AppliedVendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive);
+        AppliedVendLedgEntry.SetRange("Vendor No.", NewVendLedgEntry."Vendor No.");
+        if AppliesToDocNo <> '' then
+            AppliedVendLedgEntry.SetRange("Document No.", AppliesToDocNo)
+        else
+            AppliedVendLedgEntry.SetRange("Applies-to ID", GenJnlLineApplID);
+        AppliedVendLedgEntry.SetRange(Open, true);
+        AppliedVendLedgEntry.SetRange("Accepted Pmt. Disc. Tolerance", true);
+        if AppliedVendLedgEntry.FindSet() then
+            repeat
+                AppliedVendLedgEntry.CalcFields("Remaining Amount");
+                if CallPmtDiscTolWarning(
+                     AppliedVendLedgEntry."Posting Date", AppliedVendLedgEntry."Vendor No.",
+                     AppliedVendLedgEntry."Document No.", AppliedVendLedgEntry."Currency Code",
+                     AppliedVendLedgEntry."Remaining Amount", 0,
+                     AppliedVendLedgEntry."Remaining Pmt. Disc. Possible", RemainingAmountTest, "Payment Tolerance Account Type"::Vendor)
+                then begin
+                    if RemainingAmountTest then begin
+                        AppliedVendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
+                        AppliedVendLedgEntry.Modify();
+                        if not SuppressCommit then
+                            Commit();
+                        if NewVendLedgEntry."Currency Code" <> AppliedVendLedgEntry."Currency Code" then
+                            AppliedVendLedgEntry."Remaining Pmt. Disc. Possible" :=
+                              CurrExchRate.ExchangeAmount(
+                                AppliedVendLedgEntry."Remaining Pmt. Disc. Possible",
+                                AppliedVendLedgEntry."Currency Code",
+                                NewVendLedgEntry."Currency Code", NewVendLedgEntry."Posting Date");
+                        AppliedAmount := AppliedAmount + AppliedVendLedgEntry."Remaining Pmt. Disc. Possible";
+                        AmountToApply := AmountToApply + AppliedVendLedgEntry."Remaining Pmt. Disc. Possible";
+                    end
+                end else begin
+                    DelVendPmtTolAcc(NewVendLedgEntry, GenJnlLineApplID);
+                    exit(false);
+                end;
+            until AppliedVendLedgEntry.Next() = 0;
 
         exit(true);
     end;

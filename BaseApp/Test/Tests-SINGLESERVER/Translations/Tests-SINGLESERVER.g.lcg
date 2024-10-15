@@ -1229,15 +1229,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM User Personalization - NamedType NotDefaultRoleCenterIDErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1899894503 - NamedType 197078124" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TEST ORDER PROCESSOR]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM User Personalization - NamedType OrderProcessorTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1899894503 - NamedType 3256274025" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There must be one default Role Center.]]></Val>
@@ -1454,6 +1445,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit New Time Sheet Experience - Method ConfirmHandlerVerify - NamedType TimeSheetTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1212730964 - Method 23663932 - NamedType 915453705" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are no time sheet lines to show.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit New Time Sheet Experience - Method CopyTimeSheetLinesNoLinesToCopy - NamedType NoLinesToCopyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1212730964 - Method 1996085716 - NamedType 608173919" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more unposted Time Sheet lines exists for the project %1.\\You must post or delete the time sheet lines before you can change the project status.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Project No.]D;]A;(LookupHint=Codeunit New Time Sheet Experience - Method UpdateJobStatusWhenExistOnTimeSheetLine - NamedType TimeSheetLineExistsForJobErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1692564887 - NamedType 2922458564" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[OK]]></Val>
@@ -1497,15 +1506,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Prepayments Plan-based E2E - NamedType TeamMemberErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2267739421 - NamedType 4226072671" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cannot export the profiles because one or more of them contain an error.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Profile Import/Export Test - NamedType CouldNotExportProfilesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2267739421 - NamedType 942727683" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1715,15 +1715,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Access in SaaS Tests - NamedType UserEuropeDcst1FullTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 554105113 - NamedType 3896521314" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[EUROPE\DCST2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Access in SaaS Tests - NamedType UserEuropeDcst2ExternalTok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 554105113 - NamedType 3365042538" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[D365 FULL ACCESS]]></Val>
@@ -1868,15 +1859,6 @@
       <Cmt Name="Dev"><![CDATA[New permission set, D365 Basic Set, has been created.]D;]A;(LookupHint=Codeunit UserRoleTest - NamedType CopySuccessMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3058317973 - NamedType 2871260926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Indirect]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRoleTest - NamedType IndirectTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3058317973 - NamedType 1987302815" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The row does not exist on the TestPage.]]></Val>
@@ -1893,15 +1875,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRoleTest - NamedType SUPERPermissionErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3058317973 - NamedType 2643354537" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Yes]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UserRoleTest - NamedType YesTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3612168113 - NamedType 4120771995" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

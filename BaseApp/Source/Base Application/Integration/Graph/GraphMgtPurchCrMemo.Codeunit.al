@@ -378,7 +378,7 @@ codeunit 5511 "Graph Mgt - Purch. Cr. Memo"
 
         TargetRecordRef.Insert(true);
 
-        PurchCrMemoEntityBuffer."No." := NoFieldRef.Value;
+        PurchCrMemoEntityBuffer."No." := NoFieldRef.Value();
         PurchCrMemoEntityBuffer.Get(PurchCrMemoEntityBuffer."No.", PurchCrMemoEntityBuffer.Posted);
     end;
 
@@ -450,7 +450,7 @@ codeunit 5511 "Graph Mgt - Purch. Cr. Memo"
             until PurchCrMemoHdr.Next() = 0;
 
         PurchCrMemoEntityBuffer.SetRange(Posted, false);
-        if PurchCrMemoEntityBuffer.FindSet(true, false) then
+        if PurchCrMemoEntityBuffer.FindSet(true) then
             repeat
                 if not PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", PurchCrMemoEntityBuffer."No.") then begin
                     PurchCrMemoEntityBuffer.Delete(true);
@@ -459,7 +459,7 @@ codeunit 5511 "Graph Mgt - Purch. Cr. Memo"
             until PurchCrMemoEntityBuffer.Next() = 0;
 
         PurchCrMemoEntityBuffer.SetRange(Posted, true);
-        if PurchCrMemoEntityBuffer.FindSet(true, false) then
+        if PurchCrMemoEntityBuffer.FindSet(true) then
             repeat
                 if not PurchCrMemoHdr.Get(PurchCrMemoEntityBuffer."No.") then begin
                     PurchCrMemoEntityBuffer.Delete(true);
@@ -842,7 +842,7 @@ codeunit 5511 "Graph Mgt - Purch. Cr. Memo"
     begin
         PurchCrMemoLine.SetRange("Document No.", PurchCrMemoEntityBuffer."No.");
 
-        if PurchCrMemoLine.FindSet(false, false) then
+        if PurchCrMemoLine.FindSet(false) then
             repeat
                 Clear(PurchInvLineAggregate);
                 PurchInvLineAggregate.TransferFields(PurchCrMemoLine, true);
@@ -873,7 +873,7 @@ codeunit 5511 "Graph Mgt - Purch. Cr. Memo"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", PurchCrMemoEntityBuffer."No.");
 
-        if PurchaseLine.FindSet(false, false) then
+        if PurchaseLine.FindSet(false) then
             repeat
                 TransferFromPurchaseLine(PurchInvLineAggregate, PurchaseLine, PurchCrMemoEntityBuffer);
                 PurchInvLineAggregate.Insert(true);

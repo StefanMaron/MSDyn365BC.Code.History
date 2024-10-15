@@ -6,6 +6,7 @@ table 7860 "MS- PayPal Standard Account"
     Permissions = TableData "Webhook Subscription" = rimd;
     ObsoleteTag = '15.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

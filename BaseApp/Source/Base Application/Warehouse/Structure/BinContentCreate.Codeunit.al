@@ -45,30 +45,28 @@ codeunit 7319 "Bin Content Create"
 
     local procedure BinCreate(BinCreateLine2: Record "Bin Creation Worksheet Line")
     begin
-        with BinCreateLine2 do begin
-            if EmptyLine() then
-                exit;
-            BinContent.Init();
-            BinContent."Bin Code" := "Bin Code";
-            BinContent."Location Code" := "Location Code";
-            BinContent."Item No." := "Item No.";
-            BinContent."Variant Code" := "Variant Code";
-            BinContent."Unit of Measure Code" := "Unit of Measure Code";
-            BinContent."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            BinContent.Fixed := Fixed;
-            BinContent.Default := Default;
-            BinContent.Dedicated := Dedicated;
-            BinContent."Zone Code" := "Zone Code";
-            BinContent."Bin Type Code" := "Bin Type Code";
-            BinContent."Warehouse Class Code" := "Warehouse Class Code";
-            BinContent."Block Movement" := "Block Movement";
-            BinContent."Bin Ranking" := "Bin Ranking";
-            BinContent."Cross-Dock Bin" := "Cross-Dock Bin";
-            BinContent."Min. Qty." := "Min. Qty.";
-            BinContent."Max. Qty." := "Max. Qty.";
-            OnBinCreateOnBeforeInsertBinContent(BinContent, BinCreateLine2);
-            BinContent.Insert(true);
-        end;
+        if BinCreateLine2.EmptyLine() then
+            exit;
+        BinContent.Init();
+        BinContent."Bin Code" := BinCreateLine2."Bin Code";
+        BinContent."Location Code" := BinCreateLine2."Location Code";
+        BinContent."Item No." := BinCreateLine2."Item No.";
+        BinContent."Variant Code" := BinCreateLine2."Variant Code";
+        BinContent."Unit of Measure Code" := BinCreateLine2."Unit of Measure Code";
+        BinContent."Qty. per Unit of Measure" := BinCreateLine2."Qty. per Unit of Measure";
+        BinContent.Fixed := BinCreateLine2.Fixed;
+        BinContent.Default := BinCreateLine2.Default;
+        BinContent.Dedicated := BinCreateLine2.Dedicated;
+        BinContent."Zone Code" := BinCreateLine2."Zone Code";
+        BinContent."Bin Type Code" := BinCreateLine2."Bin Type Code";
+        BinContent."Warehouse Class Code" := BinCreateLine2."Warehouse Class Code";
+        BinContent."Block Movement" := BinCreateLine2."Block Movement";
+        BinContent."Bin Ranking" := BinCreateLine2."Bin Ranking";
+        BinContent."Cross-Dock Bin" := BinCreateLine2."Cross-Dock Bin";
+        BinContent."Min. Qty." := BinCreateLine2."Min. Qty.";
+        BinContent."Max. Qty." := BinCreateLine2."Max. Qty.";
+        OnBinCreateOnBeforeInsertBinContent(BinContent, BinCreateLine2);
+        BinContent.Insert(true);
     end;
 
     local procedure GetLocation(LocationCode: Code[10])

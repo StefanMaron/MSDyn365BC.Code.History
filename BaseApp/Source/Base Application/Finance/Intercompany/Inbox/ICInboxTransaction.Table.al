@@ -9,6 +9,7 @@ using System.Utilities;
 table 418 "IC Inbox Transaction"
 {
     Caption = 'IC Inbox Transaction';
+    DataClassification = CustomerContent;
 
     fields
     {

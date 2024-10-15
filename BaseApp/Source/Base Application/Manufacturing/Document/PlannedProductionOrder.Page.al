@@ -124,76 +124,6 @@ page 99000813 "Planned Production Order"
             group(Schedule)
             {
                 Caption = 'Schedule';
-#if not CLEAN17
-                field("Starting Time"; StartingTime)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Starting Time';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the starting time of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Starting Time", StartingTime);
-                        CurrPage.Update(true);
-                    end;
-                }
-                field("Starting Date"; StartingDate)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Starting Date';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the starting date of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Starting Date", StartingDate);
-                        CurrPage.Update(true);
-                    end;
-                }
-                field("Ending Time"; EndingTime)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Ending Time';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the ending time of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Ending Time", EndingTime);
-                        CurrPage.Update(true);
-                    end;
-                }
-                field("Ending Date"; EndingDate)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Ending Date';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the ending date of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Ending Date", EndingDate);
-                        CurrPage.Update(true);
-                    end;
-                }
-#endif
                 field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
@@ -464,15 +394,6 @@ page 99000813 "Planned Production Order"
                 actionref("Re&plan_Promoted"; "Re&plan")
                 {
                 }
-#if not CLEAN21
-                actionref("C&opy Prod. Order Document_Promoted"; "C&opy Prod. Order Document")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Report)
             {
@@ -503,35 +424,12 @@ page 99000813 "Planned Production Order"
     var
         Item: Record Item;
     begin
-#if not CLEAN17
-        Rec.GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
-#endif
         if Rec."Variant Code" = '' then
             VariantCodeMandatory := Item.IsVariantMandatory(Rec."Source Type" = Rec."Source Type"::Item, Rec."Source No.");
     end;
 
-#if not CLEAN17
-    trigger OnInit()
-    begin
-        DateAndTimeFieldVisible := false;
-    end;
-
-    trigger OnOpenPage()
-    begin
-        DateAndTimeFieldVisible := false;
-    end;
-#endif
-
     var
-#if not CLEAN17
-        StartingTime: Time;
-        EndingTime: Time;
-        StartingDate: Date;
-        EndingDate: Date;
-        DateAndTimeFieldVisible: Boolean;
-#endif
         VariantCodeMandatory: Boolean;
-
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin

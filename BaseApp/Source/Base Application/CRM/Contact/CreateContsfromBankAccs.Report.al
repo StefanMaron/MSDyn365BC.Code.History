@@ -22,12 +22,10 @@ report 5193 "Create Conts. from Bank Accs."
             begin
                 Window.Update(1);
 
-                with ContBusRel do begin
-                    SetRange("Link to Table", "Link to Table"::"Bank Account");
-                    SetRange("No.", "Bank Account"."No.");
-                    if FindFirst() then
-                        CurrReport.Skip();
-                end;
+                ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::"Bank Account");
+                ContBusRel.SetRange("No.", "Bank Account"."No.");
+                if ContBusRel.FindFirst() then
+                    CurrReport.Skip();
 
                 Cont.Init();
                 Cont.TransferFields("Bank Account");
@@ -40,14 +38,12 @@ report 5193 "Create Conts. from Bank Accs."
                 if not DuplicateContactExist then
                     DuplicateContactExist := DuplMgt.DuplicateExist(Cont);
 
-                with ContBusRel do begin
-                    Init();
-                    "Contact No." := Cont."No.";
-                    "Business Relation Code" := RMSetup."Bus. Rel. Code for Bank Accs.";
-                    "Link to Table" := "Link to Table"::"Bank Account";
-                    "No." := "Bank Account"."No.";
-                    Insert();
-                end;
+                ContBusRel.Init();
+                ContBusRel."Contact No." := Cont."No.";
+                ContBusRel."Business Relation Code" := RMSetup."Bus. Rel. Code for Bank Accs.";
+                ContBusRel."Link to Table" := ContBusRel."Link to Table"::"Bank Account";
+                ContBusRel."No." := "Bank Account"."No.";
+                ContBusRel.Insert();
             end;
 
             trigger OnPostDataItem()

@@ -3,6 +3,7 @@ namespace System.Xml;
 table 9612 "Referenced XML Schema"
 {
     Caption = 'Referenced XML Schema';
+    DataClassification = CustomerContent;
 
     fields
     {

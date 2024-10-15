@@ -21,7 +21,7 @@ codeunit 132499 RunPerformanceTestPDF
     begin
         SalesHeader.Init();
         SalesHeader.SetFilter("No.", '101005');
-        SetPdfFileName;
+        SetPdfFileName();
         REPORT.SaveAsPdf(REPORT::"Standard Sales - Order Conf.", fileName, SalesHeader);
         exit(fileName);
     end;
@@ -29,7 +29,7 @@ codeunit 132499 RunPerformanceTestPDF
     [Scope('OnPrem')]
     procedure GeneratePDFTestT03(): Text[255]
     begin
-        SetPdfFileName;
+        SetPdfFileName();
         REPORT.SaveAsPdf(REPORT::"Trial Balance", fileName);
         exit(fileName);
     end;
@@ -43,7 +43,7 @@ codeunit 132499 RunPerformanceTestPDF
     begin
         startDate := DMY2Date(12, 12, Date2DMY(Today, 3));
         endDate := DMY2Date(12, 12, Date2DMY(Today, 3) + 2);
-        SetPdfFileName;
+        SetPdfFileName();
         Statement.InitializeRequest(false, false, true, false, false, false, '<1M+CM>', 0, true, startDate, endDate);
         Statement.SaveAsPdf(fileName);
         exit(fileName);
@@ -59,7 +59,7 @@ codeunit 132499 RunPerformanceTestPDF
         InventoryValuation.SetStartDate(parsedDate);
         parsedDate := DMY2Date(2, 2, 2001);
         InventoryValuation.SetEndDate(parsedDate);
-        SetPdfFileName;
+        SetPdfFileName();
         InventoryValuation.SaveAsPdf(fileName);
         exit(fileName);
     end;
@@ -77,7 +77,7 @@ codeunit 132499 RunPerformanceTestPDF
         customerRecord.SetFilter("No.", '01445544..01905893');
         AgedAccountsReceivable.InitializeRequest(parsedDate, 0, periodLength, false, false, 0, false);
         AgedAccountsReceivable.SetTableView(customerRecord);
-        SetPdfFileName;
+        SetPdfFileName();
         AgedAccountsReceivable.SaveAsPdf(fileName);
         exit(fileName);
     end;
@@ -91,7 +91,7 @@ codeunit 132499 RunPerformanceTestPDF
     begin
         parsedDate := DMY2Date(22, 7, 2005);
         customerRecord.SetFilter("No.", '01121212');
-        SetPdfFileName;
+        SetPdfFileName();
         CustomerBalanceToDate.InitializeRequest(false, false, false, parsedDate);
         CustomerBalanceToDate.SetTableView(customerRecord);
         CustomerBalanceToDate.SaveAsPdf(fileName);
@@ -110,7 +110,7 @@ codeunit 132499 RunPerformanceTestPDF
         endDate := DMY2Date(31, 12, 2005);
         postingDate := DMY2Date(22, 7, 2005);
         CalcAndPostVATSettlement.InitializeRequest(startDate, endDate, postingDate, 'S-IN000000001', '2320', true, false);
-        SetPdfFileName;
+        SetPdfFileName();
         CalcAndPostVATSettlement.SaveAsPdf(fileName);
         exit(fileName);
     end;

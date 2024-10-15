@@ -122,24 +122,22 @@ report 8616 "Get Package Tables"
     var
         ConfigLine: Record "Config. Line";
     begin
-        with TempConfigSelection do begin
-            Reset();
-            ConfigLine.SetFilter("Table ID", '<>0');
-            if ConfigLine.FindSet() then
-                repeat
-                    if (ConfigLine."Line Type" <> ConfigLine."Line Type"::Table) or
-                       ((ConfigLine."Line Type" = ConfigLine."Line Type"::Table) and (ConfigLine."Package Code" = ''))
-                    then
-                        if not Get(ConfigLine."Line No.") then begin
-                            Init();
-                            "Line No." := ConfigLine."Line No.";
-                            "Table ID" := ConfigLine."Table ID";
-                            Name := ConfigLine.Name;
-                            "Line Type" := ConfigLine."Line Type";
-                            Insert();
-                        end;
-                until ConfigLine.Next() = 0;
-        end;
+        TempConfigSelection.Reset();
+        ConfigLine.SetFilter("Table ID", '<>0');
+        if ConfigLine.FindSet() then
+            repeat
+                if (ConfigLine."Line Type" <> ConfigLine."Line Type"::Table) or
+                   ((ConfigLine."Line Type" = ConfigLine."Line Type"::Table) and (ConfigLine."Package Code" = ''))
+                then
+                    if not TempConfigSelection.Get(ConfigLine."Line No.") then begin
+                        TempConfigSelection.Init();
+                        TempConfigSelection."Line No." := ConfigLine."Line No.";
+                        TempConfigSelection."Table ID" := ConfigLine."Table ID";
+                        TempConfigSelection.Name := ConfigLine.Name;
+                        TempConfigSelection."Line Type" := ConfigLine."Line Type";
+                        TempConfigSelection.Insert();
+                    end;
+            until ConfigLine.Next() = 0;
     end;
 }
 

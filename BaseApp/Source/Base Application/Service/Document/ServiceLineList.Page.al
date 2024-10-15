@@ -71,19 +71,19 @@ page 5904 "Service Line List"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
                 }
                 field("Job Line Type"; Rec."Job Line Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the type of journal line that is created in the Job Planning Line table from this line.';
+                    ToolTip = 'Specifies the type of journal line that is created in the Project Planning Line table from this line.';
                     Visible = false;
                 }
                 field("Needed by Date"; Rec."Needed by Date")

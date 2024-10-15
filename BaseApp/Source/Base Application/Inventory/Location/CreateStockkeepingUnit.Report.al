@@ -1,6 +1,7 @@
 namespace Microsoft.Inventory.Location;
 
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Tracking;
 
 report 5706 "Create Stockkeeping Unit"
 {
@@ -122,7 +123,6 @@ report 5706 "Create Stockkeeping Unit"
                     {
                         ApplicationArea = Location;
                         Caption = 'Create Per';
-                        OptionCaption = 'Location,Variant,Location & Variant';
                         ToolTip = 'Specifies if you want to create stockkeeping units per location or per variant or per location combined with variant.';
                     }
                     field(ItemInInventoryOnly; ItemInInventoryOnly)
@@ -152,11 +152,7 @@ report 5706 "Create Stockkeeping Unit"
 
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
-        Location: Record Location;
         DialogWindow: Dialog;
-        SKUCreationMethod: Option Location,Variant,"Location & Variant";
-        ItemInInventoryOnly: Boolean;
-        ReplacePreviousSKUs: Boolean;
         SaveFilters: Boolean;
         LocationFilter: Code[1024];
         VariantFilter: Code[1024];
@@ -164,6 +160,12 @@ report 5706 "Create Stockkeeping Unit"
         Text000: Label 'Item No.       #1##################\';
         Text001: Label 'Location Code  #2########\';
         Text002: Label 'Variant Code   #3########\';
+
+    protected var
+        Location: Record Location;
+        SKUCreationMethod: Enum "SKU Creation Method";
+        ItemInInventoryOnly: Boolean;
+        ReplacePreviousSKUs: Boolean;
 
     procedure CreateSKUIfRequired(var Item2: Record Item; LocationCode: Code[10]; VariantCode: Code[10])
     var
@@ -182,7 +184,15 @@ report 5706 "Create Stockkeeping Unit"
                 CreateSKU(Item2, LocationCode, VariantCode);
     end;
 
+#if not CLEAN24
+    [Obsolete('Replaced by procedure SetParameters()', '24.0')]
     procedure InitializeRequest(CreatePerOption: Option Location,Variant,"Location & Variant"; NewItemInInventoryOnly: Boolean; NewReplacePreviousSKUs: Boolean)
+    begin
+        SetParameters("SKU Creation Method".FromInteger(CreatePerOption), NewItemInInventoryOnly, NewReplacePreviousSKUs);
+    end;
+#endif
+
+    procedure SetParameters(CreatePerOption: Enum "SKU Creation Method"; NewItemInInventoryOnly: Boolean; NewReplacePreviousSKUs: Boolean)
     begin
         SKUCreationMethod := CreatePerOption;
         ItemInInventoryOnly := NewItemInInventoryOnly;
@@ -190,7 +200,7 @@ report 5706 "Create Stockkeeping Unit"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSKU(var Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; ItemInInventoryOnly: Boolean; var IsHandled: Boolean; SKUCreationMethod: Option Location,Variant,"Location & Variant")
+    local procedure OnBeforeCreateSKU(var Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; ItemInInventoryOnly: Boolean; var IsHandled: Boolean; SKUCreationMethod: Enum "SKU Creation Method")
     begin
     end;
 

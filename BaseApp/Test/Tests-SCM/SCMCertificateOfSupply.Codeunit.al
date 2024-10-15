@@ -348,7 +348,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         VerifyCertSalesShipmentProperties(CertificateOfSupply, SalesShipmentHeader);
 
         // tear down
-        Purchasing.Delete
+        Purchasing.Delete();
     end;
 
     [Test]
@@ -1430,7 +1430,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         CreatePurchaseOrder(PurchaseHeader, VATPostingSetup, DocumentType);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         ReturnShipmentHeader.SetRange("Return Order No.", PurchaseHeader."No.");
-        ReturnShipmentHeader.FindFirst
+        ReturnShipmentHeader.FindFirst();
     end;
 
     local procedure PostSalesDoc(var SalesShipmentHeader: Record "Sales Shipment Header"; DocumentType: Enum "Sales Document Type"; CertOfSupplyRequired: Boolean)
@@ -1443,7 +1443,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         CreateSalesOrder(SalesHeader, VATPostingSetup, DocumentType);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-        SalesShipmentHeader.FindFirst
+        SalesShipmentHeader.FindFirst();
     end;
 
     local procedure PostServiceDoc(var ServiceShipmentHeader: Record "Service Shipment Header"; DocumentType: Enum "Service Document Type"; CertOfSupplyRequired: Boolean)
@@ -1526,7 +1526,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         Commit();
     end;
 
-    local procedure VerifyCertofSupplyProperties(CertificateOfSupply: Record "Certificate of Supply"; DocType: Option; DocNo: Code[20]; Status: Option; No: Code[20]; RcptDate: Date)
+    local procedure VerifyCertofSupplyProperties(CertificateOfSupply: Record "Certificate of Supply"; DocType: Enum "Supply Document Type"; DocNo: Code[20]; Status: Option; No: Code[20]; RcptDate: Date)
     begin
         CertificateOfSupply.TestField("Document Type", DocType);
         CertificateOfSupply.TestField("Document No.", DocNo);
@@ -1574,7 +1574,7 @@ codeunit 137112 "SCM Certificate Of Supply"
             FindSet();
             repeat
                 VerifyReportLine("No.", Description, Quantity, "Unit of Measure Code");
-            until Next = 0;
+            until Next() = 0;
         end
     end;
 
@@ -1589,7 +1589,7 @@ codeunit 137112 "SCM Certificate Of Supply"
             FindSet();
             repeat
                 VerifyReportLine("No.", Description, Quantity, "Unit of Measure Code");
-            until Next = 0;
+            until Next() = 0;
         end
     end;
 
@@ -1604,13 +1604,13 @@ codeunit 137112 "SCM Certificate Of Supply"
             FindSet();
             repeat
                 VerifyReportLine("No.", Description, Quantity, "Unit of Measure Code");
-            until Next = 0;
+            until Next() = 0;
         end
     end;
 
     local procedure VerifyReportCommon(CertificateOfSupply: Record "Certificate of Supply")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No', CertificateOfSupply."Document No.");
         LibraryReportDataset.AssertElementWithValueExists('FORMAT_TODAY_0_4_', Format(Today, 0, 4));
         LibraryReportDataset.AssertElementWithValueExists('Shipment_Method_Code', CertificateOfSupply."Shipment Method Code");
@@ -1726,7 +1726,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         CertOfSupply.CertificateOfSupply.SetFilter("Document Type", Format(DocumentType));
         CertOfSupply.CertificateOfSupply.SetFilter("Document No.", DocumentNo);
         CertOfSupply.PrintLineDetails.SetValue(PrintLineDetails);
-        CertOfSupply.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CertOfSupply.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

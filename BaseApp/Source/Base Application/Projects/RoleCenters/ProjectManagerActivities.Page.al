@@ -1,12 +1,15 @@
 namespace Microsoft.Projects.RoleCenters;
 
 using Microsoft.Projects.Project.Job;
+using Microsoft.Integration.FieldService;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Project.WIP;
 using System;
 using System.Environment;
 using System.Visualization;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Integration.Dataverse;
 
 page 9068 "Project Manager Activities"
 {
@@ -28,13 +31,13 @@ page 9068 "Project Manager Activities"
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Job List";
-                    ToolTip = 'Specifies the number of upcoming invoices that are displayed in the Job Cue on the Role Center. The documents are filtered by today''s date.';
+                    ToolTip = 'Specifies the number of upcoming invoices that are displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
                 }
                 field("Invoices Due - Not Created"; Rec."Invoices Due - Not Created")
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Job List";
-                    ToolTip = 'Specifies the number of invoices that are due but not yet created that are displayed in the Job Cue on the Role Center. The documents are filtered by today''s date.';
+                    ToolTip = 'Specifies the number of invoices that are due but not yet created that are displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
                 }
 
                 actions
@@ -42,9 +45,9 @@ page 9068 "Project Manager Activities"
                     action("Job Create Sales Invoice")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Job Create Sales Invoice';
+                        Caption = 'Project Create Sales Invoice';
                         RunObject = Report "Job Create Sales Invoice";
-                        ToolTip = 'Create an invoice for a job or for one or more job tasks for a customer when either the work to be invoiced is complete or the date for invoicing based on an invoicing schedule has been reached.';
+                        ToolTip = 'Create an invoice for a project or for one or more project tasks for a customer when either the work to be invoiced is complete or the date for invoicing based on an invoicing schedule has been reached.';
                     }
                 }
             }
@@ -62,7 +65,7 @@ page 9068 "Project Manager Activities"
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Job List";
-                    ToolTip = 'Specifies the total of work in process that is complete but not calculated that is displayed in the Job Cue on the Role Center. The documents are filtered by today''s date.';
+                    ToolTip = 'Specifies the total of work in process that is complete but not calculated that is displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
                 }
 
                 actions
@@ -70,22 +73,22 @@ page 9068 "Project Manager Activities"
                     action("Update Job Item Cost")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Update Job Item Cost';
+                        Caption = 'Update Project Item Cost';
                         RunObject = Report "Update Job Item Cost";
-                        ToolTip = 'Update the usage costs in the job ledger entries to match the actual costs in the item ledger entry. If adjustment value entries have a different date than the original value entry, such as when the inventory period is closed, then the job ledger is not updated.';
+                        ToolTip = 'Update the usage costs in the project ledger entries to match the actual costs in the item ledger entry. If adjustment value entries have a different date than the original value entry, such as when the inventory period is closed, then the project ledger is not updated.';
                     }
                     action("<Action15>")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Job WIP Cockpit';
+                        Caption = 'Project WIP Cockpit';
                         RunObject = Page "Job WIP Cockpit";
-                        ToolTip = 'Get an overview of work in process (WIP). The Job WIP Cockpit is the central location to track WIP for all of your projects. Each line contains information about a job, including calculated and posted WIP.';
+                        ToolTip = 'Get an overview of work in process (WIP). The Project WIP Cockpit is the central location to track WIP for all of your projects. Each line contains information about a project, including calculated and posted WIP.';
                     }
                 }
             }
             cuegroup("Jobs to Budget")
             {
-                Caption = 'Jobs to Budget';
+                Caption = 'Projects to Budget';
                 Visible = SetupIsComplete;
                 field("Jobs Over Budget"; Rec."Jobs Over Budget")
                 {
@@ -93,7 +96,7 @@ page 9068 "Project Manager Activities"
                     Caption = 'Over Budget';
                     DrillDownPageID = "Job List";
                     Editable = false;
-                    ToolTip = 'Specifies the number of jobs where the usage cost exceeds the budgeted cost.';
+                    ToolTip = 'Specifies the number of projects where the usage cost exceeds the budgeted cost.';
                 }
             }
             cuegroup("Get started")
@@ -142,20 +145,41 @@ page 9068 "Project Manager Activities"
             }
             cuegroup(Jobs)
             {
-                Caption = 'Jobs';
-                Visible = NOT SetupIsComplete;
+                Caption = 'Projects';
+                Visible = not SetupIsComplete;
 
                 actions
                 {
                     action("<PageJobSetup>")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Set Up Jobs';
+                        Caption = 'Set Up Projects';
                         Image = TileSettings;
                         RunObject = Page "Jobs Setup Wizard";
                         RunPageMode = Create;
-                        ToolTip = 'Open the assisted setup guide to set up how you want to use jobs.';
+                        ToolTip = 'Open the assisted setup guide to set up how you want to use projects.';
                     }
+                }
+            }
+            cuegroup("Data Integration")
+            {
+                Caption = 'Data Integration';
+                Visible = ShowFSIntegrationCues;
+                field("CDS Integration Errors"; Rec."FS Integration Errors")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Integration Errors';
+                    DrillDownPageID = "Integration Synch. Error List";
+                    ToolTip = 'Specifies the number of errors related to data integration with Dynamics 365 Field Service.';
+                    Visible = ShowFSIntegrationCues;
+                }
+                field("Coupled Data Synch Errors"; Rec."Coupled Data Synch Errors")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Coupled Data Synchronization Errors';
+                    DrillDownPageID = "CRM Skipped Records";
+                    ToolTip = 'Specifies the number of errors that occurred in the latest synchronization of coupled data between Business Central and Dynamics 365 Field Service.';
+                    Visible = ShowFSIntegrationCues;
                 }
             }
         }
@@ -209,6 +233,8 @@ page 9068 "Project Manager Activities"
     end;
 
     trigger OnOpenPage()
+    var
+        FSConnectionSetup: Record "FS Connection Setup";
     begin
         Rec.Reset();
         if not Rec.Get() then begin
@@ -221,6 +247,7 @@ page 9068 "Project Manager Activities"
         Rec.SetRange("User ID Filter", UserId());
 
         ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
+        ShowFSIntegrationCues := FSConnectionSetup.IsEnabled();
     end;
 
     var
@@ -236,6 +263,7 @@ page 9068 "Project Manager Activities"
         SetupIsComplete: Boolean;
         MyCompanyTxt: Label 'My Company';
         ShowIntelligentCloud: Boolean;
+        ShowFSIntegrationCues: Boolean;
 
     procedure RefreshRoleCenter()
     begin

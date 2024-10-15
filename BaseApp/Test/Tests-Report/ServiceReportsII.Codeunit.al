@@ -63,7 +63,7 @@ codeunit 136905 "Service Reports - II"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Reports - II");
@@ -93,10 +93,10 @@ codeunit 136905 "Service Reports - II"
         RunCreateContractInvoices(ServiceContractHeader);
 
         // 3. Verify: Verify Entry with Customer No..
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         LibraryReportDataset.SetRange('ContractNo1_ServContract', ServiceContractHeader."Contract No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, ServiceContractHeader.FieldCaption("Contract No."));
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), ServiceContractHeader.FieldCaption("Contract No."));
         LibraryReportDataset.AssertCurrentRowValueEquals('CustNo_ServContract', ServiceContractHeader."Customer No.");
 
         // 4. Cleanup: Cleanup the WorkDate.
@@ -148,7 +148,7 @@ codeunit 136905 "Service Reports - II"
 
         // 1. Setup: Create a Service Order - Service Header, Service Item Line.
         Initialize();
-        ServiceItemWithSerialAndGroup(ServiceItem, LibrarySales.CreateCustomerNo);
+        ServiceItemWithSerialAndGroup(ServiceItem, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
@@ -157,10 +157,10 @@ codeunit 136905 "Service Reports - II"
 
         // 3. Verify: that value of Serial No in Service Order matches the value Serial No in corresponding Service Item Line Table.
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         LibraryReportDataset.SetRange(ServiceItemGroupCap, ServiceItem."Service Item Group Code");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow,
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(),
           StrSubstNo(FilterNotFoundinXMLErr,
             ServiceItem.FieldCaption("Service Item Group Code"),
             ServiceItem."Service Item Group Code"));
@@ -204,16 +204,16 @@ codeunit 136905 "Service Reports - II"
         RunServiceOrderReport(ServiceHeader, false, ShowQuantity::Quantity);
 
         // 3. Verify: Check that the Service Item Line Comments is generated in Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Comment_ResolutionComment', ServiceCommentLineResolution.Comment);
-        Assert.IsTrue(LibraryReportDataset.GetNextRow,
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(),
           StrSubstNo(FilterNotFoundinXMLErr,
             ServiceCommentLineResolution.FieldCaption(Comment),
             ServiceCommentLineResolution.Comment));
 
         LibraryReportDataset.AssertCurrentRowValueEquals(ServiceItemGroupCap, ServiceItem."Service Item Group Code");
         LibraryReportDataset.SetRange('Comment_FaultComment', ServiceCommentLineFault.Comment);
-        Assert.IsTrue(LibraryReportDataset.GetNextRow,
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(),
           StrSubstNo(FilterNotFoundinXMLErr,
             ServiceCommentLineFault.FieldCaption(Comment),
             ServiceCommentLineFault.Comment));
@@ -245,9 +245,9 @@ codeunit 136905 "Service Reports - II"
         RunServiceOrderReport(ServiceHeader, true, ShowQuantity::Quantity);
 
         // 3. Verify: Check that the Service Header Dimension is generated in Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_ServHeader', ServiceHeader."No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow,
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(),
           StrSubstNo(FilterNotFoundinXMLErr,
             ServiceHeader.FieldCaption("No."),
             ServiceHeader."No."));
@@ -278,9 +278,9 @@ codeunit 136905 "Service Reports - II"
         SaveServiceProfitServiceOrders(false, ServiceHeader."No.");
 
         // [THEN] Report data is correct.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         FindServiceLedgerEntry(ServiceLedgerEntry, ServiceHeader."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('OrderNoDesc_ServShptHeader', ServiceHeader."No." + ' ');
         VerifyServiceProfitOrderReport(ServiceLedgerEntry);
     end;
@@ -307,8 +307,8 @@ codeunit 136905 "Service Reports - II"
         SaveServiceProfitServiceOrders(true, ServiceHeader."No.");
 
         // [THEN] Report data is correct.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
         FindServiceLedgerEntry(ServiceLedgerEntry, ServiceHeader."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('EntryNo_ServLedgEntryNo', ServiceLedgerEntry."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', ServiceLedgerEntry.Quantity);
@@ -356,14 +356,14 @@ codeunit 136905 "Service Reports - II"
         CreateItem(Item);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", '');
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, '', Item."No.");
-        ExecuteConfirmHandlerInvoiceES;
+        ExecuteConfirmHandlerInvoiceES();
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
 
         // [WHEN] Run report "Service Credit Memo Report" with Show Detail FALSE.
         SaveServiceCreditMemo(false, ServiceHeader."No.");
 
         // [THEN] Values on the report are correct.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyServiceCreditMemoReport(ServiceHeader."No.");
     end;
 
@@ -386,7 +386,7 @@ codeunit 136905 "Service Reports - II"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CreateCustomer(''));
         CreateDimensionForHeader(ServiceHeader);
         CreateServiceLineWithItem(ServiceLine, ServiceHeader, '', Item."No.");
-        ExecuteConfirmHandlerInvoiceES;
+        ExecuteConfirmHandlerInvoiceES();
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, ServiceHeader."Dimension Set ID");
 
@@ -394,12 +394,12 @@ codeunit 136905 "Service Reports - II"
         SaveServiceCreditMemo(true, ServiceHeader."No.");
 
         // [THEN] Dimension Entry on Report is correct.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DimText',
           StrSubstNo('%1 - %2', DimensionSetEntry."Dimension Code",
             DimensionSetEntry."Dimension Value Code"));
 
-        Assert.IsTrue(LibraryReportDataset.GetNextRow,
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(),
           StrSubstNo(FilterNotFoundinXMLErr,
             DimensionSetEntry.FieldCaption("Dimension Code"),
             DimensionSetEntry."Dimension Code"));
@@ -462,9 +462,9 @@ codeunit 136905 "Service Reports - II"
         SaveServiceShipment(true, false, false, ServiceHeader."No.");
 
         // [THEN] Dimension Values on Service Shipment Report are correct.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(ServiceShipHeaderNoCap, FindServiceShipmentHeader(ServiceHeader."No."));
-        Assert.IsTrue(LibraryReportDataset.GetNextRow,
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(),
           StrSubstNo(FilterNotFoundinXMLErr,
             ServiceHeader.FieldCaption("No."),
             ServiceHeader."No."));
@@ -506,7 +506,7 @@ codeunit 136905 "Service Reports - II"
         ServiceShipmentLine.FindLast();
 
         LibraryReportDataset.SetRange('QtyInvoiced_ServShptLine', -ServiceShipmentLine."Quantity Invoiced");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow,
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(),
           StrSubstNo(FilterNotFoundinXMLErr,
             ServiceShipmentLine.FieldCaption("Quantity Invoiced"),
             -ServiceShipmentLine."Quantity Invoiced"));
@@ -529,13 +529,13 @@ codeunit 136905 "Service Reports - II"
         // [GIVEN] Posted Service Order with Item having Item Tracking with Serial Nos.
         Initialize();
         Clear(ItemNo);
-        CreateItemJournalLine(ItemJournalLine, CreateItemWithItemTrackingCode);
+        CreateItemJournalLine(ItemJournalLine, CreateItemWithItemTrackingCode());
         ItemNo := ItemJournalLine."Item No.";  // Storing Item No. in Global Variable to use it in Page Handler.
-        ItemJournal.OpenEdit;
+        ItemJournal.OpenEdit();
         ItemJournal.CurrentJnlBatchName.SetValue(ItemJournalLine."Journal Batch Name");
         SetHandler := true;  // Setting Handler's value as TRUE to execute Assign Serial No. Action on Item Tracking Lines Page.
-        ItemJournal.ItemTrackingLines.Invoke;
-        ItemJournal.Post.Invoke;
+        ItemJournal.ItemTrackingLines.Invoke();
+        ItemJournal.Post.Invoke();
         Commit();
         LibraryUtility.GenerateGUID();  // Hack to fix New General Batch Creation issue with Generate GUID.
 
@@ -554,9 +554,9 @@ codeunit 136905 "Service Reports - II"
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
         ItemLedgerEntry.FindFirst();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('TrackingSpecBufSerialNo', ItemLedgerEntry."Serial No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow,
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(),
           StrSubstNo(ExistError, ItemLedgerEntry."Serial No."));
     end;
 
@@ -581,8 +581,8 @@ codeunit 136905 "Service Reports - II"
         SaveServiceProfitServiceItems(false, ServiceLine."Service Item No.");
 
         // [THEN] Verify Different Values on Saved Report.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
         VerifyServiceProfitItemsReport(ServiceHeader."No.");
     end;
 
@@ -607,9 +607,9 @@ codeunit 136905 "Service Reports - II"
         SaveServiceProfitServiceItems(true, ServiceLine."Service Item No.");
 
         // [THEN] Verify values on the Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_ServItem', ServiceLine."Service Item No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         VerifyServiceProfitItemsReport(ServiceHeader."No.");
     end;
 
@@ -705,7 +705,7 @@ codeunit 136905 "Service Reports - II"
 
         // [GIVEN] Create Tax Area with Lines
         GeneralLedgerSetup.Get();
-        CreateTaxAreaWithTaxAreaLine(TaxArea, false);
+        CreateTaxAreaWithTaxAreaLine(TaxArea);
 
         // [GIVEN] Create Sales Header, Sales Line
         LibrarySales.CreateCustomer(Customer);
@@ -722,7 +722,7 @@ codeunit 136905 "Service Reports - II"
         DocumentPrint.PrintProformaSalesInvoice(SalesHeader);
 
         // [THEN] Verify the TotalVATAmount value in report 1302
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalVATAmount', Format((SalesLine."Amount Including VAT" - SalesLine.Amount), 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, GeneralLedgerSetup."LCY Code")));
     end;
 
@@ -736,11 +736,11 @@ codeunit 136905 "Service Reports - II"
         Initialize();
         CreateAndPostServiceOrder(
           ServiceHeader, '', WarrantyStartingDate, WarrantyEndingDate, false, false, DummyAmt);  // False for Invoice and Show Amount In LCY.
-        PostedServiceShipment.OpenEdit;
+        PostedServiceShipment.OpenEdit();
         PostedServiceShipment.FILTER.SetFilter("No.", ServiceHeader."Last Shipping No.");
 
         // Exercise.
-        PostedServiceShipment."&Navigate".Invoke;  // Invoking Navigate.
+        PostedServiceShipment."&Navigate".Invoke();  // Invoking Navigate.
 
         // Verify.
         VerifyDocumentEntriesForServiceShipment(ServiceHeader."Last Shipping No.");
@@ -762,13 +762,13 @@ codeunit 136905 "Service Reports - II"
         // [GIVEN] Shipped and Invoiced Service Order
         Initialize();
         CreateAndPostServiceOrder(
-          ServiceHeader, CreateCurrencyAndExchangeRate, 0D, 0D, true, false, Amt); // True for Invoice and False for Show Amount In LCY.
+          ServiceHeader, CreateCurrencyAndExchangeRate(), 0D, 0D, true, false, Amt); // True for Invoice and False for Show Amount In LCY.
 
-        PostedServiceInvoice.OpenEdit;
+        PostedServiceInvoice.OpenEdit();
         PostedServiceInvoice.FILTER.SetFilter("No.", ServiceHeader."Last Posting No.");
 
         // [WHEN] "Navigate" invoked.
-        PostedServiceInvoice."&Navigate".Invoke; // Invoking Navigate.
+        PostedServiceInvoice."&Navigate".Invoke(); // Invoking Navigate.
 
         // [THEN] Number of entries and amount are correct.
         VerifyDocumentEntriesForServiceInvoice(ServiceHeader."Last Posting No.", ServiceHeader."Customer No.", Amt, AmtCaption);
@@ -789,12 +789,12 @@ codeunit 136905 "Service Reports - II"
         // [GIVEN] Shipped and Invoiced Service Order, Amount showed in LCY
         Initialize();
         CreateAndPostServiceOrder(
-          ServiceHeader, CreateCurrencyAndExchangeRate, 0D, 0D, true, true, Amt);  // True for Invoice and Show Amount In LCY.
-        PostedServiceInvoice.OpenEdit;
+          ServiceHeader, CreateCurrencyAndExchangeRate(), 0D, 0D, true, true, Amt);  // True for Invoice and Show Amount In LCY.
+        PostedServiceInvoice.OpenEdit();
         PostedServiceInvoice.FILTER.SetFilter("No.", ServiceHeader."Last Posting No.");
 
         // [WHEN] "Navigate" invoked.
-        PostedServiceInvoice."&Navigate".Invoke;  // Invoking Navigate.
+        PostedServiceInvoice."&Navigate".Invoke();  // Invoking Navigate.
 
         // [THEN] Number of entries and amount are correct.
         VerifyDocumentEntriesForServiceInvoice(
@@ -817,7 +817,7 @@ codeunit 136905 "Service Reports - II"
         // [WHEN] "Navigate" invoked.
         Initialize();
         DocumentNo :=
-          CreateAndPostServiceCrMemo(ServiceLine, CreateCurrencyAndExchangeRate, false);  // False for Show Amount In LCY.
+          CreateAndPostServiceCrMemo(ServiceLine, CreateCurrencyAndExchangeRate(), false);  // False for Show Amount In LCY.
 
         // [THEN] Number of entries and amount are correct.
         VerifyDocumentEntriesForServiceCrMemo(
@@ -840,7 +840,7 @@ codeunit 136905 "Service Reports - II"
         // [WHEN] "Navigate" invoked.
         Initialize();
         DocumentNo :=
-          CreateAndPostServiceCrMemo(ServiceLine, CreateCurrencyAndExchangeRate, true);  // True for Show Amount In LCY.
+          CreateAndPostServiceCrMemo(ServiceLine, CreateCurrencyAndExchangeRate(), true);  // True for Show Amount In LCY.
 
         // [THEN] Number of entries and amount are correct.
         ServiceCrMemoHeader.Get(DocumentNo);
@@ -898,11 +898,11 @@ codeunit 136905 "Service Reports - II"
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
         LibraryVariableStorage.Enqueue(ShowAmountInLCY);  // Enqueue value for DocumentEntriesRequestPageHandler.
         DocumentNo := ServiceHeader."Last Posting No.";
-        PostedServiceCreditMemo.OpenEdit;
+        PostedServiceCreditMemo.OpenEdit();
         PostedServiceCreditMemo.FILTER.SetFilter("No.", ServiceHeader."Last Posting No.");
 
         // Exercise.
-        PostedServiceCreditMemo."&Navigate".Invoke;  // Invoking Navigate.
+        PostedServiceCreditMemo."&Navigate".Invoke();  // Invoking Navigate.
 
         ServiceLine."Amount Including VAT" += ExcludeCrMemoRndingAdjmt(ServiceHeader."Customer No.");
     end;
@@ -974,8 +974,8 @@ codeunit 136905 "Service Reports - II"
         LibraryInventory: Codeunit "Library - Inventory";
     begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Item Tracking Code", FindItemTrackingCode);
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Item Tracking Code", FindItemTrackingCode());
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -1019,15 +1019,7 @@ codeunit 136905 "Service Reports - II"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateServiceLineWithItem(
-        var ServiceLine: Record "Service Line";
-        ServiceHeader: Record "Service Header";
-        ServiceItemNo: Code[20];
-        ItemNo: Code[20]
-    )
-    var
-        Item: Record Item;
-        LibrarySales: Codeunit "Library - Sales";
+    local procedure CreateServiceLineWithItem(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceItemNo: Code[20]; ItemNo: Code[20])
     begin
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
         ServiceLine.Validate("Service Item No.", ServiceItemNo);
@@ -1172,10 +1164,10 @@ codeunit 136905 "Service Reports - II"
     var
         ServiceOrder: TestPage "Service Order";
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("Document Type", Format(ServiceHeader."Document Type"));
         ServiceOrder.FILTER.SetFilter("No.", ServiceHeader."No.");
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         Commit();
     end;
 
@@ -1198,14 +1190,13 @@ codeunit 136905 "Service Reports - II"
         ServiceContractHeader: Record "Service Contract Header";
         ServiceMgtSetup: Record "Service Mgt. Setup";
         CreateContractInvoices: Report "Create Contract Invoices";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         CreateInvoices: Option "Create Invoices","Print Only";
     begin
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type"::Contract);
         ServiceContractHeader.SetRange("Customer No.", CustomerNo);
         ServiceMgtSetup.Get();
-        InvoiceNo :=
-          NoSeriesManagement.GetNextNo(ServiceMgtSetup."Contract Invoice Nos.", WorkDate(), false);
+        InvoiceNo := NoSeries.PeekNextNo(ServiceMgtSetup."Contract Invoice Nos.");
 
         Clear(CreateContractInvoices);
         CreateContractInvoices.SetTableView(ServiceContractHeader);
@@ -1308,7 +1299,7 @@ codeunit 136905 "Service Reports - II"
     local procedure VerifyDocumentEntriesReport(RowValue: Text; ColumnValue: Decimal)
     begin
         LibraryReportDataset.SetRange(TableName, RowValue);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(NoOfRecords, ColumnValue);
     end;
 
@@ -1317,7 +1308,7 @@ codeunit 136905 "Service Reports - II"
         ServiceShipmentHeader: Record "Service Shipment Header";
         PostedServiceShipment: Page "Posted Service Shipment";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ServiceShipmentHeader.SetRange("No.", DocumentNo);
         VerifyDocumentEntriesReport(PostedServiceShipment.Caption, ServiceShipmentHeader.Count);
         VerifyItemLedgerEntry(DocumentNo);
@@ -1329,7 +1320,7 @@ codeunit 136905 "Service Reports - II"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         PostedServiceInvoice: Page "Posted Service Invoice";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ServiceInvoiceHeader.SetRange("No.", DocumentNo);
         VerifyDocumentEntriesReport(PostedServiceInvoice.Caption, ServiceInvoiceHeader.Count);
         VerifyLedgerEntries(DocumentNo, CustomerNo, Amount, AmountCaption);
@@ -1340,7 +1331,7 @@ codeunit 136905 "Service Reports - II"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         PostedServiceCreditMemo: Page "Posted Service Credit Memo";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ServiceCrMemoHeader.SetRange("No.", DocumentNo);
         VerifyDocumentEntriesReport(PostedServiceCreditMemo.Caption, ServiceCrMemoHeader.Count);
         VerifyItemLedgerEntry(DocumentNo);
@@ -1370,7 +1361,7 @@ codeunit 136905 "Service Reports - II"
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         VerifyDocumentEntriesReport(CustLedgerEntry.TableCaption(), CustLedgerEntry.Count);
         LibraryReportDataset.SetRange(CustNoCaption, CustomerNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(AmountCaption, Amount);
 
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
@@ -1418,7 +1409,7 @@ codeunit 136905 "Service Reports - II"
         ServiceCrMemoLine.SetRange("Document No.", FindServiceCrMemoHeader(ServiceCrMemoNo));
         ServiceCrMemoLine.FindFirst();
         LibraryReportDataset.SetRange(CrMemoLineNoXMLCap, '10000');
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         // Description:
         LibraryReportDataset.FindCurrentRowValue(DescrServCrMemoLineXMLCap, FoundVariant);
         ExpectedDescription := FoundVariant;
@@ -1468,10 +1459,10 @@ codeunit 136905 "Service Reports - II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Amount: Variant;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         LibraryReportDataset.SetRange('Type_ServLine', Format(ServiceLine.Type));
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty', ServiceLine.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('UnitPrice_ServLine', ServiceLine."Unit Price");
@@ -1493,13 +1484,13 @@ codeunit 136905 "Service Reports - II"
         ProfitAmount: Decimal;
         AmountPlusDiscount: Decimal;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         FindServiceLedgerEntry(ServiceLedgerEntry, ServiceOrderNo);
 
         ProfitAmount := ServiceLedgerEntry."Amount (LCY)" + ServiceLedgerEntry."Discount Amount" - ServiceLedgerEntry."Cost Amount";
 
         LibraryReportDataset.SetRange('CustNo_ServShpItemLine', ServiceLedgerEntry."Customer No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals('UsageAmt', ServiceLedgerEntry."Amount (LCY)");
         LibraryReportDataset.AssertCurrentRowValueEquals('InvoiceAmt',
@@ -1550,13 +1541,13 @@ codeunit 136905 "Service Reports - II"
         ServiceShipmentLine.SetRange("Document No.", FindServiceShipmentHeader(ServiceOrderNo));
         ServiceShipmentLine.FindFirst();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(ServiceShipHeaderNoCap, ServiceShipmentLine."Document No.");
         LibraryReportDataset.SetRange(ServiceShipItemLineNoCap, ServiceShipmentLine."Service Item Line No.");
         FoundRow := false;
         DoLoop := true;
         while DoLoop do begin
-            DoLoop := LibraryReportDataset.GetNextRow;
+            DoLoop := LibraryReportDataset.GetNextRow();
             if DoLoop then begin
                 FoundRow := LibraryReportDataset.CurrentRowHasElement(ServiceShipItemLineNoCap);
                 Variant := RowValue;
@@ -1594,12 +1585,12 @@ codeunit 136905 "Service Reports - II"
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         FindServiceLedgerEntryConsume(ServiceLedgerEntry, ServiceHeaderNo);
         repeat
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('EntryNo_ServLedgEntryNo', ServiceLedgerEntry."No.");
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', -ServiceLedgerEntry.Quantity);
             LibraryReportDataset.AssertCurrentRowValueEquals('CostAmount', -ServiceLedgerEntry."Cost Amount");
         until ServiceLedgerEntry.Next() = 0;
@@ -1658,7 +1649,7 @@ codeunit 136905 "Service Reports - II"
     [Scope('OnPrem')]
     procedure ContractInvoicingReportHandler(var ContractInvoicing: TestRequestPage "Contract Invoicing")
     begin
-        ContractInvoicing.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ContractInvoicing.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -1667,17 +1658,17 @@ codeunit 136905 "Service Reports - II"
     begin
         Commit();
         if SetHandler then
-            ItemTrackingLines."Assign Serial No.".Invoke
+            ItemTrackingLines."Assign Serial No.".Invoke()
         else
-            ItemTrackingLines."Select Entries".Invoke;
-        ItemTrackingLines.OK.Invoke;
+            ItemTrackingLines."Select Entries".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
         Commit();
     end;
 
@@ -1685,7 +1676,7 @@ codeunit 136905 "Service Reports - II"
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1696,7 +1687,7 @@ codeunit 136905 "Service Reports - II"
     begin
         ServiceLines.FILTER.SetFilter(Type, Format(ServiceLine.Type::Item));
         ServiceLines.FILTER.SetFilter("No.", ItemNo);
-        ServiceLines.ItemTrackingLines.Invoke;
+        ServiceLines.ItemTrackingLines.Invoke();
     end;
 
     [ConfirmHandler]
@@ -1710,7 +1701,7 @@ codeunit 136905 "Service Reports - II"
     [Scope('OnPrem')]
     procedure NavigatePageHandler(var Navigate: TestPage Navigate)
     begin
-        Navigate.Print.Invoke;
+        Navigate.Print.Invoke();
     end;
 
     [RequestPageHandler]
@@ -1721,49 +1712,49 @@ codeunit 136905 "Service Reports - II"
     begin
         LibraryVariableStorage.Dequeue(ShowAmountInLCY);  // Dequeue variable.
         DocumentEntries.PrintAmountsInLCY.SetValue(ShowAmountInLCY);  // Setting Show Amount In LCY option.
-        DocumentEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DocumentEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceOrderWithQuantityHandler(var ServiceOrder: TestRequestPage "Service Order")
     begin
-        ServiceOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceProfitItemsShowDetailHandler(var ServiceProfitServiceItems: TestRequestPage "Service Profit (Service Items)")
     begin
-        ServiceProfitServiceItems.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceProfitServiceItems.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceProfitItemsHandler(var ServiceProfitServiceItems: TestRequestPage "Service Profit (Service Items)")
     begin
-        ServiceProfitServiceItems.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceProfitServiceItems.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceCreditMemoReportHandler(var ServiceCreditMemo: TestRequestPage "Service - Credit Memo")
     begin
-        ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceProfitOrdersHandler(var ServiceProfitServOrders: TestRequestPage "Service Profit (Serv. Orders)")
     begin
-        ServiceProfitServOrders.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceProfitServOrders.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceProfitOrdersShowDetailHandler(var ServiceProfitServOrders: TestRequestPage "Service Profit (Serv. Orders)")
     begin
-        ServiceProfitServOrders.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceProfitServOrders.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure ExcludeInvRndingAdjmt(CustNo: Code[20]): Decimal
@@ -1798,13 +1789,13 @@ codeunit 136905 "Service Reports - II"
             exit(ServCrMemoLine."Amount Including VAT");
     end;
 
-    local procedure CreateTaxAreaWithTaxAreaLine(var TaxArea: Record "Tax Area"; UseExternalTaxEngine: Boolean): Code[10]
+    local procedure CreateTaxAreaWithTaxAreaLine(var TaxArea: Record "Tax Area"): Code[10]
     var
         TaxAreaLine: Record "Tax Area Line";
         TaxDetail: Record "Tax Detail";
     begin
         CreateTaxDetailWithJurisdiction(TaxDetail);
-        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        TaxArea.Code := LibraryUTUtility.GetNewCode();
         // TFS ID 387685: Check that TaxArea with maxstrlen Description doesn't raise StringOverflow
         TaxArea.Description := LibraryUtility.GenerateRandomXMLText(MaxStrLen(TaxArea.Description));
         TaxArea.Insert();
@@ -1818,10 +1809,10 @@ codeunit 136905 "Service Reports - II"
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
-        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10;
+        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10();
         TaxJurisdiction.Insert();
         TaxDetail."Tax Jurisdiction Code" := TaxJurisdiction.Code;
-        TaxDetail."Tax Group Code" := LibraryUTUtility.GetNewCode10;
+        TaxDetail."Tax Group Code" := LibraryUTUtility.GetNewCode10();
         TaxDetail."Tax Below Maximum" := LibraryRandom.RandDecInRange(5, 10, 2);
         TaxDetail.Insert();
     end;
@@ -1830,21 +1821,21 @@ codeunit 136905 "Service Reports - II"
     [Scope('OnPrem')]
     procedure ServiceShipmentReportlHandler(var ServiceShipment: TestRequestPage "Service - Shipment")
     begin
-        ServiceShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServicePricingProfitabilityReportlHandler(var ServPricingProfitability: TestRequestPage "Serv. Pricing Profitability")
     begin
-        ServPricingProfitability.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServPricingProfitability.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardSalesProFormaInvRequestPageHandler(var StandardSalesProFormaInv: TestRequestPage "Standard Sales - Pro Forma Inv")
     begin
-        StandardSalesProFormaInv.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesProFormaInv.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

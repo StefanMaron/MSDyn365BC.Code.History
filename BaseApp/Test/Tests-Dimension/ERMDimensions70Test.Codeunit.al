@@ -126,7 +126,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         // Setup
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-        GLAccNo := LibraryERM.CreateGLAccountNoWithDirectPosting;
+        GLAccNo := LibraryERM.CreateGLAccountNoWithDirectPosting();
 
         // Create a default dimension for GL Account
         LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccNo,
@@ -155,7 +155,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         NewDimID: Integer;
         NewDimID2: Integer;
     begin
-        InitDimSetup;
+        InitDimSetup();
         DimVal.Get(Dim1, 'B');
         TempDimSetEntry."Dimension Code" := DimVal."Dimension Code";
         TempDimSetEntry."Dimension Value Code" := DimVal.Code;
@@ -231,7 +231,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
         Assert: Codeunit Assert;
     begin
-        InitDimSetup;
+        InitDimSetup();
         DimVal.Get(Dim1, 'A');
         TempDimSetEntry."Dimension Code" := DimVal."Dimension Code";
         TempDimSetEntry."Dimension Value Code" := DimVal.Code;
@@ -271,7 +271,7 @@ codeunit 134230 "ERM - Dimensions 7.0 Test"
         DimMgt: Codeunit DimensionManagement;
         DimSetID: Integer;
     begin
-        InitDimSetup;
+        InitDimSetup();
         DimVal.Get(Dim1, 'B');
         TempDimSetEntry."Dimension Code" := DimVal."Dimension Code";
         TempDimSetEntry."Dimension Value Code" := DimVal.Code;

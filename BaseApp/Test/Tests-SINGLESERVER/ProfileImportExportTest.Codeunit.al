@@ -10,7 +10,6 @@ codeunit 138697 "Profile Import/Export Test"
         FileManagement: Codeunit "File Management";
         ConfPersonalizationMgt: codeunit "Conf./Personalization Mgt.";
         ImportSuccessTxt: Label 'Successfully imported';
-        CouldNotExportProfilesErr: Label 'Cannot export the profiles because one or more of them contain an error.';
         ExportProfilesWithWarningsQst: Label 'There is an error in one or more of the profiles that you are exporting. You can export the profiles anyway, but you should fix the errors before you import them. Typically, import fails for profiles with errors.';
 
     local procedure Init()
@@ -78,8 +77,6 @@ codeunit 138697 "Profile Import/Export Test"
         ProfileList: TestPage "Profile List";
         ProfileImportWizard: TestPage "Profile Import Wizard";
         ProfileZipFileName: Text;
-        ProfileID1: Code[30];
-        ProfileID2: Code[30];
     begin
         Init();
         BindSubscription(ProfileImportTest);
@@ -119,8 +116,6 @@ codeunit 138697 "Profile Import/Export Test"
         ProfileList: TestPage "Profile List";
         ProfileImportWizard: TestPage "Profile Import Wizard";
         ProfileZipFileName: Text;
-        ProfileID1: Code[30];
-        ProfileID2: Code[30];
     begin
         Init();
         BindSubscription(ProfileImportTest);
@@ -156,7 +151,6 @@ codeunit 138697 "Profile Import/Export Test"
     var
         Profile1: Record "All Profile";
         Profile2: Record "All Profile";
-        ProfileImport: Record "Profile Import";
         ProfileImportTest: codeunit "Profile Import/Export Test";
         ProfileList: TestPage "Profile List";
         ProfileImportWizard: TestPage "Profile Import Wizard";
@@ -283,15 +277,11 @@ codeunit 138697 "Profile Import/Export Test"
     end;
 
     local procedure CreateProfile(var AllProfile: Record "All Profile")
-    var
-        test: record "Tenant Profile";
     begin
         CreateProfileWithPrefix(AllProfile, '');
     end;
 
     local procedure CreateProfileWithPrefix(var AllProfile: Record "All Profile"; Prefix: Text)
-    var
-        test: record "Tenant Profile";
     begin
         CLEAR(AllProfile);
         AllProfile.Scope := AllProfile.Scope::Tenant;
@@ -392,7 +382,6 @@ codeunit 138697 "Profile Import/Export Test"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
     local procedure SaveFileToDisk(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
     var
-        TempFile: File;
         ServerTempFileName: Text;
     begin
         // The download handler deletes the file before we can check the content, so need to copy it for the test to succeed

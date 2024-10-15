@@ -375,7 +375,7 @@ page 234 "Apply Employee Entries"
                     Image = Navigate;
                     ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
-                    Visible = NOT IsOfficeAddin;
+                    Visible = not IsOfficeAddin;
 
                     trigger OnAction()
                     begin
@@ -531,7 +531,7 @@ page 234 "Apply Employee Entries"
     begin
         if CalcType = CalcType::Direct then begin
             Empl.Get(Rec."Employee No.");
-            ApplnCurrencyCode := '';
+            ApplnCurrencyCode := Empl."Currency Code";
             FindApplyingEntry();
         end;
 
@@ -773,7 +773,7 @@ page 234 "Apply Employee Entries"
                         AppliedEmplLedgEntry.SetFilter("Entry No.", '<>%1', EmplLedgEntry."Entry No.");
                     end;
 
-                    HandleChosenEntries(0, EmplLedgEntry."Remaining Amount");
+                    HandleChosenEntries(0, EmplLedgEntry."Remaining Amount", EmplLedgEntry."Currency Code", EmplLedgEntry."Posting Date");
                 end;
             CalcType::"Gen. Jnl. Line":
                 begin
@@ -785,25 +785,23 @@ page 234 "Apply Employee Entries"
                         ApplnType::"Applies-to Doc. No.":
                             begin
                                 AppliedEmplLedgEntry := Rec;
-                                with AppliedEmplLedgEntry do begin
-                                    CalcFields("Remaining Amount");
-                                    if "Currency Code" <> ApplnCurrencyCode then begin
-                                        "Remaining Amount" :=
-                                          CurrExchRate.ExchangeAmtFCYToFCY(
-                                            ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Amount");
-                                        "Amount to Apply" :=
-                                          CurrExchRate.ExchangeAmtFCYToFCY(
-                                            ApplnDate, "Currency Code", ApplnCurrencyCode, "Amount to Apply");
-                                    end;
-
-                                    if "Amount to Apply" <> 0 then
-                                        AppliedAmount := Round("Amount to Apply", AmountRoundingPrecision)
-                                    else
-                                        AppliedAmount := Round("Remaining Amount", AmountRoundingPrecision);
-
-                                    if not DifferentCurrenciesInAppln then
-                                        DifferentCurrenciesInAppln := ApplnCurrencyCode <> "Currency Code";
+                                AppliedEmplLedgEntry.CalcFields("Remaining Amount");
+                                if AppliedEmplLedgEntry."Currency Code" <> ApplnCurrencyCode then begin
+                                    AppliedEmplLedgEntry."Remaining Amount" :=
+                                      CurrExchRate.ExchangeAmtFCYToFCY(
+                                        ApplnDate, AppliedEmplLedgEntry."Currency Code", ApplnCurrencyCode, AppliedEmplLedgEntry."Remaining Amount");
+                                    AppliedEmplLedgEntry."Amount to Apply" :=
+                                      CurrExchRate.ExchangeAmtFCYToFCY(
+                                        ApplnDate, AppliedEmplLedgEntry."Currency Code", ApplnCurrencyCode, AppliedEmplLedgEntry."Amount to Apply");
                                 end;
+
+                                if AppliedEmplLedgEntry."Amount to Apply" <> 0 then
+                                    AppliedAmount := Round(AppliedEmplLedgEntry."Amount to Apply", AmountRoundingPrecision)
+                                else
+                                    AppliedAmount := Round(AppliedEmplLedgEntry."Remaining Amount", AmountRoundingPrecision);
+
+                                if not DifferentCurrenciesInAppln then
+                                    DifferentCurrenciesInAppln := ApplnCurrencyCode <> AppliedEmplLedgEntry."Currency Code";
                                 CheckRounding();
                             end;
                         ApplnType::"Applies-to ID":
@@ -814,7 +812,7 @@ page 234 "Apply Employee Entries"
                                 AppliedEmplLedgEntry.SetRange(Open, true);
                                 AppliedEmplLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
 
-                                HandleChosenEntries(1, GenJnlLine2.Amount);
+                                HandleChosenEntries(1, GenJnlLine2.Amount, GenJnlLine2."Currency Code", GenJnlLine2."Posting Date");
                             end;
                     end;
                 end;
@@ -986,6 +984,7 @@ page 234 "Apply Employee Entries"
         if CalcType = CalcType::Direct then begin
             if TempApplyingEmplLedgEntry."Entry No." <> 0 then begin
                 Rec := TempApplyingEmplLedgEntry;
+                IsTheApplicationValid();
                 ApplicationDate := EmplEntryApplyPostedEntries.GetApplicationDate(Rec);
 
                 OnPostDirectApplicationBeforeSetValues(ApplicationDate);
@@ -1043,7 +1042,7 @@ page 234 "Apply Employee Entries"
         AppliesToID := AppliesToID2;
     end;
 
-    local procedure HandleChosenEntries(Type: Option Direct,GenJnlLine; CurrentAmount: Decimal)
+    local procedure HandleChosenEntries(Type: Option Direct,GenJnlLine; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
     var
         TempAppliedEmplLedgEntry: Record "Employee Ledger Entry" temporary;
         CorrectionAmount: Decimal;
@@ -1051,12 +1050,12 @@ page 234 "Apply Employee Entries"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeHandledChosenEntries(Type, CurrentAmount, AppliedEmplLedgEntry, IsHandled);
+        OnBeforeHandledChosenEntries(Type, CurrentAmount, CurrencyCode, AppliedEmplLedgEntry, IsHandled);
         if IsHandled then
             exit;
 
         CorrectionAmount := 0;
-        if AppliedEmplLedgEntry.FindSet(false, false) then
+        if AppliedEmplLedgEntry.FindSet(false) then
             repeat
                 TempAppliedEmplLedgEntry := AppliedEmplLedgEntry;
                 TempAppliedEmplLedgEntry.Insert();
@@ -1070,6 +1069,7 @@ page 234 "Apply Employee Entries"
             if not FromZeroGenJnl then
                 TempAppliedEmplLedgEntry.SetRange(Positive, CurrentAmount < 0);
             if TempAppliedEmplLedgEntry.FindFirst() then begin
+                ExchangeLedgerEntryAmounts(Type, CurrencyCode, TempAppliedEmplLedgEntry, PostingDate);
                 if ((CurrentAmount + TempAppliedEmplLedgEntry."Amount to Apply") * CurrentAmount) >= 0 then
                     AppliedAmount := AppliedAmount + CorrectionAmount;
                 CurrentAmount := CurrentAmount + TempAppliedEmplLedgEntry."Amount to Apply";
@@ -1085,6 +1085,60 @@ page 234 "Apply Employee Entries"
 
         until not TempAppliedEmplLedgEntry.FindFirst();
         CheckRounding();
+    end;
+
+    local procedure IsTheApplicationValid()
+    var
+        ApplyToEmployeeLedgerEntry: Record "Employee Ledger Entry";
+        IsFirst, IsPositiv, ThereAreEntriesToApply : boolean;
+        Counter: Integer;
+        AllEntriesHaveTheSameSignErr: Label 'All entries have the same sign this will not lead top an application. Update the application by including entries with opposite sign.';
+    begin
+        IsFirst := true;
+        ThereAreEntriesToApply := false;
+        Counter := 0;
+        ApplyToEmployeeLedgerEntry.SetCurrentKey("Employee No.", "Applies-to ID");
+        ApplyToEmployeeLedgerEntry.SetRange("Employee No.", EmplLedgEntry."Employee No.");
+        ApplyToEmployeeLedgerEntry.SetRange("Applies-to ID", EmplLedgEntry."Applies-to ID");
+        if ApplyToEmployeeLedgerEntry.FindSet() then
+            repeat
+                if not IsFirst then
+                    ThereAreEntriesToApply := (IsPositiv <> ApplyToEmployeeLedgerEntry.Positive)
+                else
+                    IsPositiv := ApplyToEmployeeLedgerEntry.Positive;
+                IsFirst := false;
+                Counter += 1;
+            until (ApplyToEmployeeLedgerEntry.next() = 0) or ThereAreEntriesToApply;
+        if not ThereAreEntriesToApply and (Counter > 1) then
+            error(AllEntriesHaveTheSameSignErr)
+    end;
+
+    protected procedure ExchangeLedgerEntryAmounts(Type: Option Direct,GenJnlLine; CurrencyCode: Code[10]; var CalcEmplLedgEntry: Record "Employee Ledger Entry"; PostingDate: Date)
+    var
+        CalculateCurrency: Boolean;
+        IsHandled: Boolean;
+    begin
+        CalcEmplLedgEntry.CalcFields("Remaining Amount");
+
+        if Type = Type::Direct then
+            CalculateCurrency := TempApplyingEmplLedgEntry."Entry No." <> 0
+        else
+            CalculateCurrency := true;
+
+        OnBeforeExchangeLedgerEntryAmounts(CalcEmplLedgEntry, EmplLedgEntry, CurrencyCode, CalculateCurrency, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (CurrencyCode <> CalcEmplLedgEntry."Currency Code") and CalculateCurrency then begin
+            CalcEmplLedgEntry."Remaining Amount" :=
+              CurrExchRate.ExchangeAmount(
+                CalcEmplLedgEntry."Remaining Amount", CalcEmplLedgEntry."Currency Code", CurrencyCode, PostingDate);
+            CalcEmplLedgEntry."Amount to Apply" :=
+              CurrExchRate.ExchangeAmount(
+                CalcEmplLedgEntry."Amount to Apply", CalcEmplLedgEntry."Currency Code", CurrencyCode, PostingDate);
+        end;
+
+        OnAfterExchangeLedgerEntryAmounts(CalcEmplLedgEntry, EmplLedgEntry, CurrencyCode);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1123,7 +1177,7 @@ page 234 "Apply Employee Entries"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeHandledChosenEntries(Type: Option Direct,GenJnlLine; CurrentAmount: Decimal; var AppliedEmplLedgerEntry: Record "Employee Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeHandledChosenEntries(Type: Option Direct,GenJnlLine; CurrentAmount: Decimal; CurrencyCode: Code[10]; var AppliedEmplLedgerEntry: Record "Employee Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1144,6 +1198,16 @@ page 234 "Apply Employee Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetCustApplIdAfterCheckAgainstApplnCurrency(var EmplLedgerEntry: Record "Employee Ledger Entry"; CalcType: Option; GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExchangeLedgerEntryAmounts(var CalcEmployeeLedgerEntry: Record "Employee Ledger Entry"; EmployeeLedgerEntry: Record "Employee Ledger Entry"; CurrencyCode: Code[10]; CalculateCurrency: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterExchangeLedgerEntryAmounts(var CalcEmployeeLedgerEntry: Record "Employee Ledger Entry"; EmployeeLedgerEntry: Record "Employee Ledger Entry"; CurrencyCode: Code[10])
     begin
     end;
 }

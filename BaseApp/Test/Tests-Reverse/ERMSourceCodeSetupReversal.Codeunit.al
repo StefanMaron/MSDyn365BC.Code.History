@@ -35,9 +35,9 @@ codeunit 134143 "ERM Source Code Setup Reversal"
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         CreateGenJournalLine(
-          GenJournalLine, GenJournalBatch, LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(5, 2));
+          GenJournalLine, GenJournalBatch, LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(5, 2));
         CreateGenJournalLine(
-          GenJournalLine, GenJournalBatch, LibraryERM.CreateGLAccountNo, -LibraryRandom.RandDec(5, 2));
+          GenJournalLine, GenJournalBatch, LibraryERM.CreateGLAccountNo(), -LibraryRandom.RandDec(5, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Reversal of General Ledger Entries.

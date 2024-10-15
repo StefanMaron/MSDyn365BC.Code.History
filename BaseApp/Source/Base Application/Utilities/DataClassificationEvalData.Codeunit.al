@@ -10,6 +10,7 @@ using Microsoft.API;
 using Microsoft.Assembly.Comment;
 using Microsoft.Assembly.Document;
 using Microsoft.Assembly.History;
+using Microsoft.Assembly.Reports;
 using Microsoft.Assembly.Setup;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -163,17 +164,18 @@ using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
 using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Archive;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Project.Pricing;
 #endif
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Project.WIP;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -185,7 +187,7 @@ using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Purchases.Pricing;
 #endif
 using Microsoft.Purchases.Remittance;
@@ -264,6 +266,7 @@ using System.Tooling;
 using System.Visualization;
 using System.Utilities;
 using System.Xml;
+using Microsoft.Integration.FieldService;
 
 codeunit 1751 "Data Classification Eval. Data"
 {
@@ -467,7 +470,9 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyConfigPackageTable();
         ClassifyItemApplicationEntry();
         ClassifyReservationEntry();
+#if not CLEAN24
         ClassifyCalendarEvent();
+#endif
         ClassifyCapacityLedgerEntry();
         ClassifyPayableVendorLedgerEntry();
         ClassifyReminderFinChargeEntry();
@@ -492,9 +497,6 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyBankAccountLedgerEntry();
         ClassifyBookingSync();
         ClassifyExchangeSync();
-#if not CLEAN21
-        ClassifyO365SalesDocument();
-#endif
         ClassifyVATEntry();
         ClassifyWarehouseActivityHeader();
         ClassifyVATRegistrationLog();
@@ -524,6 +526,7 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyJobLedgerEntry();
         ClassifyTimeSheetLineArchive();
         ClassifyJob();
+        ClassifyJobArchive();
         ClassifyResCapacityEntry();
         ClassifyResource();
         ClassifyIncomingDocument();
@@ -552,6 +555,7 @@ codeunit 1751 "Data Classification Eval. Data"
     begin
         ClassifyHandledICOutboxSalesHeader();
         ClassifyJobPlanningLine();
+        ClassifyJobPlanningLineArchive();
         ClassifyGenJournalLine();
         ClassifyPrinterSelection();
         ClassifyTimeSheetChartSetup();
@@ -697,6 +701,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Inventory Posting Group");
         SetTableFieldsToNormal(DATABASE::"G/L Budget Name");
         SetTableFieldsToNormal(DATABASE::"Comment Line");
+        SetTableFieldsToNormal(DATABASE::"Comment Line Archive");
         SetTableFieldsToNormal(DATABASE::"General Ledger Setup");
         SetTableFieldsToNormal(DATABASE::"Item Vendor");
         SetTableFieldsToNormal(DATABASE::"Incoming Documents Setup");
@@ -711,9 +716,10 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Standard Purchase Code");
         SetTableFieldsToNormal(DATABASE::"Standard Purchase Line");
         SetTableFieldsToNormal(DATABASE::"Standard Vendor Purchase Code");
+        SetTableFieldsToNormal(DATABASE::"G/L Account Source Currency");
         SetTableFieldsToNormal(DATABASE::"G/L Account Where-Used");
         SetTableFieldsToNormal(DATABASE::"Work Type");
-#if not CLEAN21
+#if not CLEAN23
         SetTableFieldsToNormal(DATABASE::"Resource Price");
         SetTableFieldsToNormal(DATABASE::"Resource Cost");
 #endif
@@ -763,9 +769,13 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Item Amount");
         SetTableFieldsToNormal(DATABASE::"G/L Account Net Change");
         SetTableFieldsToNormal(DATABASE::"Bank Acc. Reconciliation");
+        SetTableFieldsToNormal(DATABASE::"Ledger Entry Matching Buffer");
         SetTableFieldsToNormal(DATABASE::"Bank Account Statement");
         SetTableFieldsToNormal(DATABASE::"Bank Account Statement Line");
         SetTableFieldsToNormal(DATABASE::"Bank Account Posting Group");
+        SetTableFieldsToNormal(DATABASE::"Bank Account Balance Buffer");
+        SetTableFieldsToNormal(DATABASE::"Bank Pmt. Appl. Settings");
+        SetTableFieldsToNormal(DATABASE::"Bank Statement Matching Buffer");
         SetTableFieldsToNormal(DATABASE::"Job Journal Quantity");
         SetTableFieldsToNormal(DATABASE::"Custom Address Format");
         SetTableFieldsToNormal(DATABASE::"Custom Address Format Line");
@@ -782,19 +792,36 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::Territory);
         SetTableFieldsToNormal(DATABASE::"Payment Method");
         SetTableFieldsToNormal(DATABASE::"VAT Amount Line");
+        SetTableFieldsToNormal(DATABASE::"Dispute Status");
         SetTableFieldsToNormal(DATABASE::"Shipping Agent");
+        SetTableFieldsToNormal(DATABASE::"Reminder Attachment Text");
+        SetTableFieldsToNormal(DATABASE::"Reminder Email Text");
         SetTableFieldsToNormal(DATABASE::"Reminder Terms");
         SetTableFieldsToNormal(DATABASE::"Reminder Level");
         SetTableFieldsToNormal(DATABASE::"Reminder Text");
         SetTableFieldsToNormal(DATABASE::"Reminder Line");
         SetTableFieldsToNormal(DATABASE::"Issued Reminder Line");
         SetTableFieldsToNormal(DATABASE::"Reminder Comment Line");
+        SetTableFieldsToNormal(Database::"Reminder Action Group");
+        SetTableFieldsToNormal(Database::"Reminder Action");
+        SetTableFieldsToNormal(Database::"Create Reminders Setup");
+        SetTableFieldsToNormal(Database::"Issue Reminders Setup");
+        SetTableFieldsToNormal(Database::"Send Reminders Setup");
+        SetTableFieldsToNormal(Database::"Reminder Automation Error");
+        SetTableFieldsToNormal(Database::"Reminder Action Group Log");
+        SetTableFieldsToNormal(Database::"Reminder Action Log");
         SetTableFieldsToNormal(DATABASE::"Finance Charge Text");
         SetTableFieldsToNormal(DATABASE::"Finance Charge Memo Line");
         SetTableFieldsToNormal(DATABASE::"Issued Fin. Charge Memo Line");
         SetTableFieldsToNormal(DATABASE::"Fin. Charge Comment Line");
         SetTableFieldsToNormal(DATABASE::"No. Series");
         SetTableFieldsToNormal(DATABASE::"No. Series Line");
+#if not CLEAN24
+#pragma warning disable AL0432
+        SetTableFieldsToNormal(DATABASE::"No. Series Line Sales");
+        SetTableFieldsToNormal(DATABASE::"No. Series Line Purchase");
+#pragma warning restore AL0432
+#endif
         SetTableFieldsToNormal(DATABASE::"No. Series Relationship");
         SetTableFieldsToNormal(DATABASE::"Sales & Receivables Setup");
         SetTableFieldsToNormal(DATABASE::"Purchases & Payables Setup");
@@ -819,7 +846,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Currency Exchange Rate");
         SetTableFieldsToNormal(DATABASE::"Column Layout Name");
         SetTableFieldsToNormal(DATABASE::"Column Layout");
-#if not CLEAN21
+#if not CLEAN23
         SetTableFieldsToNormal(DATABASE::"Resource Price Change");
 #endif
         SetTableFieldsToNormal(DATABASE::"Tracking Specification");
@@ -845,9 +872,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Change Log Setup");
         SetTableFieldsToNormal(DATABASE::"Change Log Setup (Table)");
         SetTableFieldsToNormal(DATABASE::"Change Log Setup (Field)");
-#if not CLEAN21
-        SetTableFieldsToNormal(DATABASE::"Graph Mail Setup");
-#endif
         SetTableFieldsToNormal(DATABASE::"IC G/L Account");
         SetTableFieldsToNormal(DATABASE::"IC Dimension");
         SetTableFieldsToNormal(DATABASE::"IC Dimension Value");
@@ -906,6 +930,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::Geolocation);
         SetTableFieldsToNormal(DATABASE::"Cash Flow Account");
         SetTableFieldsToNormal(DATABASE::"Cash Flow Account Comment");
+        SetTableFieldsToNormal(DATABASE::"Cash Flow Availability Buffer");
         SetTableFieldsToNormal(DATABASE::"Cash Flow Setup");
         SetTableFieldsToNormal(DATABASE::"Cash Flow Worksheet Line");
         SetTableFieldsToNormal(DATABASE::"Cash Flow Manual Revenue");
@@ -919,16 +944,18 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Assembly Comment Line");
         SetTableFieldsToNormal(DATABASE::"Posted Assembly Line");
         SetTableFieldsToNormal(DATABASE::"Posted Assemble-to-Order Link");
+        SetTableFieldsToNormal(DATABASE::"ATO Sales Buffer");
         SetTableFieldsToNormal(DATABASE::"Time Sheet Detail");
         SetTableFieldsToNormal(DATABASE::"Time Sheet Comment Line");
         SetTableFieldsToNormal(DATABASE::"Time Sheet Detail Archive");
         SetTableFieldsToNormal(DATABASE::"Time Sheet Cmt. Line Archive");
         SetTableFieldsToNormal(DATABASE::"Document Search Result");
         SetTableFieldsToNormal(DATABASE::"Job Task");
+        SetTableFieldsToNormal(DATABASE::"Job Task Archive");
         SetTableFieldsToNormal(DATABASE::"Job Task Dimension");
         SetTableFieldsToNormal(DATABASE::"Job WIP Method");
         SetTableFieldsToNormal(DATABASE::"Job WIP Warning");
-#if not CLEAN21
+#if not CLEAN23
         SetTableFieldsToNormal(DATABASE::"Job Resource Price");
         SetTableFieldsToNormal(DATABASE::"Job Item Price");
         SetTableFieldsToNormal(DATABASE::"Job G/L Account Price");
@@ -945,6 +972,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Cost Journal Line");
         SetTableFieldsToNormal(DATABASE::"Cost Journal Batch");
         SetTableFieldsToNormal(DATABASE::"Cost Accounting Setup");
+        SetTableFieldsToNormal(DATABASE::"Cost Budget Buffer");
         SetTableFieldsToNormal(DATABASE::"Cost Budget Name");
         SetTableFieldsToNormal(DATABASE::"Cost Center");
         SetTableFieldsToNormal(DATABASE::"Cost Object");
@@ -963,6 +991,9 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Data Exch. Line Def");
         SetTableFieldsToNormal(DATABASE::"Payment Jnl. Export Error Text");
         SetTableFieldsToNormal(DATABASE::"Payment Export Remittance Text");
+        SetTableFieldsToNormal(DATABASE::"Payment Registration Buffer");
+        SetTableFieldsToNormal(DATABASE::"Payment Rec. Related Entry");
+        SetTableFieldsToNormal(DATABASE::"Pmt. Rec. Applied-to Entry");
         SetTableFieldsToNormal(DATABASE::"Transformation Rule");
         SetTableFieldsToNormal(DATABASE::"Positive Pay Header");
         SetTableFieldsToNormal(DATABASE::"Positive Pay Detail");
@@ -1045,36 +1076,9 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Image Analysis Setup");
         SetTableFieldsToNormal(DATABASE::"Image Analysis Scenario");
         SetTableFieldsToNormal(DATABASE::"Sales Document Icon");
-#if not CLEAN21
-        SetTableFieldsToNormal(DATABASE::"O365 Customer");
-        SetTableFieldsToNormal(DATABASE::"O365 Sales Initial Setup");
-        SetTableFieldsToNormal(DATABASE::"O365 Field Excel Mapping");
-        SetTableFieldsToNormal(DATABASE::"O365 Cust. Invoice Discount");
-#endif
         SetTableFieldsToNormal(DATABASE::"O365 HTML Template");
-#if not CLEAN21
-        SetTableFieldsToNormal(DATABASE::"O365 Coupon Claim");
-        SetTableFieldsToNormal(DATABASE::"O365 Coupon Claim Doc. Link");
-        SetTableFieldsToNormal(DATABASE::"O365 Posted Coupon Claim");
-        SetTableFieldsToNormal(DATABASE::"O365 Email Setup");
-#endif
         SetTableFieldsToNormal(DATABASE::"O365 Payment Service Logo");
         SetTableFieldsToNormal(DATABASE::"O365 Brand Color");
-#if not CLEAN21
-        SetTableFieldsToNormal(DATABASE::"O365 Social Network");
-        SetTableFieldsToNormal(DATABASE::"O365 Settings Menu");
-        SetTableFieldsToNormal(DATABASE::"O365 Country/Region");
-        SetTableFieldsToNormal(DATABASE::"O365 Payment Terms");
-        SetTableFieldsToNormal(DATABASE::"O365 Payment Method");
-        SetTableFieldsToNormal(DATABASE::"O365 Payment Instructions");
-        SetTableFieldsToNormal(DATABASE::"O365 Payment Instr. Transl.");
-        SetTableFieldsToNormal(DATABASE::"O365 Document Sent History");
-        SetTableFieldsToNormal(DATABASE::"O365 C2Graph Event Settings");
-        SetTableFieldsToNormal(DATABASE::"O365 Sales Event");
-        SetTableFieldsToNormal(DATABASE::"O365 Default Email Message");
-        SetTableFieldsToNormal(DATABASE::"O365 Sales Graph");
-        SetTableFieldsToNormal(DATABASE::"O365 Sales Invoice Document");
-#endif
         SetTableFieldsToNormal(Database::"Customer Templ.");
         SetTableFieldsToNormal(Database::"Item Templ.");
         SetTableFieldsToNormal(Database::"Vendor Templ.");
@@ -1090,6 +1094,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Contact Mailing Group");
         SetTableFieldsToNormal(DATABASE::"Industry Group");
         SetTableFieldsToNormal(DATABASE::"Contact Industry Group");
+        SetTableFieldsToNormal(DATABASE::"Contact Information Buffer");
         SetTableFieldsToNormal(DATABASE::"Web Source");
         SetTableFieldsToNormal(DATABASE::"Contact Web Source");
         SetTableFieldsToNormal(DATABASE::"Rlshp. Mgt. Comment Line");
@@ -1098,6 +1103,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Interaction Template");
         SetTableFieldsToNormal(DATABASE::"Job Responsibility");
         SetTableFieldsToNormal(DATABASE::"Contact Job Responsibility");
+        SetTableFieldsToNormal(DATABASE::"Merge Duplicates Line Buffer");
         SetTableFieldsToNormal(DATABASE::Salutation);
         SetTableFieldsToNormal(DATABASE::"Salutation Formula");
         SetTableFieldsToNormal(DATABASE::"Organizational Level");
@@ -1111,6 +1117,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::Team);
         SetTableFieldsToNormal(DATABASE::"Team Salesperson");
         SetTableFieldsToNormal(DATABASE::"Contact Duplicate");
+        SetTableFieldsToNormal(DATABASE::"Contact Dupl. Details Buffer");
         SetTableFieldsToNormal(DATABASE::"Cont. Duplicate Search String");
         SetTableFieldsToNormal(DATABASE::"Profile Questionnaire Header");
         SetTableFieldsToNormal(DATABASE::"Profile Questionnaire Line");
@@ -1153,7 +1160,10 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"CRM Integration Record");
         SetTableFieldsToNormal(DATABASE::"Integration Table Mapping");
         SetTableFieldsToNormal(DATABASE::"Integration Field Mapping");
+        SetTableFieldsToNormal(DATABASE::"Man. Integration Field Mapping");
+        SetTableFieldsToNormal(DATABASE::"Man. Integration Table Mapping");
         SetTableFieldsToNormal(DATABASE::"Temp Integration Field Mapping");
+        SetTableFieldsToNormal(DATABASE::"Man. Int. Field Mapping");
         SetTableFieldsToNormal(DATABASE::"Integration Synch. Job");
         SetTableFieldsToNormal(DATABASE::"CRM Systemuser");
         SetTableFieldsToNormal(DATABASE::"CRM Account");
@@ -1265,6 +1275,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Inventory Comment Line");
         SetTableFieldsToNormal(DATABASE::"Warehouse Request");
         SetTableFieldsToNormal(DATABASE::"Warehouse Activity Line");
+        SetTableFieldsToNormal(DATABASE::"Warehouse Reason Code");
         SetTableFieldsToNormal(DATABASE::"Whse. Cross-Dock Opportunity");
     end;
 
@@ -1362,7 +1373,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Price Asset");
         SetTableFieldsToNormal(DATABASE::"Price Source");
         SetTableFieldsToNormal(DATABASE::"Price Worksheet Line");
-#if not CLEAN21
+#if not CLEAN23
         SetTableFieldsToNormal(DATABASE::"Sales Price");
         SetTableFieldsToNormal(DATABASE::"Sales Line Discount");
         SetTableFieldsToNormal(DATABASE::"Purchase Price");
@@ -1389,9 +1400,14 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Pstd. Phys. Invt. Record Line");
         SetTableFieldsToNormal(DATABASE::"Phys. Invt. Comment Line");
         SetTableFieldsToNormal(DATABASE::"Pstd. Phys. Invt. Tracking");
+#if not CLEAN24
         SetTableFieldsToNormal(DATABASE::"Phys. Invt. Tracking");
         SetTableFieldsToNormal(DATABASE::"Exp. Phys. Invt. Tracking");
         SetTableFieldsToNormal(DATABASE::"Pstd. Exp. Phys. Invt. Track");
+#endif
+        SetTableFieldsToNormal(DATABASE::"Invt. Order Tracking");
+        SetTableFieldsToNormal(DATABASE::"Exp. Invt. Order Tracking");
+        SetTableFieldsToNormal(DATABASE::"Pstd.Exp.Invt.Order.Tracking");
         SetTableFieldsToNormal(DATABASE::"Phys. Invt. Count Buffer");
         SetTableFieldsToNormal(DATABASE::"Invt. Document Header");
         SetTableFieldsToNormal(DATABASE::"Invt. Receipt Header");
@@ -1496,9 +1512,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"RapidStart Services Cue");
         SetTableFieldsToNormal(DATABASE::"User Security Status");
         SetTableFieldsToNormal(DATABASE::"Relationship Mgmt. Cue");
-#if not CLEAN21
-        SetTableFieldsToNormal(DATABASE::"O365 Sales Cue");
-#endif
     end;
 
     local procedure ClassifyTablesToNormalPart9()
@@ -1535,6 +1548,20 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Semi-Manual Execution Log");
         SetTableFieldsToNormal(DATABASE::"Work Shift");
         SetTableFieldsToNormal(DATABASE::"Company Size");
+        SetTableFieldsToNormal(DATABASE::"FS Connection Setup");
+        SetTableFieldsToNormal(DATABASE::"FS Bookable Resource");
+        SetTableFieldsToNormal(DATABASE::"FS Bookable Resource Booking");
+        SetTableFieldsToNormal(DATABASE::"FS BookableResourceBookingHdr");
+        SetTableFieldsToNormal(DATABASE::"FS Customer Asset");
+        SetTableFieldsToNormal(DATABASE::"FS Customer Asset Category");
+        SetTableFieldsToNormal(DATABASE::"FS Project Task");
+        SetTableFieldsToNormal(DATABASE::"FS Resource Pay Type");
+        SetTableFieldsToNormal(DATABASE::"FS Work Order");
+        SetTableFieldsToNormal(DATABASE::"FS Work Order Product");
+        SetTableFieldsToNormal(DATABASE::"FS Work Order Service");
+        SetTableFieldsToNormal(DATABASE::"FS Work Order Incident");
+        SetTableFieldsToNormal(DATABASE::"FS Work Order Substatus");
+        SetTableFieldsToNormal(DATABASE::"FS Work Order Type");
     end;
 
     local procedure ClassifyTablesToNormalPart10()
@@ -1585,7 +1612,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Order Promising Setup");
         SetTableFieldsToNormal(DATABASE::"Order Promising Line");
         SetTableFieldsToNormal(DATABASE::"Incoming Document Attachment");
-        SetTableFieldsToNormal(DATABASE::"Inc. Doc. Attachment Overview");
         SetTableFieldsToNormal(DATABASE::"License Agreement");
         SetTableFieldsToNormal(DATABASE::"G/L Entry - VAT Entry Link");
         SetTableFieldsToNormal(DATABASE::"Document Entry");
@@ -1634,9 +1660,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Exchange Object");
         SetTableFieldsToNormal(DATABASE::"Payroll Setup");
         SetTableFieldsToNormal(DATABASE::"Approval Workflow Wizard");
-#if not CLEAN21
-        SetTableFieldsToNormal(DATABASE::"O365 Item Basket Entry");
-#endif
         SetTableFieldsToNormal(DATABASE::"Calendar Event User Config.");
     end;
 
@@ -1652,9 +1675,9 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Post Value Entry to G/L");
         SetTableFieldsToNormal(DATABASE::"Inventory Report Entry");
         SetTableFieldsToNormal(DATABASE::"Inventory Adjmt. Entry (Order)");
-#if not CLEAN21
-        SetTableFieldsToNormal(DATABASE::"Power BI Report Buffer");
-#endif
+        SetTableFieldsToNormal(Database::"Cost Adj. Item Bucket");
+        SetTableFieldsToNormal(Database::"Cost Adjustment Detailed Log");
+        SetTableFieldsToNormal(Database::"Cost Adjustment Log");
 #if not CLEAN22
         SetTableFieldsToNormal(DATABASE::"Power BI Service Status Setup");
 #endif
@@ -4647,6 +4670,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyReservationEntry.FieldNo("Entry No."));
     end;
 
+#if not CLEAN24
     local procedure ClassifyCalendarEvent()
     var
         DummyCalendarEvent: Record "Calendar Event";
@@ -4657,6 +4681,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummyCalendarEvent.FieldNo(User));
         SetFieldToCompanyConfidential(TableNo, DummyCalendarEvent.FieldNo("Record ID to Process"));
     end;
+#endif
 
     local procedure ClassifyCapacityLedgerEntry()
     var
@@ -5151,7 +5176,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyCheckLedgerEntry.FieldNo("Bank Account Ledger Entry No."));
         SetFieldToCompanyConfidential(TableNo, DummyCheckLedgerEntry.FieldNo("Bank Account No."));
         SetFieldToCompanyConfidential(TableNo, DummyCheckLedgerEntry.FieldNo("Entry No."));
-        SetFieldToCompanyConfidential(TableNo, DummyCheckLedgerEntry.FieldNo("Record ID to Print"));
     end;
 
     local procedure ClassifyBankAccountLedgerEntry()
@@ -5220,19 +5244,6 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyExchangeSync.FieldNo("User ID"));
     end;
-
-#if not CLEAN21
-    local procedure ClassifyO365SalesDocument()
-    var
-        DummyO365SalesDocument: Record "O365 Sales Document";
-        TableNo: Integer;
-    begin
-        TableNo := DATABASE::"O365 Sales Document";
-        SetTableFieldsToNormal(TableNo);
-        SetFieldToPersonal(TableNo, DummyO365SalesDocument.FieldNo("Sell-to Contact"));
-        SetFieldToPersonal(TableNo, DummyO365SalesDocument.FieldNo("Sell-to Customer Name"));
-    end;
-#endif
 
     local procedure ClassifyVATEntry()
     var
@@ -5862,6 +5873,23 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummyJob.FieldNo("Bill-to Contact"));
     end;
 
+    local procedure ClassifyJobArchive()
+    var
+        DummyJobArchive: Record "Job Archive";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Job Archive";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyJobArchive.FieldNo("Bill-to Name 2"));
+        SetFieldToPersonal(TableNo, DummyJobArchive.FieldNo("Bill-to Post Code"));
+        SetFieldToPersonal(TableNo, DummyJobArchive.FieldNo("Bill-to County"));
+        SetFieldToPersonal(TableNo, DummyJobArchive.FieldNo("Bill-to City"));
+        SetFieldToPersonal(TableNo, DummyJobArchive.FieldNo("Bill-to Address 2"));
+        SetFieldToPersonal(TableNo, DummyJobArchive.FieldNo("Bill-to Address"));
+        SetFieldToPersonal(TableNo, DummyJobArchive.FieldNo("Bill-to Name"));
+        SetFieldToPersonal(TableNo, DummyJobArchive.FieldNo("Bill-to Contact"));
+    end;
+
     local procedure ClassifyResCapacityEntry()
     var
         DummyResCapacityEntry: Record "Res. Capacity Entry";
@@ -6356,11 +6384,9 @@ codeunit 1751 "Data Classification Eval. Data"
         TableNo := DATABASE::"Support Contact Information";
         SetTableFieldsToNormal(TableNo);
 
-        with DummySupportContactInformation do begin
-            SetFieldToPersonal(TableNo, FieldNo(Name));
-            SetFieldToPersonal(TableNo, FieldNo(Email));
-            SetFieldToPersonal(TableNo, FieldNo(URL));
-        end;
+        SetFieldToPersonal(TableNo, DummySupportContactInformation.FieldNo(Name));
+        SetFieldToPersonal(TableNo, DummySupportContactInformation.FieldNo(Email));
+        SetFieldToPersonal(TableNo, DummySupportContactInformation.FieldNo(URL));
     end;
 
     local procedure ClassifyCRMSynchStatus()
@@ -6371,10 +6397,8 @@ codeunit 1751 "Data Classification Eval. Data"
         TableNo := DATABASE::"CRM Synch Status";
         SetTableFieldsToNormal(TableNo);
 
-        with DummyCRMSynchStatus do begin
-            SetFieldToPersonal(TableNo, FieldNo("Primary Key"));
-            SetFieldToPersonal(TableNo, FieldNo("Last Update Invoice Entry No."));
-        end;
+        SetFieldToPersonal(TableNo, DummyCRMSynchStatus.FieldNo("Primary Key"));
+        SetFieldToPersonal(TableNo, DummyCRMSynchStatus.FieldNo("Last Update Invoice Entry No."));
     end;
 
     local procedure ClassifyRetentionPolicyLogEntry()
@@ -6477,6 +6501,16 @@ codeunit 1751 "Data Classification Eval. Data"
         TableNo := DATABASE::"Job Planning Line";
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyJobPlanningLine.FieldNo("User ID"));
+    end;
+
+    local procedure ClassifyJobPlanningLineArchive()
+    var
+        DummyJobPlanningLineArchive: Record "Job Planning Line Archive";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Job Planning Line Archive";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyJobPlanningLineArchive.FieldNo("User ID"));
     end;
 
     local procedure ClassifyGenJournalLine()

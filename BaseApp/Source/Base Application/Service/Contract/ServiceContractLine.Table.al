@@ -16,6 +16,7 @@ table 5964 "Service Contract Line"
     Caption = 'Service Contract Line';
     DrillDownPageID = "Serv. Contr. List (Serv. Item)";
     LookupPageID = "Serv. Contr. List (Serv. Item)";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -39,7 +40,7 @@ table 5964 "Service Contract Line"
         field(5; "Service Item No."; Code[20])
         {
             Caption = 'Service Item No.';
-            TableRelation = "Service Item";
+            TableRelation = "Service Item" where(Blocked = filter(" "));
 
             trigger OnValidate()
             var
@@ -164,6 +165,7 @@ table 5964 "Service Contract Line"
                 "Item No." := ServItem."Item No.";
                 "Variant Code" := ServItem."Variant Code";
                 "Unit of Measure Code" := ServItem."Unit of Measure Code";
+                ServContractMgt.CheckItemServiceBlocked(Rec);
                 if (ServContractHeader."Response Time (Hours)" < ServItem."Response Time (Hours)") and
                    (ServContractHeader."Response Time (Hours)" <> 0)
                 then
@@ -230,7 +232,7 @@ table 5964 "Service Contract Line"
         field(11; "Item No."; Code[20])
         {
             Caption = 'Item No.';
-            TableRelation = Item where(Type = const(Inventory));
+            TableRelation = Item where(Type = const(Inventory), Blocked = const(false), "Service Blocked" = const(false));
 
             trigger OnValidate()
             begin
@@ -489,7 +491,7 @@ table 5964 "Service Contract Line"
         field(28; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."), Blocked = const(false), "Service Blocked" = const(false));
 
             trigger OnValidate()
             begin
@@ -771,10 +773,14 @@ table 5964 "Service Contract Line"
     end;
 
     local procedure GetServItem()
+    var
+        ServContractManagement: Codeunit ServContractManagement;
     begin
         TestField("Service Item No.");
-        if "Service Item No." <> ServItem."No." then
+        if "Service Item No." <> ServItem."No." then begin
             ServItem.Get("Service Item No.");
+            ServContractManagement.CheckServiceItemBlockedForServiceContract(Rec);
+        end;
 
         OnAfterGetServiceItem(Rec, ServItem);
     end;
@@ -1054,6 +1060,64 @@ table 5964 "Service Contract Line"
         OnAfterLogContractLineChanges(Rec, ServContractLine2);
     end;
 
+    procedure SelectMultipleServiceItems()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceItemListPage: Page "Service Item List";
+        SelectionFilter: Text;
+    begin
+        OnBeforeSelectMultipleServiceItems(Rec);
+
+        GetServContractHeader();
+        SelectionFilter := ServiceItemListPage.SelectServiceItemsForServiceContract(ServiceContractHeader, Rec);
+
+        if SelectionFilter <> '' then
+            AddServiceItems(SelectionFilter);
+
+        OnAfterSelectMultipleServiceItems(Rec);
+    end;
+
+    local procedure AddServiceItems(SelectionFilter: Text)
+    var
+        ServiceItem: Record "Service Item";
+        ServiceContractLine: Record "Service Contract Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAddServiceItems(Rec, SelectionFilter, IsHandled);
+        if IsHandled then
+            exit;
+
+        InitNewLine(ServiceContractLine);
+        ServiceContractLine.HideDialogBox(true);
+        ServiceItem.SetLoadFields("No.");
+        ServiceItem.SetFilter("No.", SelectionFilter);
+        if ServiceItem.FindSet() then
+            repeat
+                AddServiceItem(ServiceContractLine, ServiceItem."No.");
+            until ServiceItem.Next() = 0;
+    end;
+
+    local procedure AddServiceItem(var ServiceContractLine: Record "Service Contract Line"; ServiceItemNo: Code[20])
+    begin
+        ServiceContractLine."Line No." += 10000;
+        ServiceContractLine.Validate("Service Item No.", ServiceItemNo);
+        ServiceContractLine.Insert(true);
+    end;
+
+    local procedure InitNewLine(var NewServiceContractLine: Record "Service Contract Line")
+    var
+        ServiceContractLine: Record "Service Contract Line";
+    begin
+        NewServiceContractLine.Copy(Rec);
+        ServiceContractLine.SetRange("Contract Type", NewServiceContractLine."Contract Type");
+        ServiceContractLine.SetRange("Contract No.", NewServiceContractLine."Contract No.");
+        if ServiceContractLine.FindLast() then
+            NewServiceContractLine."Line No." := ServiceContractLine."Line No."
+        else
+            NewServiceContractLine."Line No." := 0;
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterCalculateNextServiceVisit(ServContractHeader: Record "Service Contract Header"; ServMgtSetup: Record "Service Mgt. Setup")
     begin
@@ -1167,6 +1231,21 @@ table 5964 "Service Contract Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateNextServiceVisit(var ServiceContractLine: Record "Service Contract Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectMultipleServiceItems(var ServiceContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSelectMultipleServiceItems(var ServiceContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddServiceItems(var ServiceContractLine: Record "Service Contract Line"; SelectionFilter: Text; var IsHandled: Boolean)
     begin
     end;
 }

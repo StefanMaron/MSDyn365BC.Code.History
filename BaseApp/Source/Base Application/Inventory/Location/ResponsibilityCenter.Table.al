@@ -14,6 +14,7 @@ table 5714 "Responsibility Center"
     Caption = 'Responsibility Center';
     DrillDownPageID = "Responsibility Center List";
     LookupPageID = "Responsibility Center List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -155,11 +156,24 @@ table 5714 "Responsibility Center"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
+#if not CLEAN24
         field(103; "Home Page"; Text[90])
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ObsoleteReason = 'Field length will be increased to 255.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(103; "Home Page"; Text[255])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
+#pragma warning restore AS0086
+#endif
         field(5900; "Date Filter"; Date)
         {
             Caption = 'Date Filter';

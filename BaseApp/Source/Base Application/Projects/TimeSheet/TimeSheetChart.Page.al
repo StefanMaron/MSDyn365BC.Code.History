@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.TimeSheet;
 
-using System;
+using System.Integration;
 using System.Visualization;
 
 page 972 "Time Sheet Chart"
@@ -24,17 +24,17 @@ page 972 "Time Sheet Chart"
                 ShowCaption = false;
                 ToolTip = 'Specifies the status of the chart.';
             }
-            usercontrol(BusinessChart; "Microsoft.Dynamics.Nav.Client.BusinessChart")
+            usercontrol(BusinessChart; BusinessChart)
             {
                 ApplicationArea = Jobs;
 
-                trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
+                trigger DataPointClicked(Point: JsonObject)
                 begin
-                    Rec.SetDrillDownIndexes(point);
+                    Rec.SetDrillDownIndexes(Point);
                     TimeSheetChartMgt.DrillDown(Rec);
                 end;
 
-                trigger DataPointDoubleClicked(point: DotNet BusinessChartDataPoint)
+                trigger DataPointDoubleClicked(Point: JsonObject)
                 begin
                 end;
 
@@ -162,7 +162,7 @@ page 972 "Time Sheet Chart"
         if not IsChartAddInReady then
             exit;
         TimeSheetChartMgt.UpdateData(Rec);
-        Rec.Update(CurrPage.BusinessChart);
+        Rec.UpdateChart(CurrPage.BusinessChart);
         UpdateStatus();
 
         NeedsUpdate := false;

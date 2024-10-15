@@ -28,7 +28,7 @@ codeunit 138011 "O365 Demo Templates Test"
                       Format(FieldRef.Value),
                       "Default Value",
                       StrSubstNo('<%1> field', FieldRef.Caption));
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

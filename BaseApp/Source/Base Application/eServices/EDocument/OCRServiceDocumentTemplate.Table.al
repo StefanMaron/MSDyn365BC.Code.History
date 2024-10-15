@@ -11,6 +11,7 @@ table 1271 "OCR Service Document Template"
     DrillDownPageID = "OCR Service Document Templates";
     LookupPageID = "OCR Service Document Templates";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -36,12 +36,12 @@ codeunit 138028 "O365 Adjust Inventory"
 
         CreateNumberOfItem(Item);
 
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
 
         LibraryVariableStorage.Enqueue(Item."No.");
 
-        ItemList.AdjustInventory.Invoke;
+        ItemList.AdjustInventory.Invoke();
         ItemList.Close();
     end;
 
@@ -57,12 +57,12 @@ codeunit 138028 "O365 Adjust Inventory"
 
         CreateNumberOfItem(Item);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         LibraryVariableStorage.Enqueue(Item."No.");
 
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
         ItemCard.Close();
     end;
 
@@ -100,12 +100,12 @@ codeunit 138028 "O365 Adjust Inventory"
 
         CreateNumberOfItem(Item);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         NewInventory := LibraryRandom.RandDecInRange(20, 30, 2);
         LibraryVariableStorage.Enqueue(NewInventory);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventory(Item, NewInventory);
     end;
@@ -122,17 +122,17 @@ codeunit 138028 "O365 Adjust Inventory"
         LocationCode: Code[10];
     begin
         Initialize();
-        LibraryApplicationArea.EnableLocationsSetup;
+        LibraryApplicationArea.EnableLocationsSetup();
 
         CreateAndPostItem(Item, LocationCode);
 
         NewInventory := LibraryRandom.RandDecInRange(10, 20, 2);
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         LibraryVariableStorage.Enqueue(NewInventory);
         LibraryVariableStorage.Enqueue(LocationCode);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventoryForLocation(Item, NewInventory, LocationCode);
     end;
@@ -149,17 +149,17 @@ codeunit 138028 "O365 Adjust Inventory"
         LocationCode: Code[10];
     begin
         Initialize();
-        LibraryApplicationArea.EnableLocationsSetup;
+        LibraryApplicationArea.EnableLocationsSetup();
 
         CreateAndPostItem(Item, LocationCode);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         NewInventory := -LibraryRandom.RandDecInRange(10, 20, 2);
         LibraryVariableStorage.Enqueue(NewInventory);
         LibraryVariableStorage.Enqueue(LocationCode);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventoryForLocation(Item, NewInventory, LocationCode);
     end;
@@ -180,18 +180,18 @@ codeunit 138028 "O365 Adjust Inventory"
         SecondLocationCode: Code[10];
     begin
         Initialize();
-        LibraryApplicationArea.EnableLocationsSetup;
+        LibraryApplicationArea.EnableLocationsSetup();
 
         CreateNumberOfItem(Item);
-        FirstLocationCode := GetLocation;
+        FirstLocationCode := GetLocation();
         FirstOldInventory := LibraryRandom.RandDecInRange(0, 10, 2);
         CreateAndPostItemJournalLine(Item."No.", FirstLocationCode, FirstOldInventory);
 
-        SecondLocationCode := GetLocation;
+        SecondLocationCode := GetLocation();
         SecondOldInventory := LibraryRandom.RandDecInRange(40, 50, 2);
         CreateAndPostItemJournalLine(Item."No.", SecondLocationCode, SecondOldInventory);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         FirstNewInventory := FirstOldInventory + LibraryRandom.RandDecInRange(20, 30, 2);
@@ -200,7 +200,7 @@ codeunit 138028 "O365 Adjust Inventory"
         LibraryVariableStorage.Enqueue(FirstLocationCode);
         LibraryVariableStorage.Enqueue(SecondNewInventory);
         LibraryVariableStorage.Enqueue(SecondLocationCode);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventoryForLocation(Item, FirstNewInventory, FirstLocationCode);
         ValidateNewInventoryForLocation(Item, SecondNewInventory, SecondLocationCode);
@@ -219,12 +219,12 @@ codeunit 138028 "O365 Adjust Inventory"
 
         CreateNumberOfItem(Item);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         NewInventory := -LibraryRandom.RandDecInRange(20, 30, 2);
         LibraryVariableStorage.Enqueue(NewInventory);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventory(Item, NewInventory);
     end;
@@ -245,12 +245,12 @@ codeunit 138028 "O365 Adjust Inventory"
         OldInventory := LibraryRandom.RandIntInRange(20, 30);
         PostItemPurchase(Item, '', OldInventory);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         NewInventory := OldInventory + LibraryRandom.RandDec(10, 2);
         LibraryVariableStorage.Enqueue(NewInventory);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventory(Item, NewInventory);
     end;
@@ -271,12 +271,12 @@ codeunit 138028 "O365 Adjust Inventory"
         OldInventory := LibraryRandom.RandIntInRange(20, 30);
         PostItemPurchase(Item, '', OldInventory);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         NewInventory := OldInventory - LibraryRandom.RandDec(10, 2);
         LibraryVariableStorage.Enqueue(NewInventory);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventory(Item, NewInventory);
     end;
@@ -297,12 +297,12 @@ codeunit 138028 "O365 Adjust Inventory"
         OldInventory := -LibraryRandom.RandIntInRange(20, 30);
         PostItemPurchase(Item, '', OldInventory);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         NewInventory := OldInventory + LibraryRandom.RandDec(10, 2);
         LibraryVariableStorage.Enqueue(NewInventory);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventory(Item, NewInventory);
     end;
@@ -323,12 +323,12 @@ codeunit 138028 "O365 Adjust Inventory"
         OldInventory := -LibraryRandom.RandIntInRange(20, 30);
         PostItemPurchase(Item, '', OldInventory);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         NewInventory := OldInventory - LibraryRandom.RandDec(10, 2);
         LibraryVariableStorage.Enqueue(NewInventory);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventory(Item, NewInventory);
     end;
@@ -348,11 +348,11 @@ codeunit 138028 "O365 Adjust Inventory"
         OldInventory := LibraryRandom.RandIntInRange(20, 30);
         PostItemPurchase(Item, '', OldInventory);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         LibraryVariableStorage.Enqueue(OldInventory);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventory(Item, OldInventory);
     end;
@@ -373,12 +373,12 @@ codeunit 138028 "O365 Adjust Inventory"
         OldInventory := LibraryRandom.RandIntInRange(20, 30);
         PostItemPurchase(Item, '', OldInventory);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         NewInventory := -LibraryRandom.RandDec(10, 2);
         LibraryVariableStorage.Enqueue(NewInventory);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventory(Item, NewInventory);
     end;
@@ -399,12 +399,12 @@ codeunit 138028 "O365 Adjust Inventory"
         OldInventory := -LibraryRandom.RandIntInRange(20, 30);
         PostItemPurchase(Item, '', OldInventory);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         NewInventory := -LibraryRandom.RandIntInRange(40, 50);
         LibraryVariableStorage.Enqueue(NewInventory);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventory(Item, NewInventory);
     end;
@@ -430,8 +430,8 @@ codeunit 138028 "O365 Adjust Inventory"
         OpenItemCardWithFilters(ItemCard, ItemLedgerEntry);
 
         // [WHEN] Drill down on the "Inventory" field
-        ItemLedgerEntries.Trap;
-        ItemCard.Inventory.DrillDown;
+        ItemLedgerEntries.Trap();
+        ItemCard.Inventory.DrillDown();
 
         // [THEN] List of item ledger entries opens, filters from item card are applied to the "Item Ledger Entries" page
         VerifyILEFilters(ItemLedgerEntries, ItemLedgerEntry);
@@ -450,14 +450,14 @@ codeunit 138028 "O365 Adjust Inventory"
         Initialize();
 
         // [GIVEN] Disable application area setup
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] Open item card and navigate to an item with posted item ledger entries
         MockItemLedgerEntry(ItemLedgerEntry);
         OpenItemCardWithFilters(ItemCard, ItemLedgerEntry);
 
-        ItemLedgerEntries.Trap;
-        ItemCard.Inventory.DrillDown;
+        ItemLedgerEntries.Trap();
+        ItemCard.Inventory.DrillDown();
 
         // [THEN] List of item ledger entries opens, filters from item card are applied to the "Item Ledger Entries" page
         VerifyILEFilters(ItemLedgerEntries, ItemLedgerEntry);
@@ -475,7 +475,7 @@ codeunit 138028 "O365 Adjust Inventory"
         // [FEATURE] [Location] [Bin] [UT] [UI]
         // [SCENARIO 319788] You cannot update inventory via Adjust Inventory on a location with mandatory bin.
         Initialize();
-        LibraryApplicationArea.EnableLocationsSetup;
+        LibraryApplicationArea.EnableLocationsSetup();
 
         LibraryInventory.CreateItem(Item);
 
@@ -483,16 +483,16 @@ codeunit 138028 "O365 Adjust Inventory"
         Location.Validate("Bin Mandatory", true);
         Location.Modify(true);
 
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.FILTER.SetFilter("No.", Item."No.");
 
         LibraryVariableStorage.Enqueue(Location.Code);
-        ItemList.AdjustInventory.Invoke;
+        ItemList.AdjustInventory.Invoke();
 
         Assert.IsFalse(
-          LibraryVariableStorage.DequeueBoolean, 'Locations with mandatory bin are not available for Adjust Inventory.');
+          LibraryVariableStorage.DequeueBoolean(), 'Locations with mandatory bin are not available for Adjust Inventory.');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -595,7 +595,7 @@ codeunit 138028 "O365 Adjust Inventory"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Adjust Inventory");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         isInitialized := true;
@@ -613,14 +613,14 @@ codeunit 138028 "O365 Adjust Inventory"
 
         Assert.IsTrue(StrPos(AdjustInventory.Caption, ItemNo) > 0, 'Wrong Item selected.');
 
-        AdjustInventory.Cancel.Invoke;
+        AdjustInventory.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AdjustInventoryModalPageHandler(var AdjustInventory: TestPage "Adjust Inventory")
     begin
-        UpdateInventoryField(AdjustInventory, LibraryVariableStorage.DequeueDecimal);
+        UpdateInventoryField(AdjustInventory, LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
@@ -631,8 +631,8 @@ codeunit 138028 "O365 Adjust Inventory"
         NewInventory: Decimal;
     begin
         AdjustInventory.Code.AssertEquals('');
-        NewInventory := LibraryVariableStorage.DequeueDecimal;
-        LocationCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(LocationCode));
+        NewInventory := LibraryVariableStorage.DequeueDecimal();
+        LocationCode := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(LocationCode));
         UpdateInventoryFieldForLocation(AdjustInventory, NewInventory, LocationCode);
     end;
 
@@ -646,10 +646,10 @@ codeunit 138028 "O365 Adjust Inventory"
         SecondLocationCode: Code[10];
     begin
         AdjustInventory.Code.AssertEquals('');
-        FirstNewInventory := LibraryVariableStorage.DequeueDecimal;
-        FirstLocationCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(FirstLocationCode));
-        SecondNewInventory := LibraryVariableStorage.DequeueDecimal;
-        SecondLocationCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(SecondLocationCode));
+        FirstNewInventory := LibraryVariableStorage.DequeueDecimal();
+        FirstLocationCode := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(FirstLocationCode));
+        SecondNewInventory := LibraryVariableStorage.DequeueDecimal();
+        SecondLocationCode := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(SecondLocationCode));
         UpdateInventoryFieldForSeveralLocation(AdjustInventory, FirstNewInventory,
           FirstLocationCode, SecondNewInventory, SecondLocationCode);
     end;
@@ -658,8 +658,8 @@ codeunit 138028 "O365 Adjust Inventory"
     [Scope('OnPrem')]
     procedure AdjustInventoryFilterByLocationModalPageHandler(var AdjustInventory: TestPage "Adjust Inventory")
     begin
-        AdjustInventory.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.Enqueue(AdjustInventory.First);
+        AdjustInventory.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.Enqueue(AdjustInventory.First());
     end;
 
     [ModalPageHandler]
@@ -726,7 +726,7 @@ codeunit 138028 "O365 Adjust Inventory"
 
     local procedure OpenItemCardWithFilters(var ItemCard: TestPage "Item Card"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.FILTER.SetFilter("Location Filter", ItemLedgerEntry."Location Code");
         ItemCard.FILTER.SetFilter("Global Dimension 1 Filter", ItemLedgerEntry."Global Dimension 1 Code");
         ItemCard.FILTER.SetFilter("Global Dimension 2 Filter", ItemLedgerEntry."Global Dimension 2 Code");
@@ -758,7 +758,7 @@ codeunit 138028 "O365 Adjust Inventory"
     begin
         AdjustInventory.NewInventory.Value := Format(NewInventory);
         Commit();
-        AdjustInventory.OK.Invoke;
+        AdjustInventory.OK().Invoke();
 
         exit(NewInventory)
     end;
@@ -768,7 +768,7 @@ codeunit 138028 "O365 Adjust Inventory"
         AdjustInventory.GotoKey(LocationCode);
         AdjustInventory.NewInventory.Value := Format(NewInventory);
         Commit();
-        AdjustInventory.OK.Invoke;
+        AdjustInventory.OK().Invoke();
 
         exit(NewInventory)
     end;
@@ -780,7 +780,7 @@ codeunit 138028 "O365 Adjust Inventory"
         AdjustInventory.GotoKey(SecondLocationCode);
         AdjustInventory.NewInventory.Value := Format(SecondNewInventory);
         Commit();
-        AdjustInventory.OK.Invoke;
+        AdjustInventory.OK().Invoke();
     end;
 
     local procedure ValidateNewInventory(var Item: Record Item; ExpectedInventory: Decimal)
@@ -798,7 +798,7 @@ codeunit 138028 "O365 Adjust Inventory"
 
     local procedure VerifyILEFilters(ItemLedgerEntries: TestPage "Item Ledger Entries"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
-        Assert.IsFalse(ItemLedgerEntries.Editable, 'Page must not be editable');
+        Assert.IsFalse(ItemLedgerEntries.Editable(), 'Page must not be editable');
         Assert.AreEqual(ItemLedgerEntry."Item No.", ItemLedgerEntries."Item No.".Value, WrongDrillDownValueErr);
         Assert.AreEqual(
           ItemLedgerEntry."Global Dimension 1 Code", ItemLedgerEntries.FILTER.GetFilter("Global Dimension 1 Code"), UnexpectedFilterErr);
@@ -833,7 +833,7 @@ codeunit 138028 "O365 Adjust Inventory"
     local procedure CreateAndPostItem(var Item: Record Item; var LocationCode: Code[10])
     begin
         CreateNumberOfItem(Item);
-        LocationCode := GetLocation;
+        LocationCode := GetLocation();
         CreateAndPostItemJournalLine(Item."No.", LocationCode, LibraryRandom.RandDecInRange(0, 10, 2));
     end;
 

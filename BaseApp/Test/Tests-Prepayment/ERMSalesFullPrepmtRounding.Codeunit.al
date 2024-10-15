@@ -52,7 +52,7 @@
         GetShipmentLine(SalesInvoiceHeader, SalesOrderHeader."Last Shipping No.");
 
         LibrarySales.PostSalesDocument(SalesInvoiceHeader, false, true);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
 
         SalesOrderLine.Find();
         Assert.AreEqual(
@@ -113,11 +113,11 @@
         GetShipmentLine(SalesInvoiceHeader, SalesOrderHeader."Last Shipping No.");
 
         LibrarySales.PostSalesDocument(SalesInvoiceHeader, false, true);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
 
         SalesOrderHeader.Find();
         LibrarySales.PostSalesDocument(SalesOrderHeader, true, true);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
     end;
 
     [Test]
@@ -170,7 +170,7 @@
         GetShipmentLine(SalesInvoiceHeader, SalesOrderHeader."Last Shipping No.");
 
         LibrarySales.PostSalesDocument(SalesInvoiceHeader, false, true);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
     end;
 
     [Test]
@@ -216,7 +216,7 @@
         Initialize();
         PostPartialInvoiceWithPrepmt(SalesOrderHeader, PositiveDiff);
         PostInvoiceWithShptFromOrder(SalesOrderHeader);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
     end;
 
     local procedure PostInvoiceWithShptFromOrder(SalesOrderHeader: Record "Sales Header")
@@ -250,14 +250,14 @@
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         PostInvoiceWithShptFromOrder(SalesHeader);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
     end;
 
     local procedure PrepareSOLineWithLineDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; PositiveDiff: Boolean)
     begin
         PrepareSalesOrder(SalesHeader);
         AddSalesOrderLine100PctPrepmt(SalesLine, SalesHeader, PositiveDiff);
-        SalesLine.Validate("Line Discount %", GetSpecialLineDiscPct);
+        SalesLine.Validate("Line Discount %", GetSpecialLineDiscPct());
         SalesLine.Modify();
     end;
 
@@ -312,7 +312,7 @@
         SalesLine.FindFirst();
         SalesLine.TestField("Quantity Invoiced", GetQtyToShipTFS332246(PositiveDiff));
 
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
     end;
 
     [Test]
@@ -352,7 +352,7 @@
         PostPartialInvoiceWithPrepmt(SalesHeader, PositiveDiff);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
     end;
 
     [Test]
@@ -383,14 +383,14 @@
 
         UpdateQtysInLine(SalesLine, GetQtyToShipTFS332246(PositiveDiff), GetQtyToShipTFS332246(PositiveDiff));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
 
         UpdateQtysInLine(SalesLine, GetQtyToShipTFS332246(PositiveDiff), GetQtyToShipTFS332246(PositiveDiff));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
     end;
 
     [Test]
@@ -415,10 +415,10 @@
 
         // [WHEN] Try to decrease Sales Invoice Line Quantity value from Sales Invoice page.
         OpenSalesInvoicePage(SalesInvoice, SalesInvoiceHeader);
-        asserterror SalesInvoice.SalesLines.Quantity.SetValue(SalesInvoice.SalesLines.Quantity.AsDEcimal / 2);
+        asserterror SalesInvoice.SalesLines.Quantity.SetValue(SalesInvoice.SalesLines.Quantity.AsDecimal() / 2);
 
         // [THEN] Error occurs: "Line Amount Excl. VAT cannot be less than X"
-        VerifyLineAmountExpectedError(CannotBeLessThanMsg, SalesInvoice.SalesLines."Line Amount".AsDEcimal);
+        VerifyLineAmountExpectedError(CannotBeLessThanMsg, SalesInvoice.SalesLines."Line Amount".AsDecimal());
 
         // TearDown
         LibrarySales.SetStockoutWarning(OldStockoutWarning);
@@ -444,10 +444,10 @@
 
         // [WHEN] Try to decrease Sales Invoice Line "Unit Price" value from Sales Invoice page.
         OpenSalesInvoicePage(SalesInvoice, SalesInvoiceHeader);
-        asserterror SalesInvoice.SalesLines."Unit Price".SetValue(SalesInvoice.SalesLines."Unit Price".AsDEcimal - 0.01);
+        asserterror SalesInvoice.SalesLines."Unit Price".SetValue(SalesInvoice.SalesLines."Unit Price".AsDecimal() - 0.01);
 
         // [THEN] Error occurs: "Line Amount Excl. VAT cannot be less than X"
-        VerifyLineAmountExpectedError(CannotBeLessThanMsg, SalesInvoice.SalesLines."Line Amount".AsDEcimal);
+        VerifyLineAmountExpectedError(CannotBeLessThanMsg, SalesInvoice.SalesLines."Line Amount".AsDecimal());
     end;
 
     [Test]
@@ -470,10 +470,10 @@
 
         // [WHEN] Try to increase Sales Invoice Line "Unit Price" value from Sales Invoice page.
         OpenSalesInvoicePage(SalesInvoice, SalesInvoiceHeader);
-        asserterror SalesInvoice.SalesLines."Unit Price".SetValue(SalesInvoice.SalesLines."Unit Price".AsDEcimal + 0.01);
+        asserterror SalesInvoice.SalesLines."Unit Price".SetValue(SalesInvoice.SalesLines."Unit Price".AsDecimal() + 0.01);
 
         // [THEN] Error occurs: "Line Amount Excl. VAT cannot be more than X"
-        VerifyLineAmountExpectedError(CannotBeMoreThanMsg, SalesInvoice.SalesLines."Line Amount".AsDEcimal);
+        VerifyLineAmountExpectedError(CannotBeMoreThanMsg, SalesInvoice.SalesLines."Line Amount".AsDecimal());
     end;
 
     [Test]
@@ -496,10 +496,10 @@
 
         // [WHEN] Try to decrease Sales Invoice Line "Line Discount %" value from Sales Invoice page.
         OpenSalesInvoicePage(SalesInvoice, SalesInvoiceHeader);
-        asserterror SalesInvoice.SalesLines."Line Discount %".SetValue(SalesInvoice.SalesLines."Line Discount %".AsDEcimal - 0.01);
+        asserterror SalesInvoice.SalesLines."Line Discount %".SetValue(SalesInvoice.SalesLines."Line Discount %".AsDecimal() - 0.01);
 
         // [THEN] Error occurs: "Line Amount Excl. VAT cannot be more than X"
-        VerifyLineAmountExpectedError(CannotBeMoreThanMsg, SalesInvoice.SalesLines."Line Amount".AsDEcimal);
+        VerifyLineAmountExpectedError(CannotBeMoreThanMsg, SalesInvoice.SalesLines."Line Amount".AsDecimal());
     end;
 
     [Test]
@@ -522,10 +522,10 @@
 
         // [WHEN] Try to increase Sales Invoice Line "Line Discount %" value from Sales Invoice page.
         OpenSalesInvoicePage(SalesInvoice, SalesInvoiceHeader);
-        asserterror SalesInvoice.SalesLines."Line Discount %".SetValue(SalesInvoice.SalesLines."Line Discount %".AsDEcimal + 0.01);
+        asserterror SalesInvoice.SalesLines."Line Discount %".SetValue(SalesInvoice.SalesLines."Line Discount %".AsDecimal() + 0.01);
 
         // [THEN] Error occurs: "Line Amount Excl. VAT cannot be less than X"
-        VerifyLineAmountExpectedError(CannotBeLessThanMsg, SalesInvoice.SalesLines."Line Amount".AsDEcimal);
+        VerifyLineAmountExpectedError(CannotBeLessThanMsg, SalesInvoice.SalesLines."Line Amount".AsDecimal());
     end;
 
     [Test]
@@ -636,7 +636,7 @@
         // [GIVEN] Post Prepayment Invoice
         // [WHEN] Post Sales Order
         // [THEN] G/L Entry with "Receivables Account" has been posted with Amount = 0
-        TwoDocLinesPrepmt100Pct_Case376958(true, true, CreateCurrencyCodeWithRandomExchRate);
+        TwoDocLinesPrepmt100Pct_Case376958(true, true, CreateCurrencyCodeWithRandomExchRate());
     end;
 
     [Test]
@@ -652,7 +652,7 @@
         // [GIVEN] Post Prepayment Invoice
         // [WHEN] Post Sales Order
         // [THEN] G/L Entry with "Receivables Account" has been posted with Amount = 0
-        TwoDocLinesPrepmt100Pct_Case376958(false, true, CreateCurrencyCodeWithRandomExchRate);
+        TwoDocLinesPrepmt100Pct_Case376958(false, true, CreateCurrencyCodeWithRandomExchRate());
     end;
 
     [Test]
@@ -669,7 +669,7 @@
         // [GIVEN] Post Prepayment Invoice
         // [WHEN] Post Sales Order
         // [THEN] G/L Entry with "Receivables Account" has been posted with Amount = 0
-        TwoDocLinesPrepmt100Pct_Case376958(true, false, CreateCurrencyCodeWithRandomExchRate);
+        TwoDocLinesPrepmt100Pct_Case376958(true, false, CreateCurrencyCodeWithRandomExchRate());
     end;
 
     [Test]
@@ -685,7 +685,7 @@
         // [GIVEN] Post Prepayment Invoice
         // [WHEN] Post Sales Order
         // [THEN] G/L Entry with "Receivables Account" has been posted with Amount = 0
-        TwoDocLinesPrepmt100Pct_Case376958(false, false, CreateCurrencyCodeWithRandomExchRate);
+        TwoDocLinesPrepmt100Pct_Case376958(false, false, CreateCurrencyCodeWithRandomExchRate());
     end;
 
     [Test]
@@ -970,7 +970,7 @@
 
     local procedure CreateCurrencyCodeWithRandomExchRate(): Code[10]
     begin
-        exit(UpdateCurrencyInvRoundPrecision(LibraryERM.CreateCurrencyWithRandomExchRates));
+        exit(UpdateCurrencyInvRoundPrecision(LibraryERM.CreateCurrencyWithRandomExchRates()));
     end;
 
     local procedure CreateCurrencyCodeWithExchRate(ExchRate: Decimal): Code[10]
@@ -981,7 +981,7 @@
     local procedure AddSalesOrderLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Qty: Decimal; UnitPrice: Decimal; PrepmtPct: Decimal; DiscountPct: Decimal)
     begin
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, Qty);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), Qty);
         UpdateGenPostingSetupPrepmtAccounts(SalesLine, SalesLine."VAT Prod. Posting Group");
         UpdateSalesLine(SalesLine, UnitPrice, DiscountPct, PrepmtPct);
     end;
@@ -1110,8 +1110,8 @@
     local procedure UpdateVATPostingSetupAccounts(var VATPostingSetup: Record "VAT Posting Setup")
     begin
         with VATPostingSetup do begin
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup);
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountWithPurchSetup);
+            Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup());
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountWithPurchSetup());
             Modify(true);
         end;
     end;
@@ -1173,9 +1173,9 @@
 
     local procedure OpenSalesInvoicePage(var SalesInvoice: TestPage "Sales Invoice"; SalesInvoiceHeader: Record "Sales Header")
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesInvoiceHeader);
-        SalesInvoice.SalesLines.Last;
+        SalesInvoice.SalesLines.Last();
     end;
 
     local procedure VerifyDescriptionOnPostedInvoiceRoundingLine(SalesHeaderOrder: Record "Sales Header")

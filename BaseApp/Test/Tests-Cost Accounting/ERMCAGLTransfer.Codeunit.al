@@ -28,7 +28,7 @@ codeunit 134812 "ERM CA GL Transfer"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM CA GL Transfer");
-        LibraryCostAccounting.InitializeCASetup;
+        LibraryCostAccounting.InitializeCASetup();
 
         if isInitialized then
             exit;
@@ -54,7 +54,7 @@ codeunit 134812 "ERM CA GL Transfer"
         TransferGLEntry(true, true, false, false, LibraryRandom.RandDec(1000, 2));
 
         // Verify:
-        ValidateEntriesTransfered;
+        ValidateEntriesTransfered();
     end;
 
     [Test]
@@ -68,7 +68,7 @@ codeunit 134812 "ERM CA GL Transfer"
         TransferGLEntry(true, false, true, false, LibraryRandom.RandDec(1000, 2));
 
         // Verify:
-        ValidateEntriesTransfered;
+        ValidateEntriesTransfered();
     end;
 
     [Test]
@@ -84,7 +84,7 @@ codeunit 134812 "ERM CA GL Transfer"
         TransferGLEntry(true, true, true, false, LibraryRandom.RandDec(1000, 2));
 
         // Verify:
-        CostEntryNo := ValidateEntriesTransfered;
+        CostEntryNo := ValidateEntriesTransfered();
         ValidateCostEntryFields(CostEntryNo);
     end;
 
@@ -217,7 +217,7 @@ codeunit 134812 "ERM CA GL Transfer"
         ExpectedCostRegisterEntries := CostRegister.Count();
 
         // Exercise:
-        asserterror LibraryCostAccounting.TransferGLEntries;
+        asserterror LibraryCostAccounting.TransferGLEntries();
 
         // Verify:
         LastErrorText := GetLastErrorText;
@@ -248,7 +248,7 @@ codeunit 134812 "ERM CA GL Transfer"
             PostGenJournalLine(GLAccount."No.", LibraryRandom.RandDec(1000, 2), false);
 
         // Exercise:
-        LibraryCostAccounting.TransferGLEntries;
+        LibraryCostAccounting.TransferGLEntries();
 
         // Verify:
         ValidateTransfer(NoOfJnlPostings);
@@ -278,11 +278,11 @@ codeunit 134812 "ERM CA GL Transfer"
     var
         DimensionCombination: Record "Dimension Combination";
     begin
-        DimensionCombination.SetFilter("Dimension 1 Code", '%1|%2', CostCenterDimension, CostObjectDimension);
+        DimensionCombination.SetFilter("Dimension 1 Code", '%1|%2', CostCenterDimension(), CostObjectDimension());
         DeleteBlockedDimCombinations(DimensionCombination);
 
         Clear(DimensionCombination);
-        DimensionCombination.SetFilter("Dimension 2 Code", '%1|%2', CostCenterDimension, CostObjectDimension);
+        DimensionCombination.SetFilter("Dimension 2 Code", '%1|%2', CostCenterDimension(), CostObjectDimension());
         DeleteBlockedDimCombinations(DimensionCombination);
     end;
 
@@ -395,19 +395,19 @@ codeunit 134812 "ERM CA GL Transfer"
     local procedure SetAccWithDefaultDimensions(AccountNo: Code[20]; HasCostCenterDimension: Boolean; HasCostObjectDimension: Boolean)
     begin
         if HasCostCenterDimension then begin
-            SetDefaultDimension(AccountNo, CostCenterDimension);
+            SetDefaultDimension(AccountNo, CostCenterDimension());
             if not HasCostObjectDimension then
-                DeleteDefaultDimension(AccountNo, CostObjectDimension);
+                DeleteDefaultDimension(AccountNo, CostObjectDimension());
         end;
 
         if HasCostObjectDimension then begin
-            SetDefaultDimension(AccountNo, CostObjectDimension);
+            SetDefaultDimension(AccountNo, CostObjectDimension());
             if not HasCostCenterDimension then
-                DeleteDefaultDimension(AccountNo, CostCenterDimension);
+                DeleteDefaultDimension(AccountNo, CostCenterDimension());
         end;
 
         CheckBlockedDimensionValues(AccountNo); // check for blocked default dimension values, which prevent posting
-        CheckBlockedDimCombination; // check for blocked dimension combinations, which prevent posting
+        CheckBlockedDimCombination(); // check for blocked dimension combinations, which prevent posting
     end;
 
     [Normal]
@@ -538,7 +538,7 @@ codeunit 134812 "ERM CA GL Transfer"
     begin
         CostEntry.Get(CostEntryNo);
         GLEntry.Get(CostEntry."G/L Entry No.");
-        DimensionSetEntry.Get(GLEntry."Dimension Set ID", CostCenterDimension);
+        DimensionSetEntry.Get(GLEntry."Dimension Set ID", CostCenterDimension());
 
         // check if corresponding cost center exists first
         CostCenter.SetFilter(Code, DimensionSetEntry."Dimension Value Code");

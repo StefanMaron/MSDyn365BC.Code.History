@@ -2,19 +2,15 @@ namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Finance.Dimension;
 
+#if not CLEAN22
 #pragma warning disable AS0109
+#endif
 table 48 "Invt. Posting Buffer"
-#pragma warning restore AS0109
 {
     Caption = 'Invt. Posting Buffer';
     ReplicateData = false;
-#if CLEAN21
     TableType = Temporary;
-#else
-    ObsoleteReason = 'This table will be marked as temporary. Make sure you are not using this table to store records.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '21.0';
-#endif
+    DataClassification = CustomerContent;
 
     fields
     {

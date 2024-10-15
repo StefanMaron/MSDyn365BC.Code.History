@@ -88,96 +88,94 @@ codeunit 73 "Purch.-Explode BOM"
         InsertLinesBetween: Boolean;
         SkipComponent: Boolean;
     begin
-        with PurchLine do begin
-            ToPurchLine.Reset();
-            ToPurchLine.SetRange("Document Type", "Document Type");
-            ToPurchLine.SetRange("Document No.", "Document No.");
-            ToPurchLine := PurchLine;
-            NextLineNo := "Line No.";
-            InsertLinesBetween := false;
-            if ToPurchLine.Find('>') then
-                if ToPurchLine.IsExtendedText() and (ToPurchLine."Attached to Line No." = "Line No.") then begin
-                    ToPurchLine.SetRange("Attached to Line No.", "Line No.");
-                    ToPurchLine.FindLast();
-                    ToPurchLine.SetRange("Attached to Line No.");
-                    NextLineNo := ToPurchLine."Line No.";
-                    InsertLinesBetween := ToPurchLine.Find('>');
-                end else
-                    InsertLinesBetween := true;
-            if InsertLinesBetween then
-                LineSpacing := (ToPurchLine."Line No." - NextLineNo) div (1 + NoOfBOMComp)
-            else
-                LineSpacing := 10000;
-            if LineSpacing = 0 then
-                Error(Text003);
+        ToPurchLine.Reset();
+        ToPurchLine.SetRange("Document Type", PurchLine."Document Type");
+        ToPurchLine.SetRange("Document No.", PurchLine."Document No.");
+        ToPurchLine := PurchLine;
+        NextLineNo := PurchLine."Line No.";
+        InsertLinesBetween := false;
+        if ToPurchLine.Find('>') then
+            if ToPurchLine.IsExtendedText() and (ToPurchLine."Attached to Line No." = PurchLine."Line No.") then begin
+                ToPurchLine.SetRange("Attached to Line No.", PurchLine."Line No.");
+                ToPurchLine.FindLast();
+                ToPurchLine.SetRange("Attached to Line No.");
+                NextLineNo := ToPurchLine."Line No.";
+                InsertLinesBetween := ToPurchLine.Find('>');
+            end else
+                InsertLinesBetween := true;
+        if InsertLinesBetween then
+            LineSpacing := (ToPurchLine."Line No." - NextLineNo) div (1 + NoOfBOMComp)
+        else
+            LineSpacing := 10000;
+        if LineSpacing = 0 then
+            Error(Text003);
 
-            FromBOMComp.Find('-');
-            OnExplodeBOMCompLinesOnBeforeLoopFromBOMComp(PurchLine, NextLineNo);
-            repeat
-                SkipComponent := false;
-                OnExplodeBOMCompLinesOnBeforeCreatePurchLine(PurchLine, FromBOMComp, SkipComponent);
-                if not SkipComponent then begin
-                    ToPurchLine.Init();
-                    NextLineNo := NextLineNo + LineSpacing;
-                    ToPurchLine."Line No." := NextLineNo;
-                    case FromBOMComp.Type of
-                        FromBOMComp.Type::" ":
-                            ToPurchLine.Type := ToPurchLine.Type::" ";
-                        FromBOMComp.Type::Item:
-                            begin
-                                Item.Get(FromBOMComp."No.");
-                                ToPurchLine.Type := ToPurchLine.Type::Item;
-                                ToPurchLine.Validate("No.", FromBOMComp."No.");
-                                ToPurchLine.Validate("Variant Code", FromBOMComp."Variant Code");
-                                ToPurchLine.Validate("Unit of Measure Code", FromBOMComp."Unit of Measure Code");
-                                ToPurchLine."Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, ToPurchLine."Unit of Measure Code");
-                                ToPurchLine.Validate(Quantity, Round("Quantity (Base)" * FromBOMComp."Quantity per", UOMMgt.QtyRndPrecision()));
-                            end;
-                        FromBOMComp.Type::Resource:
-                            begin
-                                Resource.Get(FromBOMComp."No.");
-                                ToPurchLine.Type := ToPurchLine.Type::Resource;
-                                ToPurchLine.Validate("No.", FromBOMComp."No.");
-                                ToPurchLine.Validate("Variant Code", FromBOMComp."Variant Code");
-                                ToPurchLine.Validate("Unit of Measure Code", FromBOMComp."Unit of Measure Code");
-                                ToPurchLine."Qty. per Unit of Measure" := UOMMgt.GetResQtyPerUnitOfMeasure(Resource, ToPurchLine."Unit of Measure Code");
-                                ToPurchLine.Validate(Quantity, Round("Quantity (Base)" * FromBOMComp."Quantity per", UOMMgt.QtyRndPrecision()));
-                            end;
-                    end;
-
-                    if (FromBOMComp.Type <> FromBOMComp.Type::" ") and
-                       (PurchHeader."Expected Receipt Date" <> "Expected Receipt Date")
-                    then
-                        ToPurchLine.Validate("Expected Receipt Date", "Expected Receipt Date");
-
-                    if PurchHeader."Language Code" = '' then
-                        ToPurchLine.Description := FromBOMComp.Description
-                    else
-                        if not ItemTranslation.Get(FromBOMComp."No.", FromBOMComp."Variant Code", PurchHeader."Language Code") then
-                            ToPurchLine.Description := FromBOMComp.Description;
-
-                    OnBeforeInsertExplodedPurchLine(ToPurchLine, PurchLine, FromBOMComp);
-                    ToPurchLine.Insert();
-                    OnAfterInsertExplodedPurchLine(ToPurchLine, PurchLine, FromBOMComp);
-
-                    if Selection = 1 then begin
-                        ToPurchLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
-                        ToPurchLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
-                        ToPurchLine."Dimension Set ID" := "Dimension Set ID";
-                        ToPurchLine.Modify();
-                    end;
-
-                    if PreviousPurchLine."Document No." <> '' then
-                        if TransferExtendedText.PurchCheckIfAnyExtText(PreviousPurchLine, false) then
-                            TransferExtendedText.InsertPurchExtText(PreviousPurchLine);
-
-                    PreviousPurchLine := ToPurchLine;
+        FromBOMComp.Find('-');
+        OnExplodeBOMCompLinesOnBeforeLoopFromBOMComp(PurchLine, NextLineNo);
+        repeat
+            SkipComponent := false;
+            OnExplodeBOMCompLinesOnBeforeCreatePurchLine(PurchLine, FromBOMComp, SkipComponent);
+            if not SkipComponent then begin
+                ToPurchLine.Init();
+                NextLineNo := NextLineNo + LineSpacing;
+                ToPurchLine."Line No." := NextLineNo;
+                case FromBOMComp.Type of
+                    FromBOMComp.Type::" ":
+                        ToPurchLine.Type := ToPurchLine.Type::" ";
+                    FromBOMComp.Type::Item:
+                        begin
+                            Item.Get(FromBOMComp."No.");
+                            ToPurchLine.Type := ToPurchLine.Type::Item;
+                            ToPurchLine.Validate("No.", FromBOMComp."No.");
+                            ToPurchLine.Validate("Variant Code", FromBOMComp."Variant Code");
+                            ToPurchLine.Validate("Unit of Measure Code", FromBOMComp."Unit of Measure Code");
+                            ToPurchLine."Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, ToPurchLine."Unit of Measure Code");
+                            ToPurchLine.Validate(Quantity, Round(PurchLine."Quantity (Base)" * FromBOMComp."Quantity per", UOMMgt.QtyRndPrecision()));
+                        end;
+                    FromBOMComp.Type::Resource:
+                        begin
+                            Resource.Get(FromBOMComp."No.");
+                            ToPurchLine.Type := ToPurchLine.Type::Resource;
+                            ToPurchLine.Validate("No.", FromBOMComp."No.");
+                            ToPurchLine.Validate("Variant Code", FromBOMComp."Variant Code");
+                            ToPurchLine.Validate("Unit of Measure Code", FromBOMComp."Unit of Measure Code");
+                            ToPurchLine."Qty. per Unit of Measure" := UOMMgt.GetResQtyPerUnitOfMeasure(Resource, ToPurchLine."Unit of Measure Code");
+                            ToPurchLine.Validate(Quantity, Round(PurchLine."Quantity (Base)" * FromBOMComp."Quantity per", UOMMgt.QtyRndPrecision()));
+                        end;
                 end;
-            until FromBOMComp.Next() = 0;
 
-            if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then
-                TransferExtendedText.InsertPurchExtText(ToPurchLine);
-        end;
+                if (FromBOMComp.Type <> FromBOMComp.Type::" ") and
+                   (PurchHeader."Expected Receipt Date" <> PurchLine."Expected Receipt Date")
+                then
+                    ToPurchLine.Validate("Expected Receipt Date", PurchLine."Expected Receipt Date");
+
+                if PurchHeader."Language Code" = '' then
+                    ToPurchLine.Description := FromBOMComp.Description
+                else
+                    if not ItemTranslation.Get(FromBOMComp."No.", FromBOMComp."Variant Code", PurchHeader."Language Code") then
+                        ToPurchLine.Description := FromBOMComp.Description;
+
+                OnBeforeInsertExplodedPurchLine(ToPurchLine, PurchLine, FromBOMComp);
+                ToPurchLine.Insert();
+                OnAfterInsertExplodedPurchLine(ToPurchLine, PurchLine, FromBOMComp);
+
+                if Selection = 1 then begin
+                    ToPurchLine."Shortcut Dimension 1 Code" := PurchLine."Shortcut Dimension 1 Code";
+                    ToPurchLine."Shortcut Dimension 2 Code" := PurchLine."Shortcut Dimension 2 Code";
+                    ToPurchLine."Dimension Set ID" := PurchLine."Dimension Set ID";
+                    ToPurchLine.Modify();
+                end;
+
+                if PreviousPurchLine."Document No." <> '' then
+                    if TransferExtendedText.PurchCheckIfAnyExtText(PreviousPurchLine, false) then
+                        TransferExtendedText.InsertPurchExtText(PreviousPurchLine);
+
+                PreviousPurchLine := ToPurchLine;
+            end;
+        until FromBOMComp.Next() = 0;
+
+        if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then
+            TransferExtendedText.InsertPurchExtText(ToPurchLine);
         OnAfterExplodeBOMCompLines(PurchLine, Selection, LineSpacing);
     end;
 

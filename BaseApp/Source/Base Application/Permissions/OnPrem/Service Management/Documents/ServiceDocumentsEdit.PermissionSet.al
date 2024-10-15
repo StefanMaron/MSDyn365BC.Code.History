@@ -49,7 +49,7 @@ using Microsoft.Pricing.Worksheet;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Projects.Resources.Resource;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Service.Resources;
@@ -157,7 +157,7 @@ permissionset 8611 "Service Documents - Edit"
                   tabledata "Reservation Entry" = Rimd,
                   tabledata "Resolution Code" = R,
                   tabledata Resource = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
 #endif
@@ -167,7 +167,7 @@ permissionset 8611 "Service Documents - Edit"
                   tabledata "Return Receipt Header" = R,
                   tabledata "Sales Discount Access" = R,
                   tabledata "Sales Line" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Line Discount" = R,
                   tabledata "Sales Price" = R,
 #endif

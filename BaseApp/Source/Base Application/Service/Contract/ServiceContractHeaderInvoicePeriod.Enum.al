@@ -1,6 +1,8 @@
 namespace Microsoft.Service.Contract;
 
+#pragma warning disable AL0659
 enum 5997 "Service Contract Header Invoice Period"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

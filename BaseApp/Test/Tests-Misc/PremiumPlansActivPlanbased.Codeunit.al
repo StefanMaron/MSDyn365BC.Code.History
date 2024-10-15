@@ -21,14 +21,14 @@ codeunit 135416 "Premium Plans Activ Plan-based"
     begin
         // [SCENARIO] Set Premium Plan and check IsPremiumEnabled for it
 
-        LibraryE2EPlanPermissions.SetPremiumUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumUserPlan();
 
-        if not ApplicationAreaMgmt.IsPremiumEnabled then
+        if not ApplicationAreaMgmt.IsPremiumEnabled() then
             Error(PremiumIsNotEnabledErr, 'Premium User Plan');
 
-        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan();
 
-        if not ApplicationAreaMgmt.IsPremiumEnabled then
+        if not ApplicationAreaMgmt.IsPremiumEnabled() then
             Error(PremiumIsNotEnabledErr, 'Premium ISV Embedded User Plan');
     end;
 
@@ -40,29 +40,29 @@ codeunit 135416 "Premium Plans Activ Plan-based"
     begin
         // [SCENARIO] Set non Premium Plan and check IsPremiumEnabled for it
 
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
-        if ApplicationAreaMgmt.IsPremiumEnabled then
+        if ApplicationAreaMgmt.IsPremiumEnabled() then
             Error(NonPremiumAsPremiumErr, 'Essential Plan');
 
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
-        if ApplicationAreaMgmt.IsPremiumEnabled then
+        if ApplicationAreaMgmt.IsPremiumEnabled() then
             Error(NonPremiumAsPremiumErr, 'External Accountant Plan');
 
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
-        if ApplicationAreaMgmt.IsPremiumEnabled then
+        if ApplicationAreaMgmt.IsPremiumEnabled() then
             Error(NonPremiumAsPremiumErr, 'Team Member Plan');
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
-        if ApplicationAreaMgmt.IsPremiumEnabled then
+        if ApplicationAreaMgmt.IsPremiumEnabled() then
             Error(NonPremiumAsPremiumErr, 'Essential ISV Embedded Plan');
 
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
 
-        if ApplicationAreaMgmt.IsPremiumEnabled then
+        if ApplicationAreaMgmt.IsPremiumEnabled() then
             Error(NonPremiumAsPremiumErr, 'Team Member ISV Embedded Plan');
     end;
 }

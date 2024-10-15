@@ -6,6 +6,7 @@ table 9186 "Generic Chart Memo Buffer"
 {
     Caption = 'Generic Chart Memo Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -24,7 +25,7 @@ table 9186 "Generic Chart Memo Buffer"
         }
         field(4; "Language Name"; Text[50])
         {
-            CalcFormula = Lookup(Language.Name where(Code = field("Language Code")));
+            CalcFormula = lookup(Language.Name where(Code = field("Language Code")));
             Caption = 'Language Name';
             FieldClass = FlowField;
         }

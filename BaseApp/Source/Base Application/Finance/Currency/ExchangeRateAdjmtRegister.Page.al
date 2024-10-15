@@ -70,6 +70,16 @@ page 106 "Exchange Rate Adjmt. Register"
                     Visible = false;
 #endif
                 }
+                field("Adjusted Employees"; Rec."Adjusted Employees")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the number of emplooyee ledger entries with remaining amount that was adjusted.';
+#if not CLEAN23
+                    Visible = IsNewExchRateAdjmtVisible;
+#else
+                    Visible = false;
+#endif
+                }
                 field("Adjusted Base"; Rec."Adjusted Base")
                 {
                     ApplicationArea = Suite;

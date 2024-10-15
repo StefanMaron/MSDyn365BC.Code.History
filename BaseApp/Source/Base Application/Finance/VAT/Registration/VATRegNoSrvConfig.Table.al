@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Registration;
 table 248 "VAT Reg. No. Srv Config"
 {
     Caption = 'VAT Reg. No. Srv Config';
+    DataClassification = CustomerContent;
 
     fields
     {

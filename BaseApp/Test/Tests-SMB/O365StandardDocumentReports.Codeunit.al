@@ -10,6 +10,7 @@ codeunit 138043 "O365 Standard Document Reports"
 
     var
         Assert: Codeunit Assert;
+        LibraryERM: Codeunit "Library - ERM";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -232,6 +233,7 @@ codeunit 138043 "O365 Standard Document Reports"
     begin
         // Works differently in RU.
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
         ReportSelections.Init();
         ReportSelections.Usage := ReportSelections.Usage::"S.Invoice Draft";
         ReportSelections.Sequence := '1';
@@ -244,11 +246,12 @@ codeunit 138043 "O365 Standard Document Reports"
         Commit();
 
         // Execute
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoKey(SalesHeader."Document Type", SalesHeader."No.");
-        SalesInvoice.DraftInvoice.Invoke;
+        SalesInvoice.DraftInvoice.Invoke();
         SalesInvoice.Close();
         // Verify - see report request handler
+        LibraryERM.SetEnableDataCheck(true);
     end;
 
     [Test]
@@ -289,7 +292,7 @@ codeunit 138043 "O365 Standard Document Reports"
 
         ClearTable(DATABASE::Resource);
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
@@ -323,7 +326,7 @@ codeunit 138043 "O365 Standard Document Reports"
             DATABASE::Resource:
                 Resource.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[20]
@@ -405,7 +408,7 @@ codeunit 138043 "O365 Standard Document Reports"
     procedure StandardSalesQuoteReqHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
         StandardSalesQuote.LogInteraction.SetValue(true);
-        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -413,7 +416,7 @@ codeunit 138043 "O365 Standard Document Reports"
     procedure StandardSalesOrderReqHandler(var StandardSalesOrderConf: TestRequestPage "Standard Sales - Order Conf.")
     begin
         StandardSalesOrderConf.LogInteraction.SetValue(true);
-        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -422,7 +425,7 @@ codeunit 138043 "O365 Standard Document Reports"
     begin
         StandardSalesInvoice.LogInteraction.SetValue(true);
         StandardSalesInvoice.DisplayShipmentInformation.SetValue(true);
-        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -431,7 +434,7 @@ codeunit 138043 "O365 Standard Document Reports"
     begin
         StandardSalesCreditMemo.LogInteraction.SetValue(true);
         StandardSalesCreditMemo.DisplayShipmentInformation.SetValue(true);
-        StandardSalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -441,7 +444,7 @@ codeunit 138043 "O365 Standard Document Reports"
 #if not CLEAN22        
         StandardSalesDraftInvoice.ArchiveDocument.SetValue(true);
 #endif        
-        StandardSalesDraftInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesDraftInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -449,16 +452,16 @@ codeunit 138043 "O365 Standard Document Reports"
     procedure StandardPurchaseOrderReqHandler(var StandardPurchaseOrder: TestRequestPage "Standard Purchase - Order")
     begin
         StandardPurchaseOrder.LogInteraction.SetValue(true);
-        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure VerifyPrintedReport(DocumentNo: Code[20]; ItemNo: Code[20])
     var
         Row: Integer;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocumentNo', DocumentNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'DocumentNo', DocumentNo);
 
         LibraryReportDataset.Reset();
@@ -482,9 +485,9 @@ codeunit 138043 "O365 Standard Document Reports"
     var
         Row: Integer;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_PurchHeader', DocumentNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No_PurchHeader', DocumentNo);
 
         LibraryReportDataset.Reset();
@@ -502,7 +505,7 @@ codeunit 138043 "O365 Standard Document Reports"
 
     local procedure VerifyPrintedReportWithWorkDescription(WorkDescription: Text)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('WorkDescriptionLine', WorkDescription);
     end;
 }

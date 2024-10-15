@@ -6,6 +6,7 @@ table 330 "Currency Exchange Rate"
     DataCaptionFields = "Currency Code";
     DrillDownPageID = "Currency Exchange Rates";
     LookupPageID = "Currency Exchange Rates";
+    DataClassification = CustomerContent;
 
     fields
     {

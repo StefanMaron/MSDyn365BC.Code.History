@@ -106,7 +106,7 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
         end;
     end;
 
-    local procedure PostTransferOrder(PostShipment: boolean; PostReceipt: boolean; PostTransfer: boolean)
+    procedure PostTransferOrder(PostShipment: boolean; PostReceipt: boolean; PostTransfer: boolean)
     var
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         TransferOrderPostReceipt: Codeunit "TransferOrder-Post Receipt";
@@ -149,6 +149,17 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
         GenJnlPostPreview.Preview(TransferOrderPostYesNo, TransferHeader);
     end;
 
+    procedure MessageIfPostingPreviewMultipleDocuments(var TransferHeaderToPreview: Record "Transfer Header"; DocumentNo: Code[20])
+    var
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        RecordRefToPreview: RecordRef;
+    begin
+        RecordRefToPreview.Open(Database::"Transfer Header");
+        RecordRefToPreview.Copy(TransferHeaderToPreview);
+
+        GenJnlPostPreview.MessageIfPostingPreviewMultipleDocuments(RecordRefToPreview, DocumentNo);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
@@ -160,7 +171,7 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
         Result := TransferOrderPostYesNo.Run(TransferHeader);
     end;
 
-    internal procedure SetPreviewMode(NewPreviewMode: Boolean)
+    procedure SetPreviewMode(NewPreviewMode: Boolean)
     begin
         PreviewMode := NewPreviewMode;
     end;

@@ -136,7 +136,7 @@ codeunit 137502 "SCM Dedicated Bins"
     procedure ConsumptionBins()
     begin
         Initialize();
-        ConsumptionBinsScenario;
+        ConsumptionBinsScenario();
     end;
 
     [ConfirmHandler]
@@ -153,8 +153,8 @@ codeunit 137502 "SCM Dedicated Bins"
     procedure DedicatedBins()
     begin
         Initialize();
-        DedicatedBinsScenarioA;
-        DedicatedBinsScenarioB;
+        DedicatedBinsScenarioA();
+        DedicatedBinsScenarioB();
     end;
 
     [MessageHandler]
@@ -261,7 +261,7 @@ codeunit 137502 "SCM Dedicated Bins"
         if not DirectedPickAndPut then begin
             Commit(); // added to save the data before ASSERTERROR call- as it rolls back all changes yet
             asserterror WorkCenter.Validate("Location Code", Location.Code);
-            Assert.AssertNothingInsideFilter;
+            Assert.AssertNothingInsideFilter();
         end;
 
         // Bin Mandatory = TRUE
@@ -1356,7 +1356,7 @@ codeunit 137502 "SCM Dedicated Bins"
 
         // calculate consumption and post
         LibraryManufacturing.CalculateConsumptionForJournal(ProductionOrder, ProdOrderComp, WorkDate(), false);
-        LibraryManufacturing.PostConsumptionJournal;
+        LibraryManufacturing.PostConsumptionJournal();
     end;
 
     [MessageHandler]

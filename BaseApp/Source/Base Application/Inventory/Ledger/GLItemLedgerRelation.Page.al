@@ -19,51 +19,67 @@ page 5823 "G/L - Item Ledger Relation"
             repeater(Control1)
             {
                 ShowCaption = false;
+#pragma warning disable AA0100
                 field("ValueEntry.""Posting Date"""; ValueEntry."Posting Date")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posting Date';
                     ToolTip = 'Specifies the posting date that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Item No."""; ValueEntry."Item No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item No.';
                     ToolTip = 'Specifies the item number that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("FORMAT(ValueEntry.""Source Type"")"; Format(ValueEntry."Source Type"))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source Type';
                     ToolTip = 'Specifies the source type that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Source No."""; ValueEntry."Source No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source No.';
                     ToolTip = 'Specifies the source number that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""External Document No."""; ValueEntry."External Document No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'External Document No.';
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("FORMAT(ValueEntry.""Document Type"")"; Format(ValueEntry."Document Type"))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document Type';
                     ToolTip = 'Specifies the type of document.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Document No."""; ValueEntry."Document No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document No.';
                     ToolTip = 'Specifies the document that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Document Line No."""; ValueEntry."Document Line No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document Line No.';
@@ -76,104 +92,136 @@ page 5823 "G/L - Item Ledger Relation"
                     Caption = 'Description';
                     ToolTip = 'Specifies a description of the document that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Location Code"""; ValueEntry."Location Code")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Location;
                     Caption = 'Location Code';
                     ToolTip = 'Specifies the location of the item.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Inventory Posting Group"""; ValueEntry."Inventory Posting Group")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Inventory Posting Group';
                     ToolTip = 'Specifies the inventory posting group that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Gen. Bus. Posting Group"""; ValueEntry."Gen. Bus. Posting Group")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Gen. Bus. Posting Group';
                     ToolTip = 'Specifies the general business posting group that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Gen. Prod. Posting Group"""; ValueEntry."Gen. Prod. Posting Group")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Gen. Prod. Posting Group';
                     ToolTip = 'Specifies the general product posting group that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Source Posting Group"""; ValueEntry."Source Posting Group")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source Posting Group';
                     ToolTip = 'Specifies the source posting group that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("FORMAT(ValueEntry.""Item Ledger Entry Type"")"; Format(ValueEntry."Item Ledger Entry Type"))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item Ledger Entry Type';
                     ToolTip = 'Specifies the item ledger entry type that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Item Ledger Entry No."""; ValueEntry."Item Ledger Entry No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item Ledger Entry No.';
                     ToolTip = 'Specifies the item ledger entry number that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Valued Quantity"""; ValueEntry."Valued Quantity")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Valued Quantity';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the valued quantity that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Item Ledger Entry Quantity"""; ValueEntry."Item Ledger Entry Quantity")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item Ledger Entry Quantity';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the item ledger entry quantity that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Invoiced Quantity"""; ValueEntry."Invoiced Quantity")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Invoiced Quantity';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the invoiced quantity that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Cost per Unit"""; ValueEntry."Cost per Unit")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cost per Unit';
                     ToolTip = 'Specifies the cost per unit that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""User ID"""; ValueEntry."User ID")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User ID';
                     ToolTip = 'Specifies the user who created the item ledger entry.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Source Code"""; ValueEntry."Source Code")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Suite;
                     Caption = 'Source Code';
                     ToolTip = 'Specifies the source.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Cost Amount (Actual)"""; ValueEntry."Cost Amount (Actual)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     Caption = 'Cost Amount (Actual)';
                     ToolTip = 'Specifies the sum of the actual cost amounts posted for the item ledger entries';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Cost Posted to G/L"""; ValueEntry."Cost Posted to G/L")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     Caption = 'Cost Posted to G/L';
                     ToolTip = 'Specifies the amount that has been posted to the general ledger.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Cost Amount (Actual) (ACY)"""; ValueEntry."Cost Amount (Actual) (ACY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -181,14 +229,18 @@ page 5823 "G/L - Item Ledger Relation"
                     ToolTip = 'Specifies the actual cost amount of the item.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Cost Posted to G/L (ACY)"""; ValueEntry."Cost Posted to G/L (ACY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     Caption = 'Cost Posted to G/L (ACY)';
                     ToolTip = 'Specifies the amount that has been posted to the general ledger shown in the additional reporting currency.';
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Cost per Unit (ACY)"""; ValueEntry."Cost per Unit (ACY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 2;
@@ -196,7 +248,9 @@ page 5823 "G/L - Item Ledger Relation"
                     ToolTip = 'Specifies the cost per unit for the ledger entry.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Global Dimension 1 Code"""; ValueEntry."Global Dimension 1 Code")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,1,1';
@@ -204,7 +258,9 @@ page 5823 "G/L - Item Ledger Relation"
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Global Dimension 2 Code"""; ValueEntry."Global Dimension 2 Code")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,1,2';
@@ -212,34 +268,44 @@ page 5823 "G/L - Item Ledger Relation"
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Expected Cost"""; ValueEntry."Expected Cost")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Expected Cost';
                     ToolTip = 'Specifies the estimation of a purchased item''s cost that you record before you receive the invoice for the item.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Item Charge No."""; ValueEntry."Item Charge No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = ItemCharges;
                     Caption = 'Item Charge No.';
                     ToolTip = 'Specifies the number of the related item charge.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("FORMAT(ValueEntry.""Entry Type"")"; Format(ValueEntry."Entry Type"))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Entry Type';
                     ToolTip = 'Specifies the entry type that represents the relation.';
                 }
+#pragma warning disable AA0100
                 field("FORMAT(ValueEntry.""Variance Type"")"; Format(ValueEntry."Variance Type"))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Variance Type';
                     ToolTip = 'Specifies the type of variance, if any.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Cost Amount (Expected)"""; ValueEntry."Cost Amount (Expected)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -247,7 +313,9 @@ page 5823 "G/L - Item Ledger Relation"
                     ToolTip = 'Specifies the expected cost amount of the item. Expected costs are calculated from yet non-invoiced documents.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Cost Amount (Expected) (ACY)"""; ValueEntry."Cost Amount (Expected) (ACY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -255,7 +323,9 @@ page 5823 "G/L - Item Ledger Relation"
                     ToolTip = 'Specifies the expected cost amount of the item. Expected costs are calculated from yet non-invoiced documents.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Expected Cost Posted to G/L"""; ValueEntry."Expected Cost Posted to G/L")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -263,7 +333,9 @@ page 5823 "G/L - Item Ledger Relation"
                     ToolTip = 'Specifies that the expected cost is posted to interim accounts at the time of receipt.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Exp. Cost Posted to G/L (ACY)"""; ValueEntry."Exp. Cost Posted to G/L (ACY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -271,7 +343,9 @@ page 5823 "G/L - Item Ledger Relation"
                     ToolTip = 'Specifies the expense cost that was posted.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Variant Code"""; ValueEntry."Variant Code")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Planning;
                     Caption = 'Variant Code';
@@ -285,7 +359,9 @@ page 5823 "G/L - Item Ledger Relation"
                     ToolTip = 'Specifies the cost adjustment.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ValueEntry.""Capacity Ledger Entry No."""; ValueEntry."Capacity Ledger Entry No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Capacity Ledger Entry No.';

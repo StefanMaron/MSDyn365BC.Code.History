@@ -4,6 +4,7 @@ table 5515 "Integration Management Setup"
     ObsoleteState = Removed;
     ObsoleteReason = 'The table will be removed with Integration Management. Refactor to use systemID, systemLastModifiedAt and other system fields.';
     ObsoleteTag = '22.0';
+    DataClassification = CustomerContent;
 
     fields
     {

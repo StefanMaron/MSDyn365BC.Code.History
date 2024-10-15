@@ -51,7 +51,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedSalesShipment(PostedSalesShipment, SalesHeader);
 
-        PostedSalesShipment.SalesShipmLines.ItemInvoiceLines.Invoke;
+        PostedSalesShipment.SalesShipmLines.ItemInvoiceLines.Invoke();
     end;
 
     [Test]
@@ -68,7 +68,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedSalesShipment(PostedSalesShipment, SalesHeader);
 
-        PostedSalesShipment.SalesShipmLines.ItemTrackingEntries.Invoke;
+        PostedSalesShipment.SalesShipmLines.ItemTrackingEntries.Invoke();
     end;
 
     [Test]
@@ -85,7 +85,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedSalesShipment(PostedSalesShipment, SalesHeader);
 
-        PostedSalesShipment.SalesShipmLines.Comments.Invoke;
+        PostedSalesShipment.SalesShipmLines.Comments.Invoke();
     end;
 
     [Test]
@@ -102,7 +102,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedSalesShipment(PostedSalesShipment, SalesHeader);
 
-        PostedSalesShipment.SalesShipmLines.Dimensions.Invoke;
+        PostedSalesShipment.SalesShipmLines.Dimensions.Invoke();
     end;
 
     [Test]
@@ -119,7 +119,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedSalesInvoice(PostedSalesInvoice, SalesHeader);
 
-        PostedSalesInvoice.SalesInvLines.ItemShipmentLines.Invoke;
+        PostedSalesInvoice.SalesInvLines.ItemShipmentLines.Invoke();
     end;
 
     [Test]
@@ -136,7 +136,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedSalesInvoice(PostedSalesInvoice, SalesHeader);
 
-        PostedSalesInvoice.SalesInvLines.ItemTrackingEntries.Invoke;
+        PostedSalesInvoice.SalesInvLines.ItemTrackingEntries.Invoke();
     end;
 
     [Test]
@@ -153,7 +153,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedSalesInvoice(PostedSalesInvoice, SalesHeader);
 
-        PostedSalesInvoice.SalesInvLines.Comments.Invoke;
+        PostedSalesInvoice.SalesInvLines.Comments.Invoke();
     end;
 
     [Test]
@@ -170,7 +170,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedSalesInvoice(PostedSalesInvoice, SalesHeader);
 
-        PostedSalesInvoice.SalesInvLines.Dimensions.Invoke;
+        PostedSalesInvoice.SalesInvLines.Dimensions.Invoke();
     end;
 
     [Test]
@@ -187,7 +187,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedSalesCrMemo(PostedSalesCreditMemo, SalesHeader);
 
-        PostedSalesCreditMemo.SalesCrMemoLines.ItemReturnReceiptLines.Invoke;
+        PostedSalesCreditMemo.SalesCrMemoLines.ItemReturnReceiptLines.Invoke();
     end;
 
     [Test]
@@ -204,7 +204,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedSalesCrMemo(PostedSalesCreditMemo, SalesHeader);
 
-        PostedSalesCreditMemo.SalesCrMemoLines.ItemTrackingEntries.Invoke;
+        PostedSalesCreditMemo.SalesCrMemoLines.ItemTrackingEntries.Invoke();
     end;
 
     [Test]
@@ -221,7 +221,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedSalesCrMemo(PostedSalesCreditMemo, SalesHeader);
 
-        PostedSalesCreditMemo.SalesCrMemoLines.Comments.Invoke;
+        PostedSalesCreditMemo.SalesCrMemoLines.Comments.Invoke();
     end;
 
     [Test]
@@ -238,7 +238,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedSalesCrMemo(PostedSalesCreditMemo, SalesHeader);
 
-        PostedSalesCreditMemo.SalesCrMemoLines.Dimensions.Invoke;
+        PostedSalesCreditMemo.SalesCrMemoLines.Dimensions.Invoke();
     end;
 
     [Test]
@@ -251,13 +251,13 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 376891] Open tracking Credit Memo Lines from Posted Return Receipt
-        UpdateNoSeriesOnSalesSetup;
+        UpdateNoSeriesOnSalesSetup();
 
         PostSalesDocumentWithLotTracking(SalesHeader, SalesHeader."Document Type"::"Return Order");
 
         OpenPostedReturnReceipt(PostedReturnReceipt, SalesHeader);
 
-        PostedReturnReceipt.ReturnRcptLines.ItemCreditMemoLines.Invoke;
+        PostedReturnReceipt.ReturnRcptLines.ItemCreditMemoLines.Invoke();
     end;
 
     [Test]
@@ -270,13 +270,13 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 376891] Open Item Tracking Lines from Posted Return Receipt
-        UpdateNoSeriesOnSalesSetup;
+        UpdateNoSeriesOnSalesSetup();
 
         PostSalesDocumentWithLotTracking(SalesHeader, SalesHeader."Document Type"::"Return Order");
 
         OpenPostedReturnReceipt(PostedReturnReceipt, SalesHeader);
 
-        PostedReturnReceipt.ReturnRcptLines.ItemTrackingEntries.Invoke;
+        PostedReturnReceipt.ReturnRcptLines.ItemTrackingEntries.Invoke();
     end;
 
     [Test]
@@ -289,13 +289,13 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 376891] Open Comments from Posted Return Receipt
-        UpdateNoSeriesOnSalesSetup;
+        UpdateNoSeriesOnSalesSetup();
 
         PostSalesDocumentWithLotTracking(SalesHeader, SalesHeader."Document Type"::"Return Order");
 
         OpenPostedReturnReceipt(PostedReturnReceipt, SalesHeader);
 
-        PostedReturnReceipt.ReturnRcptLines.Comments.Invoke;
+        PostedReturnReceipt.ReturnRcptLines.Comments.Invoke();
     end;
 
     [Test]
@@ -308,13 +308,13 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 376891] Open Dimensions from Posted Return Receipt
-        UpdateNoSeriesOnSalesSetup;
+        UpdateNoSeriesOnSalesSetup();
 
         PostSalesDocumentWithLotTracking(SalesHeader, SalesHeader."Document Type"::"Return Order");
 
         OpenPostedReturnReceipt(PostedReturnReceipt, SalesHeader);
 
-        PostedReturnReceipt.ReturnRcptLines.Dimensions.Invoke;
+        PostedReturnReceipt.ReturnRcptLines.Dimensions.Invoke();
     end;
 
     [Test]
@@ -331,7 +331,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedPurchaseReceipt(PostedPurchaseReceipt, PurchaseHeader);
 
-        PostedPurchaseReceipt.PurchReceiptLines.ItemInvoiceLines.Invoke;
+        PostedPurchaseReceipt.PurchReceiptLines.ItemInvoiceLines.Invoke();
     end;
 
     [Test]
@@ -348,7 +348,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedPurchaseReceipt(PostedPurchaseReceipt, PurchaseHeader);
 
-        PostedPurchaseReceipt.PurchReceiptLines.ItemTrackingEntries.Invoke;
+        PostedPurchaseReceipt.PurchReceiptLines.ItemTrackingEntries.Invoke();
     end;
 
     [Test]
@@ -365,7 +365,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedPurchaseReceipt(PostedPurchaseReceipt, PurchaseHeader);
 
-        PostedPurchaseReceipt.PurchReceiptLines.Comments.Invoke;
+        PostedPurchaseReceipt.PurchReceiptLines.Comments.Invoke();
     end;
 
     [Test]
@@ -382,7 +382,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedPurchaseReceipt(PostedPurchaseReceipt, PurchaseHeader);
 
-        PostedPurchaseReceipt.PurchReceiptLines.Dimensions.Invoke;
+        PostedPurchaseReceipt.PurchReceiptLines.Dimensions.Invoke();
     end;
 
     [Test]
@@ -399,7 +399,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedPurchaseInvoice(PostedPurchaseInvoice, PurchaseHeader);
 
-        PostedPurchaseInvoice.PurchInvLines.ItemReceiptLines.Invoke;
+        PostedPurchaseInvoice.PurchInvLines.ItemReceiptLines.Invoke();
     end;
 
     [Test]
@@ -416,7 +416,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedPurchaseInvoice(PostedPurchaseInvoice, PurchaseHeader);
 
-        PostedPurchaseInvoice.PurchInvLines.ItemTrackingEntries.Invoke;
+        PostedPurchaseInvoice.PurchInvLines.ItemTrackingEntries.Invoke();
     end;
 
     [Test]
@@ -433,7 +433,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedPurchaseInvoice(PostedPurchaseInvoice, PurchaseHeader);
 
-        PostedPurchaseInvoice.PurchInvLines.Comments.Invoke;
+        PostedPurchaseInvoice.PurchInvLines.Comments.Invoke();
     end;
 
     [Test]
@@ -450,7 +450,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedPurchaseInvoice(PostedPurchaseInvoice, PurchaseHeader);
 
-        PostedPurchaseInvoice.PurchInvLines.Dimensions.Invoke;
+        PostedPurchaseInvoice.PurchInvLines.Dimensions.Invoke();
     end;
 
     [Test]
@@ -467,7 +467,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedPurchaseCrMemo(PostedPurchaseCreditMemo, PurchaseHeader);
 
-        PostedPurchaseCreditMemo.PurchCrMemoLines.ItemReturnShipmentLines.Invoke;
+        PostedPurchaseCreditMemo.PurchCrMemoLines.ItemReturnShipmentLines.Invoke();
     end;
 
     [Test]
@@ -484,7 +484,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedPurchaseCrMemo(PostedPurchaseCreditMemo, PurchaseHeader);
 
-        PostedPurchaseCreditMemo.PurchCrMemoLines.ItemTrackingEntries.Invoke;
+        PostedPurchaseCreditMemo.PurchCrMemoLines.ItemTrackingEntries.Invoke();
     end;
 
     [Test]
@@ -501,7 +501,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedPurchaseCrMemo(PostedPurchaseCreditMemo, PurchaseHeader);
 
-        PostedPurchaseCreditMemo.PurchCrMemoLines.Comments.Invoke;
+        PostedPurchaseCreditMemo.PurchCrMemoLines.Comments.Invoke();
     end;
 
     [Test]
@@ -518,7 +518,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         OpenPostedPurchaseCrMemo(PostedPurchaseCreditMemo, PurchaseHeader);
 
-        PostedPurchaseCreditMemo.PurchCrMemoLines.Dimensions.Invoke;
+        PostedPurchaseCreditMemo.PurchCrMemoLines.Dimensions.Invoke();
     end;
 
     [Test]
@@ -531,13 +531,13 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 376891] Open tracking Credit Memo Lines from Posted Return Shipment
-        UpdateNoSeriesOnPurchaseSetup;
+        UpdateNoSeriesOnPurchaseSetup();
 
         PostPurchaseDocumentWithLotTracking(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
 
         OpenPostedReturnShipment(PostedReturnShipment, PurchaseHeader);
 
-        PostedReturnShipment.ReturnShptLines.ItemCreditMemoLines.Invoke;
+        PostedReturnShipment.ReturnShptLines.ItemCreditMemoLines.Invoke();
     end;
 
     [Test]
@@ -550,13 +550,13 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 376891] Open Item Tracking Lines from Posted Return Shipment
-        UpdateNoSeriesOnPurchaseSetup;
+        UpdateNoSeriesOnPurchaseSetup();
 
         PostPurchaseDocumentWithLotTracking(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
 
         OpenPostedReturnShipment(PostedReturnShipment, PurchaseHeader);
 
-        PostedReturnShipment.ReturnShptLines.ItemTrackingEntries.Invoke;
+        PostedReturnShipment.ReturnShptLines.ItemTrackingEntries.Invoke();
     end;
 
     [Test]
@@ -569,13 +569,13 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 376891] Open Comments from Posted Return Shipment
-        UpdateNoSeriesOnPurchaseSetup;
+        UpdateNoSeriesOnPurchaseSetup();
 
         PostPurchaseDocumentWithLotTracking(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
 
         OpenPostedReturnShipment(PostedReturnShipment, PurchaseHeader);
 
-        PostedReturnShipment.ReturnShptLines.Comments.Invoke;
+        PostedReturnShipment.ReturnShptLines.Comments.Invoke();
     end;
 
     [Test]
@@ -588,13 +588,13 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 376891] Open Dimensions from Posted Return Shipment
-        UpdateNoSeriesOnPurchaseSetup;
+        UpdateNoSeriesOnPurchaseSetup();
 
         PostPurchaseDocumentWithLotTracking(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
 
         OpenPostedReturnShipment(PostedReturnShipment, PurchaseHeader);
 
-        PostedReturnShipment.ReturnShptLines.Dimensions.Invoke;
+        PostedReturnShipment.ReturnShptLines.Dimensions.Invoke();
     end;
 
     [Test]
@@ -608,7 +608,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
         PurchaseOrder.OpenNew();
-        Assert.IsFalse(PurchaseOrder."Job Queue Status".Visible, '');
+        Assert.IsFalse(PurchaseOrder."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -622,7 +622,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
         PurchaseOrder.OpenNew();
-        Assert.IsTrue(PurchaseOrder."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseOrder."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -636,7 +636,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
         PurchaseOrder.OpenNew();
-        Assert.IsTrue(PurchaseOrder."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseOrder."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -650,7 +650,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
         PurchaseInvoice.OpenNew();
-        Assert.IsFalse(PurchaseInvoice."Job Queue Status".Visible, '');
+        Assert.IsFalse(PurchaseInvoice."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -664,7 +664,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
         PurchaseInvoice.OpenNew();
-        Assert.IsTrue(PurchaseInvoice."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseInvoice."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -678,7 +678,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
         PurchaseInvoice.OpenNew();
-        Assert.IsTrue(PurchaseInvoice."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseInvoice."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -692,7 +692,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
         PurchaseCreditMemo.OpenNew();
-        Assert.IsFalse(PurchaseCreditMemo."Job Queue Status".Visible, '');
+        Assert.IsFalse(PurchaseCreditMemo."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -706,7 +706,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
         PurchaseCreditMemo.OpenNew();
-        Assert.IsTrue(PurchaseCreditMemo."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseCreditMemo."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -720,7 +720,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
         PurchaseCreditMemo.OpenNew();
-        Assert.IsTrue(PurchaseCreditMemo."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseCreditMemo."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -734,7 +734,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
         PurchaseReturnOrder.OpenNew();
-        Assert.IsFalse(PurchaseReturnOrder."Job Queue Status".Visible, '');
+        Assert.IsFalse(PurchaseReturnOrder."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -748,7 +748,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
         PurchaseReturnOrder.OpenNew();
-        Assert.IsTrue(PurchaseReturnOrder."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseReturnOrder."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -762,7 +762,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
         PurchaseReturnOrder.OpenNew();
-        Assert.IsTrue(PurchaseReturnOrder."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseReturnOrder."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -776,7 +776,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
         PurchaseOrderList.OpenNew();
-        Assert.IsFalse(PurchaseOrderList."Job Queue Status".Visible, '');
+        Assert.IsFalse(PurchaseOrderList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -790,7 +790,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
         PurchaseOrderList.OpenNew();
-        Assert.IsTrue(PurchaseOrderList."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseOrderList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -804,7 +804,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
         PurchaseOrderList.OpenNew();
-        Assert.IsTrue(PurchaseOrderList."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseOrderList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -818,7 +818,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
         PurchaseInvoices.OpenNew();
-        Assert.IsFalse(PurchaseInvoices."Job Queue Status".Visible, '');
+        Assert.IsFalse(PurchaseInvoices."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -832,7 +832,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
         PurchaseInvoices.OpenNew();
-        Assert.IsTrue(PurchaseInvoices."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseInvoices."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -846,7 +846,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
         PurchaseInvoices.OpenNew();
-        Assert.IsTrue(PurchaseInvoices."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseInvoices."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -860,7 +860,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
         PurchaseCreditMemos.OpenNew();
-        Assert.IsFalse(PurchaseCreditMemos."Job Queue Status".Visible, '');
+        Assert.IsFalse(PurchaseCreditMemos."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -874,7 +874,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
         PurchaseCreditMemos.OpenNew();
-        Assert.IsTrue(PurchaseCreditMemos."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseCreditMemos."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -888,7 +888,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
         PurchaseCreditMemos.OpenNew();
-        Assert.IsTrue(PurchaseCreditMemos."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseCreditMemos."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -902,7 +902,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, false);
 
         PurchaseReturnOrderList.OpenNew();
-        Assert.IsFalse(PurchaseReturnOrderList."Job Queue Status".Visible, '');
+        Assert.IsFalse(PurchaseReturnOrderList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -916,7 +916,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(true, false);
 
         PurchaseReturnOrderList.OpenNew();
-        Assert.IsTrue(PurchaseReturnOrderList."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseReturnOrderList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -930,7 +930,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnPurchaseSetup(false, true);
 
         PurchaseReturnOrderList.OpenNew();
-        Assert.IsTrue(PurchaseReturnOrderList."Job Queue Status".Visible, '');
+        Assert.IsTrue(PurchaseReturnOrderList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -943,7 +943,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 252621] PurchaseReturnOrderList has visible fields: "Status".
 
         PurchaseReturnOrderList.OpenNew();
-        Assert.IsTrue(PurchaseReturnOrderList.Status.Visible, '');
+        Assert.IsTrue(PurchaseReturnOrderList.Status.Visible(), '');
     end;
 
     [Test]
@@ -957,7 +957,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
         SalesOrder.OpenNew();
-        Assert.IsFalse(SalesOrder."Job Queue Status".Visible, '');
+        Assert.IsFalse(SalesOrder."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -971,7 +971,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
         SalesOrder.OpenNew();
-        Assert.IsTrue(SalesOrder."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesOrder."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -985,7 +985,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
         SalesOrder.OpenNew();
-        Assert.IsTrue(SalesOrder."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesOrder."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -999,7 +999,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
         SalesInvoice.OpenNew();
-        Assert.IsFalse(SalesInvoice."Job Queue Status".Visible, '');
+        Assert.IsFalse(SalesInvoice."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1013,7 +1013,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
         SalesInvoice.OpenNew();
-        Assert.IsTrue(SalesInvoice."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesInvoice."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1027,7 +1027,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
         SalesInvoice.OpenNew();
-        Assert.IsTrue(SalesInvoice."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesInvoice."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1041,7 +1041,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
         SalesCreditMemo.OpenNew();
-        Assert.IsFalse(SalesCreditMemo."Job Queue Status".Visible, '');
+        Assert.IsFalse(SalesCreditMemo."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1055,7 +1055,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
         SalesCreditMemo.OpenNew();
-        Assert.IsTrue(SalesCreditMemo."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesCreditMemo."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1069,7 +1069,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
         SalesCreditMemo.OpenNew();
-        Assert.IsTrue(SalesCreditMemo."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesCreditMemo."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1083,7 +1083,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
         SalesReturnOrder.OpenNew();
-        Assert.IsFalse(SalesReturnOrder."Job Queue Status".Visible, '');
+        Assert.IsFalse(SalesReturnOrder."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1097,7 +1097,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
         SalesReturnOrder.OpenNew();
-        Assert.IsTrue(SalesReturnOrder."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesReturnOrder."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1111,7 +1111,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
         SalesReturnOrder.OpenNew();
-        Assert.IsTrue(SalesReturnOrder."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesReturnOrder."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1125,7 +1125,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
         SalesOrderList.OpenNew();
-        Assert.IsFalse(SalesOrderList."Job Queue Status".Visible, '');
+        Assert.IsFalse(SalesOrderList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1139,7 +1139,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
         SalesOrderList.OpenNew();
-        Assert.IsTrue(SalesOrderList."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesOrderList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1153,7 +1153,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
         SalesOrderList.OpenNew();
-        Assert.IsTrue(SalesOrderList."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesOrderList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1167,7 +1167,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
         SalesInvoiceList.OpenNew();
-        Assert.IsFalse(SalesInvoiceList."Job Queue Status".Visible, '');
+        Assert.IsFalse(SalesInvoiceList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1181,7 +1181,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
         SalesInvoiceList.OpenNew();
-        Assert.IsTrue(SalesInvoiceList."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesInvoiceList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1195,7 +1195,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
         SalesInvoiceList.OpenNew();
-        Assert.IsTrue(SalesInvoiceList."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesInvoiceList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1209,7 +1209,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
         SalesCreditMemos.OpenNew();
-        Assert.IsFalse(SalesCreditMemos."Job Queue Status".Visible, '');
+        Assert.IsFalse(SalesCreditMemos."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1223,7 +1223,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
         SalesCreditMemos.OpenNew();
-        Assert.IsTrue(SalesCreditMemos."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesCreditMemos."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1237,7 +1237,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
         SalesCreditMemos.OpenNew();
-        Assert.IsTrue(SalesCreditMemos."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesCreditMemos."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1251,7 +1251,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, false);
 
         SalesReturnOrderList.OpenNew();
-        Assert.IsFalse(SalesReturnOrderList."Job Queue Status".Visible, '');
+        Assert.IsFalse(SalesReturnOrderList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1265,7 +1265,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(true, false);
 
         SalesReturnOrderList.OpenNew();
-        Assert.IsTrue(SalesReturnOrderList."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesReturnOrderList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1279,7 +1279,7 @@ codeunit 134341 "UT Page Actions & Controls"
         UpdateJobQueueActiveOnSalesSetup(false, true);
 
         SalesReturnOrderList.OpenNew();
-        Assert.IsTrue(SalesReturnOrderList."Job Queue Status".Visible, '');
+        Assert.IsTrue(SalesReturnOrderList."Job Queue Status".Visible(), '');
     end;
 
     [Test]
@@ -1292,9 +1292,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 252621] SalesReturnOrderList has visible fields: "Status", "Amount", "Amount Including VAT".
 
         SalesReturnOrderList.OpenNew();
-        Assert.IsTrue(SalesReturnOrderList.Status.Visible, '');
-        Assert.IsTrue(SalesReturnOrderList.Amount.Visible, '');
-        Assert.IsTrue(SalesReturnOrderList."Amount Including VAT".Visible, '');
+        Assert.IsTrue(SalesReturnOrderList.Status.Visible(), '');
+        Assert.IsTrue(SalesReturnOrderList.Amount.Visible(), '');
+        Assert.IsTrue(SalesReturnOrderList."Amount Including VAT".Visible(), '');
     end;
 
     [Test]
@@ -1308,7 +1308,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 223571] "IC Partner Code" is visible on Vendor Card
 
         // [GIVEN] No Application Area is set
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] Vendor "V" with "IC Partner Code" = "ICP"
         CreateVendorWithICPartnerCode(Vendor);
@@ -1317,7 +1317,7 @@ codeunit 134341 "UT Page Actions & Controls"
         OpenVendorCard(VendorCard, Vendor."No.");
 
         // [THEN] Card page shows "ICP" in "IC Partner Code" field
-        Assert.IsTrue(VendorCard."IC Partner Code".Visible, 'Field "IC Partner Code" must be visible');
+        Assert.IsTrue(VendorCard."IC Partner Code".Visible(), 'Field "IC Partner Code" must be visible');
         VendorCard."IC Partner Code".AssertEquals(Vendor."IC Partner Code");
     end;
 
@@ -1332,7 +1332,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 223571] "IC Partner Code" is not visible on Vendor Card if Application Area is set to Basic
 
         // [GIVEN] Application Area = BASIC
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [GIVEN] Vendor "V" with "IC Partner Code" = "ICP"
         CreateVendorWithICPartnerCode(Vendor);
@@ -1343,7 +1343,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [THEN] Card page does not show "IC Partner Code" field
         Assert.IsFalse(VendorCard.FindFirstField("IC Partner Code", Vendor."IC Partner Code"), 'Field "IC Partner Code" must be hidden');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -1368,7 +1368,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [THEN] Card page does not show "IC Partner Code" field
         Assert.IsFalse(VendorCard.FindFirstField("IC Partner Code", Vendor."IC Partner Code"), 'Field "IC Partner Code" must be hidden');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -1382,7 +1382,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 223571] "IC Partner Code" is visible on Customer Card
 
         // [GIVEN] No Application Area is set
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] Customer "C" with "IC Partner Code" = "ICP"
         CreateCustomerWithICPartnerCode(Customer);
@@ -1391,7 +1391,7 @@ codeunit 134341 "UT Page Actions & Controls"
         OpenCustomerCard(CustomerCard, Customer."No.");
 
         // [THEN] Card page shows "ICP" in "IC Partner Code" field
-        Assert.IsTrue(CustomerCard."IC Partner Code".Visible, 'Field "IC Partner Code" must be visible');
+        Assert.IsTrue(CustomerCard."IC Partner Code".Visible(), 'Field "IC Partner Code" must be visible');
         CustomerCard."IC Partner Code".AssertEquals(Customer."IC Partner Code");
     end;
 
@@ -1406,7 +1406,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 223571] "IC Partner Code" is not visible on Customer Card if Application Area is set to Basic
 
         // [GIVEN] Application Area = BASIC
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [GIVEN] Customer "C" with "IC Partner Code" = "ICP"
         CreateCustomerWithICPartnerCode(Customer);
@@ -1418,7 +1418,7 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsFalse(
           CustomerCard.FindFirstField("IC Partner Code", Customer."IC Partner Code"), 'Field "IC Partner Code" must be hidden');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -1444,7 +1444,7 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsFalse(
           CustomerCard.FindFirstField("IC Partner Code", Customer."IC Partner Code"), 'Field "IC Partner Code" must be hidden');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -1458,14 +1458,14 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 235003] Posted Sales Shipment card can be opened from the Posted Sales Shipments page in Edit-mode
 
         // [GIVEN] Posted Sales Shipments page is opened
-        PostedSalesShipments.OpenEdit;
+        PostedSalesShipments.OpenEdit();
 
         // [WHEN] Push Edit button
-        PostedSalesShipment.Trap;
-        PostedSalesShipments.Edit.Invoke;
+        PostedSalesShipment.Trap();
+        PostedSalesShipments.Edit().Invoke();
 
         // [THEN] Posted Sales Shipment card is opened in Edit-mode
-        Assert.IsTrue(PostedSalesShipment.Editable, '');
+        Assert.IsTrue(PostedSalesShipment.Editable(), '');
     end;
 
     [Test]
@@ -1479,14 +1479,14 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 235003] Posted Sales Invoice card can be opened from the Posted Sales Invoices page in Edit-mode
 
         // [GIVEN] Posted Sales Invoices page is opened
-        PostedSalesInvoices.OpenEdit;
+        PostedSalesInvoices.OpenEdit();
 
         // [WHEN] Push Edit button
-        PostedSalesInvoice.Trap;
-        PostedSalesInvoices.Edit.Invoke;
+        PostedSalesInvoice.Trap();
+        PostedSalesInvoices.Edit().Invoke();
 
         // [THEN] Posted Sales Invoice card is opened in Edit-mode
-        Assert.IsTrue(PostedSalesInvoice.Editable, '');
+        Assert.IsTrue(PostedSalesInvoice.Editable(), '');
     end;
 
     [Test]
@@ -1500,14 +1500,14 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 235003] Posted Credit Memo card can be opened from the Posted Credit Memos page in Edit-mode
 
         // [GIVEN] Posted Credit Memos page is opened
-        PostedSalesCreditMemos.OpenEdit;
+        PostedSalesCreditMemos.OpenEdit();
 
         // [WHEN] Push Edit button
-        PostedSalesCreditMemo.Trap;
-        PostedSalesCreditMemos.Edit.Invoke;
+        PostedSalesCreditMemo.Trap();
+        PostedSalesCreditMemos.Edit().Invoke();
 
         // [THEN] Posted Credit Memo card is opened in Edit-mode
-        Assert.IsTrue(PostedSalesCreditMemo.Editable, '');
+        Assert.IsTrue(PostedSalesCreditMemo.Editable(), '');
     end;
 
     [Test]
@@ -1521,14 +1521,14 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 235003] Posted Purchase Receipt card can be opened from the Posted Purchase Receipts page in Edit-mode
 
         // [GIVEN] Posted Purchase Receipts page is opened
-        PostedPurchaseReceipts.OpenEdit;
+        PostedPurchaseReceipts.OpenEdit();
 
         // [WHEN] Push Edit button
-        PostedPurchaseReceipt.Trap;
-        PostedPurchaseReceipts.Edit.Invoke;
+        PostedPurchaseReceipt.Trap();
+        PostedPurchaseReceipts.Edit().Invoke();
 
         // [THEN] Posted Purchase Receipt card is opened in Edit-mode
-        Assert.IsTrue(PostedPurchaseReceipt.Editable, '');
+        Assert.IsTrue(PostedPurchaseReceipt.Editable(), '');
     end;
 
     [Test]
@@ -1542,14 +1542,14 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 235003] Posted Purchase Invoice card can be opened from the Posted Purchase Invoices page in Edit-mode
 
         // [GIVEN] Posted Purchase Invoices page is opened
-        PostedPurchaseInvoices.OpenEdit;
+        PostedPurchaseInvoices.OpenEdit();
 
         // [WHEN] Push Edit button
-        PostedPurchaseInvoice.Trap;
-        PostedPurchaseInvoices.Edit.Invoke;
+        PostedPurchaseInvoice.Trap();
+        PostedPurchaseInvoices.Edit().Invoke();
 
         // [THEN] Posted Purchase Invoice card is opened in Edit-mode
-        Assert.IsTrue(PostedPurchaseInvoice.Editable, '');
+        Assert.IsTrue(PostedPurchaseInvoice.Editable(), '');
     end;
 
     [Test]
@@ -1563,14 +1563,14 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 235003] Posted Purchase Credit Memo card can be opened from the Posted Purchase Credit Memos page in Edit-mode
 
         // [GIVEN] Posted Purchase Credit Memos page is opened
-        PostedPurchaseCreditMemos.OpenEdit;
+        PostedPurchaseCreditMemos.OpenEdit();
 
         // [WHEN] Push Edit button
-        PostedPurchaseCreditMemo.Trap;
-        PostedPurchaseCreditMemos.Edit.Invoke;
+        PostedPurchaseCreditMemo.Trap();
+        PostedPurchaseCreditMemos.Edit().Invoke();
 
         // [THEN] Posted Purchase Credit Memo card is opened in Edit-mode
-        Assert.IsTrue(PostedPurchaseCreditMemo.Editable, '');
+        Assert.IsTrue(PostedPurchaseCreditMemo.Editable(), '');
     end;
 
     [Test]
@@ -1589,21 +1589,21 @@ codeunit 134341 "UT Page Actions & Controls"
         Commit();
 
         LibraryApplicationArea.EnableFoundationSetup();
-        SetBasicUserExperience;
+        SetBasicUserExperience();
 
-        GeneralLedgerSetupPage.OpenEdit;
-        Assert.IsTrue(GeneralLedgerSetupPage.AmountRoundingPrecision.Enabled, '');
-        Assert.IsTrue(GeneralLedgerSetupPage.AmountRoundingPrecision.Visible, '');
-        Assert.IsTrue(GeneralLedgerSetupPage.AmountRoundingPrecision.Editable, '');
-        Assert.IsTrue(GeneralLedgerSetupPage.AmountDecimalPlaces.Enabled, '');
-        Assert.IsTrue(GeneralLedgerSetupPage.AmountDecimalPlaces.Visible, '');
-        Assert.IsTrue(GeneralLedgerSetupPage.AmountDecimalPlaces.Editable, '');
-        Assert.IsTrue(GeneralLedgerSetupPage.UnitAmountRoundingPrecision.Enabled, '');
-        Assert.IsTrue(GeneralLedgerSetupPage.UnitAmountRoundingPrecision.Visible, '');
-        Assert.IsTrue(GeneralLedgerSetupPage.UnitAmountRoundingPrecision.Editable, '');
-        Assert.IsTrue(GeneralLedgerSetupPage.UnitAmountDecimalPlaces.Enabled, '');
-        Assert.IsTrue(GeneralLedgerSetupPage.UnitAmountDecimalPlaces.Visible, '');
-        Assert.IsTrue(GeneralLedgerSetupPage.UnitAmountDecimalPlaces.Editable, '');
+        GeneralLedgerSetupPage.OpenEdit();
+        Assert.IsTrue(GeneralLedgerSetupPage.AmountRoundingPrecision.Enabled(), '');
+        Assert.IsTrue(GeneralLedgerSetupPage.AmountRoundingPrecision.Visible(), '');
+        Assert.IsTrue(GeneralLedgerSetupPage.AmountRoundingPrecision.Editable(), '');
+        Assert.IsTrue(GeneralLedgerSetupPage.AmountDecimalPlaces.Enabled(), '');
+        Assert.IsTrue(GeneralLedgerSetupPage.AmountDecimalPlaces.Visible(), '');
+        Assert.IsTrue(GeneralLedgerSetupPage.AmountDecimalPlaces.Editable(), '');
+        Assert.IsTrue(GeneralLedgerSetupPage.UnitAmountRoundingPrecision.Enabled(), '');
+        Assert.IsTrue(GeneralLedgerSetupPage.UnitAmountRoundingPrecision.Visible(), '');
+        Assert.IsTrue(GeneralLedgerSetupPage.UnitAmountRoundingPrecision.Editable(), '');
+        Assert.IsTrue(GeneralLedgerSetupPage.UnitAmountDecimalPlaces.Enabled(), '');
+        Assert.IsTrue(GeneralLedgerSetupPage.UnitAmountDecimalPlaces.Visible(), '');
+        Assert.IsTrue(GeneralLedgerSetupPage.UnitAmountDecimalPlaces.Editable(), '');
 
         asserterror GeneralLedgerSetupPage.AmountRoundingPrecision.SetValue(1 / (LibraryRandom.RandInt(3) * 10));
         Assert.ExpectedError(
@@ -1630,10 +1630,10 @@ codeunit 134341 "UT Page Actions & Controls"
         MockRecordWithKeyValue(GLEntry);
 
         // [WHEN] Open the page "General Ledger Entries"
-        GeneralLedgerEntries.OpenView;
+        GeneralLedgerEntries.OpenView();
 
         // [THEN] The field "External Document No." is visible on the page "General Ledger Entries"
-        Assert.IsTrue(GeneralLedgerEntries."External Document No.".Visible, '');
+        Assert.IsTrue(GeneralLedgerEntries."External Document No.".Visible(), '');
     end;
 
     [Test]
@@ -1644,10 +1644,10 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales] [Card]
         // [SCENARIO 257000] "Prepayment %" is enabled, visible and editable on "Customer Card" page
-        CustomerCard.OpenEdit;
-        Assert.IsTrue(CustomerCard."Prepayment %".Enabled, '');
-        Assert.IsTrue(CustomerCard."Prepayment %".Visible, '');
-        Assert.IsTrue(CustomerCard."Prepayment %".Editable, '');
+        CustomerCard.OpenEdit();
+        Assert.IsTrue(CustomerCard."Prepayment %".Enabled(), '');
+        Assert.IsTrue(CustomerCard."Prepayment %".Visible(), '');
+        Assert.IsTrue(CustomerCard."Prepayment %".Editable(), '');
     end;
 
     [Test]
@@ -1658,10 +1658,10 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Purchase] [Card]
         // [SCENARIO 257000] "Prepayment %" is enabled, visible and editable on "Vendor Card" page
-        VendorCard.OpenEdit;
-        Assert.IsTrue(VendorCard."Prepayment %".Enabled, '');
-        Assert.IsTrue(VendorCard."Prepayment %".Visible, '');
-        Assert.IsTrue(VendorCard."Prepayment %".Editable, '');
+        VendorCard.OpenEdit();
+        Assert.IsTrue(VendorCard."Prepayment %".Enabled(), '');
+        Assert.IsTrue(VendorCard."Prepayment %".Visible(), '');
+        Assert.IsTrue(VendorCard."Prepayment %".Editable(), '');
     end;
 
     [Test]
@@ -1868,7 +1868,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 260487] Purchase Order List has visible fields: "Status" if Application Area is set to Suite
         LibraryApplicationArea.EnableFoundationSetup();
         PurchaseOrderList.OpenNew();
-        Assert.IsTrue(PurchaseOrderList.Status.Visible, '');
+        Assert.IsTrue(PurchaseOrderList.Status.Visible(), '');
     end;
 
     [Test]
@@ -1885,11 +1885,11 @@ codeunit 134341 "UT Page Actions & Controls"
 
         MockTodo(ToDo);
 
-        CreateTask.OpenEdit;
+        CreateTask.OpenEdit();
         CreateTask.FILTER.SetFilter("No.", ToDo."No.");
-        Assert.IsTrue(CreateTask.TypeSaaS.Visible, '');
-        Assert.IsFalse(CreateTask.TypeOnPrem.Visible, '');
-        Assert.IsFalse(CreateTask.Location.Visible, '');
+        Assert.IsTrue(CreateTask.TypeSaaS.Visible(), '');
+        Assert.IsFalse(CreateTask.TypeOnPrem.Visible(), '');
+        Assert.IsFalse(CreateTask.Location.Visible(), '');
         Assert.AreEqual('Type', CreateTask.TypeSaaS.Caption, '');
 
         CreateTask.TypeSaaS.SetValue(ToDo.Type::" ");
@@ -1914,11 +1914,11 @@ codeunit 134341 "UT Page Actions & Controls"
 
         MockTodo(ToDo);
 
-        CreateTask.OpenEdit;
+        CreateTask.OpenEdit();
         CreateTask.FILTER.SetFilter("No.", ToDo."No.");
-        Assert.IsFalse(CreateTask.TypeSaaS.Visible, '');
-        Assert.IsTrue(CreateTask.TypeOnPrem.Visible, '');
-        Assert.IsTrue(CreateTask.Location.Visible, '');
+        Assert.IsFalse(CreateTask.TypeSaaS.Visible(), '');
+        Assert.IsTrue(CreateTask.TypeOnPrem.Visible(), '');
+        Assert.IsTrue(CreateTask.Location.Visible(), '');
         Assert.AreEqual('Type', CreateTask.TypeOnPrem.Caption, '');
 
         CreateTask.TypeOnPrem.SetValue(ToDo.Type::Meeting);
@@ -2138,7 +2138,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchaseOrderListTestPage."No.".AssertEquals(PurchaseHeader."No.");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('VerifyMinimumQuantityInSalesPriceAndLineDiscountsPageHandler')]
@@ -2166,7 +2166,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryVariableStorage.Enqueue(SalesLineDiscount."Minimum Quantity");
         CustomerCard."Prices and Discounts Overview".Invoke();
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 #endif
 
@@ -2186,7 +2186,7 @@ codeunit 134341 "UT Page Actions & Controls"
         AnalysisViewEntry."Account No." := LibraryUtility.GenerateGUID();
         AnalysisViewEntry.Insert();
         AnalysisViewEntry.SetRecFilter();
-        AnalysisViewEntries.Trap;
+        AnalysisViewEntries.Trap();
         PAGE.Run(0, AnalysisViewEntry);
         AnalysisViewEntries."Account No.".AssertEquals(AnalysisViewEntry."Account No.");
     end;
@@ -2205,7 +2205,7 @@ codeunit 134341 "UT Page Actions & Controls"
         AnalysisViewBudgetEntry."G/L Account No." := LibraryUtility.GenerateGUID();
         AnalysisViewBudgetEntry.Insert();
         AnalysisViewBudgetEntry.SetRecFilter();
-        AnalysisViewBudgetEntries.Trap;
+        AnalysisViewBudgetEntries.Trap();
         PAGE.Run(0, AnalysisViewBudgetEntry);
         AnalysisViewBudgetEntries."G/L Account No.".AssertEquals(AnalysisViewBudgetEntry."G/L Account No.");
     end;
@@ -2242,10 +2242,10 @@ codeunit 134341 "UT Page Actions & Controls"
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenView;
-        Assert.IsTrue(PaymentJournal."Posting Date".Visible, PaymentJournal."Posting Date".Caption);
-        Assert.IsTrue(PaymentJournal."Document Type".Visible, PaymentJournal."Document Type".Caption);
-        Assert.IsTrue(PaymentJournal."Document No.".Visible, PaymentJournal."Document No.".Caption);
+        PaymentJournal.OpenView();
+        Assert.IsTrue(PaymentJournal."Posting Date".Visible(), PaymentJournal."Posting Date".Caption);
+        Assert.IsTrue(PaymentJournal."Document Type".Visible(), PaymentJournal."Document Type".Caption);
+        Assert.IsTrue(PaymentJournal."Document No.".Visible(), PaymentJournal."Document No.".Caption);
         PaymentJournal.Close();
     end;
 
@@ -2258,7 +2258,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 269728] Sales Order has visible fields: "Direct Debit Mandate ID" if Application Area is set to Suite
         LibraryApplicationArea.EnableFoundationSetup();
         SalesOrder.OpenNew();
-        Assert.IsTrue(SalesOrder."Direct Debit Mandate ID".Visible, '');
+        Assert.IsTrue(SalesOrder."Direct Debit Mandate ID".Visible(), '');
     end;
 
     [Test]
@@ -2271,7 +2271,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 269728] Sales Invoice has visible fields: "Direct Debit Mandate ID" if Application Area is set to Suite
         LibraryApplicationArea.EnableFoundationSetup();
         SalesInvoice.OpenNew();
-        Assert.IsTrue(SalesInvoice."Direct Debit Mandate ID".Visible, '');
+        Assert.IsTrue(SalesInvoice."Direct Debit Mandate ID".Visible(), '');
     end;
 
     [Test]
@@ -2283,8 +2283,8 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Sales]
         // [SCENARIO 269728] Posted Sales Order has visible fields: "Direct Debit Mandate ID" if Application Area is set to Suite
         LibraryApplicationArea.EnableFoundationSetup();
-        PostedSalesInvoice.OpenView;
-        Assert.IsTrue(PostedSalesInvoice."Direct Debit Mandate ID".Visible, '');
+        PostedSalesInvoice.OpenView();
+        Assert.IsTrue(PostedSalesInvoice."Direct Debit Mandate ID".Visible(), '');
     end;
 
     [Test]
@@ -2297,8 +2297,8 @@ codeunit 134341 "UT Page Actions & Controls"
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Windows);
         BindSubscription(TestClientTypeSubscriber);
 
-        ConfigWizard.OpenEdit;
-        Assert.IsTrue(ConfigWizard.PackageFileNameRtc.Visible, StrSubstNo(PageFieldVisibleErr, 'PackageFileNameRtc'));
+        ConfigWizard.OpenEdit();
+        Assert.IsTrue(ConfigWizard.PackageFileNameRtc.Visible(), StrSubstNo(PageFieldVisibleErr, 'PackageFileNameRtc'));
     end;
 
     [Test]
@@ -2311,8 +2311,8 @@ codeunit 134341 "UT Page Actions & Controls"
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
         BindSubscription(TestClientTypeSubscriber);
 
-        ConfigWizard.OpenEdit;
-        Assert.IsTrue(ConfigWizard.PackageFileNameRtc.Visible, StrSubstNo(PageFieldVisibleErr, 'PackageFileNameRtc'));
+        ConfigWizard.OpenEdit();
+        Assert.IsTrue(ConfigWizard.PackageFileNameRtc.Visible(), StrSubstNo(PageFieldVisibleErr, 'PackageFileNameRtc'));
     end;
 
     [Test]
@@ -2325,23 +2325,23 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 271183] Columns of the Purchasing Codes page are visible for #Suite plan.
 
         LibraryApplicationArea.EnableFoundationSetup();
-        PurchasingCodes.OpenView;
+        PurchasingCodes.OpenView();
 
         Assert.IsTrue(
-          PurchasingCodes.Code.Visible,
+          PurchasingCodes.Code.Visible(),
           StrSubstNo(PageFieldVisibleErr, PurchasingCodes.Code.Caption));
         Assert.IsTrue(
-          PurchasingCodes.Description.Visible,
+          PurchasingCodes.Description.Visible(),
           StrSubstNo(PageFieldVisibleErr, PurchasingCodes.Description.Caption));
         Assert.IsTrue(
-          PurchasingCodes."Drop Shipment".Visible,
+          PurchasingCodes."Drop Shipment".Visible(),
           StrSubstNo(PageFieldVisibleErr, PurchasingCodes."Drop Shipment".Caption));
         Assert.IsTrue(
-          PurchasingCodes."Special Order".Visible,
+          PurchasingCodes."Special Order".Visible(),
           StrSubstNo(PageFieldVisibleErr, PurchasingCodes."Special Order".Caption));
 
         PurchasingCodes.Close();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -2354,23 +2354,23 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 271183] Columns of the Purchasing Codes page are visible for #Suite plan.
 
         LibraryApplicationArea.EnableFoundationSetup();
-        PurchasingCodeList.OpenView;
+        PurchasingCodeList.OpenView();
 
         Assert.IsTrue(
-          PurchasingCodeList.Code.Visible,
+          PurchasingCodeList.Code.Visible(),
           StrSubstNo(PageFieldVisibleErr, PurchasingCodeList.Code.Caption));
         Assert.IsTrue(
-          PurchasingCodeList.Description.Visible,
+          PurchasingCodeList.Description.Visible(),
           StrSubstNo(PageFieldVisibleErr, PurchasingCodeList.Description.Caption));
         Assert.IsTrue(
-          PurchasingCodeList."Drop Shipment".Visible,
+          PurchasingCodeList."Drop Shipment".Visible(),
           StrSubstNo(PageFieldVisibleErr, PurchasingCodeList."Drop Shipment".Caption));
         Assert.IsTrue(
-          PurchasingCodeList."Special Order".Visible,
+          PurchasingCodeList."Special Order".Visible(),
           StrSubstNo(PageFieldVisibleErr, PurchasingCodeList."Special Order".Caption));
 
         PurchasingCodeList.Close();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -2381,7 +2381,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Cash Flow]
         // [SCENARIO 272786] The column ManualRevenues of page "Cash Flow Avialability Lines" has a caption 'Cash Flow Manual Revenues'
-        CashFlowAvailabilityLines.OpenView;
+        CashFlowAvailabilityLines.OpenView();
         Assert.AreEqual('Cash Flow Manual Revenues', CashFlowAvailabilityLines.ManualRevenues.Caption, 'Wrong caption');
     end;
 
@@ -2394,14 +2394,14 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales] [Order] [Pro Forma]
         // [SCENARIO 271413] Pro Forma Invoice action must be available on Sales Order card page
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         LibrarySales.CreateSalesOrder(SalesHeader);
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
-        Assert.IsTrue(SalesOrder.ProformaInvoice.Visible, '');
+        Assert.IsTrue(SalesOrder.ProformaInvoice.Visible(), '');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -2413,14 +2413,14 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales] [Invoice] [Pro Forma]
         // [SCENARIO 271413] Pro Forma Invoice action must be available on Sales Invoice card page
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesInvoice.OpenView;
+        SalesInvoice.OpenView();
         SalesInvoice.GotoRecord(SalesHeader);
-        Assert.IsTrue(SalesInvoice.ProformaInvoice.Visible, '');
+        Assert.IsTrue(SalesInvoice.ProformaInvoice.Visible(), '');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -2431,13 +2431,13 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Item] [Card] [UI]
         // [SCENARIO 280027] "Qty. on Job Order" is enabled and visible on "Item Card" page
-        LibraryApplicationArea.EnableJobsSetup;
+        LibraryApplicationArea.EnableJobsSetup();
 
-        ItemCard.OpenEdit;
-        Assert.IsTrue(ItemCard."Qty. on Job Order".Enabled, '');
-        Assert.IsTrue(ItemCard."Qty. on Job Order".Visible, '');
+        ItemCard.OpenEdit();
+        Assert.IsTrue(ItemCard."Qty. on Job Order".Enabled(), '');
+        Assert.IsTrue(ItemCard."Qty. on Job Order".Visible(), '');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -2456,14 +2456,14 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Open Purchase Order '1000' with no lines
         LibraryPurchase.CreatePurchHeader(
-          PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
-        PurchOrderPage.OpenEdit;
+          PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchOrderPage.OpenEdit();
         PurchOrderPage.GotoRecord(PurchHeader);
         // [GIVEN] run action "Select items" on the subpage
-        PurchOrderPage.PurchLines.SelectMultiItems.Invoke;
+        PurchOrderPage.PurchLines.SelectMultiItems.Invoke();
 
         // [WHEN] Select the Item 'X' and push "OK"
-        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText, 1, 20); // from ItemListMPH
+        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20); // from ItemListMPH
 
         // [THEN] One purchase line added, where "Document No." = '1000', "Type" = 'Item', "No." = 'X'
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
@@ -2473,7 +2473,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchLine.TestField(Type, PurchLine.Type::Item);
         PurchLine.TestField("No.", ExpectedItemNo);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -2489,16 +2489,16 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Purchase] [Invoice] [Select Multiple Items]
         // [SCENARIO] Action "Select items" on Invoice subpage adds selected items, if the current line is the last one
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
         // [GIVEN] Open Purchase Invoice '1000' with one line
         LibraryPurchase.CreatePurchaseInvoice(PurchHeader);
-        PurchInvoicePage.OpenEdit;
+        PurchInvoicePage.OpenEdit();
         PurchInvoicePage.GotoRecord(PurchHeader);
         // [GIVEN] run action "Select items" on the subpage
-        PurchInvoicePage.PurchLines.SelectMultiItems.Invoke;
+        PurchInvoicePage.PurchLines.SelectMultiItems.Invoke();
 
         // [WHEN] Select the Item 'X' and push "Cancel"
-        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText, 1, 20); // from ItemListCancelMPH
+        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20); // from ItemListCancelMPH
 
         // [THEN] Second purchase line is not added
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
@@ -2508,7 +2508,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchLine.TestField(Type, PurchLine.Type::Item);
         Assert.AreNotEqual(ExpectedItemNo, PurchLine."No.", 'selected item should not be inserted');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -2535,13 +2535,13 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.RecordCount(PurchLine, 2);
 
         // [GIVEN] Open Purchase Quote on the first line
-        PurchQuotePage.OpenEdit;
+        PurchQuotePage.OpenEdit();
         PurchQuotePage.GotoRecord(PurchHeader);
         // [GIVEN] run action "Select items" on the subpage
-        PurchQuotePage.PurchLines.SelectMultiItems.Invoke;
+        PurchQuotePage.PurchLines.SelectMultiItems.Invoke();
 
         // [WHEN] Select the Item 'X' and push "OK"
-        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText, 1, 20); // from ItemListMPH
+        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20); // from ItemListMPH
 
         // [THEN] Third purchase line added as the last one, where "Document No." = '1000', "Type" = 'Item', "No." = 'X'
         Assert.RecordCount(PurchLine, 3);
@@ -2549,7 +2549,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchLine.TestField(Type, PurchLine.Type::Item);
         PurchLine.TestField("No.", ExpectedItemNo);
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -2565,17 +2565,17 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales] [Order] [Select Multiple Items]
         // [SCENARIO] Action "Select items" on Order subpage adds selected items, if no lines exist
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
         // [GIVEN] Open Sales Order '1000' with no lines
         LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
-        SalesOrderPage.OpenEdit;
+          SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesOrderPage.OpenEdit();
         SalesOrderPage.GotoRecord(SalesHeader);
         // [GIVEN] run action "Select items" on the subpage
-        SalesOrderPage.SalesLines.SelectMultiItems.Invoke;
+        SalesOrderPage.SalesLines.SelectMultiItems.Invoke();
 
         // [WHEN] Select the Item 'X' and push "OK"
-        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText, 1, 20); // from ItemListMPH
+        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20); // from ItemListMPH
 
         // [THEN] One sales line added, where "Document No." = '1000', "Type" = 'Item', "No." = 'X'
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -2599,16 +2599,16 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales] [Invoice] [Select Multiple Items]
         // [SCENARIO] Action "Select items" on Invoice subpage adds selected items, if the current line is the last one
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
         // [GIVEN] Open Sales Invoice '1000' with one line
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesInvoicePage.OpenEdit;
+        SalesInvoicePage.OpenEdit();
         SalesInvoicePage.GotoRecord(SalesHeader);
         // [GIVEN] run action "Select items" on the subpage
-        SalesInvoicePage.SalesLines.SelectMultiItems.Invoke;
+        SalesInvoicePage.SalesLines.SelectMultiItems.Invoke();
 
         // [WHEN] Select the Item 'X' and push "Cancel"
-        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText, 1, 20); // from ItemListCancelMPH
+        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20); // from ItemListCancelMPH
 
         // [THEN] Second sales line is not added
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -2632,9 +2632,9 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales] [Quote] [Select Multiple Items]
         // [SCENARIO] Action "Select items" on Quote subpage adds selected items, if the current line is the first of many
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
         // [GIVEN] Created Sales Quote '1000' with two lines
-        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo());
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindLast();
@@ -2643,13 +2643,13 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.RecordCount(SalesLine, 2);
 
         // [GIVEN] Open Sales Quote on the first line
-        SalesQuotePage.OpenEdit;
+        SalesQuotePage.OpenEdit();
         SalesQuotePage.GotoRecord(SalesHeader);
         // [GIVEN] run action "Select items" on the subpage
-        SalesQuotePage.SalesLines.SelectMultiItems.Invoke;
+        SalesQuotePage.SalesLines.SelectMultiItems.Invoke();
 
         // [WHEN] Select the Item 'X' and push "OK"
-        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText, 1, 20); // from ItemListMPH
+        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20); // from ItemListMPH
 
         // [THEN] Third sales line added as the last one, where "Document No." = '1000', "Type" = 'Item', "No." = 'X'
         Assert.RecordCount(SalesLine, 3);
@@ -2678,7 +2678,7 @@ codeunit 134341 "UT Page Actions & Controls"
         ItemList.SelectActiveItems();
 
         // [THEN] Item 'X' is not in the list
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Blocked Item should not be visible');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Blocked Item should not be visible');
     end;
 
     [Test]
@@ -2699,10 +2699,10 @@ codeunit 134341 "UT Page Actions & Controls"
         // [WHEN] run SelectMultipleItems on for Invoice line
         LibraryVariableStorage.Enqueue(BlockedItem."No."); // for ItemListLookForItemMPH
         SalesLine."Document Type" := SalesLine."Document Type"::Invoice;
-        SalesLine.SelectMultipleItems;
+        SalesLine.SelectMultipleItems();
 
         // [THEN] Item 'X' is not in the list
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Blocked Item should not be visible');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Blocked Item should not be visible');
     end;
 
     [Test]
@@ -2723,10 +2723,10 @@ codeunit 134341 "UT Page Actions & Controls"
         // [WHEN] run SelectMultipleItems on for Credit Memo line
         LibraryVariableStorage.Enqueue(BlockedItem."No."); // for ItemListLookForItemMPH
         SalesLine."Document Type" := SalesLine."Document Type"::"Credit Memo";
-        SalesLine.SelectMultipleItems;
+        SalesLine.SelectMultipleItems();
 
         // [THEN] Item 'X' is in the list
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Blocked Item should be visible');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Blocked Item should be visible');
     end;
 
     [Test]
@@ -2747,10 +2747,10 @@ codeunit 134341 "UT Page Actions & Controls"
         // [WHEN] run SelectMultipleItems on for Return Order line
         LibraryVariableStorage.Enqueue(BlockedItem."No."); // for ItemListLookForItemMPH
         SalesLine."Document Type" := SalesLine."Document Type"::"Return Order";
-        SalesLine.SelectMultipleItems;
+        SalesLine.SelectMultipleItems();
 
         // [THEN] Item 'X' is in the list
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Blocked Item should be visible');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Blocked Item should be visible');
     end;
 
     [Test]
@@ -2771,10 +2771,10 @@ codeunit 134341 "UT Page Actions & Controls"
         // [WHEN] run SelectMultipleItems on for Invoice line
         LibraryVariableStorage.Enqueue(BlockedItem."No."); // for ItemListLookForItemMPH
         PurchaseLine."Document Type" := PurchaseLine."Document Type"::Invoice;
-        PurchaseLine.SelectMultipleItems;
+        PurchaseLine.SelectMultipleItems();
 
         // [THEN] Item 'X' is not in the list
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Blocked Item should not be visible');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Blocked Item should not be visible');
     end;
 
     [Test]
@@ -2795,10 +2795,10 @@ codeunit 134341 "UT Page Actions & Controls"
         // [WHEN] run SelectMultipleItems on for Credit Memo line
         LibraryVariableStorage.Enqueue(BlockedItem."No."); // for ItemListLookForItemMPH
         PurchaseLine."Document Type" := PurchaseLine."Document Type"::"Credit Memo";
-        PurchaseLine.SelectMultipleItems;
+        PurchaseLine.SelectMultipleItems();
 
         // [THEN] Item 'X' is in the list
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Blocked Item should be visible');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Blocked Item should be visible');
     end;
 
     [Test]
@@ -2819,10 +2819,10 @@ codeunit 134341 "UT Page Actions & Controls"
         // [WHEN] run SelectMultipleItems on for Return Order line
         LibraryVariableStorage.Enqueue(BlockedItem."No."); // for ItemListLookForItemMPH
         PurchaseLine."Document Type" := PurchaseLine."Document Type"::"Return Order";
-        PurchaseLine.SelectMultipleItems;
+        PurchaseLine.SelectMultipleItems();
 
         // [THEN] Item 'X' is in the list
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Blocked Item should be visible');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Blocked Item should be visible');
     end;
 
     [Test]
@@ -2833,17 +2833,17 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales Quote]
         // [SCENARIO 283922] "External Document No" is enabled and visible on "Sales Quote" page
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [GIVEN]
         // [WHEN] "Sales Quote" test page is opened
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
 
         // [THEN] "External Document No." field is enabled and visible
-        Assert.IsTrue(SalesQuote."External Document No.".Enabled, '');
-        Assert.IsTrue(SalesQuote."External Document No.".Visible, '');
+        Assert.IsTrue(SalesQuote."External Document No.".Enabled(), '');
+        Assert.IsTrue(SalesQuote."External Document No.".Visible(), '');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -2856,7 +2856,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 274511] "Send" action is visible on the "Purchase Quote" page.
 
         PurchaseQuote.OpenNew();
-        Assert.IsTrue(PurchaseQuote.Send.Visible, 'Button "Send" must be visible');
+        Assert.IsTrue(PurchaseQuote.Send.Visible(), 'Button "Send" must be visible');
     end;
 
     [Test]
@@ -2869,7 +2869,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 274511] "Send" action is visible on the "Purchase Quotes" page.
 
         PurchaseQuotes.OpenNew();
-        Assert.IsTrue(PurchaseQuotes.Send.Visible, 'Button "Send" must be visible');
+        Assert.IsTrue(PurchaseQuotes.Send.Visible(), 'Button "Send" must be visible');
     end;
 
     [Test]
@@ -2892,7 +2892,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [WHEN] "Inventory Account (Interim)" Validated
         CreateGLAccountInventoryPostingSetup(GLAccount);
-        InventoryPostingSetupPage.OpenEdit;
+        InventoryPostingSetupPage.OpenEdit();
         InventoryPostingSetupPage.FILTER.SetFilter("Invt. Posting Group Code", InventoryPostingGroup.Code);
         InventoryPostingSetupPage."Inventory Account (Interim)".SetValue(GLAccount."No.");
         InventoryPostingSetupPage.Close();
@@ -2923,14 +2923,14 @@ codeunit 134341 "UT Page Actions & Controls"
         // [WHEN] "Inventory Account (Interim)" Validated
         CreateGLAccountInventoryPostingSetup(GLAccount);
         LibraryVariableStorage.Enqueue(GLAccount."No.");
-        InventoryPostingSetupPage.OpenEdit;
+        InventoryPostingSetupPage.OpenEdit();
         InventoryPostingSetupPage.FILTER.SetFilter("Invt. Posting Group Code", InventoryPostingGroup.Code);
-        InventoryPostingSetupPage."Inventory Account (Interim)".Lookup;
+        InventoryPostingSetupPage."Inventory Account (Interim)".Lookup();
         InventoryPostingSetupPage.Close();
 
         // [THEN] Correct field is filled out in the record
         VerifyInventoryPostingSetupInserted(GLAccount."No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2951,7 +2951,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PostCode.LookupPostCode(PostCode.City, PostCode.Code, PostCode.County, PostCode."Country/Region Code");
 
         // [THEN] Page Post Codes has filter for Country/Region Code = "COUNTRY"
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'Invalid Country/Region Code filter');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'Invalid Country/Region Code filter');
     end;
 
     [Test]
@@ -2971,7 +2971,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PostCode.LookupPostCode(PostCode.City, PostCode.Code, PostCode.County, PostCode."Country/Region Code");
 
         // [THEN] Page Post Codes has filter for Country/Region Code = "COUNTRY"
-        Assert.AreEqual(PostCode."Country/Region Code", LibraryVariableStorage.DequeueText, 'Invalid Country/Region Code filter');
+        Assert.AreEqual(PostCode."Country/Region Code", LibraryVariableStorage.DequeueText(), 'Invalid Country/Region Code filter');
     end;
 
     [Test]
@@ -3085,7 +3085,7 @@ codeunit 134341 "UT Page Actions & Controls"
         Customer.Modify();
 
         // [GIVEN] Customer card page with created customer
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.FILTER.SetFilter("No.", Customer."No.");
 
         // [WHEN] Funcion PostCode.CheckClearPostCodeCityCounty is being run with xCountryCode = ''
@@ -3129,7 +3129,7 @@ codeunit 134341 "UT Page Actions & Controls"
         GLSetup.Modify();
 
         // [GIVEN] Customer card page with created customer
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.FILTER.SetFilter("No.", Customer."No.");
 
         // [WHEN] "Country/Region Code" is being changed to "CC2"
@@ -3151,9 +3151,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Sales Quote]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Sales Quote" page
 
-        SalesQuote.OpenEdit;
-        Assert.IsTrue(SalesQuote."Payment Method Code".Enabled, '');
-        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesQuote."Payment Method Code".Visible, '');
+        SalesQuote.OpenEdit();
+        Assert.IsTrue(SalesQuote."Payment Method Code".Enabled(), '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesQuote."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3166,9 +3166,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Sales Purchase]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Sales Purchase" page
 
-        PurchaseQuote.OpenEdit;
-        Assert.IsTrue(PurchaseQuote."Payment Method Code".Enabled, '');
-        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseQuote."Payment Method Code".Visible, '');
+        PurchaseQuote.OpenEdit();
+        Assert.IsTrue(PurchaseQuote."Payment Method Code".Enabled(), '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseQuote."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3181,9 +3181,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Sales Invoice]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Sales Invoice" page
 
-        SalesInvoice.OpenEdit;
-        Assert.IsTrue(SalesInvoice."Payment Method Code".Enabled, '');
-        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesInvoice."Payment Method Code".Visible, '');
+        SalesInvoice.OpenEdit();
+        Assert.IsTrue(SalesInvoice."Payment Method Code".Enabled(), '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesInvoice."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3196,9 +3196,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Purchase Invoice]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Purchase Invoice" page
 
-        PurchaseInvoice.OpenEdit;
-        Assert.IsTrue(PurchaseInvoice."Payment Method Code".Enabled, '');
-        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseInvoice."Payment Method Code".Visible, '');
+        PurchaseInvoice.OpenEdit();
+        Assert.IsTrue(PurchaseInvoice."Payment Method Code".Enabled(), '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseInvoice."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3211,9 +3211,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Sales Order]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Sales Order" page
 
-        SalesOrder.OpenEdit;
-        Assert.IsTrue(SalesOrder."Payment Method Code".Enabled, '');
-        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesOrder."Payment Method Code".Visible, '');
+        SalesOrder.OpenEdit();
+        Assert.IsTrue(SalesOrder."Payment Method Code".Enabled(), '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesOrder."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3226,9 +3226,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Purchase Order]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Purchase Order" page
 
-        PurchaseOrder.OpenEdit;
-        Assert.IsTrue(PurchaseOrder."Payment Method Code".Enabled, '');
-        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseOrder."Payment Method Code".Visible, '');
+        PurchaseOrder.OpenEdit();
+        Assert.IsTrue(PurchaseOrder."Payment Method Code".Enabled(), '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseOrder."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3241,9 +3241,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Sales Credit Memo]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Sales Credit Memo" page
 
-        SalesCreditMemo.OpenEdit;
-        Assert.IsTrue(SalesCreditMemo."Payment Method Code".Enabled, '');
-        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesCreditMemo."Payment Method Code".Visible, '');
+        SalesCreditMemo.OpenEdit();
+        Assert.IsTrue(SalesCreditMemo."Payment Method Code".Enabled(), '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesCreditMemo."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3256,9 +3256,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Purchase Credit Memo]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Purchase Credit Memo" page
 
-        PurchaseCreditMemo.OpenEdit;
-        Assert.IsTrue(PurchaseCreditMemo."Payment Method Code".Enabled, '');
-        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseCreditMemo."Payment Method Code".Visible, '');
+        PurchaseCreditMemo.OpenEdit();
+        Assert.IsTrue(PurchaseCreditMemo."Payment Method Code".Enabled(), '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseCreditMemo."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3271,9 +3271,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Sales Credit Memo]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Sales Return Order" page
 
-        SalesReturnOrder.OpenEdit;
-        Assert.IsTrue(SalesReturnOrder."Payment Method Code".Enabled, '');
-        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesReturnOrder."Payment Method Code".Visible, '');
+        SalesReturnOrder.OpenEdit();
+        Assert.IsTrue(SalesReturnOrder."Payment Method Code".Enabled(), '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", SalesReturnOrder."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3286,9 +3286,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Purchase Return Order]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Purchase Return Order" page
 
-        PurchaseReturnOrder.OpenEdit;
-        Assert.IsTrue(PurchaseReturnOrder."Payment Method Code".Enabled, '');
-        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseReturnOrder."Payment Method Code".Visible, '');
+        PurchaseReturnOrder.OpenEdit();
+        Assert.IsTrue(PurchaseReturnOrder."Payment Method Code".Enabled(), '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", PurchaseReturnOrder."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3301,9 +3301,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Blanket Sales Order]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Blanket Sales Order" page
 
-        BlanketSalesOrder.OpenEdit;
-        Assert.IsTrue(BlanketSalesOrder."Payment Method Code".Enabled, '');
-        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", BlanketSalesOrder."Payment Method Code".Visible, '');
+        BlanketSalesOrder.OpenEdit();
+        Assert.IsTrue(BlanketSalesOrder."Payment Method Code".Enabled(), '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", BlanketSalesOrder."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3316,9 +3316,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Blanket Purchase Order]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Blanket Purchase Order" page
 
-        BlanketPurchaseOrder.OpenEdit;
-        Assert.IsTrue(BlanketPurchaseOrder."Payment Method Code".Enabled, '');
-        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", BlanketPurchaseOrder."Payment Method Code".Visible, '');
+        BlanketPurchaseOrder.OpenEdit();
+        Assert.IsTrue(BlanketPurchaseOrder."Payment Method Code".Enabled(), '');
+        Assert.AreEqual(not GeneralLedgerSetup."Hide Payment Method Code", BlanketPurchaseOrder."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3330,9 +3330,9 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Service Credit Memo]
         // [SCENARIO 288448] "Payment Method Code" is enabled and visible on "Service Credit Memo" page
 
-        ServiceCreditMemo.OpenEdit;
-        Assert.IsTrue(ServiceCreditMemo."Payment Method Code".Enabled, '');
-        Assert.IsTrue(ServiceCreditMemo."Payment Method Code".Visible, '');
+        ServiceCreditMemo.OpenEdit();
+        Assert.IsTrue(ServiceCreditMemo."Payment Method Code".Enabled(), '');
+        Assert.IsTrue(ServiceCreditMemo."Payment Method Code".Visible(), '');
     end;
 
     [Test]
@@ -3361,11 +3361,11 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Manufacturers]
         // [SCENARIO 298939] Page 'Manufacturers' is visible with Basic setup
-        LibraryApplicationArea.EnableBasicSetup;
-        Manufacturers.OpenEdit;
-        Assert.IsTrue(Manufacturers.Code.Visible, '');
-        Assert.IsTrue(Manufacturers.Name.Visible, '');
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.EnableBasicSetup();
+        Manufacturers.OpenEdit();
+        Assert.IsTrue(Manufacturers.Code.Visible(), '');
+        Assert.IsTrue(Manufacturers.Name.Visible(), '');
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -3377,10 +3377,10 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Manufacturers]
         // [SCENARIO 298939] Page 'Manufacturers' is visible with Suite setup
         LibraryApplicationArea.EnableFoundationSetup();
-        Manufacturers.OpenEdit;
-        Assert.IsTrue(Manufacturers.Code.Visible, '');
-        Assert.IsTrue(Manufacturers.Name.Visible, '');
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        Manufacturers.OpenEdit();
+        Assert.IsTrue(Manufacturers.Code.Visible(), '');
+        Assert.IsTrue(Manufacturers.Name.Visible(), '');
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -3395,27 +3395,27 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO] SalesInvoiceList.Customer.ENABLED = FALSE when Customer is not set
         // [SCENARIO] SalesInvoiceList.Customer.ENABLED = TRUE when Customer is set
 
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
         // [GIVEN] One Sales Invoice with Customer and one without
         LibrarySales.CreateSalesHeader(
-          SalesHeaderWithCustomer, SalesHeaderWithCustomer."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+          SalesHeaderWithCustomer, SalesHeaderWithCustomer."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         Clear(SalesHeaderWithoutCustomer);
         SalesHeaderWithoutCustomer.Validate("Document Type", SalesHeaderWithoutCustomer."Document Type"::Invoice);
         SalesHeaderWithoutCustomer.Insert(true);
 
-        SalesInvoiceList.OpenEdit;
+        SalesInvoiceList.OpenEdit();
         // [WHEN] Sales Invoice with Customer is selected
         SalesInvoiceList.GotoRecord(SalesHeaderWithCustomer);
 
         // [THEN] Verify that the Customer action is enabled
-        Assert.IsTrue(SalesInvoiceList.CustomerAction.Enabled, 'Customer action is not enabled');
+        Assert.IsTrue(SalesInvoiceList.CustomerAction.Enabled(), 'Customer action is not enabled');
 
         // [WHEN] Sales Invoice with Customer is selected
         SalesInvoiceList.GotoRecord(SalesHeaderWithoutCustomer);
 
         // [THEN] Verify that the Customer action is enabled
-        Assert.IsFalse(SalesInvoiceList.CustomerAction.Enabled, 'Customer action is enabled');
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        Assert.IsFalse(SalesInvoiceList.CustomerAction.Enabled(), 'Customer action is enabled');
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -3430,23 +3430,23 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 301084] Bill-to/Pay-to address fields cannot be edited
 
         // [GIVEN] Created document, opened it's page
-        LibrarySales.CreateSalesQuoteForCustomerNo(SalesQuoteHeader, LibrarySales.CreateCustomerNo);
-        SalesQuotePage.OpenEdit;
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesQuoteHeader, LibrarySales.CreateCustomerNo());
+        SalesQuotePage.OpenEdit();
         SalesQuotePage.FILTER.SetFilter("No.", SalesQuoteHeader."No.");
 
         // [WHEN] Choose "Custom Address" Bill-to option
         SalesQuotePage.BillToOptions.SetValue(BillToOptions::"Custom Address");
 
         // [THEN] Bill-to address fields are editable, and "Bill-to Name" field is not
-        Assert.IsFalse(SalesQuotePage."Bill-to Name".Editable, '');
-        Assert.IsTrue(SalesQuotePage."Bill-to Address".Editable and
-          SalesQuotePage."Bill-to Address 2".Editable and
-          SalesQuotePage."Bill-to City".Editable and
-          SalesQuotePage."Bill-to County".Editable and
-          SalesQuotePage."Bill-to Post Code".Editable and
-          SalesQuotePage."Bill-to Contact No.".Editable and
-          SalesQuotePage."Bill-to Contact".Editable and
-          SalesQuotePage."Bill-to Contact".Visible, '');
+        Assert.IsFalse(SalesQuotePage."Bill-to Name".Editable(), '');
+        Assert.IsTrue(SalesQuotePage."Bill-to Address".Editable() and
+          SalesQuotePage."Bill-to Address 2".Editable() and
+          SalesQuotePage."Bill-to City".Editable() and
+          SalesQuotePage."Bill-to County".Editable() and
+          SalesQuotePage."Bill-to Post Code".Editable() and
+          SalesQuotePage."Bill-to Contact No.".Editable() and
+          SalesQuotePage."Bill-to Contact".Editable() and
+          SalesQuotePage."Bill-to Contact".Visible(), '');
     end;
 
     [Test]
@@ -3462,22 +3462,22 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [GIVEN] Created document, opened it's page
         LibrarySales.CreateSalesOrder(SalesOrderHeader);
-        SalesOrderPage.OpenEdit;
+        SalesOrderPage.OpenEdit();
         SalesOrderPage.FILTER.SetFilter("No.", SalesOrderHeader."No.");
 
         // [WHEN] Choose "Custom Address" Bill-to option
         SalesOrderPage.BillToOptions.SetValue(BillToOptions::"Custom Address");
 
         // [THEN] Bill-to address fields are editable, and "Bill-to Name" field is not
-        Assert.IsFalse(SalesOrderPage."Bill-to Name".Editable, '');
-        Assert.IsTrue(SalesOrderPage."Bill-to Address".Editable and
-          SalesOrderPage."Bill-to Address 2".Editable and
-          SalesOrderPage."Bill-to City".Editable and
-          SalesOrderPage."Bill-to County".Editable and
-          SalesOrderPage."Bill-to Post Code".Editable and
-          SalesOrderPage."Bill-to Contact No.".Editable and
-          SalesOrderPage."Bill-to Contact".Editable and
-          SalesOrderPage."Bill-to Contact".Visible, '');
+        Assert.IsFalse(SalesOrderPage."Bill-to Name".Editable(), '');
+        Assert.IsTrue(SalesOrderPage."Bill-to Address".Editable() and
+          SalesOrderPage."Bill-to Address 2".Editable() and
+          SalesOrderPage."Bill-to City".Editable() and
+          SalesOrderPage."Bill-to County".Editable() and
+          SalesOrderPage."Bill-to Post Code".Editable() and
+          SalesOrderPage."Bill-to Contact No.".Editable() and
+          SalesOrderPage."Bill-to Contact".Editable() and
+          SalesOrderPage."Bill-to Contact".Visible(), '');
     end;
 
     [Test]
@@ -3493,22 +3493,22 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [GIVEN] Created document, opened it's page
         LibrarySales.CreateSalesInvoice(SalesInvoiceHeader);
-        SalesInvoicePage.OpenEdit;
+        SalesInvoicePage.OpenEdit();
         SalesInvoicePage.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
 
         // [WHEN] Choose "Custom Address" Bill-to option
         SalesInvoicePage.BillToOptions.SetValue(BillToOptions::"Custom Address");
 
         // [THEN] Bill-to address fields are editable, and "Bill-to Name" field is not
-        Assert.IsFalse(SalesInvoicePage."Bill-to Name".Editable, '');
-        Assert.IsTrue(SalesInvoicePage."Bill-to Address".Editable and
-          SalesInvoicePage."Bill-to Address 2".Editable and
-          SalesInvoicePage."Bill-to City".Editable and
-          SalesInvoicePage."Bill-to County".Editable and
-          SalesInvoicePage."Bill-to Post Code".Editable and
-          SalesInvoicePage."Bill-to Contact No.".Editable and
-          SalesInvoicePage."Bill-to Contact".Editable and
-          SalesInvoicePage."Bill-to Contact".Visible, '');
+        Assert.IsFalse(SalesInvoicePage."Bill-to Name".Editable(), '');
+        Assert.IsTrue(SalesInvoicePage."Bill-to Address".Editable() and
+          SalesInvoicePage."Bill-to Address 2".Editable() and
+          SalesInvoicePage."Bill-to City".Editable() and
+          SalesInvoicePage."Bill-to County".Editable() and
+          SalesInvoicePage."Bill-to Post Code".Editable() and
+          SalesInvoicePage."Bill-to Contact No.".Editable() and
+          SalesInvoicePage."Bill-to Contact".Editable() and
+          SalesInvoicePage."Bill-to Contact".Visible(), '');
     end;
 
     [Test]
@@ -3524,22 +3524,22 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [GIVEN] Created document, opened it's page
         LibrarySales.CreateSalesHeader(
-          BlanketSalesOrderHeader, BlanketSalesOrderHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo);
-        BlanketSalesOrderPage.OpenEdit;
+          BlanketSalesOrderHeader, BlanketSalesOrderHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo());
+        BlanketSalesOrderPage.OpenEdit();
         BlanketSalesOrderPage.FILTER.SetFilter("No.", BlanketSalesOrderHeader."No.");
 
         // [WHEN] Choose "Custom Address" Bill-to option
         BlanketSalesOrderPage.BillToOptions.SetValue(BillToOptions::"Custom Address");
 
         // [THEN] Bill-to address fields are editable, and "Bill-to Name" field is not
-        Assert.IsFalse(BlanketSalesOrderPage."Bill-to Name".Editable, '');
-        Assert.IsTrue(BlanketSalesOrderPage."Bill-to Address".Editable and
-          BlanketSalesOrderPage."Bill-to Address 2".Editable and
-          BlanketSalesOrderPage."Bill-to City".Editable and
-          BlanketSalesOrderPage."Bill-to Post Code".Editable and
-          BlanketSalesOrderPage."Bill-to Contact No.".Editable and
-          BlanketSalesOrderPage."Bill-to Contact".Editable and
-          BlanketSalesOrderPage."Bill-to Contact".Visible, '');
+        Assert.IsFalse(BlanketSalesOrderPage."Bill-to Name".Editable(), '');
+        Assert.IsTrue(BlanketSalesOrderPage."Bill-to Address".Editable() and
+          BlanketSalesOrderPage."Bill-to Address 2".Editable() and
+          BlanketSalesOrderPage."Bill-to City".Editable() and
+          BlanketSalesOrderPage."Bill-to Post Code".Editable() and
+          BlanketSalesOrderPage."Bill-to Contact No.".Editable() and
+          BlanketSalesOrderPage."Bill-to Contact".Editable() and
+          BlanketSalesOrderPage."Bill-to Contact".Visible(), '');
     end;
 
     [Test]
@@ -3555,22 +3555,22 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [GIVEN] Created document, opened it's page
         LibraryPurchase.CreatePurchaseQuote(PurchaseQuoteHeader);
-        PurchaseQuotePage.OpenEdit;
+        PurchaseQuotePage.OpenEdit();
         PurchaseQuotePage.FILTER.SetFilter("No.", PurchaseQuoteHeader."No.");
 
         // [WHEN] Choose "Custom Address" Pay-to option
         PurchaseQuotePage.PayToOptions.SetValue(PayToOptions::"Custom Address");
 
         // [THEN] Pay-to address fields are editable, and "Pay-to Name" field is not
-        Assert.IsFalse(PurchaseQuotePage."Pay-to Name".Editable, '');
-        Assert.IsTrue(PurchaseQuotePage."Pay-to Address".Editable and
-          PurchaseQuotePage."Pay-to Address 2".Editable and
-          PurchaseQuotePage."Pay-to City".Editable and
-          PurchaseQuotePage."Pay-to County".Editable and
-          PurchaseQuotePage."Pay-to Post Code".Editable and
-          PurchaseQuotePage."Pay-to Contact No.".Editable and
-          PurchaseQuotePage."Pay-to Contact".Editable and
-          PurchaseQuotePage."Pay-to Contact".Visible, '');
+        Assert.IsFalse(PurchaseQuotePage."Pay-to Name".Editable(), '');
+        Assert.IsTrue(PurchaseQuotePage."Pay-to Address".Editable() and
+          PurchaseQuotePage."Pay-to Address 2".Editable() and
+          PurchaseQuotePage."Pay-to City".Editable() and
+          PurchaseQuotePage."Pay-to County".Editable() and
+          PurchaseQuotePage."Pay-to Post Code".Editable() and
+          PurchaseQuotePage."Pay-to Contact No.".Editable() and
+          PurchaseQuotePage."Pay-to Contact".Editable() and
+          PurchaseQuotePage."Pay-to Contact".Visible(), '');
     end;
 
     [Test]
@@ -3586,22 +3586,22 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [GIVEN] Created document, opened it's page
         LibraryPurchase.CreatePurchaseOrder(PurchaseOrderHeader);
-        PurchaseOrderPage.OpenEdit;
+        PurchaseOrderPage.OpenEdit();
         PurchaseOrderPage.FILTER.SetFilter("No.", PurchaseOrderHeader."No.");
 
         // [WHEN] Choose "Custom Address" Pay-to option
         PurchaseOrderPage.PayToOptions.SetValue(PayToOptions::"Custom Address");
 
         // [THEN] Pay-to address fields are editable, and "Pay-to Name" field is not
-        Assert.IsFalse(PurchaseOrderPage."Pay-to Name".Editable, '');
-        Assert.IsTrue(PurchaseOrderPage."Pay-to Address".Editable and
-          PurchaseOrderPage."Pay-to Address 2".Editable and
-          PurchaseOrderPage."Pay-to City".Editable and
-          PurchaseOrderPage."Pay-to County".Editable and
-          PurchaseOrderPage."Pay-to Post Code".Editable and
-          PurchaseOrderPage."Pay-to Contact No.".Editable and
-          PurchaseOrderPage."Pay-to Contact".Editable and
-          PurchaseOrderPage."Pay-to Contact".Visible, '');
+        Assert.IsFalse(PurchaseOrderPage."Pay-to Name".Editable(), '');
+        Assert.IsTrue(PurchaseOrderPage."Pay-to Address".Editable() and
+          PurchaseOrderPage."Pay-to Address 2".Editable() and
+          PurchaseOrderPage."Pay-to City".Editable() and
+          PurchaseOrderPage."Pay-to County".Editable() and
+          PurchaseOrderPage."Pay-to Post Code".Editable() and
+          PurchaseOrderPage."Pay-to Contact No.".Editable() and
+          PurchaseOrderPage."Pay-to Contact".Editable() and
+          PurchaseOrderPage."Pay-to Contact".Visible(), '');
     end;
 
     [Test]
@@ -3617,22 +3617,22 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [GIVEN] Created document, opened it's page
         LibraryPurchase.CreatePurchaseInvoice(PurchaseInvoiceHeader);
-        PurchaseInvoicePage.OpenEdit;
+        PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.FILTER.SetFilter("No.", PurchaseInvoiceHeader."No.");
 
         // [WHEN] Choose "Custom Address" Pay-to option
         PurchaseInvoicePage.PayToOptions.SetValue(PayToOptions::"Custom Address");
 
         // [THEN] Pay-to address fields are editable, and "Pay-to Name" field is not
-        Assert.IsFalse(PurchaseInvoicePage."Pay-to Name".Editable, '');
-        Assert.IsTrue(PurchaseInvoicePage."Pay-to Address".Editable and
-          PurchaseInvoicePage."Pay-to Address 2".Editable and
-          PurchaseInvoicePage."Pay-to City".Editable and
-          PurchaseInvoicePage."Pay-to County".Editable and
-          PurchaseInvoicePage."Pay-to Post Code".Editable and
-          PurchaseInvoicePage."Pay-to Contact No.".Editable and
-          PurchaseInvoicePage."Pay-to Contact".Editable and
-          PurchaseInvoicePage."Pay-to Contact".Visible, '');
+        Assert.IsFalse(PurchaseInvoicePage."Pay-to Name".Editable(), '');
+        Assert.IsTrue(PurchaseInvoicePage."Pay-to Address".Editable() and
+          PurchaseInvoicePage."Pay-to Address 2".Editable() and
+          PurchaseInvoicePage."Pay-to City".Editable() and
+          PurchaseInvoicePage."Pay-to County".Editable() and
+          PurchaseInvoicePage."Pay-to Post Code".Editable() and
+          PurchaseInvoicePage."Pay-to Contact No.".Editable() and
+          PurchaseInvoicePage."Pay-to Contact".Editable() and
+          PurchaseInvoicePage."Pay-to Contact".Visible(), '');
     end;
 
     [Test]
@@ -3652,7 +3652,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesInvoiceHeader, Customer."No.");
 
         // [THEN] Bill-to address equals Sell-to address
-        Assert.IsTrue(SalesInvoiceHeader.BillToAddressEqualsSellToAddress, '');
+        Assert.IsTrue(SalesInvoiceHeader.BillToAddressEqualsSellToAddress(), '');
     end;
 
     [Test]
@@ -3670,11 +3670,11 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [WHEN] Create document for the Customer with custom Bill-to address fields
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesInvoiceHeader, Customer."No.");
-        SalesInvoiceHeader.Validate("Bill-to Address 2", CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(Customer."Address 2")));
+        SalesInvoiceHeader.Validate("Bill-to Address 2", CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(Customer."Address 2")));
         SalesInvoiceHeader.Modify();
 
         // [THEN] Bill-to address doesn't equal Sell-to address
-        Assert.IsFalse(SalesInvoiceHeader.BillToAddressEqualsSellToAddress, '');
+        Assert.IsFalse(SalesInvoiceHeader.BillToAddressEqualsSellToAddress(), '');
     end;
 
     [Test]
@@ -3694,7 +3694,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseInvoiceHeader, Vendor."No.");
 
         // [THEN] Pay-to address equals Buy-from address
-        Assert.IsTrue(PurchaseInvoiceHeader.BuyFromAddressEqualsPayToAddress, '');
+        Assert.IsTrue(PurchaseInvoiceHeader.BuyFromAddressEqualsPayToAddress(), '');
     end;
 
     [Test]
@@ -3712,11 +3712,11 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [WHEN] Create document for the Vendor with custom Pay-to address fields
         LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseInvoiceHeader, Vendor."No.");
-        PurchaseInvoiceHeader.Validate("Pay-to Address 2", CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(Vendor."Address 2")));
+        PurchaseInvoiceHeader.Validate("Pay-to Address 2", CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(Vendor."Address 2")));
         PurchaseInvoiceHeader.Modify();
 
         // [THEN] Pay-to address doesn't equal Buy-from address
-        Assert.IsFalse(PurchaseInvoiceHeader.BuyFromAddressEqualsPayToAddress, '');
+        Assert.IsFalse(PurchaseInvoiceHeader.BuyFromAddressEqualsPayToAddress(), '');
     end;
 
     [HandlerFunctions('ItemListLookForItemOkMPH')]
@@ -3736,13 +3736,13 @@ codeunit 134341 "UT Page Actions & Controls"
         ExtendedText := LibraryService.CreateExtendedTextForItem(Item."No.");
 
         // [GIVEN] Sales Document "Y"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [WHEN] SelectMultipleItems is called
         LibraryVariableStorage.Enqueue(Item."No.");
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Document Type" := SalesHeader."Document Type";
-        SalesLine.SelectMultipleItems;
+        SalesLine.SelectMultipleItems();
 
         // [THEN] Sales Line with Description equal to "X" added to Sales Document "Y"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -3776,7 +3776,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryVariableStorage.Enqueue(Item."No.");
         PurchaseLine."Document No." := PurchaseHeader."No.";
         PurchaseLine."Document Type" := PurchaseHeader."Document Type";
-        PurchaseLine.SelectMultipleItems;
+        PurchaseLine.SelectMultipleItems();
 
         // [THEN] Purchase Line with Description equal to "X" added to Purchase Document "Y"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
@@ -3796,12 +3796,12 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 304263] When "Max. Pmt. Tolerance Amount" is not 0, fields "Payment Tolerance Credit Acc." and "Payment Tolerance Debit Acc." are Visible on page Customer Posting Groups
         Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(0);
-        CustPstGrps.OpenEdit;
+        CustPstGrps.OpenEdit();
         Assert.IsTrue(
-          CustPstGrps."Payment Tolerance Credit Acc.".Visible,
+          CustPstGrps."Payment Tolerance Credit Acc.".Visible(),
           StrSubstNo(PageFieldVisibleErr, CustPstGrps."Payment Tolerance Credit Acc.".Caption));
         Assert.IsTrue(
-          CustPstGrps."Payment Tolerance Debit Acc.".Visible,
+          CustPstGrps."Payment Tolerance Debit Acc.".Visible(),
           StrSubstNo(PageFieldVisibleErr, CustPstGrps."Payment Tolerance Debit Acc.".Caption));
     end;
 
@@ -3819,12 +3819,12 @@ codeunit 134341 "UT Page Actions & Controls"
         GeneralLedgerSetup.Validate("Payment Tolerance %", 0);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 0);
         GeneralLedgerSetup.Modify(true);
-        CustPstGrps.OpenEdit;
+        CustPstGrps.OpenEdit();
         Assert.IsFalse(
-          CustPstGrps."Payment Tolerance Credit Acc.".Visible,
+          CustPstGrps."Payment Tolerance Credit Acc.".Visible(),
           StrSubstNo(PageFieldNotVisibleErr, CustPstGrps."Payment Tolerance Credit Acc.".Caption));
         Assert.IsFalse(
-          CustPstGrps."Payment Tolerance Debit Acc.".Visible,
+          CustPstGrps."Payment Tolerance Debit Acc.".Visible(),
           StrSubstNo(PageFieldNotVisibleErr, CustPstGrps."Payment Tolerance Debit Acc.".Caption));
         LibrarySetupStorage.Restore();
     end;
@@ -3838,12 +3838,12 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 304263] When "Max. Pmt. Tolerance Amount" is not 0, fields "Payment Tolerance Credit Acc." and "Payment Tolerance Debit Acc." are Visible on page Vendor Posting Groups
         LibraryPmtDiscSetup.SetPmtTolerance(0);
-        VndrPstGrps.OpenEdit;
+        VndrPstGrps.OpenEdit();
         Assert.IsTrue(
-          VndrPstGrps."Payment Tolerance Credit Acc.".Visible,
+          VndrPstGrps."Payment Tolerance Credit Acc.".Visible(),
           StrSubstNo(PageFieldVisibleErr, VndrPstGrps."Payment Tolerance Credit Acc.".Caption));
         Assert.IsTrue(
-          VndrPstGrps."Payment Tolerance Debit Acc.".Visible,
+          VndrPstGrps."Payment Tolerance Debit Acc.".Visible(),
           StrSubstNo(PageFieldVisibleErr, VndrPstGrps."Payment Tolerance Debit Acc.".Caption));
         LibrarySetupStorage.Restore();
     end;
@@ -3862,12 +3862,12 @@ codeunit 134341 "UT Page Actions & Controls"
         GeneralLedgerSetup.Validate("Payment Tolerance %", 0);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 0);
         GeneralLedgerSetup.Modify(true);
-        VndrPstGrps.OpenEdit;
+        VndrPstGrps.OpenEdit();
         Assert.IsFalse(
-          VndrPstGrps."Payment Tolerance Credit Acc.".Visible,
+          VndrPstGrps."Payment Tolerance Credit Acc.".Visible(),
           StrSubstNo(PageFieldNotVisibleErr, VndrPstGrps."Payment Tolerance Credit Acc.".Caption));
         Assert.IsFalse(
-          VndrPstGrps."Payment Tolerance Debit Acc.".Visible,
+          VndrPstGrps."Payment Tolerance Debit Acc.".Visible(),
           StrSubstNo(PageFieldNotVisibleErr, VndrPstGrps."Payment Tolerance Debit Acc.".Caption));
     end;
 
@@ -3888,7 +3888,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [GIVEN] Created Sales Line with Item
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
           Item."No.", 8, '', 0D);
 
         // [GIVEN] Set Drop Shipment = TRUE for that Sales Line
@@ -3899,9 +3899,9 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesInfoPaneManagement.CalcAvailability(SalesLine);
 
         // [THEN] Item Card page opened with LookupItem shows correct flowfield value
-        ItemCard.Trap;
+        ItemCard.Trap();
         SalesInfoPaneManagement.LookupItem(SalesLine);
-        Assert.AreEqual(8, LibraryVariableStorage.DequeueDecimal, '');
+        Assert.AreEqual(8, LibraryVariableStorage.DequeueDecimal(), '');
     end;
 
     [Test]
@@ -3915,13 +3915,13 @@ codeunit 134341 "UT Page Actions & Controls"
         NoOfHits: Integer;
     begin
         // [SCENARIO 314486] GetTotalSales is not leading to calls for SetFilterForUnpostedLines when No. = '' on opening new Customer Card page.
-        if CodeCoverageMgt.Running then
-            CodeCoverageMgt.StopApplicationCoverage;
+        if CodeCoverageMgt.Running() then
+            CodeCoverageMgt.StopApplicationCoverage();
 
-        CustomerCard.Trap;
-        CodeCoverageMgt.StartApplicationCoverage;
+        CustomerCard.Trap();
+        CodeCoverageMgt.StartApplicationCoverage();
         CustomerCard.OpenNew();
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         NoOfHits := CodeCoverageMgt.GetNoOfHitsCoverageForObject(
             CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Customer Mgt.", 'SetFilterForUnpostedLines');
@@ -3942,18 +3942,18 @@ codeunit 134341 "UT Page Actions & Controls"
         // [GIVEN] Created a Gen. Journal Line with according type of a Posting Date
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Customer,
-          LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
+          LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(100, 2));
         GenJnlLine.Validate("Posting Date", ClosingDate(WorkDate()));
         GenJnlLine.Modify(true);
 
         // [WHEN] Open General Journal for created record in Simple Mode
         GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"General Journal");
         LibraryVariableStorage.Enqueue(GenJnlLine."Journal Template Name");
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
 
         // [THEN] Current Posting Date as Closing Date is shown correctly
-        Assert.AreEqual(GenJnlLine."Posting Date", GeneralJournal."<CurrentPostingDate>".AsDate, '');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(GenJnlLine."Posting Date", GeneralJournal."<CurrentPostingDate>".AsDate(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3970,18 +3970,18 @@ codeunit 134341 "UT Page Actions & Controls"
         // [GIVEN] Created a Gen. Journal Line with according type of a Posting Date
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Customer,
-          LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
+          LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(100, 2));
         GenJnlLine.Validate("Posting Date", WorkDate());
         GenJnlLine.Modify(true);
 
         // [WHEN] Open General Journal for created record in Simple Mode
         GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"General Journal");
         LibraryVariableStorage.Enqueue(GenJnlLine."Journal Template Name");
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
 
         // [THEN] Current Posting Date as Opening Date is shown correctly
-        Assert.AreEqual(GenJnlLine."Posting Date", GeneralJournal."<CurrentPostingDate>".AsDate, '');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(GenJnlLine."Posting Date", GeneralJournal."<CurrentPostingDate>".AsDate(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -4000,11 +4000,11 @@ codeunit 134341 "UT Page Actions & Controls"
         TableID := DATABASE::Customer;
         LibraryVariableStorage.Enqueue(TableID);
 
-        ConfigLinePage.OpenEdit;
-        ConfigLinePage.New;
+        ConfigLinePage.OpenEdit();
+        ConfigLinePage.New();
         ConfigLinePage."Line Type".SetValue(ConfigLine."Line Type"::Table);
-        ConfigLinePage."Table ID".Lookup;
-        ConfigLinePage.OK.Invoke;
+        ConfigLinePage."Table ID".Lookup();
+        ConfigLinePage.OK().Invoke();
 
         ConfigLine.FindFirst();
         Assert.AreEqual(TableID, ConfigLine."Table ID", 'Incorrect Table ID.');
@@ -4021,8 +4021,8 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Customer] [Sales] [Refund]
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
-        CustomerStatisticsFactBox.OpenView;
-        Assert.IsTrue(CustomerStatisticsFactBox."Balance (LCY)".Visible, 'Balance (LCY) is not visible in SaaS');
+        CustomerStatisticsFactBox.OpenView();
+        Assert.IsTrue(CustomerStatisticsFactBox."Balance (LCY)".Visible(), 'Balance (LCY) is not visible in SaaS');
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
@@ -4038,8 +4038,8 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Vendor] [Purchases] [Refund]
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
-        VendorStatisticsFactBox.OpenView;
-        Assert.IsTrue(VendorStatisticsFactBox."Balance (LCY)".Visible, 'Balance (LCY) is not visible in SaaS');
+        VendorStatisticsFactBox.OpenView();
+        Assert.IsTrue(VendorStatisticsFactBox."Balance (LCY)".Visible(), 'Balance (LCY) is not visible in SaaS');
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
@@ -4055,12 +4055,12 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [SCENARIO 323341] Lookup TimeZone in Post Codes
         CreatePostCode(PostCode);
-        PostCodes.OpenEdit;
+        PostCodes.OpenEdit();
         PostCodes.FILTER.SetFilter(City, PostCode.City);
         TimeZone.FindSet();
         TimeZone.Next(TimeZone.Count);
         LibraryVariableStorage.Enqueue(TimeZone.ID);
-        PostCodes.TimeZone.Lookup;
+        PostCodes.TimeZone.Lookup();
         PostCodes.Close();
         PostCode.Find();
         PostCode.TestField("Time Zone", TimeZone.ID);
@@ -4358,8 +4358,10 @@ codeunit 134341 "UT Page Actions & Controls"
         MockThreeRecordsAndOpenSecondOnFilteredPage(ItemLedgerEntry, PAGE::"Item Ledger Entries");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
+#pragma warning disable AS0072
     [Test]
+    [Obsolete('Not used.', '23.0')]
     [HandlerFunctions('SetSpecialPricesEnabledSalesPriceAndLineDiscountsModalPageHandler')]
     procedure SetSpecialPricesIsEnabledWhenSalesLineDiscountLineIsSelected()
     var
@@ -4385,6 +4387,7 @@ codeunit 134341 "UT Page Actions & Controls"
     end;
 
     [Test]
+    [Obsolete('Not used.', '23.0')]
     [HandlerFunctions('SetSpecialPricesEnabledSalesPriceAndLineDiscountsModalPageHandler')]
     procedure SetSpecialPricesIsEnabledWhenSalesPriceLineIsSelected()
     var
@@ -4408,6 +4411,7 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsTrue(SetSpecialPricesEnabled, 'Set Special Prices action is not enabled');
         LibraryVariableStorage.AssertEmpty();
     end;
+#pragma warning restore AS0072
 #endif
 
     [Test]
@@ -4426,7 +4430,7 @@ codeunit 134341 "UT Page Actions & Controls"
         ToDo.SetFilter("Salesperson Code", SalesPerson.Code);
         LibrarySales.CreateSalesperson(SalesPerson);
 
-        CreateTask.OpenEdit;
+        CreateTask.OpenEdit();
         CreateTask.FILTER.SetFilter("No.", ToDo."No.");
         CreateTask.Description.SetValue(LibraryUtility.GenerateRandomXMLText(10));
         CreateTask."Salesperson Code".SetValue(SalesPerson.Code);
@@ -4463,7 +4467,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [SCENARIO 407536] "Bill-to Contact No." lookup in "Job Card" must update "Bill-to Contact No."
         Initialize();
-        LibraryApplicationArea.EnableJobsSetup;
+        LibraryApplicationArea.EnableJobsSetup();
 
         // [GIVEN] Job and Contact "C1"
         LibraryJob.CreateJob(Job, '');
@@ -4607,7 +4611,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         ContactCard.OpenEdit();
         ContactCard.Filter.SetFilter("No.", Contact."No.");
-        Assert.IsFalse(ContactCard."Registration Number".Enabled, '');
+        Assert.IsFalse(ContactCard."Registration Number".Enabled(), '');
         ContactCard.Close();
     end;
 
@@ -4659,28 +4663,28 @@ codeunit 134341 "UT Page Actions & Controls"
     local procedure CreateVendorWithICPartnerCode(var Vendor: Record Vendor)
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo);
+        Vendor.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo());
         Vendor.Modify(true);
     end;
 
     local procedure OpenVendorCard(var VendorCard: TestPage "Vendor Card"; VendorNo: Code[20])
     begin
-        VendorCard.Trap;
-        VendorCard.OpenView;
+        VendorCard.Trap();
+        VendorCard.OpenView();
         VendorCard.FILTER.SetFilter("No.", VendorNo);
     end;
 
     local procedure CreateCustomerWithICPartnerCode(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo);
+        Customer.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo());
         Customer.Modify(true);
     end;
 
     local procedure OpenCustomerCard(var CustomerCard: TestPage "Customer Card"; CustomerNo: Code[20])
     begin
-        CustomerCard.Trap;
-        CustomerCard.OpenView;
+        CustomerCard.Trap();
+        CustomerCard.OpenView();
         CustomerCard.FILTER.SetFilter("No.", CustomerNo);
     end;
 
@@ -4696,7 +4700,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
-        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
 
         exit(Item."No.");
@@ -4758,7 +4762,6 @@ codeunit 134341 "UT Page Actions & Controls"
     local procedure MockThreeRecordsAndOpenSecondOnFilteredPage(RecVar: Variant; PageNo: Integer)
     var
         KeyValueMiddle: Variant;
-        KeyValueFirst: Variant;
         ActionOption: Option Set,Verify;
         Index: Integer;
     begin
@@ -4801,7 +4804,7 @@ codeunit 134341 "UT Page Actions & Controls"
         end;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateItemWithSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     begin
         SalesLineDiscount.Init();
@@ -4841,7 +4844,7 @@ codeunit 134341 "UT Page Actions & Controls"
             "Account Type" := "Account Type"::Posting;
             "Account Category" := "Account Category"::Assets;
             "Account Subcategory Entry No." :=
-              GLAccountCategoryMgt.GetSubcategoryEntryNo("Account Category", GLAccountCategoryMgt.GetInventory());
+              GLAccountCategoryMgt.GetSubcategoryEntryNo("Account Category".AsInteger(), GLAccountCategoryMgt.GetInventory());
             Modify(true);
         end;
     end;
@@ -4869,11 +4872,11 @@ codeunit 134341 "UT Page Actions & Controls"
         FieldRef := KeyRef.FieldIndex(1);
 
         RecRefToFilter.FindFirst();
-        KeyValueFirst := FieldRef.Value;
+        KeyValueFirst := FieldRef.Value();
         RecRefToFilter.Next(RecRef.Count div 2);
-        KeyValueMiddle := FieldRef.Value;
+        KeyValueMiddle := FieldRef.Value();
         RecRefToFilter.FindLast();
-        KeyValueLast := FieldRef.Value;
+        KeyValueLast := FieldRef.Value();
 
         FieldRef := RecRef.Field(FieldRef.Number);
         FieldRef.SetRange(KeyValueFirst, KeyValueLast);
@@ -4881,7 +4884,7 @@ codeunit 134341 "UT Page Actions & Controls"
         RecRef.FindFirst();
         RecRef.SetTable(RecVar);
 
-        KeyValueFirst := FieldRef.Value;
+        KeyValueFirst := FieldRef.Value();
     end;
 
     local procedure GetMiddleKeyFieldValueAndSetFilter(var KeyValueMiddle: Variant; var RecVar: Variant)
@@ -4900,11 +4903,11 @@ codeunit 134341 "UT Page Actions & Controls"
         FieldRef := KeyRef.FieldIndex(1);
 
         RecRefToFilter.FindFirst();
-        KeyValueFirst := FieldRef.Value;
+        KeyValueFirst := FieldRef.Value();
         RecRefToFilter.Next(RecRef.Count div 2);
-        KeyValueMiddle := FieldRef.Value;
+        KeyValueMiddle := FieldRef.Value();
         RecRefToFilter.FindLast();
-        KeyValueLast := FieldRef.Value;
+        KeyValueLast := FieldRef.Value();
 
         FieldRef := RecRef.Field(FieldRef.Number);
         FieldRef.SetRange(KeyValueMiddle, KeyValueMiddle);
@@ -4913,7 +4916,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         RecRef.SetTable(RecVar);
 
-        KeyValueFirst := FieldRef.Value;
+        KeyValueFirst := FieldRef.Value();
     end;
 
     local procedure OpenPostedSalesShipment(var PostedSalesShipment: TestPage "Posted Sales Shipment"; SalesHeader: Record "Sales Header")
@@ -4923,9 +4926,9 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesShipmentHeader.FindFirst();
 
-        PostedSalesShipment.OpenEdit;
+        PostedSalesShipment.OpenEdit();
         PostedSalesShipment.FILTER.SetFilter("No.", SalesShipmentHeader."No.");
-        Assert.IsTrue(PostedSalesShipment.Editable, 'Posted Sales Shipment page must be editable'); // BUG: 196378
+        Assert.IsTrue(PostedSalesShipment.Editable(), 'Posted Sales Shipment page must be editable'); // BUG: 196378
     end;
 
     local procedure OpenPostedSalesInvoice(var PostedSalesInvoice: TestPage "Posted Sales Invoice"; SalesHeader: Record "Sales Header")
@@ -4935,9 +4938,9 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesInvoiceHeader.FindFirst();
 
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
-        Assert.IsTrue(PostedSalesInvoice.Editable, 'Posted Sales Invoice page must be editable'); // BUG: 196378
+        Assert.IsTrue(PostedSalesInvoice.Editable(), 'Posted Sales Invoice page must be editable'); // BUG: 196378
     end;
 
     local procedure OpenPostedSalesCrMemo(var PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo"; SalesHeader: Record "Sales Header")
@@ -4947,9 +4950,9 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesCrMemoHeader.FindFirst();
 
-        PostedSalesCreditMemo.OpenEdit;
+        PostedSalesCreditMemo.OpenEdit();
         PostedSalesCreditMemo.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
-        Assert.IsTrue(PostedSalesCreditMemo.Editable, 'Posted Sales Credit Memo page must be editable'); // BUG: 196378
+        Assert.IsTrue(PostedSalesCreditMemo.Editable(), 'Posted Sales Credit Memo page must be editable'); // BUG: 196378
     end;
 
     local procedure OpenPostedReturnReceipt(var PostedReturnReceipt: TestPage "Posted Return Receipt"; SalesHeader: Record "Sales Header")
@@ -4959,9 +4962,9 @@ codeunit 134341 "UT Page Actions & Controls"
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         ReturnReceiptHeader.FindFirst();
 
-        PostedReturnReceipt.OpenEdit;
+        PostedReturnReceipt.OpenEdit();
         PostedReturnReceipt.FILTER.SetFilter("No.", ReturnReceiptHeader."No.");
-        Assert.IsTrue(PostedReturnReceipt.Editable, 'Posted Return Receipt page must be editable'); // BUG: 196378
+        Assert.IsTrue(PostedReturnReceipt.Editable(), 'Posted Return Receipt page must be editable'); // BUG: 196378
     end;
 
     local procedure OpenPostedPurchaseReceipt(var PostedPurchaseReceipt: TestPage "Posted Purchase Receipt"; PurchaseHeader: Record "Purchase Header")
@@ -4971,9 +4974,9 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         PurchRcptHeader.FindFirst();
 
-        PostedPurchaseReceipt.OpenEdit;
+        PostedPurchaseReceipt.OpenEdit();
         PostedPurchaseReceipt.FILTER.SetFilter("No.", PurchRcptHeader."No.");
-        Assert.IsTrue(PostedPurchaseReceipt.Editable, 'Posted Purchase Receipt page must be editable'); // BUG: 196378
+        Assert.IsTrue(PostedPurchaseReceipt.Editable(), 'Posted Purchase Receipt page must be editable'); // BUG: 196378
     end;
 
     local procedure OpenPostedPurchaseInvoice(var PostedPurchaseInvoice: TestPage "Posted Purchase Invoice"; PurchaseHeader: Record "Purchase Header")
@@ -4983,9 +4986,9 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         PurchInvHeader.FindFirst();
 
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.FILTER.SetFilter("No.", PurchInvHeader."No.");
-        Assert.IsTrue(PostedPurchaseInvoice.Editable, 'Posted Purchase Invoice page must be editable'); // BUG: 196378
+        Assert.IsTrue(PostedPurchaseInvoice.Editable(), 'Posted Purchase Invoice page must be editable'); // BUG: 196378
     end;
 
     local procedure OpenPostedPurchaseCrMemo(var PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo"; PurchaseHeader: Record "Purchase Header")
@@ -4995,9 +4998,9 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         PurchCrMemoHdr.FindFirst();
 
-        PostedPurchaseCreditMemo.OpenEdit;
+        PostedPurchaseCreditMemo.OpenEdit();
         PostedPurchaseCreditMemo.FILTER.SetFilter("No.", PurchCrMemoHdr."No.");
-        Assert.IsTrue(PostedPurchaseCreditMemo.Editable, 'Posted Purchase Credit Memo page must be editable'); // BUG: 196378
+        Assert.IsTrue(PostedPurchaseCreditMemo.Editable(), 'Posted Purchase Credit Memo page must be editable'); // BUG: 196378
     end;
 
     local procedure OpenPostedReturnShipment(var PostedReturnShipment: TestPage "Posted Return Shipment"; PurchaseHeader: Record "Purchase Header")
@@ -5007,9 +5010,9 @@ codeunit 134341 "UT Page Actions & Controls"
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         ReturnShipmentHeader.FindFirst();
 
-        PostedReturnShipment.OpenEdit;
+        PostedReturnShipment.OpenEdit();
         PostedReturnShipment.FILTER.SetFilter("No.", ReturnShipmentHeader."No.");
-        Assert.IsTrue(PostedReturnShipment.Editable, 'Posted Return Shipment page must be editable'); // BUG: 196378
+        Assert.IsTrue(PostedReturnShipment.Editable(), 'Posted Return Shipment page must be editable'); // BUG: 196378
     end;
 
     local procedure OpenPurchaseOrderListWithPartialReceiveFilter(var PurchaseOrderListTestPage: TestPage "Purchase Order List"; Receive: Boolean)
@@ -5020,7 +5023,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchaseHeader.SetRange("Completely Received", false);
         PurchaseHeader.SetRange(Receive, Receive);
 
-        PurchaseOrderListTestPage.Trap;
+        PurchaseOrderListTestPage.Trap();
         PAGE.Run(PAGE::"Purchase Order List", PurchaseHeader);
     end;
 
@@ -5032,7 +5035,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchaseHeader.SetRange("Completely Received", true);
         PurchaseHeader.SetRange(Invoice, Invoice);
 
-        PurchaseOrderListTestPage.Trap;
+        PurchaseOrderListTestPage.Trap();
         PAGE.Run(PAGE::"Purchase Order List", PurchaseHeader);
     end;
 
@@ -5042,7 +5045,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItemWithTracking, LibraryRandom.RandDecInRange(100, 200, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItemWithTracking(), LibraryRandom.RandDecInRange(100, 200, 2));
         PurchaseLine.OpenItemTrackingLines();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
@@ -5053,7 +5056,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithTracking, LibraryRandom.RandDecInRange(100, 200, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithTracking(), LibraryRandom.RandDecInRange(100, 200, 2));
         SalesLine.OpenItemTrackingLines();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -5075,7 +5078,7 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesReceivablesSetup."Post & Print with Job Queue" := PostAndPrintWithQueue;
         SalesReceivablesSetup.Modify();
 
-        UpdateNoSeriesOnSalesSetup;
+        UpdateNoSeriesOnSalesSetup();
     end;
 
     local procedure UpdateJobQueueActiveOnPurchaseSetup(PostWithQueue: Boolean; PostAndPrintWithQueue: Boolean)
@@ -5087,7 +5090,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchasesPayablesSetup."Post & Print with Job Queue" := PostAndPrintWithQueue;
         PurchasesPayablesSetup.Modify();
 
-        UpdateNoSeriesOnPurchaseSetup;
+        UpdateNoSeriesOnPurchaseSetup();
     end;
 
     local procedure UpdateNoSeriesOnSalesSetup()
@@ -5095,7 +5098,7 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode;
+        SalesReceivablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode();
         SalesReceivablesSetup.Modify();
     end;
 
@@ -5104,7 +5107,7 @@ codeunit 134341 "UT Page Actions & Controls"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode;
+        PurchasesPayablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode();
         PurchasesPayablesSetup.Modify();
     end;
 
@@ -5141,25 +5144,25 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         ItemList.Next();
         LibraryVariableStorage.Enqueue(ItemList."No.".Value);
-        ItemList.OK.Invoke;
+        ItemList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemListLookForItemMPH(var ItemList: TestPage "Item List")
     begin
-        ItemList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.Enqueue(ItemList.First);
-        ItemList.Cancel.Invoke;
+        ItemList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.Enqueue(ItemList.First());
+        ItemList.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemListLookForItemOkMPH(var ItemList: TestPage "Item List")
     begin
-        ItemList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ItemList.First;
-        ItemList.OK.Invoke;
+        ItemList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ItemList.First();
+        ItemList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5168,111 +5171,111 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         ItemList.Next();
         LibraryVariableStorage.Enqueue(ItemList."No.".Value);
-        ItemList.Cancel.Invoke;
+        ItemList.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingMPH(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Lot No.".Invoke;  // Assign Lot No.
-        ItemTrackingLines."Quantity (Base)".SetValue(ItemTrackingLines."Quantity (Base)".AsDEcimal / 2);  // Partial Quantity.
-        ItemTrackingLines."Assign Lot No.".Invoke;  // Assign Lot No for the new Line.
+        ItemTrackingLines."Assign Lot No.".Invoke();  // Assign Lot No.
+        ItemTrackingLines."Quantity (Base)".SetValue(ItemTrackingLines."Quantity (Base)".AsDecimal() / 2);  // Partial Quantity.
+        ItemTrackingLines."Assign Lot No.".Invoke();  // Assign Lot No for the new Line.
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedItemTrackingLinesMPH(var PostedItemTrackingLines: TestPage "Posted Item Tracking Lines")
     begin
-        PostedItemTrackingLines.OK.Invoke;
+        PostedItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DimensionSetEntriesMPH(var DimensionSetEntries: TestPage "Dimension Set Entries")
     begin
-        DimensionSetEntries.OK.Invoke;
+        DimensionSetEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesInvoiceLinesMPH(var PostedSalesInvoiceLines: TestPage "Posted Sales Invoice Lines")
     begin
-        PostedSalesInvoiceLines.OK.Invoke;
+        PostedSalesInvoiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesShipmentLinesMPH(var PostedSalesShipmentLines: TestPage "Posted Sales Shipment Lines")
     begin
-        PostedSalesShipmentLines.OK.Invoke;
+        PostedSalesShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesRetReceiptLinesMPH(var PostedReturnReceiptLines: TestPage "Posted Return Receipt Lines")
     begin
-        PostedReturnReceiptLines.OK.Invoke;
+        PostedReturnReceiptLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesCrMemoLinesMPH(var PostedSalesCreditMemoLines: TestPage "Posted Sales Credit Memo Lines")
     begin
-        PostedSalesCreditMemoLines.OK.Invoke;
+        PostedSalesCreditMemoLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchaseInvoiceLinesMPH(var PostedPurchaseInvoiceLines: TestPage "Posted Purchase Invoice Lines")
     begin
-        PostedPurchaseInvoiceLines.OK.Invoke;
+        PostedPurchaseInvoiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchaseReceiptLinesMPH(var PostedPurchaseReceiptLines: TestPage "Posted Purchase Receipt Lines")
     begin
-        PostedPurchaseReceiptLines.OK.Invoke;
+        PostedPurchaseReceiptLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchRetShipmenttLinesMPH(var PostedReturnShipmentLines: TestPage "Posted Return Shipment Lines")
     begin
-        PostedReturnShipmentLines.OK.Invoke;
+        PostedReturnShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchaseCrMemoLinesMPH(var PostedPurchaseCrMemoLines: TestPage "Posted Purchase Cr. Memo Lines")
     begin
-        PostedPurchaseCrMemoLines.OK.Invoke;
+        PostedPurchaseCrMemoLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesCommentSheetMPH(var SalesCommentSheet: TestPage "Sales Comment Sheet")
     begin
-        SalesCommentSheet.OK.Invoke;
+        SalesCommentSheet.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchCommentSheetMPH(var PurchCommentSheet: TestPage "Purch. Comment Sheet")
     begin
-        PurchCommentSheet.OK.Invoke;
+        PurchCommentSheet.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesShipmentsPageHandler(var PostedSalesShipments: TestPage "Posted Sales Shipments")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                PostedSalesShipments."No.".SetValue(LibraryVariableStorage.DequeueText);
+                PostedSalesShipments."No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                PostedSalesShipments."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                PostedSalesShipments."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         PostedSalesShipments.Close();
     end;
@@ -5281,11 +5284,11 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure PostedSalesInvoicesPageHandler(var PostedSalesInvoices: TestPage "Posted Sales Invoices")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                PostedSalesInvoices."No.".SetValue(LibraryVariableStorage.DequeueText);
+                PostedSalesInvoices."No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                PostedSalesInvoices."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                PostedSalesInvoices."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         PostedSalesInvoices.Close();
     end;
@@ -5294,11 +5297,11 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure PostedSalesCreditMemosPageHandler(var PostedSalesCreditMemos: TestPage "Posted Sales Credit Memos")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                PostedSalesCreditMemos."No.".SetValue(LibraryVariableStorage.DequeueText);
+                PostedSalesCreditMemos."No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                PostedSalesCreditMemos."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                PostedSalesCreditMemos."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         PostedSalesCreditMemos.Close();
     end;
@@ -5307,11 +5310,11 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure PostedReturnReceiptsPageHandler(var PostedReturnReceipts: TestPage "Posted Return Receipts")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                PostedReturnReceipts."No.".SetValue(LibraryVariableStorage.DequeueText);
+                PostedReturnReceipts."No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                PostedReturnReceipts."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                PostedReturnReceipts."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         PostedReturnReceipts.Close();
     end;
@@ -5320,11 +5323,11 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure PostedPurchaseReceiptsPageHandler(var PostedPurchaseReceipts: TestPage "Posted Purchase Receipts")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                PostedPurchaseReceipts."No.".SetValue(LibraryVariableStorage.DequeueText);
+                PostedPurchaseReceipts."No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                PostedPurchaseReceipts."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                PostedPurchaseReceipts."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         PostedPurchaseReceipts.Close();
     end;
@@ -5333,11 +5336,11 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure PostedPurchaseInvoicesPageHandler(var PostedPurchaseInvoices: TestPage "Posted Purchase Invoices")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                PostedPurchaseInvoices."No.".SetValue(LibraryVariableStorage.DequeueText);
+                PostedPurchaseInvoices."No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                PostedPurchaseInvoices."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                PostedPurchaseInvoices."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         PostedPurchaseInvoices.Close();
     end;
@@ -5346,11 +5349,11 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure PostedPurchaseCreditMemosPageHandler(var PostedPurchaseCreditMemos: TestPage "Posted Purchase Credit Memos")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                PostedPurchaseCreditMemos."No.".SetValue(LibraryVariableStorage.DequeueText);
+                PostedPurchaseCreditMemos."No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                PostedPurchaseCreditMemos."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                PostedPurchaseCreditMemos."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         PostedPurchaseCreditMemos.Close();
     end;
@@ -5359,11 +5362,11 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure GeneralLedgerEntriesPageHandler(var GeneralLedgerEntries: TestPage "General Ledger Entries")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                GeneralLedgerEntries."Entry No.".SetValue(LibraryVariableStorage.DequeueText);
+                GeneralLedgerEntries."Entry No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                GeneralLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                GeneralLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         GeneralLedgerEntries.Close();
     end;
@@ -5372,11 +5375,11 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure ResourceLedgerEntriesPageHandler(var ResourceLedgerEntries: TestPage "Resource Ledger Entries")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                ResourceLedgerEntries."Entry No.".SetValue(LibraryVariableStorage.DequeueText);
+                ResourceLedgerEntries."Entry No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                ResourceLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                ResourceLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         ResourceLedgerEntries.Close();
     end;
@@ -5385,11 +5388,11 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure CustomerLedgerEntriesPageHandler(var CustomerLedgerEntries: TestPage "Customer Ledger Entries")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                CustomerLedgerEntries."Entry No.".SetValue(LibraryVariableStorage.DequeueText);
+                CustomerLedgerEntries."Entry No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                CustomerLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                CustomerLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         CustomerLedgerEntries.Close();
     end;
@@ -5398,11 +5401,11 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure VendorLedgerEntriesPageHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                VendorLedgerEntries."Entry No.".SetValue(LibraryVariableStorage.DequeueText);
+                VendorLedgerEntries."Entry No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                VendorLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                VendorLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         VendorLedgerEntries.Close();
     end;
@@ -5411,11 +5414,11 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure CheckLedgerEntriesPageHandler(var CheckLedgerEntries: TestPage "Check Ledger Entries")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                CheckLedgerEntries."Entry No.".SetValue(LibraryVariableStorage.DequeueText);
+                CheckLedgerEntries."Entry No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                CheckLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                CheckLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         CheckLedgerEntries.Close();
     end;
@@ -5424,11 +5427,11 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure ItemLedgerEntriesPageHandler(var ItemLedgerEntries: TestPage "Item Ledger Entries")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             0:
-                ItemLedgerEntries."Entry No.".SetValue(LibraryVariableStorage.DequeueText);
+                ItemLedgerEntries."Entry No.".SetValue(LibraryVariableStorage.DequeueText());
             1:
-                ItemLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                ItemLedgerEntries."Entry No.".AssertEquals(LibraryVariableStorage.DequeueText());
         end;
         ItemLedgerEntries.Close();
     end;
@@ -5454,15 +5457,15 @@ codeunit 134341 "UT Page Actions & Controls"
         CreateTask.TypeOnPrem.SetValue(Task.Type::Meeting);
         CreateTask.Description.SetValue(LibraryUtility.GenerateRandomXMLText(10));
         CreateTask."Start Time".SetValue(Time);
-        CreateTask.OK.Invoke;
+        CreateTask.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GLAccountListLookupPageHandler(var GLAccountList: TestPage "G/L Account List")
     begin
-        GLAccountList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        GLAccountList.OK.Invoke;
+        GLAccountList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        GLAccountList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5470,23 +5473,23 @@ codeunit 134341 "UT Page Actions & Controls"
     procedure PostCodeFilterPageHandler(var PostCodes: TestPage "Post Codes")
     begin
         LibraryVariableStorage.Enqueue(PostCodes.FILTER.GetFilter("Country/Region Code"));
-        PostCodes.OK.Invoke;
+        PostCodes.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostCodeLookupOkPageHandler(var PostCodes: TestPage "Post Codes")
     begin
-        PostCodes.FILTER.SetFilter(City, LibraryVariableStorage.DequeueText);
-        PostCodes.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        PostCodes.OK.Invoke;
+        PostCodes.FILTER.SetFilter(City, LibraryVariableStorage.DequeueText());
+        PostCodes.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        PostCodes.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostCodeLookupCancelPageHandler(var PostCodes: TestPage "Post Codes")
     begin
-        PostCodes.Cancel.Invoke;
+        PostCodes.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5494,15 +5497,15 @@ codeunit 134341 "UT Page Actions & Controls"
     procedure ItemCardPageHandler(var ItemCard: TestPage "Item Card")
     begin
         LibraryVariableStorage.Enqueue(ItemCard."Qty. on Sales Order".Value);
-        ItemCard.OK.Invoke;
+        ItemCard.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GenJnlTemplateHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5517,18 +5520,18 @@ codeunit 134341 "UT Page Actions & Controls"
         AllObjWithCaption.SetRange("Object ID", TableID);
         AllObjWithCaption.FindFirst();
         ObjectsPage.GotoRecord(AllObjWithCaption);
-        ObjectsPage.OK.Invoke;
+        ObjectsPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure TimeZoneLookup(var TimeZones: TestPage "Time Zones Lookup")
     begin
-        TimeZones.FILTER.SetFilter(ID, LibraryVariableStorage.DequeueText);
-        TimeZones.OK.Invoke;
+        TimeZones.FILTER.SetFilter(ID, LibraryVariableStorage.DequeueText());
+        TimeZones.OK().Invoke();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VerifyMinimumQuantityInSalesPriceAndLineDiscountsPageHandler(var SalesPrLineDisc: TestPage "Sales Price and Line Discounts")
@@ -5569,15 +5572,15 @@ codeunit 134341 "UT Page Actions & Controls"
     [Scope('OnPrem')]
     procedure LogSegmentHandler(var LogSegment: TestRequestPage "Log Segment")
     begin
-        LogSegment.OK.Invoke();
+        LogSegment.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VATStatementTemplateListModalPageHandler(var VATStatementTemplateList: TestPage "VAT Statement Template List")
     begin
-        VATStatementTemplateList.Filter.SetFilter(Name, LibraryVariableStorage.DequeueText);
-        VATStatementTemplateList.OK.Invoke;
+        VATStatementTemplateList.Filter.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        VATStatementTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]

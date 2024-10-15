@@ -32,8 +32,8 @@ codeunit 139179 "CRM Statistics Job Test"
         CRMStatisticsJob: Codeunit "CRM Statistics Job";
     begin
         // [FEATURE] [FlowField]
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
 
         // [GIVEN] The Customer has some non-zero FlowField values in the statistics, which have not been calculated
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -69,8 +69,8 @@ codeunit 139179 "CRM Statistics Job Test"
         OldValue: Decimal;
     begin
         // [FEATURE] [FlowField]
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
 
         // [GIVEN] The Customer has some field values in the statistics, different from the ones in the Account Statistics
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -112,8 +112,8 @@ codeunit 139179 "CRM Statistics Job Test"
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMStatisticsJob: Codeunit "CRM Statistics Job";
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
 
         // [GIVEN] A coupled and synchronized Customer and CRM Account
         CreateCRMAccountSynchedToCustomer(Customer, CRMAccount);
@@ -141,8 +141,8 @@ codeunit 139179 "CRM Statistics Job Test"
         CRMStatisticsJob: Codeunit "CRM Statistics Job";
     begin
         // [FEATURE] [Modified On]
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
 
         // [GIVEN] A coupled and synchronized Customer and CRM Account
         CreateCRMAccountSynchedToCustomer(Customer, CRMAccount);
@@ -229,16 +229,16 @@ codeunit 139179 "CRM Statistics Job Test"
         JobQueueLogEntry.TestField("Error Message", '');
 
         // [WHEN] run action "Details" on page "Job Queue Log Entries"
-        JobQueueLogEntriesPage.OpenView;
+        JobQueueLogEntriesPage.OpenView();
         JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
         JobQueueLogEntry.FindLast();
         JobQueueLogEntriesPage.GotoRecord(JobQueueLogEntry);
-        JobQueueLogEntriesPage.Details.Invoke;
+        JobQueueLogEntriesPage.Details.Invoke();
 
         // [THEN] Open modal "Integration Synch. Job List" page showing the synch. log entry 'L'
-        ActualFailed := LibraryVariableStorage.DequeueInteger; // returned by IntegrationSynchJobListModalHandler
+        ActualFailed := LibraryVariableStorage.DequeueInteger(); // returned by IntegrationSynchJobListModalHandler
         Assert.AreEqual(IntegrationSynchJob[1].Failed, ActualFailed, 'Failed in IntegrationSynchJobList');
-        ActualFinishDateTime := LibraryVariableStorage.DequeueDateTime;
+        ActualFinishDateTime := LibraryVariableStorage.DequeueDateTime();
         Assert.AreEqual(IntegrationSynchJob[1]."Finish Date/Time", ActualFinishDateTime, 'Finish Date-Time in IntegrationSynchJobList');
     end;
 
@@ -319,9 +319,9 @@ codeunit 139179 "CRM Statistics Job Test"
         Assert.AreNotEqual(0, RemainingAmount, 'Remaining Amount should NOT be 0');
 
         // [WHEN] Run 'Update Statistics In CRM' action on Customer Card page
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.UpdateStatisticsInCRM.Invoke;
+        CustomerCard.UpdateStatisticsInCRM.Invoke();
 
         // [THEN] CRM Invoice, where StateCode is 'Active', StatusCode is 'Partial'
         CRMInvoice.Find('=');
@@ -360,16 +360,16 @@ codeunit 139179 "CRM Statistics Job Test"
         RemainingAmount := PayForInvoice(SalesInvHeader, 0.33);
         Assert.AreNotEqual(0, RemainingAmount, 'Remaining Amount should NOT be 0');
         // [WHEN] Run 'Update Statistics In CRM' action on Customer List page
-        CustomerList.OpenEdit;
+        CustomerList.OpenEdit();
         CustomerList.GotoRecord(Customer);
-        CustomerList.UpdateStatisticsInCRM.Invoke;
+        CustomerList.UpdateStatisticsInCRM.Invoke();
 
         // [GIVEN] Apply a full payment to Invoice '1032'
         RemainingAmount := PayForInvoice(SalesInvHeader, 1);
         Assert.AreEqual(0, RemainingAmount, 'Remaining Amount should be 0');
 
         // [WHEN] Run 'Update Statistics In CRM' action on Customer List page
-        CustomerList.UpdateStatisticsInCRM.Invoke;
+        CustomerList.UpdateStatisticsInCRM.Invoke();
 
         // [THEN] CRM Invoice, where StateCode is 'Paid', StatusCode is 'Complete'
         CRMInvoice.Find('=');
@@ -521,14 +521,14 @@ codeunit 139179 "CRM Statistics Job Test"
         Assert.ExpectedMessage(StrSubstNo(ConnectionNotEnabledErr, CRMProductName.FULL()), JobQueueEntry."Error Message");
 
         // [WHEN] run action "Details" on page "Job Queue Log Entries"
-        JobQueueLogEntriesPage.OpenView;
+        JobQueueLogEntriesPage.OpenView();
         JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
         JobQueueLogEntry.FindLast();
         JobQueueLogEntriesPage.GotoRecord(JobQueueLogEntry);
-        JobQueueLogEntriesPage.Details.Invoke;
+        JobQueueLogEntriesPage.Details.Invoke();
 
         // [THEN] Open modal "Integration Synch. Job List" page showing no log entries
-        IsSynchLogEntryFound := LibraryVariableStorage.DequeueBoolean; // returned by BlankIntegrationSynchJobListModalHandler
+        IsSynchLogEntryFound := LibraryVariableStorage.DequeueBoolean(); // returned by BlankIntegrationSynchJobListModalHandler
         Assert.IsFalse(IsSynchLogEntryFound, 'IntegrationSynchJobList should be empty');
     end;
 
@@ -557,8 +557,8 @@ codeunit 139179 "CRM Statistics Job Test"
         IntegrationSynchJob.Insert();
 
         // [WHEN] run action "Details" on page "Job Queue Log Entries"
-        JobQueueLogEntriesPage.OpenView;
-        JobQueueLogEntriesPage.Details.Invoke;
+        JobQueueLogEntriesPage.OpenView();
+        JobQueueLogEntriesPage.Details.Invoke();
 
         // [THEN] "Integration Synch. Job List" page is not open
         // verified by lack of ModalHandler
@@ -566,11 +566,11 @@ codeunit 139179 "CRM Statistics Job Test"
 
     local procedure Initialize()
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
-        LibraryCRMIntegration.InitializeCRMSynchStatus;
-        ResetDefaultCRMSetupConfiguration;
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
+        LibraryCRMIntegration.InitializeCRMSynchStatus();
+        ResetDefaultCRMSetupConfiguration();
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
     end;
 
     local procedure CreateBilledCRMInvoice(var Customer: Record Customer; var SalesInvHeader: Record "Sales Invoice Header"; var CRMAccount: Record "CRM Account"; var CRMInvoice: Record "CRM Invoice")
@@ -599,7 +599,7 @@ codeunit 139179 "CRM Statistics Job Test"
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
     begin
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.Get('CUSTOMER');
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMAccount.AccountId, true, false);
     end;
@@ -669,7 +669,7 @@ codeunit 139179 "CRM Statistics Job Test"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
     end;
@@ -684,10 +684,10 @@ codeunit 139179 "CRM Statistics Job Test"
         JobQueueLogEntry.FindLast();
         IntegrationSynchJob.SetCurrentKey("Start Date/Time");
         IntegrationSynchJob.SetRange("Job Queue Log Entry No.", JobQueueLogEntry."Entry No.");
-        IntegrationSynchJob.SetRange(Message, CRMStatisticsJob.GetAccStatsUpdateFinalMessage);
+        IntegrationSynchJob.SetRange(Message, CRMStatisticsJob.GetAccStatsUpdateFinalMessage());
         IntegrationSynchJob.FindFirst();
         VerifyIntegrationSynchJob(IntegrationSynchJob, ExpectedIntegrationSynchJob[1], Format(JobQueueLogEntry."Object ID to Run"));
-        IntegrationSynchJob.SetRange(Message, CRMStatisticsJob.GetInvStatusUpdateFinalMessage);
+        IntegrationSynchJob.SetRange(Message, CRMStatisticsJob.GetInvStatusUpdateFinalMessage());
         IntegrationSynchJob.FindFirst();
         VerifyIntegrationSynchJob(IntegrationSynchJob, ExpectedIntegrationSynchJob[2], Format(JobQueueLogEntry."Object ID to Run"));
     end;
@@ -718,16 +718,16 @@ codeunit 139179 "CRM Statistics Job Test"
     [Scope('OnPrem')]
     procedure BlankIntegrationSynchJobListModalHandler(var IntegrationSynchJobListPage: TestPage "Integration Synch. Job List")
     begin
-        LibraryVariableStorage.Enqueue(IntegrationSynchJobListPage.First);
+        LibraryVariableStorage.Enqueue(IntegrationSynchJobListPage.First());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure IntegrationSynchJobListModalHandler(var IntegrationSynchJobListPage: TestPage "Integration Synch. Job List")
     begin
-        Assert.IsTrue(IntegrationSynchJobListPage.Last, 'Most earlier record in IntegrationSynchJobList');
-        LibraryVariableStorage.Enqueue(IntegrationSynchJobListPage.Failed.AsInteger);
-        LibraryVariableStorage.Enqueue(IntegrationSynchJobListPage."Finish Date/Time".AsDateTime);
+        Assert.IsTrue(IntegrationSynchJobListPage.Last(), 'Most earlier record in IntegrationSynchJobList');
+        LibraryVariableStorage.Enqueue(IntegrationSynchJobListPage.Failed.AsInteger());
+        LibraryVariableStorage.Enqueue(IntegrationSynchJobListPage."Finish Date/Time".AsDateTime());
     end;
 
     [RecallNotificationHandler]

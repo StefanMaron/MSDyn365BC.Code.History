@@ -27,6 +27,7 @@ codeunit 137093 "SCM Kitting - D4"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LeadTimeMgt: Codeunit "Lead-Time Management";
         isInitialized: Boolean;
@@ -52,7 +53,7 @@ codeunit 137093 "SCM Kitting - D4"
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        GlobalSetup;
+        GlobalSetup();
 
         isInitialized := true;
 
@@ -65,13 +66,13 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         WorkDate2 := CalcSafeDate(WorkDate()); // to avoid Due Date Before Work Date message.
         WorkDate10D := CalcDate('<10D>', WorkDate2);
-        AssemblySetup;
-        SetupItemJournal;
+        AssemblySetup();
+        SetupItemJournal();
 
         LocationSetup(LocationBlue, false);
         LocationSetup(LocationRed, false);
         LocationSetup(TransitLocation, true);
-        TransferRoutesSetup;
+        TransferRoutesSetup();
     end;
 
     local procedure CalcSafeDate(Date: Date): Date
@@ -90,18 +91,18 @@ codeunit 137093 "SCM Kitting - D4"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         AssemblySetup.Get();
-        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         AssemblySetup.Validate("Default Location for Orders", '');
         AssemblySetup.Modify(true);
 
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -111,13 +112,13 @@ codeunit 137093 "SCM Kitting - D4"
         Clear(ItemJournalTemplate);
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
         ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -157,7 +158,7 @@ codeunit 137093 "SCM Kitting - D4"
 
     local procedure SetRandComponentQuantityPer(var BOMComponent: Record "BOM Component"): Decimal
     begin
-        BOMComponent.Validate("Quantity per", RandInt5);
+        BOMComponent.Validate("Quantity per", RandInt5());
         BOMComponent.Modify();
         exit(BOMComponent."Quantity per");
     end;
@@ -179,6 +180,7 @@ codeunit 137093 "SCM Kitting - D4"
     local procedure CreateAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; ParentItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; DueDate: Date; Quantity: Decimal): Decimal
     begin
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, DueDate, ParentItemNo, LocationCode, Quantity, VariantCode);
+        NotificationLifecycleMgt.RecallAllNotifications();
         exit(Quantity);
     end;
 
@@ -190,6 +192,7 @@ codeunit 137093 "SCM Kitting - D4"
         Evaluate(SafetyLeadTime, LeadTimeMgt.SafetyLeadTime(ParentItemNo, LocationCode, '')); // VSTF 256580
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, CalcDate(SafetyLeadTime, DueDate), ParentItemNo, LocationCode, Quantity, VariantCode);
+        NotificationLifecycleMgt.RecallAllNotifications();
         exit(Quantity);
     end;
 
@@ -203,7 +206,7 @@ codeunit 137093 "SCM Kitting - D4"
         LibraryInventory.CreateItem(Item);
         AddComponent(Item, BOMComponent);
 
-        QtyOnAssemble := RandInt;
+        QtyOnAssemble := RandInt();
         MissedQty := QtyOnAssemble div 7;
         if Negative then
             MissedQty := -MissedQty;
@@ -214,6 +217,7 @@ codeunit 137093 "SCM Kitting - D4"
 
         // will also "jump" to availability handler as availability warning is triggered
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', DueDate, QtyOnAssemble);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure CreateProdOrderAndRefresh(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; DueDate: Date): Decimal
@@ -225,7 +229,7 @@ codeunit 137093 "SCM Kitting - D4"
             ProductionOrder.Validate("Location Code", LocationCode);
 
         // Needed for executing the validate trigger on due date
-        ProductionOrder.SetUpdateEndDate;
+        ProductionOrder.SetUpdateEndDate();
         ProductionOrder.Validate("Due Date", DueDate);
         ProductionOrder.Modify(true);
 
@@ -401,6 +405,7 @@ codeunit 137093 "SCM Kitting - D4"
         AssemblyHeader.Modify(true);
 
         CODEUNIT.Run(CODEUNIT::"Assembly-Post", AssemblyHeader);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure MinValue(Val1: Decimal; Val2: Decimal): Decimal
@@ -506,7 +511,6 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('CloseAvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ComponentNotAvailable()
     var
@@ -565,7 +569,6 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('CloseAvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ComponentVariantNotAvailable()
     var
@@ -632,7 +635,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('CloseAvailabilityWindowHandler,ChangeLocationCodeConfirm')]
+    [HandlerFunctions('ChangeLocationCodeConfirm')]
     [Scope('OnPrem')]
     procedure ChangeLocationComponentNotAvailable()
     var
@@ -652,7 +655,7 @@ codeunit 137093 "SCM Kitting - D4"
         LibraryInventory.CreateItem(Item);
         AddComponent(Item, BOMComponent);
         // [GIVEN] The Component is NOT in inventory on Location "L2"
-        AddInventory(BOMComponent."No.", '', LocationCodeFrom, RandInt);
+        AddInventory(BOMComponent."No.", '', LocationCodeFrom, RandInt());
 
         // [GIVEN] Create Assembly Order for assembling 1 pcs Item "X" on Location "L1"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCodeFrom, '', WorkDate2, 1);
@@ -663,6 +666,7 @@ codeunit 137093 "SCM Kitting - D4"
 
         // [THEN] Component is NOT available
         Assert.IsFalse(ComponentsAvailable(AssemblyHeader), StrSubstNo(ComponentIsAvailableErr, Item."No."));
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [ConfirmHandler]
@@ -687,9 +691,9 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Item and Assembly Header for this item
         Initialize();
         AssemblySetup.Get();
-        AssemblySetup."Posted Assembly Order Nos." := LibraryERM.CreateNoSeriesCode;
+        AssemblySetup."Posted Assembly Order Nos." := LibraryERM.CreateNoSeriesCode();
         AssemblySetup.Modify(true);
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo, '', 0, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), '', 0, '');
 
         // [WHEN] Validate Posting No. Series field from Assembly Header
         AssemblyHeader.Validate("Posting No. Series", AssemblySetup."Posted Assembly Order Nos.");
@@ -715,7 +719,7 @@ codeunit 137093 "SCM Kitting - D4"
         AssemblySetup.Modify(true);
 
         // [WHEN] Insert Assembly Header
-        asserterror LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo, '', 0, '');
+        asserterror LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), '', 0, '');
 
         // [THEN] Error in testing field Posting No. Series is expected
         Assert.ExpectedError(PostedNoSeriesErr);
@@ -749,7 +753,6 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('CloseAvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure PartialPostingComponentNotAvailable()
     var
@@ -777,7 +780,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure AbleToAssembleMissingInventory()
     var
@@ -811,12 +814,13 @@ codeunit 137093 "SCM Kitting - D4"
         PostAssemblyOrderQty(AssemblyHeader, QtyAssembled);
 
         // [WHEN] Show Assembly Availability
-        AssemblyHeader.ShowAvailability;
+        AssemblyHeader.ShowAvailability();
 
         // [THEN] Assembly Availability page shows:
         // [THEN] "Able To Assemble" = "Q" - 1, "Inventory" = 1 on page header
         // [THEN] "Able To Assemble" = "Q" - 1 and "Expected Inventory" = "Q" - 1 in page line
         VerifyAsmAvailMissingInventory(AssemblyHeader, QtyOnInventory - QtyAssembled, QtyAssembled);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -844,7 +848,7 @@ codeunit 137093 "SCM Kitting - D4"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, QtyOnAssemble);
 
         // [WHEN] Show Assembly Availability
-        AssemblyHeader.ShowAvailability;
+        AssemblyHeader.ShowAvailability();
 
         // [THEN] Assembly Availability page shows:
         // [THEN] "Able To Assemble" = "Q" - 1 on page header
@@ -856,7 +860,7 @@ codeunit 137093 "SCM Kitting - D4"
         PostAssemblyOrderQty(AssemblyHeader, QtyAssembled);
 
         // [WHEN] Show Assembly Availability
-        AssemblyHeader.ShowAvailability;
+        AssemblyHeader.ShowAvailability();
 
         // [THEN] Assembly Availability page shows:
         // [THEN] "Able To Assemble" = "Q" - 2, "Inventory" = 1 on page header
@@ -897,7 +901,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure InventoryOnHeaderOneLocation()
     var
@@ -918,7 +922,7 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Component is NOT in inventory
         AddComponent(Item, BOMComponent);
         // [GIVEN] Item "X" is in inventory. Quantity = "Q"
-        QtyInInventory := RandInt;
+        QtyInInventory := RandInt();
         AddInventory(Item."No.", '', LocationCode, QtyInInventory);
 
         // [WHEN] Create Assembly Order for assembling Item "X"
@@ -931,7 +935,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure InventoryOnHeaderTwoLocations()
     var
@@ -953,7 +957,7 @@ codeunit 137093 "SCM Kitting - D4"
         LibraryInventory.CreateItem(Item);
         // [GIVEN] Component is NOT in inventory
         AddComponent(Item, BOMComponent);
-        QtyOnInventory := RandInt;
+        QtyOnInventory := RandInt();
         // [GIVEN] Item "X" is in inventory on Location "L1". Quantity = "Q1"
         AddInventory(Item."No.", '', LocationCode1, QtyOnInventory);
         // [GIVEN] Item "X" is in inventory on Location "L2". Quantity = "Q2"
@@ -969,7 +973,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure InventoryOnHeaderItemVariant()
     var
@@ -992,7 +996,7 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Component is NOT in inventory
         AddComponent(Item, BOMComponent);
         // [GIVEN] Item "X" is in inventory. Quantity = "Q1"
-        QtyOnInventory := RandInt;
+        QtyOnInventory := RandInt();
         AddInventory(Item."No.", '', LocationCode, QtyOnInventory + 1);
         // [GIVEN] Item "X" with Variant is in inventory. Quantity = "Q2"
         AddInventory(Item."No.", ItemVariantCode, LocationCode, QtyOnInventory);
@@ -1007,8 +1011,8 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
+    [HandlerFunctions('AvailabilityWindowHandler')]
     procedure InventoryOnHeaderIncreasedByPost()
     var
         Item: Record Item;
@@ -1029,10 +1033,10 @@ codeunit 137093 "SCM Kitting - D4"
         LibraryInventory.CreateItem(Item);
         AddComponent(Item, BOMComponent);
         // [GIVEN] Item "X" is in inventory. Quantity = "Q1"
-        ItemInventory := RandInt;
+        ItemInventory := RandInt();
         AddInventory(Item."No.", '', LocationCode, ItemInventory);
         // [GIVEN] Component is in inventory. Quantity = "Q2"
-        CompInventory := RandInt;
+        CompInventory := RandInt();
         AddInventory(BOMComponent."No.", '', LocationCode, CompInventory);
         // [GIVEN] Create Assembly Order for assembling "Q3" pcs of Item "X" missing 1 pcs of Component
         QtyOnAssemble := CompInventory + 1;
@@ -1042,15 +1046,16 @@ codeunit 137093 "SCM Kitting - D4"
         PostAssemblyOrderQty(AssemblyHeader, QtyAssembled);
 
         // [WHEN] Show Assembly Availability
-        AssemblyHeader.ShowAvailability;
+        AssemblyHeader.ShowAvailability();
 
         // [THEN] Assembly Availability page shows:
         // [THEN] "Inventory" = "Q1" + "QA", "Able To Assemble" = "Q2" - "QA"
         VerifyAsmAvailMissingInventory(AssemblyHeader, CompInventory - QtyAssembled, ItemInventory + QtyAssembled);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure EarliestAvailDateNoFutureDocs()
     var
@@ -1072,7 +1077,7 @@ codeunit 137093 "SCM Kitting - D4"
         AddComponent(Item, BOMComponent2);
 
         // [GIVEN] Component "C1" is in inventory. Quantity = "Q"
-        QtyOnAssemble := RandInt;
+        QtyOnAssemble := RandInt();
         AddInventory(BOMComponent1."No.", '', LocationCode, QtyOnAssemble);
         // [GIVEN] Component "C2" is in inventory. Quantity = "Q" - 1
         AddInventory(BOMComponent2."No.", '', LocationCode, QtyOnAssemble - 1);
@@ -1086,10 +1091,11 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Add missing inventory for Component "C2"
         AddInventory(BOMComponent2."No.", '', LocationCode, 1);
         // [WHEN] Show Assembly Availability
-        AssemblyHeader.ShowAvailability;
+        AssemblyHeader.ShowAvailability();
 
         // [THEN] Asm. Avail. "Earliest Availability Date" is empty in header and lines
         VerifyEmptyEarliestAvailDate(AssemblyHeader);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure VerifyEmptyEarliestAvailDate(AssemblyHeader: Record "Assembly Header")
@@ -1106,7 +1112,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure AbleToAssembleMissingComponent()
     var
@@ -1130,14 +1136,14 @@ codeunit 137093 "SCM Kitting - D4"
         AddComponent(Item, BOMComponent1);
         AddComponent(Item, BOMComponent2);
         // [GIVEN] Component "C1" is in inventory on Location "L1". Quantity = "Q"
-        QtyOnAssemble := RandInt;
+        QtyOnAssemble := RandInt();
         AddInventory(BOMComponent1."No.", '', LocationCode1, QtyOnAssemble);
         // [GIVEN] Component "C2" is NOT in inventory on Location "L1"
-        AddInventory(BOMComponent2."No.", '', LocationCode2, RandInt);
+        AddInventory(BOMComponent2."No.", '', LocationCode2, RandInt());
         // [GIVEN] Component "C2" is in inventory for Variant and on Location "L2"
         LibraryInventory.CreateItemVariant(ItemVariant, BOMComponent2."No.");
-        AddInventory(BOMComponent2."No.", ItemVariant.Code, LocationCode2, RandInt);
-        AddInventory(BOMComponent2."No.", ItemVariant.Code, LocationCode1, RandInt);
+        AddInventory(BOMComponent2."No.", ItemVariant.Code, LocationCode2, RandInt());
+        AddInventory(BOMComponent2."No.", ItemVariant.Code, LocationCode1, RandInt());
 
         // [WHEN] Create Assembly Order for assembling "Q" pcs of Item "X" on Location "L1"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, QtyOnAssemble);
@@ -1150,11 +1156,12 @@ codeunit 137093 "SCM Kitting - D4"
         AddInventory(BOMComponent2."No.", '', LocationCode1, QtyOnAssemble);
 
         // [WHEN] Show Assembly Availability
-        AssemblyHeader.ShowAvailability;
+        AssemblyHeader.ShowAvailability();
 
         // [THEN] Assembly Availability page shows: "Able To Assemble" = "Q"
         // [THEN] "Able To Assemble" = "Q" in line for Component "C2"
         VerifySecondComponentAvailability(AssemblyHeader, QtyOnAssemble);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure VerifySecondComponentAvailability(AssemblyHeader: Record "Assembly Header"; ExpectedQuantity: Decimal)
@@ -1172,7 +1179,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure EarliestAvailDateProductOrders()
     var
@@ -1193,9 +1200,9 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create the assembled Item "X" with one component in inventory on Location "L1"
         CompQuantity := CreateItemWithComponentInventory(Item, BOMComponent, LocationCode1);
         // [GIVEN] Create three future released Production Orders: +9D on "L2", +10D on "L1", +11D on "L1"
-        CreateProdOrderAndRefresh(ProductionOrder, BOMComponent."No.", RandInt, LocationCode2, WorkDate10D - 1);
-        CreateProdOrderAndRefresh(ProductionOrder, BOMComponent."No.", RandInt, LocationCode1, WorkDate10D);
-        CreateProdOrderAndRefresh(ProductionOrder, BOMComponent."No.", RandInt, LocationCode1, WorkDate10D + 1);
+        CreateProdOrderAndRefresh(ProductionOrder, BOMComponent."No.", RandInt(), LocationCode2, WorkDate10D - 1);
+        CreateProdOrderAndRefresh(ProductionOrder, BOMComponent."No.", RandInt(), LocationCode1, WorkDate10D);
+        CreateProdOrderAndRefresh(ProductionOrder, BOMComponent."No.", RandInt(), LocationCode1, WorkDate10D + 1);
 
         // [WHEN] Create Assembly Order for assembling "Q" + 1 pcs of Item "X" on Location "L1"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, CompQuantity + 1);
@@ -1205,7 +1212,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure EarliestAvailDatePurchOrders()
     var
@@ -1226,9 +1233,9 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create the assembled Item "X" with one component in inventory on Location "L1"
         CompQuantity := CreateItemWithComponentInventory(Item, BOMComponent, LocationCode1);
         // [GIVEN] Create three future Purchase Orders : +9D on "L2", +10D on "L1", +11D on "L1"
-        CreatePurchaseOrder(PurchaseHeader, BOMComponent."No.", '', RandInt, LocationCode2, WorkDate10D - 1);
-        CreatePurchaseOrder(PurchaseHeader, BOMComponent."No.", '', RandInt, LocationCode1, WorkDate10D);
-        CreatePurchaseOrder(PurchaseHeader, BOMComponent."No.", '', RandInt, LocationCode1, WorkDate10D + 1);
+        CreatePurchaseOrder(PurchaseHeader, BOMComponent."No.", '', RandInt(), LocationCode2, WorkDate10D - 1);
+        CreatePurchaseOrder(PurchaseHeader, BOMComponent."No.", '', RandInt(), LocationCode1, WorkDate10D);
+        CreatePurchaseOrder(PurchaseHeader, BOMComponent."No.", '', RandInt(), LocationCode1, WorkDate10D + 1);
 
         // [WHEN] Create Assembly Order for assembling "Q" + 1 pcs of Item "X" on Location "L1"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, CompQuantity + 1);
@@ -1241,7 +1248,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         LibraryInventory.CreateItem(Item);
         AddComponent(Item, BOMComponent);
-        CompQuantity := RandInt;
+        CompQuantity := RandInt();
         AddInventory(BOMComponent."No.", '', LocationCode, CompQuantity);
     end;
 
@@ -1261,7 +1268,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure FutureReservationCausesAvailWarning()
     var
@@ -1292,6 +1299,10 @@ codeunit 137093 "SCM Kitting - D4"
 
         // [WHEN] Set Qty = Q1 on Assembly Order AO1, where (Q1 < Q) but bigger than remaining inventory (Q1 > Q - Q2)
         AssemblyHeader.Validate(Quantity, AbleToAsmQty * 3);
+        AssemblyHeader.Modify();
+        Commit();
+
+        AssemblyHeader.ShowAvailability();
 
         // [THEN] Availability warning page shows: "Able To Assemble" = (Q - Q2) decreased by the Asm. Order AO2
         ExpAsmAvailTestBuf.Init();
@@ -1300,11 +1311,12 @@ codeunit 137093 "SCM Kitting - D4"
         // [THEN] "Gross requirement" = not reserved Qty of the Asm. Order AO2
         // [THEN] "Expected Inventory" is not affected by the reservation on the Asm. Order AO2
         VerifyLineGrossReqExpInv(AssemblyHeader, LateAssemblyLine."Remaining Quantity (Base)" - ReservedQty, AbleToAsmQty);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
+    [HandlerFunctions('AvailabilityWindowHandler')]
     procedure AbleToAsmNotAffectedByReservation()
     var
         AssemblyHeader: Record "Assembly Header";
@@ -1333,7 +1345,7 @@ codeunit 137093 "SCM Kitting - D4"
           AssemblyHeader, LateAssemblyHeader."Item No.", LateAssemblyHeader."Location Code", '', WorkDate2, AbleToAsmQty * 3);
 
         // [WHEN] Show Availability for reserved Assembly Order AO2
-        LateAssemblyHeader.ShowAvailability;
+        LateAssemblyHeader.ShowAvailability();
 
         // [THEN] Availability page shows "Able To Assemble" = (Q - Q1) decreased by the Asm. Order AO1
         ExpAsmAvailTestBuf.Init();
@@ -1344,6 +1356,7 @@ codeunit 137093 "SCM Kitting - D4"
         // [THEN] "Expected Inventory" is not affected by the reservation on the Asm. Order AO2
         VerifyLineGrossReqExpInv(
           LateAssemblyHeader, AssemblyHeader.Quantity, LateAssemblyHeader.Quantity + AbleToAsmQty - AssemblyHeader.Quantity);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure AutoReserveHalfFirstAsmLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"): Decimal
@@ -1362,8 +1375,8 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
+    [HandlerFunctions('AvailabilityWindowHandler')]
     procedure EarliestAvailDateTransfers()
     var
         AssemblyHeader: Record "Assembly Header";
@@ -1395,7 +1408,7 @@ codeunit 137093 "SCM Kitting - D4"
           TransferHeader, BOMComponent."No.", '', LocationRed.Code, LocationBlue.Code, RestoringTransferDate, QtyToTransfer + MissedQty);
 
         // [WHEN] Show Availability for Assembly Order
-        AssemblyHeader.ShowAvailability;
+        AssemblyHeader.ShowAvailability();
 
         // [THEN] Verify Availability page:
         // [THEN] "Able To Assemble" decreased by the first transfer
@@ -1411,6 +1424,7 @@ codeunit 137093 "SCM Kitting - D4"
         ExpAsmAvailTestBuf.Validate("Able To Assemble", AssemblyHeader.Quantity - MissedQty - QtyToTransfer);
         ExpAsmAvailTestBuf.Validate("Earliest Availability Date", RestoringTransferDate);
         AssertAvailabilityLine(AssemblyHeader, ExpAsmAvailTestBuf);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure GetEndDateOfCheckAvailPeriod(Date: Date): Date
@@ -1423,7 +1437,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure EarliestAvailDateSalesRetOrders()
     var
@@ -1444,9 +1458,9 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create the assembled Item "X" with one component in inventory on Location "L1"
         CompQuantity := CreateItemWithComponentInventory(Item, BOMComponent, LocationCode1);
         // [GIVEN] Create three future Sales Return Orders: +9D on "L2", +10D on "L1", +11D on "L1"
-        CreateSalesReturnOrder(SalesHeader, BOMComponent."No.", '', RandInt, LocationCode2, WorkDate10D - 1);
-        CreateSalesReturnOrder(SalesHeader, BOMComponent."No.", '', RandInt, LocationCode1, WorkDate10D);
-        CreateSalesReturnOrder(SalesHeader, BOMComponent."No.", '', RandInt, LocationCode1, WorkDate10D + 1);
+        CreateSalesReturnOrder(SalesHeader, BOMComponent."No.", '', RandInt(), LocationCode2, WorkDate10D - 1);
+        CreateSalesReturnOrder(SalesHeader, BOMComponent."No.", '', RandInt(), LocationCode1, WorkDate10D);
+        CreateSalesReturnOrder(SalesHeader, BOMComponent."No.", '', RandInt(), LocationCode1, WorkDate10D + 1);
 
         // [WHEN] Create Assembly Order for assembling "Q" + 1 pcs of Item "X" on Location "L1"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, CompQuantity + 1);
@@ -1456,7 +1470,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure AbleToAssembleExpectedInventory()
     var
@@ -1481,9 +1495,9 @@ codeunit 137093 "SCM Kitting - D4"
 
         // [GIVEN] Create Item variant "V" and add inventory for combinations: "V" on "L1","V" on "L2","X" on "L2"
         ItemVariantCode := CreateItemVariant(BOMComponent."No.");
-        AddInventory(BOMComponent."No.", ItemVariantCode, LocationCode1, RandInt);
-        AddInventory(BOMComponent."No.", ItemVariantCode, LocationCode2, RandInt);
-        AddInventory(BOMComponent."No.", '', LocationCode2, RandInt);
+        AddInventory(BOMComponent."No.", ItemVariantCode, LocationCode1, RandInt());
+        AddInventory(BOMComponent."No.", ItemVariantCode, LocationCode2, RandInt());
+        AddInventory(BOMComponent."No.", '', LocationCode2, RandInt());
 
         // [WHEN] Create Assembly Order for assembling "Q" + 1 pcs of Item "X" on Location "L1"
         QtyToAssemble := CompQuantity + 1;
@@ -1497,10 +1511,11 @@ codeunit 137093 "SCM Kitting - D4"
         AddInventory(BOMComponent."No.", '', LocationCode1, 2);
 
         // [WHEN] Show Assembly Availability
-        AssemblyHeader.ShowAvailability;
+        AssemblyHeader.ShowAvailability();
 
         // [THEN] Assembly Availability page shows: "Able To Assemble" = "Q" + 1,"Expected Inventory" = "Q" + 2
         VerifyAbleToAssembleExpInventory(AssemblyHeader, QtyToAssemble, CompQuantity + AddedQuantity);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure VerifyAbleToAssembleExpInventory(AssemblyHeader: Record "Assembly Header"; AbleToAssemble: Decimal; ExpInventory: Decimal)
@@ -1516,7 +1531,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure HdrScheduledReceiptsAssemblyOrders()
     var
@@ -1540,21 +1555,21 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Item variant "V"
         ItemVariantCode := CreateItemVariant(Item."No.");
         // [GIVEN] Create Assembly Orders for combinations: "V" on "L1","V" on "L2","X" on "L2"
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode2, '', WorkDate2, RandInt);
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode2, ItemVariantCode, WorkDate2, RandInt);
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, ItemVariantCode, WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode2, '', WorkDate2, RandInt());
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode2, ItemVariantCode, WorkDate2, RandInt());
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, ItemVariantCode, WorkDate2, RandInt());
         // [GIVEN] Create first Assembly Order for "X" on Location "L1". Quantity = "Q"
-        QtyToAssemble := CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        QtyToAssemble := CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [WHEN] Create second Assembly Order for "X" on Location "L1"
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability page is shown. Header's "Gross requirement" = 0
         VerifyHrdGrossReqSchedRcpts(AssemblyHeader, 0, QtyToAssemble);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure HdrGrossRequirementSalesOrders()
     var
@@ -1579,21 +1594,21 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Item variant "V"
         ItemVariantCode := CreateItemVariant(Item."No.");
         // [GIVEN] Create Sales Orders on +10D for combinations: "V" on "L1","V" on "L2","X" on "L2"
-        CreateSalesOrder(SalesHeader, Item."No.", ItemVariantCode, RandInt, WorkDate10D, LocationCode1);
-        CreateSalesOrder(SalesHeader, Item."No.", '', RandInt, WorkDate10D, LocationCode2);
-        CreateSalesOrder(SalesHeader, Item."No.", ItemVariantCode, RandInt, WorkDate10D, LocationCode2);
+        CreateSalesOrder(SalesHeader, Item."No.", ItemVariantCode, RandInt(), WorkDate10D, LocationCode1);
+        CreateSalesOrder(SalesHeader, Item."No.", '', RandInt(), WorkDate10D, LocationCode2);
+        CreateSalesOrder(SalesHeader, Item."No.", ItemVariantCode, RandInt(), WorkDate10D, LocationCode2);
         // [GIVEN] Create Sales Order on +10D for "X" on "L1", Quantity = "Q"
-        Qty := CreateSalesOrder(SalesHeader, Item."No.", '', RandInt, WorkDate10D, LocationCode1);
+        Qty := CreateSalesOrder(SalesHeader, Item."No.", '', RandInt(), WorkDate10D, LocationCode1);
 
         // [WHEN] Create Assembly Order on +10D for "X" on Location "L1"
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate10D, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate10D, RandInt());
 
         // [THEN] Assembly Availability page is shown. Header's "Gross requirement" = "Q"
         VerifyHrdGrossReqSchedRcpts(AssemblyHeader, Qty, 0);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure HdrGrossRequirementPurchRetOrders()
     var
@@ -1618,21 +1633,21 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Item variant "V"
         ItemVariantCode := CreateItemVariant(Item."No.");
         // [GIVEN] Create Purchase Return Orders on +10D for combinations: "V" on "L1","V" on "L2","X" on "L2"
-        CreatePurchaseReturnOrder(PurchaseHeader, Item."No.", ItemVariantCode, RandInt, LocationCode1, WorkDate10D);
-        CreatePurchaseReturnOrder(PurchaseHeader, Item."No.", '', RandInt, LocationCode2, WorkDate10D);
-        CreatePurchaseReturnOrder(PurchaseHeader, Item."No.", ItemVariantCode, RandInt, LocationCode2, WorkDate10D);
+        CreatePurchaseReturnOrder(PurchaseHeader, Item."No.", ItemVariantCode, RandInt(), LocationCode1, WorkDate10D);
+        CreatePurchaseReturnOrder(PurchaseHeader, Item."No.", '', RandInt(), LocationCode2, WorkDate10D);
+        CreatePurchaseReturnOrder(PurchaseHeader, Item."No.", ItemVariantCode, RandInt(), LocationCode2, WorkDate10D);
         // [GIVEN] Create Purchase Return Order on +10D for "X" on Location "L1", Quantity = "Q"
-        Qty := CreatePurchaseReturnOrder(PurchaseHeader, Item."No.", '', RandInt, LocationCode1, WorkDate10D);
+        Qty := CreatePurchaseReturnOrder(PurchaseHeader, Item."No.", '', RandInt(), LocationCode1, WorkDate10D);
 
         // [WHEN] Create Assembly Order for "X" on Location "L1"
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability page is shown. Header's "Gross requirement" = "Q"
         VerifyHrdGrossReqSchedRcpts(AssemblyHeader, Qty, 0);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure HdrGrossRequirementTransferOrders()
     var
@@ -1658,21 +1673,21 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Item variant "V"
         ItemVariantCode := CreateItemVariant(Item."No.");
         // [GIVEN] Create Transfer Orders on +10D for combinations: "V" on "L1","V" on "L2","X" on "L2"
-        CreateTransferOrder(TransferHeader, Item."No.", ItemVariantCode, LocationCode1, LocationCode2, WorkDate10D, RandInt);
-        CreateTransferOrder(TransferHeader, Item."No.", ItemVariantCode, LocationCode2, LocationCode1, WorkDate10D, RandInt);
-        CreateTransferOrder(TransferHeader, Item."No.", '', LocationCode2, LocationCode1, WorkDate10D, RandInt);
+        CreateTransferOrder(TransferHeader, Item."No.", ItemVariantCode, LocationCode1, LocationCode2, WorkDate10D, RandInt());
+        CreateTransferOrder(TransferHeader, Item."No.", ItemVariantCode, LocationCode2, LocationCode1, WorkDate10D, RandInt());
+        CreateTransferOrder(TransferHeader, Item."No.", '', LocationCode2, LocationCode1, WorkDate10D, RandInt());
         // [GIVEN] Create Transfer Order for "X" on Location "L1", Quantity = "Q"
-        Qty := CreateTransferOrder(TransferHeader, Item."No.", '', LocationCode1, LocationCode2, WorkDate2, RandInt);
+        Qty := CreateTransferOrder(TransferHeader, Item."No.", '', LocationCode1, LocationCode2, WorkDate2, RandInt());
 
         // [WHEN] Create Assembly Order for "X" on Location "L1"
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability page is shown. Header's "Gross requirement" = "Q"
         VerifyHrdGrossReqSchedRcpts(AssemblyHeader, Qty, 0);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure HdrGrossRequirementProductionOrder()
     var
@@ -1700,13 +1715,13 @@ codeunit 137093 "SCM Kitting - D4"
         ItemVariantCode := CreateItemVariant(AssembledItem."No.");
         // [GIVEN] Create Production Order on +10D for Item "P" on Location "L1", Quantity = "PQ"
         LibraryInventory.CreateItem(ProducedItem);
-        Qty := CreateProdOrderAndRefresh(ProductionOrder, ProducedItem."No.", RandInt, LocationCode1, WorkDate10D);
+        Qty := CreateProdOrderAndRefresh(ProductionOrder, ProducedItem."No.", RandInt(), LocationCode1, WorkDate10D);
         // [GIVEN] Add Production Components for combinations: "V" on "L1","V" on "L2","X" on "L2"
         // [GIVEN] Add Production Components for "X" on "L1", Quantity = "Q"
         QtyPer := AddComponentsToProdOrder(ProductionOrder, AssembledItem."No.", ItemVariantCode, LocationCode1, LocationCode2);
 
         // [WHEN] Create Assembly Order for "X" on Location "L1"
-        CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability page is shown. Header's "Gross requirement" = "Q" * "PQ"
         VerifyHrdGrossReqSchedRcpts(AssemblyHeader, Qty * QtyPer, 0);
@@ -1714,14 +1729,14 @@ codeunit 137093 "SCM Kitting - D4"
 
     local procedure AddComponentsToProdOrder(ProductionOrder: Record "Production Order"; ItemNo: Code[20]; ItemVariantCode: Code[10]; LocationCode1: Code[10]; LocationCode2: Code[10]) QtyPer: Decimal
     begin
-        AddComponentToProdOrder(ProductionOrder, ItemNo, ItemVariantCode, RandInt, LocationCode1);
-        AddComponentToProdOrder(ProductionOrder, ItemNo, ItemVariantCode, RandInt, LocationCode2);
-        AddComponentToProdOrder(ProductionOrder, ItemNo, '', RandInt, LocationCode2);
-        QtyPer := AddComponentToProdOrder(ProductionOrder, ItemNo, '', RandInt, LocationCode1);
+        AddComponentToProdOrder(ProductionOrder, ItemNo, ItemVariantCode, RandInt(), LocationCode1);
+        AddComponentToProdOrder(ProductionOrder, ItemNo, ItemVariantCode, RandInt(), LocationCode2);
+        AddComponentToProdOrder(ProductionOrder, ItemNo, '', RandInt(), LocationCode2);
+        QtyPer := AddComponentToProdOrder(ProductionOrder, ItemNo, '', RandInt(), LocationCode1);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure HdrScheduledReceiptsPurchaseOrders()
     var
@@ -1748,10 +1763,10 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Purchase Orders on +10D for combinations: "V" on "L1","V" on "L2","X" on "L2","X" on "L1"
         CreatePurchaseOrders(Item."No.", ItemVariantCode, WorkDate10D, LocationCode1, LocationCode2);
         // [GIVEN] Create Purchase Order on WorkDate for "X" on "L1", Quantity = "Q"
-        Qty := CreatePurchaseOrder(PurchaseHeader, Item."No.", '', RandInt, LocationCode1, WorkDate2);
+        Qty := CreatePurchaseOrder(PurchaseHeader, Item."No.", '', RandInt(), LocationCode1, WorkDate2);
 
         // [WHEN] Create Assembly Order on WorkDate for "X" on Location "L1"
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability page is shown. Header's "Scheduled Receipts" = "Q"
         VerifyHrdGrossReqSchedRcpts(AssemblyHeader, 0, Qty);
@@ -1761,14 +1776,14 @@ codeunit 137093 "SCM Kitting - D4"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        CreatePurchaseOrder(PurchaseHeader, ItemNo, ItemVariantCode, RandInt, LocationCode1, ReceiptDate);
-        CreatePurchaseOrder(PurchaseHeader, ItemNo, '', RandInt, LocationCode2, ReceiptDate);
-        CreatePurchaseOrder(PurchaseHeader, ItemNo, ItemVariantCode, RandInt, LocationCode1, ReceiptDate);
-        CreatePurchaseOrder(PurchaseHeader, ItemNo, '', RandInt, LocationCode1, ReceiptDate);
+        CreatePurchaseOrder(PurchaseHeader, ItemNo, ItemVariantCode, RandInt(), LocationCode1, ReceiptDate);
+        CreatePurchaseOrder(PurchaseHeader, ItemNo, '', RandInt(), LocationCode2, ReceiptDate);
+        CreatePurchaseOrder(PurchaseHeader, ItemNo, ItemVariantCode, RandInt(), LocationCode1, ReceiptDate);
+        CreatePurchaseOrder(PurchaseHeader, ItemNo, '', RandInt(), LocationCode1, ReceiptDate);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure HdrScheduledReceiptsProdOrderAsmOrder()
     var
@@ -1789,21 +1804,21 @@ codeunit 137093 "SCM Kitting - D4"
         LibraryInventory.CreateItem(Item);
         AddComponent(Item, BOMComponent);
         // [GIVEN] Create Production Orders on +10D for "X" on "L1"
-        CreateProdOrderAndRefresh(ProductionOrder, Item."No.", RandInt, LocationCode, WorkDate10D);
+        CreateProdOrderAndRefresh(ProductionOrder, Item."No.", RandInt(), LocationCode, WorkDate10D);
         // [GIVEN] Create Production Order on WorkDate for "X" on "L1", Quantity = "PQ"
-        QtyToProduce := CreateProdOrderAndRefresh(ProductionOrder, Item."No.", RandInt, LocationCode, WorkDate2);
+        QtyToProduce := CreateProdOrderAndRefresh(ProductionOrder, Item."No.", RandInt(), LocationCode, WorkDate2);
         // [GIVEN] Create Assembly Order on WorkDate for "X" on Location "L1", Quantity = "Q"
-        QtyOnAssemble := CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, RandInt);
+        QtyOnAssemble := CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, RandInt());
 
         // [WHEN] Create Assembly Order on WorkDate for "X" on Location "L1"
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability page is shown. Header's "Scheduled Receipts" = "Q" + "Qp"
         VerifyHrdGrossReqSchedRcpts(AssemblyHeader, 0, QtyOnAssemble + QtyToProduce);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure HdrScheduledReceiptsSalesReturnOrders()
     var
@@ -1830,10 +1845,10 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Sales Orders on +10D for combinations: "V" on "L1","V" on "L2","X" on "L2","X" on "L1"
         CreateSalesReturnOrders(Item."No.", ItemVariantCode, WorkDate10D, LocationCode1, LocationCode2);
         // [GIVEN] Create Sales Orders on WorkDate for "X" on "L1", Quantity = "Q"
-        Qty := CreateSalesReturnOrder(SalesHeader, Item."No.", '', RandInt, LocationCode1, WorkDate2);
+        Qty := CreateSalesReturnOrder(SalesHeader, Item."No.", '', RandInt(), LocationCode1, WorkDate2);
 
         // [WHEN] Create Assembly Order on WorkDate for "X" on Location "L1"
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability page is shown. Header's "Scheduled Receipts" = "Q"
         VerifyHrdGrossReqSchedRcpts(AssemblyHeader, 0, Qty);
@@ -1843,14 +1858,14 @@ codeunit 137093 "SCM Kitting - D4"
     var
         SalesHeader: Record "Sales Header";
     begin
-        CreateSalesReturnOrder(SalesHeader, ItemNo, ItemVariantCode, RandInt, LocationCode1, ReceiptDate);
-        CreateSalesReturnOrder(SalesHeader, ItemNo, '', RandInt, LocationCode2, ReceiptDate);
-        CreateSalesReturnOrder(SalesHeader, ItemNo, ItemVariantCode, RandInt, LocationCode1, ReceiptDate);
-        CreateSalesReturnOrder(SalesHeader, ItemNo, '', RandInt, LocationCode1, ReceiptDate);
+        CreateSalesReturnOrder(SalesHeader, ItemNo, ItemVariantCode, RandInt(), LocationCode1, ReceiptDate);
+        CreateSalesReturnOrder(SalesHeader, ItemNo, '', RandInt(), LocationCode2, ReceiptDate);
+        CreateSalesReturnOrder(SalesHeader, ItemNo, ItemVariantCode, RandInt(), LocationCode1, ReceiptDate);
+        CreateSalesReturnOrder(SalesHeader, ItemNo, '', RandInt(), LocationCode1, ReceiptDate);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure HdrScheduledReceiptsTransferOrders()
     var
@@ -1875,21 +1890,21 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Item variant "V"
         ItemVariantCode := CreateItemVariant(Item."No.");
         // [GIVEN] Create Transfer Orders on +10D for combinations: "V" on "L1","V" on "L2","X" on "L2"
-        CreateTransferOrder(TransferHeader, Item."No.", ItemVariantCode, LocationCode1, LocationCode2, WorkDate10D, RandInt);
-        CreateTransferOrder(TransferHeader, Item."No.", ItemVariantCode, LocationCode2, LocationCode1, WorkDate10D, RandInt);
-        CreateTransferOrder(TransferHeader, Item."No.", '', LocationCode2, LocationCode1, WorkDate10D, RandInt);
+        CreateTransferOrder(TransferHeader, Item."No.", ItemVariantCode, LocationCode1, LocationCode2, WorkDate10D, RandInt());
+        CreateTransferOrder(TransferHeader, Item."No.", ItemVariantCode, LocationCode2, LocationCode1, WorkDate10D, RandInt());
+        CreateTransferOrder(TransferHeader, Item."No.", '', LocationCode2, LocationCode1, WorkDate10D, RandInt());
         // [GIVEN] Create Transfer Orders on WorkDate for "X" on "L2", Quantity = "Q"
-        Qty := CreateTransferOrder(TransferHeader, Item."No.", '', LocationCode2, LocationCode1, WorkDate2, RandInt);
+        Qty := CreateTransferOrder(TransferHeader, Item."No.", '', LocationCode2, LocationCode1, WorkDate2, RandInt());
 
         // [WHEN] Create Assembly Order on WorkDate for "X" on Location "L1"
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability page is shown. Header's "Scheduled Receipts" = "Q"
         VerifyHrdGrossReqSchedRcpts(AssemblyHeader, 0, Qty);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure HdrAbleToAssembleTwoCompWithQtyPer()
     var
@@ -1914,7 +1929,7 @@ codeunit 137093 "SCM Kitting - D4"
             // [GIVEN] Add two components with "Quantity per": "Qp1", "Qp2"
             AddComponent(Item, BOMComponent[i]);
             SetRandComponentQuantityPer(BOMComponent[i]);
-            QtyOnInventory[i] := RandInt;
+            QtyOnInventory[i] := RandInt();
             // [GIVEN] Add inventory for both components: "Q1", "Q2"
             AddInventory(BOMComponent[i]."No.", '', LocationCode, QtyOnInventory[i]);
             AbleToAssemble[i] := QtyOnInventory[i] / BOMComponent[i]."Quantity per";
@@ -1923,6 +1938,8 @@ codeunit 137093 "SCM Kitting - D4"
         // [WHEN] Create Assembly Order for "X" missing both components
         QtyOnAssemble := MinValue(QtyOnInventory[1], QtyOnInventory[2]);
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, QtyOnAssemble);
+        Commit();
+        AssemblyHeader.ShowAvailability();
 
         // [THEN] Header's "Able To Assemble" is minimal of "Able To Assemble" in lines
         ExpAsmAvailTestBuf.Init();
@@ -1939,7 +1956,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure LineGrossRequirementAssemblyOrders()
     var
@@ -1964,11 +1981,11 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Component Variant "CV"
         SetVariantOnComponent(BOMComponent, CreateItemVariant(BOMComponent."No."));
         // [GIVEN] Create Assembly Order for item "X" for location "L2"
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode2, '', WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode2, '', WorkDate2, RandInt());
         // [GIVEN] Create first Assembly Order for item "X" for location "L1", Quantity = "Q"
-        QtyOnAssemble1 := CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        QtyOnAssemble1 := CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
         // [WHEN] Create second Assembly Order for item "X" for location "L1"
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability Line contains info only for the first order, not current one, same location and variant
         VerifyLineGrossReqExpInv(
@@ -1976,7 +1993,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure LineGrossRequirementSalesOrders()
     var
@@ -2001,21 +2018,21 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Component variant "CV", not in assembly list
         ItemVariantCode := CreateItemVariant(BOMComponent."No.");
         // [GIVEN] Create Sales Orders for combinations: "CV" on "L1","CV" on "L2","C" on "L2"
-        CreateSalesOrder(SalesHeader, BOMComponent."No.", ItemVariantCode, RandInt, WorkDate2, LocationCode1);
-        CreateSalesOrder(SalesHeader, BOMComponent."No.", '', RandInt, WorkDate2, LocationCode2);
-        CreateSalesOrder(SalesHeader, BOMComponent."No.", ItemVariantCode, RandInt, WorkDate2, LocationCode1);
+        CreateSalesOrder(SalesHeader, BOMComponent."No.", ItemVariantCode, RandInt(), WorkDate2, LocationCode1);
+        CreateSalesOrder(SalesHeader, BOMComponent."No.", '', RandInt(), WorkDate2, LocationCode2);
+        CreateSalesOrder(SalesHeader, BOMComponent."No.", ItemVariantCode, RandInt(), WorkDate2, LocationCode1);
         // [GIVEN] Create Sales Order for "C" on "L1", Quantity = "Q"
-        QtyOnSO := CreateSalesOrder(SalesHeader, BOMComponent."No.", '', RandInt, WorkDate2, LocationCode1);
+        QtyOnSO := CreateSalesOrder(SalesHeader, BOMComponent."No.", '', RandInt(), WorkDate2, LocationCode1);
 
         // [WHEN] Create Assembly Order for item "X" for location "L1"
-        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability Line: "Gross requirement" = "Q", "Expected Inventory" = -"Q"
         VerifyLineGrossReqExpInv(AssemblyHeader, QtyOnSO, -QtyOnSO);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure LineGrossRequirementPurchReturnOrders()
     var
@@ -2040,21 +2057,21 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Component variant "CV", not in assembly list
         ItemVariantCode := CreateItemVariant(BOMComponent."No.");
         // [GIVEN] Create Purchase Return Orders for combinations: "CV" on "L1","CV" on "L2","C" on "L2"
-        CreatePurchaseReturnOrder(PurchaseHeader, BOMComponent."No.", ItemVariantCode, RandInt, LocationCode1, WorkDate2);
-        CreatePurchaseReturnOrder(PurchaseHeader, BOMComponent."No.", '', RandInt, LocationCode2, WorkDate2);
-        CreatePurchaseReturnOrder(PurchaseHeader, BOMComponent."No.", ItemVariantCode, RandInt, LocationCode2, WorkDate2);
+        CreatePurchaseReturnOrder(PurchaseHeader, BOMComponent."No.", ItemVariantCode, RandInt(), LocationCode1, WorkDate2);
+        CreatePurchaseReturnOrder(PurchaseHeader, BOMComponent."No.", '', RandInt(), LocationCode2, WorkDate2);
+        CreatePurchaseReturnOrder(PurchaseHeader, BOMComponent."No.", ItemVariantCode, RandInt(), LocationCode2, WorkDate2);
         // [GIVEN] Create Purchase Return Order for "C" on "L1", Quantity = "Q"
-        QtyOnPRO := CreatePurchaseReturnOrder(PurchaseHeader, BOMComponent."No.", '', RandInt, LocationCode1, WorkDate2);
+        QtyOnPRO := CreatePurchaseReturnOrder(PurchaseHeader, BOMComponent."No.", '', RandInt(), LocationCode1, WorkDate2);
 
         // [WHEN] Create Assembly Order for item "X" for location "L1"
-        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability Line: "Gross requirement" = "Q", "Expected Inventory" = -"Q"
         VerifyLineGrossReqExpInv(AssemblyHeader, QtyOnPRO, -QtyOnPRO);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure LineGrossRequirementTransferOrders()
     var
@@ -2079,20 +2096,20 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Component variant "CV", not in assembly list
         ItemVariantCode := CreateItemVariant(BOMComponent."No.");
         // [GIVEN] Create Transfer Orders for combinations: "CV" on "L1","CV" on "L2"
-        CreateTransferOrder(TransferHeader, BOMComponent."No.", ItemVariantCode, LocationCode1, LocationCode2, WorkDate2, RandInt);
-        CreateTransferOrder(TransferHeader, BOMComponent."No.", ItemVariantCode, LocationCode2, LocationCode1, WorkDate2, RandInt);
+        CreateTransferOrder(TransferHeader, BOMComponent."No.", ItemVariantCode, LocationCode1, LocationCode2, WorkDate2, RandInt());
+        CreateTransferOrder(TransferHeader, BOMComponent."No.", ItemVariantCode, LocationCode2, LocationCode1, WorkDate2, RandInt());
         // [GIVEN] Create Transfer Order for "C" moving from "L1" to "L2"
-        QtyOnTO := CreateTransferOrder(TransferHeader, BOMComponent."No.", '', LocationCode1, LocationCode2, WorkDate2, RandInt);
+        QtyOnTO := CreateTransferOrder(TransferHeader, BOMComponent."No.", '', LocationCode1, LocationCode2, WorkDate2, RandInt());
 
         // [WHEN] Create Assembly Order for item "X" for location "L1"
-        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability Line: "Gross requirement" = "Q", "Expected Inventory" = -"Q"
         VerifyLineGrossReqExpInv(AssemblyHeader, QtyOnTO, -QtyOnTO);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure LineGrossRequirementProductionOrders()
     var
@@ -2120,20 +2137,20 @@ codeunit 137093 "SCM Kitting - D4"
         ItemVariantCode := CreateItemVariant(BOMComponent."No.");
         // [GIVEN] Create Production Order for Item "P" on Location "L1", Quantity = "PQ"
         LibraryInventory.CreateItem(ProducedItem);
-        QtyOnRPO := CreateProdOrderAndRefresh(ProductionOrder, ProducedItem."No.", RandInt, LocationCode1, WorkDate2);
+        QtyOnRPO := CreateProdOrderAndRefresh(ProductionOrder, ProducedItem."No.", RandInt(), LocationCode1, WorkDate2);
         // [GIVEN] Add Production Components for combinations: "CV" on "L1","CV" on "L2","C" on "L2"
         // [GIVEN] Add Production Component for "C" on "L1", Quantity = "Q"
         QtyPerProd := AddComponentsToProdOrder(ProductionOrder, BOMComponent."No.", ItemVariantCode, LocationCode1, LocationCode2);
 
         // [WHEN] Create Assembly Order for item "X" for location "L1"
-        CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, AssembledItem."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability Line: "Gross requirement" = ("Q" * "PQ"), "Expected Inventory" = -("Q" * "PQ")
         VerifyLineGrossReqExpInv(AssemblyHeader, QtyOnRPO * QtyPerProd, -QtyOnRPO * QtyPerProd);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure LineScheduledReceiptsPurchaseOrders()
     var
@@ -2163,10 +2180,10 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Purchase Orders on +10D for combinations: "CV" on "L1","CV" on "L2","C" on "L2","C" on "L1"
         CreatePurchaseOrders(BOMComponent."No.", ItemVariantCode, WorkDate10D, LocationCode1, LocationCode2);
         // [GIVEN] Create Purchase Order on WorkDate for "C" on "L1", Quantity = "Q"
-        QtyOnPO := CreatePurchaseOrder(PurchaseHeader, BOMComponent."No.", '', RandInt, LocationCode1, WorkDate2);
+        QtyOnPO := CreatePurchaseOrder(PurchaseHeader, BOMComponent."No.", '', RandInt(), LocationCode1, WorkDate2);
 
         // [WHEN] Create Assembly Order for item "X" for location "L1"
-        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability Line: "Scheduled Receipts" = "Q", "Expected Inventory" = "Q"
         ExpAsmAvailTestBuf.Init();
@@ -2179,7 +2196,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure LineScheduledReceiptsProductionOrders()
     var
@@ -2202,12 +2219,12 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Component's "Quantity per" = "Qp"
         SetRandComponentQuantityPer(BOMComponent);
         // [GIVEN] Create Production Order on +10D for "C" on "L1"
-        CreateProdOrderAndRefresh(ProductionOrder, BOMComponent."No.", RandInt, LocationCode, WorkDate10D);
+        CreateProdOrderAndRefresh(ProductionOrder, BOMComponent."No.", RandInt(), LocationCode, WorkDate10D);
         // [GIVEN] Create Production Order for "C" on "L1", Quantity = "Q"
-        QtyOnRPO := CreateProdOrderAndRefresh(ProductionOrder, BOMComponent."No.", RandInt, LocationCode, WorkDate2);
+        QtyOnRPO := CreateProdOrderAndRefresh(ProductionOrder, BOMComponent."No.", RandInt(), LocationCode, WorkDate2);
 
         // [WHEN] Create Assembly Order for item "X" for location "L1"
-        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, RandInt);
+        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability Line: "Scheduled Receipts" = "Q", "Expected Inventory" = "Q"
         ExpAsmAvailTestBuf.Init();
@@ -2220,7 +2237,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure LineScheduledReceiptsSalesReturnOrders()
     var
@@ -2253,7 +2270,7 @@ codeunit 137093 "SCM Kitting - D4"
         QtyOnSRO := CreateSalesReturnOrder(SalesHeader, BOMComponent."No.", '', QtyOnSRO, LocationCode1, WorkDate2);
 
         // [WHEN] Create Assembly Order for item "X" for location "L1"
-        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability Line: "Scheduled Receipts" = "Q", "Expected Inventory" = "Q"
         ExpAsmAvailTestBuf.Init();
@@ -2266,7 +2283,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure LineScheduledReceiptsTransferOrders()
     var
@@ -2294,14 +2311,14 @@ codeunit 137093 "SCM Kitting - D4"
         // [GIVEN] Create Component variant "CV", not in assembly list
         ItemVariantCode := CreateItemVariant(BOMComponent."No.");
         // [GIVEN] Create Transfer Orders for combinations: "CV" on "L1","CV" on "L2","C" on "L2"
-        CreateTransferOrder(TransferHeader, BOMComponent."No.", ItemVariantCode, LocationCode1, LocationCode2, WorkDate2, RandInt);
-        CreateTransferOrder(TransferHeader, BOMComponent."No.", ItemVariantCode, LocationCode2, LocationCode1, WorkDate2, RandInt);
-        CreateTransferOrder(TransferHeader, BOMComponent."No.", '', LocationCode2, LocationCode1, WorkDate10D, RandInt);
+        CreateTransferOrder(TransferHeader, BOMComponent."No.", ItemVariantCode, LocationCode1, LocationCode2, WorkDate2, RandInt());
+        CreateTransferOrder(TransferHeader, BOMComponent."No.", ItemVariantCode, LocationCode2, LocationCode1, WorkDate2, RandInt());
+        CreateTransferOrder(TransferHeader, BOMComponent."No.", '', LocationCode2, LocationCode1, WorkDate10D, RandInt());
         // [GIVEN] Create Transfer Order for "C" on moving from "L2" to "L1"
-        QtyOnTO := CreateTransferOrder(TransferHeader, BOMComponent."No.", '', LocationCode2, LocationCode1, WorkDate2, RandInt);
+        QtyOnTO := CreateTransferOrder(TransferHeader, BOMComponent."No.", '', LocationCode2, LocationCode1, WorkDate2, RandInt());
 
         // [WHEN] Create Assembly Order for item "X" for location "L1"
-        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt);
+        CreateAssemblyOrderOnSafeDate(AssemblyHeader, Item."No.", LocationCode1, '', WorkDate2, RandInt());
 
         // [THEN] Assembly Availability Line: "Scheduled Receipts" = "Q", "Expected Inventory" = "Q"
         ExpAsmAvailTestBuf.Init();
@@ -2314,7 +2331,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure AbleToAssembleQtyPerUOMAsmItem()
     var
@@ -2346,7 +2363,7 @@ codeunit 137093 "SCM Kitting - D4"
             // [GIVEN] Component's "Quantity per" = ("Qp1", "Qp2")
             SetRandComponentQuantityPer(BOMComponent[i]);
             // [GIVEN] Add Inventory ("Q1", "Q2")
-            QtyOnInventory[i] := RandInt;
+            QtyOnInventory[i] := RandInt();
             AddInventory(BOMComponent[i]."No.", '', LocationCode, QtyOnInventory[i]);
             AbleToAssemble[i] := QtyOnInventory[i] / (BOMComponent[i]."Quantity per" * QtyPerAsm);
         end;
@@ -2356,6 +2373,9 @@ codeunit 137093 "SCM Kitting - D4"
 
         // [WHEN] Change "Unit Of Measure Code" on Assembly Order header
         ChangeUOMOnAsmOrder(AssemblyHeader, UnitOfMeasure.Code);
+        Commit();
+
+        AssemblyHeader.ShowAvailability();
 
         // [THEN] Assembly Availability header: "Able To Assemble" is minimal of "Able To Assemble" in lines
         ExpAsmAvailTestBuf.Init();
@@ -2369,10 +2389,11 @@ codeunit 137093 "SCM Kitting - D4"
             ExpAsmAvailTestBuf.Validate("Able To Assemble", AbleToAssemble[i]);
             AssertAvailabilityLine(AssemblyHeader, ExpAsmAvailTestBuf);
         end;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure AbleToAssembleQtyPerUOMComponent()
     var
@@ -2402,10 +2423,10 @@ codeunit 137093 "SCM Kitting - D4"
             SetRandComponentQuantityPer(BOMComponent[i]);
             // [GIVEN] Add another UOM for Component, "Quantity Per UOM" = ("QU1", "QU2")
             LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-            QtyPerComp[i] := RandInt;
+            QtyPerComp[i] := RandInt();
             AddComponentUOM(BOMComponent[i], QtyPerComp[i], UnitOfMeasure.Code);
             // [GIVEN] Add Inventory ("Q1", "Q2")
-            QtyOnInventory[i] := RandInt;
+            QtyOnInventory[i] := RandInt();
             AddInventory(BOMComponent[i]."No.", '', LocationCode, QtyOnInventory[i]);
             AbleToAssemble[i] := QtyOnInventory[i] / (BOMComponent[i]."Quantity per" * QtyPerComp[i]);
         end;
@@ -2428,7 +2449,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure AssemblyAvailabilityStaticData()
     var
@@ -2452,7 +2473,7 @@ codeunit 137093 "SCM Kitting - D4"
         SetVariantOnComponent(BOMComponent, CreateItemVariant(BOMComponent."No."));
 
         // [WHEN] Create Assembly Order for Item "X"
-        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, RandInt);
+        CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, RandInt());
 
         // [THEN]  Assembly Availability page header and line contains correct values: Item No, Variant Code, Location Code, UOM, Quantity
         AssertAvailabilityHeaderStatic(AssemblyHeader);
@@ -2464,7 +2485,6 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('CloseAvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AssemblyLineQtyWhenChangingUOMQuantityPer()
     var
@@ -2493,7 +2513,7 @@ codeunit 137093 "SCM Kitting - D4"
         SetRandComponentQuantityPer(BOMComponent);
         ExpectedQtyPer := BOMComponent."Quantity per" * QtyPerAsm;
         // [GIVEN] Create Assembly Order for Item "X", Quantity = "Q"
-        QtyOnAssemble := CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, RandInt);
+        QtyOnAssemble := CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, RandInt());
 
         // [WHEN] Change Assembly Header's "Unit of Measure" to "U2"
         ChangeUOMOnAsmOrder(AssemblyHeader, UnitOfMeasure.Code);
@@ -2513,6 +2533,8 @@ codeunit 137093 "SCM Kitting - D4"
         Assert.AreEqual(
           ExpectedQtyPer * QtyOnAssemble, AssemblyLine."Remaining Quantity",
           StrSubstNo(WrongValueInAsmLineErr, AssemblyLine.FieldName("Remaining Quantity")));
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -2537,7 +2559,7 @@ codeunit 137093 "SCM Kitting - D4"
         AddComponent(Item, BOMComponent);
         SetRandComponentQuantityPer(BOMComponent);
         // [GIVEN] Add Component to inventory, enough to assemble "QA" psc, Quantity = ("QA" * "Qp")
-        QtyOnAssemble := RandInt;
+        QtyOnAssemble := RandInt();
         AddInventory(BOMComponent."No.", '', '', BOMComponent."Quantity per" * QtyOnAssemble);
         // [GIVEN] Create Assembly Order for Item "X", Quantity = "QA"
         CreateAssemblyOrder(AssemblyHeader, Item."No.", '', '', WorkDate2, QtyOnAssemble);
@@ -2561,19 +2583,20 @@ codeunit 137093 "SCM Kitting - D4"
         AssertAvailabilityLine(AssemblyHeader, ExpAsmAvailTestBuf);
     end;
 
-    [ModalPageHandler]
+    [SendNotificationHandler]
     [Scope('OnPrem')]
-    procedure AvailabilityWindowHandler(var AsmAvailability: TestPage "Assembly Availability")
+    procedure SendAssemblyAvailabilityNotificationHandler(var Notification: Notification): Boolean
+    var
+        AssemblyLineManagement: Codeunit "Assembly Line Management";
     begin
-        TempAsmAvailTestBuf.ReadDataFromPage(AsmAvailability);
-        AsmAvailability.Yes.Invoke; // always accept
+        AssemblyLineManagement.ShowNotificationDetails(Notification);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CloseAvailabilityWindowHandler(var AsmAvailability: TestPage "Assembly Availability")
+    procedure AvailabilityWindowHandler(var AsmAvailabilityCheck: TestPage "Assembly Availability Check")
     begin
-        AsmAvailability.Yes.Invoke;
+        ReadDataFromCheckPage(TempAsmAvailTestBuf, AsmAvailabilityCheck);
     end;
 
     local procedure ComponentsAvailable(AssemblyHeader: Record "Assembly Header"): Boolean
@@ -2582,5 +2605,57 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         exit(LibraryAssembly.ComponentsAvailable(AssemblyHeader));
     end;
+
+    local procedure ReadDataFromCheckPage(var TempAsmAvailabilityTestBuf: Record "Asm. Availability Test Buffer" temporary; var AsmAvailabilityCheck: TestPage "Assembly Availability Check")
+    begin
+        TempAsmAvailabilityTestBuf.Reset();
+        TempAsmAvailabilityTestBuf.DeleteAll();
+
+        TempAsmAvailabilityTestBuf.Init();
+        ReadHeaderFromPage(TempAsmAvailabilityTestBuf, AsmAvailabilityCheck);
+        TempAsmAvailabilityTestBuf.Insert();
+
+        if AsmAvailabilityCheck.AssemblyLineAvail.First() then
+            repeat
+                TempAsmAvailabilityTestBuf.Init();
+                ReadLineFromPage(TempAsmAvailabilityTestBuf, AsmAvailabilityCheck);
+                TempAsmAvailabilityTestBuf.Insert();
+            until not AsmAvailabilityCheck.AssemblyLineAvail.Next();
+    end;
+
+    local procedure ReadHeaderFromPage(var TempAsmAvailabilityTestBuf: Record "Asm. Availability Test Buffer" temporary; var AsmAvailabilityCheck: TestPage "Assembly Availability Check")
+    begin
+        TempAsmAvailabilityTestBuf."Document No." := AsmAvailabilityCheck."No.".Value();
+        TempAsmAvailabilityTestBuf."Document Line No." := 0;
+        TempAsmAvailabilityTestBuf."Item No." := AsmAvailabilityCheck."Item No.".Value();
+        TempAsmAvailabilityTestBuf."Variant Code" := AsmAvailabilityCheck."Variant Code".Value();
+        TempAsmAvailabilityTestBuf."Location Code" := AsmAvailabilityCheck."Location Code".Value();
+        TempAsmAvailabilityTestBuf."Unit of Measure Code" := AsmAvailabilityCheck."Unit of Measure Code".Value();
+        TempAsmAvailabilityTestBuf.Description := AsmAvailabilityCheck.Description.Value();
+        TempAsmAvailabilityTestBuf.Quantity := AsmAvailabilityCheck."Current Quantity".AsDecimal();
+        TempAsmAvailabilityTestBuf.Inventory := AsmAvailabilityCheck.Inventory.AsDecimal();
+        TempAsmAvailabilityTestBuf."Gross Requirement" := AsmAvailabilityCheck.GrossRequirement.AsDecimal();
+        TempAsmAvailabilityTestBuf."Scheduled Receipts" := AsmAvailabilityCheck.ScheduledReceipts.AsDecimal();
+        TempAsmAvailabilityTestBuf."Able To Assemble" := AsmAvailabilityCheck.AbleToAssemble.AsDecimal();
+        Evaluate(TempAsmAvailabilityTestBuf."Earliest Availability Date", AsmAvailabilityCheck.EarliestAvailableDate.Value);
+    end;
+
+    local procedure ReadLineFromPage(var TempAsmAvailabilityTestBuf: Record "Asm. Availability Test Buffer" temporary; var AsmAvailabilityCheck: TestPage "Assembly Availability Check")
+    begin
+        TempAsmAvailabilityTestBuf."Document No." := AsmAvailabilityCheck."No.".Value();
+        TempAsmAvailabilityTestBuf."Document Line No." += 1;
+        TempAsmAvailabilityTestBuf."Item No." := AsmAvailabilityCheck.AssemblyLineAvail."No.".Value();
+        TempAsmAvailabilityTestBuf."Variant Code" := AsmAvailabilityCheck.AssemblyLineAvail."Variant Code".Value();
+        TempAsmAvailabilityTestBuf."Location Code" := AsmAvailabilityCheck.AssemblyLineAvail."Location Code".Value();
+        TempAsmAvailabilityTestBuf."Unit of Measure Code" := AsmAvailabilityCheck.AssemblyLineAvail."Unit of Measure Code".Value();
+        TempAsmAvailabilityTestBuf."Quantity Per" := AsmAvailabilityCheck.AssemblyLineAvail."Quantity per".AsDecimal();
+        TempAsmAvailabilityTestBuf.Quantity := AsmAvailabilityCheck.AssemblyLineAvail.CurrentQuantity.AsDecimal();
+        TempAsmAvailabilityTestBuf."Gross Requirement" := AsmAvailabilityCheck.AssemblyLineAvail.GrossRequirement.AsDecimal();
+        TempAsmAvailabilityTestBuf."Scheduled Receipts" := AsmAvailabilityCheck.AssemblyLineAvail.ScheduledReceipt.AsDecimal();
+        TempAsmAvailabilityTestBuf."Expected Inventory" := AsmAvailabilityCheck.AssemblyLineAvail.ExpectedAvailableInventory.AsDecimal();
+        TempAsmAvailabilityTestBuf."Able To Assemble" := AsmAvailabilityCheck.AssemblyLineAvail.AbleToAssemble.AsDecimal();
+        Evaluate(TempAsmAvailabilityTestBuf."Earliest Availability Date", AsmAvailabilityCheck.AssemblyLineAvail.EarliestAvailableDate.Value);
+    end;
+
 }
 

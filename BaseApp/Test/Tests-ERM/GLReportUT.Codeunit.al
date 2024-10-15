@@ -90,8 +90,8 @@ codeunit 134774 "G/L Report UT"
         LibraryVariableStorage.Enqueue(Format(GLRegister."No."));
         LibraryVariableStorage.Enqueue(ShowDetailsTxt);
         REPORT.Run(REPORT::"G/L Register");
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(LibraryReportDataset.RowCount, ExpectedNoOfRows, 'Expected that there are 3 rows');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(LibraryReportDataset.RowCount(), ExpectedNoOfRows, 'Expected that there are 3 rows');
     end;
 
     [RequestPageHandler]
@@ -105,7 +105,7 @@ codeunit 134774 "G/L Report UT"
         LibraryVariableStorage.Dequeue(ShowDetailsVar);
         GLRegister."G/L Register".SetFilter("No.", DocumentNo);
         GLRegister.ShowDetails.Value(ShowDetailsVar);
-        GLRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Scope('OnPrem')]
@@ -139,7 +139,7 @@ codeunit 134774 "G/L Report UT"
     [Scope('OnPrem')]
     procedure CreateGLAccount(): Code[20]
     begin
-        exit(LibraryERM.CreateGLAccountNo);
+        exit(LibraryERM.CreateGLAccountNo());
     end;
 
     local procedure FindNoVATPostingSetup(VATBusPostingGroup: Code[20]): Code[10]
@@ -152,9 +152,9 @@ codeunit 134774 "G/L Report UT"
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
             FindFirst();
             if "Sales VAT Account" = '' then
-                Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+                Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
             if "Purchase VAT Account" = '' then
-                Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+                Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
             Modify(true);
             exit("VAT Prod. Posting Group");
         end;

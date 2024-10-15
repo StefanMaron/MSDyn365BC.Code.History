@@ -131,7 +131,7 @@ report 12 "VAT Statement"
                 begin
                     CalcLineTotal("VAT Statement Line", TotalAmount, 0);
                     if PrintInIntegers then
-                        TotalAmount := Round(TotalAmount, 1, '<');
+                        TotalAmount := RoundAmount(TotalAmount);
                     if "Print with" = "Print with"::"Opposite Sign" then
                         TotalAmount := -TotalAmount;
                     PageGroupNo := NextPageGroupNo;
@@ -264,7 +264,6 @@ report 12 "VAT Statement"
         i: Integer;
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
-        Heading2: Text[50];
 #if not CLEAN22
         VATDateType: Enum "VAT Date Type";
 #endif
@@ -281,12 +280,14 @@ report 12 "VAT Statement"
         ReportinclallVATentriesCaptionLbl: Label 'The report includes all VAT entries.';
         RepinclonlyclosedVATentCaptionLbl: Label 'The report includes only closed VAT entries.';
         TotalAmountCaptionLbl: Label 'Amount';
+        DefaultRoundingDirectionTok: Label '<', Locked = true;
 
     protected var
         EndDate: Date;
         StartDate: Date;
         EndDateReq: Date;
         HeaderText: Text[50];
+        Heading2: Text;
         PrintInIntegers: Boolean;
         PeriodSelection: Enum "VAT Statement Report Period Selection";
         Selection: Enum "VAT Statement Report Selection";
@@ -427,7 +428,7 @@ report 12 "VAT Statement"
             VATStmtLine2.Type::Description:
                 ;
             else
-                OnCalcLineTotalWithBaseOnCaseElse(VATStmtLine2, Amount, TotalAmount, Level, PeriodSelection, StartDate, EndDate, EndDateReq, PrintInIntegers, UseAmtsInAddCurr);
+                OnCalcLineTotalWithBaseOnCaseElse(VATStmtLine2, Amount, TotalAmount, Level, PeriodSelection, StartDate, EndDate, EndDateReq, PrintInIntegers, UseAmtsInAddCurr, TotalBase);
         end;
 
         exit(true);
@@ -464,12 +465,12 @@ report 12 "VAT Statement"
         if VATStmtLine2."Calculate with" = 1 then
             Amount := -Amount;
         if PrintInIntegers and VATStmtLine2.Print then
-            Amount := Round(Amount, 1, '<');
+            Amount := RoundAmount(Amount);
         TotalAmount := TotalAmount + Amount;
         if VATStmtLine2."Calculate with" = 1 then
             Base := -Base;
         if PrintInIntegers and VATStmtLine2.Print then
-            Base := Round(Base, 1, '<');
+            Base := RoundAmount(Base);
         TotalBase := TotalBase + Base;
     end;
 
@@ -533,6 +534,17 @@ report 12 "VAT Statement"
         exit('');
     end;
 
+    protected procedure GetAmtRoundingDirection() Direction: Text[1]
+    begin
+        Direction := DefaultRoundingDirectionTok;
+        OnAfterGetAmtRoundingDirection(Direction);
+    end;
+
+    protected procedure RoundAmount(Amt: Decimal): Decimal
+    begin
+        exit(Round(Amt, 1, GetAmtRoundingDirection()));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
     begin
@@ -549,12 +561,17 @@ report 12 "VAT Statement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcLineTotalWithBaseOnCaseElse(var VATStmtLine2: Record "VAT Statement Line"; var Amount: Decimal; var TotalAmount: Decimal; Level: Integer; PeriodSelection: Enum "VAT Statement Report Period Selection"; StartDate: Date; EndDate: Date; EndDateReq: Date; PrintInIntegers: Boolean; UseAmtsInAddCurr: Boolean)
+    local procedure OnCalcLineTotalWithBaseOnCaseElse(var VATStmtLine2: Record "VAT Statement Line"; var Amount: Decimal; var TotalAmount: Decimal; Level: Integer; PeriodSelection: Enum "VAT Statement Report Period Selection"; StartDate: Date; EndDate: Date; EndDateReq: Date; PrintInIntegers: Boolean; UseAmtsInAddCurr: Boolean; var TotalBase: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(var GLAccount: Record "G/L Account"; VATStatementLine2: Record "VAT Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAmtRoundingDirection(var Direction: Text[1]);
     begin
     end;
 }

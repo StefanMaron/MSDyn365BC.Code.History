@@ -90,6 +90,14 @@ page 1173 "Document Attachment Details"
                     ToolTip = 'Specifies if the attachment must flow to transactions.';
                     Visible = SalesDocumentFlow;
                 }
+                field("Document Flow Service"; Rec."Document Flow Service")
+                {
+                    ApplicationArea = Service;
+                    CaptionClass = GetCaptionClass(13);
+                    Editable = FlowFieldsEditable;
+                    ToolTip = 'Specifies if the attachment must flow to transactions.';
+                    Visible = ServiceDocumentFlow;
+                }
             }
         }
     }
@@ -257,7 +265,7 @@ page 1173 "Document Attachment Details"
     var
         OfficeMgmt: Codeunit "Office Management";
         OfficeHostMgmt: Codeunit "Office Host Management";
-        SalesDocumentFlow: Boolean;
+        SalesDocumentFlow, ServiceDocumentFlow : Boolean;
         FileDialogTxt: Label 'Attachments (%1)|%1', Comment = '%1=file types, such as *.txt or *.docx';
         FilterTxt: Label '*.jpg;*.jpeg;*.bmp;*.png;*.gif;*.tiff;*.tif;*.pdf;*.docx;*.doc;*.xlsx;*.xls;*.pptx;*.ppt;*.msg;*.xml;*.*', Locked = true;
         ImportTxt: Label 'Attach a document.';
@@ -266,12 +274,13 @@ page 1173 "Document Attachment Details"
         ShareOptionsVisible: Boolean;
         ShareEditOptionVisible: Boolean;
         DownloadEnabled: Boolean;
-        FlowToPurchTxt: Label 'Flow to Purch. Trx';
-        FlowToSalesTxt: Label 'Flow to Sales Trx';
         FlowFieldsEditable: Boolean;
         EmailHasAttachments: Boolean;
         IsOfficeAddin: Boolean;
         IsMultiSelect: Boolean;
+        FlowToPurchTxt: Label 'Flow to Purch. Trx';
+        FlowToSalesTxt: Label 'Flow to Sales Trx';
+        FlowToServiceTxt: Label 'Flow to Service Trx';
         MenuOptionsTxt: Label 'Attach from email,Upload file', Comment = 'Comma seperated phrases must be translated seperately.';
         SelectInstructionTxt: Label 'Choose the files to attach.';
 
@@ -298,12 +307,14 @@ page 1173 "Document Attachment Details"
 
     local procedure GetCaptionClass(FieldNo: Integer): Text
     begin
-        if SalesDocumentFlow and PurchaseDocumentFlow then
+        if SalesDocumentFlow and PurchaseDocumentFlow and ServiceDocumentFlow then
             case FieldNo of
                 9:
                     exit(FlowToPurchTxt);
                 11:
                     exit(FlowToSalesTxt);
+                13:
+                    exit(FlowToServiceTxt);
             end;
     end;
 
@@ -317,6 +328,7 @@ page 1173 "Document Attachment Details"
 
         SalesDocumentFlow := DocumentAttachmentMgmt.IsSalesDocumentFlow(RecRef.Number);
         PurchaseDocumentFlow := DocumentAttachmentMgmt.IsPurchaseDocumentFlow(RecRef.Number);
+        ServiceDocumentFlow := DocumentAttachmentMgmt.IsServiceDocumentFlow(RecRef.Number);
         FlowFieldsEditable := DocumentAttachmentMgmt.IsFlowFieldsEditable(RecRef.Number);
 
         DocumentAttachmentMgmt.SetDocumentAttachmentFiltersForRecRefInternal(Rec, RecRef, false);

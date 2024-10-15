@@ -50,6 +50,11 @@ page 462 "Resources Setup"
                     ObsoleteTag = '22.0';
                 }
 #endif
+                field("Time Sheet Submission Policy"; Rec."Time Sheet Submission Policy")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the policy for submitting time sheets.';
+                }
             }
         }
         area(factboxes)

@@ -972,6 +972,54 @@ codeunit 134400 "ERM Incoming Documents"
     end;
 
     [Test]
+    procedure TestIncomingDocumentPropagatedToArchivedSalesDoc()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        SalesHeader: Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        EnumAssignmentMgt: Codeunit "Enum Assignment Management";
+        ArchiveManagement: Codeunit ArchiveManagement;
+        IncomingDocumentCard: TestPage "Incoming Document";
+        FileName: Text;
+    begin
+        // [GIVEN] Sales Order exists      
+        SalesHeader.Init();
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+        SalesHeader.Insert(true);
+
+        // [GIVEN] Incoming Document Attachment exists   
+        IncomingDocumentAttachment.FilterGroup(4);
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", 0);
+        IncomingDocumentAttachment.SetRange("Document Table No. Filter", Database::"Sales Header");
+        IncomingDocumentAttachment.SetRange("Document Type Filter", EnumAssignmentMgt.GetSalesIncomingDocumentType(SalesHeader."Document Type"));
+        IncomingDocumentAttachment.SetRange("Document No. Filter", SalesHeader."No.");
+        IncomingDocumentAttachment.FilterGroup(0);
+
+        // [GIVEN] The document is attached to Sales document incoming document        
+        FileName := CreateDummyFile('xml');
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+        SalesHeader.Find();
+
+        // [WHEN] The Sales document is archived
+        ArchiveManagement.StoreSalesDocument(SalesHeader, false);
+        SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
+        SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
+        SalesHeaderArchive.FindLast();
+
+        // [THEN] The incoming document is linked to archived document
+        IncomingDocumentAttachment.TestField("Incoming Document Entry No.");
+        Assert.AreEqual(IncomingDocumentAttachment."Incoming Document Entry No.", SalesHeaderArchive."Incoming Document Entry No.", 'Incoming Document Entry No. are not correct.');
+        IncomingDocument.Get(SalesHeaderArchive."Incoming Document Entry No.");
+
+        // [THEN] The attachment exists
+        IncomingDocumentCard.OpenEdit();
+        IncomingDocumentCard.GotoRecord(IncomingDocument);
+        Assert.AreNotEqual(IncomingDocumentCard.Record.Value, '', EmptyLinkToRelatedRecordErr);
+        IncomingDocumentCard.Record.AssertEquals(IncomingDocument.GetRecordLinkText());
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure TestAddAttachmentToExistingPurchDoc()
     var
@@ -1010,6 +1058,54 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.TestField("Posting Date", 0D);
         IncomingDocument.TestField("Related Record ID", PurchaseHeader.RecordId);
 
+        IncomingDocumentCard.OpenEdit();
+        IncomingDocumentCard.GotoRecord(IncomingDocument);
+        Assert.AreNotEqual(IncomingDocumentCard.Record.Value, '', EmptyLinkToRelatedRecordErr);
+        IncomingDocumentCard.Record.AssertEquals(IncomingDocument.GetRecordLinkText());
+    end;
+
+    [Test]
+    procedure TestIncomingDocumentPropagatedToArchivedPurchaseDoc()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeaderArchive: Record "Purchase Header Archive";
+        EnumAssignmentMgt: Codeunit "Enum Assignment Management";
+        ArchiveManagement: Codeunit ArchiveManagement;
+        IncomingDocumentCard: TestPage "Incoming Document";
+        FileName: Text;
+    begin
+        // [GIVEN] Purchase Order exists      
+        PurchaseHeader.Init();
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
+        PurchaseHeader.Insert(true);
+
+        // [GIVEN] Incoming Document Attachment exists   
+        IncomingDocumentAttachment.FilterGroup(4);
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", 0);
+        IncomingDocumentAttachment.SetRange("Document Table No. Filter", Database::"Purchase Header");
+        IncomingDocumentAttachment.SetRange("Document Type Filter", EnumAssignmentMgt.GetPurchIncomingDocumentType(PurchaseHeader."Document Type"));
+        IncomingDocumentAttachment.SetRange("Document No. Filter", PurchaseHeader."No.");
+        IncomingDocumentAttachment.FilterGroup(0);
+
+        // [GIVEN] The document is attached to purchase document incoming document        
+        FileName := CreateDummyFile('xml');
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+        PurchaseHeader.Find();
+
+        // [WHEN] The purchase document is archived
+        ArchiveManagement.StorePurchDocument(PurchaseHeader, false);
+        PurchaseHeaderArchive.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseHeaderArchive.SetRange("No.", PurchaseHeader."No.");
+        PurchaseHeaderArchive.FindLast();
+
+        // [THEN] The incoming document is linked to archived document
+        IncomingDocumentAttachment.TestField("Incoming Document Entry No.");
+        Assert.AreEqual(IncomingDocumentAttachment."Incoming Document Entry No.", PurchaseHeaderArchive."Incoming Document Entry No.", 'Incoming Document Entry No. are not correct.');
+        IncomingDocument.Get(PurchaseHeaderArchive."Incoming Document Entry No.");
+
+        // [THEN] The attachment exists
         IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
         Assert.AreNotEqual(IncomingDocumentCard.Record.Value, '', EmptyLinkToRelatedRecordErr);

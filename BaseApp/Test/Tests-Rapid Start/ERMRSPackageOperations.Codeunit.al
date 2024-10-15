@@ -187,6 +187,112 @@ codeunit 136603 "ERM RS Package Operations"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ExportImportAndApplyPackageWithBlobField()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        SalesHeader: Record "Sales Header";
+        FilePath: Text;
+        OriginalWorkDescription: Text;
+    begin
+        // [FEATURE] [Config Package]
+        // [SCENARIO] Blob field can be exported, imported and applied
+        Initialize();
+
+        // [GIVEN] Sales Header with non-blank "Work Description" field exists
+        CreateSalesOrderWithWorkDescription(SalesHeader);
+        OriginalWorkDescription := SalesHeader.GetWorkDescription();
+
+        // [GIVEN] Package for Sales Header with the work description field included
+        CreatePackageWithBlobField(ConfigPackage, SalesHeader);
+
+        // [WHEN] The package is exported
+        ExportToXML(ConfigPackage.Code, ConfigPackageTable, FilePath);
+
+        // [WHEN] The work description is set to empty value in system    
+        SalesHeader.FindFirst();
+        SalesHeader.SetWorkDescription('');
+        SalesHeader.Modify();
+
+        // [WHEN] The package is exported back to system
+        ImportPackageXML(ConfigPackage.Code, FilePath);
+        Erase(FilePath);
+
+        // [THEN] The work description is still blank
+        SalesHeader.FindFirst();
+        Assert.AreEqual('', SalesHeader.GetWorkDescription(), SalesHeader.FieldCaption("Work Description"));
+
+        // [WHEN] The package is applied
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] The work description is set to the value from the excel package
+        SalesHeader.FindFirst();
+        Assert.AreEqual(OriginalWorkDescription, SalesHeader.GetWorkDescription(), SalesHeader.FieldCaption("Work Description"));
+    end;
+
+    [Test]
+    [HandlerFunctions('ExcelImportPreviewHandler')]
+    [Scope('OnPrem')]
+    procedure ExportImportAndApplyPackageWithBlobFieldExcel()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        SalesHeader: Record "Sales Header";
+        ERMRSPackageOperations: Codeunit "ERM RS Package Operations";
+        ConfigPackageCard: TestPage "Config. Package Card";
+        OriginalWorkDescription: Text;
+    begin
+        // [FEATURE] [Config Package]
+        // [SCENARIO] Blob field can be exported to excel, imported from excel and applied
+        Initialize();
+
+        // [GIVEN] Sales Order with work description
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        OriginalWorkDescription := LibraryRandom.RandText(MaxStrLen(SalesHeader."Sell-to Customer Name"));
+        SalesHeader.SetWorkDescription(OriginalWorkDescription);
+        SalesHeader.Modify();
+
+        // [GIVEN] Config package "A" for table "Sales Header"
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, Database::"Sales Header");
+
+        // [GIVEN] All fields except PK fields and "Work Description" are excluded from export
+        LibraryRapidStart.SetIncludeAllFields(ConfigPackage.Code, Database::"Sales Header", false);
+        LibraryRapidStart.SetIncludeOneField(ConfigPackage.Code, Database::"Sales Header", SalesHeader.FieldNo("Work Description"), true);
+
+        // [WHEN] The package is exported
+        Commit();
+        ExportToExcel(ConfigPackageTable);
+
+        // [WHEN] The work description is set to empty value in system    
+        SalesHeader.SetRecFilter();
+        SalesHeader.FindFirst();
+        SalesHeader.SetWorkDescription('');
+        SalesHeader.Modify();
+
+        // [WHEN] Open "Config. Package Card" page on 'A'
+        ConfigPackageCard.OpenView();
+        ConfigPackageCard.Filter.SetFilter(Code, ConfigPackage.Code);
+
+        // [WHEN] Run action "Import From Excel" on package card page
+        BindSubscription(ERMRSPackageOperations);
+        ERMRSPackageOperations.SetFileName(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
+        LibraryVariableStorage.Enqueue(1); // expected numer of sheets in Excel for ExcelImportPreviewHandler
+        ConfigPackageCard.ImportFromExcel.Invoke();
+
+        // [THEN] The work description is still blank
+        SalesHeader.FindFirst();
+        Assert.AreEqual('', SalesHeader.GetWorkDescription(), SalesHeader.FieldCaption("Work Description"));
+
+        // [WHEN] The package is applied
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] The work description is set to the value from the excel package
+        SalesHeader.FindFirst();
+        Assert.AreEqual(OriginalWorkDescription, SalesHeader.GetWorkDescription(), SalesHeader.FieldCaption("Work Description"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ApplyDependentTableWithEmpyParentTableID()
     var
         ConfigPackage: Record "Config. Package";
@@ -311,7 +417,6 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageTable: Record "Config. Package Table";
         IntegrationTableMapping: Record "Integration Table Mapping";
         ConfigPackageError: Record "Config. Package Error";
-        LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         IntegrationTableMappingRecordCount: Integer;
     begin
         // [FEATURE] [XML]
@@ -1192,8 +1297,6 @@ codeunit 136603 "ERM RS Package Operations"
         TempBlob: Codeunit "Temp Blob";
         TempBlobInStream: InStream;
         PackageOutStream: OutStream;
-        PackageOutput: Text;
-        SingleLine: Text;
     begin
         // [SCENARIO] Text fields larger than 250 characters are not truncated on import.
         Initialize();
@@ -2039,6 +2142,57 @@ codeunit 136603 "ERM RS Package Operations"
     end;
 
     [Test]
+    [HandlerFunctions('ExcelImportPreviewHandler')]
+    [Scope('OnPrem')]
+    procedure ImportFromExcelBlobField()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        SalesHeader: Record "Sales Header";
+        ERMRSPackageOperations: Codeunit "ERM RS Package Operations";
+        ConfigPackageCard: TestPage "Config. Package Card";
+        OriginalWorkDescription: Text;
+    begin
+        // [FEATURE] [Excel] [UI]
+        // [SCENARIO] Blob fields are imported as configured.
+        Initialize();
+
+        // [GIVEN] Sales Header with non-blank "Work Description" field exists
+        CreateSalesOrderWithWorkDescription(SalesHeader);
+        OriginalWorkDescription := SalesHeader.GetWorkDescription();
+
+        // [GIVEN] Config package "A" for table "Sales Header"
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, Database::"Sales Header");
+
+        // [GIVEN] All fields except PK fields and "Work Description" are excluded from export
+        LibraryRapidStart.SetIncludeAllFields(ConfigPackage.Code, Database::"Sales Header", false);
+        LibraryRapidStart.SetIncludeOneField(ConfigPackage.Code, Database::"Sales Header", SalesHeader.FieldNo("Work Description"), true);
+
+        // [GIVEN] Package "A" is exported to Excel
+        Commit();
+        ExportToExcel(ConfigPackageTable);
+
+        // [GIVEN] "Work Description" field is set to different value
+        SalesHeader.Find();
+        SalesHeader.SetWorkDescription(LibraryRandom.RandText(MaxStrLen(SalesHeader."Sell-to Customer No.")));
+        SalesHeader.Modify();
+
+        // [GIVEN] Open "Config. Package Card" page on 'A'
+        ConfigPackageCard.OpenView();
+        ConfigPackageCard.Filter.SetFilter(Code, ConfigPackage.Code);
+
+        // [WHEN] Run action "Import From Excel" on package card page
+        BindSubscription(ERMRSPackageOperations);
+        ERMRSPackageOperations.SetFileName(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
+        LibraryVariableStorage.Enqueue(1); // expected numer of sheets in Excel for ExcelImportPreviewHandler
+        ConfigPackageCard.ImportFromExcel.Invoke();
+
+        // [THEN] Imported package contains exported work description
+        SalesHeader.SetRecFilter();
+        VerifyConfigPackageDataBLOBValuesFromExcel(ConfigPackage.Code, SalesHeader, OriginalWorkDescription);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure ExportToExcelCustomProcessingOrderedPackageField()
     var
@@ -2075,6 +2229,54 @@ codeunit 136603 "ERM RS Package Operations"
         LibraryReportValidation.VerifyCellValueByRef('L', 3, 1, Currency.FieldCaption(Code));
         LibraryReportValidation.VerifyCellValueByRef('A', 4, 1, Currency.Description);
         LibraryReportValidation.VerifyCellValueByRef('L', 4, 1, Currency.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportToExcelBlobField()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        SalesHeader: Record "Sales Header";
+        WorkDescription: Text;
+        LineCounter: Integer;
+    begin
+        // [FEATURE] [Excel]
+        // [SCENARIO] Blob fields are exported to Excel as configured.
+        Initialize();
+
+        // [GIVEN] Sales Header with non-blank "Work Description" field exists
+        CreateSalesOrderWithWorkDescription(SalesHeader);
+
+        // [GIVEN] Config package "A" for table "Sales Header"
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, Database::"Sales Header");
+
+        // [GIVEN] All fields except PK fields and "Work Description" are excluded from export
+        LibraryRapidStart.SetIncludeAllFields(ConfigPackage.Code, Database::"Sales Header", false);
+        LibraryRapidStart.SetIncludeOneField(ConfigPackage.Code, Database::"Sales Header", SalesHeader.FieldNo("Work Description"), true);
+
+        // [WHEN] Export "A" to Excel
+        Commit();
+        ExportToExcel(ConfigPackageTable);
+
+        // [THEN] PK fields are first two columns in Excel
+        // [THEN] Work Description is exported into third column
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValueByRef('A', 3, 1, SalesHeader.FieldCaption("Document Type"));
+        LibraryReportValidation.VerifyCellValueByRef('B', 3, 1, SalesHeader.FieldCaption("No."));
+        LibraryReportValidation.VerifyCellValueByRef('C', 3, 1, SalesHeader.FieldCaption("Work Description"));
+
+        Clear(SalesHeader);
+        LineCounter := 4;
+        if SalesHeader.FindSet() then
+            repeat
+                LibraryReportValidation.VerifyCellValueByRef('A', LineCounter, 1, Format(SalesHeader."Document Type"));
+                LibraryReportValidation.VerifyCellValueByRef('B', LineCounter, 1, SalesHeader."No.");
+                WorkDescription := SalesHeader.GetWorkDescription();
+                if WorkDescription <> '' then
+                    LibraryReportValidation.VerifyCellValueByRef('C', LineCounter, 1, SalesHeader.GetWorkDescription());
+                LineCounter += 1;
+            until SalesHeader.Next() = 0;
     end;
 
     [Test]
@@ -2452,7 +2654,6 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackage: Record "Config. Package";
         ConfigPackageTable: Record "Config. Package Table";
         InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
-        ItemFilter: Text[250];
         FilePath: Text;
     begin
         // [SCENARIO 390268] Export and import of Config. Package with record that has similar columns differ by % symbol
@@ -2716,7 +2917,7 @@ codeunit 136603 "ERM RS Package Operations"
 
     [Test]
     [Scope('OnPrem')]
-    procedure XXX()
+    procedure ExportConfigPackageIncludesConfigMediaBuffer()
     var
         ConfigPackage: Array[2] of Record "Config. Package";
         ConfigPackageTable: Array[2] of Record "Config. Package Table";
@@ -2791,6 +2992,22 @@ codeunit 136603 "ERM RS Package Operations"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Package Operations");
+    end;
+
+    local procedure CreateSalesOrderWithWorkDescription(var SalesHeader: Record "Sales Header")
+    var
+        TypeHelper: Codeunit "Type Helper";
+        WorkDescriptionTextBuilder: TextBuilder;
+    begin
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        WorkDescriptionTextBuilder.Append(LibraryRandom.RandText(MaxStrLen(SalesHeader."Currency Code")));
+        WorkDescriptionTextBuilder.Append(TypeHelper.LFSeparator());
+        WorkDescriptionTextBuilder.Append(LibraryRandom.RandText(MaxStrLen(SalesHeader."Currency Code")));
+        WorkDescriptionTextBuilder.Append(TypeHelper.LFSeparator());
+        WorkDescriptionTextBuilder.Append(LibraryRandom.RandText(MaxStrLen(SalesHeader."Currency Code")));
+        WorkDescriptionTextBuilder.Append(TypeHelper.LFSeparator());
+        SalesHeader.SetWorkDescription(WorkDescriptionTextBuilder.ToText());
+        SalesHeader.Modify();
     end;
 
     local procedure MockInventoryAdjmtEntryOrderLines(NoOfLines: Integer)
@@ -3095,6 +3312,24 @@ codeunit 136603 "ERM RS Package Operations"
             PurchSetup.Init();
             PurchSetup.Insert(true);
         end;
+    end;
+
+    local procedure CreatePackageWithBlobField(var ConfigPackage: Record "Config. Package"; var SalesHeader: Record "Sales Header")
+    var
+        ConfigPackageTable: Record "Config. Package Table";
+        ConfigPackageFilter: Record "Config. Package Filter";
+    begin
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, Database::"Sales Header");
+        IncludeField(ConfigPackageTable, 0, false);
+        IncludeField(ConfigPackageTable, SalesHeader.FieldNo("Document Type"), true);
+        IncludeField(ConfigPackageTable, SalesHeader.FieldNo("No."), true);
+        IncludeField(ConfigPackageTable, SalesHeader.FieldNo("Work Description"), true);
+        ConfigPackageMgt.InsertPackageFilter(
+          ConfigPackageFilter, ConfigPackage.Code, DATABASE::"Sales Header", 0,
+          SalesHeader.FieldNo("Document Type"), Format(SalesHeader."Document Type"));
+        ConfigPackageMgt.InsertPackageFilter(
+          ConfigPackageFilter, ConfigPackage.Code, DATABASE::"Sales Header", 0,
+          SalesHeader.FieldNo("No."), SalesHeader."No.");
     end;
 
     local procedure CreateSalesInvPackage(var ConfigPackage: Record "Config. Package"; ParentTableID: Integer) CustomerNo: Code[20]
@@ -3744,6 +3979,29 @@ codeunit 136603 "ERM RS Package Operations"
             ConfigPackageDataBLOB.CalcFields("BLOB Value");
             ConfigPackageDataBLOB.TestField("BLOB Value", GLAccount.Picture);
         until GLAccount.Next() = 0;
+    end;
+
+    local procedure VerifyConfigPackageDataBLOBValuesFromExcel(ConfigPackageCode: Code[20]; var SalesHeader: Record "Sales Header"; OriginalWorkDescription: Text)
+    var
+        ConfigPackageData: Record "Config. Package Data";
+        ConfigPackageDataBLOB: Record "Config. Package Data";
+        TypeHelper: Codeunit "Type Helper";
+        InStream: InStream;
+    begin
+        ConfigPackageData.SetRange("Package Code", ConfigPackageCode);
+        ConfigPackageData.SetRange("Table ID", Database::"Sales Header");
+        ConfigPackageData.SetRange("Field ID", SalesHeader.FieldNo("No."));
+        SalesHeader.FindSet();
+        repeat
+            SalesHeader.CalcFields("Work Description");
+            ConfigPackageData.SetRange(Value, SalesHeader."No.");
+            ConfigPackageData.FindFirst();
+
+            ConfigPackageDataBLOB.Get(ConfigPackageCode, DATABASE::"Sales Header", ConfigPackageData."No.", SalesHeader.FieldNo("Work Description"));
+            ConfigPackageDataBLOB.CalcFields("BLOB Value");
+            ConfigPackageDataBLOB."BLOB Value".CreateInStream(InStream);
+            Assert.AreEqual(OriginalWorkDescription, TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()), ConfigPackageDataBLOB.FieldCaption("BLOB Value"));
+        until SalesHeader.Next() = 0;
     end;
 
     local procedure IncludeItemPictureConfigPackageField(ConfigPackageCode: Code[20])

@@ -3,6 +3,7 @@ namespace Microsoft.CRM.Outlook;
 table 1601 "Office Add-in Setup"
 {
     Caption = 'Office Add-in Setup';
+    DataClassification = CustomerContent;
     ReplicateData = false;
 
     fields

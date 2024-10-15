@@ -41,8 +41,8 @@ codeunit 138048 "O365 Inv. Item Availability"
         // EXECUTE: Open the Item Availability By Period page.
         ViewItemCard(ItemCard, Item);
 
-        ItemAvailabilityByPeriod.Trap;
-        ItemCard.Period.Invoke;
+        ItemAvailabilityByPeriod.Trap();
+        ItemCard.Period.Invoke();
         SetDemandByPeriodFilters(ItemAvailabilityByPeriod, Item."No.", WorkDate());
 
         // VERIFY: The quantities in demand by period grid columns for the demand date
@@ -73,7 +73,7 @@ codeunit 138048 "O365 Inv. Item Availability"
 
         // EXECUTE: Open the Item Availability By Event page.
         ViewItemCard(ItemCard, Item);
-        ItemCard."<Action110>".Invoke;
+        ItemCard."<Action110>".Invoke();
 
         // VERIFY: Verification is in the handler
     end;
@@ -99,13 +99,13 @@ codeunit 138048 "O365 Inv. Item Availability"
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Open Item Availability Check page for item "ITEM"
-        ItemAvailabilityCheck.OpenEdit;
+        ItemAvailabilityCheck.OpenEdit();
         ItemAvailabilityCheck.GotoRecord(Item);
 
         // [WHEN] Invoke 'Create Purchase Order' action and pick vendor VEND
         LibraryVariableStorage.Enqueue(Vendor."No.");
-        PurchaseInvoice.Trap;
-        ItemAvailabilityCheck."Purchase Invoice".Invoke;
+        PurchaseInvoice.Trap();
+        ItemAvailabilityCheck."Purchase Invoice".Invoke();
 
         // [THEN] Purchase invoice created for vendor "VEND"
         PurchaseInvoice."Buy-from Vendor Name".AssertEquals(Vendor.Name);
@@ -131,12 +131,12 @@ codeunit 138048 "O365 Inv. Item Availability"
         Item.Modify(true);
 
         // [GIVEN] Open Item Availability Check page for item "ITEM"
-        ItemAvailabilityCheck.OpenEdit;
+        ItemAvailabilityCheck.OpenEdit();
         ItemAvailabilityCheck.GotoRecord(Item);
 
         // [WHEN] Invoke 'Create Purchase Order' action
-        PurchaseInvoice.Trap;
-        ItemAvailabilityCheck."Purchase Invoice".Invoke;
+        PurchaseInvoice.Trap();
+        ItemAvailabilityCheck."Purchase Invoice".Invoke();
 
         // [THEN] Purchase invoice created for vendor "VEND"
         PurchaseInvoice."Buy-from Vendor Name".AssertEquals(Vendor.Name);
@@ -166,13 +166,13 @@ codeunit 138048 "O365 Inv. Item Availability"
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Open Item Availability Check page for item "ITEM"
-        ItemAvailabilityCheck.OpenEdit;
+        ItemAvailabilityCheck.OpenEdit();
         ItemAvailabilityCheck.GotoRecord(Item);
 
         // [WHEN] Invoke 'Create Purchase Order' action and pick vendor VEND
         LibraryVariableStorage.Enqueue(Vendor."No.");
-        PurchaseOrder.Trap;
-        ItemAvailabilityCheck."Purchase Order".Invoke;
+        PurchaseOrder.Trap();
+        ItemAvailabilityCheck."Purchase Order".Invoke();
 
         // [THEN] Purchase order created for vendor "VEND"
         PurchaseOrder."Buy-from Vendor Name".AssertEquals(Vendor.Name);
@@ -200,11 +200,11 @@ codeunit 138048 "O365 Inv. Item Availability"
         PurchDocQty := PurchaseHeader.Count();
 
         // [GIVEN] Open Item Availability Check page for item "ITEM"
-        ItemAvailabilityCheck.OpenEdit;
+        ItemAvailabilityCheck.OpenEdit();
         ItemAvailabilityCheck.GotoRecord(Item);
 
         // [WHEN] Invoke 'Create Purchase Order' action and cancel vendor selection
-        ItemAvailabilityCheck."Purchase Order".Invoke;
+        ItemAvailabilityCheck."Purchase Order".Invoke();
 
         // [THEN] Purchase order is not created
         Assert.AreEqual(PurchDocQty, PurchaseHeader.Count, 'Purchase document should not be created');
@@ -229,12 +229,12 @@ codeunit 138048 "O365 Inv. Item Availability"
         Item.Modify(true);
 
         // [GIVEN] Open Item Availability Check page for item "ITEM"
-        ItemAvailabilityCheck.OpenEdit;
+        ItemAvailabilityCheck.OpenEdit();
         ItemAvailabilityCheck.GotoRecord(Item);
 
         // [WHEN] Invoke 'Create Purchase Order' action
-        PurchaseOrder.Trap;
-        ItemAvailabilityCheck."Purchase Order".Invoke;
+        PurchaseOrder.Trap();
+        ItemAvailabilityCheck."Purchase Order".Invoke();
 
         // [THEN] Purchase order created for vendor "VEND"
         PurchaseOrder."Buy-from Vendor Name".AssertEquals(Vendor.Name);
@@ -430,8 +430,6 @@ codeunit 138048 "O365 Inv. Item Availability"
         SalesLine: Record "Sales Line";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         SalesOrder: TestPage "Sales Order";
-        ItemAvailabilityByUOM: TestPage "Item Availability by UOM";
-        Quantity: array[2] of Decimal;
     begin
         // [FEATURE] [Sales Order] [UI]
         // [SCENARIO 292299] Sales order subform allows user to select unit of measure code with action Line - Item Availability by - Unit of Measure
@@ -541,16 +539,16 @@ codeunit 138048 "O365 Inv. Item Availability"
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.Filter.SetFilter("No.", ItemNo);
-        ItemAvailabilityByUOM.Trap;
-        ItemCard."Unit of Measure".Invoke;
+        ItemAvailabilityByUOM.Trap();
+        ItemCard."Unit of Measure".Invoke();
     end;
 
     [Normal]
     local procedure ViewItemCard(var ItemCard: TestPage "Item Card"; Item: Record Item)
     begin
-        ItemCard.OpenView;
+        ItemCard.OpenView();
 
         if not ItemCard.GotoRecord(Item) then
             Error(ItemNotFoundErr);
@@ -564,8 +562,8 @@ codeunit 138048 "O365 Inv. Item Availability"
         ItemAvailabilityByPeriod.FILTER.SetFilter("No.", ItemNo);
         ItemAvailabilityByPeriod.ItemAvailLines.FILTER.SetFilter("Period Start", Format(FilterDate));
         ItemAvailabilityByPeriod.PeriodType.Value := 'Day';
-        ItemAvailabilityByPeriod.ItemAvailLines.First;
-        StartDate := ItemAvailabilityByPeriod.ItemAvailLines."Period Start".AsDate;
+        ItemAvailabilityByPeriod.ItemAvailLines.First();
+        StartDate := ItemAvailabilityByPeriod.ItemAvailLines."Period Start".AsDate();
         Assert.AreEqual(FilterDate, StartDate, 'SetFilter returned record with correct date');
     end;
 
@@ -580,25 +578,25 @@ codeunit 138048 "O365 Inv. Item Availability"
     procedure ItemAvailByEventHandler(var ItemAvailabilityByEvent: TestPage "Item Availability by Event")
     begin
         ItemAvailabilityByEvent.FILTER.SetFilter("Period Start", Format(WorkDate()));
-        ItemAvailabilityByEvent.First;
-        ItemAvailabilityByEvent."Projected Inventory".AssertEquals(LibraryVariableStorage.DequeueInteger);
+        ItemAvailabilityByEvent.First();
+        ItemAvailabilityByEvent."Projected Inventory".AssertEquals(LibraryVariableStorage.DequeueInteger());
 
-        ItemAvailabilityByEvent.OK.Invoke;
+        ItemAvailabilityByEvent.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendorListPickVendorModalPageHandler(var VendorList: TestPage "Vendor List")
     begin
-        VendorList.GotoKey(LibraryVariableStorage.DequeueText);
-        VendorList.OK.Invoke;
+        VendorList.GotoKey(LibraryVariableStorage.DequeueText());
+        VendorList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendorListCancelModalPageHandler(var VendorList: TestPage "Vendor List")
     begin
-        VendorList.Cancel.Invoke;
+        VendorList.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -606,7 +604,7 @@ codeunit 138048 "O365 Inv. Item Availability"
     procedure ItemAvailabilityLineListModalPageHandler(var ItemAvailabilityLineList: TestPage "Item Availability Line List")
     begin
         LibraryVariableStorage.Enqueue(ItemAvailabilityLineList.Quantity.Value);
-        ItemAvailabilityLineList.Ok.Invoke;
+        ItemAvailabilityLineList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -614,7 +612,7 @@ codeunit 138048 "O365 Inv. Item Availability"
     procedure ItemAvailabilityByUOMModalPageHandler(var ItemAvailabilityByUOM: TestPage "Item Availability by UOM")
     begin
         ItemAvailabilityByUOM.ItemAvailUOMLines.Filter.SetFilter(Code, LibraryVariableStorage.DequeueText());
-        ItemAvailabilityByUOM.Ok.Invoke;
+        ItemAvailabilityByUOM.OK().Invoke();
     end;
 
     [PageHandler]
@@ -622,7 +620,7 @@ codeunit 138048 "O365 Inv. Item Availability"
     procedure ItemLedgerEntriesModalPageHandler(var ItemLedgerEntries: TestPage "Item Ledger Entries")
     begin
         LibraryVariableStorage.Enqueue(ItemLedgerEntries.Filter.GetFilter("Unit of Measure Code"));
-        ItemLedgerEntries.Ok.Invoke;
+        ItemLedgerEntries.OK().Invoke();
     end;
 
     [ConfirmHandler]

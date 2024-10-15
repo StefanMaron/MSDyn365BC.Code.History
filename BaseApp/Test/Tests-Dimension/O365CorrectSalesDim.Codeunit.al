@@ -315,7 +315,6 @@ codeunit 138034 "O365 Correct Sales Dim."
     [Normal]
     local procedure Initialize()
     var
-        SalesSetup: Record "Sales & Receivables Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
@@ -331,14 +330,38 @@ codeunit 138034 "O365 Correct Sales Dim."
 
         LibraryERMCountryData.CreateVATData();
 
-        LibrarySmallBusiness.SetNoSeries;
-        SalesSetup.Get();
-        if SalesSetup."Order Nos." = '' then
-            SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Modify();
+        SetGlobalNoSeriesInSetups();
 
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Correct Sales Dim.");
+    end;
+
+    local procedure SetGlobalNoSeriesInSetups()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Posted Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Customer Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup.Modify();
+
+        MarketingSetup.Get();
+        MarketingSetup."Contact Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        MarketingSetup.Modify();
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := false;
+        PurchasesPayablesSetup."Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Posted Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Vendor Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure CreateItemsWithPrice(var Item: Record Item; UnitPrice: Decimal)

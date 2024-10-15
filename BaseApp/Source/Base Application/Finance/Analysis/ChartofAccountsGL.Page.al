@@ -253,7 +253,7 @@ page 570 "Chart of Accounts (G/L)"
                     Caption = 'Net Change';
                     Image = LedgerEntries;
                     RunObject = Page "General Ledger Entries";
-                    RunPageLink = "G/L Account No." = field(FILTER(Totaling)),
+                    RunPageLink = "G/L Account No." = field(filter(Totaling)),
                                   "Posting Date" = field("Date Filter");
                     ToolTip = 'View the general ledger entries that make up the sum in the Net Change field.';
                 }
@@ -263,7 +263,7 @@ page 570 "Chart of Accounts (G/L)"
                     Caption = 'Budgeted Amount';
                     Image = GLRegisters;
                     RunObject = Page "G/L Budget Entries";
-                    RunPageLink = "G/L Account No." = field(FILTER(Totaling)),
+                    RunPageLink = "G/L Account No." = field(filter(Totaling)),
                                   Date = field("Date Filter");
                     ToolTip = 'View the budget entries that make up the sum in the Budgeted Amount field.';
                 }

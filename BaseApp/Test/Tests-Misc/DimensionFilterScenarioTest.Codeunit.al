@@ -36,11 +36,11 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code", DimSetupArray[1] [1]);
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -63,12 +63,12 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code",
           StrSubstNo('%1|%2', DimSetupArray[1] [2], DimSetupArray[1] [3]));
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -91,12 +91,12 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code",
           StrSubstNo('%1|<>%2', DimSetupArray[1] [2], DimSetupArray[1] [3]));
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -119,12 +119,12 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code",
           StrSubstNo('%1|<>%2&<>%3', DimSetupArray[1] [2], DimSetupArray[1] [3], ''''''));
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -147,12 +147,12 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code",
           StrSubstNo('%1..%2', DimSetupArray[1] [2], DimSetupArray[1] [4]));
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -175,12 +175,12 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         // '<>''''' behaves the same as ''
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code", '<>''''');
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -202,12 +202,12 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code", DimSetupArray[1] [1]);
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 4 Code", DimSetupArray[2] [1]);
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -229,12 +229,12 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code", DimSetupArray[1] [2]);
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 4 Code", DimSetupArray[2] [1]);
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -257,13 +257,13 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code", DimSetupArray[1] [4]);
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 4 Code",
           StrSubstNo('%1|%2', DimSetupArray[2] [2], DimSetupArray[2] [3]));
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -286,12 +286,12 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code", '<>''''');
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 4 Code", '''''');
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -314,12 +314,12 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code", '''''');
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 4 Code", '<>''''');
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -342,12 +342,12 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code", '<>''''');
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 4 Code", '<>''''');
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -370,12 +370,12 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code", '''''|<>''''');
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 4 Code", '''''|<>''''');
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -398,7 +398,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code",
@@ -406,7 +406,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
             DimSetupArray[1] [2], DimSetupArray[1] [4]));
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 4 Code",
           StrSubstNo('%1|%2|%3', DimSetupArray[2] [1], DimSetupArray[2] [3], DimSetupArray[2] [2]));
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -429,19 +429,19 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
         EnqueueDimensionCodeAndValueFilter('', '');
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code",
           StrSubstNo('%1|<>%2', DimSetupArray[1] [2], DimSetupArray[1] [3]));
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
 
         // Exercise
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code",
           StrSubstNo('%1|<>%2', DimSetupArray[1] [2], DimSetupArray[1] [3]));
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 4 Code",
           StrSubstNo('%1|<>%2', DimSetupArray[2] [1], DimSetupArray[2] [2]));
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -464,11 +464,11 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(LibraryUtility.GenerateRandomCode(DummyDimension.FieldNo(Code), DATABASE::Dimension), '');
-        asserterror ChartofAccounts.SetDimensionFilter.Invoke;
+        asserterror ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -489,13 +489,13 @@ codeunit 134828 "Dimension Filter Scenario Test"
 
         // Setup
         GeneralLedgerSetup.Get();
-        ChartofAccounts.OpenView;
+        ChartofAccounts.OpenView();
 
         // Exercise
         EnqueueDimensionCodeAndValueFilter(
           CopyStr(GeneralLedgerSetup."Shortcut Dimension 3 Code", 1, StrLen(GeneralLedgerSetup."Shortcut Dimension 3 Code") - 2),
           DimSetupArray[1] [1]);
-        ChartofAccounts.SetDimensionFilter.Invoke;
+        ChartofAccounts.SetDimensionFilter.Invoke();
         // modal page handler
 
         // Verify
@@ -507,13 +507,13 @@ codeunit 134828 "Dimension Filter Scenario Test"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Dimension Filter Scenario Test");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Dimension Filter Scenario Test");
 
-        NewGLAccountNo := CreateAndPostGenJnlLinesWithDimData;
+        NewGLAccountNo := CreateAndPostGenJnlLinesWithDimData();
 
         IsInitialized := true;
         Commit();
@@ -539,7 +539,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         GeneralLedgerSetup.Modify();
         FillDimSetupArray(GeneralLedgerSetup."Shortcut Dimension 3 Code", 1);
         FillDimSetupArray(GeneralLedgerSetup."Shortcut Dimension 4 Code", 2);
-        CreateDuplicateDimValues;
+        CreateDuplicateDimValues();
 
         CreateGenJnlTemplateAndBatch(GenJournalBatch);
         GLAccountNo := CreateAndPostGenJnlLines(GenJournalBatch);
@@ -592,7 +592,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
-        GenJournalBatch."Bal. Account No." := LibraryERM.CreateGLAccountNoWithDirectPosting;
+        GenJournalBatch."Bal. Account No." := LibraryERM.CreateGLAccountNoWithDirectPosting();
         GenJournalBatch.Modify();
     end;
 
@@ -600,7 +600,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        GLAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting;
+        GLAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting();
 
         // Line1: DimCode3,Value1 Amount = 1000
         CreateGenJnlLineWithDimInfo(GenJournalBatch, GLAccountNo, 1000, 3, DimSetupArray[1] [1], 4, '');
@@ -653,34 +653,34 @@ codeunit 134828 "Dimension Filter Scenario Test"
     [Scope('OnPrem')]
     procedure DimSetFilterModalPageHandlerSingle(var DimensionSetIDFilter: TestPage "Dimension Set ID Filter")
     begin
-        SetDimCodeAndFilterOnDimFilterPage(DimensionSetIDFilter, LibraryVariableStorage.DequeueText, LibraryVariableStorage.DequeueText);
-        DimensionSetIDFilter.OK.Invoke;
+        SetDimCodeAndFilterOnDimFilterPage(DimensionSetIDFilter, LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueText());
+        DimensionSetIDFilter.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DimSetFilterModalPageHandlerMultiple(var DimensionSetIDFilter: TestPage "Dimension Set ID Filter")
     begin
-        SetDimCodeAndFilterOnDimFilterPage(DimensionSetIDFilter, LibraryVariableStorage.DequeueText, LibraryVariableStorage.DequeueText);
-        SetDimCodeAndFilterOnDimFilterPage(DimensionSetIDFilter, LibraryVariableStorage.DequeueText, LibraryVariableStorage.DequeueText);
-        DimensionSetIDFilter.OK.Invoke;
+        SetDimCodeAndFilterOnDimFilterPage(DimensionSetIDFilter, LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueText());
+        SetDimCodeAndFilterOnDimFilterPage(DimensionSetIDFilter, LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueText());
+        DimensionSetIDFilter.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DimSetFilterModalPageHandlerRerun(var DimensionSetIDFilter: TestPage "Dimension Set ID Filter")
     begin
-        DimensionSetIDFilter.GotoKey(LibraryVariableStorage.DequeueText);
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, DimensionSetIDFilter.DimensionValueFilter.Value,
+        DimensionSetIDFilter.GotoKey(LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), DimensionSetIDFilter.DimensionValueFilter.Value,
           'The page opened with an unexpected dimension value filter');
 
-        SetDimCodeAndFilterOnDimFilterPage(DimensionSetIDFilter, LibraryVariableStorage.DequeueText, LibraryVariableStorage.DequeueText);
-        DimensionSetIDFilter.OK.Invoke;
+        SetDimCodeAndFilterOnDimFilterPage(DimensionSetIDFilter, LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueText());
+        DimensionSetIDFilter.OK().Invoke();
     end;
 
     local procedure SetDimCodeAndFilterOnDimFilterPage(var DimensionSetIDFilter: TestPage "Dimension Set ID Filter"; DimCode: Text; DimValueFilter: Text)
     begin
-        DimensionSetIDFilter.New;
+        DimensionSetIDFilter.New();
         DimensionSetIDFilter.Code.SetValue(DimCode);
         DimensionSetIDFilter.DimensionValueFilter.SetValue(DimValueFilter);
     end;

@@ -32,27 +32,27 @@ codeunit 132215 "Library - Error Message"
 
     procedure DrillDownOnContext()
     begin
-        ErrorMessages.Context.DrillDown;
+        ErrorMessages.Context.DrillDown();
     end;
 
     procedure DrillDownOnSource()
     begin
-        ErrorMessages.Source.DrillDown;
+        ErrorMessages.Source.DrillDown();
     end;
 
     procedure TrapErrorMessages()
     begin
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
     end;
 
     procedure LoadErrorMessages()
     begin
-        if ErrorMessages.First then
+        if ErrorMessages.First() then
             repeat
                 TempErrorMessage.Init();
                 TempErrorMessage.ID += 1;
                 Evaluate(TempErrorMessage."Message Type", ErrorMessages."Message Type".Value);
-                TempErrorMessage."Message" := ErrorMessages.Description.Value;
+                TempErrorMessage."Message" := ErrorMessages.Description.Value();
                 Evaluate(TempErrorMessage."Record ID", ErrorMessages.Source.Value, 9);
                 TempErrorMessage.Validate("Record ID");
                 TempErrorMessage.Validate("Field Number", GetFieldNo(TempErrorMessage."Table Number", ErrorMessages."Field Name".Value));
@@ -60,8 +60,8 @@ codeunit 132215 "Library - Error Message"
                 TempErrorMessage.Validate("Context Record ID");
                 TempErrorMessage.Validate(
                   "Context Field Number", GetFieldNo(TempErrorMessage."Context Table Number", ErrorMessages."Context Field Name".Value));
-                TempErrorMessage."Additional Information" := ErrorMessages."Additional Information".Value;
-                TempErrorMessage."Support Url" := ErrorMessages."Support Url".Value;
+                TempErrorMessage."Additional Information" := ErrorMessages."Additional Information".Value();
+                TempErrorMessage."Support Url" := ErrorMessages."Support Url".Value();
                 TempErrorMessage.SetErrorCallStack(ErrorMessages.CallStack.Value);
                 TempErrorMessage.Insert();
             until not ErrorMessages.Next();
@@ -69,7 +69,7 @@ codeunit 132215 "Library - Error Message"
 
     procedure GetErrorMessages(var TempErrorMessageBuf: Record "Error Message" temporary)
     begin
-        LoadErrorMessages;
+        LoadErrorMessages();
         TempErrorMessageBuf.Copy(TempErrorMessage, true);
     end;
 

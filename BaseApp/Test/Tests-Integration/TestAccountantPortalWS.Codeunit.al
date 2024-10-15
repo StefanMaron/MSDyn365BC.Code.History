@@ -42,10 +42,10 @@ codeunit 134765 TestAccountantPortalWS
         Initialize();
 
         // [GIVEN] Cue data available.
-        SetupData;
+        SetupData();
 
         // [WHEN] The Page is ran.
-        AccountantPortalFinanceCues.OpenView;
+        AccountantPortalFinanceCues.OpenView();
 
         // [THEN] Various activities cue fields are validated.
         VerifyFinanceCues(AccountantPortalFinanceCues,
@@ -95,50 +95,29 @@ codeunit 134765 TestAccountantPortalWS
         Initialize();
 
         // [GIVEN] Cue data available.
-        SetupData;
+        SetupData();
 
         // [WHEN] The Page is ran.
-        AccountantPortalActivityCues.OpenView;
+        AccountantPortalActivityCues.OpenView();
 
         // [THEN] Various fields are validated.
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Ongoing Sales Invoices"), '                             2', MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Ongoing Purchase Invoices"), '                             1', MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Sales This Month"),
-          '                         ' + AcctWebServicesMgt.FormatAmountString(0.0), MasterStyle::Ambiguous);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Top 10 Customer Sales YTD"),
-          '                         ' + AcctWebServicesMgt.FormatAmountString(0.0), MasterStyle::Favorable);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Overdue Purch. Invoice Amount"),
-          '                       ' + AcctWebServicesMgt.FormatAmountString(123.45), MasterStyle::Favorable);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Overdue Sales Invoice Amount"),
-          '                       ' + AcctWebServicesMgt.FormatAmountString(654.32), MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          '                           ' + ActivitiesCue.FieldName("Average Collection Days"), '0.0', MasterStyle::Favorable);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Ongoing Sales Quotes"), '                             1', MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Sales Inv. - Pending Doc.Exch."), '                             1', MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Sales CrM. - Pending Doc.Exch."), '                             1', MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("My Incoming Documents"), '                             6', MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Non-Applied Payments"), '                             2', MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Purch. Invoices Due Next Week"), '                             6', MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Sales Invoices Due Next Week"), '                             2', MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Ongoing Sales Orders"), '                            42', MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Inc. Doc. Awaiting Verfication"), '                             1', MasterStyle::None);
-        VerifyActivitiesCues(AccountantPortalActivityCues,
-          ActivitiesCue.FieldName("Purchase Orders"), '                            21', MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Ongoing Sales Invoices"), '                             2', MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Ongoing Purchase Invoices"), '                             1', MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Sales This Month"), '                         ' + AcctWebServicesMgt.FormatAmountString(0.0), MasterStyle::Ambiguous);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Top 10 Customer Sales YTD"), '                         ' + AcctWebServicesMgt.FormatAmountString(0.0), MasterStyle::Favorable);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Overdue Purch. Invoice Amount"), '                      ' + AcctWebServicesMgt.FormatAmountString(-123.45), MasterStyle::Favorable);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Overdue Sales Invoice Amount"), '                       ' + AcctWebServicesMgt.FormatAmountString(654.32), MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, '                           ' + ActivitiesCue.FieldName("Average Collection Days"), '0.0', MasterStyle::Favorable);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Ongoing Sales Quotes"), '                             1', MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Sales Inv. - Pending Doc.Exch."), '                             1', MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Sales CrM. - Pending Doc.Exch."), '                             1', MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("My Incoming Documents"), '                             6', MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Non-Applied Payments"), '                             2', MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Purch. Invoices Due Next Week"), '                             6', MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Sales Invoices Due Next Week"), '                             2', MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Ongoing Sales Orders"), '                            42', MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Inc. Doc. Awaiting Verfication"), '                             1', MasterStyle::None);
+        VerifyActivitiesCues(AccountantPortalActivityCues, ActivitiesCue.FieldName("Purchase Orders"), '                            21', MasterStyle::None);
 
         AccountantPortalActivityCues.Close();
     end;
@@ -163,7 +142,7 @@ codeunit 134765 TestAccountantPortalWS
         // [THEN] Standard Format returned
         Assert.AreEqual(
           '<Precision,0:0><Standard Format,0>',
-          ActivitiesCue.GetAmountFormat,
+          ActivitiesCue.GetAmountFormat(),
           'Standard Format not displaying correctly.');
     end;
 
@@ -188,7 +167,7 @@ codeunit 134765 TestAccountantPortalWS
         // [THEN] Modified Local Currency Format returned
         Assert.AreEqual(
           LCYSymbol + '<Precision,0:0><Standard Format,0>',
-          ActivitiesCue.GetAmountFormat,
+          ActivitiesCue.GetAmountFormat(),
           'Modified local currency not displaying correctly.');
     end;
 
@@ -202,7 +181,7 @@ codeunit 134765 TestAccountantPortalWS
         Initialize();
 
         // [GIVEN] Delete All Approval Entry
-        ApprovalEntry.DeleteAll;
+        ApprovalEntry.DeleteAll();
 
         // [GIVEN] Create three approval entry 
         CreateApprovalEntry(17, UserId, "Approval Status"::Open);
@@ -210,7 +189,7 @@ codeunit 134765 TestAccountantPortalWS
         CreateApprovalEntryForRequestSentForApprove(19, 'ABC', "Approval Status"::Open);
 
         // [WHEN] The Page is ran.
-        AccountantPortalFinanceCues.OpenView;
+        AccountantPortalFinanceCues.OpenView();
 
         // [VERIFY] Verify Request to Approve and Request  Sent for Approval has same count 
         Assert.AreEqual('                             1', Format(AccountantPortalFinanceCues.RequestsToApproveAmount.Value), RequestsToApproveErr);
@@ -228,13 +207,13 @@ codeunit 134765 TestAccountantPortalWS
         Initialize();
 
         // [GIVEN] Delete All Approval Entry
-        ApprovalEntry.DeleteAll;
+        ApprovalEntry.DeleteAll();
 
         // [GIVEN] Create one approval entry 
         CreateApprovalEntry(21, UserId, "Approval Status"::Open);
 
         // [WHEN] The Page is ran.
-        AccountantPortalActivityCues.OpenView;
+        AccountantPortalActivityCues.OpenView();
 
         // [THEN] Request to Approve  field are validated.
         Assert.AreEqual('                             1', Format(AccountantPortalActivityCues.RequeststoApproveAmount.Value), RequestsToApproveErr);
@@ -519,7 +498,7 @@ codeunit 134765 TestAccountantPortalWS
     end;
 
     [Normal]
-    local procedure CreateBankAccountReconciliation(StatementType: Integer; BankAccountNo: Code[20]; StatementNo: Code[20])
+    local procedure CreateBankAccountReconciliation(StatementType: Enum "Bank Acc. Rec. Stmt. Type"; BankAccountNo: Code[20]; StatementNo: Code[20])
     begin
         BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := StatementType;
@@ -579,7 +558,7 @@ codeunit 134765 TestAccountantPortalWS
     end;
 
     [Normal]
-    local procedure CreateSalesInvoiceHeader(No: Text[20]; DocExchangeStatus: Integer)
+    local procedure CreateSalesInvoiceHeader(No: Text[20]; DocExchangeStatus: Enum "Sales Document Exchange Status")
     begin
         SalesInvoiceHeader.Init();
         SalesInvoiceHeader."No." := No;
@@ -608,7 +587,7 @@ codeunit 134765 TestAccountantPortalWS
     end;
 
     [Normal]
-    local procedure CreateSalesCrMemoHeader(No: Text[20]; DocExchangeStatus: Integer)
+    local procedure CreateSalesCrMemoHeader(No: Text[20]; DocExchangeStatus: Enum "Sales Document Exchange Status")
     begin
         SalesCrMemoHeader.Init();
         SalesCrMemoHeader."No." := No;
@@ -671,9 +650,9 @@ codeunit 134765 TestAccountantPortalWS
         DetailedCustLedgEntry.DeleteAll();
 
         // Non Applied Documents (Unprocessed Payments)
-        CreateBankAccountReconciliation(1, 'GIRO', '1234');
-        CreateBankAccountReconciliation(0, 'WWB-USD', '9876');
-        CreateBankAccountReconciliation(1, 'GIRO', '4567');
+        CreateBankAccountReconciliation("Bank Acc. Rec. Stmt. Type"::"Payment Application", 'GIRO', '1234');
+        CreateBankAccountReconciliation("Bank Acc. Rec. Stmt. Type"::"Bank Reconciliation", 'WWB-USD', '9876');
+        CreateBankAccountReconciliation("Bank Acc. Rec. Stmt. Type"::"Payment Application", 'GIRO', '4567');
 
         // Overdue Purchase Documents & Overdue Purchase Invoice Amount
         // Purchase Discounts Next Week
@@ -722,7 +701,7 @@ codeunit 134765 TestAccountantPortalWS
         CreatePurchaseHeader("Purchase Document Type"::Invoice, '13');
 
         // Sales Invoices - Pending Doc Exchange
-        CreateSalesInvoiceHeader('14', 3);
+        CreateSalesInvoiceHeader('14', "Sales Document Exchange Status"::"Delivery Failed");
 
         // My Incoming Documents & OCR Complete & OCR Pending
         // Inc. Doc Awaiting Verification & New Incoming Docs
@@ -737,7 +716,7 @@ codeunit 134765 TestAccountantPortalWS
         CreateApprovalEntry(16, 'BOB', "Approval Status"::" ");
 
         // Sales Cr. Memo - Pending Doc Exch
-        CreateSalesCrMemoHeader('17', 3);
+        CreateSalesCrMemoHeader('17', "Sales Document Exchange Status"::"Delivery Failed");
     end;
 
     [Normal]

@@ -217,33 +217,8 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         Assert.RecordIsNotEmpty(PurchCrMemoHdr);
     end;
 
-    local procedure SetNoSeries()
-    var
-        NoSeriesLine: Record "No. Series Line";
-        LastMaxNo: Code[20];
-    begin
-        with NoSeriesLine do
-            if Find('-') then
-                repeat
-                    if LastMaxNo < "Last No. Used" then
-                        LastMaxNo := "Last No. Used";
-                until Next = 0;
-
-        with NoSeriesLine do
-            if Find('-') then
-                repeat
-                    "Last No. Used" := LastMaxNo;
-                    "Ending No." := '';
-                    "Warning No." := '';
-                    Modify(true);
-                until Next = 0;
-    end;
-
     [Normal]
     local procedure Initialize()
-    var
-        PurchSetup: Record "Purchases & Payables Setup";
-        SalesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SMB Cancel Sales/Purch. Inv.");
         // Initialize setup.
@@ -253,21 +228,38 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
 
         IsInitialized := true;
 
-        SetNoSeries;
-        PurchSetup.Get();
-        if PurchSetup."Order Nos." = '' then
-            PurchSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchSetup.Validate("Ext. Doc. No. Mandatory", false);
-        PurchSetup.Modify();
-
-        SetNoSeries;
-        SalesSetup.Get();
-        if SalesSetup."Order Nos." = '' then
-            SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Modify();
+        SetGlobalNoSeriesInSetups();
 
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SMB Cancel Sales/Purch. Inv.");
+    end;
+
+    local procedure SetGlobalNoSeriesInSetups()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Posted Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Customer Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup.Modify();
+
+        MarketingSetup.Get();
+        MarketingSetup."Contact Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        MarketingSetup.Modify();
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := false;
+        PurchasesPayablesSetup."Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Posted Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Vendor Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup.Modify();
     end;
 }
 

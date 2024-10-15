@@ -14,7 +14,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         SourceBin: Record Bin;
         DestinationBin: Record Bin;
         LocationWithWhsePick: Record Location;
-        WarehouseEmployee: Record "Warehouse Employee";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJob: Codeunit "Library - Job";
         LibraryERM: Codeunit "Library - ERM";
@@ -29,8 +28,8 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         Assert: Codeunit Assert;
         QtyRemainsToBePickedErr: Label 'quantity of %1 remains to be picked', Comment = '%1 = 100';
-        WhseCompletelyPickedErr: Label 'All of the items on the job planning lines are completely picked.';
-        WhseNoItemsToPickErr: Label 'There are no items to pick on the job planning lines.';
+        WhseCompletelyPickedErr: Label 'All of the items on the project planning lines are completely picked.';
+        WhseNoItemsToPickErr: Label 'There are no items to pick on the project planning lines.';
         FieldMustNotBeChangedErr: Label 'must not be changed when a %1 for this %2 exists: ';
         DeletionNotPossibleErr: Label 'The %1 cannot be deleted when a related %2 exists.';
         OneWhsePickHeaderCreatedErr: Label 'Only one warehouse activity header created.';
@@ -531,7 +530,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobPlanningLine: Record "Job Planning Line";
         Job: Record Job;
         JobTask: Record "Job Task";
-        WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLinePick: Record "Warehouse Activity Line";
         QtyInventory: Integer;
     begin
@@ -688,8 +686,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobPlanningLine: Record "Job Planning Line";
         Job: Record Job;
         JobTask: Record "Job Task";
-        JobJournalLine: Record "Job Journal Line";
-        JobPlanningLinePage: TestPage "Job Planning Lines";
         QtyInventory: Integer;
     begin
         // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
@@ -728,8 +724,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobPlanningLine: Record "Job Planning Line";
         Job: Record Job;
         JobTask: Record "Job Task";
-        JobJournalLine: Record "Job Journal Line";
-        JobPlanningLinePage: TestPage "Job Planning Lines";
         QtyInventory: Integer;
         ResourceNo: Code[20];
     begin
@@ -767,12 +761,10 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobPlanningLine: Record "Job Planning Line";
         Job: Record Job;
         JobTask: Record "Job Task";
-        JobJournalLine: Record "Job Journal Line";
         WarehouseActivityHeader1: Record "Warehouse Activity Header";
         WarehouseActivityHeader2: Record "Warehouse Activity Header";
         WarehouseActivityLinePick1: Record "Warehouse Activity Line";
         WarehouseActivityLinePick2: Record "Warehouse Activity Line";
-        JobPlanningLinePage: TestPage "Job Planning Lines";
         QtyInventory: Integer;
     begin
         // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
@@ -1562,7 +1554,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobPlanningLine3: Record "Job Planning Line";
         JobPlanningLine4: Record "Job Planning Line";
         JobTask: Record "Job Task";
-        JobJournalLine: Record "Job Journal Line";
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         PickWorksheetPage: TestPage "Pick Worksheet";
         ResourceNo: Code[20];
@@ -1804,7 +1795,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobPlanningLine: Record "Job Planning Line";
         JobTask: Record "Job Task";
         Job: Record Job;
-        WarehouseEntry: Record "Warehouse Entry";
         LocationWMSWithoutBin: Record Location;
         QtyInventory: Integer;
         QtyToUse: Integer;
@@ -1865,7 +1855,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobPlanningLine: Record "Job Planning Line";
         JobTask: Record "Job Task";
         Job: Record Job;
-        WarehouseActivityLinesPage: TestPage "Warehouse Activity Lines";
         QtyInventory: Integer;
         QtyToUse: Integer;
     begin
@@ -1907,7 +1896,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         JobPlanningLine: Record "Job Planning Line";
         JobTask: Record "Job Task";
         Job: Record Job;
-        WarehouseActivityLinesPage: TestPage "Warehouse Activity Lines";
         QtyInventory: Integer;
         QtyToUse: Integer;
     begin
@@ -2267,7 +2255,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         asserterror Job.Delete(true);
 
         // [THEN] An error is thrown.
-        Assert.ExpectedError('The Job Planning Line cannot be deleted when a related Whse. Worksheet');
+        Assert.ExpectedError('The Project Planning Line cannot be deleted when a related Whse. Worksheet');
     end;
 
     [Test]
@@ -2663,7 +2651,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
             WarehouseActivityPickLine.TestField(Quantity, JobPlanningLine."Remaining Qty.");
         until WarehouseActivityPickLine.Next() = 0;
 
-        VerifyWhseActivityTypeAndBinsCount(WarehouseActivityPickLine, JobPlanningLine, CountSourceBin, CountDestinationBin, CountActivityTypeSpace, false);
+        VerifyWhseActivityTypeAndBinsCount(JobPlanningLine, CountSourceBin, CountDestinationBin, CountActivityTypeSpace, false);
     end;
 
     local procedure VerifyWarehousePickActivityLineWithSN(JobPlanningLine: Record "Job Planning Line")
@@ -2681,10 +2669,10 @@ codeunit 136318 "Whse. Pick On Job Planning"
             WarehouseActivityPickLine.TestField(Quantity, 1)
         until WarehouseActivityPickLine.Next() = 0;
 
-        VerifyWhseActivityTypeAndBinsCount(WarehouseActivityPickLine, JobPlanningLine, CountSourceBin, CountDestinationBin, CountActivityTypeSpace, true);
+        VerifyWhseActivityTypeAndBinsCount(JobPlanningLine, CountSourceBin, CountDestinationBin, CountActivityTypeSpace, true);
     end;
 
-    local procedure VerifyWhseActivityTypeAndBinsCount(var WarehouseActivityPickLine: Record "Warehouse Activity Line"; var JobPlanningLine: Record "Job Planning Line"; CountSourceBin: Integer; CountDestinationBin: Integer; CountActivityTypeSpace: Integer; SNSpecificTracking: Boolean)
+    local procedure VerifyWhseActivityTypeAndBinsCount(var JobPlanningLine: Record "Job Planning Line"; CountSourceBin: Integer; CountDestinationBin: Integer; CountActivityTypeSpace: Integer; SNSpecificTracking: Boolean)
     begin
         if SNSpecificTracking then //One warehouse pick line created for every quantity on the job planning line.
             if JobPlanningLine."Bin Code" = '' then
@@ -2999,7 +2987,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
 
     local procedure CreateAndPostInvtAdjustmentWithSNTracking(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; UnitCost: Decimal)
     var
-        ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
     begin
 
@@ -3071,28 +3058,26 @@ codeunit 136318 "Whse. Pick On Job Planning"
             JobTransferJobPlanLine.JobJournalBatchName.Value := JobJournalBatch.Name;
         end;
 
-        JobTransferJobPlanLine.OK.Invoke();
+        JobTransferJobPlanLine.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WhseSrcCreateDocReqHandler(var CreatePickReqPage: TestRequestPage "Whse.-Source - Create Document")
     begin
-        CreatePickReqPage.OK.Invoke();
+        CreatePickReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CreatePickReqHandler(var CreatePickReqPage: TestRequestPage "Create Pick")
     begin
-        CreatePickReqPage.OK.Invoke();
+        CreatePickReqPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AutoFillAndRegisterPickModalPageHandler(var WarehousePickPage: TestPage "Warehouse Pick")
-    var
-        QtyToHandle: Integer;
     begin
         WarehousePickPage."Autofill Qty. to Handle".Invoke();
         WarehousePickPage.RegisterPick.Invoke();

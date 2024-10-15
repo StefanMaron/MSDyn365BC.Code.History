@@ -8,6 +8,7 @@ table 7300 Zone
     Caption = 'Zone';
     DataCaptionFields = "Location Code", "Code", Description;
     LookupPageID = "Zone List";
+    DataClassification = CustomerContent;
 
     fields
     {

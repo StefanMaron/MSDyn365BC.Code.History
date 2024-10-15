@@ -4,6 +4,7 @@ table 5088 "Profile Questionnaire Line"
 {
     Caption = 'Profile Questionnaire Line';
     DataCaptionFields = "Profile Questionnaire Code", Description;
+    DataClassification = CustomerContent;
     LookupPageID = "Profile Questn. Line List";
 
     fields

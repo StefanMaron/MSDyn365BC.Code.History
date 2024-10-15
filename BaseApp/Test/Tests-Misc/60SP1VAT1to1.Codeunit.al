@@ -95,7 +95,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // Prepare specific country setup for Reverse Charge VAT Calculation type
         SetupReverseChargeVAT();
 
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
 
         isInitialized := true;
@@ -870,7 +870,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetFilter("G/L Account No.", Account);
         GLEntry.SetFilter(Amount, '%1', Amount);
-        Assert.IsTrue(GLEntry.FindFirst, StrSubstNo(GLEntryError, Account, Amount));
+        Assert.IsTrue(GLEntry.FindFirst(), StrSubstNo(GLEntryError, Account, Amount));
 
         // Validate ACY amount on the GL Entry line
         ExchangeRate := 5; // From function S_58505_Set_ACY: Exchange Rate Amount/Relational Exch. Rate Amount= 100/20 = 5
@@ -891,7 +891,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
         VATEntry.SetFilter(Base, '%1', VATBase);
         VATEntry.SetFilter(Amount, '%1', VATAmount);
-        Assert.IsTrue(VATEntry.FindFirst, StrSubstNo(VATEntryError, VATBase, VATAmount));
+        Assert.IsTrue(VATEntry.FindFirst(), StrSubstNo(VATEntryError, VATBase, VATAmount));
 
         // Validate ACY amount on the VAT Entry line
         ExchangeRate := 5; // From function S_58505_Set_ACY: Exchange Rate Amount/Relational Exch. Rate Amount= 100/20 = 5
@@ -2099,8 +2099,8 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Assert.IsTrue(GLEntry.Count = 10, StrSubstNo(TotalEntryNumberError, GLEntry.TableName, 10, GLEntry.Count));
         // Validate account and amount on GL entries
         ValidateGLEntry(GLRegister, DiffPurchInvDiscAcc, -TotalInvDiscount);
-        ValidateGLEntry(GLRegister, PurchVATAcc58848, Round(-TotalInvDiscount * VATPct, LibraryERM.GetAmountRoundingPrecision));
-        ValidateGLEntry(GLRegister, ReverseChrgVATAcc, Round(TotalInvDiscount * VATPct, LibraryERM.GetAmountRoundingPrecision));
+        ValidateGLEntry(GLRegister, PurchVATAcc58848, Round(-TotalInvDiscount * VATPct, LibraryERM.GetAmountRoundingPrecision()));
+        ValidateGLEntry(GLRegister, ReverseChrgVATAcc, Round(TotalInvDiscount * VATPct, LibraryERM.GetAmountRoundingPrecision()));
         ValidateGLEntry(GLRegister, PurchLineDiscAcc1, -TotalLineDisc);
         ValidateGLEntry(GLRegister, PurchVATAcc58848, -TotalLineDisc * VATPct);
         ValidateGLEntry(GLRegister, ReverseChrgVATAcc, TotalLineDisc * VATPct);
@@ -2113,7 +2113,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
         Assert.IsTrue(VATEntry.Count = 3, StrSubstNo(TotalEntryNumberError, VATEntry.TableName, 3, VATEntry.Count));
         // Validate base and VAT Amount on VAT entry and VAT link
-        ValidateVATEntry(GLRegister, -TotalInvDiscount, Round(-TotalInvDiscount * VATPct, LibraryERM.GetAmountRoundingPrecision), 0);
+        ValidateVATEntry(GLRegister, -TotalInvDiscount, Round(-TotalInvDiscount * VATPct, LibraryERM.GetAmountRoundingPrecision()), 0);
         ValidateVATEntry(GLRegister, -TotalLineDisc, -TotalLineDisc * VATPct, 0);
         ValidateVATEntry(GLRegister, TotalLineCost, TotalLineCost * VATPct, 0);
 
@@ -2394,8 +2394,8 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Assert.IsTrue(GLEntry.Count = 10, StrSubstNo(TotalEntryNumberError, GLEntry.TableName, 10, GLEntry.Count));
         // Validate account and amount on GL entries
         ValidateGLEntry(GLRegister, DiffPurchInvDiscAcc, -TotalInvDiscount);
-        ValidateGLEntry(GLRegister, PurchVATAcc59013, Round(-TotalInvDiscountVAT, LibraryERM.GetAmountRoundingPrecision));
-        ValidateGLEntry(GLRegister, ReverseChrgVATAcc, Round(TotalInvDiscountVAT, LibraryERM.GetAmountRoundingPrecision));
+        ValidateGLEntry(GLRegister, PurchVATAcc59013, Round(-TotalInvDiscountVAT, LibraryERM.GetAmountRoundingPrecision()));
+        ValidateGLEntry(GLRegister, ReverseChrgVATAcc, Round(TotalInvDiscountVAT, LibraryERM.GetAmountRoundingPrecision()));
         ValidateGLEntry(GLRegister, PurchLineDiscAcc1, -TotalLineDisc);
         ValidateGLEntry(GLRegister, PurchVATAcc59013, -TotalLineDiscVAT);
         ValidateGLEntry(GLRegister, ReverseChrgVATAcc, TotalLineDiscVAT);
@@ -2408,7 +2408,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
         Assert.IsTrue(VATEntry.Count = 3, StrSubstNo(TotalEntryNumberError, VATEntry.TableName, 3, VATEntry.Count));
         // Validate base and VAT Amount on VAT entry and VAT link
-        ValidateVATEntry(GLRegister, -TotalInvDiscount, Round(-TotalInvDiscountVAT, LibraryERM.GetAmountRoundingPrecision), 0);
+        ValidateVATEntry(GLRegister, -TotalInvDiscount, Round(-TotalInvDiscountVAT, LibraryERM.GetAmountRoundingPrecision()), 0);
         ValidateVATEntry(GLRegister, -TotalLineDisc, -TotalLineDiscVAT, 0);
         ValidateVATEntry(GLRegister, TotalLineCost, TotalLineVAT, 0);
 
@@ -2423,7 +2423,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Assert.IsTrue(GLEntry.Count = 9, StrSubstNo(TotalEntryNumberError, GLEntry.TableName, 9, GLEntry.Count));
         // Validate account and amount on GL entries
         ValidateGLEntry(GLRegister, GLBankAccNo, -PayAmount);
-        ValidateGLEntry(GLRegister, PurchVATAcc59013, Round(TotalInvDiscountVAT * PmtDiscount, LibraryERM.GetAmountRoundingPrecision));
+        ValidateGLEntry(GLRegister, PurchVATAcc59013, Round(TotalInvDiscountVAT * PmtDiscount, LibraryERM.GetAmountRoundingPrecision()));
         ValidateGLEntry(GLRegister, ReverseChrgVATAcc, -Round(TotalInvDiscountVAT * PmtDiscount));
         ValidateGLEntry(GLRegister, PurchVATAcc59013, Round(TotalLineDiscVAT * PmtDiscount));
         ValidateGLEntry(GLRegister, ReverseChrgVATAcc, -Round(TotalLineDiscVAT * PmtDiscount));
@@ -2437,7 +2437,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Assert.IsTrue(VATEntry.Count = 3, StrSubstNo(TotalEntryNumberError, VATEntry.TableName, 3, VATEntry.Count));
         // Validate base and VAT Amount on VAT entry and VAT link
         ValidateVATEntry(GLRegister, Round(TotalInvDiscount * PmtDiscount),
-          Round(TotalInvDiscount * PmtDiscount * VATPct, LibraryERM.GetAmountRoundingPrecision), 0);
+          Round(TotalInvDiscount * PmtDiscount * VATPct, LibraryERM.GetAmountRoundingPrecision()), 0);
         ValidateVATEntry(GLRegister, Round(TotalLineDisc * PmtDiscount), Round(Round(TotalLineDisc * PmtDiscount) * VATPct), 0);
         ValidateVATEntry(GLRegister, -PmtDiscAmount - Round(TotalLineDisc * PmtDiscount) - Round(TotalInvDiscount * PmtDiscount),
           -Round(Round(TotalLineCost * PmtDiscount) * VATPct), 0);
@@ -3769,7 +3769,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
         VATEntry.SetFilter(Base, '%1', VATBase);
         VATEntry.SetFilter(Amount, '%1', VATAmount);
-        Assert.IsTrue(VATEntry.FindFirst, StrSubstNo(VATEntryError, VATBase, VATAmount));
+        Assert.IsTrue(VATEntry.FindFirst(), StrSubstNo(VATEntryError, VATBase, VATAmount));
 
         // Validate VAT link
         ValidateVATLink(VATEntry, UnrealizedVATEntryNo, VATEntry."Entry No.");

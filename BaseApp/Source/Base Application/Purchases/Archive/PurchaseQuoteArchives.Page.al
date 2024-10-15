@@ -2,6 +2,7 @@ namespace Microsoft.Purchases.Archive;
 
 using Microsoft.Finance.Dimension;
 using System.Security.User;
+using Microsoft.EServices.EDocument;
 
 page 9346 "Purchase Quote Archives"
 {
@@ -233,6 +234,12 @@ page 9346 "Purchase Quote Archives"
         }
         area(factboxes)
         {
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Suite;
+                ShowFilter = false;
+                Visible = false;
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -284,5 +291,10 @@ page 9346 "Purchase Quote Archives"
             }
         }
     }
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        CurrPage.IncomingDocAttachFactBox.Page.LoadDataFromRecord(Rec);
+    end;
 }
 

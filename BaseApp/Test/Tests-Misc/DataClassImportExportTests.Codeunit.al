@@ -34,7 +34,7 @@ codeunit 135156 "Data Class Import/Export Tests"
         // This happens on the Event Subscriber OnUploadExcelSheetubscriber
 
         // [WHEN] ImportExcelSheet function is called
-        DataClassifImportExport.ImportExcelSheet;
+        DataClassifImportExport.ImportExcelSheet();
 
         // [THEN] Data Sensitivities are filled
         DataSensitivity.Get(CompanyName, 3, 1);
@@ -72,7 +72,7 @@ codeunit 135156 "Data Class Import/Export Tests"
         InsertDataSensitivityFieldForAnotherCompany(3, 1, DataSensitivity."Data Sensitivity"::Unclassified);
 
         // [WHEN] ExportToExcelSheet function is called
-        DataClassifImportExport.ExportToExcelSheet;
+        DataClassifImportExport.ExportToExcelSheet();
 
         // [THEN] An Excel File is generated with the correct data
         // Verify on the Event Subscriber OnOpenExcelSheetSubscriber

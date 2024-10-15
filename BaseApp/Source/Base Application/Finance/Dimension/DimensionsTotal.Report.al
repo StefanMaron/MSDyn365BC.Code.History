@@ -616,28 +616,26 @@ report 27 "Dimensions - Total"
                 MaxColumnsDisplayed := ArrayLen(ColumnValuesDisplayed);
                 NoOfCols := 0;
                 AccSchedManagement.CopyColumnsToTemp(ColumnLayoutName, TempColumnLayout);
-                with TempColumnLayout do begin
-                    i := 0;
-                    if Find('-') then begin
-                        repeat
-                            if Show <> Show::Never then begin
-                                i := i + 1;
-                                if i <= MaxColumnsDisplayed then begin
-                                    Header[i] := "Column Header";
-                                    RoundingHeader[i] := '';
-                                    if "Rounding Factor" in ["Rounding Factor"::"1000", "Rounding Factor"::"1000000"] then
-                                        case "Rounding Factor" of
-                                            "Rounding Factor"::"1000":
-                                                RoundingHeader[i] := Text006;
-                                            "Rounding Factor"::"1000000":
-                                                RoundingHeader[i] := Text007;
-                                        end;
-                                end;
+                i := 0;
+                if TempColumnLayout.Find('-') then begin
+                    repeat
+                        if TempColumnLayout.Show <> TempColumnLayout.Show::Never then begin
+                            i := i + 1;
+                            if i <= MaxColumnsDisplayed then begin
+                                Header[i] := TempColumnLayout."Column Header";
+                                RoundingHeader[i] := '';
+                                if TempColumnLayout."Rounding Factor" in [TempColumnLayout."Rounding Factor"::"1000", TempColumnLayout."Rounding Factor"::"1000000"] then
+                                    case TempColumnLayout."Rounding Factor" of
+                                        TempColumnLayout."Rounding Factor"::"1000":
+                                            RoundingHeader[i] := Text006;
+                                        TempColumnLayout."Rounding Factor"::"1000000":
+                                            RoundingHeader[i] := Text007;
+                                    end;
                             end;
-                            NoOfCols := NoOfCols + 1;
-                        until (i >= MaxColumnsDisplayed) or (Next() = 0);
-                        MaxColumnsDisplayed := i;
-                    end;
+                        end;
+                        NoOfCols := NoOfCols + 1;
+                    until (i >= MaxColumnsDisplayed) or (TempColumnLayout.Next() = 0);
+                    MaxColumnsDisplayed := i;
                 end;
 
                 if UseAmtsInAddCurr then
@@ -1089,25 +1087,23 @@ report 27 "Dimensions - Total"
             if AccountSource = AccountSource::"Cash Flow Account" then
                 if not CFAccFilterSet then
                     AccSchedLine.Totaling := CFAccRange;
-        with TempColumnLayout do begin
-            SetRange("Column Layout Name", ColumnLayoutName);
-            i := 0;
-            if FindSet() then
-                repeat
-                    if Show <> Show::Never then begin
-                        i := i + 1;
-                        AccSchedLine."Line No." := AccSchedLine."Line No." + 1;
-                        ColumnValuesDisplayed[i] :=
-                          AccSchedManagement.CalcCell(AccSchedLine, TempColumnLayout, UseAmtsInAddCurr);
-                        NonZero :=
-                          NonZero or (ColumnValuesDisplayed[i] <> 0) and
-                          ("Column Type" <> "Column Type"::Formula);
-                        if Level > 0 then
-                            ColumnValuesAsText[i, Level] :=
-                              AccSchedManagement.FormatCellAsText(TempColumnLayout, ColumnValuesDisplayed[i], UseAmtsInAddCurr);
-                    end;
-                until (i >= MaxColumnsDisplayed) or (Next() = 0);
-        end;
+        TempColumnLayout.SetRange("Column Layout Name", ColumnLayoutName);
+        i := 0;
+        if TempColumnLayout.FindSet() then
+            repeat
+                if TempColumnLayout.Show <> TempColumnLayout.Show::Never then begin
+                    i := i + 1;
+                    AccSchedLine."Line No." := AccSchedLine."Line No." + 1;
+                    ColumnValuesDisplayed[i] :=
+                      AccSchedManagement.CalcCell(AccSchedLine, TempColumnLayout, UseAmtsInAddCurr);
+                    NonZero :=
+                      NonZero or (ColumnValuesDisplayed[i] <> 0) and
+                      (TempColumnLayout."Column Type" <> TempColumnLayout."Column Type"::Formula);
+                    if Level > 0 then
+                        ColumnValuesAsText[i, Level] :=
+                          AccSchedManagement.FormatCellAsText(TempColumnLayout, ColumnValuesDisplayed[i], UseAmtsInAddCurr);
+                end;
+            until (i >= MaxColumnsDisplayed) or (TempColumnLayout.Next() = 0);
         exit(NonZero);
     end;
 
@@ -1381,22 +1377,20 @@ report 27 "Dimensions - Total"
 
     local procedure InitAccSchedLine()
     begin
-        with AccSchedLine do begin
-            SetFilter("Date Filter", DateFilter);
-            case AccountSource of
-                AccountSource::"G/L Account":
-                    begin
-                        "Totaling Type" := "Totaling Type"::"Posting Accounts";
-                        if GLBudgetName <> '' then
-                            SetRange("G/L Budget Filter", GLBudgetName);
-                    end;
-                AccountSource::"Cash Flow Account":
-                    begin
-                        "Totaling Type" := "Totaling Type"::"Cash Flow Entry Accounts";
-                        if CashFlowForecastNo <> '' then
-                            SetRange("Cash Flow Forecast Filter", CashFlowForecastNo);
-                    end;
-            end;
+        AccSchedLine.SetFilter("Date Filter", DateFilter);
+        case AccountSource of
+            AccountSource::"G/L Account":
+                begin
+                    AccSchedLine."Totaling Type" := AccSchedLine."Totaling Type"::"Posting Accounts";
+                    if GLBudgetName <> '' then
+                        AccSchedLine.SetRange("G/L Budget Filter", GLBudgetName);
+                end;
+            AccountSource::"Cash Flow Account":
+                begin
+                    AccSchedLine."Totaling Type" := AccSchedLine."Totaling Type"::"Cash Flow Entry Accounts";
+                    if CashFlowForecastNo <> '' then
+                        AccSchedLine.SetRange("Cash Flow Forecast Filter", CashFlowForecastNo);
+                end;
         end;
     end;
 

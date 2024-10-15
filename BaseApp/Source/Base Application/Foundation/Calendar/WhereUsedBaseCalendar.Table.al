@@ -7,6 +7,7 @@ namespace Microsoft.Foundation.Calendar;
 table 7604 "Where Used Base Calendar"
 {
     Caption = 'Where Used Base Calendar';
+    DataClassification = CustomerContent;
 
     fields
     {

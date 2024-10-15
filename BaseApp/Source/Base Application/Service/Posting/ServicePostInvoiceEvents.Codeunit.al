@@ -135,6 +135,16 @@ codeunit 827 "Service Post Invoice Events"
     begin
     end;
 
+    procedure RunOnPrepareLineOnBeforeUpdateInvoicePostingBufferLineDiscounts(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; ServiceLine: Record "Service Line")
+    begin
+        OnPrepareLineOnBeforeUpdateInvoicePostingBufferLineDiscounts(InvoicePostingBuffer, ServiceLine)
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareLineOnBeforeUpdateInvoicePostingBufferLineDiscounts(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
     // Post Balancing Entry
 
     procedure RunOnPostBalancingEntryOnAfterGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; PreviewMode: Boolean; SuppressCommit: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")

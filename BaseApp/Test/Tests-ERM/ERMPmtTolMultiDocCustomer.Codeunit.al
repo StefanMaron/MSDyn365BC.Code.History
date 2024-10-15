@@ -43,7 +43,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with more Amount and same Currency
         // and within Payment Discount Period.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         OverPmtBeforeDiscDate(CurrencyCode, CurrencyCode);
     end;
 
@@ -57,7 +57,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with more Amount and multiple
         // Currencies, within Payment Discount Period.
         Initialize();
-        OverPmtBeforeDiscDate(CreateCurrency, CreateCurrency);
+        OverPmtBeforeDiscDate(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure OverPmtBeforeDiscDate(CurrencyCode: Code[10]; CurrencyCode2: Code[10])
@@ -71,14 +71,14 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Setup: Modify General Ledger Setup and Post Multiple Gen. Journal Lines for Invoice and Payment with
         // Random Amount. Take Payment Amount more than Invoice Amount and within Discount Period.
         GeneralLedgerSetup.Get();
-        ModifyGeneralLedgerSetup;
+        ModifyGeneralLedgerSetup();
         ComputeAmountAndNoOfLines(Amount, NoOfLines);
         Amount2 := Amount * NoOfLines + GeneralLedgerSetup."Max. Payment Tolerance Amount";
         PaymentWithDiscount(CurrencyCode, CurrencyCode2, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment,
-          Amount, -Amount2, NoOfLines, GetDueDate);
+          Amount, -Amount2, NoOfLines, GetDueDate());
 
         // Tear Down.
-        CleanupGeneralLedgerSetup;
+        CleanupGeneralLedgerSetup();
     end;
 
     [Test]
@@ -106,7 +106,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with more Amount and same Currency
         // and after Payment Discount Period..
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         OverPmtAfterDiscDate(CurrencyCode, CurrencyCode);
     end;
 
@@ -120,7 +120,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with more Amount and multiple
         // Currencies, after Payment Discount Period..
         Initialize();
-        OverPmtAfterDiscDate(CreateCurrency, CreateCurrency);
+        OverPmtAfterDiscDate(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure OverPmtAfterDiscDate(CurrencyCode: Code[10]; CurrencyCode2: Code[10])
@@ -134,14 +134,14 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Setup: Modify General Ledger Setup and Post Multiple Gen. Journal Lines for Invoice and
         // Payment with Random Amount. Take Payment Amount more than Invoice Amount and after Discount Period.
         GeneralLedgerSetup.Get();
-        ModifyGeneralLedgerSetup;
+        ModifyGeneralLedgerSetup();
         ComputeAmountAndNoOfLines(Amount, NoOfLines);
         Amount2 := Amount * NoOfLines + GeneralLedgerSetup."Max. Payment Tolerance Amount";
         PaymentWithDiscountTolerance(CurrencyCode, CurrencyCode2, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Document Type"::Payment, Amount, -Amount2, NoOfLines, CalcDate('<1D>', GetDueDate));
+          GenJournalLine."Document Type"::Payment, Amount, -Amount2, NoOfLines, CalcDate('<1D>', GetDueDate()));
 
         // Tear Down.
-        CleanupGeneralLedgerSetup;
+        CleanupGeneralLedgerSetup();
     end;
 
     [Test]
@@ -169,7 +169,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with equal Payment Amount
         // and same Currency, within Payment Discount Period.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         EqualPmtBeforeDiscDate(CurrencyCode, CurrencyCode);
     end;
 
@@ -183,7 +183,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with equal Payment Amount
         // and same Currency, within Payment Discount Period.
         Initialize();
-        EqualPmtBeforeDiscDate(CreateCurrency, CreateCurrency);
+        EqualPmtBeforeDiscDate(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure EqualPmtBeforeDiscDate(CurrencyCode: Code[10]; CurrencyCode2: Code[10])
@@ -194,13 +194,13 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Setup: Modify General Ledger Setup and Post Gen. Journal Lines for Invoice and Payment with Random Amount.
         // Take Payment Amount equal to Invoice Amount and within Discount Period. Use different currency for Invoice and Payment.
-        ModifyGeneralLedgerSetup;
+        ModifyGeneralLedgerSetup();
         ComputeAmountAndNoOfLines(Amount, NoOfLines);
         PaymentWithDiscount(CurrencyCode, CurrencyCode2, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment,
-          Amount, -Amount * NoOfLines, NoOfLines, GetDueDate);
+          Amount, -Amount * NoOfLines, NoOfLines, GetDueDate());
 
         // Tear Down.
-        CleanupGeneralLedgerSetup;
+        CleanupGeneralLedgerSetup();
     end;
 
     [Test]
@@ -228,7 +228,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with equal Payment Amount
         // and same Currency and after Payment Discount Period.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         EqualPmtAfterDueDate(CurrencyCode, CurrencyCode);
     end;
 
@@ -242,7 +242,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Discount and Amount LCY on Customer Ledger Entries after posting Journal Lines with equal Payment Amount
         // and different Currencies and after Payment Discount Period.
         Initialize();
-        EqualPmtAfterDueDate(CreateCurrency, CreateCurrency);
+        EqualPmtAfterDueDate(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure EqualPmtAfterDueDate(CurrencyCode: Code[10]; CurrencyCode2: Code[10])
@@ -253,13 +253,13 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Setup: Modify General Ledger Setup and Post Gen. Journal Lines for Invoice and Payment with Random Amount.
         // and after Discount Period. Take Payment Amount equal to Invoice Amount.
-        ModifyGeneralLedgerSetup;
+        ModifyGeneralLedgerSetup();
         ComputeAmountAndNoOfLines(Amount, NoOfLines);
         PaymentWithDiscountTolerance(CurrencyCode, CurrencyCode2, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Document Type"::Payment, Amount, -Amount * NoOfLines, NoOfLines, CalcDate('<1D>', GetDueDate));
+          GenJournalLine."Document Type"::Payment, Amount, -Amount * NoOfLines, NoOfLines, CalcDate('<1D>', GetDueDate()));
 
         // Tear Down.
-        CleanupGeneralLedgerSetup;
+        CleanupGeneralLedgerSetup();
     end;
 
     [Test]
@@ -287,7 +287,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Discount Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and same
         // Currency and within discount period.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LessPmtBeforeDiscDate(CurrencyCode, CurrencyCode);
     end;
 
@@ -301,7 +301,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Discount Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and with
         // different Currencies and within Payment Discount Period.
         Initialize();
-        LessPmtBeforeDiscDate(CreateCurrency, CreateCurrency);
+        LessPmtBeforeDiscDate(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure LessPmtBeforeDiscDate(CurrencyCode: Code[10]; CurrencyCode2: Code[10])
@@ -313,13 +313,13 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Setup: Modify General Ledger Setup and Post Gen. Journal Lines for Invoice and Payment with Random Amount.
         // Take Payment Amount less than Invoice Amount and within Discount Period. Post Payment Lines in Payment Discount Grace Period.
-        ModifyGeneralLedgerSetup;
+        ModifyGeneralLedgerSetup();
         ComputeAmountFromMaxPmtTol(Amount, Amount2, NoOfLines);
         PaymentWithTolerance(CurrencyCode, CurrencyCode2, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment,
-          Amount, -Amount2, NoOfLines, GetDueDate);
+          Amount, -Amount2, NoOfLines, GetDueDate());
 
         // Tear Down.
-        CleanupGeneralLedgerSetup;
+        CleanupGeneralLedgerSetup();
     end;
 
     [Test]
@@ -347,7 +347,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Discount Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount
         // and same Currency and after Payment Discount Period.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LessPmtAfterDiscDate(CurrencyCode, CurrencyCode);
     end;
 
@@ -361,7 +361,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Discount Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and with
         // different Currencies and after Payment Discount Period.
         Initialize();
-        LessPmtAfterDiscDate(CreateCurrency, CreateCurrency);
+        LessPmtAfterDiscDate(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure LessPmtAfterDiscDate(CurrencyCode: Code[10]; CurrencyCode2: Code[10])
@@ -373,13 +373,13 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Setup: Modify General Ledger Setup and Post Gen. Journal Lines for Invoice and Payment with Random Amount.
         // Take Payment Amount less than Invoice Amount. Post Payment Lines after Payment Discount Grace Period.
-        ModifyGeneralLedgerSetup;
+        ModifyGeneralLedgerSetup();
         ComputeAmountFromMaxPmtTol(Amount, Amount2, NoOfLines);
         PaymentWithDiscountTolerance(CurrencyCode, CurrencyCode2, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Document Type"::Payment, Amount, -Amount2, NoOfLines, CalcDate('<1D>', GetDueDate));
+          GenJournalLine."Document Type"::Payment, Amount, -Amount2, NoOfLines, CalcDate('<1D>', GetDueDate()));
 
         // Tear Down.
-        CleanupGeneralLedgerSetup;
+        CleanupGeneralLedgerSetup();
     end;
 
     [Test]
@@ -407,7 +407,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and Currency
         // within Payment Discount Period.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         UnderAmtBeforeDiscDate(CurrencyCode, CurrencyCode);
     end;
 
@@ -421,7 +421,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and multiple
         // Currencies and within Payment Discount Period.
         Initialize();
-        UnderAmtBeforeDiscDate(CreateCurrency, CreateCurrency);
+        UnderAmtBeforeDiscDate(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure UnderAmtBeforeDiscDate(CurrencyCode: Code[10]; CurrencyCode2: Code[10])
@@ -433,13 +433,13 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Setup: Modify General Ledger Setup and Post Gen. Journal Lines for Invoice and Payment with Random Amount.
         // Take Payment Amount less than Invoice Amount and within Discount Period.
-        ModifyGeneralLedgerSetup;
+        ModifyGeneralLedgerSetup();
         ComputeAmountFromPmtTolPercent(Amount, Amount2, NoOfLines);
         PaymentWithTolerance(CurrencyCode, CurrencyCode2, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment,
-          Amount, -Amount2, NoOfLines, GetDueDate);
+          Amount, -Amount2, NoOfLines, GetDueDate());
 
         // Tear Down.
-        CleanupGeneralLedgerSetup;
+        CleanupGeneralLedgerSetup();
     end;
 
     [Test]
@@ -467,7 +467,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and Same Currency
         // after Payment Discount Period.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         UnderAmtAfterDiscDate(CurrencyCode, CurrencyCode);
     end;
 
@@ -481,7 +481,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         // Check Payment Tolerance, Amount LCY on Customer Ledger Entries after Posting Journal Lines with Less Amount and multiple
         // Currencies.
         Initialize();
-        UnderAmtAfterDiscDate(CreateCurrency, CreateCurrency);
+        UnderAmtAfterDiscDate(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure UnderAmtAfterDiscDate(CurrencyCode: Code[10]; CurrencyCode2: Code[10])
@@ -493,13 +493,13 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Modify General Ledger Setup and Post Gen. Journal Lines for Invoice and Payment with Random Amount.
         // Take Payment Amount less than Invoice Amount and after Discount Period.
-        ModifyGeneralLedgerSetup;
+        ModifyGeneralLedgerSetup();
         ComputeAmountFromPmtTolPercent(Amount, Amount2, NoOfLines);
         PaymentWithDiscountTolerance(CurrencyCode, CurrencyCode2, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Document Type"::Payment, Amount, -Amount2, NoOfLines, CalcDate('<1D>', GetDueDate));
+          GenJournalLine."Document Type"::Payment, Amount, -Amount2, NoOfLines, CalcDate('<1D>', GetDueDate()));
 
         // Tear Down.
-        CleanupGeneralLedgerSetup;
+        CleanupGeneralLedgerSetup();
     end;
 
     [Test]
@@ -832,7 +832,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Exercise: Create and Post General Journal Lines with Random Amount. Apply the later created Journal Line on previously created
         // Journal Lines and Post them. Take Posting Date in Payment Discount Period.
-        CreateDocumentLine(GenJournalLine, DocumentType, CreateCustomer, CurrencyCode, Amount, WorkDate(), NoOfLines);
+        CreateDocumentLine(GenJournalLine, DocumentType, CreateCustomer(), CurrencyCode, Amount, WorkDate(), NoOfLines);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -856,7 +856,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Exercise: Create and Post General Journal Lines with Random Amount. Apply the later created Journal Line on previously created
         // Journal Lines and Post them. Take Posting Date within Payment Discount Period.
-        CreateDocumentLine(GenJournalLine, DocumentType, CreateCustomer, CurrencyCode, Amount, WorkDate(), NoOfLines);
+        CreateDocumentLine(GenJournalLine, DocumentType, CreateCustomer(), CurrencyCode, Amount, WorkDate(), NoOfLines);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -879,7 +879,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Exercise: Create and Post General Journal Lines with Random Amount. Apply the later created Journal Line on previously created
         // Journal Lines and Post them. Take Posting Date after Payment Discount Period.
-        CreateDocumentLine(GenJournalLine, DocumentType, CreateCustomer, CurrencyCode, Amount, WorkDate(), NoOfLines);
+        CreateDocumentLine(GenJournalLine, DocumentType, CreateCustomer(), CurrencyCode, Amount, WorkDate(), NoOfLines);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -957,7 +957,6 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJnlAccType: Enum "Gen. Journal Account Type";
         BalGLAccountNo: Code[20];
-        Amount: Decimal;
         i: Integer;
     begin
         BalGLAccountNo := LibraryERM.CreateGLAccountNo();
@@ -985,7 +984,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         LibrarySales: Codeunit "Library - Sales";
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Terms Code", GetPaymentTerms);
+        Customer.Validate("Payment Terms Code", GetPaymentTerms());
         Customer.Modify(true);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
         exit(Customer."No.");
@@ -1052,7 +1051,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         NoOfLines := 1 + LibraryRandom.RandInt(5);
         Amount := 500 * LibraryRandom.RandInt(10);
         Amount2 :=
-          Amount * NoOfLines - (GeneralLedgerSetup."Max. Payment Tolerance Amount" + (Amount * NoOfLines * GetDiscountPercent / 100));
+          Amount * NoOfLines - (GeneralLedgerSetup."Max. Payment Tolerance Amount" + (Amount * NoOfLines * GetDiscountPercent() / 100));
     end;
 
     local procedure ApplyAndPostJournalLines(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type")
@@ -1069,7 +1068,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         CustLedgerEntry.FindSet();
         repeat
             CustEntrySetApplID.SetApplId(CustLedgerEntry, CustLedgerEntry, GenJournalLine."Document No.");
-            ApplyCustomerEntries.CalcApplnAmount;
+            ApplyCustomerEntries.CalcApplnAmount();
         until CustLedgerEntry.Next() = 0;
         Commit();
         GenJnlApply.Run(GenJournalLine);
@@ -1089,7 +1088,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Get(GetPaymentTerms);
+        PaymentTerms.Get(GetPaymentTerms());
         exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
     end;
 
@@ -1097,13 +1096,13 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Get(GetPaymentTerms);
+        PaymentTerms.Get(GetPaymentTerms());
         exit(PaymentTerms."Discount %");
     end;
 
     local procedure GetDiscountAmount(Amount: Decimal): Decimal
     begin
-        exit(Amount * GetDiscountPercent / 100);
+        exit(Amount * GetDiscountPercent() / 100);
     end;
 
     local procedure GetPaymentTerms(): Code[10]

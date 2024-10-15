@@ -5,6 +5,7 @@ using Microsoft.FixedAssets.Depreciation;
 table 5640 "Main Asset Component"
 {
     Caption = 'Main Asset Component';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -153,16 +154,14 @@ table 5640 "Main Asset Component"
 
     local procedure UpdateFADeprBooks(var FA: Record "Fixed Asset")
     begin
-        with FADeprBook do begin
-            SetCurrentKey("FA No.");
-            SetRange("FA No.", FA."No.");
-            if Find('-') then
-                repeat
-                    "Main Asset/Component" := FA."Main Asset/Component";
-                    "Component of Main Asset" := FA."Component of Main Asset";
-                    Modify(true);
-                until Next() = 0;
-        end;
+        FADeprBook.SetCurrentKey("FA No.");
+        FADeprBook.SetRange("FA No.", FA."No.");
+        if FADeprBook.Find('-') then
+            repeat
+                FADeprBook."Main Asset/Component" := FA."Main Asset/Component";
+                FADeprBook."Component of Main Asset" := FA."Component of Main Asset";
+                FADeprBook.Modify(true);
+            until FADeprBook.Next() = 0;
     end;
 
     local procedure CreateError(FANo: Code[20]; MainAssetComponent: Option " ","Main Asset",Component)

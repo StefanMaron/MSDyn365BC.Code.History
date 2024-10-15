@@ -27,7 +27,7 @@ codeunit 139025 "Test Email Logging on Exchange"
     var
         ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
     begin
-        ExchangeWebServicesClient.InvalidateService;
+        ExchangeWebServicesClient.InvalidateService();
         // Expect no run-time errors whatsoever
     end;
 
@@ -84,7 +84,7 @@ codeunit 139025 "Test Email Logging on Exchange"
     var
         ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
     begin
-        ExchangeWebServicesClient.InvalidateService;
+        ExchangeWebServicesClient.InvalidateService();
 
         asserterror ExchangeWebServicesClient.FolderExists('AAABBBBCCCC==');
         Assert.ExpectedError('Connection to the Exchange server failed.');
@@ -97,7 +97,7 @@ codeunit 139025 "Test Email Logging on Exchange"
         ExchangeFolder: Record "Exchange Folder";
         ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
     begin
-        ExchangeWebServicesClient.InvalidateService;
+        ExchangeWebServicesClient.InvalidateService();
 
         ExchangeFolder.Init();
         asserterror ExchangeWebServicesClient.GetPublicFolders(ExchangeFolder);

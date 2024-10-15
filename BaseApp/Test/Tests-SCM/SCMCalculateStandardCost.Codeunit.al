@@ -622,10 +622,10 @@ codeunit 137910 "SCM Calculate Standard Cost"
     begin
         Item.Modify(true);
         CalcRecursionLevel := Recursion;
-        CalculateStandardCost.CalcItem(Item."No.", not Item.IsMfgItem);
+        CalculateStandardCost.CalcItem(Item."No.", not Item.IsMfgItem());
         ValidateCost(TestCase + ', recursion=' + Format(Recursion),
           Item, Cost, SLMat, SLRes, SLResOvhd, RUMat, RURes, RUResOvhd);
-        CalculateStandardCost.CalcItem(Item."No.", not Item.IsMfgItem);
+        CalculateStandardCost.CalcItem(Item."No.", not Item.IsMfgItem());
         ValidateCost('2nd ' + TestCase + ', recursion=' + Format(Recursion),
           Item, Cost, SLMat, SLRes, SLResOvhd, RUMat, RURes, RUResOvhd)
     end;

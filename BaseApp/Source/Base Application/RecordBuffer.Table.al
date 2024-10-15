@@ -8,6 +8,7 @@ table 6529 "Record Buffer"
 {
     Caption = 'Record Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -53,7 +54,7 @@ table 6529 "Record Buffer"
         }
         field(9; "Primary Key Field 1 Name"; Text[80])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("Table No."),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Table No."),
                                                               "No." = field("Primary Key Field 1 No.")));
             Caption = 'Primary Key Field 1 Name';
             FieldClass = FlowField;
@@ -71,7 +72,7 @@ table 6529 "Record Buffer"
         }
         field(12; "Primary Key Field 2 Name"; Text[80])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("Table No."),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Table No."),
                                                               "No." = field("Primary Key Field 2 No.")));
             Caption = 'Primary Key Field 2 Name';
             FieldClass = FlowField;
@@ -89,7 +90,7 @@ table 6529 "Record Buffer"
         }
         field(15; "Primary Key Field 3 Name"; Text[80])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("Table No."),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Table No."),
                                                               "No." = field("Primary Key Field 3 No.")));
             Caption = 'Primary Key Field 3 Name';
             FieldClass = FlowField;

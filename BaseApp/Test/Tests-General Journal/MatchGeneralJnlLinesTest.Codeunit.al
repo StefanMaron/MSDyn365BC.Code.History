@@ -42,7 +42,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         FindCustLedgerEntry(CustLedgerEntry, Customer."No.");
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.",
@@ -95,7 +95,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         FindCustLedgerEntry(CustLedgerEntry, Customer."No.");
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.",
@@ -136,7 +136,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         FindCustLedgerEntry(CustLedgerEntry, Customer."No.");
 
         // Exercise.
-        GenJournalLine2.MatchSingleLedgerEntry;
+        GenJournalLine2.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, GenJournalLine2."Document No.",
@@ -163,7 +163,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.");
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.",
@@ -191,7 +191,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.");
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.",
@@ -232,7 +232,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.");
 
         // Exercise.
-        GenJournalLine2.MatchSingleLedgerEntry;
+        GenJournalLine2.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, GenJournalLine2."Document No.",
@@ -270,7 +270,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         CreateGenJnlLineForMatching(GenJournalLine2, GenJournalBatch, '', -Amount);
 
         // Exercise.
-        GenJournalLine2.MatchSingleLedgerEntry;
+        GenJournalLine2.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, GenJournalLine2."Document No.",
@@ -298,7 +298,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         // Setup.
         Amount := LibraryRandom.RandDec(100, 2);
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate(Name, CopyStr(CreateGuid, 1, 50));
+        Customer.Validate(Name, CopyStr(CreateGuid(), 1, 50));
         Customer.Modify(true);
         LibraryPurchase.CreateVendor(Vendor);
         CreateGenJnlBatchWithBalanceAccount(GenJournalBatch);
@@ -313,7 +313,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         CreateGenJnlLineForMatching(GenJournalLine2, GenJournalBatch, Customer.Name + GenJournalLine."Document No.", -Amount);
 
         // Exercise.
-        GenJournalLine2.MatchSingleLedgerEntry;
+        GenJournalLine2.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, GenJournalLine2."Document No.",
@@ -352,7 +352,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         FindVendorLedgerEntry(VendorLedgerEntry, Vendor."No.");
 
         // Exercise.
-        GenJournalLine2.MatchSingleLedgerEntry;
+        GenJournalLine2.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, GenJournalLine2."Document No.",
@@ -380,7 +380,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         // Setup.
         Amount := LibraryRandom.RandDec(100, 2);
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate(Name, CopyStr(CreateGuid, 1, 50));
+        Customer.Validate(Name, CopyStr(CreateGuid(), 1, 50));
         Customer.Modify(true);
         CreateLedgerEntry(GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Invoice,
           Customer."No.", Amount);
@@ -394,7 +394,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         CreateGenJnlLineForMatching(GenJournalLine3, GenJournalBatch, GenJournalLine."Document No.", -Amount);
 
         // Exercise.
-        GenJournalLine2.MatchSingleLedgerEntry;
+        GenJournalLine2.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, GenJournalLine2."Document No.",
@@ -417,7 +417,7 @@ codeunit 134251 "Match General Jnl Lines Test"
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate(Name, CopyStr(CreateGuid, 1, 50));
+        Customer.Validate(Name, CopyStr(CreateGuid(), 1, 50));
         Customer.Modify(true);
         CreateLedgerEntry(GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Invoice,
           Customer."No.", InvoiceAmount);
@@ -427,7 +427,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         CreateGenJnlLineForMatching(GenJournalLine2, GenJournalBatch, Customer.Name, PaidAmount);
 
         // Exercise.
-        GenJournalLine2.MatchSingleLedgerEntry;
+        GenJournalLine2.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, GenJournalLine2."Document No.",
@@ -493,7 +493,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         CreateGenJnlLineForMatching(GenJournalLine2, GenJournalBatch, Description, -Amount);
 
         // Exercise.
-        GenJournalLine2.MatchSingleLedgerEntry;
+        GenJournalLine2.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, GenJournalLine2."Document No.",
@@ -549,7 +549,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         FindCustLedgerEntry(CustLedgerEntry, Customer."No.");
 
         // Exercise.
-        GenJournalLine2.MatchSingleLedgerEntry;
+        GenJournalLine2.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, '', "Gen. Journal Account Type"::"G/L Account", '', false);
@@ -585,7 +585,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(MissingMatchMsg);
-        GenJournalLine2.MatchSingleLedgerEntry;
+        GenJournalLine2.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, '', "Gen. Journal Account Type"::"G/L Account", '', false);
@@ -609,14 +609,14 @@ codeunit 134251 "Match General Jnl Lines Test"
         LibrarySales.CreateCustomer(Customer);
         SetupGeneralJournal(GenJnlLine, GenJnlLine."Account Type"::Customer, Customer."No.", Amount);
         FindCustLedgerEntry(CustLedgerEntry, Customer."No.");
-        GenJnlLine.MatchSingleLedgerEntry;
+        GenJnlLine.MatchSingleLedgerEntry();
 
         // Exercise.
         LibraryVariableStorage.Enqueue(GenJnlLine."Journal Template Name");
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.GotoRecord(GenJnlLine);
         GeneralJournal."Account No.".SetValue('');
-        GeneralJournal.OK.Invoke;
+        GeneralJournal.OK().Invoke();
 
         // Verify
         VerifyGenJnlLine(GenJnlLine, GenJnlLine."Document Type"::Payment,
@@ -637,7 +637,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         SetupAccountMapping(TextToAccMapping, GenJournalLine, TextToAccMapping."Bal. Source Type"::"G/L Account", '', 1);
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, '',
@@ -658,7 +658,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         SetupAccountMapping(TextToAccMapping, GenJournalLine, TextToAccMapping."Bal. Source Type"::"G/L Account", '', -1);
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, '',
@@ -681,7 +681,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         SetupAccountMapping(TextToAccMapping, GenJournalLine, TextToAccMapping."Bal. Source Type"::Vendor, Vendor."No.", 1);
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, '',
@@ -705,7 +705,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         SetupAccountMapping(TextToAccMapping, GenJournalLine, TextToAccMapping."Bal. Source Type"::Customer, Customer."No.", -1);
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, '',
@@ -732,7 +732,7 @@ codeunit 134251 "Match General Jnl Lines Test"
 
         // Exercise.
         DocNo := GenJournalLine."Document No.";
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify.
@@ -761,7 +761,7 @@ codeunit 134251 "Match General Jnl Lines Test"
 
         // Exercise.
         DocNo := GenJournalLine."Document No.";
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify.
@@ -796,7 +796,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue('');
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         FindCustLedgerEntry(CustLedgerEntry, Customer."No.");
 
@@ -822,7 +822,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         SetupAccountMapping(TextToAccMapping, GenJournalLine, TextToAccMapping."Bal. Source Type"::Vendor, Vendor."No.", -1);
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Refund, '',
@@ -846,7 +846,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         SetupAccountMapping(TextToAccMapping, GenJournalLine, TextToAccMapping."Bal. Source Type"::Customer, Customer."No.", 1);
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Refund, '',
@@ -873,7 +873,7 @@ codeunit 134251 "Match General Jnl Lines Test"
 
         // Exercise.
         DocNo := GenJournalLine."Document No.";
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify.
@@ -902,7 +902,7 @@ codeunit 134251 "Match General Jnl Lines Test"
 
         // Exercise.
         DocNo := GenJournalLine."Document No.";
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify.
@@ -925,14 +925,14 @@ codeunit 134251 "Match General Jnl Lines Test"
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate(Name, CopyStr(CreateGuid, 1, 50));
+        Customer.Validate(Name, CopyStr(CreateGuid(), 1, 50));
         Customer.Modify(true);
         SetupGeneralJournal(GenJournalLine, GenJournalLine."Account Type"::Customer, Customer."No.", LibraryRandom.RandDec(100, 2));
         CreateAccountMapping(TextToAccMapping, GenJournalLine."Document No.",
           TextToAccMapping."Bal. Source Type"::Customer, Customer."No.", '');
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.",
@@ -956,14 +956,14 @@ codeunit 134251 "Match General Jnl Lines Test"
         LibrarySales.CreateCustomer(Customer);
         SetupAccountMapping(TextToAccMapping, GenJournalLine, TextToAccMapping."Bal. Source Type"::Customer, Customer."No.", -1);
 
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         LibrarySales.CreateCustomer(Customer2);
         CreateLedgerEntry(GenJournalLine2, GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Invoice,
           Customer2."No.", -GenJournalLine.Amount);
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, '',
@@ -998,7 +998,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         CreateGenJnlLineForMatching(GenJournalLine2, GenJournalBatch, CopyStr(Keyword, 1, 10), Amount);
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, '',
@@ -1050,10 +1050,10 @@ codeunit 134251 "Match General Jnl Lines Test"
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
         LibraryVariableStorage.Enqueue(GLAccount."No.");
 
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.GotoRecord(GenJournalLine);
-        GeneralJournal.AddMappingRule.Invoke;
-        GeneralJournal.OK.Invoke;
+        GeneralJournal.AddMappingRule.Invoke();
+        GeneralJournal.OK().Invoke();
 
         // Verify.
         TextToAccMapping.SetRange("Mapping Text", Keyword);
@@ -1110,7 +1110,7 @@ codeunit 134251 "Match General Jnl Lines Test"
           TextToAccMapping."Bal. Source Type"::"G/L Account", '', '');
 
         // Exercise.
-        GenJournalLine.MatchSingleLedgerEntry;
+        GenJournalLine.MatchSingleLedgerEntry();
 
         // Verify.
         VerifyGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, '',
@@ -1121,7 +1121,7 @@ codeunit 134251 "Match General Jnl Lines Test"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Match General Jnl Lines Test");
         LibraryVariableStorage.Clear();
-        CloseExistingEntries;
+        CloseExistingEntries();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Match General Jnl Lines Test");
@@ -1186,7 +1186,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         CreateGenJnlBatchWithBalanceAccount(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           DocumentType, AccountType, AccountNo, Amount);
-        GenJournalLine.Validate("Document No.", CopyStr(CreateGuid, 1, 15));
+        GenJournalLine.Validate("Document No.", CopyStr(CreateGuid(), 1, 15));
         GenJournalLine.Validate(Description, GenJournalLine."Document No.");
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1231,7 +1231,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         Amount: Decimal;
     begin
         Amount := Sign * LibraryRandom.RandDec(100, 2);
-        CreateAccountMapping(TextToAccMapping, CopyStr(CreateGuid, 1, 50), BalSourceType, BalSourceNo, '');
+        CreateAccountMapping(TextToAccMapping, CopyStr(CreateGuid(), 1, 50), BalSourceType, BalSourceNo, '');
         CreateGenJnlBatchWithBalanceAccount(GenJournalBatch);
         CreateGenJnlLineForMatching(GenJournalLine, GenJournalBatch, TextToAccMapping."Mapping Text", Amount);
     end;
@@ -1307,10 +1307,10 @@ codeunit 134251 "Match General Jnl Lines Test"
     begin
         LibraryVariableStorage.Dequeue(GLAccount);
         Assert.AreEqual(TextToAccMappingPage."Bal. Source Type".Value <> Format(TextToAccMapping."Bal. Source Type"::"G/L Account"),
-          TextToAccMappingPage."Bal. Source No.".Enabled, 'Wrong Bal. Source No. enabled state.');
+          TextToAccMappingPage."Bal. Source No.".Enabled(), 'Wrong Bal. Source No. enabled state.');
         TextToAccMappingPage."Debit Acc. No.".SetValue(GLAccount);
         TextToAccMappingPage."Credit Acc. No.".SetValue(GLAccount);
-        TextToAccMappingPage.OK.Invoke;
+        TextToAccMappingPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1321,7 +1321,7 @@ codeunit 134251 "Match General Jnl Lines Test"
     begin
         LibraryVariableStorage.Dequeue(TemplateName);
         GeneralJournalTemplateList.FILTER.SetFilter(Name, TemplateName);
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [Test]
@@ -1375,8 +1375,8 @@ codeunit 134251 "Match General Jnl Lines Test"
         Term1: Text[50];
         Term2: Text[50];
     begin
-        Term1 := CopyStr(CreateGuid, 2, 15);
-        Term2 := CopyStr(CreateGuid, 2, 15);
+        Term1 := CopyStr(CreateGuid(), 2, 15);
+        Term2 := CopyStr(CreateGuid(), 2, 15);
         CommonSubstring := StrSubstNo('%1 %2', Term1, Term2);
         LibrarySmallBusiness.CreateVendor(Vendor);
         TextToAccMapping.Reset();

@@ -24,7 +24,7 @@ codeunit 104055 "Upgrade - Error Message"
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         ErrorMessageDataTransfer: DataTransfer;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetErrorMessageDescriptionUpgradeTag()) THEN
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetErrorMessageDescriptionUpgradeTag()) then
             exit;
 
         ErrorMessageDataTransfer.SetTables(Database::"Error Message", Database::"Error Message");
@@ -41,7 +41,7 @@ codeunit 104055 "Upgrade - Error Message"
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         ErrorMessageRegisterDataTransfer: DataTransfer;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetErrorMessageRegisterDescriptionUpgradeTag()) THEN
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetErrorMessageRegisterDescriptionUpgradeTag()) then
             exit;
 
         ErrorMessageRegisterDataTransfer.SetTables(Database::"Error Message Register", Database::"Error Message Register");

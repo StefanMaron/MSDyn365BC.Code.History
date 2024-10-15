@@ -23,7 +23,7 @@ codeunit 134441 "Default Categories Test"
         GLAccountCategory.DeleteAll();
 
         // Execute - Open G/L Categories page
-        GLAccountCategories.OpenEdit;
+        GLAccountCategories.OpenEdit();
 
         // Verify - Validate that Account categories are auto generated
         Assert.RecordIsNotEmpty(GLAccountCategory);
@@ -42,7 +42,7 @@ codeunit 134441 "Default Categories Test"
 
         // Execute - Open G/L Categories page
         Assert.RecordCount(GLAccountCategory, 1);
-        GLAccountCategories.OpenEdit;
+        GLAccountCategories.OpenEdit();
 
         // Verify - Validate that Account categories are auto generated
         Assert.RecordCount(GLAccountCategory, 1);
@@ -61,7 +61,7 @@ codeunit 134441 "Default Categories Test"
         GLAccountCategory.DeleteAll();
 
         // Execute - Simulate Initialize Company
-        GLAccountCategoryMgt.InitializeAccountCategories;
+        GLAccountCategoryMgt.InitializeAccountCategories();
 
         // Verify - Validate that Account categories are auto generated
         Assert.RecordIsNotEmpty(GLAccountCategory);
@@ -85,7 +85,7 @@ codeunit 134441 "Default Categories Test"
 
         // Execute - Simulate Initialize Company
         Assert.RecordCount(GLAccountCategory, 1);
-        GLAccountCategoryMgt.InitializeAccountCategories;
+        GLAccountCategoryMgt.InitializeAccountCategories();
 
         // Verify - Validate that Account categories are auto generated
         Assert.RecordCount(GLAccountCategory, 1);
@@ -104,7 +104,7 @@ codeunit 134441 "Default Categories Test"
         GLAccountCategory.DeleteAll();
 
         // Execute - Open G/L Categories page
-        GLAccountCategories.OpenEdit;
+        GLAccountCategories.OpenEdit();
 
         // Verify - Validate that Account categories are auto generated and root nodes are marked
         Assert.RecordIsNotEmpty(GLAccountCategory);
@@ -126,7 +126,7 @@ codeunit 134441 "Default Categories Test"
         GLAccountCategory.DeleteAll();
 
         // Execute - Open G/L Categories page
-        GLAccountCategories.OpenEdit;
+        GLAccountCategories.OpenEdit();
 
         // Verify - Validate that Account categories are auto generated and non root nodes are not marked
         Assert.RecordIsNotEmpty(GLAccountCategory);

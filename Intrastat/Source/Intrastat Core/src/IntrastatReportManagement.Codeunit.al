@@ -770,7 +770,7 @@ codeunit 4810 IntrastatReportManagement
             NoSeriesLine."Line No." := 10000;
             NoSeriesLine.Validate("Starting No.", 'INTRA00001');
             NoSeriesLine.Insert(true);
-            NoSeriesLine.Validate("Allow Gaps in Nos.", true);
+            NoSeriesLine.Validate(Implementation, Enum::"No. Series Implementation"::Sequence);
             NoSeriesLine.Modify(true);
         end;
 

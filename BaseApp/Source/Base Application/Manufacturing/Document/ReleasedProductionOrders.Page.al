@@ -69,48 +69,6 @@ page 9326 "Released Production Orders"
                     ToolTip = 'Specifies the location code to which you want to post the finished product from this production order.';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("Starting Time"; StartingTime)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Starting Time';
-                    ToolTip = 'Specifies the starting time of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-                }
-                field("Starting Date"; StartingDate)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Starting Date';
-                    ToolTip = 'Specifies the starting date of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-                }
-                field("Ending Time"; EndingTime)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Ending Time';
-                    ToolTip = 'Specifies the ending time of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-                }
-                field("Ending Date"; EndingDate)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Ending Date';
-                    ToolTip = 'Specifies the ending date of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
@@ -493,31 +451,8 @@ page 9326 "Released Production Orders"
             }
         }
     }
-#if not CLEAN17
-    trigger OnAfterGetRecord()
-    begin
-        Rec.GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
-    end;
-
-    trigger OnInit()
-    begin
-        DateAndTimeFieldVisible := false;
-    end;
-
-    trigger OnOpenPage()
-    begin
-        DateAndTimeFieldVisible := false;
-    end;
-#endif
 
     var
         ManuPrintReport: Codeunit "Manu. Print Report";
-#if not CLEAN17
-        StartingTime: Time;
-        EndingTime: Time;
-        StartingDate: Date;
-        EndingDate: Date;
-        DateAndTimeFieldVisible: Boolean;
-#endif
 }
 

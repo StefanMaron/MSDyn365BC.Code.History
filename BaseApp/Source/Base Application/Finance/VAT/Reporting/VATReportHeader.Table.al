@@ -13,6 +13,7 @@ table 740 "VAT Report Header"
 {
     Caption = 'VAT Report Header';
     LookupPageID = "VAT Report List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -23,7 +24,7 @@ table 740 "VAT Report Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode());
+                    NoSeries.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -211,7 +212,9 @@ table 740 "VAT Report Header"
         field(16; "VAT Report Version"; Code[10])
         {
             Caption = 'VAT Report Version';
+#pragma warning disable AL0603
             TableRelation = "VAT Reports Configuration"."VAT Report Version" where("VAT Report Type" = field("VAT Report Config. Code"));
+#pragma warning restore AL0603
         }
         field(17; "Submitted By"; Guid)
         {
@@ -301,9 +304,33 @@ table 740 "VAT Report Header"
     end;
 
     trigger OnInsert()
+#if not CLEAN24
+    var
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        DefaultNoSeriesCode: Code[20];
+        IsHandled: Boolean;
+#endif
     begin
-        if "No." = '' then
-            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", WorkDate(), "No.", "No. Series");
+        if "No." = '' then begin
+#if not CLEAN24
+            DefaultNoSeriesCode := GetNoSeriesCode();
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(DefaultNoSeriesCode, xRec."No. Series", WorkDate(), "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+                if NoSeries.AreRelated(DefaultNoSeriesCode, xRec."No. Series") then
+                    "No. Series" := xRec."No. Series"
+                else
+                    "No. Series" := DefaultNoSeriesCode;
+                "No." := NoSeries.GetNextNo("No. Series");
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", DefaultNoSeriesCode, WorkDate(), "No.");
+            end;
+#else
+			if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
+				"No. Series" := xRec."No. Series"
+			else
+				"No. Series" := GetNoSeriesCode();
+            "No." := NoSeries.GetNextNo("No. Series");
+#endif
+        end;
 
         InitRecord();
     end;
@@ -320,7 +347,7 @@ table 740 "VAT Report Header"
 
     var
         VATReportSetup: Record "VAT Report Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
 
         Text001: Label 'The value of %1 field in the %2 window does not allow this option.';
         Text002: Label 'Editing is not allowed because the report is marked as %1.';
@@ -352,8 +379,8 @@ table 740 "VAT Report Header"
 
     procedure AssistEdit(OldVATReportHeader: Record "VAT Report Header"): Boolean
     begin
-        if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldVATReportHeader."No. Series", "No. Series") then begin
-            NoSeriesMgt.SetSeries("No.");
+        if NoSeries.LookupRelatedNoSeries(GetNoSeriesCode(), OldVATReportHeader."No. Series", "No. Series") then begin
+            "No." := NoSeries.GetNextNo("No. Series");
             exit(true);
         end;
     end;

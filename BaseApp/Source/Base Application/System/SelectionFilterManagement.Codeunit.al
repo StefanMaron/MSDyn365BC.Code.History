@@ -19,6 +19,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
+using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -27,6 +28,7 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Reminder;
 using Microsoft.Service.Document;
+using Microsoft.Service.Item;
 using System.Automation;
 using System.Security.AccessControl;
 
@@ -179,6 +181,14 @@ codeunit 46 SelectionFilterManagement
     begin
         RecRef.GetTable(Item);
         exit(GetSelectionFilter(RecRef, Item.FieldNo("No.")));
+    end;
+
+    procedure GetSelectionFilterForServiceItem(var ServiceItem: Record "Service Item"): Text
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(ServiceItem);
+        exit(GetSelectionFilter(RecRef, ServiceItem.FieldNo("No.")));
     end;
 
     procedure GetSelectionFilterForDimensionValue(var DimVal: Record "Dimension Value"): Text
@@ -494,6 +504,22 @@ codeunit 46 SelectionFilterManagement
         exit(GetSelectionFilter(RecRef, AggregatePermissionSet.FieldNo("Role ID")));
     end;
 
+    procedure GetSelectionFilterForJob(var Job: Record Job): Text
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(Job);
+        exit(GetSelectionFilter(RecRef, Job.FieldNo("No.")));
+    end;
+
+    procedure GetSelectionFilterForJobTask(var JobTask: Record "Job Task"): Text
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(JobTask);
+        exit(GetSelectionFilter(RecRef, JobTask.FieldNo("Job Task No.")));
+    end;
+
     /// <summary>
     /// Get a filter for the selected field from a provided record. Ranges will be used inside the filter were possible.
     /// The values in the selected field must be unique and sorted in ascending order.
@@ -526,7 +552,7 @@ codeunit 46 SelectionFilterManagement
     end;
 
     // Optimize the filter to make use of ranges.
-    local procedure ComputeRanges(var SelectedValues: List of [Text]; var AllValues: List of [Text]; var Ranges: List Of [Text])
+    local procedure ComputeRanges(var SelectedValues: List of [Text]; var AllValues: List of [Text]; var Ranges: List of [Text])
     var
         CurrentRangeLength: Integer;
         i: Integer;

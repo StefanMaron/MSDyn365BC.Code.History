@@ -36,17 +36,15 @@ codeunit 2114 "O365 HTML Templ. Mgt."
 
     local procedure CreateHTMLTextFromReportSelections(ReportSelections: Record "Report Selections"; RecordVariant: Variant; MailTo: Text; MailText: Text) HTMLText: Text
     begin
-        with ReportSelections do begin
-            HTMLText := GetTemplateContent("Email Body Layout Code");
+        HTMLText := GetTemplateContent(ReportSelections."Email Body Layout Code");
 
-            case Usage of
-                Usage::"S.Invoice":
-                    FillSalesInvoiceHTML(RecordVariant, HTMLText, MailTo, MailText);
-                Usage::"S.Invoice Draft":
-                    FillSalesDraftInvoiceHTML(RecordVariant, HTMLText, MailTo, MailText);
-                Usage::"S.Quote":
-                    FillSalesEstimateHTML(RecordVariant, HTMLText, MailTo, MailText);
-            end;
+        case ReportSelections.Usage of
+            ReportSelections.Usage::"S.Invoice":
+                FillSalesInvoiceHTML(RecordVariant, HTMLText, MailTo, MailText);
+            ReportSelections.Usage::"S.Invoice Draft":
+                FillSalesDraftInvoiceHTML(RecordVariant, HTMLText, MailTo, MailText);
+            ReportSelections.Usage::"S.Quote":
+                FillSalesEstimateHTML(RecordVariant, HTMLText, MailTo, MailText);
         end;
     end;
 

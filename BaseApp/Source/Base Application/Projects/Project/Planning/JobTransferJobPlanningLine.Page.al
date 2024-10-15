@@ -4,7 +4,7 @@ using Microsoft.Projects.Project.Journal;
 
 page 1014 "Job Transfer Job Planning Line"
 {
-    Caption = 'Job Transfer Job Planning Line';
+    Caption = 'Project Transfer Project Planning Line';
     PageType = StandardDialog;
     SaveValues = true;
     SourceTable = "Job Journal Template";
@@ -25,11 +25,11 @@ page 1014 "Job Transfer Job Planning Line"
                 field(JobJournalTemplateName; JobJournalTemplateName)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job Journal Template';
+                    Caption = 'Project Journal Template';
                     Lookup = true;
                     TableRelation = "Job Journal Template".Name where("Page ID" = const(201),
                                                                        Recurring = const(false));
-                    ToolTip = 'Specifies the journal template that is used for the job journal.';
+                    ToolTip = 'Specifies the journal template that is used for the project journal.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
@@ -39,10 +39,10 @@ page 1014 "Job Transfer Job Planning Line"
                 field(JobJournalBatchName; JobJournalBatchName)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job Journal Batch';
+                    Caption = 'Project Journal Batch';
                     Lookup = true;
                     TableRelation = "Job Journal Batch".Name where("Journal Template Name" = field(Name));
-                    ToolTip = 'Specifies the journal batch that is used for the job journal.';
+                    ToolTip = 'Specifies the journal batch that is used for the project journal.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin

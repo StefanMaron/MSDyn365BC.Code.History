@@ -36,21 +36,19 @@ codeunit 9656 "Report Layout Update Log"
         // TODO: FOREACH IReportChangeLog IN IReportChangeLogCollection DO BEGIN
         foreach IReportChangeLog in LogCollection do begin
             startValue += 1;
-            with TempReportLayoutUpdateLog do begin
-                Init();
-                "No." := startValue;
-                intValue := IReportChangeLog.Status;
-                Status := intValue;
-                "Field Name" := IReportChangeLog.ElementName;
-                Message := IReportChangeLog.Message;
-                "Report ID" := IReportChangeLog.ReportId;
-                "Layout Description" := IReportChangeLog.LayoutName;
-                intValue := IReportChangeLog.LayoutFormat;
-                if intValue = 0 then
-                    intValue := 1;
-                "Layout Type" := intValue - 1;
-                Insert();
-            end;
+            TempReportLayoutUpdateLog.Init();
+            TempReportLayoutUpdateLog."No." := startValue;
+            intValue := IReportChangeLog.Status;
+            TempReportLayoutUpdateLog.Status := intValue;
+            TempReportLayoutUpdateLog."Field Name" := IReportChangeLog.ElementName;
+            TempReportLayoutUpdateLog.Message := IReportChangeLog.Message;
+            TempReportLayoutUpdateLog."Report ID" := IReportChangeLog.ReportId;
+            TempReportLayoutUpdateLog."Layout Description" := IReportChangeLog.LayoutName;
+            intValue := IReportChangeLog.LayoutFormat;
+            if intValue = 0 then
+                intValue := 1;
+            TempReportLayoutUpdateLog."Layout Type" := intValue - 1;
+            TempReportLayoutUpdateLog.Insert();
         end;
 
         exit(startValue - 1);

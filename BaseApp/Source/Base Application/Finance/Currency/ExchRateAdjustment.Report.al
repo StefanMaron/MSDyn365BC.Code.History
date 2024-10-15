@@ -8,13 +8,24 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.HumanResources.Employee;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
+#if not CLEAN23
+using System.Environment;
+using System.Environment.Configuration;
+#endif
 
 report 596 "Exch. Rate Adjustment"
 {
+#if CLEAN23
+    ApplicationArea = Basic, Suite;    
+#endif
     Caption = 'Exchange Rates Adjustment';
     ProcessingOnly = true;
+#if CLEAN23
+    UsageCategory = Tasks;
+#endif
 
     dataset
     {
@@ -34,6 +45,11 @@ report 596 "Exch. Rate Adjustment"
             RequestFilterFields = "No.";
         }
         dataitem(VendorFilter; Vendor)
+        {
+            DataItemTableView = sorting("No.");
+            RequestFilterFields = "No.";
+        }
+        dataitem(EmployeeFilter; Employee)
         {
             DataItemTableView = sorting("No.");
             RequestFilterFields = "No.";
@@ -146,6 +162,12 @@ report 596 "Exch. Rate Adjustment"
                         Caption = 'Adjust Vendors';
                         ToolTip = 'Specifies if you want to adjust vendors for currency fluctuations.';
                     }
+                    field(AdjEmplAcc; AdjEmpl)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Adjust Employees';
+                        ToolTip = 'Specifies if you want to adjust employees for currency fluctuations.';
+                    }
                     field(AdjBankAcc; AdjBank)
                     {
                         ApplicationArea = Basic, Suite;
@@ -187,14 +209,15 @@ report 596 "Exch. Rate Adjustment"
 
         trigger OnOpenPage()
         begin
-            OnBeforeOpenPage(AdjCust, AdjVend, AdjBank, AdjGLAcc, PostingDocNo);
+            OnBeforeOpenPage(AdjCust, AdjVend, AdjEmpl, AdjBank, AdjGLAcc, PostingDocNo);
 
             if PostingDescription = '' then
                 PostingDescription := AdjustmentDescriptionTxt;
 
-            if not (AdjCust or AdjVend or AdjBank or AdjGLAcc) then begin
+            if not (AdjCust or AdjVend or AdjEmpl or AdjBank or AdjGLAcc) then begin
                 AdjCust := true;
                 AdjVend := true;
+                AdjEmpl := true;
                 AdjBank := true;
             end;
 
@@ -211,15 +234,33 @@ report 596 "Exch. Rate Adjustment"
 
     trigger OnInitReport()
     var
+#if not CLEAN23
+        FeatureKey: Record "Feature Key";
+        EnvironmentInformation: Codeunit "Environment Information";
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+        FeatureErrorInfo: ErrorInfo;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeOnInitReport(IsHandled);
         if IsHandled then
             exit;
+#if not CLEAN23
+        if not EnvironmentInformation.IsOnPrem() then
+            if not FeatureKeyManagement.IsExtensibleExchangeRateAdjustmentEnabled() then begin
+                FeatureKey.Get(FeatureKeyManagement.GetExtensibleExchangeRateAdjustmentFeatureKey());
+                FeatureErrorInfo.Title := FeatureDisabledTitleTxt;
+                FeatureErrorInfo.Message := StrSubstno(FeatureDisabledErrorTxt, FeatureKey.Description);
+                FeatureErrorInfo.AddAction(ShowFeatureManagementTxt, Codeunit::"Exch. Rate Adjmt. Run Handler", 'ShowFeatureManagement');
+                Error(FeatureErrorInfo);
+            end;
+#endif
     end;
 
     trigger OnPreReport()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         GeneralLedgerSetup.Get();
 
@@ -234,11 +275,10 @@ report 596 "Exch. Rate Adjustment"
                 Error(MustBeEnteredErr, GenJournalLineReq.FieldCaption("Journal Template Name"));
             if GenJournalLineReq."Journal Batch Name" = '' then
                 Error(MustBeEnteredErr, GenJournalLineReq.FieldCaption("Journal Batch Name"));
-            Clear(NoSeriesManagement);
             Clear(PostingDocNo);
             GenJournalBatch.Get(GenJournalLineReq."Journal Template Name", GenJournalLineReq."Journal Batch Name");
             GenJournalBatch.TestField("No. Series");
-            PostingDocNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", PostingDate, true);
+            PostingDocNo := NoSeries.GetNextNo(GenJournalBatch."No. Series", PostingDate);
         end else
             if (PostingDocNo = '') and (not PreviewPosting) then
                 Error(MustBeEnteredErr, GenJournalLineReq.FieldCaption("Document No."));
@@ -246,11 +286,11 @@ report 596 "Exch. Rate Adjustment"
         if PreviewPosting then
             PostingDocNo := '***';
 
-        if (not AdjCust) and (not AdjVend) and (not AdjBank) and AdjGLAcc then
+        if (not AdjCust) and (not AdjVend) and (not AdjBank) and (not AdjEmpl) and AdjGLAcc then
             if not Confirm(ConfirmationTxt + ContinueTxt, false) then
                 Error(AdjustmentCancelledErr);
 
-        if (not AdjCust) and (not AdjVend) and (not AdjBank) and (not AdjGLAcc) then
+        if (not AdjCust) and (not AdjVend) and (not AdjBank) and (not AdjEmpl) and (not AdjGLAcc) then
             exit;
 
         RunAdjustmentProcess();
@@ -260,7 +300,6 @@ report 596 "Exch. Rate Adjustment"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLineReq: Record "Gen. Journal Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         DimensionPosting: Enum "Exch. Rate Adjmt. Dimensions";
         PostingDate: Date;
         PostingDescription: Text[100];
@@ -270,6 +309,7 @@ report 596 "Exch. Rate Adjustment"
         EndDateReq: Date;
         AdjCust: Boolean;
         AdjVend: Boolean;
+        AdjEmpl: Boolean;
         AdjBank: Boolean;
         AdjGLAcc: Boolean;
         AdjPerEntry: Boolean;
@@ -283,6 +323,11 @@ report 596 "Exch. Rate Adjustment"
         AdjustmentDescriptionTxt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Comment = '%1 = Currency Code, %2= Adjust Amount';
         FilterIsTooComplexErr: Label '%1 filter is too complex', Comment = '%1 - table caption';
         PostingDateNotInPeriodErr: Label 'This posting date cannot be entered because it does not occur within the adjustment period. Reenter the posting date.';
+#if not CLEAN23
+        FeatureDisabledErrorTxt: Label 'You should enable feature %1 to run Exchange Rates Adjustment report in Feature Management page.', Comment = '%1 - feature name';
+        FeatureDisabledTitleTxt: Label 'You cannot run Exchange Rates Adjustment report.';
+        ShowFeatureManagementTxt: Label 'Show Feature Management';
+#endif
 
     protected var
         ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters";
@@ -309,6 +354,8 @@ report 596 "Exch. Rate Adjustment"
             Error(FilterIsTooComplexErr, VendorFilter.TableCaption());
         ExchRateAdjmtParameters."Vendor Filter" :=
             CopyStr(VendorFilter.GetView(), 1, MaxStrLen(ExchRateAdjmtParameters."Vendor Filter"));
+        ExchRateAdjmtParameters."Employee Filter" :=
+            CopyStr(EmployeeFilter.GetView(), 1, MaxStrLen(ExchRateAdjmtParameters."Employee Filter"));
 
         if PreviewPosting then
             ExchRateAdjmtProcess.Preview(ExchRateAdjmtParameters)
@@ -328,13 +375,14 @@ report 596 "Exch. Rate Adjustment"
             EndDateReq := EndDate;
     end;
 
-    procedure InitializeRequest2(NewStartDate: Date; NewEndDate: Date; NewPostingDescription: Text[100]; NewPostingDate: Date; NewPostingDocNo: Code[20]; NewAdjCustVendBank: Boolean; NewAdjGLAcc: Boolean)
+    procedure InitializeRequest2(NewStartDate: Date; NewEndDate: Date; NewPostingDescription: Text[100]; NewPostingDate: Date; NewPostingDocNo: Code[20]; NewAdjCustVendEmplBank: Boolean; NewAdjGLAcc: Boolean)
     begin
         InitializeRequest(NewStartDate, NewEndDate, NewPostingDescription, NewPostingDate);
         PostingDocNo := NewPostingDocNo;
-        AdjBank := NewAdjCustVendBank;
-        AdjCust := NewAdjCustVendBank;
-        AdjVend := NewAdjCustVendBank;
+        AdjBank := NewAdjCustVendEmplBank;
+        AdjCust := NewAdjCustVendEmplBank;
+        AdjVend := NewAdjCustVendEmplBank;
+        AdjEmpl := NewAdjCustVendEmplBank;
         AdjGLAcc := NewAdjGLAcc;
         PreviewPosting := false;
     end;
@@ -349,6 +397,7 @@ report 596 "Exch. Rate Adjustment"
         ExchRateAdjmtParameters2."Adjust Bank Accounts" := AdjBank;
         ExchRateAdjmtParameters2."Adjust Customers" := AdjCust;
         ExchRateAdjmtParameters2."Adjust Vendors" := AdjVend;
+        ExchRateAdjmtParameters2."Adjust Employees" := AdjEmpl;
         ExchRateAdjmtParameters2."Adjust G/L Accounts" := AdjGLAcc;
         ExchRateAdjmtParameters2."Adjust Per Entry" := AdjPerEntry;
         ExchRateAdjmtParameters2."Hide UI" := HideUI;
@@ -389,13 +438,13 @@ report 596 "Exch. Rate Adjustment"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeOnInitReport(var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenPage(var AdjCust: Boolean; var AdjVend: Boolean; AdjBank: Boolean; var AdjGLAcc: Boolean; var PostingDocNo: Code[20])
+    local procedure OnBeforeOpenPage(var AdjCust: Boolean; var AdjVend: Boolean; var AdjEmpl: Boolean; AdjBank: Boolean; var AdjGLAcc: Boolean; var PostingDocNo: Code[20])
     begin
     end;
 }

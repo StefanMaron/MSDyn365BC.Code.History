@@ -95,55 +95,53 @@ codeunit 1380 "Batch Processing Mgt."
 
         OnBeforeBatchProcess(RecRef);
 
-        with RecRef do begin
-            if IsEmpty() then
-                exit;
+        if RecRef.IsEmpty() then
+            exit;
 
-            BindSubscription(BatchProcessingMgtHandler);
+        BindSubscription(BatchProcessingMgtHandler);
 
-            FillBatchProcessingMap(RecRef);
-            Commit();
+        FillBatchProcessingMap(RecRef);
+        Commit();
 
-            CurrentKeyIndex(1);
-            FindSet();
+        RecRef.CurrentKeyIndex(1);
+        RecRef.FindSet();
 
-            if GuiAllowed() then
-                Window.Open(PostingTemplateMsg);
-            CounterTotal := count();
+        if GuiAllowed() then
+            Window.Open(PostingTemplateMsg);
+        CounterTotal := RecRef.Count();
 
-            if ErrorMessageMgt.Activate(ErrorMessageHandler) then
-                ErrorMessageMgt.PushContext(ErrorContextElement, Number, 0, StrSubstNo(BatchProcessingTxt, Caption));
-            if not BatchShouldBeProcessedInBackground(RecRef, FullBatchProcessed) then
-                repeat
-                    CounterToPost += 1;
-                    if GuiAllowed() then
-                        Window.Update(1, Round(CounterToPost / CounterTotal * 10000, 1));
+        if ErrorMessageMgt.Activate(ErrorMessageHandler) then
+            ErrorMessageMgt.PushContext(ErrorContextElement, RecRef.Number, 0, StrSubstNo(BatchProcessingTxt, RecRef.Caption));
+        if not BatchShouldBeProcessedInBackground(RecRef, FullBatchProcessed) then
+            repeat
+                CounterToPost += 1;
+                if GuiAllowed() then
+                    Window.Update(1, Round(CounterToPost / CounterTotal * 10000, 1));
 
-                    if CanProcessRecord(RecRef) then
-                        if ProcessRecord(RecRef, BatchConfirm) then begin
-                            CounterPosted += 1;
-                            OnBatchProcessOnAfterIncreaseCounterPosted(RecRef, ProcessingCodeunitID);
-                        end;
-                until Next() = 0;
+                if CanProcessRecord(RecRef) then
+                    if ProcessRecord(RecRef, BatchConfirm) then begin
+                        CounterPosted += 1;
+                        OnBatchProcessOnAfterIncreaseCounterPosted(RecRef, ProcessingCodeunitID);
+                    end;
+            until RecRef.Next() = 0;
 
-            OnBatchProcessOnBeforeResetBatchID(RecRef, ProcessingCodeunitID);
+        OnBatchProcessOnBeforeResetBatchID(RecRef, ProcessingCodeunitID);
 
-            UnbindSubscription(BatchProcessingMgtHandler);
+        UnbindSubscription(BatchProcessingMgtHandler);
 
-            ResetBatchID();
+        ResetBatchID();
 
-            IsHandled := false;
-            OnBatchProcessOnBeforeShowMessage(CounterPosted, CounterTotal, IsHandled, ErrorMessageHandler, ErrorMessageMgt, FullBatchProcessed);
+        IsHandled := false;
+        OnBatchProcessOnBeforeShowMessage(CounterPosted, CounterTotal, IsHandled, ErrorMessageHandler, ErrorMessageMgt, FullBatchProcessed);
 
-            if GuiAllowed then begin
-                Window.Close();
-                if not IsHandled then
-                    if (CounterPosted <> CounterTotal) and not FullBatchProcessed then begin
-                        ErrorMessageHandler.InformAboutErrors(ErrorHandlingOptions);
-                        ErrorMessageMgt.PopContext(ErrorContextElement);
-                    end else
-                        Message(BatchCompletedMsg);
-            end;
+        if GuiAllowed then begin
+            Window.Close();
+            if not IsHandled then
+                if (CounterPosted <> CounterTotal) and not FullBatchProcessed then begin
+                    ErrorMessageHandler.InformAboutErrors(ErrorHandlingOptions);
+                    ErrorMessageMgt.PopContext(ErrorContextElement);
+                end else
+                    Message(BatchCompletedMsg);
         end;
 
         OnAfterBatchProcess(RecRef, CounterPosted, ProcessingCodeunitID);
@@ -212,13 +210,11 @@ codeunit 1380 "Batch Processing Mgt."
 
     procedure FillBatchProcessingMap(var RecRef: RecordRef)
     begin
-        with RecRef do begin
-            FindSet();
-            repeat
-                DeleteLostParameters(RecordId);
-                InsertBatchProcessingSessionMapEntry(RecRef);
-            until Next() = 0;
-        end;
+        RecRef.FindSet();
+        repeat
+            DeleteLostParameters(RecRef.RecordId);
+            InsertBatchProcessingSessionMapEntry(RecRef);
+        until RecRef.Next() = 0;
     end;
 
     procedure GetErrorMessages(var TempErrorMessageResult: Record "Error Message" temporary)
@@ -671,5 +667,6 @@ codeunit 1380 "Batch Processing Mgt."
     local procedure OnInvokeProcessingOnAfterRunProcessingCodeunitID(RecordRef: RecordRef)
     begin
     end;
+
 }
 

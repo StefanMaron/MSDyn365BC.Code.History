@@ -96,10 +96,10 @@ codeunit 134160 "Payments using Creditor Number"
           PmtGenJnlLine."Account Type"::Vendor, Vendor."No.", 0);
 
         // Exercise
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.Value := PmtGenJnlLine."Journal Batch Name";
         PaymentJournal.GotoRecord(PmtGenJnlLine);
-        PaymentJournal.ApplyEntries.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();
         PaymentJournal.Close();
 
         // Verify
@@ -148,14 +148,14 @@ codeunit 134160 "Payments using Creditor Number"
 
         // Pre-Exercise
         NewCreditorNo := Format(LibraryRandom.RandIntInRange(11111111, 99999999));
-        NewPaymentRef := GetRandomPaymentReference;
+        NewPaymentRef := GetRandomPaymentReference();
 
         // Exercise
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchHeader);
         PurchaseInvoice."Creditor No.".Value := NewCreditorNo;
         PurchaseInvoice."Payment Reference".Value := NewPaymentRef;
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoice.OK().Invoke();
 
         // Verify
         VerifyCreditorInfoOnPurchInvoice(Vendor."No.", NewCreditorNo, NewPaymentRef);
@@ -190,7 +190,7 @@ codeunit 134160 "Payments using Creditor Number"
         VendorLedgerEntry.Modify();
 
         // Exercise
-        VendorLedgerEntry.Validate("Payment Reference", GetRandomPaymentReference);
+        VendorLedgerEntry.Validate("Payment Reference", GetRandomPaymentReference());
 
         // Verify
         // No errors occur!
@@ -367,10 +367,10 @@ codeunit 134160 "Payments using Creditor Number"
         CreditorNo := Format(LibraryRandom.RandIntInRange(11111111, 99999999));
 
         // Exercise
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
         VendorCard."Creditor No.".Value := CreditorNo;
-        VendorCard.OK.Invoke;
+        VendorCard.OK().Invoke();
 
         // Verify
         Vendor.Get(VendorNo);
@@ -400,7 +400,7 @@ codeunit 134160 "Payments using Creditor Number"
         CreditorNo := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CreditorNo)), 1, MaxStrLen(CreditorNo));
 
         // [WHEN] Update field "Creditor No." on page "Purchase Order" for Purchase Header 'PO01' with CreditorNo
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder."Creditor No.".SetValue(CreditorNo);
         PurchaseOrder.Close();
@@ -432,7 +432,7 @@ codeunit 134160 "Payments using Creditor Number"
         CreditorNo := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CreditorNo)), 1, MaxStrLen(CreditorNo));
 
         // [WHEN] Update field "Creditor No." on page "Vendor Ledger Entries" for Vendor Ledger Entry 'X' with CreditorNo
-        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.OpenEdit();
         VendorLedgerEntries.GotoRecord(VendorLedgerEntry);
         VendorLedgerEntries."Creditor No.".SetValue(CreditorNo);
         VendorLedgerEntries.Close();
@@ -464,10 +464,10 @@ codeunit 134160 "Payments using Creditor Number"
         CreditorNo := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CreditorNo)), 1, MaxStrLen(CreditorNo));
 
         // [WHEN] Update field "Creditor No." on page "Posted Purchase Invoice" for Purchase Invoice Header 'PI01' with CreditorNo
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
         PostedPurchaseInvoice."Creditor No.".SetValue(CreditorNo);
-        PostedPurchaseInvoice.OK.Invoke;
+        PostedPurchaseInvoice.OK().Invoke();
 
         // [THEN] "Creditor No." = 'ABC' for Purchase Invoice Header 'PI01'
         PurchInvHeader.Find();
@@ -490,7 +490,7 @@ codeunit 134160 "Payments using Creditor Number"
 
         // [GIVEN] Gen. Journal Batch 'JB01' with "Journal Template Name" = 'PAYMENT'
         // [GIVEN] Gen. Journal Line 'JL01' with "Journal Template Name" = 'PAYMENT', "Journal Batch Name" = 'JB01'
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate());
         MockPaymentGenJournalLine(GenJournalLine, GenJournalBatch);
 
         // [GIVEN] CreditorNo = 'ABC', non-numeric
@@ -498,7 +498,7 @@ codeunit 134160 "Payments using Creditor Number"
 
         // [WHEN] Update field "Creditor No." on page "Payment Journal" for Gen. Journal Line 'JL01' with CreditorNo
         Commit();
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
         PaymentJournal.GotoRecord(GenJournalLine);
         PaymentJournal."Creditor No.".SetValue(CreditorNo);
@@ -529,10 +529,10 @@ codeunit 134160 "Payments using Creditor Number"
         CreditorNo := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CreditorNo)), 1, MaxStrLen(CreditorNo));
 
         // [WHEN] Update field "Creditor No." on page "Vendor Card" for Vendor 'X' with CreditorNo
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
         VendorCard."Creditor No.".SetValue(CreditorNo);
-        VendorCard.OK.Invoke;
+        VendorCard.OK().Invoke();
 
         // [THEN] "Creditor No." = 'ABC' for Vendor 'X'
         Vendor.Find();
@@ -625,14 +625,14 @@ codeunit 134160 "Payments using Creditor Number"
 
     local procedure AddPaymentReferenceOnGenJnlLine(var GenJnlLine: Record "Gen. Journal Line") PaymentReference: Code[16]
     begin
-        PaymentReference := GetRandomPaymentReference;
+        PaymentReference := GetRandomPaymentReference();
         GenJnlLine.Validate("Payment Reference", PaymentReference);
         GenJnlLine.Modify(true);
     end;
 
     local procedure AddPaymentReferenceOnPurchDoc(var PurchHeader: Record "Purchase Header") PaymentReference: Code[16]
     begin
-        PaymentReference := GetRandomPaymentReference;
+        PaymentReference := GetRandomPaymentReference();
         PurchHeader.Validate("Payment Reference", PaymentReference);
         PurchHeader.Modify(true);
     end;
@@ -641,8 +641,8 @@ codeunit 134160 "Payments using Creditor Number"
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     local procedure CreateVendorWithCreditorNo(var Vendor: Record Vendor)
@@ -692,9 +692,9 @@ codeunit 134160 "Payments using Creditor Number"
             SetGenJnlLine(GenJnlLine);
             SetTableView(Vendor);
             InitializeRequest(
-                WorkDate, false, 0, false, WorkDate(), LibraryUtility.GenerateGUID, false, "Gen. Journal Account Type"::"G/L Account", '', "Bank Payment Type"::" ");
+                WorkDate(), false, 0, false, WorkDate(), LibraryUtility.GenerateGUID(), false, "Gen. Journal Account Type"::"G/L Account", '', "Bank Payment Type"::" ");
             UseRequestPage(false);
-            RunModal;
+            RunModal();
         end;
     end;
 

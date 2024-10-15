@@ -15,9 +15,6 @@ codeunit 134767 "Test OData Wizard US"
         LibraryUtility: Codeunit "Library - Utility";
         ObjectTypeVariable: Option ,,,,,,,,"Page","Query";
         ODataWizardTxt: Label 'Set Up Reporting Data';
-        ExpectedFilterTok: Label '((Blocked eq '' '') and (((No ge ''01121212'') and (No le ''01445544'')) or ((No eq ''10000''))) and (((Name eq ''bo b'') or (Name eq ''fra nk''))))', Locked = true;
-        ExcelAddinProviderUrlTxt: Label 'https://exceladdinprovider.smb.dynamics.com', Locked = true;
-        ExcelAddinProviderUrlPPETxt: Label 'https://exceladdinprovider.smb.dynamics-tie.com', Locked = true;
 
     [Normal]
     [Scope('OnPrem')]
@@ -44,26 +41,26 @@ codeunit 134767 "Test OData Wizard US"
 
         ServiceName := 'Page22';
 
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
-        ODataSetupWizard.NextAction.Invoke; // select action page, click through it as we are creating new.
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
+        ODataSetupWizard.NextAction.Invoke(); // select action page, click through it as we are creating new.
         ODataSetupWizard."Object ID".SetValue(PAGE::"Customer List");
         ODataSetupWizard.ServiceNameEdit.SetValue(ServiceName);
-        ODataSetupWizard.NextAction.Invoke; // select columns page should be open.
-        ODataSetupWizard.ODataColSubForm.First;
+        ODataSetupWizard.NextAction.Invoke(); // select columns page should be open.
+        ODataSetupWizard.ODataColSubForm.First();
         ODataSetupWizard.ODataColSubForm.Include.SetValue(true);
-        ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
+        ODataSetupWizard.ODataColSubForm."Field Caption".Activate();
         Assert.AreEqual('No.', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for No. field');
         Assert.AreEqual('No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for No field');
         ODataSetupWizard.ODataColSubForm.Next();
         ODataSetupWizard.ODataColSubForm.Include.SetValue(true);
-        ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
+        ODataSetupWizard.ODataColSubForm."Field Caption".Activate();
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        ODataSetupWizard.PublishAction.Invoke;  // Finish Page
+        ODataSetupWizard.PublishAction.Invoke();  // Finish Page
 
-        ODataSetupWizard.FinishAction.Invoke;
+        ODataSetupWizard.FinishAction.Invoke();
 
         Assert.IsTrue(TenantWebService.Get(OBJECTTYPE::Page, ServiceName), 'Missing TenantWebService record');
 
@@ -95,41 +92,41 @@ codeunit 134767 "Test OData Wizard US"
 
         ServiceName := 'query100';
 
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
-        ODataSetupWizard.NextAction.Invoke; // select action page, click through it as we are creating new.
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
+        ODataSetupWizard.NextAction.Invoke(); // select action page, click through it as we are creating new.
         ODataSetupWizard.ObjectTypeLookup.SetValue(OBJECTTYPE::Query);
         ODataSetupWizard."Object ID".SetValue(QUERY::"Top Customer Overview");
         ODataSetupWizard.ServiceNameEdit.SetValue(ServiceName);
-        ODataSetupWizard.NextAction.Invoke; // select columns page should be open.
-        ODataSetupWizard.ODataColSubForm.First;
+        ODataSetupWizard.NextAction.Invoke(); // select columns page should be open.
+        ODataSetupWizard.ODataColSubForm.First();
         ODataSetupWizard.ODataColSubForm.Include.SetValue(true);
-        ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
+        ODataSetupWizard.ODataColSubForm."Field Caption".Activate();
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
         ODataSetupWizard.ODataColSubForm.Next();
         ODataSetupWizard.ODataColSubForm.Include.SetValue(true);
-        ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
+        ODataSetupWizard.ODataColSubForm."Field Caption".Activate();
         Assert.AreEqual('No.', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for No. field');
         Assert.AreEqual('No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for No field');
-        ODataSetupWizard.ODataColSubForm.Last;
+        ODataSetupWizard.ODataColSubForm.Last();
         ODataSetupWizard.ODataColSubForm.Include.SetValue(true);
-        ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
+        ODataSetupWizard.ODataColSubForm."Field Caption".Activate();
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for CountryRegion field');
         Assert.AreEqual(
           'CountryRegionName', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for CountryRegion field');
-        ODataSetupWizard.PublishAction.Invoke;  // Finish Page
+        ODataSetupWizard.PublishAction.Invoke();  // Finish Page
 
-        ODataSetupWizard.FinishAction.Invoke;
+        ODataSetupWizard.FinishAction.Invoke();
 
         Assert.IsTrue(TenantWebService.Get(OBJECTTYPE::Query, ServiceName), 'Missing TenantWebService record');
         TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-        Assert.IsTrue(TenantWebServiceColumns.FindFirst, 'Missing TenantWebServiceColumns record on FindFirst');
+        Assert.IsTrue(TenantWebServiceColumns.FindFirst(), 'Missing TenantWebServiceColumns record on FindFirst');
         Assert.AreEqual('Name', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
         Assert.IsTrue(TenantWebServiceColumns.Next() <> 0, 'Missing TenantWebServiceColumns record on Next');
         Assert.AreEqual('No', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
-        Assert.IsTrue(TenantWebServiceColumns.FindLast, 'Missing TenantWebServiceColumns record on FindLast');
+        Assert.IsTrue(TenantWebServiceColumns.FindLast(), 'Missing TenantWebServiceColumns record on FindLast');
         Assert.AreEqual('CountryRegionName', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
 
         ServiceRootUrl := GetUrl(CLIENTTYPE::ODataV4, CompanyName, OBJECTTYPE::Page, PAGE::"Customer List", TenantWebService);
@@ -160,41 +157,41 @@ codeunit 134767 "Test OData Wizard US"
 
         CreateCustomerListEndpoint(ServiceName, NavFilterText, true, TenantWebService);
 
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
         ODataSetupWizard.ActionType.SetValue(2);  // Edit end point.
-        ODataSetupWizard.NextAction.Invoke;
+        ODataSetupWizard.NextAction.Invoke();
         ODataSetupWizard."Object ID".SetValue(PAGE::"Customer List");
         ODataSetupWizard.NameLookup.SetValue(ServiceName);
-        ODataSetupWizard.NextAction.Invoke; // select columns page should be open.
-        ODataSetupWizard.ODataColSubForm.First;
-        ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
+        ODataSetupWizard.NextAction.Invoke(); // select columns page should be open.
+        ODataSetupWizard.ODataColSubForm.First();
+        ODataSetupWizard.ODataColSubForm."Field Caption".Activate();
         Assert.AreEqual('No.', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for No field');
         Assert.AreEqual('No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for No field');
-        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
         ODataSetupWizard.ODataColSubForm.Next();
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
         ODataSetupWizard.ODataColSubForm.Next();
         Assert.AreEqual(
           'Responsibility Center', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Responsibility_Center', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(true);
-        ODataSetupWizard.PublishAction.Invoke;  // Finish Page
+        ODataSetupWizard.PublishAction.Invoke();  // Finish Page
 
-        ODataSetupWizard.FinishAction.Invoke;
+        ODataSetupWizard.FinishAction.Invoke();
 
         Assert.IsTrue(TenantWebService.Get(OBJECTTYPE::Page, ServiceName), 'The TenantWebService record was not found');
 
         TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
         Assert.AreEqual(TenantWebServiceColumns.Find('-'), true, 'TenantWebServiceColumns record not found on FindFirst');
         Assert.AreEqual('Responsibility_Center', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
-        Assert.AreNotEqual(TenantWebServiceColumns.Next, 0, 'Missing TenantWebServiceColumns record on Next');
+        Assert.AreNotEqual(TenantWebServiceColumns.Next(), 0, 'Missing TenantWebServiceColumns record on Next');
         Assert.AreEqual('Credit_Limit_LCY', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
 
         ServiceRootUrl := GetUrl(CLIENTTYPE::ODataV4, CompanyName, OBJECTTYPE::Page, PAGE::"Customer List", TenantWebService);
@@ -234,35 +231,35 @@ codeunit 134767 "Test OData Wizard US"
 
         // [GIVEN] The OData setup wizard.
         // [WHEN] User wants to create new oData endpoint by copying from another existing endpoint.
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
         ODataSetupWizard.ActionType.SetValue(1);  // Copy end point.
-        ODataSetupWizard.NextAction.Invoke;
+        ODataSetupWizard.NextAction.Invoke();
         ODataSetupWizard."Object ID".SetValue(PAGE::"Customer List");
         ODataSetupWizard.NameLookup.SetValue(ServiceName);
         ODataSetupWizard.ServiceNameEdit.SetValue(NewName);
-        ODataSetupWizard.NextAction.Invoke; // select columns page should be open.
-        ODataSetupWizard.ODataColSubForm.First;
-        ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
+        ODataSetupWizard.NextAction.Invoke(); // select columns page should be open.
+        ODataSetupWizard.ODataColSubForm.First();
+        ODataSetupWizard.ODataColSubForm."Field Caption".Activate();
         Assert.AreEqual('No.', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for No field');
         Assert.AreEqual('No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for No field');
-        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
         ODataSetupWizard.ODataColSubForm.Next();
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
         ODataSetupWizard.ODataColSubForm.Next();
         Assert.AreEqual(
           'Responsibility Center', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Responsibility_Center', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(true);
-        ODataSetupWizard.PublishAction.Invoke;  // Finish Page
+        ODataSetupWizard.PublishAction.Invoke();  // Finish Page
 
-        ODataSetupWizard.FinishAction.Invoke;
+        ODataSetupWizard.FinishAction.Invoke();
 
         // [THEN] The TenantWebService record is created.
         Assert.IsTrue(TenantWebService.Get(OBJECTTYPE::Page, NewName), 'The TenantWebService record was not found');
@@ -271,7 +268,7 @@ codeunit 134767 "Test OData Wizard US"
         TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
         Assert.AreEqual(TenantWebServiceColumns.Find('-'), true, 'TenantWebServiceColumns record not found on FindFirst');
         Assert.AreEqual('Responsibility_Center', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
-        Assert.AreNotEqual(TenantWebServiceColumns.Next, 0, 'Missing TenantWebServiceColumns record on Next');
+        Assert.AreNotEqual(TenantWebServiceColumns.Next(), 0, 'Missing TenantWebServiceColumns record on Next');
         Assert.AreEqual('Credit_Limit_LCY', TenantWebServiceColumns."Field Name", 'Unexpected value in TenantWebServiceColumns');
 
         ServiceRootUrl := GetUrl(CLIENTTYPE::ODataV4, CompanyName, OBJECTTYPE::Page, PAGE::"Customer List", TenantWebService);
@@ -307,41 +304,41 @@ codeunit 134767 "Test OData Wizard US"
         CreateSalesDashboardEndpointEnglishUS(ServiceName, TenantWebService);
         ServiceRootUrl := GetUrl(CLIENTTYPE::ODataV4, CompanyName, OBJECTTYPE::Query, QUERY::"Sales Dashboard", TenantWebService);
 
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
         ODataSetupWizard.ActionType.SetValue(2);  // Edit end point.
-        ODataSetupWizard.NextAction.Invoke;
+        ODataSetupWizard.NextAction.Invoke();
         ODataSetupWizard."Object ID".SetValue(QUERY::"Sales Dashboard");
         ODataSetupWizard.NameLookup.SetValue(ServiceName);
-        ODataSetupWizard.NextAction.Invoke; // select columns page should be open.
-        ODataSetupWizard.ODataColSubForm.First;
-        ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
+        ODataSetupWizard.NextAction.Invoke(); // select columns page should be open.
+        ODataSetupWizard.ODataColSubForm.First();
+        ODataSetupWizard.ODataColSubForm."Field Caption".Activate();
         Assert.AreEqual('Entry No.', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for No field');
         Assert.AreEqual('Entry_No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for No field');
-        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
         ODataSetupWizard.ODataColSubForm.Next();
         Assert.AreEqual('Document No.', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Document_No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
-        ODataSetupWizard.ODataColSubForm.Last;
+        ODataSetupWizard.ODataColSubForm.Last();
         Assert.AreEqual(
           'Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('SalesPersonName', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(true);
         ODataSetupWizard.ODataColSubForm.Previous();
         Assert.AreEqual(
           'Description', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Description', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Previous();
         Assert.AreEqual(
           'City', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('City', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Previous();
         ODataSetupWizard.ODataColSubForm.Previous();
         ODataSetupWizard.ODataColSubForm.Previous();
@@ -349,10 +346,10 @@ codeunit 134767 "Test OData Wizard US"
         Assert.AreEqual(
           'Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('CountryRegionName', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
-        ODataSetupWizard.PublishAction.Invoke;  // Finish Page
+        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
+        ODataSetupWizard.PublishAction.Invoke();  // Finish Page
 
-        ODataSetupWizard.FinishAction.Invoke;
+        ODataSetupWizard.FinishAction.Invoke();
 
         Assert.IsTrue(TenantWebService.Get(OBJECTTYPE::Query, ServiceName), 'Missing TenantWebService record');
 
@@ -409,42 +406,42 @@ codeunit 134767 "Test OData Wizard US"
 
         // [GIVEN] The OData setup wizard.
         // [WHEN] User selects fields to be included in the $select=
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
         ODataSetupWizard.ActionType.SetValue(1);  // Copy end point.
-        ODataSetupWizard.NextAction.Invoke;
+        ODataSetupWizard.NextAction.Invoke();
         ODataSetupWizard."Object ID".SetValue(QUERY::"Sales Dashboard");
         ODataSetupWizard.NameLookup.SetValue(ServiceName);
         ODataSetupWizard.ServiceNameEdit.SetValue(newName);
-        ODataSetupWizard.NextAction.Invoke; // select columns page should be open.
-        ODataSetupWizard.ODataColSubForm.First;
-        ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
+        ODataSetupWizard.NextAction.Invoke(); // select columns page should be open.
+        ODataSetupWizard.ODataColSubForm.First();
+        ODataSetupWizard.ODataColSubForm."Field Caption".Activate();
         Assert.AreEqual('Entry No.', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for No field');
         Assert.AreEqual('Entry_No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for No field');
-        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
         ODataSetupWizard.ODataColSubForm.Next();
         Assert.AreEqual('Document No.', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Document_No', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(false);
-        ODataSetupWizard.ODataColSubForm.Last;
+        ODataSetupWizard.ODataColSubForm.Last();
         Assert.AreEqual(
           'Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('SalesPersonName', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Include.SetValue(true);
         ODataSetupWizard.ODataColSubForm.Previous();
         Assert.AreEqual(
           'Description', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Description', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Previous();
         Assert.AreEqual(
           'City', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('City', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
+        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
         ODataSetupWizard.ODataColSubForm.Previous();
         ODataSetupWizard.ODataColSubForm.Previous();
         ODataSetupWizard.ODataColSubForm.Previous();
@@ -452,10 +449,10 @@ codeunit 134767 "Test OData Wizard US"
         Assert.AreEqual(
           'Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('CountryRegionName', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
-        ODataSetupWizard.PublishAction.Invoke;  // Finish Page
+        Assert.IsTrue(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
+        ODataSetupWizard.PublishAction.Invoke();  // Finish Page
 
-        ODataSetupWizard.FinishAction.Invoke;
+        ODataSetupWizard.FinishAction.Invoke();
 
         // [THEN] The TenantWebService record is created.
         Assert.IsTrue(TenantWebService.Get(OBJECTTYPE::Query, newName), 'Missing TenantWebService record');
@@ -632,21 +629,21 @@ codeunit 134767 "Test OData Wizard US"
         Assert.IsTrue(TenantWebService.Get(TenantWebService."Object Type"::Page, ServiceName), 'Missing Tenant Web Service Record');
 
         TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-        Assert.IsTrue(TenantWebServiceColumns.FindFirst, 'Expected TenantWebServiceColumns record');
+        Assert.IsTrue(TenantWebServiceColumns.FindFirst(), 'Expected TenantWebServiceColumns record');
 
         TenantWebServiceFilter.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-        Assert.IsTrue(TenantWebServiceFilter.FindFirst, 'Expected TenantWebServiceFilter record');
+        Assert.IsTrue(TenantWebServiceFilter.FindFirst(), 'Expected TenantWebServiceFilter record');
 
         TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-        Assert.IsTrue(TenantWebServiceOData.FindFirst, 'Expected TenantWebServiceOData record');
+        Assert.IsTrue(TenantWebServiceOData.FindFirst(), 'Expected TenantWebServiceOData record');
 
         // [WHEN] The Tenant Web Service record is deleted.
         TenantWebService.Delete(true);
 
         // [THEN] The subordinate records are also deleted.
-        Assert.IsFalse(TenantWebServiceColumns.FindFirst, 'Unexpected TenantWebServiceColumns record');
-        Assert.IsFalse(TenantWebServiceFilter.FindFirst, 'Unexpected TenantWebServiceFilter record');
-        Assert.IsFalse(TenantWebServiceOData.FindFirst, 'Unexpected TenantWebServiceOData record');
+        Assert.IsFalse(TenantWebServiceColumns.FindFirst(), 'Unexpected TenantWebServiceColumns record');
+        Assert.IsFalse(TenantWebServiceFilter.FindFirst(), 'Unexpected TenantWebServiceFilter record');
+        Assert.IsFalse(TenantWebServiceOData.FindFirst(), 'Unexpected TenantWebServiceOData record');
     end;
 
     [Test]
@@ -660,10 +657,10 @@ codeunit 134767 "Test OData Wizard US"
         // [SCENARIO]  Error scenarios are handled properly.
         TenantWebService.DeleteAll();
         ServiceName := 'page1';
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
-        ODataSetupWizard.NextAction.Invoke; // select action page, click through it as we are creating new.
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
+        ODataSetupWizard.NextAction.Invoke(); // select action page, click through it as we are creating new.
         ODataSetupWizard.ServiceNameEdit.SetValue(ServiceName);
         ODataSetupWizard.ObjectTypeLookup.SetValue(OBJECTTYPE::Page);
         asserterror ODataSetupWizard."Object ID".SetValue(PAGE::"Company Information");
@@ -678,46 +675,46 @@ codeunit 134767 "Test OData Wizard US"
         TenantWebService.Insert(true);
 
         ServiceName := 'Query100';
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
-        ODataSetupWizard.NextAction.Invoke; // select action page, click through it as we are creating new.
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
+        ODataSetupWizard.NextAction.Invoke(); // select action page, click through it as we are creating new.
         asserterror ODataSetupWizard.ServiceNameEdit.SetValue(ServiceName);
         Assert.AreEqual('Validation error for Field: Control14,  Message = ''This name already exists.''',
           GetLastErrorText, 'Unexpected Name validation Error text');
 
         Clear(ODataSetupWizard);
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
         ODataSetupWizard.ActionType.SetValue(1);  // Copy end point.
-        ODataSetupWizard.NextAction.Invoke;
+        ODataSetupWizard.NextAction.Invoke();
         ODataSetupWizard."Object ID".SetValue(PAGE::"Customer List");
         asserterror ODataSetupWizard.NameLookup.SetValue('sample');
         Assert.AreEqual('Validation error for Field: NameLookup,  Message = ''Use the lookup to select existing name.''',
           GetLastErrorText, 'Unexpected Error text');
 
         Clear(ODataSetupWizard);
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
-        ODataSetupWizard.BackAction.Invoke; // just to exercise the Back button.
-        ODataSetupWizard.NextAction.Invoke; // Action selection step
-        ODataSetupWizard.NextAction.Invoke; // new action by default
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
+        ODataSetupWizard.BackAction.Invoke(); // just to exercise the Back button.
+        ODataSetupWizard.NextAction.Invoke(); // Action selection step
+        ODataSetupWizard.NextAction.Invoke(); // new action by default
         ODataSetupWizard.ServiceNameEdit.SetValue('TestName');
         ODataSetupWizard.ObjectTypeLookup.SetValue(OBJECTTYPE::Query);
         ODataSetupWizard."Object ID".SetValue(QUERY::"Top Customer Overview");
-        ODataSetupWizard.NextAction.Invoke;
-        ODataSetupWizard.ODataColSubForm.First;
-        ODataSetupWizard.ODataColSubForm."Field Caption".Activate;
+        ODataSetupWizard.NextAction.Invoke();
+        ODataSetupWizard.ODataColSubForm.First();
+        ODataSetupWizard.ODataColSubForm."Field Caption".Activate();
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Caption".Value, 'Unexpected Value for Name field');
         Assert.AreEqual('Name', ODataSetupWizard.ODataColSubForm."Field Name".Value, 'Unexpected Value for Name field');
-        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean, 'Unexpected Value for Included field');
-        asserterror ODataSetupWizard.PublishAction.Invoke;
+        Assert.IsFalse(ODataSetupWizard.ODataColSubForm.Include.AsBoolean(), 'Unexpected Value for Included field');
+        asserterror ODataSetupWizard.PublishAction.Invoke();
         Assert.AreEqual('Please select field(s) before publishing the data set.',
           GetLastErrorText, 'Unexpected Publish button validation Error text');
 
-        ODataSetupWizard.FinishAction.Invoke;
+        ODataSetupWizard.FinishAction.Invoke();
     end;
 
     [Test]
@@ -726,41 +723,41 @@ codeunit 134767 "Test OData Wizard US"
     var
         ODataSetupWizard: TestPage "OData Setup Wizard";
     begin
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
-        ODataSetupWizard.NextAction.Invoke; // select action page, click through it as we are creating new.
-        asserterror ODataSetupWizard.NextAction.Invoke;
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
+        ODataSetupWizard.NextAction.Invoke(); // select action page, click through it as we are creating new.
+        asserterror ODataSetupWizard.NextAction.Invoke();
         Assert.AreEqual('Please enter a Name for the data set.',
           GetLastErrorText, 'Unexpected Name validation Error text for new action');
 
         Clear(ODataSetupWizard);
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
         ODataSetupWizard.ActionType.SetValue(1); // copy action
-        ODataSetupWizard.NextAction.Invoke;
-        asserterror ODataSetupWizard.NextAction.Invoke;
+        ODataSetupWizard.NextAction.Invoke();
+        asserterror ODataSetupWizard.NextAction.Invoke();
         Assert.AreEqual('Please enter a Name for the data set.',
           GetLastErrorText, 'Unexpected Name validation Error text for copy action');
 
         Clear(ODataSetupWizard);
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
         ODataSetupWizard.ActionType.SetValue(2); // Edit action
-        ODataSetupWizard.NextAction.Invoke;
-        asserterror ODataSetupWizard.NextAction.Invoke;
+        ODataSetupWizard.NextAction.Invoke();
+        asserterror ODataSetupWizard.NextAction.Invoke();
         Assert.AreEqual('Please enter a Name for the data set.',
           GetLastErrorText, 'Unexpected Name validation Error text for edit action');
 
         Clear(ODataSetupWizard);
-        ODataSetupWizard.Trap;
-        ODataSetupWizard.OpenEdit;
-        ODataSetupWizard.NextAction.Invoke; // welcome page, click through it.
-        ODataSetupWizard.NextAction.Invoke; // new action by default
+        ODataSetupWizard.Trap();
+        ODataSetupWizard.OpenEdit();
+        ODataSetupWizard.NextAction.Invoke(); // welcome page, click through it.
+        ODataSetupWizard.NextAction.Invoke(); // new action by default
         ODataSetupWizard.ServiceNameEdit.SetValue('TestName');
-        asserterror ODataSetupWizard.NextAction.Invoke;
+        asserterror ODataSetupWizard.NextAction.Invoke();
         Assert.AreEqual('Please enter a data source for the data set.',
           GetLastErrorText, 'Unexpected Data source (Object Id) validation Error text');
     end;
@@ -805,7 +802,7 @@ codeunit 134767 "Test OData Wizard US"
         Assert.AreEqual(ODataExpectedName, ODataActualName, 'Object name conversion did not match the expected value.');
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [HandlerFunctions('SalesPriceFilterPageHandler')]
     [Scope('OnPrem')]
@@ -1091,7 +1088,7 @@ codeunit 134767 "Test OData Wizard US"
         VerifyNavContact(NavContact, ExchangeContact);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [FilterPageHandler]
     [Scope('OnPrem')]
     procedure SalesPriceFilterPageHandler(var SalesLineRecordRef: RecordRef): Boolean

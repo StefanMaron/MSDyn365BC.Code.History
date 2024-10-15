@@ -475,12 +475,11 @@ codeunit 1806 "Excel Data Migrator"
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
         DataMigrationEntity.DeleteAll();
 
-        with ConfigPackageTable do
-            if FindSet() then
-                repeat
-                    CalcFields("No. of Package Records");
-                    DataMigrationEntity.InsertRecord("Table ID", "No. of Package Records");
-                until Next() = 0;
+        if ConfigPackageTable.FindSet() then
+            repeat
+                ConfigPackageTable.CalcFields("No. of Package Records");
+                DataMigrationEntity.InsertRecord(ConfigPackageTable."Table ID", ConfigPackageTable."No. of Package Records");
+            until ConfigPackageTable.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnRegisterDataMigrator', '', false, false)]
