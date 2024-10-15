@@ -344,11 +344,18 @@ page 50 "Purchase Order"
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+#if not CLEAN23
                 field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Select this field if the purchase order is involved in an EU 3-party trade.';
+                    Visible = not IsEU3PartyTradePurchaseEnabled;
+                    Enabled = not IsEU3PartyTradePurchaseEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                    ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
                 }
+#endif
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Suite;
@@ -2323,6 +2330,9 @@ page 50 "Purchase Order"
         ArchiveManagement: Codeunit ArchiveManagement;
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
+#if not CLEAN23
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
         ChangeExchangeRate: Page "Change Exchange Rate";
         [InDataSet]
         JobQueueVisible: Boolean;
@@ -2362,6 +2372,9 @@ page 50 "Purchase Order"
         RejectICPurchaseOrderEnabled: Boolean;
         [InDataSet]
         VATDateEnabled: Boolean;
+#if not CLEAN23
+        IsEU3PartyTradePurchaseEnabled: Boolean;
+#endif
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
@@ -2393,6 +2406,10 @@ page 50 "Purchase Order"
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
         IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+#if not CLEAN23
+        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
+#endif
+
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")

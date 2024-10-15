@@ -694,11 +694,18 @@
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
+#if not CLEAN23
                 field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Select this field if the purchase order is involved in an EU 3-party trade.';
+                    Visible = not IsEU3PartyTradePurchaseEnabled;
+                    Enabled = not IsEU3PartyTradePurchaseEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                    ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
                 }
+#endif
                 field("Transaction Specification"; Rec."Transaction Specification")
                 {
                     ApplicationArea = BasicEU, BasicNO;
@@ -1658,6 +1665,9 @@
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         FormatAddress: Codeunit "Format Address";
+#if not CLEAN23
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
         ChangeExchangeRate: Page "Change Exchange Rate";
         [InDataSet]
         JobQueueVisible: Boolean;
@@ -1692,6 +1702,9 @@
         IsPurchaseLinesEditable: Boolean;
         [InDataSet]
         VATDateEnabled: Boolean;
+#if not CLEAN23
+        IsEU3PartyTradePurchaseEnabled: Boolean;
+#endif
 
     protected var
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
@@ -1705,6 +1718,9 @@
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
         IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+#if not CLEAN23
+        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
+#endif
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
@@ -1717,10 +1733,14 @@
         PurchaseHeader: Record "Purchase Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        PreAssignedNo: Code[20];
+        xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
         LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+        PreAssignedNo := Rec."No.";
+        xLastPostingNo := Rec."Last Posting No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -1741,15 +1761,16 @@
 
         case Navigate of
             "Navigate After Posting"::"Posted Document":
-                begin
-                    if IsOfficeAddin then begin
-                        PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
-                        if PurchCrMemoHdr.FindFirst() then
-                            PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
-                    end else
-                        if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
-                            ShowPostedConfirmationMessage();
-                end;
+                if IsOfficeAddin then begin
+                    if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+                        PurchCrMemoHdr.SetRange("No.", Rec."Last Posting No.")
+                    else
+                        PurchCrMemoHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
+                    if PurchCrMemoHdr.FindFirst() then
+                        PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
+                end else
+                    if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
+                        ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
             "Navigate After Posting"::"New Document":
                 if DocumentIsPosted then begin
                     Clear(PurchaseHeader);
@@ -1854,12 +1875,15 @@
             IsPostingGroupEditable := PayToVendor."Allow Multiple Posting Groups";
     end;
 
-    local procedure ShowPostedConfirmationMessage()
+    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20]; xLastPostingNo: Code[20])
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
+        if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+            PurchCrMemoHdr.SetRange("No.", Rec."Last Posting No.")
+        else
+            PurchCrMemoHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
         if PurchCrMemoHdr.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchCrMemoQst, PurchCrMemoHdr."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())

@@ -309,6 +309,9 @@ report 12 "VAT Statement"
     procedure CalcLineTotalWithBase(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalBase: Decimal; Level: Integer): Boolean
     var
         VATReportSetup: Record "VAT Report Setup";
+#if not CLEAN23
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
     begin
         if Level = 0 then begin
             TotalBase := 0;
@@ -339,7 +342,10 @@ report 12 "VAT Statement"
                     Amount := 0;
                     SetVATEntryKeyAndRangesForVATDate(VATStmtLine2);
                     VATEntry.SetRange(Type, VATStmtLine2."Gen. Posting Type");
-                    VATEntry.SetRange("EU 3-Party Trade", VATStmtLine2."EU 3-Party Trade");
+#if not CLEAN23
+                    if not FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled() then
+                        VATEntry.SetRange("EU 3-Party Trade", VATStmtLine2."EU 3-Party Trade");
+#endif
                     SetVATDate();
                     case Selection of
                         Selection::Open:

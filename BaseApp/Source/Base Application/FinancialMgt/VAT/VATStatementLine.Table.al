@@ -130,9 +130,17 @@ table 256 "VAT Statement Line"
         {
             Caption = 'Box No.';
         }
+
         field(11200; "EU 3-Party Trade"; Boolean)
         {
-            Caption = 'EU 3-Party Trade';
+#if CLEAN23
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
         }
     }
 

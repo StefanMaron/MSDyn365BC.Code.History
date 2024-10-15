@@ -115,11 +115,18 @@ page 317 "VAT Statement"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether a new page should begin immediately after this line when the VAT statement is printed. To start a new page after this line, place a check mark in the field.';
                 }
+#if not CLEAN23
                 field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.';
+                    Visible = not IsEU3PartyTradePurchaseEnabled;
+                    Enabled = not IsEU3PartyTradePurchaseEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                    ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
                 }
+#endif
             }
         }
         area(factboxes)
@@ -222,6 +229,11 @@ page 317 "VAT Statement"
             VATStmtManagement.OpenStmt(CurrentStmtName, Rec);
             exit;
         end;
+
+#if not CLEAN23
+        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
+#endif
+
         VATStmtManagement.TemplateSelection(PAGE::"VAT Statement", Rec, StmtSelected);
         if not StmtSelected then
             Error('');
@@ -231,6 +243,10 @@ page 317 "VAT Statement"
     var
         ReportPrint: Codeunit "Test Report-Print";
         VATStmtManagement: Codeunit VATStmtManagement;
+#if not CLEAN23
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+        IsEU3PartyTradePurchaseEnabled: Boolean;
+#endif
         CurrentStmtName: Code[10];
         OpenedFromBatch: Boolean;
 

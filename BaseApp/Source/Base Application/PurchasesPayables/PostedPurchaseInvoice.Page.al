@@ -271,12 +271,19 @@ page 138 "Posted Purchase Invoice"
                         end;
                     end;
                 }
+#if not CLEAN23
                 field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
+                    Visible = not IsEU3PartyTradePurchaseEnabled;
+                    Enabled = not IsEU3PartyTradePurchaseEnabled;
                     ToolTip = 'Specifies whether the purchase invoice was involved in an EU 3-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                    ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
                 }
+#endif
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1105,6 +1112,10 @@ page 138 "Posted Purchase Invoice"
         PayToContact: Record Contact;
         RemitAddressBuffer: Record "Remit Address Buffer";
         FormatAddress: Codeunit "Format Address";
+#if not CLEAN23
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+        IsEU3PartyTradePurchaseEnabled: Boolean;
+#endif
         HasIncomingDocument: Boolean;
         IsOfficeAddin: Boolean;
         IsBuyFromCountyVisible: Boolean;
@@ -1119,6 +1130,9 @@ page 138 "Posted Purchase Invoice"
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+#if not CLEAN23
+        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
+#endif
     end;
 
     local procedure FillRemitToFields()

@@ -228,7 +228,7 @@
                     Type::" ":
                         CopyFromStandardText();
                     Type::"G/L Account":
-                        CopyFromGLAccount();
+                        CopyFromGLAccount(TempSalesLine);
                     Type::Item:
                         CopyFromItem();
                     Type::Resource:
@@ -650,7 +650,7 @@
                     if (Quantity * xRec.Quantity < 0) or (Quantity = 0) then
                         InitItemAppl(false);
 
-                    OnValidateQuantityOnBeforeCheckQuantityChangeForPriceCalc(Rec, xRec);
+                    OnValidateQuantityOnBeforeCheckQuantityChangeForPriceCalc(Rec, xRec, CurrFieldNo);
 
                     if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") then
                         PlanPriceCalcByField(FieldNo(Quantity));
@@ -3844,7 +3844,7 @@
         "Shipment Date" := CalendarMgmt.CalcDateBOC('', SalesHeader."Shipment Date", CustomCalendarChange, false);
     end;
 
-    local procedure CopyFromGLAccount()
+    local procedure CopyFromGLAccount(var TempSalesLine: Record "Sales Line" temporary)
 #if not CLEAN22
     var
         IsHandled: Boolean;
@@ -3873,7 +3873,7 @@
 #if not CLEAN22
         end;
 #endif
-        OnAfterAssignGLAccountValues(Rec, GLAcc, SalesHeader);
+        OnAfterAssignGLAccountValues(Rec, GLAcc, SalesHeader, TempSalesLine);
     end;
 
     local procedure TestDirectPosting()
@@ -4333,10 +4333,8 @@
                                 PriceCalculation.ApplyDiscount();
                                 ApplyPrice(CalledByFieldNo, PriceCalculation);
                             end;
-                        end else begin
-                            Validate("Unit Price", BlanketOrderSalesLine."Unit Price");
-                            Validate("Line Discount %", BlanketOrderSalesLine."Line Discount %");
-                        end;
+                        end else
+                            CopyUnitPriceAndLineDiscountPct(BlanketOrderSalesLine, CalledByFieldNo);
                     OnUpdateUnitPriceByFieldOnAfterFindPrice(SalesHeader, Rec, CalledByFieldNo, CurrFieldNo);
                 end;
         end;
@@ -4350,11 +4348,27 @@
     end;
 
     local procedure BlanketOrderIsRelated(var BlanketOrderSalesLine: Record "Sales Line"): Boolean
+    var
+        IsHandled, Result : Boolean;
     begin
+        IsHandled := false;
+        Result := false;
+        OnBeforeBlanketOrderIsRelated(Rec, BlanketOrderSalesLine, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if "Blanket Order Line No." = 0 then exit;
         BlanketOrderSalesLine.SetLoadFields("Unit Price", "Line Discount %");
+        OnBlanketOrderIsRelatedOnAfterSetLoadFields(BlanketOrderSalesLine);
         if BlanketOrderSalesLine.Get("Document Type"::"Blanket Order", "Blanket Order No.", "Blanket Order Line No.") then
             exit(true);
+    end;
+
+    local procedure CopyUnitPriceAndLineDiscountPct(BlanketOrderSalesLine: Record "Sales Line"; CalledByFieldNo: Integer)
+    begin
+        Validate("Unit Price", BlanketOrderSalesLine."Unit Price");
+        Validate("Line Discount %", BlanketOrderSalesLine."Line Discount %");
+        OnAfterCopyUnitPriceAndLineDiscountPct(Rec, BlanketOrderSalesLine, CalledByFieldNo, SalesHeader);
     end;
 
     local procedure ShowUnitPriceChangedMsg()
@@ -4611,7 +4625,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckPrepmtAmounts(Rec, IsHandled, xRec, CurrFieldNo);
+        OnBeforeCheckPrepmtAmounts(Rec, IsHandled, xRec, CurrFieldNo, SalesHeader);
         if IsHandled then
             exit;
 
@@ -4847,6 +4861,7 @@
                                 (TotalAmount + Amount) * (GetVatBaseDiscountPct(SalesHeader) / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
                               TotalAmountInclVAT - TotalInvDiscAmount - "Inv. Discount Amount";
+                            OnUpdatePricesIncludingVATAmountsOnAfterCalculateNormalVAT(Rec, Currency);
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
@@ -4883,6 +4898,7 @@
                                 (TotalAmount + Amount) * (1 - GetVatBaseDiscountPct(SalesHeader) / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
                               TotalAmountInclVAT + TotalVATDifference;
+                            OnUpdateVATAmountsOnAfterCalculateNormalVAT(Rec, Currency);
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
@@ -6184,10 +6200,12 @@
             SetRange("Unit Price");
         end;
 
-        OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(SalesLine);
-        VATAmountLine.UpdateLines(
-          TotalVATAmount, Currency, SalesHeader."Currency Factor", SalesHeader."Prices Including VAT",
-          SalesHeader."VAT Base Discount %", SalesHeader."Tax Area Code", SalesHeader."Tax Liable", SalesHeader."Posting Date");
+        IsHandled := false;
+        OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(SalesLine, IsHandled);
+        if not IsHandled then
+            VATAmountLine.UpdateLines(
+            TotalVATAmount, Currency, SalesHeader."Currency Factor", SalesHeader."Prices Including VAT",
+            SalesHeader."VAT Base Discount %", SalesHeader."Tax Area Code", SalesHeader."Tax Liable", SalesHeader."Posting Date");
 
         ShouldProcessRounding := RoundingLineInserted and (TotalVATAmount <> 0);
         OnCalcVATAmountLinesOnAfterCalcShouldProcessRounding(VATAmountLine, Currency, ShouldProcessRounding);
@@ -6562,10 +6580,16 @@
         OnAfterGetDefaultBin(Rec);
     end;
 
-    procedure GetATOBin(Location: Record Location; var BinCode: Code[20]): Boolean
+    procedure GetATOBin(Location: Record Location; var BinCode: Code[20]) Result: Boolean
     var
         AsmHeader: Record "Assembly Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetATOBin(Rec, Location, BinCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not Location."Require Shipment" then
             BinCode := Location."Asm.-to-Order Shpt. Bin Code";
         if BinCode <> '' then
@@ -6578,6 +6602,8 @@
     end;
 
     procedure IsInbound(): Boolean
+    var
+        IsInboundDocument: Boolean;
     begin
         case "Document Type" of
             "Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote, "Document Type"::"Blanket Order":
@@ -6586,7 +6612,9 @@
                 exit("Quantity (Base)" > 0);
         end;
 
-        exit(false);
+        IsInboundDocument := false;
+        OnAfterIsInbound(Rec, IsInboundDocument);
+        exit(IsInboundDocument);
     end;
 
     local procedure HandleDedicatedBin(IssueWarning: Boolean)
@@ -6709,6 +6737,7 @@
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
+        OnAfterSetHideValidationDialog(Rec, NewHideValidationDialog);
     end;
 
     procedure GetHideValidationDialog(): Boolean
@@ -7442,6 +7471,7 @@
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Sell-to Customer No.", SellToCustomerNo);
         SalesLine.SetFilter("Shipment No.", '<>%1', '');
+        OnOutstandingInvoiceAmountFromShipmentOnAfterSetFilter(SalesLine);
         SalesLine.CalcSums("Outstanding Amount (LCY)");
         exit(SalesLine."Outstanding Amount (LCY)");
     end;
@@ -8489,9 +8519,12 @@
     procedure CreateDimFromDefaultDim(FieldNo: Integer)
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+        ShouldCreateDim: Boolean;
     begin
         InitDefaultDimensionSources(DefaultDimSource, FieldNo);
-        if DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then
+        ShouldCreateDim := DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo));
+        OnCreateDimFromDefaultDimOnBeforeCreateDim(Rec, SalesHeader, ShouldCreateDim);
+        if ShouldCreateDim then
             CreateDim(DefaultDimSource);
         OnAfterCreateDimFromDefaultDim(Rec, xRec, SalesHeader, CurrFieldNo, FieldNo);
     end;
@@ -8586,7 +8619,13 @@
     var
         InvtItemSalesLine: Record "Sales Line";
         TempSalesLine: Record "Sales Line" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAttachToInventoryItemLine(SelectedSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         SelectedSalesLine.SetFilter(Type, '>%1', "Sales Line Type"::" ");
         SelectedSalesLine.SetFilter(Quantity, '<>0');
         if not SelectedSalesLine.FindSet() then
@@ -8757,7 +8796,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignGLAccountValues(var SalesLine: Record "Sales Line"; GLAccount: Record "G/L Account"; SalesHeader: Record "Sales Header")
+    local procedure OnAfterAssignGLAccountValues(var SalesLine: Record "Sales Line"; GLAccount: Record "G/L Account"; SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
 
@@ -8828,6 +8867,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromSalesShptLine(var SalesLine: Record "Sales Line"; FromSalesShipmentLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyUnitPriceAndLineDiscountPct(var SalesLine: Record "Sales Line"; BlanketOrderSalesLine: Record "Sales Line"; CalledByFieldNo: Integer; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -9015,7 +9059,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPrepmtAmounts(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; xSalesLine: Record "Sales Line"; CurrFieldNo: Integer)
+    local procedure OnBeforeCheckPrepmtAmounts(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; xSalesLine: Record "Sales Line"; CurrFieldNo: Integer; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -9375,6 +9419,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBlanketOrderIsRelatedOnAfterSetLoadFields(var BlanketOrderSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeAssignAmtToHandle(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; IncludePrepayments: Boolean; QtyType: Option; var QtyToHandle: Decimal; var AmtToHandle: Decimal)
     begin
     end;
@@ -9682,7 +9731,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateQuantityOnBeforeCheckQuantityChangeForPriceCalc(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    local procedure OnValidateQuantityOnBeforeCheckQuantityChangeForPriceCalc(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -9967,7 +10016,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(var SalesLine: Record "Sales Line")
+    local procedure OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -10503,6 +10552,51 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateNoOnAfterCreateDimFromDefaultDim(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsInbound(SalesLine: Record "Sales Line"; var IsInboundDocument: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBlanketOrderIsRelated(var CurrentSalesLine: Record "Sales Line"; var BlanketOrderSalesLine: Record "Sales Line"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetATOBin(SalesLine: record "Sales Line"; Location: Record Location; var BinCode: Code[20]; var BinCodeNotEmpty: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimFromDefaultDimOnBeforeCreateDim(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var ShouldCreateDim: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAttachToInventoryItemLine(var SelectedSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePricesIncludingVATAmountsOnAfterCalculateNormalVAT(var SalesLine: Record "Sales Line"; var Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATAmountsOnAfterCalculateNormalVAT(var SalesLine: Record "Sales Line"; var Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOutstandingInvoiceAmountFromShipmentOnAfterSetFilter(var SalesLineCopy: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetHideValidationDialog(var SalesLine: Record "Sales Line"; NewHideValidationDialog: Boolean)
     begin
     end;
 }

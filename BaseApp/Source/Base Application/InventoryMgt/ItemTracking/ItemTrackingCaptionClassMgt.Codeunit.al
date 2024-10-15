@@ -105,18 +105,25 @@ codeunit 6512 "Item Tracking CaptionClass Mgt"
             '88':
                 exit(ResolveCaption(PackageAvailabilityTxt));
             else begin
-                    IsResolved := false;
-                    OnItemTrackingCaptionClassTranslate(CaptionExpr, ResolvedExpr, IsResolved);
-                    if IsResolved then
-                        exit(ResolvedExpr);
-                end;
+                IsResolved := false;
+                OnItemTrackingCaptionClassTranslate(CaptionExpr, ResolvedExpr, IsResolved);
+                if IsResolved then
+                    exit(ResolvedExpr);
+            end;
         end;
         IsResolved := false;
         exit(PackageNoTxt);
     end;
 
-    local procedure ResolveCaption(CaptionString: Text): Text
+    local procedure ResolveCaption(CaptionString: Text) Result: Text
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResolveCaption(InventorySetup, CaptionString, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if InventorySetup."Package Caption" <> '' then
             exit(StrSubstNo(CaptionString, InventorySetup."Package Caption"));
         exit(StrSubstNo(CaptionString, PackageTxt));
@@ -124,6 +131,11 @@ codeunit 6512 "Item Tracking CaptionClass Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnItemTrackingCaptionClassTranslate(CaptionExpr: Text; var ResolvedExpr: Text; var IsResolved: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResolveCaption(var InventorySetup: Record "Inventory Setup"; CaptionString: Text; var Result: Text; var IsHandled: Boolean)
     begin
     end;
 }

@@ -80,7 +80,6 @@ codeunit 144003 "ERM EU 3-Party"
     // Test Function Name                                                     TFS ID
     // -----------------------------------------------------------------------------
     // S461741_EUThirdPartyTradeCopiedOnPurchaseOrderFromDropShipmentSalesOrder 461741
-
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -105,6 +104,8 @@ codeunit 144003 "ERM EU 3-Party"
         TotalValueofItemSuppliesCap: Label 'TotalValueofItemSupplies';
         TotalValueOfServiceSuppliesCap: Label 'TotalValueofServiceSupplies';
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceEUThirdPartyTradeTrue()
@@ -114,7 +115,10 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify EU 3-Party Trade True after posting Purchase Invoice.
         PostPurchaseDocumentWithEUThirdParty(PurchaseHeader."Document Type"::Invoice, true);  // True for EU 3-Party Trade.
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseOrderEUThirdPartyTradeTrue()
@@ -124,7 +128,10 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify EU 3-Party Trade True after posting Purchase Order.
         PostPurchaseDocumentWithEUThirdParty(PurchaseHeader."Document Type"::Order, true);  // True for EU 3-Party Trade.
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseOrderEUThirdPartyTradeFalse()
@@ -134,7 +141,10 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify EU 3-Party Trade False after posting Purchase Order.
         PostPurchaseDocumentWithEUThirdParty(PurchaseHeader."Document Type"::Order, false);  // False for EU 3-Party Trade.
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     local procedure PostPurchaseDocumentWithEUThirdParty(DocumentType: Enum "Purchase Document Type"; EUThirdPartyTrade: Boolean)
     var
         Item: Record Item;
@@ -156,7 +166,10 @@ codeunit 144003 "ERM EU 3-Party"
         // Verify.
         PurchInvHeader.TestField("EU 3-Party Trade", EUThirdPartyTrade);
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [HandlerFunctions('SalesListModalPageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
@@ -165,7 +178,10 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify EU 3-Party Trade on Purchase Order, When EU 3-Party Trade True on Sales Header, True on Purchase Header and confirm message Yes.
         PurchaseDropShipmentWithEUThirdParty(true, false, true);  // EU 3-Party Trade - True on Sales Header, False and True on Purchase Header.
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [HandlerFunctions('SalesListModalPageHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
@@ -174,7 +190,10 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify EU 3-Party Trade on Purchase Order, When EU 3-Party Trade True on Sales Header, False on Purchase Header and confirm message No.
         PurchaseDropShipmentWithEUThirdParty(true, false, false);  // EU 3-Party Trade - True on Sales Header, False and True on Purchase Header.
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [HandlerFunctions('SalesListModalPageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
@@ -183,7 +202,10 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify EU 3-Party Trade on Purchase Order, When EU 3-Party Trade False on Sales Header, True on Purchase Header and confirm message Yes.
         PurchaseDropShipmentWithEUThirdParty(false, true, false);  // EU 3-Party Trade - False on Sales Header, True and False on Purchase Header.
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [HandlerFunctions('SalesListModalPageHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
@@ -192,7 +214,10 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify EU 3-Party Trade on Purchase Order, When EU 3-Party Trade False on Sales Header, True on Purchase Header and confirm message No.
         PurchaseDropShipmentWithEUThirdParty(false, true, true);  // EU 3-Party Trade - False on Sales Header, True and True on Purchase Header.
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [HandlerFunctions('SalesListModalPageHandler')]
     [Scope('OnPrem')]
@@ -201,7 +226,10 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify EU 3-Party Trade on Purchase Order, When EU 3-Party Trade False on Sales Header, False on Purchase Header.
         PurchaseDropShipmentWithEUThirdParty(false, false, false);  // EU 3-Party Trade - False on Sales Header, False and False on Purchase Header.
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [HandlerFunctions('SalesListModalPageHandler')]
     [Scope('OnPrem')]
@@ -210,7 +238,10 @@ codeunit 144003 "ERM EU 3-Party"
         // Test to verify EU 3-Party Trade on Purchase Order, When EU 3-Party Trade True on Sales Header, True on Purchase Header.
         PurchaseDropShipmentWithEUThirdParty(true, true, true);  // EU 3-Party Trade - True on Sales Header, True and True on Purchase Header.
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     local procedure PurchaseDropShipmentWithEUThirdParty(EUThirdPartyTradeSales: Boolean; EUThirdPartyTradePurchase: Boolean; EUThirdPartyTrade: Boolean)
     var
         Customer: Record Customer;
@@ -243,6 +274,7 @@ codeunit 144003 "ERM EU 3-Party"
         PurchaseLine.TestField("No.", SalesLine."No.");
         PurchaseLine.TestField(Quantity, SalesLine.Quantity);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -415,6 +447,8 @@ codeunit 144003 "ERM EU 3-Party"
         ServiceCrMemoHeader.TestField("EU 3-Party Trade", EUThirdPartyTrade);
     end;
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [HandlerFunctions('VATStatementPreviewPageHandler,VATStatementTemplateListModalPageHandler')]
     [Scope('OnPrem')]
@@ -426,7 +460,10 @@ codeunit 144003 "ERM EU 3-Party"
         Initialize();
         VATStatementPreviewForPurchaseInvoiceWithEUThirdPartyTrade('');  // Using Blank for Currency Code.
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [HandlerFunctions('VATStatementPreviewPageHandler,VATStatementTemplateListModalPageHandler')]
     [Scope('OnPrem')]
@@ -442,7 +479,10 @@ codeunit 144003 "ERM EU 3-Party"
         UpdateAdditionalReportingCurrOnGeneralLedgerSetup(CurrencyCode);
         VATStatementPreviewForPurchaseInvoiceWithEUThirdPartyTrade(CurrencyCode);
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     local procedure VATStatementPreviewForPurchaseInvoiceWithEUThirdPartyTrade(CurrencyCode: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
@@ -472,6 +512,7 @@ codeunit 144003 "ERM EU 3-Party"
         UpdatePurchasesPayablesSetup(OldInvoiceRounding);
         DeleteVATStatementTemplate(VATStatementLine."Statement Template Name");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('VATStatementPreviewPageHandler,VATStatementTemplateListModalPageHandler')]
@@ -619,6 +660,8 @@ codeunit 144003 "ERM EU 3-Party"
         UpdateAdditionalReportingCurrOnGeneralLedgerSetup(OldAdditionalReportingCurrency);
     end;
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [Scope('OnPrem')]
     procedure VATEntryForPurchaseInvoiceEUThirdPartyTrue()
@@ -636,7 +679,10 @@ codeunit 144003 "ERM EU 3-Party"
         // [THEN] Created VAT Entry EU Third Party is TRUE
         VerifyVATEntryEUThirdPartyTrade(PostedPurchaseInvioceNo, true);
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [Scope('OnPrem')]
     procedure VATEntryForPurchaseInvoiceEUThirdPartyFalse()
@@ -654,7 +700,10 @@ codeunit 144003 "ERM EU 3-Party"
         // [THEN] Created VAT Entry EU Third Party is FALSE
         VerifyVATEntryEUThirdPartyTrade(PostedPurchaseInvioceNo, false);
     end;
+#endif
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     [Test]
     [Scope('OnPrem')]
     procedure S461741_EUThirdPartyTradeCopiedOnPurchaseOrderFromDropShipmentSalesOrder()
@@ -726,12 +775,15 @@ codeunit 144003 "ERM EU 3-Party"
         PurchaseLine.TestField("No.", SalesLine."No.");
         PurchaseLine.TestField(Quantity, SalesLine.Quantity);
     end;
+#endif
 
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
     end;
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     local procedure CreateAndPostPurchaseInvoice(var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10])
     var
         PurchaseHeader: Record "Purchase Header";
@@ -749,6 +801,7 @@ codeunit 144003 "ERM EU 3-Party"
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Receive and Invoice.
     end;
+#endif
 
     local procedure CreateAndPostSalesInvoice(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; CurrencyCode: Code[10]; VATProdPostingGroup: Code[20]; EUThirdPartyTrade: Boolean)
     var
@@ -764,6 +817,8 @@ codeunit 144003 "ERM EU 3-Party"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
     end;
 
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
     local procedure CreateAndPostPurchaseInvoiceWithEUThirdParty(var PurchaseHeader: Record "Purchase Header"; EUThirdPartyTrade: Boolean): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
@@ -773,6 +828,7 @@ codeunit 144003 "ERM EU 3-Party"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
+#endif
 
     local procedure CreateCurrencyWithExchangeRate(): Code[10]
     var
@@ -825,7 +881,10 @@ codeunit 144003 "ERM EU 3-Party"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; EUThirdPartyTrade: Boolean; CustomerNo: Code[20])
+#if not CLEAN23
+    [Obsolete('Moved to the EU 3-Party Trade Purchase app.', '23.0')]
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; EUThirdPartyTrade: Boolean;
+                                                                                                         CustomerNo: Code[20])
     var
         Vendor: Record Vendor;
     begin
@@ -835,8 +894,12 @@ codeunit 144003 "ERM EU 3-Party"
         PurchaseHeader.Validate("Sell-to Customer No.", CustomerNo);
         PurchaseHeader.Modify(true);
     end;
+#endif
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; CurrencyCode: Code[10]; EUThirdPartyTrade: Boolean)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20];
+                                                                                                  ItemNo: Code[20];
+                                                                                                  CurrencyCode: Code[10];
+                                                                                                  EUThirdPartyTrade: Boolean)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -897,7 +960,8 @@ codeunit 144003 "ERM EU 3-Party"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; GenPostingType: Enum "General Posting Type"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
+    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; GenPostingType: Enum "General Posting Type"; VATBusPostingGroup: Code[20];
+                                                                                                                  VATProdPostingGroup: Code[20])
     var
         VATStatementName: Record "VAT Statement Name";
         VATStatementTemplate: Record "VAT Statement Template";
@@ -911,7 +975,9 @@ codeunit 144003 "ERM EU 3-Party"
         VATStatementLine.Validate("Gen. Posting Type", GenPostingType);
         VATStatementLine.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         VATStatementLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+#if not CLEAN23
         VATStatementLine.Validate("EU 3-Party Trade", true);
+#endif
         VATStatementLine.Modify(true);
     end;
 

@@ -304,6 +304,7 @@ page 1171 "User Task Card"
         Found: Boolean;
     begin
         FilteredUserTask := Rec;
+        FilteredUserTask.SetView(Rec.GetView(false));
         Found := FilteredUserTask.find(Which);
         if Found then
             Rec := FilteredUserTask;

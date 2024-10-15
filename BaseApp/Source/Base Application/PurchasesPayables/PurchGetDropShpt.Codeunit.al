@@ -6,6 +6,9 @@ codeunit 76 "Purch.-Get Drop Shpt."
 
     trigger OnRun()
     begin
+#if not CLEAN23
+        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
+#endif
         PurchHeader.Copy(Rec);
         OnRunOnBeforeCode(Rec, PurchHeader);
         Code();
@@ -21,9 +24,15 @@ codeunit 76 "Purch.-Get Drop Shpt."
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         TransferExtendedText: Codeunit "Transfer Extended Text";
+#if not CLEAN23
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
         NextLineNo: Integer;
         Text001: Label 'The %1 for %2 %3 has changed from %4 to %5 since the Sales Order was created. Adjust the %6 on the Sales Order or the %1.';
+#if not CLEAN23
         Text010: Label '%1 on %2 %3 is %4.\Do you wish to change %5 on %6 %7 from %8 to %9?';
+        IsEU3PartyTradePurchaseEnabled: Boolean;
+#endif
         SelltoCustomerBlankErr: Label 'The Sell-to Customer No. field must have a value.';
 
     local procedure "Code"()
@@ -122,16 +131,18 @@ codeunit 76 "Purch.-Get Drop Shpt."
                 Error(
                   Text000,
                   SalesHeader."No.");
-
+#if not CLEAN23
             // NTR Start
-            if SalesHeader."EU 3-Party Trade" <> PurchHeader."EU 3-Party Trade" then
-                if Confirm(Text010, true,
-                  SalesHeader.FieldCaption("EU 3-Party Trade"), SalesHeader.TableName, SalesHeader."No.",
-                  SalesHeader."EU 3-Party Trade", PurchHeader.FieldCaption("EU 3-Party Trade"),
-                  PurchHeader.TableCaption(), PurchHeader."No.", PurchHeader."EU 3-Party Trade",
-                  SalesHeader."EU 3-Party Trade") then
-                    PurchHeader."EU 3-Party Trade" := SalesHeader."EU 3-Party Trade";
+            if not IsEU3PartyTradePurchaseEnabled then
+                if SalesHeader."EU 3-Party Trade" <> PurchHeader."EU 3-Party Trade" then
+                    if Confirm(Text010, true,
+                      SalesHeader.FieldCaption("EU 3-Party Trade"), SalesHeader.TableName, SalesHeader."No.",
+                      SalesHeader."EU 3-Party Trade", PurchHeader.FieldCaption("EU 3-Party Trade"),
+                      PurchHeader.TableCaption(), PurchHeader."No.", PurchHeader."EU 3-Party Trade",
+                      SalesHeader."EU 3-Party Trade") then
+                        PurchHeader."EU 3-Party Trade" := SalesHeader."EU 3-Party Trade";
             // NTR End
+#endif
 
             OnCodeOnBeforeModify(PurchHeader, SalesHeader);
 

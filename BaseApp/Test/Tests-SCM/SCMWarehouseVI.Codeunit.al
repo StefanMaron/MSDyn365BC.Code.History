@@ -68,6 +68,47 @@ codeunit 137408 "SCM Warehouse VI"
     end;
 
     [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler,ItemTrackingSummaryHandler,WhseItemTrackingLinesSetSNForItemLotTrackingHandler')]
+    [Scope('OnPrem')]
+    procedure CheckWhsReclassificationJournalWithItemTrackingLine()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WhseReclassificationJournal: TestPage "Whse. Reclassification Journal";
+        Quantity: Decimal;
+    begin
+        //[SCENARIO 474795] Try to enter a Serial No. to a Warehouse Reclassification Journal Line with Item Tracking Code set to Lot No.
+        Initialize();
+
+        // [GIVEN] Create Location with Zones and Bins. Create Item with Item Tracking Code.         
+        CreateFullWarehouseSetup(Location);
+        CreateItemWithItemTrackingCodeForLot(Item);
+
+        // [GIVEN] Create and Register Put Away from Purchase Order.
+        Quantity := CreateAndRegisterPutAwayFromPurchaseOrder(Location.Code, Item."No.", true);
+
+        // [GIVEN] Create Warehouse Reclassification Journal with Item Tracking.
+        CreateWarehouseReclassJournal(WhseReclassificationJournal, Item."No.", Location.Code, Quantity);
+
+        // [WHEN] try to enter "New Serial No." in "Whse. Item Tracking Lines" and Qty is <> 1, 
+        // [THEN] system should throw error
+        if Quantity <> 1 then
+            asserterror WhseReclassificationJournal.ItemTrackingLines.Invoke
+        else
+            WhseReclassificationJournal.ItemTrackingLines.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesSetSNForItemLotTrackingHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        WhseItemTrackingLines."Lot No.".AssistEdit;
+        WhseItemTrackingLines."New Lot No.".SetValue(LibraryUtility.GenerateGUID());
+        WhseItemTrackingLines."New Serial No.".SetValue(LibraryUtility.GenerateGUID());
+        WhseItemTrackingLines.OK.Invoke;
+    end;
+
+    [Test]
     [HandlerFunctions('CalculateInventoryHandler')]
     [Scope('OnPrem')]
     procedure CalculateInventoryOnWarehousePhysicalInventoryJournal()

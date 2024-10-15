@@ -302,11 +302,18 @@ page 49 "Purchase Quote"
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+#if not CLEAN23
                 field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Select this field if the purchase order is involved in an EU 3-party trade.';
+                    Visible = not IsEU3PartyTradePurchaseEnabled;
+                    Enabled = not IsEU3PartyTradePurchaseEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '23.0';
+                    ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
                 }
+#endif
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Suite;
@@ -1448,6 +1455,9 @@ page 49 "Purchase Quote"
         ArchiveManagement: Codeunit ArchiveManagement;
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
+#if not CLEAN23
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
         ChangeExchangeRate: Page "Change Exchange Rate";
         [InDataSet]
         StatusStyleTxt: Text;
@@ -1467,6 +1477,9 @@ page 49 "Purchase Quote"
         IsJournalTemplateNameVisible: Boolean;
         [InDataSet]
         IsPaymentMethodCodeVisible: Boolean;
+#if not CLEAN23
+        IsEU3PartyTradePurchaseEnabled: Boolean;
+#endif
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
@@ -1480,6 +1493,9 @@ page 49 "Purchase Quote"
         GLSetup.Get();
         IsJournalTemplateNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+#if not CLEAN23
+        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
+#endif
 
         OnAfterActivateFields();
     end;
