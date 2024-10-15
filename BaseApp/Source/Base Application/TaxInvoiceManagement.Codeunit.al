@@ -624,7 +624,7 @@ codeunit 28070 TaxInvoiceManagement
             SalesTaxInvLine.Init;
             if VATPostingSetup.Get(SalesInvLine."VAT Bus. Posting Group", SalesInvLine."VAT Prod. Posting Group") then
                 if VATPostingSetup."Unrealized VAT Type" = VATPostingSetup."Unrealized VAT Type"::" " then begin
-                    SalesTaxInvLine.TransferFields(SalesInvLine);
+                    SalesTaxInvLine.TransferFieldsFrom(SalesInvLine);
                     SalesTaxInvLine."Document No." := SalesTaxInvHeader."No.";
                     SalesTaxInvLine."External Document No." := SalesInvHeader."No.";
                     SalesTaxInvLine."Paid Amount Incl. VAT" := SalesTaxInvLine."Amount Including VAT";
@@ -664,16 +664,16 @@ codeunit 28070 TaxInvoiceManagement
         PurchInvLine.Reset;
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         PurchInvLine.Find('-');
-        PurchTaxInvHeader.Init;
-        PurchTaxInvHeader.TransferFields(PurchInvHeader2);
+        PurchTaxInvHeader.Init();
+        PurchTaxInvHeader.TransferFieldsFrom(PurchInvHeader2);
         PurchTaxInvHeader."No." := '';
         PurchTaxInvHeader."Posting Date" := WorkDate;
         PurchTaxInvHeader.Insert(true);
         repeat
             if VATPostingSetup.Get(PurchInvLine."VAT Bus. Posting Group", PurchInvLine."VAT Prod. Posting Group") then
                 if VATPostingSetup."Unrealized VAT Type" = VATPostingSetup."Unrealized VAT Type"::" " then begin
-                    PurchTaxInvLine.Init;
-                    PurchTaxInvLine.TransferFields(PurchInvLine);
+                    PurchTaxInvLine.Init();
+                    PurchTaxInvLine.TransferFieldsFrom(PurchInvLine);
                     PurchTaxInvLine."Document No." := PurchTaxInvHeader."No.";
                     PurchTaxInvLine."Paid Amount Incl. VAT" := PurchTaxInvLine."Amount Including VAT";
                     PurchTaxInvLine."Paid VAT" := PurchTaxInvLine."Amount Including VAT" - PurchTaxInvLine."VAT Base Amount";
@@ -713,8 +713,8 @@ codeunit 28070 TaxInvoiceManagement
         SalesCrMemoLine.Reset;
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
         SalesCrMemoLine.Find('-');
-        SalesTaxCrMemoHeader.Init;
-        SalesTaxCrMemoHeader.TransferFields(SalesCrMemoHeader2);
+        SalesTaxCrMemoHeader.Init();
+        SalesTaxCrMemoHeader.TransferFieldsFrom(SalesCrMemoHeader2);
         SalesTaxCrMemoHeader."No." := '';
         SalesTaxCrMemoHeader."Posting Date" := WorkDate;
         SalesTaxCrMemoHeader.Insert(true);
@@ -722,7 +722,7 @@ codeunit 28070 TaxInvoiceManagement
             SalesTaxCrMemoLine.Init;
             if VATPostingSetup.Get(SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group") then
                 if VATPostingSetup."Unrealized VAT Type" = VATPostingSetup."Unrealized VAT Type"::" " then begin
-                    SalesTaxCrMemoLine.TransferFields(SalesCrMemoLine);
+                    SalesTaxCrMemoLine.TransferFieldsFrom(SalesCrMemoLine);
                     SalesTaxCrMemoLine."Document No." := SalesTaxCrMemoHeader."No.";
                     SalesTaxCrMemoLine."Paid Amount Incl. VAT" := SalesTaxCrMemoLine."Amount Including VAT";
                     SalesTaxCrMemoLine."Paid VAT" := SalesTaxCrMemoLine."Amount Including VAT" - SalesTaxCrMemoLine."VAT Base Amount";
@@ -762,8 +762,8 @@ codeunit 28070 TaxInvoiceManagement
         PurchCrMemoLine.Reset;
         PurchCrMemoLine.SetRange("Document No.", PurchCrMemoHeader."No.");
         PurchCrMemoLine.Find('-');
-        PurchTaxCrMemoHeader.Init;
-        PurchTaxCrMemoHeader.TransferFields(PurchCrMemoHeader2);
+        PurchTaxCrMemoHeader.Init();
+        PurchTaxCrMemoHeader.TransferFieldsFrom(PurchCrMemoHeader2);
         PurchTaxCrMemoHeader."No." := '';
         PurchTaxCrMemoHeader."Posting Date" := WorkDate;
         PurchTaxCrMemoHeader.Insert(true);
@@ -771,7 +771,7 @@ codeunit 28070 TaxInvoiceManagement
             PurchTaxCrMemoLine.Init;
             if VatPostingSetup.Get(PurchCrMemoLine."VAT Bus. Posting Group", PurchCrMemoLine."VAT Prod. Posting Group") then
                 if VatPostingSetup."Unrealized VAT Type" = VatPostingSetup."Unrealized VAT Type"::" " then begin
-                    PurchTaxCrMemoLine.TransferFields(PurchCrMemoLine);
+                    PurchTaxCrMemoLine.TransferFieldsFrom(PurchCrMemoLine);
                     PurchTaxCrMemoLine."Document No." := PurchTaxCrMemoHeader."No.";
                     PurchTaxCrMemoLine."External Document No." := PurchCrMemoHeader."No.";
                     PurchTaxCrMemoLine.Insert;
@@ -991,7 +991,7 @@ codeunit 28070 TaxInvoiceManagement
                     SalesTaxInvLine.Init;
                     if VATPostingSetup.Get(SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group") then
                         if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then begin
-                            SalesTaxInvLine.TransferFields(SalesCrMemoLine);
+                            SalesTaxInvLine.TransferFieldsFrom(SalesCrMemoLine);
                             SalesTaxInvLine."Line No." := LineNo;
                             SalesTaxInvLine."Document No." := SalesTaxInvHeader."No.";
                             SalesTaxInvLine."Unit Price" := -SalesTaxInvLine."Unit Price";
@@ -1105,7 +1105,7 @@ codeunit 28070 TaxInvoiceManagement
                         SalesTaxInvLine.Init;
                         if VATPostingSetup.Get(SalesInvoiceLine."VAT Bus. Posting Group", SalesInvoiceLine."VAT Prod. Posting Group") then
                             if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then begin
-                                SalesTaxInvLine.TransferFields(SalesInvoiceLine);
+                                SalesTaxInvLine.TransferFieldsFrom(SalesInvoiceLine);
                                 SalesTaxInvLine."Line No." := LineNo;
                                 SalesTaxInvLine."Document No." := SalesTaxInvHeader."No.";
                                 SalesTaxInvLine."External Document No." := SalesInvHeader."No.";
@@ -1190,8 +1190,8 @@ codeunit 28070 TaxInvoiceManagement
             if not SalesCrMemoHeader."Tax Document Marked" then
                 exit;
             if not WHTUsed then begin
-                SalesTaxCrMemoHeader.Init;
-                SalesTaxCrMemoHeader.TransferFields(SalesCrMemoHeader);
+                SalesTaxCrMemoHeader.Init();
+                SalesTaxCrMemoHeader.TransferFieldsFrom(SalesCrMemoHeader);
                 SalesTaxCrMemoLine."External Document No." := SalesCrMemoHeader."No.";
                 SalesTaxCrMemoHeader."Posting Description" := GenJnlLine."Document No.";
                 SalesTaxCrMemoHeader."No." := '';
@@ -1229,7 +1229,7 @@ codeunit 28070 TaxInvoiceManagement
                     SalesTaxCrMemoLine.Init;
                     if VATPostingSetup.Get(SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group") then
                         if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then begin
-                            SalesTaxCrMemoLine.TransferFields(SalesCrMemoLine);
+                            SalesTaxCrMemoLine.TransferFieldsFrom(SalesCrMemoLine);
                             SalesTaxCrMemoLine."Line No." := LineNo;
                             SalesTaxCrMemoLine."Document No." := SalesTaxCrMemoHeader."No.";
                             SalesTaxCrMemoLine."External Document No." := SalesCrMemoHeader."No.";
@@ -1337,7 +1337,7 @@ codeunit 28070 TaxInvoiceManagement
                         PurchTaxInvLine.Init;
                         if VATPostingSetup.Get(PurchCrMemoLine."VAT Bus. Posting Group", PurchCrMemoLine."VAT Prod. Posting Group") then
                             if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then begin
-                                PurchTaxInvLine.TransferFields(PurchCrMemoLine);
+                                PurchTaxInvLine.TransferFieldsFrom(PurchCrMemoLine);
                                 PurchTaxInvLine."Line No." := LineNo;
                                 PurchTaxInvLine."Document No." := PurchTaxInvHeader."No.";
                                 PurchTaxInvLine.Amount := -PurchTaxInvLine.Amount;
@@ -1372,8 +1372,8 @@ codeunit 28070 TaxInvoiceManagement
             if not PurchInvHeader."Posted Tax Document" then
                 exit;
             if not GenJnlLine."WHT Payment" then begin
-                PurchTaxInvHeader.Init;
-                PurchTaxInvHeader.TransferFields(PurchInvHeader);
+                PurchTaxInvHeader.Init();
+                PurchTaxInvHeader.TransferFieldsFrom(PurchInvHeader);
                 PurchTaxInvHeader."Posting Date" := GenJnlLine."Posting Date";
                 PurchTaxInvHeader."Posting Description" := GenJnlLine."Document No.";
                 PurchTaxInvLine."External Document No." := PurchInvHeader."No.";
@@ -1429,7 +1429,7 @@ codeunit 28070 TaxInvoiceManagement
                         PurchTaxInvLine.Init;
                         if VATPostingSetup.Get(PurchInvoiceLine."VAT Bus. Posting Group", PurchInvoiceLine."VAT Prod. Posting Group") then
                             if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then begin
-                                PurchTaxInvLine.TransferFields(PurchInvoiceLine);
+                                PurchTaxInvLine.TransferFieldsFrom(PurchInvoiceLine);
                                 PurchTaxInvLine."Line No." := LineNo;
                                 PurchTaxInvLine."Document No." := PurchTaxInvHeader."No.";
                                 PurchTaxInvLine."External Document No." := PurchInvHeader."No.";
@@ -1496,8 +1496,8 @@ codeunit 28070 TaxInvoiceManagement
             if GenJnlLine."WHT Payment" then
                 exit;
             if not WHTUsed then begin
-                PurchTaxCrMemoHeader.Init;
-                PurchTaxCrMemoHeader.TransferFields(PurchCrMemoHeader);
+                PurchTaxCrMemoHeader.Init();
+                PurchTaxCrMemoHeader.TransferFieldsFrom(PurchCrMemoHeader);
                 PurchTaxCrMemoHeader."Posting Date" := GenJnlLine."Posting Date";
                 PurchTaxCrMemoHeader."Posting Description" := GenJnlLine."Document No.";
                 PurchTaxCrMemoLine."External Document No." := PurchCrMemoHeader."No.";
@@ -1529,7 +1529,7 @@ codeunit 28070 TaxInvoiceManagement
                         PurchTaxCrMemoLine.Init;
                         if VATPostingSetup.Get(PurchCrMemoLine."VAT Bus. Posting Group", PurchCrMemoLine."VAT Prod. Posting Group") then
                             if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then begin
-                                PurchTaxCrMemoLine.TransferFields(PurchCrMemoLine);
+                                PurchTaxCrMemoLine.TransferFieldsFrom(PurchCrMemoLine);
                                 PurchTaxCrMemoLine."Line No." := LineNo;
                                 PurchTaxCrMemoLine."Document No." := PurchTaxCrMemoHeader."No.";
                                 PurchTaxCrMemoLine."External Document No." := PurchCrMemoHeader."No.";
@@ -1677,7 +1677,7 @@ codeunit 28070 TaxInvoiceManagement
                 SalesInvLine.SetRange("Document No.", TaxDocBufferBuild."Document No.");
                 SalesInvLine.Find('-');
                 repeat
-                    SalesTaxInvLine.TransferFields(SalesInvLine);
+                    SalesTaxInvLine.TransferFieldsFrom(SalesInvLine);
                     SalesTaxInvLine."Paid Amount Incl. VAT" := SalesTaxInvLine."Amount Including VAT";
                     SalesTaxInvLine."Paid VAT" := SalesTaxInvLine."Amount Including VAT" - SalesTaxInvLine."VAT Base Amount";
                     SalesTaxInvLine."Line No." := LineNumber;

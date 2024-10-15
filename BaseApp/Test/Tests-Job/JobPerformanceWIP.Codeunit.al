@@ -1650,6 +1650,59 @@ codeunit 136304 "Job Performance WIP"
         VerifyJobWIPEntryByType(Job."No.", JobWIPEntry.Type::"Accrued Costs", 20);
     end;
 
+    [Test]
+    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [Scope('OnPrem')]
+    procedure CalcWIPWhenUsageAndSalesSplitBetweenJobTasksOnlyAppliedCosts()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPostingGroup: Record "Job Posting Group";
+        JobWIPMethod: Record "Job WIP Method";
+        JobPlanningLine: Record "Job Planning Line";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        JobWIPEntry: Record "Job WIP Entry";
+    begin
+        // [SCENARIO 376235] WIP Entries generate correctly when usage and sales are splitted between multiple job tasks with only applied cost
+
+        Initialize;
+
+        // [GIVEN] Job with "WIP Method" = "Cost of Sales" for recognized costs and "Contract (Invoiced Price)" for recognized sales
+        CreateJobWIPMethod(
+          JobWIPMethod."Recognized Costs"::"Cost of Sales", JobWIPMethod."Recognized Sales"::"Contract (Invoiced Price)", JobWIPMethod);
+        CreateJobWithWIPMethod(Job, JobWIPMethod.Code, Job."WIP Posting Method"::"Per Job");
+        CreateJobPostingGroup(JobPostingGroup);
+        UpdateJobPostingGroup(JobPostingGroup);
+        Job.Validate("Job Posting Group", JobPostingGroup.Code);
+        Job.Modify(true);
+
+        // [GIVEN] First job task has budget planning line with amount "X"
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(100));
+        JobPlanningLine.Validate("Total Cost (LCY)", LibraryRandom.RandInt(100));
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Second job task has budget planning line with amount -"Y" and usage job ledger entry with the same amount
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate(Quantity, -1);
+        JobPlanningLine.Validate("Total Cost (LCY)", -LibraryRandom.RandInt(10));
+        JobPlanningLine.Modify(true);
+        CreateMockJobLedgerEntry(JobPlanningLine, 1, JobLedgerEntry);
+
+        // [WHEN] Calculate WIP
+        CalculateWIP(Job);
+
+        // [THEN] One WIP Entry has been generated
+        JobWIPEntry.SetRange("Job No.", Job."No.");
+        Assert.RecordCount(JobWIPEntry, 1);
+        JobWIPEntry.FindFirst;
+
+        // [THEN] A WIP Entry with type "Applied Costs" and Amount equals "Y"
+        VerifyJobWIPEntryByType(Job."No.", JobWIPEntry.Type::"Applied Costs", -JobPlanningLine."Total Cost (LCY)");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

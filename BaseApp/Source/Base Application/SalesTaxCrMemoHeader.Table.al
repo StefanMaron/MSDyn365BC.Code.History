@@ -179,7 +179,7 @@ table 28073 "Sales Tax Cr.Memo Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Sales Comment Line" WHERE("Document Type" = CONST("Posted Credit Memo"),
+            CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = CONST("Posted Credit Memo"),
                                                             "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -220,7 +220,7 @@ table 28073 "Sales Tax Cr.Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Tax Cr.Memo Line".Amount WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Tax Cr.Memo Line".Amount WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -229,7 +229,7 @@ table 28073 "Sales Tax Cr.Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Tax Cr.Memo Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Tax Cr.Memo Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -625,6 +625,22 @@ table 28073 "Sales Tax Cr.Memo Header"
         DimMgt: Codeunit DimensionManagement;
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+    end;
+
+    procedure TransferFieldsFrom(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+        // cut values to avoid overflow in TransferFields
+        SalesCrMemoHeader."Bill-to Name" :=
+            CopyStr(SalesCrMemoHeader."Bill-to Name", 1, MaxStrLen("Bill-to Name"));
+        SalesCrMemoHeader."Bill-to Address" :=
+            CopyStr(SalesCrMemoHeader."Bill-to Address", 1, MaxStrLen("Bill-to Address"));
+        SalesCrMemoHeader."Ship-to Name" :=
+            CopyStr(SalesCrMemoHeader."Ship-to Name", 1, MaxStrLen("Ship-to Name"));
+        SalesCrMemoHeader."Ship-to Address" :=
+            CopyStr(SalesCrMemoHeader."Ship-to Address", 1, MaxStrLen("Ship-to Address"));
+        SalesCrMemoHeader."Ship-to Contact" :=
+            CopyStr(SalesCrMemoHeader."Ship-to Contact", 1, MaxStrLen("Ship-to Contact"));
+        TransferFields(SalesCrMemoHeader);
     end;
 }
 
