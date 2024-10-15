@@ -244,6 +244,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         if not (CRMIntegrationManagement.IsCDSIntegrationEnabled() or CRMIntegrationManagement.IsCRMIntegrationEnabled()) then
             exit;
 
+        if SourceFieldRef.Number() = DestinationFieldRef.Number() then
+            if SourceFieldRef.Record().Number() = DestinationFieldRef.Record().Number() then
+                exit;
+
         if CRMIntegrationManagement.IsCDSIntegrationEnabled() then
             if (SourceFieldRef.Record().Number() in [Database::Customer, Database::Vendor, Database::Currency, Database::Contact, Database::"Salesperson/Purchaser"]) or
                 (DestinationFieldRef.Record().Number() in [Database::Customer, Database::Vendor, Database::Currency, Database::Contact, Database::"Salesperson/Purchaser"]) then
@@ -777,7 +781,8 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             exit;
 
         SourceRecordRef.SetTable(SalesHeader);
-        if not SalesHeader."Coupled to CRM" then
+        SalesHeader.CalcFields("Coupled to Dataverse");
+        if not SalesHeader."Coupled to Dataverse" then
             exit;
 
         if not CRMIntegrationRecord.FindByRecordID(SalesHeader.RecordId) then
@@ -818,7 +823,8 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             exit;
 
         SourceRecordRef.SetTable(SalesInvoiceHeader);
-        if not SalesInvoiceHeader."Coupled to CRM" then
+        SalesInvoiceHeader.CalcFields("Coupled to Dataverse");
+        if not SalesInvoiceHeader."Coupled to Dataverse" then
             exit;
 
         if not CRMIntegrationRecord.FindIDFromRecordRef(SourceRecordRef, CRMInvoiceID) then
@@ -920,7 +926,8 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        if SalesHeader."Coupled to CRM" then
+        SalesHeader.CalcFields("Coupled to Dataverse");
+        if SalesHeader."Coupled to Dataverse" then
             if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
                 CRMIntegrationRecord.SetRange("Table ID", Database::"Sales Header");
                 CRMIntegrationRecord.SetRange("Integration ID", SalesHeader.SystemId);
@@ -2488,9 +2495,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMInvoiceId: Guid;
     begin
         SourceRecordRef.SetTable(SalesInvHeader);
+        SalesInvHeader.CalcFields("Coupled to Dataverse");
 
         // if invoice is coupled already, then skip this check
-        if SalesInvHeader."Coupled to CRM" then
+        if SalesInvHeader."Coupled to Dataverse" then
             exit;
         if CRMIntegrationRecord.FindIDFromRecordID(SalesInvHeader.RecordId(), CRMInvoiceId) then
             exit;

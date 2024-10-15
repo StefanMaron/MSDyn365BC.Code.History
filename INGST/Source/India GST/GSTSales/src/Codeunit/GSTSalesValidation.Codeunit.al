@@ -217,7 +217,7 @@ codeunit 18143 "GST Sales Validation"
         InvoiceType(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterValidateEvent', 'E-Commerce Merchant Id', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterValidateEvent', 'E-Comm. Merchant Id', false, false)]
     local procedure validateEcommerceMerchantId(var Rec: Record "Sales Header")
     begin
         EcommerceMerchantId(Rec);
@@ -2012,6 +2012,12 @@ codeunit 18143 "GST Sales Validation"
 
         GetCurrency(SalesLine, Currency);
         LineDiscAmount := Round(SalesLine."Line Discount Amount" * QtyToHandle / SalesLine.Quantity, Currency."Amount Rounding Precision");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Create-Invoice", 'OnBeforeModifySalesHeader', '', false, false)]
+    local procedure UpdateLocationOnSalesHeader(var SalesHeader: Record "Sales Header"; JobPlanningLine: Record "Job Planning Line")
+    begin
+        SalesHeader.Validate("Location Code", JobPlanningLine."Location Code");
     end;
 
     [IntegrationEvent(false, false)]

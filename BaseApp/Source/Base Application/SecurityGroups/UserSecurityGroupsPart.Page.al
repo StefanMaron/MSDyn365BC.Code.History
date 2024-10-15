@@ -17,6 +17,16 @@ page 9848 "User Security Groups Part"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Code';
                     ToolTip = 'Specifies the security group code.';
+
+                    trigger OnDrillDown()
+                    var
+                        SecurityGroupBuffer: Record "Security Group Buffer";
+                        SecurityGroups: Page "Security Groups";
+                    begin
+                        SecurityGroupBuffer.SetRange(Code, Rec."Security Group Code");
+                        SecurityGroups.SetTableView(SecurityGroupBuffer);
+                        SecurityGroups.Run();
+                    end;
                 }
                 field("Security Group Name"; Rec."Security Group Name")
                 {

@@ -3356,6 +3356,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         exit(DimensionValue.Code);
     end;
 
+
     local procedure VerifyTemplateGlobalDimensionIsDefaultDimension(TemplateTableId: Integer; TemplateCode: Code[20]; GlobalDim1CodeValue: Code[20]; GlobalDim2CodeValue: Code[20])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";

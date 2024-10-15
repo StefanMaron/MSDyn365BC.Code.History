@@ -511,13 +511,13 @@ page 554 "Analysis by Dimensions"
         else
             Currency.Get(GLSetup."Additional Reporting Currency");
 
-        case AnalysisView."Account Source" of
-            AnalysisView."Account Source"::"G/L Account":
+        case Rec."Analysis Account Source" of
+            Rec."Analysis Account Source"::"G/L Account":
                 LineDimCode := GLAcc.TableCaption;
-            AnalysisView."Account Source"::"Cash Flow Account":
+            Rec."Analysis Account Source"::"Cash Flow Account":
                 LineDimCode := CashFlowAccount.TableCaption();
             else
-                OnGetCaptions(AnalysisView, LineDimCode, AccountCaption, UnitCaption);
+                OnGetCaptions(AnalysisView, LineDimCode, AccountCaption, UnitCaption, true);
         end;
         ColumnDimCode := Text000;
 
@@ -607,10 +607,10 @@ page 554 "Analysis by Dimensions"
         GetAccountCaption(AccountCaption, UnitCaption);
         case DimCode of
             AccountCaption:
-                case AnalysisView."Account Source" of
-                    AnalysisView."Account Source"::"G/L Account":
+                case Rec."Analysis Account Source" of
+                    Rec."Analysis Account Source"::"G/L Account":
                         exit("Analysis Dimension Option"::"G/L Account");
-                    AnalysisView."Account Source"::"Cash Flow Account":
+                    Rec."Analysis Account Source"::"Cash Flow Account":
                         exit("Analysis Dimension Option"::"Cash Flow Account");
                     else begin
                         OnGetAnalysisViewDimensionOption(AnalysisView, Result, DimCode);
@@ -620,10 +620,10 @@ page 554 "Analysis by Dimensions"
             Text000:
                 exit("Analysis Dimension Option"::Period);
             UnitCaption:
-                case AnalysisView."Account Source" of
-                    AnalysisView."Account Source"::"G/L Account":
+                case Rec."Analysis Account Source" of
+                    Rec."Analysis Account Source"::"G/L Account":
                         exit("Analysis Dimension Option"::"Business Unit");
-                    AnalysisView."Account Source"::"Cash Flow Account":
+                    Rec."Analysis Account Source"::"Cash Flow Account":
                         exit("Analysis Dimension Option"::"Cash Flow Forecast");
                     else begin
                         OnGetAnalysisViewDimensionOption(AnalysisView, Result, DimCode);
@@ -995,7 +995,8 @@ page 554 "Analysis by Dimensions"
         GetAccountCaption(AccountCaption, UnitCaption);
         DimSelection.InsertDimSelBuf(false, AccountCaption, AccountCaption);
         DimSelection.InsertDimSelBuf(false, Text000, Text000);
-        DimSelection.InsertDimSelBuf(false, UnitCaption, UnitCaption);
+        if UnitCaption <> '' then
+            DimSelection.InsertDimSelBuf(false, UnitCaption, UnitCaption);
 
         if AnalysisView."Dimension 1 Code" <> '' then
             DimSelection.InsertDimSelBuf(false, AnalysisView."Dimension 1 Code", '');
@@ -1041,7 +1042,9 @@ page 554 "Analysis by Dimensions"
         if not AnalysisView.Find('=<>') then
             Error(Text002);
         "Analysis View Code" := AnalysisView.Code;
-        "Account Filter" := AnalysisView."Account Filter";
+
+        if ((Rec."Analysis Account Source" = AnalysisView."Account Source") or ("Account Filter" = '')) then
+            Rec."Account Filter" := AnalysisView."Account Filter";
 
         "Dimension 1 Filter" := '';
         "Dimension 2 Filter" := '';
@@ -1079,10 +1082,10 @@ page 554 "Analysis by Dimensions"
 
         OnValidateAnalysisViewCodeOnAfterRecSetFilters(Rec, AnalysisView);
 
-        case AnalysisView."Account Source" of
-            AnalysisView."Account Source"::"G/L Account":
+        case Rec."Analysis Account Source" of
+            Rec."Analysis Account Source"::"G/L Account":
                 GLAccountSource := true;
-            AnalysisView."Account Source"::"Cash Flow Account":
+            Rec."Analysis Account Source"::"Cash Flow Account":
                 GLAccountSource := false;
             else begin
                 AnalysisView.OnGetAnalysisViewSupported(AnalysisView, IsSupported);
@@ -1162,9 +1165,14 @@ page 554 "Analysis by Dimensions"
     end;
 
     procedure GetCaptionClass(AnalysisViewDimType: Integer) Result: Text[250]
+    var
+        DummyAnalysisbyDimParameters: Record "Analysis by Dim. Parameters";
     begin
         if AnalysisView.Code <> "Analysis View Code" then
-            if AnalysisView.Get("Analysis View Code") then;
+            if AnalysisView.Get("Analysis View Code") then
+                if Rec."Analysis Account Source" = DummyAnalysisbyDimParameters."Analysis Account Source" then
+                    Rec."Analysis Account Source" := AnalysisView."Account Source";
+
         case AnalysisViewDimType of
             1:
                 begin
@@ -1278,19 +1286,19 @@ page 554 "Analysis by Dimensions"
         BusUnit: Record "Business Unit";
         CashFlowForecast: Record "Cash Flow Forecast";
     begin
-        case AnalysisView."Account Source" of
-            AnalysisView."Account Source"::"G/L Account":
+        case Rec."Analysis Account Source" of
+            Rec."Analysis Account Source"::"G/L Account":
                 begin
                     AccountCaption := GLAcc.TableCaption();
                     UnitCaption := BusUnit.TableCaption();
                 end;
-            AnalysisView."Account Source"::"Cash Flow Account":
+            Rec."Analysis Account Source"::"Cash Flow Account":
                 begin
                     AccountCaption := CFAccount.TableCaption();
                     UnitCaption := CashFlowForecast.TableCaption();
                 end;
             else
-                OnGetCaptions(AnalysisView, LineDimCode, AccountCaption, UnitCaption);
+                OnGetCaptions(AnalysisView, LineDimCode, AccountCaption, UnitCaption, false);
         end;
     end;
 
@@ -1374,7 +1382,7 @@ page 554 "Analysis by Dimensions"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetCaptions(var AnalysisView: Record "Analysis View"; var LineDimCode: Text[30]; var AccountCaption: Text[30]; var UnitCaption: Text[30])
+    local procedure OnGetCaptions(var AnalysisView: Record "Analysis View"; var LineDimCode: Text[30]; var AccountCaption: Text[30]; var UnitCaption: Text[30]; OpenPage: Boolean)
     begin
     end;
 

@@ -752,7 +752,7 @@ codeunit 7201 "CDS Integration Impl."
         if AccessToken = '' then begin
             // sign in as admin in interactive auth code flow
             GetAccessToken(CDSConnectionSetup."Server Address", true, AccessToken);
-            TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+            TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup.GetProxyVersion(), GetAuthenticationTypeToken(CDSConnectionSetup));
             if not InitializeConnection(CrmHelper, TempConnectionString) then begin
                 Session.LogMessage('0000GGP', ConnectionNotRegisteredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 ProcessConnectionFailures();
@@ -1222,9 +1222,9 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionSetup."User Name" := CRMSystemuser.InternalEMailAddress;
         CDSConnectionSetup.SetPassword('');
         if (CDSConnectionFirstPartyAppIdTxt <> '') and (CDSConnectionFirstPartyAppCertificateTxt <> '') then
-            NewConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, CertificateTok, CDSConnectionSetup."Proxy Version")
+            NewConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, CertificateTok, CDSConnectionSetup.GetProxyVersion())
         else
-            NewConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, CDSConnectionSetup."Proxy Version");
+            NewConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, CDSConnectionSetup.GetProxyVersion());
         SetConnectionString(CDSConnectionSetup, NewConnectionString);
 
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
@@ -1311,9 +1311,9 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionSetup."User Name" := CRMSystemuser.InternalEMailAddress;
         CDSConnectionSetup.SetPassword('');
         if (CDSConnectionFirstPartyAppIdTxt <> '') and (CDSConnectionFirstPartyAppCertificateTxt <> '') then
-            NewConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, CertificateTok, CDSConnectionSetup."Proxy Version")
+            NewConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, CertificateTok, CDSConnectionSetup.GetProxyVersion())
         else
-            NewConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, CDSConnectionSetup."Proxy Version");
+            NewConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, CDSConnectionSetup.GetProxyVersion());
         SetConnectionString(CDSConnectionSetup, NewConnectionString);
 
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
@@ -1342,7 +1342,7 @@ codeunit 7201 "CDS Integration Impl."
         GetAccessToken(CDSConnectionSetup."Server Address", false, AdminAccessToken);
 
         // register connection with CrmHelper
-        TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", AdminAccessToken, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+        TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", AdminAccessToken, CDSConnectionSetup.GetProxyVersion(), GetAuthenticationTypeToken(CDSConnectionSetup));
         if not InitializeConnection(CrmHelper, TempConnectionString) then begin
             Session.LogMessage('0000AU2', ConnectionNotRegisteredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             ProcessConnectionFailures();
@@ -1889,7 +1889,7 @@ codeunit 7201 "CDS Integration Impl."
     local procedure GetTempAdminConnectionSetup(var TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary; var CDSConnectionSetup: Record "CDS Connection Setup"; AdminUser: Text; AdminPassword: Text; AccessToken: Text; AdminADDomain: Text);
     begin
         TempAdminCDSConnectionSetup.Init();
-        TempAdminCDSConnectionSetup."Proxy Version" := CDSConnectionSetup."Proxy Version";
+        TempAdminCDSConnectionSetup."Proxy Version" := CDSConnectionSetup.GetProxyVersion();
         TempAdminCDSConnectionSetup."Server Address" := CDSConnectionSetup."Server Address";
         if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then begin
             TempAdminCDSConnectionSetup.SetAccessToken(AccessToken);
@@ -2628,7 +2628,7 @@ codeunit 7201 "CDS Integration Impl."
         // in this case, the connection string contains the URL and access token, so just use the connection string
         if CDSConnectionSetup.IsTemporary() then
             if CDSConnectionSetup."User Name" = '' then begin
-                ConnectionStringWithAccessToken := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", CDSConnectionSetup.GetAccessToken(), CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+                ConnectionStringWithAccessToken := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", CDSConnectionSetup.GetAccessToken(), CDSConnectionSetup.GetProxyVersion(), GetAuthenticationTypeToken(CDSConnectionSetup));
                 exit(ConnectionStringWithAccessToken);
             end;
 
@@ -2636,13 +2636,13 @@ codeunit 7201 "CDS Integration Impl."
         // then we will connect via OAuth client credentials grant flow, and construct the connection string accordingly, with the actual client secret
         if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then begin
             if CDSConnectionSetup."Connection String".Contains(ClientSecretTok) then begin
-                ConnectionStringWithClientSecret := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", GetCDSConnectionClientId(), GetCDSConnectionClientSecret(), CDSConnectionSetup."Proxy Version");
+                ConnectionStringWithClientSecret := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", GetCDSConnectionClientId(), GetCDSConnectionClientSecret(), CDSConnectionSetup.GetProxyVersion());
                 Session.LogMessage('0000GRU', GetCDSConnectionClientId(), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 exit(ConnectionStringWithClientSecret);
             end;
 
             if CDSConnectionSetup."Connection String".Contains(CertificateTok) then begin
-                ConnectionStringWithCertificate := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", GetCDSConnectionFirstPartyAppId(), GetCDSConnectionFirstPartyAppcertificate(), CDSConnectionSetup."Proxy Version");
+                ConnectionStringWithCertificate := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", GetCDSConnectionFirstPartyAppId(), GetCDSConnectionFirstPartyAppcertificate(), CDSConnectionSetup.GetProxyVersion());
                 exit(ConnectionStringWithCertificate);
             end;
         end;
@@ -2664,13 +2664,13 @@ codeunit 7201 "CDS Integration Impl."
     begin
         if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then begin
             if CDSConnectionSetup."Connection String".Contains(ClientSecretAuthTxt) then begin
-                ConnectionStringWithClientSecret := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, CDSConnectionSetup."Proxy Version");
+                ConnectionStringWithClientSecret := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, CDSConnectionSetup.GetProxyVersion());
                 SetConnectionString(CDSConnectionSetup, ConnectionStringWithClientSecret);
                 exit;
             end;
 
             if CDSConnectionSetup."Connection String".Contains(CertificateAuthTxt) then begin
-                ConnectionStringWithCertificate := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, CertificateTok, CDSConnectionSetup."Proxy Version");
+                ConnectionStringWithCertificate := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, CertificateTok, CDSConnectionSetup.GetProxyVersion());
                 SetConnectionString(CDSConnectionSetup, ConnectionStringWithCertificate);
                 exit;
             end;
@@ -2678,7 +2678,7 @@ codeunit 7201 "CDS Integration Impl."
 
         ConnectionString :=
           StrSubstNo(
-            ConnectionStringFormatTok, CDSConnectionSetup."Server Address", GetUserName(CDSConnectionSetup), MissingPasswordTok, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+            ConnectionStringFormatTok, CDSConnectionSetup."Server Address", GetUserName(CDSConnectionSetup), MissingPasswordTok, CDSConnectionSetup.GetProxyVersion(), GetAuthenticationTypeToken(CDSConnectionSetup));
         SetConnectionString(CDSConnectionSetup, ConnectionString);
     end;
 
@@ -3208,15 +3208,15 @@ codeunit 7201 "CDS Integration Impl."
 
             case CDSConnectionSetup."Authentication Type" of
                 CDSConnectionSetup."Authentication Type"::AD:
-                    TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup, AdminADDomain));
+                    TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup.GetProxyVersion(), GetAuthenticationTypeToken(CDSConnectionSetup, AdminADDomain));
                 CDSConnectionSetup."Authentication Type"::OAuth:
                     TempConnectionString := ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup, AdminUser, AdminPassword);
                 else
-                    TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+                    TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup.GetProxyVersion(), GetAuthenticationTypeToken(CDSConnectionSetup));
             end
         end else begin
             GetAccessToken(CDSConnectionSetup."Server Address", GetTokenFromCache, AccessToken);
-            TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+            TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup.GetProxyVersion(), GetAuthenticationTypeToken(CDSConnectionSetup));
         end;
 
         if not InitializeConnection(CrmHelper, TempConnectionString) then begin
@@ -4557,7 +4557,7 @@ codeunit 7201 "CDS Integration Impl."
             CDSConnectionSetup.SetClientSecret(SourceCDSConnectionSetup.GetClientSecret());
             CDSConnectionSetup.Validate("Redirect URL", SourceCDSConnectionSetup."Redirect URL");
         end;
-        CDSConnectionSetup.Validate("Proxy Version", SourceCDSConnectionSetup."Proxy Version");
+        CDSConnectionSetup.Validate("Proxy Version", SourceCDSConnectionSetup.GetProxyVersion());
         CDSConnectionSetup.Validate("Business Unit Id", SourceCDSConnectionSetup."Business Unit Id");
         CDSConnectionSetup.Validate("Business Unit Name", SourceCDSConnectionSetup."Business Unit Name");
         CDSConnectionSetup.Validate("Is Enabled", SourceCDSConnectionSetup."Is Enabled");

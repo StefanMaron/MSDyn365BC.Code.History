@@ -928,12 +928,12 @@ codeunit 18147 "e-Invoice Json Handler"
     var
         ShiptoAddress: Record "Ship-to Address";
         StateBuff: Record State;
+        PostCode: Integer;
         GSTRegistrationNumber: Text[20];
         CompanyName: Text[100];
         Address: Text[100];
         Address2: Text[100];
         City: Text[100];
-        PostCode: Text[6];
         StateCode: Text[10];
         PhoneNumber: Text[10];
         EmailID: Text[50];
@@ -946,7 +946,7 @@ codeunit 18147 "e-Invoice Json Handler"
             Address := SalesInvoiceHeader."Ship-to Address";
             Address2 := SalesInvoiceHeader."Ship-to Address 2";
             City := SalesInvoiceHeader."Ship-to City";
-            PostCode := CopyStr(SalesInvoiceHeader."Ship-to Post Code", 1, 6);
+            Evaluate(PostCode, (CopyStr(SalesInvoiceHeader."Ship-to Post Code", 1, 6)));
         end else
             if SalesCrMemoHeader."Ship-to Code" <> '' then begin
                 ShiptoAddress.Get(SalesCrMemoHeader."Sell-to Customer No.", SalesCrMemoHeader."Ship-to Code");
@@ -955,7 +955,7 @@ codeunit 18147 "e-Invoice Json Handler"
                 Address := SalesCrMemoHeader."Ship-to Address";
                 Address2 := SalesCrMemoHeader."Ship-to Address 2";
                 City := SalesCrMemoHeader."Ship-to City";
-                PostCode := CopyStr(SalesCrMemoHeader."Ship-to Post Code", 1, 6);
+                Evaluate(PostCode, CopyStr(SalesCrMemoHeader."Ship-to Post Code", 1, 6));
             end;
         if ShiptoAddress."GST Registration No." <> '' then
             GSTRegistrationNumber := ShiptoAddress."GST Registration No."
@@ -974,7 +974,7 @@ codeunit 18147 "e-Invoice Json Handler"
         Address: Text[100];
         Address2: Text[100];
         AddressLocation: Text[100];
-        PostCode: Text[6];
+        PostCode: Integer;
         StateCode: Text[10])
     var
         Pin: Integer;
@@ -991,7 +991,7 @@ codeunit 18147 "e-Invoice Json Handler"
 
         JShippingDetails.Add('Loc', AddressLocation);
 
-        if PostCode <> '' then
+        if PostCode <> 0 then
             JShippingDetails.Add('Pin', PostCode)
         else
             JShippingDetails.Add('Pin', Pin);
@@ -1159,6 +1159,7 @@ codeunit 18147 "e-Invoice Json Handler"
         if IsInvoice then begin
             SalesInvoiceLine.SetRange("Document No.", DocumentNo);
             SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
+            SalesInvoiceLine.SetFilter(Quantity, '<>%1', 0);
             if SalesInvoiceLine.FindSet() then begin
                 if SalesInvoiceLine.Count > 100 then
                     Error(SalesLinesMaxCountLimitErr, SalesInvoiceLine.Count);
@@ -1212,6 +1213,7 @@ codeunit 18147 "e-Invoice Json Handler"
         end else begin
             SalesCrMemoLine.SetRange("Document No.", DocumentNo);
             SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
+            SalesCrMemoLine.SetFilter(Quantity, '<>%1', 0);
             if SalesCrMemoLine.FindSet() then begin
                 if SalesCrMemoLine.Count > 100 then
                     Error(SalesLinesMaxCountLimitErr, SalesCrMemoLine.Count);
@@ -1556,7 +1558,14 @@ codeunit 18147 "e-Invoice Json Handler"
             TotalInvoiceValue := Abs(CustLedgerEntry."Amount (LCY)");
         end;
 
-        OtherCharges := 0;
+        OtherCharges := CalculateOtherCharges(DocumentNo);
+    end;
+
+    local procedure CalculateOtherCharges(DocNo: code[20]) Amount: Decimal
+    var
+        TaxBaseSubscribers: Codeunit "Tax Base Subscribers";
+    begin
+        TaxBaseSubscribers.GetAmountFromDocumentNoForEInv(DocNo, Amount);
     end;
 
     local procedure GetGSTValueForLine(

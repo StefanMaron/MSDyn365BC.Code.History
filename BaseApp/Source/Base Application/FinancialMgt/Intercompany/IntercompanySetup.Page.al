@@ -61,6 +61,12 @@ page 653 "Intercompany Setup"
                     Caption = 'Auto. Send Transactions';
                     ToolTip = 'Specifies that as soon as transactions arrive in the intercompany outbox, they will be sent to the intercompany partner.';
                 }
+                field("Transaction Notifications"; Rec."Transaction Notifications")
+                {
+                    ApplicationArea = Intercompany;
+                    Caption = 'Transaction Notifications';
+                    ToolTip = 'Specifies whether the system should send you notifications when a new transaction is sent to the intercompany outbox.';
+                }
                 field("Default IC Gen. Jnl. Template"; Rec."Default IC Gen. Jnl. Template")
                 {
                     ApplicationArea = Intercompany;
