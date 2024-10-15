@@ -786,6 +786,12 @@
                 SubPageLink = "No." = FIELD("Pay-to Vendor No."),
                               "Date Filter" = field("Date Filter");
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Suite;
+                ShowFilter = false;
+                Visible = false;
+            }
             part(Control1903433907; "Cartera Payables Statistics FB")
             {
                 ApplicationArea = Basic, Suite;
@@ -1573,6 +1579,7 @@
         SIIManagement: Codeunit "SII Management";
     begin
         SetControlAppearance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
@@ -1584,6 +1591,7 @@
         CalculateCurrentShippingOption();
         BuyFromContact.GetOrClear(Rec."Buy-from Contact No.");
         PayToContact.GetOrClear(Rec."Pay-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;

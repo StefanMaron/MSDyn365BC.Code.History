@@ -1198,7 +1198,7 @@
                         "Prepayment Tax Group Code" := "Tax Group Code";
                         "Prepayment VAT %" := "VAT %";
                         "Prepayment EC %" := "EC %";
-			            OnGetSalesLinesOnBeforeInsertToSalesLine(ToSalesLine);
+                        OnGetSalesLinesOnBeforeInsertToSalesLine(ToSalesLine);
                         Insert();
                     end;
             end;
@@ -1221,8 +1221,15 @@
         OnAfterApplyFilter(SalesLine, SalesHeader, DocumentType);
     end;
 
-    procedure PrepmtAmount(SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo",Statistic): Decimal
+    procedure PrepmtAmount(SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo",Statistic) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrepmtAmount(SalesLine, DocumentType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with SalesLine do
             case DocumentType of
                 DocumentType::Statistic:
@@ -2077,6 +2084,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSalesLinesOnBeforeInsertToSalesLine(var ToSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrepmtAmount(var SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo",Statistic; var Result: Decimal; var IsHandled: Boolean);
     begin
     end;
 }
