@@ -411,38 +411,35 @@ report 2000020 "Domiciliation Journal - Test"
 
     local procedure CheckCustomer(var DomicJnlLine: Record "Domiciliation Journal Line")
     begin
-        with DomicJnlLine do
-            if not Cust.Get("Customer No.") then
-                AddError(StrSubstNo(Text003, "Customer No."))
-            else begin
-                AccName := Cust.Name;
+        if not Cust.Get(DomicJnlLine."Customer No.") then
+            AddError(StrSubstNo(Text003, DomicJnlLine."Customer No."))
+        else begin
+            AccName := Cust.Name;
 
-                if Cust."Privacy Blocked" then
-                    AddError(StrSubstNo(PrivacyBlockedErr, "Customer No."));
+            if Cust."Privacy Blocked" then
+                AddError(StrSubstNo(PrivacyBlockedErr, DomicJnlLine."Customer No."));
 
-                if Cust.Blocked in [Cust.Blocked::All, Cust.Blocked::Invoice] then
-                    AddError(StrSubstNo(Text004, "Customer No."));
-                if Cust."Currency Code" <> '' then
-                    AddError(Text005);
+            if Cust.Blocked in [Cust.Blocked::All, Cust.Blocked::Invoice] then
+                AddError(StrSubstNo(Text004, DomicJnlLine."Customer No."));
+            if Cust."Currency Code" <> '' then
+                AddError(Text005);
 
-                if Cust."Domiciliation No." = '' then
-                    AddError(
-                      StrSubstNo(Text006, "Customer No."))
-                else
-                    if not DomJnlManagement.CheckDomiciliationNo(Cust."Domiciliation No.") then
-                        AddError(StrSubstNo(Text007, Cust."Domiciliation No."))
-            end;
+            if Cust."Domiciliation No." = '' then
+                AddError(
+                  StrSubstNo(Text006, DomicJnlLine."Customer No."))
+            else
+                if not DomJnlManagement.CheckDomiciliationNo(Cust."Domiciliation No.") then
+                    AddError(StrSubstNo(Text007, Cust."Domiciliation No."))
+        end;
     end;
 
     local procedure CheckBankAccount(var DomicJnlLine: Record "Domiciliation Journal Line")
     begin
-        with DomicJnlLine do
-            if not BankAcc.Get("Bank Account No.") then
-                AddError(StrSubstNo(Text009, "Bank Account No."))
-            else begin
-                if BankAcc.Blocked then
-                    AddError(StrSubstNo(Text008, "Bank Account No."));
-            end;
+        if not BankAcc.Get(DomicJnlLine."Bank Account No.") then
+            AddError(StrSubstNo(Text009, DomicJnlLine."Bank Account No."))
+        else
+            if BankAcc.Blocked then
+                AddError(StrSubstNo(Text008, DomicJnlLine."Bank Account No."));
     end;
 }
 

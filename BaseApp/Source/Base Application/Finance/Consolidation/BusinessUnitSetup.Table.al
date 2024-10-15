@@ -6,6 +6,7 @@ using System.Globalization;
 table 1827 "Business Unit Setup"
 {
     Caption = 'Business Unit Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

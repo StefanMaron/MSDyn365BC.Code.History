@@ -17,6 +17,7 @@ using Microsoft.Sales.Receivables;
 table 2000022 "Domiciliation Journal Line"
 {
     Caption = 'Domiciliation Journal Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -46,7 +47,7 @@ table 2000022 "Domiciliation Journal Line"
                 Cust.Get("Customer No.");
 
                 // test on customer
-                InitCompanyInformation;
+                InitCompanyInformation();
                 if Cust."Domiciliation No." <> '' then
                     if not DomiciliationJnlMgt.CheckDomiciliationNo(Cust."Domiciliation No.") then
                         Error(Text001, Cust.FieldCaption("Domiciliation No."));

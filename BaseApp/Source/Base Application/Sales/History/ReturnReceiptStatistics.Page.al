@@ -93,7 +93,7 @@ page 6665 "Return Receipt Statistics"
                     TotalParcels += Round(ReturnRcptLine.Quantity / ReturnRcptLine."Units per Parcel", 1, '>');
                 OnCalculateTotalsOnAfterAddLineTotals(
                     ReturnRcptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, Rec);
-            until ReturnRcptLine.Next = 0;
+            until ReturnRcptLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

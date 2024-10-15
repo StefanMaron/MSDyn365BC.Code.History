@@ -12,7 +12,7 @@ codeunit 143002 "Library - Payment Journal BE"
     procedure CreateTemplate(var PaymentJnlTemplate: Record "Payment Journal Template")
     begin
         PaymentJnlTemplate.Init();
-        PaymentJnlTemplate.Name := CopyStr(CreateGuid, 1, MaxStrLen(PaymentJnlTemplate.Name));
+        PaymentJnlTemplate.Name := CopyStr(CreateGuid(), 1, MaxStrLen(PaymentJnlTemplate.Name));
         PaymentJnlTemplate.Description := 'Description';
         PaymentJnlTemplate."Page ID" := PAGE::"EB Payment Journal";
         PaymentJnlTemplate.Insert(true);
@@ -24,7 +24,7 @@ codeunit 143002 "Library - Payment Journal BE"
         PaymJournalBatch.Init();
         PaymJournalBatch."Journal Template Name" := PaymentJnlTemplate.Name;
         // Name may be INCSTR'ed which gives an overflow if last digit is '9'. Hence changing 9's to 0's.
-        PaymJournalBatch.Name := ConvertStr(CopyStr(CreateGuid, 1, MaxStrLen(PaymJournalBatch.Name)), '9', '0');
+        PaymJournalBatch.Name := ConvertStr(CopyStr(CreateGuid(), 1, MaxStrLen(PaymJournalBatch.Name)), '9', '0');
         PaymJournalBatch.Description := 'Description';
         PaymJournalBatch.Insert();
         PaymJournalBatch.SetRange("Journal Template Name", PaymentJnlTemplate.Name);
@@ -44,7 +44,7 @@ codeunit 143002 "Library - Payment Journal BE"
     procedure CreateDomTemplate(var DomiciliationJournalTemplate: Record "Domiciliation Journal Template")
     begin
         DomiciliationJournalTemplate.Init();
-        DomiciliationJournalTemplate.Name := CopyStr(CreateGuid, 1, MaxStrLen(DomiciliationJournalTemplate.Name));
+        DomiciliationJournalTemplate.Name := CopyStr(CreateGuid(), 1, MaxStrLen(DomiciliationJournalTemplate.Name));
         DomiciliationJournalTemplate.Description := 'Description';
         DomiciliationJournalTemplate."Page ID" := PAGE::"Domiciliation Journal";
         DomiciliationJournalTemplate.Insert(true);
@@ -56,7 +56,7 @@ codeunit 143002 "Library - Payment Journal BE"
         DomiciliationJournalBatch.Init();
         DomiciliationJournalBatch."Journal Template Name" := DomiciliationJournalTemplate.Name;
         // Name may be INCSTR'ed which gives an overflow if last digit is '9'. Hence changing 9's to 0's.
-        DomiciliationJournalBatch.Name := ConvertStr(CopyStr(CreateGuid, 1, MaxStrLen(DomiciliationJournalBatch.Name)), '9', '0');
+        DomiciliationJournalBatch.Name := ConvertStr(CopyStr(CreateGuid(), 1, MaxStrLen(DomiciliationJournalBatch.Name)), '9', '0');
         DomiciliationJournalBatch.Description := 'Description';
         DomiciliationJournalBatch.Insert();
         DomiciliationJournalBatch.SetRange("Journal Template Name", DomiciliationJournalTemplate.Name);
@@ -96,7 +96,7 @@ codeunit 143002 "Library - Payment Journal BE"
         CustLedgEntry."Document No." := Customer."No.";
         CustLedgEntry."Currency Code" := CurrencyCode;
         CustLedgEntry.Amount := 1;
-        CustLedgEntry."Pmt. Discount Date" := WorkDate + 1;
+        CustLedgEntry."Pmt. Discount Date" := WorkDate() + 1;
         CustLedgEntry."Original Pmt. Disc. Possible" := 0.05;
         CustLedgEntry."Remaining Pmt. Disc. Possible" := 0.05;
         CustLedgEntry.Open := true;
@@ -115,7 +115,7 @@ codeunit 143002 "Library - Payment Journal BE"
         VendLedgEntry."Document No." := Vendor."No.";
         VendLedgEntry."Currency Code" := CurrencyCode;
         VendLedgEntry.Amount := 1;
-        VendLedgEntry."Pmt. Discount Date" := WorkDate + 1;
+        VendLedgEntry."Pmt. Discount Date" := WorkDate() + 1;
         VendLedgEntry."Original Pmt. Disc. Possible" := 0.05;
         VendLedgEntry."Remaining Pmt. Disc. Possible" := 0.05;
         VendLedgEntry.Open := true;

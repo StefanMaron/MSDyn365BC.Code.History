@@ -83,18 +83,18 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         PaymentCount := LibraryRandom.RandIntInRange(2, 5);
         for i := 1 to PaymentCount do
             TotalAmount += CreateAndPostPurchInv(VendorNo, true);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, '', true, false, InterbankClearingCodeOptionRef::" ");
         PostPaymentLines(VendorNo);
@@ -126,18 +126,18 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(false);
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         PaymentCount := LibraryRandom.RandIntInRange(2, 5);
         for i := 1 to PaymentCount do
             CreateAndPostPurchInv(VendorNo, false);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, '', true, true, InterbankClearingCodeOptionRef::" ");
 
@@ -145,7 +145,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VerifyXmlSeparateLines(FileName);
 
         FileMgt.DeleteServerFile(FileName);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -158,7 +158,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VerifyPaymentInformationXMLNodesCheckChrgBrHelper(ExportProtocol."Code Expenses"::OUR, 'DEBT');
         VerifyPaymentInformationXMLNodesCheckChrgBrHelper(ExportProtocol."Code Expenses"::BEN, 'CRED');
         VerifyPaymentInformationXMLNodesCheckChrgBrHelper(ExportProtocol."Code Expenses"::SHA, 'SHAR');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure VerifyPaymentInformationXMLNodesCheckChrgBrHelper(CodeExp: Option; ExpectedValue: Code[20])
@@ -173,24 +173,24 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
 
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", CodeExp);
             Validate("Check Object ID", CODEUNIT::"Check Non Euro SEPA Payments");
             Validate("Export Object ID", REPORT::"File Non Euro SEPA Payments");
-            Validate("Export No. Series", CreateNoSeries);
+            Validate("Export No. Series", CreateNoSeries());
             Insert(true);
         end;
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol.Code, VendorSwift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, false);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, VendorNo, ExportProtocol.Code, Swift, BankIbanTxt, '', true, false, InterbankClearingCodeOptionRef::" ");
 
@@ -240,11 +240,11 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendorWithCurrency(CountryCode, ExportProtocol, Swift, VendorIbanTxt, VendorCurrency, VendorBankCurrency);
         CreateAndPostPurchInv(VendorNo, true);
 
@@ -275,7 +275,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
         with CountryRegion do begin
             Get('DK');
@@ -284,12 +284,12 @@ codeunit 144008 "EB - Payment Journal Export"
         end;
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryRegion.Code, ExportProtocol, VendorSwift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, false);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, '', true, false, InterbankClearingCodeOptionRef::" ");
 
@@ -318,7 +318,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(false);
         with CountryRegion do begin
             Get('DK');
@@ -327,12 +327,12 @@ codeunit 144008 "EB - Payment Journal Export"
         end;
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryRegion.Code, ExportProtocol, VendorSwift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, true);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, ForeignCurrencyCode,
           true, false, InterbankClearingCodeOptionRef::" ");
@@ -364,7 +364,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         with CountryRegion do begin
             Get('DK');
             "SEPA Allowed" := true;
@@ -373,14 +373,14 @@ codeunit 144008 "EB - Payment Journal Export"
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryRegion.Code, ExportProtocol, VendorSwift, VendorIbanTxt);
         PaymentCount := LibraryRandom.RandIntInRange(2, 5);
         for i := 1 to PaymentCount do
             TotalAmount += CreateAndPostPurchInv(VendorNo, true);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, '', true, false, InterbankClearingCodeOptionRef::" ");
 
@@ -408,16 +408,16 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor('', ExportProtocol, VendorSwift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, true);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, '', true, false, InterbankClearingCodeOptionRef::" ");
         Assert.AreEqual(Format(BlankVendorCurrencyCodeErr), ErrorMessage, IncorrectErr);
@@ -449,17 +449,17 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(UseEuro);
         BlankPaymentJournalBankAccount := true;
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, UseEuro);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         asserterror ExportSuggestedPayment(
             FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, '', true, false, InterbankClearingCodeOptionRef::" ");
         Assert.AreEqual(Format(OnlyOneBankAccountErr), ErrorMessage, IncorrectErr);
@@ -489,12 +489,12 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(UseEuro);
         BlankPaymentJournalBankAccount := true;
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, UseEuro);
 
@@ -522,16 +522,16 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, true);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, '', VendorNo, ExportProtocol, Swift, BankIbanTxt, '', true, false, InterbankClearingCodeOptionRef::" ");
         Assert.AreEqual(StrSubstNo(BlankCurrencyCodeErr, LastBankAccount), ErrorMessage, IncorrectErr);
@@ -556,7 +556,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
@@ -564,7 +564,7 @@ codeunit 144008 "EB - Payment Journal Export"
         CreateAndPostPurchInv(VendorNo, true);
 
         // [WHEN] Suggest and Export Payments error on missing SWIFT
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, '', true, false, InterbankClearingCodeOptionRef::" ");
         Assert.AreEqual(Format(BlankVendorSwiftErr), ErrorMessage, IncorrectErr);
@@ -589,11 +589,11 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, Swift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, true);
 
@@ -631,11 +631,11 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(UseEuro);
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, Swift, VendorIbanTxt);
 
         CreateAndPostPurchInv(VendorNo, UseEuro);
@@ -656,7 +656,7 @@ codeunit 144008 "EB - Payment Journal Export"
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
 
         // [WHEN] Check Payment Lines
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         UseCheckPaymentLine := true;
         asserterror ExportSuggestedPayment(
             FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, '', true, false, InterbankClearingCodeOptionRef::" ");
@@ -682,11 +682,11 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(false);
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, Swift, VendorIbanTxt);
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
@@ -727,11 +727,11 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, Swift, VendorIbanTxt);
 
         CreateAndPostPurchInv(VendorNo, true);
@@ -782,7 +782,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
         with CountryRegion do begin
             Get('DK');
@@ -791,7 +791,7 @@ codeunit 144008 "EB - Payment Journal Export"
         end;
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, Swift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, true);
 
@@ -821,7 +821,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
         with CountryRegion do begin
             Get('DK');
@@ -830,7 +830,7 @@ codeunit 144008 "EB - Payment Journal Export"
         end;
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryRegion.Code, ExportProtocol, Swift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, true);
 
@@ -858,17 +858,17 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", "Code Expenses"::BEN);
             Validate("Export Object ID", REPORT::"File SEPA Payments");
-            Validate("Export No. Series", CreateNoSeries);
+            Validate("Export No. Series", CreateNoSeries());
             Insert(true);
         end;
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol.Code, Swift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, true);
 
@@ -895,17 +895,17 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", "Code Expenses"::BEN);
             Validate("Check Object ID", CODEUNIT::"Check SEPA Payments");
-            Validate("Export No. Series", CreateNoSeries);
+            Validate("Export No. Series", CreateNoSeries());
             Insert(true);
         end;
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol.Code, Swift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, true);
 
@@ -933,7 +933,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", "Code Expenses"::BEN);
@@ -943,7 +943,7 @@ codeunit 144008 "EB - Payment Journal Export"
         end;
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol.Code, Swift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, true);
 
@@ -971,17 +971,17 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", "Code Expenses"::BEN);
             Validate("Export Object ID", REPORT::"File Non Euro SEPA Payments");
-            Validate("Export No. Series", CreateNoSeries);
+            Validate("Export No. Series", CreateNoSeries());
             Insert(true);
         end;
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol.Code, Swift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, false);
 
@@ -1010,17 +1010,17 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", "Code Expenses"::BEN);
             Validate("Check Object ID", CODEUNIT::"Check Non Euro SEPA Payments");
-            Validate("Export No. Series", CreateNoSeries);
+            Validate("Export No. Series", CreateNoSeries());
             Insert(true);
         end;
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol.Code, Swift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, false);
 
@@ -1050,7 +1050,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         with ExportProtocol do begin
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol"));
             Validate("Code Expenses", "Code Expenses"::BEN);
@@ -1060,7 +1060,7 @@ codeunit 144008 "EB - Payment Journal Export"
         end;
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol.Code, Swift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, false);
 
@@ -1090,16 +1090,16 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, '');
         CreateAndPostPurchInv(VendorNo, true);
 
         // [WHEN] Suggest and Export Payments error on missing IBAN
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, '', true, false, InterbankClearingCodeOptionRef::" ");
         Assert.AreEqual(Format(BlankVendorIbanErr), ErrorMessage, IncorrectErr);
@@ -1124,16 +1124,16 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         // Create payments
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, Swift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, true);
 
         // [WHEN] Suggest and Export Payments error on missing IBAN
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, VendorNo, ExportProtocol, Swift, '', '', true, false, InterbankClearingCodeOptionRef::" ");
         Assert.AreEqual(StrSubstNo(BlankIbanErr, LastBankAccount), ErrorMessage, IncorrectErr);
@@ -1164,14 +1164,14 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
         CountryCode := FindCountryRegionISO(ISOCountryCode);
         ExportProtocol := CreateSEPAExportProtocol(true);
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateAndUpdateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         VendorNo2 := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, true);
         CreateAndPostPurchInv(VendorNo2, true);
 
         // [WHEN] Suggest and Export Payments.
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, StrSubstNo('%1|%2', VendorNo, VendorNo2), ExportProtocol, Swift, BankIbanTxt, '',
           true, false, InterbankClearingCodeOptionRef::" ");
@@ -1201,18 +1201,18 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(false);
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         PaymentCount := LibraryRandom.RandIntInRange(2, 5);
         for i := 1 to PaymentCount do
             TotalAmount += CreateAndPostPurchInv(VendorNo, false);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, ForeignCurrencyCode,
           true, false, InterbankClearingCodeOptionRef::" ");
@@ -1221,7 +1221,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VerifyXMLPaymentNodes(FileName, GetProtocolLastNoUsed(ExportProtocol), PaymentCount, TotalAmount);
 
         FileMgt.DeleteServerFile(FileName);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1244,11 +1244,11 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
 
         // Preparation: create settings
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(false);
 
         // Create payments
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         InvAmount1 := CreateAndPostPurchInv(VendorNo, false);
         FirstForeignCurrencyCodeIso := ForeignCurrencyIso;
@@ -1258,7 +1258,7 @@ codeunit 144008 "EB - Payment Journal Export"
         InvAmount2 := CreateAndPostPurchInv(VendorNo, false);
 
         // [WHEN] Suggest and Export Payments with mod97 Payment Message
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, VendorNo, ExportProtocol, Swift, BankIbanTxt, ForeignCurrencyCode,
           true, false, InterbankClearingCodeOptionRef::" ");
@@ -1267,7 +1267,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VerifyXMLAmountCurrency(FileName, FirstForeignCurrencyCodeIso, SecondForeignCurrencyCodeIso, InvAmount1, InvAmount2);
 
         FileMgt.DeleteServerFile(FileName);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1291,14 +1291,14 @@ codeunit 144008 "EB - Payment Journal Export"
         Initialize();
         CountryCode := FindCountryRegionISO(ISOCountryCode);
         ExportProtocol := CreateSEPAExportProtocol(false);
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateAndUpdateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         VendorNo2 := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, false);
         CreateAndPostPurchInv(VendorNo2, false);
 
         // [WHEN] Suggest and Export Payments.
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, StrSubstNo('%1|%2', VendorNo, VendorNo2),
           ExportProtocol, Swift, BankIbanTxt, ForeignCurrencyCode, true, false, InterbankClearingCodeOptionRef::" ");
@@ -1308,7 +1308,7 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // Tear Down.
         FileMgt.DeleteServerFile(FileName);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1336,7 +1336,7 @@ codeunit 144008 "EB - Payment Journal Export"
         CreateAndPostPurchCreditMemo(VendorNo, true, -VendorLedgerEntry.Amount / LibraryRandom.RandIntInRange(2, 5)); // Make sure Credit Line Amount is less than Invoice Amount
 
         // Suggest and Export Payments.
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
         ExportSuggestedPayment(
           FileName, CountryCode, StrSubstNo('%1', VendorNo), ExportProtocol, Swift, BankIbanTxt, '',
           false, false, InterbankClearingCodeOptionRef::" ");
@@ -1371,10 +1371,10 @@ codeunit 144008 "EB - Payment Journal Export"
         // [GIVEN] Prerequisites for Payment Journal Lines creation: Payment Journal Template and Batch, Country Code, Export protocol, Vendor created
         CreatePaymentJnlBatch(PaymJournalBatch);
 
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
 
         PaymentJournalLine[1].SetRange("Journal Template Name", PaymJournalBatch."Journal Template Name");
@@ -1385,7 +1385,7 @@ codeunit 144008 "EB - Payment Journal Export"
         CreatePaymentJournalLine(
           PaymentJournalLine[1], PaymJournalBatch, VendorNo,
           CreateBankAccount(
-            CountryCode, VendorSwift, VendorIbanTxt, LibraryERM.CreateCurrencyWithRounding, InterbankClearingCodeOptionRef::" "),
+            CountryCode, VendorSwift, VendorIbanTxt, LibraryERM.CreateCurrencyWithRounding(), InterbankClearingCodeOptionRef::" "),
           LibraryRandom.RandDecInRange(1000, 2000, 2), true);
 
         // [GIVEN] 2nd Payment Journal Line with negative Amount and "Separate Line" = FALSE
@@ -1395,7 +1395,7 @@ codeunit 144008 "EB - Payment Journal Export"
         // [WHEN] Calling "Check Payment Lines" action on "EB Payment Journal" page
         PaymentJournalLine[1].Get(
           PaymJournalBatch."Journal Template Name", PaymJournalBatch.Name, PaymentJournalLine[1]."Line No.");
-        ExportCheckErrorLogs.Trap;
+        ExportCheckErrorLogs.Trap();
         asserterror CODEUNIT.Run(CODEUNIT::"Check SEPA Payments", PaymentJournalLine[1]);
 
         // [THEN] "The amount must be positive..." error caused by the 2nd Payment Journal Line appears
@@ -1426,10 +1426,10 @@ codeunit 144008 "EB - Payment Journal Export"
         // [GIVEN] Prerequisites for Payment Journal Lines creation: Payment Journal Template and Batch, Country Code, Export protocol, Vendor created
         CreatePaymentJnlBatch(PaymJournalBatch);
 
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
 
         LibraryERM.CreateBankAccount(BankAccount);
@@ -1442,7 +1442,7 @@ codeunit 144008 "EB - Payment Journal Export"
         CreatePaymentJournalLine(
           PaymentJournalLine[1], PaymJournalBatch, VendorNo,
           CreateBankAccount(
-            CountryCode, VendorSwift, VendorIbanTxt, LibraryERM.CreateCurrencyWithRounding, InterbankClearingCodeOptionRef::" "),
+            CountryCode, VendorSwift, VendorIbanTxt, LibraryERM.CreateCurrencyWithRounding(), InterbankClearingCodeOptionRef::" "),
           -LibraryRandom.RandDec(100, 2), false);
 
         // [GIVEN] 2nd Payment Journal Line with positive Amount and "Separate Line" = TRUE
@@ -1453,7 +1453,7 @@ codeunit 144008 "EB - Payment Journal Export"
         // [WHEN] Calling "Check Payment Lines" action on "EB Payment Journal" page
         PaymentJournalLine[1].Get(
           PaymJournalBatch."Journal Template Name", PaymJournalBatch.Name, PaymentJournalLine[1]."Line No.");
-        ExportCheckErrorLogs.Trap;
+        ExportCheckErrorLogs.Trap();
         asserterror CODEUNIT.Run(CODEUNIT::"Check SEPA Payments", PaymentJournalLine[1]);
 
         // [THEN] "The amount must be positive..." error caused by the 1st Payment Journal Line appears
@@ -1561,7 +1561,7 @@ codeunit 144008 "EB - Payment Journal Export"
           PaymentJournalLine, PaymentJournalLine."Account Type"::Vendor, Vendor."No.", CreateSEPAExportProtocol(false));
 
         // [WHEN] Run File SEPA Payments report
-        asserterror RunFileSEPAPaymentReport(PaymentJournalLine, GenerateFileName);
+        asserterror RunFileSEPAPaymentReport(PaymentJournalLine, GenerateFileName());
 
         // [THEN] Error thrown that You cannot create this type of document when Vendor is blocked
         Assert.ExpectedError(StrSubstNo(YouCannotCreateDocumentVendorErr, Vendor."No.", Vendor.Blocked));
@@ -1587,7 +1587,7 @@ codeunit 144008 "EB - Payment Journal Export"
           PaymentJournalLine, PaymentJournalLine."Account Type"::Customer, Customer."No.", CreateSEPAExportProtocol(false));
 
         // [WHEN] Run File SEPA Payments report
-        asserterror RunFileSEPAPaymentReport(PaymentJournalLine, GenerateFileName);
+        asserterror RunFileSEPAPaymentReport(PaymentJournalLine, GenerateFileName());
 
         // [THEN] Error thrown that You cannot create this type of document when Customer is blocked
         Assert.ExpectedError(StrSubstNo(YouCannotCreateDocumentCustomerErr, Customer."No.", Customer.Blocked));
@@ -1613,7 +1613,7 @@ codeunit 144008 "EB - Payment Journal Export"
           PaymentJournalLine, PaymentJournalLine."Account Type"::Vendor, Vendor."No.", CreateSEPAExportProtocol(false));
 
         // [WHEN] Run File SEPA Payments report
-        asserterror RunFileSEPAPaymentReport(PaymentJournalLine, GenerateFileName);
+        asserterror RunFileSEPAPaymentReport(PaymentJournalLine, GenerateFileName());
 
         // [THEN] Error thrown that You cannot create this type of document when Vendor is blocked
         Assert.ExpectedError(StrSubstNo(YouCannotCreateDocumentVendorPrivacyBlockedErr, Vendor."No."));
@@ -1639,7 +1639,7 @@ codeunit 144008 "EB - Payment Journal Export"
           PaymentJournalLine, PaymentJournalLine."Account Type"::Customer, Customer."No.", CreateSEPAExportProtocol(false));
 
         // [WHEN] Run File SEPA Payments report
-        asserterror RunFileSEPAPaymentReport(PaymentJournalLine, GenerateFileName);
+        asserterror RunFileSEPAPaymentReport(PaymentJournalLine, GenerateFileName());
 
         // [THEN] Error thrown that You cannot create this type of document when Customer is blocked
         Assert.ExpectedError(StrSubstNo(YouCannotCreateDocumentCustomerPrivacyBlockedErr, Customer."No."));
@@ -1796,10 +1796,10 @@ codeunit 144008 "EB - Payment Journal Export"
         // [SCENARIO 288144] PmtTpInf tag and InstrPrty tag with NORM value are included in Payment Export file
         Initialize();
 
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(false);
-        Swift := GenerateBankAccSwiftCode;
-        VendorSwift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         InterbankClearingCodeOptionRef := InterbankClearingCodeOptionRef::Normal;
 
@@ -1810,7 +1810,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VerifyXMLPaymentNodesWithPmtTpInf(FileName, 'NORM');
 
         FileMgt.DeleteServerFile(FileName);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1829,10 +1829,10 @@ codeunit 144008 "EB - Payment Journal Export"
         // [SCENARIO 288144] PmtTpInf tag and InstrPrty tag with HIGH value are included in Payment Export file
         Initialize();
 
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(false);
-        Swift := GenerateBankAccSwiftCode;
-        VendorSwift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         InterbankClearingCodeOptionRef := InterbankClearingCodeOptionRef::Urgent;
 
@@ -1843,7 +1843,7 @@ codeunit 144008 "EB - Payment Journal Export"
         VerifyXMLPaymentNodesWithPmtTpInf(FileName, 'HIGH');
 
         FileMgt.DeleteServerFile(FileName);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1872,7 +1872,7 @@ codeunit 144008 "EB - Payment Journal Export"
         CreateAndPostPurchCreditMemo(
             VendorNo, true, -VendorLedgerEntry.Amount / LibraryRandom.RandIntInRange(2, 5));
 
-        Swift := GenerateBankAccSwiftCode;
+        Swift := GenerateBankAccSwiftCode();
 
         MockSelectedDimensionFileSEPAPaymentsReport();
 
@@ -1937,7 +1937,7 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // [WHEN] Run File SEPA Payments report
         BindSubscription(EBPaymentJournalExport);
-        RunFileSEPAPaymentReport(PaymentJournalLine, GenerateFileName);
+        RunFileSEPAPaymentReport(PaymentJournalLine, GenerateFileName());
 
         // [THEN] Event "OnBeforeDownloadXmlFile" has been invoked including TempBlod with xml content
         // Verify in OnBeforeDownloadXmlFile()
@@ -1967,11 +1967,11 @@ codeunit 144008 "EB - Payment Journal Export"
     var
         i: Integer;
     begin
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
 
         VendorNo :=
-          CreateVendor(CountryCode, ExportProtocol, GenerateBankAccSwiftCode, VendorIbanTxt);
+          CreateVendor(CountryCode, ExportProtocol, GenerateBankAccSwiftCode(), VendorIbanTxt);
         for i := 1 to ArrayLen(Amounts) do
             Amounts[i] := CreateAndPostPurchInv(VendorNo, true);
     end;
@@ -2003,7 +2003,7 @@ codeunit 144008 "EB - Payment Journal Export"
                 Validate("Check Object ID", CODEUNIT::"Check Non Euro SEPA Payments");
                 Validate("Export Object ID", REPORT::"File Non Euro SEPA Payments");
             end;
-            Validate("Export No. Series", CreateNoSeries);
+            Validate("Export No. Series", CreateNoSeries());
             Insert(true);
             exit(Code);
         end;
@@ -2125,9 +2125,9 @@ codeunit 144008 "EB - Payment Journal Export"
     var
         VendorSwift: Code[20];
     begin
-        CountryCode := FindCountryRegion;
+        CountryCode := FindCountryRegion();
         ExportProtocol := CreateSEPAExportProtocol(true);
-        VendorSwift := GenerateBankAccSwiftCode;
+        VendorSwift := GenerateBankAccSwiftCode();
         VendorNo := CreateAndUpdateVendor(CountryCode, ExportProtocol, VendorSwift, VendorIbanTxt);
         exit(VendorNo);
     end;
@@ -2245,7 +2245,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(10, 100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 100));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -2266,10 +2266,10 @@ codeunit 144008 "EB - Payment Journal Export"
         EBPaymentJournalPage: TestPage "EB Payment Journal";
     begin
         LibraryVariableStorage.Enqueue(VendorNo);
-        EBPaymentJournalPage.OpenEdit;
+        EBPaymentJournalPage.OpenEdit();
         Commit();
         EBPaymentJournalPage.CurrentJnlBatchName.Value(PaymJnlBatch.Name);
-        EBPaymentJournalPage.SuggestVendorPayments.Invoke;
+        EBPaymentJournalPage.SuggestVendorPayments.Invoke();
     end;
 
     local procedure ExportPayments(var FileName: Text; PaymJournalBatch: Record "Paym. Journal Batch"; BankAccountCode: Code[20]; ExportProtocol: Code[20]; PaymentMsg: Boolean; SeparateLine: Boolean; AutomaticPosting: Boolean; GlobalDim1ValueCode: Code[20])
@@ -2283,7 +2283,7 @@ codeunit 144008 "EB - Payment Journal Export"
         CreateGenJnlBatch(GenJnlBatch);
         LibraryVariableStorage.Enqueue(GenJnlBatch."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJnlBatch.Name);
-        FileName := GenerateFileName;
+        FileName := GenerateFileName();
         LibraryVariableStorage.Enqueue(FileName);
         LibraryVariableStorage.Enqueue(AutomaticPosting);
 
@@ -2301,7 +2301,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         ExportPayments(
           FileName, PaymJournalBatch,
-          CreateBankAccount(CountryCode, GenerateBankAccSwiftCode, BankIbanTxt, '', InterbankClearingCodeOption),
+          CreateBankAccount(CountryCode, GenerateBankAccSwiftCode(), BankIbanTxt, '', InterbankClearingCodeOption),
           ExportProtocol, false, false, AutomaticPosting, '');
     end;
 
@@ -2312,12 +2312,12 @@ codeunit 144008 "EB - Payment Journal Export"
         EBPaymentJournalPage: TestPage "EB Payment Journal";
     begin
         LibraryVariableStorage.Enqueue(VendorNo);
-        EBPaymentJournalPage.OpenEdit;
+        EBPaymentJournalPage.OpenEdit();
         CreatePaymentJnlBatch(PaymJournalBatch);
         Commit();
         EBPaymentJournalPage.ExportProtocolCode.Value(ExportProtocol);
         EBPaymentJournalPage.CurrentJnlBatchName.Value(PaymJournalBatch.Name);
-        EBPaymentJournalPage.SuggestVendorPayments.Invoke;
+        EBPaymentJournalPage.SuggestVendorPayments.Invoke();
 
         if BlankPaymentJournalBankAccount then
             with PaymentJournalLine do begin
@@ -2327,10 +2327,10 @@ codeunit 144008 "EB - Payment Journal Export"
                 repeat
                     Validate("Bank Account", '');
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
             end;
         Commit();
-        EBPaymentJournalPage.CheckPaymentLines.Invoke;
+        EBPaymentJournalPage.CheckPaymentLines.Invoke();
     end;
 
     local procedure CreatePaymentJnlBatch(var PaymJournalBatch: Record "Paym. Journal Batch")
@@ -2361,7 +2361,7 @@ codeunit 144008 "EB - Payment Journal Export"
                 if GlobalDim1Code <> '' then
                     Validate("Shortcut Dimension 1 Code", GlobalDim1Code);
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
 
         CODEUNIT.Run(CODEUNIT::"Check International Payments", PaymentJournalLine);
@@ -2385,8 +2385,8 @@ codeunit 144008 "EB - Payment Journal Export"
     local procedure PostPurchaseInvoice(var CountryCode: Code[10]; var ExportProtocol: Code[20]; var VendorNo: Code[20]; UseEuro: Boolean)
     begin
         ExportProtocol := CreateSEPAExportProtocol(UseEuro);
-        CountryCode := FindCountryRegion;
-        VendorNo := CreateVendor(CountryCode, ExportProtocol, GenerateBankAccSwiftCode, VendorIbanTxt);
+        CountryCode := FindCountryRegion();
+        VendorNo := CreateVendor(CountryCode, ExportProtocol, GenerateBankAccSwiftCode(), VendorIbanTxt);
         CreateAndPostPurchInv(VendorNo, true);
     end;
 
@@ -2401,7 +2401,7 @@ codeunit 144008 "EB - Payment Journal Export"
             LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
             LibraryERM.FindGLAccount(GLAccount);
             Validate("Bal. Account No.", GLAccount."No.");
-            Validate("No. Series", CreateNoSeries);
+            Validate("No. Series", CreateNoSeries());
             Modify();
         end;
     end;
@@ -2413,7 +2413,7 @@ codeunit 144008 "EB - Payment Journal Export"
         FilterPmtJnlLine(PaymentJournalLine, PaymJournalBatch, PaymentJournalLine.Status::Created);
         with PaymentJournalLine do begin
             FindFirst();
-            Next;
+            Next();
             Validate(Amount, Round(Amount / 3));
             Modify(true);
             exit(Amount);
@@ -2504,7 +2504,7 @@ codeunit 144008 "EB - Payment Journal Export"
 
     local procedure GenerateFileName() FileName: Text
     begin
-        FileName := TemporaryPath + LibraryUtility.GenerateGUID + '.xml';
+        FileName := TemporaryPath + LibraryUtility.GenerateGUID() + '.xml';
         if FileMgt.ServerFileExists(FileName) then
             FileMgt.DeleteServerFile(FileName);
     end;
@@ -2538,7 +2538,6 @@ codeunit 144008 "EB - Payment Journal Export"
         GLSetup: Record "General Ledger Setup";
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
         TempDimensionSelectionBuffer: Record "Dimension Selection Buffer" temporary;
-        SelectedDim: Record "Selected Dimension";
         IncludeDimText: Text[250];
     begin
         GLSetup.Get();
@@ -2672,7 +2671,7 @@ codeunit 144008 "EB - Payment Journal Export"
             FindSet();
             repeat
                 Assert.AreEqual(Status::Posted, Status, ShouldHaveBeenPostedErr);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -2837,7 +2836,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         LibraryVariableStorage.Dequeue(VendorNo);
         SuggestVendorPaymentsEB.Vend.SetFilter("No.", VendorNo);
-        SuggestVendorPaymentsEB.OK.Invoke;
+        SuggestVendorPaymentsEB.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2850,7 +2849,7 @@ codeunit 144008 "EB - Payment Journal Export"
         FileSEPAPayments.AutomaticPosting.SetValue(LibraryVariableStorage.DequeueBoolean());
         FileSEPAPayments.IncludeDimText.SetValue(DimensionCode);
         FileSEPAPayments.ExecutionDate.SetValue(WorkDate());
-        FileSEPAPayments.OK.Invoke;
+        FileSEPAPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2861,7 +2860,7 @@ codeunit 144008 "EB - Payment Journal Export"
         FileSEPAPayments."GenJnlLine.""Journal Batch Name""".Value(LibraryVariableStorage.DequeueText());
         FileSEPAPayments.FileName.Value(LibraryVariableStorage.DequeueText());
         FileSEPAPayments.AutomaticPosting.SetValue(LibraryVariableStorage.DequeueBoolean());
-        FileSEPAPayments.OK.Invoke;
+        FileSEPAPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2873,7 +2872,7 @@ codeunit 144008 "EB - Payment Journal Export"
         FileSEPAPayments.FileName.SetValue(LibraryVariableStorage.DequeueText());
         FileSEPAPayments.AutomaticPosting.SetValue(LibraryVariableStorage.DequeueBoolean());
         FileSEPAPayments.ExecutionDate.SetValue(WorkDate());
-        FileSEPAPayments.OK.Invoke;
+        FileSEPAPayments.OK().Invoke();
     end;
 
     local procedure VerifyXMLCountryCodeNodeValue(FileName: Text; VendorNo: Code[20]; VendorNo2: Code[20]; City: Code[10])
@@ -2893,7 +2892,7 @@ codeunit 144008 "EB - Payment Journal Export"
     [Scope('OnPrem')]
     procedure ErrorPageHandler(var ExportCheckErrorLogs: TestPage "Export Check Error Logs")
     begin
-        ErrorMessage := ExportCheckErrorLogs."Error Message".Value;
+        ErrorMessage := ExportCheckErrorLogs."Error Message".Value();
         ExportCheckErrorLogs.Close();
     end;
 

@@ -44,44 +44,42 @@ codeunit 1642 "Intelligent Info Manifest"
 
     local procedure SetupResourceImages(var ManifestText: Text)
     begin
-        with AddinManifestManagement do begin
-            if EnvironmentInfo.IsSaaS() then begin
-                SetNodeResource(ManifestText, 'nav-icon-16', BrandingFolderTxt + 'OfficeAddin_16x.png', 0);
-                SetNodeResource(ManifestText, 'nav-icon-32', BrandingFolderTxt + 'OfficeAddin_32x.png', 0);
-                SetNodeResource(ManifestText, 'nav-icon-80', BrandingFolderTxt + 'OfficeAddin_80x.png', 0);
-            end else begin
-                SetNodeResource(ManifestText, 'nav-icon-16', 'OfficeAddin_16x.png', 0);
-                SetNodeResource(ManifestText, 'nav-icon-32', 'OfficeAddin_32x.png', 0);
-                SetNodeResource(ManifestText, 'nav-icon-80', 'OfficeAddin_80x.png', 0);
-            end;
-            SetNodeResource(ManifestText, 'new-document-16', 'NewDocument_16x16.png', 0);
-            SetNodeResource(ManifestText, 'new-document-32', 'NewDocument_32x32.png', 0);
-            SetNodeResource(ManifestText, 'new-document-80', 'NewDocument_80x80.png', 0);
-
-            SetNodeResource(ManifestText, 'quote-16', 'Quote_16x16.png', 0);
-            SetNodeResource(ManifestText, 'quote-32', 'Quote_32x32.png', 0);
-            SetNodeResource(ManifestText, 'quote-80', 'Quote_80x80.png', 0);
-
-            SetNodeResource(ManifestText, 'order-16', 'Order_16x16.png', 0);
-            SetNodeResource(ManifestText, 'order-32', 'Order_32x32.png', 0);
-            SetNodeResource(ManifestText, 'order-80', 'Order_80x80.png', 0);
-
-            SetNodeResource(ManifestText, 'sales-invoice-16', 'SalesInvoice_16.png', 0);
-            SetNodeResource(ManifestText, 'sales-invoice-32', 'SalesInvoice_32.png', 0);
-            SetNodeResource(ManifestText, 'sales-invoice-80', 'SalesInvoice_80.png', 0);
-
-            SetNodeResource(ManifestText, 'sales-credit-memo-16', 'SalesCreditMemo_16.png', 0);
-            SetNodeResource(ManifestText, 'sales-credit-memo-32', 'SalesCreditMemo_32.png', 0);
-            SetNodeResource(ManifestText, 'sales-credit-memo-80', 'SalesCreditMemo_80.png', 0);
-
-            SetNodeResource(ManifestText, 'purchase-invoice-16', 'PurchaseInvoice_16.png', 0);
-            SetNodeResource(ManifestText, 'purchase-invoice-32', 'PurchaseInvoice_32.png', 0);
-            SetNodeResource(ManifestText, 'purchase-invoice-80', 'PurchaseInvoice_80.png', 0);
-
-            SetNodeResource(ManifestText, 'purchase-credit-memo-16', 'PurchaseCreditMemo_16.png', 0);
-            SetNodeResource(ManifestText, 'purchase-credit-memo-32', 'PurchaseCreditMemo_32.png', 0);
-            SetNodeResource(ManifestText, 'purchase-credit-memo-80', 'PurchaseCreditMemo_80.png', 0);
+        if EnvironmentInfo.IsSaaS() then begin
+            AddinManifestManagement.SetNodeResource(ManifestText, 'nav-icon-16', BrandingFolderTxt + 'OfficeAddin_16x.png', 0);
+            AddinManifestManagement.SetNodeResource(ManifestText, 'nav-icon-32', BrandingFolderTxt + 'OfficeAddin_32x.png', 0);
+            AddinManifestManagement.SetNodeResource(ManifestText, 'nav-icon-80', BrandingFolderTxt + 'OfficeAddin_80x.png', 0);
+        end else begin
+            AddinManifestManagement.SetNodeResource(ManifestText, 'nav-icon-16', 'OfficeAddin_16x.png', 0);
+            AddinManifestManagement.SetNodeResource(ManifestText, 'nav-icon-32', 'OfficeAddin_32x.png', 0);
+            AddinManifestManagement.SetNodeResource(ManifestText, 'nav-icon-80', 'OfficeAddin_80x.png', 0);
         end;
+        AddinManifestManagement.SetNodeResource(ManifestText, 'new-document-16', 'NewDocument_16x16.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'new-document-32', 'NewDocument_32x32.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'new-document-80', 'NewDocument_80x80.png', 0);
+
+        AddinManifestManagement.SetNodeResource(ManifestText, 'quote-16', 'Quote_16x16.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'quote-32', 'Quote_32x32.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'quote-80', 'Quote_80x80.png', 0);
+
+        AddinManifestManagement.SetNodeResource(ManifestText, 'order-16', 'Order_16x16.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'order-32', 'Order_32x32.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'order-80', 'Order_80x80.png', 0);
+
+        AddinManifestManagement.SetNodeResource(ManifestText, 'sales-invoice-16', 'SalesInvoice_16.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'sales-invoice-32', 'SalesInvoice_32.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'sales-invoice-80', 'SalesInvoice_80.png', 0);
+
+        AddinManifestManagement.SetNodeResource(ManifestText, 'sales-credit-memo-16', 'SalesCreditMemo_16.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'sales-credit-memo-32', 'SalesCreditMemo_32.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'sales-credit-memo-80', 'SalesCreditMemo_80.png', 0);
+
+        AddinManifestManagement.SetNodeResource(ManifestText, 'purchase-invoice-16', 'PurchaseInvoice_16.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'purchase-invoice-32', 'PurchaseInvoice_32.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'purchase-invoice-80', 'PurchaseInvoice_80.png', 0);
+
+        AddinManifestManagement.SetNodeResource(ManifestText, 'purchase-credit-memo-16', 'PurchaseCreditMemo_16.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'purchase-credit-memo-32', 'PurchaseCreditMemo_32.png', 0);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'purchase-credit-memo-80', 'PurchaseCreditMemo_80.png', 0);
     end;
 
     local procedure SetupResourceUrls(var ManifestText: Text)
@@ -90,56 +88,52 @@ codeunit 1642 "Intelligent Info Manifest"
         OfficeHostType: DotNet OfficeHostType;
         Url: Text;
     begin
-        with AddinManifestManagement do begin
-            Url := ConstructURL(OfficeHostType.OutlookTaskPane, '', GetManifestVersion());
-            SetNodeResource(ManifestText, 'taskPaneUrl', Url, 1);
+        Url := AddinManifestManagement.ConstructURL(OfficeHostType.OutlookTaskPane, '', GetManifestVersion());
+        AddinManifestManagement.SetNodeResource(ManifestText, 'taskPaneUrl', Url, 1);
 
-            Url := ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewSalesQuote, GetManifestVersion());
-            SetNodeResource(ManifestText, 'newSalesQuoteUrl', Url, 1);
+        Url := AddinManifestManagement.ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewSalesQuote, GetManifestVersion());
+        AddinManifestManagement.SetNodeResource(ManifestText, 'newSalesQuoteUrl', Url, 1);
 
-            Url := ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewSalesOrder, GetManifestVersion());
-            SetNodeResource(ManifestText, 'newSalesOrderUrl', Url, 1);
+        Url := AddinManifestManagement.ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewSalesOrder, GetManifestVersion());
+        AddinManifestManagement.SetNodeResource(ManifestText, 'newSalesOrderUrl', Url, 1);
 
-            Url := ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewSalesInvoice, GetManifestVersion());
-            SetNodeResource(ManifestText, 'newSalesInvoiceUrl', Url, 1);
+        Url := AddinManifestManagement.ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewSalesInvoice, GetManifestVersion());
+        AddinManifestManagement.SetNodeResource(ManifestText, 'newSalesInvoiceUrl', Url, 1);
 
-            Url := ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewSalesCreditMemo, GetManifestVersion());
-            SetNodeResource(ManifestText, 'newSalesCreditMemoUrl', Url, 1);
+        Url := AddinManifestManagement.ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewSalesCreditMemo, GetManifestVersion());
+        AddinManifestManagement.SetNodeResource(ManifestText, 'newSalesCreditMemoUrl', Url, 1);
 
-            Url := ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewPurchaseInvoice, GetManifestVersion());
-            SetNodeResource(ManifestText, 'newPurchaseInvoiceUrl', Url, 1);
+        Url := AddinManifestManagement.ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewPurchaseInvoice, GetManifestVersion());
+        AddinManifestManagement.SetNodeResource(ManifestText, 'newPurchaseInvoiceUrl', Url, 1);
 
-            Url := ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewPurchaseCreditMemo, GetManifestVersion());
-            SetNodeResource(ManifestText, 'newPurchaseCrMemoUrl', Url, 1);
+        Url := AddinManifestManagement.ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewPurchaseCreditMemo, GetManifestVersion());
+        AddinManifestManagement.SetNodeResource(ManifestText, 'newPurchaseCrMemoUrl', Url, 1);
 
-            Url := ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewPurchaseOrder, GetManifestVersion());
-            SetNodeResource(ManifestText, 'newPurchaseOrderUrl', Url, 1);
-        end;
+        Url := AddinManifestManagement.ConstructURL(OfficeHostType.OutlookTaskPane, Command.NewPurchaseOrder, GetManifestVersion());
+        AddinManifestManagement.SetNodeResource(ManifestText, 'newPurchaseOrderUrl', Url, 1);
     end;
 
     local procedure SetupResourceStrings(var ManifestText: Text)
     var
         TypeIndex: Integer;
     begin
-        with AddinManifestManagement do begin
-            SetNodeResource(ManifestText, 'groupLabel', PRODUCTNAME.Short(), 2);
-            SetNodeResource(ManifestText, 'groupTooltip', PRODUCTNAME.Full(), 3);
-            SetNodeResource(ManifestText, 'openPaneButtonLabel', OpenPaneButtonTxt, 2);
-            SetNodeResource(ManifestText, 'openPaneSuperTipTitle', StrSubstNo(OpenPaneSuperTipTxt, PRODUCTNAME.Short()), 2);
-            SetNodeResource(ManifestText, 'openPaneButtonTooltip', StrSubstNo(OpenPaneButtonTooltipTxt, PRODUCTNAME.Full()), 3);
-            SetNodeResource(ManifestText, 'openPaneSuperTipDesc', StrSubstNo(OpenPaneSuperTipDescriptionTxt, PRODUCTNAME.Full()), 3);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'groupLabel', PRODUCTNAME.Short(), 2);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'groupTooltip', PRODUCTNAME.Full(), 3);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'openPaneButtonLabel', OpenPaneButtonTxt, 2);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'openPaneSuperTipTitle', StrSubstNo(OpenPaneSuperTipTxt, PRODUCTNAME.Short()), 2);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'openPaneButtonTooltip', StrSubstNo(OpenPaneButtonTooltipTxt, PRODUCTNAME.Full()), 3);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'openPaneSuperTipDesc', StrSubstNo(OpenPaneSuperTipDescriptionTxt, PRODUCTNAME.Full()), 3);
 
-            SetNodeResource(ManifestText, 'newMenuButtonLabel', NewMenuButtonTxt, 2);
-            SetNodeResource(ManifestText, 'newMenuSuperTipTitle', StrSubstNo(NewMenuSuperTipTxt, PRODUCTNAME.Short()), 2);
-            SetNodeResource(ManifestText, 'newMenuButtonTooltip', StrSubstNo(NewMenuButtonTooltipTxt, PRODUCTNAME.Full()), 3);
-            SetNodeResource(ManifestText, 'newMenuSuperTipDesc', StrSubstNo(NewMenuSuperTipDescriptionTxt, PRODUCTNAME.Full()), 3);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'newMenuButtonLabel', NewMenuButtonTxt, 2);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'newMenuSuperTipTitle', StrSubstNo(NewMenuSuperTipTxt, PRODUCTNAME.Short()), 2);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'newMenuButtonTooltip', StrSubstNo(NewMenuButtonTooltipTxt, PRODUCTNAME.Full()), 3);
+        AddinManifestManagement.SetNodeResource(ManifestText, 'newMenuSuperTipDesc', StrSubstNo(NewMenuSuperTipDescriptionTxt, PRODUCTNAME.Full()), 3);
 
-            for TypeIndex := 0 to 6 do begin
-                SetNodeResource(ManifestText, ResourceId('new%1Label', TypeIndex), GetDocType(TypeIndex), 2);
-                SetNodeResource(ManifestText, ResourceId('new%1SuperTipTitle', TypeIndex), ResourceValue(NewDocSuperTipTxt, TypeIndex), 2);
-                SetNodeResource(ManifestText, ResourceId('new%1Tip', TypeIndex), ResourceValue(NewDocButtonTooltipTxt, TypeIndex), 3);
-                SetNodeResource(ManifestText, ResourceId('new%1SuperTipDesc', TypeIndex), ResourceValue(NewDocSuperTipDescTxt, TypeIndex), 3);
-            end;
+        for TypeIndex := 0 to 6 do begin
+            AddinManifestManagement.SetNodeResource(ManifestText, ResourceId('new%1Label', TypeIndex), GetDocType(TypeIndex), 2);
+            AddinManifestManagement.SetNodeResource(ManifestText, ResourceId('new%1SuperTipTitle', TypeIndex), ResourceValue(NewDocSuperTipTxt, TypeIndex), 2);
+            AddinManifestManagement.SetNodeResource(ManifestText, ResourceId('new%1Tip', TypeIndex), ResourceValue(NewDocButtonTooltipTxt, TypeIndex), 3);
+            AddinManifestManagement.SetNodeResource(ManifestText, ResourceId('new%1SuperTipDesc', TypeIndex), ResourceValue(NewDocSuperTipDescTxt, TypeIndex), 3);
         end;
     end;
 
@@ -203,8 +197,7 @@ codeunit 1642 "Intelligent Info Manifest"
         if OfficeAddin.Get(AppIdTxt) then
             OfficeAddin.Delete();
 
-        with AddinManifestManagement do
-            CreateAddin(OfficeAddin, DefaultManifestText(), AddinNameTxt, AddinDescriptionTxt, AppIdTxt, CODEUNIT::"Intelligent Info Manifest");
+        AddinManifestManagement.CreateAddin(OfficeAddin, DefaultManifestText(), AddinNameTxt, AddinDescriptionTxt, AppIdTxt, CODEUNIT::"Intelligent Info Manifest");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Add-in Manifest Management", 'OnGenerateManifest', '', false, false)]
@@ -247,9 +240,8 @@ codeunit 1642 "Intelligent Info Manifest"
     var
         OfficeHostType: DotNet OfficeHostType;
     begin
-        with OfficeHostType do
-            if HostType in [OutlookItemRead, OutlookItemEdit, OutlookTaskPane, OutlookMobileApp, OutlookPopOut] then
-                CodeunitID := CODEUNIT::"Intelligent Info Manifest";
+        if HostType in [OfficeHostType.OutlookItemRead, OfficeHostType.OutlookItemEdit, OfficeHostType.OutlookTaskPane, OfficeHostType.OutlookMobileApp, OfficeHostType.OutlookPopOut] then
+            CodeunitID := CODEUNIT::"Intelligent Info Manifest";
     end;
 
     local procedure CanHandle(CodeunitID: Integer): Boolean

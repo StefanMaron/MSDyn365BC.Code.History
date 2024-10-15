@@ -47,19 +47,19 @@ codeunit 134302 "Workflow E2E Tests"
 
         // Setup
         Initialize();
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
 
         CreateWorkflow(Workflow);
 
         EntryPointEventStep :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             EntryPointEventStep);
         LibraryWorkflow.InsertNotificationArgument(ResponseStep, UserId, 0, '');
 
         EventStep :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode, ResponseStep);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, EventStep);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode(), ResponseStep);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), EventStep);
 
         EnableWorkflow(Workflow.Code);
 
@@ -95,19 +95,19 @@ codeunit 134302 "Workflow E2E Tests"
 
         // Setup
         Initialize();
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
 
         CreateWorkflow(Workflow);
 
         EntryPointEventStep :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode);
-        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode());
+        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             EntryPointEventStep);
         LibraryWorkflow.InsertNotificationArgument(ResponseStep, UserId, 0, '');
 
         EventStep :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode, ResponseStep);
-        ResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, EventStep);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode(), ResponseStep);
+        ResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), EventStep);
         LibraryWorkflow.InsertNotificationArgument(ResponseStep2, UserId, 0, '');
 
         EnableWorkflow(Workflow.Code);
@@ -342,15 +342,15 @@ codeunit 134302 "Workflow E2E Tests"
 
         // Verify.
         FindWorkflowStep(SendForApprovalWorkflowStep,
-          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
+          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
         VerifyWorkflowStepInstance(SendForApprovalWorkflowStep, WorkflowStepInstance.Status::Active);
 
         FindWorkflowStep(ApproveWorkflowStep,
-          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
+          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode());
         VerifyWorkflowStepInstance(ApproveWorkflowStep, WorkflowStepInstance.Status::Ignored);
 
         FindWorkflowStep(RejectWorkflowStep,
-          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode);
+          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode());
         VerifyWorkflowStepInstance(RejectWorkflowStep, WorkflowStepInstance.Status::Completed);
     end;
 
@@ -395,9 +395,9 @@ codeunit 134302 "Workflow E2E Tests"
         CreatePurchInvLoopbackWorkflow(Workflow);
 
         FindWorkflowStep(OnRejectedRespWorkflowStep,
-          Workflow.Code, OnRejectedRespWorkflowStep.Type::Response, WorkflowResponseHandling.OpenDocumentCode);
+          Workflow.Code, OnRejectedRespWorkflowStep.Type::Response, WorkflowResponseHandling.OpenDocumentCode());
         FindWorkflowStep(OnSentForApprovalRespWorkflowStep,
-          Workflow.Code, OnSentForApprovalRespWorkflowStep.Type::Response, WorkflowResponseHandling.SendApprovalRequestForApprovalCode);
+          Workflow.Code, OnSentForApprovalRespWorkflowStep.Type::Response, WorkflowResponseHandling.SendApprovalRequestForApprovalCode());
         EnableWorkflow(Workflow.Code);
 
         // Setup
@@ -421,11 +421,11 @@ codeunit 134302 "Workflow E2E Tests"
         VerifyWorkflowStepInstance(OnRejectedRespWorkflowStep, WorkflowStepInstance.Status::Completed);
 
         FindWorkflowStep(OnApprovedEventWorkflowStep,
-          Workflow.Code, OnApprovedEventWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
+          Workflow.Code, OnApprovedEventWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode());
         VerifyWorkflowStepInstance(OnApprovedEventWorkflowStep, WorkflowStepInstance.Status::Ignored);
 
         FindWorkflowStep(OnRejectedEventWorkflowStep,
-          Workflow.Code, OnRejectedEventWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode);
+          Workflow.Code, OnRejectedEventWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode());
         VerifyWorkflowStepInstance(OnRejectedEventWorkflowStep, WorkflowStepInstance.Status::Completed);
     end;
 
@@ -467,7 +467,7 @@ codeunit 134302 "Workflow E2E Tests"
         CreatePurchInvLoopbackWorkflow(Workflow);
 
         FindWorkflowStep(RejectResponseWorkflowStep,
-          Workflow.Code, SendForApprovalWorkflowStep.Type::Response, WorkflowResponseHandling.OpenDocumentCode);
+          Workflow.Code, SendForApprovalWorkflowStep.Type::Response, WorkflowResponseHandling.OpenDocumentCode());
         LibraryWorkflow.SetNextStep(Workflow, RejectResponseWorkflowStep.ID, 0);
         EnableWorkflow(Workflow.Code);
 
@@ -489,11 +489,11 @@ codeunit 134302 "Workflow E2E Tests"
 
         // Verify.
         FindWorkflowStep(SendForApprovalWorkflowStep,
-          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
+          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
         VerifyArchivedWorkflowStepInstance(SendForApprovalWorkflowStep, WorkflowStepInstance.Status::Completed);
 
         FindWorkflowStep(ApproveWorkflowStep,
-          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
+          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode());
         VerifyArchivedWorkflowStepInstance(ApproveWorkflowStep, WorkflowStepInstance.Status::Ignored);
 
         VerifyArchivedWorkflowStepInstance(RejectResponseWorkflowStep, WorkflowStepInstance.Status::Completed);
@@ -568,15 +568,15 @@ codeunit 134302 "Workflow E2E Tests"
 
         // Verify.
         FindWorkflowStep(SendForApprovalWorkflowStep,
-          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
+          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
         VerifyArchivedWorkflowStepInstance(SendForApprovalWorkflowStep, WorkflowStepInstance.Status::Completed);
 
         FindWorkflowStep(ApproveWorkflowStep,
-          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
+          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode());
         VerifyArchivedWorkflowStepInstance(ApproveWorkflowStep, WorkflowStepInstance.Status::Completed);
 
         FindWorkflowStep(RejectWorkflowStep,
-          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode);
+          Workflow.Code, SendForApprovalWorkflowStep.Type::"Event", WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode());
         VerifyArchivedWorkflowStepInstance(RejectWorkflowStep, WorkflowStepInstance.Status::Ignored);
     end;
 
@@ -589,15 +589,15 @@ codeunit 134302 "Workflow E2E Tests"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         NotificationEntry.DeleteAll();
         NotificationSetup.DeleteAll();
         JobQueueEntry.DeleteAll();
         ApprovalEntry.DeleteAll();
 
-        ConfigureEmail;
-        WorkflowEventHandling.CreateEventsLibrary;
-        WorkflowResponseHandling.CreateResponsesLibrary;
+        ConfigureEmail();
+        WorkflowEventHandling.CreateEventsLibrary();
+        WorkflowResponseHandling.CreateResponsesLibrary();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
     end;
 
@@ -608,7 +608,7 @@ codeunit 134302 "Workflow E2E Tests"
         if not UserSetup.Get(UserId) then begin
             UserSetup."User ID" := UserId;
             UserSetup."E-Mail" := UserEmailAddressTxt;
-            UserSetup.Insert
+            UserSetup.Insert();
         end else
             if UserSetup."E-Mail" = '' then begin
                 UserSetup."E-Mail" := UserEmailAddressTxt;
@@ -650,7 +650,7 @@ codeunit 134302 "Workflow E2E Tests"
     var
         IncomingDocument: Record "Incoming Document";
     begin
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         CreatePurchaseInvoice(PurchaseHeader);
@@ -667,7 +667,7 @@ codeunit 134302 "Workflow E2E Tests"
         DocumentNo := PurchaseHeader."No.";
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader,
-          PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(1, 100, 2));
+          PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
     end;
@@ -720,38 +720,38 @@ codeunit 134302 "Workflow E2E Tests"
     begin
         // 1. Purchase Invoice sent for approval.
         OnSendForApprovalEventID :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
 
         SetStatusToPendingApprovalResponseID := LibraryWorkflow.InsertResponseStep(Workflow,
-            WorkflowResponseHandling.SetStatusToPendingApprovalCode, OnSendForApprovalEventID);
+            WorkflowResponseHandling.SetStatusToPendingApprovalCode(), OnSendForApprovalEventID);
         CreateApprovalRequestsResponseID :=
           LibraryWorkflow.InsertResponseStep(Workflow,
-            WorkflowResponseHandling.CreateApprovalRequestsCode, SetStatusToPendingApprovalResponseID);
+            WorkflowResponseHandling.CreateApprovalRequestsCode(), SetStatusToPendingApprovalResponseID);
         LibraryWorkflow.InsertApprovalArgument(CreateApprovalRequestsResponseID, WorkflowStepArgument."Approver Type"::Approver,
           WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', true);
 
         SendForApprovalResponseID := LibraryWorkflow.InsertResponseStep(Workflow,
-            WorkflowResponseHandling.SendApprovalRequestForApprovalCode, CreateApprovalRequestsResponseID);
+            WorkflowResponseHandling.SendApprovalRequestForApprovalCode(), CreateApprovalRequestsResponseID);
         LibraryWorkflow.InsertNotificationArgument(SendForApprovalResponseID, '', 0, CustomURLTxt);
 
         // 2.a. Purchase Invoice approved.
         OnApprovalRequestApprovedEventID :=
           LibraryWorkflow.InsertEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode, SendForApprovalResponseID);
+            WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(), SendForApprovalResponseID);
 
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode, OnApprovalRequestApprovedEventID);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode(), OnApprovalRequestApprovedEventID);
 
         // 3.b. Purchase Invoice rejected.
         OnApprovalRequestRejectedEventID :=
           LibraryWorkflow.InsertEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode, SendForApprovalResponseID);
+            WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(), SendForApprovalResponseID);
 
         RejectAllResponseID := LibraryWorkflow.InsertResponseStep(Workflow,
-            WorkflowResponseHandling.RejectAllApprovalRequestsCode, OnApprovalRequestRejectedEventID);
+            WorkflowResponseHandling.RejectAllApprovalRequestsCode(), OnApprovalRequestRejectedEventID);
         LibraryWorkflow.InsertNotificationArgument(RejectAllResponseID, '', 0, CustomURLTxt);
 
         OpenDocumentResponseID :=
-          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode, RejectAllResponseID);
+          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.OpenDocumentCode(), RejectAllResponseID);
         LibraryWorkflow.SetNextStep(Workflow, OpenDocumentResponseID, OnSendForApprovalEventID);
     end;
 

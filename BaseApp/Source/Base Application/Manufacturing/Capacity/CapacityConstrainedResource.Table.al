@@ -9,6 +9,7 @@ table 99000866 "Capacity Constrained Resource"
 {
     Caption = 'Capacity Constrained Resource';
     Permissions = TableData "Prod. Order Capacity Need" = r;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -106,7 +107,7 @@ table 99000866 "Capacity Constrained Resource"
         }
         field(42; "Capacity (Effective)"; Decimal)
         {
-            CalcFormula = Sum("Calendar Entry"."Capacity (Effective)" where("Capacity Type" = field("Capacity Type"),
+            CalcFormula = sum("Calendar Entry"."Capacity (Effective)" where("Capacity Type" = field("Capacity Type"),
                                                                              "No." = field("Capacity No."),
                                                                              "Work Shift Code" = field("Work Shift Filter"),
                                                                              Date = field("Date Filter")));
@@ -117,7 +118,7 @@ table 99000866 "Capacity Constrained Resource"
         }
         field(44; "Prod. Order Need Qty."; Decimal)
         {
-            CalcFormula = Sum("Prod. Order Capacity Need"."Allocated Time" where(Type = field("Capacity Type"),
+            CalcFormula = sum("Prod. Order Capacity Need"."Allocated Time" where(Type = field("Capacity Type"),
                                                                                   "No." = field("Capacity No."),
                                                                                   Date = field("Date Filter")));
             Caption = 'Prod. Order Need Qty.';
@@ -127,7 +128,7 @@ table 99000866 "Capacity Constrained Resource"
         }
         field(46; "Work Center Load Qty."; Decimal)
         {
-            CalcFormula = Sum("Prod. Order Capacity Need"."Allocated Time" where("Work Center No." = field("Work Center No."),
+            CalcFormula = sum("Prod. Order Capacity Need"."Allocated Time" where("Work Center No." = field("Work Center No."),
                                                                                   Date = field("Date Filter")));
             Caption = 'Work Center Load Qty.';
             DecimalPlaces = 0 : 5;
@@ -136,7 +137,7 @@ table 99000866 "Capacity Constrained Resource"
         }
         field(48; "Prod. Order Need Qty. for Plan"; Decimal)
         {
-            CalcFormula = Sum("Prod. Order Capacity Need"."Allocated Time" where(Type = field("Capacity Type"),
+            CalcFormula = sum("Prod. Order Capacity Need"."Allocated Time" where(Type = field("Capacity Type"),
                                                                                   "No." = field("Capacity No."),
                                                                                   Date = field("Date Filter"),
                                                                                   Active = const(true)));
@@ -147,7 +148,7 @@ table 99000866 "Capacity Constrained Resource"
         }
         field(49; "Work Center Load Qty. for Plan"; Decimal)
         {
-            CalcFormula = Sum("Prod. Order Capacity Need"."Allocated Time" where("Work Center No." = field("Work Center No."),
+            CalcFormula = sum("Prod. Order Capacity Need"."Allocated Time" where("Work Center No." = field("Work Center No."),
                                                                                   Date = field("Date Filter"),
                                                                                   Active = const(true)));
             Caption = 'Work Center Load Qty. for Plan';

@@ -3,6 +3,7 @@ namespace Microsoft.Purchases.Setup;
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Purchases.Vendor;
+using System.Reflection;
 
 page 9658 "Vendor Report Selections"
 {
@@ -50,7 +51,7 @@ page 9658 "Vendor Report Selections"
                 field(ReportCaption; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Report Caption';
+                    Caption = 'Report Name';
                     ToolTip = 'Specifies the name of the report.';
                 }
                 field("Custom Report Description"; Rec."Custom Report Description")
@@ -60,6 +61,7 @@ page 9658 "Vendor Report Selections"
                     DrillDown = true;
                     Lookup = true;
                     ToolTip = 'Specifies a description of the custom report layout.';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
@@ -107,6 +109,11 @@ page 9658 "Vendor Report Selections"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
                 }
+                field("Use for Email Attachment"; Rec."Use for Email Attachment")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
+                }
                 field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -118,7 +125,8 @@ page 9658 "Vendor Report Selections"
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
                     Lookup = true;
-                    ToolTip = 'Specifies a description of the email body custom layout that is used.';
+                    ToolTip = 'Specifies a description of the custom email body layout that is used.';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
@@ -130,6 +138,48 @@ page 9658 "Vendor Report Selections"
                     begin
                         Rec.LookupEmailBodyDescription();
                         CurrPage.Update(true);
+                    end;
+                }
+                field("Email Body Layout"; ReportSelectionsImpl.GetReportLayoutCaption(Rec."Report ID", Rec."Email Body Layout Name", Rec."Email Body Layout AppID"))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Email Body Layout';
+                    ToolTip = 'Specifies the report layout used as email body.';
+
+                    trigger OnDrillDown()
+                    var
+                        ReportLayoutListSelection: Record "Report Layout List";
+                        ReportManagementCodeunit: Codeunit ReportManagement;
+                        IsReportLayoutSelected: Boolean;
+                    begin
+                        ReportLayoutListSelection.SetRange("Report ID", Rec."Report ID");
+                        ReportManagementCodeunit.OnSelectReportLayout(ReportLayoutListSelection, IsReportLayoutSelected);
+                        if IsReportLayoutSelected then begin
+                            Rec."Email Body Layout Name" := ReportLayoutListSelection."Name";
+                            Rec."Email Body Layout AppID" := ReportLayoutListSelection."Application ID";
+                            Rec.Modify();
+                        end;
+                    end;
+                }
+                field("Email Attachment Layout"; ReportSelectionsImpl.GetReportLayoutCaption(Rec."Report ID", Rec."Email Attachment Layout Name", Rec."Email Attachment Layout AppID"))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Email Attachment Layout';
+                    ToolTip = 'Specifies the report layout used as email attachment.';
+
+                    trigger OnDrillDown()
+                    var
+                        ReportLayoutListSelection: Record "Report Layout List";
+                        ReportManagementCodeunit: Codeunit ReportManagement;
+                        IsReportLayoutSelected: Boolean;
+                    begin
+                        ReportLayoutListSelection.SetRange("Report ID", Rec."Report ID");
+                        ReportManagementCodeunit.OnSelectReportLayout(ReportLayoutListSelection, IsReportLayoutSelected);
+                        if IsReportLayoutSelected then begin
+                            Rec."Email Attachment Layout Name" := ReportLayoutListSelection."Name";
+                            Rec."Email Attachment Layout AppID" := ReportLayoutListSelection."Application ID";
+                            Rec.Modify();
+                        end;
                     end;
                 }
             }
@@ -208,6 +258,7 @@ page 9658 "Vendor Report Selections"
     end;
 
     var
+        ReportSelectionsImpl: Codeunit "Report Selections Impl";
         CouldNotFindCustomReportLayoutErr: Label 'There is no custom report layout with %1 in the description.', Comment = '%1 Description of custom report layout';
 
     protected var

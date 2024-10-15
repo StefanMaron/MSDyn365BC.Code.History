@@ -55,7 +55,7 @@ codeunit 144002 "Sales/Purchase Application"
         DocNo: Code[20];
     begin
         DocNo := SalesApplicationWithDefApplicationDate(false);
-        VerifyApplicationDateOnDtldCustLedgEntry(DocNo, GetDefPostingDate);
+        VerifyApplicationDateOnDtldCustLedgEntry(DocNo, GetDefPostingDate());
     end;
 
     [Test]
@@ -158,7 +158,7 @@ codeunit 144002 "Sales/Purchase Application"
         DocNo: Code[20];
     begin
         DocNo := PurchApplicationWithDefApplicationDate(false);
-        VerifyApplicationDateOnDtldVendLedgEntry(DocNo, GetDefPostingDate);
+        VerifyApplicationDateOnDtldVendLedgEntry(DocNo, GetDefPostingDate());
     end;
 
     [Test]
@@ -438,7 +438,7 @@ codeunit 144002 "Sales/Purchase Application"
         PurchasesPayablesSetup.Modify(true);
 
         // [GIVEN] Created Purchase Order for G/L Account, Job and Job Task No.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -490,7 +490,7 @@ codeunit 144002 "Sales/Purchase Application"
         PurchasesPayablesSetup.Modify(true);
 
         // [GIVEN] Created Purchase Order for G/L Account, Job and Job Task No.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -660,12 +660,12 @@ codeunit 144002 "Sales/Purchase Application"
 
     local procedure PostTwoSalesGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"): Code[20]
     begin
-        PostTwoGenJnlLines(GenJnlLine, GenJnlLine."Account Type"::Customer, CreateCust);
+        PostTwoGenJnlLines(GenJnlLine, GenJnlLine."Account Type"::Customer, CreateCust());
     end;
 
     local procedure PostTwoPurchGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"): Code[20]
     begin
-        PostTwoGenJnlLines(GenJnlLine, GenJnlLine."Account Type"::Vendor, CreateVend);
+        PostTwoGenJnlLines(GenJnlLine, GenJnlLine."Account Type"::Vendor, CreateVend());
     end;
 
     local procedure PostTwoGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
@@ -683,9 +683,9 @@ codeunit 144002 "Sales/Purchase Application"
             InitGenJnlLineWithBatch(GenJnlLine);
             LibraryERM.CreateGeneralJnlLine(
               GenJnlLine, "Journal Template Name", "Journal Batch Name", DocType, AccType, AccNo, EntryAmount);
-            Validate("Posting Date", GetDefPostingDate);
+            Validate("Posting Date", GetDefPostingDate());
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", CreateGLAcc);
+            Validate("Bal. Account No.", CreateGLAcc());
             Modify(true);
         end;
     end;
@@ -708,22 +708,22 @@ codeunit 144002 "Sales/Purchase Application"
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Customer No.", CustNo);
         CustomerLedgerEntries.FILTER.SetFilter("Document Type", Format(DocType));
         CustomerLedgerEntries.FILTER.SetFilter("Document No.", DocNo);
-        CustomerLedgerEntries."Apply Entries".Invoke;
+        CustomerLedgerEntries."Apply Entries".Invoke();
     end;
 
     local procedure ApplyVendorLedgerEntries(VendNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Vendor No.", VendNo);
         VendorLedgerEntries.FILTER.SetFilter("Document No.", DocNo);
         VendorLedgerEntries.FILTER.SetFilter("Document Type", Format(DocType));
-        VendorLedgerEntries.ActionApplyEntries.Invoke;
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     local procedure ApplyAndPostCustomerEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
@@ -770,22 +770,22 @@ codeunit 144002 "Sales/Purchase Application"
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Customer No.", CustNo);
         CustomerLedgerEntries.FILTER.SetFilter("Document Type", Format(DocType));
         CustomerLedgerEntries.FILTER.SetFilter("Document No.", DocNo);
-        CustomerLedgerEntries.UnapplyEntries.Invoke;
+        CustomerLedgerEntries.UnapplyEntries.Invoke();
     end;
 
     local procedure UnapplyVendorLedgerEntries(VendNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Vendor No.", VendNo);
         VendorLedgerEntries.FILTER.SetFilter("Document No.", DocNo);
         VendorLedgerEntries.FILTER.SetFilter("Document Type", Format(DocType));
-        VendorLedgerEntries.UnapplyEntries.Invoke;
+        VendorLedgerEntries.UnapplyEntries.Invoke();
     end;
 
     local procedure FindGenJournalTemplate(): Code[10]
@@ -838,16 +838,16 @@ codeunit 144002 "Sales/Purchase Application"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries."Post Application".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Post Application".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.ActionPostApplication.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ActionPostApplication.Invoke();
     end;
 
     [ModalPageHandler]
@@ -858,7 +858,7 @@ codeunit 144002 "Sales/Purchase Application"
     begin
         LibraryVariableStorage.Dequeue(ApplicationDate);
         PostApplication.PostingDate.SetValue(ApplicationDate);
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -872,21 +872,21 @@ codeunit 144002 "Sales/Purchase Application"
         LibraryVariableStorage.Dequeue(BatchName);
         PostApplication.JnlTemplateName.SetValue(TemplateName);
         PostApplication.JnlBatchName.SetValue(BatchName);
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyCustomerEntriesHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
     begin
-        UnapplyCustomerEntries.Unapply.Invoke;
+        UnapplyCustomerEntries.Unapply.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyVendorEntriesHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
     begin
-        UnapplyVendorEntries.Unapply.Invoke;
+        UnapplyVendorEntries.Unapply.Invoke();
     end;
 
     [MessageHandler]

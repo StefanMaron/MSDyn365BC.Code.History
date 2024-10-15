@@ -37,11 +37,8 @@ page 346 "Item Picture"
                 ApplicationArea = All;
                 Caption = 'Take';
                 Image = Camera;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Activate the camera on the device.';
-                Visible = CameraAvailable AND (HideActions = FALSE);
+                Visible = CameraAvailable and (HideActions = false);
 
                 trigger OnAction()
                 begin
@@ -54,7 +51,7 @@ page 346 "Item Picture"
                 Caption = 'Import';
                 Image = Import;
                 ToolTip = 'Import a picture file.';
-                Visible = HideActions = FALSE;
+                Visible = HideActions = false;
 
                 trigger OnAction()
                 begin
@@ -68,7 +65,7 @@ page 346 "Item Picture"
                 Enabled = DeleteExportEnabled;
                 Image = Export;
                 ToolTip = 'Export the picture to a file.';
-                Visible = HideActions = FALSE;
+                Visible = HideActions = false;
 
                 trigger OnAction()
                 var
@@ -97,7 +94,7 @@ page 346 "Item Picture"
                 Enabled = DeleteExportEnabled;
                 Image = Delete;
                 ToolTip = 'Delete the record.';
-                Visible = HideActions = FALSE;
+                Visible = HideActions = false;
 
                 trigger OnAction()
                 begin

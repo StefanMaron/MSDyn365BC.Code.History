@@ -35,8 +35,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
                 trigger OnAfterGetRecord()
                 begin
-                    ValidateIntrastatJournalLine;
-                    UpdateBuffer;
+                    ValidateIntrastatJournalLine();
+                    UpdateBuffer();
                 end;
 
                 trigger OnPostDataItem()
@@ -169,7 +169,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             EnterpriseNo := DelChr(CompanyInformation."Enterprise No.", '=', DelChr(CompanyInformation."Enterprise No.", '=', '0123456789'));
         end;
 
-        CreateXMLDocument;
+        CreateXMLDocument();
     end;
 
     var
@@ -222,48 +222,46 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
     local procedure UpdateBuffer()
     begin
-        with IntrastatJnlLine do begin
-            TempIntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-            TempIntrastatJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-            TempIntrastatJnlLine.SetRange(Type, Type);
-            TempIntrastatJnlLine.SetRange("Country/Region Code", "Country/Region Code");
-            TempIntrastatJnlLine.SetRange("Tariff No.", "Tariff No.");
-            TempIntrastatJnlLine.SetRange("Transaction Type", "Transaction Type");
-            TempIntrastatJnlLine.SetRange("Transport Method", "Transport Method");
-            TempIntrastatJnlLine.SetRange("Transaction Specification", "Transaction Specification");
-            TempIntrastatJnlLine.SetRange(Area, Area);
-            if CounterpartyInfo and (Type = Type::Shipment) then begin
-                TempIntrastatJnlLine.SetRange("Country/Region of Origin Code", "Country/Region of Origin Code");
-                TempIntrastatJnlLine.SetRange("Partner VAT ID", "Partner VAT ID");
-            end;
-            if TempIntrastatJnlLine.FindFirst() then begin
-                TempIntrastatJnlLine."Statistical Value" := TempIntrastatJnlLine."Statistical Value" + "Statistical Value";
-                TempIntrastatJnlLine."Total Weight" := TempIntrastatJnlLine."Total Weight" + "Total Weight";
-                TempIntrastatJnlLine."No. of Supplementary Units" :=
-                  TempIntrastatJnlLine."No. of Supplementary Units" + "No. of Supplementary Units";
-                TempIntrastatJnlLine."Document No." := "Document No.";
-                TempIntrastatJnlLine.Modify();
-            end else begin
-                TempIntrastatJnlLine.Init();
-                TempIntrastatJnlLine."Journal Template Name" := "Journal Template Name";
-                TempIntrastatJnlLine."Journal Batch Name" := "Journal Batch Name";
-                TempIntrastatJnlLine.Type := Type;
-                TempIntrastatJnlLine."Country/Region Code" := "Country/Region Code";
-                TempIntrastatJnlLine."Tariff No." := "Tariff No.";
-                TempIntrastatJnlLine."Transaction Type" := "Transaction Type";
-                TempIntrastatJnlLine."Transport Method" := "Transport Method";
-                TempIntrastatJnlLine."Transaction Specification" := "Transaction Specification";
-                TempIntrastatJnlLine.Area := Area;
-                NextLine := NextLine + 10000;
-                TempIntrastatJnlLine."Line No." := NextLine;
-                TempIntrastatJnlLine."Statistical Value" := "Statistical Value";
-                TempIntrastatJnlLine."Total Weight" := "Total Weight";
-                TempIntrastatJnlLine."No. of Supplementary Units" := "No. of Supplementary Units";
-                TempIntrastatJnlLine."Document No." := "Document No.";
-                TempIntrastatJnlLine."Country/Region of Origin Code" := "Country/Region of Origin Code";
-                TempIntrastatJnlLine."Partner VAT ID" := "Partner VAT ID";
-                TempIntrastatJnlLine.Insert();
-            end;
+        TempIntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
+        TempIntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
+        TempIntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type);
+        TempIntrastatJnlLine.SetRange("Country/Region Code", IntrastatJnlLine."Country/Region Code");
+        TempIntrastatJnlLine.SetRange("Tariff No.", IntrastatJnlLine."Tariff No.");
+        TempIntrastatJnlLine.SetRange("Transaction Type", IntrastatJnlLine."Transaction Type");
+        TempIntrastatJnlLine.SetRange("Transport Method", IntrastatJnlLine."Transport Method");
+        TempIntrastatJnlLine.SetRange("Transaction Specification", IntrastatJnlLine."Transaction Specification");
+        TempIntrastatJnlLine.SetRange(Area, IntrastatJnlLine."Area");
+        if CounterpartyInfo and (IntrastatJnlLine.Type = IntrastatJnlLine.Type::Shipment) then begin
+            TempIntrastatJnlLine.SetRange("Country/Region of Origin Code", IntrastatJnlLine."Country/Region of Origin Code");
+            TempIntrastatJnlLine.SetRange("Partner VAT ID", IntrastatJnlLine."Partner VAT ID");
+        end;
+        if TempIntrastatJnlLine.FindFirst() then begin
+            TempIntrastatJnlLine."Statistical Value" := TempIntrastatJnlLine."Statistical Value" + IntrastatJnlLine."Statistical Value";
+            TempIntrastatJnlLine."Total Weight" := TempIntrastatJnlLine."Total Weight" + IntrastatJnlLine."Total Weight";
+            TempIntrastatJnlLine."No. of Supplementary Units" :=
+              TempIntrastatJnlLine."No. of Supplementary Units" + IntrastatJnlLine."No. of Supplementary Units";
+            TempIntrastatJnlLine."Document No." := IntrastatJnlLine."Document No.";
+            TempIntrastatJnlLine.Modify();
+        end else begin
+            TempIntrastatJnlLine.Init();
+            TempIntrastatJnlLine."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
+            TempIntrastatJnlLine."Journal Batch Name" := IntrastatJnlLine."Journal Batch Name";
+            TempIntrastatJnlLine.Type := IntrastatJnlLine.Type;
+            TempIntrastatJnlLine."Country/Region Code" := IntrastatJnlLine."Country/Region Code";
+            TempIntrastatJnlLine."Tariff No." := IntrastatJnlLine."Tariff No.";
+            TempIntrastatJnlLine."Transaction Type" := IntrastatJnlLine."Transaction Type";
+            TempIntrastatJnlLine."Transport Method" := IntrastatJnlLine."Transport Method";
+            TempIntrastatJnlLine."Transaction Specification" := IntrastatJnlLine."Transaction Specification";
+            TempIntrastatJnlLine.Area := IntrastatJnlLine."Area";
+            NextLine := NextLine + 10000;
+            TempIntrastatJnlLine."Line No." := NextLine;
+            TempIntrastatJnlLine."Statistical Value" := IntrastatJnlLine."Statistical Value";
+            TempIntrastatJnlLine."Total Weight" := IntrastatJnlLine."Total Weight";
+            TempIntrastatJnlLine."No. of Supplementary Units" := IntrastatJnlLine."No. of Supplementary Units";
+            TempIntrastatJnlLine."Document No." := IntrastatJnlLine."Document No.";
+            TempIntrastatJnlLine."Country/Region of Origin Code" := IntrastatJnlLine."Country/Region of Origin Code";
+            TempIntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine."Partner VAT ID";
+            TempIntrastatJnlLine.Insert();
         end;
     end;
 
@@ -326,67 +324,64 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         if ReportIsNihil then
             exit;
-
         // Item & Dim
-        with TempIntrastatJnlLine do begin
-            if FindSet() then
-                repeat
-                    CountryRegion.Get("Country/Region Code");
-                    CountryRegion.TestField("Intrastat Code");
-                    XMLDOMManagement.AddElement(Node, 'Item', '', Namespace, ItemNode);
+        if TempIntrastatJnlLine.FindSet() then
+            repeat
+                CountryRegion.Get(TempIntrastatJnlLine."Country/Region Code");
+                CountryRegion.TestField("Intrastat Code");
+                XMLDOMManagement.AddElement(Node, 'Item', '', Namespace, ItemNode);
 
-                    case Type of
-                        Type::Receipt:
-                            XMLDOMManagement.AddElement(ItemNode, 'Dim', '19', Namespace, DimNode);
-                        Type::Shipment:
-                            XMLDOMManagement.AddElement(ItemNode, 'Dim', '29', Namespace, DimNode);
-                    end;
-                    XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXTRF');
-                    XMLDOMManagement.AddElement(ItemNode, 'Dim', CountryRegion."Intrastat Code", Namespace, DimNode);
-                    XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXCNT');
-                    XMLDOMManagement.AddElement(ItemNode, 'Dim', "Transaction Type", Namespace, DimNode);
-                    XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXTTA');
-                    XMLDOMManagement.AddElement(ItemNode, 'Dim', Area, Namespace, DimNode);
-                    XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXREG');
-                    XMLDOMManagement.AddElement(
-                      ItemNode, 'Dim', DelChr("Tariff No.", '=', DelChr("Tariff No.", '=', '0123456789')), Namespace, DimNode);
-                    XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXTGO');
-                    XMLDOMManagement.AddElement(
-                        ItemNode, 'Dim', Format(IntraJnlManagement.RoundTotalWeight("Total Weight"), 0, 9), Namespace, DimNode);
-                    XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXWEIGHT');
-                    XMLDOMManagement.AddElement(
-                      ItemNode, 'Dim', Format(Round("No. of Supplementary Units"), 0, 9), Namespace, DimNode);
-                    XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXUNITS');
-                    if IntrastatJnlBatch."Amounts in Add. Currency" then begin
-                        GLSetup.TestField("Additional Reporting Currency");
-                        Currency.Get(GLSetup."Additional Reporting Currency");
-                        Currency.TestField("Amount Rounding Precision");
-                        StatisticalValue :=
-                          Round(
-                            CurrExchRate.ExchangeAmtFCYToLCY(
-                              Date, GLSetup."Additional Reporting Currency", "Statistical Value",
-                              CurrExchRate.ExchangeRate(
-                                Date, GLSetup."Additional Reporting Currency")),
-                            Currency."Amount Rounding Precision");
-                    end else
-                        StatisticalValue := "Statistical Value";
-                    XMLDOMManagement.AddElement(ItemNode, 'Dim', Format(Round(StatisticalValue, 1), 0, 9), Namespace, DimNode);
-                    XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXTXVAL');
-                    if CounterpartyInfo and (Type = Type::Shipment) then begin
-                        XMLDOMManagement.AddElement(ItemNode, 'Dim', "Country/Region of Origin Code", Namespace, DimNode);
-                        XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXCNTORI');
-                        XMLDOMManagement.AddElement(ItemNode, 'Dim', "Partner VAT ID", Namespace, DimNode);
-                        XMLDOMManagement.AddAttribute(DimNode, 'prop', 'PARTNERID');
-                    end;
-                    if not GLSetup."Simplified Intrastat Decl." then begin
-                        XMLDOMManagement.AddElement(ItemNode, 'Dim', "Transport Method", Namespace, DimNode);
-                        XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXTPC');
-                        XMLDOMManagement.AddElement(ItemNode, 'Dim', "Transaction Specification", Namespace, DimNode);
-                        XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXDELTRM');
-                    end;
-                    Delete();
-                until Next() = 0;
-        end;
+                case TempIntrastatJnlLine.Type of
+                    TempIntrastatJnlLine.Type::Receipt:
+                        XMLDOMManagement.AddElement(ItemNode, 'Dim', '19', Namespace, DimNode);
+                    TempIntrastatJnlLine.Type::Shipment:
+                        XMLDOMManagement.AddElement(ItemNode, 'Dim', '29', Namespace, DimNode);
+                end;
+                XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXTRF');
+                XMLDOMManagement.AddElement(ItemNode, 'Dim', CountryRegion."Intrastat Code", Namespace, DimNode);
+                XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXCNT');
+                XMLDOMManagement.AddElement(ItemNode, 'Dim', TempIntrastatJnlLine."Transaction Type", Namespace, DimNode);
+                XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXTTA');
+                XMLDOMManagement.AddElement(ItemNode, 'Dim', TempIntrastatJnlLine."Area", Namespace, DimNode);
+                XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXREG');
+                XMLDOMManagement.AddElement(
+                  ItemNode, 'Dim', DelChr(TempIntrastatJnlLine."Tariff No.", '=', DelChr(TempIntrastatJnlLine."Tariff No.", '=', '0123456789')), Namespace, DimNode);
+                XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXTGO');
+                XMLDOMManagement.AddElement(
+                    ItemNode, 'Dim', Format(IntraJnlManagement.RoundTotalWeight(TempIntrastatJnlLine."Total Weight"), 0, 9), Namespace, DimNode);
+                XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXWEIGHT');
+                XMLDOMManagement.AddElement(
+                  ItemNode, 'Dim', Format(Round(TempIntrastatJnlLine."No. of Supplementary Units"), 0, 9), Namespace, DimNode);
+                XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXUNITS');
+                if IntrastatJnlBatch."Amounts in Add. Currency" then begin
+                    GLSetup.TestField("Additional Reporting Currency");
+                    Currency.Get(GLSetup."Additional Reporting Currency");
+                    Currency.TestField("Amount Rounding Precision");
+                    StatisticalValue :=
+                      Round(
+                        CurrExchRate.ExchangeAmtFCYToLCY(
+                          TempIntrastatJnlLine.Date, GLSetup."Additional Reporting Currency", TempIntrastatJnlLine."Statistical Value",
+                          CurrExchRate.ExchangeRate(
+                            TempIntrastatJnlLine.Date, GLSetup."Additional Reporting Currency")),
+                        Currency."Amount Rounding Precision");
+                end else
+                    StatisticalValue := TempIntrastatJnlLine."Statistical Value";
+                XMLDOMManagement.AddElement(ItemNode, 'Dim', Format(Round(StatisticalValue, 1), 0, 9), Namespace, DimNode);
+                XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXTXVAL');
+                if CounterpartyInfo and (TempIntrastatJnlLine.Type = TempIntrastatJnlLine.Type::Shipment) then begin
+                    XMLDOMManagement.AddElement(ItemNode, 'Dim', TempIntrastatJnlLine."Country/Region of Origin Code", Namespace, DimNode);
+                    XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXCNTORI');
+                    XMLDOMManagement.AddElement(ItemNode, 'Dim', TempIntrastatJnlLine."Partner VAT ID", Namespace, DimNode);
+                    XMLDOMManagement.AddAttribute(DimNode, 'prop', 'PARTNERID');
+                end;
+                if not GLSetup."Simplified Intrastat Decl." then begin
+                    XMLDOMManagement.AddElement(ItemNode, 'Dim', TempIntrastatJnlLine."Transport Method", Namespace, DimNode);
+                    XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXTPC');
+                    XMLDOMManagement.AddElement(ItemNode, 'Dim', TempIntrastatJnlLine."Transaction Specification", Namespace, DimNode);
+                    XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXDELTRM');
+                end;
+                TempIntrastatJnlLine.Delete();
+            until TempIntrastatJnlLine.Next() = 0;
     end;
 
     local procedure ValidateIntrastatJournalLine()
@@ -394,22 +389,20 @@ report 593 "Intrastat - Make Disk Tax Auth"
         TariffNumber: Record "Tariff Number";
     begin
         IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Make Disk Tax Auth", false);
-        with IntrastatJnlLine do begin
-            if not GLSetup."Simplified Intrastat Decl." then begin
-                TestField("Transport Method");
-                TestField("Transaction Specification");
-            end;
-
-            TariffNumber.Get("Tariff No.");
-            if TariffNumber."Weight Mandatory" then begin
-                if "Total Weight" <= 0 then
-                    FieldError("Total Weight", GreaterThanZeroErr);
-            end else
-                TestField("Supplementary Units", true);
-
-            if "Statistical Value" <= 0 then
-                FieldError("Statistical Value", GreaterThanZeroErr);
+        if not GLSetup."Simplified Intrastat Decl." then begin
+            IntrastatJnlLine.TestField("Transport Method");
+            IntrastatJnlLine.TestField("Transaction Specification");
         end;
+
+        TariffNumber.Get(IntrastatJnlLine."Tariff No.");
+        if TariffNumber."Weight Mandatory" then begin
+            if IntrastatJnlLine."Total Weight" <= 0 then
+                IntrastatJnlLine.FieldError("Total Weight", GreaterThanZeroErr);
+        end else
+            IntrastatJnlLine.TestField("Supplementary Units", true);
+
+        if IntrastatJnlLine."Statistical Value" <= 0 then
+            IntrastatJnlLine.FieldError("Statistical Value", GreaterThanZeroErr);
     end;
 
     local procedure ConvertPeriodToDate(Period: Code[10]): Date

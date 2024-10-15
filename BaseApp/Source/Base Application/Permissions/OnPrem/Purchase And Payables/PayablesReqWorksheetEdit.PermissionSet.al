@@ -55,7 +55,7 @@ permissionset 552 "Payables Req Worksheet - Edit"
                   tabledata "Price Worksheet Line" = R,
                   tabledata "Purchase Discount Access" = R,
                   tabledata "Purchase Line" = Rm,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Purchase Line Discount" = R,
                   tabledata "Purchase Price" = R,
 #endif

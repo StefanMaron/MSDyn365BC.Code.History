@@ -65,7 +65,6 @@ codeunit 7499 "Item From Picture"
     var
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
         Item: Record Item;
-        FeatureKey: Record "Feature Key";
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
         if not (ClientTypeManagement.GetCurrentClientType() in [ClientType::Web, ClientType::Phone, ClientType::Tablet]) then
@@ -74,10 +73,6 @@ codeunit 7499 "Item From Picture"
         if not Item.WritePermission() or not Item.ReadPermission()
         or not ItemAttributeValueMapping.WritePermission() or not ItemAttributeValueMapping.ReadPermission() then
             exit(false);
-
-        if FeatureKey.Get('EntityText') then
-            if FeatureKey.Enabled = FeatureKey.Enabled::None then
-                exit(false);
 
         exit(true);
     end;
@@ -332,7 +327,7 @@ codeunit 7499 "Item From Picture"
         ItemAttributeValueMapping.DeleteAll();
         ItemAttributeValueMapping.Reset();
 
-        If ItemAttributeValueSelection.FindSet() then
+        if ItemAttributeValueSelection.FindSet() then
             repeat
                 if ItemAttributeValueSelection.FindAttributeValue(ItemAttributeValue) then begin
                     ItemAttributeValueMapping.Init();
@@ -385,13 +380,12 @@ codeunit 7499 "Item From Picture"
         NotificationId: Guid;
     begin
         NotificationId := HostNotification.Id;
-        if MyNotifications.Get(UserId(), NotificationId) THEN
+        if MyNotifications.Get(UserId(), NotificationId) then
             MyNotifications.Disable(NotificationId)
         else
             MyNotifications.InsertDefault(NotificationId, ImageAnalysisNotificationNameTxt, ImageAnalysisNotificationDescriptionTxt, false);
     end;
 
-    [NonDebuggable]
     procedure RunWizard(Notification: Notification)
     var
         ImageAnalysisSetup: Record "Image Analysis Setup";
@@ -406,7 +400,7 @@ codeunit 7499 "Item From Picture"
 
         ImageAnalysisSetup.GetSingleInstance();
         if EnvironmentInformation.IsOnPrem() then
-            if (ImageAnalysisSetup."Api Uri" = '') or (ImageAnalysisSetup.GetApiKey() = '') then
+            if (ImageAnalysisSetup."Api Uri" = '') or (ImageAnalysisSetup.GetApiKeyAsSecret().IsEmpty()) then
                 PageImageAnalysisSetup.Run();
     end;
 

@@ -45,6 +45,20 @@ page 9121 "Journal Errors Factbox"
                     end;
                 }
             }
+            field(Refresh; RefreshTxt)
+            {
+                ApplicationArea = Basic, Suite;
+                ShowCaption = false;
+                trigger OnDrillDown()
+                var
+                    JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+                begin
+                    if BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled() then begin
+                        JournalErrorsMgt.SetFullBatchCheck(true);
+                        CheckErrorsInBackground();
+                    end;
+                end;
+            }
             group(Control2)
             {
                 Caption = 'Current line';
@@ -99,6 +113,7 @@ page 9121 "Journal Errors Factbox"
         ErrorText: array[2] of Text;
         OtherIssuesTxt: Label '(+%1 other issues)', comment = '%1 - number of issues';
         NoIssuesFoundTxt: Label 'No issues found.';
+        RefreshTxt: Label 'Refresh';
 
     local procedure GetTotalErrorsStyle(): Text
     begin

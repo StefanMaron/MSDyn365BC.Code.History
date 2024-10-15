@@ -182,7 +182,7 @@ codeunit 144047 LinkToAcconReportTest
     begin
         LibraryVariableStorage.Dequeue(UseAddReportCurrency);
         LinkToAcconRequestPage.UseAmtsInAddCurr.SetValue(UseAddReportCurrency);
-        LinkToAcconRequestPage.OK.Invoke;
+        LinkToAcconRequestPage.OK().Invoke();
     end;
 }
 

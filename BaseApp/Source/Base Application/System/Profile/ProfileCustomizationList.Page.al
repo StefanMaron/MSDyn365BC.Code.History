@@ -50,7 +50,7 @@ page 9190 "Profile Customization List"
                     ToolTip = 'Specifies the number of the page object that has been customized.';
                     Lookup = false;
                 }
-                field(PageCaptionField; PageCaption)
+                field(PageCaptionField; PageCaptionText)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Page Caption';
@@ -295,9 +295,9 @@ page 9190 "Profile Customization List"
         PageMetadata: Record "Page Metadata";
     begin
         if PageMetadata.Get(Rec."Page ID") then
-            PageCaption := PageMetadata.Caption
+            PageCaptionText := PageMetadata.Caption
         else
-            PageCaption := StrSubstNo(PageTxt, Rec."Page ID");
+            PageCaptionText := StrSubstNo(PageTxt, Rec."Page ID");
 
         HealthStatus := CreatePageDiagnosticsMessageAndSetStyleExpr();
     end;
@@ -328,7 +328,7 @@ page 9190 "Profile Customization List"
         TempDesignerDiagnostics: Record "Designer Diagnostic" temporary;
         ExtensionManagement: Codeunit "Extension Management";
         CannotDeleteExtensionProfileErr: Label 'You cannot delete this profile customization because it comes from an extension.';
-        PageCaption: Text;
+        PageCaptionText: Text;
         ValidatePageTxt: Label 'Scanning page customizations for %1\%2 of %3 profiles scanned', Comment = '%1 = profile id, %2 and %3 are all whole numbers';
         PageTxt: Label 'Page %1', Comment = '%1 is a whole number, ex. 10';
         PageValidationFailedWithErrorsTxt: Label '%1 error(s)', Comment = '%1 = a number from 1 and up';

@@ -31,29 +31,27 @@ codeunit 5613 "Calculate Acq. Cost Depr."
         DeprAmount := 0;
         Custom1Amount := 0;
         DeprBook.Get(DeprBookCode);
-        with FADeprBook do begin
-            if not Get(FANo, DeprBookCode) then
-                exit;
-            CalcFields(Depreciation, "Acquisition Cost", "Depreciable Basis");
-            DeprBasis := "Depreciable Basis" - LocalDeprBasis;
+        if not FADeprBook.Get(FANo, DeprBookCode) then
+            exit;
+        FADeprBook.CalcFields(Depreciation, "Acquisition Cost", "Depreciable Basis");
+        DeprBasis := FADeprBook."Depreciable Basis" - LocalDeprBasis;
+        if DeprBasis <= 0 then
+            CreateError(FANo, DeprBookCode);
+        if DeprBasis > 0 then
+            DeprAmount :=
+              DepreciationCalc.CalcRounding(
+                DeprBookCode, (FADeprBook.Depreciation * LocalDeprBasis) / DeprBasis);
+        if DeprBook."Use Custom 1 Depreciation" and
+           (FADeprBook."Depr. Ending Date (Custom 1)" > 0D)
+        then begin
+            DeprBasis := FADeprBook."Acquisition Cost" - Custom1LocalDeprBasis;
+            FADeprBook.CalcFields("Custom 1");
             if DeprBasis <= 0 then
                 CreateError(FANo, DeprBookCode);
             if DeprBasis > 0 then
-                DeprAmount :=
+                Custom1Amount :=
                   DepreciationCalc.CalcRounding(
-                    DeprBookCode, (Depreciation * LocalDeprBasis) / DeprBasis);
-            if DeprBook."Use Custom 1 Depreciation" and
-               ("Depr. Ending Date (Custom 1)" > 0D)
-            then begin
-                DeprBasis := "Acquisition Cost" - Custom1LocalDeprBasis;
-                CalcFields("Custom 1");
-                if DeprBasis <= 0 then
-                    CreateError(FANo, DeprBookCode);
-                if DeprBasis > 0 then
-                    Custom1Amount :=
-                      DepreciationCalc.CalcRounding(
-                        DeprBookCode, ("Custom 1" * Custom1LocalDeprBasis) / DeprBasis);
-            end;
+                    DeprBookCode, (FADeprBook."Custom 1" * Custom1LocalDeprBasis) / DeprBasis);
         end;
     end;
 

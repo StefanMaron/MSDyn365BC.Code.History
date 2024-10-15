@@ -109,7 +109,7 @@ table 1570 "G/L Entry Posting Preview"
         }
         field(41; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(42; Quantity; Decimal)
@@ -275,7 +275,7 @@ table 1570 "G/L Entry Posting Preview"
         }
         field(76; "G/L Account Name"; Text[100])
         {
-            CalcFormula = Lookup("G/L Account".Name where("No." = field("G/L Account No.")));
+            CalcFormula = lookup("G/L Account".Name where("No." = field("G/L Account No.")));
             Caption = 'G/L Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -393,7 +393,7 @@ table 1570 "G/L Entry Posting Preview"
         }
         field(8001; "Account Id"; Guid)
         {
-            CalcFormula = Lookup("G/L Account".SystemId where("No." = field("G/L Account No.")));
+            CalcFormula = lookup("G/L Account".SystemId where("No." = field("G/L Account No.")));
             Caption = 'Account Id';
             FieldClass = FlowField;
             TableRelation = "G/L Account".SystemId;

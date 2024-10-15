@@ -8,6 +8,7 @@ using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.Pricing;
 
 codeunit 7038 "Price Source - Contact" implements "Price Source"
 {
@@ -77,6 +78,8 @@ codeunit 7038 "Price Source - Contact" implements "Price Source"
     var
         ContactBusinessRelation: Record "Contact Business Relation";
         Customer: Record Customer;
+        CustomerPriceGroup: Record "Customer Price Group";
+        CustomerDiscountGroup: Record "Customer Discount Group";
     begin
         if PriceSource."Source Type" = "Price Source Type"::Contact then begin
             ContactBusinessRelation.SetLoadFields("No.");
@@ -84,10 +87,20 @@ codeunit 7038 "Price Source - Contact" implements "Price Source"
             ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
             if ContactBusinessRelation.FindSet() then
                 repeat
-                    Customer.SetLoadFields("No.");
+                    Customer.SetLoadFields("No.", "Customer Price Group", "Customer Disc. Group");
                     if Customer.Get(ContactBusinessRelation."No.") then begin
                         Customer.ToPriceSource(TempChildPriceSource);
                         Sender.Add(TempChildPriceSource);
+                        CustomerPriceGroup.SetLoadFields(Code);
+                        if CustomerPriceGroup.Get(Customer."Customer Price Group") then begin
+                            CustomerPriceGroup.ToPriceSource(TempChildPriceSource);
+                            Sender.Add(TempChildPriceSource);
+                        end;
+                        CustomerDiscountGroup.SetLoadFields(Code);
+                        if CustomerDiscountGroup.Get(Customer."Customer Disc. Group") then begin
+                            CustomerDiscountGroup.ToPriceSource(TempChildPriceSource);
+                            Sender.Add(TempChildPriceSource);
+                        end;
                     end;
                 until ContactBusinessRelation.Next() = 0;
         end;

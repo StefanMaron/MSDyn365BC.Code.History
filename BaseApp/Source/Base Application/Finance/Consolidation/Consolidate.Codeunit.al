@@ -288,7 +288,7 @@ codeunit 432 Consolidate
 
         if not TestMode then begin
             BusUnit."Last Balance Currency Factor" := BusUnit."Balance Currency Factor";
-            BusUnit."Last Run" := WorkDate();
+            BusUnit."Last Run" := Today();
             BusUnit.Modify();
             OnAfterBusUnitModify(Rec, BusUnit);
         end;
@@ -514,18 +514,16 @@ codeunit 432 Consolidate
         TempSubsidGLEntry.Reset();
         TempSubsidDimBuf.Reset();
         TempSubsidDimBuf.SetRange("Table ID", DATABASE::"G/L Entry");
-        with TempSubsidGLEntry do begin
-            Reset();
-            if FindSet(true, false) then
-                repeat
-                    TempSubsidDimBuf.SetRange("Entry No.", "Entry No.");
-                    if TempSubsidDimBuf.FindFirst() then begin
-                        "Dimension Set ID" := DimMgt.CreateDimSetIDFromDimBuf(TempSubsidDimBuf);
-                        OnUpdateGLEntryDimSetIDOnAfterAssignDimensionSetID(TempSubsidDimBuf);
-                        Modify();
-                    end;
-                until Next() = 0;
-        end;
+        TempSubsidGLEntry.Reset();
+        if TempSubsidGLEntry.FindSet(true) then
+            repeat
+                TempSubsidDimBuf.SetRange("Entry No.", TempSubsidGLEntry."Entry No.");
+                if TempSubsidDimBuf.FindFirst() then begin
+                    TempSubsidGLEntry."Dimension Set ID" := DimMgt.CreateDimSetIDFromDimBuf(TempSubsidDimBuf);
+                    OnUpdateGLEntryDimSetIDOnAfterAssignDimensionSetID(TempSubsidDimBuf);
+                    TempSubsidGLEntry.Modify();
+                end;
+            until TempSubsidGLEntry.Next() = 0;
     end;
 
     procedure CalcCheckSum() CheckSum: Decimal
@@ -716,38 +714,34 @@ codeunit 432 Consolidate
     begin
         OnBeforeClearPreviousConsolidation(ConsolidGLEntry);
         ClearAmountArray();
-        with ConsolidGLEntry do begin
-            if not
-               SetCurrentKey("G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date")
-            then
-                SetCurrentKey("G/L Account No.", "Business Unit Code", "Posting Date");
-            SetRange("Business Unit Code", BusUnit.Code);
-            SetRange("Posting Date", StartingDate, EndingDate);
-            OnClearPreviousConsolidationOnAfterConsolidGLEntrySetFilters(ConsolidGLEntry);
-            if FindSet(true, false) then
-                repeat
-                    IsHandled := false;
-                    OnClearPreviousConsolidationOnBeforeUpdateAmountArray(ConsolidGLEntry, DeletedAmounts, DeletedDates, DeletedIndex, IsHandled);
-                    if not IsHandled then begin
-                        UpdateAmountArray("Posting Date", Amount);
-                        Description := '';
-                        Amount := 0;
-                        "Remaining Amount" := 0;
-                        Open := false;
-                        "Debit Amount" := 0;
-                        "Credit Amount" := 0;
-                        "Additional-Currency Amount" := 0;
-                        "Add.-Currency Debit Amount" := 0;
-                        "Add.-Currency Credit Amount" := 0;
-                        Modify();
-                        if "G/L Account No." <> TempGLAccount."No." then begin
-                            Window.Update(3, "G/L Account No.");
-                            TempGLAccount."No." := "G/L Account No.";
-                            TempGLAccount.Insert();
-                        end;
-                    end;
-                until Next() = 0;
-        end;
+        if not ConsolidGLEntry.SetCurrentKey("G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date") then
+            ConsolidGLEntry.SetCurrentKey("G/L Account No.", "Business Unit Code", "Posting Date");
+        ConsolidGLEntry.SetRange("Business Unit Code", BusUnit.Code);
+        ConsolidGLEntry.SetRange("Posting Date", StartingDate, EndingDate);
+        OnClearPreviousConsolidationOnAfterConsolidGLEntrySetFilters(ConsolidGLEntry);
+        if ConsolidGLEntry.FindSet(true) then
+            repeat
+                IsHandled := false;
+                OnClearPreviousConsolidationOnBeforeUpdateAmountArray(ConsolidGLEntry, DeletedAmounts, DeletedDates, DeletedIndex, IsHandled);
+                if not IsHandled then begin
+	                UpdateAmountArray(ConsolidGLEntry."Posting Date", ConsolidGLEntry.Amount);
+	                ConsolidGLEntry.Description := '';
+	                ConsolidGLEntry.Amount := 0;
+	                ConsolidGLEntry."Remaining Amount" := 0;
+	                ConsolidGLEntry.Open := false;
+	                ConsolidGLEntry."Debit Amount" := 0;
+	                ConsolidGLEntry."Credit Amount" := 0;
+	                ConsolidGLEntry."Additional-Currency Amount" := 0;
+	                ConsolidGLEntry."Add.-Currency Debit Amount" := 0;
+	                ConsolidGLEntry."Add.-Currency Credit Amount" := 0;
+	                ConsolidGLEntry.Modify();
+	                if ConsolidGLEntry."G/L Account No." <> TempGLAccount."No." then begin
+	                    Window.Update(3, ConsolidGLEntry."G/L Account No.");
+	                    TempGLAccount."No." := ConsolidGLEntry."G/L Account No.";
+	                    TempGLAccount.Insert();
+			        end;
+                end;
+            until ConsolidGLEntry.Next() = 0;
         OnClearPreviousConsolidationOnBeforeCheckAmountArray(DeletedAmounts, DeletedDates);
         CheckAmountArray();
 
@@ -945,97 +939,95 @@ codeunit 432 Consolidate
         ExchRateAdjAmount := 0;
         idx := NormalDate(EndingDate) - NormalDate(StartingDate) + 1;
 
-        with ConsolidGLAcc do begin
-            Reset();
-            SetRange("Account Type", "Account Type"::Posting);
-            SetRange("Business Unit Filter", BusUnit.Code);
-            SetRange("Date Filter", 0D, EndingDate);
-            SetRange("Income/Balance", "Income/Balance"::"Balance Sheet");
-            SetFilter(
-              "No.", '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9',
-              BusUnit."Exch. Rate Losses Acc.", BusUnit."Exch. Rate Gains Acc.",
-              BusUnit."Comp. Exch. Rate Gains Acc.", BusUnit."Comp. Exch. Rate Losses Acc.",
-              BusUnit."Equity Exch. Rate Gains Acc.", BusUnit."Equity Exch. Rate Losses Acc.",
-              BusUnit."Minority Exch. Rate Gains Acc.", BusUnit."Minority Exch. Rate Losses Acc",
-              BusUnit."Residual Account");
-            OnBeforeConsolidGlAccFindSet(ConsolidGLAcc);
-            if FindSet() then
-                repeat
-                    Window.Update(3, "No.");
-                    case "Consol. Translation Method" of
-                        "Consol. Translation Method"::"Average Rate (Manual)",
-                      "Consol. Translation Method"::"Closing Rate":
-                            // Post adjustment to existing balance to convert that balance to new Closing Rate
-                            if SkipAllDimensions then begin
-                                CalcFields("Debit Amount", "Credit Amount");
-                                if "Debit Amount" <> 0 then
-                                    PostBalanceAdjustment("No.", "Debit Amount");
-                                if "Credit Amount" <> 0 then
-                                    PostBalanceAdjustment("No.", -"Credit Amount");
-                            end else begin
-                                TempGLEntry.Reset();
-                                TempGLEntry.DeleteAll();
-                                DimBufMgt.DeleteAllDimensions();
-                                ConsolidGLEntry.Reset();
-                                ConsolidGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
-                                ConsolidGLEntry.SetRange("G/L Account No.", "No.");
-                                ConsolidGLEntry.SetRange("Posting Date", 0D, EndingDate);
-                                ConsolidGLEntry.SetRange("Business Unit Code", BusUnit.Code);
-                                OnBeforeConsolidGLEntryFindSet(ConsolidGLEntry);
-                                if ConsolidGLEntry.FindSet() then
-                                    repeat
-                                        TempDimBufIn.Reset();
-                                        TempDimBufIn.DeleteAll();
-                                        ConsolidDimSetEntry.SetRange("Dimension Set ID", ConsolidGLEntry."Dimension Set ID");
-                                        if ConsolidDimSetEntry.FindSet() then
-                                            repeat
-                                                if TempSelectedDim.Get('', 0, 0, '', ConsolidDimSetEntry."Dimension Code") then begin
-                                                    TempDimBufIn.Init();
-                                                    TempDimBufIn."Table ID" := DATABASE::"G/L Entry";
-                                                    TempDimBufIn."Entry No." := ConsolidGLEntry."Entry No.";
-                                                    TempDimBufIn."Dimension Code" := ConsolidDimSetEntry."Dimension Code";
-                                                    TempDimBufIn."Dimension Value Code" := ConsolidDimSetEntry."Dimension Value Code";
-                                                    TempDimBufIn.Insert();
-                                                end;
-                                            until ConsolidDimSetEntry.Next() = 0;
-                                        UpdateTempGLEntry(ConsolidGLEntry);
-                                    until ConsolidGLEntry.Next() = 0;
-                                TempDimBufOut.Reset();
-                                TempDimBufOut.DeleteAll();
-                                if TempGLEntry.FindSet() then
-                                    repeat
-                                        DimBufMgt.GetDimensions(TempGLEntry."Entry No.", TempDimBufOut);
-                                        TempDimBufOut.SetRange("Entry No.", TempGLEntry."Entry No.");
-                                        if TempGLEntry."Debit Amount" <> 0 then
-                                            PostBalanceAdjustment("No.", TempGLEntry."Debit Amount");
-                                        if TempGLEntry."Credit Amount" <> 0 then
-                                            PostBalanceAdjustment("No.", -TempGLEntry."Credit Amount");
-                                    until TempGLEntry.Next() = 0;
-                            end;
-                        "Consol. Translation Method"::"Historical Rate":
-                            // accumulate adjustment for historical accounts
-                            begin
-                                CalcFields("Balance at Date");
-                                AdjustmentAmount := 0;
-                                ExchRateAdjAmounts[idx] := ExchRateAdjAmounts[idx] + AdjustmentAmount;
-                            end;
-                        "Consol. Translation Method"::"Composite Rate":
-                            // accumulate adjustment for composite accounts
-                            begin
-                                CalcFields("Balance at Date");
-                                AdjustmentAmount := 0;
-                                CompExchRateAdjAmts[idx] := CompExchRateAdjAmts[idx] + AdjustmentAmount;
-                            end;
-                        "Consol. Translation Method"::"Equity Rate":
-                            // accumulate adjustment for equity accounts
-                            begin
-                                CalcFields("Balance at Date");
-                                AdjustmentAmount := 0;
-                                EqExchRateAdjAmts[idx] := EqExchRateAdjAmts[idx] + AdjustmentAmount;
-                            end;
-                    end;
-                until Next() = 0;
-        end;
+        ConsolidGLAcc.Reset();
+        ConsolidGLAcc.SetRange("Account Type", ConsolidGLAcc."Account Type"::Posting);
+        ConsolidGLAcc.SetRange("Business Unit Filter", BusUnit.Code);
+        ConsolidGLAcc.SetRange("Date Filter", 0D, EndingDate);
+        ConsolidGLAcc.SetRange("Income/Balance", ConsolidGLAcc."Income/Balance"::"Balance Sheet");
+        ConsolidGLAcc.SetFilter(
+          ConsolidGLAcc."No.", '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9',
+          BusUnit."Exch. Rate Losses Acc.", BusUnit."Exch. Rate Gains Acc.",
+          BusUnit."Comp. Exch. Rate Gains Acc.", BusUnit."Comp. Exch. Rate Losses Acc.",
+          BusUnit."Equity Exch. Rate Gains Acc.", BusUnit."Equity Exch. Rate Losses Acc.",
+          BusUnit."Minority Exch. Rate Gains Acc.", BusUnit."Minority Exch. Rate Losses Acc",
+          BusUnit."Residual Account");
+        OnBeforeConsolidGlAccFindSet(ConsolidGLAcc);
+        if ConsolidGLAcc.FindSet() then
+            repeat
+                Window.Update(3, ConsolidGLAcc."No.");
+                case ConsolidGLAcc."Consol. Translation Method" of
+                    ConsolidGLAcc."Consol. Translation Method"::"Average Rate (Manual)",
+                  ConsolidGLAcc."Consol. Translation Method"::"Closing Rate":
+                        // Post adjustment to existing balance to convert that balance to new Closing Rate
+                        if SkipAllDimensions then begin
+                            ConsolidGLAcc.CalcFields(ConsolidGLAcc."Debit Amount", ConsolidGLAcc."Credit Amount");
+                            if ConsolidGLAcc."Debit Amount" <> 0 then
+                                PostBalanceAdjustment(ConsolidGLAcc."No.", ConsolidGLAcc."Debit Amount");
+                            if ConsolidGLAcc."Credit Amount" <> 0 then
+                                PostBalanceAdjustment(ConsolidGLAcc."No.", -ConsolidGLAcc."Credit Amount");
+                        end else begin
+                            TempGLEntry.Reset();
+                            TempGLEntry.DeleteAll();
+                            DimBufMgt.DeleteAllDimensions();
+                            ConsolidGLEntry.Reset();
+                            ConsolidGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
+                            ConsolidGLEntry.SetRange("G/L Account No.", ConsolidGLAcc."No.");
+                            ConsolidGLEntry.SetRange("Posting Date", 0D, EndingDate);
+                            ConsolidGLEntry.SetRange("Business Unit Code", BusUnit.Code);
+                            OnBeforeConsolidGLEntryFindSet(ConsolidGLEntry);
+                            if ConsolidGLEntry.FindSet() then
+                                repeat
+                                    TempDimBufIn.Reset();
+                                    TempDimBufIn.DeleteAll();
+                                    ConsolidDimSetEntry.SetRange("Dimension Set ID", ConsolidGLEntry."Dimension Set ID");
+                                    if ConsolidDimSetEntry.FindSet() then
+                                        repeat
+                                            if TempSelectedDim.Get('', 0, 0, '', ConsolidDimSetEntry."Dimension Code") then begin
+                                                TempDimBufIn.Init();
+                                                TempDimBufIn."Table ID" := DATABASE::"G/L Entry";
+                                                TempDimBufIn."Entry No." := ConsolidGLEntry."Entry No.";
+                                                TempDimBufIn."Dimension Code" := ConsolidDimSetEntry."Dimension Code";
+                                                TempDimBufIn."Dimension Value Code" := ConsolidDimSetEntry."Dimension Value Code";
+                                                TempDimBufIn.Insert();
+                                            end;
+                                        until ConsolidDimSetEntry.Next() = 0;
+                                    UpdateTempGLEntry(ConsolidGLEntry);
+                                until ConsolidGLEntry.Next() = 0;
+                            TempDimBufOut.Reset();
+                            TempDimBufOut.DeleteAll();
+                            if TempGLEntry.FindSet() then
+                                repeat
+                                    DimBufMgt.GetDimensions(TempGLEntry."Entry No.", TempDimBufOut);
+                                    TempDimBufOut.SetRange("Entry No.", TempGLEntry."Entry No.");
+                                    if TempGLEntry."Debit Amount" <> 0 then
+                                        PostBalanceAdjustment(ConsolidGLAcc."No.", TempGLEntry."Debit Amount");
+                                    if TempGLEntry."Credit Amount" <> 0 then
+                                        PostBalanceAdjustment(ConsolidGLAcc."No.", -TempGLEntry."Credit Amount");
+                                until TempGLEntry.Next() = 0;
+                        end;
+                    ConsolidGLAcc."Consol. Translation Method"::"Historical Rate":
+                        // accumulate adjustment for historical accounts
+                        begin
+                            ConsolidGLAcc.CalcFields(ConsolidGLAcc."Balance at Date");
+                            AdjustmentAmount := 0;
+                            ExchRateAdjAmounts[idx] := ExchRateAdjAmounts[idx] + AdjustmentAmount;
+                        end;
+                    ConsolidGLAcc."Consol. Translation Method"::"Composite Rate":
+                        // accumulate adjustment for composite accounts
+                        begin
+                            ConsolidGLAcc.CalcFields(ConsolidGLAcc."Balance at Date");
+                            AdjustmentAmount := 0;
+                            CompExchRateAdjAmts[idx] := CompExchRateAdjAmts[idx] + AdjustmentAmount;
+                        end;
+                    ConsolidGLAcc."Consol. Translation Method"::"Equity Rate":
+                        // accumulate adjustment for equity accounts
+                        begin
+                            ConsolidGLAcc.CalcFields(ConsolidGLAcc."Balance at Date");
+                            AdjustmentAmount := 0;
+                            EqExchRateAdjAmts[idx] := EqExchRateAdjAmts[idx] + AdjustmentAmount;
+                        end;
+                end;
+            until ConsolidGLAcc.Next() = 0;
 
         TempDimBufOut.Reset();
         TempDimBufOut.DeleteAll();
@@ -1150,127 +1142,125 @@ codeunit 432 Consolidate
         idx: Integer;
         OriginalTranslationMethod: Integer;
     begin
-        with GenJnlLine do begin
-            if BusUnit."Data Source" = BusUnit."Data Source"::"Local Curr. (LCY)" then
-                AmountToPost := GLEntry."Debit Amount" - GLEntry."Credit Amount"
-            else
-                AmountToPost := GLEntry."Add.-Currency Debit Amount" - GLEntry."Add.-Currency Credit Amount";
+        if BusUnit."Data Source" = BusUnit."Data Source"::"Local Curr. (LCY)" then
+            AmountToPost := GLEntry."Debit Amount" - GLEntry."Credit Amount"
+        else
+            AmountToPost := GLEntry."Add.-Currency Debit Amount" - GLEntry."Add.-Currency Credit Amount";
 
-            if AmountToPost > 0 then
-                "Account No." := TempSubsidGLAcc."Consol. Debit Acc."
-            else
-                "Account No." := TempSubsidGLAcc."Consol. Credit Acc.";
+        if AmountToPost > 0 then
+            GenJnlLine."Account No." := TempSubsidGLAcc."Consol. Debit Acc."
+        else
+            GenJnlLine."Account No." := TempSubsidGLAcc."Consol. Credit Acc.";
 
-            if "Account No." = '' then
-                "Account No." := TempSubsidGLAcc."No.";
-            if AmountToPost = 0 then
-                exit;
+        if GenJnlLine."Account No." = '' then
+            GenJnlLine."Account No." := TempSubsidGLAcc."No.";
+        if AmountToPost = 0 then
+            exit;
 
-            OnCreateAndPostGenJnlLineOnBeforeConsolidGLAccGet(GenJnlLine, GLEntry, BusUnit, TempSubsidGLAcc);
-            ConsolidGLAcc.Get("Account No.");
+        OnCreateAndPostGenJnlLineOnBeforeConsolidGLAccGet(GenJnlLine, GLEntry, BusUnit, TempSubsidGLAcc);
+        ConsolidGLAcc.Get(GenJnlLine."Account No.");
 
-            OriginalTranslationMethod := TempSubsidGLAcc."Consol. Translation Method";
-            if TempSubsidGLAcc."Consol. Translation Method" = TempSubsidGLAcc."Consol. Translation Method"::"Average Rate (Manual)" then
-                if ConsolidGLAcc."Income/Balance" = ConsolidGLAcc."Income/Balance"::"Balance Sheet" then
-                    TempSubsidGLAcc."Consol. Translation Method" := TempSubsidGLAcc."Consol. Translation Method"::"Closing Rate";
+        OriginalTranslationMethod := TempSubsidGLAcc."Consol. Translation Method";
+        if TempSubsidGLAcc."Consol. Translation Method" = TempSubsidGLAcc."Consol. Translation Method"::"Average Rate (Manual)" then
+            if ConsolidGLAcc."Income/Balance" = ConsolidGLAcc."Income/Balance"::"Balance Sheet" then
+                TempSubsidGLAcc."Consol. Translation Method" := TempSubsidGLAcc."Consol. Translation Method"::"Closing Rate";
 
-            ConsolidAmount := AmountToPost * BusUnit."Consolidation %" / 100;
+        ConsolidAmount := AmountToPost * BusUnit."Consolidation %" / 100;
 
-            TranslationNeeded := (BusUnit."Currency Code" <> '');
-            if TranslationNeeded then
-                if BusUnit."Data Source" = BusUnit."Data Source"::"Add. Rep. Curr. (ACY)" then
-                    TranslationNeeded := (BusUnit."Currency Code" <> CurrencyACY);
+        TranslationNeeded := (BusUnit."Currency Code" <> '');
+        if TranslationNeeded then
+            if BusUnit."Data Source" = BusUnit."Data Source"::"Add. Rep. Curr. (ACY)" then
+                TranslationNeeded := (BusUnit."Currency Code" <> CurrencyACY);
 
-            if TranslationNeeded then begin
-                ClosingAmount :=
-                  Round(
-                    ConsolidCurrExchRate.ExchangeAmtFCYToLCY(
-                      EndingDate, BusUnit."Currency Code",
-                      ConsolidAmount, BusUnit."Balance Currency Factor"));
-                case TempSubsidGLAcc."Consol. Translation Method" of
-                    TempSubsidGLAcc."Consol. Translation Method"::"Closing Rate":
-                        begin
-                            Amount := ClosingAmount;
-                            Description :=
-                              CopyStr(
-                                StrSubstNo(
-                                  Text017,
-                                  ConsolidAmount, Round(BusUnit."Balance Currency Factor", 0.00001), EndingDate),
-                                1, MaxStrLen(Description));
-                        end;
-                    TempSubsidGLAcc."Consol. Translation Method"::"Composite Rate",
-                    TempSubsidGLAcc."Consol. Translation Method"::"Equity Rate",
-                    TempSubsidGLAcc."Consol. Translation Method"::"Average Rate (Manual)":
-                        begin
-                            Amount :=
-                              Round(
-                                ConsolidCurrExchRate.ExchangeAmtFCYToLCY(
-                                  EndingDate, BusUnit."Currency Code",
-                                  ConsolidAmount, BusUnit."Income Currency Factor"));
-                            Description :=
-                              CopyStr(
-                                StrSubstNo(
-                                  Text017,
-                                  ConsolidAmount, Round(BusUnit."Income Currency Factor", 0.00001), EndingDate),
-                                1, MaxStrLen(Description));
-                        end;
-                    TempSubsidGLAcc."Consol. Translation Method"::"Historical Rate":
-                        begin
-                            Amount := TranslateUsingHistoricalRate(ConsolidAmount, GLEntry."Posting Date");
-                            Description :=
-                              CopyStr(
-                                StrSubstNo(
-                                  Text017,
-                                  ConsolidAmount, Round(HistoricalCurrencyFactor, 0.00001), GLEntry."Posting Date"),
-                                1, MaxStrLen(Description));
-                        end;
-                end;
-            end else begin
-                Amount := Round(ConsolidAmount);
-                ClosingAmount := Amount;
-                Description :=
-                  StrSubstNo(Text024, AmountToPost, BusUnit."Consolidation %", BusUnit.FieldCaption("Consolidation %"));
-            end;
-
-            if TempSubsidGLAcc."Consol. Translation Method" = TempSubsidGLAcc."Consol. Translation Method"::"Historical Rate" then
-                "Posting Date" := GLEntry."Posting Date"
-            else
-                "Posting Date" := EndingDate;
-            idx := NormalDate("Posting Date") - NormalDate(StartingDate) + 1;
-
-            if DimBuf.FindSet() then begin
-                repeat
-                    TempDimSetEntry2.Init();
-                    TempDimSetEntry2."Dimension Code" := DimBuf."Dimension Code";
-                    TempDimSetEntry2."Dimension Value Code" := DimBuf."Dimension Value Code";
-                    DimValue.Get(TempDimSetEntry2."Dimension Code", TempDimSetEntry2."Dimension Value Code");
-                    TempDimSetEntry2."Dimension Value ID" := DimValue."Dimension Value ID";
-                    TempDimSetEntry2.Insert();
-                until DimBuf.Next() = 0;
-                "Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry2);
-                DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID",
-                  "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-            end;
-
-            OnBeforeTempDimSetEntryDelete(GenJnlLine, GLEntry);
-
-            if Amount <> 0 then
-                GenJnlPostLineTmp(GenJnlLine);
-            TempDimSetEntry2.Reset();
-            TempDimSetEntry2.DeleteAll();
-
-            RoundingResiduals[idx] := RoundingResiduals[idx] + Amount;
-            AdjustAmount := ClosingAmount - Amount;
+        if TranslationNeeded then begin
+            ClosingAmount :=
+              Round(
+                ConsolidCurrExchRate.ExchangeAmtFCYToLCY(
+                  EndingDate, BusUnit."Currency Code",
+                  ConsolidAmount, BusUnit."Balance Currency Factor"));
             case TempSubsidGLAcc."Consol. Translation Method" of
-                TempSubsidGLAcc."Consol. Translation Method"::"Composite Rate":
-                    CompExchRateAdjAmts[idx] := CompExchRateAdjAmts[idx] + AdjustAmount;
-                TempSubsidGLAcc."Consol. Translation Method"::"Equity Rate":
-                    EqExchRateAdjAmts[idx] := EqExchRateAdjAmts[idx] + AdjustAmount;
-                else
-                    ExchRateAdjAmounts[idx] := ExchRateAdjAmounts[idx] + AdjustAmount;
+                TempSubsidGLAcc."Consol. Translation Method"::"Closing Rate":
+                    begin
+                        GenJnlLine.Amount := ClosingAmount;
+                        GenJnlLine.Description :=
+                          CopyStr(
+                            StrSubstNo(
+                              Text017,
+                              ConsolidAmount, Round(BusUnit."Balance Currency Factor", 0.00001), EndingDate),
+                            1, MaxStrLen(GenJnlLine.Description));
+                    end;
+                TempSubsidGLAcc."Consol. Translation Method"::"Composite Rate",
+                TempSubsidGLAcc."Consol. Translation Method"::"Equity Rate",
+                TempSubsidGLAcc."Consol. Translation Method"::"Average Rate (Manual)":
+                    begin
+                        GenJnlLine.Amount :=
+                          Round(
+                            ConsolidCurrExchRate.ExchangeAmtFCYToLCY(
+                              EndingDate, BusUnit."Currency Code",
+                              ConsolidAmount, BusUnit."Income Currency Factor"));
+                        GenJnlLine.Description :=
+                          CopyStr(
+                            StrSubstNo(
+                              Text017,
+                              ConsolidAmount, Round(BusUnit."Income Currency Factor", 0.00001), EndingDate),
+                            1, MaxStrLen(GenJnlLine.Description));
+                    end;
+                TempSubsidGLAcc."Consol. Translation Method"::"Historical Rate":
+                    begin
+                        GenJnlLine.Amount := TranslateUsingHistoricalRate(ConsolidAmount, GLEntry."Posting Date");
+                        GenJnlLine.Description :=
+                          CopyStr(
+                            StrSubstNo(
+                              Text017,
+                              ConsolidAmount, Round(HistoricalCurrencyFactor, 0.00001), GLEntry."Posting Date"),
+                            1, MaxStrLen(GenJnlLine.Description));
+                    end;
             end;
-            TempSubsidGLAcc."Consol. Translation Method" := OriginalTranslationMethod;
+        end else begin
+            GenJnlLine.Amount := Round(ConsolidAmount);
+            ClosingAmount := GenJnlLine.Amount;
+            GenJnlLine.Description :=
+              StrSubstNo(Text024, AmountToPost, BusUnit."Consolidation %", BusUnit.FieldCaption("Consolidation %"));
         end;
+
+        if TempSubsidGLAcc."Consol. Translation Method" = TempSubsidGLAcc."Consol. Translation Method"::"Historical Rate" then
+            GenJnlLine."Posting Date" := GLEntry."Posting Date"
+        else
+            GenJnlLine."Posting Date" := EndingDate;
+        idx := NormalDate(GenJnlLine."Posting Date") - NormalDate(StartingDate) + 1;
+
+        if DimBuf.FindSet() then begin
+            repeat
+                TempDimSetEntry2.Init();
+                TempDimSetEntry2."Dimension Code" := DimBuf."Dimension Code";
+                TempDimSetEntry2."Dimension Value Code" := DimBuf."Dimension Value Code";
+                DimValue.Get(TempDimSetEntry2."Dimension Code", TempDimSetEntry2."Dimension Value Code");
+                TempDimSetEntry2."Dimension Value ID" := DimValue."Dimension Value ID";
+                TempDimSetEntry2.Insert();
+            until DimBuf.Next() = 0;
+            GenJnlLine."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry2);
+            DimMgt.UpdateGlobalDimFromDimSetID(GenJnlLine."Dimension Set ID",
+              GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code");
+        end;
+
+        OnBeforeTempDimSetEntryDelete(GenJnlLine, GLEntry);
+
+        if GenJnlLine.Amount <> 0 then
+            GenJnlPostLineTmp(GenJnlLine);
+        TempDimSetEntry2.Reset();
+        TempDimSetEntry2.DeleteAll();
+
+        RoundingResiduals[idx] := RoundingResiduals[idx] + GenJnlLine.Amount;
+        AdjustAmount := ClosingAmount - GenJnlLine.Amount;
+        case TempSubsidGLAcc."Consol. Translation Method" of
+            TempSubsidGLAcc."Consol. Translation Method"::"Composite Rate":
+                CompExchRateAdjAmts[idx] := CompExchRateAdjAmts[idx] + AdjustAmount;
+            TempSubsidGLAcc."Consol. Translation Method"::"Equity Rate":
+                EqExchRateAdjAmts[idx] := EqExchRateAdjAmts[idx] + AdjustAmount;
+            else
+                ExchRateAdjAmounts[idx] := ExchRateAdjAmounts[idx] + AdjustAmount;
+        end;
+        TempSubsidGLAcc."Consol. Translation Method" := OriginalTranslationMethod;
         OnAfterCreateAndPostGenJnlLine(GenJnlLine, ConsolidAmount, CurrencyACY);
     end;
 
@@ -1406,12 +1396,10 @@ codeunit 432 Consolidate
 
     procedure GetNumSubsidGLEntry(): Integer
     begin
-        with TempSubsidGLEntry do begin
-            Reset();
-            SetCurrentKey("G/L Account No.", "Posting Date");
-            SetRange("G/L Account No.", TempSubsidGLAcc."No.");
-            exit(Count);
-        end;
+        TempSubsidGLEntry.Reset();
+        TempSubsidGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
+        TempSubsidGLEntry.SetRange("G/L Account No.", TempSubsidGLAcc."No.");
+        exit(TempSubsidGLEntry.Count());
     end;
 
     procedure Get1stSubsidGLEntry(var GLEntry: Record "G/L Entry"): Boolean
@@ -1426,30 +1414,28 @@ codeunit 432 Consolidate
            (StartingDate <> EndingDate)
         then
             ReportError(Text030);
-        with TempSubsidGLEntry do begin
-            Reset();
-            SetCurrentKey("G/L Account No.", "Posting Date");
-            SetRange("G/L Account No.", TempSubsidGLAcc."No.");
-            if FindFirst() then begin
-                GLEntry := TempSubsidGLEntry;
-                if TestMode then begin
-                    if ("Posting Date" <> NormalDate("Posting Date")) and
-                       not ConsolidatingClosingDate
-                    then
-                        ReportError(StrSubstNo(
-                            Text031,
-                            TableCaption,
-                            FieldCaption("Posting Date"),
-                            "Posting Date"));
-                    IsError := false;
-                    OnAfterCheckPostingDate(TempSubsidGLEntry, IsError, ErrorMsg);
-                    if IsError then
-                        ReportError(ErrorMsg);
-                end;
-                exit(true);
+        TempSubsidGLEntry.Reset();
+        TempSubsidGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
+        TempSubsidGLEntry.SetRange("G/L Account No.", TempSubsidGLAcc."No.");
+        if TempSubsidGLEntry.FindFirst() then begin
+            GLEntry := TempSubsidGLEntry;
+            if TestMode then begin
+                if (TempSubsidGLEntry."Posting Date" <> NormalDate(TempSubsidGLEntry."Posting Date")) and
+                   not ConsolidatingClosingDate
+                then
+                    ReportError(StrSubstNo(
+                        Text031,
+                        TempSubsidGLEntry.TableCaption,
+                        TempSubsidGLEntry.FieldCaption("Posting Date"),
+                        TempSubsidGLEntry."Posting Date"));
+                IsError := false;
+                OnAfterCheckPostingDate(TempSubsidGLEntry, IsError, ErrorMsg);
+                if IsError then
+                    ReportError(ErrorMsg);
             end;
-            exit(false);
+            exit(true);
         end;
+        exit(false);
     end;
 
     procedure GetNxtSubsidGLEntry(var GLEntry: Record "G/L Entry"): Boolean
@@ -1457,27 +1443,25 @@ codeunit 432 Consolidate
         IsError: Boolean;
         ErrorMsg: Text;
     begin
-        with TempSubsidGLEntry do begin
-            if Next() <> 0 then begin
-                GLEntry := TempSubsidGLEntry;
-                if TestMode then begin
-                    if ("Posting Date" <> NormalDate("Posting Date")) and
-                       not ConsolidatingClosingDate
-                    then
-                        ReportError(StrSubstNo(
-                            Text031,
-                            TableCaption,
-                            FieldCaption("Posting Date"),
-                            "Posting Date"));
-                    IsError := false;
-                    OnAfterCheckPostingDate(TempSubsidGLEntry, IsError, ErrorMsg);
-                    if IsError then
-                        ReportError(ErrorMsg);
-                end;
-                exit(true);
-            end else
-                exit(false);
-        end;
+        if TempSubsidGLEntry.Next() <> 0 then begin
+            GLEntry := TempSubsidGLEntry;
+            if TestMode then begin
+                if (TempSubsidGLEntry."Posting Date" <> NormalDate(TempSubsidGLEntry."Posting Date")) and
+                   not ConsolidatingClosingDate
+                then
+                    ReportError(StrSubstNo(
+                        Text031,
+                        TempSubsidGLEntry.TableCaption,
+                        TempSubsidGLEntry.FieldCaption("Posting Date"),
+                        TempSubsidGLEntry."Posting Date"));
+                IsError := false;
+                OnAfterCheckPostingDate(TempSubsidGLEntry, IsError, ErrorMsg);
+                if IsError then
+                    ReportError(ErrorMsg);
+            end;
+            exit(true);
+        end else
+            exit(false);
     end;
 
     local procedure InitializeGLAccount()

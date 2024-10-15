@@ -55,22 +55,20 @@ codeunit 2000040 "Coda Import Management"
     begin
         BankAcc.Get(BankAccNo);
 
-        with CompanyInfo do begin
-            EnterpriseNo := '';
-            Get();
-            // numbers in VAT No
-            EnterpriseNo := PaymJnlManagement.ConvertToDigit("Enterprise No.", MaxStrLen(EnterpriseNo));
-            if EnterpriseNo = '' then
-                EnterpriseNo := '0';
-            if Evaluate(EnterpriseNoDec, EnterpriseNo) then
-                if EnterpriseNoDec = 0 then
-                    EnterpriseNo := PadStr('', 11, '0')
-                else begin
-                    if not EnterpriseNoCheck.MOD97Check("Enterprise No.") then
-                        Error(Text000);
-                    EnterpriseNo := '0' + EnterpriseNo;
-                end;
-        end;
+        EnterpriseNo := '';
+        CompanyInfo.Get();
+        // numbers in VAT No
+        EnterpriseNo := PaymJnlManagement.ConvertToDigit(CompanyInfo."Enterprise No.", MaxStrLen(EnterpriseNo));
+        if EnterpriseNo = '' then
+            EnterpriseNo := '0';
+        if Evaluate(EnterpriseNoDec, EnterpriseNo) then
+            if EnterpriseNoDec = 0 then
+                EnterpriseNo := PadStr('', 11, '0')
+            else begin
+                if not EnterpriseNoCheck.MOD97Check(CompanyInfo."Enterprise No.") then
+                    Error(Text000);
+                EnterpriseNo := '0' + EnterpriseNo;
+            end;
         Clear(LineCounter);
         Clear(TotalDebit);
         Clear(TotalCredit);
@@ -84,65 +82,61 @@ codeunit 2000040 "Coda Import Management"
     begin
         IsHandled := false;
         OnBeforeCheckCodaHeader(CodedBankStmtSrcLine, Result, IsHandled);
-	    if IsHandled then
-		    exit(Result);
+        if IsHandled then
+            exit(Result);
 
         CodBankStmtSrcLine := CodedBankStmtSrcLine;
-        with CodBankStmtSrcLine do begin
-            if ID <> ID::Header then begin
-                ID := ID::Header;
-                Error(Text001, "Line No.", ID);
-            end;
-            ParseHeaderRecord;
-            if not Evaluate(EnterpriseNum, '0' + VId[2]) then
-                EnterpriseNum := 0;
-            if (EnterpriseNum <> 0) and (EnterpriseNo <> VId[2]) then
-                Error(Text002,
-                  EnterpriseNo,
-                  VId[2],
-                  ID);
-            if ProtocolNo <> BankAcc."Protocol No." then
-                Error(Text003,
-                  BankAcc.FieldCaption("Protocol No."),
-                  BankAcc."Protocol No.",
-                  BankAcc.TableCaption(),
-                  BankAcc."No.",
-                  ProtocolNo,
-                  ID);
-            if VersionCode <> BankAcc."Version Code" then
-                Error(Text003,
-                  BankAcc.FieldCaption("Version Code"),
-                  BankAcc."Version Code",
-                  BankAcc.TableCaption(),
-                  BankAcc."No.",
-                  VersionCode,
-                  ID);
-            if (VersionCode = '2') and (SWIFTCode <> '') then
-                if SWIFTCode <> BankAcc."SWIFT Code" then
-                    Error(Text003,
-                      BankAcc.FieldCaption("SWIFT Code"),
-                      BankAcc."SWIFT Code",
-                      BankAcc.TableCaption(),
-                      BankAcc."No.",
-                      SWIFTCode,
-                      ID);
+        if CodBankStmtSrcLine.ID <> CodBankStmtSrcLine.ID::Header then begin
+            CodBankStmtSrcLine.ID := CodBankStmtSrcLine.ID::Header;
+            Error(Text001, CodBankStmtSrcLine."Line No.", CodBankStmtSrcLine.ID);
         end;
+        ParseHeaderRecord();
+        if not Evaluate(EnterpriseNum, '0' + VId[2]) then
+            EnterpriseNum := 0;
+        if (EnterpriseNum <> 0) and (EnterpriseNo <> VId[2]) then
+            Error(Text002,
+              EnterpriseNo,
+              VId[2],
+              CodBankStmtSrcLine.ID);
+        if ProtocolNo <> BankAcc."Protocol No." then
+            Error(Text003,
+              BankAcc.FieldCaption("Protocol No."),
+              BankAcc."Protocol No.",
+              BankAcc.TableCaption(),
+              BankAcc."No.",
+              ProtocolNo,
+              CodBankStmtSrcLine.ID);
+        if VersionCode <> BankAcc."Version Code" then
+            Error(Text003,
+              BankAcc.FieldCaption("Version Code"),
+              BankAcc."Version Code",
+              BankAcc.TableCaption(),
+              BankAcc."No.",
+              VersionCode,
+              CodBankStmtSrcLine.ID);
+        if (VersionCode = '2') and (SWIFTCode <> '') then
+            if SWIFTCode <> BankAcc."SWIFT Code" then
+                Error(Text003,
+                  BankAcc.FieldCaption("SWIFT Code"),
+                  BankAcc."SWIFT Code",
+                  BankAcc.TableCaption(),
+                  BankAcc."No.",
+                  SWIFTCode,
+                  CodBankStmtSrcLine.ID);
         CodedBankStmtSrcLine := CodBankStmtSrcLine;
         exit(true);
     end;
 
     local procedure ParseHeaderRecord()
     begin
-        with CodBankStmtSrcLine do begin
-            ProtocolNo := CopyStr(Data, 12, 3);
-            VersionCode := CopyStr(Data, 128, 1);
-            if VersionCode = '1' then
-                VId[1] := DelChr(CopyStr(Data, 61, 11), '>', ' ')
-            else
-                SWIFTCode := DelChr(CopyStr(Data, 61, 11));
-            VId[2] := DelChr(CopyStr(Data, 72, 11), '>', ' ');
-            "Transaction Date" := DDMMYY2Date(CopyStr(Data, 6, 6), false);
-        end;
+        ProtocolNo := CopyStr(CodBankStmtSrcLine.Data, 12, 3);
+        VersionCode := CopyStr(CodBankStmtSrcLine.Data, 128, 1);
+        if VersionCode = '1' then
+            VId[1] := DelChr(CopyStr(CodBankStmtSrcLine.Data, 61, 11), '>', ' ')
+        else
+            SWIFTCode := DelChr(CopyStr(CodBankStmtSrcLine.Data, 61, 11));
+        VId[2] := DelChr(CopyStr(CodBankStmtSrcLine.Data, 72, 11), '>', ' ');
+        CodBankStmtSrcLine."Transaction Date" := DDMMYY2Date(CopyStr(CodBankStmtSrcLine.Data, 6, 6), false);
     end;
 
     procedure CheckOldBalance(var CodedBankStmtSrcLine: Record "CODA Statement Source Line"): Boolean
@@ -151,45 +145,43 @@ codeunit 2000040 "Coda Import Management"
         IBANNumber: Text[34];
     begin
         CodBankStmtSrcLine := CodedBankStmtSrcLine;
-        with CodBankStmtSrcLine do begin
-            Evaluate("Statement No.", CopyStr(Data, 3, 3));
-            BankAccountNo :=
-              PaymJnlManagement.ConvertToDigit(
-                BankAcc."Bank Account No.",
-                MaxStrLen(BankAcc."Bank Account No."));
-            IBANNumber := DelChr(BankAcc.IBAN);
-            AccountType := CopyStr(Data, 2, 1);
-            case AccountType of
-                ' ', '0':
-                    if BankAccountNo <> CopyStr(Data, 6, 12) then
-                        Error(Text003,
-                          BankAcc.FieldCaption("Bank Account No."),
-                          BankAcc."Bank Account No.",
-                          BankAcc.TableCaption(),
-                          BankAcc."No.",
-                          CopyStr(Data, 6, 12),
-                          ID);
-                '2':
-                    if IBANNumber <> CopyStr(Data, 6, 16) then
-                        Error(Text003,
-                          BankAcc.FieldCaption(IBAN),
-                          BankAcc.IBAN,
-                          BankAcc.TableCaption(),
-                          BankAcc."No.",
-                          CopyStr(Data, 6, 16),
-                          ID);
-                else
-                    Error(Text017);
-            end;
-            if Data[43] = '0' then
-                Evaluate(Amount, CopyStr(Data, 44, 15))
+        Evaluate(CodBankStmtSrcLine."Statement No.", CopyStr(CodBankStmtSrcLine.Data, 3, 3));
+        BankAccountNo :=
+          PaymJnlManagement.ConvertToDigit(
+            BankAcc."Bank Account No.",
+            MaxStrLen(BankAcc."Bank Account No."));
+        IBANNumber := DelChr(BankAcc.IBAN);
+        AccountType := CopyStr(CodBankStmtSrcLine.Data, 2, 1);
+        case AccountType of
+            ' ', '0':
+                if BankAccountNo <> CopyStr(CodBankStmtSrcLine.Data, 6, 12) then
+                    Error(Text003,
+                      BankAcc.FieldCaption("Bank Account No."),
+                      BankAcc."Bank Account No.",
+                      BankAcc.TableCaption(),
+                      BankAcc."No.",
+                      CopyStr(CodBankStmtSrcLine.Data, 6, 12),
+                      CodBankStmtSrcLine.ID);
+            '2':
+                if IBANNumber <> CopyStr(CodBankStmtSrcLine.Data, 6, 16) then
+                    Error(Text003,
+                      BankAcc.FieldCaption(IBAN),
+                      BankAcc.IBAN,
+                      BankAcc.TableCaption(),
+                      BankAcc."No.",
+                      CopyStr(CodBankStmtSrcLine.Data, 6, 16),
+                      CodBankStmtSrcLine.ID);
             else
-                Evaluate(Amount, '-' + CopyStr(Data, 44, 15));
-            Amount := Amount / 1000;
-            "Transaction Date" := DDMMYY2Date(CopyStr(Data, 59, 6), false);
-            Evaluate("CODA Statement No.", CopyStr(Data, 126, 3));
-            Evaluate(CODAStatementNo, CopyStr(Data, 3, 3));
+                Error(Text017);
         end;
+        if CodBankStmtSrcLine.Data[43] = '0' then
+            Evaluate(CodBankStmtSrcLine.Amount, CopyStr(CodBankStmtSrcLine.Data, 44, 15))
+        else
+            Evaluate(CodBankStmtSrcLine.Amount, '-' + CopyStr(CodBankStmtSrcLine.Data, 44, 15));
+        CodBankStmtSrcLine.Amount := CodBankStmtSrcLine.Amount / 1000;
+        CodBankStmtSrcLine."Transaction Date" := DDMMYY2Date(CopyStr(CodBankStmtSrcLine.Data, 59, 6), false);
+        Evaluate(CodBankStmtSrcLine."CODA Statement No.", CopyStr(CodBankStmtSrcLine.Data, 126, 3));
+        Evaluate(CODAStatementNo, CopyStr(CodBankStmtSrcLine.Data, 3, 3));
         CodedBankStmtSrcLine := CodBankStmtSrcLine;
 
         OnAfterCheckOldBalance(CodedBankStmtSrcLine);
@@ -204,38 +196,36 @@ codeunit 2000040 "Coda Import Management"
     begin
         CodBankStmtSrcLine := CodedBankStmtSrcLine;
         AccountType := AccountType2;
-        with CodBankStmtSrcLine do begin
-            Evaluate("Statement No.", Format(CODAStatementNo));
-            BankAccountNo :=
-              PaymJnlManagement.ConvertToDigit(
-                BankAcc."Bank Account No.",
-                MaxStrLen(BankAcc."Bank Account No."));
-            IBANNumber := DelChr(BankAcc.IBAN);
-            case AccountType of
-                ' ', '0':
-                    if BankAccountNo <> CopyStr(Data, 5, 12) then
-                        Error(Text005,
-                          BankAcc.FieldCaption("Bank Account No."),
-                          BankAcc.TableCaption(),
-                          BankAcc."No.",
-                          ID);
-                '2':
-                    if IBANNumber <> CopyStr(Data, 5, 16) then
-                        Error(Text005,
-                          BankAcc.FieldCaption(IBAN),
-                          BankAcc.TableCaption(),
-                          BankAcc."No.",
-                          ID);
-                else
-                    Error(Text017);
-            end;
-            if Data[42] = '0' then
-                Evaluate(Amount, CopyStr(Data, 43, 15))
+        Evaluate(CodBankStmtSrcLine."Statement No.", Format(CODAStatementNo));
+        BankAccountNo :=
+          PaymJnlManagement.ConvertToDigit(
+            BankAcc."Bank Account No.",
+            MaxStrLen(BankAcc."Bank Account No."));
+        IBANNumber := DelChr(BankAcc.IBAN);
+        case AccountType of
+            ' ', '0':
+                if BankAccountNo <> CopyStr(CodBankStmtSrcLine.Data, 5, 12) then
+                    Error(Text005,
+                      BankAcc.FieldCaption("Bank Account No."),
+                      BankAcc.TableCaption(),
+                      BankAcc."No.",
+                      CodBankStmtSrcLine.ID);
+            '2':
+                if IBANNumber <> CopyStr(CodBankStmtSrcLine.Data, 5, 16) then
+                    Error(Text005,
+                      BankAcc.FieldCaption(IBAN),
+                      BankAcc.TableCaption(),
+                      BankAcc."No.",
+                      CodBankStmtSrcLine.ID);
             else
-                Evaluate(Amount, '-' + CopyStr(Data, 43, 15));
-            Amount := Amount / 1000;
-            "Transaction Date" := DDMMYY2Date(CopyStr(Data, 58, 6), false);
+                Error(Text017);
         end;
+        if CodBankStmtSrcLine.Data[42] = '0' then
+            Evaluate(CodBankStmtSrcLine.Amount, CopyStr(CodBankStmtSrcLine.Data, 43, 15))
+        else
+            Evaluate(CodBankStmtSrcLine.Amount, '-' + CopyStr(CodBankStmtSrcLine.Data, 43, 15));
+        CodBankStmtSrcLine.Amount := CodBankStmtSrcLine.Amount / 1000;
+        CodBankStmtSrcLine."Transaction Date" := DDMMYY2Date(CopyStr(CodBankStmtSrcLine.Data, 58, 6), false);
         CodedBankStmtSrcLine := CodBankStmtSrcLine;
         exit(true);
     end;
@@ -243,258 +233,237 @@ codeunit 2000040 "Coda Import Management"
     procedure CheckCodaTrailer(var CodedBankStmtSrcLine: Record "CODA Statement Source Line"): Boolean
     begin
         CodBankStmtSrcLine := CodedBankStmtSrcLine;
-        with CodBankStmtSrcLine do begin
-            if ID <> ID::Trailer then begin
-                ID := ID::Trailer;
-                Error(Text001, "Line No.", ID);
-            end;
-            ParseTrailerRecord;
-            if LineCounter[1] <> LineCounter[2] then
-                Error(Text006,
-                  LineCounter[1], LineCounter[2]);
-            if TotalDebit[1] <> TotalDebit[2] then
-                Error(Text007,
-                  TotalDebit[1], TotalDebit[2]);
-            if TotalCredit[1] <> TotalCredit[2] then
-                Error(Text008,
-                  TotalCredit[1], TotalCredit[2]);
+        if CodBankStmtSrcLine.ID <> CodBankStmtSrcLine.ID::Trailer then begin
+            CodBankStmtSrcLine.ID := CodBankStmtSrcLine.ID::Trailer;
+            Error(Text001, CodBankStmtSrcLine."Line No.", CodBankStmtSrcLine.ID);
         end;
+        ParseTrailerRecord();
+        if LineCounter[1] <> LineCounter[2] then
+            Error(Text006,
+              LineCounter[1], LineCounter[2]);
+        if TotalDebit[1] <> TotalDebit[2] then
+            Error(Text007,
+              TotalDebit[1], TotalDebit[2]);
+        if TotalCredit[1] <> TotalCredit[2] then
+            Error(Text008,
+              TotalCredit[1], TotalCredit[2]);
         CodedBankStmtSrcLine := CodBankStmtSrcLine;
         exit(true);
     end;
 
     local procedure ParseTrailerRecord()
     begin
-        with CodBankStmtSrcLine do begin
-            Evaluate(LineCounter[2], CopyStr(Data, 17, 6));
-            Evaluate(TotalDebit[2], CopyStr(Data, 23, 15));
-            Evaluate(TotalCredit[2], CopyStr(Data, 38, 15));
-            TotalDebit[2] := TotalDebit[2] / 1000;
-            TotalCredit[2] := TotalCredit[2] / 1000;
-        end;
+        Evaluate(LineCounter[2], CopyStr(CodBankStmtSrcLine.Data, 17, 6));
+        Evaluate(TotalDebit[2], CopyStr(CodBankStmtSrcLine.Data, 23, 15));
+        Evaluate(TotalCredit[2], CopyStr(CodBankStmtSrcLine.Data, 38, 15));
+        TotalDebit[2] := TotalDebit[2] / 1000;
+        TotalCredit[2] := TotalCredit[2] / 1000;
     end;
 
     procedure CheckCodaRecord(var CodedBankStmtSrcLine: Record "CODA Statement Source Line"): Boolean
     begin
         CodBankStmtSrcLine := CodedBankStmtSrcLine;
-        with CodBankStmtSrcLine do begin
-            if ID in [ID::Movement, ID::Information, ID::"Free Message"] then
-                ParseDataRecord
-            else
-                Error(Text009, "Line No.", ID);
-        end;
+        if CodBankStmtSrcLine.ID in [CodBankStmtSrcLine.ID::Movement, CodBankStmtSrcLine.ID::Information, CodBankStmtSrcLine.ID::"Free Message"] then
+            ParseDataRecord()
+        else
+            Error(Text009, CodBankStmtSrcLine."Line No.", CodBankStmtSrcLine.ID);
         CodedBankStmtSrcLine := CodBankStmtSrcLine;
         exit(true);
     end;
 
     local procedure ParseDataRecord()
     begin
-        with CodBankStmtSrcLine do begin
-            // Common Stuff
-            Evaluate("Item Code", CopyStr(Data, 2, 1));
-            if not Evaluate("Sequence No.", CopyStr(Data, 3, 4)) then
-                Error(Text010,
-                  FieldCaption("Sequence No."), Data);
-            if not Evaluate("Detail No.", CopyStr(Data, 7, 4)) then
-                Error(Text010,
-                  FieldCaption("Detail No."), Data);
-            if not Evaluate("Binding Code", CopyStr(Data, 128, 1)) then
-                Error(Text010,
-                  FieldCaption("Binding Code"), Data);
-
-            // Specific Stuff
-            case ID of
-                ID::Movement:
-                    ParseMovementRecord;
-                ID::Information:
-                    ParseInformationRecord;
-                ID::"Free Message":
-                    ParseFreeMessageRecord;
-            end;
-        end
+        // Common Stuff
+        Evaluate(CodBankStmtSrcLine."Item Code", CopyStr(CodBankStmtSrcLine.Data, 2, 1));
+        if not Evaluate(CodBankStmtSrcLine."Sequence No.", CopyStr(CodBankStmtSrcLine.Data, 3, 4)) then
+            Error(Text010,
+              CodBankStmtSrcLine.FieldCaption("Sequence No."), CodBankStmtSrcLine.Data);
+        if not Evaluate(CodBankStmtSrcLine."Detail No.", CopyStr(CodBankStmtSrcLine.Data, 7, 4)) then
+            Error(Text010,
+              CodBankStmtSrcLine.FieldCaption("Detail No."), CodBankStmtSrcLine.Data);
+        if not Evaluate(CodBankStmtSrcLine."Binding Code", CopyStr(CodBankStmtSrcLine.Data, 128, 1)) then
+            Error(Text010,
+              CodBankStmtSrcLine.FieldCaption("Binding Code"), CodBankStmtSrcLine.Data);
+        // Specific Stuff
+        case CodBankStmtSrcLine.ID of
+            CodBankStmtSrcLine.ID::Movement:
+                ParseMovementRecord();
+            CodBankStmtSrcLine.ID::Information:
+                ParseInformationRecord();
+            CodBankStmtSrcLine.ID::"Free Message":
+                ParseFreeMessageRecord();
+        end;
     end;
 
     local procedure ParseMovementRecord()
     begin
-        with CodBankStmtSrcLine do begin
-            if not Evaluate("Sequence Code", CopyStr(Data, 126, 1)) then
-                Error(Text010,
-                  FieldCaption("Sequence Code"), Data);
-            case "Item Code" of
-                '1':
-                    begin
-                        if BankAcc."Version Code" = '1' then begin
-                            Evaluate("Bank Reference No.", CopyStr(Data, 11, 13));
-                            Evaluate("Ext. Reference No.", CopyStr(Data, 24, 8));
-                        end else
-                            Evaluate("Bank Reference No.", CopyStr(Data, 11, 21));
-                        if Data[32] = '0' then
-                            Evaluate(Amount, CopyStr(Data, 33, 15))
-                        else
-                            Evaluate(Amount, '-' + CopyStr(Data, 33, 15));
-                        Amount := Amount / 1000;
-                        "Transaction Date" := DDMMYY2Date(CopyStr(Data, 48, 6), true);
-                        Evaluate("Transaction Type", CopyStr(Data, 54, 1));
-                        Evaluate("Transaction Family", CopyStr(Data, 55, 2));
-                        Evaluate(Transaction, CopyStr(Data, 57, 2));
-                        Evaluate("Transaction Category", CopyStr(Data, 59, 3));
-                        Evaluate("Message Type", CopyStr(Data, 62, 1));
-                        if "Message Type" = "Message Type"::"Standard format" then begin
-                            Evaluate("Type Standard Format Message", CopyStr(Data, 63, 3));
-                            Evaluate("Statement Message", CopyStr(Data, 66, 50));
-                        end else begin
-                            Evaluate("Statement Message", CopyStr(Data, 63, 53));
-                            "Statement Message" := DelChr("Statement Message", '>', ' ');
-                        end;
-                        "Posting Date" := DDMMYY2Date(CopyStr(Data, 116, 6), true);
-                        Evaluate("Statement No.", Format(CODAStatementNo));
-                        Evaluate("Globalisation Code", CopyStr(Data, 125, 1));
-                    end;
-                '2':
-                    begin
-                        Evaluate("Statement Message", CopyStr(Data, 11, 53));
-                        "Statement Message" := DelChr("Statement Message", '>', ' ');
-                        if BankAcc."Version Code" = '1' then begin
-                            Evaluate("Customer Reference", CopyStr(Data, 64, 26));
-                            Evaluate("Original Transaction Currency", CopyStr(Data, 90, 3));
-                            Evaluate("Original Transaction Amount", '0' + DelChr(CopyStr(Data, 93, 15), '=', ' '));
-                        end else begin
-                            Evaluate("Customer Reference", DelChr(CopyStr(Data, 64, 35), '<>', ' '));
-                            Evaluate("SWIFT Address", DelChr(CopyStr(Data, 99, 11)));
-                        end;
-                    end;
-                '3':
+        if not Evaluate(CodBankStmtSrcLine."Sequence Code", CopyStr(CodBankStmtSrcLine.Data, 126, 1)) then
+            Error(Text010,
+              CodBankStmtSrcLine.FieldCaption("Sequence Code"), CodBankStmtSrcLine.Data);
+        case CodBankStmtSrcLine."Item Code" of
+            '1':
+                begin
                     if BankAcc."Version Code" = '1' then begin
-                        Evaluate("Bank Account No. Other Party", CopyStr(Data, 11, 12));
-                        Evaluate("Internal Codes Other Party", CopyStr(Data, 23, 10));
-                        Evaluate("Ext. Acc. No. Other Party", CopyStr(Data, 33, 15));
-                        Evaluate("Name Other Party", CopyStr(Data, 48, 26));
-                        Evaluate("Address Other Party", CopyStr(Data, 74, 26));
-                        Evaluate("City Other Party", CopyStr(Data, 100, 26));
+                        Evaluate(CodBankStmtSrcLine."Bank Reference No.", CopyStr(CodBankStmtSrcLine.Data, 11, 13));
+                        Evaluate(CodBankStmtSrcLine."Ext. Reference No.", CopyStr(CodBankStmtSrcLine.Data, 24, 8));
+                    end else
+                        Evaluate(CodBankStmtSrcLine."Bank Reference No.", CopyStr(CodBankStmtSrcLine.Data, 11, 21));
+                    if CodBankStmtSrcLine.Data[32] = '0' then
+                        Evaluate(CodBankStmtSrcLine.Amount, CopyStr(CodBankStmtSrcLine.Data, 33, 15))
+                    else
+                        Evaluate(CodBankStmtSrcLine.Amount, '-' + CopyStr(CodBankStmtSrcLine.Data, 33, 15));
+                    CodBankStmtSrcLine.Amount := CodBankStmtSrcLine.Amount / 1000;
+                    CodBankStmtSrcLine."Transaction Date" := DDMMYY2Date(CopyStr(CodBankStmtSrcLine.Data, 48, 6), true);
+                    Evaluate(CodBankStmtSrcLine."Transaction Type", CopyStr(CodBankStmtSrcLine.Data, 54, 1));
+                    Evaluate(CodBankStmtSrcLine."Transaction Family", CopyStr(CodBankStmtSrcLine.Data, 55, 2));
+                    Evaluate(CodBankStmtSrcLine.Transaction, CopyStr(CodBankStmtSrcLine.Data, 57, 2));
+                    Evaluate(CodBankStmtSrcLine."Transaction Category", CopyStr(CodBankStmtSrcLine.Data, 59, 3));
+                    Evaluate(CodBankStmtSrcLine."Message Type", CopyStr(CodBankStmtSrcLine.Data, 62, 1));
+                    if CodBankStmtSrcLine."Message Type" = CodBankStmtSrcLine."Message Type"::"Standard format" then begin
+                        Evaluate(CodBankStmtSrcLine."Type Standard Format Message", CopyStr(CodBankStmtSrcLine.Data, 63, 3));
+                        Evaluate(CodBankStmtSrcLine."Statement Message", CopyStr(CodBankStmtSrcLine.Data, 66, 50));
                     end else begin
-                        Evaluate("Bank Account No. Other Party", DelChr(CopyStr(Data, 11, 34)));
-                        Evaluate("Name Other Party", CopyStr(Data, 48, 35));
-                        Evaluate("Statement Message", CopyStr(Data, 83, 43));
+                        Evaluate(CodBankStmtSrcLine."Statement Message", CopyStr(CodBankStmtSrcLine.Data, 63, 53));
+                        CodBankStmtSrcLine."Statement Message" := DelChr(CodBankStmtSrcLine."Statement Message", '>', ' ');
                     end;
-                else
-                    Error(Text012,
-                      FieldCaption("Item Code"), "Line No.", "Item Code");
-            end;
-
-            // checksum
-            if "Detail No." = 0 then
-                UpdateTotalAmount;
+                    CodBankStmtSrcLine."Posting Date" := DDMMYY2Date(CopyStr(CodBankStmtSrcLine.Data, 116, 6), true);
+                    Evaluate(CodBankStmtSrcLine."Statement No.", Format(CODAStatementNo));
+                    Evaluate(CodBankStmtSrcLine."Globalisation Code", CopyStr(CodBankStmtSrcLine.Data, 125, 1));
+                end;
+            '2':
+                begin
+                    Evaluate(CodBankStmtSrcLine."Statement Message", CopyStr(CodBankStmtSrcLine.Data, 11, 53));
+                    CodBankStmtSrcLine."Statement Message" := DelChr(CodBankStmtSrcLine."Statement Message", '>', ' ');
+                    if BankAcc."Version Code" = '1' then begin
+                        Evaluate(CodBankStmtSrcLine."Customer Reference", CopyStr(CodBankStmtSrcLine.Data, 64, 26));
+                        Evaluate(CodBankStmtSrcLine."Original Transaction Currency", CopyStr(CodBankStmtSrcLine.Data, 90, 3));
+                        Evaluate(CodBankStmtSrcLine."Original Transaction Amount", '0' + DelChr(CopyStr(CodBankStmtSrcLine.Data, 93, 15), '=', ' '));
+                    end else begin
+                        Evaluate(CodBankStmtSrcLine."Customer Reference", DelChr(CopyStr(CodBankStmtSrcLine.Data, 64, 35), '<>', ' '));
+                        Evaluate(CodBankStmtSrcLine."SWIFT Address", DelChr(CopyStr(CodBankStmtSrcLine.Data, 99, 11)));
+                    end;
+                end;
+            '3':
+                if BankAcc."Version Code" = '1' then begin
+                    Evaluate(CodBankStmtSrcLine."Bank Account No. Other Party", CopyStr(CodBankStmtSrcLine.Data, 11, 12));
+                    Evaluate(CodBankStmtSrcLine."Internal Codes Other Party", CopyStr(CodBankStmtSrcLine.Data, 23, 10));
+                    Evaluate(CodBankStmtSrcLine."Ext. Acc. No. Other Party", CopyStr(CodBankStmtSrcLine.Data, 33, 15));
+                    Evaluate(CodBankStmtSrcLine."Name Other Party", CopyStr(CodBankStmtSrcLine.Data, 48, 26));
+                    Evaluate(CodBankStmtSrcLine."Address Other Party", CopyStr(CodBankStmtSrcLine.Data, 74, 26));
+                    Evaluate(CodBankStmtSrcLine."City Other Party", CopyStr(CodBankStmtSrcLine.Data, 100, 26));
+                end else begin
+                    Evaluate(CodBankStmtSrcLine."Bank Account No. Other Party", DelChr(CopyStr(CodBankStmtSrcLine.Data, 11, 34)));
+                    Evaluate(CodBankStmtSrcLine."Name Other Party", CopyStr(CodBankStmtSrcLine.Data, 48, 35));
+                    Evaluate(CodBankStmtSrcLine."Statement Message", CopyStr(CodBankStmtSrcLine.Data, 83, 43));
+                end;
+            else
+                Error(Text012,
+                  CodBankStmtSrcLine.FieldCaption("Item Code"), CodBankStmtSrcLine."Line No.", CodBankStmtSrcLine."Item Code");
         end;
+        // checksum
+        if CodBankStmtSrcLine."Detail No." = 0 then
+            UpdateTotalAmount();
     end;
 
     local procedure ParseInformationRecord()
     begin
-        with CodBankStmtSrcLine do begin
-            if not Evaluate("Sequence Code", CopyStr(Data, 126, 1)) then
-                Error(Text010,
-                  FieldCaption("Sequence Code"), Data);
-            case "Item Code" of
-                '1':
-                    begin
-                        if BankAcc."Version Code" = '1' then begin
-                            Evaluate("Bank Reference No.", CopyStr(Data, 11, 13));
-                            Evaluate("Ext. Reference No.", CopyStr(Data, 24, 8));
-                        end else
-                            Evaluate("Bank Reference No.", CopyStr(Data, 11, 21));
-                        Evaluate("Transaction Type", CopyStr(Data, 32, 1));
-                        Evaluate("Transaction Family", CopyStr(Data, 33, 2));
-                        Evaluate(Transaction, CopyStr(Data, 35, 2));
-                        Evaluate("Transaction Category", CopyStr(Data, 37, 3));
-                        Evaluate("Message Type", CopyStr(Data, 40, 1));
-                        if "Message Type" = "Message Type"::"Standard format" then begin
-                            Evaluate("Type Standard Format Message", CopyStr(Data, 41, 3));
-                            Evaluate("Statement Message", CopyStr(Data, 44, 70));
-                        end else begin
-                            Evaluate("Statement Message", CopyStr(Data, 41, 73));
-                            "Statement Message" := DelChr("Statement Message", '<>', ' ');
-                        end;
-                        OtherPartyAddrDetailsExist := (BankAcc."Version Code" = '2') and ("Type Standard Format Message" = 1);
-                        if OtherPartyAddrDetailsExist then begin
-                            Evaluate("Name Other Party", CopyStr(Data, 44, 35));
-                            "Name Other Party" := DelChr("Name Other Party", '<>', ' ');
-                        end;
+        if not Evaluate(CodBankStmtSrcLine."Sequence Code", CopyStr(CodBankStmtSrcLine.Data, 126, 1)) then
+            Error(Text010,
+              CodBankStmtSrcLine.FieldCaption("Sequence Code"), CodBankStmtSrcLine.Data);
+        case CodBankStmtSrcLine."Item Code" of
+            '1':
+                begin
+                    if BankAcc."Version Code" = '1' then begin
+                        Evaluate(CodBankStmtSrcLine."Bank Reference No.", CopyStr(CodBankStmtSrcLine.Data, 11, 13));
+                        Evaluate(CodBankStmtSrcLine."Ext. Reference No.", CopyStr(CodBankStmtSrcLine.Data, 24, 8));
+                    end else
+                        Evaluate(CodBankStmtSrcLine."Bank Reference No.", CopyStr(CodBankStmtSrcLine.Data, 11, 21));
+                    Evaluate(CodBankStmtSrcLine."Transaction Type", CopyStr(CodBankStmtSrcLine.Data, 32, 1));
+                    Evaluate(CodBankStmtSrcLine."Transaction Family", CopyStr(CodBankStmtSrcLine.Data, 33, 2));
+                    Evaluate(CodBankStmtSrcLine.Transaction, CopyStr(CodBankStmtSrcLine.Data, 35, 2));
+                    Evaluate(CodBankStmtSrcLine."Transaction Category", CopyStr(CodBankStmtSrcLine.Data, 37, 3));
+                    Evaluate(CodBankStmtSrcLine."Message Type", CopyStr(CodBankStmtSrcLine.Data, 40, 1));
+                    if CodBankStmtSrcLine."Message Type" = CodBankStmtSrcLine."Message Type"::"Standard format" then begin
+                        Evaluate(CodBankStmtSrcLine."Type Standard Format Message", CopyStr(CodBankStmtSrcLine.Data, 41, 3));
+                        Evaluate(CodBankStmtSrcLine."Statement Message", CopyStr(CodBankStmtSrcLine.Data, 44, 70));
+                    end else begin
+                        Evaluate(CodBankStmtSrcLine."Statement Message", CopyStr(CodBankStmtSrcLine.Data, 41, 73));
+                        CodBankStmtSrcLine."Statement Message" := DelChr(CodBankStmtSrcLine."Statement Message", '<>', ' ');
                     end;
-                '2':
-                    begin
-                        Evaluate("Statement Message", CopyStr(Data, 11, 105));
-                        "Statement Message" := DelChr("Statement Message", '<>', ' ');
-                        if OtherPartyAddrDetailsExist then begin
-                            Evaluate("Address Other Party", CopyStr(Data, 11, 35));
-                            "Address Other Party" := DelChr("Address Other Party", '<>', ' ');
-                            Evaluate("City Other Party", CopyStr(Data, 46, 35));
-                            "City Other Party" := DelChr("City Other Party", '<>', ' ');
-                        end;
+                    OtherPartyAddrDetailsExist := (BankAcc."Version Code" = '2') and (CodBankStmtSrcLine."Type Standard Format Message" = 1);
+                    if OtherPartyAddrDetailsExist then begin
+                        Evaluate(CodBankStmtSrcLine."Name Other Party", CopyStr(CodBankStmtSrcLine.Data, 44, 35));
+                        CodBankStmtSrcLine."Name Other Party" := DelChr(CodBankStmtSrcLine."Name Other Party", '<>', ' ');
                     end;
-                '3':
-                    begin
-                        Evaluate("Statement Message", CopyStr(Data, 11, 90));
-                        "Statement Message" := DelChr("Statement Message", '<>', ' ');
+                end;
+            '2':
+                begin
+                    Evaluate(CodBankStmtSrcLine."Statement Message", CopyStr(CodBankStmtSrcLine.Data, 11, 105));
+                    CodBankStmtSrcLine."Statement Message" := DelChr(CodBankStmtSrcLine."Statement Message", '<>', ' ');
+                    if OtherPartyAddrDetailsExist then begin
+                        Evaluate(CodBankStmtSrcLine."Address Other Party", CopyStr(CodBankStmtSrcLine.Data, 11, 35));
+                        CodBankStmtSrcLine."Address Other Party" := DelChr(CodBankStmtSrcLine."Address Other Party", '<>', ' ');
+                        Evaluate(CodBankStmtSrcLine."City Other Party", CopyStr(CodBankStmtSrcLine.Data, 46, 35));
+                        CodBankStmtSrcLine."City Other Party" := DelChr(CodBankStmtSrcLine."City Other Party", '<>', ' ');
                     end;
-                else
-                    Error(Text012,
-                      FieldCaption("Item Code"), "Line No.", "Item Code");
-            end;
+                end;
+            '3':
+                begin
+                    Evaluate(CodBankStmtSrcLine."Statement Message", CopyStr(CodBankStmtSrcLine.Data, 11, 90));
+                    CodBankStmtSrcLine."Statement Message" := DelChr(CodBankStmtSrcLine."Statement Message", '<>', ' ');
+                end;
+            else
+                Error(Text012,
+                  CodBankStmtSrcLine.FieldCaption("Item Code"), CodBankStmtSrcLine."Line No.", CodBankStmtSrcLine."Item Code");
         end;
     end;
 
     local procedure ParseFreeMessageRecord()
     begin
-        with CodBankStmtSrcLine do begin
-            if BankAcc."Version Code" = '1' then begin
-                Evaluate("Bank Reference No.", CopyStr(Data, 11, 13));
-                Evaluate("Ext. Reference No.", CopyStr(Data, 24, 8));
-                Evaluate("Message Type", CopyStr(Data, 32, 1));
-                if "Message Type" = "Message Type"::"Standard format" then begin
-                    Evaluate("Type Standard Format Message", CopyStr(Data, 33, 3));
-                    Evaluate("Statement Message", CopyStr(Data, 36, 77));
-                end else begin
-                    Evaluate("Statement Message", CopyStr(Data, 33, 80));
-                    "Statement Message" := DelChr("Statement Message", '>', ' ');
-                end;
+        if BankAcc."Version Code" = '1' then begin
+            Evaluate(CodBankStmtSrcLine."Bank Reference No.", CopyStr(CodBankStmtSrcLine.Data, 11, 13));
+            Evaluate(CodBankStmtSrcLine."Ext. Reference No.", CopyStr(CodBankStmtSrcLine.Data, 24, 8));
+            Evaluate(CodBankStmtSrcLine."Message Type", CopyStr(CodBankStmtSrcLine.Data, 32, 1));
+            if CodBankStmtSrcLine."Message Type" = CodBankStmtSrcLine."Message Type"::"Standard format" then begin
+                Evaluate(CodBankStmtSrcLine."Type Standard Format Message", CopyStr(CodBankStmtSrcLine.Data, 33, 3));
+                Evaluate(CodBankStmtSrcLine."Statement Message", CopyStr(CodBankStmtSrcLine.Data, 36, 77));
             end else begin
-                Evaluate("Bank Reference No.", CopyStr(Data, 11, 21));
-                Evaluate("Statement Message", CopyStr(Data, 33, 80));
-                "Statement Message" := DelChr("Statement Message", '>', ' ');
+                Evaluate(CodBankStmtSrcLine."Statement Message", CopyStr(CodBankStmtSrcLine.Data, 33, 80));
+                CodBankStmtSrcLine."Statement Message" := DelChr(CodBankStmtSrcLine."Statement Message", '>', ' ');
             end;
+        end else begin
+            Evaluate(CodBankStmtSrcLine."Bank Reference No.", CopyStr(CodBankStmtSrcLine.Data, 11, 21));
+            Evaluate(CodBankStmtSrcLine."Statement Message", CopyStr(CodBankStmtSrcLine.Data, 33, 80));
+            CodBankStmtSrcLine."Statement Message" := DelChr(CodBankStmtSrcLine."Statement Message", '>', ' ');
+        end;
 
-            if Evaluate("Transaction Family", CopyStr(Data, 113, 2)) then;
-            if Evaluate(Transaction, CopyStr(Data, 115, 2)) then;
-        end
+        if Evaluate(CodBankStmtSrcLine."Transaction Family", CopyStr(CodBankStmtSrcLine.Data, 113, 2)) then;
+        if Evaluate(CodBankStmtSrcLine.Transaction, CopyStr(CodBankStmtSrcLine.Data, 115, 2)) then;
     end;
 
     procedure UpdateStatementNo(var CodedBankStmtSrcLine: Record "CODA Statement Source Line"; xStatementNo: Code[20]; StatementNo: Code[20]): Code[20]
     begin
-        with CodBankStmtSrcLine do begin
-            SetFilter("Bank Account No.", CodedBankStmtSrcLine."Bank Account No.");
-            SetFilter("Statement No.", xStatementNo);
-            if FindFirst() then
-                repeat
-                    Rename("Bank Account No.", StatementNo, "Line No.");
-                until FindFirst = false;
-        end;
+        CodBankStmtSrcLine.SetFilter("Bank Account No.", CodedBankStmtSrcLine."Bank Account No.");
+        CodBankStmtSrcLine.SetFilter("Statement No.", xStatementNo);
+        if CodBankStmtSrcLine.FindFirst() then
+            repeat
+                CodBankStmtSrcLine.Rename(CodBankStmtSrcLine."Bank Account No.", StatementNo, CodBankStmtSrcLine."Line No.");
+            until CodBankStmtSrcLine.FindFirst() = false;
         exit(StatementNo);
     end;
 
     procedure UpdateTotalAmount()
     begin
-        with CodBankStmtSrcLine do begin
-            if Amount > 0 then
-                TotalCredit[1] := TotalCredit[1] + Amount
-            else
-                TotalDebit[1] := TotalDebit[1] - Amount
-        end;
+        if CodBankStmtSrcLine.Amount > 0 then
+            TotalCredit[1] := TotalCredit[1] + CodBankStmtSrcLine.Amount
+        else
+            TotalDebit[1] := TotalDebit[1] - CodBankStmtSrcLine.Amount
     end;
 
     procedure UpdateLineCounter(var CodedBankStmtSrcLine: Record "CODA Statement Source Line")
     begin
-        with CodedBankStmtSrcLine do
-            if (ID > ID::Header) and (ID < ID::Trailer) then
-                LineCounter[1] := LineCounter[1] + 1;
+        if (CodedBankStmtSrcLine.ID > CodedBankStmtSrcLine.ID::Header) and (CodedBankStmtSrcLine.ID < CodedBankStmtSrcLine.ID::Trailer) then
+            LineCounter[1] := LineCounter[1] + 1;
     end;
 
     procedure Success()

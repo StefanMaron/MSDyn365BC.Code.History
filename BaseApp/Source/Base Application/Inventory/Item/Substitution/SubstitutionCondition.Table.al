@@ -3,6 +3,7 @@ namespace Microsoft.Inventory.Item.Substitution;
 table 5716 "Substitution Condition"
 {
     Caption = 'Substitution Condition';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -757,7 +757,6 @@ report 11302 "General Ledger"
         VATStatName: Record "VAT Statement Name";
         CurrencyCode: Code[10];
         CurrencyAmount: Decimal;
-        Amount: Decimal;
         TotalAmount: Decimal;
         TotalAmountAddCurr: Decimal;
         ReportFilter: Text[250];

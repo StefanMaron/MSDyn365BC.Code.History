@@ -183,7 +183,7 @@ report 11306 "Trial Balance - Debit/Credit"
                 end;
 
                 // new client
-                AccountType := "G/L Account"."Account Type";
+                AccountType := "G/L Account"."Account Type".AsInteger();
                 if NewPage then begin
                     PageGroupNo := PageGroupNo + 1;
                     NewPage := false;

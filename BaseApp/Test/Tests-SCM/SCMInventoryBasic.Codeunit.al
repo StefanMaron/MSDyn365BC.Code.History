@@ -52,8 +52,9 @@ codeunit 137280 "SCM Inventory Basic"
         VatProdPostingGrMostNotMatchErr: Label '%1 must not be that same as in the %2';
         ItemUOMErr: Label 'The field %1';
         UOMErr: Label '%1 should be taken from appropriate table';
-        TypeValidationErr: Label 'Validation error for Field: Type';
+#if not CLEAN23
         ControlVisibilityErr: Label 'Control visibility should be %1';
+#endif
         UnspecifiedLocationTxt: Label 'UNSPECIFIED';
         IsNotFoundOnThePageTxt: Label 'is not found on the page';
         UnexpectedValueErr: Label 'Unexpected value of field %1 in table %2', Comment = '%1: Field name, %2: Table name';
@@ -469,162 +470,162 @@ codeunit 137280 "SCM Inventory Basic"
         case ColumnNumber of
             1:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field1.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field1.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field1.Caption;
                 end;
             2:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field2.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field2.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field2.Caption;
                 end;
             3:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field3.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field3.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field3.Caption;
                 end;
             4:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field4.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field4.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field4.Caption;
                 end;
             5:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field5.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field5.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field5.Caption;
                 end;
             6:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field6.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field6.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field6.Caption;
                 end;
             7:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field7.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field7.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field7.Caption;
                 end;
             8:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field8.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field8.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field8.Caption;
                 end;
             9:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field9.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field9.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field9.Caption;
                 end;
             10:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field10.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field10.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field10.Caption;
                 end;
             11:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field11.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field11.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field11.Caption;
                 end;
             12:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field12.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field12.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field12.Caption;
                 end;
             13:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field13.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field13.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field13.Caption;
                 end;
             14:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field14.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field14.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field14.Caption;
                 end;
             15:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field15.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field15.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field15.Caption;
                 end;
             16:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field16.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field16.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field16.Caption;
                 end;
             17:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field17.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field17.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field17.Caption;
                 end;
             18:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field18.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field18.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field18.Caption;
                 end;
             19:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field19.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field19.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field19.Caption;
                 end;
             20:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field20.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field20.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field20.Caption;
                 end;
             21:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field21.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field21.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field21.Caption;
                 end;
             22:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field22.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field22.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field22.Caption;
                 end;
             23:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field23.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field23.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field23.Caption;
                 end;
             24:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field24.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field24.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field24.Caption;
                 end;
             25:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field25.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field25.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field25.Caption;
                 end;
             26:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field26.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field26.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field26.Caption;
                 end;
             27:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field27.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field27.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field27.Caption;
                 end;
             28:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field28.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field28.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field28.Caption;
                 end;
             29:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field29.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field29.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field29.Caption;
                 end;
             30:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field30.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field30.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field30.Caption;
                 end;
             31:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field31.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field31.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field31.Caption;
                 end;
             32:
                 begin
-                    FieldValue := ItemsbyLocation.MatrixForm.Field32.Value;
+                    FieldValue := ItemsbyLocation.MatrixForm.Field32.Value();
                     FieldCaption := ItemsbyLocation.MatrixForm.Field32.Caption;
                 end;
             else
@@ -733,7 +734,7 @@ codeunit 137280 "SCM Inventory Basic"
         Initialize();
         GlobalQuantity := LibraryRandom.RandDec(100, 2);  // Use Random value for Quantity.
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        CreateAndPostItemJournalLine(ItemJournalLine, CreateItem, Location.Code, GlobalQuantity);
+        CreateAndPostItemJournalLine(ItemJournalLine, CreateItem(), Location.Code, GlobalQuantity);
         CreateTransferOrder(TransferHeader, ItemJournalLine."Location Code", ItemJournalLine."Item No.", ItemJournalLine.Quantity);
         LibraryWarehouse.PostTransferOrder(TransferHeader, Ship, Receive);
 
@@ -1100,15 +1101,15 @@ codeunit 137280 "SCM Inventory Basic"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ChangingBaseUnitOfMeasureWithQtyRoundingPercision()
+    procedure ChangingBaseUnitOfMeasureWithQtyRoundingPrecision()
     var
         Item: Record Item;
         FirstUnitOfMeasure: Record "Unit of Measure";
         SecondUnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
-        QtyRoudingPercisionErr: Label 'Qty. Rounding Precision for Base Unit of Measure is incorrect';
+        QtyRoudingPrecisionErr: Label 'Qty. Rounding Precision for Base Unit of Measure is incorrect';
     begin
-        //Change Base UoM should reset Qty. Rounding Percion
+        //Change Base UoM should reset Qty. Rounding Precision
         Initialize();
 
         Item.Init();
@@ -1131,9 +1132,9 @@ codeunit 137280 "SCM Inventory Basic"
         Item.Validate("Base Unit of Measure", SecondUnitOfMeasure.Code);
         Item.Modify(true);
 
-        //Old Base UoM should have the default Qty. Rounding Percision
+        //Old Base UoM should have the default Qty. Rounding Precision
         ItemUnitOfMeasure.Get(Item."No.", FirstUnitOfMeasure.Code);
-        Assert.AreEqual(0, ItemUnitOfMeasure."Qty. Rounding Precision", QtyRoudingPercisionErr);
+        Assert.AreEqual(0, ItemUnitOfMeasure."Qty. Rounding Precision", QtyRoudingPrecisionErr);
     end;
 
     [Test]
@@ -1839,7 +1840,7 @@ codeunit 137280 "SCM Inventory Basic"
             ItemSubstitution."Substitute Type"::Item, Item."No."), 'Item Substitution not found.');
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceWorksheetControlNotVisibleOnPhone()
@@ -3308,12 +3309,12 @@ codeunit 137280 "SCM Inventory Basic"
             GlobalItemTracking::AssignLotNo:
                 begin
                     ItemTrackingLines."Assign Lot No.".Invoke();  // Assign Lot No.
-                    GlobalLotNo := ItemTrackingLines."Lot No.".Value;
+                    GlobalLotNo := ItemTrackingLines."Lot No.".Value();
                 end;
             GlobalItemTracking::AssignSerialNo:
                 begin
                     ItemTrackingLines."Assign Serial No.".Invoke();  // Assign Serial No.
-                    GlobalSerialNo := ItemTrackingLines."Serial No.".Value;
+                    GlobalSerialNo := ItemTrackingLines."Serial No.".Value();
                 end;
             GlobalItemTracking::SelectEntries:
                 begin
@@ -3397,8 +3398,8 @@ codeunit 137280 "SCM Inventory Basic"
     [ModalPageHandler]
     procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
-        NoSeriesList.Filter.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        NoSeriesList.OK.Invoke;
+        NoSeriesList.Filter.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        NoSeriesList.OK().Invoke();
     end;
 
     [ConfirmHandler]

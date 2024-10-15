@@ -25,7 +25,7 @@ codeunit 134062 "Field Style Unit Tests"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CreateCustomerLedgerEntry(CustLedgerEntry, false, LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate('<1Y>', WorkDate())), '<-1D>');
-        Assert.IsTrue('' = CustLedgerEntry.SetStyle, IncorrectStyle);
+        Assert.IsTrue('' = CustLedgerEntry.SetStyle(), IncorrectStyle);
 
         CustLedgerEntry.Delete();
     end;
@@ -37,7 +37,7 @@ codeunit 134062 "Field Style Unit Tests"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CreateCustomerLedgerEntry(CustLedgerEntry, true, LibraryUtility.GenerateRandomDate(CalcDate('<-1Y>', WorkDate()), WorkDate()), '');
-        Assert.IsTrue(Unfavorable = CustLedgerEntry.SetStyle, IncorrectStyle);
+        Assert.IsTrue(Unfavorable = CustLedgerEntry.SetStyle(), IncorrectStyle);
 
         CustLedgerEntry.Delete();
     end;
@@ -49,7 +49,7 @@ codeunit 134062 "Field Style Unit Tests"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CreateCustomerLedgerEntry(CustLedgerEntry, false, LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate('<1Y>', WorkDate())), '<1D>');
-        Assert.IsTrue(Attention = CustLedgerEntry.SetStyle, IncorrectStyle);
+        Assert.IsTrue(Attention = CustLedgerEntry.SetStyle(), IncorrectStyle);
 
         CustLedgerEntry.Delete();
     end;
@@ -61,7 +61,7 @@ codeunit 134062 "Field Style Unit Tests"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         CreateVendorLedgerEntry(VendorLedgerEntry, false, LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate('<1Y>', WorkDate())), '<-1D>');
-        Assert.IsTrue('' = VendorLedgerEntry.SetStyle, IncorrectStyle);
+        Assert.IsTrue('' = VendorLedgerEntry.SetStyle(), IncorrectStyle);
 
         VendorLedgerEntry.Delete();
     end;
@@ -73,7 +73,7 @@ codeunit 134062 "Field Style Unit Tests"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         CreateVendorLedgerEntry(VendorLedgerEntry, true, LibraryUtility.GenerateRandomDate(CalcDate('<-1Y>', WorkDate()), WorkDate()), '');
-        Assert.IsTrue(Unfavorable = VendorLedgerEntry.SetStyle, IncorrectStyle);
+        Assert.IsTrue(Unfavorable = VendorLedgerEntry.SetStyle(), IncorrectStyle);
 
         VendorLedgerEntry.Delete();
     end;
@@ -85,7 +85,7 @@ codeunit 134062 "Field Style Unit Tests"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         CreateVendorLedgerEntry(VendorLedgerEntry, false, LibraryUtility.GenerateRandomDate(WorkDate(), CalcDate('<1Y>', WorkDate())), '<1D>');
-        Assert.IsTrue(Attention = VendorLedgerEntry.SetStyle, IncorrectStyle);
+        Assert.IsTrue(Attention = VendorLedgerEntry.SetStyle(), IncorrectStyle);
 
         VendorLedgerEntry.Delete();
     end;
@@ -97,7 +97,7 @@ codeunit 134062 "Field Style Unit Tests"
         Customer: Record Customer;
     begin
         CreateCustomer(Customer, 0);
-        Assert.IsTrue('' = Customer.SetStyle, IncorrectStyle);
+        Assert.IsTrue('' = Customer.SetStyle(), IncorrectStyle);
 
         Customer.Delete();
     end;
@@ -109,7 +109,7 @@ codeunit 134062 "Field Style Unit Tests"
         Customer: Record Customer;
     begin
         CreateCustomer(Customer, -LibraryRandom.RandDec(10, 2));
-        Assert.IsTrue(Unfavorable = Customer.SetStyle, IncorrectStyle);
+        Assert.IsTrue(Unfavorable = Customer.SetStyle(), IncorrectStyle);
 
         Customer.Delete();
     end;

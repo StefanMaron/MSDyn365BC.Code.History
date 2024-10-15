@@ -9,6 +9,7 @@ table 2000003 "IBLC/BLWI Transaction Code"
     Caption = 'IBLC/BLWI Transaction Code';
     DataCaptionFields = "Transaction Code";
     LookupPageID = "IBLC/BLWI Transaction Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

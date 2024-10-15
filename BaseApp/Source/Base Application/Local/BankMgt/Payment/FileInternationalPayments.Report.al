@@ -74,7 +74,7 @@ report 2000002 "File International Payments"
                     if EBSetup."Cut off Payment Message Texts" then
                         References := CopyStr(References, 1, 136) + ' ...'
                     else
-                        WriteDataRecord;
+                        WriteDataRecord();
 
                 if References = '' then
                     References := Reference
@@ -83,9 +83,9 @@ report 2000002 "File International Payments"
 
                 Amt[1] := Amt[1] + Amount;
 
-                NewGroupLoc := CheckNewGroup;
+                NewGroupLoc := CheckNewGroup();
                 if NewGroupLoc then
-                    WriteDataRecord;
+                    WriteDataRecord();
             end;
 
             trigger OnPreDataItem()
@@ -119,7 +119,7 @@ report 2000002 "File International Payments"
                 FromFile := RBMgt.ServerTempFileName('txt');
                 xFile.Create(FromFile);
 
-                WriteHeaderRecord;
+                WriteHeaderRecord();
             end;
         }
         dataitem(Docket; "Integer")
@@ -229,7 +229,7 @@ report 2000002 "File International Payments"
 
             trigger OnAfterGetRecord()
             begin
-                WriteTrailerRecord;
+                WriteTrailerRecord();
                 xFile.Close();
 
                 // basename of file for printing on 'borderel'
@@ -392,21 +392,19 @@ report 2000002 "File International Payments"
     trigger OnPreReport()
     begin
         EnterpriseNo := '';
-        with CompanyInfo do begin
-            Get();
-            if "Enterprise No." = '' then
-                EnterpriseNo := '00000000000'
-            else begin
-                if not EnterpriseNoCheck.MOD97Check("Enterprise No.") then
-                    Error(Text000);
-                EnterpriseNo := '0' + PaymJnlManagement.ConvertToDigit("Enterprise No.", MaxStrLen(EnterpriseNo));
-            end;
-
-            Client[1] := CopyStr(Name, 1, MaxStrLen(Client[1]));
-            Client[2] := CopyStr(Address, 1, MaxStrLen(Client[2]));
-            Client[3] := CopyStr("Address 2", 1, MaxStrLen(Client[3]));
-            Client[4] := CopyStr("Post Code" + ' ' + City, 1, MaxStrLen(Client[4]));
+        CompanyInfo.Get();
+        if CompanyInfo."Enterprise No." = '' then
+            EnterpriseNo := '00000000000'
+        else begin
+            if not EnterpriseNoCheck.MOD97Check(CompanyInfo."Enterprise No.") then
+                Error(Text000);
+            EnterpriseNo := '0' + PaymJnlManagement.ConvertToDigit(CompanyInfo."Enterprise No.", MaxStrLen(EnterpriseNo));
         end;
+
+        Client[1] := CopyStr(CompanyInfo.Name, 1, MaxStrLen(Client[1]));
+        Client[2] := CopyStr(CompanyInfo.Address, 1, MaxStrLen(Client[2]));
+        Client[3] := CopyStr(CompanyInfo."Address 2", 1, MaxStrLen(Client[3]));
+        Client[4] := CopyStr(CompanyInfo."Post Code" + ' ' + CompanyInfo.City, 1, MaxStrLen(Client[4]));
 
         if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Desktop, CLIENTTYPE::Windows]) then
             FullFileName := RBMgt.GetFileName(FileName)
@@ -503,28 +501,25 @@ report 2000002 "File International Payments"
     [Scope('OnPrem')]
     procedure FillCustomerData(PaymentJnlLine: Record "Payment Journal Line")
     begin
-        with Cust do begin
-            Get(PaymentJnlLine."Account No.");
+        Cust.Get(PaymentJnlLine."Account No.");
 
-            if "Country/Region Code" <> '' then
-                ISOCountCode := "Country/Region Code"
-            else
-                ISOCountCode := 'BE';
-            Remittee[1] := CopyStr(Name, 1, MaxStrLen(Remittee[1]));
-            Remittee[2] := CopyStr(Address, 1, MaxStrLen(Remittee[2]));
-            Remittee[3] := CopyStr("Address 2", 1, MaxStrLen(Remittee[3]));
-            Remittee[4] := CopyStr("Post Code" + ' ' + City + ' ' + "Country/Region Code", 1, MaxStrLen(Remittee[4]));
-
-            // bank
-            Clear(BankRemittee);
-            CustBankAcc.Get(PaymentJnlLine."Account No.", PaymentJnlLine."Beneficiary Bank Account");
-            if PaymentJnlLine."SWIFT Code" <> '' then begin
-                BankRemittee[1] := PaymentJnlLine."SWIFT Code";
-                IndConcBeneficAccountNoBIC := '1';
-            end else begin
-                FillCustBankRemittee(CustBankAcc);
-                IndConcBeneficAccountNoBIC := ' ';
-            end;
+        if Cust."Country/Region Code" <> '' then
+            ISOCountCode := Cust."Country/Region Code"
+        else
+            ISOCountCode := 'BE';
+        Remittee[1] := CopyStr(Cust.Name, 1, MaxStrLen(Remittee[1]));
+        Remittee[2] := CopyStr(Cust.Address, 1, MaxStrLen(Remittee[2]));
+        Remittee[3] := CopyStr(Cust."Address 2", 1, MaxStrLen(Remittee[3]));
+        Remittee[4] := CopyStr(Cust."Post Code" + ' ' + Cust.City + ' ' + Cust."Country/Region Code", 1, MaxStrLen(Remittee[4]));
+        // bank
+        Clear(BankRemittee);
+        CustBankAcc.Get(PaymentJnlLine."Account No.", PaymentJnlLine."Beneficiary Bank Account");
+        if PaymentJnlLine."SWIFT Code" <> '' then begin
+            BankRemittee[1] := PaymentJnlLine."SWIFT Code";
+            IndConcBeneficAccountNoBIC := '1';
+        end else begin
+            FillCustBankRemittee(CustBankAcc);
+            IndConcBeneficAccountNoBIC := ' ';
         end;
 
         OnAfterFillCustData(PaymentJnlLine, BankRemittee, IndConcBeneficAccountNoBIC);
@@ -533,28 +528,25 @@ report 2000002 "File International Payments"
     [Scope('OnPrem')]
     procedure FillVendorData(PaymentJnlLine: Record "Payment Journal Line")
     begin
-        with Vend do begin
-            Get(PaymentJnlLine."Account No.");
+        Vend.Get(PaymentJnlLine."Account No.");
 
-            if "Country/Region Code" <> '' then
-                ISOCountCode := "Country/Region Code"
-            else
-                ISOCountCode := 'BE';
-            Remittee[1] := CopyStr(Name, 1, MaxStrLen(Remittee[1]));
-            Remittee[2] := CopyStr(Address, 1, MaxStrLen(Remittee[2]));
-            Remittee[3] := CopyStr("Address 2", 1, MaxStrLen(Remittee[3]));
-            Remittee[4] := CopyStr("Post Code" + ' ' + City + ' ' + "Country/Region Code", 1, MaxStrLen(Remittee[4]));
-
-            // bank account data
-            Clear(BankRemittee);
-            VendBankAcc.Get(PaymentJnlLine."Account No.", PaymentJnlLine."Beneficiary Bank Account");
-            if PaymentJnlLine."SWIFT Code" <> '' then begin
-                BankRemittee[1] := PaymentJnlLine."SWIFT Code";
-                IndConcBeneficAccountNoBIC := '1';
-            end else begin
-                FillVendBankRemittee(VendBankAcc);
-                IndConcBeneficAccountNoBIC := ' ';
-            end;
+        if Vend."Country/Region Code" <> '' then
+            ISOCountCode := Vend."Country/Region Code"
+        else
+            ISOCountCode := 'BE';
+        Remittee[1] := CopyStr(Vend.Name, 1, MaxStrLen(Remittee[1]));
+        Remittee[2] := CopyStr(Vend.Address, 1, MaxStrLen(Remittee[2]));
+        Remittee[3] := CopyStr(Vend."Address 2", 1, MaxStrLen(Remittee[3]));
+        Remittee[4] := CopyStr(Vend."Post Code" + ' ' + Vend.City + ' ' + Vend."Country/Region Code", 1, MaxStrLen(Remittee[4]));
+        // bank account data
+        Clear(BankRemittee);
+        VendBankAcc.Get(PaymentJnlLine."Account No.", PaymentJnlLine."Beneficiary Bank Account");
+        if PaymentJnlLine."SWIFT Code" <> '' then begin
+            BankRemittee[1] := PaymentJnlLine."SWIFT Code";
+            IndConcBeneficAccountNoBIC := '1';
+        end else begin
+            FillVendBankRemittee(VendBankAcc);
+            IndConcBeneficAccountNoBIC := ' ';
         end;
 
         OnAfterFillVendData(PaymentJnlLine, BankRemittee, IndConcBeneficAccountNoBIC);
@@ -581,23 +573,22 @@ report 2000002 "File International Payments"
     [Scope('OnPrem')]
     procedure WriteHeaderRecord()
     begin
-        with xFile do
-            Write(
-              '0' +// header record
-              Format(Today, 6, '<day,2><month,2><year,2>') + // creation data of carrier
-              Format('', 12) +
-              Format(BankAcc."Bank Branch No.", 3) +
-              '51' +
-              Format(InscriptionNo, 10) +
-              Format(EnterpriseNo, 11) +
-              Format(EnterpriseNo, 11) +
-              ' ' +
-              '3' +
-              Format('', 12) +
-              '1' +
-              Format('', 4) +
-              '1' +
-              Format('', 52));
+        xFile.Write(
+            '0' +// header record
+            Format(Today, 6, '<day,2><month,2><year,2>') + // creation data of carrier
+            Format('', 12) +
+            Format(BankAcc."Bank Branch No.", 3) +
+            '51' +
+            Format(InscriptionNo, 10) +
+            Format(EnterpriseNo, 11) +
+            Format(EnterpriseNo, 11) +
+            ' ' +
+            '3' +
+            Format('', 12) +
+            '1' +
+            Format('', 4) +
+            '1' +
+            Format('', 52));
     end;
 
     [Scope('OnPrem')]
@@ -610,137 +601,126 @@ report 2000002 "File International Payments"
         PaymentNo := PaymentNo + 1;
 
         DataRecord[8] := (StrLen(References) > 35);
-
         // Subdivision 01 Mandatory
-        with xFile do begin
-            Write(
+        xFile.Write(
+            '1' +
+            PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
+            '01' +
+            Format(ExecutionDate, 6, '<day,2><month,2><year,2>') +
+            Format('', 16) +
+            Format(ISOCurCode, 3) +
+            Format('', 1) +
+            'C' +
+            PaymJnlManagement.DecimalNumeralZeroFormat(Amt[1] * 100, 15) +
+            Format('', 1) +
+            Format(BankAccISOCurrCode, 9) +
+            Format(PaymJnlManagement.ConvertToDigit(BankAcc."Bank Account No.", 12), 12) +
+            Format('', 22) +
+            Format('', 1) +
+            Format('', 34));
+        // Subdivision 02
+        if DataRecord[2] then begin
+            RecordCounter := RecordCounter + 1;
+            xFile.Write(
               '1' +
               PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-              '01' +
-              Format(ExecutionDate, 6, '<day,2><month,2><year,2>') +
-              Format('', 16) +
-              Format(ISOCurCode, 3) +
-              Format('', 1) +
-              'C' +
-              PaymJnlManagement.DecimalNumeralZeroFormat(Amt[1] * 100, 15) +
-              Format('', 1) +
-              Format(BankAccISOCurrCode, 9) +
-              Format(PaymJnlManagement.ConvertToDigit(BankAcc."Bank Account No.", 12), 12) +
-              Format('', 22) +
-              Format('', 1) +
-              Format('', 34));
-
-            // Subdivision 02
-            if DataRecord[2] then begin
-                RecordCounter := RecordCounter + 1;
-                Write(
-                  '1' +
-                  PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-                  '02' +
-                  Format(Client[1], 35) +
-                  Format(Client[2], 35) +
-                  Format(Client[3], 35) +
-                  Format('', 16));
-            end;
-
-            // Subdivision 03
-            if DataRecord[3] then begin
-                RecordCounter := RecordCounter + 1;
-                Write(
-                  '1' +
-                  PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-                  '03' +
-                  Format(Client[4], 35) +
-                  Format('', 10) +
-                  Format(BankExecution[1], 35) +
-                  Format(BankExecution[2], 35) +
-                  Format('', 6));
-            end else
-                Clear(BankExecution);
-
-            // Subdivision 04 Mandatory
-            Write(
-              '1' +
-              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-              '04' +
-              Format('', 80) +
-              Format(BankRemittee[1], 35) +
-              Format(IndConcBeneficAccountNoBIC, 1) +
-              Format('', 5));
-
-            // Subdivision 05
-            Write(
-              '1' +
-              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-              '05' +
-              Format(BankRemittee[2], 35) +
-              Format(BankRemittee[3], 35) +
-              Format(BankRemittee[4], 35) +
-              Format('', 10) +
-              Format('', 6));
-
-            // Subdivision 06 Mandatory
-            Write(
-              '1' +
-              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-              '06' +
-              Format(BankAccNo, 34) +
-              Format(Remittee[1], 35) +
-              Format(Remittee[2], 35) +
-              Format(IndConcBeneficAccountNoIBAN) + // Indication concerning the beneficiary's account number
-              Format("Payment Journal Line"."Bank ISO Country/Region Code", 2) +
-              Format('', 14));
-
-            // Subdivision 07
-            Write(
-              '1' +
-              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-              '07' +
-              Format(Remittee[3], 35) +
-              Format(Remittee[4], 35) +
-              Format('', 10) +
-              Format(CopyStr(References, 1, 35), 35) +
-              Format('', 6));
-
-            // Subdivision 08
-            if DataRecord[8] then begin
-                RecordCounter := RecordCounter + 1;
-                Write(
-                  '1' +
-                  PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-                  '08' +
-                  Format(CopyStr(References, 36), 105) +
-                  Format('', 16));
-            end;
-
-            // Subdivision 09
-            if DataRecord[9] then begin
-                RecordCounter := RecordCounter + 1;
-                Write(
-                  '1' +
-                  PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-                  '09' +
-                  Format('', 70) +
-                  Format('', 35) +
-                  Format('', 16));
-            end;
-
-            // Subdivision 10 Mandatory
-            Write(
-              '1' +
-              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-              '10' +
-              Format('', 35) +
-              Format("Payment Journal Line"."Code Payment Method", 3, '<text>') +
-              Format("Payment Journal Line"."Code Expenses", 3, '<text>') +
-              Format('', 1) +
-              Format('', 3) +
-              Format('', 6) +
-              Format(BankAccNoCosts, 12) +
-              ' ' +
-              Format(ISOCountCode, 2) +
-              Format('', 55));
+              '02' +
+              Format(Client[1], 35) +
+              Format(Client[2], 35) +
+              Format(Client[3], 35) +
+              Format('', 16));
         end;
+        // Subdivision 03
+        if DataRecord[3] then begin
+            RecordCounter := RecordCounter + 1;
+            xFile.Write(
+              '1' +
+              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
+              '03' +
+              Format(Client[4], 35) +
+              Format('', 10) +
+              Format(BankExecution[1], 35) +
+              Format(BankExecution[2], 35) +
+              Format('', 6));
+        end else
+            Clear(BankExecution);
+        // Subdivision 04 Mandatory
+        xFile.Write(
+          '1' +
+          PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
+          '04' +
+          Format('', 80) +
+          Format(BankRemittee[1], 35) +
+          Format(IndConcBeneficAccountNoBIC, 1) +
+          Format('', 5));
+        // Subdivision 05
+        xFile.Write(
+          '1' +
+          PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
+          '05' +
+          Format(BankRemittee[2], 35) +
+          Format(BankRemittee[3], 35) +
+          Format(BankRemittee[4], 35) +
+          Format('', 10) +
+          Format('', 6));
+        // Subdivision 06 Mandatory
+        xFile.Write(
+          '1' +
+          PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
+          '06' +
+          Format(BankAccNo, 34) +
+          Format(Remittee[1], 35) +
+          Format(Remittee[2], 35) +
+          Format(IndConcBeneficAccountNoIBAN) +
+          // Indication concerning the beneficiary's account number
+          Format("Payment Journal Line"."Bank ISO Country/Region Code", 2) +
+          Format('', 14));
+        // Subdivision 07
+        xFile.Write(
+          '1' +
+          PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
+          '07' +
+          Format(Remittee[3], 35) +
+          Format(Remittee[4], 35) +
+          Format('', 10) +
+          Format(CopyStr(References, 1, 35), 35) +
+          Format('', 6));
+        // Subdivision 08
+        if DataRecord[8] then begin
+            RecordCounter := RecordCounter + 1;
+            xFile.Write(
+              '1' +
+              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
+              '08' +
+              Format(CopyStr(References, 36), 105) +
+              Format('', 16));
+        end;
+        // Subdivision 09
+        if DataRecord[9] then begin
+            RecordCounter := RecordCounter + 1;
+            xFile.Write(
+              '1' +
+              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
+              '09' +
+              Format('', 70) +
+              Format('', 35) +
+              Format('', 16));
+        end;
+        // Subdivision 10 Mandatory
+        xFile.Write(
+          '1' +
+          PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
+          '10' +
+          Format('', 35) +
+          Format("Payment Journal Line"."Code Payment Method", 3, '<text>') +
+          Format("Payment Journal Line"."Code Expenses", 3, '<text>') +
+          Format('', 1) +
+          Format('', 3) +
+          Format('', 6) +
+          Format(BankAccNoCosts, 12) +
+          ' ' +
+          Format(ISOCountCode, 2) +
+          Format('', 55));
 
         // totals for balancing amount in LCY
         TotalAmount[1] := TotalAmount[1] + Amt[1];
@@ -752,14 +732,13 @@ report 2000002 "File International Payments"
     [Scope('OnPrem')]
     procedure WriteTrailerRecord()
     begin
-        with xFile do
-            Write(
-              '9' +
-              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo * 6 + RecordCounter, 6) +
-              // *6 -> always six subdep.
-              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 6) +
-              PaymJnlManagement.DecimalNumeralZeroFormat(TotalAmount[1] * 100, 15) +
-              Format('', 100));
+        xFile.Write(
+            '9' +
+            PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo * 6 + RecordCounter, 6) +
+            // *6 -> always six subdep.
+            PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 6) +
+            PaymJnlManagement.DecimalNumeralZeroFormat(TotalAmount[1] * 100, 15) +
+            Format('', 100));
     end;
 
     [Scope('OnPrem')]

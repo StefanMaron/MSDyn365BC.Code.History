@@ -5,6 +5,7 @@ table 1831 "Bus. Unit In Cons. Process"
     Caption = 'Business Unit in Consolidation Process';
     ReplicateData = false;
     Extensible = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -30,6 +31,38 @@ table 1831 "Bus. Unit In Cons. Process"
             OptionCaption = 'Not started,Importing data,Consolidating,Finished,Error';
             OptionMembers = NotStarted,ImportingData,Consolidating,Finished,Error;
             DataClassification = SystemMetadata;
+        }
+        field(5; "Average Exchange Rate"; Decimal)
+        {
+            DataClassification = CustomerContent;
+        }
+        field(6; "Closing Exchange Rate"; Decimal)
+        {
+            DataClassification = CustomerContent;
+        }
+        field(7; "Last Closing Exchange Rate"; Decimal)
+        {
+            DataClassification = CustomerContent;
+        }
+        field(8; "Currency Exchange Rate Table"; Option)
+        {
+            DataClassification = CustomerContent;
+            OptionMembers = "Local","Business Unit";
+            OptionCaption = 'Local,Business Unit';
+        }
+        field(9; "Starting Date"; Date)
+        {
+            FieldClass = FlowField;
+            CalcFormula = lookup("Consolidation Process"."Starting Date" where(Id = field("Consolidation Process Id")));
+        }
+        field(10; "Ending Date"; Date)
+        {
+            FieldClass = FlowField;
+            CalcFormula = lookup("Consolidation Process"."Ending Date" where(Id = field("Consolidation Process Id")));
+        }
+        field(11; "Currency Code"; Code[10])
+        {
+            DataClassification = CustomerContent;
         }
     }
     keys

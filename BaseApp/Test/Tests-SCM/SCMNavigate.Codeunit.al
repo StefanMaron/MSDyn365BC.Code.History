@@ -408,7 +408,7 @@ codeunit 137078 "SCM Navigate"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.CreateVATData();
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
         NoSeriesSetup();
         Commit();
 
@@ -423,31 +423,31 @@ codeunit 137078 "SCM Navigate"
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
 
         ServiceMgtSetup.Get();
-        ServiceMgtSetup.Validate("Service Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        ServiceMgtSetup.Validate("Service Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        ServiceMgtSetup.Validate("Service Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        ServiceMgtSetup.Validate("Service Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        ServiceMgtSetup.Validate("Posted Serv. Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        ServiceMgtSetup.Validate("Posted Service Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        ServiceMgtSetup.Validate("Posted Service Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        ServiceMgtSetup.Validate("Service Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        ServiceMgtSetup.Validate("Service Item Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        ServiceMgtSetup.Validate("Service Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        ServiceMgtSetup.Validate("Service Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        ServiceMgtSetup.Validate("Posted Serv. Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        ServiceMgtSetup.Validate("Posted Service Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        ServiceMgtSetup.Validate("Posted Service Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         ServiceMgtSetup.Modify(true);
     end;
 
@@ -731,7 +731,7 @@ codeunit 137078 "SCM Navigate"
         ActualLineCount: Integer;
     begin
         // Verify Navigate Line on Navigate Page.
-        Navigate.First;
+        Navigate.First();
         repeat
             ActualLineCount += 1;
         until not Navigate.Next();

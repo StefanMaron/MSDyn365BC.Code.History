@@ -14,12 +14,10 @@ codeunit 137801 "SCM - Planning UT"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryUtility: Codeunit "Library - Utility";
-        WrongQuantityInReqLine: Label 'The quantity %1 is wrong. It must be either %2 or %3.', Comment = 'Example: The quantity 11 is wrong. It must be either 12 or 8.';
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryPlanning: Codeunit "Library - Planning";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
@@ -27,7 +25,7 @@ codeunit 137801 "SCM - Planning UT"
         OpenWorksheetErr: Label '%1 must have a value in %2: %3=%4. It cannot be zero or empty.', Comment = '[Page ID] must have a value in [Table Caption]: [PK Field Name]=[PK Field Value]. It cannot be zero or empty.';
         UnexpectedRequisitionLineErr: Label 'Requisition line is unexpected.';
         LeadTimeCalcNegativeErr: Label 'The amount of time to replenish the item must not be negative.';
-        NoCannotBeFoundInItemTableErr: Label 'The field No. of table Requisition Line contains a value (%1) that cannot be found in the related table (Item).', Comment = 'Item.No';
+        WrongQuantityInReqLine: Label 'The quantity %1 is wrong. It must be either %2 or %3.', Comment = 'Example: The quantity 11 is wrong. It must be either 12 or 8.';
 
     [Test]
     [Scope('OnPrem')]
@@ -112,7 +110,7 @@ codeunit 137801 "SCM - Planning UT"
         // [WHEN] Calc. Regenerative plan
         ManufacturingSetup.Init();
         InventoryProfileOffsetting.CalculatePlanFromWorksheet(
-          Item, ManufacturingSetup, ReqWkshTemplate.Name, '', WorkDate(), WorkDate, true, false);
+          Item, ManufacturingSetup, ReqWkshTemplate.Name, '', WorkDate(), WorkDate(), true, false);
 
         // [THEN] There is no generated planning lines
         RequisitionLine.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
@@ -223,7 +221,7 @@ codeunit 137801 "SCM - Planning UT"
         Initialize();
 
         // [GIVEN] Item Vendor "X".
-        LibraryInventory.CreateItemVendor(ItemVendor, LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo);
+        LibraryInventory.CreateItemVendor(ItemVendor, LibraryPurchase.CreateVendorNo(), LibraryInventory.CreateItemNo());
 
         // [WHEN] Update Lead Time Calculation formula on "X" with a non-negative time span.
         Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandIntInRange(5, 10), LibraryRandom.RandInt(5)));
@@ -245,7 +243,7 @@ codeunit 137801 "SCM - Planning UT"
         Initialize();
 
         // [GIVEN] Item Vendor "X".
-        LibraryInventory.CreateItemVendor(ItemVendor, LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo);
+        LibraryInventory.CreateItemVendor(ItemVendor, LibraryPurchase.CreateVendorNo(), LibraryInventory.CreateItemNo());
 
         // [WHEN] Update Lead Time Calculation formula on "X" with a negative time span.
         Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandInt(5), LibraryRandom.RandIntInRange(6, 10)));
@@ -434,20 +432,20 @@ codeunit 137801 "SCM - Planning UT"
         LibrarySales.AutoReserveSalesLine(SalesLine);
 
         // [WHEN] Open Sales Order Planning page, invoke "Update Shipment Dates" and close the page.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoKey(SalesHeader."Document Type", SalesHeader."No.");
-        SalesOrder."Pla&nning".Invoke;
+        SalesOrder."Pla&nning".Invoke();
 
         // [THEN] "Expected Delivery Date" on the planning line is WORKDATE.
         Assert.AreEqual(
-          WorkDate, LibraryVariableStorage.DequeueDate,
+          WorkDate(), LibraryVariableStorage.DequeueDate(),
           'Wrong expected delivery date on Sales Order Planning line.');
 
         // [THEN] "Shipment Date" on the sales line is WORKDATE.
         SalesLine.Find();
         SalesLine.TestField("Shipment Date", WorkDate());
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -506,8 +504,8 @@ codeunit 137801 "SCM - Planning UT"
         LibraryWarehouse.CreateLocation(Location);
         Evaluate(SafetyLeadTime, StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
 
-        ManufacturingSetup.OpenEdit;
-        ManufacturingSetup."Planned Order Nos.".SetValue(LibraryUtility.GetGlobalNoSeriesCode);
+        ManufacturingSetup.OpenEdit();
+        ManufacturingSetup."Planned Order Nos.".SetValue(LibraryUtility.GetGlobalNoSeriesCode());
         ManufacturingSetup."Components at Location".SetValue(Location.Code);
         ManufacturingSetup."Default Safety Lead Time".SetValue(SafetyLeadTime);
         ManufacturingSetup.Close();
@@ -619,7 +617,7 @@ codeunit 137801 "SCM - Planning UT"
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         // Lazy Setup.
         if IsInitialized then
@@ -767,7 +765,7 @@ codeunit 137801 "SCM - Planning UT"
                       WrongQuantityInReqLine, Quantity,
                       Item."Safety Stock Quantity" + SalesLineQuantity,
                       Item."Maximum Inventory" - Item."Safety Stock Quantity");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -810,7 +808,7 @@ codeunit 137801 "SCM - Planning UT"
     procedure PlanningWorkheetMPH(var PlanningWorksheet: TestPage "Planning Worksheet")
     begin
         // Just close page
-        PlanningWorksheet.OK.Invoke;
+        PlanningWorksheet.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -818,7 +816,7 @@ codeunit 137801 "SCM - Planning UT"
     procedure ReqWorkheetMPH(var ReqWorksheet: TestPage "Req. Worksheet")
     begin
         // Just close page
-        ReqWorksheet.OK.Invoke;
+        ReqWorksheet.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -826,16 +824,16 @@ codeunit 137801 "SCM - Planning UT"
     procedure ReqWorksheetTemplateListMPH(var ReqWorksheetTemplateList: TestPage "Req. Worksheet Template List")
     begin
         // Just close page
-        ReqWorksheetTemplateList.OK.Invoke;
+        ReqWorksheetTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderPlanningModalPageHandler(var SalesOrderPlanning: TestPage "Sales Order Planning")
     begin
-        LibraryVariableStorage.Enqueue(SalesOrderPlanning."Expected Delivery Date".AsDate);
-        SalesOrderPlanning."Update &Shipment Dates".Invoke;
-        SalesOrderPlanning.OK.Invoke;
+        LibraryVariableStorage.Enqueue(SalesOrderPlanning."Expected Delivery Date".AsDate());
+        SalesOrderPlanning."Update &Shipment Dates".Invoke();
+        SalesOrderPlanning.OK().Invoke();
     end;
 
     [StrMenuHandler]

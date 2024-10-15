@@ -6,6 +6,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 table 1704 "Posted Deferral Header"
 {
     Caption = 'Posted Deferral Header';
+    DataClassification = CustomerContent;
 
     fields
     {

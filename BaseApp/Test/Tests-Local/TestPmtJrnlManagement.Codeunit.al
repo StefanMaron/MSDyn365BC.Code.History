@@ -103,7 +103,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         // Setup
         LibraryPaymentJournalBE.CreateTemplate(PaymentJnlTemplate);
         PaymentJnlLine.SetRange("Journal Template Name", PaymentJnlTemplate.Name);
-        CurrentJnlBatchName := CopyStr(CreateGuid, 1, MaxStrLen(CurrentJnlBatchName));
+        CurrentJnlBatchName := CopyStr(CreateGuid(), 1, MaxStrLen(CurrentJnlBatchName));
 
         // Exercise
         PmtJrnlManagement.OpenJournal(CurrentJnlBatchName, PaymentJnlLine);
@@ -189,7 +189,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         LibraryPaymentJournalBE.CreateTemplate(PaymentJnlTemplate);
         PaymJournalBatch.Init();
         PaymJournalBatch."Journal Template Name" := PaymentJnlTemplate.Name;
-        PaymJournalBatch.Name := CopyStr(CreateGuid, 1, MaxStrLen(PaymJournalBatch.Name));
+        PaymJournalBatch.Name := CopyStr(CreateGuid(), 1, MaxStrLen(PaymJournalBatch.Name));
         PaymJournalBatch.Insert();
 
         // Exercise
@@ -279,12 +279,12 @@ codeunit 144017 "Test PmtJrnlManagement"
     begin
         // Setup
         Cust.Init();
-        Cust."No." := CopyStr(CreateGuid, 1, MaxStrLen(Cust."No."));
-        Cust.Name := CopyStr(CreateGuid, 1, MaxStrLen(Cust.Name));
+        Cust."No." := CopyStr(CreateGuid(), 1, MaxStrLen(Cust."No."));
+        Cust.Name := CopyStr(CreateGuid(), 1, MaxStrLen(Cust.Name));
         Cust.Insert();
         BankAccount.Init();
-        BankAccount."No." := CopyStr(CreateGuid, 1, MaxStrLen(BankAccount."No."));
-        BankAccount.Name := CopyStr(CreateGuid, 1, MaxStrLen(BankAccount.Name));
+        BankAccount."No." := CopyStr(CreateGuid(), 1, MaxStrLen(BankAccount."No."));
+        BankAccount.Name := CopyStr(CreateGuid(), 1, MaxStrLen(BankAccount.Name));
         BankAccount.Insert();
         PaymentJnlLine.Init();
         PaymentJnlLine."Account Type" := PaymentJnlLine."Account Type"::Customer;
@@ -310,8 +310,8 @@ codeunit 144017 "Test PmtJrnlManagement"
     begin
         // Setup
         Vend.Init();
-        Vend."No." := CopyStr(CreateGuid, 1, MaxStrLen(Vend."No."));
-        Vend.Name := CopyStr(CreateGuid, 1, MaxStrLen(Vend.Name));
+        Vend."No." := CopyStr(CreateGuid(), 1, MaxStrLen(Vend."No."));
+        Vend.Name := CopyStr(CreateGuid(), 1, MaxStrLen(Vend.Name));
         Vend.Insert();
         PaymentJnlLine.Init();
         PaymentJnlLine."Account Type" := PaymentJnlLine."Account Type"::Vendor;
@@ -338,7 +338,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         ShowTotalAmount: Boolean;
     begin
         PaymentJnlLine.Init();
-        PaymentJnlLine."Journal Template Name" := CopyStr(CreateGuid, 1, MaxStrLen(PaymentJnlLine."Journal Template Name"));
+        PaymentJnlLine."Journal Template Name" := CopyStr(CreateGuid(), 1, MaxStrLen(PaymentJnlLine."Journal Template Name"));
         PaymentJnlLine.SetRange("Journal Template Name", PaymentJnlLine."Journal Template Name");
         PaymentJnlLine."Amount (LCY)" := 42;
         LastPaymentJnlLine.Copy(PaymentJnlLine);
@@ -366,13 +366,13 @@ codeunit 144017 "Test PmtJrnlManagement"
         ShowTotalAmount: Boolean;
     begin
         PaymentJnlLine.Init();
-        PaymentJnlLine."Journal Template Name" := CopyStr(CreateGuid, 1, MaxStrLen(PaymentJnlLine."Journal Template Name"));
+        PaymentJnlLine."Journal Template Name" := CopyStr(CreateGuid(), 1, MaxStrLen(PaymentJnlLine."Journal Template Name"));
         PaymentJnlLine.SetRange("Journal Template Name", PaymentJnlLine."Journal Template Name");
         PaymentJnlLine."Amount (LCY)" := 42;
         PaymentJnlLine."Account Type" := PaymentJnlLine."Account Type"::Customer;
         PaymentJnlLine."Line No." := 10000;
         PaymentJnlLine.Insert();
-        PaymentJnlLine."Account No." := CopyStr(CreateGuid, 1, MaxStrLen(PaymentJnlLine."Account No."));
+        PaymentJnlLine."Account No." := CopyStr(CreateGuid(), 1, MaxStrLen(PaymentJnlLine."Account No."));
         PaymentJnlLine."Line No." += 10000;
         PaymentJnlLine.Insert();
         PaymentJnlLine."Line No." += 10000;
@@ -402,7 +402,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         ShowTotalAmount: Boolean;
     begin
         PaymentJnlLine.Init();
-        PaymentJnlLine."Journal Template Name" := CopyStr(CreateGuid, 1, MaxStrLen(PaymentJnlLine."Journal Template Name"));
+        PaymentJnlLine."Journal Template Name" := CopyStr(CreateGuid(), 1, MaxStrLen(PaymentJnlLine."Journal Template Name"));
         PaymentJnlLine.SetRange("Journal Template Name", PaymentJnlLine."Journal Template Name");
         PaymentJnlLine."Amount (LCY)" := 42;
         PaymentJnlLine."Account Type" := PaymentJnlLine."Account Type"::Customer;
@@ -431,7 +431,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         // Setup
         PaymentJnlLine.Init();
         PaymentJnlLine."Account Type" := 0;
-        PaymentJnlLine."Account No." := CopyStr(CreateGuid, 1, MaxStrLen(PaymentJnlLine."Account No."));
+        PaymentJnlLine."Account No." := CopyStr(CreateGuid(), 1, MaxStrLen(PaymentJnlLine."Account No."));
 
         // Execise and validate (opens page)
         PmtJrnlManagement.ShowCard(PaymentJnlLine);
@@ -482,7 +482,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         // Setup
         PaymentJnlLine.Init();
         PaymentJnlLine."Account Type" := PaymentJnlLine."Account Type"::Customer;
-        PaymentJnlLine."Account No." := CopyStr(CreateGuid, 1, MaxStrLen(PaymentJnlLine."Account No."));
+        PaymentJnlLine."Account No." := CopyStr(CreateGuid(), 1, MaxStrLen(PaymentJnlLine."Account No."));
 
         // Execise and validate (opens page)
         PmtJrnlManagement.ShowEntries(PaymentJnlLine);
@@ -499,7 +499,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         // Setup
         PaymentJnlLine.Init();
         PaymentJnlLine."Account Type" := PaymentJnlLine."Account Type"::Vendor;
-        PaymentJnlLine."Account No." := CopyStr(CreateGuid, 1, MaxStrLen(PaymentJnlLine."Account No."));
+        PaymentJnlLine."Account No." := CopyStr(CreateGuid(), 1, MaxStrLen(PaymentJnlLine."Account No."));
 
         // Execise and validate (opens page)
         PmtJrnlManagement.ShowEntries(PaymentJnlLine);
@@ -581,7 +581,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PaymentJnlLine."Applies-to Doc. Type" := CustLedgEntry."Document Type"::Invoice;
         PaymentJnlLine."Applies-to Doc. No." := Customer."No.";
         PaymentJnlLine."Pmt. Disc. Possible" := 0;
-        PaymentJnlLine."Posting Date" := WorkDate + 2;
+        PaymentJnlLine."Posting Date" := WorkDate() + 2;
         PaymentJnlLine."Currency Code" := '';
 
         // Exercise
@@ -589,7 +589,7 @@ codeunit 144017 "Test PmtJrnlManagement"
 
         // Validate
         CustLedgEntry.Find();
-        Assert.AreEqual(WorkDate + 2, CustLedgEntry."Pmt. Discount Date", '');
+        Assert.AreEqual(WorkDate() + 2, CustLedgEntry."Pmt. Discount Date", '');
         Assert.AreEqual(0, CustLedgEntry."Remaining Pmt. Disc. Possible", '');
     end;
 
@@ -612,7 +612,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PaymentJnlLine."Applies-to Doc. Type" := CustLedgEntry."Document Type"::Invoice;
         PaymentJnlLine."Applies-to Doc. No." := Customer."No.";
         PaymentJnlLine."Pmt. Disc. Possible" := 0;
-        PaymentJnlLine."Posting Date" := WorkDate + 2;
+        PaymentJnlLine."Posting Date" := WorkDate() + 2;
         PaymentJnlLine."Currency Code" := '';
 
         // Exercise
@@ -620,7 +620,7 @@ codeunit 144017 "Test PmtJrnlManagement"
 
         // Validate
         CustLedgEntry.Find();
-        Assert.AreEqual(WorkDate + 2, CustLedgEntry."Pmt. Discount Date", '');
+        Assert.AreEqual(WorkDate() + 2, CustLedgEntry."Pmt. Discount Date", '');
         Assert.AreEqual(0, CustLedgEntry."Remaining Pmt. Disc. Possible", '');
     end;
 
@@ -645,7 +645,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PaymentJnlLine."Applies-to Doc. Type" := VendLedgEntry."Document Type"::Invoice;
         PaymentJnlLine."Applies-to Doc. No." := Vendor."No.";
         PaymentJnlLine."Pmt. Disc. Possible" := 0;
-        PaymentJnlLine."Posting Date" := WorkDate + 2;
+        PaymentJnlLine."Posting Date" := WorkDate() + 2;
         PaymentJnlLine."Currency Code" := '';
 
         // Exercise
@@ -653,7 +653,7 @@ codeunit 144017 "Test PmtJrnlManagement"
 
         // Validate
         VendLedgEntry.Find();
-        Assert.AreEqual(WorkDate + 2, VendLedgEntry."Pmt. Discount Date", '');
+        Assert.AreEqual(WorkDate() + 2, VendLedgEntry."Pmt. Discount Date", '');
         Assert.AreEqual(0, VendLedgEntry."Remaining Pmt. Disc. Possible", '');
     end;
 
@@ -676,7 +676,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PaymentJnlLine."Applies-to Doc. Type" := VendLedgEntry."Document Type"::Invoice;
         PaymentJnlLine."Applies-to Doc. No." := Vendor."No.";
         PaymentJnlLine."Pmt. Disc. Possible" := 0;
-        PaymentJnlLine."Posting Date" := WorkDate + 2;
+        PaymentJnlLine."Posting Date" := WorkDate() + 2;
         PaymentJnlLine."Currency Code" := '';
 
         // Exercise
@@ -684,7 +684,7 @@ codeunit 144017 "Test PmtJrnlManagement"
 
         // Validate
         VendLedgEntry.Find();
-        Assert.AreEqual(WorkDate + 2, VendLedgEntry."Pmt. Discount Date", '');
+        Assert.AreEqual(WorkDate() + 2, VendLedgEntry."Pmt. Discount Date", '');
         Assert.AreEqual(0, VendLedgEntry."Remaining Pmt. Disc. Possible", '');
     end;
 
@@ -859,8 +859,8 @@ codeunit 144017 "Test PmtJrnlManagement"
     [Scope('OnPrem')]
     procedure EBPaymentJournalTemplatesHandler(var EBPaymentJournalTemplates: TestPage "EB Payment Journal Templates")
     begin
-        EBPaymentJournalTemplates.Last;
-        EBPaymentJournalTemplates.OK.Invoke;
+        EBPaymentJournalTemplates.Last();
+        EBPaymentJournalTemplates.OK().Invoke();
     end;
 
     [PageHandler]
@@ -874,16 +874,16 @@ codeunit 144017 "Test PmtJrnlManagement"
     [Scope('OnPrem')]
     procedure EBPaymentJournalBatchesHandlerOK(var EBPaymentJournalBatches: TestPage "EB Payment Journal Batches")
     begin
-        EBPaymentJournalBatches.Last;
-        EBPaymentJournalBatches.OK.Invoke;
+        EBPaymentJournalBatches.Last();
+        EBPaymentJournalBatches.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EBPaymentJournalBatchesHandlerCancel(var EBPaymentJournalBatches: TestPage "EB Payment Journal Batches")
     begin
-        EBPaymentJournalBatches.Last;
-        EBPaymentJournalBatches.Cancel.Invoke;
+        EBPaymentJournalBatches.Last();
+        EBPaymentJournalBatches.Cancel().Invoke();
     end;
 
     [PageHandler]

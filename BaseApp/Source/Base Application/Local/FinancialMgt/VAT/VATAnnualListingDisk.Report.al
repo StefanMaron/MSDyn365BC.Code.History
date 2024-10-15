@@ -147,7 +147,7 @@ report 11309 "VAT Annual Listing - Disk"
             begin
                 if AddRepresentative then begin
                     Representative.Get(Identifier);
-                    Representative.CheckCompletion;
+                    Representative.CheckCompletion();
                 end;
 
                 if IncludeCountry = IncludeCountry::Specific then
@@ -162,7 +162,7 @@ report 11309 "VAT Annual Listing - Disk"
             var
                 RunResults: Boolean;
             begin
-                RunResults := CreateIntervatXML;
+                RunResults := CreateIntervatXML();
 
                 if SilenceRun and RunResults then
                     exit;
@@ -177,7 +177,7 @@ report 11309 "VAT Annual Listing - Disk"
                     Message(Text009);
                     CurrReport.Quit();
                 end;
-                InitializeXMLFile;
+                InitializeXMLFile();
             end;
         }
     }
@@ -236,7 +236,7 @@ report 11309 "VAT Annual Listing - Disk"
 
                             trigger OnValidate()
                             begin
-                                SetRepresentativeEnabled;
+                                SetRepresentativeEnabled();
                             end;
                         }
                         field(ID; Identifier)
@@ -288,10 +288,10 @@ report 11309 "VAT Annual Listing - Disk"
         begin
             if VYear = 0 then
                 VYear := Date2DMY(WorkDate(), 3);
-            SetRepresentativeEnabled;
+            SetRepresentativeEnabled();
 
             IncludeCountry := IncludeCountry::Specific;
-            Country := INTERVATHelper.GetCpyInfoCountryRegionCode;
+            Country := INTERVATHelper.GetCpyInfoCountryRegionCode();
         end;
     }
 
@@ -312,7 +312,7 @@ report 11309 "VAT Annual Listing - Disk"
     trigger OnPreReport()
     begin
         if not AddRepresentative then
-            INTERVATHelper.VerifyCpyInfoEmailExists;
+            INTERVATHelper.VerifyCpyInfoEmailExists();
         PreviousYear := VYear - 1;
     end;
 
@@ -373,7 +373,7 @@ report 11309 "VAT Annual Listing - Disk"
         XMLFirstNode := XMLCurrNode;
 
         if AddRepresentative then begin
-            Representative.AddRepresentativeElement(XMLCurrNode, xmlnsClientListingConsignment, GetClientListingsNbr);
+            Representative.AddRepresentativeElement(XMLCurrNode, xmlnsClientListingConsignment, GetClientListingsNbr());
             XMLCurrNode := XMLFirstNode;
         end;
 
@@ -406,7 +406,7 @@ report 11309 "VAT Annual Listing - Disk"
         XMLDOMMgt.AddAttribute(XMLCurrNode, 'TurnOverSum', BaseAmount);
         XMLDOMMgt.AddAttribute(XMLCurrNode, 'VATAmountSum', VatAmount);
 
-        INTERVATHelper.AddElementDeclarant(XMLCurrNode, GetClientListingsNbr);
+        INTERVATHelper.AddElementDeclarant(XMLCurrNode, GetClientListingsNbr());
         XMLCurrNode := XMLCurrNode.ParentNode;
 
         XMLDOMMgt.AddElement(XMLCurrNode, 'Period', Format(VYear), xmlnsClientListingConsignment, XMLNewChild);
@@ -494,7 +494,7 @@ report 11309 "VAT Annual Listing - Disk"
 
     local procedure SetRepresentativeEnabled()
     begin
-        PageSetRepresentativeEnabled;
+        PageSetRepresentativeEnabled();
     end;
 
     local procedure IsCustBalanceGreaterThanMinimum(): Boolean

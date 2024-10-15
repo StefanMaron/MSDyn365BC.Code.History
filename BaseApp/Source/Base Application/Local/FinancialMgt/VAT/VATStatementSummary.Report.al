@@ -5,6 +5,7 @@
 namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Enums;
 using Microsoft.Finance.VAT.Registration;
 using Microsoft.Foundation.Period;
 using System.Utilities;
@@ -543,7 +544,7 @@ report 11311 "VAT Statement Summary"
         VATLogicalControls: Codeunit VATLogicalTests;
         Selection: Enum "VAT Statement Report Selection";
         PeriodSelection: Enum "VAT Statement Report Period Selection";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodType: Enum "Analysis Period Type";
         PrintInIntegers: Boolean;
         TotalAmount: array[13] of Decimal;
         VATStmtLineFilter: Text[250];

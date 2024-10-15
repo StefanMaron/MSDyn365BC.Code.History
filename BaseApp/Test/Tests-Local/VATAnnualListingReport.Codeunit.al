@@ -88,10 +88,10 @@ codeunit 144013 "VAT Annual Listing Report"
         VATEntry.SetFilter("Bill-to/Pay-to No.", Customer."No.");
         VATEntry.FindFirst();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Asserted against 1 because only header is in the report and no data
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, NonEmptyReportErr);
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), NonEmptyReportErr);
     end;
 
     [Test]
@@ -153,7 +153,7 @@ codeunit 144013 "VAT Annual Listing Report"
             false, true, Date2DMY(StartDate, 3), InvoiceAmount * 2, IncludeCountry::Specific, Customer."Country/Region Code", Customer."No.");
 
         // [THEN] Invoice is not printed
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('BufferVATRegistrationNo', FormatLocalEnterpriseNo(Customer."Enterprise No."));
         Assert.AreEqual(0, LibraryReportDataset.RowCount(), NonEmptyReportErr);
     end;
@@ -563,7 +563,7 @@ codeunit 144013 "VAT Annual Listing Report"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"VAT Annual Listing Report");
 
         isInitialized := true;
-        LibraryBEHelper.InitializeCompanyInformation;
+        LibraryBEHelper.InitializeCompanyInformation();
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"VAT Annual Listing Report");
     end;
@@ -575,11 +575,11 @@ codeunit 144013 "VAT Annual Listing Report"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesDocumentWithAmount(CustomerNo: Code[20]; DocumentType: Option; PostingDate: Date; Amount: Decimal) PostedDocNo: Code[20]
+    local procedure CreateAndPostSalesDocumentWithAmount(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; PostingDate: Date; Amount: Decimal) PostedDocNo: Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -687,12 +687,12 @@ codeunit 144013 "VAT Annual Listing Report"
         LibraryVariableStorage.Dequeue(DequeuedVar);
         VATAnnualListing.Country.SetValue(DequeuedVar); // Country
 
-        VATAnnualListing.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATAnnualListing.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure VerifyVATBaseAmountAndVATAmountOnAnnualListingReport(VATAmount: Decimal; VATBaseAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('BufferAmount', VATAmount);
         LibraryReportDataset.AssertElementWithValueExists('BufferBase', VATBaseAmount);
     end;

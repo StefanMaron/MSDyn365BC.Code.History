@@ -465,27 +465,26 @@ report 5610 "Fixed Asset - G/L Analysis"
 
     local procedure MakeGroupHeadLine()
     begin
-        with "Fixed Asset" do
-            case GroupTotals of
-                GroupTotals::"FA Class":
-                    GroupHeadLine := "FA Class Code";
-                GroupTotals::"FA Subclass":
-                    GroupHeadLine := "FA Subclass Code";
-                GroupTotals::"Main Asset":
-                    begin
-                        GroupHeadLine := StrSubstNo('%1 %2', SelectStr(GroupTotals + 1, Text006), "Component of Main Asset");
-                        if "Component of Main Asset" = '' then
-                            GroupHeadLine := GroupHeadLine + '*****';
-                    end;
-                GroupTotals::"Global Dimension 1":
-                    GroupHeadLine := "Global Dimension 1 Code";
-                GroupTotals::"FA Location":
-                    GroupHeadLine := "FA Location Code";
-                GroupTotals::"Global Dimension 2":
-                    GroupHeadLine := "Global Dimension 2 Code";
-                GroupTotals::"FA Posting Group":
-                    GroupHeadLine := "FA Posting Group";
-            end;
+        case GroupTotals of
+            GroupTotals::"FA Class":
+                GroupHeadLine := "Fixed Asset"."FA Class Code";
+            GroupTotals::"FA Subclass":
+                GroupHeadLine := "Fixed Asset"."FA Subclass Code";
+            GroupTotals::"Main Asset":
+                begin
+                    GroupHeadLine := StrSubstNo('%1 %2', SelectStr(GroupTotals + 1, Text006), "Fixed Asset"."Component of Main Asset");
+                    if "Fixed Asset"."Component of Main Asset" = '' then
+                        GroupHeadLine := GroupHeadLine + '*****';
+                end;
+            GroupTotals::"Global Dimension 1":
+                GroupHeadLine := "Fixed Asset"."Global Dimension 1 Code";
+            GroupTotals::"FA Location":
+                GroupHeadLine := "Fixed Asset"."FA Location Code";
+            GroupTotals::"Global Dimension 2":
+                GroupHeadLine := "Fixed Asset"."Global Dimension 2 Code";
+            GroupTotals::"FA Posting Group":
+                GroupHeadLine := "Fixed Asset"."FA Posting Group";
+        end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
     end;
@@ -494,16 +493,14 @@ report 5610 "Fixed Asset - G/L Analysis"
     begin
         if DateType = '' then
             exit;
-        with FADateType do begin
-            SetRange("G/L Entry", true);
-            if Find('-') then
-                repeat
-                    TypeExist := DateType = "FA Date Type Name";
-                    if TypeExist then
-                        DateTypeNo := "FA Date Type No.";
-                until (Next() = 0) or TypeExist;
-            if Find('-') then;
-        end;
+        FADateType.SetRange("G/L Entry", true);
+        if FADateType.Find('-') then
+            repeat
+                TypeExist := DateType = FADateType."FA Date Type Name";
+                if TypeExist then
+                    DateTypeNo := FADateType."FA Date Type No.";
+            until (FADateType.Next() = 0) or TypeExist;
+        if FADateType.Find('-') then;
 
         if not TypeExist then
             Error(Text003, DateType);
@@ -513,16 +510,14 @@ report 5610 "Fixed Asset - G/L Analysis"
     begin
         if PostingType = '' then
             exit;
-        with FAPostingType do begin
-            SetRange("G/L Entry", true);
-            if Find('-') then
-                repeat
-                    TypeExist := PostingType = "FA Posting Type Name";
-                    if TypeExist then
-                        PostingTypeNo := "FA Posting Type No.";
-                until (Next() = 0) or TypeExist;
-            if Find('-') then;
-        end;
+        FAPostingType.SetRange("G/L Entry", true);
+        if FAPostingType.Find('-') then
+            repeat
+                TypeExist := PostingType = FAPostingType."FA Posting Type Name";
+                if TypeExist then
+                    PostingTypeNo := FAPostingType."FA Posting Type No.";
+            until (FAPostingType.Next() = 0) or TypeExist;
+        if FAPostingType.Find('-') then;
         if not TypeExist then
             Error(Text004, PostingType);
     end;

@@ -49,7 +49,7 @@ page 8611 "Config. Question Area"
                 SubPageLink = "Questionnaire Code" = field("Questionnaire Code"),
                               "Question Area Code" = field(Code);
                 SubPageView = sorting("Questionnaire Code", "Question Area Code", "No.")
-                              order(Ascending);
+                              order(ascending);
             }
         }
         area(factboxes)

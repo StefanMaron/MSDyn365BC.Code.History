@@ -3,7 +3,6 @@ namespace Microsoft.Inventory.Ledger;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Tracking;
 
 page 167 "Item Ledger Entries Preview"
 {
@@ -103,7 +102,7 @@ page 167 "Item Ledger Entries Preview"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a package number if the posted item carries such a number.';
-                    Visible = PackageTrackingVisible;
+                    Visible = ItemTrackingVisible;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
@@ -253,13 +252,13 @@ page 167 "Item Ledger Entries Preview"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
                 }
                 field("Dimension Set ID"; Rec."Dimension Set ID")
@@ -478,7 +477,9 @@ page 167 "Item Ledger Entries Preview"
 
     trigger OnOpenPage()
     begin
-        SetPackageTrackingVisibility();
+#if not CLEAN24
+        PackageTrackingVisible := ItemTrackingVisible;
+#endif
         SetDimVisibility();
     end;
 
@@ -504,7 +505,10 @@ page 167 "Item Ledger Entries Preview"
         Dim7Visible: Boolean;
         Dim8Visible: Boolean;
         ItemTrackingVisible: Boolean;
+#if not CLEAN24
+        [Obsolete('Package Tracking enabled by default.', '24.0')]
         PackageTrackingVisible: Boolean;
+#endif
 
     local procedure SetDimVisibility()
     var
@@ -520,7 +524,7 @@ page 167 "Item Ledger Entries Preview"
             repeat
                 Rec := TempItemLedgerEntry2;
                 Rec.Insert();
-                If Rec.TrackingExists() then
+                if Rec.TrackingExists() then
                     ItemTrackingVisible := true;
             until TempItemLedgerEntry2.Next() = 0;
 
@@ -554,13 +558,6 @@ page 167 "Item Ledger Entries Preview"
                 CostAmountActualACY += TempValueEntry."Cost Amount (Actual) (ACY)";
                 CostAmountNonInvtblACY += TempValueEntry."Cost Amount (Non-Invtbl.)(ACY)";
             until TempValueEntry.Next() = 0;
-    end;
-
-    local procedure SetPackageTrackingVisibility()
-    var
-        PackageMgt: Codeunit "Package Management";
-    begin
-        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 }
 

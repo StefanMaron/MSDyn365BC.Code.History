@@ -166,7 +166,7 @@ codeunit 2675 "Allocation Account Mgt."
             exit;
 
         repeat
-            AllocationLine.Quantity := Round(OriginalQuantity * AllocationLine.Percentage / 100, AllocationLine.GetQuantityPercision());
+            AllocationLine.Quantity := Round(OriginalQuantity * AllocationLine.Percentage / 100, AllocationLine.GetQuantityPrecision());
             QuantityAssigned += AllocationLine.Quantity;
             AllocationLine.Modify();
         until AllocationLine.Next() = 0;

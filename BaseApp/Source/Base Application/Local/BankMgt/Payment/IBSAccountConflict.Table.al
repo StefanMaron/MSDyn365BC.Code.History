@@ -11,6 +11,7 @@ table 2000013 "IBS Account Conflict"
     ObsoleteState = Removed;
     ObsoleteTag = '19.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

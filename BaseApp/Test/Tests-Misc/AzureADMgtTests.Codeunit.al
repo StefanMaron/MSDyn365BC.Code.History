@@ -121,7 +121,6 @@ codeunit 139086 "Azure AD Mgt. Tests"
     procedure GetAccessTokenSaasNoDialogNoTokenAvailableIsBlank()
     var
         AzureAdMgt: Codeunit "Azure AD Mgt.";
-        Result: Text;
     begin
         // [SCENARIO] In a SaaS environment, user calls GetAccessToken and gets an error because there is not one available in the cache.
 
@@ -317,7 +316,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
         Initialize(false, false, false, false, true);
 
         // [WHEN] The user invokes IsAzureADAppSetupDone.
-        Result := AzureAdMgt.IsAzureADAppSetupDone;
+        Result := AzureAdMgt.IsAzureADAppSetupDone();
 
         // [THEN] The user recieves true.
         Assert.IsTrue(Result, '');
@@ -336,7 +335,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
         Initialize(false, false, false, true, true);
 
         // [WHEN] The user invokes IsAzureADAppSetupDone.
-        Result := AzureAdMgt.IsAzureADAppSetupDone;
+        Result := AzureAdMgt.IsAzureADAppSetupDone();
 
         // [THEN] The user recieves true.
         Assert.IsTrue(Result, '');
@@ -355,7 +354,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
         Initialize(false, false, false, false, false);
 
         // [WHEN] The user invokes IsAzureADAppSetupDone.
-        Result := AzureAdMgt.IsAzureADAppSetupDone;
+        Result := AzureAdMgt.IsAzureADAppSetupDone();
 
         // [THEN] The user recieves true.
         Assert.IsFalse(Result, '');
@@ -374,7 +373,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
         Initialize(false, false, false, true, false);
 
         // [WHEN] The user invokes IsAzureADAppSetupDone.
-        Result := AzureAdMgt.IsAzureADAppSetupDone;
+        Result := AzureAdMgt.IsAzureADAppSetupDone();
 
         // [THEN] The user recieves true.
         Assert.IsTrue(Result, '');

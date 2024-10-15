@@ -124,7 +124,7 @@ page 1270 "OCR Service Setup"
                         ApplicationArea = Basic, Suite;
                         AssistEdit = false;
                         Editable = false;
-                        Enabled = NOT EditableByNotEnabled;
+                        Enabled = not EditableByNotEnabled;
 
                         trigger OnDrillDown()
                         begin

@@ -10,6 +10,7 @@ using System.Telemetry;
 table 11306 "Electronic Banking Setup"
 {
     Caption = 'Electronic Banking Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

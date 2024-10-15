@@ -73,31 +73,29 @@ codeunit 2000042 "Post Coded Bank Statement"
     var
         CodedBankStmtLine: Record "CODA Statement Line";
     begin
-        with CodBankStmtLine do begin
-            CodedBankStmtLine.SetCurrentKey("Bank Account No.", "Statement No.", "Statement Line No.");
-            CodedBankStmtLine.CopyFilters(CodBankStmtLine);
-            CodedBankStmtLine.SetRange(ID, ID::Movement);
-            CodedBankStmtLine.SetRange("Application Status", "Application Status"::" ");
-            if not CodedBankStmtLine.IsEmpty() then
-                Error(Text000);
+        CodedBankStmtLine.SetCurrentKey("Bank Account No.", "Statement No.", "Statement Line No.");
+        CodedBankStmtLine.CopyFilters(CodBankStmtLine);
+        CodedBankStmtLine.SetRange(ID, CodBankStmtLine.ID::Movement);
+        CodedBankStmtLine.SetRange("Application Status", CodBankStmtLine."Application Status"::" ");
+        if not CodedBankStmtLine.IsEmpty() then
+            Error(Text000);
 
-            if not Confirm(Text001, false) then
-                exit;
+        if not Confirm(Text001, false) then
+            exit;
 
-            CodedBankStmtLine.Reset();
+        CodedBankStmtLine.Reset();
 
-            SetFilter("Application Status", '%1|%2', "Application Status"::Applied, "Application Status"::"Partly applied");
-            FindFirst();
-            GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Financial);
-            GenJnlTemplate.SetRange("Bal. Account Type", GenJnlTemplate."Bal. Account Type"::"Bank Account");
-            GenJnlTemplate.SetRange("Bal. Account No.", "Bank Account No.");
-            if not GenJnlTemplate.FindFirst() then
-                Error(Text002, "Bank Account No.");
-            GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
-            GenJnlManagement.OpenJnl(BatchName, GenJnlLine);
-            OnCodeOnBeforeTransferCodBankStmtLines(CodedBankStmtLine, CodBankStmtLine);
-            TransferCodBankStmtLines;
-        end
+        CodBankStmtLine.SetFilter("Application Status", '%1|%2', CodBankStmtLine."Application Status"::Applied, CodBankStmtLine."Application Status"::"Partly applied");
+        CodBankStmtLine.FindFirst();
+        GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Financial);
+        GenJnlTemplate.SetRange("Bal. Account Type", GenJnlTemplate."Bal. Account Type"::"Bank Account");
+        GenJnlTemplate.SetRange("Bal. Account No.", CodBankStmtLine."Bank Account No.");
+        if not GenJnlTemplate.FindFirst() then
+            Error(Text002, CodBankStmtLine."Bank Account No.");
+        GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
+        GenJnlManagement.OpenJnl(BatchName, GenJnlLine);
+        OnCodeOnBeforeTransferCodBankStmtLines(CodedBankStmtLine, CodBankStmtLine);
+        TransferCodBankStmtLines();
     end;
 
     [Scope('OnPrem')]
@@ -114,64 +112,60 @@ codeunit 2000042 "Post Coded Bank Statement"
 
         if GenJnlLine.FindLast() then;
         LineNo := GenJnlLine."Line No.";
-        with CodBankStmtLine do begin
-            TotLines := Count;
-            LineCounter := 0;
-            Window.Update(1, StrSubstNo(Text004, "Bank Account No.", "Statement No.", GenJnlTemplate.Name));
-            FindSet();
-            repeat
-                // Test if Coded Bank statement line has been posted yet
-                if ("Journal Template Name" <> '') or
-                   ("Journal Batch Name" <> '') or
-                   ("Line No." <> 0)
-                then
-                    Error(Text005, "Document No.");
+        TotLines := CodBankStmtLine.Count;
+        LineCounter := 0;
+        Window.Update(1, StrSubstNo(Text004, CodBankStmtLine."Bank Account No.", CodBankStmtLine."Statement No.", GenJnlTemplate.Name));
+        CodBankStmtLine.FindSet();
+        repeat
+            // Test if Coded Bank statement line has been posted yet
+            if (CodBankStmtLine."Journal Template Name" <> '') or
+               (CodBankStmtLine."Journal Batch Name" <> '') or
+               (CodBankStmtLine."Line No." <> 0)
+            then
+                Error(Text005, CodBankStmtLine."Document No.");
 
-                if "Statement Amount" <> 0 then begin
-                    OnTransferCodBankStmtLinesOnBeforeInitGenJnlLine(CodBankStmtLine);
-                    LineCounter := LineCounter + 1;
-                    GenJnlLine.Init();
-                    LineNo := LineNo + 10000;
-                    GenJnlLine."Journal Template Name" := GenJnlTemplate.Name;
-                    GenJnlLine."Journal Batch Name" := BatchName;
-                    GenJnlLine."Line No." := LineNo;
-                    GenJnlLine."Posting Date" := "Posting Date";
-                    // 463983 - Because CODA is only used in BE and in BE the posting date is always the VAT date.
-                    GenJnlLine."VAT Reporting Date" := "Posting Date";
-                    GenJnlLine."Source Code" := GenJnlTemplate."Source Code";
-                    GenJnlLine.Validate("Bal. Account Type", GenJnlTemplate."Bal. Account Type");
-                    GenJnlLine.Validate("Bal. Account No.", GenJnlTemplate."Bal. Account No.");
-                    GenJnlLine."Account Type" := "Account Type";
-                    GenJnlLine."Document Type" := "Document Type";
-                    GenJnlLine."Document No." := "Document No.";
-                    if Description <> '' then
-                        GenJnlLine.Description := CopyStr(Description, 1, MaxStrLen(GenJnlLine.Description));
-
-                    // Bank account is Balancing Account, hence Statement Amount takes the opposite sign
-                    BankAcc.Get("Bank Account No.");
-                    if BankAcc."Currency Code" = '' then begin
-                        GenJnlLine."Currency Factor" := "Currency Factor";
-                        GenJnlLine."Currency Code" := "Currency Code";
-                    end;
-                    GenJnlLine.Validate("Account No.", "Account No.");
-                    GenJnlLine."Applies-to ID" := "Applies-to ID";
-                    GenJnlLine.Validate(Amount, -"Statement Amount");
-                    GenJnlLine."System-Created Entry" := true;
-                    OnTransferCodBankStmtLinesOnBeforeGenJnlLineInsert(GenJnlLine, CodBankStmtLine);
-                    GenJnlLine.Insert();
-
-                    // Link Coded Bank Statement line to Gen. Jnl. Line
-                    "Journal Template Name" := GenJnlLine."Journal Template Name";
-                    "Journal Batch Name" := GenJnlLine."Journal Batch Name";
-                    "Line No." := GenJnlLine."Line No.";
-                    Modify();
-
-                    Window.Update(2, LineNo);
-                    Window.Update(3, Round(LineCounter / TotLines * 10000, 1));
+            if CodBankStmtLine."Statement Amount" <> 0 then begin
+                OnTransferCodBankStmtLinesOnBeforeInitGenJnlLine(CodBankStmtLine);
+                LineCounter := LineCounter + 1;
+                GenJnlLine.Init();
+                LineNo := LineNo + 10000;
+                GenJnlLine."Journal Template Name" := GenJnlTemplate.Name;
+                GenJnlLine."Journal Batch Name" := BatchName;
+                GenJnlLine."Line No." := LineNo;
+                GenJnlLine."Posting Date" := CodBankStmtLine."Posting Date";
+                // 463983 - Because CODA is only used in BE and in BE the posting date is always the VAT date.
+                GenJnlLine."VAT Reporting Date" := CodBankStmtLine."Posting Date";
+                GenJnlLine."Source Code" := GenJnlTemplate."Source Code";
+                GenJnlLine.Validate("Bal. Account Type", GenJnlTemplate."Bal. Account Type");
+                GenJnlLine.Validate("Bal. Account No.", GenJnlTemplate."Bal. Account No.");
+                GenJnlLine."Account Type" := CodBankStmtLine."Account Type";
+                GenJnlLine."Document Type" := CodBankStmtLine."Document Type";
+                GenJnlLine."Document No." := CodBankStmtLine."Document No.";
+                if CodBankStmtLine.Description <> '' then
+                    GenJnlLine.Description := CopyStr(CodBankStmtLine.Description, 1, MaxStrLen(GenJnlLine.Description));
+                // Bank account is Balancing Account, hence Statement Amount takes the opposite sign
+                BankAcc.Get(CodBankStmtLine."Bank Account No.");
+                if BankAcc."Currency Code" = '' then begin
+                    GenJnlLine."Currency Factor" := CodBankStmtLine."Currency Factor";
+                    GenJnlLine."Currency Code" := CodBankStmtLine."Currency Code";
                 end;
-            until Next() = 0;
-        end;
-        Window.Close
+                GenJnlLine.Validate("Account No.", CodBankStmtLine."Account No.");
+                GenJnlLine."Applies-to ID" := CodBankStmtLine."Applies-to ID";
+                GenJnlLine.Validate(Amount, -CodBankStmtLine."Statement Amount");
+                GenJnlLine."System-Created Entry" := true;
+                OnTransferCodBankStmtLinesOnBeforeGenJnlLineInsert(GenJnlLine, CodBankStmtLine);
+                GenJnlLine.Insert();
+                // Link Coded Bank Statement line to Gen. Jnl. Line
+                CodBankStmtLine."Journal Template Name" := GenJnlLine."Journal Template Name";
+                CodBankStmtLine."Journal Batch Name" := GenJnlLine."Journal Batch Name";
+                CodBankStmtLine."Line No." := GenJnlLine."Line No.";
+                CodBankStmtLine.Modify();
+
+                Window.Update(2, LineNo);
+                Window.Update(3, Round(LineCounter / TotLines * 10000, 1));
+            end;
+        until CodBankStmtLine.Next() = 0;
+        Window.Close();
     end;
 
     [Scope('OnPrem')]
@@ -181,53 +175,51 @@ codeunit 2000042 "Post Coded Bank Statement"
         AppliedAmount: Decimal;
         UnappliedAmtInclPartial: Decimal;
     begin
-        with CodedBankStmtLine do begin
-            if FetchCodedTransaction(CodedBankStmtLine) then
-                // Type 0 lines don't have details.
-                if (CodedTrans."Globalisation Code" = CodedTrans."Globalisation Code"::Global) or
-               ("Transaction Type" = 0)
+        if FetchCodedTransaction(CodedBankStmtLine) then
+            // Type 0 lines don't have details.
+            if (CodedTrans."Globalisation Code" = CodedTrans."Globalisation Code"::Global) or
+               (CodedBankStmtLine."Transaction Type" = 0)
             then begin
-                    ApplyCodedTransaction(CodedBankStmtLine);
+                ApplyCodedTransaction(CodedBankStmtLine);
 
-                    if Type = Type::Global then begin
-                        CodBankStmtLine.Reset();
-                        CodBankStmtLine.SetRange("Bank Account No.", "Bank Account No.");
-                        CodBankStmtLine.SetRange("Statement No.", "Statement No.");
-                        CodBankStmtLine.SetRange(ID, ID);
-                        CodBankStmtLine.SetRange("Attached to Line No.", "Statement Line No.");
-                        if CodBankStmtLine.FindSet() then
-                            repeat
-                                CodBankStmtLine."Unapplied Amount" := 0;
-                                CodBankStmtLine."Application Status" := "Application Status"::"Indirectly applied";
-                                CodBankStmtLine.Modify
-                            until CodBankStmtLine.Next() = 0
-                    end;
-                end else begin
+                if CodedBankStmtLine.Type = CodedBankStmtLine.Type::Global then begin
                     CodBankStmtLine.Reset();
-                    CodBankStmtLine.SetRange("Bank Account No.", "Bank Account No.");
-                    CodBankStmtLine.SetRange("Statement No.", "Statement No.");
-                    CodBankStmtLine.SetRange(ID, ID);
-                    CodBankStmtLine.SetRange("Attached to Line No.", "Statement Line No.");
-                    if CodBankStmtLine.FindSet() then begin
-                        UnappliedAmtInclPartial := "Unapplied Amount";
+                    CodBankStmtLine.SetRange("Bank Account No.", CodedBankStmtLine."Bank Account No.");
+                    CodBankStmtLine.SetRange("Statement No.", CodedBankStmtLine."Statement No.");
+                    CodBankStmtLine.SetRange(ID, CodedBankStmtLine.ID);
+                    CodBankStmtLine.SetRange("Attached to Line No.", CodedBankStmtLine."Statement Line No.");
+                    if CodBankStmtLine.FindSet() then
                         repeat
-                            ProcessCodBankStmtLine(CodBankStmtLine);
-
-                            if CodBankStmtLine."Application Status" = CodBankStmtLine."Application Status"::"Partly applied" then
-                                AppliedAmount := CodBankStmtLine."Statement Amount"
-                            else
-                                AppliedAmount := CodBankStmtLine.Amount;
-                            UnappliedAmtInclPartial -= AppliedAmount;
-                            "Unapplied Amount" := "Unapplied Amount" - CodBankStmtLine.Amount;
+                            CodBankStmtLine."Unapplied Amount" := 0;
+                            CodBankStmtLine."Application Status" := CodedBankStmtLine."Application Status"::"Indirectly applied";
+                            CodBankStmtLine.Modify();
                         until CodBankStmtLine.Next() = 0;
-                        if UnappliedAmtInclPartial = 0 then
-                            "Application Status" := "Application Status"::"Indirectly applied";
-                    end else
-                        ApplyCodedTransaction(CodedBankStmtLine)
                 end;
-            "System-Created Entry" := true;
-            Modify();
-        end
+            end else begin
+                CodBankStmtLine.Reset();
+                CodBankStmtLine.SetRange("Bank Account No.", CodedBankStmtLine."Bank Account No.");
+                CodBankStmtLine.SetRange("Statement No.", CodedBankStmtLine."Statement No.");
+                CodBankStmtLine.SetRange(ID, CodedBankStmtLine.ID);
+                CodBankStmtLine.SetRange("Attached to Line No.", CodedBankStmtLine."Statement Line No.");
+                if CodBankStmtLine.FindSet() then begin
+                    UnappliedAmtInclPartial := CodedBankStmtLine."Unapplied Amount";
+                    repeat
+                        ProcessCodBankStmtLine(CodBankStmtLine);
+
+                        if CodBankStmtLine."Application Status" = CodBankStmtLine."Application Status"::"Partly applied" then
+                            AppliedAmount := CodBankStmtLine."Statement Amount"
+                        else
+                            AppliedAmount := CodBankStmtLine.Amount;
+                        UnappliedAmtInclPartial -= AppliedAmount;
+                        CodedBankStmtLine."Unapplied Amount" := CodedBankStmtLine."Unapplied Amount" - CodBankStmtLine.Amount;
+                    until CodBankStmtLine.Next() = 0;
+                    if UnappliedAmtInclPartial = 0 then
+                        CodedBankStmtLine."Application Status" := CodedBankStmtLine."Application Status"::"Indirectly applied";
+                end else
+                    ApplyCodedTransaction(CodedBankStmtLine)
+            end;
+        CodedBankStmtLine."System-Created Entry" := true;
+        CodedBankStmtLine.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -244,27 +236,26 @@ codeunit 2000042 "Post Coded Bank Statement"
             // Error if default posting entry is not found
             CodedTrans.Find();
             TransactionFound := true;
-        end else
-            with CodedBankStmtLine do begin
-                CodedTrans."Bank Account No." := "Bank Account No.";
-                CodedTrans."Transaction Family" := "Transaction Family";
-                CodedTrans.Transaction := Transaction;
-                CodedTrans."Transaction Category" := "Transaction Category";
+        end else begin
+            CodedTrans."Bank Account No." := CodedBankStmtLine."Bank Account No.";
+            CodedTrans."Transaction Family" := CodedBankStmtLine."Transaction Family";
+            CodedTrans.Transaction := CodedBankStmtLine.Transaction;
+            CodedTrans."Transaction Category" := CodedBankStmtLine."Transaction Category";
+            TransactionFound := CodedTrans.Find();
+            if not TransactionFound then begin
+                CodedTrans."Bank Account No." := '';
                 TransactionFound := CodedTrans.Find();
-                if not TransactionFound then begin
-                    CodedTrans."Bank Account No." := '';
-                    TransactionFound := CodedTrans.Find();
-                end;
-                if not TransactionFound then begin
-                    CodedTrans."Transaction Family" := 0;
-                    CodedTrans.Transaction := 0;
-                    TransactionFound := CodedTrans.Find();
-                end;
-                if not (Testing or TransactionFound) then begin
-                    CodedTrans."Transaction Category" := 0;
-                    TransactionFound := CodedTrans.Find();
-                end;
             end;
+            if not TransactionFound then begin
+                CodedTrans."Transaction Family" := 0;
+                CodedTrans.Transaction := 0;
+                TransactionFound := CodedTrans.Find();
+            end;
+            if not (Testing or TransactionFound) then begin
+                CodedTrans."Transaction Category" := 0;
+                TransactionFound := CodedTrans.Find();
+            end;
+        end;
         exit(TransactionFound);
     end;
 
@@ -272,45 +263,42 @@ codeunit 2000042 "Post Coded Bank Statement"
     procedure ApplyCodedTransaction(var CodedBankStmtLine: Record "CODA Statement Line")
     begin
         CodBankStmtLine := CodedBankStmtLine;
-        with CodBankStmtLine do begin
-            if "Message Type" = "Message Type"::"Standard format" then
-                InterpretStandardFormat(CodBankStmtLine);
-
-            // Post line according to Coded Transaction definition
-            if "Application Status" in ["Application Status"::" ", "Application Status"::"Partly applied"] then begin
-                if ("Message Type" = "Message Type"::"Non standard format") and ("Statement Message" <> '') then
-                    Description := CopyStr(DelChr("Statement Message", '>', ' '), 1, MaxStrLen(Description));
-                case CodedTrans."Account Type" of
-                    CodedTrans."Account Type"::" ":
-                        NotCodedPosting;
-                    CodedTrans."Account Type"::"G/L Account", CodedTrans."Account Type"::"Bank Account":
-                        begin
-                            CodedTrans.TestField("Account No.");
-                            InitCodBankStmtLine(CodedTrans."Account Type" - 1, false);
-                            if ("Message Type" = "Message Type"::"Non standard format") and ("Statement Message" = '') then
-                                Description := CodedTrans.Description;
-                        end;
-                    CodedTrans."Account Type"::Customer:
-                        begin
-                            SearchCustLedgEntry;
-                            if CodedTrans."Account No." <> '' then
-                                InitCodBankStmtLine(CodedTrans."Account Type" - 1, true);
-                        end;
-                    CodedTrans."Account Type"::Vendor:
-                        begin
-                            SearchVendLedgEntry;
-                            if CodedTrans."Account No." <> '' then
-                                InitCodBankStmtLine(CodedTrans."Account Type" - 1, true);
-                        end;
-                end;
+        if CodBankStmtLine."Message Type" = CodBankStmtLine."Message Type"::"Standard format" then
+            InterpretStandardFormat(CodBankStmtLine);
+        // Post line according to Coded Transaction definition
+        if CodBankStmtLine."Application Status" in [CodBankStmtLine."Application Status"::" ", CodBankStmtLine."Application Status"::"Partly applied"] then begin
+            if (CodBankStmtLine."Message Type" = CodBankStmtLine."Message Type"::"Non standard format") and (CodBankStmtLine."Statement Message" <> '') then
+                CodBankStmtLine.Description := CopyStr(DelChr(CodBankStmtLine."Statement Message", '>', ' '), 1, MaxStrLen(CodBankStmtLine.Description));
+            case CodedTrans."Account Type" of
+                CodedTrans."Account Type"::" ":
+                    NotCodedPosting();
+                CodedTrans."Account Type"::"G/L Account", CodedTrans."Account Type"::"Bank Account":
+                    begin
+                        CodedTrans.TestField("Account No.");
+                        InitCodBankStmtLine(CodedTrans."Account Type" - 1, false);
+                        if (CodBankStmtLine."Message Type" = CodBankStmtLine."Message Type"::"Non standard format") and (CodBankStmtLine."Statement Message" = '') then
+                            CodBankStmtLine.Description := CodedTrans.Description;
+                    end;
+                CodedTrans."Account Type"::Customer:
+                    begin
+                        SearchCustLedgEntry();
+                        if CodedTrans."Account No." <> '' then
+                            InitCodBankStmtLine(CodedTrans."Account Type" - 1, true);
+                    end;
+                CodedTrans."Account Type"::Vendor:
+                    begin
+                        SearchVendLedgEntry();
+                        if CodedTrans."Account No." <> '' then
+                            InitCodBankStmtLine(CodedTrans."Account Type" - 1, true);
+                    end;
             end;
-            if "Message Type" = "Message Type"::"Non standard format" then
-                if "Statement Message" <> '' then
-                    Description := CopyStr(DelChr("Statement Message", '>', ' '), 1, MaxStrLen(Description));
-            // Everything else failed
-            if ("Application Status" = "Application Status"::" ") and DefaultApplication then
-                DefaultPosting(CodBankStmtLine);
         end;
+        if CodBankStmtLine."Message Type" = CodBankStmtLine."Message Type"::"Non standard format" then
+            if CodBankStmtLine."Statement Message" <> '' then
+                CodBankStmtLine.Description := CopyStr(DelChr(CodBankStmtLine."Statement Message", '>', ' '), 1, MaxStrLen(CodBankStmtLine.Description));
+        // Everything else failed
+        if (CodBankStmtLine."Application Status" = CodBankStmtLine."Application Status"::" ") and DefaultApplication then
+            DefaultPosting(CodBankStmtLine);
         CodedBankStmtLine := CodBankStmtLine;
     end;
 
@@ -331,21 +319,19 @@ codeunit 2000042 "Post Coded Bank Statement"
         Sequence: Text[30];
         i: Integer;
     begin
-        with CodBankStmtLine do begin
-            if "Statement Amount" > 0 then
-                Sequence := Text007
-            else
-                Sequence := Text008;
-            for i := 1 to StrLen(Sequence) do begin
-                case Format(Sequence[i]) of
-                    Text009:
-                        SearchCustLedgEntry;
-                    Text010:
-                        SearchVendLedgEntry;
-                end;
-                if "Application Status" = "Application Status"::Applied then
-                    exit;
+        if CodBankStmtLine."Statement Amount" > 0 then
+            Sequence := Text007
+        else
+            Sequence := Text008;
+        for i := 1 to StrLen(Sequence) do begin
+            case Format(Sequence[i]) of
+                Text009:
+                    SearchCustLedgEntry();
+                Text010:
+                    SearchVendLedgEntry();
             end;
+            if CodBankStmtLine."Application Status" = CodBankStmtLine."Application Status"::Applied then
+                exit;
         end;
     end;
 
@@ -354,56 +340,54 @@ codeunit 2000042 "Post Coded Bank Statement"
     begin
         ErrorMsg := '';
         CodBankStmtLine := CodedBankStmtLine;
-        with CodBankStmtLine do begin
-            if "Message Type" = "Message Type"::"Non standard format" then
-                exit;
-            CodeFound := false;
-            case "Type Standard Format Message" of
-                10:
+        if CodBankStmtLine."Message Type" = CodBankStmtLine."Message Type"::"Non standard format" then
+            exit;
+        CodeFound := false;
+        case CodBankStmtLine."Type Standard Format Message" of
+            10:
+                CodeFound := true;
+            11:
+                CodeFound := true;
+            101, 102:
+                begin
+                    DecodeOGM();
                     CodeFound := true;
-                11:
-                    CodeFound := true;
-                101, 102:
-                    begin
-                        DecodeOGM;
-                        CodeFound := true;
-                    end;
-                103:
-                    begin
-                        DecodeNumber;
-                        CodeFound := true
-                    end;
-                104:
-                    begin
-                        DecodeEquivalent;
-                        CodeFound := true
-                    end;
-                105:
-                    begin
-                        DecodeOriginalAmount;
-                        CodeFound := true
-                    end;
-                106:
-                    begin
-                        DecodeMethodOfCalculation;
-                        CodeFound := true
-                    end;
-                107:
-                    begin
-                        DecodeDomiciliation;
-                        CodeFound := true
-                    end;
-                126:
-                    begin
-                        TermInvestment;
-                        CodeFound := true
-                    end;
-                else
-                    CodeFound := true;
-            end;
-            if not CodeFound then
-                ErrorMsg := StrSubstNo(Text011, "Type Standard Format Message");
+                end;
+            103:
+                begin
+                    DecodeNumber();
+                    CodeFound := true
+                end;
+            104:
+                begin
+                    DecodeEquivalent();
+                    CodeFound := true
+                end;
+            105:
+                begin
+                    DecodeOriginalAmount();
+                    CodeFound := true
+                end;
+            106:
+                begin
+                    DecodeMethodOfCalculation();
+                    CodeFound := true
+                end;
+            107:
+                begin
+                    DecodeDomiciliation();
+                    CodeFound := true
+                end;
+            126:
+                begin
+                    TermInvestment();
+                    CodeFound := true
+                end;
+            else
+                CodeFound := true;
         end;
+        if not CodeFound then
+            ErrorMsg := StrSubstNo(Text011, CodBankStmtLine."Type Standard Format Message");
         CodedBankStmtLine := CodBankStmtLine;
         if Testing then
             exit(ErrorMsg);
@@ -421,37 +405,34 @@ codeunit 2000042 "Post Coded Bank Statement"
 
     local procedure DecodeOGM()
     begin
-        with CodBankStmtLine do
-            if not PaymJnlManagement.Mod97Test("Statement Message") then
-                ErrorMsg :=
-                  StrSubstNo(Text012,
-                    "Message Type", "Statement Message", "Statement Line No.")
-            else
-                if "Statement Amount" > 0 then begin
-                    DecodeCustLedgEntry;
-                    if "Application Status" = "Application Status"::" " then
-                        SearchCustLedgEntry;
-                end else begin
-                    DecodeVendLedgEntry;
-                    if "Application Status" = "Application Status"::" " then
-                        SearchVendLedgEntry;
-                end;
+        if not PaymJnlManagement.Mod97Test(CodBankStmtLine."Statement Message") then
+            ErrorMsg :=
+              StrSubstNo(Text012,
+                CodBankStmtLine."Message Type", CodBankStmtLine."Statement Message", CodBankStmtLine."Statement Line No.")
+        else
+            if CodBankStmtLine."Statement Amount" > 0 then begin
+                DecodeCustLedgEntry();
+                if CodBankStmtLine."Application Status" = CodBankStmtLine."Application Status"::" " then
+                    SearchCustLedgEntry();
+            end else begin
+                DecodeVendLedgEntry();
+                if CodBankStmtLine."Application Status" = CodBankStmtLine."Application Status"::" " then
+                    SearchVendLedgEntry();
+            end;
     end;
 
     [Scope('OnPrem')]
     procedure DecodeNumber()
     begin
         // 103
-        with CodBankStmtLine do
-            Description := CopyStr("Statement Message", 1, 12)
+        CodBankStmtLine.Description := CopyStr(CodBankStmtLine."Statement Message", 1, 12)
     end;
 
     [Scope('OnPrem')]
     procedure DecodeEquivalent()
     begin
         // 104
-        with CodBankStmtLine do
-            Evaluate("Amount (LCY)", CopyStr("Statement Message", 1, 15));
+        Evaluate(CodBankStmtLine."Amount (LCY)", CopyStr(CodBankStmtLine."Statement Message", 1, 15));
     end;
 
     [Scope('OnPrem')]
@@ -464,23 +445,21 @@ codeunit 2000042 "Post Coded Bank Statement"
         DocNo: Code[20];
     begin
         Clear(CustLedgEntry);
-        with CodBankStmtLine do begin
-            if "Type Standard Format Message" = 107 then begin
-                if Type = Type::Global then
-                    DocNo := DelChr(CopyStr("Customer Reference", 1, 10), '<', '0')
-                else
-                    DocNo := DelChr(CopyStr("Customer Reference", 14, 11), '<', '0');
-            end else
-                DocNo := DelChr(CopyStr("Statement Message", 1, 10), '<', '0');
+        if CodBankStmtLine."Type Standard Format Message" = 107 then begin
+            if CodBankStmtLine.Type = CodBankStmtLine.Type::Global then
+                DocNo := DelChr(CopyStr(CodBankStmtLine."Customer Reference", 1, 10), '<', '0')
+            else
+                DocNo := DelChr(CopyStr(CodBankStmtLine."Customer Reference", 14, 11), '<', '0');
+        end else
+            DocNo := DelChr(CopyStr(CodBankStmtLine."Statement Message", 1, 10), '<', '0');
 
-            CustLedgEntry.SetCurrentKey("Document No.");
-            if "Statement Amount" > 0 then
-                CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
-            CustLedgEntry.SetRange("Document No.", DocNo);
-            OnDecodeCustLedgEntryOnBeforePost(CustLedgEntry, CodBankStmtLine, DocNo);
-            if CustLedgEntry.FindFirst() then
-                PostCustLedgEntry;
-        end
+        CustLedgEntry.SetCurrentKey("Document No.");
+        if CodBankStmtLine."Statement Amount" > 0 then
+            CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+        CustLedgEntry.SetRange("Document No.", DocNo);
+        OnDecodeCustLedgEntryOnBeforePost(CustLedgEntry, CodBankStmtLine, DocNo);
+        if CustLedgEntry.FindFirst() then
+            PostCustLedgEntry();
     end;
 
     local procedure SearchCustomer(): Boolean
@@ -490,33 +469,32 @@ codeunit 2000042 "Post Coded Bank Statement"
         BankAccNo: Text[30];
     begin
         Clear(Cust);
-        with CodBankStmtLine do begin
-            if "Type Standard Format Message" = 107 then begin
-                if Cust.SetCurrentKey("Domiciliation No.") then;
-                DomiciliationNo := CopyStr("Statement Message", 1, 12);
-                Cust.SetRange("Domiciliation No.", DomiciliationNo);
-                exit(Cust.FindFirst())
-            end;
-            if "Bank Account No. Other Party" <> '' then begin
-                CustBankAcc.SetRange(IBAN, "Bank Account No. Other Party");
-                if not CustBankAcc.FindFirst() then begin
-                    CustBankAcc.SetRange(IBAN);
-                    if StrLen("Bank Account No. Other Party") <= MaxStrLen(CustBankAcc."Bank Account No.") then
-                        CustBankAcc.SetRange("Bank Account No.", "Bank Account No. Other Party");
-                    if not CustBankAcc.FindFirst() then begin
-                        BankAccNo := // try format xxx-xxxxxxx-xx
-                          CopyStr("Bank Account No. Other Party", 1, 3) +
-                          '-' + CopyStr("Bank Account No. Other Party", 4, 7) +
-                          '-' + CopyStr("Bank Account No. Other Party", 11, 2);
-                        CustBankAcc.SetRange("Bank Account No.", BankAccNo);
-                        if not CustBankAcc.FindFirst() then
-                            if CodedTrans."Account Type" = CodedTrans."Account Type"::Customer then
-                                CustBankAcc."Customer No." := CodedTrans."Account No.";
-                    end;
-                end;
-                exit(Cust.Get(CustBankAcc."Customer No."));
-            end
+        if CodBankStmtLine."Type Standard Format Message" = 107 then begin
+            if Cust.SetCurrentKey("Domiciliation No.") then;
+            DomiciliationNo := CopyStr(CodBankStmtLine."Statement Message", 1, 12);
+            Cust.SetRange("Domiciliation No.", DomiciliationNo);
+            exit(Cust.FindFirst());
         end;
+        if CodBankStmtLine."Bank Account No. Other Party" <> '' then begin
+            CustBankAcc.SetRange(IBAN, CodBankStmtLine."Bank Account No. Other Party");
+            if not CustBankAcc.FindFirst() then begin
+                CustBankAcc.SetRange(IBAN);
+                if StrLen(CodBankStmtLine."Bank Account No. Other Party") <= MaxStrLen(CustBankAcc."Bank Account No.") then
+                    CustBankAcc.SetRange("Bank Account No.", CodBankStmtLine."Bank Account No. Other Party");
+                if not CustBankAcc.FindFirst() then begin
+                    BankAccNo :=
+                      // try format xxx-xxxxxxx-xx
+                      CopyStr(CodBankStmtLine."Bank Account No. Other Party", 1, 3) +
+                      '-' + CopyStr(CodBankStmtLine."Bank Account No. Other Party", 4, 7) +
+                      '-' + CopyStr(CodBankStmtLine."Bank Account No. Other Party", 11, 2);
+                    CustBankAcc.SetRange("Bank Account No.", BankAccNo);
+                    if not CustBankAcc.FindFirst() then
+                        if CodedTrans."Account Type" = CodedTrans."Account Type"::Customer then
+                            CustBankAcc."Customer No." := CodedTrans."Account No.";
+                end;
+            end;
+            exit(Cust.Get(CustBankAcc."Customer No."));
+        end
     end;
 
     local procedure SearchCustLedgEntry()
@@ -525,69 +503,64 @@ codeunit 2000042 "Post Coded Bank Statement"
         Found: Integer;
     begin
         Clear(CustLedgEntry);
-        with CodBankStmtLine do begin
-            if SearchCustomer then begin
-                CustLedgEntry2.SetCurrentKey("Customer No.", Open, Positive);
-                CustLedgEntry2.SetRange("Customer No.", Cust."No.");
-                CustLedgEntry2.SetRange(Open, true);
-                CustLedgEntry2.SetRange(Positive, "Statement Amount" > 0);
-                if CustLedgEntry2.FindSet() then
-                    repeat
-                        CustLedgEntry2.CalcFields("Remaining Amount");
-                        if CustLedgEntry2."Remaining Amount" = "Statement Amount" then begin
-                            Found := Found + 1;
-                            CustLedgEntry := CustLedgEntry2;
-                        end;
-                    until CustLedgEntry2.Next() = 0;
+        if SearchCustomer() then begin
+            CustLedgEntry2.SetCurrentKey("Customer No.", Open, Positive);
+            CustLedgEntry2.SetRange("Customer No.", Cust."No.");
+            CustLedgEntry2.SetRange(Open, true);
+            CustLedgEntry2.SetRange(Positive, CodBankStmtLine."Statement Amount" > 0);
+            if CustLedgEntry2.FindSet() then
+                repeat
+                    CustLedgEntry2.CalcFields("Remaining Amount");
+                    if CustLedgEntry2."Remaining Amount" = CodBankStmtLine."Statement Amount" then begin
+                        Found := Found + 1;
+                        CustLedgEntry := CustLedgEntry2;
+                    end;
+                until CustLedgEntry2.Next() = 0;
+            // Multiple Entries with Same Amount: Do Not Assign
+            if Found <> 1 then
+                Clear(CustLedgEntry);
+            CustLedgEntry."Customer No." := Cust."No.";
 
-                // Multiple Entries with Same Amount: Do Not Assign
-                if Found <> 1 then
-                    Clear(CustLedgEntry);
-                CustLedgEntry."Customer No." := Cust."No.";
-
-                PostCustLedgEntry
-            end;
-            Clear(Cust)
-        end
+            PostCustLedgEntry();
+        end;
+        Clear(Cust)
     end;
 
     [Scope('OnPrem')]
     procedure PostCustLedgEntry()
     begin
-        with CodBankStmtLine do begin
-            "Application Status" := "Application Status"::Applied;
-            Cust.Get(CustLedgEntry."Customer No.");
-            if "Statement Amount" > 0 then
-                "Document Type" := "Document Type"::Payment
-            else
-                "Document Type" := "Document Type"::Refund;
-            "Account Type" := "Account Type"::Customer;
-            "Account No." := CustLedgEntry."Customer No.";
-            Amount := "Statement Amount";
-            "Unapplied Amount" := "Unapplied Amount" - Amount;
-            Validate("Account Name", Cust.Name);
-            if CustLedgEntry."Entry No." > 0 then
-                if not CustLedgEntry.Open then begin
-                    "Application Status" := "Application Status"::"Partly applied";
-                    "Application Information" :=
-                      StrSubstNo(Text013, CustLedgEntry.Open);
-                end else begin
-                    if "Unapplied Amount" <> 0 then begin
-                        "Application Information" := StrSubstNo(Text014, CustLedgEntry.TableCaption());
-                        "Application Status" := "Application Status"::"Partly applied";
-                    end;
-                    "Applies-to ID" := "Document No.";
-                    CustLedgEntry."Applies-to ID" := "Document No.";
-                    CustLedgEntry.CalcFields("Remaining Amount");
-                    CustLedgEntry."Amount to Apply" := CustLedgEntry."Remaining Amount";
-                    CustLedgEntry.Modify
-                end
-            else begin
-                "Application Status" := "Application Status"::"Partly applied";
-                "Application Information" := StrSubstNo(Text015, CustLedgEntry.TableCaption());
-            end;
-            Clear(CustLedgEntry)
-        end
+        CodBankStmtLine."Application Status" := CodBankStmtLine."Application Status"::Applied;
+        Cust.Get(CustLedgEntry."Customer No.");
+        if CodBankStmtLine."Statement Amount" > 0 then
+            CodBankStmtLine."Document Type" := CodBankStmtLine."Document Type"::Payment
+        else
+            CodBankStmtLine."Document Type" := CodBankStmtLine."Document Type"::Refund;
+        CodBankStmtLine."Account Type" := CodBankStmtLine."Account Type"::Customer;
+        CodBankStmtLine."Account No." := CustLedgEntry."Customer No.";
+        CodBankStmtLine.Amount := CodBankStmtLine."Statement Amount";
+        CodBankStmtLine."Unapplied Amount" := CodBankStmtLine."Unapplied Amount" - CodBankStmtLine.Amount;
+        CodBankStmtLine.Validate("Account Name", Cust.Name);
+        if CustLedgEntry."Entry No." > 0 then
+            if not CustLedgEntry.Open then begin
+                CodBankStmtLine."Application Status" := CodBankStmtLine."Application Status"::"Partly applied";
+                CodBankStmtLine."Application Information" :=
+                  StrSubstNo(Text013, CustLedgEntry.Open);
+            end else begin
+                if CodBankStmtLine."Unapplied Amount" <> 0 then begin
+                    CodBankStmtLine."Application Information" := StrSubstNo(Text014, CustLedgEntry.TableCaption());
+                    CodBankStmtLine."Application Status" := CodBankStmtLine."Application Status"::"Partly applied";
+                end;
+                CodBankStmtLine."Applies-to ID" := CodBankStmtLine."Document No.";
+                CustLedgEntry."Applies-to ID" := CodBankStmtLine."Document No.";
+                CustLedgEntry.CalcFields("Remaining Amount");
+                CustLedgEntry."Amount to Apply" := CustLedgEntry."Remaining Amount";
+                CustLedgEntry.Modify();
+            end
+        else begin
+            CodBankStmtLine."Application Status" := CodBankStmtLine."Application Status"::"Partly applied";
+            CodBankStmtLine."Application Information" := StrSubstNo(Text015, CustLedgEntry.TableCaption());
+        end;
+        Clear(CustLedgEntry)
     end;
 
     local procedure DecodeVendLedgEntry()
@@ -595,22 +568,20 @@ codeunit 2000042 "Post Coded Bank Statement"
         Message: Text[50];
     begin
         Clear(VendLedgEntry);
-        with CodBankStmtLine do begin
-            if "Type Standard Format Message" = 107 then
-                Message := DelChr(CopyStr("Statement Message", 19, 15), '<', '0')
-            else
-                Message := DelChr(CopyStr("Statement Message", 1, 50), '<', '0');
-            VendLedgEntry.SetCurrentKey(Open);
-            if "Statement Amount" > 0 then
-                VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo")
-            else
-                VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
+        if CodBankStmtLine."Type Standard Format Message" = 107 then
+            Message := DelChr(CopyStr(CodBankStmtLine."Statement Message", 19, 15), '<', '0')
+        else
+            Message := DelChr(CopyStr(CodBankStmtLine."Statement Message", 1, 50), '<', '0');
+        VendLedgEntry.SetCurrentKey(Open);
+        if CodBankStmtLine."Statement Amount" > 0 then
+            VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo")
+        else
+            VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
 
-            VendLedgEntry.SetRange(Description, Message);
-            OnDecodeVendLedgEntryOnAfterVendLedgEntrySetFilters(VendLedgEntry, CodBankStmtLine, Message);
-            if VendLedgEntry.FindFirst() then
-                PostVendLedgEntry;
-        end
+        VendLedgEntry.SetRange(Description, Message);
+        OnDecodeVendLedgEntryOnAfterVendLedgEntrySetFilters(VendLedgEntry, CodBankStmtLine, Message);
+        if VendLedgEntry.FindFirst() then
+            PostVendLedgEntry();
     end;
 
     local procedure SearchVendor(): Boolean
@@ -619,27 +590,27 @@ codeunit 2000042 "Post Coded Bank Statement"
         BankAccNo: Text[30];
     begin
         Clear(Vend);
-        with CodBankStmtLine do
-            if "Bank Account No. Other Party" <> '' then begin
-                VendBankAcc.SetRange(IBAN, "Bank Account No. Other Party");
+        if CodBankStmtLine."Bank Account No. Other Party" <> '' then begin
+            VendBankAcc.SetRange(IBAN, CodBankStmtLine."Bank Account No. Other Party");
+            if not VendBankAcc.FindFirst() then begin
+                VendBankAcc.SetRange(IBAN);
+                if StrLen(CodBankStmtLine."Bank Account No. Other Party") <= MaxStrLen(VendBankAcc."Bank Account No.") then
+                    VendBankAcc.SetRange("Bank Account No.", CodBankStmtLine."Bank Account No. Other Party");
                 if not VendBankAcc.FindFirst() then begin
-                    VendBankAcc.SetRange(IBAN);
-                    if StrLen("Bank Account No. Other Party") <= MaxStrLen(VendBankAcc."Bank Account No.") then
-                        VendBankAcc.SetRange("Bank Account No.", "Bank Account No. Other Party");
-                    if not VendBankAcc.FindFirst() then begin
-                        BankAccNo := // try format xxx-xxxxxxx-xx
-                          CopyStr("Bank Account No. Other Party", 1, 3) +
-                          '-' + CopyStr("Bank Account No. Other Party", 4, 7) +
-                          '-' + CopyStr("Bank Account No. Other Party", 11, 2);
-                        VendBankAcc.SetRange("Bank Account No.", BankAccNo);
-                        if not VendBankAcc.FindFirst() then
-                            if CodedTrans."Account Type" = CodedTrans."Account Type"::Vendor then
-                                VendBankAcc."Vendor No." := CodedTrans."Account No.";
-                    end;
+                    BankAccNo :=
+                      // try format xxx-xxxxxxx-xx
+                      CopyStr(CodBankStmtLine."Bank Account No. Other Party", 1, 3) +
+                      '-' + CopyStr(CodBankStmtLine."Bank Account No. Other Party", 4, 7) +
+                      '-' + CopyStr(CodBankStmtLine."Bank Account No. Other Party", 11, 2);
+                    VendBankAcc.SetRange("Bank Account No.", BankAccNo);
+                    if not VendBankAcc.FindFirst() then
+                        if CodedTrans."Account Type" = CodedTrans."Account Type"::Vendor then
+                            VendBankAcc."Vendor No." := CodedTrans."Account No.";
                 end;
-                OnAfterSearchVendor(Vend, VendBankAcc, CodBankStmtLine);
-                exit(Vend.Get(VendBankAcc."Vendor No."));
             end;
+            OnAfterSearchVendor(Vend, VendBankAcc, CodBankStmtLine);
+            exit(Vend.Get(VendBankAcc."Vendor No."));
+        end;
     end;
 
     local procedure SearchVendLedgEntry()
@@ -648,63 +619,58 @@ codeunit 2000042 "Post Coded Bank Statement"
         Found: Integer;
     begin
         Clear(VendLedgEntry);
-        with CodBankStmtLine do begin
-            if SearchVendor then begin
-                VendLedgEntry2.SetCurrentKey("Vendor No.", Open, Positive);
-                VendLedgEntry2.SetRange("Vendor No.", Vend."No.");
-                VendLedgEntry2.SetRange(Open, true);
-                VendLedgEntry2.SetRange(Positive, "Statement Amount" > 0);
-                if VendLedgEntry2.FindSet() then
-                    repeat
-                        VendLedgEntry2.CalcFields("Remaining Amount");
-                        if VendLedgEntry2."Remaining Amount" = "Statement Amount" then begin
-                            Found := Found + 1;
-                            VendLedgEntry := VendLedgEntry2
-                        end;
-                    until VendLedgEntry2.Next() = 0;
+        if SearchVendor() then begin
+            VendLedgEntry2.SetCurrentKey("Vendor No.", Open, Positive);
+            VendLedgEntry2.SetRange("Vendor No.", Vend."No.");
+            VendLedgEntry2.SetRange(Open, true);
+            VendLedgEntry2.SetRange(Positive, CodBankStmtLine."Statement Amount" > 0);
+            if VendLedgEntry2.FindSet() then
+                repeat
+                    VendLedgEntry2.CalcFields("Remaining Amount");
+                    if VendLedgEntry2."Remaining Amount" = CodBankStmtLine."Statement Amount" then begin
+                        Found := Found + 1;
+                        VendLedgEntry := VendLedgEntry2
+                    end;
+                until VendLedgEntry2.Next() = 0;
+            // Multiple Entries with Same Amount: Do Not Assign
+            if Found <> 1 then
+                Clear(VendLedgEntry);
+            VendLedgEntry."Vendor No." := Vend."No.";
 
-                // Multiple Entries with Same Amount: Do Not Assign
-                if Found <> 1 then
-                    Clear(VendLedgEntry);
-                VendLedgEntry."Vendor No." := Vend."No.";
-
-                PostVendLedgEntry;
-            end;
-            Clear(Vend);
-        end
+            PostVendLedgEntry();
+        end;
+        Clear(Vend);
     end;
 
     [Scope('OnPrem')]
     procedure PostVendLedgEntry()
     begin
-        with CodBankStmtLine do begin
-            Vend.Get(VendLedgEntry."Vendor No.");
-            "Application Status" := "Application Status"::Applied;
-            if "Statement Amount" < 0 then
-                "Document Type" := "Document Type"::Payment
-            else
-                "Document Type" := "Document Type"::Refund;
-            "Account Type" := "Account Type"::Vendor;
-            "Account No." := VendLedgEntry."Vendor No.";
-            Validate("Account Name", Vend.Name);
-            if VendLedgEntry."Entry No." > 0 then begin
-                Amount := "Statement Amount";
-                "Unapplied Amount" := "Unapplied Amount" - Amount;
-                if "Unapplied Amount" <> 0 then begin
-                    "Application Information" := StrSubstNo(Text014, VendLedgEntry.TableCaption());
-                    "Application Status" := "Application Status"::"Partly applied"
-                end;
-                "Applies-to ID" := "Document No.";
-                VendLedgEntry."Applies-to ID" := "Document No.";
-                VendLedgEntry.CalcFields("Remaining Amount");
-                VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
-                VendLedgEntry.Modify
-            end else begin
-                "Application Information" := StrSubstNo(Text015, VendLedgEntry.TableCaption());
-                "Application Status" := "Application Status"::"Partly applied"
+        Vend.Get(VendLedgEntry."Vendor No.");
+        CodBankStmtLine."Application Status" := CodBankStmtLine."Application Status"::Applied;
+        if CodBankStmtLine."Statement Amount" < 0 then
+            CodBankStmtLine."Document Type" := CodBankStmtLine."Document Type"::Payment
+        else
+            CodBankStmtLine."Document Type" := CodBankStmtLine."Document Type"::Refund;
+        CodBankStmtLine."Account Type" := CodBankStmtLine."Account Type"::Vendor;
+        CodBankStmtLine."Account No." := VendLedgEntry."Vendor No.";
+        CodBankStmtLine.Validate("Account Name", Vend.Name);
+        if VendLedgEntry."Entry No." > 0 then begin
+            CodBankStmtLine.Amount := CodBankStmtLine."Statement Amount";
+            CodBankStmtLine."Unapplied Amount" := CodBankStmtLine."Unapplied Amount" - CodBankStmtLine.Amount;
+            if CodBankStmtLine."Unapplied Amount" <> 0 then begin
+                CodBankStmtLine."Application Information" := StrSubstNo(Text014, VendLedgEntry.TableCaption());
+                CodBankStmtLine."Application Status" := CodBankStmtLine."Application Status"::"Partly applied"
             end;
-            Clear(VendLedgEntry)
-        end
+            CodBankStmtLine."Applies-to ID" := CodBankStmtLine."Document No.";
+            VendLedgEntry."Applies-to ID" := CodBankStmtLine."Document No.";
+            VendLedgEntry.CalcFields("Remaining Amount");
+            VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
+            VendLedgEntry.Modify();
+        end else begin
+            CodBankStmtLine."Application Information" := StrSubstNo(Text015, VendLedgEntry.TableCaption());
+            CodBankStmtLine."Application Status" := CodBankStmtLine."Application Status"::"Partly applied"
+        end;
+        Clear(VendLedgEntry)
     end;
 
     [Scope('OnPrem')]
@@ -721,37 +687,36 @@ codeunit 2000042 "Post Coded Bank Statement"
         i: Integer;
     begin
         // 107
-        if CodedTrans."Account Type" <> CodedTrans."Account Type"::"G/L Account" then
-            with CodBankStmtLine do begin
-                if CodedTrans."Account Type" = CodedTrans."Account Type"::Customer then
-                    Sequence := Text009
+        if CodedTrans."Account Type" <> CodedTrans."Account Type"::"G/L Account" then begin
+            if CodedTrans."Account Type" = CodedTrans."Account Type"::Customer then
+                Sequence := Text009
+            else
+                if CodedTrans."Account Type" = CodedTrans."Account Type"::Vendor then
+                    Sequence := Text010
                 else
-                    if CodedTrans."Account Type" = CodedTrans."Account Type"::Vendor then
-                        Sequence := Text010
+                    if CodBankStmtLine."Statement Amount" > 0 then
+                        Sequence := Text007
                     else
-                        if "Statement Amount" > 0 then
-                            Sequence := Text007
-                        else
-                            Sequence := Text008;
-                for i := 1 to StrLen(Sequence) do begin
-                    case Format(Sequence[i]) of
-                        Text009:
-                            begin
-                                DecodeCustLedgEntry;
-                                if "Application Status" = "Application Status"::" " then
-                                    SearchCustLedgEntry
-                            end;
-                        Text010:
-                            begin
-                                DecodeVendLedgEntry;
-                                if "Application Status" = "Application Status"::" " then
-                                    SearchVendLedgEntry
-                            end
-                    end;
-                    if "Application Status" = "Application Status"::Applied then
-                        exit;
+                        Sequence := Text008;
+            for i := 1 to StrLen(Sequence) do begin
+                case Format(Sequence[i]) of
+                    Text009:
+                        begin
+                            DecodeCustLedgEntry();
+                            if CodBankStmtLine."Application Status" = CodBankStmtLine."Application Status"::" " then
+                                SearchCustLedgEntry();
+                        end;
+                    Text010:
+                        begin
+                            DecodeVendLedgEntry();
+                            if CodBankStmtLine."Application Status" = CodBankStmtLine."Application Status"::" " then
+                                SearchVendLedgEntry();
+                        end
                 end;
+                if CodBankStmtLine."Application Status" = CodBankStmtLine."Application Status"::Applied then
+                    exit;
             end;
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -763,38 +728,36 @@ codeunit 2000042 "Post Coded Bank Statement"
 
     local procedure InitCodBankStmtLine(AccountType: Integer; UpdateApplicationAmounts: Boolean)
     begin
-        with CodBankStmtLine do begin
-            "Application Status" := "Application Status"::"Partly applied";
-            "Application Information" := CodedTrans.Description;
-            "Account Type" := "Gen. Journal Account Type".FromInteger(AccountType);
-            "Account No." := CodedTrans."Account No.";
-            case "Account Type" of
-                "Account Type"::Customer:
-                    begin
-                        if Cust.Get("Account No.") then
-                            Description := Cust.Name;
-                        "Document Type" := "Document Type"::Payment;
-                    end;
-                "Account Type"::Vendor:
-                    begin
-                        if Vend.Get("Account No.") then
-                            Description := Vend.Name;
-                        "Document Type" := "Document Type"::Payment;
-                    end;
-                "Account Type"::"G/L Account":
-                    begin
-                        if GLAcc.Get("Account No.") then
-                            Description := GLAcc.Name;
-                    end;
-            end;
-            if UpdateApplicationAmounts then begin
-                Amount := "Statement Amount";
-                if "Currency Code" = '' then
-                    "Amount (LCY)" := "Statement Amount"
-                else
-                    "Amount (LCY)" := Round(Amount * "Currency Factor" / 100);
-                "Unapplied Amount" := "Unapplied Amount" - Amount;
-            end;
+        CodBankStmtLine."Application Status" := CodBankStmtLine."Application Status"::"Partly applied";
+        CodBankStmtLine."Application Information" := CodedTrans.Description;
+        CodBankStmtLine."Account Type" := "Gen. Journal Account Type".FromInteger(AccountType);
+        CodBankStmtLine."Account No." := CodedTrans."Account No.";
+        case CodBankStmtLine."Account Type" of
+            CodBankStmtLine."Account Type"::Customer:
+                begin
+                    if Cust.Get(CodBankStmtLine."Account No.") then
+                        CodBankStmtLine.Description := Cust.Name;
+                    CodBankStmtLine."Document Type" := CodBankStmtLine."Document Type"::Payment;
+                end;
+            CodBankStmtLine."Account Type"::Vendor:
+                begin
+                    if Vend.Get(CodBankStmtLine."Account No.") then
+                        CodBankStmtLine.Description := Vend.Name;
+                    CodBankStmtLine."Document Type" := CodBankStmtLine."Document Type"::Payment;
+                end;
+            CodBankStmtLine."Account Type"::"G/L Account":
+                begin
+                    if GLAcc.Get(CodBankStmtLine."Account No.") then
+                        CodBankStmtLine.Description := GLAcc.Name;
+                end;
+        end;
+        if UpdateApplicationAmounts then begin
+            CodBankStmtLine.Amount := CodBankStmtLine."Statement Amount";
+            if CodBankStmtLine."Currency Code" = '' then
+                CodBankStmtLine."Amount (LCY)" := CodBankStmtLine."Statement Amount"
+            else
+                CodBankStmtLine."Amount (LCY)" := Round(CodBankStmtLine.Amount * CodBankStmtLine."Currency Factor" / 100);
+            CodBankStmtLine."Unapplied Amount" := CodBankStmtLine."Unapplied Amount" - CodBankStmtLine.Amount;
         end;
         OnAfterInitCodBankStmtLine(CodBankStmtLine, CodedTrans, AccountType, UpdateApplicationAmounts);
     end;

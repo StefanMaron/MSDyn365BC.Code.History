@@ -876,38 +876,32 @@ page 9257 "Opportunities Matrix"
 
     local procedure CopySalespersonToBuf(var SalesPurchPerson: Record "Salesperson/Purchaser"; var RMMatrixMgt: Record "RM Matrix Management")
     begin
-        with RMMatrixMgt do begin
-            Init();
-            "Company Name" := SalesPurchPerson.Code;
-            Type := Type::Person;
-            Name := SalesPurchPerson.Name;
-            "No." := SalesPurchPerson.Code;
-            "Company No." := '';
-        end;
+        RMMatrixMgt.Init();
+        RMMatrixMgt."Company Name" := SalesPurchPerson.Code;
+        RMMatrixMgt.Type := RMMatrixMgt.Type::Person;
+        RMMatrixMgt.Name := SalesPurchPerson.Name;
+        RMMatrixMgt."No." := SalesPurchPerson.Code;
+        RMMatrixMgt."Company No." := '';
     end;
 
     local procedure CopyCampaignToBuf(var Campaign: Record Campaign; var RMMatrixMgt: Record "RM Matrix Management")
     begin
-        with RMMatrixMgt do begin
-            Init();
-            "Company Name" := Campaign."No.";
-            Type := Type::Person;
-            Name := CopyStr(Campaign.Description, 1, MaxStrLen(Name));
-            "No." := Campaign."No.";
-            "Company No." := '';
-        end;
+        RMMatrixMgt.Init();
+        RMMatrixMgt."Company Name" := Campaign."No.";
+        RMMatrixMgt.Type := RMMatrixMgt.Type::Person;
+        RMMatrixMgt.Name := CopyStr(Campaign.Description, 1, MaxStrLen(RMMatrixMgt.Name));
+        RMMatrixMgt."No." := Campaign."No.";
+        RMMatrixMgt."Company No." := '';
     end;
 
     local procedure CopyContactToBuf(var Cont: Record Contact; var RMMatrixMgt: Record "RM Matrix Management")
     begin
-        with RMMatrixMgt do begin
-            Init();
-            "Company Name" := CopyStr(Cont."Company Name", 1, MaxStrLen("Company Name"));
-            Type := Cont.Type;
-            Name := CopyStr(Cont.Name, 1, MaxStrLen(Name));
-            "No." := Cont."No.";
-            "Company No." := Cont."Company No.";
-        end;
+        RMMatrixMgt.Init();
+        RMMatrixMgt."Company Name" := CopyStr(Cont."Company Name", 1, MaxStrLen(RMMatrixMgt."Company Name"));
+        RMMatrixMgt.Type := Cont.Type;
+        RMMatrixMgt.Name := CopyStr(Cont.Name, 1, MaxStrLen(RMMatrixMgt.Name));
+        RMMatrixMgt."No." := Cont."No.";
+        RMMatrixMgt."Company No." := Cont."Company No.";
     end;
 
     local procedure ValidateStatus()

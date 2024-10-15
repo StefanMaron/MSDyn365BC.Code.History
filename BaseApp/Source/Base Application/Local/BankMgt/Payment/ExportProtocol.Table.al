@@ -14,6 +14,7 @@ table 2000005 "Export Protocol"
 {
     Caption = 'Export Protocol';
     LookupPageID = "Export Protocols";
+    DataClassification = CustomerContent;
 
     fields
     {

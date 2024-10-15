@@ -133,21 +133,17 @@ codeunit 1805 "Import Config. Package Files"
 
     local procedure InitVirtualJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; TaskID: Guid)
     begin
-        with JobQueueEntry do begin
-            Init();
-            ID := TaskID;
-            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            "Object ID to Run" := CODEUNIT::"Import Config. Package Files";
-        end;
+        JobQueueEntry.Init();
+        JobQueueEntry.ID := TaskID;
+        JobQueueEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobQueueEntry."User ID"));
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := CODEUNIT::"Import Config. Package Files";
     end;
 
     local procedure UpdateVirtualJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; TaskDescription: Text)
     begin
-        with JobQueueEntry do begin
-            "User Session Started" := CurrentDateTime;
-            Description := CopyStr(TaskDescription, 1, MaxStrLen(Description));
-        end;
+        JobQueueEntry."User Session Started" := CurrentDateTime;
+        JobQueueEntry.Description := CopyStr(TaskDescription, 1, MaxStrLen(JobQueueEntry.Description));
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Job Queue Log Entries", 'OnShowDetails', '', false, false)]

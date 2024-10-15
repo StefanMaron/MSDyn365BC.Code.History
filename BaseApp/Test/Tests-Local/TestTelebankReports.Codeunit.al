@@ -47,7 +47,7 @@ codeunit 144020 "Test Telebank Reports"
         REPORT.Run(REPORT::"Domiciliation Journal - Test", true, false, DomiciliationJournalBatch);
 
         // Validation
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         for MonthCounter := 1 to 12 do begin
             LibraryReportDataset.AssertElementWithValueExists(
@@ -63,14 +63,14 @@ codeunit 144020 "Test Telebank Reports"
 
             TotalAmount += MonthCounter * 1000;
             LibraryReportDataset.AssertElementWithValueExists('TotalAmount', TotalAmount);
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
         end;
     end;
 
     local procedure CreateDomiciliationJournalTemplate(var DomiciliationJournalTemplate: Record "Domiciliation Journal Template")
     begin
         with DomiciliationJournalTemplate do begin
-            Validate(Name, CopyStr(CreateGuid, 1, MaxStrLen(Name)));
+            Validate(Name, CopyStr(CreateGuid(), 1, MaxStrLen(Name)));
             Insert();
         end;
     end;
@@ -80,7 +80,7 @@ codeunit 144020 "Test Telebank Reports"
         with DomiciliationJournalBatch do begin
             Validate("Journal Template Name", DomiciliationJournalTemplate.Name);
             SetRange("Journal Template Name", "Journal Template Name");
-            Validate(Name, CopyStr(CreateGuid, 1, MaxStrLen(Name)));
+            Validate(Name, CopyStr(CreateGuid(), 1, MaxStrLen(Name)));
             Insert();
         end;
     end;
@@ -115,7 +115,7 @@ codeunit 144020 "Test Telebank Reports"
     procedure HandleDomiciliationJournalTestReport(var RequestPage: TestRequestPage "Domiciliation Journal - Test")
     begin
         RequestPage.ShowDim.SetValue(true);
-        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

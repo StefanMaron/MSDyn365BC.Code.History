@@ -152,7 +152,7 @@ codeunit 144001 "Payment Discount"
         InvNo :=
           PostSOPrepaymentInvoice(SalesHeader);
         ExpectedAmount :=
-          Round(TotalVATBaseAmount * SalesHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision);
+          Round(TotalVATBaseAmount * SalesHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision());
         VerifyPmtDiscOnSalesInvLines(InvNo, SalesHeader."Sell-to Customer No.", ExpectedAmount);
     end;
 
@@ -173,7 +173,7 @@ codeunit 144001 "Payment Discount"
         CrMemoNo :=
           PostSOPrepaymentCrMemo(SalesHeader);
         ExpectedAmount :=
-          Round(TotalVATBaseAmount * SalesHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision);
+          Round(TotalVATBaseAmount * SalesHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision());
         VerifyPmtDiscOnSalesCrMemoLines(CrMemoNo, SalesHeader."Sell-to Customer No.", ExpectedAmount);
     end;
 
@@ -193,7 +193,7 @@ codeunit 144001 "Payment Discount"
         InvNo :=
           PostPOPrepaymentInvoice(PurchHeader);
         ExpectedAmount :=
-          Round(TotalVATBaseAmount * PurchHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision);
+          Round(TotalVATBaseAmount * PurchHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision());
         VerifyPmtDiscOnPurchInvLines(InvNo, PurchHeader."Pay-to Vendor No.", ExpectedAmount);
     end;
 
@@ -214,7 +214,7 @@ codeunit 144001 "Payment Discount"
         CrMemoNo :=
           PostPOPrepaymentCrMemo(PurchHeader);
         ExpectedAmount :=
-          Round(TotalVATBaseAmount * PurchHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision);
+          Round(TotalVATBaseAmount * PurchHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision());
         VerifyPmtDiscOnPurchCrMemoLines(CrMemoNo, PurchHeader."Pay-to Vendor No.", ExpectedAmount);
     end;
 
@@ -435,7 +435,7 @@ codeunit 144001 "Payment Discount"
     begin
         CreateSalesDocWithPricesInclVAT(SalesHeader, PricesInclVAT);
         ExpectedAmount :=
-          Round(GetSalesVATBase(SalesHeader) * SalesHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision);
+          Round(GetSalesVATBase(SalesHeader) * SalesHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision());
         InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         VerifyPmtDiscOnCustLedgEntry(
           SalesHeader."Bill-to Customer No.", InvNo, ExpectedAmount);
@@ -449,7 +449,7 @@ codeunit 144001 "Payment Discount"
     begin
         CreatePurchDocWithPricesInclVAT(PurchHeader, PricesInclVAT);
         ExpectedAmount :=
-          Round(GetPurchVATBase(PurchHeader) * PurchHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision);
+          Round(GetPurchVATBase(PurchHeader) * PurchHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision());
         InvNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
         VerifyPmtDiscOnVendLedgEntry(
           PurchHeader."Pay-to Vendor No.", InvNo, -ExpectedAmount);
@@ -462,7 +462,7 @@ codeunit 144001 "Payment Discount"
     begin
         CreateServDocWithPricesInclVAT(ServHeader, ServHeader."Document Type"::Order, PricesInclVAT);
         ExpectedAmount :=
-          Round(GetServVATBase(ServHeader) * ServHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision);
+          Round(GetServVATBase(ServHeader) * ServHeader."Payment Discount %" / 100, LibraryERM.GetAmountRoundingPrecision());
         LibraryService.PostServiceOrder(ServHeader, true, false, true);
         VerifyPmtDiscOnCustLedgEntry(
           ServHeader."Bill-to Customer No.", GetPostedServDocNo(ServHeader."No."), ExpectedAmount);
@@ -548,16 +548,16 @@ codeunit 144001 "Payment Discount"
         // [GIVEN] Posted Service Invoice having 1000 VAT Base and 2% Payment Discount
         CreateServDocWithPricesInclVAT(ServHeader, ServHeader."Document Type"::Order, false);
         ExpectedAmount :=
-          Round(GetServVATBase(ServHeader) * (1 - ServHeader."Payment Discount %" / 100), LibraryERM.GetAmountRoundingPrecision);
+          Round(GetServVATBase(ServHeader) * (1 - ServHeader."Payment Discount %" / 100), LibraryERM.GetAmountRoundingPrecision());
         LibraryService.PostServiceOrder(ServHeader, true, false, true);
         ServiceInvoiceHeader.SetFilter("Order No.", ServHeader."No.");
         ServiceInvoiceHeader.FindFirst();
 
         // [WHEN] Open Posted Service Invoice Statistics
-        ServiceInvoiceStatistics.Trap;
-        PostedServiceInvoice.OpenEdit;
+        ServiceInvoiceStatistics.Trap();
+        PostedServiceInvoice.OpenEdit();
         PostedServiceInvoice.GotoRecord(ServiceInvoiceHeader);
-        PostedServiceInvoice.Statistics.Invoke;
+        PostedServiceInvoice.Statistics.Invoke();
 
         // [THEN] "VAT Base (Lowered)" equals to 980, calculated as 1000 * (1 - 0,02)
         ServiceInvoiceStatistics.Subform."VAT Base (Lowered)".AssertEquals(ExpectedAmount);
@@ -579,15 +579,15 @@ codeunit 144001 "Payment Discount"
         // [GIVEN] Posted Service Credit Memo having 1000 VAT Base and 2% VAT Base Discount
         CreateServCrMemo(ServHeader);
         ExpectedAmount :=
-          Round(GetServVATBase(ServHeader) * (1 - ServHeader."VAT Base Discount %" / 100), LibraryERM.GetAmountRoundingPrecision);
+          Round(GetServVATBase(ServHeader) * (1 - ServHeader."VAT Base Discount %" / 100), LibraryERM.GetAmountRoundingPrecision());
         LibraryService.PostServiceOrder(ServHeader, true, false, true);
         ServiceCrMemoHeader.Get(ServHeader."Last Posting No.");
 
         // [WHEN] Open Posted Service Credit Memo Statistics
-        ServiceCreditMemoStatistics.Trap;
-        PostedServiceCreditMemo.OpenEdit;
+        ServiceCreditMemoStatistics.Trap();
+        PostedServiceCreditMemo.OpenEdit();
         PostedServiceCreditMemo.GotoRecord(ServiceCrMemoHeader);
-        PostedServiceCreditMemo.Statistics.Invoke;
+        PostedServiceCreditMemo.Statistics.Invoke();
 
         // [THEN] "VAT Base (Lowered)" equals to 980, calculated as 1000 * (1 - 0,02)
         ServiceCreditMemoStatistics.Subform."VAT Base (Lowered)".AssertEquals(ExpectedAmount);
@@ -768,7 +768,7 @@ codeunit 144001 "Payment Discount"
         SalesLine: Record "Sales Line";
         i: Integer;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCust);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCust());
         SalesHeader.Validate("Prices Including VAT", PricesInclVAT);
         SalesHeader.Modify(true);
         for i := 1 to LibraryRandom.RandIntInRange(3, 10) do
@@ -782,12 +782,12 @@ codeunit 144001 "Payment Discount"
 
     local procedure CreateSalesDocInFCYWithPrepmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type")
     begin
-        CreateSalesDocWithPrepmt(SalesHeader, SalesLine, DocType, CreateCurrency);
+        CreateSalesDocWithPrepmt(SalesHeader, SalesLine, DocType, CreateCurrency());
     end;
 
     local procedure CreateSalesDocWithPrepmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; CurrencyCode: Code[10])
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCust);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCust());
         SalesHeader."Shipment Date" := WorkDate();
         SalesHeader."Responsibility Center" := LibraryUtility.GenerateGUID();
         SalesHeader.Validate("Currency Code", CurrencyCode);
@@ -801,17 +801,17 @@ codeunit 144001 "Payment Discount"
         SalesLine: Record "Sales Line";
         i: Integer;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCust);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCust());
         for i := 1 to LibraryRandom.RandIntInRange(3, 10) do
             CreateSalesLine(SalesLine, SalesHeader);
         AddSOPrepayment(SalesHeader, LibraryRandom.RandIntInRange(10, 40));
         exit(
-          Round(GetSalesVATBase(SalesHeader) * SalesHeader."Prepayment %" / 100, LibraryERM.GetAmountRoundingPrecision));
+          Round(GetSalesVATBase(SalesHeader) * SalesHeader."Prepayment %" / 100, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure CreateSalesDocWithPmtDiscAndPrepmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type")
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCust);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCust());
         SalesHeader.Validate("Payment Discount %", LibraryRandom.RandInt(10));
         SalesHeader.Modify(true);
         CreateSalesLine(SalesLine, SalesHeader);
@@ -822,7 +822,7 @@ codeunit 144001 "Payment Discount"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCust);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCust());
         CreateSalesLine(SalesLine, SalesHeader);
         exit(SalesLine."Amount Including VAT");
     end;
@@ -830,7 +830,7 @@ codeunit 144001 "Payment Discount"
     local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
     end;
@@ -840,7 +840,7 @@ codeunit 144001 "Payment Discount"
         PurchLine: Record "Purchase Line";
         i: Integer;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, CreateVend);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, CreateVend());
         PurchHeader.Validate("Prices Including VAT", PricesInclVAT);
         PurchHeader.Modify(true);
         for i := 1 to LibraryRandom.RandIntInRange(3, 10) do
@@ -854,12 +854,12 @@ codeunit 144001 "Payment Discount"
 
     local procedure CreatePurchDocInFCYWithPrepmt(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type")
     begin
-        CreatePurchDocWithPrepmt(PurchHeader, PurchLine, DocType, CreateCurrency);
+        CreatePurchDocWithPrepmt(PurchHeader, PurchLine, DocType, CreateCurrency());
     end;
 
     local procedure CreatePurchDocWithPrepmt(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; CurrencyCode: Code[10])
     begin
-        LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, CreateVend);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, CreateVend());
         PurchHeader.Validate("Currency Code", CurrencyCode);
         PurchHeader.Modify(true);
         CreatePurchLine(PurchLine, PurchHeader);
@@ -871,17 +871,17 @@ codeunit 144001 "Payment Discount"
         PurchLine: Record "Purchase Line";
         i: Integer;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, CreateVend);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, CreateVend());
         for i := 1 to LibraryRandom.RandIntInRange(3, 10) do
             CreatePurchLine(PurchLine, PurchHeader);
         AddPOPrepayment(PurchHeader, LibraryRandom.RandIntInRange(10, 40));
         exit(
-          Round(GetPurchVATBase(PurchHeader) * PurchHeader."Prepayment %" / 100, LibraryERM.GetAmountRoundingPrecision));
+          Round(GetPurchVATBase(PurchHeader) * PurchHeader."Prepayment %" / 100, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure CreatePurchDocWithPmtDiscAndPrepmt(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type")
     begin
-        LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, CreateVend);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, CreateVend());
         PurchHeader.Validate("Payment Discount %", LibraryRandom.RandInt(10));
         PurchHeader.Modify(true);
         CreatePurchLine(PurchLine, PurchHeader);
@@ -892,7 +892,7 @@ codeunit 144001 "Payment Discount"
     var
         PurchLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, CreateVend);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, CreateVend());
         CreatePurchLine(PurchLine, PurchHeader);
         exit(PurchLine."Amount Including VAT");
     end;
@@ -900,7 +900,7 @@ codeunit 144001 "Payment Discount"
     local procedure CreatePurchLine(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
     begin
         LibraryPurchase.CreatePurchaseLine(
-          PurchLine, PurchHeader, PurchLine.Type::Item, CreateItem, LibraryRandom.RandInt(100));
+          PurchLine, PurchHeader, PurchLine.Type::Item, CreateItem(), LibraryRandom.RandInt(100));
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchLine.Modify(true);
     end;
@@ -926,7 +926,7 @@ codeunit 144001 "Payment Discount"
 
     local procedure CreateServHeader(var ServHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; PricesInclVAT: Boolean)
     begin
-        LibraryService.CreateServiceHeader(ServHeader, DocumentType, CreateCust);
+        LibraryService.CreateServiceHeader(ServHeader, DocumentType, CreateCust());
         ServHeader.Validate("Prices Including VAT", PricesInclVAT);
         ServHeader.Modify(true);
     end;
@@ -944,7 +944,7 @@ codeunit 144001 "Payment Discount"
 
     local procedure CreateServLine(ServHeader: Record "Service Header"; var ServLine: Record "Service Line")
     begin
-        LibraryService.CreateServiceLine(ServLine, ServHeader, ServLine.Type::Item, CreateItem);
+        LibraryService.CreateServiceLine(ServLine, ServHeader, ServLine.Type::Item, CreateItem());
         ServLine.Validate(Quantity, LibraryRandom.RandInt(50));
         ServLine.Validate("Qty. to Invoice", ServLine.Quantity);
         ServLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
@@ -1021,8 +1021,8 @@ codeunit 144001 "Payment Discount"
         VATAmountLine: Record "VAT Amount Line" temporary;
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
     begin
-        SalesPostPrepayments.CalcVATAmountLines(SalesHeader, SalesLine, VATAmountLine, GetPrepmtInvDocType);
-        SalesPostPrepayments.UpdateVATOnLines(SalesHeader, SalesLine, VATAmountLine, GetPrepmtInvDocType);
+        SalesPostPrepayments.CalcVATAmountLines(SalesHeader, SalesLine, VATAmountLine, GetPrepmtInvDocType());
+        SalesPostPrepayments.UpdateVATOnLines(SalesHeader, SalesLine, VATAmountLine, GetPrepmtInvDocType());
     end;
 
     local procedure CalcAndUpdatePurchVATOnLines(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
@@ -1030,8 +1030,8 @@ codeunit 144001 "Payment Discount"
         VATAmountLine: Record "VAT Amount Line" temporary;
         PurchPostPrepayments: Codeunit "Purchase-Post Prepayments";
     begin
-        PurchPostPrepayments.CalcVATAmountLines(PurchHeader, PurchLine, VATAmountLine, GetPrepmtInvDocType);
-        PurchPostPrepayments.UpdateVATOnLines(PurchHeader, PurchLine, VATAmountLine, GetPrepmtInvDocType);
+        PurchPostPrepayments.CalcVATAmountLines(PurchHeader, PurchLine, VATAmountLine, GetPrepmtInvDocType());
+        PurchPostPrepayments.UpdateVATOnLines(PurchHeader, PurchLine, VATAmountLine, GetPrepmtInvDocType());
     end;
 
     local procedure CalcSalesExpectedAmount(SalesHeader: Record "Sales Header"): Decimal
@@ -1042,7 +1042,7 @@ codeunit 144001 "Payment Discount"
           Round(
             GetSalesVATBase(SalesHeader) *
             SalesHeader."Prepayment %" / 100 * SalesHeader."Payment Discount %" / 100 / SalesHeader."Currency Factor",
-            LibraryERM.GetAmountRoundingPrecision));
+            LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure CalcPurchExpectedAmount(PurchHeader: Record "Purchase Header"): Decimal
@@ -1053,7 +1053,7 @@ codeunit 144001 "Payment Discount"
           Round(
             GetPurchVATBase(PurchHeader) *
             PurchHeader."Prepayment %" / 100 * PurchHeader."Payment Discount %" / 100 / PurchHeader."Currency Factor",
-            LibraryERM.GetAmountRoundingPrecision));
+            LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure GetSalesVATBase(SalesHeader: Record "Sales Header"): Decimal
@@ -1146,7 +1146,7 @@ codeunit 144001 "Payment Discount"
             FindSet();
             repeat
                 TotalPmtDiscAmount += "Pmt. Discount Amount";
-            until Next = 0;
+            until Next() = 0;
             Assert.AreEqual(
               ExpectedAmount, TotalPmtDiscAmount,
               StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption(), DocNo, ExpectedAmount));
@@ -1164,7 +1164,7 @@ codeunit 144001 "Payment Discount"
             FindSet();
             repeat
                 TotalPmtDiscAmount += "Pmt. Discount Amount";
-            until Next = 0;
+            until Next() = 0;
             Assert.AreEqual(
               ExpectedAmount, TotalPmtDiscAmount,
               StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption(), DocNo, ExpectedAmount));
@@ -1194,7 +1194,7 @@ codeunit 144001 "Payment Discount"
             FindSet();
             repeat
                 TotalPmtDiscAmount += "Pmt. Discount Amount";
-            until Next = 0;
+            until Next() = 0;
             Assert.AreEqual(
               ExpectedAmount, TotalPmtDiscAmount,
               StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption(), DocNo, ExpectedAmount));
@@ -1212,7 +1212,7 @@ codeunit 144001 "Payment Discount"
             FindSet();
             repeat
                 TotalPmtDiscAmount += "Pmt. Discount Amount";
-            until Next = 0;
+            until Next() = 0;
             Assert.AreEqual(
               ExpectedAmount, TotalPmtDiscAmount,
               StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption(), DocNo, ExpectedAmount));

@@ -271,7 +271,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         OldReservationEntry.TransferReservations(
             OldReservationEntry, OldProdOrderComponent."Item No.", OldProdOrderComponent."Variant Code", OldProdOrderComponent."Location Code",
             TransferAll, TransferQty, NewProdOrderComponent."Qty. per Unit of Measure",
-            Database::"Prod. Order Component", NewProdOrderComponent.Status, NewProdOrderComponent."Prod. Order No.", '',
+            Database::"Prod. Order Component", NewProdOrderComponent.Status.AsInteger(), NewProdOrderComponent."Prod. Order No.", '',
             NewProdOrderComponent."Prod. Order Line No.", NewProdOrderComponent."Line No.");
     end;
 
@@ -368,14 +368,12 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ProdOrderComponent do begin
-            if not FindReservEntry(ProdOrderComponent, ReservationEntry) then
-                exit(true);
+        if not FindReservEntry(ProdOrderComponent, ReservationEntry) then
+            exit(true);
 
-            ReservationManagement.SetReservSource(ProdOrderComponent);
-            if ReservationManagement.DeleteItemTrackingConfirm() then
-                DeleteItemTracking := true;
-        end;
+        ReservationManagement.SetReservSource(ProdOrderComponent);
+        if ReservationManagement.DeleteItemTrackingConfirm() then
+            DeleteItemTracking := true;
 
         exit(DeleteItemTracking);
     end;
@@ -385,28 +383,25 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         if Blocked then
             exit;
 
-        with ProdOrderComponent do begin
-            Clear(ReservationManagement);
-            ReservationManagement.SetReservSource(ProdOrderComponent);
-            if DeleteItemTracking then
-                ReservationManagement.SetItemTrackingHandling(1); // Allow Deletion
-            ReservationManagement.DeleteReservEntries(true, 0);
-            OnDeleteLineOnAfterDeleteReservEntries(ProdOrderComponent);
-            CalcFields("Reserved Qty. (Base)");
-            AssignForPlanning(ProdOrderComponent);
-        end;
+        Clear(ReservationManagement);
+        ReservationManagement.SetReservSource(ProdOrderComponent);
+        if DeleteItemTracking then
+            ReservationManagement.SetItemTrackingHandling(1);
+        // Allow Deletion
+        ReservationManagement.DeleteReservEntries(true, 0);
+        OnDeleteLineOnAfterDeleteReservEntries(ProdOrderComponent);
+        ProdOrderComponent.CalcFields(ProdOrderComponent."Reserved Qty. (Base)");
+        AssignForPlanning(ProdOrderComponent);
     end;
 
     local procedure AssignForPlanning(var ProdOrderComponent: Record "Prod. Order Component")
     var
         PlanningAssignment: Record "Planning Assignment";
     begin
-        with ProdOrderComponent do begin
-            if Status = Status::Simulated then
-                exit;
-            if "Item No." <> '' then
-                PlanningAssignment.ChkAssignOne("Item No.", "Variant Code", "Location Code", "Due Date");
-        end;
+        if ProdOrderComponent.Status = ProdOrderComponent.Status::Simulated then
+            exit;
+        if ProdOrderComponent."Item No." <> '' then
+            PlanningAssignment.ChkAssignOne(ProdOrderComponent."Item No.", ProdOrderComponent."Variant Code", ProdOrderComponent."Location Code", ProdOrderComponent."Due Date");
     end;
 
     procedure Block(SetBlocked: Boolean)
@@ -703,7 +698,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
             exit;
 
         AvailabilityFilter := ReservationEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
-        ProdOrderComponent.FilterLinesForReservation(ReservationEntry, Status, AvailabilityFilter, Positive);
+        ProdOrderComponent.FilterLinesForReservation(ReservationEntry, Status.AsInteger(), AvailabilityFilter, Positive);
         if ProdOrderComponent.FindSet() then
             repeat
                 ProdOrderComponent.CalcFields("Reserved Qty. (Base)");
@@ -714,20 +709,19 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         if TotalQuantity = 0 then
             exit;
 
-        with TempEntrySummary do
-            if (TotalQuantity < 0) = Positive then begin
-                "Table ID" := Database::"Prod. Order Component";
-                if Status = ProdOrderComponent.Status::"Firm Planned" then
-                    "Summary Type" :=
-                        CopyStr(StrSubstNo(Text010, ProdOrderComponent.TableCaption()), 1, MaxStrLen("Summary Type"))
-                else
-                    "Summary Type" :=
-                        CopyStr(StrSubstNo(Text011, ProdOrderComponent.TableCaption()), 1, MaxStrLen("Summary Type"));
-                "Total Quantity" := -TotalQuantity;
-                "Total Available Quantity" := "Total Quantity" - "Total Reserved Quantity";
-                if not Insert() then
-                    Modify();
-            end;
+        if (TotalQuantity < 0) = Positive then begin
+            TempEntrySummary."Table ID" := Database::"Prod. Order Component";
+            if Status = ProdOrderComponent.Status::"Firm Planned" then
+                TempEntrySummary."Summary Type" :=
+                    CopyStr(StrSubstNo(Text010, ProdOrderComponent.TableCaption()), 1, MaxStrLen(TempEntrySummary."Summary Type"))
+            else
+                TempEntrySummary."Summary Type" :=
+                    CopyStr(StrSubstNo(Text011, ProdOrderComponent.TableCaption()), 1, MaxStrLen(TempEntrySummary."Summary Type"));
+            TempEntrySummary."Total Quantity" := -TotalQuantity;
+            TempEntrySummary."Total Available Quantity" := TempEntrySummary."Total Quantity" - TempEntrySummary."Total Reserved Quantity";
+            if not TempEntrySummary.Insert() then
+                TempEntrySummary.Modify();
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnUpdateStatistics', '', false, false)]

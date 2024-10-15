@@ -1,8 +1,12 @@
 #if not CLEAN22
+#pragma warning disable AS0072
 codeunit 144011 "Intrastat Reports BE"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -16,7 +20,6 @@ codeunit 144011 "Intrastat Reports BE"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryERM: Codeunit "Library - ERM";
         IsInitialized: Boolean;
 
     local procedure Initialize()
@@ -33,7 +36,7 @@ codeunit 144011 "Intrastat Reports BE"
 
     local procedure CreateItemWithTariff(var Item: Record Item)
     begin
-        LibraryInventory.CreateItemWithTariffNo(Item, CreateTariffNumber);
+        LibraryInventory.CreateItemWithTariffNo(Item, CreateTariffNumber());
         Item.Validate("Net Weight", LibraryRandom.RandDecInRange(1, 100, 2));
         Item.Modify(true);
     end;
@@ -102,11 +105,11 @@ codeunit 144011 "Intrastat Reports BE"
         IntrastatJnlLine.Type := Type;
         IntrastatJnlLine."Item No." := Item."No.";
         IntrastatJnlLine."Tariff No." := Item."Tariff No.";
-        IntrastatJnlLine."Country/Region Code" := GetCountryRegionCode;
-        IntrastatJnlLine."Transaction Type" := GetTransactionType;
-        IntrastatJnlLine."Transport Method" := GetTransportMethod;
-        IntrastatJnlLine.Area := GetArea;
-        IntrastatJnlLine."Transaction Specification" := GetTransactionSpecification;
+        IntrastatJnlLine."Country/Region Code" := GetCountryRegionCode();
+        IntrastatJnlLine."Transaction Type" := GetTransactionType();
+        IntrastatJnlLine."Transport Method" := GetTransportMethod();
+        IntrastatJnlLine.Area := GetArea();
+        IntrastatJnlLine."Transaction Specification" := GetTransactionSpecification();
         IntrastatJnlLine.Quantity := Quantity;
         IntrastatJnlLine.Validate("Net Weight", Item."Net Weight");  // set "Total Weight"
         IntrastatJnlLine.Validate(Amount, Amount);   // set "Statistical Value"
@@ -130,7 +133,7 @@ codeunit 144011 "Intrastat Reports BE"
     [Scope('OnPrem')]
     procedure ReportHandlerIntrastatForm(var IntrastatForm: TestRequestPage "Intrastat - Form")
     begin
-        IntrastatForm.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatForm.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

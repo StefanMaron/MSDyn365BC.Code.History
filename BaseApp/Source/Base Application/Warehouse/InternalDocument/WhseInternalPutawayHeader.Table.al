@@ -13,6 +13,7 @@ table 7331 "Whse. Internal Put-away Header"
 {
     Caption = 'Whse. Internal Put-away Header';
     LookupPageID = "Whse. Internal Put-away List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -24,7 +25,7 @@ table 7331 "Whse. Internal Put-away Header"
             begin
                 WhseSetup.Get();
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(WhseSetup."Whse. Internal Put-away Nos.");
+                    NoSeries.TestManual(WhseSetup."Whse. Internal Put-away Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -217,12 +218,27 @@ table 7331 "Whse. Internal Put-away Header"
     end;
 
     trigger OnInsert()
+#if not CLEAN24
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         WhseSetup.Get();
         if "No." = '' then begin
             WhseSetup.TestField("Whse. Internal Put-away Nos.");
-            NoSeriesMgt.InitSeries(
-              WhseSetup."Whse. Internal Put-away Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(WhseSetup."Whse. Internal Put-away Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := WhseSetup."Whse. Internal Put-away Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", WhseSetup."Whse. Internal Put-away Nos.", 0D, "No.");
+            end;
+#endif
         end;
     end;
 
@@ -237,7 +253,7 @@ table 7331 "Whse. Internal Put-away Header"
         WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
         WhseSetup: Record "Warehouse Setup";
         WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         WmsManagement: Codeunit "WMS Management";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         Text001: Label 'must not be the %1 of the %2';
@@ -298,17 +314,12 @@ table 7331 "Whse. Internal Put-away Header"
     procedure AssistEdit(OldWhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"): Boolean
     begin
         WhseSetup.Get();
-        with WhseInternalPutAwayHeader do begin
-            WhseInternalPutAwayHeader := Rec;
-            WhseSetup.TestField("Whse. Internal Put-away Nos.");
-            if NoSeriesMgt.SelectSeries(
-                 WhseSetup."Whse. Internal Put-away Nos.",
-                 OldWhseInternalPutAwayHeader."No. Series", "No. Series")
-            then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := WhseInternalPutAwayHeader;
-                exit(true);
-            end;
+        WhseInternalPutAwayHeader := Rec;
+        WhseSetup.TestField("Whse. Internal Put-away Nos.");
+        if NoSeries.LookupRelatedNoSeries(WhseSetup."Whse. Internal Put-away Nos.", OldWhseInternalPutAwayHeader."No. Series", WhseInternalPutAwayHeader."No. Series") then begin
+            WhseInternalPutAwayHeader."No." := NoSeries.GetNextNo(WhseInternalPutAwayHeader."No. Series");
+            Rec := WhseInternalPutAwayHeader;
+            exit(true);
         end;
     end;
 
@@ -317,27 +328,25 @@ table 7331 "Whse. Internal Put-away Header"
         WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
     begin
         WhseInternalPutAwayLine.SetRange("No.", "No.");
-        with WhseInternalPutAwayLine do begin
-            if LineNo <> 0 then
-                SetFilter("Line No.", '<>%1', LineNo);
-            if not FindFirst() then
-                exit(Status::" ");
+        if LineNo <> 0 then
+            WhseInternalPutAwayLine.SetFilter("Line No.", '<>%1', LineNo);
+        if not WhseInternalPutAwayLine.FindFirst() then
+            exit(WhseInternalPutAwayLine.Status::" ");
 
-            SetRange(Status, Status::"Partially Put Away");
-            if FindFirst() then
-                exit(Status);
+        WhseInternalPutAwayLine.SetRange(Status, WhseInternalPutAwayLine.Status::"Partially Put Away");
+        if WhseInternalPutAwayLine.FindFirst() then
+            exit(WhseInternalPutAwayLine.Status);
 
-            SetRange(Status, Status::"Completely Put Away");
-            if FindFirst() then begin
-                SetFilter(Status, '<%1', Status::"Completely Put Away");
-                if FindFirst() then
-                    exit(Status::"Partially Put Away");
+        WhseInternalPutAwayLine.SetRange(Status, WhseInternalPutAwayLine.Status::"Completely Put Away");
+        if WhseInternalPutAwayLine.FindFirst() then begin
+            WhseInternalPutAwayLine.SetFilter(Status, '<%1', WhseInternalPutAwayLine.Status::"Completely Put Away");
+            if WhseInternalPutAwayLine.FindFirst() then
+                exit(WhseInternalPutAwayLine.Status::"Partially Put Away");
 
-                exit(Status);
-            end;
-
-            exit(Status);
+            exit(WhseInternalPutAwayLine.Status);
         end;
+
+        exit(WhseInternalPutAwayLine.Status);
     end;
 
     local procedure GetLocation(LocationCode: Code[10])

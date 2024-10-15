@@ -8,6 +8,7 @@ table 7158 "Analysis Dim. Selection Buffer"
 {
     Caption = 'Analysis Dim. Selection Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

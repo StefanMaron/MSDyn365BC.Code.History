@@ -46,14 +46,14 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // Setup
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode());
 
         CreatePurchaseQuote(PurchaseHeader);
 
         // Exercise
-        PurchaseQuotes.OpenView;
+        PurchaseQuotes.OpenView();
         PurchaseQuotes.GotoRecord(PurchaseHeader);
-        asserterror PurchaseQuotes.MakeOrder.Invoke;
+        asserterror PurchaseQuotes.MakeOrder.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(DocCannotBeMadeOrderErr, PurchaseHeader."Document Type", PurchaseHeader."No."));
@@ -74,7 +74,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         Initialize();
 
         // [GIVEN] The approval workflow for puchase quote is enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode());
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
 
         // [GIVEN] The purchase quote is created and sent to approval.
@@ -82,9 +82,9 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         SendPurchaseQuoteForApproval(PurchaseHeader);
 
         // [WHEN] The user wants to Make Order of the purchase quote.
-        PurchaseQuotes.OpenView;
+        PurchaseQuotes.OpenView();
         PurchaseQuotes.GotoRecord(PurchaseHeader);
-        asserterror PurchaseQuotes.MakeOrder.Invoke;
+        asserterror PurchaseQuotes.MakeOrder.Invoke();
 
         // [THEN] The user gets an error that he cannot use this action
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(PurchaseHeader.RecordId, 0, 1)));
@@ -108,14 +108,14 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         // Setup
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode());
 
         CreatePurchaseQuote(PurchaseHeader);
 
         // Exercise
-        PurchaseQuotes.OpenView;
+        PurchaseQuotes.OpenView();
         PurchaseQuotes.GotoRecord(PurchaseHeader);
-        asserterror PurchaseQuotes.Release.Invoke;
+        asserterror PurchaseQuotes.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(DocCannotBeReleasedErr);
@@ -141,7 +141,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -161,9 +161,9 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
 
         // Exercise
         Commit();
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchaseHeader);
-        asserterror PurchaseQuote.Release.Invoke;
+        asserterror PurchaseQuote.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(PurchaseHeader.RecordId, 0, 1)));
@@ -189,7 +189,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -208,9 +208,9 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         VerifyPurchaseQuoteIsPendingApproval(PurchaseHeader);
 
         // Exercise
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchaseHeader);
-        asserterror PurchaseQuote.Reopen.Invoke;
+        asserterror PurchaseQuote.Reopen.Invoke();
 
         // Verify
         Assert.ExpectedError(ApprovalShouldBeHandledErr);
@@ -485,15 +485,15 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         CreatePurchQuoteWithLine(PurchHeader, LibraryRandom.RandIntInRange(Minimum, Minimum + 1000));
         SetPurchDocPurchaserCode(PurchHeader, IntermediateApproverUserSetup."Salespers./Purch. Code");
         Commit();
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseQuote.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseQuote.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
+        Assert.IsTrue(PurchaseQuote.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseQuote.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should NOT be enabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror PurchaseQuote.SendApprovalRequest.Invoke;
+        asserterror PurchaseQuote.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -502,31 +502,31 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         PurchaseQuote.Close();
 
         // [GIVEN] PurchHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode());
 
         // [WHEN] PurchHeader card is opened.
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseQuote.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseQuote.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(PurchaseQuote.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(PurchaseQuote.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(PurchaseQuote.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(PurchaseQuote.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseQuote.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(PurchaseQuote.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(PurchaseQuote.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(PurchaseQuote.Delegate.Visible(), 'Delegate should NOT be visible');
         PurchaseQuote.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchHeader);
 
         // [WHEN] PurchHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        PurchaseQuote.SendApprovalRequest.Invoke;
+        PurchaseQuote.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(PurchaseQuote.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseQuote.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseQuote.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseQuote.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         PurchaseQuote.Close();
@@ -535,13 +535,13 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchHeader.RecordId);
 
         // [WHEN] PurchHeader card is opened.
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchHeader);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(PurchaseQuote.Approve.Visible, 'Approve should be visible');
-        Assert.IsTrue(PurchaseQuote.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(PurchaseQuote.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(PurchaseQuote.Approve.Visible(), 'Approve should be visible');
+        Assert.IsTrue(PurchaseQuote.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(PurchaseQuote.Delegate.Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -568,15 +568,15 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         CreatePurchQuoteWithLine(PurchHeader, LibraryRandom.RandIntInRange(Minimum, Minimum + 1000));
         SetPurchDocPurchaserCode(PurchHeader, IntermediateApproverUserSetup."Salespers./Purch. Code");
         Commit();
-        PurchaseQuotes.OpenEdit;
+        PurchaseQuotes.OpenEdit();
         PurchaseQuotes.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseQuotes.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseQuotes.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseQuotes.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseQuotes.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror PurchaseQuotes.SendApprovalRequest.Invoke;
+        asserterror PurchaseQuotes.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -585,28 +585,28 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         PurchaseQuotes.Close();
 
         // [GIVEN] PurchHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode());
 
         // [WHEN] PurchHeader card is opened.
-        PurchaseQuotes.OpenEdit;
+        PurchaseQuotes.OpenEdit();
         PurchaseQuotes.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseQuotes.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseQuotes.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseQuotes.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseQuotes.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         PurchaseQuotes.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
-        PurchaseQuotes.OpenEdit;
+        PurchaseQuotes.OpenEdit();
         PurchaseQuotes.GotoRecord(PurchHeader);
 
         // [WHEN] PurchHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        PurchaseQuotes.SendApprovalRequest.Invoke;
+        PurchaseQuotes.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(PurchaseQuotes.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseQuotes.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseQuotes.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseQuotes.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [Test]
@@ -672,14 +672,14 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         VerifyApprovalEntryIsApproved(ApprovalEntry);
 
         // Exercise: Make order is allowed
-        PurchaseQuotes.OpenView;
+        PurchaseQuotes.OpenView();
         PurchaseQuotes.GotoRecord(PurchHeader);
-        PurchaseQuotes.MakeOrder.Invoke;
+        PurchaseQuotes.MakeOrder.Invoke();
 
         // Verify: No approval entries remain
         ApprovalEntry.Reset();
         asserterror LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
     end;
 
     [Test]
@@ -802,7 +802,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         WorkflowSetup: Codeunit "Workflow Setup";
         Minimum: Integer;
     begin
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseQuoteApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, chain the users for approval, set purchase amount limits
         CreateUserSetupsAndChainOfApprovers(CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
@@ -837,7 +837,7 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Purch Quote Approvals");
@@ -929,9 +929,9 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
     var
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchaseHeader);
-        PurchaseQuote.SendApprovalRequest.Invoke;
+        PurchaseQuote.SendApprovalRequest.Invoke();
         PurchaseQuote.Close();
     end;
 
@@ -1052,9 +1052,9 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
     var
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchaseHeader);
-        PurchaseQuote.Approve.Invoke;
+        PurchaseQuote.Approve.Invoke();
         PurchaseQuote.Close();
     end;
 
@@ -1062,9 +1062,9 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
     var
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchaseHeader);
-        PurchaseQuote.Reject.Invoke;
+        PurchaseQuote.Reject.Invoke();
         PurchaseQuote.Close();
     end;
 
@@ -1072,9 +1072,9 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
     var
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchaseHeader);
-        PurchaseQuote.Delegate.Invoke;
+        PurchaseQuote.Delegate.Invoke();
         PurchaseQuote.Close();
     end;
 
@@ -1082,9 +1082,9 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
     var
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchaseHeader);
-        PurchaseQuote.CancelApprovalRequest.Invoke;
+        PurchaseQuote.CancelApprovalRequest.Invoke();
         PurchaseQuote.Close();
     end;
 
@@ -1114,16 +1114,16 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         PurchaseQuote: TestPage "Purchase Quote";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchaseHeader);
 
-        Assert.AreEqual(CommentActionIsVisible, PurchaseQuote.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, PurchaseQuote.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            PurchaseQuote.Comment.Invoke;
-            if ApprovalComments.First then
+            PurchaseQuote.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -1143,13 +1143,13 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -1166,13 +1166,13 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -1188,14 +1188,14 @@ codeunit 134184 "WF Demo Purch Quote Approvals"
         PurchaseQuote: TestPage "Purchase Quote";
         PurchaseQuotes: TestPage "Purchase Quotes";
     begin
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchaseHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseQuote.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
+        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseQuote.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         PurchaseQuote.Close();
 
-        PurchaseQuotes.OpenView;
+        PurchaseQuotes.OpenView();
         PurchaseQuotes.GotoRecord(PurchaseHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseQuotes.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
+        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseQuotes.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         PurchaseQuotes.Close();
     end;
 }

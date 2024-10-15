@@ -42,7 +42,7 @@ codeunit 139163 "Int. Table Synch. Subscriber"
         UpdateModifiedOnTimeOnIntegrationRecord := false;
         CRMTimeDiffSeconds := 0;
 
-        ClearFindRecordResults;
+        ClearFindRecordResults();
     end;
 
     [Scope('OnPrem')]

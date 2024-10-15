@@ -47,7 +47,7 @@ codeunit 139177 "Navigate to CRM from NAV Test"
         // [FEATURE] [Customer Card]
         LibraryApplicationArea.EnableFoundationSetup();
         NavigateToCRMAccountHyperlinkFromNAV(HostPageName::CustomerCard);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -60,7 +60,7 @@ codeunit 139177 "Navigate to CRM from NAV Test"
         // [FEATURE] [Customer List]
         LibraryApplicationArea.EnableFoundationSetup();
         NavigateToCRMAccountHyperlinkFromNAV(HostPageName::CustomerList);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -104,11 +104,11 @@ codeunit 139177 "Navigate to CRM from NAV Test"
         CRMIncident.Get(LibraryCRMIntegration.AddCRMCaseToCRMAccount(CRMAccount));
 
         // [WHEN] The user clicks on the Case action on the NAV CRM Cases page
-        CRMCaseList.OpenView;
+        CRMCaseList.OpenView();
         CRMCaseList.FILTER.SetFilter(Title, CRMIncident.Title);
         ExpectedLinkEntity := 'incident';
         ExpectedLinkValue := Format(CRMIncident.IncidentId);
-        CRMCaseList.CRMGoToCase.Invoke;
+        CRMCaseList.CRMGoToCase.Invoke();
 
         // [THEN] A hyperlink to CRM is opened (validated in CRMHyperlinkHandler)
     end;
@@ -132,11 +132,11 @@ codeunit 139177 "Navigate to CRM from NAV Test"
         CRMOpportunity.Get(LibraryCRMIntegration.AddCRMOpportunityToCRMAccount(CRMAccount));
 
         // [WHEN] The user clicks on the Oppotunity action on the NAV CRM Opportunities page
-        CRMOpportunityList.OpenView;
+        CRMOpportunityList.OpenView();
         CRMOpportunityList.FILTER.SetFilter(TotalAmount, Format(CRMOpportunity.TotalAmount));
         ExpectedLinkEntity := 'opportunity';
         ExpectedLinkValue := Format(CRMOpportunity.OpportunityId);
-        CRMOpportunityList.CRMGotoOpportunities.Invoke;
+        CRMOpportunityList.CRMGotoOpportunities.Invoke();
 
         // [THEN] A hyperlink to CRM is opened (validated in CRMHyperlinkHandler)
     end;
@@ -160,11 +160,11 @@ codeunit 139177 "Navigate to CRM from NAV Test"
         CRMQuote.Get(LibraryCRMIntegration.AddCRMQuoteToCRMAccount(CRMAccount));
 
         // [WHEN] The user clicks on the Quote action on the NAV CRM Quotes page
-        CRMQuoteList.OpenView;
+        CRMQuoteList.OpenView();
         CRMQuoteList.FILTER.SetFilter(Name, CRMQuote.Name);
         ExpectedLinkEntity := 'quote';
         ExpectedLinkValue := Format(CRMQuote.QuoteId);
-        CRMQuoteList.CRMGoToQuote.Invoke;
+        CRMQuoteList.CRMGoToQuote.Invoke();
 
         // [THEN] A hyperlink to CRM is opened (validated in CRMHyperlinkHandler)
     end;
@@ -190,11 +190,11 @@ codeunit 139177 "Navigate to CRM from NAV Test"
         CRMSalesorder.Modify();
 
         // [WHEN] The user clicks on the CRM SalesOrder action on the NAV CRM Sales Orders page
-        CRMSalesOrderList.OpenView;
+        CRMSalesOrderList.OpenView();
         CRMSalesOrderList.FILTER.SetFilter(Name, CRMSalesorder.Name);
         ExpectedLinkEntity := 'salesorder';
         ExpectedLinkValue := Format(CRMSalesorder.SalesOrderId);
-        CRMSalesOrderList.CRMGoToSalesOrder.Invoke;
+        CRMSalesOrderList.CRMGoToSalesOrder.Invoke();
 
         // [THEN] A hyperlink to CRM is opened (validated in CRMHyperlinkHandler)
     end;
@@ -203,11 +203,13 @@ codeunit 139177 "Navigate to CRM from NAV Test"
     var
         Customer: Record Customer;
         CRMAccount: Record "CRM Account";
+        IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // Navigate to CRM Account hyperlink from NAV pages
         Initialize();
 
         // [GIVEN] CRM is enabled, coupled customer and account exist
+        LibraryCRMIntegration.CreateIntegrationTableMappingCustomer(IntegrationTableMapping);
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
         // [WHEN] The user clicks on the CRM Account link in nav customer card/list pages
@@ -222,11 +224,13 @@ codeunit 139177 "Navigate to CRM from NAV Test"
     var
         Currency: Record Currency;
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
+        IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // Navigate to CRM Transaction Currency hyperlink from NAV pages
         Initialize();
 
         // [GIVEN] CRM is enabled, a coupled NAV Currency and CRM TransactionCurrency exists
+        LibraryCRMIntegration.CreateIntegrationTableMappingCurrency(IntegrationTableMapping);
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
 
         // [WHEN] The user clicks on the Transaction Currency link in nav currency card/list pages
@@ -247,8 +251,8 @@ codeunit 139177 "Navigate to CRM from NAV Test"
         ExpectedLinkEntity := '';
         ExpectedLinkValue := '';
 
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
     end;
 
     [HyperlinkHandler]
@@ -262,4 +266,3 @@ codeunit 139177 "Navigate to CRM from NAV Test"
             AssertLinkContainsWord(LinkAddress, ExpectedLinkValue);
     end;
 }
-

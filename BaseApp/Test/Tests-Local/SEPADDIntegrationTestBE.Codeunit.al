@@ -73,7 +73,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
             Customer."Partner Type"::Company, SalesHeader."Posting Date" - 1);
 
         // Verify
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
     end;
 
     [Test]
@@ -92,7 +92,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         // Exercise
         CreateDomJnlLineForSalesInvoice(DomJnlLine, SalesHeader, BankAccountNo, Customer."Partner Type"::Company,
           SalesHeader."Due Date");
-        DomJnlLine.ExportToFile;
+        DomJnlLine.ExportToFile();
 
         // Verify
         VerifyDDCIsDeleted(DomJnlLine."Journal Template Name", DomJnlLine."Journal Batch Name")
@@ -119,7 +119,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
 
         // Exercise
         CreateDomJnlLineForSalesInvoice(DomJnlLine, SalesHeader, BankAccount."No.", Customer."Partner Type"::Person, SalesHeader."Due Date");
-        asserterror DomJnlLine.ExportToFile;
+        asserterror DomJnlLine.ExportToFile();
         Assert.ExpectedError(FileExportErr);
 
         // Verify
@@ -155,9 +155,9 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         // [SCENARIO] SEPA DD xml export
         // [SCENARIO 362887] Xml <Cdtr> node (2.19) doesn't include <BICOrBEI> field
         // Setup
-        LibraryBEHelper.InitializeCompanyInformation;
+        LibraryBEHelper.InitializeCompanyInformation();
         CompanyInformation.Get();
-        CompanyInformation.Validate("Enterprise No.", LibraryBEHelper.CreateEnterpriseNo);
+        CompanyInformation.Validate("Enterprise No.", LibraryBEHelper.CreateEnterpriseNo());
         CompanyInformation.Modify(true);
 
         CreateBankAccountWithExportImportSetup(BankAccount, CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02",
@@ -232,7 +232,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
           SalesHeader."Due Date");
         DomJnlLine.Status := DomJnlLine.Status::Posted;
         DomJnlLine.Modify();
-        asserterror DomJnlLine.ExportToFile;
+        asserterror DomJnlLine.ExportToFile();
         Assert.ExpectedError(NoRecordsErr);
     end;
 
@@ -267,7 +267,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         LibraryERM.CreateGLAccount(GLAccount);
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::"G/L Account";
         GenJnlBatch."Bal. Account No." := GLAccount."No.";
-        GenJnlBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJnlBatch."No. Series" := LibraryERM.CreateNoSeriesCode();
         GenJnlBatch.Modify();
         Commit();
 
@@ -315,7 +315,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         LibraryERM.CreateGLAccount(GLAccount);
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::Customer;
-        GenJnlBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJnlBatch."No. Series" := LibraryERM.CreateNoSeriesCode();
         GenJnlBatch.Modify();
         Commit();
 
@@ -357,7 +357,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         LibraryERM.CreateGLAccount(GLAccount);
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::"G/L Account";
-        GenJnlBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJnlBatch."No. Series" := LibraryERM.CreateNoSeriesCode();
         GenJnlBatch.Modify();
         Commit();
 
@@ -400,7 +400,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         LibraryERM.CreateGLAccount(GLAccount);
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::"G/L Account";
         GenJnlBatch."Bal. Account No." := LibraryUtility.GenerateGUID();
-        GenJnlBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJnlBatch."No. Series" := LibraryERM.CreateNoSeriesCode();
         GenJnlBatch.Modify();
         Commit();
 
@@ -445,7 +445,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         GLAccount.Modify();
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::"G/L Account";
         GenJnlBatch."Bal. Account No." := GLAccount."No.";
-        GenJnlBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJnlBatch."No. Series" := LibraryERM.CreateNoSeriesCode();
         GenJnlBatch.Modify();
         Commit();
 
@@ -699,7 +699,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         SuggestDomiciliations.DueDate.SetValue(DueDate);
         SuggestDomiciliations.PostingDate.SetValue(PostingDate);
         SuggestDomiciliations.Cust.SetFilter("No.", CustNo);
-        SuggestDomiciliations.OK.Invoke;
+        SuggestDomiciliations.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -720,7 +720,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         CreateGenJnlLines.GenJnlTemplate.SetValue(GenJnlTemplateName);
         CreateGenJnlLines.GenJnlBatch.SetValue(GenJnlBatchName);
         CreateGenJnlLines.PostGenJnlLines.SetValue(true);
-        CreateGenJnlLines.OK.Invoke;
+        CreateGenJnlLines.OK().Invoke();
     end;
 
     [ConfirmHandler]

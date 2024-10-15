@@ -54,7 +54,7 @@ report 2000021 "File Domiciliations"
                     end else
                         CurrReport.Skip();
                 CurrencyCode := "Currency Code";
-                WriteDataRecord;
+                WriteDataRecord();
             end;
 
             trigger OnPreDataItem()
@@ -69,22 +69,18 @@ report 2000021 "File Domiciliations"
                 BankAcc.Get(BankNo);
                 if not PaymJnlManagement.Mod97Test(BankAcc."Bank Account No.") then
                     Error(Text007, BankAcc.Name);
-
                 // test if lines with empt bank exist
-                with DomJnlLine do begin
-                    Reset();
-                    CopyFilters("Domiciliation Journal Line");
-                    SetRange(Status, Status::" ");
-                    SetRange("Bank Account No.", '');
-                    if Count > 0 then
-                        if Confirm(Text008, true) then begin
-                            if FindSet() then
-                                repeat
-                                    Validate("Bank Account No.", BankNo);
-                                    Modify();
-                                until Next() = 0;
-                        end;
-                end;
+                DomJnlLine.Reset();
+                DomJnlLine.CopyFilters("Domiciliation Journal Line");
+                DomJnlLine.SetRange(Status, DomJnlLine.Status::" ");
+                DomJnlLine.SetRange("Bank Account No.", '');
+                if DomJnlLine.Count > 0 then
+                    if Confirm(Text008, true) then
+                        if DomJnlLine.FindSet() then
+                            repeat
+                                DomJnlLine.Validate("Bank Account No.", BankNo);
+                                DomJnlLine.Modify();
+                            until DomJnlLine.Next() = 0;
 
                 // test before filter on OGM
                 if Count = 0 then
@@ -94,14 +90,13 @@ report 2000021 "File Domiciliations"
                 if PivotDate <> 0D then begin
                     ModifyAll("Posting Date", PivotDate);
                     SetRange("Posting Date", PivotDate)
-                end else
-                    with DomJnlLine do begin
-                        Reset();
-                        CopyFilters("Domiciliation Journal Line");
-                        FindFirst();
-                        if Count <> "Domiciliation Journal Line".Count then
-                            Error(Text010);
-                    end;
+                end else begin
+                    DomJnlLine.Reset();
+                    DomJnlLine.CopyFilters("Domiciliation Journal Line");
+                    DomJnlLine.FindFirst();
+                    if DomJnlLine.Count <> "Domiciliation Journal Line".Count then
+                        Error(Text010);
+                end;
 
                 Clear(xFile);
                 xFile.TextMode := true;
@@ -115,7 +110,7 @@ report 2000021 "File Domiciliations"
                     VersionCode := '2';
                     AmtFactor := 1
                 end;
-                WriteHeaderRecord;
+                WriteHeaderRecord();
             end;
         }
         dataitem(Docket; "Integer")
@@ -264,7 +259,7 @@ report 2000021 "File Domiciliations"
 
             trigger OnAfterGetRecord()
             begin
-                WriteTrailerRecord;
+                WriteTrailerRecord();
                 xFile.Close();
                 FormatAddress.Company(CompanyAddress, CompanyInfo);
 
@@ -293,7 +288,7 @@ report 2000021 "File Domiciliations"
                 DomJnlLine.SetCurrentKey("Customer No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
                 DomJnlLine.SetRange(Status, DomJnlLine.Status::Processed);
                 if DomJnlLine.FindSet() then begin
-                    DocumentNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", DomJnlLine."Posting Date", false);
+                    DocumentNo := NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series", DomJnlLine."Posting Date");
                     repeat
                         SetGenJnlLine(DomJnlLine);
                         DomJnlLine.Status := DomJnlLine.Status::Posted;
@@ -445,34 +440,30 @@ report 2000021 "File Domiciliations"
     begin
         // Preliminary Checks
         EnterpriseNo := '';
-        with CompanyInfo do begin
-            Get();
-            if "Enterprise No." = '' then
-                EnterpriseNo := '00000000000'
-            else begin
-                if not EnterpriseNoCheck.MOD97Check("Enterprise No.") then
-                    Error(Text000);
-                EnterpriseNo := '0' + PaymJnlManagement.ConvertToDigit("Enterprise No.", MaxStrLen(EnterpriseNo));
-            end;
+        CompanyInfo.Get();
+        if CompanyInfo."Enterprise No." = '' then
+            EnterpriseNo := '00000000000'
+        else begin
+            if not EnterpriseNoCheck.MOD97Check(CompanyInfo."Enterprise No.") then
+                Error(Text000);
+            EnterpriseNo := '0' + PaymJnlManagement.ConvertToDigit(CompanyInfo."Enterprise No.", MaxStrLen(EnterpriseNo));
         end;
         // Check General Journal
-        with GenJnlBatch do begin
-            Reset();
-            if not Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name") then
-                Error(Text001, GenJnlLine.FieldCaption("Journal Batch Name"));
+        GenJnlBatch.Reset();
+        if not GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name") then
+            Error(Text001, GenJnlLine.FieldCaption("Journal Batch Name"));
 
-            if not ("Bal. Account Type" = "Bal. Account Type"::"G/L Account") then
-                Error(Text002, Name);
+        if not (GenJnlBatch."Bal. Account Type" = GenJnlBatch."Bal. Account Type"::"G/L Account") then
+            Error(Text002, GenJnlBatch.Name);
 
-            if "Bal. Account No." = '' then
-                Error(Text003, Name);
+        if GenJnlBatch."Bal. Account No." = '' then
+            Error(Text003, GenJnlBatch.Name);
 
-            if not GLAcc.Get("Bal. Account No.") then
-                Error(Text004, "Bal. Account No.");
+        if not GLAcc.Get(GenJnlBatch."Bal. Account No.") then
+            Error(Text004, GenJnlBatch."Bal. Account No.");
 
-            if not (GLAcc."Account Type" = GLAcc."Account Type"::Posting) then
-                Error(Text005, GLAcc."No.");
-        end;
+        if not (GLAcc."Account Type" = GLAcc."Account Type"::Posting) then
+            Error(Text005, GLAcc."No.");
 
         if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Desktop, CLIENTTYPE::Windows]) then
             FullFileName := RBMgt.GetFileName(FileName)
@@ -513,7 +504,7 @@ report 2000021 "File Domiciliations"
         DomJnlManagement: Codeunit DomiciliationJnlManagement;
         FormatAddress: Codeunit "Format Address";
         EnterpriseNoCheck: Codeunit VATLogicalTests;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         RBMgt: Codeunit "File Management";
         ClientTypeManagement: Codeunit "Client Type Management";
         xFile: File;
@@ -572,18 +563,16 @@ report 2000021 "File Domiciliations"
     [Scope('OnPrem')]
     procedure FillCustomerData(DomicJnlLine: Record "Domiciliation Journal Line")
     begin
-        if Cust."No." <> DomicJnlLine."Customer No." then
-            with Cust do begin
-                Get(DomicJnlLine."Customer No.");
-                DomiciliationNo := "Domiciliation No.";
-            end;
+        if Cust."No." <> DomicJnlLine."Customer No." then begin
+            Cust.Get(DomicJnlLine."Customer No.");
+            DomiciliationNo := Cust."Domiciliation No.";
+        end;
     end;
 
     [Scope('OnPrem')]
     procedure WriteHeaderRecord()
     begin
-        with xFile do
-            Write(
+        xFile.Write(
               '00000' + // header record
               Format(Today, 6, '<day,2><month,2><year,2>') +
               Format(BankAcc."Bank Branch No.", 3) +
@@ -607,8 +596,7 @@ report 2000021 "File Domiciliations"
 
             DomiciliationNoText := PaymJnlManagement.ConvertToDigit(DomiciliationNo, 12);
             Reference := PaymJnlManagement.ConvertToDigit("Domiciliation Journal Line".Reference, 12);
-            with xFile do
-                Write(
+            xFile.Write(
                   '1' +
                   PaymJnlManagement.DecimalNumeralZeroFormat(LineCounter, 4) +
                   Format(DomiciliationNo, 12) +
@@ -639,8 +627,7 @@ report 2000021 "File Domiciliations"
     [Scope('OnPrem')]
     procedure WriteTrailerRecord()
     begin
-        with xFile do
-            Write(
+        xFile.Write(
               '9' +
               PaymJnlManagement.DecimalNumeralZeroFormat(RecordCounter[1], 4) +
               PaymJnlManagement.DecimalNumeralZeroFormat(TotalAmount[1] * AmtFactor, 12) +
@@ -664,51 +651,49 @@ report 2000021 "File Domiciliations"
     begin
         if DomicJnlLine."Pmt. Disc. Possible" <> 0 then
             DomJnlManagement.ModifyPmtDiscDueDate(DomicJnlLine);
-        with GenJnlLine do begin
-            Init();
-            "Journal Template Name" := GenJnlBatch."Journal Template Name";
-            "Journal Batch Name" := GenJnlBatch.Name;
-            "Line No." := LastGenJnlLine."Line No." + 10000;
-            "Document No." := DocumentNo;
-            "Posting Date" := DomicJnlLine."Posting Date";
-            "Document Date" := DomicJnlLine."Posting Date";
-            Validate(Amount, DomicJnlLine.Amount);
-            if DomicJnlLine."Message 1" <> '' then
-                Description := DomicJnlLine."Message 1";
-            "Reason Code" := DomicJnlLine."Reason Code";
-            "Source Code" := DomicJnlLine."Source Code";
-            "Source No." := DomicJnlLine."Customer No.";
+        GenJnlLine.Init();
+        GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
+        GenJnlLine."Line No." := LastGenJnlLine."Line No." + 10000;
+        GenJnlLine."Document No." := DocumentNo;
+        GenJnlLine."Posting Date" := DomicJnlLine."Posting Date";
+        GenJnlLine."Document Date" := DomicJnlLine."Posting Date";
+        GenJnlLine.Validate(Amount, DomicJnlLine.Amount);
+        if DomicJnlLine."Message 1" <> '' then
+            GenJnlLine.Description := DomicJnlLine."Message 1";
+        GenJnlLine."Reason Code" := DomicJnlLine."Reason Code";
+        GenJnlLine."Source Code" := DomicJnlLine."Source Code";
+        GenJnlLine."Source No." := DomicJnlLine."Customer No.";
 
-            if DomicJnlLine."Applies-to Doc. Type" = DomJnlLine."Applies-to Doc. Type"::" " then begin
-                Validate("Account Type", "Account Type"::"G/L Account");
-                Validate("Account No.", DomicJnlLine."Customer No.");
-                if Amount > 0 then
-                    "Document Type" := "Document Type"::Payment
-                else
-                    "Document Type" := "Document Type"::Refund;
-                "Source No." := DomicJnlLine."Customer No.";
-                Insert();
-            end else begin
-                Cust.Get(DomicJnlLine."Customer No.");
-                "Account Type" := "Account Type"::Customer;
-                "Account No." := DomicJnlLine."Customer No.";
-                if DomicJnlLine.Amount < 0 then
-                    "Document Type" := "Document Type"::Payment
-                else
-                    "Document Type" := "Document Type"::Refund;
-                "Applies-to Doc. Type" := DomicJnlLine."Applies-to Doc. Type";
-                "Applies-to Doc. No." := DomicJnlLine."Applies-to Doc. No.";
-                "Currency Code" := DomicJnlLine."Currency Code";
-                "Currency Factor" := DomicJnlLine."Currency Factor";
-                "Bill-to/Pay-to No." := DomicJnlLine."Customer No.";
-                "Posting Group" := Cust."Customer Posting Group";
-                "Salespers./Purch. Code" := Cust."Salesperson Code";
-                "Source Type" := "Source Type"::Customer;
-                "Dimension Set ID" := DomicJnlLine."Dimension Set ID";
-                Insert();
-            end;
-            LastGenJnlLine := GenJnlLine;
+        if DomicJnlLine."Applies-to Doc. Type" = DomJnlLine."Applies-to Doc. Type"::" " then begin
+            GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::"G/L Account");
+            GenJnlLine.Validate("Account No.", DomicJnlLine."Customer No.");
+            if GenJnlLine.Amount > 0 then
+                GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment
+            else
+                GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
+            GenJnlLine."Source No." := DomicJnlLine."Customer No.";
+            GenJnlLine.Insert();
+        end else begin
+            Cust.Get(DomicJnlLine."Customer No.");
+            GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
+            GenJnlLine."Account No." := DomicJnlLine."Customer No.";
+            if DomicJnlLine.Amount < 0 then
+                GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment
+            else
+                GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
+            GenJnlLine."Applies-to Doc. Type" := DomicJnlLine."Applies-to Doc. Type";
+            GenJnlLine."Applies-to Doc. No." := DomicJnlLine."Applies-to Doc. No.";
+            GenJnlLine."Currency Code" := DomicJnlLine."Currency Code";
+            GenJnlLine."Currency Factor" := DomicJnlLine."Currency Factor";
+            GenJnlLine."Bill-to/Pay-to No." := DomicJnlLine."Customer No.";
+            GenJnlLine."Posting Group" := Cust."Customer Posting Group";
+            GenJnlLine."Salespers./Purch. Code" := Cust."Salesperson Code";
+            GenJnlLine."Source Type" := GenJnlLine."Source Type"::Customer;
+            GenJnlLine."Dimension Set ID" := DomicJnlLine."Dimension Set ID";
+            GenJnlLine.Insert();
         end;
+        LastGenJnlLine := GenJnlLine;
     end;
 
     [Scope('OnPrem')]

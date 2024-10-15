@@ -18,6 +18,7 @@ table 2000041 "CODA Statement Line"
 {
     Caption = 'CODA Statement Line';
     DrillDownPageID = "CODA Statement Info";
+    DataClassification = CustomerContent;
 
     fields
     {

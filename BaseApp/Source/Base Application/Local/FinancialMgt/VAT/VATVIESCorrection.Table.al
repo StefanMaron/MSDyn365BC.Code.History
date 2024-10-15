@@ -13,6 +13,7 @@ using Microsoft.Sales.Customer;
 table 11300 "VAT VIES Correction"
 {
     Caption = 'VAT VIES Correction';
+    DataClassification = CustomerContent;
 
     fields
     {

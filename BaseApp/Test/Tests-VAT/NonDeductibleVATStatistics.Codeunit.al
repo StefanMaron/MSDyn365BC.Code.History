@@ -265,7 +265,6 @@ codeunit 134287 "Non-Deductible VAT Statistics"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         VATEntry: Record "VAT Entry";
-        GLEntry: Record "G/L Entry";
         GeneralPostingSetup: Record "General Posting Setup";
         PurchaseInvoicePage: TestPage "Purchase Invoice";
         MaxVATDifference: Decimal;
@@ -326,7 +325,6 @@ codeunit 134287 "Non-Deductible VAT Statistics"
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        OriginalPurchaseLine: Record "Purchase Line";
         PurchaseOrderPage: TestPage "Purchase Order";
         LineCount: Integer;
         MaxVATDifference: Decimal;
@@ -525,7 +523,6 @@ codeunit 134287 "Non-Deductible VAT Statistics"
         PurchaseInvoicePage: TestPage "Purchase Invoice";
         MaxVATDifference: Decimal;
         VATAmount: Decimal;
-        NonDeductibleVATAmount: Decimal;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 456471] Non-Deductible VAT Amount is changed in statistics when Stan changes the VAT amount in case if "Non-Deductible VAT %" is 100

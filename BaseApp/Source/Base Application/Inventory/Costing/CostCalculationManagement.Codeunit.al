@@ -51,8 +51,12 @@ codeunit 5836 "Cost Calculation Management"
 #if not CLEAN23
     [Obsolete('Replaced by procedure CalcRoutingCostPerUnit()', '23.0')]
     procedure RoutingCostPerUnit(Type: Enum "Capacity Type"; No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit)
+    var
+        UnitCostCalculationTypeEnum: Enum "Unit Cost Calculation Type";
     begin
-        CalcRoutingCostPerUnit(Type, No, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation);
+        UnitCostCalculationTypeEnum := "Unit Cost Calculation Type".FromInteger(UnitCostCalculation);
+        CalcRoutingCostPerUnit(Type, No, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculationTypeEnum);
+        UnitCostCalculation := UnitCostCalculationTypeEnum.AsInteger();
     end;
 #endif
 
@@ -74,6 +78,7 @@ codeunit 5836 "Cost Calculation Management"
     [Obsolete('Replaced by procedure CalcRoutingCostPerUnit()', '23.0')]
     procedure RoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
     var
+        UnitCostCalculationTypeEnum: Enum "Unit Cost Calculation Type";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -81,12 +86,17 @@ codeunit 5836 "Cost Calculation Management"
         if IsHandled then
             exit;
 
-        CalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
+        UnitCostCalculationTypeEnum := "Unit Cost Calculation Type".FromInteger(UnitCostCalculation);
+        CalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculationTypeEnum, WorkCenter, MachineCenter);
+        UnitCostCalculation := UnitCostCalculationTypeEnum.AsInteger();
     end;
 #endif
 
     procedure CalcRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
     var
+#if not CLEAN23
+        UnitCostCalculationOption: Option;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -118,7 +128,9 @@ codeunit 5836 "Cost Calculation Management"
                 end;
         end;
 #if not CLEAN23
-        OnAfterRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
+        UnitCostCalculationOption := UnitCostCalculation.AsInteger();
+        OnAfterRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculationOption, WorkCenter, MachineCenter);
+        UnitCostCalculation := "Unit Cost Calculation Type".FromInteger(UnitCostCalculationOption);
 #endif
         OnAfterCalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
     end;
@@ -127,18 +139,16 @@ codeunit 5836 "Cost Calculation Management"
     var
         Qty: Decimal;
     begin
-        with ProdOrderLine do begin
-            SetCurrentKey(Status, "Prod. Order No.", "Routing No.", "Routing Reference No.");
-            SetRange(Status, Status);
-            SetRange("Prod. Order No.", "Prod. Order No.");
-            SetRange("Routing Reference No.", "Routing Reference No.");
-            SetRange("Routing No.", "Routing No.");
-            ShareOfTotalCapCost := 0;
-            Qty := Quantity;
-            CalcSums(Quantity);
-            if Quantity <> 0 then
-                ShareOfTotalCapCost := Qty / Quantity;
-        end;
+        ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.", "Routing No.", "Routing Reference No.");
+        ProdOrderLine.SetRange(Status, ProdOrderLine.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+        ProdOrderLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+        ShareOfTotalCapCost := 0;
+        Qty := ProdOrderLine.Quantity;
+        ProdOrderLine.CalcSums(Quantity);
+        if ProdOrderLine.Quantity <> 0 then
+            ShareOfTotalCapCost := Qty / ProdOrderLine.Quantity;
 
         OnAfterCalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
     end;
@@ -150,40 +160,38 @@ codeunit 5836 "Cost Calculation Management"
         QtyBase: Decimal;
         IsHandled: Boolean;
     begin
-        with ProdOrderLine do begin
-            if InvtAdjmtEntryOrder.Get(InvtAdjmtEntryOrder."Order Type"::Production, "Prod. Order No.", "Line No.") and
-               InvtAdjmtEntryOrder."Completely Invoiced"
-            then begin
-                Item."Single-Level Material Cost" := InvtAdjmtEntryOrder."Single-Level Material Cost";
-                Item."Single-Level Capacity Cost" := InvtAdjmtEntryOrder."Single-Level Capacity Cost";
-                Item."Single-Level Subcontrd. Cost" := InvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
-                Item."Single-Level Cap. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
-                Item."Single-Level Mfg. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
-                OnCalcProdOrderLineStdCostOnAfterCalcSingleLevelCost(Item, InvtAdjmtEntryOrder);
-                QtyBase := "Finished Qty. (Base)";
-            end else begin
-                Item.Get("Item No.");
-                QtyBase := "Quantity (Base)";
-            end;
-
-            IsHandled := false;
-            OnBeforeCalcProdOrderLineStdCost(
-              ProdOrderLine, QtyBase, CurrencyFactor, RndgPrec,
-              StdMatCost, StdCapDirCost, StdSubDirCost, StdCapOvhdCost, StdMfgOvhdCost, IsHandled);
-            if IsHandled then
-                exit;
-
-            StdMatCost := StdMatCost +
-              Round(QtyBase * Item."Single-Level Material Cost" * CurrencyFactor, RndgPrec);
-            StdCapDirCost := StdCapDirCost +
-              Round(QtyBase * Item."Single-Level Capacity Cost" * CurrencyFactor, RndgPrec);
-            StdSubDirCost := StdSubDirCost +
-              Round(QtyBase * Item."Single-Level Subcontrd. Cost" * CurrencyFactor, RndgPrec);
-            StdCapOvhdCost := StdCapOvhdCost +
-              Round(QtyBase * Item."Single-Level Cap. Ovhd Cost" * CurrencyFactor, RndgPrec);
-            StdMfgOvhdCost := StdMfgOvhdCost +
-              Round(QtyBase * Item."Single-Level Mfg. Ovhd Cost" * CurrencyFactor, RndgPrec);
+        if InvtAdjmtEntryOrder.Get(InvtAdjmtEntryOrder."Order Type"::Production, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.") and
+           InvtAdjmtEntryOrder."Completely Invoiced"
+        then begin
+            Item."Single-Level Material Cost" := InvtAdjmtEntryOrder."Single-Level Material Cost";
+            Item."Single-Level Capacity Cost" := InvtAdjmtEntryOrder."Single-Level Capacity Cost";
+            Item."Single-Level Subcontrd. Cost" := InvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
+            Item."Single-Level Cap. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
+            Item."Single-Level Mfg. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
+            OnCalcProdOrderLineStdCostOnAfterCalcSingleLevelCost(Item, InvtAdjmtEntryOrder);
+            QtyBase := ProdOrderLine."Finished Qty. (Base)";
+        end else begin
+            Item.Get(ProdOrderLine."Item No.");
+            QtyBase := ProdOrderLine."Quantity (Base)";
         end;
+
+        IsHandled := false;
+        OnBeforeCalcProdOrderLineStdCost(
+          ProdOrderLine, QtyBase, CurrencyFactor, RndgPrec,
+          StdMatCost, StdCapDirCost, StdSubDirCost, StdCapOvhdCost, StdMfgOvhdCost, IsHandled);
+        if IsHandled then
+            exit;
+
+        StdMatCost := StdMatCost +
+          Round(QtyBase * Item."Single-Level Material Cost" * CurrencyFactor, RndgPrec);
+        StdCapDirCost := StdCapDirCost +
+          Round(QtyBase * Item."Single-Level Capacity Cost" * CurrencyFactor, RndgPrec);
+        StdSubDirCost := StdSubDirCost +
+          Round(QtyBase * Item."Single-Level Subcontrd. Cost" * CurrencyFactor, RndgPrec);
+        StdCapOvhdCost := StdCapOvhdCost +
+          Round(QtyBase * Item."Single-Level Cap. Ovhd Cost" * CurrencyFactor, RndgPrec);
+        StdMfgOvhdCost := StdMfgOvhdCost +
+          Round(QtyBase * Item."Single-Level Mfg. Ovhd Cost" * CurrencyFactor, RndgPrec);
     end;
 
     procedure CalcProdOrderLineExpCost(ProdOrderLine: Record "Prod. Order Line"; ShareOfTotalCapCost: Decimal; var ExpMatCost: Decimal; var ExpCapDirCost: Decimal; var ExpSubDirCost: Decimal; var ExpCapOvhdCost: Decimal; var ExpMfgOvhdCost: Decimal)
@@ -198,49 +206,47 @@ codeunit 5836 "Cost Calculation Management"
         ExpCapOvhdCostRtng: Decimal;
         ExpOvhdCost: Decimal;
     begin
-        with ProdOrderLine do begin
-            ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.");
-            ProdOrderComp.SetRange(Status, Status);
-            ProdOrderComp.SetRange("Prod. Order No.", "Prod. Order No.");
-            ProdOrderComp.SetRange("Prod. Order Line No.", "Line No.");
-            OnCalcProdOrderLineExpCostOnAfterProdOrderCompSetFilters(ProdOrderComp, ProdOrderLine);
-            if ProdOrderComp.Find('-') then
-                repeat
-                    ExpMatCost := ExpMatCost + ProdOrderComp."Cost Amount";
-                until ProdOrderComp.Next() = 0;
+        ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.");
+        ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
+        ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        OnCalcProdOrderLineExpCostOnAfterProdOrderCompSetFilters(ProdOrderComp, ProdOrderLine);
+        if ProdOrderComp.Find('-') then
+            repeat
+                ExpMatCost := ExpMatCost + ProdOrderComp."Cost Amount";
+            until ProdOrderComp.Next() = 0;
 
-            ProdOrderRtngLine.SetRange(Status, Status);
-            ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
-            ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
-            ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.");
-            OnCalcProdOrderLineExpCostOnAfterProdOrderRtngLineSetFilters(ProdOrderRtngLine, ProdOrderLine);
-            if ProdOrderRtngLine.Find('-') then
-                repeat
-                    ExpOperCost :=
-                      ProdOrderRtngLine."Expected Operation Cost Amt." -
-                      ProdOrderRtngLine."Expected Capacity Ovhd. Cost";
-                    OnCalcProdOrderLineExpCostOnExpOperCostCalculated(ExpOperCost, ProdOrderRtngLine);
-                    if ProdOrderRtngLine.Type = ProdOrderRtngLine.Type::"Work Center" then begin
-                        if not WorkCenter.Get(ProdOrderRtngLine."No.") then
-                            Clear(WorkCenter);
-                    end else
+        ProdOrderRtngLine.SetRange(Status, ProdOrderLine.Status);
+        ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+        ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+        OnCalcProdOrderLineExpCostOnAfterProdOrderRtngLineSetFilters(ProdOrderRtngLine, ProdOrderLine);
+        if ProdOrderRtngLine.Find('-') then
+            repeat
+                ExpOperCost :=
+                  ProdOrderRtngLine."Expected Operation Cost Amt." -
+                  ProdOrderRtngLine."Expected Capacity Ovhd. Cost";
+                OnCalcProdOrderLineExpCostOnExpOperCostCalculated(ExpOperCost, ProdOrderRtngLine);
+                if ProdOrderRtngLine.Type = ProdOrderRtngLine.Type::"Work Center" then begin
+                    if not WorkCenter.Get(ProdOrderRtngLine."No.") then
                         Clear(WorkCenter);
+                end else
+                    Clear(WorkCenter);
 
-                    if WorkCenter."Subcontractor No." <> '' then
-                        ExpSubDirCostRtng := ExpSubDirCostRtng + ExpOperCost
-                    else
-                        ExpCapDirCostRtng := ExpCapDirCostRtng + ExpOperCost;
-                    ExpCapOvhdCostRtng := ExpCapOvhdCostRtng + ProdOrderRtngLine."Expected Capacity Ovhd. Cost";
-                until ProdOrderRtngLine.Next() = 0;
+                if WorkCenter."Subcontractor No." <> '' then
+                    ExpSubDirCostRtng := ExpSubDirCostRtng + ExpOperCost
+                else
+                    ExpCapDirCostRtng := ExpCapDirCostRtng + ExpOperCost;
+                ExpCapOvhdCostRtng := ExpCapOvhdCostRtng + ProdOrderRtngLine."Expected Capacity Ovhd. Cost";
+            until ProdOrderRtngLine.Next() = 0;
 
-            ExpCapDirCost := ExpCapDirCost + Round(ExpCapDirCostRtng * ShareOfTotalCapCost);
-            ExpSubDirCost := ExpSubDirCost + Round(ExpSubDirCostRtng * ShareOfTotalCapCost);
-            ExpCapOvhdCost := ExpCapOvhdCost + Round(ExpCapOvhdCostRtng * ShareOfTotalCapCost);
-            ExpMfgDirCost := ExpMatCost + ExpCapDirCost + ExpSubDirCost + ExpCapOvhdCost;
-            ExpOvhdCost := ExpOvhdCost + "Overhead Rate" * "Quantity (Base)";
-            ExpMfgOvhdCost := ExpOvhdCost +
-              Round(CalcOvhdCost(ExpMfgDirCost, "Indirect Cost %", 0, 0));
-        end;
+        ExpCapDirCost := ExpCapDirCost + Round(ExpCapDirCostRtng * ShareOfTotalCapCost);
+        ExpSubDirCost := ExpSubDirCost + Round(ExpSubDirCostRtng * ShareOfTotalCapCost);
+        ExpCapOvhdCost := ExpCapOvhdCost + Round(ExpCapOvhdCostRtng * ShareOfTotalCapCost);
+        ExpMfgDirCost := ExpMatCost + ExpCapDirCost + ExpSubDirCost + ExpCapOvhdCost;
+        ExpOvhdCost := ExpOvhdCost + ProdOrderLine."Overhead Rate" * ProdOrderLine."Quantity (Base)";
+        ExpMfgOvhdCost := ExpOvhdCost +
+          Round(CalcOvhdCost(ExpMfgDirCost, ProdOrderLine."Indirect Cost %", 0, 0));
 
         OnAfterCalcProdOrderLineExpCost(ProdOrderLine, ShareOfTotalCapCost, ExpMatCost, ExpCapDirCost, ExpSubDirCost, ExpCapOvhdCost, ExpMfgOvhdCost);
     end;
@@ -267,22 +273,20 @@ codeunit 5836 "Cost Calculation Management"
 
         OnCalcProdOrderLineActCostOnBeforeSetProdOrderLine(ProdOrderLine, ActMatCost, ActCapDirCost, ActSubDirCost, ActCapOvhdCost, ActMfgOvhdCost, ActMatCostCostACY, ActCapDirCostACY, ActSubDirCostACY, ActCapOvhdCostACY, ActMfgOvhdCostACY);
 
-        with TempSourceInvtAdjmtEntryOrder do begin
-            SetProdOrderLine(ProdOrderLine);
-            OutputQty := CalcInvtAdjmtOrder.CalcOutputQty(TempSourceInvtAdjmtEntryOrder, false);
-            CalcInvtAdjmtOrder.CalcActualUsageCosts(TempSourceInvtAdjmtEntryOrder, OutputQty, TempSourceInvtAdjmtEntryOrder);
+        TempSourceInvtAdjmtEntryOrder.SetProdOrderLine(ProdOrderLine);
+        OutputQty := CalcInvtAdjmtOrder.CalcOutputQty(TempSourceInvtAdjmtEntryOrder, false);
+        CalcInvtAdjmtOrder.CalcActualUsageCosts(TempSourceInvtAdjmtEntryOrder, OutputQty, TempSourceInvtAdjmtEntryOrder);
 
-            ActMatCost += "Single-Level Material Cost";
-            ActCapDirCost += "Single-Level Capacity Cost";
-            ActSubDirCost += "Single-Level Subcontrd. Cost";
-            ActCapOvhdCost += "Single-Level Cap. Ovhd Cost";
-            ActMfgOvhdCost += "Single-Level Mfg. Ovhd Cost";
-            ActMatCostCostACY += "Single-Lvl Material Cost (ACY)";
-            ActCapDirCostACY += "Single-Lvl Capacity Cost (ACY)";
-            ActCapOvhdCostACY += "Single-Lvl Cap. Ovhd Cost(ACY)";
-            ActSubDirCostACY += "Single-Lvl Subcontrd Cost(ACY)";
-            ActMfgOvhdCostACY += "Single-Lvl Mfg. Ovhd Cost(ACY)";
-        end;
+        ActMatCost += TempSourceInvtAdjmtEntryOrder."Single-Level Material Cost";
+        ActCapDirCost += TempSourceInvtAdjmtEntryOrder."Single-Level Capacity Cost";
+        ActSubDirCost += TempSourceInvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
+        ActCapOvhdCost += TempSourceInvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
+        ActMfgOvhdCost += TempSourceInvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
+        ActMatCostCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)";
+        ActCapDirCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Capacity Cost (ACY)";
+        ActCapOvhdCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Cap. Ovhd Cost(ACY)";
+        ActSubDirCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Subcontrd Cost(ACY)";
+        ActMfgOvhdCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Mfg. Ovhd Cost(ACY)";
     end;
 
     procedure CalcProdOrderExpCapNeed(ProdOrder: Record "Production Order"; DrillDown: Boolean): Decimal
@@ -423,106 +427,94 @@ codeunit 5836 "Cost Calculation Management"
         if IsHandled then
             exit;
 
-        with PurchLine do begin
-            SetCurrentKey(
-              "Document Type", Type, "Prod. Order No.", "Prod. Order Line No.", "Routing No.", "Operation No.");
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange(Type, Type::Item);
-            SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-            SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-            SetRange("Routing No.", ProdOrderRtngLine."Routing No.");
-            SetRange("Operation No.", ProdOrderRtngLine."Operation No.");
-            if Find('-') then
-                repeat
-                    if Item."No." <> "No." then
-                        Item.Get("No.");
-                    OutstandingBaseQty :=
-                      OutstandingBaseQty +
-                      UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Outstanding Quantity";
-                until Next() = 0;
-            exit(OutstandingBaseQty);
-        end;
+        PurchLine.SetCurrentKey("Document Type", Type, "Prod. Order No.", "Prod. Order Line No.", "Routing No.", "Operation No.");
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+        PurchLine.SetRange(Type, PurchLine.Type::Item);
+        PurchLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        PurchLine.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        PurchLine.SetRange("Routing No.", ProdOrderRtngLine."Routing No.");
+        PurchLine.SetRange("Operation No.", ProdOrderRtngLine."Operation No.");
+        if PurchLine.Find('-') then
+            repeat
+                if Item."No." <> PurchLine."No." then
+                    Item.Get(PurchLine."No.");
+                OutstandingBaseQty :=
+                  OutstandingBaseQty +
+                  UOMMgt.GetQtyPerUnitOfMeasure(Item, PurchLine."Unit of Measure Code") * PurchLine."Outstanding Quantity";
+            until PurchLine.Next() = 0;
+        exit(OutstandingBaseQty);
     end;
 
     procedure CalcActOutputQtyBase(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
     var
         CapLedgEntry: Record "Capacity Ledger Entry";
     begin
-        with CapLedgEntry do begin
-            if ProdOrderLine.IsStatusLessThanReleased() then
-                exit(0);
+        if ProdOrderLine.IsStatusLessThanReleased() then
+            exit(0);
 
-            SetCurrentKey(
-              "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.");
-            SetFilterByProdOrderRoutingLine(
-              ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-              ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
-            SetRange("Operation No.", ProdOrderRtngLine."Operation No.");
-            OnCalcActOutputQtyBaseOnAfterSetFilters(CapLedgEntry, ProdOrderLine, ProdOrderRtngLine);
-            CalcSums("Output Quantity");
-            exit("Output Quantity");
-        end;
+        CapLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.");
+        CapLedgEntry.SetFilterByProdOrderRoutingLine(
+          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+          ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
+        CapLedgEntry.SetRange("Operation No.", ProdOrderRtngLine."Operation No.");
+        OnCalcActOutputQtyBaseOnAfterSetFilters(CapLedgEntry, ProdOrderLine, ProdOrderRtngLine);
+        CapLedgEntry.CalcSums("Output Quantity");
+        exit(CapLedgEntry."Output Quantity");
     end;
 
     procedure CalcActualOutputQtyWithNoCapacity(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
     var
         CapLedgEntry: Record "Capacity Ledger Entry";
     begin
-        with CapLedgEntry do begin
-            if ProdOrderLine.Status.AsInteger() < ProdOrderLine.Status::Released.AsInteger() then
-                exit(0);
+        if ProdOrderLine.Status.AsInteger() < ProdOrderLine.Status::Released.AsInteger() then
+            exit(0);
 
-            SetCurrentKey(
-              "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
-            SetFilterByProdOrderRoutingLine(
-              ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-              ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
-            SetRange("Last Output Line", true);
-            SetRange(Quantity, 0);
-            CalcSums("Output Quantity", "Scrap Quantity");
-            exit("Output Quantity" + "Scrap Quantity");
-        end;
+        CapLedgEntry.SetCurrentKey(
+          "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
+        CapLedgEntry.SetFilterByProdOrderRoutingLine(
+          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+          ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
+        CapLedgEntry.SetRange("Last Output Line", true);
+        CapLedgEntry.SetRange(Quantity, 0);
+        CapLedgEntry.CalcSums("Output Quantity", "Scrap Quantity");
+        exit(CapLedgEntry."Output Quantity" + CapLedgEntry."Scrap Quantity");
     end;
 
     procedure CalcActQtyBase(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
     var
         CapLedgEntry: Record "Capacity Ledger Entry";
     begin
-        with CapLedgEntry do begin
-            if ProdOrderLine.IsStatusLessThanReleased() then
-                exit(0);
+        if ProdOrderLine.IsStatusLessThanReleased() then
+            exit(0);
 
-            SetCurrentKey(
-              "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
-            SetFilterByProdOrderRoutingLine(
-              ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-              ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
-            SetRange("Last Output Line", true);
-            CalcSums(Quantity);
-            exit(Quantity / ProdOrderLine."Qty. per Unit of Measure");
-        end;
+        CapLedgEntry.SetCurrentKey(
+          CapLedgEntry."Order Type", CapLedgEntry."Order No.", CapLedgEntry."Order Line No.", CapLedgEntry."Routing No.", CapLedgEntry."Routing Reference No.", CapLedgEntry."Operation No.", CapLedgEntry."Last Output Line");
+        CapLedgEntry.SetFilterByProdOrderRoutingLine(
+          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+          ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
+        CapLedgEntry.SetRange("Last Output Line", true);
+        CapLedgEntry.CalcSums(CapLedgEntry.Quantity);
+        exit(CapLedgEntry.Quantity / ProdOrderLine."Qty. per Unit of Measure");
     end;
 
     procedure CalcActOperOutputAndScrap(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line") OutputQtyBase: Decimal
     var
         CapLedgEntry: Record "Capacity Ledger Entry";
     begin
-        with CapLedgEntry do begin
-            if ProdOrderLine.IsStatusLessThanReleased() then
-                exit(0);
+        if ProdOrderLine.IsStatusLessThanReleased() then
+            exit(0);
 
-            SetCurrentKey(
-              "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
-            SetFilterByProdOrderRoutingLine(
-              ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-              ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
-            SetRange("Last Output Line", true);
-            OnCalcActOperOutputAndScrapOnAfterFilterCapLedgEntry(CapLedgEntry);
-            CalcSums("Output Quantity", "Scrap Quantity");
-            OutputQtyBase := "Output Quantity" + "Scrap Quantity";
+        CapLedgEntry.SetCurrentKey(
+          "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
+        CapLedgEntry.SetFilterByProdOrderRoutingLine(
+          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+          ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
+        CapLedgEntry.SetRange("Last Output Line", true);
+        OnCalcActOperOutputAndScrapOnAfterFilterCapLedgEntry(CapLedgEntry);
+        CapLedgEntry.CalcSums("Output Quantity", "Scrap Quantity");
+        OutputQtyBase := CapLedgEntry."Output Quantity" + CapLedgEntry."Scrap Quantity";
 
-            exit(OutputQtyBase);
-        end;
+        exit(OutputQtyBase);
     end;
 
     procedure CalcActNeededQtyBase(ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; OutputQtyBase: Decimal) Result: Decimal
@@ -550,25 +542,21 @@ codeunit 5836 "Cost Calculation Management"
     var
         CapLedgEntry: Record "Capacity Ledger Entry";
     begin
-        with CapLedgEntry do begin
-            SetCurrentKey(
-              "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.",
-              "Operation No.", "Last Output Line");
-
-            SetFilterByProdOrderRoutingLine(
-              ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-              ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.");
-            SetRange("Operation No.", OperationNo);
-            OnCalcActTimeAndQtyBaseOnAfterFilterCapLedgEntry(CapLedgEntry);
-            if Find('-') then
-                repeat
-                    ActSetupTime += "Setup Time";
-                    ActRunTime += "Run Time";
-                    // Base Units
-                    ActOutputQty += "Output Quantity";
-                    ActScrapQty += "Scrap Quantity";
-                until Next() = 0;
-        end;
+        CapLedgEntry.SetCurrentKey(
+            "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
+        CapLedgEntry.SetFilterByProdOrderRoutingLine(
+          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+          ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.");
+        CapLedgEntry.SetRange("Operation No.", OperationNo);
+        OnCalcActTimeAndQtyBaseOnAfterFilterCapLedgEntry(CapLedgEntry);
+        if CapLedgEntry.Find('-') then
+            repeat
+                ActSetupTime += CapLedgEntry."Setup Time";
+                ActRunTime += CapLedgEntry."Run Time";
+                // Base Units
+                ActOutputQty += CapLedgEntry."Output Quantity";
+                ActScrapQty += CapLedgEntry."Scrap Quantity";
+            until CapLedgEntry.Next() = 0;
     end;
 
     procedure CalcCompItemQtyBase(ProdBOMComponent: Record "Production BOM Line"; CalculationDate: Date; MfgItemQtyBase: Decimal; RtngNo: Code[20]; AdjdForRtngScrap: Boolean): Decimal
@@ -580,24 +568,22 @@ codeunit 5836 "Cost Calculation Management"
         if IsHandled then
             exit(MfgItemQtyBase);
 
-        with ProdBOMComponent do begin
-            if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then
-                MfgItemQtyBase := Quantity * GetQtyPerUnitOfMeasure()
-            else begin
-                MfgItemQtyBase := CalcQtyAdjdForBOMScrap(MfgItemQtyBase, "Scrap %");
-                if AdjdForRtngScrap and FindRountingLine(RtngLine, ProdBOMComponent, CalculationDate, RtngNo) then
-                    MfgItemQtyBase := CalcQtyAdjdForRoutingScrap(MfgItemQtyBase, RtngLine."Scrap Factor % (Accumulated)", RtngLine."Fixed Scrap Qty. (Accum.)");
-                MfgItemQtyBase := MfgItemQtyBase * Quantity * GetQtyPerUnitOfMeasure();
-            end;
-            exit(MfgItemQtyBase);
+        if ProdBOMComponent."Calculation Formula" = ProdBOMComponent."Calculation Formula"::"Fixed Quantity" then
+            MfgItemQtyBase := ProdBOMComponent.Quantity * ProdBOMComponent.GetQtyPerUnitOfMeasure()
+        else begin
+            MfgItemQtyBase := CalcQtyAdjdForBOMScrap(MfgItemQtyBase, ProdBOMComponent."Scrap %");
+            if AdjdForRtngScrap and FindRountingLine(RtngLine, ProdBOMComponent, CalculationDate, RtngNo) then
+                MfgItemQtyBase := CalcQtyAdjdForRoutingScrap(MfgItemQtyBase, RtngLine."Scrap Factor % (Accumulated)", RtngLine."Fixed Scrap Qty. (Accum.)");
+            MfgItemQtyBase := MfgItemQtyBase * ProdBOMComponent.Quantity * ProdBOMComponent.GetQtyPerUnitOfMeasure();
         end;
+        exit(MfgItemQtyBase);
     end;
 
 #if not CLEAN23
     [Obsolete('Replaced by procedure CalculateCostTime()', '23.0')]
     procedure CalcCostTime(MfgItemQtyBase: Decimal; SetupTime: Decimal; SetupTimeUOMCode: Code[10]; RunTime: Decimal; RunTimeUOMCode: Code[10]; RtngLotSize: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; WorkCenterNo: Code[20]; UnitCostCalculation: Option Time,Unit; CostInclSetup: Boolean; ConcurrentCapacities: Decimal) CostTime: Decimal
     begin
-        exit(CalculateCostTime(MfgItemQtyBase, SetupTime, SetupTimeUOMCode, RunTime, RunTimeUOMCode, RtngLotSize, ScrapFactorPctAccum, FixedScrapQtyAccum, WorkCenterNo, UnitCostCalculation, CostInclSetup, ConcurrentCapacities));
+        exit(CalculateCostTime(MfgItemQtyBase, SetupTime, SetupTimeUOMCode, RunTime, RunTimeUOMCode, RtngLotSize, ScrapFactorPctAccum, FixedScrapQtyAccum, WorkCenterNo, "Unit Cost Calculation Type".FromInteger(UnitCostCalculation), CostInclSetup, ConcurrentCapacities));
     end;
 #endif
 
@@ -642,7 +628,7 @@ codeunit 5836 "Cost Calculation Management"
     var
         IsHandled: Boolean;
     begin
-        IsHandled := FALSE;
+        IsHandled := false;
         OnBeforeCalcQtyAdjdForBOMScrap(Qty, ScrapPct, QtyAdjdForBomScrap, IsHandled);
         if not IsHandled then
             exit(Qty * (1 + ScrapPct / 100));
@@ -652,7 +638,7 @@ codeunit 5836 "Cost Calculation Management"
     var
         IsHandled: Boolean;
     begin
-        IsHandled := FALSE;
+        IsHandled := false;
         OnBeforeCalcQtyAdjdForRoutingScrap(Qty, ScrapFactorPctAccum, FixedScrapQtyAccum, QtyAdjdForRoutingScrap, IsHandled);
         if not IsHandled then
             exit(Qty * (1 + ScrapFactorPctAccum) + FixedScrapQtyAccum);
@@ -749,20 +735,19 @@ codeunit 5836 "Cost Calculation Management"
 
     local procedure IsSameDocLineItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry"; ItemLedgEntry2: Record "Item Ledger Entry"; QtyBase: Decimal): Boolean
     begin
-        with ItemLedgEntry2 do
-            exit(
-              ("Document Type" = ItemLedgEntry."Document Type") and
-              ("Document No." = ItemLedgEntry."Document No.") and
-              ("Document Line No." = ItemLedgEntry."Document Line No.") and
-              ("Posting Date" = ItemLedgEntry."Posting Date") and
-              ("Source Type" = ItemLedgEntry."Source Type") and
-              ("Source No." = ItemLedgEntry."Source No.") and
-              ("Entry Type" = ItemLedgEntry."Entry Type") and
-              ("Item No." = ItemLedgEntry."Item No.") and
-              ("Location Code" = ItemLedgEntry."Location Code") and
-              ("Variant Code" = ItemLedgEntry."Variant Code") and
-              (QtyBase = Quantity + ItemLedgEntry.Quantity) and
-              (Quantity = "Invoiced Quantity"));
+        exit(
+              (ItemLedgEntry2."Document Type" = ItemLedgEntry."Document Type") and
+              (ItemLedgEntry2."Document No." = ItemLedgEntry."Document No.") and
+              (ItemLedgEntry2."Document Line No." = ItemLedgEntry."Document Line No.") and
+              (ItemLedgEntry2."Posting Date" = ItemLedgEntry."Posting Date") and
+              (ItemLedgEntry2."Source Type" = ItemLedgEntry."Source Type") and
+              (ItemLedgEntry2."Source No." = ItemLedgEntry."Source No.") and
+              (ItemLedgEntry2."Entry Type" = ItemLedgEntry."Entry Type") and
+              (ItemLedgEntry2."Item No." = ItemLedgEntry."Item No.") and
+              (ItemLedgEntry2."Location Code" = ItemLedgEntry."Location Code") and
+              (ItemLedgEntry2."Variant Code" = ItemLedgEntry."Variant Code") and
+              (QtyBase = ItemLedgEntry2.Quantity + ItemLedgEntry.Quantity) and
+              (ItemLedgEntry2.Quantity = ItemLedgEntry2."Invoiced Quantity"));
     end;
 
     procedure CalcSalesLineCostLCY(SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing) TotalAdjCostLCY: Decimal
@@ -791,58 +776,56 @@ codeunit 5836 "Cost Calculation Management"
         QtyShippedNotInvcdBase: Decimal;
         AdjCostLCY: Decimal;
     begin
-        with SalesShptLine do begin
-            if SalesLine."Shipment No." <> '' then begin
-                SetRange("Document No.", SalesLine."Shipment No.");
-                SetRange("Line No.", SalesLine."Shipment Line No.");
-            end else begin
-                SetCurrentKey("Order No.", "Order Line No.");
-                SetRange("Order No.", SalesLine."Document No.");
-                SetRange("Order Line No.", SalesLine."Line No.");
-            end;
-            SetRange(Correction, false);
-            if QtyType = QtyType::Invoicing then begin
-                SetFilter("Qty. Shipped Not Invoiced", '<>0');
-                RemQtyToCalcBase := SalesLine."Qty. to Invoice (Base)" - SalesLine."Qty. to Ship (Base)";
-            end else
-                RemQtyToCalcBase := SalesLine."Quantity (Base)";
-
-            if FindSet() then
-                repeat
-                    if "Qty. per Unit of Measure" = 0 then
-                        QtyShippedNotInvcdBase := "Qty. Shipped Not Invoiced"
-                    else
-                        QtyShippedNotInvcdBase :=
-                          Round("Qty. Shipped Not Invoiced" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-
-                    AdjCostLCY := CalcSalesShptLineCostLCY(SalesShptLine, QtyType);
-
-                    case true of
-                        QtyType = QtyType::Invoicing:
-                            if RemQtyToCalcBase > QtyShippedNotInvcdBase then begin
-                                TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
-                                RemQtyToCalcBase := RemQtyToCalcBase - QtyShippedNotInvcdBase;
-                                PostedQtyBase := PostedQtyBase + QtyShippedNotInvcdBase;
-                            end else begin
-                                PostedQtyBase := PostedQtyBase + RemQtyToCalcBase;
-                                TotalAdjCostLCY :=
-                                  TotalAdjCostLCY + AdjCostLCY / QtyShippedNotInvcdBase * RemQtyToCalcBase;
-                                RemQtyToCalcBase := 0;
-                            end;
-                        SalesLine."Shipment No." <> '':
-                            begin
-                                PostedQtyBase := PostedQtyBase + QtyShippedNotInvcdBase;
-                                TotalAdjCostLCY :=
-                                  TotalAdjCostLCY + AdjCostLCY / "Quantity (Base)" * RemQtyToCalcBase;
-                                RemQtyToCalcBase := 0;
-                            end;
-                        else begin
-                            PostedQtyBase := PostedQtyBase + "Quantity (Base)";
-                            TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
-                        end;
-                    end;
-                until (Next() = 0) or (RemQtyToCalcBase = 0);
+        if SalesLine."Shipment No." <> '' then begin
+            SalesShptLine.SetRange("Document No.", SalesLine."Shipment No.");
+            SalesShptLine.SetRange("Line No.", SalesLine."Shipment Line No.");
+        end else begin
+            SalesShptLine.SetCurrentKey("Order No.", "Order Line No.");
+            SalesShptLine.SetRange("Order No.", SalesLine."Document No.");
+            SalesShptLine.SetRange("Order Line No.", SalesLine."Line No.");
         end;
+        SalesShptLine.SetRange(Correction, false);
+        if QtyType = QtyType::Invoicing then begin
+            SalesShptLine.SetFilter(SalesShptLine."Qty. Shipped Not Invoiced", '<>0');
+            RemQtyToCalcBase := SalesLine."Qty. to Invoice (Base)" - SalesLine."Qty. to Ship (Base)";
+        end else
+            RemQtyToCalcBase := SalesLine."Quantity (Base)";
+
+        if SalesShptLine.FindSet() then
+            repeat
+                if SalesShptLine."Qty. per Unit of Measure" = 0 then
+                    QtyShippedNotInvcdBase := SalesShptLine."Qty. Shipped Not Invoiced"
+                else
+                    QtyShippedNotInvcdBase :=
+                      Round(SalesShptLine."Qty. Shipped Not Invoiced" * SalesShptLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+
+                AdjCostLCY := CalcSalesShptLineCostLCY(SalesShptLine, QtyType);
+
+                case true of
+                    QtyType = QtyType::Invoicing:
+                        if RemQtyToCalcBase > QtyShippedNotInvcdBase then begin
+                            TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
+                            RemQtyToCalcBase := RemQtyToCalcBase - QtyShippedNotInvcdBase;
+                            PostedQtyBase := PostedQtyBase + QtyShippedNotInvcdBase;
+                        end else begin
+                            PostedQtyBase := PostedQtyBase + RemQtyToCalcBase;
+                            TotalAdjCostLCY :=
+                              TotalAdjCostLCY + AdjCostLCY / QtyShippedNotInvcdBase * RemQtyToCalcBase;
+                            RemQtyToCalcBase := 0;
+                        end;
+                    SalesLine."Shipment No." <> '':
+                        begin
+                            PostedQtyBase := PostedQtyBase + QtyShippedNotInvcdBase;
+                            TotalAdjCostLCY :=
+                              TotalAdjCostLCY + AdjCostLCY / SalesShptLine."Quantity (Base)" * RemQtyToCalcBase;
+                            RemQtyToCalcBase := 0;
+                        end;
+                    else begin
+                        PostedQtyBase := PostedQtyBase + SalesShptLine."Quantity (Base)";
+                        TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
+                    end;
+                end;
+            until (SalesShptLine.Next() = 0) or (RemQtyToCalcBase = 0);
     end;
 
     local procedure CalcSalesLineRcptAdjCostLCY(SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing; var TotalAdjCostLCY: Decimal; var PostedQtyBase: Decimal; var RemQtyToCalcBase: Decimal)
@@ -852,59 +835,57 @@ codeunit 5836 "Cost Calculation Management"
         RtrnQtyRcvdNotInvcdBase: Decimal;
         AdjCostLCY: Decimal;
     begin
-        with ReturnRcptLine do begin
-            if SalesLine."Return Receipt No." <> '' then begin
-                SetRange("Document No.", SalesLine."Return Receipt No.");
-                SetRange("Line No.", SalesLine."Return Receipt Line No.");
-            end else begin
-                SetCurrentKey("Return Order No.", "Return Order Line No.");
-                SetRange("Return Order No.", SalesLine."Document No.");
-                SetRange("Return Order Line No.", SalesLine."Line No.");
-            end;
-            SetRange(Correction, false);
-            if QtyType = QtyType::Invoicing then begin
-                SetFilter("Return Qty. Rcd. Not Invd.", '<>0');
-                RemQtyToCalcBase :=
-                  SalesLine."Qty. to Invoice (Base)" - SalesLine."Return Qty. to Receive (Base)";
-            end else
-                RemQtyToCalcBase := SalesLine."Quantity (Base)";
-
-            if FindSet() then
-                repeat
-                    if "Qty. per Unit of Measure" = 0 then
-                        RtrnQtyRcvdNotInvcdBase := "Return Qty. Rcd. Not Invd."
-                    else
-                        RtrnQtyRcvdNotInvcdBase :=
-                          Round("Return Qty. Rcd. Not Invd." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-
-                    AdjCostLCY := CalcReturnRcptLineCostLCY(ReturnRcptLine, QtyType);
-
-                    case true of
-                        QtyType = QtyType::Invoicing:
-                            if RemQtyToCalcBase > RtrnQtyRcvdNotInvcdBase then begin
-                                TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
-                                RemQtyToCalcBase := RemQtyToCalcBase - RtrnQtyRcvdNotInvcdBase;
-                                PostedQtyBase := PostedQtyBase + RtrnQtyRcvdNotInvcdBase;
-                            end else begin
-                                PostedQtyBase := PostedQtyBase + RemQtyToCalcBase;
-                                TotalAdjCostLCY :=
-                                  TotalAdjCostLCY + AdjCostLCY / RtrnQtyRcvdNotInvcdBase * RemQtyToCalcBase;
-                                RemQtyToCalcBase := 0;
-                            end;
-                        SalesLine."Return Receipt No." <> '':
-                            begin
-                                PostedQtyBase := PostedQtyBase + RtrnQtyRcvdNotInvcdBase;
-                                TotalAdjCostLCY :=
-                                  TotalAdjCostLCY + AdjCostLCY / "Quantity (Base)" * RemQtyToCalcBase;
-                                RemQtyToCalcBase := 0;
-                            end;
-                        else begin
-                            PostedQtyBase := PostedQtyBase + "Quantity (Base)";
-                            TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
-                        end;
-                    end;
-                until (Next() = 0) or (RemQtyToCalcBase = 0);
+        if SalesLine."Return Receipt No." <> '' then begin
+            ReturnRcptLine.SetRange("Document No.", SalesLine."Return Receipt No.");
+            ReturnRcptLine.SetRange("Line No.", SalesLine."Return Receipt Line No.");
+        end else begin
+            ReturnRcptLine.SetCurrentKey("Return Order No.", "Return Order Line No.");
+            ReturnRcptLine.SetRange("Return Order No.", SalesLine."Document No.");
+            ReturnRcptLine.SetRange("Return Order Line No.", SalesLine."Line No.");
         end;
+        ReturnRcptLine.SetRange(Correction, false);
+        if QtyType = QtyType::Invoicing then begin
+            ReturnRcptLine.SetFilter(ReturnRcptLine."Return Qty. Rcd. Not Invd.", '<>0');
+            RemQtyToCalcBase :=
+              SalesLine."Qty. to Invoice (Base)" - SalesLine."Return Qty. to Receive (Base)";
+        end else
+            RemQtyToCalcBase := SalesLine."Quantity (Base)";
+
+        if ReturnRcptLine.FindSet() then
+            repeat
+                if ReturnRcptLine."Qty. per Unit of Measure" = 0 then
+                    RtrnQtyRcvdNotInvcdBase := ReturnRcptLine."Return Qty. Rcd. Not Invd."
+                else
+                    RtrnQtyRcvdNotInvcdBase :=
+                      Round(ReturnRcptLine."Return Qty. Rcd. Not Invd." * ReturnRcptLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+
+                AdjCostLCY := CalcReturnRcptLineCostLCY(ReturnRcptLine, QtyType);
+
+                case true of
+                    QtyType = QtyType::Invoicing:
+                        if RemQtyToCalcBase > RtrnQtyRcvdNotInvcdBase then begin
+                            TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
+                            RemQtyToCalcBase := RemQtyToCalcBase - RtrnQtyRcvdNotInvcdBase;
+                            PostedQtyBase := PostedQtyBase + RtrnQtyRcvdNotInvcdBase;
+                        end else begin
+                            PostedQtyBase := PostedQtyBase + RemQtyToCalcBase;
+                            TotalAdjCostLCY :=
+                              TotalAdjCostLCY + AdjCostLCY / RtrnQtyRcvdNotInvcdBase * RemQtyToCalcBase;
+                            RemQtyToCalcBase := 0;
+                        end;
+                    SalesLine."Return Receipt No." <> '':
+                        begin
+                            PostedQtyBase := PostedQtyBase + RtrnQtyRcvdNotInvcdBase;
+                            TotalAdjCostLCY :=
+                              TotalAdjCostLCY + AdjCostLCY / ReturnRcptLine."Quantity (Base)" * RemQtyToCalcBase;
+                            RemQtyToCalcBase := 0;
+                        end;
+                    else begin
+                        PostedQtyBase := PostedQtyBase + ReturnRcptLine."Quantity (Base)";
+                        TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
+                    end;
+                end;
+            until (ReturnRcptLine.Next() = 0) or (RemQtyToCalcBase = 0);
     end;
 
     local procedure CalcSalesShptLineCostLCY(SalesShptLine: Record "Sales Shipment Line"; QtyType: Option General,Invoicing,Shipping) AdjCostLCY: Decimal
@@ -912,26 +893,23 @@ codeunit 5836 "Cost Calculation Management"
         ItemLedgEntry: Record "Item Ledger Entry";
         ReturnRcptLine: Record "Return Receipt Line";
     begin
-        with SalesShptLine do begin
-            if (Quantity = 0) or (Type = Type::"Charge (Item)") then
-                exit(0);
+        if (SalesShptLine.Quantity = 0) or (SalesShptLine.Type = SalesShptLine.Type::"Charge (Item)") then
+            exit(0);
 
-            if Type = Type::Item then begin
-                FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-                if ItemLedgEntry.IsEmpty() then
-                    exit(0);
-                AdjCostLCY := CalcPostedDocLineCostLCY(ItemLedgEntry, QtyType);
-                if RelatedReturnReceiptExist(SalesShptLine, ReturnRcptLine) then
-                    repeat
-                        AdjCostLCY += CalcReturnRcptLineCostLCY(ReturnRcptLine, QtyType);
-                    until ReturnRcptLine.Next() = 0;
-            end else begin
-                if QtyType = QtyType::Invoicing then
-                    AdjCostLCY := -"Qty. Shipped Not Invoiced" * "Unit Cost (LCY)"
-                else
-                    AdjCostLCY := -Quantity * "Unit Cost (LCY)";
-            end;
-        end;
+        if SalesShptLine.Type = SalesShptLine.Type::Item then begin
+            SalesShptLine.FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
+            if ItemLedgEntry.IsEmpty() then
+                exit(0);
+            AdjCostLCY := CalcPostedDocLineCostLCY(ItemLedgEntry, QtyType);
+            if RelatedReturnReceiptExist(SalesShptLine, ReturnRcptLine) then
+                repeat
+                    AdjCostLCY += CalcReturnRcptLineCostLCY(ReturnRcptLine, QtyType);
+                until ReturnRcptLine.Next() = 0;
+        end else
+            if QtyType = QtyType::Invoicing then
+                AdjCostLCY := -SalesShptLine."Qty. Shipped Not Invoiced" * SalesShptLine."Unit Cost (LCY)"
+            else
+                AdjCostLCY := -SalesShptLine.Quantity * SalesShptLine."Unit Cost (LCY)";
     end;
 
     local procedure RelatedReturnReceiptExist(var SalesShptLine: Record "Sales Shipment Line"; var ReturnRcptLine: Record "Return Receipt Line"): Boolean
@@ -946,185 +924,164 @@ codeunit 5836 "Cost Calculation Management"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ReturnRcptLine do begin
-            if (Quantity = 0) or (Type = Type::"Charge (Item)") then
-                exit(0);
+        if (ReturnRcptLine.Quantity = 0) or (ReturnRcptLine.Type = ReturnRcptLine.Type::"Charge (Item)") then
+            exit(0);
 
-            if Type = Type::Item then begin
-                FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-                if ItemLedgEntry.IsEmpty() then
-                    exit(0);
-                AdjCostLCY := CalcPostedDocLineCostLCY(ItemLedgEntry, QtyType);
-            end else begin
-                if QtyType = QtyType::Invoicing then
-                    AdjCostLCY := "Return Qty. Rcd. Not Invd." * "Unit Cost (LCY)"
-                else
-                    AdjCostLCY := Quantity * "Unit Cost (LCY)";
-            end;
-        end;
+        if ReturnRcptLine.Type = ReturnRcptLine.Type::Item then begin
+            ReturnRcptLine.FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
+            if ItemLedgEntry.IsEmpty() then
+                exit(0);
+            AdjCostLCY := CalcPostedDocLineCostLCY(ItemLedgEntry, QtyType);
+        end else
+            if QtyType = QtyType::Invoicing then
+                AdjCostLCY := ReturnRcptLine."Return Qty. Rcd. Not Invd." * ReturnRcptLine."Unit Cost (LCY)"
+            else
+                AdjCostLCY := ReturnRcptLine.Quantity * ReturnRcptLine."Unit Cost (LCY)";
     end;
 
     local procedure CalcPostedDocLineCostLCY(var ItemLedgEntry: Record "Item Ledger Entry"; QtyType: Option General,Invoicing,Shipping,Consuming) AdjCostLCY: Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ItemLedgEntry do begin
-            FindSet();
-            repeat
-                if (QtyType = QtyType::Invoicing) or (QtyType = QtyType::Consuming) then begin
-                    CalcFields("Cost Amount (Expected)");
-                    AdjCostLCY := AdjCostLCY + "Cost Amount (Expected)";
-                end else begin
-                    ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-                    ValueEntry.SetFilter("Entry Type", '<>%1', ValueEntry."Entry Type"::Revaluation);
-                    ValueEntry.SetRange("Item Charge No.", '');
-                    ValueEntry.CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)");
-                    AdjCostLCY += ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)";
-                end;
-            until Next() = 0;
-        end;
+        ItemLedgEntry.FindSet();
+        repeat
+            if (QtyType = QtyType::Invoicing) or (QtyType = QtyType::Consuming) then begin
+                ItemLedgEntry.CalcFields("Cost Amount (Expected)");
+                AdjCostLCY := AdjCostLCY + ItemLedgEntry."Cost Amount (Expected)";
+            end else begin
+                ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
+                ValueEntry.SetFilter("Entry Type", '<>%1', ValueEntry."Entry Type"::Revaluation);
+                ValueEntry.SetRange("Item Charge No.", '');
+                ValueEntry.CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)");
+                AdjCostLCY += ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)";
+            end;
+        until ItemLedgEntry.Next() = 0;
     end;
 
     procedure CalcSalesInvLineCostLCY(SalesInvLine: Record "Sales Invoice Line") AdjCostLCY: Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        with SalesInvLine do begin
-            if Quantity = 0 then
-                exit(0);
+        if SalesInvLine.Quantity = 0 then
+            exit(0);
 
-            if Type in [Type::Item, Type::"Charge (Item)"] then begin
-                FilterPstdDocLineValueEntries(ValueEntry);
-                AdjCostLCY := -SumValueEntriesCostAmt(ValueEntry);
-            end else
-                AdjCostLCY := Quantity * "Unit Cost (LCY)";
-        end;
+        if SalesInvLine.Type in [SalesInvLine.Type::Item, SalesInvLine.Type::"Charge (Item)"] then begin
+            SalesInvLine.FilterPstdDocLineValueEntries(ValueEntry);
+            AdjCostLCY := -SumValueEntriesCostAmt(ValueEntry);
+        end else
+            AdjCostLCY := SalesInvLine.Quantity * SalesInvLine."Unit Cost (LCY)";
     end;
 
     procedure CalcSalesInvLineNonInvtblCostAmt(SalesInvoiceLine: Record "Sales Invoice Line"): Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Document No.", SalesInvoiceLine."Document No.");
-            SetRange("Document Type", "Document Type"::"Sales Invoice");
-            SetRange("Document Line No.", SalesInvoiceLine."Line No.");
-            CalcSums("Cost Amount (Non-Invtbl.)");
-            exit(-"Cost Amount (Non-Invtbl.)");
-        end;
+        ValueEntry.SetRange("Document No.", SalesInvoiceLine."Document No.");
+        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Invoice");
+        ValueEntry.SetRange("Document Line No.", SalesInvoiceLine."Line No.");
+        ValueEntry.CalcSums("Cost Amount (Non-Invtbl.)");
+        exit(-ValueEntry."Cost Amount (Non-Invtbl.)");
     end;
 
     procedure CalcSalesCrMemoLineCostLCY(SalesCrMemoLine: Record "Sales Cr.Memo Line") AdjCostLCY: Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        with SalesCrMemoLine do begin
-            if Quantity = 0 then
-                exit(0);
+        if SalesCrMemoLine.Quantity = 0 then
+            exit(0);
 
-            if Type in [Type::Item, Type::"Charge (Item)"] then begin
-                FilterPstdDocLineValueEntries(ValueEntry);
-                AdjCostLCY := SumValueEntriesCostAmt(ValueEntry);
-            end else
-                AdjCostLCY := Quantity * "Unit Cost (LCY)";
-        end;
+        if SalesCrMemoLine.Type in [SalesCrMemoLine.Type::Item, SalesCrMemoLine.Type::"Charge (Item)"] then begin
+            SalesCrMemoLine.FilterPstdDocLineValueEntries(ValueEntry);
+            AdjCostLCY := SumValueEntriesCostAmt(ValueEntry);
+        end else
+            AdjCostLCY := SalesCrMemoLine.Quantity * SalesCrMemoLine."Unit Cost (LCY)";
     end;
 
     procedure CalcSalesCrMemoLineNonInvtblCostAmt(SalesCrMemoLine: Record "Sales Cr.Memo Line"): Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Document No.", SalesCrMemoLine."Document No.");
-            SetRange("Document Type", "Document Type"::"Sales Credit Memo");
-            SetRange("Document Line No.", SalesCrMemoLine."Line No.");
-            CalcSums("Cost Amount (Non-Invtbl.)");
-            exit("Cost Amount (Non-Invtbl.)");
-        end;
+        ValueEntry.SetRange("Document No.", SalesCrMemoLine."Document No.");
+        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Credit Memo");
+        ValueEntry.SetRange("Document Line No.", SalesCrMemoLine."Line No.");
+        ValueEntry.CalcSums("Cost Amount (Non-Invtbl.)");
+        exit(ValueEntry."Cost Amount (Non-Invtbl.)");
     end;
 
     procedure CalcServCrMemoLineCostLCY(ServCrMemoLine: Record "Service Cr.Memo Line") AdjCostLCY: Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ServCrMemoLine do begin
-            if Quantity = 0 then
-                exit(0);
+        if ServCrMemoLine.Quantity = 0 then
+            exit(0);
 
-            if Type = Type::Item then begin
-                FilterPstdDocLineValueEntries(ValueEntry);
-                AdjCostLCY := SumValueEntriesCostAmt(ValueEntry);
-            end else
-                AdjCostLCY := Quantity * "Unit Cost (LCY)";
-        end;
+        if ServCrMemoLine.Type = ServCrMemoLine.Type::Item then begin
+            ServCrMemoLine.FilterPstdDocLineValueEntries(ValueEntry);
+            AdjCostLCY := SumValueEntriesCostAmt(ValueEntry);
+        end else
+            AdjCostLCY := ServCrMemoLine.Quantity * ServCrMemoLine."Unit Cost (LCY)";
     end;
 
     procedure CalcCustLedgAdjmtCostLCY(CustLedgEntry: Record "Cust. Ledger Entry"): Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        with CustLedgEntry do begin
-            if not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then
-                FieldError("Document Type");
+        if not (CustLedgEntry."Document Type" in [CustLedgEntry."Document Type"::Invoice, CustLedgEntry."Document Type"::"Credit Memo"]) then
+            CustLedgEntry.FieldError(CustLedgEntry."Document Type");
 
-            ValueEntry.SetCurrentKey("Document No.");
-            ValueEntry.SetRange("Document No.", "Document No.");
-            if "Document Type" = "Document Type"::Invoice then
-                ValueEntry.SetFilter(
-                  "Document Type",
-                  '%1|%2',
-                  ValueEntry."Document Type"::"Sales Invoice", ValueEntry."Document Type"::"Service Invoice")
-            else
-                ValueEntry.SetFilter(
-                  "Document Type",
-                  '%1|%2',
-                  ValueEntry."Document Type"::"Sales Credit Memo", ValueEntry."Document Type"::"Service Credit Memo");
-            ValueEntry.SetRange(Adjustment, true);
-            exit(SumValueEntriesCostAmt(ValueEntry));
-        end;
+        ValueEntry.SetCurrentKey("Document No.");
+        ValueEntry.SetRange("Document No.", CustLedgEntry."Document No.");
+        if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Invoice then
+            ValueEntry.SetFilter(
+              "Document Type",
+              '%1|%2',
+              ValueEntry."Document Type"::"Sales Invoice", ValueEntry."Document Type"::"Service Invoice")
+        else
+            ValueEntry.SetFilter(
+              "Document Type",
+              '%1|%2',
+              ValueEntry."Document Type"::"Sales Credit Memo", ValueEntry."Document Type"::"Service Credit Memo");
+        ValueEntry.SetRange(Adjustment, true);
+        exit(SumValueEntriesCostAmt(ValueEntry));
     end;
 
     procedure CalcCustAdjmtCostLCY(var Customer: Record Customer): Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetCurrentKey("Source Type", "Source No.");
-            SetRange("Source Type", "Source Type"::Customer);
-            SetRange("Source No.", Customer."No.");
-            SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
-            SetFilter("Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
-            SetFilter("Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
-            SetRange(Adjustment, true);
+        ValueEntry.SetCurrentKey("Source Type", "Source No.");
+        ValueEntry.SetRange("Source Type", ValueEntry."Source Type"::Customer);
+        ValueEntry.SetRange("Source No.", Customer."No.");
+        ValueEntry.SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
+        ValueEntry.SetFilter("Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
+        ValueEntry.SetFilter("Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
+        ValueEntry.SetRange(Adjustment, true);
 
-            CalcSums("Cost Amount (Actual)");
-            exit("Cost Amount (Actual)");
-        end;
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        exit(ValueEntry."Cost Amount (Actual)");
     end;
 
     procedure CalcCustLedgActualCostLCY(CustLedgEntry: Record "Cust. Ledger Entry"): Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        with CustLedgEntry do begin
-            if not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then
-                FieldError("Document Type");
+        if not (CustLedgEntry."Document Type" in [CustLedgEntry."Document Type"::Invoice, CustLedgEntry."Document Type"::"Credit Memo"]) then
+            CustLedgEntry.FieldError(CustLedgEntry."Document Type");
 
-            ValueEntry.SetCurrentKey("Document No.");
-            ValueEntry.SetRange("Document No.", "Document No.");
-            if "Document Type" = "Document Type"::Invoice then
-                ValueEntry.SetFilter(
-                  "Document Type",
-                  '%1|%2',
-                  ValueEntry."Document Type"::"Sales Invoice", ValueEntry."Document Type"::"Service Invoice")
-            else
-                ValueEntry.SetFilter(
-                  "Document Type",
-                  '%1|%2',
-                  ValueEntry."Document Type"::"Sales Credit Memo", ValueEntry."Document Type"::"Service Credit Memo");
-            ValueEntry.SetFilter("Entry Type", '<> %1', ValueEntry."Entry Type"::Revaluation);
-            exit(SumValueEntriesCostAmt(ValueEntry));
-        end;
+        ValueEntry.SetCurrentKey("Document No.");
+        ValueEntry.SetRange("Document No.", CustLedgEntry."Document No.");
+        if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Invoice then
+            ValueEntry.SetFilter(
+              "Document Type",
+              '%1|%2',
+              ValueEntry."Document Type"::"Sales Invoice", ValueEntry."Document Type"::"Service Invoice")
+        else
+            ValueEntry.SetFilter(
+              "Document Type",
+              '%1|%2',
+              ValueEntry."Document Type"::"Sales Credit Memo", ValueEntry."Document Type"::"Service Credit Memo");
+        ValueEntry.SetFilter("Entry Type", '<> %1', ValueEntry."Entry Type"::Revaluation);
+        exit(SumValueEntriesCostAmt(ValueEntry));
     end;
 
     procedure CalcCustActualCostLCY(var Customer: Record Customer) CostAmt: Decimal
@@ -1132,42 +1089,36 @@ codeunit 5836 "Cost Calculation Management"
         ValueEntry: Record "Value Entry";
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Source Type", "Source Type"::Customer);
-            SetRange("Source No.", Customer."No.");
-            SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
-            SetFilter("Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
-            SetFilter("Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
-            SetFilter("Entry Type", '<> %1', "Entry Type"::Revaluation);
-            CalcSums("Cost Amount (Actual)");
-            CostAmt := "Cost Amount (Actual)";
-        end;
+        ValueEntry.SetRange("Source Type", ValueEntry."Source Type"::Customer);
+        ValueEntry.SetRange("Source No.", Customer."No.");
+        ValueEntry.SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
+        ValueEntry.SetFilter("Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
+        ValueEntry.SetFilter("Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
+        ValueEntry.SetFilter("Entry Type", '<> %1', ValueEntry."Entry Type"::Revaluation);
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        CostAmt := ValueEntry."Cost Amount (Actual)";
 
-        with ResLedgerEntry do begin
-            SetRange("Entry Type", "Entry Type"::Sale);
-            SetRange("Source Type", "Source Type"::Customer);
-            SetRange("Source No.", Customer."No.");
-            SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
-            SetFilter("Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
-            SetFilter("Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
-            CalcSums("Total Cost");
-            CostAmt += "Total Cost";
-        end;
+        ResLedgerEntry.SetRange("Entry Type", ResLedgerEntry."Entry Type"::Sale);
+        ResLedgerEntry.SetRange("Source Type", ResLedgerEntry."Source Type"::Customer);
+        ResLedgerEntry.SetRange("Source No.", Customer."No.");
+        ResLedgerEntry.SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
+        ResLedgerEntry.SetFilter("Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
+        ResLedgerEntry.SetFilter("Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
+        ResLedgerEntry.CalcSums(ResLedgerEntry."Total Cost");
+        CostAmt += ResLedgerEntry."Total Cost";
     end;
 
     procedure NonInvtblCostAmt(var Customer: Record Customer): Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Source Type", "Source Type"::Customer);
-            SetRange("Source No.", Customer."No.");
-            SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
-            SetFilter("Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
-            SetFilter("Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
-            CalcSums("Cost Amount (Non-Invtbl.)");
-            exit("Cost Amount (Non-Invtbl.)");
-        end;
+        ValueEntry.SetRange(ValueEntry."Source Type", ValueEntry."Source Type"::Customer);
+        ValueEntry.SetRange(ValueEntry."Source No.", Customer."No.");
+        ValueEntry.SetFilter(ValueEntry."Posting Date", Customer.GetFilter("Date Filter"));
+        ValueEntry.SetFilter(ValueEntry."Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
+        ValueEntry.SetFilter(ValueEntry."Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
+        ValueEntry.CalcSums(ValueEntry."Cost Amount (Non-Invtbl.)");
+        exit(ValueEntry."Cost Amount (Non-Invtbl.)");
     end;
 
     procedure SumValueEntriesCostAmt(var ValueEntry: Record "Value Entry") CostAmt: Decimal
@@ -1181,31 +1132,30 @@ codeunit 5836 "Cost Calculation Management"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgEntry do
-            case TableNo of
-                Database::"Purch. Rcpt. Header":
-                    exit("Document Type"::"Purchase Receipt".AsInteger());
-                Database::"Purch. Inv. Header":
-                    exit("Document Type"::"Purchase Invoice".AsInteger());
-                Database::"Purch. Cr. Memo Hdr.":
-                    exit("Document Type"::"Purchase Credit Memo".AsInteger());
-                Database::"Return Shipment Header":
-                    exit("Document Type"::"Purchase Return Shipment".AsInteger());
-                Database::"Sales Shipment Header":
-                    exit("Document Type"::"Sales Shipment".AsInteger());
-                Database::"Sales Invoice Header":
-                    exit("Document Type"::"Sales Invoice".AsInteger());
-                Database::"Sales Cr.Memo Header":
-                    exit("Document Type"::"Sales Credit Memo".AsInteger());
-                Database::"Return Receipt Header":
-                    exit("Document Type"::"Sales Return Receipt".AsInteger());
-                Database::"Transfer Shipment Header":
-                    exit("Document Type"::"Transfer Shipment".AsInteger());
-                Database::"Transfer Receipt Header":
-                    exit("Document Type"::"Transfer Receipt".AsInteger());
-                Database::"Posted Assembly Header":
-                    exit("Document Type"::"Posted Assembly".AsInteger());
-            end;
+        case TableNo of
+            Database::"Purch. Rcpt. Header":
+                exit(ItemLedgEntry."Document Type"::"Purchase Receipt".AsInteger());
+            Database::"Purch. Inv. Header":
+                exit(ItemLedgEntry."Document Type"::"Purchase Invoice".AsInteger());
+            Database::"Purch. Cr. Memo Hdr.":
+                exit(ItemLedgEntry."Document Type"::"Purchase Credit Memo".AsInteger());
+            Database::"Return Shipment Header":
+                exit(ItemLedgEntry."Document Type"::"Purchase Return Shipment".AsInteger());
+            Database::"Sales Shipment Header":
+                exit(ItemLedgEntry."Document Type"::"Sales Shipment".AsInteger());
+            Database::"Sales Invoice Header":
+                exit(ItemLedgEntry."Document Type"::"Sales Invoice".AsInteger());
+            Database::"Sales Cr.Memo Header":
+                exit(ItemLedgEntry."Document Type"::"Sales Credit Memo".AsInteger());
+            Database::"Return Receipt Header":
+                exit(ItemLedgEntry."Document Type"::"Sales Return Receipt".AsInteger());
+            Database::"Transfer Shipment Header":
+                exit(ItemLedgEntry."Document Type"::"Transfer Shipment".AsInteger());
+            Database::"Transfer Receipt Header":
+                exit(ItemLedgEntry."Document Type"::"Transfer Receipt".AsInteger());
+            Database::"Posted Assembly Header":
+                exit(ItemLedgEntry."Document Type"::"Posted Assembly".AsInteger());
+        end;
     end;
 
     procedure CalcServLineCostLCY(ServLine: Record "Service Line"; QtyType: Option General,Invoicing,Shipping,Consuming,ServLineItems,ServLineResources,ServLineCosts) TotalAdjCostLCY: Decimal
@@ -1234,99 +1184,92 @@ codeunit 5836 "Cost Calculation Management"
         QtyShippedNotInvcdBase: Decimal;
         AdjCostLCY: Decimal;
     begin
-        with ServShptLine do begin
-            if ServLine."Shipment No." <> '' then begin
-                SetRange("Document No.", ServLine."Shipment No.");
-                SetRange("Line No.", ServLine."Shipment Line No.");
-            end else begin
-                SetCurrentKey("Order No.", "Order Line No.");
-                SetRange("Order No.", ServLine."Document No.");
-                SetRange("Order Line No.", ServLine."Line No.");
-            end;
-            SetRange(Correction, false);
-            if QtyType = QtyType::Invoicing then begin
-                SetFilter("Qty. Shipped Not Invoiced", '<>0');
-                RemQtyToCalcBase := ServLine."Qty. to Invoice (Base)" - ServLine."Qty. to Ship (Base)";
-            end else
-                if (QtyType = QtyType::Consuming) and (ServLine."Qty. to Consume" > 0) then
-                    RemQtyToCalcBase := ServLine."Qty. to Consume (Base)"
-                else
-                    RemQtyToCalcBase := ServLine."Quantity (Base)";
-
-            if FindSet() then
-                repeat
-                    if "Qty. per Unit of Measure" = 0 then
-                        QtyShippedNotInvcdBase := "Qty. Shipped Not Invoiced"
-                    else
-                        QtyShippedNotInvcdBase :=
-                          Round("Qty. Shipped Not Invoiced" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-
-                    AdjCostLCY := CalcServShptLineCostLCY(ServShptLine, QtyType);
-
-                    case true of
-                        QtyType = QtyType::Invoicing, QtyType = QtyType::Consuming:
-                            if RemQtyToCalcBase > QtyShippedNotInvcdBase then begin
-                                TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
-                                RemQtyToCalcBase := RemQtyToCalcBase - QtyShippedNotInvcdBase;
-                                PostedQtyBase := PostedQtyBase + QtyShippedNotInvcdBase;
-                            end else begin
-                                PostedQtyBase := PostedQtyBase + RemQtyToCalcBase;
-                                TotalAdjCostLCY :=
-                                  TotalAdjCostLCY + AdjCostLCY / QtyShippedNotInvcdBase * RemQtyToCalcBase;
-                                RemQtyToCalcBase := 0;
-                            end;
-                        ServLine."Shipment No." <> '':
-                            begin
-                                PostedQtyBase := PostedQtyBase + QtyShippedNotInvcdBase;
-                                TotalAdjCostLCY :=
-                                  TotalAdjCostLCY + AdjCostLCY / "Quantity (Base)" * RemQtyToCalcBase;
-                                RemQtyToCalcBase := 0;
-                            end;
-                        else begin
-                            PostedQtyBase := PostedQtyBase + "Quantity (Base)";
-                            TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
-                        end;
-                    end;
-                until (Next() = 0) or (RemQtyToCalcBase = 0);
+        if ServLine."Shipment No." <> '' then begin
+            ServShptLine.SetRange("Document No.", ServLine."Shipment No.");
+            ServShptLine.SetRange("Line No.", ServLine."Shipment Line No.");
+        end else begin
+            ServShptLine.SetCurrentKey("Order No.", "Order Line No.");
+            ServShptLine.SetRange("Order No.", ServLine."Document No.");
+            ServShptLine.SetRange("Order Line No.", ServLine."Line No.");
         end;
+        ServShptLine.SetRange(Correction, false);
+        if QtyType = QtyType::Invoicing then begin
+            ServShptLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
+            RemQtyToCalcBase := ServLine."Qty. to Invoice (Base)" - ServLine."Qty. to Ship (Base)";
+        end else
+            if (QtyType = QtyType::Consuming) and (ServLine."Qty. to Consume" > 0) then
+                RemQtyToCalcBase := ServLine."Qty. to Consume (Base)"
+            else
+                RemQtyToCalcBase := ServLine."Quantity (Base)";
+
+        if ServShptLine.FindSet() then
+            repeat
+                if ServShptLine."Qty. per Unit of Measure" = 0 then
+                    QtyShippedNotInvcdBase := ServShptLine."Qty. Shipped Not Invoiced"
+                else
+                    QtyShippedNotInvcdBase :=
+                      Round(ServShptLine."Qty. Shipped Not Invoiced" * ServShptLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+
+                AdjCostLCY := CalcServShptLineCostLCY(ServShptLine, QtyType);
+
+                case true of
+                    QtyType = QtyType::Invoicing, QtyType = QtyType::Consuming:
+                        if RemQtyToCalcBase > QtyShippedNotInvcdBase then begin
+                            TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
+                            RemQtyToCalcBase := RemQtyToCalcBase - QtyShippedNotInvcdBase;
+                            PostedQtyBase := PostedQtyBase + QtyShippedNotInvcdBase;
+                        end else begin
+                            PostedQtyBase := PostedQtyBase + RemQtyToCalcBase;
+                            TotalAdjCostLCY :=
+                              TotalAdjCostLCY + AdjCostLCY / QtyShippedNotInvcdBase * RemQtyToCalcBase;
+                            RemQtyToCalcBase := 0;
+                        end;
+                    ServLine."Shipment No." <> '':
+                        begin
+                            PostedQtyBase := PostedQtyBase + QtyShippedNotInvcdBase;
+                            TotalAdjCostLCY :=
+                              TotalAdjCostLCY + AdjCostLCY / ServShptLine."Quantity (Base)" * RemQtyToCalcBase;
+                            RemQtyToCalcBase := 0;
+                        end;
+                    else begin
+                        PostedQtyBase := PostedQtyBase + ServShptLine."Quantity (Base)";
+                        TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
+                    end;
+                end;
+            until (ServShptLine.Next() = 0) or (RemQtyToCalcBase = 0);
     end;
 
     local procedure CalcServShptLineCostLCY(ServShptLine: Record "Service Shipment Line"; QtyType: Option General,Invoicing,Shipping,Consuming) AdjCostLCY: Decimal
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ServShptLine do begin
-            if Quantity = 0 then
-                exit(0);
+        if ServShptLine.Quantity = 0 then
+            exit(0);
 
-            if Type = Type::Item then begin
-                FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-                if ItemLedgEntry.IsEmpty() then
-                    exit(0);
-                AdjCostLCY := CalcPostedDocLineCostLCY(ItemLedgEntry, QtyType);
-            end else begin
-                if QtyType = QtyType::Invoicing then
-                    AdjCostLCY := -"Qty. Shipped Not Invoiced" * "Unit Cost (LCY)"
-                else
-                    AdjCostLCY := -Quantity * "Unit Cost (LCY)";
-            end;
-        end;
+        if ServShptLine.Type = ServShptLine.Type::Item then begin
+            ServShptLine.FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
+            if ItemLedgEntry.IsEmpty() then
+                exit(0);
+            AdjCostLCY := CalcPostedDocLineCostLCY(ItemLedgEntry, QtyType);
+        end else
+            if QtyType = QtyType::Invoicing then
+                AdjCostLCY := -ServShptLine."Qty. Shipped Not Invoiced" * ServShptLine."Unit Cost (LCY)"
+            else
+                AdjCostLCY := -ServShptLine.Quantity * ServShptLine."Unit Cost (LCY)";
     end;
 
     procedure CalcServInvLineCostLCY(ServInvLine: Record "Service Invoice Line") AdjCostLCY: Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ServInvLine do begin
-            if Quantity = 0 then
-                exit(0);
+        if ServInvLine.Quantity = 0 then
+            exit(0);
 
-            if Type = Type::Item then begin
-                FilterPstdDocLineValueEntries(ValueEntry);
-                AdjCostLCY := -SumValueEntriesCostAmt(ValueEntry);
-            end else
-                AdjCostLCY := Quantity * "Unit Cost (LCY)";
-        end;
+        if ServInvLine.Type = ServInvLine.Type::Item then begin
+            ServInvLine.FilterPstdDocLineValueEntries(ValueEntry);
+            AdjCostLCY := -SumValueEntriesCostAmt(ValueEntry);
+        end else
+            AdjCostLCY := ServInvLine.Quantity * ServInvLine."Unit Cost (LCY)";
     end;
 
     procedure AdjustForRevNegCon(var ActMatCost: Decimal; var ActMatCostCostACY: Decimal; var ItemLedgEntry: Record "Item Ledger Entry")

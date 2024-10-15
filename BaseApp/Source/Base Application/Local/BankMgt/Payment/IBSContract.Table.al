@@ -11,6 +11,7 @@ table 2000011 "IBS Contract"
     ObsoleteState = Removed;
     ObsoleteTag = '19.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -21,11 +21,11 @@ codeunit 2000005 "Check Non Euro SEPA Payments"
                 CheckPaymJnlLine.ErrorIfCurrencyEuro(Rec);
                 OnAfterCheckPaymJnlLine(Rec, CheckPaymJnlLine);
             until Rec.Next() = 0;
-            CheckPaymJnlLine.CheckTotalLineAmounts;
+            CheckPaymJnlLine.CheckTotalLineAmounts();
         end else
-            CheckPaymJnlLine.ErrorNoPayments;
+            CheckPaymJnlLine.ErrorNoPayments();
 
-        CheckPaymJnlLine.ShowErrorLog;
+        CheckPaymJnlLine.ShowErrorLog();
     end;
 
     var

@@ -383,10 +383,10 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(false);
 
         // [GIVEN] Bill-to Customer with Enterprise No. = '123456'
-        BillToCustomer.Get(CreateEUCustomerWithVATRegNo);
-        SellToCustomer.Get(CreateEUCustomerWithVATRegNo);
+        BillToCustomer.Get(CreateEUCustomerWithVATRegNo());
+        SellToCustomer.Get(CreateEUCustomerWithVATRegNo());
         ResetCustomerVATRegNo(SellToCustomer);
-        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo);
+        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo());
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
@@ -417,10 +417,10 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(true);
 
         // [GIVEN] Bill-to Customer with Enterprise No. = '123456'
-        BillToCustomer.Get(CreateEUCustomerWithVATRegNo);
-        SellToCustomer.Get(CreateEUCustomerWithVATRegNo);
+        BillToCustomer.Get(CreateEUCustomerWithVATRegNo());
+        SellToCustomer.Get(CreateEUCustomerWithVATRegNo());
         ResetCustomerVATRegNo(SellToCustomer);
-        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo);
+        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo());
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
@@ -451,9 +451,9 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(false);
 
         // [GIVEN] Bill-to Customer with Enterprise No. = '123456' and VAT Registration No = 'AT0123456'
-        BillToCustomer.Get(CreateEUCustomerWithVATRegNo);
-        SellToCustomer.Get(CreateEUCustomerWithVATRegNo);
-        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo);
+        BillToCustomer.Get(CreateEUCustomerWithVATRegNo());
+        SellToCustomer.Get(CreateEUCustomerWithVATRegNo());
+        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo());
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
@@ -484,9 +484,9 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(true);
 
         // [GIVEN] Bill-to Customer with Enterprise No. = '123456' and VAT Registration No = 'AT0123456'
-        BillToCustomer.Get(CreateEUCustomerWithVATRegNo);
-        SellToCustomer.Get(CreateEUCustomerWithVATRegNo);
-        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo);
+        BillToCustomer.Get(CreateEUCustomerWithVATRegNo());
+        SellToCustomer.Get(CreateEUCustomerWithVATRegNo());
+        CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo());
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
@@ -515,15 +515,15 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(false);
 
         // [GIVEN] Non EU Bill-to Customer with VAT Registration No. = 'CN000123'
-        Customer.Get(CreateCustomerWithVATRegNo);
-        CreatePostSalesInvoice(ItemLedgerEntry, CreateCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
+        Customer.Get(CreateCustomerWithVATRegNo());
+        CreatePostSalesInvoice(ItemLedgerEntry, CreateCustomerWithVATRegNo(), Customer."No.", CreateItemWithTariffNo());
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
-        VerifyPartnerID(IntrastatJnlBatch, GetDefaultPartnerID);
+        VerifyPartnerID(IntrastatJnlBatch, GetDefaultPartnerID());
     end;
 
     [Test]
@@ -544,9 +544,9 @@ codeunit 144052 "Test Intrastat Export"
         UpdateRetShpmtOnCrMemoPurchSetup(false);
 
         // [GIVEN] Pay-to Vendor with Enterprise No. = '123456'
-        Vendor.Get(CreateEUVendorWithVATRegNo);
+        Vendor.Get(CreateEUVendorWithVATRegNo());
         ResetVendorVATRegNo(Vendor);
-        CreatePostPurchCrMemo(ItemLedgerEntry, CreateEUVendorWithVATRegNo, Vendor."No.");
+        CreatePostPurchCrMemo(ItemLedgerEntry, CreateEUVendorWithVATRegNo(), Vendor."No.");
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
@@ -576,9 +576,9 @@ codeunit 144052 "Test Intrastat Export"
         UpdateRetShpmtOnCrMemoPurchSetup(true);
 
         // [GIVEN] Pay-to Vendor with Enterprise No. = '123456'
-        Vendor.Get(CreateEUVendorWithVATRegNo);
+        Vendor.Get(CreateEUVendorWithVATRegNo());
         ResetVendorVATRegNo(Vendor);
-        CreatePostPurchCrMemo(ItemLedgerEntry, CreateEUVendorWithVATRegNo, Vendor."No.");
+        CreatePostPurchCrMemo(ItemLedgerEntry, CreateEUVendorWithVATRegNo(), Vendor."No.");
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
@@ -608,8 +608,8 @@ codeunit 144052 "Test Intrastat Export"
         UpdateRetShpmtOnCrMemoPurchSetup(false);
 
         // [GIVEN] Pay-to Vendor with Enterprise No. = '123456' and VAT Registration No = 'AT0123456'
-        Vendor.Get(CreateEUVendorWithVATRegNo);
-        CreatePostPurchCrMemo(ItemLedgerEntry, CreateEUVendorWithVATRegNo, Vendor."No.");
+        Vendor.Get(CreateEUVendorWithVATRegNo());
+        CreatePostPurchCrMemo(ItemLedgerEntry, CreateEUVendorWithVATRegNo(), Vendor."No.");
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
@@ -639,8 +639,8 @@ codeunit 144052 "Test Intrastat Export"
         UpdateRetShpmtOnCrMemoPurchSetup(true);
 
         // [GIVEN] Pay-to Vendor with Enterprise No. = '123456' and VAT Registration No = 'AT0123456'
-        Vendor.Get(CreateEUVendorWithVATRegNo);
-        CreatePostPurchCrMemo(ItemLedgerEntry, CreateEUVendorWithVATRegNo, Vendor."No.");
+        Vendor.Get(CreateEUVendorWithVATRegNo());
+        CreatePostPurchCrMemo(ItemLedgerEntry, CreateEUVendorWithVATRegNo(), Vendor."No.");
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
@@ -669,15 +669,15 @@ codeunit 144052 "Test Intrastat Export"
         UpdateRetShpmtOnCrMemoPurchSetup(false);
 
         // [GIVEN] Non EU Pay-to Vendor with VAT Registration No. = 'CN000123'
-        Vendor.Get(CreateVendorWithVATRegNo);
-        CreatePostPurchCrMemo(ItemLedgerEntry, CreateVendorWithVATRegNo, Vendor."No.");
+        Vendor.Get(CreateVendorWithVATRegNo());
+        CreatePostPurchCrMemo(ItemLedgerEntry, CreateVendorWithVATRegNo(), Vendor."No.");
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
-        VerifyPartnerID(IntrastatJnlBatch, GetDefaultPartnerID);
+        VerifyPartnerID(IntrastatJnlBatch, GetDefaultPartnerID());
     end;
 
     [Test]
@@ -711,10 +711,10 @@ codeunit 144052 "Test Intrastat Export"
         // [GIVEN] Second invoice with Total Weight = 6.10, No Of Supplementary Units = 3
         // [GIVEN] Sales invoice with the same Item for Bill-to Customer with VAT Registration No = 'NO987654', Country of Origin = 'SE', TariffNo = 'XY12345'
         // [GIVEN] Sales invoice has Total Weight = 7, No Of Supplementary Units = 4
-        Customer1.Get(CreateEUCustomerWithVATRegNo);
-        Customer2.Get(CreateEUCustomerWithVATRegNo);
-        BillToCustNo := CreateEUCustomerWithVATRegNo; // have the same Country/Region
-        Item.Get(CreateItemWithTariffNo);
+        Customer1.Get(CreateEUCustomerWithVATRegNo());
+        Customer2.Get(CreateEUCustomerWithVATRegNo());
+        BillToCustNo := CreateEUCustomerWithVATRegNo(); // have the same Country/Region
+        Item.Get(CreateItemWithTariffNo());
         CreatePostSalesInvoice(ItemLedgerEntry, Customer1."No.", BillToCustNo, Item."No.");
         CreatePostSalesInvoice(ItemLedgerEntry, Customer1."No.", BillToCustNo, Item."No.");
         CreatePostSalesInvoice(ItemLedgerEntry, Customer2."No.", BillToCustNo, Item."No.");
@@ -764,10 +764,10 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(false);
 
         // [GIVEN] Posted Service Invoice where Bill-to Customer with Enterprise No. = '123456'
-        Customer.Get(CreateEUCustomerWithVATRegNo);
+        Customer.Get(CreateEUCustomerWithVATRegNo());
         ResetCustomerVATRegNo(Customer);
         CreatePostServiceInvoice(
-          ItemLedgerEntry, DocumentNo, CreateEUCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
+          ItemLedgerEntry, DocumentNo, CreateEUCustomerWithVATRegNo(), Customer."No.", CreateItemWithTariffNo());
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
@@ -798,10 +798,10 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(true);
 
         // [GIVEN] Posted Service Invoice where Bill-to Customer with Enterprise No. = '123456'
-        Customer.Get(CreateEUCustomerWithVATRegNo);
+        Customer.Get(CreateEUCustomerWithVATRegNo());
         ResetCustomerVATRegNo(Customer);
         CreatePostServiceInvoice(
-          ItemLedgerEntry, DocumentNo, CreateEUCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
+          ItemLedgerEntry, DocumentNo, CreateEUCustomerWithVATRegNo(), Customer."No.", CreateItemWithTariffNo());
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
@@ -832,9 +832,9 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(false);
 
         // [GIVEN] Posted Service Invoice where Bill-to Customer with Enterprise No. = '123456' and VAT Registration No = 'AT0123456'
-        Customer.Get(CreateEUCustomerWithVATRegNo);
+        Customer.Get(CreateEUCustomerWithVATRegNo());
         CreatePostServiceInvoice(
-          ItemLedgerEntry, DocumentNo, CreateEUCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
+          ItemLedgerEntry, DocumentNo, CreateEUCustomerWithVATRegNo(), Customer."No.", CreateItemWithTariffNo());
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
@@ -865,9 +865,9 @@ codeunit 144052 "Test Intrastat Export"
         UpdateShipmentOnInvoiceSalesSetup(true);
 
         // [GIVEN] Posted Service Invoice where Bill-to Customer with Enterprise No. = '123456' and VAT Registration No = 'AT0123456'
-        Customer.Get(CreateEUCustomerWithVATRegNo);
+        Customer.Get(CreateEUCustomerWithVATRegNo());
         CreatePostServiceInvoice(
-          ItemLedgerEntry, DocumentNo, CreateEUCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
+          ItemLedgerEntry, DocumentNo, CreateEUCustomerWithVATRegNo(), Customer."No.", CreateItemWithTariffNo());
 
         // [WHEN] Intrastat Journal Line is created
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
@@ -898,7 +898,7 @@ codeunit 144052 "Test Intrastat Export"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", CreateCountryRegionWithIntrastatCode);
+        Customer.Validate("Country/Region Code", CreateCountryRegionWithIntrastatCode());
         Customer.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code"));
         Customer."Enterprise No." := LibraryUtility.GenerateGUID(); // skip format check on validation
         Customer.Modify(true);
@@ -910,7 +910,7 @@ codeunit 144052 "Test Intrastat Export"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", CreateEUCountryRegionWithIntrastatCode);
+        Customer.Validate("Country/Region Code", CreateEUCountryRegionWithIntrastatCode());
         Customer.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code"));
         Customer."Enterprise No." := LibraryUtility.GenerateGUID(); // skip format check on validation
         Customer.Modify(true);
@@ -922,7 +922,7 @@ codeunit 144052 "Test Intrastat Export"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", CreateCountryRegionWithIntrastatCode);
+        Vendor.Validate("Country/Region Code", CreateCountryRegionWithIntrastatCode());
         Vendor.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Vendor."Country/Region Code"));
         Vendor."Enterprise No." := LibraryUtility.GenerateGUID(); // skip format check on validation
         Vendor.Modify(true);
@@ -934,7 +934,7 @@ codeunit 144052 "Test Intrastat Export"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", CreateEUCountryRegionWithIntrastatCode);
+        Vendor.Validate("Country/Region Code", CreateEUCountryRegionWithIntrastatCode());
         Vendor.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Vendor."Country/Region Code"));
         Vendor."Enterprise No." := LibraryUtility.GenerateGUID(); // skip format check on validation
         Vendor.Modify(true);
@@ -973,10 +973,10 @@ codeunit 144052 "Test Intrastat Export"
             Date := ConvertPeriodToDate(IntrastatJnlBatch."Statistics Period");
 
             Type := JnlLineType;
-            "Country/Region Code" := CreateCountryRegionWithIntrastatCode;
+            "Country/Region Code" := CreateCountryRegionWithIntrastatCode();
             "Transaction Type" := LibraryUtility.GenerateRandomCode(FieldNo("Transaction Type"), DATABASE::"Intrastat Jnl. Line");
             Area := LibraryUtility.GenerateRandomCode(FieldNo(Area), DATABASE::"Intrastat Jnl. Line");
-            "Tariff No." := CreateTariffNumber;
+            "Tariff No." := CreateTariffNumber();
             "Total Weight" := LibraryRandom.RandInt(1000);
             "No. of Supplementary Units" := LibraryRandom.RandInt(1000);
             "Statistical Value" := LibraryRandom.RandInt(1000);
@@ -1008,8 +1008,8 @@ codeunit 144052 "Test Intrastat Export"
     var
         Item: Record Item;
     begin
-        LibraryInventory.CreateItemWithTariffNo(Item, CreateTariffNumber);
-        Item.Validate("Country/Region of Origin Code", LibraryERM.CreateCountryRegionWithIntrastatCode);
+        LibraryInventory.CreateItemWithTariffNo(Item, CreateTariffNumber());
+        Item.Validate("Country/Region of Origin Code", LibraryERM.CreateCountryRegionWithIntrastatCode());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -1092,7 +1092,7 @@ codeunit 144052 "Test Intrastat Export"
         PurchaseHeader.Validate("Pay-to Vendor No.", PayToVendorNo);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItemWithTariffNo, LibraryRandom.RandDec(10, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItemWithTariffNo(), LibraryRandom.RandDec(10, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1193,7 +1193,7 @@ codeunit 144052 "Test Intrastat Export"
                 Modify();
                 TotalWeight += "Total Weight";
                 NoOfUnits += "No. of Supplementary Units";
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

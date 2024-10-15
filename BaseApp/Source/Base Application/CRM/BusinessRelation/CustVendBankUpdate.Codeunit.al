@@ -62,22 +62,21 @@ codeunit 5055 "CustVendBank-Update"
     begin
         IsHandled := false;
         OnBeforeUpdateCustomer(Cust, Cont, ContBusRel, IsHandled);
-        if not IsHandled then
-            with Cust do begin
-                Get(ContBusRel."No.");
-                OnUpdateCustomerOnAfterGetCust(Cust, Cont, ContBusRel);
-                NoSeries := "No. Series";
-                VATRegNo := "VAT Registration No.";
-                CustCopyFieldsFromCont(Cont);
-                "No." := ContBusRel."No.";
-                "No. Series" := NoSeries;
-                "Last Modified Date Time" := CurrentDateTime;
-                "Last Date Modified" := Today;
-                OnAfterUpdateCustomer(Cust, Cont, ContBusRel);
-                Modify();
-                if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
-                    VATRegistrationLogMgt.LogCustomer(Cust);
-            end;
+        if not IsHandled then begin
+            Cust.Get(ContBusRel."No.");
+            OnUpdateCustomerOnAfterGetCust(Cust, Cont, ContBusRel);
+            NoSeries := Cust."No. Series";
+            VATRegNo := Cust."VAT Registration No.";
+            CustCopyFieldsFromCont(Cont);
+            Cust."No." := ContBusRel."No.";
+            Cust."No. Series" := NoSeries;
+            Cust."Last Modified Date Time" := CurrentDateTime;
+            Cust."Last Date Modified" := Today;
+            OnAfterUpdateCustomer(Cust, Cont, ContBusRel);
+            Cust.Modify();
+            if (Cust."VAT Registration No." <> '') and (Cust."VAT Registration No." <> VATRegNo) then
+                VATRegistrationLogMgt.LogCustomer(Cust);
+        end;
 
         OnAfterUpdateCustomerProcedure(Cust, Cont, ContBusRel);
     end;
@@ -102,24 +101,23 @@ codeunit 5055 "CustVendBank-Update"
     begin
         IsHandled := false;
         OnBeforeUpdateVendor(Vend, Cont, ContBusRel, IsHandled);
-        if not IsHandled then
-            with Vend do begin
-                Get(ContBusRel."No.");
-                OnUpdateVendorOnAfterGetVend(Vend, Cont, ContBusRel);
-                NoSeries := "No. Series";
-                PurchaserCode := "Purchaser Code";
-                VATRegNo := "VAT Registration No.";
-                VendCopyFieldsFromCont(Cont);
-                "No." := ContBusRel."No.";
-                "No. Series" := NoSeries;
-                "Purchaser Code" := PurchaserCode;
-                "Last Modified Date Time" := CurrentDateTime;
-                "Last Date Modified" := Today;
-                OnAfterUpdateVendor(Vend, Cont, ContBusRel);
-                Modify();
-                if ("VAT Registration No." <> '') and ("VAT Registration No." <> VATRegNo) then
-                    VATRegistrationLogMgt.LogVendor(Vend);
-            end;
+        if not IsHandled then begin
+            Vend.Get(ContBusRel."No.");
+            OnUpdateVendorOnAfterGetVend(Vend, Cont, ContBusRel);
+            NoSeries := Vend."No. Series";
+            PurchaserCode := Vend."Purchaser Code";
+            VATRegNo := Vend."VAT Registration No.";
+            VendCopyFieldsFromCont(Cont);
+            Vend."No." := ContBusRel."No.";
+            Vend."No. Series" := NoSeries;
+            Vend."Purchaser Code" := PurchaserCode;
+            Vend."Last Modified Date Time" := CurrentDateTime;
+            Vend."Last Date Modified" := Today;
+            OnAfterUpdateVendor(Vend, Cont, ContBusRel);
+            Vend.Modify();
+            if (Vend."VAT Registration No." <> '') and (Vend."VAT Registration No." <> VATRegNo) then
+                VATRegistrationLogMgt.LogVendor(Vend);
+        end;
 
         OnAfterUpdateVendorProcedure(Vend, Cont, ContBusRel);
     end;
@@ -142,20 +140,19 @@ codeunit 5055 "CustVendBank-Update"
     begin
         IsHandled := false;
         OnBeforeUpdateBankAccount(BankAcc, Cont, ContBusRel, IsHandled);
-        if not IsHandled then
-            with BankAcc do begin
-                Get(ContBusRel."No.");
-                NoSeries := "No. Series";
-                OurContactCode := "Our Contact Code";
-                Validate("Currency Code", Cont."Currency Code");
-                BankAccountCopyFieldsFromCont(Cont);
-                "No." := ContBusRel."No.";
-                "No. Series" := NoSeries;
-                "Our Contact Code" := OurContactCode;
-                "Last Date Modified" := Today;
-                OnAfterUpdateBankAccount(BankAcc, Cont, ContBusRel);
-                Modify();
-            end;
+        if not IsHandled then begin
+            BankAcc.Get(ContBusRel."No.");
+            NoSeries := BankAcc."No. Series";
+            OurContactCode := BankAcc."Our Contact Code";
+            BankAcc.Validate(BankAcc."Currency Code", Cont."Currency Code");
+            BankAccountCopyFieldsFromCont(Cont);
+            BankAcc."No." := ContBusRel."No.";
+            BankAcc."No. Series" := NoSeries;
+            BankAcc."Our Contact Code" := OurContactCode;
+            BankAcc."Last Date Modified" := Today;
+            OnAfterUpdateBankAccount(BankAcc, Cont, ContBusRel);
+            BankAcc.Modify();
+        end;
 
         OnAfterUpdateBankAccountProcedure(BankAcc, Cont, ContBusRel);
     end;

@@ -214,8 +214,8 @@ codeunit 144044 "Ledger Reports"
 
         // [GIVEN] Create G/L Entry with "Journal Template Name" = "N1"
         // [GIVEN] Create G/L Entry with "Journal Template Name" = "N2"
-        TemplateName[1] := CreateGLEntryWithGenJnlTemplate;
-        TemplateName[2] := CreateGLEntryWithGenJnlTemplate;
+        TemplateName[1] := CreateGLEntryWithGenJnlTemplate();
+        TemplateName[2] := CreateGLEntryWithGenJnlTemplate();
 
         // [WHEN] Save Purchase Ledger Report on Workdate
         Commit();
@@ -239,17 +239,17 @@ codeunit 144044 "Ledger Reports"
         Initialize();
 
         // [GIVEN] Two G/L entries.
-        TemplateName[1] := CreateGLEntryWithGenJnlTemplate;
-        TemplateName[2] := CreateGLEntryWithGenJnlTemplate;
+        TemplateName[1] := CreateGLEntryWithGenJnlTemplate();
+        TemplateName[2] := CreateGLEntryWithGenJnlTemplate();
         Commit();
 
         // [WHEN] Run "Purchase Ledger" report (opens handler - PurchaseLedgerExcelReportRequestPageHandler).
         GenJournalTemplate.SetFilter(Name, TemplateName[1] + '|' + TemplateName[2]);
         REPORT.Run(REPORT::"Purchase Ledger", true, false, GenJournalTemplate);
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
 
         // [THEN] Number of pages = 4.
-        Assert.AreEqual(4, LibraryReportValidation.CountWorksheets, WrongWorksheetNumberErr);
+        Assert.AreEqual(4, LibraryReportValidation.CountWorksheets(), WrongWorksheetNumberErr);
         // [THEN] The first page = 1.
         LibraryReportValidation.VerifyCellValueByRef('R', 8, 1, PageOneTxt);
         // [THEN] The second page = 2.
@@ -403,7 +403,7 @@ codeunit 144044 "Ledger Reports"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Ledger Reports");
 
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
 
         isInitialized := true;
@@ -444,7 +444,7 @@ codeunit 144044 "Ledger Reports"
         PostedSalesDocumentNo: Code[20];
     begin
         // Setup: Post sales order for a customer with VAT Registration No. set.
-        PostedSalesDocumentNo := CreateAndPostSalesInvoiceWithVAT;
+        PostedSalesDocumentNo := CreateAndPostSalesInvoiceWithVAT();
 
         GLEntry.SetRange("Document No.", PostedSalesDocumentNo);
         Assert.AreEqual(3, GLEntry.Count, 'Expected to find 3 G/L Entries.');
@@ -467,10 +467,10 @@ codeunit 144044 "Ledger Reports"
         // - Check the is one credit and one debit row pr. G/L Entry.
         // - Validate the credit and debit amount matches
         // - Check the used VAT Bus. Posting Group is in the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         LibraryReportDataset.Reset();
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.GetElementValueInCurrentRow('UseAmtsInAddCurr', VariantValue);
         Assert.AreEqual(UseLocalCurrency, VariantValue, 'Expected the UseAmtsInAddCurr to be set correctly.');
         LibraryReportDataset.Reset();
@@ -484,14 +484,14 @@ codeunit 144044 "Ledger Reports"
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('EntryNo_GLEntry', GLEntry."Entry No.");
-            Assert.AreEqual(1, LibraryReportDataset.RowCount, 'Expected to find one debit row pr. G/L Entry');
-            LibraryReportDataset.GetNextRow;
+            Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'Expected to find one debit row pr. G/L Entry');
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.GetElementValueInCurrentRow('DebitAmt_GLEntry', VariantValue);
 
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('EntryNo_GLEntry2', GLEntry."Entry No.");
-            Assert.AreEqual(1, LibraryReportDataset.RowCount, 'Expected to find one cedit row pr. G/L Entry');
-            LibraryReportDataset.GetNextRow;
+            Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'Expected to find one cedit row pr. G/L Entry');
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('DebitAmt_GLEntry2', VariantValue);
         until GLEntry.Next() = 0;
 
@@ -499,8 +499,8 @@ codeunit 144044 "Ledger Reports"
         repeat
             LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('EntryNo_VATEntry', VATEntry."Entry No.");
-            Assert.AreEqual(1, LibraryReportDataset.RowCount, 'Expected to fund a row for each VATEntry');
-            LibraryReportDataset.GetNextRow;
+            Assert.AreEqual(1, LibraryReportDataset.RowCount(), 'Expected to fund a row for each VATEntry');
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('VATBusPostGroup_VATEntry', VATEntry."VAT Bus. Posting Group");
             LibraryReportDataset.AssertCurrentRowValueEquals('VATProdPostGroup_VATEntry', VATEntry."VAT Prod. Posting Group");
         until VATEntry.Next() = 0;
@@ -518,8 +518,8 @@ codeunit 144044 "Ledger Reports"
         RowIndex: Integer;
     begin
         // Setup: Post purchase order and credit memo for a vendor with VAT Registration No. set.
-        PostedPurchaseDocumentNo := CreateAndPostPurchaseInvoiceWithVAT;
-        CreateAndPostPurchaseCreditMemoWithVAT;
+        PostedPurchaseDocumentNo := CreateAndPostPurchaseInvoiceWithVAT();
+        CreateAndPostPurchaseCreditMemoWithVAT();
         SourceCodeSetup.Get();
         GLEntry.SetRange("Document No.", PostedPurchaseDocumentNo);
         Assert.AreEqual(3, GLEntry.Count, 'Expected to find 3 G/L Entries.');
@@ -538,10 +538,10 @@ codeunit 144044 "Ledger Reports"
         // - Check that the Local UseAmtsInAddCurr is set as expected.
         // - Validate the currency caption is present as expected
         // - Check the sum if credit and debit is the same
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         LibraryReportDataset.Reset();
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.GetElementValueInCurrentRow('UseAmtsInAddCurr', VariantValue);
         Assert.AreEqual(UseLocalCurrency, VariantValue, 'Expected the UseAmtsInAddCurr to be set correctly.');
         LibraryReportDataset.Reset();
@@ -587,18 +587,18 @@ codeunit 144044 "Ledger Reports"
         RowIndex: Integer;
     begin
         // Setup: Post Sales order, purchase order and purchase credit memo for a customer/vendor with VAT Registration No. set.
-        PostedSalesDocumentNo := CreateAndPostSalesInvoiceWithVAT;
+        PostedSalesDocumentNo := CreateAndPostSalesInvoiceWithVAT();
         FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, PostedSalesDocumentNo);
         CustLedgerEntry.CalcFields(Amount);
         CreateAndPostGenJnlLine(CustLedgerEntry."Customer No.", GenJnlLine."Account Type"::Customer, CustLedgerEntry.Amount);
 
-        PostedPurchaseDocumentNo := CreateAndPostPurchaseInvoiceWithVAT;
+        PostedPurchaseDocumentNo := CreateAndPostPurchaseInvoiceWithVAT();
         CreateAndPostReceivalForInvoice(PostedPurchaseDocumentNo);
         FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PostedPurchaseDocumentNo);
         VendorLedgerEntry.CalcFields(Amount);
         CreateAndPostGenJnlLine(VendorLedgerEntry."Vendor No.", GenJnlLine."Account Type"::Vendor, VendorLedgerEntry.Amount);
 
-        PostedPurchaseCreditMemoNo := CreateAndPostPurchaseCreditMemoWithVAT;
+        PostedPurchaseCreditMemoNo := CreateAndPostPurchaseCreditMemoWithVAT();
         FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", PostedPurchaseCreditMemoNo);
         VendorLedgerEntry.CalcFields(Amount);
         CreateAndPostGenJnlLine(VendorLedgerEntry."Vendor No.", GenJnlLine."Account Type"::Vendor, VendorLedgerEntry.Amount * -1);
@@ -625,12 +625,12 @@ codeunit 144044 "Ledger Reports"
         // - Check that the Local UseAmtsInAddCurr is set as expected.
         // - Validate the currency caption is present as expected
         // - Check the sum if credit and debit gl entry is the same
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('UseAmtsInAddCurr', UseLocalCurrency);
-        Assert.AreNotEqual(0, LibraryReportDataset.RowCount, 'Expected UseAmpsInAddCurr to be set correctly');
-        LibraryReportDataset.GetNextRow;
+        Assert.AreNotEqual(0, LibraryReportDataset.RowCount(), 'Expected UseAmpsInAddCurr to be set correctly');
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.GetElementValueInCurrentRow('CurrencyCodeCaption', VariantValue);
         if UseLocalCurrency then
             Assert.AreNotEqual('', VariantValue, 'Expected currency code caption to be present.');
@@ -716,9 +716,9 @@ codeunit 144044 "Ledger Reports"
         // Validate:
         // - Check totals match and are as expected
         // - Check the total message changes when showing details
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.GetElementValueInCurrentRow('GrTotalCredit', TotalCreditAmount);
         LibraryReportDataset.GetElementValueInCurrentRow('GrTotalDebit', TotalDebitAmount);
         Assert.AreEqual(FirstAmount + SecondAmount + FirstAmount,
@@ -754,7 +754,7 @@ codeunit 144044 "Ledger Reports"
     begin
         // Setup:
         CreateGenJnlTemplate(GenJournalTemplate,
-          GenJournalTemplate.Type::Financial, "Gen. Journal Template Type"::General, CreateGLAccount);
+          GenJournalTemplate.Type::Financial, "Gen. Journal Template Type"::General, CreateGLAccount());
 
         DebitAmounts[1] := LibraryRandom.RandDec(10000, 2);
         DebitAmounts[2] := LibraryRandom.RandDec(10000, 2);
@@ -835,7 +835,7 @@ codeunit 144044 "Ledger Reports"
         // - The created amounts exists in the report data
         // - There is at least one row with VAT Posting groups and amount 0
         // - There only the second credit amount posting has vat posting group specified
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         RowIndex := LibraryReportDataset.FindRow('CrAmt_GLEntry', CreditAmounts[1] * -1);
         Assert.AreNotEqual(-1, RowIndex, 'Expected to find credit amount ' + Format(CreditAmounts[1] * -1) + ' in dataset.');
@@ -892,8 +892,6 @@ codeunit 144044 "Ledger Reports"
         PurchLine: Record "Purchase Line";
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
-        VATBusPostingGroup: Record "VAT Business Posting Group";
-        VATProdPostingGroup: Record "VAT Product Posting Group";
     begin
         with LibraryPurchase do begin
             CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -914,8 +912,6 @@ codeunit 144044 "Ledger Reports"
         PurchLine: Record "Purchase Line";
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
-        VATBusPostingGroup: Record "VAT Business Posting Group";
-        VATProdPostingGroup: Record "VAT Product Posting Group";
     begin
         with LibraryPurchase do begin
             CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -1002,7 +998,6 @@ codeunit 144044 "Ledger Reports"
     local procedure CreateVendor(GenBusPostGroupCode: Code[20]; VATBusPostingGroupCode: code[20]): Code[20]
     var
         Vendor: Record Vendor;
-        VATBusPostingGroup: Record "VAT Business Posting Group";
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Gen. Bus. Posting Group", GenBusPostGroupCode);
@@ -1013,7 +1008,7 @@ codeunit 144044 "Ledger Reports"
 
     local procedure CreateGLAccWithSetup(GenProdPostGroupCode: Code[20]; VATProdPostGroupCode: Code[20]) GLAccNo: Code[20]
     begin
-        GLAccNo := CreateGLAccount;
+        GLAccNo := CreateGLAccount();
         UpdateGLAccWithSetup(GLAccNo, GenProdPostGroupCode, VATProdPostGroupCode);
         exit(GLAccNo);
     end;
@@ -1134,7 +1129,7 @@ codeunit 144044 "Ledger Reports"
     begin
         LibraryReportDataset.Reset();
 
-        while LibraryReportDataset.GetNextRow do
+        while LibraryReportDataset.GetNextRow() do
             if LibraryReportDataset.CurrentRowHasElement(NoElementName) then begin
                 LibraryReportDataset.GetElementValueInCurrentRow(NoElementName, VariantValue);
                 if Format(VariantValue) <> '' then begin
@@ -1174,7 +1169,7 @@ codeunit 144044 "Ledger Reports"
     var
         ValueText: Text;
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         ValueText := LibraryReportValidation.GetValueByRef('A', 13, 1);
         Assert.AreNotEqual(-1, StrPos(ValueText, TemplateName[1]), StrSubstNo(TemplateNotFoundErr, TemplateName[1], 6, 'A', 1));
         ValueText := LibraryReportValidation.GetValueByRef('A', 59, 3);
@@ -1205,9 +1200,9 @@ codeunit 144044 "Ledger Reports"
         LibraryVariableStorage.Dequeue(UseLcy);
         SalesLedgerReport.UseAmtsInAddCurr.SetValue(UseLcy);
 
-        SalesLedgerReport.ExcludeDeferralEntries.SetValue(LibraryVariableStorage.DequeueBoolean);
+        SalesLedgerReport.ExcludeDeferralEntries.SetValue(LibraryVariableStorage.DequeueBoolean());
 
-        SalesLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1234,9 +1229,9 @@ codeunit 144044 "Ledger Reports"
         LibraryVariableStorage.Dequeue(UseLcy);
         PurchaseLedgerReport.UseAmtsInAddCurr.SetValue(UseLcy);
 
-        PurchaseLedgerReport.ExcludeDeferralEntries.SetValue(LibraryVariableStorage.DequeueBoolean);
+        PurchaseLedgerReport.ExcludeDeferralEntries.SetValue(LibraryVariableStorage.DequeueBoolean());
 
-        PurchaseLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1251,7 +1246,7 @@ codeunit 144044 "Ledger Reports"
         PurchaseLedger.PeriodLength.SetValue(PeriodLength);
         PurchaseLedger.Startpage.SetValue(1);
         PurchaseLedger.UseAmtsInAddCurr.SetValue(false);
-        PurchaseLedger.SaveAsExcel(LibraryReportValidation.GetFileName);
+        PurchaseLedger.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1276,7 +1271,7 @@ codeunit 144044 "Ledger Reports"
         LibraryVariableStorage.Dequeue(UseLcy);
         GenLedgerReport.UseAmtsInAddCurr.SetValue(UseLcy);
 
-        GenLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GenLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1301,7 +1296,7 @@ codeunit 144044 "Ledger Reports"
         LibraryVariableStorage.Dequeue(ShowDetails);
         CentralizationLedgerReport.PrintDetail.SetValue(ShowDetails);
 
-        CentralizationLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CentralizationLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1326,14 +1321,14 @@ codeunit 144044 "Ledger Reports"
         LibraryVariableStorage.Dequeue(UseLcy);
         FinancialLedgerReport.UseAmtsInAddCurr.SetValue(UseLcy);
 
-        FinancialLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinancialLedgerReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PHPurchaseLedger(var PurchaseLedger: TestRequestPage "Purchase Ledger")
     begin
-        PurchaseLedger.SaveAsExcel(LibraryReportValidation.GetFileName);
+        PurchaseLedger.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 

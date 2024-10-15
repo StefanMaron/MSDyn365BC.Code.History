@@ -59,6 +59,7 @@ permissionset 9977 "D365 SALES DOC, POST"
                   tabledata "Customer Posting Group" = RM,
                   tabledata "Detailed Cust. Ledg. Entry" = Rimd,
                   tabledata "G/L Account" = RIM,
+                  tabledata "G/L Account Source Currency" = RIM,
                   tabledata "G/L - Item Ledger Relation" = RIMD,
                   tabledata "G/L Entry - VAT Entry Link" = Ri,
                   tabledata "G/L Entry" = Rimd,

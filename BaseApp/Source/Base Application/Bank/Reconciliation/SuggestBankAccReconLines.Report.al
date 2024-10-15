@@ -95,7 +95,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                     field(IncludeChecks; IncludeChecks)
                     {
                         ApplicationArea = Basic, Suite;
-                        Visible = False;
+                        Visible = false;
                         Caption = 'Include Checks';
                         ToolTip = 'Specifies if you want the report to include check ledger entries. If you choose this option, check ledger entries are suggested instead of the corresponding bank account ledger entries.';
                     }

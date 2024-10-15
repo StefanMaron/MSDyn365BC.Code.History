@@ -19,7 +19,7 @@ page 5469 "API Setup"
     SaveValues = true;
     SourceTable = "Config. Tmpl. Selection Rules";
     SourceTableView = sorting(Order)
-                      order(Ascending);
+                      order(ascending);
     UsageCategory = Administration;
 
     layout

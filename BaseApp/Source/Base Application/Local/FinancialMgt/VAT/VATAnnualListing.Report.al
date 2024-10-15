@@ -183,7 +183,7 @@ report 11308 "VAT Annual Listing"
 
                     trigger OnPostDataItem()
                     begin
-                        if IsCustBalanceGreaterThanMinimum or IsCreditMemoWithAppliedInvoice then begin
+                        if IsCustBalanceGreaterThanMinimum() or IsCreditMemoWithAppliedInvoice then begin
                             No := No + 1;
                             WTotBase := -WBase;
                             WTotAmount := -WAmount;
@@ -283,7 +283,7 @@ report 11308 "VAT Annual Listing"
                 trigger OnAfterGetRecord()
                 begin
                     if Number = 1 then
-                        Buffer.FindSet
+                        Buffer.FindSet()
                     else
                         Buffer.Next();
                 end;

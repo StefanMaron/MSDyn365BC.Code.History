@@ -232,23 +232,6 @@ page 611 "IC Outbox Transactions"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
-#if not CLEAN21
-                group("Set Line Action")
-                {
-                    Caption = 'Set Line Action';
-                    Image = SelectLineToApply;
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Not needed, will be removed.';
-                    ObsoleteTag = '21.0';
-                }
-                separator(Action23)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Not needed, will be removed.';
-                    ObsoleteTag = '21.0';
-                }
-# endif
                 action("Complete Line Actions")
                 {
                     ApplicationArea = Intercompany;

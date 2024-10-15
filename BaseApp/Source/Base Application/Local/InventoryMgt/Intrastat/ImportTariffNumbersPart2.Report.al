@@ -41,7 +41,7 @@ report 11332 "Import Tariff Numbers Part 2"
         while TxtFile.Pos < TxtFile.Len do begin
             TxtFile.Read(Text);
             TariffNumber."Weight Mandatory" := false;
-            PutRecordInDatabase;
+            PutRecordInDatabase();
         end;
     end;
 

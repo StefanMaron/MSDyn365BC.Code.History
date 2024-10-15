@@ -64,7 +64,7 @@ report 2000001 "File Domestic Payments"
                                 References := "Payment Message";
                         end;
                         Amt[1] := Amount;
-                        WriteDataRecord;
+                        WriteDataRecord();
                     end else begin
                         // none OGM is grouped in OnPostSection-trigger of GroupFooter section
                         ReferenceType := '3';
@@ -79,7 +79,7 @@ report 2000001 "File Domestic Payments"
                             if EBSetup."Cut off Payment Message Texts" then
                                 References := CopyStr(References, 1, 102) + ' ...'
                             else
-                                WriteDataRecord;
+                                WriteDataRecord();
 
                         if References = '' then
                             References := Reference
@@ -88,9 +88,9 @@ report 2000001 "File Domestic Payments"
 
                         Amt[1] := Amt[1] + Amount;
                         CurrencyCode := "Currency Code";
-                        NewGroupLoc := CheckNewGroup;
+                        NewGroupLoc := CheckNewGroup();
                         if NewGroupLoc then
-                            WriteDataRecord;
+                            WriteDataRecord();
                     end;
                 end;
 
@@ -133,7 +133,7 @@ report 2000001 "File Domestic Payments"
 
                         VersionCode := '5';
                         AmtFactor := 100;
-                        WriteHeaderRecord;
+                        WriteHeaderRecord();
                     end;
                 end;
             }
@@ -260,7 +260,7 @@ report 2000001 "File Domestic Payments"
 
             trigger OnAfterGetRecord()
             begin
-                WriteTrailerRecord;
+                WriteTrailerRecord();
                 xFile.Close();
 
                 // basename of file to print on 'borderel'
@@ -422,15 +422,13 @@ report 2000001 "File Domestic Payments"
     begin
         // preliminary checks
         EnterpriseNo := '';
-        with CompanyInfo do begin
-            Get();
-            if "Enterprise No." = '' then
-                EnterpriseNo := '00000000000'
-            else begin
-                if not EnterpriseNoCheck.MOD97Check("Enterprise No.") then
-                    Error(Text000);
-                EnterpriseNo := '0' + PaymJnlManagement.ConvertToDigit("Enterprise No.", MaxStrLen(EnterpriseNo));
-            end;
+        CompanyInfo.Get();
+        if CompanyInfo."Enterprise No." = '' then
+            EnterpriseNo := '00000000000'
+        else begin
+            if not EnterpriseNoCheck.MOD97Check(CompanyInfo."Enterprise No.") then
+                Error(Text000);
+            EnterpriseNo := '0' + PaymJnlManagement.ConvertToDigit(CompanyInfo."Enterprise No.", MaxStrLen(EnterpriseNo));
         end;
 
         if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Desktop, CLIENTTYPE::Windows]) then
@@ -518,50 +516,45 @@ report 2000001 "File Domestic Payments"
     [Scope('OnPrem')]
     procedure FillCustomerData(PaymentJnlLine: Record "Payment Journal Line")
     begin
-        with Cust do begin
-            Get(PaymentJnlLine."Account No.");
-            Remittee[1] := CopyStr(Name, 1, MaxStrLen(Remittee[1]));
-            Remittee[2] := CopyStr(Address, 1, MaxStrLen(Remittee[2]));
-            Remittee[3] := PaymJnlManagement.ConvertToDigit(CopyStr("Post Code", 1), MaxStrLen(Remittee[3]));
-            Remittee[4] := CopyStr(City, 1, MaxStrLen(Remittee[4]));
-        end;
+        Cust.Get(PaymentJnlLine."Account No.");
+        Remittee[1] := CopyStr(Cust.Name, 1, MaxStrLen(Remittee[1]));
+        Remittee[2] := CopyStr(Cust.Address, 1, MaxStrLen(Remittee[2]));
+        Remittee[3] := PaymJnlManagement.ConvertToDigit(CopyStr(Cust."Post Code", 1), MaxStrLen(Remittee[3]));
+        Remittee[4] := CopyStr(Cust.City, 1, MaxStrLen(Remittee[4]));
     end;
 
     [Scope('OnPrem')]
     procedure FillVendorData(PaymentJnlLine: Record "Payment Journal Line")
     begin
-        with Vend do begin
-            Get(PaymentJnlLine."Account No.");
-            Remittee[1] := CopyStr(Name, 1, MaxStrLen(Remittee[1]));
-            Remittee[2] := CopyStr(Address, 1, MaxStrLen(Remittee[2]));
-            Remittee[3] := PaymJnlManagement.ConvertToDigit(CopyStr("Post Code", 1), MaxStrLen(Remittee[3]));
-            Remittee[4] := CopyStr(City, 1, MaxStrLen(Remittee[4]));
-        end;
+        Vend.Get(PaymentJnlLine."Account No.");
+        Remittee[1] := CopyStr(Vend.Name, 1, MaxStrLen(Remittee[1]));
+        Remittee[2] := CopyStr(Vend.Address, 1, MaxStrLen(Remittee[2]));
+        Remittee[3] := PaymJnlManagement.ConvertToDigit(CopyStr(Vend."Post Code", 1), MaxStrLen(Remittee[3]));
+        Remittee[4] := CopyStr(Vend.City, 1, MaxStrLen(Remittee[4]));
     end;
 
     [Scope('OnPrem')]
     procedure WriteHeaderRecord()
     begin
-        with xFile do
-            Write(
-              // '00000'  // header record
-              '0' +
-              Format(InterbankClearingCode, 1) +
-              '000' +
-              Format(Today, 6, '<day,2><month,2><year,2>') +
-              Format(BankAcc."Bank Branch No.", 3) +
-              '01' +
-              Format(ExecutionDate, 6, '<day,2><month,2><year,2>') +
-              ' ' +
-              '000' +
-              PaymJnlManagement.ConvertToDigit(BankAcc."Bank Account No.", 12) +
-              Format(CompanyInfo.Name, 26) +
-              Format(CompanyInfo.Address, 26) +
-              Format(PaymJnlManagement.ConvertToDigit(CompanyInfo."Post Code", 4), 4) +
-              Format(CompanyInfo.City, 22) +
-              '0' +
-              Format(InscriptionNo, 10) +
-              Format(VersionCode, 1));
+        xFile.Write(
+            // '00000'  // header record
+            '0' +
+            Format(InterbankClearingCode, 1) +
+            '000' +
+            Format(Today, 6, '<day,2><month,2><year,2>') +
+            Format(BankAcc."Bank Branch No.", 3) +
+            '01' +
+            Format(ExecutionDate, 6, '<day,2><month,2><year,2>') +
+            ' ' +
+            '000' +
+            PaymJnlManagement.ConvertToDigit(BankAcc."Bank Account No.", 12) +
+            Format(CompanyInfo.Name, 26) +
+            Format(CompanyInfo.Address, 26) +
+            Format(PaymJnlManagement.ConvertToDigit(CompanyInfo."Post Code", 4), 4) +
+            Format(CompanyInfo.City, 22) +
+            '0' +
+            Format(InscriptionNo, 10) +
+            Format(VersionCode, 1));
     end;
 
     [Scope('OnPrem')]
@@ -573,29 +566,27 @@ report 2000001 "File Domestic Payments"
         // Number of Payment Records
         PaymentNo := PaymentNo + 1;
         BankAccNoText := PaymJnlManagement.ConvertToDigit(BankAccNo, 12);
-        with xFile do begin
-            Write(
-              '1' +
-              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-              Format('', 8) +
-              PadStr('', 10, '0') +
-              Format(BankAccNoText, 12) +
-              PaymJnlManagement.DecimalNumeralZeroFormat(Amt[1] * AmtFactor, 12) +
-              Format(Remittee[1], 26) +
-              '0' +
-              Format(References, 53) +
-              Format(ReferenceType, 1));
-            Write(
-              '2' +
-              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-              '0' +
-              Format(Remittee[2], 26) +
-              Format(Remittee[3], 4) +
-              Format(Remittee[4], 22) +
-              Format(CopyStr(References, 54), 53) +
-              '0' +
-              Format('', 16));
-        end;
+        xFile.Write(
+            '1' +
+            PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
+            Format('', 8) +
+            PadStr('', 10, '0') +
+            Format(BankAccNoText, 12) +
+            PaymJnlManagement.DecimalNumeralZeroFormat(Amt[1] * AmtFactor, 12) +
+            Format(Remittee[1], 26) +
+            '0' +
+            Format(References, 53) +
+            Format(ReferenceType, 1));
+        xFile.Write(
+            '2' +
+            PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
+            '0' +
+            Format(Remittee[2], 26) +
+            Format(Remittee[3], 4) +
+            Format(Remittee[4], 22) +
+            Format(CopyStr(References, 54), 53) +
+            '0' +
+            Format('', 16));
 
         // Total for Trailer record
         TotalAmount[1] := TotalAmount[1] + Amt[1];
@@ -610,15 +601,14 @@ report 2000001 "File Domestic Payments"
     [Scope('OnPrem')]
     procedure WriteTrailerRecord()
     begin
-        with xFile do
-            Write(
-              '9' +
-              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo * 2, 4) +
-              PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
-              PaymJnlManagement.DecimalNumeralZeroFormat(TotalAmount[1] * AmtFactor, 12) +
-              PaymJnlManagement.DecimalNumeralZeroFormat(TotalAccNoDecimal, 15) +
-              Format(EnterpriseNo, 11) +
-              Format('', 81));
+        xFile.Write(
+            '9' +
+            PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo * 2, 4) +
+            PaymJnlManagement.DecimalNumeralZeroFormat(PaymentNo, 4) +
+            PaymJnlManagement.DecimalNumeralZeroFormat(TotalAmount[1] * AmtFactor, 12) +
+            PaymJnlManagement.DecimalNumeralZeroFormat(TotalAccNoDecimal, 15) +
+            Format(EnterpriseNo, 11) +
+            Format('', 81));
     end;
 
     [Scope('OnPrem')]

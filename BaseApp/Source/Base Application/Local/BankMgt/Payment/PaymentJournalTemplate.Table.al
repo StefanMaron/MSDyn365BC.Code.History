@@ -13,6 +13,7 @@ table 2000000 "Payment Journal Template"
     Caption = 'Payment Journal Template';
     DataCaptionFields = Name;
     LookupPageID = "EB Payment Journal Templates";
+    DataClassification = CustomerContent;
 
     fields
     {

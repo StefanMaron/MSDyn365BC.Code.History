@@ -15,6 +15,7 @@ table 7334 "Whse. Internal Pick Line"
 {
     Caption = 'Whse. Internal Pick Line';
     LookupPageID = "Whse. Internal Pick Lines";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -391,7 +392,7 @@ table 7334 "Whse. Internal Pick Line"
     begin
         if GetInternalPickHeader("No.") then begin
             WhseInternalPickLine.SetRange("No.", WhseInternalPickHeader."No.");
-            if WhseInternalPickLine.Count > 0 then
+            if not WhseInternalPickLine.IsEmpty() then
                 LastLineNo := LastWhseInternalPickLine."Line No."
             else
                 LastLineNo := 0;

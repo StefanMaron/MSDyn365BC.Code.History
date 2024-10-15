@@ -20,6 +20,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryPurchase: Codeunit "Library - Purchase";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
@@ -67,7 +68,7 @@ codeunit 134477 "ERM Dimension General Part-1"
 
         // Use Random because value is not important.
         CreateGeneralJournalLines(
-          GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendorWithDimension, -LibraryRandom.RandDec(100, 2));
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendorWithDimension(), -LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2. Exercise: Apply Invoice on Payment.
@@ -857,7 +858,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     begin
         // Check Sales Analysis by Dimensions shows correct Catpion values when Show Cloumn Name TRUE and Show as Column is Item.
         Initialize();
-        EnqueueDetailAnalysisDimMatrixItem;
+        EnqueueDetailAnalysisDimMatrixItem();
         CreateAndRunSalesAnalysisMatrix(ShowAsColumn::Item);
     end;
 
@@ -870,7 +871,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     begin
         // Check Sales Analysis by Dimensions shows correct Catpion values when Show Cloumn Name TRUE and Show as Column is Location.
         Initialize();
-        EnqueueDetailAnalysisDimMatrixLocation;
+        EnqueueDetailAnalysisDimMatrixLocation();
         CreateAndRunSalesAnalysisMatrix(ShowAsColumn::Location);
     end;
 
@@ -925,7 +926,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     begin
         // Check Purchase Analysis by Dimensions shows correct Catpion values when Show Cloumn Name TRUE and Show as Column is Item.
         Initialize();
-        EnqueueDetailAnalysisDimMatrixItem;
+        EnqueueDetailAnalysisDimMatrixItem();
         CreateAndRunPurchaseAnalysisMatrix(ShowAsColumn::Item);
     end;
 
@@ -938,7 +939,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     begin
         // Check Purchase Analysis by Dimensions shows correct Catpion values when Show Cloumn Name TRUE and Show as Column is Location.
         Initialize();
-        EnqueueDetailAnalysisDimMatrixLocation;
+        EnqueueDetailAnalysisDimMatrixLocation();
         CreateAndRunPurchaseAnalysisMatrix(ShowAsColumn::Location);
     end;
 
@@ -1188,6 +1189,227 @@ codeunit 134477 "ERM Dimension General Part-1"
         Assert.IsTrue(IsNullGuid(DefaultDimension.DimensionValueId), 'Dimension Value Id should be null.');
     end;
 
+    [Test]
+    procedure RealizedGainLossEntryDimensionsAreAppliedFromSourceEntryOnApplyInvoiceToPaymentWithDifferentDates()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Vendor: Record Vendor;
+        Currency: Record Currency;
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        CurrExchRateAmount, PaymentAmt : Decimal;
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
+        InvoiceDocNo: Code[20];
+    begin
+        // [SCENARIO 307817] Realized Gain\Loss Entry Dimensions are applied from Source Entry on Apply Invoice to Payment with different dates 
+        Initialize();
+
+        // [GIVEN] Set Dimension Posting to "Source Entry Dimensions"
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."App. Dimension Posting" := Enum::"Exch. Rate Adjmt. Dimensions"::"Source Entry Dimensions";
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Create Currency
+        LibraryERM.CreateCurrency(Currency);
+
+        // [GIVEN] Add Realized Gain\Loss Account to Currency
+        Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Modify(true);
+
+        // [GIVEN] Create Currency Exchange Rates
+        CurrExchRateAmount := LibraryRandom.RandDec(100, 2);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1 / CurrExchRateAmount, 1 / CurrExchRateAmount);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate() - 1, 1 / (CurrExchRateAmount - 1), 1 / (CurrExchRateAmount - 1));
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Default Dimension for Vendor
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimensionVendor(
+          DefaultDimension, Vendor."No.", DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+
+        // [GIVEN] Return amount from Purchase Invoice
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        PaymentAmt := PurchaseHeader."Amount Including VAT";
+
+        // [GIVEN] Post Purchase Invoice
+        InvoiceDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create Payment
+        CreateGenJnlLine(GenJournalLine, WorkDate() - 1, GenJournalLine."Document Type"::Payment, PaymentAmt, Vendor."No.", Currency.Code);
+
+        // [GIVEN] Post Payment
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Apply and Post Payment to Invoice
+        LibraryERM.ApplyVendorLedgerEntries(GenJournalDocumentType::Payment, GenJournalDocumentType::Invoice, GenJournalLine."Document No.", InvoiceDocNo);
+
+        // [GIVEN] Find Realized Gain\Loss Entry
+        GLEntry.SetFilter("G/L Account No.", '%1|%2', Currency."Realized Gains Acc.", Currency."Realized Losses Acc.");
+        GLEntry.FindFirst();
+
+        // [THEN] Verify result
+        Assert.AreEqual(GLEntry."Global Dimension 1 Code", DimensionValue.Code, 'Dimension Value Code should be equal to dimension on Realized Gain\Loss Entry.');
+    end;
+
+    [Test]
+    procedure RealizedGainLossEntryIsCreatedWithoutDimensionForNoDimensionsOptionOnApplyInvoiceToPaymentWithDifferentDates()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Vendor: Record Vendor;
+        Currency: Record Currency;
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        CurrExchRateAmount, PaymentAmt : Decimal;
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
+        InvoiceDocNo: Code[20];
+    begin
+        // [SCENARIO 307817] Realized Gain\Loss Entry is created without Dimension for "No Dimensions" option on Apply Invoice to Payment with different dates
+        Initialize();
+
+        // [GIVEN] Set Dimension Posting to "Source Entry Dimensions"
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."App. Dimension Posting" := Enum::"Exch. Rate Adjmt. Dimensions"::"No Dimensions";
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Create Currency
+        LibraryERM.CreateCurrency(Currency);
+
+        // [GIVEN] Add Realized Gain\Loss Account to Currency
+        Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Modify(true);
+
+        // [GIVEN] Create Currency Exchange Rates
+        CurrExchRateAmount := LibraryRandom.RandDec(100, 2);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1 / CurrExchRateAmount, 1 / CurrExchRateAmount);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate() - 1, 1 / (CurrExchRateAmount - 1), 1 / (CurrExchRateAmount - 1));
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Default Dimension for Vendor
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimensionVendor(
+          DefaultDimension, Vendor."No.", DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+
+        // [GIVEN] Return amount from Purchase Invoice
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        PaymentAmt := PurchaseHeader."Amount Including VAT";
+
+        // [GIVEN] Post Purchase Invoice
+        InvoiceDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create Payment
+        CreateGenJnlLine(GenJournalLine, WorkDate() - 1, GenJournalLine."Document Type"::Payment, PaymentAmt, Vendor."No.", Currency.Code);
+
+        // [GIVEN] Post Payment
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Apply and Post Payment to Invoice
+        LibraryERM.ApplyVendorLedgerEntries(GenJournalDocumentType::Payment, GenJournalDocumentType::Invoice, GenJournalLine."Document No.", InvoiceDocNo);
+
+        // [GIVEN] Find Realized Gain\Loss Entry
+        GLEntry.SetFilter("G/L Account No.", '%1|%2', Currency."Realized Gains Acc.", Currency."Realized Losses Acc.");
+        GLEntry.FindFirst();
+
+        // [THEN] Verify result
+        Assert.AreEqual(GLEntry."Global Dimension 1 Code", '', 'Dimension on Realized Gain\Loss Entry should be empty.');
+    end;
+
+    [Test]
+    procedure RealizedGainLossEntryIsCreatedWithDimFromGLAccountrForGLAccountDimensionsOptionOnApplyInvoiceToPaymentWithDifferentDates()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Vendor: Record Vendor;
+        Currency: Record Currency;
+        DefaultDimension: Record "Default Dimension";
+        DimensionValues: array[3] of Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        CurrExchRateAmount, PaymentAmt : Decimal;
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
+        InvoiceDocNo, GainGLAccountNo, LossGLAccountNo : Code[20];
+    begin
+        // [SCENARIO 307817] Realized Gain\Loss Entry is created with Dimension from G/L Account for "G/L Account Dimensions" option on Apply Invoice to Payment with different dates
+        Initialize();
+
+        // [GIVEN] Set Dimension Posting to "Source Entry Dimensions"
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."App. Dimension Posting" := Enum::"Exch. Rate Adjmt. Dimensions"::"G/L Account Dimensions";
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Create Currency
+        LibraryERM.CreateCurrency(Currency);
+
+        // [GIVEN] Create G\L Accounts with Default Dimension
+        CreateDefaultDimensionForGLAccount(GainGLAccountNo, DimensionValues[1]);
+        CreateDefaultDimensionForGLAccount(LossGLAccountNo, DimensionValues[2]);
+
+        // [GIVEN] Add Realized Gain\Loss Accounts to Currency
+        Currency.Validate("Realized Gains Acc.", GainGLAccountNo);
+        Currency.Validate("Realized Losses Acc.", LossGLAccountNo);
+        Currency.Modify(true);
+
+        // [GIVEN] Create Currency Exchange Rates
+        CurrExchRateAmount := LibraryRandom.RandDec(100, 2);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1 / CurrExchRateAmount, 1 / CurrExchRateAmount);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate() - 1, 1 / (CurrExchRateAmount - 1), 1 / (CurrExchRateAmount - 1));
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Default Dimension for Vendor
+        LibraryDimension.CreateDimensionValue(DimensionValues[3], LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimensionVendor(
+          DefaultDimension, Vendor."No.", DimensionValues[3]."Dimension Code", DimensionValues[3].Code);
+
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+
+        // [GIVEN] Return amount from Purchase Invoice
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        PaymentAmt := PurchaseHeader."Amount Including VAT";
+
+        // [GIVEN] Post Purchase Invoice
+        InvoiceDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create Payment
+        CreateGenJnlLine(GenJournalLine, WorkDate() - 1, GenJournalLine."Document Type"::Payment, PaymentAmt, Vendor."No.", Currency.Code);
+
+        // [GIVEN] Post Payment
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Apply and Post Payment to Invoice
+        LibraryERM.ApplyVendorLedgerEntries(GenJournalDocumentType::Payment, GenJournalDocumentType::Invoice, GenJournalLine."Document No.", InvoiceDocNo);
+
+        // [GIVEN] Find Realized Gain\Loss G\L Entry
+        GLEntry.SetFilter("G/L Account No.", '%1|%2', Currency."Realized Gains Acc.", Currency."Realized Losses Acc.");
+        GLEntry.FindFirst();
+
+        // [THEN] Verify result
+        if GLEntry."G/L Account No." = Currency."Realized Gains Acc." then
+            Assert.AreEqual(GLEntry."Global Dimension 1 Code", DimensionValues[1].Code, 'Dimension Value Code should be equal to dimension on Realized Gain\Loss Entry.');
+
+        if GLEntry."G/L Account No." = Currency."Realized Losses Acc." then
+            Assert.AreEqual(GLEntry."Global Dimension 1 Code", DimensionValues[2].Code, 'Dimension Value Code should be equal to dimension on Realized Gain\Loss Entry.');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1195,7 +1417,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension General Part-1");
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
-        LibraryDimension.InitGlobalDimChange;
+        LibraryDimension.InitGlobalDimChange();
 
         // Lazy Setup.
         if IsInitialized then
@@ -1272,7 +1494,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         CreateSalesItemAnalysisView(SalesAnalysisbyDimensions, '', 0);
         SetParameterForSalesAnalysisDimension(SalesAnalysisbyDimensions, ShowAsColumn);
         SalesAnalysisbyDimensions.ShowColumnName.SetValue(true);
-        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke();
     end;
 
     local procedure CreateAndRunSalesAnalysisMatrixForDimensions(DimensionValue: Code[20]; DimCode: Integer)
@@ -1284,7 +1506,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         SalesAnalysisbyDimensions.LineDimCode.SetValue(ShowAsColumn::Location);
         SalesAnalysisbyDimensions.ColumnDimCode.SetValue(DimensionValue);
         SalesAnalysisbyDimensions.ShowColumnName.SetValue(true);
-        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke();
     end;
 
     local procedure CreateAndRunPurchaseAnalysisMatrix(ShowAsColumn: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3")
@@ -1294,7 +1516,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         CreatePurchaseItemAnalysisView(PurchaseAnalysisbyDimensions, '', 0);
         SetParameterForPurchaseAnalysisDimension(PurchaseAnalysisbyDimensions, ShowAsColumn);
         PurchaseAnalysisbyDimensions.ShowColumnName.SetValue(true);
-        PurchaseAnalysisbyDimensions.ShowMatrix.Invoke;
+        PurchaseAnalysisbyDimensions.ShowMatrix.Invoke();
     end;
 
     local procedure CreateAndRunPurchaseAnalysisMatrixForDimensions(DimensionValue: Code[20]; DimCode: Integer)
@@ -1306,7 +1528,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         PurchaseAnalysisbyDimensions.LineDimCode.SetValue(ShowAsColumn::Location);
         PurchaseAnalysisbyDimensions.ColumnDimCode.SetValue(DimensionValue);
         PurchaseAnalysisbyDimensions.ShowColumnName.SetValue(true);
-        PurchaseAnalysisbyDimensions.ShowMatrix.Invoke;
+        PurchaseAnalysisbyDimensions.ShowMatrix.Invoke();
     end;
 
     local procedure CreateAnalysisViewDimension(Dimension1Code: Code[20])
@@ -1397,10 +1619,10 @@ codeunit 134477 "ERM Dimension General Part-1"
     begin
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Sales);
         UpdateDimensionCodeOnItemAnalysisView(ItemAnalysisView, DimCode, DimensionCode);
-        AnalysisViewListSales.OpenEdit;
+        AnalysisViewListSales.OpenEdit();
         AnalysisViewListSales.FILTER.SetFilter(Code, ItemAnalysisView.Code);
-        SalesAnalysisbyDimensions.Trap;
-        AnalysisViewListSales.EditAnalysisView.Invoke;
+        SalesAnalysisbyDimensions.Trap();
+        AnalysisViewListSales.EditAnalysisView.Invoke();
     end;
 
     local procedure CreatePurchaseItemAnalysisView(var PurchaseAnalysisbyDimensions: TestPage "Purch. Analysis by Dimensions"; DimensionCode: Code[20]; DimCode: Integer)
@@ -1410,10 +1632,10 @@ codeunit 134477 "ERM Dimension General Part-1"
     begin
         LibraryERM.CreateItemAnalysisView(ItemAnalysisView, ItemAnalysisView."Analysis Area"::Purchase);
         UpdateDimensionCodeOnItemAnalysisView(ItemAnalysisView, DimCode, DimensionCode);
-        AnalysisViewListPurchase.OpenEdit;
+        AnalysisViewListPurchase.OpenEdit();
         AnalysisViewListPurchase.FILTER.SetFilter(Code, ItemAnalysisView.Code);
-        PurchaseAnalysisbyDimensions.Trap;
-        AnalysisViewListPurchase.EditAnalysisView.Invoke;
+        PurchaseAnalysisbyDimensions.Trap();
+        AnalysisViewListPurchase.EditAnalysisView.Invoke();
     end;
 
     local procedure CreateVendorWithDimension(): Code[20]
@@ -1533,7 +1755,7 @@ codeunit 134477 "ERM Dimension General Part-1"
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJournalBatch.Modify(true);
     end;
 
@@ -1648,6 +1870,31 @@ codeunit 134477 "ERM Dimension General Part-1"
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Shortcut Dimension 1 Code", ShortcutDimension1Code);
         GeneralLedgerSetup.TestField("Shortcut Dimension 2 Code", ShortcutDimension2Code);
+    end;
+
+    local procedure CreateDefaultDimensionForGLAccount(var GLAccountNo: Code[20]; var DimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimensionGLAcc(
+          DefaultDimension, GLAccountNo, DimensionValue."Dimension Code", DimensionValue.Code);
+    end;
+
+
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; VendorNo: Code[20]; CurrencyCode: Code[10])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
+          GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
     end;
 
     [ModalPageHandler]

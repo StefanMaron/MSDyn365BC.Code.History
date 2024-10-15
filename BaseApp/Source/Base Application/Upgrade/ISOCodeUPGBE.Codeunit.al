@@ -12,9 +12,9 @@ codeunit 104151 "ISO Code UPG.BE"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
-         
-        MoveCurrencyISOCode;
-        UpdateCountyName;
+
+        MoveCurrencyISOCode();
+        UpdateCountyName();
     end;
 
     local procedure MoveCurrencyISOCode()
@@ -23,19 +23,17 @@ codeunit 104151 "ISO Code UPG.BE"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetMoveCurrencyISOCodeTag) THEN
-            EXIT;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetMoveCurrencyISOCodeTag()) then
+            exit;
 
-        WITH Currency DO BEGIN
-            SETFILTER("ISO Currency Code", '<>%1', '');
-            IF FindSet() then
-                REPEAT
-                    "ISO Code" := "ISO Currency Code";
-                    Modify();
-                UNTIL Next() = 0;
-        END;
+        Currency.SetFilter("ISO Currency Code", '<>%1', '');
+        if Currency.FindSet() then
+            repeat
+                Currency."ISO Code" := Currency."ISO Currency Code";
+                Currency.Modify();
+            until Currency.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetMoveCurrencyISOCodeTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetMoveCurrencyISOCodeTag());
     end;
 
     local procedure UpdateCountyName()
@@ -44,19 +42,17 @@ codeunit 104151 "ISO Code UPG.BE"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateCountyNameTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateCountyNameTag()) THEN
             EXIT;
 
-        WITH CountryRegion DO BEGIN
-            SETFILTER("ISO Country/Region Code", '<>%1', '');
-            IF FindSet() then
-                REPEAT
-                    "ISO Code" := "ISO Country/Region Code";
-                    Modify();
-                UNTIL Next() = 0;
-        END;
+        CountryRegion.SetFilter("ISO Country/Region Code", '<>%1', '');
+        if CountryRegion.FindSet() then
+            repeat
+                CountryRegion."ISO Code" := CountryRegion."ISO Country/Region Code";
+                CountryRegion.Modify();
+            until CountryRegion.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateCountyNameTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateCountyNameTag());
     end;
 }
 

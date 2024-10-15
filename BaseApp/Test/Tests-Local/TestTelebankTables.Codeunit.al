@@ -24,12 +24,12 @@ codeunit 144018 "Test Telebank Tables"
         SourceCodeSetup.Init();
         if not SourceCodeSetup.Get() then
             SourceCodeSetup.Insert();
-        SourceCodeSetup."Payment Journal" := CopyStr(CreateGuid, 1, MaxStrLen(SourceCodeSetup."Payment Journal"));
+        SourceCodeSetup."Payment Journal" := CopyStr(CreateGuid(), 1, MaxStrLen(SourceCodeSetup."Payment Journal"));
         SourceCodeSetup.Modify();
 
         with PaymentJournalTemplate do begin
             Init();
-            Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
+            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
 
             // Exercise
             Insert(true);
@@ -105,7 +105,7 @@ codeunit 144018 "Test Telebank Tables"
             Init();
             "Journal Template Name" := PaymentJournalTemplate.Name;
             SetRange("Journal Template Name", "Journal Template Name");
-            Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
+            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
             Insert(true);
         end;
 
@@ -222,12 +222,12 @@ codeunit 144018 "Test Telebank Tables"
         SourceCodeSetup.Init();
         if not SourceCodeSetup.Get() then
             SourceCodeSetup.Insert();
-        SourceCodeSetup."Domiciliation Journal" := CopyStr(CreateGuid, 1, MaxStrLen(SourceCodeSetup."Domiciliation Journal"));
+        SourceCodeSetup."Domiciliation Journal" := CopyStr(CreateGuid(), 1, MaxStrLen(SourceCodeSetup."Domiciliation Journal"));
         SourceCodeSetup.Modify();
 
         with DomiciliationJournalTemplate do begin
             Init();
-            Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
+            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
 
             // Exercise
             Insert(true);
@@ -303,7 +303,7 @@ codeunit 144018 "Test Telebank Tables"
             Init();
             "Journal Template Name" := DomiciliationJournalTemplate.Name;
             SetRange("Journal Template Name", "Journal Template Name");
-            Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
+            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
             Insert(true);
         end;
 
@@ -382,7 +382,7 @@ codeunit 144018 "Test Telebank Tables"
     begin
         with PaymentJournalTemplate do begin
             Init();
-            Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
+            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
             Insert();
         end;
     end;
@@ -393,7 +393,7 @@ codeunit 144018 "Test Telebank Tables"
             Init();
             "Journal Template Name" := PaymentJournalTemplate.Name;
             SetRange("Journal Template Name", "Journal Template Name");
-            Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
+            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
             Insert();
         end;
     end;
@@ -416,7 +416,7 @@ codeunit 144018 "Test Telebank Tables"
     begin
         with DomiciliationJournalTemplate do begin
             Init();
-            Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
+            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
             Insert();
         end;
     end;
@@ -427,7 +427,7 @@ codeunit 144018 "Test Telebank Tables"
             Init();
             "Journal Template Name" := DomiciliationJournalTemplate.Name;
             SetRange("Journal Template Name", "Journal Template Name");
-            Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
+            Name := CopyStr(CreateGuid(), 1, MaxStrLen(Name));
             Insert();
         end;
     end;

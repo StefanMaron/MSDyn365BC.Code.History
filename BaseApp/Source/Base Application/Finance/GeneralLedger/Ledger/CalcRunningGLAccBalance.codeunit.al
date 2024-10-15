@@ -58,12 +58,23 @@ codeunit 122 "Calc. Running GL. Acc. Balance"
             DayTotals.Add(GLEntry."Posting Date", DateTotal);
             DayTotalsACY.Add(GLEntry."Posting Date", DateTotalACY);
         end;
+        RunningBalance := DateTotal;
+        RunningBalanceACY := DateTotalACY;
         GLEntry2.SetRange("Posting Date", GLEntry."Posting Date");
-        GLEntry2.SetFilter("Entry No.", '>%1', GLEntry."Entry No.");
-        GLEntry2.CalcSums(Amount, "Additional-Currency Amount");
-        RunningBalance := DateTotal - GLEntry2.Amount;
-        RunningBalanceACY := DateTotalACY - GLEntry2."Additional-Currency Amount";
-        EntryValues.Add(GLEntry."Entry No.", RunningBalance);
-        EntryValuesACY.Add(GLEntry."Entry No.", RunningBalanceACY);
+        GLEntry2.SetCurrentKey("Entry No.");
+        GLEntry2.Ascending(false);
+        if GLEntry2.FindSet() then
+            repeat
+                if GLEntry2."Entry No." = GLEntry."Entry No." then begin
+                    RunningBalance := DateTotal;
+                    RunningBalanceACY := DateTotalACY;
+                end;
+                if not EntryValues.ContainsKey(GLEntry2."Entry No.") then
+                    EntryValues.Add(GLEntry2."Entry No.", DateTotal);
+                if not EntryValuesACY.ContainsKey(GLEntry2."Entry No.") then
+                    EntryValuesACY.Add(GLEntry2."Entry No.", DateTotalACY);
+                DateTotal -= GLEntry2.Amount;
+                DateTotalACY -= GLEntry2."Additional-Currency Amount";
+            until GLEntry2.Next() = 0;
     end;
 }

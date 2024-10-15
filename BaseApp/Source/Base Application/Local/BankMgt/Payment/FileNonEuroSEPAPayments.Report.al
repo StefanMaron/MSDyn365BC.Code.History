@@ -48,7 +48,7 @@ report 2000006 "File Non Euro SEPA Payments"
 
             trigger OnPostDataItem()
             begin
-                if not EmptyConsolidatedPayment then
+                if not EmptyConsolidatedPayment() then
                     ExportTransactionInformation(PmtInfNode, ConsolidatedPmtJnlLine, ConsolidatedPmtMessage);
                 PostPmtLines("Payment Journal Line");
             end;
@@ -208,7 +208,7 @@ report 2000006 "File Non Euro SEPA Payments"
 
     trigger OnPostReport()
     begin
-        FinishGroupHeader;
+        FinishGroupHeader();
         XMLDomDoc.Save(SaveToFileName);
 
         Download(SaveToFileName, '', '', AllFilesDescriptionTxt, FileName);
@@ -459,167 +459,164 @@ report 2000006 "File Non Euro SEPA Payments"
     begin
         OnBeforeExportTransactionInformation(PmtJnlLine, PaymentMessage);
 
-        with PmtJnlLine do begin
-            GLSetup.Get();
-            RootNode := XMLNodeCurr;
-            NumberOfTransactions += 1;
-            ControlSum += Amount;
+        GLSetup.Get();
+        RootNode := XMLNodeCurr;
+        NumberOfTransactions += 1;
+        ControlSum += PmtJnlLine.Amount;
 
-            AddElement(XMLNodeCurr, 'CdtTrfTxInf', '', '', XMLNewChild);
-            XMLNodeCurr := XMLNewChild;
+        AddElement(XMLNodeCurr, 'CdtTrfTxInf', '', '', XMLNewChild);
+        XMLNodeCurr := XMLNewChild;
 
-            AddElement(XMLNodeCurr, 'PmtId', '', '', XMLNewChild);
-            XMLNodeCurr := XMLNewChild;
+        AddElement(XMLNodeCurr, 'PmtId', '', '', XMLNewChild);
+        XMLNodeCurr := XMLNewChild;
 
-            AddElement(XMLNodeCurr, 'EndToEndId', CutText(PaymentMessage, 35), '', XMLNewChild);
-            XMLNodeCurr := XMLNodeCurr.ParentNode;
+        AddElement(XMLNodeCurr, 'EndToEndId', CutText(PaymentMessage, 35), '', XMLNewChild);
+        XMLNodeCurr := XMLNodeCurr.ParentNode;
 
-            AddElement(XMLNodeCurr, 'Amt', '', '', XMLNewChild);
-            XMLNodeCurr := XMLNewChild;
+        AddElement(XMLNodeCurr, 'Amt', '', '', XMLNewChild);
+        XMLNodeCurr := XMLNewChild;
 
-            AddElement(XMLNodeCurr, 'InstdAmt', Format(Amount, 0, 9), '', XMLNewChild);
-            if "Currency Code" = '' then
-                ISOCurrCode := CopyStr(GLSetup."LCY Code", 1, 3)
-            else begin
-                GetCurrency("Currency Code");
-                ISOCurrCode := CopyStr(Currency."ISO Code", 1, 3);
-            end;
-            AddAttribute(XMLDomDoc, XMLNewChild, 'Ccy', ISOCurrCode);
-            XMLNodeCurr := XMLNodeCurr.ParentNode;
-            AddElement(XMLNodeCurr, 'CdtrAgt', '', '', XMLNewChild);
-            XMLNodeCurr := XMLNewChild;
-
-            AddElement(XMLNodeCurr, 'FinInstnId', '', '', XMLNewChild);
-            XMLNodeCurr := XMLNewChild;
-
-            AddElement(XMLNodeCurr, 'BIC', CopyStr(DelChr("SWIFT Code"), 1, 11), '', XMLNewChild);
-            case "Account Type" of
-                "Account Type"::Vendor:
-                    begin
-                        GetVendorBankAccount("Account No.", "Beneficiary Bank Account");
-                        AddElement(XMLNodeCurr, 'Nm', VendorBankAcc.Name, '', XMLNewChild);
-                        AddElement(XMLNodeCurr, 'PstlAdr', '', '', XMLNewChild);
-                        XMLNodeCurr := XMLNewChild;
-
-                        GetCountry(VendorBankAcc."Country/Region Code");
-                        if Country."ISO Code" <> '' then
-                            AddElement(XMLNodeCurr, 'Ctry', CopyStr(Country."ISO Code", 1, 2), '', XMLNewChild);
-
-                        AddressLine1 := DelChr(VendorBankAcc.Address, '<>') + ' ' + DelChr(VendorBankAcc."Address 2", '<>');
-                        if DelChr(AddressLine1) <> '' then
-                            AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine1, 1, 35), '', XMLNewChild);
-
-                        AddressLine2 := DelChr(VendorBankAcc."Post Code", '<>') + ' ' + DelChr(VendorBankAcc.City, '<>');
-                        if DelChr(AddressLine2) <> '' then
-                            AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine2, 1, 35), '', XMLNewChild);
-                        XMLNodeCurr := XMLNodeCurr.ParentNode;
-                        XMLNodeCurr := XMLNodeCurr.ParentNode;
-                        XMLNodeCurr := XMLNodeCurr.ParentNode;
-
-                        AddElement(XMLNodeCurr, 'Cdtr', '', '', XMLNewChild);
-                        XMLNodeCurr := XMLNewChild;
-
-                        GetVendor("Account No.");
-                        AddElement(XMLNodeCurr, 'Nm', CopyStr(Vendor.Name, 1, 70), '', XMLNewChild);
-                        AddElement(XMLNodeCurr, 'PstlAdr', '', '', XMLNewChild);
-                        XMLNodeCurr := XMLNewChild;
-
-                        GetCountry(Vendor."Country/Region Code");
-                        if Country."ISO Code" <> '' then
-                            AddElement(XMLNodeCurr, 'Ctry', CopyStr(Country."ISO Code", 1, 2), '', XMLNewChild);
-
-                        AddressLine1 := DelChr(Vendor.Address, '<>') + ' ' + DelChr(Vendor."Address 2", '<>');
-                        if DelChr(AddressLine1) <> '' then
-                            AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine1, 1, 35), '', XMLNewChild);
-
-                        AddressLine2 := DelChr(Vendor."Post Code", '<>') + ' ' + DelChr(Vendor.City, '<>');
-                        if DelChr(AddressLine2) <> '' then
-                            AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine2, 1, 35), '', XMLNewChild);
-
-                        XMLNodeCurr := XMLNodeCurr.ParentNode;
-                    end;
-                "Account Type"::Customer:
-                    begin
-                        GetCustomerBankAccount("Account No.", "Beneficiary Bank Account");
-                        AddElement(XMLNodeCurr, 'Nm', CustomerBankAcc.Name, '', XMLNewChild);
-                        AddElement(XMLNodeCurr, 'PstlAdr', '', '', XMLNewChild);
-                        XMLNodeCurr := XMLNewChild;
-
-                        GetCountry(CustomerBankAcc."Country/Region Code");
-                        if Country."ISO Code" <> '' then
-                            AddElement(XMLNodeCurr, 'Ctry', CopyStr(Country."ISO Code", 1, 2), '', XMLNewChild);
-
-                        AddressLine1 := DelChr(CustomerBankAcc.Address, '<>') + ' ' + DelChr(CustomerBankAcc."Address 2", '<>');
-                        if DelChr(AddressLine1) <> '' then
-                            AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine1, 1, 35), '', XMLNewChild);
-
-                        AddressLine2 := DelChr(CustomerBankAcc."Post Code", '<>') + ' ' + DelChr(CustomerBankAcc.City, '<>');
-                        if DelChr(AddressLine2) <> '' then
-                            AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine2, 1, 35), '', XMLNewChild);
-                        XMLNodeCurr := XMLNodeCurr.ParentNode;
-                        XMLNodeCurr := XMLNodeCurr.ParentNode;
-                        XMLNodeCurr := XMLNodeCurr.ParentNode;
-
-                        AddElement(XMLNodeCurr, 'Cdtr', '', '', XMLNewChild);
-                        XMLNodeCurr := XMLNewChild;
-
-                        GetCustomer("Account No.");
-                        AddElement(XMLNodeCurr, 'Nm', CopyStr(Customer.Name, 1, 70), '', XMLNewChild);
-                        AddElement(XMLNodeCurr, 'PstlAdr', '', '', XMLNewChild);
-                        XMLNodeCurr := XMLNewChild;
-
-                        GetCountry(Customer."Country/Region Code");
-                        if Country."ISO Code" <> '' then
-                            AddElement(XMLNodeCurr, 'Ctry', CopyStr(Country."ISO Code", 1, 2), '', XMLNewChild);
-
-                        AddressLine1 := DelChr(Customer.Address, '<>') + ' ' + DelChr(Customer."Address 2", '<>');
-                        if DelChr(AddressLine1) <> '' then
-                            AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine1, 1, 35), '', XMLNewChild);
-
-                        AddressLine2 := DelChr(Customer."Post Code", '<>') + ' ' + DelChr(Customer.City, '<>');
-                        if DelChr(AddressLine2) <> '' then
-                            AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine2, 1, 35), '', XMLNewChild);
-
-                        XMLNodeCurr := XMLNodeCurr.ParentNode;
-                    end;
-            end;
-            XMLNodeCurr := XMLNodeCurr.ParentNode;
-
-            AddElement(XMLNodeCurr, 'CdtrAcct', '', '', XMLNewChild);
-            XMLNodeCurr := XMLNewChild;
-
-            AddElement(XMLNodeCurr, 'Id', '', '', XMLNewChild);
-            XMLNodeCurr := XMLNewChild;
-
-            // If IBAN Transfer then Export IBAN else BBAN
-            IBANTransfer := ("Beneficiary IBAN" <> '') and Country."IBAN Country/Region";
-            if IBANTransfer then
-                AddElement(XMLNodeCurr, 'IBAN', CopyStr(DelChr("Beneficiary IBAN"), 1, 34), '', XMLNewChild)
-            else begin
-                AddElement(XMLNodeCurr, 'Othr', '', '', XMLNewChild);
-                XMLNodeCurr := XMLNewChild;
-                AddElement(XMLNodeCurr, 'Id', "Beneficiary Bank Account No.", '', XMLNewChild);
-                XMLNodeCurr := XMLNodeCurr.ParentNode;
-            end;
-            XMLNodeCurr := XMLNodeCurr.ParentNode;
-            XMLNodeCurr := XMLNodeCurr.ParentNode;
-
-            AddElement(XMLNodeCurr, 'RmtInf', '', '', XMLNewChild);
-            XMLNodeCurr := XMLNewChild;
-
-            AddElement(XMLNodeCurr, 'Ustrd', PaymentMessage, '', XMLNewChild);
-
-            XMLNodeCurr := RootNode;
+        AddElement(XMLNodeCurr, 'InstdAmt', Format(PmtJnlLine.Amount, 0, 9), '', XMLNewChild);
+        if PmtJnlLine."Currency Code" = '' then
+            ISOCurrCode := CopyStr(GLSetup."LCY Code", 1, 3)
+        else begin
+            GetCurrency(PmtJnlLine."Currency Code");
+            ISOCurrCode := CopyStr(Currency."ISO Code", 1, 3);
         end;
+        AddAttribute(XMLDomDoc, XMLNewChild, 'Ccy', ISOCurrCode);
+        XMLNodeCurr := XMLNodeCurr.ParentNode;
+        AddElement(XMLNodeCurr, 'CdtrAgt', '', '', XMLNewChild);
+        XMLNodeCurr := XMLNewChild;
+
+        AddElement(XMLNodeCurr, 'FinInstnId', '', '', XMLNewChild);
+        XMLNodeCurr := XMLNewChild;
+
+        AddElement(XMLNodeCurr, 'BIC', CopyStr(DelChr(PmtJnlLine."SWIFT Code"), 1, 11), '', XMLNewChild);
+        case PmtJnlLine."Account Type" of
+            PmtJnlLine."Account Type"::Vendor:
+                begin
+                    GetVendorBankAccount(PmtJnlLine."Account No.", PmtJnlLine."Beneficiary Bank Account");
+                    AddElement(XMLNodeCurr, 'Nm', VendorBankAcc.Name, '', XMLNewChild);
+                    AddElement(XMLNodeCurr, 'PstlAdr', '', '', XMLNewChild);
+                    XMLNodeCurr := XMLNewChild;
+
+                    GetCountry(VendorBankAcc."Country/Region Code");
+                    if Country."ISO Code" <> '' then
+                        AddElement(XMLNodeCurr, 'Ctry', CopyStr(Country."ISO Code", 1, 2), '', XMLNewChild);
+
+                    AddressLine1 := DelChr(VendorBankAcc.Address, '<>') + ' ' + DelChr(VendorBankAcc."Address 2", '<>');
+                    if DelChr(AddressLine1) <> '' then
+                        AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine1, 1, 35), '', XMLNewChild);
+
+                    AddressLine2 := DelChr(VendorBankAcc."Post Code", '<>') + ' ' + DelChr(VendorBankAcc.City, '<>');
+                    if DelChr(AddressLine2) <> '' then
+                        AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine2, 1, 35), '', XMLNewChild);
+                    XMLNodeCurr := XMLNodeCurr.ParentNode;
+                    XMLNodeCurr := XMLNodeCurr.ParentNode;
+                    XMLNodeCurr := XMLNodeCurr.ParentNode;
+
+                    AddElement(XMLNodeCurr, 'Cdtr', '', '', XMLNewChild);
+                    XMLNodeCurr := XMLNewChild;
+
+                    GetVendor(PmtJnlLine."Account No.");
+                    AddElement(XMLNodeCurr, 'Nm', CopyStr(Vendor.Name, 1, 70), '', XMLNewChild);
+                    AddElement(XMLNodeCurr, 'PstlAdr', '', '', XMLNewChild);
+                    XMLNodeCurr := XMLNewChild;
+
+                    GetCountry(Vendor."Country/Region Code");
+                    if Country."ISO Code" <> '' then
+                        AddElement(XMLNodeCurr, 'Ctry', CopyStr(Country."ISO Code", 1, 2), '', XMLNewChild);
+
+                    AddressLine1 := DelChr(Vendor.Address, '<>') + ' ' + DelChr(Vendor."Address 2", '<>');
+                    if DelChr(AddressLine1) <> '' then
+                        AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine1, 1, 35), '', XMLNewChild);
+
+                    AddressLine2 := DelChr(Vendor."Post Code", '<>') + ' ' + DelChr(Vendor.City, '<>');
+                    if DelChr(AddressLine2) <> '' then
+                        AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine2, 1, 35), '', XMLNewChild);
+
+                    XMLNodeCurr := XMLNodeCurr.ParentNode;
+                end;
+            PmtJnlLine."Account Type"::Customer:
+                begin
+                    GetCustomerBankAccount(PmtJnlLine."Account No.", PmtJnlLine."Beneficiary Bank Account");
+                    AddElement(XMLNodeCurr, 'Nm', CustomerBankAcc.Name, '', XMLNewChild);
+                    AddElement(XMLNodeCurr, 'PstlAdr', '', '', XMLNewChild);
+                    XMLNodeCurr := XMLNewChild;
+
+                    GetCountry(CustomerBankAcc."Country/Region Code");
+                    if Country."ISO Code" <> '' then
+                        AddElement(XMLNodeCurr, 'Ctry', CopyStr(Country."ISO Code", 1, 2), '', XMLNewChild);
+
+                    AddressLine1 := DelChr(CustomerBankAcc.Address, '<>') + ' ' + DelChr(CustomerBankAcc."Address 2", '<>');
+                    if DelChr(AddressLine1) <> '' then
+                        AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine1, 1, 35), '', XMLNewChild);
+
+                    AddressLine2 := DelChr(CustomerBankAcc."Post Code", '<>') + ' ' + DelChr(CustomerBankAcc.City, '<>');
+                    if DelChr(AddressLine2) <> '' then
+                        AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine2, 1, 35), '', XMLNewChild);
+                    XMLNodeCurr := XMLNodeCurr.ParentNode;
+                    XMLNodeCurr := XMLNodeCurr.ParentNode;
+                    XMLNodeCurr := XMLNodeCurr.ParentNode;
+
+                    AddElement(XMLNodeCurr, 'Cdtr', '', '', XMLNewChild);
+                    XMLNodeCurr := XMLNewChild;
+
+                    GetCustomer(PmtJnlLine."Account No.");
+                    AddElement(XMLNodeCurr, 'Nm', CopyStr(Customer.Name, 1, 70), '', XMLNewChild);
+                    AddElement(XMLNodeCurr, 'PstlAdr', '', '', XMLNewChild);
+                    XMLNodeCurr := XMLNewChild;
+
+                    GetCountry(Customer."Country/Region Code");
+                    if Country."ISO Code" <> '' then
+                        AddElement(XMLNodeCurr, 'Ctry', CopyStr(Country."ISO Code", 1, 2), '', XMLNewChild);
+
+                    AddressLine1 := DelChr(Customer.Address, '<>') + ' ' + DelChr(Customer."Address 2", '<>');
+                    if DelChr(AddressLine1) <> '' then
+                        AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine1, 1, 35), '', XMLNewChild);
+
+                    AddressLine2 := DelChr(Customer."Post Code", '<>') + ' ' + DelChr(Customer.City, '<>');
+                    if DelChr(AddressLine2) <> '' then
+                        AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine2, 1, 35), '', XMLNewChild);
+
+                    XMLNodeCurr := XMLNodeCurr.ParentNode;
+                end;
+        end;
+        XMLNodeCurr := XMLNodeCurr.ParentNode;
+
+        AddElement(XMLNodeCurr, 'CdtrAcct', '', '', XMLNewChild);
+        XMLNodeCurr := XMLNewChild;
+
+        AddElement(XMLNodeCurr, 'Id', '', '', XMLNewChild);
+        XMLNodeCurr := XMLNewChild;
+        // If IBAN Transfer then Export IBAN else BBAN
+        IBANTransfer := (PmtJnlLine."Beneficiary IBAN" <> '') and Country."IBAN Country/Region";
+        if IBANTransfer then
+            AddElement(XMLNodeCurr, 'IBAN', CopyStr(DelChr(PmtJnlLine."Beneficiary IBAN"), 1, 34), '', XMLNewChild)
+        else begin
+            AddElement(XMLNodeCurr, 'Othr', '', '', XMLNewChild);
+            XMLNodeCurr := XMLNewChild;
+            AddElement(XMLNodeCurr, 'Id', PmtJnlLine."Beneficiary Bank Account No.", '', XMLNewChild);
+            XMLNodeCurr := XMLNodeCurr.ParentNode;
+        end;
+        XMLNodeCurr := XMLNodeCurr.ParentNode;
+        XMLNodeCurr := XMLNodeCurr.ParentNode;
+
+        AddElement(XMLNodeCurr, 'RmtInf', '', '', XMLNewChild);
+        XMLNodeCurr := XMLNewChild;
+
+        AddElement(XMLNodeCurr, 'Ustrd', PaymentMessage, '', XMLNewChild);
+
+        XMLNodeCurr := RootNode;
     end;
 
     local procedure GetMessageID(ExportProtocolCode: Code[20]): Text[35]
     var
         ExportProtocol: Record "Export Protocol";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         ExportProtocol.Get(ExportProtocolCode);
-        exit(NoSeriesMgt.GetNextNo(ExportProtocol."Export No. Series", Today, true));
+        exit(NoSeries.GetNextNo(ExportProtocol."Export No. Series", Today()));
     end;
 
     local procedure GetExportProtocolCode(var PmtJnlLine: Record "Payment Journal Line"): Code[20]
@@ -701,16 +698,15 @@ report 2000006 "File Non Euro SEPA Payments"
 
     procedure CheckNewGroup(PmtJnlLine: Record "Payment Journal Line") ReturnValue: Boolean
     begin
-        if EmptyConsolidatedPayment then
+        if EmptyConsolidatedPayment() then
             exit(true);
 
-        with PmtJnlLine do
-            ReturnValue :=
-              (ConsolidatedPmtJnlLine."Bank Account" <> "Bank Account") or
-              (ConsolidatedPmtJnlLine."Currency Code" <> "Currency Code") or
-              (ConsolidatedPmtJnlLine."Posting Date" <> "Posting Date") or
-              (ConsolidatedPmtJnlLine."Instruction Priority" <> "Instruction Priority") or
-              (ConsolidatedPmtJnlLine."Code Expenses" <> "Code Expenses");
+        ReturnValue :=
+              (ConsolidatedPmtJnlLine."Bank Account" <> PmtJnlLine."Bank Account") or
+              (ConsolidatedPmtJnlLine."Currency Code" <> PmtJnlLine."Currency Code") or
+              (ConsolidatedPmtJnlLine."Posting Date" <> PmtJnlLine."Posting Date") or
+              (ConsolidatedPmtJnlLine."Instruction Priority" <> PmtJnlLine."Instruction Priority") or
+              (ConsolidatedPmtJnlLine."Code Expenses" <> PmtJnlLine."Code Expenses");
 
         OnAfterCheckNewGroup(PmtJnlLine, ConsolidatedPmtJnlLine, ReturnValue);
 
@@ -724,16 +720,15 @@ report 2000006 "File Non Euro SEPA Payments"
 
     local procedure NewConsolidatedPayment(PmtJnlLine: Record "Payment Journal Line") ReturnValue: Boolean
     begin
-        if EmptyConsolidatedPayment then
+        if EmptyConsolidatedPayment() then
             exit(false);
 
-        with PmtJnlLine do
-            ReturnValue :=
+        ReturnValue :=
               CheckNewGroup(PmtJnlLine) or
-              IsPaymentMessageTooLong("Payment Message") or
-              (ConsolidatedPmtJnlLine."Account Type" <> "Account Type") or
-              (ConsolidatedPmtJnlLine."Account No." <> "Account No.") or
-              (ConsolidatedPmtJnlLine."Beneficiary Bank Account No." <> "Beneficiary Bank Account No.");
+              IsPaymentMessageTooLong(PmtJnlLine."Payment Message") or
+              (ConsolidatedPmtJnlLine."Account Type" <> PmtJnlLine."Account Type") or
+              (ConsolidatedPmtJnlLine."Account No." <> PmtJnlLine."Account No.") or
+              (ConsolidatedPmtJnlLine."Beneficiary Bank Account No." <> PmtJnlLine."Beneficiary Bank Account No.");
 
         OnAfterNewConsolidatedPayment(PmtJnlLine, ConsolidatedPmtJnlLine, ReturnValue);
 
@@ -748,7 +743,7 @@ report 2000006 "File Non Euro SEPA Payments"
 
     local procedure UpdateConsolidatedPayment(PmtJnlLine: Record "Payment Journal Line")
     begin
-        if EmptyConsolidatedPayment then
+        if EmptyConsolidatedPayment() then
             InitConsolidatedPayment(PmtJnlLine)
         else begin
             ConsolidatedPmtJnlLine.Amount := ConsolidatedPmtJnlLine.Amount + PmtJnlLine.Amount;

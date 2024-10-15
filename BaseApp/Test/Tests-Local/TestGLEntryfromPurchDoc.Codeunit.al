@@ -14,7 +14,9 @@ codeunit 144050 "Test GL Entry from Purch. Doc."
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
+#if not CLEAN22
         LibraryTablesUT: Codeunit "Library - Tables UT";
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -91,7 +93,7 @@ codeunit 144050 "Test GL Entry from Purch. Doc."
             else
                 if Description = Line2Description then
                     CompareSecondLineWith := Line1Description;
-            Next;
+            Next();
             Assert.AreEqual(CompareSecondLineWith, Description, 'Expected G/L Entry descriptions to match purcahse line values');
         end;
     end;

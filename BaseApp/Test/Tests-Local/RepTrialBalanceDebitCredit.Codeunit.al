@@ -59,7 +59,7 @@ codeunit 144014 "Rep Trial Balance Debit/Credit"
         LibraryVariableStorage.Enqueue(Format(EndDate)); // end date
 
         REPORT.Run(REPORT::"Trial Balance - Debit/Credit");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(1);
         LibraryReportDataset.GetElementValueInCurrentRow('PeriodText', Variant);
         DateFilter := Variant;
@@ -68,10 +68,10 @@ codeunit 144014 "Rep Trial Balance Debit/Credit"
         for I := 1 to 2 do begin
             if I = 1 then begin
                 GLAccount.FindFirst();
-                LibraryReportDataset.GetNextRow;
+                LibraryReportDataset.GetNextRow();
             end else begin
                 GLAccount.FindLast();
-                LibraryReportDataset.GetLastRow;
+                LibraryReportDataset.GetLastRow();
             end;
 
             GLAccount.CalcFields("Debit Amount", "Credit Amount", "Add.-Currency Credit Amount", "Add.-Currency Debit Amount");
@@ -160,7 +160,7 @@ codeunit 144014 "Rep Trial Balance Debit/Credit"
 
         TrailBalanceDebitCredit.UseAmtsInAddCurr.SetValue(UseAmtsInAddCurr);
         TrailBalanceDebitCredit."G/L Account".SetFilter("Date Filter", StrSubstNo('%1..%2', StartDate, EndDate));
-        TrailBalanceDebitCredit.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TrailBalanceDebitCredit.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -169,7 +169,7 @@ codeunit 144014 "Rep Trial Balance Debit/Credit"
     begin
         TrailBalanceDebitCredit."G/L Account".SetFilter("Date Filter", StrSubstNo('%1..%2', 00000101D,
             Format(CalcDate('<+11M><+8D>', WorkDate()))));
-        TrailBalanceDebitCredit.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TrailBalanceDebitCredit.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

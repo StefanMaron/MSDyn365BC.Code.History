@@ -44,7 +44,7 @@ report 2000030 "Import CODA Statement"
 
             TxtFile.Read(Text);
             CodBankStmtSrcLine.Data := Text;
-            PutRecordInDatabase;
+            PutRecordInDatabase();
         end;
     end;
 
@@ -102,7 +102,7 @@ report 2000030 "Import CODA Statement"
             if InLines then
                 Error(Text000, CodBankStmtSrcLine.Data);
 
-            CodaMgmt.SkipLine;
+            CodaMgmt.SkipLine();
             exit;
         end;
         CodBankStmtSrcLine.ID := i;
@@ -141,7 +141,7 @@ report 2000030 "Import CODA Statement"
             CodBankStmtSrcLine.ID::Trailer:
                 begin
                     CodaMgmt.CheckCodaTrailer(CodBankStmtSrcLine);
-                    CodaMgmt.Success;
+                    CodaMgmt.Success();
 
                     CodBankStmtSrcLine2.SetRange("Bank Account No.", BankAccNo);
                     CodBankStmtSrcLine2.SetRange("Statement No.", TempStatementNo);

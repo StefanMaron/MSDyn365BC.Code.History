@@ -13,7 +13,6 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryJob: Codeunit "Library - Job";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
@@ -116,7 +115,6 @@ codeunit 134168 "Suggest Price Lines UT"
     [HandlerFunctions('SuggestPriceLineModalHandler')]
     procedure T005_CopyPricesFromAllPriceLists()
     var
-        PriceLineFilters: Record "Price Line Filters";
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         Customer: Record Customer;
@@ -150,7 +148,6 @@ codeunit 134168 "Suggest Price Lines UT"
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
         ToPriceListHeader: Record "Price List Header";
-        ToPriceListLine: Record "Price List Line";
         SalesPriceList: TestPage "Sales Price List";
         SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
     begin
@@ -188,7 +185,6 @@ codeunit 134168 "Suggest Price Lines UT"
     procedure T011_SalesPriceListCopyLinesCancel()
     var
         Item: Record Item;
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
         ToPriceListHeader: Record "Price List Header";
@@ -228,7 +224,6 @@ codeunit 134168 "Suggest Price Lines UT"
     procedure T012_SalesPriceListCopyLinesOk()
     var
         Item: Record Item;
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
         ToPriceListHeader: Record "Price List Header";
@@ -275,7 +270,6 @@ codeunit 134168 "Suggest Price Lines UT"
     procedure T013_PurchasePriceListCopyLinesOk()
     var
         Item: Record Item;
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
         ToPriceListHeader: Record "Price List Header";
@@ -321,7 +315,6 @@ codeunit 134168 "Suggest Price Lines UT"
     [HandlerFunctions('SuggestPriceLinesFCYModalHandler')]
     procedure T015_PurchasePriceListFCY1CopyLinesFCY2()
     var
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
         ToPriceListHeader: Record "Price List Header";
@@ -379,7 +372,6 @@ codeunit 134168 "Suggest Price Lines UT"
     [HandlerFunctions('SuggestPriceLinesFCYLookupModalHandler,PurchasePriceListsModalHandler')]
     procedure T016_PurchasePriceListLCYCopyLinesFCY()
     var
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
         ToPriceListHeader: Record "Price List Header";
@@ -434,7 +426,6 @@ codeunit 134168 "Suggest Price Lines UT"
     [HandlerFunctions('SuggestPriceLinesFCYModalHandler')]
     procedure T017_PurchasePriceListFCYCopyLinesLCY()
     var
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
         ToPriceListHeader: Record "Price List Header";
@@ -487,7 +478,6 @@ codeunit 134168 "Suggest Price Lines UT"
     [HandlerFunctions('SuggestPriceLinesFCYModalHandler')]
     procedure T018_PurchasePriceListFCYCopyLinesSameFCY()
     var
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
         ToPriceListHeader: Record "Price List Header";
@@ -541,7 +531,6 @@ codeunit 134168 "Suggest Price Lines UT"
     [HandlerFunctions('SuggestPriceLinesFCYModalHandler')]
     procedure T019_PurchasePriceListFCYCopyLinesAnotherFCY()
     var
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
         ToPriceListHeader: Record "Price List Header";
@@ -601,10 +590,8 @@ codeunit 134168 "Suggest Price Lines UT"
     procedure T020_SalesPriceListCopyLinesExistingToWorksheet()
     var
         Item: Record Item;
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
-        ToPriceListHeader: Record "Price List Header";
         PriceWorksheetLine: Record "Price Worksheet Line";
         PriceWorksheet: TestPage "Price Worksheet";
         SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
@@ -654,10 +641,8 @@ codeunit 134168 "Suggest Price Lines UT"
     procedure T021_SalesPriceListCopyLinesAsNewToWorksheet()
     var
         Item: Record Item;
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
-        ToPriceListHeader: Record "Price List Header";
         PriceWorksheetLine: Record "Price Worksheet Line";
         PriceWorksheet: TestPage "Price Worksheet";
         SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
@@ -717,10 +702,8 @@ codeunit 134168 "Suggest Price Lines UT"
     procedure T022_SalesPriceListCopyLinesAsNewToWorksheetForceDefaults()
     var
         Item: Record Item;
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
-        ToPriceListHeader: Record "Price List Header";
         PriceWorksheetLine: Record "Price Worksheet Line";
         PriceWorksheet: TestPage "Price Worksheet";
         SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
@@ -779,7 +762,6 @@ codeunit 134168 "Suggest Price Lines UT"
     [HandlerFunctions('SuggestPriceLinesFCYModalHandler')]
     procedure T025_PurchasePriceListLCYCopyLinesOfDiffCurrencies()
     var
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: array[2] of Record "Price List Line";
         ToPriceListHeader: Record "Price List Header";
@@ -865,7 +847,6 @@ codeunit 134168 "Suggest Price Lines UT"
     [HandlerFunctions('SuggestPriceLinesFCYModalHandler')]
     procedure T026_PurchasePriceListAllowEditingDefaultsCopyLinesOfDiffCurrencies()
     var
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: array[2] of Record "Price List Line";
         ToPriceListHeader: Record "Price List Header";
@@ -952,7 +933,6 @@ codeunit 134168 "Suggest Price Lines UT"
     [HandlerFunctions('SuggestPriceLinesFCYForceDefaultsModalHandler')]
     procedure T027_PurchasePriceListAllowEditingDefaultsCopyLinesOfDiffCurrenciesForceDefaults()
     var
-        PriceLineFilters: Record "Price Line Filters";
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: array[2] of Record "Price List Line";
         ToPriceListHeader: Record "Price List Header";
@@ -1450,7 +1430,6 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceListHeader: array[2] of Record "Price List Header";
         PriceListLine: array[3] of Record "Price List Line";
         PriceListManagement: Codeunit "Price List Management";
-        SalesPriceList: TestPage "Sales Price List";
     begin
         Initialize(true);
         // [GIVEN] Item 'X'
@@ -1930,7 +1909,6 @@ codeunit 134168 "Suggest Price Lines UT"
         Item: array[2] of Record Item;
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListManagement: Codeunit "Price List Management";
         SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
         SalesPriceList: TestPage "Sales Price List";
         MinQty: Decimal;
@@ -1981,7 +1959,6 @@ codeunit 134168 "Suggest Price Lines UT"
         Item: array[2] of Record Item;
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListManagement: Codeunit "Price List Management";
         SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
         PurchasePriceList: TestPage "Purchase Price List";
         MinQty: Decimal;
@@ -2109,9 +2086,7 @@ codeunit 134168 "Suggest Price Lines UT"
     procedure T105_SalesPriceAddItemLinesToWorksheet()
     var
         Item: array[2] of Record Item;
-        PriceListHeader: Record "Price List Header";
         PriceWorksheetLine: Record "Price Worksheet Line";
-        PriceListManagement: Codeunit "Price List Management";
         SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
         PriceWorksheet: TestPage "Price Worksheet";
         PriceListCode: Code[20];
@@ -2157,9 +2132,7 @@ codeunit 134168 "Suggest Price Lines UT"
     procedure T106_SalesPriceAddServiceCostLinesToWorksheet()
     var
         ServiceCost: array[2] of Record "Service Cost";
-        PriceListHeader: Record "Price List Header";
         PriceWorksheetLine: Record "Price Worksheet Line";
-        PriceListManagement: Codeunit "Price List Management";
         SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
         PriceWorksheet: TestPage "Price Worksheet";
         PriceListCode: Code[20];
@@ -2205,9 +2178,7 @@ codeunit 134168 "Suggest Price Lines UT"
     procedure T107_PurchPriceAddServiceCostLinesToWorksheet()
     var
         ServiceCost: array[2] of Record "Service Cost";
-        PriceListHeader: Record "Price List Header";
         PriceWorksheetLine: Record "Price Worksheet Line";
-        PriceListManagement: Codeunit "Price List Management";
         SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
         PriceWorksheet: TestPage "Price Worksheet";
         PriceListCode: Code[20];
@@ -2254,10 +2225,8 @@ codeunit 134168 "Suggest Price Lines UT"
     var
         CurrencyCode: Code[10];
         Item: Record Item;
-        PriceLineFilters: Record "Price Line Filters";
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListManagement: Codeunit "Price List Management";
         SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
         SalesPriceList: TestPage "Sales Price List";
     begin
@@ -2416,7 +2385,6 @@ codeunit 134168 "Suggest Price Lines UT"
     var
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListManagement: Codeunit "Price List Management";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
@@ -2462,7 +2430,6 @@ codeunit 134168 "Suggest Price Lines UT"
     var
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListManagement: Codeunit "Price List Management";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
@@ -2506,7 +2473,6 @@ codeunit 134168 "Suggest Price Lines UT"
     var
         JobQueueEntry: Record "Job Queue Entry";
         PriceListManagement: Codeunit "Price List Management";
-        UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         JobQueueEntryCard: TestPage "Job Queue Entry Card";
         UpgradeNotification: Notification;
@@ -2665,7 +2631,7 @@ codeunit 134168 "Suggest Price Lines UT"
         FillPriceListNos();
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Suggest Price Lines UT");
     end;
 

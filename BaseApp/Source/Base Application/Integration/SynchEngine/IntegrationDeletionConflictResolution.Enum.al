@@ -4,7 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Integration.SyncEngine;
 
+#pragma warning disable AL0659
 enum 5337 "Integration Deletion Conflict Resolution"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

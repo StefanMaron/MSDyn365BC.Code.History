@@ -11,6 +11,7 @@ table 2000002 "Paym. Journal Batch"
     Caption = 'Paym. Journal Batch';
     DataCaptionFields = Name, Description;
     LookupPageID = "EB Payment Journal Batches";
+    DataClassification = CustomerContent;
 
     fields
     {

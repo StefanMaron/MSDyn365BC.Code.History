@@ -38,7 +38,7 @@ codeunit 144019 "Telebank - Manual Tests"
 
         CreateExportProtocol(ExportProtocol, ExportProtocol."Code Expenses"::SHA, 2000002, 2000001, '');
         CreateExportProtocol(ExportProtocol, ExportProtocol."Code Expenses"::SHA, 2000003, 2000002, '');
-        CreateExportProtocol(ExportProtocol, ExportProtocol."Code Expenses"::SHA, 2000004, 2000001, LibraryERM.CreateNoSeriesCode);
+        CreateExportProtocol(ExportProtocol, ExportProtocol."Code Expenses"::SHA, 2000004, 2000001, LibraryERM.CreateNoSeriesCode());
 
         CreateBankAccount(BankAccount);
         CreateVendorWithBankAccount(Vendor);
@@ -75,13 +75,13 @@ codeunit 144019 "Telebank - Manual Tests"
 
         // Execution
         GlobalVendorNo := Vendor."No.";
-        EBPaymentJournal.OpenEdit;
-        EBPaymentJournal.CurrentJnlBatchName.Lookup; // Opens batch list. Create new batch and click OK
+        EBPaymentJournal.OpenEdit();
+        EBPaymentJournal.CurrentJnlBatchName.Lookup(); // Opens batch list. Create new batch and click OK
         Commit();
-        EBPaymentJournal.SuggestVendorPayments.Invoke; // Opens Suggest vendor payments. Run it.
+        EBPaymentJournal.SuggestVendorPayments.Invoke(); // Opens Suggest vendor payments. Run it.
 
         // Validation
-        Assert.AreEqual(TotalAmountInclVAT, EBPaymentJournal.BalanceRem.AsDEcimal, '');
+        Assert.AreEqual(TotalAmountInclVAT, EBPaymentJournal.BalanceRem.AsDecimal(), '');
     end;
 
     [Test]
@@ -132,10 +132,10 @@ codeunit 144019 "Telebank - Manual Tests"
         GlobalVendorNo := Vendor."No.";
 
         // Execution and validation
-        EBPaymentJournal.OpenEdit;
-        EBPaymentJournal.CurrentJnlBatchName.Lookup; // Opens batch list. Create new batch and click OK
+        EBPaymentJournal.OpenEdit();
+        EBPaymentJournal.CurrentJnlBatchName.Lookup(); // Opens batch list. Create new batch and click OK
         Commit();
-        asserterror EBPaymentJournal.SuggestVendorPayments.Invoke; // Opens Suggest vendor payments. Run it.
+        asserterror EBPaymentJournal.SuggestVendorPayments.Invoke(); // Opens Suggest vendor payments. Run it.
         Assert.IsTrue(StrPos(GetLastErrorText, 'You cannot create this type of document when Vendor') > 0, '');
     end;
 
@@ -143,7 +143,7 @@ codeunit 144019 "Telebank - Manual Tests"
     begin
         with ExportProtocol do begin
             Init();
-            Code := CopyStr(CreateGuid, 1, 10);
+            Code := CopyStr(CreateGuid(), 1, 10);
             Description := Code;
 
             "Code Expenses" := NewCodeExpenses;
@@ -190,7 +190,7 @@ codeunit 144019 "Telebank - Manual Tests"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplateName);
         LibraryERM.CreateGLAccount(GLAccount);
         if WithNoSeries then
-            GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+            GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode();
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
         GenJournalBatch."Bal. Account No." := GLAccount."No.";
         GenJournalBatch.Modify();
@@ -230,10 +230,10 @@ codeunit 144019 "Telebank - Manual Tests"
     [Scope('OnPrem')]
     procedure EBBatchHandler(var EBPaymentJournalBatches: TestPage "EB Payment Journal Batches")
     begin
-        EBPaymentJournalBatches.New;
-        EBPaymentJournalBatches.Name.Value := CopyStr(CreateGuid, 1, 10);
-        EBPaymentJournalBatches.Description.Value := EBPaymentJournalBatches.Name.Value;
-        EBPaymentJournalBatches.OK.Invoke;
+        EBPaymentJournalBatches.New();
+        EBPaymentJournalBatches.Name.Value := CopyStr(CreateGuid(), 1, 10);
+        EBPaymentJournalBatches.Description.Value := EBPaymentJournalBatches.Name.Value();
+        EBPaymentJournalBatches.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -242,7 +242,7 @@ codeunit 144019 "Telebank - Manual Tests"
     begin
         SuggestVendorPaymentsEB.Vend.SetFilter("No.", GlobalVendorNo);
         SuggestVendorPaymentsEB.DueDate.SetValue(CalcDate('<02M-3D>', WorkDate()));
-        SuggestVendorPaymentsEB.OK.Invoke;
+        SuggestVendorPaymentsEB.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -251,7 +251,7 @@ codeunit 144019 "Telebank - Manual Tests"
     begin
         SuggestVendorPaymentsEB.Vend.SetFilter("No.", GlobalVendorNo);
         SuggestVendorPaymentsEB.DueDate.SetValue(CalcDate('<02M-3D>', WorkDate()));
-        SuggestVendorPaymentsEB.OK.Invoke;
+        SuggestVendorPaymentsEB.OK().Invoke();
     end;
 }
 

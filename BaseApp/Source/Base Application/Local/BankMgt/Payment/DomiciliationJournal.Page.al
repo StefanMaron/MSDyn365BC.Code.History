@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -486,7 +486,6 @@ page 2000022 "Domiciliation Journal"
 
     var
         DomJnlBatch: Record "Domiciliation Journal Batch";
-        DomJnlLine: Record "Domiciliation Journal Line";
         SuggestDomiciliations: Report "Suggest domicilations";
         DomJnlManagement: Codeunit DomiciliationJnlManagement;
         FeatureTelemetry: Codeunit "Feature Telemetry";

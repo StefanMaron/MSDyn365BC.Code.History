@@ -250,10 +250,8 @@ codeunit 2000020 DomiciliationJnlManagement
     var
         Cust: Record Customer;
     begin
-        with DomicJnlLine do begin
-            Cust."No." := "Customer No.";
-            PAGE.Run(PAGE::"Customer Card", Cust);
-        end;
+        Cust."No." := DomicJnlLine."Customer No.";
+        PAGE.Run(PAGE::"Customer Card", Cust);
     end;
 
     [Scope('OnPrem')]
@@ -261,12 +259,10 @@ codeunit 2000020 DomiciliationJnlManagement
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with DomicJnlLine do begin
-            CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
-            CustLedgEntry.SetRange("Customer No.", "Customer No.");
-            if CustLedgEntry.FindLast() then;
-            PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgEntry);
-        end;
+        CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
+        CustLedgEntry.SetRange("Customer No.", DomicJnlLine."Customer No.");
+        if CustLedgEntry.FindLast() then;
+        PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgEntry);
     end;
 
     [Scope('OnPrem')]
@@ -301,24 +297,21 @@ codeunit 2000020 DomiciliationJnlManagement
         DomicilJnlLine: Record "Domiciliation Journal Line";
     begin
         // Copies name of bank on all lines ...
-        with DomicilJnlLine do begin
-            SetCurrentKey("Customer No.");
-            SetRange("Journal Template Name", DomicJnlLine."Journal Template Name");
-            SetRange("Journal Batch Name", DomicJnlLine."Journal Batch Name");
-            SetRange("Customer No.", DomicJnlLine."Customer No.");
-            SetRange("Bank Account No.", BankName);
-            if DomicJnlLine."Bank Account No." = '' then
-                SetRange(Status, Status::Marked)
-            else
-                SetRange(Status, Status::" ");
-
-            // No MODIFYALL, but VALIDATE
-            if FindSet(true) then
-                repeat
-                    Validate("Bank Account No.", DomicJnlLine."Bank Account No.");
-                    Modify(true);
-                until Next() = 0;
-        end;
+        DomicilJnlLine.SetCurrentKey("Customer No.");
+        DomicilJnlLine.SetRange("Journal Template Name", DomicJnlLine."Journal Template Name");
+        DomicilJnlLine.SetRange("Journal Batch Name", DomicJnlLine."Journal Batch Name");
+        DomicilJnlLine.SetRange("Customer No.", DomicJnlLine."Customer No.");
+        DomicilJnlLine.SetRange("Bank Account No.", BankName);
+        if DomicJnlLine."Bank Account No." = '' then
+            DomicilJnlLine.SetRange(Status, DomicilJnlLine.Status::Marked)
+        else
+            DomicilJnlLine.SetRange(Status, DomicilJnlLine.Status::" ");
+        // No MODIFYALL, but VALIDATE
+        if DomicilJnlLine.FindSet(true) then
+            repeat
+                DomicilJnlLine.Validate("Bank Account No.", DomicJnlLine."Bank Account No.");
+                DomicilJnlLine.Modify(true);
+            until DomicilJnlLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -328,16 +321,14 @@ codeunit 2000020 DomiciliationJnlManagement
         ReferenceCheckSum: Decimal;
         Reference: Text[30];
     begin
-        with CustLedgEntry do begin
-            Reference := PaymJnlManagement.ConvertToDigit("Document No.", 20);
-            Evaluate(ReferenceDecimal, Reference);
-            ReferenceCheckSum := ReferenceDecimal mod 97;
-            if ReferenceCheckSum = 0 then
-                ReferenceDecimal := ReferenceDecimal * 100 + 97
-            else
-                ReferenceDecimal := ReferenceDecimal * 100 + ReferenceCheckSum;
-            exit(PaymJnlManagement.DecimalNumeralZeroFormat(ReferenceDecimal, 12));
-        end;
+        Reference := PaymJnlManagement.ConvertToDigit(CustLedgEntry."Document No.", 20);
+        Evaluate(ReferenceDecimal, Reference);
+        ReferenceCheckSum := ReferenceDecimal mod 97;
+        if ReferenceCheckSum = 0 then
+            ReferenceDecimal := ReferenceDecimal * 100 + 97
+        else
+            ReferenceDecimal := ReferenceDecimal * 100 + ReferenceCheckSum;
+        exit(PaymJnlManagement.DecimalNumeralZeroFormat(ReferenceDecimal, 12));
     end;
 
     [Scope('OnPrem')]
@@ -351,17 +342,15 @@ codeunit 2000020 DomiciliationJnlManagement
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with DomicJnlLine do begin
-            CustLedgEntry.SetCurrentKey("Document No.");
-            CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-            CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            CustLedgEntry.SetRange("Customer No.", "Customer No.");
-            if CustLedgEntry.FindLast() then begin
-                CustLedgEntry.Validate("Remaining Pmt. Disc. Possible", -"Pmt. Disc. Possible");
-                CustLedgEntry.Validate("Pmt. Discount Date", "Posting Date");
-                CustLedgEntry.Modify(true)
-            end;
-        end
+        CustLedgEntry.SetCurrentKey("Document No.");
+        CustLedgEntry.SetRange("Document Type", DomicJnlLine."Applies-to Doc. Type");
+        CustLedgEntry.SetRange("Document No.", DomicJnlLine."Applies-to Doc. No.");
+        CustLedgEntry.SetRange("Customer No.", DomicJnlLine."Customer No.");
+        if CustLedgEntry.FindLast() then begin
+            CustLedgEntry.Validate("Remaining Pmt. Disc. Possible", -DomicJnlLine."Pmt. Disc. Possible");
+            CustLedgEntry.Validate("Pmt. Discount Date", DomicJnlLine."Posting Date");
+            CustLedgEntry.Modify(true)
+        end;
     end;
 
     [IntegrationEvent(false, false)]

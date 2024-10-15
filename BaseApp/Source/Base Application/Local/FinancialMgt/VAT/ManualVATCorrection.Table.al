@@ -11,6 +11,7 @@ using System.Security.AccessControl;
 table 11301 "Manual VAT Correction"
 {
     Caption = 'Manual VAT Correction';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -42,7 +43,7 @@ table 11301 "Manual VAT Correction"
             trigger OnValidate()
             begin
                 TestField(Amount);
-                CalculateAddCurrencyAmount;
+                CalculateAddCurrencyAmount();
             end;
         }
         field(7; "User ID"; Code[50])

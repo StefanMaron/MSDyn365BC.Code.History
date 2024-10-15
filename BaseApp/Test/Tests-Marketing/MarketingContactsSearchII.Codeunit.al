@@ -101,7 +101,7 @@ codeunit 136212 "Marketing Contacts Search II"
         // 3. Verify: Verify that duplicate Contact of company type is listed in Contact Duplicates Table however no page opened.
         ContactDuplicate.SetRange("Duplicate Contact No.", DuplicateContactNo);
         Assert.IsTrue(
-          ContactDuplicate.FindFirst,
+          ContactDuplicate.FindFirst(),
           StrSubstNo(ContactExistError, ContactDuplicate."Duplicate Contact No.", ContactDuplicate.TableCaption()));
 
         // 4. Tear Down: Rollback setup done.
@@ -220,7 +220,7 @@ codeunit 136212 "Marketing Contacts Search II"
         // [WHEN] Run "Duplicate Search String Setup" page
         DuplicateSearchStringSetupPage.OpenNew();
         // [WHEN] Look up in the "Field Name" field and select any from suggested (FieldListPageHandler)
-        DuplicateSearchStringSetupPage."Field Name".Lookup;
+        DuplicateSearchStringSetupPage."Field Name".Lookup();
         DuplicateSearchStringSetupPage.Close();
         // [THEN] Duplicate Search String created with selected field
         DuplicateSearchStringSetup.FindFirst();
@@ -238,10 +238,10 @@ codeunit 136212 "Marketing Contacts Search II"
         Initialize();
 
         // [GIVEN] "Contact Duplicates" page
-        ContactDuplicates.OpenEdit;
+        ContactDuplicates.OpenEdit();
         Commit();
         // [WHEN] Click "Generate Duplicate Search String" action
-        ContactDuplicates.GenerateDuplicateSearchString.Invoke;
+        ContactDuplicates.GenerateDuplicateSearchString.Invoke();
         // [THEN] Report "Generate Dupl. Search String" run (GenerateDuplSearchStringReportHandler)
     end;
 
@@ -257,11 +257,11 @@ codeunit 136212 "Marketing Contacts Search II"
 
         // [GIVEN] Field "Name" of the Contact table is set up for duplication search
         // [GIVEN] Two Contacts: C1 and C2, C1.Name = X, C2.Name = Y
-        MockDuplicateContactsAndSetup;
+        MockDuplicateContactsAndSetup();
         // [GIVEN] "Contact Duplicates" page with duplicate contacts C1 and C2
-        ContactDuplicates.OpenView;
+        ContactDuplicates.OpenView();
         // [WHEN] Click "Contact Duplicate Details" action
-        ContactDuplicates.ContactDuplicateDetails.Invoke;
+        ContactDuplicates.ContactDuplicateDetails.Invoke();
         // [THEN] Page "Contact Duplicate Details" shows one line
         // [THEN] "Field Name" = "Name", "Field Value" = X, "Duplicate Field Value" = Y
     end;
@@ -279,13 +279,13 @@ codeunit 136212 "Marketing Contacts Search II"
 
         // [GIVEN] Field "Name" of the Contact table is set up for duplication search
         // [GIVEN] Two Contacts: C1 and C2, C1.Name = X, C2.Name = Y
-        MockDuplicateContactsAndSetup;
+        MockDuplicateContactsAndSetup();
         // [GIVEN] "Contact Duplicates" page with duplicate contacts C1 and C2
-        ContactDuplicates.OpenView;
+        ContactDuplicates.OpenView();
         // [GIVEN] Empty "Duplicate Search String Setup" table
         DuplicateSearchStringSetup.DeleteAll();
         // [WHEN] Click "Contact Duplicate Details" action
-        asserterror ContactDuplicates.ContactDuplicateDetails.Invoke;
+        asserterror ContactDuplicates.ContactDuplicateDetails.Invoke();
         // [THEN] "Contact Duplicate Details" page failed to open with error message
         Assert.ExpectedError(EmptySetupErr);
     end;
@@ -315,11 +315,11 @@ codeunit 136212 "Marketing Contacts Search II"
         ContactCard: TestPage "Contact Card";
     begin
         ContactCard.OpenNew();
-        ContactCard.Type.Activate;
+        ContactCard.Type.Activate();
         ContactCard.Type.SetValue(Type);
         ContactCard.Name.SetValue(Name);
-        ContactNo := ContactCard."No.".Value;
-        ContactCard.OK.Invoke;
+        ContactNo := ContactCard."No.".Value();
+        ContactCard.OK().Invoke();
     end;
 
     local procedure UpdateMarketingSetup(AutosearchForDuplicates: Boolean; SearchHitPct: Integer)
@@ -375,7 +375,7 @@ codeunit 136212 "Marketing Contacts Search II"
     begin
         ContactDuplicate.SetRange("Duplicate Contact No.", ContactNo);
         Assert.IsFalse(
-          ContactDuplicate.FindFirst,
+          ContactDuplicate.FindFirst(),
           StrSubstNo(ContactNotExistError, ContactDuplicate."Duplicate Contact No.", ContactDuplicate.TableCaption()));
     end;
 
@@ -392,14 +392,14 @@ codeunit 136212 "Marketing Contacts Search II"
     begin
         ContactDuplicates."Contact No.".AssertEquals(OriginalContactNo);
         ContactDuplicates."Duplicate Contact No.".AssertEquals(DuplicateContactNo);
-        ContactDuplicates.OK.Invoke;
+        ContactDuplicates.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GenerateDuplSearchStringReportHandler(var GenerateDuplSearchString: TestRequestPage "Generate Dupl. Search String")
     begin
-        GenerateDuplSearchString.Cancel.Invoke;
+        GenerateDuplSearchString.Cancel().Invoke();
     end;
 
     [PageHandler]
@@ -408,14 +408,14 @@ codeunit 136212 "Marketing Contacts Search II"
     var
         FieldValue: Variant;
     begin
-        ContactDuplicateDetails.First;
+        ContactDuplicateDetails.First();
         LibraryVariableStorage.Dequeue(FieldValue);
         Assert.AreEqual(FieldValue, ContactDuplicateDetails."Field Name".Value, ContactDuplicateDetailsErr);
         LibraryVariableStorage.Dequeue(FieldValue);
         Assert.AreEqual(FieldValue, ContactDuplicateDetails."Field Value".Value, ContactDuplicateDetailsErr);
         LibraryVariableStorage.Dequeue(FieldValue);
         Assert.AreEqual(FieldValue, ContactDuplicateDetails."Duplicate Field Value".Value, ContactDuplicateDetailsErr);
-        Assert.IsFalse(ContactDuplicateDetails.Next, ContactDuplicateDetailsErr);
+        Assert.IsFalse(ContactDuplicateDetails.Next(), ContactDuplicateDetailsErr);
     end;
 
     [ModalPageHandler]
@@ -423,8 +423,8 @@ codeunit 136212 "Marketing Contacts Search II"
     procedure FieldListPageHandler(var FieldsLookup: TestPage "Fields Lookup")
     begin
         // Select first field from the Contact table
-        FieldsLookup.First;
-        FieldsLookup.OK.Invoke;
+        FieldsLookup.First();
+        FieldsLookup.OK().Invoke();
     end;
 }
 

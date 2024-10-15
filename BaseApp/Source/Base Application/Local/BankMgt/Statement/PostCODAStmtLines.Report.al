@@ -41,7 +41,7 @@ report 2000059 "Post CODA Stmt. Lines"
                         Commit();
                         ManualApplication.SetSelection(false);
                         ManualApplication.SetTableView(CodBankStmt);
-                        ManualApplication.RunModal
+                        ManualApplication.RunModal();
                     end
                 end;
 

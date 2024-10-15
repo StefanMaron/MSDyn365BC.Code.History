@@ -21,7 +21,7 @@ codeunit 144049 "VAT Statement Summery Report T"
     [Scope('OnPrem')]
     procedure ReportHasNoDataInControls()
     begin
-        ExecuteAndSelectTestRow(false, 2, false);
+        ExecuteAndSelectTestRow(false, "VAT Statement Report Selection"::"Open and Closed", false);
 
         Assert.AreEqual(-1,
           LibraryReportDataset.FindRow('COMPANYNAME_Control36', CompanyName),
@@ -33,7 +33,7 @@ codeunit 144049 "VAT Statement Summery Report T"
     [Scope('OnPrem')]
     procedure ReportHasDataInControls()
     begin
-        ExecuteAndSelectTestRow(true, 2, false);
+        ExecuteAndSelectTestRow(true, "VAT Statement Report Selection"::"Open and Closed", false);
 
         Assert.AreNotEqual(-1,
           LibraryReportDataset.FindRow('COMPANYNAME_Control36', CompanyName),
@@ -170,7 +170,7 @@ codeunit 144049 "VAT Statement Summery Report T"
     begin
         Initialize();
 
-        ReportStartDate := PrepareDeclarationSummaryReport;
+        ReportStartDate := PrepareDeclarationSummaryReport();
 
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(ReportStartDate);
@@ -180,7 +180,7 @@ codeunit 144049 "VAT Statement Summery Report T"
         LibraryVariableStorage.Enqueue(RoundToWholeNumbers);
         LibraryVariableStorage.Enqueue(false);
 
-        RunAndAssertReportHasData;
+        RunAndAssertReportHasData();
     end;
 
     [Normal]
@@ -190,7 +190,7 @@ codeunit 144049 "VAT Statement Summery Report T"
         Amount: Decimal;
         I: Integer;
     begin
-        ExecuteAndSelectTestRow(false, 2, EnqueueRounding);
+        ExecuteAndSelectTestRow(false, "VAT Statement Report Selection"::"Open and Closed", EnqueueRounding);
 
         for I := 1 to 13 do begin
             LibraryReportDataset.GetElementValueInCurrentRow(StrSubstNo('TotalAmount_%1_', I), ElementValue);
@@ -201,7 +201,7 @@ codeunit 144049 "VAT Statement Summery Report T"
     end;
 
     [Normal]
-    local procedure ExecuteAndValidateAmount1(VATEntriesType: Integer; AmountToExpect: Decimal; AssertMessage: Text)
+    local procedure ExecuteAndValidateAmount1(VATEntriesType: Enum "VAT Statement Report Selection"; AmountToExpect: Decimal; AssertMessage: Text)
     var
         ElementValue: Variant;
     begin
@@ -218,8 +218,8 @@ codeunit 144049 "VAT Statement Summery Report T"
         Commit();
         REPORT.Run(REPORT::"VAT Statement Summary", true);
 
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreNotEqual(0, LibraryReportDataset.RowCount, 'Expected more than one row');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreNotEqual(0, LibraryReportDataset.RowCount(), 'Expected more than one row');
 
         TestStatementLineIndex := LibraryReportDataset.FindRow('VAT_Statement_Line_Line_No_', 9990000);
         Assert.AreNotEqual(-1, TestStatementLineIndex, 'Expected to find the test statement line');
@@ -250,7 +250,7 @@ codeunit 144049 "VAT Statement Summery Report T"
         LibraryVariableStorage.Dequeue(VariantValue);
         VATStatementSummary.UseAmtsInAddCurr.SetValue(VariantValue); // Show amounts in add. reporting currency
 
-        VATStatementSummary.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATStatementSummary.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

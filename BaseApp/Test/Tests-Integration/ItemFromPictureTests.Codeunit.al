@@ -26,28 +26,6 @@ codeunit 135215 "Item From Picture Tests"
         Subscriber_ReturnStatusCode: Integer;
         Subscriber_ReturnTags: Text;
 
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure FeatureKeyDisabled_NoAction()
-    var
-        FeatureKey: Record "Feature Key";
-        ItemList: TestPage "Item List";
-    begin
-        Init();
-        ItemFromPictureTests.Subscriber_DontExpectImageAnalysisHttpCall();
-
-        if FeatureKey.Get('EntityText') then begin
-            FeatureKey.Enabled := FeatureKey.Enabled::None;
-            FeatureKey.Modify();
-
-            ItemList.OpenEdit();
-            Assert.IsFalse(ItemList.NewFromPicture.Visible(), 'The action is visible.');
-        end;
-
-        Cleanup();
-    end;
-
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('HandleSetupNotification')]
@@ -310,6 +288,7 @@ codeunit 135215 "Item From Picture Tests"
     procedure ValidSetup_Successful()
     var
         ItemFromPictureBuffer: Record "Item From Picture Buffer" temporary;
+        FeatureKey: Record "Feature Key";
         ItemFromPictureTestPage: TestPage "Item From Picture";
         ItemList: TestPage "Item List";
         ItemCard: TestPage "Item Card";
@@ -319,6 +298,8 @@ codeunit 135215 "Item From Picture Tests"
         CreateSetup();
 
         CreateItemFromPictureBuffer(ItemFromPictureBuffer);
+
+        Assert.IsFalse(FeatureKey.Get('EntityText'), 'Feature Key should not exist.');
 
         ItemList.OpenEdit();
         Assert.IsTrue(ItemList.NewFromPicture.Enabled() and ItemList.NewFromPicture.Visible(), 'The action is not invokable.');
@@ -354,7 +335,6 @@ codeunit 135215 "Item From Picture Tests"
     local procedure CreateItemFromPictureBuffer(var ItemFromPictureBuffer: Record "Item From Picture Buffer" temporary)
     var
         TempBlob: Codeunit "Temp Blob";
-        InStr: InStream;
         OutStr: OutStream;
     begin
         OutStr := TempBlob.CreateOutStream();
@@ -380,7 +360,6 @@ codeunit 135215 "Item From Picture Tests"
     local procedure Init()
     var
         AzureAIUsage: Record "Azure AI Usage";
-        FeatureKey: Record "Feature Key";
         ImageAnalysisSetup: Record "Image Analysis Setup";
         ImageAnalysisScenario: Record "Image Analysis Scenario";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
@@ -393,11 +372,6 @@ codeunit 135215 "Item From Picture Tests"
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
         if BindSubscription(TestClientTypeSubscriber) then;
 
-        if FeatureKey.Get('EntityText') then begin
-            FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
-            if FeatureKey.Modify() then;
-        end;
-
         if not IsInitialized then begin
             EnsureDemodata();
             IsInitialized := true;
@@ -407,7 +381,6 @@ codeunit 135215 "Item From Picture Tests"
     local procedure Cleanup()
     var
         AzureAIUsage: Record "Azure AI Usage";
-        FeatureKey: Record "Feature Key";
         ImageAnalysisScenario: Record "Image Analysis Scenario";
         ImageAnalysisSetup: Record "Image Analysis Setup";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
@@ -421,11 +394,6 @@ codeunit 135215 "Item From Picture Tests"
         ImageAnalysisSetup.DeleteAll();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
-        if FeatureKey.Get('EntityText') then begin
-            FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
-            if FeatureKey.Modify() then;
-        end;
-
         ItemFromPictureTests.Subscriber_VerifyImageAnalysisHttpCall();
     end;
 
@@ -433,12 +401,14 @@ codeunit 135215 "Item From Picture Tests"
     var
         ImageAnalysisSetup: Record "Image Analysis Setup";
         ImageAnalysisScenario: Record "Image Analysis Scenario";
+        ApiKey: Text;
     begin
         ImageAnalysisScenario.Status := true;
         ImageAnalysisScenario."Scenario Name" := 'ITEM FROM PICTURE';
         ImageAnalysisScenario.Insert();
 
-        ImageAnalysisSetup.SetApiKey('BEARER_1234567');
+        ApiKey := 'BEARER_1234567';
+        ImageAnalysisSetup.SetApiKey(ApiKey);
         ImageAnalysisSetup."Api Uri" := 'https://microsoft.com/vision/v3.2/analyze';
         ImageAnalysisSetup.Insert();
     end;

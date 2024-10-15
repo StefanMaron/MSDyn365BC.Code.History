@@ -30,18 +30,14 @@ codeunit 137289 "SCM Inventory Costing IV"
         UndoReceiptMessage: Label 'Do you really want to undo the selected Receipt lines?';
         AppliedQuantityUndoError: Label 'Remaining Quantity must be equal to ''%1''  in Item Ledger Entry: Entry No.=%2. Current value is ''0''.';
         UndoRcptReservedQtyError: Label 'Reserved Quantity must be equal to ';
-        UndoChargeItemReceiptError: Label 'Undo Receipt can be performed only for lines of type Item. Please select a line of the Item type and repeat the procedure.';
         PutAwayCreatedUndoError: Label 'You cannot undo line 10000 because warehouse put-away lines have already been created.';
         UndoInvoicedReceiptError: Label 'You cannot undo line 10000 because an item charge has already been invoiced.';
-        UndoChargeItemRetShptError: Label 'Undo Return Shipment can be performed only for lines of type Item. Please select a line of the Item type and repeat the procedure.';
         UndoPurchRetOrderMessage: Label 'Do you really want to undo the selected Return Shipment lines?';
         UndoPickedLineMessage: Label 'The items have been picked.';
-        UndoChargeItemSaleShptError: Label 'Undo Shipment can be performed only for lines of type Item. Please select a line of the Item type and repeat the procedure.';
         UndoSalesShipmentMsg: Label 'Do you really want to undo the selected Shipment lines?';
         UndoDropShipmentError: Label 'Drop Shipment must be equal to ''No''  in Sales Shipment Line';
         ChangeLocationMessage: Label 'You have changed Location Code on the sales header, but it has not been changed on the existing sales lines.';
         UndoSalesRetReceiptMsg: Label 'Do you really want to undo the selected Return Receipt lines?';
-        UndoChargeItemRetRcptMsg: Label 'Undo Return Receipt can be performed only for lines of type Item.';
         ChangeCurrCodeMessage: Label 'If you change';
         ChangePostingDateMessage: Label 'You have changed the Posting Date on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.';
         BeforeWorkDateErr: Label 'is before work date %1 in one or more of the assembly lines';
@@ -77,7 +73,7 @@ codeunit 137289 "SCM Inventory Costing IV"
           Quantity / 2, CreateItem(0, Item."Costing Method"::FIFO), PurchaseLine."Location Code");
         Amount := PurchaseLine."Direct Unit Cost" * PurchaseLine."Qty. to Receive";
         PostPurchaseDocument(PurchaseLine, true);
-        DocumentNo := CreateAndPostSalesDocument(CreateCustomer, PurchaseLine."No.", Quantity, true, true);
+        DocumentNo := CreateAndPostSalesDocument(CreateCustomer(), PurchaseLine."No.", Quantity, true, true);
 
         // Update Purchase Line and Post as Invoice.
         UpdatePurchaseLine(
@@ -95,7 +91,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         FindValueEntry(ValueEntry, DocumentNo, '', '', true);
         ValueEntry.TestField("Valued Quantity", -Quantity);
         Assert.AreNearlyEqual(
-          CostPerUnit, ValueEntry."Cost per Unit", LibraryERM.GetAmountRoundingPrecision,
+          CostPerUnit, ValueEntry."Cost per Unit", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost per Unit"), CostPerUnit, ValueEntry.TableCaption()));
     end;
 
@@ -117,10 +113,10 @@ codeunit 137289 "SCM Inventory Costing IV"
         Initialize();
         Quantity := 10 + LibraryRandom.RandDec(100, 1);  // Taking 10 + Random to make sure Quantity not less than 10.
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor,
+          PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor(),
           CreateItem(LibraryRandom.RandDec(100, 1), Item."Costing Method"::FIFO), Quantity);
         PostPurchaseDocument(PurchaseLine, true);
-        PstdSalesDocumentNo := CreateAndPostSalesDocument(CreateCustomer, PurchaseLine."No.", Quantity, true, true);
+        PstdSalesDocumentNo := CreateAndPostSalesDocument(CreateCustomer(), PurchaseLine."No.", Quantity, true, true);
 
         Item.Get(PurchaseLine."No.");
         Item.Validate("Indirect Cost %", Item."Indirect Cost %" + LibraryRandom.RandDec(100, 1));
@@ -185,7 +181,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         PstdTransferShipmentDocumentNo :=
           FindTransferShipmentHeader(TransferHeader."Transfer-from Code", TransferHeader."Transfer-to Code");
 
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer, Item."No.", Quantity);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer(), Item."No.", Quantity);
         UpdateLocationCodeOnSalesLine(SalesHeader, TransferHeader."Transfer-to Code");
         PstdSalesDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -220,7 +216,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         ReturnReceiptLine: Record "Return Receipt Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[20];
         Quantity: Decimal;
     begin
@@ -231,9 +227,9 @@ codeunit 137289 "SCM Inventory Costing IV"
         Quantity := LibraryRandom.RandDec(10, 1);
 
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, CreateCustomer, LibraryInventory.CreateItem(Item),
+          SalesHeader, SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, CreateCustomer(), LibraryInventory.CreateItem(Item),
           Quantity);
-        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Shipping No. Series", WorkDate(), false);
+        DocumentNo := NoSeries.PeekNextNo(SalesHeader."Shipping No. Series");
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Find Item Leger Entry for Posted Sales Invoice and Update Entry No. in Sales Credit Memo.
@@ -252,7 +248,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         ReturnReceiptLine.FindFirst();
         CreateAndUpdatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Invoice, PurchaseLine.Type::"Charge (Item)", LibraryRandom.RandInt(100), 1, 1,
-          LibraryInventory.CreateItemChargeNo, '');  // Using 1 for Charge Item and blank value for Location.
+          LibraryInventory.CreateItemChargeNo(), '');  // Using 1 for Charge Item and blank value for Location.
         LibraryInventory.CreateItemChargeAssignPurchase(
           ItemChargeAssignmentPurch, PurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::"Return Receipt",
           ReturnReceiptLine."Document No.", ReturnReceiptLine."Line No.", Item."No.");
@@ -271,14 +267,13 @@ codeunit 137289 "SCM Inventory Costing IV"
     procedure RevalueFIFOItemByItemLedgerEntry()
     var
         Item: Record Item;
-        CalculatePer: Option "Item Ledger Entry",Item;
     begin
         // Verify sum of Invoiced Quantity and Cost Amount (Actual) of all Value Entries after Inventory Revaluation per Item Ledger Entry and Adjust Cost - Item Entries for FIFO Item.
 
         // Setup and Exercise.
         Initialize();
         Item.Get(CreateItem(0, Item."Costing Method"::FIFO));  // 0 for Indirect Cost Pct.
-        RevaluateInventoryAndRunAdjustCostItemEntries(Item."No.", CalculatePer::"Item Ledger Entry");
+        RevaluateInventoryAndRunAdjustCostItemEntries(Item."No.", "Inventory Value Calc. Per"::"Item Ledger Entry");
 
         // Verify: Verify sum of Invoiced Quantity and Cost Amount (Actual) for Value Entries.
         VerifyValueEntryAfterAdjustCostItemEntries(Item."No.", 0);  // Sum of Cost Amount (Actual) must be zero.
@@ -289,14 +284,13 @@ codeunit 137289 "SCM Inventory Costing IV"
     procedure RevalueFIFOItemByItem()
     var
         Item: Record Item;
-        CalculatePer: Option "Item Ledger Entry",Item;
     begin
         // Verify sum of Invoiced Quantity and Cost Amount (Actual) of all Value Entries after Inventory Revaluation per Item and Adjust Cost - Item Entries for FIFO Item.
 
         // Setup and Exercise.
         Initialize();
         Item.Get(CreateItem(0, Item."Costing Method"::FIFO));  // 0 for Indirect Cost Pct.
-        RevaluateInventoryAndRunAdjustCostItemEntries(Item."No.", CalculatePer::Item);
+        RevaluateInventoryAndRunAdjustCostItemEntries(Item."No.", "Inventory Value Calc. Per"::Item);
 
         // Verify: Verify sum of Invoiced Quantity and Cost Amount (Actual) for Value Entries.
         VerifyValueEntryAfterAdjustCostItemEntries(Item."No.", 0);  // Sum of Cost Amount (Actual) must be zero.
@@ -308,7 +302,6 @@ codeunit 137289 "SCM Inventory Costing IV"
     var
         Item: Record Item;
         InventorySetup: Record "Inventory Setup";
-        CalculatePer: Option "Item Ledger Entry",Item;
         CostAmountActual: Decimal;
     begin
         // Verify sum of Invoiced Quantity and Cost Amount (Actual) of all Value Entries after Inventory Revaluation per Item and Adjust Cost - Item Entries for an Average Item.
@@ -319,7 +312,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
         Item.Get(CreateItem(0, Item."Costing Method"::Average));  // 0 for Indirect Cost Pct.
-        CostAmountActual := RevaluateInventoryAndRunAdjustCostItemEntries(Item."No.", CalculatePer::Item);
+        CostAmountActual := RevaluateInventoryAndRunAdjustCostItemEntries(Item."No.", "Inventory Value Calc. Per"::Item);
 
         // Verify: Verify sum of Invoiced Quantity and Cost Amount (Actual) for Value Entries.
         VerifyValueEntryAfterAdjustCostItemEntries(Item."No.", CostAmountActual);
@@ -399,7 +392,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         DocumentNo := PostPurchaseDocument(PurchaseLine, true);
 
         // Verify: Verify Value Entry for Cost Amount (Actual) (ACY) and Cost per Unit (ACY).
-        VerifyValueEntryAmountsInACY(DocumentNo, PurchaseLine."No.", LibraryERM.GetAmountRoundingPrecision, 0, 0, 0);  // Cost Amount Actual (ACY), Cost per Unit (ACY), Cost Amount Expected and Cost Amount Expected (ACY) must be zero.
+        VerifyValueEntryAmountsInACY(DocumentNo, PurchaseLine."No.", LibraryERM.GetAmountRoundingPrecision(), 0, 0, 0);  // Cost Amount Actual (ACY), Cost per Unit (ACY), Cost Amount Expected and Cost Amount Expected (ACY) must be zero.
     end;
 
     // [Test]
@@ -443,7 +436,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         CreateCurrencyWithExchangeRate1(Currency, CurrencyExchangeRate);
         UpdateGeneralLedgerSetupForACY(Currency.Code);
         DocumentNo := CreateAndPostSalesDocument(
-            CreateCustomer, CreateItem(0, Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true, false);
+            CreateCustomer(), CreateItem(0, Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true, false);
 
         // Exercise: Create Purchase Document for Item Charge and assign to previous posted Shipment.
         AssignItemChargeToSalesShptLines(PurchaseLine, DocumentType, DocumentNo);
@@ -457,7 +450,7 @@ codeunit 137289 "SCM Inventory Costing IV"
             SetRange("Item Charge No.", PurchaseLine."No.");
             FindFirst();
             CostAmountNonInvtblACY := Round("Cost Amount (Non-Invtbl.)" * CurrencyExchangeRate."Exchange Rate Amount" /
-                CurrencyExchangeRate."Relational Exch. Rate Amount", LibraryERM.GetAmountRoundingPrecision);
+                CurrencyExchangeRate."Relational Exch. Rate Amount", LibraryERM.GetAmountRoundingPrecision());
             TestField("Cost Amount (Non-Invtbl.)(ACY)", CostAmountNonInvtblACY);
         end;
     end;
@@ -490,7 +483,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         CreateAndPostOutputJournal(ItemJournalLine, Item."No.", ProductionOrder."No.");
 
         // Verify: Verify Value Entry for Cost Amount (Expected) (ACY).
-        VerifyValueEntryAmountsInACY(ProductionOrder."No.", '', LibraryERM.GetAmountRoundingPrecision, 0, 0, CostAmountExpectedACY);  // Zero value for Cost Amount Actual (ACY) and Cost per Unit (ACY).
+        VerifyValueEntryAmountsInACY(ProductionOrder."No.", '', LibraryERM.GetAmountRoundingPrecision(), 0, 0, CostAmountExpectedACY);  // Zero value for Cost Amount Actual (ACY) and Cost per Unit (ACY).
     end;
 
     [Test]
@@ -859,7 +852,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryVariableStorage.Enqueue(UndoSalesShipmentMsg);  // Enqueue value for ConfirmHandler.
         UndoSalesShipment(SalesLine);
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, CreateCustomer, SalesLine."No.", SalesLine.Quantity);  // Use Random Quantity.
+          SalesHeader, SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, CreateCustomer(), SalesLine."No.", SalesLine.Quantity);  // Use Random Quantity.
         FindSalesLine(SalesLine, SalesHeader);
 
         // Exercise. Get Shipment Lines.
@@ -911,7 +904,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryVariableStorage.Enqueue(UndoSalesRetReceiptMsg);  // Enqueue value for ConfirmHandler.
         UndoReturnReceipt(SalesLine);
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesLine.Type::Item, CreateCustomer, SalesLine."No.", SalesLine.Quantity);  // Use Random Quantity.
+          SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesLine.Type::Item, CreateCustomer(), SalesLine."No.", SalesLine.Quantity);  // Use Random Quantity.
         FindSalesLine(SalesLine, SalesHeader);
 
         // Exercise. Get Return Receipt Line.
@@ -976,7 +969,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         ValueEntry.TestField("Document Type", ValueEntry."Document Type"::"Sales Invoice");
         ValueEntry.TestField(
           "Cost Amount (Actual) (ACY)",
-          Round(ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision, '='));
+          Round(ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision(), '='));
     end;
 
     [Test]
@@ -1006,7 +999,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Create Sales Document and Post, create Purchase Document and Receive.
         LibraryVariableStorage.Enqueue(ChangeCurrCodeMessage);  // Enqueue value for ConfirmHandler.
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer, ItemNo, LibraryRandom.RandInt(20));  // Use Random Quantity.
+          SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer(), ItemNo, LibraryRandom.RandInt(20));  // Use Random Quantity.
         UnitPrice := PurchaseLine."Direct Unit Cost" + LibraryRandom.RandInt(20); // Required Unit Price more than Direct Unit Cost.
 
         UpdateSalesDocument(SalesLine, SalesHeader, SalesHeader."Posting Date", Currency.Code, UnitPrice);
@@ -1024,7 +1017,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         ValueEntry.TestField("Document Type", ValueEntry."Document Type"::"Sales Invoice");
         ValueEntry.TestField(
           "Cost Amount (Actual) (ACY)",
-          Round(ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision, '='));
+          Round(ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity", LibraryERM.GetAmountRoundingPrecision(), '='));
     end;
 
     [Test]
@@ -1076,7 +1069,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Setup: Create Currency, create Purchase Order and update Currency Exchange.
         Initialize();
-        LibraryERM.SetWorkDate;
+        LibraryERM.SetWorkDate();
         CreateCurrencyWithExchangeRate(Currency);
         CreatePurchaseOrderWithCurrency(
           PurchaseLine, CreateItem(0, Item."Costing Method"::FIFO), Currency.Code, WorkDate(), LibraryRandom.RandDec(10, 2),
@@ -1124,7 +1117,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateErr, WorkDate())); // Enqueue variable for Message handler
 
         // Post Sales Order for Assembly Item
-        CreateAndPostSalesDocument(CreateCustomer, AssemblyItem."No.", Quantity, true, true);
+        CreateAndPostSalesDocument(CreateCustomer(), AssemblyItem."No.", Quantity, true, true);
 
         // Excercise: Adjust Cost Item Entries with filtering on the Assembly Item No.
         LibraryCosting.AdjustCostItemEntries(AssemblyItem."No.", '');
@@ -1142,7 +1135,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         Assert.AreNearlyEqual(
           -Quantity * (BomComponent."Quantity per" * Item."Unit Cost" + BomComponent2."Quantity per" * Item2."Unit Cost"),
-          ItemLedgerEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, AdjustCostErr);
+          ItemLedgerEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), AdjustCostErr);
     end;
 
     [Test]
@@ -1181,7 +1174,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Create Sales Order for Assembly BOM.
         LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateErr, WorkDate())); // Enqueue variable for Message handler.
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer, AssemblyItem."No.", 3 * Quantity);
+          SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer(), AssemblyItem."No.", 3 * Quantity);
 
         // Update "Qty. to Assemble to Order" on Sales Line.
         LibraryVariableStorage.Enqueue(StrSubstNo(BeforeWorkDateErr, WorkDate())); // Enqueue variable for Message handler.
@@ -1243,7 +1236,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify that it shows the right balance amount for multiple Currency code when date range is outside of transaction date on Customer Statement Report.
 
         // Setup: Create and post sales order with currency.
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CurrencyCode := CreateAndPostSalesOrderWithCurrency(SalesLine, CustomerNo);
         CurrencyCode2 := CreateAndPostSalesOrderWithCurrency(SalesLine2, CustomerNo);
         LibraryVariableStorage.Enqueue(CustomerNo); // Enqueue value for StatementRequestPageHandler.
@@ -1252,7 +1245,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         REPORT.Run(REPORT::Statement);
 
         // Verify: Verify the total currency balance on the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCustomerStatementReport(CurrencyCode, SalesLine."Amount Including VAT");
         VerifyCustomerStatementReport(CurrencyCode2, SalesLine2."Amount Including VAT");
     end;
@@ -1270,7 +1263,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         Initialize();
 
         // Exercise
-        DocumentNo := SalesDocumentWithItemChargeAssignment;
+        DocumentNo := SalesDocumentWithItemChargeAssignment();
 
         // Verify
         CheckValueEntryCostAmountNonInvtblNegSign(DocumentNo);
@@ -1405,14 +1398,14 @@ codeunit 137289 "SCM Inventory Costing IV"
         CreateNamedItem(NoBOMItem, NoBOMItemNo);
         CreateNamedProductionBOMItem(BOMItem, BOMItemNo);
 
-        BOMCostShares.OpenView;
+        BOMCostShares.OpenView();
 
         // [WHEN] Set Value of Item Filter in BOM Cost Shares Page
         BOMCostShares.ItemFilter.SetValue(ItemFilter);
 
         // [THEN] No ERROR occurs.
 
-        ReadItemNo := BOMCostShares."No.".Value;
+        ReadItemNo := BOMCostShares."No.".Value();
         BOMCostShares.Close();
 
         // [THEN] Read Item."No." from BOM Cost Shares Page is equal to Second Item."No."
@@ -1500,17 +1493,17 @@ codeunit 137289 "SCM Inventory Costing IV"
         CreateProdItemWithComponents(Item);
 
         // [GIVEN] Open "BOM Cost Shares" page for the top-level item "P"
-        BOMCostShares.OpenEdit;
+        BOMCostShares.OpenEdit();
         BOMCostShares.ItemFilter.SetValue(Item[5]."No.");
 
         // [THEN] Items "C1" and "C4" are in the report, items "C2" and "C3" are not shown in the report
-        BOMCostShares.First;
+        BOMCostShares.First();
         BOMCostShares.Expand(true);
         BOMCostShares.Next();
         BOMCostShares."No.".AssertEquals(Item[1]."No.");
         BOMCostShares.Next();
         BOMCostShares."No.".AssertEquals(Item[4]."No.");
-        Assert.IsFalse(BOMCostShares.Next, ItemNoIsUnexpectedErr);
+        Assert.IsFalse(BOMCostShares.Next(), ItemNoIsUnexpectedErr);
     end;
 
     [Test]
@@ -1536,17 +1529,17 @@ codeunit 137289 "SCM Inventory Costing IV"
         CreateProdItemWithComponents(Item);
 
         // [GIVEN] Open "BOM Structure" page for the top-level item "P"
-        BOMStructure.OpenEdit;
+        BOMStructure.OpenEdit();
         BOMStructure.ItemFilter.SetValue(Item[5]."No.");
 
         // [THEN] Items "C1" and "C4" are in the report, items "C2" and "C3" are not shown in the report
-        BOMStructure.First;
+        BOMStructure.First();
         BOMStructure.Expand(true);
         BOMStructure.Next();
         BOMStructure."No.".AssertEquals(Item[1]."No.");
         BOMStructure.Next();
         BOMStructure."No.".AssertEquals(Item[4]."No.");
-        Assert.IsFalse(BOMStructure.Next, ItemNoIsUnexpectedErr);
+        Assert.IsFalse(BOMStructure.Next(), ItemNoIsUnexpectedErr);
     end;
 
     [Test]
@@ -1565,7 +1558,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // [GIVEN] Created and posted Purchase Order with Service Item
         CreateServiceItem(Item, LibraryRandom.RandDec(10, 1), Item."Costing Method"::FIFO);
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor, Item."No.", LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor(), Item."No.", LibraryRandom.RandInt(10));
         PostPurchaseDocument(PurchaseLine, false);
 
         // [WHEN] Undo Purchase Receipt
@@ -1575,7 +1568,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // [THEN] Table "Avg. Cost Adjmt. Entry Point" is empty
         AvgCostAdjmtEntryPoint.SetRange("Item No.", Item."No.");
         Assert.RecordIsEmpty(AvgCostAdjmtEntryPoint);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1638,7 +1631,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         Item: Record Item;
     begin
         CreatePurchaseDocument(
-          PurchaseLine, DocumentType, Type, CreateVendor, CreateItem(LibraryRandom.RandDec(10, 1), Item."Costing Method"::FIFO),
+          PurchaseLine, DocumentType, Type, CreateVendor(), CreateItem(LibraryRandom.RandDec(10, 1), Item."Costing Method"::FIFO),
           Quantity);
         PostPurchaseDocument(PurchaseLine, Invoice);
     end;
@@ -1647,7 +1640,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
@@ -1668,7 +1661,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Create Sales Line with G/L Account and random quantity and unit price.
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount(), LibraryRandom.RandInt(100));
         UpdateSalesLine(SalesLine, LibraryRandom.RandInt(100));
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1684,18 +1677,17 @@ codeunit 137289 "SCM Inventory Costing IV"
         exit(LibrarySales.PostSalesDocument(SalesHeader, Ship, Invoice));
     end;
 
-    local procedure CreateAndPostRevaluationJournal(ItemNo: Code[20]; NewPostingDate: Date; CalculatePer: Option; RevalueFactor: Integer): Decimal
+    local procedure CreateAndPostRevaluationJournal(ItemNo: Code[20]; NewPostingDate: Date; CalculatePer: Enum "Inventory Value Calc. Per"; RevalueFactor: Integer): Decimal
     var
         Item: Record Item;
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";
-        CalcBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
         Item.SetRange("No.", ItemNo);
         LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, NewPostingDate, LibraryUtility.GenerateGUID, CalculatePer, false, false, false, CalcBase::" ", false);
+          ItemJournalBatch, Item, NewPostingDate, LibraryUtility.GenerateGUID(), CalculatePer, false, false, false, "Inventory Value Calc. Base"::" ", false);
         ItemJournalLine.SetRange("Item No.", ItemNo);
         ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", RevalueFactor * ItemJournalLine."Unit Cost (Calculated)");
@@ -1744,7 +1736,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     var
         SalesHeader: Record "Sales Header";
     begin
-        CreateSalesDocument(SalesHeader, DocumentType, Type, CreateCustomer, ItemNo, (LibraryRandom.RandDec(10, 2) * QuantityFactor));  // Use Random Quantity.
+        CreateSalesDocument(SalesHeader, DocumentType, Type, CreateCustomer(), ItemNo, (LibraryRandom.RandDec(10, 2) * QuantityFactor));  // Use Random Quantity.
         FindSalesLine(SalesLine, SalesHeader);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Price.
         SalesLine.Modify(true);
@@ -1753,7 +1745,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
     local procedure CreateAndUpdatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; DirectUnitCost: Decimal; Quantity: Decimal; QtyToReceive: Decimal; ItemNo: Code[20]; LocationCode: Code[10])
     begin
-        CreatePurchaseDocument(PurchaseLine, DocumentType, Type, CreateVendor, ItemNo, Quantity);
+        CreatePurchaseDocument(PurchaseLine, DocumentType, Type, CreateVendor(), ItemNo, Quantity);
         UpdatePurchaseLine(PurchaseLine, DirectUnitCost, QtyToReceive, LocationCode);
     end;
 
@@ -1761,7 +1753,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     var
         Customer: Record Customer;
     begin
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         Customer.Validate("Currency Code", CurrencyCode);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -1878,9 +1870,9 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[5]."Base Unit of Measure");
         CreateProdBOMLineWithStartingEndingDates(ProductionBOMHeader, Item[1]."No.", LibraryRandom.RandInt(100), 0D, 0D);
         CreateProdBOMLineWithStartingEndingDates(ProductionBOMHeader, Item[2]."No.", LibraryRandom.RandInt(100), 0D, WorkDate() - 1);
-        CreateProdBOMLineWithStartingEndingDates(ProductionBOMHeader, Item[3]."No.", LibraryRandom.RandInt(100), WorkDate + 1, 0D);
+        CreateProdBOMLineWithStartingEndingDates(ProductionBOMHeader, Item[3]."No.", LibraryRandom.RandInt(100), WorkDate() + 1, 0D);
         CreateProdBOMLineWithStartingEndingDates(
-          ProductionBOMHeader, Item[4]."No.", LibraryRandom.RandInt(100), WorkDate() - 1, WorkDate + 1);
+          ProductionBOMHeader, Item[4]."No.", LibraryRandom.RandInt(100), WorkDate() - 1, WorkDate() + 1);
 
         LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
 
@@ -1904,7 +1896,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         CreateLocation(Location);
         CreatePurchaseDocument(
-          PurchaseLine, DocumentType, PurchaseLine.Type::Item, CreateVendor,
+          PurchaseLine, DocumentType, PurchaseLine.Type::Item, CreateVendor(),
           CreateItem(LibraryRandom.RandDec(100, 1), Item."Costing Method"::FIFO), LibraryRandom.RandDec(50, 1));  // Use Random value.
         UpdatePurchaseLine(PurchaseLine, 0, 0, Location.Code);  // Used 0 for Direct Unit Cost and Quantity to Receive.
     end;
@@ -1921,7 +1913,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     var
         SalesHeader: Record "Sales Header";
     begin
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer, ItemNo, Quantity);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer(), ItemNo, Quantity);
         FindSalesLine(SalesLine, SalesHeader);
         LibrarySales.AutoReserveSalesLine(SalesLine);
     end;
@@ -1931,7 +1923,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         SalesLine: Record "Sales Line";
     begin
         LibraryVariableStorage.Enqueue(ChangeLocationMessage);  // Enqueue ConfirmHandler.
-        CreateSalesDocument(SalesHeader, DocumentType, SalesLine.Type::Item, CreateCustomer, ItemNo, Quantity);  // Use Random value.
+        CreateSalesDocument(SalesHeader, DocumentType, SalesLine.Type::Item, CreateCustomer(), ItemNo, Quantity);  // Use Random value.
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Modify(true);
         UpdateLocationCodeOnSalesLine(SalesHeader, LocationCode);
@@ -2090,7 +2082,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryVariableStorage.Enqueue(SalesDocumentNo); // Enqueue value for SalesShipmentLinePageHandler.
         LibraryVariableStorage.Enqueue(2); // Select Amount when suggest item charge.
 
-        PurchaseDocumentItemChargeAssignByGetSalesShipmentLines(PurchaseLine, PurchaseDocumentType, CreateVendor);
+        PurchaseDocumentItemChargeAssignByGetSalesShipmentLines(PurchaseLine, PurchaseDocumentType, CreateVendor());
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentNo: Code[20]; EntryType: Enum "Item Ledger Document Type")
@@ -2203,7 +2195,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
         PurchaseHeader.Validate("Sell-to Customer No.", SelltoCustomerNo);
         PurchaseHeader.Modify(true);
         LibraryPurchase.GetDropShipment(PurchaseHeader);
@@ -2230,7 +2222,6 @@ codeunit 137289 "SCM Inventory Costing IV"
     local procedure PostPurchaseOrderAndRevaluationJournal(var PurchaseLine: Record "Purchase Line"; Invoice: Boolean; RevaluedFactor: Integer) UnitCostRevaluated: Decimal
     var
         Item: Record Item;
-        CalculatePer: Option "Item Ledger Entry",Item;
         Quantity: Decimal;
     begin
         // Create and post Purchase Order.
@@ -2244,7 +2235,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryCosting.AdjustCostItemEntries(PurchaseLine."No.", '');
         UnitCostRevaluated := CreateAndPostRevaluationJournal(
             PurchaseLine."No.", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()),
-            CalculatePer::Item, RevaluedFactor);
+            "Inventory Value Calc. Per"::Item, RevaluedFactor);
     end;
 
     local procedure PurchaseApplication(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Quantity: Decimal)
@@ -2256,7 +2247,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Create Sales Order and Ship and Invoice Sales Order.
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Order, PurchaseLine.Type::Item, CreateCustomer, PurchaseLine."No.",
+          SalesHeader, SalesHeader."Document Type"::Order, PurchaseLine.Type::Item, CreateCustomer(), PurchaseLine."No.",
           Abs(PurchaseLine.Quantity));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -2293,7 +2284,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);  // 1 for Charge Item Quantity.
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);  // 1 for Charge Item Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // Use Random value.
         PurchaseLine.Modify(true);
         LibraryInventory.CreateItemChargeAssignPurchase(
@@ -2307,7 +2298,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, BuyFromVendorNo);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)",
-          LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(5));
+          LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(5));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2)); // Use Random value.
         PurchaseLine.Modify(true);
         PurchaseLine.ShowItemChargeAssgnt(); // Trigger the PurchItemChargeAssignmentHandler.
@@ -2347,7 +2338,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Create Purchase Order with Warehouse Location.
         CreateWarehouseLocation(Location);
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor,
+          PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor(),
           CreateItem(LibraryRandom.RandDec(100, 1), Item."Costing Method"::FIFO), LibraryRandom.RandDec(50, 1));  // Use Random value.
         UpdatePurchaseLine(PurchaseLine, 0, 0, Location.Code);
 
@@ -2366,7 +2357,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
-    local procedure RevaluateInventoryAndRunAdjustCostItemEntries(ItemNo: Code[20]; CalculatePer: Option) CostAmountActual: Decimal
+    local procedure RevaluateInventoryAndRunAdjustCostItemEntries(ItemNo: Code[20]; CalculatePer: Enum "Inventory Value Calc. Per") CostAmountActual: Decimal
     var
         Customer: Record Customer;
         PurchaseLine: Record "Purchase Line";
@@ -2382,7 +2373,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         PostPurchaseDocument(PurchaseLine, true);
 
         // Invoice partial Sales Order.
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::Order, PurchaseLine.Type::Item, Customer."No.", ItemNo, PurchaseLine.Quantity / 2);
         ModifyQtyToInvoiceOnSalesLine(SalesHeader, PurchaseLine.Quantity / 3);
@@ -2415,11 +2406,11 @@ codeunit 137289 "SCM Inventory Costing IV"
         Item: Record Item;
     begin
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer, CreateItem(0, Item."Costing Method"::FIFO),
+          SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer(), CreateItem(0, Item."Costing Method"::FIFO),
           LibraryRandom.RandDec(50, 1));
         FindSalesLine(SalesLine, SalesHeader);
         SalesLine.Validate("Drop Shipment", true);
-        SalesLine.Validate("Purchasing Code", FindPurchasingCode);
+        SalesLine.Validate("Purchasing Code", FindPurchasingCode());
         SalesLine.Modify(true);
     end;
 
@@ -2431,7 +2422,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         DocumentNo: Code[20];
     begin
         DocumentNo := CreateAndPostSalesDocument(
-            CreateCustomer, CreateItem(0, Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true, false);
+            CreateCustomer(), CreateItem(0, Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true, false);
 
         AssignItemChargeToSalesShptLines(PurchaseLine, PurchaseLine."Document Type"::Invoice, DocumentNo);
 
@@ -2468,7 +2459,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Create Sales Order and Ship, Purchase Order Invoiced.
         CreateSalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer, ItemNo, PurchaseLine.Quantity);  // Use Random Quantity.
+          SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateCustomer(), ItemNo, PurchaseLine.Quantity);  // Use Random Quantity.
         UnitPrice := PurchaseLine."Direct Unit Cost" + LibraryRandom.RandInt(50); // Required Unit Price more than Direct Unti Cost.
         LibraryVariableStorage.Enqueue(ChangeCurrCodeMessage);
         UpdateSalesDocument(
@@ -2484,7 +2475,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Create Credit Memo without Currency Code and Post.
         LibraryVariableStorage.Enqueue(ChangePostingDateMessage);
         CreateSalesDocument(
-          SalesHeader2, SalesHeader2."Document Type"::"Credit Memo", SalesLine.Type::Item, CreateCustomer, ItemNo, SalesLine.Quantity);  // Use Random Quantity.
+          SalesHeader2, SalesHeader2."Document Type"::"Credit Memo", SalesLine.Type::Item, CreateCustomer(), ItemNo, SalesLine.Quantity);  // Use Random Quantity.
         UpdateSalesDocument(SalesLine, SalesHeader2, CalcDate('<1D>', SalesHeader."Posting Date"), '', UnitPrice);
         LibrarySales.PostSalesDocument(SalesHeader2, true, true);
     end;
@@ -2544,9 +2535,9 @@ codeunit 137289 "SCM Inventory Costing IV"
         SalesOrder: TestPage "Sales Order";
     begin
         UpdateCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder."Currency Code".AssistEdit;
+        SalesOrder."Currency Code".AssistEdit();
     end;
 
     local procedure UpdateCurrencyExchangeRateOnPurchOrder(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; No: Code[20])
@@ -2554,9 +2545,9 @@ codeunit 137289 "SCM Inventory Costing IV"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         UpdateCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder."Currency Code".AssistEdit;
+        PurchaseOrder."Currency Code".AssistEdit();
     end;
 
     local procedure UpdatePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
@@ -2699,10 +2690,10 @@ codeunit 137289 "SCM Inventory Costing IV"
         FindValueEntry(ValueEntry, DocumentNo, '', LocationCode, true);
         ValueEntry.TestField("Valued Quantity", Quantity);
         Assert.AreNearlyEqual(
-          CostPerUnit, ValueEntry."Cost per Unit", LibraryERM.GetAmountRoundingPrecision,
+          CostPerUnit, ValueEntry."Cost per Unit", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost per Unit"), CostPerUnit, ValueEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+          CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostPerUnit, ValueEntry.TableCaption()));
     end;
 
@@ -2720,7 +2711,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         Assert.AreEqual(
           0, AccumulatedInvdQty, StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Invoiced Quantity"), 0, ValueEntry.TableCaption()));  // Sum of Invoiced Quantity must be zero.
         Assert.AreNearlyEqual(
-          CostAmountActual, AccumulatedCostAmtActual, LibraryERM.GetAmountRoundingPrecision,
+          CostAmountActual, AccumulatedCostAmtActual, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValueEntryNotMatched, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual, ValueEntry.TableCaption()));
     end;
 
@@ -2786,7 +2777,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         LibraryVariableStorage.Dequeue(RefExchRate);
         ChangeExchangeRate.RefExchRate.SetValue(RefExchRate);
-        ChangeExchangeRate.OK.Invoke;
+        ChangeExchangeRate.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -2804,36 +2795,36 @@ codeunit 137289 "SCM Inventory Costing IV"
     [Scope('OnPrem')]
     procedure GetReceiptLinesHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
     begin
-        GetReceiptLines.First;
+        GetReceiptLines.First();
         GetReceiptLines."Document No.".AssertEquals('');
-        GetReceiptLines.Cancel.Invoke;
+        GetReceiptLines.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetReturnReceiptHandler(var GetReturnReceiptLines: TestPage "Get Return Receipt Lines")
     begin
-        GetReturnReceiptLines.First;
+        GetReturnReceiptLines.First();
         GetReturnReceiptLines."Document No.".AssertEquals('');
-        GetReturnReceiptLines.Cancel.Invoke;
+        GetReturnReceiptLines.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetReturnShipmentHandler(var GetReturnShipmentLines: TestPage "Get Return Shipment Lines")
     begin
-        GetReturnShipmentLines.First;
+        GetReturnShipmentLines.First();
         GetReturnShipmentLines."Document No.".AssertEquals('');
-        GetReturnShipmentLines.Cancel.Invoke;
+        GetReturnShipmentLines.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetShipmentLinesHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
     begin
-        GetShipmentLines.First;
+        GetShipmentLines.First();
         GetShipmentLines."Document No.".AssertEquals('');
-        GetShipmentLines.Cancel.Invoke;
+        GetShipmentLines.Cancel().Invoke();
     end;
 
     [MessageHandler]
@@ -2850,16 +2841,16 @@ codeunit 137289 "SCM Inventory Costing IV"
     [Scope('OnPrem')]
     procedure SalesListPageHandler(var SalesList: TestPage "Sales List")
     begin
-        SalesList.OK.Invoke;
+        SalesList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchItemChargeAssignmentHandler(var PurchItemChargeAssignment: TestPage "Item Charge Assignment (Purch)")
     begin
-        PurchItemChargeAssignment.GetSalesShipmentLines.Invoke;
-        PurchItemChargeAssignment.SuggestItemChargeAssignment.Invoke;
-        PurchItemChargeAssignment.OK.Invoke;
+        PurchItemChargeAssignment.GetSalesShipmentLines.Invoke();
+        PurchItemChargeAssignment.SuggestItemChargeAssignment.Invoke();
+        PurchItemChargeAssignment.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2870,7 +2861,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         LibraryVariableStorage.Dequeue(PostedDocumentNo);
         SalesShipmentLines.FILTER.SetFilter("Document No.", PostedDocumentNo);
-        SalesShipmentLines.OK.Invoke;
+        SalesShipmentLines.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2890,8 +2881,8 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Verify no component item expanded.
         BOMCostShares.Expand(true);
-        Assert.IsFalse(BOMCostShares.Next, StrSubstNo(ExpandBOMErr, ItemNo));
-        BOMCostShares.OK.Invoke;
+        Assert.IsFalse(BOMCostShares.Next(), StrSubstNo(ExpandBOMErr, ItemNo));
+        BOMCostShares.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2904,7 +2895,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         Statement.Customer.SetFilter("No.", CustomerNo);
         Statement."Start Date".SetValue(Format(CalcDate('<+1Y>', WorkDate())));
         Statement."End Date".SetValue(Format(CalcDate('<+2Y>', WorkDate())));
-        Statement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Statement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

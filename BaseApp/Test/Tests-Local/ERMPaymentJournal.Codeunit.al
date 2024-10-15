@@ -195,7 +195,7 @@ codeunit 144003 "ERM Payment Journal"
         Initialize();
 
         // [GIVEN] Bank Account with length of "No." = max length of field.
-        BankAccountNo := CreateBankAccountMod97Compliant;
+        BankAccountNo := CreateBankAccountMod97Compliant();
 
         // [GIVEN] Payment Journal with lines
         InitExportBatchContainingDigitsScenario(
@@ -227,7 +227,7 @@ codeunit 144003 "ERM Payment Journal"
 
         // Setup
         Initialize();
-        BankAccountNo := CreateBankAccountMod97Compliant;
+        BankAccountNo := CreateBankAccountMod97Compliant();
         InitExportBatchesScenario(
           TemplateName, BatchNameDigits, BatchNameNoDigits, ExpProtCodeDomestic, ExpProtCodeInternational, false, BankAccountNo);
 
@@ -255,7 +255,7 @@ codeunit 144003 "ERM Payment Journal"
         Initialize();
 
         // [GIVEN] Bank Account with length of "No." = max length of field.
-        BankAccountNo := CreateBankAccountMod97Compliant;
+        BankAccountNo := CreateBankAccountMod97Compliant();
 
         // [GIVEN] Payment Journal with lines
         InitExportBatchContainingDigitsScenario(
@@ -287,7 +287,7 @@ codeunit 144003 "ERM Payment Journal"
 
         // Setup
         Initialize();
-        BankAccountNo := CreateBankAccountMod97Compliant;
+        BankAccountNo := CreateBankAccountMod97Compliant();
         InitExportBatchesScenario(TemplateName, BatchNameDigits, BatchNameNoDigits, ExpProtCodeDomestic,
           ExpProtCodeInternational, true, BankAccountNo);
 
@@ -394,7 +394,6 @@ codeunit 144003 "ERM Payment Journal"
     procedure SuggestVendorPaymentsWithGlobalDimenstion1Filter()
     var
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         Vendor: Record "Vendor";
         DimensionValue: Record "Dimension Value";
         VendorFilter: Text;
@@ -425,7 +424,6 @@ codeunit 144003 "ERM Payment Journal"
     var
         PaymentJournalLine: Record "Payment Journal Line";
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         Vendor: Record "Vendor";
         DimensionValue: Record "Dimension Value";
         VendorFilter: Text;
@@ -456,7 +454,6 @@ codeunit 144003 "ERM Payment Journal"
     PROCEDURE SuggestVendorPaymentsWithGlobalDimenstion2Filter()
     var
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         Vendor: Record "Vendor";
         DimensionValue: Record "Dimension Value";
         VendorFilter: Text;
@@ -487,7 +484,6 @@ codeunit 144003 "ERM Payment Journal"
     var
         PaymentJournalLine: Record "Payment Journal Line";
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         Vendor: Record "Vendor";
         DimensionValue: Record "Dimension Value";
         VendorFilter: Text;
@@ -534,7 +530,7 @@ codeunit 144003 "ERM Payment Journal"
 
         CreateVendorWithBankAccount(Vendor, true);
         InvoiceAmount := LibraryRandom.RandDec(1000, 2);
-        BankAccountNo := CreateBankAccountMod97Compliant;
+        BankAccountNo := CreateBankAccountMod97Compliant();
 
         // [GIVEN] Vendor invoice "X" with "Payment Reference" = "001"
         CreateGenJnlLine(
@@ -580,7 +576,7 @@ codeunit 144003 "ERM Payment Journal"
         // [GIVEN] Posted purchase invoice with "External Document No." = "X"
         CreateVendorWithBankAccount(Vendor, false);
         InvoiceAmount := LibraryRandom.RandDec(1000, 2);
-        BankAccountNo := CreateBankAccountMod97Compliant;
+        BankAccountNo := CreateBankAccountMod97Compliant();
         CreateAndPostGenJnlLine(
           GenJnlLine."Account Type"::Vendor, Vendor."No.", GenJnlLine."Document Type"::Invoice, -InvoiceAmount, InvoiceNo, BankAccountNo);
 
@@ -621,7 +617,7 @@ codeunit 144003 "ERM Payment Journal"
         // [GIVEN] Posted sales invoice with "External Document No." = "X"
         CreateCustomerWithBankAccount(Customer);
         InvoiceAmount := LibraryRandom.RandDec(1000, 2);
-        BankAccountNo := CreateBankAccountMod97Compliant;
+        BankAccountNo := CreateBankAccountMod97Compliant();
         CreateAndPostGenJnlLine(
           GenJnlLine."Account Type"::Customer, Customer."No.", GenJnlLine."Document Type"::Invoice, InvoiceAmount, InvoiceNo, BankAccountNo);
 
@@ -747,7 +743,7 @@ codeunit 144003 "ERM Payment Journal"
         CrMemoAmount := LibraryRandom.RandDec(1000, 2);
         InvoiceAmount := CrMemoAmount * 2;
 
-        BankAccountNo := CreateBankAccountMod97Compliant;
+        BankAccountNo := CreateBankAccountMod97Compliant();
 
         with GenJnlLine do begin
             CreateAndPostGenJnlLine("Account Type"::Vendor, Vendor."No.",
@@ -780,7 +776,7 @@ codeunit 144003 "ERM Payment Journal"
         CrMemoAmount := LibraryRandom.RandDec(1000, 2);
         PaymentAmount := CrMemoAmount * 2;
 
-        BankAccountNo := CreateBankAccountMod97Compliant;
+        BankAccountNo := CreateBankAccountMod97Compliant();
 
         with GenJnlLine do begin
             CreateAndPostGenJnlLine("Account Type"::Customer, Customer."No.",
@@ -820,7 +816,7 @@ codeunit 144003 "ERM Payment Journal"
         InvoiceAmount := LibraryRandom.RandDec(1000, 2);
         CrMemoAmount := InvoiceAmount * 2;
 
-        BankAccountNo := CreateBankAccountMod97Compliant;
+        BankAccountNo := CreateBankAccountMod97Compliant();
 
         with GenJnlLine do begin
             CreateAndPostGenJnlLine("Account Type"::Vendor, Vendor."No.",
@@ -857,7 +853,7 @@ codeunit 144003 "ERM Payment Journal"
 
         InvoiceAmount := LibraryRandom.RandDec(1000, 2);
 
-        BankAccountNo := CreateBankAccountMod97Compliant;
+        BankAccountNo := CreateBankAccountMod97Compliant();
 
         CreateAndPostGenJnlLine(GenJnlLine."Account Type"::Vendor, Vendor."No.",
           GenJnlLine."Document Type"::Invoice, -InvoiceAmount, InvoiceNo, BankAccountNo);
@@ -898,10 +894,10 @@ codeunit 144003 "ERM Payment Journal"
     begin
         Commit();
 
-        EBPaymentJournal.OpenEdit;
+        EBPaymentJournal.OpenEdit();
         EBPaymentJournal.CurrentJnlBatchName.SetValue(BatchName);
         EBPaymentJournal.ExportProtocolCode.SetValue(ExportProtocolCode);
-        EBPaymentJournal.ExportPaymentLines.Invoke;
+        EBPaymentJournal.ExportPaymentLines.Invoke();
     end;
 
     local procedure CreateAndPostGenJnlLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; var DocumentNo: Code[20]; BankAccountNo: Code[20])
@@ -943,7 +939,7 @@ codeunit 144003 "ERM Payment Journal"
 
         with PurchaseLine do begin
             LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandDec(10, 2));
+              PurchaseLine, PurchaseHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandDec(10, 2));
             Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
             Modify(true);
         end;
@@ -1400,7 +1396,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         BankAccount.Get(BankAccountNo);
         with LibraryReportDataset do begin
-            LoadDataSetFile;
+            LoadDataSetFile();
             AssertElementWithValueExists('BankAccName', BankAccount.Name);
             AssertElementWithValueExists('BankAccBankAccNo', BankAccount."Bank Account No."); // Initial TFSID 232996
             AssertElementWithValueExists('BankAccBankBranchNo', BankAccount."Bank Branch No.");
@@ -1415,7 +1411,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         BankAccount.Get(BankAccountNo);
         with LibraryReportDataset do begin
-            LoadDataSetFile;
+            LoadDataSetFile();
             AssertElementWithValueExists('BankAcc_Name', BankAccount.Name);
             AssertElementWithValueExists('BankAcc_BankAccNo', BankAccount."Bank Account No."); // Initial TFSID 232996
             AssertElementWithValueExists('BankAcc_BankBranchNo', BankAccount."Bank Branch No.");
@@ -1563,7 +1559,7 @@ codeunit 144003 "ERM Payment Journal"
         FileDomesticPayments."GenJnlLine.""Journal Template Name""".SetValue(TemplateName); // Journal Template Name
         FileDomesticPayments."GenJnlLine.""Journal Batch Name""".SetValue(BatchName); // Journal Batch Name
         FileDomesticPayments.FileName.SetValue(FileMgt.ServerTempFileName('txt'));
-        FileDomesticPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FileDomesticPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1578,22 +1574,22 @@ codeunit 144003 "ERM Payment Journal"
         FileInternationalPayments.JournalTemplateName.SetValue(TemplateName); // Journal Template Name
         FileInternationalPayments.JournalBatchName.SetValue(BatchName); // Journal Batch Name
         FileInternationalPayments.FileName.SetValue(FileMgt.ServerTempFileName('txt'));
-        FileInternationalPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FileInternationalPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsEBRPH(var SuggestVendorPaymentsEB: TestRequestPage "Suggest Vendor Payments EB")
     begin
-        SuggestVendorPaymentsEB.OK.Invoke;
+        SuggestVendorPaymentsEB.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure TemplatesModalPageHandler(var EBPaymentJournalTemplates: TestPage "EB Payment Journal Templates")
     begin
-        EBPaymentJournalTemplates.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
-        EBPaymentJournalTemplates.OK.Invoke
+        EBPaymentJournalTemplates.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        EBPaymentJournalTemplates.OK().Invoke();
     end;
 }
 

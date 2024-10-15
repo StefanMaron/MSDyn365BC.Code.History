@@ -136,7 +136,7 @@ page 475 "VAT Statement Preview Line"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownCorrectionValue;
+                        DrillDownCorrectionValue();
                     end;
                 }
                 field(TotalAmount; ColumnValue + CorrectionValue)

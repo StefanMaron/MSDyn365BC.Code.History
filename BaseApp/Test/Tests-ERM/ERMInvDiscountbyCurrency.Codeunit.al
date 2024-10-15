@@ -94,7 +94,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         PurchaseLine: Record "Purchase Line";
     begin
         // Exercise: Create Purchase Header and Line for Credit Memo, Invoice and Order and Calculate Invoice Discount for Vendor on Purchase Line.
-        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateCurrency, DocType);
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateCurrency(), DocType);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         PurchaseHeader.CalcFields(Amount);
         CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchaseLine);
@@ -109,7 +109,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         SalesLine: Record "Sales Line";
     begin
         // Exercise: Create Sales Header and Line for Credit Memo and Invoice and Calculate Invoice Discount for Customer on Sales Line.
-        CreateSalesDocument(SalesHeader, SalesLine, CreateCurrency, DocType);
+        CreateSalesDocument(SalesHeader, SalesLine, CreateCurrency(), DocType);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         SalesHeader.CalcFields(Amount);
         CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
@@ -183,7 +183,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
 
         // Verify: Verify GL Entry for Invoice Discount Amount.
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
@@ -251,7 +251,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
 
         // Verify: Verify GL Entry for Invoice Discount Amount.
         Assert.AreNearlyEqual(
-          -Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          -Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(FieldError, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption()));
     end;
 
@@ -357,7 +357,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         // Create multiple Purchase Lines. Make sure that No. of Lines always greater than 2 to better Testability.
         for Counter := 1 to 1 + LibraryRandom.RandInt(8) do begin
             // Required Random Value for Quantity field value is not important.
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo,
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(),
               LibraryRandom.RandDec(100, 2));
 
             if PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Credit Memo" then
@@ -379,7 +379,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         for Counter := 1 to 1 + LibraryRandom.RandInt(8) do begin
             // Required Random Value for Quantity field value is not important.
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader,
-              SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2));
+              SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(100, 2));
             if SalesLine."Document Type" = SalesLine."Document Type"::"Credit Memo" then
                 SalesLine.Validate("Qty. to Ship", 0); // Value not required for Sales Credit Memo.
 
@@ -396,7 +396,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         ModifySalesHeaderForPriceInclVAT(SalesHeader, true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo,
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(),
           LibraryRandom.RandDecInRange(10, 20, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
@@ -479,14 +479,14 @@ codeunit 134079 "ERM Inv Discount by Currency"
 
     local procedure CreateAndModifySalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Quantity: Decimal; UnitPrice: Decimal)
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, Quantity);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
     end;
 
     local procedure CreateAndModifyPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Quantity: Decimal; DirectUnitCost: Decimal)
     begin
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, Quantity);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), Quantity);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
     end;
@@ -542,18 +542,18 @@ codeunit 134079 "ERM Inv Discount by Currency"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
     end;
 
     local procedure OpenPurchaseOrderStatistics(No: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
     end;
 
     local procedure UpdateQtyToShip(SalesLine: Record "Sales Line"; DocumentNo: Code[20])
@@ -619,7 +619,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
     begin
         FindSalesLine(SalesLine, DocumentNo, ItemNo);
         Assert.AreNearlyEqual(
-          InvDiscountAmount, SalesLine."Inv. Discount Amount", LibraryERM.GetAmountRoundingPrecision,
+          InvDiscountAmount, SalesLine."Inv. Discount Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(InvoiceDiscountError, InvDiscountAmount));
     end;
 
@@ -629,7 +629,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
     begin
         FindPurchaseLine(PurchaseLine, DocumentNo, ItemNo);
         Assert.AreNearlyEqual(
-          InvDiscountAmount, PurchaseLine."Inv. Discount Amount", LibraryERM.GetAmountRoundingPrecision,
+          InvDiscountAmount, PurchaseLine."Inv. Discount Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(InvoiceDiscountError, InvDiscountAmount));
     end;
 
@@ -639,14 +639,14 @@ codeunit 134079 "ERM Inv Discount by Currency"
     begin
         if IsVerify then begin
             Assert.AreEqual(
-              InvoiceDiscountAmount, SalesOrderStatistics.InvDiscountAmount_General.AsDEcimal,
+              InvoiceDiscountAmount, SalesOrderStatistics.InvDiscountAmount_General.AsDecimal(),
               StrSubstNo(InvoiceDiscountError, InvoiceDiscountAmount));
             Assert.AreEqual(
-              InvDiscountAmountInvoicing, SalesOrderStatistics.InvDiscountAmount_Invoicing.AsDEcimal,
+              InvDiscountAmountInvoicing, SalesOrderStatistics.InvDiscountAmount_Invoicing.AsDecimal(),
               StrSubstNo(InvoiceDiscountError, InvDiscountAmountInvoicing));
         end else begin
             SalesOrderStatistics.InvDiscountAmount_General.SetValue(InvoiceDiscountAmount);
-            SalesOrderStatistics.OK.Invoke;
+            SalesOrderStatistics.OK().Invoke();
         end;
     end;
 
@@ -655,7 +655,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
     procedure PurchaseOrderStatisticsHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
         PurchaseOrderStatistics.InvDiscountAmount_General.SetValue(InvoiceDiscountAmount);
-        PurchaseOrderStatistics.OK.Invoke;
+        PurchaseOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -669,7 +669,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
             SalesOrderStatistics.TotalExclVAT_Invoicing.AssertEquals(TotalExclVAT);
         end else begin
             SalesOrderStatistics.InvDiscountAmount_Invoicing.SetValue(InvoiceDiscountAmount);
-            SalesOrderStatistics.OK.Invoke;
+            SalesOrderStatistics.OK().Invoke();
         end;
     end;
 }

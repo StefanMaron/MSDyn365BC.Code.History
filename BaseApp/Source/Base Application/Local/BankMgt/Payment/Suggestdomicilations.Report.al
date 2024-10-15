@@ -30,7 +30,7 @@ report 2000039 "Suggest domicilations"
                     if not GenJnlManagement.CheckDomiciliationNo("Domiciliation No.") then
                         CurrReport.Skip();
                 Window.Update(1, "No.");
-                SuggestDomiciliations
+                SuggestDomiciliations();
             end;
 
             trigger OnPreDataItem()
@@ -130,7 +130,7 @@ report 2000039 "Suggest domicilations"
             if PostingDate = 0D then
                 PostingDate := WorkDate();
             Refund := false;
-            SetRefundEnabled;
+            SetRefundEnabled();
         end;
     }
 
@@ -141,14 +141,14 @@ report 2000039 "Suggest domicilations"
     trigger OnInitReport()
     begin
         ClearAll();
-        GLSetup.Get
+        GLSetup.Get();
     end;
 
     trigger OnPreReport()
     begin
         DomJnlTemplate.Get(DomJnlLine."Journal Template Name");
         DomJnlBatch.Get(DomJnlLine."Journal Template Name", DomJnlLine."Journal Batch Name");
-        MakeCurrencyFilter;
+        MakeCurrencyFilter();
     end;
 
     var
@@ -179,86 +179,79 @@ report 2000039 "Suggest domicilations"
     [Scope('OnPrem')]
     procedure SuggestDomiciliations()
     begin
-        with Cust do begin
-            // selection on entries
-            CustLedgEntry.Reset();
-            CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date");
-            CustLedgEntry.SetRange("Customer No.", "No.");
-            CustLedgEntry.SetRange(Open, true);
-
-            // selected due entries
+        // selection on entries
+        CustLedgEntry.Reset();
+        CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date");
+        CustLedgEntry.SetRange("Customer No.", Cust."No.");
+        CustLedgEntry.SetRange(Open, true);
+        // selected due entries
+        CustLedgEntry.SetRange(Positive, true);
+        CustLedgEntry.SetRange("Posting Date", 0D, PostingDate);
+        CustLedgEntry.SetRange("Due Date", 0D, DueDate);
+        CustLedgEntry.SetFilter("Currency Code", CurrencyFilter);
+        CustLedgEntry.SetRange("On Hold", '');
+        if CustLedgEntry.FindSet() then
+            repeat
+                SetDomJnlLine();
+            until CustLedgEntry.Next() = 0;
+        // entries with payment discount
+        if IncPmtDiscount then begin
             CustLedgEntry.SetRange(Positive, true);
-            CustLedgEntry.SetRange("Posting Date", 0D, PostingDate);
-            CustLedgEntry.SetRange("Due Date", 0D, DueDate);
-            CustLedgEntry.SetFilter("Currency Code", CurrencyFilter);
+            CustLedgEntry.SetRange("Due Date", DueDate + 1, 99991231D);
+            CustLedgEntry.SetRange("Pmt. Discount Date", PmtDiscDueDate, DueDate);
+            CustLedgEntry.SetFilter("Original Pmt. Disc. Possible", '>0');
             CustLedgEntry.SetRange("On Hold", '');
             if CustLedgEntry.FindSet() then
                 repeat
-                    SetDomJnlLine;
+                    SetDomJnlLine();
                 until CustLedgEntry.Next() = 0;
-
-            // entries with payment discount
-            if IncPmtDiscount then begin
-                CustLedgEntry.SetRange(Positive, true);
-                CustLedgEntry.SetRange("Due Date", DueDate + 1, 99991231D);
-                CustLedgEntry.SetRange("Pmt. Discount Date", PmtDiscDueDate, DueDate);
-                CustLedgEntry.SetFilter("Original Pmt. Disc. Possible", '>0');
-                CustLedgEntry.SetRange("On Hold", '');
-                if CustLedgEntry.FindSet() then
-                    repeat
-                        SetDomJnlLine;
-                    until CustLedgEntry.Next() = 0;
-            end;
-
-            // creditmemos
-            if Refund then begin
-                CustLedgEntry.SetRange(Positive, false);
-                CustLedgEntry.SetRange("Due Date");
-                CustLedgEntry.SetRange("Pmt. Discount Date");
-                CustLedgEntry.SetRange("Original Pmt. Disc. Possible");
-                CustLedgEntry.SetRange("On Hold", '');
-                if CustLedgEntry.FindSet() then
-                    repeat
-                        SetDomJnlLine;
-                    until CustLedgEntry.Next() = 0;
-            end;
+        end;
+        // creditmemos
+        if Refund then begin
+            CustLedgEntry.SetRange(Positive, false);
+            CustLedgEntry.SetRange("Due Date");
+            CustLedgEntry.SetRange("Pmt. Discount Date");
+            CustLedgEntry.SetRange("Original Pmt. Disc. Possible");
+            CustLedgEntry.SetRange("On Hold", '');
+            if CustLedgEntry.FindSet() then
+                repeat
+                    SetDomJnlLine();
+                until CustLedgEntry.Next() = 0;
         end;
     end;
 
     [Scope('OnPrem')]
     procedure SetDomJnlLine()
     begin
-        with DomJnlLine do begin
-            // don't insert invoice if already in DomJnlLine
-            DomJnlLine2.Reset();
-            DomJnlLine2.SetCurrentKey("Customer No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
-            DomJnlLine2.SetRange("Customer No.", CustLedgEntry."Customer No.");
-            DomJnlLine2.SetRange("Applies-to Doc. Type", CustLedgEntry."Document Type");
-            DomJnlLine2.SetRange("Applies-to Doc. No.", CustLedgEntry."Document No.");
-            DomJnlLine2.SetFilter(Status, '<>%1', Status::Posted);
-            if DomJnlLine2.IsEmpty() then begin
-                Init();
-                "Journal Template Name" := DomJnlTemplate.Name;
-                "Journal Batch Name" := DomJnlBatch.Name;
-                "Posting Date" := PostingDate;
-                if IncPmtDiscount then
-                    "Pmt. Discount Date" := PmtDiscDueDate
-                else
-                    "Pmt. Discount Date" := PostingDate;
-                "Line No." := "Line No." + 10000;
-                Validate("Customer No.", CustLedgEntry."Customer No.");
-                CustLedgEntry.CalcFields("Remaining Amount");
-                Amount := CustLedgEntry."Remaining Amount";
-                Validate("Bank Account No.", DomJnlTemplate."Bank Account No.");
-                "Applies-to Doc. Type" := CustLedgEntry."Document Type";
-                Validate("Applies-to Doc. No.", CustLedgEntry."Document No.");
-                "Direct Debit Mandate ID" := CustLedgEntry."Direct Debit Mandate ID";
-                "Applies-to Entry No." := CustLedgEntry."Entry No.";
-                Processing := false;
-                "Source Code" := DomJnlTemplate."Source Code";
-                "Reason Code" := DomJnlBatch."Reason Code";
-                Insert();
-            end;
+        // don't insert invoice if already in DomJnlLine
+        DomJnlLine2.Reset();
+        DomJnlLine2.SetCurrentKey("Customer No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
+        DomJnlLine2.SetRange("Customer No.", CustLedgEntry."Customer No.");
+        DomJnlLine2.SetRange("Applies-to Doc. Type", CustLedgEntry."Document Type");
+        DomJnlLine2.SetRange("Applies-to Doc. No.", CustLedgEntry."Document No.");
+        DomJnlLine2.SetFilter(Status, '<>%1', DomJnlLine.Status::Posted);
+        if DomJnlLine2.IsEmpty() then begin
+            DomJnlLine.Init();
+            DomJnlLine."Journal Template Name" := DomJnlTemplate.Name;
+            DomJnlLine."Journal Batch Name" := DomJnlBatch.Name;
+            DomJnlLine."Posting Date" := PostingDate;
+            if IncPmtDiscount then
+                DomJnlLine."Pmt. Discount Date" := PmtDiscDueDate
+            else
+                DomJnlLine."Pmt. Discount Date" := PostingDate;
+            DomJnlLine."Line No." := DomJnlLine."Line No." + 10000;
+            DomJnlLine.Validate("Customer No.", CustLedgEntry."Customer No.");
+            CustLedgEntry.CalcFields("Remaining Amount");
+            DomJnlLine.Amount := CustLedgEntry."Remaining Amount";
+            DomJnlLine.Validate("Bank Account No.", DomJnlTemplate."Bank Account No.");
+            DomJnlLine."Applies-to Doc. Type" := CustLedgEntry."Document Type";
+            DomJnlLine.Validate("Applies-to Doc. No.", CustLedgEntry."Document No.");
+            DomJnlLine."Direct Debit Mandate ID" := CustLedgEntry."Direct Debit Mandate ID";
+            DomJnlLine."Applies-to Entry No." := CustLedgEntry."Entry No.";
+            DomJnlLine.Processing := false;
+            DomJnlLine."Source Code" := DomJnlTemplate."Source Code";
+            DomJnlLine."Reason Code" := DomJnlBatch."Reason Code";
+            DomJnlLine.Insert();
         end;
     end;
 
@@ -274,18 +267,16 @@ report 2000039 "Suggest domicilations"
         Currency: Record Currency;
     begin
         CurrencyFilter := '';
-        with Currency do begin
-            SetRange("ISO Code", Text006);
-            if FindSet() then
-                repeat
-                    CurrencyFilter := CurrencyFilter + '|' + Code;
-                until Next() = 0;
-            SetRange("ISO Code", Text007);
-            if FindSet() then
-                repeat
-                    CurrencyFilter := CurrencyFilter + '|' + Code;
-                until Next() = 0;
-        end;
+        Currency.SetRange("ISO Code", Text006);
+        if Currency.FindSet() then
+            repeat
+                CurrencyFilter := CurrencyFilter + '|' + Currency.Code;
+            until Currency.Next() = 0;
+        Currency.SetRange("ISO Code", Text007);
+        if Currency.FindSet() then
+            repeat
+                CurrencyFilter := CurrencyFilter + '|' + Currency.Code;
+            until Currency.Next() = 0;
         if GLSetup."LCY Code" in [Text006, Text007] then
             CurrencyFilter := CurrencyFilter + '|''''';
         CurrencyFilter := DelChr(CurrencyFilter, '<>', '|');

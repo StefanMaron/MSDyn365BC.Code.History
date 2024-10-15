@@ -163,7 +163,7 @@ report 2000041 "CODA Statement - List"
                        ("Application Status" = "Application Status"::Applied) and
                        ("Application Information" = '')
                     then
-                        CurrReport.Skip
+                        CurrReport.Skip();
                 end;
             }
         }

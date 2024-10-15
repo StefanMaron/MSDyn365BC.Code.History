@@ -86,7 +86,7 @@ codeunit 134075 "ERM Change Exchange Rate"
     begin
         // Create a New Customer, Create and update a new Currency on it.
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        Customer.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         Customer.Modify(true);
     end;
 
@@ -110,7 +110,7 @@ codeunit 134075 "ERM Change Exchange Rate"
         // Create a Relational Currency for Currency and update Fix Exchange Rate Amount field.
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
         CurrencyExchangeRate.FindFirst();
-        CurrencyExchangeRate.Validate("Relational Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        CurrencyExchangeRate.Validate("Relational Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
         CurrencyExchangeRate.Validate("Fix Exchange Rate Amount", CurrencyExchangeRate."Fix Exchange Rate Amount"::Both);
         CurrencyExchangeRate.Modify(true);
         exit(CurrencyExchangeRate."Relational Currency Code");

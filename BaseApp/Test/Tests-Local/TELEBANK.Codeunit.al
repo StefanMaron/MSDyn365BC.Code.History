@@ -49,8 +49,7 @@ codeunit 144051 TELEBANK
         LibraryVariableStorage.Clear();
         // Create No Series for the Gen Journal Template
         LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
-        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
-        NoSeriesLine."Starting No." := 'GJTTest0001';
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'GJTTest0001', 'GJTTest9999');
         NoSeriesLine.Modify(true);
 
         // Create Template
@@ -97,15 +96,11 @@ codeunit 144051 TELEBANK
 
         // Update the electronic banking setup
         LibraryUtility.CreateNoSeries(UploadNoSeries, true, true, false);
-        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, UploadNoSeries.Code, '', '');
-        NoSeriesLine."Starting No." := 'IBSUP0001';
-        NoSeriesLine."Ending No." := 'IBSUP9999';
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, UploadNoSeries.Code, 'IBSUP0001', 'IBSUP9999');
         NoSeriesLine.Modify(true);
 
         LibraryUtility.CreateNoSeries(RequestNoSeries, true, true, false);
-        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, RequestNoSeries.Code, '', '');
-        NoSeriesLine."Starting No." := 'IBSREQ0001';
-        NoSeriesLine."Ending No." := 'IBSREQ9999';
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, RequestNoSeries.Code, 'IBSREQ0001', 'IBSREQ9999');
         NoSeriesLine.Modify(true);
 
         with ElectronicBankingSetup do begin
@@ -194,7 +189,7 @@ codeunit 144051 TELEBANK
             LibraryVariableStorage.Dequeue(VariantValue);
             InscriptionNo.SetValue(VariantValue); // Inscription No.
 
-            SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+            SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
         end;
     end;
 }

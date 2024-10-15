@@ -30,21 +30,27 @@ page 233 "Apply Vendor Entries"
             group(General)
             {
                 Caption = 'General';
+#pragma warning disable AA0100
                 field("ApplyingVendLedgEntry.""Posting Date"""; TempApplyingVendLedgEntry."Posting Date")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posting Date';
                     Editable = false;
                     ToolTip = 'Specifies the posting date of the entry to be applied. This date is used to find the correct exchange rate when applying entries in different currencies.';
                 }
+#pragma warning disable AA0100
                 field("ApplyingVendLedgEntry.""Document Type"""; TempApplyingVendLedgEntry."Document Type")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document Type';
                     Editable = false;
                     ToolTip = 'Specifies the document type of the entry to be applied.';
                 }
+#pragma warning disable AA0100
                 field("ApplyingVendLedgEntry.""Document No."""; TempApplyingVendLedgEntry."Document No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document No.';
@@ -75,7 +81,9 @@ page 233 "Apply Vendor Entries"
                     ToolTip = 'Specifies the description of the entry to be applied.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("ApplyingVendLedgEntry.""Currency Code"""; TempApplyingVendLedgEntry."Currency Code")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Suite;
                     Caption = 'Currency Code';
@@ -89,7 +97,9 @@ page 233 "Apply Vendor Entries"
                     Editable = false;
                     ToolTip = 'Specifies the amount on the entry to be applied.';
                 }
+#pragma warning disable AA0100
                 field("ApplyingVendLedgEntry.""Remaining Amount"""; TempApplyingVendLedgEntry."Remaining Amount")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remaining Amount';
@@ -199,7 +209,9 @@ page 233 "Apply Vendor Entries"
                     Editable = false;
                     ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to.';
                 }
+#pragma warning disable AA0100
                 field("CalcApplnRemainingAmount(""Remaining Amount"")"; CalcApplnRemainingAmount(Rec."Remaining Amount"))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = ApplnCurrencyCode;
@@ -274,7 +286,9 @@ page 233 "Apply Vendor Entries"
                         RecalcApplnAmount();
                     end;
                 }
+#pragma warning disable AA0100
                 field("CalcApplnRemainingAmount(""Remaining Pmt. Disc. Possible"")"; CalcApplnRemainingAmount(Rec."Remaining Pmt. Disc. Possible"))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = ApplnCurrencyCode;
@@ -467,7 +481,7 @@ page 233 "Apply Vendor Entries"
                     Image = Navigate;
                     ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
-                    Visible = NOT IsOfficeAddin;
+                    Visible = not IsOfficeAddin;
 
                     trigger OnAction()
                     begin
@@ -547,7 +561,7 @@ page 233 "Apply Vendor Entries"
                             if CalcType = CalcType::"Gen. Jnl. Line" then
                                 Rec.SetRange("Applies-to ID", GenJnlLine."Applies-to ID")
                             else begin
-                                VendEntryApplID := UserId;
+                                VendEntryApplID := CopyStr(UserId(), 1, MaxStrLen(VendEntryApplID));
                                 if VendEntryApplID = '' then
                                     VendEntryApplID := '***';
                                 Rec.SetRange("Applies-to ID", VendEntryApplID);
@@ -760,7 +774,6 @@ page 233 "Apply Vendor Entries"
         Navigate: Page Navigate;
         GenJnlLineApply: Boolean;
         StyleTxt: Text;
-        AppliesToID: Code[50];
         CustomAppliesToID: Code[50];
         ValidExchRate: Boolean;
         MustSelectEntryErr: Label 'You must select an applying entry before you can post the application.';
@@ -771,7 +784,6 @@ page 233 "Apply Vendor Entries"
         ShowAppliedEntries: Boolean;
         OK: Boolean;
         EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.\\Instead, post the document of type %1 with the number %2 and then apply it to the document of type %3 with the number %4.', Comment = '%1 - document type, %2 - document number,%3 - document type,%4 - document number';
-        PostingDone: Boolean;
         AppliesToIDVisible: Boolean;
         ApplicationPostedMsg: Label 'The application was successfully posted.';
         ApplicationDateErr: Label 'The %1 entered must not be before the %1 on the %2.';
@@ -800,8 +812,10 @@ page 233 "Apply Vendor Entries"
         PmtDiscAmount: Decimal;
         VendEntryApplID: Code[50];
         ApplnCurrencyCode: Code[10];
+        AppliesToID: Code[50];
         DifferentCurrenciesInAppln: Boolean;
         CalcType: Enum "Vendor Apply Calculation Type";
+        PostingDone: Boolean;
 
     procedure SetGenJnlLine(NewGenJnlLine: Record "Gen. Journal Line"; ApplnTypeSelect: Integer)
     begin
@@ -1054,7 +1068,7 @@ page 233 "Apply Vendor Entries"
                 CalcType::Direct:
                     begin
                         FindAmountRounding();
-                        VendEntryApplID := UserId;
+                        VendEntryApplID := CopyStr(UserId(), 1, MaxStrLen(VendEntryApplID));
                         if VendEntryApplID = '' then
                             VendEntryApplID := '***';
 
@@ -1088,36 +1102,34 @@ page 233 "Apply Vendor Entries"
                             ApplnType::"Applies-to Doc. No.":
                                 begin
                                     AppliedVendLedgEntry := Rec;
-                                    with AppliedVendLedgEntry do begin
-                                        CalcFields("Remaining Amount");
-                                        if "Currency Code" <> ApplnCurrencyCode then begin
-                                            "Remaining Amount" :=
-                                            CurrExchRate.ExchangeAmtFCYToFCY(
-                                                ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Amount");
-                                            "Remaining Pmt. Disc. Possible" :=
-                                            CurrExchRate.ExchangeAmtFCYToFCY(
-                                                ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Pmt. Disc. Possible");
-                                            "Amount to Apply" :=
-                                            CurrExchRate.ExchangeAmtFCYToFCY(
-                                                ApplnDate, "Currency Code", ApplnCurrencyCode, "Amount to Apply");
-                                        end;
-
-                                        if "Amount to Apply" <> 0 then
-                                            AppliedAmount := Round("Amount to Apply", AmountRoundingPrecision)
-                                        else
-                                            AppliedAmount := Round("Remaining Amount", AmountRoundingPrecision);
-
-                                        if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(
-                                            GenJnlLine, AppliedVendLedgEntry, 0, false) and
-                                        ((Abs(GenJnlLine.Amount) + ApplnRoundingPrecision >=
-                                            Abs(AppliedAmount - "Remaining Pmt. Disc. Possible")) or
-                                            (GenJnlLine.Amount = 0))
-                                        then
-                                            PmtDiscAmount := "Remaining Pmt. Disc. Possible";
-
-                                        if not DifferentCurrenciesInAppln then
-                                            DifferentCurrenciesInAppln := ApplnCurrencyCode <> "Currency Code";
+                                    AppliedVendLedgEntry.CalcFields("Remaining Amount");
+                                    if AppliedVendLedgEntry."Currency Code" <> ApplnCurrencyCode then begin
+                                        AppliedVendLedgEntry."Remaining Amount" :=
+                                        CurrExchRate.ExchangeAmtFCYToFCY(
+                                            ApplnDate, AppliedVendLedgEntry."Currency Code", ApplnCurrencyCode, AppliedVendLedgEntry."Remaining Amount");
+                                        AppliedVendLedgEntry."Remaining Pmt. Disc. Possible" :=
+                                        CurrExchRate.ExchangeAmtFCYToFCY(
+                                            ApplnDate, AppliedVendLedgEntry."Currency Code", ApplnCurrencyCode, AppliedVendLedgEntry."Remaining Pmt. Disc. Possible");
+                                        AppliedVendLedgEntry."Amount to Apply" :=
+                                        CurrExchRate.ExchangeAmtFCYToFCY(
+                                            ApplnDate, AppliedVendLedgEntry."Currency Code", ApplnCurrencyCode, AppliedVendLedgEntry."Amount to Apply");
                                     end;
+
+                                    if AppliedVendLedgEntry."Amount to Apply" <> 0 then
+                                        AppliedAmount := Round(AppliedVendLedgEntry."Amount to Apply", AmountRoundingPrecision)
+                                    else
+                                        AppliedAmount := Round(AppliedVendLedgEntry."Remaining Amount", AmountRoundingPrecision);
+
+                                    if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(
+                                        GenJnlLine, AppliedVendLedgEntry, 0, false) and
+                                    ((Abs(GenJnlLine.Amount) + ApplnRoundingPrecision >=
+                                        Abs(AppliedAmount - AppliedVendLedgEntry."Remaining Pmt. Disc. Possible")) or
+                                        (GenJnlLine.Amount = 0))
+                                    then
+                                        PmtDiscAmount := AppliedVendLedgEntry."Remaining Pmt. Disc. Possible";
+
+                                    if not DifferentCurrenciesInAppln then
+                                        DifferentCurrenciesInAppln := ApplnCurrencyCode <> AppliedVendLedgEntry."Currency Code";
                                     CheckRounding();
                                 end;
                             ApplnType::"Applies-to ID":
@@ -1141,23 +1153,21 @@ page 233 "Apply Vendor Entries"
                             ApplnType::"Applies-to Doc. No.":
                                 begin
                                     AppliedVendLedgEntry := Rec;
-                                    with AppliedVendLedgEntry do begin
-                                        CalcFields("Remaining Amount");
+                                    AppliedVendLedgEntry.CalcFields("Remaining Amount");
 
-                                        if "Currency Code" <> ApplnCurrencyCode then
-                                            "Remaining Amount" :=
-                                            CurrExchRate.ExchangeAmtFCYToFCY(
-                                                ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Amount");
+                                    if AppliedVendLedgEntry."Currency Code" <> ApplnCurrencyCode then
+                                        AppliedVendLedgEntry."Remaining Amount" :=
+                                        CurrExchRate.ExchangeAmtFCYToFCY(
+                                            ApplnDate, AppliedVendLedgEntry."Currency Code", ApplnCurrencyCode, AppliedVendLedgEntry."Remaining Amount");
 
-                                        AppliedAmount := AppliedAmount + Round("Remaining Amount", AmountRoundingPrecision);
+                                    AppliedAmount := AppliedAmount + Round(AppliedVendLedgEntry."Remaining Amount", AmountRoundingPrecision);
 
-                                        if not DifferentCurrenciesInAppln then
-                                            DifferentCurrenciesInAppln := ApplnCurrencyCode <> "Currency Code";
-                                    end;
+                                    if not DifferentCurrenciesInAppln then
+                                        DifferentCurrenciesInAppln := ApplnCurrencyCode <> AppliedVendLedgEntry."Currency Code";
                                     CheckRounding();
                                 end;
                             ApplnType::"Applies-to ID":
-                                with VendLedgEntry do begin
+                                begin
                                     AppliedVendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
                                     AppliedVendLedgEntry.SetRange("Vendor No.", PurchHeader."Pay-to Vendor No.");
                                     AppliedVendLedgEntry.SetRange(Open, true);
@@ -1257,7 +1267,7 @@ page 233 "Apply Vendor Entries"
     local procedure FindApplyingEntry()
     begin
         if CalcType = CalcType::Direct then begin
-            VendEntryApplID := UserId;
+            VendEntryApplID := CopyStr(UserId(), 1, MaxStrLen(VendEntryApplID));
             if VendEntryApplID = '' then
                 VendEntryApplID := '***';
 
@@ -1300,7 +1310,7 @@ page 233 "Apply Vendor Entries"
         if IsHandled then
             exit;
 
-        if not AppliedVendLedgEntry.FindSet(false, false) then
+        if not AppliedVendLedgEntry.FindSet(false) then
             exit;
 
         repeat
@@ -1431,6 +1441,7 @@ page 233 "Apply Vendor Entries"
         if CalcType = CalcType::Direct then begin
             if TempApplyingVendLedgEntry."Entry No." <> 0 then begin
                 Rec := TempApplyingVendLedgEntry;
+                IsTheApplicationValid();
                 ApplicationDate := VendEntryApplyPostedEntries.GetApplicationDate(Rec);
 
                 OnPostDirectApplicationBeforeSetValues(ApplicationDate);
@@ -1527,6 +1538,32 @@ page 233 "Apply Vendor Entries"
         OnAfterExchangeLedgerEntryAmounts(CalcVendLedgEntry, VendLedgEntry, CurrencyCode);
     end;
 
+    local procedure IsTheApplicationValid()
+    var
+        ApplyToVendorLedgerEntry: Record "Vendor Ledger Entry";
+        IsFirst, IsPositiv, ThereAreEntriesToApply : boolean;
+        Counter: Integer;
+        AllEntriesHaveTheSameSignErr: Label 'All entries have the same sign this will not lead top an application. Update the application by including entries with opposite sign.';
+    begin
+        IsFirst := true;
+        ThereAreEntriesToApply := false;
+        Counter := 0;
+        ApplyToVendorLedgerEntry.SetCurrentKey("Vendor No.", "Applies-to ID");
+        ApplyToVendorLedgerEntry.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
+        ApplyToVendorLedgerEntry.SetRange("Applies-to ID", VendLedgEntry."Applies-to ID");
+        if ApplyToVendorLedgerEntry.FindSet() then
+            repeat
+                if not IsFirst then
+                    ThereAreEntriesToApply := (IsPositiv <> ApplyToVendorLedgerEntry.Positive)
+                else
+                    IsPositiv := ApplyToVendorLedgerEntry.Positive;
+                IsFirst := false;
+                Counter += 1;
+            until (ApplyToVendorLedgerEntry.next() = 0) or ThereAreEntriesToApply;
+        if not ThereAreEntriesToApply and (Counter > 1) then
+            error(AllEntriesHaveTheSameSignErr)
+    end;
+
     local procedure ActivateFields()
     begin
         CalledFromEntry := CalcType = CalcType::Direct;
@@ -1539,19 +1576,17 @@ page 233 "Apply Vendor Entries"
         SavedAppliedVendorLedgerEntry: Record "Vendor Ledger Entry";
         CurrPosFilter: Text;
     begin
-        with TempAppliedVendorLedgerEntry do begin
-            CurrPosFilter := GetFilter(Positive);
-            if CurrPosFilter <> '' then begin
-                SavedAppliedVendorLedgerEntry := TempAppliedVendorLedgerEntry;
-                SetRange(Positive, not Positive);
-                if FindSet() then
-                    repeat
-                        CalcFields("Remaining Amount");
-                        Result += "Remaining Amount";
-                    until Next() = 0;
-                SetFilter(Positive, CurrPosFilter);
-                TempAppliedVendorLedgerEntry := SavedAppliedVendorLedgerEntry;
-            end;
+        CurrPosFilter := TempAppliedVendorLedgerEntry.GetFilter(Positive);
+        if CurrPosFilter <> '' then begin
+            SavedAppliedVendorLedgerEntry := TempAppliedVendorLedgerEntry;
+            TempAppliedVendorLedgerEntry.SetRange(Positive, not TempAppliedVendorLedgerEntry.Positive);
+            if TempAppliedVendorLedgerEntry.FindSet() then
+                repeat
+                    TempAppliedVendorLedgerEntry.CalcFields("Remaining Amount");
+                    Result += TempAppliedVendorLedgerEntry."Remaining Amount";
+                until TempAppliedVendorLedgerEntry.Next() = 0;
+            TempAppliedVendorLedgerEntry.SetFilter(Positive, CurrPosFilter);
+            TempAppliedVendorLedgerEntry := SavedAppliedVendorLedgerEntry;
         end;
     end;
 
@@ -1625,7 +1660,7 @@ page 233 "Apply Vendor Entries"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeHandledChosenEntries(Type: Option Direct,GenJnlLine,PurchHeader; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date; var AppliedVendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;

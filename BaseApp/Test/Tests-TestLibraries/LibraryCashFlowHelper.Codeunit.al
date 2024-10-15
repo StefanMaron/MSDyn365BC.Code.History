@@ -17,13 +17,13 @@ codeunit 131332 "Library - Cash Flow Helper"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
-        UnhandledDocumentType: Label 'Unhandled document type.';
-        UnexpectedCFAmount: Label 'Unexpected cash flow amount.';
-        UnexpectedCFDate: Label 'Unexpected cash flow date in Document No. %1.';
         LibraryFA: Codeunit "Library - Fixed Asset";
         LibraryJob: Codeunit "Library - Job";
         Assert: Codeunit Assert;
         DocumentType: Option Sale,Purchase,Service;
+        UnhandledDocumentType: Label 'Unhandled document type.';
+        UnexpectedCFAmount: Label 'Unexpected cash flow amount.';
+        UnexpectedCFDate: Label 'Unexpected cash flow date in Document No. %1.';
 
     procedure AddAndPostSOPrepaymentInvoice(var SalesHeader: Record "Sales Header"; PrepaymentPercentage: Decimal) PrepmtInvNo: Code[20]
     begin
@@ -138,7 +138,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         VATBase := GetSalesVATBaseAmtFromVATEntry(CustLedgEntry."Posting Date", CustLedgEntry."Document No.");
         exit(
-          Round(VATBase * DiscountPercentage / 100, LibraryERM.GetAmountRoundingPrecision));
+          Round(VATBase * DiscountPercentage / 100, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     procedure CalcVendDiscAmt(VendLedgEntry: Record "Vendor Ledger Entry"; DiscountPercentage: Decimal): Decimal
@@ -147,7 +147,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         VATBase := GetPurchVATBaseAmtFromVATEntry(VendLedgEntry."Posting Date", VendLedgEntry."Document No.");
         exit(
-          Round(VATBase * DiscountPercentage / 100, LibraryERM.GetAmountRoundingPrecision));
+          Round(VATBase * DiscountPercentage / 100, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     procedure CalcSalesExpectedPrepmtAmounts(SalesHeader: Record "Sales Header"; DiscountPercentage: Decimal; var ExpectedOrderAmount: Decimal; var ExpectedPrePmtAmount: Decimal)
@@ -186,7 +186,7 @@ codeunit 131332 "Library - Cash Flow Helper"
 
     procedure CalculateDiscountAmount(Amount: Decimal; DiscountPercentage: Decimal): Decimal
     begin
-        exit(Round(Amount / 100 * DiscountPercentage, LibraryERM.GetAmountRoundingPrecision));
+        exit(Round(Amount / 100 * DiscountPercentage, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     procedure ChangeWorkdateByDateFormula(BaseDateFormula: DateFormula; CustomDateFormula: DateFormula; AdditionalDateFormula: DateFormula) OldWorkDate: Date
@@ -297,7 +297,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         FAJournalBatch: Record "FA Journal Batch";
         FAJournalLine: Record "FA Journal Line";
         NoSeries: Record "No. Series";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
         LibraryFA.CreateFixedAsset(FixedAsset);
         FixedAsset.Validate("Budgeted Asset", true);
@@ -306,12 +306,12 @@ codeunit 131332 "Library - Cash Flow Helper"
         FAJournalTemplate.SetRange(Recurring, false);
         LibraryFA.FindFAJournalTemplate(FAJournalTemplate);
         LibraryFA.CreateFAJournalBatch(FAJournalBatch, FAJournalTemplate.Name);
-        FAJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        FAJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         FAJournalBatch.Modify(true);
         LibraryFA.CreateFAJournalLine(FAJournalLine, FAJournalTemplate.Name, FAJournalBatch.Name);
         FAJournalLine."Document Type" := FAJournalLine."Document Type"::Invoice;
         NoSeries.Get(FAJournalBatch."No. Series");
-        FAJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
+        FAJournalLine.Validate("Document No.", NoSeriesCodeunit.PeekNextNo(FAJournalBatch."No. Series"));
         FAJournalLine.Validate("FA No.", FixedAsset."No.");
         FAJournalLine.Validate("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
         FAJournalLine.Validate(Amount, InvestmentAmount);
@@ -416,7 +416,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         CreateSalesOrder(SalesHeader, GLAccount, PaymentTermsCode, CFPaymentTermsCode);
     end;
 
@@ -475,7 +475,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         CreatePurchaseOrder(PurchaseHeader, GLAccount, PaymentTermsCode, CFPaymentTermsCode);
     end;
 
@@ -612,7 +612,7 @@ codeunit 131332 "Library - Cash Flow Helper"
 
     procedure FillJournal(ConsiderSource: array[16] of Boolean; CFNo: Code[20]; GroupByDocumentType: Boolean)
     begin
-        LibraryCashFlowForecast.ClearJournal;
+        LibraryCashFlowForecast.ClearJournal();
         LibraryCashFlowForecast.FillJournal(ConsiderSource, CFNo, GroupByDocumentType);
     end;
 
@@ -858,14 +858,13 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalDiscountAmount := 0;
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        if SalesLine.FindSet() then begin
+        if SalesLine.FindSet() then
             repeat
                 LineAmount := SalesLine."Outstanding Amount (LCY)";
                 VATBaseAmount := GetAmountLCY(SalesHeader."Currency Code", SalesHeader."Posting Date", SalesLine."VAT Base Amount");
                 TotalAmount += LineAmount;
                 TotalDiscountAmount += CalculateDiscountAmount(VATBaseAmount, PaymentTermsCashFlow."Discount %");
             until SalesLine.Next() = 0;
-        end;
         exit(TotalAmount - TotalDiscountAmount);
     end;
 
@@ -885,14 +884,13 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalDiscountAmount := 0;
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        if PurchaseLine.FindSet() then begin
+        if PurchaseLine.FindSet() then
             repeat
                 LineAmount := PurchaseLine."Outstanding Amount (LCY)";
                 VATBaseAmount := GetAmountLCY(PurchaseHeader."Currency Code", PurchaseHeader."Posting Date", PurchaseLine."VAT Base Amount");
                 TotalAmount += LineAmount;
                 TotalDiscountAmount += CalculateDiscountAmount(VATBaseAmount, PaymentTermsCashFlow."Discount %");
             until PurchaseLine.Next() = 0;
-        end;
         exit(TotalAmount - TotalDiscountAmount);
     end;
 
@@ -912,14 +910,13 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalDiscountAmount := 0;
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
-        if ServiceLine.FindSet() then begin
+        if ServiceLine.FindSet() then
             repeat
                 LineAmount := ServiceLine."Outstanding Amount (LCY)";
                 VATBaseAmount := GetAmountLCY(ServiceHeader."Currency Code", ServiceHeader."Posting Date", ServiceLine."VAT Base Amount");
                 TotalAmount += LineAmount;
                 TotalDiscountAmount += CalculateDiscountAmount(VATBaseAmount, PaymentTermsCashFlow."Discount %");
             until ServiceLine.Next() = 0;
-        end;
         exit(TotalAmount - TotalDiscountAmount);
     end;
 
@@ -1020,7 +1017,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         exit(GetVATBaseAmtFromVATEntry(PostingDate, DocNo, VATEntry.Type::Purchase));
     end;
 
-    local procedure GetVATBaseAmtFromVATEntry(PostingDate: Date; DocNo: Code[20]; EntryType: Option) VATBaseAmount: Decimal
+    local procedure GetVATBaseAmtFromVATEntry(PostingDate: Date; DocNo: Code[20]; EntryType: Enum "General Posting Type") VATBaseAmount: Decimal
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -1031,7 +1028,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             if FindSet() then
                 repeat
                     VATBaseAmount += VATEntry.Base;
-                until Next = 0;
+                until Next() = 0;
             exit(-VATBaseAmount);
         end;
     end;
@@ -1066,7 +1063,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         if CurrencyCode = '' then
             exit(Amount);
         exit(
-          Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', PostingDate), LibraryERM.GetAmountRoundingPrecision));
+          Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', PostingDate), LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure GetPaymentTermsCode(PaymentTermsCode: Code[20]): Code[20]
@@ -1096,22 +1093,20 @@ codeunit 131332 "Library - Cash Flow Helper"
         CFForecastEntry: Record "Cash Flow Forecast Entry";
         EntryNo: Integer;
     begin
-        with CFForecastEntry do begin
-            if FindLast() then
-                EntryNo := "Entry No.";
+        if CFForecastEntry.FindLast() then
+            EntryNo := CFForecastEntry."Entry No.";
 
-            Init();
-            "Entry No." := EntryNo + 1;
-            "Cash Flow Forecast No." := CFNo;
-            "Source Type" := SourceType;
-            if AccountNo <> '' then
-                "Cash Flow Account No." := AccountNo
-            else
-                "Cash Flow Account No." := GetCFAccountNo(SourceType);
-            "Cash Flow Date" := CFDate;
-            Validate("Amount (LCY)", Amount);
-            Insert();
-        end;
+        CFForecastEntry.Init();
+        CFForecastEntry."Entry No." := EntryNo + 1;
+        CFForecastEntry."Cash Flow Forecast No." := CFNo;
+        CFForecastEntry."Source Type" := SourceType;
+        if AccountNo <> '' then
+            CFForecastEntry."Cash Flow Account No." := AccountNo
+        else
+            CFForecastEntry."Cash Flow Account No." := GetCFAccountNo(SourceType);
+        CFForecastEntry."Cash Flow Date" := CFDate;
+        CFForecastEntry.Validate("Amount (LCY)", Amount);
+        CFForecastEntry.Insert();
     end;
 
     procedure SelectAndClearGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -1293,7 +1288,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             if CFWorksheetLine.FindFirst() then;
         end;
         CFWorksheetLine.CalcSums("Amount (LCY)");
-        VerifyExpectedCFAmtNearlyEqual(ExpectedCFAmount, CFWorksheetLine."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision);
+        VerifyExpectedCFAmtNearlyEqual(ExpectedCFAmount, CFWorksheetLine."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision());
         VerifyCFDateOnCFJnlLine(CFWorksheetLine, ExpectedCFDate);
     end;
 

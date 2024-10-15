@@ -35,11 +35,11 @@ codeunit 144012 "Checklist Revenue and VAT Test"
         ChecklistRevenueAndVAT.Language := 1031;
         ChecklistRevenueAndVAT.Run();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('G_L_Account__No__', GLAccNo);
         for Month := 1 to 12 do
             LibraryReportDataset.AssertElementWithValueExists(StrSubstNo('TotalAmount_%1_', Month), -1000 * Month);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertElementWithValueExists('G_L_Account__No__', BalGLAccNo);
         for Month := 1 to 12 do
@@ -67,7 +67,7 @@ codeunit 144012 "Checklist Revenue and VAT Test"
         REPORT.Run(REPORT::"Checklist Revenue and VAT", true, true, FilterGLAccount);
 
         // [THEN] 'Difference (2)-(1)' = X
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'TotTVAStatement__TotRevenue_TotNotRevenue_CreditAmt_DebitAmt_TotBaseVAT_TotAmount_',
           CorrectionAmount);
@@ -88,7 +88,7 @@ codeunit 144012 "Checklist Revenue and VAT Test"
         // [WHEN] Print Report Checklist Revenue and VAT
         REPORT.Run(REPORT::"Checklist Revenue and VAT", true, true, FilterGLAccount);
         // [THEN] Posted G/L Entry is not included in "G/L Entry2" DataItem
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(GLEntry2DocumentNoTxt, DocumentNo);
     end;
 
@@ -109,7 +109,7 @@ codeunit 144012 "Checklist Revenue and VAT Test"
         // [WHEN] Print Report Checklist Revenue and VAT
         REPORT.Run(REPORT::"Checklist Revenue and VAT", true, true, FilterGLAccount);
         // [THEN] Posted G/L Entry is included in "G/L Entry2" DataItem
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLEntry2DocumentNoTxt, DocumentNo);
     end;
 
@@ -200,7 +200,7 @@ codeunit 144012 "Checklist Revenue and VAT Test"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Payment Terms Code", PaymentTermsCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
@@ -215,7 +215,7 @@ codeunit 144012 "Checklist Revenue and VAT Test"
     begin
         RequestPage.StartDate.SetValue := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
         RequestPage.NoOfPeriods.SetValue := 12;
-        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

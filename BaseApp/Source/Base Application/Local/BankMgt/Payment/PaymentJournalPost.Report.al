@@ -47,7 +47,7 @@ report 2000004 "Payment Journal Post"
                     VendorAmt[2] += "Amount (LCY)";
                 end;
 
-                NewGroupLoc := CheckNewGroup;
+                NewGroupLoc := CheckNewGroup();
                 if NewGroupLoc then begin
                     AppliesToID := CopyStr(Format("Ledger Entry No.") + '/' + "Bank Account", 1, MaxStrLen("Applies-to ID"));
                     if CustomerAmt[1] + VendorAmt[1] > 0 then
@@ -99,7 +99,7 @@ report 2000004 "Payment Journal Post"
                     PaymJnlLine.SetRange("Account Type");
                     if PaymJnlLine.FindSet() then begin
                         AppliesToID := '';
-                        DocumentNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PaymJnlLine."Posting Date", false);
+                        DocumentNo := NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series", PaymJnlLine."Posting Date");
                         repeat
                             SetGenJnlLine(PaymJnlLine);
                         until PaymJnlLine.Next() = 0;
@@ -184,25 +184,23 @@ report 2000004 "Payment Journal Post"
         SelectedDim.SetRange("Object ID", ReportID);
         IncludeDim := SelectedDim.FindFirst() and EBSetup."Summarize Gen. Jnl. Lines";
         // check general journal
-        with GenJnlBatch do begin
-            Reset();
-            if not Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name") then
-                Error(Text001, GenJnlLine.FieldCaption("Journal Batch Name"));
+        GenJnlBatch.Reset();
+        if not GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name") then
+            Error(Text001, GenJnlLine.FieldCaption("Journal Batch Name"));
 
-            if not ("Bal. Account Type" = "Bal. Account Type"::"G/L Account") then
-                Error(Text002, FieldCaption("Bal. Account Type"), Name);
+        if not (GenJnlBatch."Bal. Account Type" = GenJnlBatch."Bal. Account Type"::"G/L Account") then
+            Error(Text002, GenJnlBatch.FieldCaption("Bal. Account Type"), GenJnlBatch.Name);
 
-            if "Bal. Account No." = '' then
-                Error(Text003, FieldCaption("Bal. Account No."), Name);
+        if GenJnlBatch."Bal. Account No." = '' then
+            Error(Text003, GenJnlBatch.FieldCaption("Bal. Account No."), GenJnlBatch.Name);
 
-            if not GLAcc.Get("Bal. Account No.") then
-                Error(Text004, "Bal. Account No.");
+        if not GLAcc.Get(GenJnlBatch."Bal. Account No.") then
+            Error(Text004, GenJnlBatch."Bal. Account No.");
 
-            if not (GLAcc."Account Type" = GLAcc."Account Type"::Posting) then
-                Error(Text005, GLAcc.FieldCaption("Account Type"), GLAcc."No.");
+        if not (GLAcc."Account Type" = GLAcc."Account Type"::Posting) then
+            Error(Text005, GLAcc.FieldCaption("Account Type"), GLAcc."No.");
 
-            TestField("No. Series");
-        end;
+        GenJnlBatch.TestField("No. Series");
 
         // currency for balancing amount
         LocalCurrency.InitRoundingPrecision()
@@ -231,7 +229,7 @@ report 2000004 "Payment Journal Post"
         LocalCurrency: Record Currency;
         DimensionSetEntry: Record "Dimension Set Entry";
         PaymJnlManagement: Codeunit PmtJrnlManagement;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         DimMgt: Codeunit DimensionManagement;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         BalancingPostingDate: Date;
@@ -337,10 +335,10 @@ report 2000004 "Payment Journal Post"
         TempPaymJnlLine."Currency Code" := '';
         TempPaymJnlLine."Currency Factor" := 0;
         if AccountType = "Payment Journal Line"."Account Type"::Customer then begin
-            TempPaymJnlLine."Line No." := GetCustBalLineNo;
+            TempPaymJnlLine."Line No." := GetCustBalLineNo();
             TempPaymJnlLine.Amount := -CustomerTotalAmount[2]
         end else begin
-            TempPaymJnlLine."Line No." := GetVendBalLineNo;
+            TempPaymJnlLine."Line No." := GetVendBalLineNo();
             TempPaymJnlLine.Amount := -VendorTotalAmount[2];
         end;
         if not TempPaymJnlLine."Separate Line" then
@@ -368,118 +366,115 @@ report 2000004 "Payment Journal Post"
         then
             PaymJnlManagement.SetApplID(PaymentJnlLine);
 
-        with GenJnlLine do
+        if PostPaymentRecord and
+            not PaymentJnlLine."Partial Payment" and
+            not PaymentJnlLine."Separate Line" and
+            (AppliesToID = PaymentJnlLine."Applies-to ID") and
+            (PaymentJnlLine."Account Type" in [PaymentJnlLine."Account Type"::Customer, PaymentJnlLine."Account Type"::Vendor])
+        then begin
+            GenJnlLine := LastGenJnlLine;
+            GenJnlLine.Find();
+            // add amounts
+            GenJnlLine.Validate(Amount, GenJnlLine.Amount + PaymentJnlLine.Amount);
+            GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::" ";
+            GenJnlLine."Applies-to Doc. No." := '';
+            GenJnlLine.Validate("Applies-to ID", AppliesToID);
+            GenJnlLine.Modify();
+        end else begin
+            Clear(GenJnlLine);
+            GenJnlLine.Init();
+            case PaymentJnlLine."Account Type" of
+                PaymentJnlLine."Account Type"::Customer:
+                    begin
+                        Cust.Get(PaymentJnlLine."Account No.");
+                        RemitteeName := CopyStr(Cust.Name, 1, MaxStrLen(RemitteeName));
+                        GenJnlLine."Source Type" := GenJnlLine."Source Type"::Customer;
+                        GenJnlLine."Posting Group" := Cust."Customer Posting Group";
+                        GenJnlLine."Salespers./Purch. Code" := Cust."Salesperson Code";
+                        GenJnlLine."Payment Terms Code" := Cust."Payment Terms Code";
+                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
+                    end;
+                PaymentJnlLine."Account Type"::Vendor:
+                    begin
+                        Vend.Get(PaymentJnlLine."Account No.");
+                        RemitteeName := CopyStr(Vend.Name, 1, MaxStrLen(RemitteeName));
+                        GenJnlLine."Source Type" := GenJnlLine."Source Type"::Vendor;
+                        GenJnlLine."Posting Group" := Vend."Vendor Posting Group";
+                        GenJnlLine."Salespers./Purch. Code" := Vend."Purchaser Code";
+                        GenJnlLine."Payment Terms Code" := Vend."Payment Terms Code";
+                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+                    end;
+                else begin
+                    Clear(RemitteeName);
+                    if PaymentJnlLine."Line No." = GetCustBalLineNo() then
+                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund
+                    else
+                        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+                end;
+            end;
+            GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+            GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
+            if (PaymentJnlLine."Line No." = GetCustBalLineNo()) and (PaymentJnlLine."Account Type" = 0) then begin
+                GenJournalLine.Copy(LastGenJnlLine);
+                GenJournalLine.SetRange("Account Type", GenJnlLine."Account Type"::Customer);
+                GenJournalLine.FindLast();
+                GenJnlLine."Line No." := GenJournalLine."Line No." + 1;
+            end else
+                GenJnlLine."Line No." := LastGenJnlLine."Line No." + 10000;
+            // keep track of break on applies-to ID
+            AppliesToID := PaymentJnlLine."Applies-to ID";
+
+            GenJnlLine."Document No." := DocumentNo;
+            GenJnlLine."Posting Date" := PaymentJnlLine."Posting Date";
+            GenJnlLine."Document Date" := PaymentJnlLine."Posting Date";
+
+            GenJnlLine."Account Type" := "Gen. Journal Account Type".FromInteger(PaymentJnlLine."Account Type");
+            if PaymentJnlLine."Account Type" = 0 then
+                GenJnlLine.Validate("Account No.", PaymentJnlLine."Account No.")
+            else begin
+                GenJnlLine."Account No." := PaymentJnlLine."Account No.";
+                GenJnlLine."Bill-to/Pay-to No." := PaymJnlLine."Account No.";
+            end;
             if PostPaymentRecord and
                not PaymentJnlLine."Partial Payment" and
                not PaymentJnlLine."Separate Line" and
-               (AppliesToID = PaymentJnlLine."Applies-to ID") and
-               (PaymentJnlLine."Account Type" in [PaymentJnlLine."Account Type"::Customer, PaymentJnlLine."Account Type"::Vendor])
-            then begin
-                GenJnlLine := LastGenJnlLine;
-                Find();
-
-                // add amounts
-                Validate(Amount, Amount + PaymentJnlLine.Amount);
-                "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
-                "Applies-to Doc. No." := '';
-                Validate("Applies-to ID", AppliesToID);
-                Modify
-            end else begin
-                Clear(GenJnlLine);
-                Init();
-                case PaymentJnlLine."Account Type" of
-                    PaymentJnlLine."Account Type"::Customer:
-                        begin
-                            Cust.Get(PaymentJnlLine."Account No.");
-                            RemitteeName := CopyStr(Cust.Name, 1, MaxStrLen(RemitteeName));
-                            "Source Type" := "Source Type"::Customer;
-                            "Posting Group" := Cust."Customer Posting Group";
-                            "Salespers./Purch. Code" := Cust."Salesperson Code";
-                            "Payment Terms Code" := Cust."Payment Terms Code";
-                            "Document Type" := "Document Type"::Refund;
-                        end;
-                    PaymentJnlLine."Account Type"::Vendor:
-                        begin
-                            Vend.Get(PaymentJnlLine."Account No.");
-                            RemitteeName := CopyStr(Vend.Name, 1, MaxStrLen(RemitteeName));
-                            "Source Type" := "Source Type"::Vendor;
-                            "Posting Group" := Vend."Vendor Posting Group";
-                            "Salespers./Purch. Code" := Vend."Purchaser Code";
-                            "Payment Terms Code" := Vend."Payment Terms Code";
-                            "Document Type" := "Document Type"::Payment;
-                        end;
-                    else begin
-                        Clear(RemitteeName);
-                        if PaymentJnlLine."Line No." = GetCustBalLineNo then
-                            "Document Type" := "Document Type"::Refund
-                        else
-                            "Document Type" := "Document Type"::Payment;
-                    end;
-                end;
-                "Journal Template Name" := GenJnlBatch."Journal Template Name";
-                "Journal Batch Name" := GenJnlBatch.Name;
-                if (PaymentJnlLine."Line No." = GetCustBalLineNo) and (PaymentJnlLine."Account Type" = 0) then begin
-                    GenJournalLine.Copy(LastGenJnlLine);
-                    GenJournalLine.SetRange("Account Type", "Account Type"::Customer);
-                    GenJournalLine.FindLast();
-                    "Line No." := GenJournalLine."Line No." + 1;
-                end else
-                    "Line No." := LastGenJnlLine."Line No." + 10000;
-
-                // keep track of break on applies-to ID
-                AppliesToID := PaymentJnlLine."Applies-to ID";
-
-                "Document No." := DocumentNo;
-                "Posting Date" := PaymentJnlLine."Posting Date";
-                "Document Date" := PaymentJnlLine."Posting Date";
-
-                "Account Type" := "Gen. Journal Account Type".FromInteger(PaymentJnlLine."Account Type");
-                if PaymentJnlLine."Account Type" = 0 then
-                    Validate("Account No.", PaymentJnlLine."Account No.")
-                else begin
-                    "Account No." := PaymentJnlLine."Account No.";
-                    "Bill-to/Pay-to No." := PaymJnlLine."Account No.";
-                end;
-                if PostPaymentRecord and
-                   not PaymentJnlLine."Partial Payment" and
-                   not PaymentJnlLine."Separate Line" and
-                   (PaymentJnlLine."Applies-to Doc. Type" <> PaymentJnlLine."Applies-to Doc. Type"::"Credit Memo")
-                then
-                    "Applies-to ID" := AppliesToID
-                else begin
-                    "Applies-to Doc. Type" := PaymentJnlLine."Applies-to Doc. Type";
-                    "Applies-to Doc. No." := PaymentJnlLine."Applies-to Doc. No.";
-                end;
-
-                "Currency Code" := PaymentJnlLine."Currency Code";
-                "Currency Factor" := PaymentJnlLine."Currency Factor";
-                Validate(Amount, PaymentJnlLine.Amount);
-
-                if PostPaymentRecord and
-                   not PaymentJnlLine."Partial Payment" and
-                   not PaymentJnlLine."Separate Line"
-                then
-                    Description :=
-                      CopyStr(StrSubstNo(Text014, RemitteeName), 1, MaxStrLen(Description))
-                else
-                    if PaymentJnlLine."Payment Message" <> '' then
-                        Description := PaymentJnlLine."Payment Message";
-
-                "Reason Code" := PaymentJnlLine."Reason Code";
-                "Source Code" := PaymentJnlLine."Source Code";
-                "Source No." := PaymentJnlLine."Account No.";
-                UpdateDimSetID("Dimension Set ID", PaymentJnlLine);
-                Validate("Dimension Set ID");
-                "Message to Recipient" := CopyStr(PaymentJnlLine."Payment Message", 1, MaxStrLen("Message to Recipient"));
-                "Exported to Payment File" := true;
-                OnBeforeGenJnlLineInsert(GenJnlLine, PaymentJnlLine);
-                Insert();
-
-                if PaymentJnlLine."Line No." = GetCustBalLineNo then
-                    "Line No." := LastGenJnlLine."Line No." + 10000;
-
-                LastGenJnlLine := GenJnlLine;
+               (PaymentJnlLine."Applies-to Doc. Type" <> PaymentJnlLine."Applies-to Doc. Type"::"Credit Memo")
+            then
+                GenJnlLine."Applies-to ID" := AppliesToID
+            else begin
+                GenJnlLine."Applies-to Doc. Type" := PaymentJnlLine."Applies-to Doc. Type";
+                GenJnlLine."Applies-to Doc. No." := PaymentJnlLine."Applies-to Doc. No.";
             end;
+
+            GenJnlLine."Currency Code" := PaymentJnlLine."Currency Code";
+            GenJnlLine."Currency Factor" := PaymentJnlLine."Currency Factor";
+            GenJnlLine.Validate(Amount, PaymentJnlLine.Amount);
+
+            if PostPaymentRecord and
+               not PaymentJnlLine."Partial Payment" and
+               not PaymentJnlLine."Separate Line"
+            then
+                GenJnlLine.Description :=
+                  CopyStr(StrSubstNo(Text014, RemitteeName), 1, MaxStrLen(GenJnlLine.Description))
+            else
+                if PaymentJnlLine."Payment Message" <> '' then
+                    GenJnlLine.Description := PaymentJnlLine."Payment Message";
+
+            GenJnlLine."Reason Code" := PaymentJnlLine."Reason Code";
+            GenJnlLine."Source Code" := PaymentJnlLine."Source Code";
+            GenJnlLine."Source No." := PaymentJnlLine."Account No.";
+            UpdateDimSetID(GenJnlLine."Dimension Set ID", PaymentJnlLine);
+            GenJnlLine.Validate("Dimension Set ID");
+            GenJnlLine."Message to Recipient" := CopyStr(PaymentJnlLine."Payment Message", 1, MaxStrLen(GenJnlLine."Message to Recipient"));
+            GenJnlLine."Exported to Payment File" := true;
+            OnBeforeGenJnlLineInsert(GenJnlLine, PaymentJnlLine);
+            GenJnlLine.Insert();
+
+            if PaymentJnlLine."Line No." = GetCustBalLineNo() then
+                GenJnlLine."Line No." := LastGenJnlLine."Line No." + 10000;
+
+            LastGenJnlLine := GenJnlLine;
+        end;
     end;
 
     [Scope('OnPrem')]

@@ -108,7 +108,7 @@ page 99000882 "Change Status on Prod. Order"
             Error(Text666, ProdOrderStatus.Status);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterSet(ProdOrder: Record "Production Order"; var PostingDate: Date; var ReqUpdUnitCost: Boolean)
     begin
     end;

@@ -63,7 +63,6 @@ page 1215 "Data Exch Line Def Part"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Field Mapping';
                 Image = MapAccounts;
-                Promoted = false;
                 RunObject = Page "Data Exch Mapping Card";
                 RunPageLink = "Data Exch. Def Code" = field("Data Exch. Def Code"),
                               "Data Exch. Line Def Code" = field(Code);

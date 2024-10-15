@@ -32,7 +32,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         LibraryVariableStorage.Clear();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
 
         UserSetup.DeleteAll();
         if IsInitialized then
@@ -63,7 +63,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [THEN] The Item unit price change is approved and applied.
 
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         CreateUserSetupsAndGroupOfApproversForWorkflow(WorkflowUserGroup, CurrentUserSetup,
@@ -129,7 +129,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [THEN] The Item unit price change is rejected and deleted.
 
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         CreateUserSetupsAndGroupOfApproversForWorkflow(WorkflowUserGroup, CurrentUserSetup,
@@ -187,7 +187,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [THEN] The Item unit price change is approved and applied.
 
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         CreateUserSetupsAndGroupOfApproversForWorkflow(WorkflowUserGroup, CurrentUserSetup,
@@ -261,19 +261,19 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
 
         // [WHEN] Item card is opened.
         LibraryInventory.CreateItem(Item);
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [THEN] Send and Cancel are disabled.
-        Assert.IsFalse(ItemCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsFalse(ItemCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
+        Assert.IsFalse(ItemCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsFalse(ItemCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should NOT be enabled');
 
         // Cleanup
         ItemCard.Close();
 
         // [GIVEN] Item unit price change approval workflow and Item approval workflow are enabled.
-        LibraryWorkflow.CopyWorkflowTemplate(WorkflowChange, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
-        LibraryWorkflow.CopyWorkflowTemplate(WorkflowApproval, WorkflowSetup.ItemWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(WorkflowChange, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode());
+        LibraryWorkflow.CopyWorkflowTemplate(WorkflowApproval, WorkflowSetup.ItemWorkflowCode());
         CreateUserSetupsAndGroupOfApproversForWorkflow(WorkflowUserGroup, CurrentUserSetup,
           IntermediateApproverUserSetup, FinalApproverUserSetup);
         LibraryWorkflow.SetWorkflowGroupApprover(WorkflowChange.Code, WorkflowUserGroup.Code);
@@ -282,43 +282,43 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         LibraryWorkflow.EnableWorkflow(WorkflowApproval);
 
         // [WHEN] Item card is opened.
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(ItemCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(ItemCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(ItemCard.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(ItemCard.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(ItemCard.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(ItemCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(ItemCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(ItemCard.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(ItemCard.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(ItemCard.Delegate.Visible(), 'Delegate should NOT be visible');
         ItemCard.Close();
 
         // [WHEN] Item card is opened.
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [WHEN] Item unit price (LCY) is changed.
         LibraryVariableStorage.Enqueue('The item unit price change was sent for approval.');
         Evaluate(OldValue, ItemCard."Unit Price".Value);
         ItemCard."Unit Price".Value := Format(OldValue + 100);
-        ItemCard.OK.Invoke;
+        ItemCard.OK().Invoke();
 
         // [THEN] The record change was created.
         WorkflowRecordChange.SetRange("Record ID", Item.RecordId);
         Assert.IsFalse(WorkflowRecordChange.IsEmpty, 'WorkflowRecordChange should not be empty');
 
         // [WHEN] Item card is opened.
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(ItemCard.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(ItemCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(ItemCard.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(ItemCard.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [THEN] Approval action are not shown.
-        Assert.IsFalse(ItemCard.Approve.Visible, 'Approve should be visible');
-        Assert.IsFalse(ItemCard.Reject.Visible, 'Reject should be visible');
-        Assert.IsFalse(ItemCard.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsFalse(ItemCard.Approve.Visible(), 'Approve should be visible');
+        Assert.IsFalse(ItemCard.Reject.Visible(), 'Reject should be visible');
+        Assert.IsFalse(ItemCard.Delegate.Visible(), 'Delegate should be visible');
 
         // Clenup
         ItemCard.Close();
@@ -346,22 +346,22 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [SCENARIO 6] Approval action availability.
         // [GIVEN] Item approval workflow and Item unit price change approval workflow are disabled.
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         // [WHEN] Item card is opened.
         LibraryInventory.CreateItem(Item);
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(ItemList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(ItemList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // Cleanup
         ItemList.Close();
 
         // [GIVEN] Item unit price change approval workflow and Item approval workflow are enabled.
-        LibraryWorkflow.CopyWorkflowTemplate(WorkflowChange, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
-        LibraryWorkflow.CopyWorkflowTemplate(WorkflowApproval, WorkflowSetup.ItemWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(WorkflowChange, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode());
+        LibraryWorkflow.CopyWorkflowTemplate(WorkflowApproval, WorkflowSetup.ItemWorkflowCode());
         CreateUserSetupsAndGroupOfApproversForWorkflow(WorkflowUserGroup, CurrentUserSetup,
           IntermediateApproverUserSetup, FinalApproverUserSetup);
         LibraryWorkflow.SetWorkflowGroupApprover(WorkflowChange.Code, WorkflowUserGroup.Code);
@@ -370,33 +370,33 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         LibraryWorkflow.EnableWorkflow(WorkflowApproval);
 
         // [WHEN] Item list is opened.
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(ItemList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(ItemList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         ItemList.Close();
 
         // [WHEN] Item unit price (LCY) is changed.
         LibraryVariableStorage.Enqueue('The item unit price change was sent for approval.');
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
         Evaluate(OldValue, ItemCard."Unit Price".Value);
         ItemCard."Unit Price".Value := Format(OldValue + 100);
-        ItemCard.OK.Invoke;
+        ItemCard.OK().Invoke();
 
         // [THEN] The record change was created.
         WorkflowRecordChange.SetRange("Record ID", Item.RecordId);
         Assert.IsFalse(WorkflowRecordChange.IsEmpty, 'WorkflowRecordChange should not be empty');
 
         // [GIVEN] Approval exist on Item.
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.GotoRecord(Item);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(ItemList.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(ItemList.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(ItemList.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         ItemList.Close();
     end;
 
@@ -423,7 +423,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [THEN] The 2nd Item unit price change is approved and applied.
 
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         CreateUserSetupsAndGroupOfApproversForWorkflow(WorkflowUserGroup, CurrentUserSetup,
@@ -453,15 +453,15 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.FindFirst();
         // goto the approval entry and approve
-        RequeststoApprovePage.OpenView;
+        RequeststoApprovePage.OpenView();
         RequeststoApprovePage.GotoRecord(ApprovalEntry);
-        RequeststoApprovePage.Approve.Invoke;
+        RequeststoApprovePage.Approve.Invoke();
         // find the next approval entry (there were 3, 1 auto-approved, 1 approved just above and this last one)
         ApprovalEntry.FindFirst();
         RequeststoApprovePage.GotoRecord(ApprovalEntry);
-        RequeststoApprovePage.Approve.Invoke;
+        RequeststoApprovePage.Approve.Invoke();
         // close the page
-        RequeststoApprovePage.OK.Invoke;
+        RequeststoApprovePage.OK().Invoke();
 
         // verify that the Item now has the correct unit price set.
         Item.Get(Item."No.");
@@ -491,8 +491,8 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [THEN] The Item unit price change is rejected, but the Item approval is not impacted.
 
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(WorkflowUnitPrice, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
-        LibraryWorkflow.CopyWorkflowTemplate(WorkflowItemApproval, WorkflowSetup.ItemWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(WorkflowUnitPrice, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode());
+        LibraryWorkflow.CopyWorkflowTemplate(WorkflowItemApproval, WorkflowSetup.ItemWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         CreateUserSetupsWithApproversAndGroupOfApproversForWorkflow(WorkflowUserGroup, CurrentUserSetup,
@@ -554,9 +554,9 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [THEN] The Item approval is canceled, but the unit price change approval is not impacted.
 
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
-        LibraryWorkflow.CopyWorkflowTemplate(WorkflowItemApproval, WorkflowSetup.ItemWorkflowCode);
-        LibraryWorkflow.CopyWorkflowTemplate(WorkflowUnitPrice, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        LibraryWorkflow.CopyWorkflowTemplate(WorkflowItemApproval, WorkflowSetup.ItemWorkflowCode());
+        LibraryWorkflow.CopyWorkflowTemplate(WorkflowUnitPrice, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         CreateUserSetupsWithApproversAndGroupOfApproversForWorkflow(WorkflowUserGroup, CurrentUserSetup,
@@ -622,9 +622,9 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [THEN] The Item approval is canceled, but the unit price change approval is not impacted.
 
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
-        LibraryWorkflow.CopyWorkflowTemplate(WorkflowUnitPrice, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
-        LibraryWorkflow.CopyWorkflowTemplate(WorkflowItemApproval, WorkflowSetup.ItemWorkflowCode);
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        LibraryWorkflow.CopyWorkflowTemplate(WorkflowUnitPrice, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode());
+        LibraryWorkflow.CopyWorkflowTemplate(WorkflowItemApproval, WorkflowSetup.ItemWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         CreateUserSetupsWithApproversAndGroupOfApproversForWorkflow(WorkflowUserGroup, CurrentUserSetup,
@@ -688,7 +688,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [THEN] The Item unit price change is approved and applied.
 
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode());
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
         CreateUserSetupsAndGroupOfApproversForWorkflow(WorkflowUserGroup, CurrentUserSetup,
@@ -802,22 +802,22 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
-        ItemCard.SendApprovalRequest.Invoke;
+        ItemCard.SendApprovalRequest.Invoke();
     end;
 
     local procedure ChangeUnitPriceAndSendForApproval(var Item: Record Item; NewUnitPrice: Decimal) OldValue: Decimal
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.GotoRecord(Item);
 
         Evaluate(OldValue, ItemCard."Unit Price".Value);
 
         ItemCard."Unit Price".Value(Format(NewUnitPrice));
-        ItemCard.OK.Invoke;
+        ItemCard.OK().Invoke();
     end;
 
     local procedure ApproveItemUnitPriceChange(var Item: Record Item)
@@ -831,9 +831,9 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.FindFirst();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
-        RequeststoApprove.Approve.Invoke;
+        RequeststoApprove.Approve.Invoke();
         RequeststoApprove.Close();
     end;
 
@@ -848,9 +848,9 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.FindFirst();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
-        RequeststoApprove.Reject.Invoke;
+        RequeststoApprove.Reject.Invoke();
         RequeststoApprove.Close();
     end;
 
@@ -858,9 +858,9 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.GotoRecord(Item);
-        ItemCard.CancelApprovalRequest.Invoke;
+        ItemCard.CancelApprovalRequest.Invoke();
         ItemCard.Close();
     end;
 
@@ -875,9 +875,9 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.FindFirst();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
-        RequeststoApprove.Delegate.Invoke;
+        RequeststoApprove.Delegate.Invoke();
         RequeststoApprove.Close();
     end;
 
@@ -939,13 +939,13 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -962,13 +962,13 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -984,14 +984,14 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         ItemCard: TestPage "Item Card";
         ItemList: TestPage "Item List";
     begin
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.GotoRecord(Item);
-        Assert.AreEqual(CancelActionExpectedEnabled, ItemCard.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
+        Assert.AreEqual(CancelActionExpectedEnabled, ItemCard.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         ItemCard.Close();
 
-        ItemList.OpenView;
+        ItemList.OpenView();
         ItemList.GotoRecord(Item);
-        Assert.AreEqual(CancelActionExpectedEnabled, ItemList.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
+        Assert.AreEqual(CancelActionExpectedEnabled, ItemList.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         ItemList.Close();
     end;
 }

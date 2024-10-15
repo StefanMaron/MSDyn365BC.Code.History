@@ -4,7 +4,7 @@ using Microsoft.Projects.Project.Job;
 
 page 1029 "Job Invoices"
 {
-    Caption = 'Job Invoices';
+    Caption = 'Project Invoices';
     DeleteAllowed = false;
     Editable = false;
     InsertAllowed = false;
@@ -39,7 +39,7 @@ page 1029 "Job Invoices"
                 field("Quantity Transferred"; Rec."Quantity Transferred")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the quantity transferred from the job planning line to the invoice or credit memo.';
+                    ToolTip = 'Specifies the quantity transferred from the project planning line to the invoice or credit memo.';
                 }
                 field("Transferred Date"; Rec."Transferred Date")
                 {
@@ -66,7 +66,7 @@ page 1029 "Job Invoices"
                 field("Job Ledger Entry No."; Rec."Job Ledger Entry No.")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies a link to the job ledger entry that was created when the document was posted.';
+                    ToolTip = 'Specifies a link to the project ledger entry that was created when the document was posted.';
                     Visible = ShowDetails;
                 }
             }

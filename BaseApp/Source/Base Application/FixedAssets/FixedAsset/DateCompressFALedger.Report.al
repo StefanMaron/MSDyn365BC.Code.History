@@ -36,81 +36,79 @@ report 5696 "Date Compress FA Ledger"
                     end;
                 end;
                 FALedgEntry2 := "FA Ledger Entry";
-                with FALedgEntry2 do begin
-                    SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
-                    CopyFilters("FA Ledger Entry");
+                FALedgEntry2.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
+                FALedgEntry2.CopyFilters("FA Ledger Entry");
 
-                    SetRange("FA No.", "FA No.");
-                    SetRange("Depreciation Book Code", "Depreciation Book Code");
-                    SetRange("FA Posting Category", "FA Posting Category");
-                    SetRange("FA Posting Type", "FA Posting Type");
-                    SetRange("Part of Book Value", "Part of Book Value");
-                    SetRange("Part of Depreciable Basis", "Part of Depreciable Basis");
-                    SetRange("FA Posting Group", "FA Posting Group");
-                    SetRange("Document Type", "Document Type");
+                FALedgEntry2.SetRange("FA No.", FALedgEntry2."FA No.");
+                FALedgEntry2.SetRange("Depreciation Book Code", FALedgEntry2."Depreciation Book Code");
+                FALedgEntry2.SetRange("FA Posting Category", FALedgEntry2."FA Posting Category");
+                FALedgEntry2.SetRange("FA Posting Type", FALedgEntry2."FA Posting Type");
+                FALedgEntry2.SetRange("Part of Book Value", FALedgEntry2."Part of Book Value");
+                FALedgEntry2.SetRange("Part of Depreciable Basis", FALedgEntry2."Part of Depreciable Basis");
+                FALedgEntry2.SetRange("FA Posting Group", FALedgEntry2."FA Posting Group");
+                FALedgEntry2.SetRange("Document Type", FALedgEntry2."Document Type");
 
-                    SetFilter("FA Posting Date", DateComprMgt.GetDateFilter("FA Posting Date", EntrdDateComprReg, true));
+                FALedgEntry2.SetFilter("FA Posting Date", DateComprMgt.GetDateFilter(FALedgEntry2."FA Posting Date", EntrdDateComprReg, true));
 
-                    LastEntryNo := LastEntryNo + 1;
+                LastEntryNo := LastEntryNo + 1;
 
-                    NewFALedgEntry.Init();
-                    NewFALedgEntry."Entry No." := LastEntryNo;
-                    NewFALedgEntry."FA No." := "FA No.";
-                    NewFALedgEntry."Depreciation Book Code" := "Depreciation Book Code";
-                    NewFALedgEntry."FA Posting Category" := "FA Posting Category";
-                    NewFALedgEntry."FA Posting Type" := "FA Posting Type";
-                    NewFALedgEntry."Part of Book Value" := "Part of Book Value";
-                    NewFALedgEntry."Part of Depreciable Basis" := "Part of Depreciable Basis";
-                    NewFALedgEntry."FA Posting Group" := "FA Posting Group";
-                    NewFALedgEntry."Document Type" := "Document Type";
-                    NewFALedgEntry."FA Posting Date" := GetRangeMin("FA Posting Date");
-                    NewFALedgEntry."Posting Date" := GetRangeMin("FA Posting Date");
-                    NewFALedgEntry.Description := EntrdFALedgEntry.Description;
-                    NewFALedgEntry."Source Code" := SourceCodeSetup."Compress FA Ledger";
-                    NewFALedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-                    Window.Update(1, NewFALedgEntry."FA No.");
-                    Window.Update(2, NewFALedgEntry."FA Posting Date");
-                    DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
-                    Window.Update(3, DateComprReg."No. of New Records");
+                NewFALedgEntry.Init();
+                NewFALedgEntry."Entry No." := LastEntryNo;
+                NewFALedgEntry."FA No." := FALedgEntry2."FA No.";
+                NewFALedgEntry."Depreciation Book Code" := FALedgEntry2."Depreciation Book Code";
+                NewFALedgEntry."FA Posting Category" := FALedgEntry2."FA Posting Category";
+                NewFALedgEntry."FA Posting Type" := FALedgEntry2."FA Posting Type";
+                NewFALedgEntry."Part of Book Value" := FALedgEntry2."Part of Book Value";
+                NewFALedgEntry."Part of Depreciable Basis" := FALedgEntry2."Part of Depreciable Basis";
+                NewFALedgEntry."FA Posting Group" := FALedgEntry2."FA Posting Group";
+                NewFALedgEntry."Document Type" := FALedgEntry2."Document Type";
+                NewFALedgEntry."FA Posting Date" := FALedgEntry2.GetRangeMin("FA Posting Date");
+                NewFALedgEntry."Posting Date" := FALedgEntry2.GetRangeMin("FA Posting Date");
+                NewFALedgEntry.Description := EntrdFALedgEntry.Description;
+                NewFALedgEntry."Source Code" := SourceCodeSetup."Compress FA Ledger";
+                NewFALedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(FALedgEntry2."User ID"));
+                Window.Update(1, NewFALedgEntry."FA No.");
+                Window.Update(2, NewFALedgEntry."FA Posting Date");
+                DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
+                Window.Update(3, DateComprReg."No. of New Records");
 
-                    if RetainNo(FieldNo("Document No.")) then begin
-                        SetRange("Document No.", "Document No.");
-                        NewFALedgEntry."Document No." := "Document No.";
-                    end;
-                    if RetainNo(FieldNo("Reclassification Entry")) then begin
-                        SetRange("Reclassification Entry", "Reclassification Entry");
-                        NewFALedgEntry."Reclassification Entry" := "Reclassification Entry";
-                    end;
-                    if RetainNo(FieldNo("Index Entry")) then begin
-                        SetRange("Index Entry", "Index Entry");
-                        NewFALedgEntry."Index Entry" := "Index Entry";
-                    end;
-                    if RetainNo(FieldNo("Global Dimension 1 Code")) then begin
-                        SetRange("Global Dimension 1 Code", "Global Dimension 1 Code");
-                        NewFALedgEntry."Global Dimension 1 Code" := "Global Dimension 1 Code";
-                    end;
-                    if RetainNo(FieldNo("Global Dimension 2 Code")) then begin
-                        SetRange("Global Dimension 2 Code", "Global Dimension 2 Code");
-                        NewFALedgEntry."Global Dimension 2 Code" := "Global Dimension 2 Code";
-                    end;
-                    if Quantity >= 0 then
-                        SetFilter(Quantity, '>=0')
-                    else
-                        SetFilter(Quantity, '<0');
-                    FADimMgt.GetFALedgEntryDimID(0, "Dimension Set ID");
-
-                    if "FA No." <> '' then
-                        FindEqualPostingType(FALedgEntry2);
-                    repeat
-                        if TempFALedgEntry.Get("Entry No.") or ("FA No." = '') then begin
-                            EqualDim := FADimMgt.TestEqualFALedgEntryDimID("Dimension Set ID");
-                            if EqualDim then
-                                SummarizeEntry(NewFALedgEntry, FALedgEntry2);
-                        end else
-                            EqualDim := false;
-                    until (Next() = 0) or not EqualDim;
-                    InsertNewEntry(NewFALedgEntry);
+                if RetainNo(FALedgEntry2.FieldNo("Document No.")) then begin
+                    FALedgEntry2.SetRange("Document No.", FALedgEntry2."Document No.");
+                    NewFALedgEntry."Document No." := FALedgEntry2."Document No.";
                 end;
+                if RetainNo(FALedgEntry2.FieldNo("Reclassification Entry")) then begin
+                    FALedgEntry2.SetRange("Reclassification Entry", FALedgEntry2."Reclassification Entry");
+                    NewFALedgEntry."Reclassification Entry" := FALedgEntry2."Reclassification Entry";
+                end;
+                if RetainNo(FALedgEntry2.FieldNo("Index Entry")) then begin
+                    FALedgEntry2.SetRange("Index Entry", FALedgEntry2."Index Entry");
+                    NewFALedgEntry."Index Entry" := FALedgEntry2."Index Entry";
+                end;
+                if RetainNo(FALedgEntry2.FieldNo("Global Dimension 1 Code")) then begin
+                    FALedgEntry2.SetRange("Global Dimension 1 Code", FALedgEntry2."Global Dimension 1 Code");
+                    NewFALedgEntry."Global Dimension 1 Code" := FALedgEntry2."Global Dimension 1 Code";
+                end;
+                if RetainNo(FALedgEntry2.FieldNo("Global Dimension 2 Code")) then begin
+                    FALedgEntry2.SetRange("Global Dimension 2 Code", FALedgEntry2."Global Dimension 2 Code");
+                    NewFALedgEntry."Global Dimension 2 Code" := FALedgEntry2."Global Dimension 2 Code";
+                end;
+                if FALedgEntry2.Quantity >= 0 then
+                    FALedgEntry2.SetFilter(Quantity, '>=0')
+                else
+                    FALedgEntry2.SetFilter(Quantity, '<0');
+                FADimMgt.GetFALedgEntryDimID(0, FALedgEntry2."Dimension Set ID");
+
+                if FALedgEntry2."FA No." <> '' then
+                    FindEqualPostingType(FALedgEntry2);
+                repeat
+                    if TempFALedgEntry.Get(FALedgEntry2."Entry No.") or (FALedgEntry2."FA No." = '') then begin
+                        EqualDim := FADimMgt.TestEqualFALedgEntryDimID(FALedgEntry2."Dimension Set ID");
+                        if EqualDim then
+                            SummarizeEntry(NewFALedgEntry, FALedgEntry2);
+                    end else
+                        EqualDim := false;
+                until (FALedgEntry2.Next() = 0) or not EqualDim;
+                InsertNewEntry(NewFALedgEntry);
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
@@ -181,13 +179,17 @@ report 5696 "Date Compress FA Ledger"
                 group(Options)
                 {
                     Caption = 'Options';
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Starting Date"""; EntrdDateComprReg."Starting Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Starting Date';
                         ToolTip = 'Specifies the first date to be included in the date compression. The compression affects all fixed asset ledger entries from this date to the Ending Date.';
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Ending Date"""; EntrdDateComprReg."Ending Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Ending Date';
@@ -200,7 +202,9 @@ report 5696 "Date Compress FA Ledger"
                             DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
                         end;
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Period Length"""; EntrdDateComprReg."Period Length")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Period Length';
@@ -281,13 +285,11 @@ report 5696 "Date Compress FA Ledger"
             if EntrdFALedgEntry.Description = '' then
                 EntrdFALedgEntry.Description := Text010;
 
-            with "FA Ledger Entry" do begin
-                InsertField(FieldNo("Document No."), FieldCaption("Document No."));
-                InsertField(FieldNo("Reclassification Entry"), FieldCaption("Reclassification Entry"));
-                InsertField(FieldNo("Index Entry"), FieldCaption("Index Entry"));
-                InsertField(FieldNo("Global Dimension 1 Code"), FieldCaption("Global Dimension 1 Code"));
-                InsertField(FieldNo("Global Dimension 2 Code"), FieldCaption("Global Dimension 2 Code"));
-            end;
+            InsertField("FA Ledger Entry".FieldNo("Document No."), "FA Ledger Entry".FieldCaption("Document No."));
+            InsertField("FA Ledger Entry".FieldNo("Reclassification Entry"), "FA Ledger Entry".FieldCaption("Reclassification Entry"));
+            InsertField("FA Ledger Entry".FieldNo("Index Entry"), "FA Ledger Entry".FieldCaption("Index Entry"));
+            InsertField("FA Ledger Entry".FieldNo("Global Dimension 1 Code"), "FA Ledger Entry".FieldCaption("Global Dimension 1 Code"));
+            InsertField("FA Ledger Entry".FieldNo("Global Dimension 2 Code"), "FA Ledger Entry".FieldCaption("Global Dimension 2 Code"));
 
             RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Compress FA Ledger", '');
             DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
@@ -312,17 +314,15 @@ report 5696 "Date Compress FA Ledger"
           3, REPORT::"Date Compress FA Ledger", '', RetainDimText, Text012);
         FALedgEntryFilter := CopyStr("FA Ledger Entry".GetFilters, 1, MaxStrLen(DateComprReg.Filter));
 
-        with FALedgEntry2 do begin
-            Copy("FA Ledger Entry");
-            SetRange("FA No.");
-            SetRange("Depreciation Book Code");
-            if GetFilters <> '' then
-                Error(
-                  Text000,
-                  FieldCaption("FA No."), FieldCaption("Depreciation Book Code"));
-            Reset();
-            Clear(FALedgEntry2);
-        end;
+        FALedgEntry2.Copy("FA Ledger Entry");
+        FALedgEntry2.SetRange("FA No.");
+        FALedgEntry2.SetRange("Depreciation Book Code");
+        if FALedgEntry2.GetFilters <> '' then
+            Error(
+              Text000,
+              FALedgEntry2.FieldCaption("FA No."), FALedgEntry2.FieldCaption("Depreciation Book Code"));
+        FALedgEntry2.Reset();
+        Clear(FALedgEntry2);
 
         DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
         LogStartTelemetryMessage();
@@ -383,8 +383,10 @@ report 5696 "Date Compress FA Ledger"
     begin
         FAReg.Init();
         FAReg."No." := FAReg.GetLastEntryNo() + 1;
+#if not CLEAN24        
         FAReg."Creation Date" := Today;
         FAReg."Creation Time" := Time;
+#endif        
         FAReg."Journal Type" := FAReg."Journal Type"::"Fixed Asset";
         FAReg."Source Code" := SourceCodeSetup."Compress FA Ledger";
         FAReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(FAReg."User ID"));
@@ -462,35 +464,31 @@ report 5696 "Date Compress FA Ledger"
         EqualPostingType: Boolean;
     begin
         TempFALedgEntry.DeleteAll();
-        with FALedgEntry do begin
-            SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
-            SetRange("FA No.", FALedgEntry2."FA No.");
-            SetRange("Depreciation Book Code", FALedgEntry2."Depreciation Book Code");
-            SetRange("Entry No.", 0, "FA Ledger Entry".GetRangeMax("Entry No."));
-            Get(FALedgEntry2."Entry No.");
-            repeat
-                EqualPostingType :=
-                  (FALedgEntry2."FA Posting Category" = "FA Posting Category") and
-                  (FALedgEntry2."FA Posting Type" = "FA Posting Type") and
-                  (FALedgEntry2."Part of Book Value" = "Part of Book Value") and
-                  (FALedgEntry2."Part of Depreciable Basis" = "Part of Depreciable Basis");
-                if EqualPostingType then begin
-                    TempFALedgEntry."Entry No." := "Entry No.";
-                    TempFALedgEntry.Insert();
-                end;
-            until (Next = 0) or not EqualPostingType;
-        end;
+        FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
+        FALedgEntry.SetRange("FA No.", FALedgEntry2."FA No.");
+        FALedgEntry.SetRange("Depreciation Book Code", FALedgEntry2."Depreciation Book Code");
+        FALedgEntry.SetRange("Entry No.", 0, "FA Ledger Entry".GetRangeMax("Entry No."));
+        FALedgEntry.Get(FALedgEntry2."Entry No.");
+        repeat
+            EqualPostingType :=
+              (FALedgEntry2."FA Posting Category" = FALedgEntry."FA Posting Category") and
+              (FALedgEntry2."FA Posting Type" = FALedgEntry."FA Posting Type") and
+              (FALedgEntry2."Part of Book Value" = FALedgEntry."Part of Book Value") and
+              (FALedgEntry2."Part of Depreciable Basis" = FALedgEntry."Part of Depreciable Basis");
+            if EqualPostingType then begin
+                TempFALedgEntry."Entry No." := FALedgEntry."Entry No.";
+                TempFALedgEntry.Insert();
+            end;
+        until (FALedgEntry.Next() = 0) or not EqualPostingType;
     end;
 
     local procedure SummarizeEntry(var NewFALedgEntry: Record "FA Ledger Entry"; FALedgEntry: Record "FA Ledger Entry")
     begin
-        with FALedgEntry do begin
-            NewFALedgEntry.Quantity := NewFALedgEntry.Quantity + Quantity;
-            NewFALedgEntry.Amount := NewFALedgEntry.Amount + Amount;
-            Delete();
-            DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
-            Window.Update(4, DateComprReg."No. Records Deleted");
-        end;
+        NewFALedgEntry.Quantity := NewFALedgEntry.Quantity + FALedgEntry.Quantity;
+        NewFALedgEntry.Amount := NewFALedgEntry.Amount + FALedgEntry.Amount;
+        FALedgEntry.Delete();
+        DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
+        Window.Update(4, DateComprReg."No. Records Deleted");
         if UseDataArchive then
             DataArchive.SaveRecord(FALedgEntry);
     end;

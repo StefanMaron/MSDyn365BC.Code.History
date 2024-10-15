@@ -11,13 +11,14 @@ codeunit 134420 "ERM Journal Posting"
     end;
 
     var
-        Assert: Codeunit Assert;
+        LibraryAssert: Codeunit "Library Assert";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryUtility: Codeunit "Library - Utility";
+        Any: Codeunit "Any";
         isInitialized: Boolean;
         MinRange: Decimal;
         MiddleRange: Decimal;
@@ -38,7 +39,7 @@ codeunit 134420 "ERM Journal Posting"
         FindGLAccount(GLAccount, false);
         PostedQty := CreateAndPostGenJrnLine(GenJournalBatch, GLAccount, Qty);
 
-        Assert.AreEqual(
+        LibraryAssert.AreEqual(
           Qty, PostedQty, 'The Quantity on Entry must match the Quantity on the Journal');
     end;
 
@@ -57,7 +58,7 @@ codeunit 134420 "ERM Journal Posting"
         FindGLAccount(GLAccount, false);
         PostedQty := CreateAndPostGenJrnLine(GenJournalBatch, GLAccount, Qty);
 
-        Assert.AreNotEqual(
+        LibraryAssert.AreNotEqual(
           LibraryRandom.RandDecInRange(MiddleRange, MaxRange, 2), PostedQty,
           'The Quantity on Entry must match the Quantity on the Journal');
     end;
@@ -77,7 +78,7 @@ codeunit 134420 "ERM Journal Posting"
         FindGLAccount(GLAccount, false);
         PostedQty := CreateAndPostGenJrnLine(GenJournalBatch, GLAccount, Qty);
 
-        Assert.AreEqual(Qty, PostedQty, 'The Quantity on Entry must match the Quantity on the Journal');
+        LibraryAssert.AreEqual(Qty, PostedQty, 'The Quantity on Entry must match the Quantity on the Journal');
     end;
 
     [Test]
@@ -93,15 +94,15 @@ codeunit 134420 "ERM Journal Posting"
         CreateGenJournalBatch(GenJournalBatch);
         FindGLAccount(GLAccountOmitDesc, true);
 
-        LibraryLowerPermissions.SetJournalsEdit;
+        LibraryLowerPermissions.SetJournalsEdit();
         CreateGenJrnLine(GenJournalLine, GenJournalBatch, GLAccountOmitDesc);
-        Assert.IsTrue(DelChr(GenJournalLine.Description, '=', ' ') = '', 'Description must be blank');
+        LibraryAssert.IsTrue(DelChr(GenJournalLine.Description, '=', ' ') = '', 'Description must be blank');
         LibraryLowerPermissions.SetO365Setup();
 
         FindGLAccount(GLAccountWithDesc, false);
-        LibraryLowerPermissions.SetJournalsEdit;
+        LibraryLowerPermissions.SetJournalsEdit();
         CreateGenJrnLine(GenJournalLine, GenJournalBatch, GLAccountWithDesc);
-        Assert.IsFalse(DelChr(GenJournalLine.Description, '=', ' ') = '', 'Description must not be blank');
+        LibraryAssert.IsFalse(DelChr(GenJournalLine.Description, '=', ' ') = '', 'Description must not be blank');
     end;
 
     [Test]
@@ -158,7 +159,7 @@ codeunit 134420 "ERM Journal Posting"
         // [WHEN] Perform COD 13 "Gen. Jnl.-Post Batch".Preview()
         BindSubscription(ERMJournalPosting);
         asserterror GenJnlPostBatch.Preview(GenJournalLine);
-        Assert.ExpectedError('Preview mode.');
+        LibraryAssert.ExpectedError('Preview mode.');
 
         // [THEN] Auto calc field is reset within COD13: "Has Payment Export Error" = FALSE after FIND
         // See [EventSubscriber] OnBeforeCode
@@ -181,7 +182,7 @@ codeunit 134420 "ERM Journal Posting"
         // [WHEN] Set "Post & Print with Job Queue" = TRUE
         GeneralLedgerSetup.Validate("Post & Print with Job Queue", true);
         // [THEN] "Post with Job Queue" = TRUE
-        Assert.IsTrue(GeneralLedgerSetup."Post with Job Queue", 'Setup is not correct.');
+        LibraryAssert.IsTrue(GeneralLedgerSetup."Post with Job Queue", 'Setup is not correct.');
     end;
 
     [Test]
@@ -201,7 +202,7 @@ codeunit 134420 "ERM Journal Posting"
         // [WHEN] Set "Post with Job Queue" = FALSE
         GeneralLedgerSetup.Validate("Post with Job Queue", false);
         // [THEN] "Post & Print with Job Queue" = FALSE
-        Assert.IsFalse(GeneralLedgerSetup."Post & Print with Job Queue", 'Setup is not correct.');
+        LibraryAssert.IsFalse(GeneralLedgerSetup."Post & Print with Job Queue", 'Setup is not correct.');
     end;
 
     [Test]
@@ -219,9 +220,9 @@ codeunit 134420 "ERM Journal Posting"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         GeneralLedgerSetup.Get();
         // [WHEN] Set "Report Output Type" = Print
-        ASSERTERROR GeneralLedgerSetup.Validate("Report Output Type", GeneralLedgerSetup."Report Output Type"::Print);
+        asserterror GeneralLedgerSetup.Validate("Report Output Type", GeneralLedgerSetup."Report Output Type"::Print);
         // [THEN] Error, "Report Output Type" must be PDF
-        Assert.ExpectedError('Report Output Type must be equal to ''PDF''  in General Ledger Setup');
+        LibraryAssert.ExpectedError('Report Output Type must be equal to ''PDF''  in General Ledger Setup');
     end;
 
     [Test]
@@ -251,7 +252,215 @@ codeunit 134420 "ERM Journal Posting"
 
         // [THEN] The record link is deleted
         RecordLink.SetRange("Record ID", GenJnlLine.RecordId);
-        Assert.RecordIsEmpty(RecordLink);
+        LibraryAssert.RecordIsEmpty(RecordLink);
+    end;
+
+    [Test]
+    procedure TestGenJnlPosting_NoSeries_NoMatch()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        // [FEATURE] [General Journal] [No. Series]
+        // [SCENARIO] No. Series is not updated when posting a general journal line with a manual document no.
+
+        // init
+        Initialize();
+        CreateNoSeriesWithLine(NoSeriesLine);
+        CreateGenJournalBatchWithForceDocBalance(GenJournalBatch, NoSeriesLine."Series Code");
+        CreateGenJournalLine(GenJournalLine, GenJournalBatch);
+
+        // setup
+        GenJournalLine.Validate("Document No.", CopyStr(Any.AlphanumericText(10), 1, MaxStrleN(GenJournalLine."Document No.")));
+        GenJournalLine.Modify(true);
+
+        // exercise
+        Codeunit.Run(Codeunit::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // verify
+        NoSeriesLine.Get(NoSeriesLine."Series Code", NoSeriesLine."Line No.");
+        LibraryAssert.AreEqual('', NoSeriesLine."Last No. Used", 'Last No. Used must be empty.');
+    end;
+
+    [Test]
+    procedure TestGenJnlPosting_NoSeries_Match()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesLine: Record "No. Series Line";
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [General Journal] [No. Series]
+        // [SCENARIO] No. Series is not updated when posting a general journal line with a manual document no.
+
+        // init
+        Initialize();
+        CreateNoSeriesWithLine(NoSeriesLine);
+        CreateGenJournalBatchWithForceDocBalance(GenJournalBatch, NoSeriesLine."Series Code");
+        CreateGenJournalLine(GenJournalLine, GenJournalBatch);
+
+        // setup
+        //todo save docno to assert later
+        DocNo := GenJournalLine."Document No.";
+        LibraryAssert.AreEqual(DocNo, NoSeriesLine."Starting No.", 'The document no. must match the no series.');
+        LibraryAssert.AreEqual('', NoSeriesLine."Last No. Used", 'Last No. Used must be empty.');
+
+        // exercise
+        Codeunit.Run(Codeunit::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // verify
+        NoSeriesLine.Get(NoSeriesLine."Series Code", NoSeriesLine."Line No.");
+        LibraryAssert.AreEqual(DocNo, NoSeriesLine."Last No. Used", 'The document no. must match the Last No. Used');
+    end;
+
+    [Test]
+    procedure TestGenJnlPosting_NoSeries_Match_2lines()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesLine: Record "No. Series Line";
+        DocNo, DocNo2 : Code[20];
+    begin
+        // [FEATURE] [General Journal] [No. Series]
+        // [SCENARIO] No. Series is not updated when posting a general journal line with a manual document no.
+
+        // init
+        Initialize();
+        CreateNoSeriesWithLine(NoSeriesLine);
+        CreateGenJournalBatchWithForceDocBalance(GenJournalBatch, NoSeriesLine."Series Code");
+        CreateGenJournalLine(GenJournalLine, GenJournalBatch);
+        DocNo := GenJournalLine."Document No.";
+        CreateGenJournalLine(GenJournalLine, GenJournalBatch);
+        DocNo2 := GenJournalLine."Document No.";
+
+        // setup
+        LibraryAssert.AreEqual(DocNo, NoSeriesLine."Starting No.", 'The document no. must match the no series.');
+        LibraryAssert.AreEqual('', NoSeriesLine."Last No. Used", 'Last No. Used must be empty.');
+
+        // exercise
+        Codeunit.Run(Codeunit::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // verify
+        NoSeriesLine.Get(NoSeriesLine."Series Code", NoSeriesLine."Line No.");
+        LibraryAssert.AreEqual(DocNo2, NoSeriesLine."Last No. Used", 'The document no. must match the Last No. Used');
+    end;
+
+    [Test]
+    procedure TestGenJnlPosting_NoSeries_Match_2linesReversed() //todo
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine, GenJournalLine2 : Record "Gen. Journal Line";
+        NoSeriesLine: Record "No. Series Line";
+        DocNo1, DocNo2 : Code[20];
+    begin
+        // [FEATURE] [General Journal] [No. Series]
+        // [SCENARIO] No. Series is not updated when posting a general journal line with a manual document no.
+
+        // init
+        Initialize();
+        CreateNoSeriesWithLine(NoSeriesLine);
+        CreateGenJournalBatchWithForceDocBalance(GenJournalBatch, NoSeriesLine."Series Code");
+        CreateGenJournalLine(GenJournalLine, GenJournalBatch);
+        GenJournalLine2 := GenJournalLine;
+        DocNo1 := GenJournalLine."Document No.";
+        CreateGenJournalLine(GenJournalLine, GenJournalBatch);
+        DocNo2 := GenJournalLine."Document No.";
+        LibraryAssert.AreNotEqual(DocNo1, DocNo2, 'The document no. must not match.');
+        LibraryAssert.AreEqual(DocNo1, NoSeriesLine."Starting No.", 'The document no. must match the no series.');
+        LibraryAssert.AreEqual('', NoSeriesLine."Last No. Used", 'Last No. Used must be empty.');
+
+        // setup
+        // reverse doc no.
+        GenJournalLine2.Validate("Document No.", DocNo2);
+        GenJournalLine2.Modify(true);
+        GenJournalLine."Document No." := DocNo1;
+        GenJournalLine.Modify(true);
+
+        // exercise
+        Codeunit.Run(Codeunit::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // verify
+        NoSeriesLine.Get(NoSeriesLine."Series Code", NoSeriesLine."Line No.");
+        LibraryAssert.AreEqual(DocNo2, NoSeriesLine."Last No. Used", 'The document no. must match the Last No. Used');
+    end;
+
+    [Test]
+    procedure TestGenJnlPosting_NoSeries_Match_2linesReversedNoForceBalance()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine, GenJournalLine2 : Record "Gen. Journal Line";
+        NoSeriesLine: Record "No. Series Line";
+        DocNo1, DocNo2 : Code[20];
+    begin
+        // [FEATURE] [General Journal] [No. Series]
+        // [SCENARIO] No. Series is not updated when posting a general journal line with a manual document no.
+
+        // init
+        Initialize();
+        CreateNoSeriesWithLine(NoSeriesLine);
+        CreateGenJournalBatchWithoutForceDocBalance(GenJournalBatch, NoSeriesLine."Series Code");
+        CreateGenJournalLine(GenJournalLine, GenJournalBatch);
+        GenJournalLine2 := GenJournalLine;
+        DocNo1 := GenJournalLine."Document No.";
+        CreateGenJournalLine(GenJournalLine, GenJournalBatch);
+        DocNo2 := GenJournalLine."Document No.";
+        LibraryAssert.AreNotEqual(DocNo1, DocNo2, 'The document no. must not match.');
+        LibraryAssert.AreEqual(DocNo1, NoSeriesLine."Starting No.", 'The document no. must match the no series.');
+        LibraryAssert.AreEqual('', NoSeriesLine."Last No. Used", 'Last No. Used must be empty.');
+
+        // setup
+        // reverse doc no.
+        GenJournalLine2.Validate("Document No.", DocNo2);
+        GenJournalLine2.Modify(true);
+        GenJournalLine."Document No." := DocNo1;
+        GenJournalLine.Modify(true);
+
+        // exercise
+        Codeunit.Run(Codeunit::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // verify
+        NoSeriesLine.Get(NoSeriesLine."Series Code", NoSeriesLine."Line No.");
+
+        // could consider this a bug. keeping as is for now, documenting behaviour.
+        asserterror LibraryAssert.AreEqual(DocNo2, NoSeriesLine."Last No. Used", 'The document no. must match the Last No. Used');
+        LibraryAssert.AreEqual(DocNo1, NoSeriesLine."Last No. Used", 'The document no. must match the Last No. Used');
+    end;
+
+    [Test]
+    procedure TestGenJnlPosting_NoSeries_PatternMatch()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesLine: Record "No. Series Line";
+        NoSeriesBatch: Codeunit "No. Series - Batch";
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [General Journal] [No. Series]
+        // [SCENARIO] No. Series is not updated when posting a general journal line with a manual document no.
+
+        // init
+        Initialize();
+        CreateNoSeriesWithLine(NoSeriesLine);
+        CreateGenJournalBatchWithForceDocBalance(GenJournalBatch, NoSeriesLine."Series Code");
+        CreateGenJournalLine(GenJournalLine, GenJournalBatch);
+        NoSeriesBatch.GetNextNo(NoSeriesLine."Series Code");
+        NoSeriesBatch.GetNextNo(NoSeriesLine."Series Code");
+        NoSeriesBatch.GetNextNo(NoSeriesLine."Series Code");
+        GenJournalLine."Document No." := NoSeriesBatch.GetNextNo(NoSeriesLine."Series Code");
+        GenJournalLine.Modify(true);
+
+        // setup
+        DocNo := GenJournalLine."Document No.";
+        LibraryAssert.AreNotEqual(DocNo, NoSeriesLine."Starting No.", 'The document no. must not match the no series.');
+        LibraryAssert.AreEqual('', NoSeriesLine."Last No. Used", 'Last No. Used must be empty.');
+
+        // exercise
+        Codeunit.Run(Codeunit::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // verify
+        NoSeriesLine.Get(NoSeriesLine."Series Code", NoSeriesLine."Line No.");
+        LibraryAssert.AreEqual('', NoSeriesLine."Last No. Used", 'Last No. Used must be empty.');
     end;
 
     local procedure Initialize()
@@ -286,7 +495,6 @@ codeunit 134420 "ERM Journal Posting"
     begin
         GenJournalLine.Init();
         CreateGenJrnLine(GenJournalLine, GenJournalBatch, GLAccount);
-        LibraryLowerPermissions.SetJournalsPost;
         GenJournalLine.Validate(Quantity, Qty);
         GenJournalLine.Modify(true);
 
@@ -319,13 +527,11 @@ codeunit 134420 "ERM Journal Posting"
     var
         PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
     begin
-        with PaymentJnlExportErrorText do begin
-            Init();
-            "Journal Template Name" := GenJournalLine."Journal Template Name";
-            "Journal Batch Name" := GenJournalLine."Journal Batch Name";
-            "Journal Line No." := GenJournalLine."Line No.";
-            Insert();
-        end;
+        PaymentJnlExportErrorText.Init();
+        PaymentJnlExportErrorText."Journal Template Name" := GenJournalLine."Journal Template Name";
+        PaymentJnlExportErrorText."Journal Batch Name" := GenJournalLine."Journal Batch Name";
+        PaymentJnlExportErrorText."Journal Line No." := GenJournalLine."Line No.";
+        PaymentJnlExportErrorText.Insert();
     end;
 
     local procedure FindGLAccount(var GLAccount: Record "G/L Account"; OmitDesc: Boolean)
@@ -344,5 +550,50 @@ codeunit 134420 "ERM Journal Posting"
         GenJournalLine.Find();
         GenJournalLine.TestField("Has Payment Export Error", false);
     end;
-}
 
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GLAccount: Record "G/L Account";
+        BalGLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryAssert.IsTrue(GLAccount."Direct Posting", 'Direct Posting must be true for this test.');
+        LibraryERM.CreateGLAccount(BalGLAccount);
+        LibraryAssert.IsTrue(BalGLAccount."Direct Posting", 'Direct Posting must be true for this test.');
+        LibraryJournals.CreateGenJournalLine2(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalLine."Bal. Account Type"::"G/L Account", BalGLAccount."No.", Any.DecimalInRange(10000, 0));
+    end;
+
+    local procedure CreateNoSeriesWithLine(var NoSeriesLine: Record "No. Series Line")
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesBaseNo: Code[10];
+    begin
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, false); // default and manual nos., no date order
+        NoSeriesBaseNo := CopyStr(Any.AlphanumericText(3), 1, MaxStrLen(NoSeriesBaseNo));
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, CopyStr(NoSeriesBaseNo + '0001', 1, MaxStrLen(NoSeriesLine."Starting No.")), CopyStr(NoSeriesBaseNo + '9999', 1, MaxStrLen(NoSeriesLine."Starting No.")));
+    end;
+
+    local procedure CreateGenJournalBatchWithForceDocBalance(var GenJournalBatch: Record "Gen. Journal Batch"; NoSeriesCode: Code[20])
+    begin
+        CreateGenJournalBatch(GenJournalBatch, NoSeriesCode, true);
+    end;
+
+    local procedure CreateGenJournalBatchWithoutForceDocBalance(var GenJournalBatch: Record "Gen. Journal Batch"; NoSeriesCode: Code[20])
+    begin
+        CreateGenJournalBatch(GenJournalBatch, NoSeriesCode, false);
+    end;
+
+    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; NoSeriesCode: Code[20]; ForceDocBalance: Boolean)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate("Force Doc. Balance", ForceDocBalance);
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Validate("No. Series", NoSeriesCode);
+        GenJournalBatch.Validate("Posting No. Series", '');
+        GenJournalBatch.Modify(true);
+    end;
+}

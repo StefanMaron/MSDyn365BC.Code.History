@@ -58,7 +58,9 @@ report 5809 "Item Expiration - Quantity"
             dataitem("Item Ledger Entry"; "Item Ledger Entry")
             {
                 DataItemLink = "Item No." = field("No."), "Location Code" = field("Location Filter"), "Variant Code" = field("Variant Filter"), "Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Global Dimension 2 Code" = field("Global Dimension 2 Filter");
+#pragma warning disable AL0254
                 DataItemTableView = sorting("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Expiration Date", "Lot No.", "Serial No.") where(Open = const(true));
+#pragma warning restore AL0254
                 column(InvtQty1; InvtQty[1])
                 {
                     DecimalPlaces = 0 : 2;

@@ -21,6 +21,7 @@ using Microsoft.Sales.Receivables;
 table 2000001 "Payment Journal Line"
 {
     Caption = 'Payment Journal Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -68,7 +69,7 @@ table 2000001 "Payment Journal Line"
                 end;
                 if "Account No." = '' then begin
                     CreateDim(
-                      DimMgt.TypeToTableID2000001("Account Type"), "Account No.",
+                      TypeToTableID2000001("Account Type"), "Account No.",
                       DATABASE::"Bank Account", "Bank Account",
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
                     exit;
@@ -103,7 +104,7 @@ table 2000001 "Payment Journal Line"
                 end;
 
                 CreateDim(
-                  DimMgt.TypeToTableID2000001("Account Type"), "Account No.",
+                  TypeToTableID2000001("Account Type"), "Account No.",
                   DATABASE::"Bank Account", "Bank Account",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
             end;
@@ -331,7 +332,7 @@ table 2000001 "Payment Journal Line"
             begin
                 CreateDim(
                   DATABASE::"Bank Account", "Bank Account",
-                  DimMgt.TypeToTableID2000001("Account Type"), "Account No.",
+                  TypeToTableID2000001("Account Type"), "Account No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
 
                 if "Bank Account" <> '' then begin
@@ -962,6 +963,18 @@ table 2000001 "Payment Journal Line"
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+
+    procedure TypeToTableID2000001(Type: Option " ",Customer,Vendor): Integer
+    begin
+        case Type of
+            Type::" ":
+                exit(0);
+            Type::Customer:
+                exit(Database::Customer);
+            Type::Vendor:
+                exit(Database::Vendor);
+        end;
     end;
 
     local procedure GetExportProtocol()

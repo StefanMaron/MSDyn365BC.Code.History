@@ -191,7 +191,7 @@ codeunit 135023 "Data Migration Status Test"
 
         BindSubscription(DataMigrationStatusTest);
 
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         DataMigrationError.DeleteAll();
         DataMigrationStatus.DeleteAll();
@@ -212,14 +212,14 @@ codeunit 135023 "Data Migration Status Test"
         DataMigrationError.CreateEntryWithMessage('Test', DATABASE::Item, Customer.RecordId, 'Error occured');
 
         // [WHEN] The Data Migration Overview Page is opened
-        DataMigrationOverview.OpenView;
+        DataMigrationOverview.OpenView();
 
         // [THEN] The next task is review and fix
-        DataMigrationOverview.First;
+        DataMigrationOverview.First();
         Assert.AreEqual('Review and fix errors', DataMigrationOverview."Next Task".Value, 'A different next task was expected');
 
         // [WHEN] The Next Task is drilled down
-        DataMigrationOverview."Next Task".DrillDown;
+        DataMigrationOverview."Next Task".DrillDown();
 
         // [THEN] Data Migration error page is opened and the right error message is displayed
         // Verify in DataMigrationErrorModalPageHandler and Skip Error
@@ -227,8 +227,8 @@ codeunit 135023 "Data Migration Status Test"
         DataMigrationOverview.Close();
 
         // [THEN] The Next task is changed to blank
-        DataMigrationOverview.OpenView;
-        DataMigrationOverview.First;
+        DataMigrationOverview.OpenView();
+        DataMigrationOverview.First();
         Assert.AreEqual(' ', DataMigrationOverview."Next Task".Value, 'A different next task was expected');
 
         // [WHEN] There are transactions for the items
@@ -240,12 +240,12 @@ codeunit 135023 "Data Migration Status Test"
         DataMigrationOverview.Close();
 
         // [THEN] The Next task is changed to Review and post
-        DataMigrationOverview.OpenView;
-        DataMigrationOverview.First;
+        DataMigrationOverview.OpenView();
+        DataMigrationOverview.First();
         Assert.AreEqual('Review and post', DataMigrationOverview."Next Task".Value, 'A different next task was expected');
 
         // [WHEN] The Next Task is drilled down
-        DataMigrationOverview."Next Task".DrillDown;
+        DataMigrationOverview."Next Task".DrillDown();
 
         // [THEN] Item Journal page is opened
         // Verify in ItemJournalPageHandler
@@ -272,18 +272,18 @@ codeunit 135023 "Data Migration Status Test"
         CustomerDataMigrationFacade.SetPaymentMethodCode('PM');
         CustomerDataMigrationFacade.ModifyCustomer(true);
         CustomerDataMigrationFacade.CreateGeneralJournalBatchIfNeeded('GJB', '', '');
-        CustomerDataMigrationFacade.CreateGeneralJournalLine('GJB', 'Doc1', 'Description', WorkDate(), WorkDate, 123, 123, '', '');
+        CustomerDataMigrationFacade.CreateGeneralJournalLine('GJB', 'Doc1', 'Description', WorkDate(), WorkDate(), 123, 123, '', '');
 
         // [WHEN] The Data Migration Overview Page Opens
-        DataMigrationOverview.OpenView;
+        DataMigrationOverview.OpenView();
 
         // [THEN] The Next task is changed to Review and post
-        DataMigrationOverview.First;
+        DataMigrationOverview.First();
         Assert.AreEqual('Review and post', DataMigrationOverview."Next Task".Value, 'A different next task was expected');
 
         // [WHEN] The Next Task is drilled down
         LibraryVariableStorage.Enqueue('Customer');
-        DataMigrationOverview."Next Task".DrillDown;
+        DataMigrationOverview."Next Task".DrillDown();
 
         // [THEN] General Journal page is opened
         // Verify in GeneralJournalPageHandler
@@ -309,18 +309,18 @@ codeunit 135023 "Data Migration Status Test"
         VendorDataMigrationFacade.CreatePaymentMethodIfNeeded('PM', 'Payment Method');
         VendorDataMigrationFacade.SetPaymentMethod('PM');
         VendorDataMigrationFacade.ModifyVendor(true);
-        VendorDataMigrationFacade.CreateGeneralJournalLine('GJB', 'Doc1', 'Description', WorkDate(), WorkDate, 123, 123, '', '');
+        VendorDataMigrationFacade.CreateGeneralJournalLine('GJB', 'Doc1', 'Description', WorkDate(), WorkDate(), 123, 123, '', '');
 
         // [WHEN] The Data Migration Overview Page Opens
-        DataMigrationOverview.OpenView;
+        DataMigrationOverview.OpenView();
 
         // [THEN] The Next task is changed to Review and post
-        DataMigrationOverview.First;
+        DataMigrationOverview.First();
         Assert.AreEqual('Review and post', DataMigrationOverview."Next Task".Value, 'A different next task was expected');
 
         // [WHEN] The Next Task is drilled down
         LibraryVariableStorage.Enqueue('Vendor');
-        DataMigrationOverview."Next Task".DrillDown;
+        DataMigrationOverview."Next Task".DrillDown();
 
         // [THEN] General Journal page is opened
         // Verify in GeneralJournalPageHandler
@@ -338,18 +338,18 @@ codeunit 135023 "Data Migration Status Test"
         DataMigrationStatus.Status := DataMigrationStatus.Status::Failed;
         DataMigrationStatus.Modify();
 
-        CreateGenJournalLine;
+        CreateGenJournalLine();
 
         // [WHEN] The Data Migration Overview Page Opens
-        DataMigrationOverview.OpenView;
+        DataMigrationOverview.OpenView();
 
         // [THEN] The Next task is changed to Review and Delete
-        DataMigrationOverview.First;
+        DataMigrationOverview.First();
         Assert.AreEqual('Review and Delete', DataMigrationOverview."Next Task".Value, 'A different next task was expected');
 
         // [WHEN] The Next Task is drilled down
         LibraryVariableStorage.Enqueue('G/L Account');
-        DataMigrationOverview."Next Task".DrillDown;
+        DataMigrationOverview."Next Task".DrillDown();
 
         // [THEN] General Journal page is opened
         // Verify in GeneralJournalPageHandler
@@ -361,10 +361,10 @@ codeunit 135023 "Data Migration Status Test"
     [Scope('OnPrem')]
     procedure DataMigrationErrorModalPageHandler(var DataMigrationError: TestPage "Data Migration Error")
     begin
-        DataMigrationError.First;
+        DataMigrationError.First();
         Assert.AreEqual('Error occured', DataMigrationError."Error Message".Value, 'A different error was expected');
 
-        DataMigrationError.SkipSelection.Invoke;
+        DataMigrationError.SkipSelection.Invoke();
     end;
 
     [ConfirmHandler]
@@ -396,8 +396,8 @@ codeunit 135023 "Data Migration Status Test"
     [Scope('OnPrem')]
     procedure GeneralJournalPageHandler(var GeneralJournal: TestPage "General Journal")
     begin
-        GeneralJournal.First;
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, GeneralJournal."Account Type".Value, 'A different option was expected')
+        GeneralJournal.First();
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), GeneralJournal."Account Type".Value, 'A different option was expected')
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Facade", 'OnFindBatchForVendorTransactions', '', false, false)]

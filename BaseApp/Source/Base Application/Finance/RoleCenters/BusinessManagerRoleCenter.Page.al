@@ -136,17 +136,6 @@ page 9022 "Business Manager Role Center"
                 SubPageView = where(Context = const('Power BI Part III'));
                 Visible = false;
             }
-#if not CLEAN21
-            part(Control98; "Power BI Report Spinner Part")
-            {
-                AccessByPermission = TableData "Power BI Context Settings" = I;
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(MyNotes; MyNotes)
             {
                 ApplicationArea = Basic, Suite;

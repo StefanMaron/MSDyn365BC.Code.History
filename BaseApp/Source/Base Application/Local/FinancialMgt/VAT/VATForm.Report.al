@@ -75,7 +75,7 @@ report 11307 "VAT - Form"
                 var
                     RunResults: Boolean;
                 begin
-                    RunResults := CreateInterVatXml;
+                    RunResults := CreateInterVatXml();
 
                     if SilenceRun then
                         exit;
@@ -89,10 +89,10 @@ report 11307 "VAT - Form"
             begin
                 SetRange("Statement Template Name", GLSetup."VAT Statement Template Name");
                 SetRange(Name, GLSetup."VAT Statement Name");
-                ValidatePeriod;
+                ValidatePeriod();
                 if AddRepresentative then begin
                     Representative.Get(Identifier);
-                    Representative.CheckCompletion;
+                    Representative.CheckCompletion();
                 end;
             end;
         }
@@ -140,7 +140,7 @@ report 11307 "VAT - Form"
 
                                 trigger OnValidate()
                                 begin
-                                    ValidatePeriod;
+                                    ValidatePeriod();
                                 end;
                             }
                             field(Vyear; Vyear)
@@ -231,7 +231,7 @@ report 11307 "VAT - Form"
 
                             trigger OnValidate()
                             begin
-                                SetRepresentativeEnabled;
+                                SetRepresentativeEnabled();
                             end;
                         }
                         field(ID; Identifier)
@@ -264,7 +264,7 @@ report 11307 "VAT - Form"
 
         trigger OnOpenPage()
         begin
-            SetRepresentativeEnabled;
+            SetRepresentativeEnabled();
         end;
     }
 
@@ -291,7 +291,7 @@ report 11307 "VAT - Form"
     trigger OnPreReport()
     begin
         if not AddRepresentative then
-            INTERVATHelper.VerifyCpyInfoEmailExists;
+            INTERVATHelper.VerifyCpyInfoEmailExists();
 
         if Vperiod = 0 then
             Error(Text015);
@@ -404,7 +404,7 @@ report 11307 "VAT - Form"
         XMLFirstNode := XMLCurrNode;
 
         if AddRepresentative then begin
-            Representative.AddRepresentativeElement(XMLCurrNode, DocNameSpace, GetSequenceNumber);
+            Representative.AddRepresentativeElement(XMLCurrNode, DocNameSpace, GetSequenceNumber());
             XMLCurrNode := XMLFirstNode;
         end;
 
@@ -414,7 +414,7 @@ report 11307 "VAT - Form"
         if IsCorrection then
             AddElementReplacedVATDeclaration(XMLCurrNode);
 
-        INTERVATHelper.AddElementDeclarant(XMLCurrNode, GetSequenceNumber, Comment);
+        INTERVATHelper.AddElementDeclarant(XMLCurrNode, GetSequenceNumber(), Comment);
         XMLCurrNode := XMLFirstNode;
 
         INTERVATHelper.AddElementPeriod(XMLCurrNode, ChoicePeriodType, Vperiod, Vyear, '');
@@ -563,7 +563,7 @@ report 11307 "VAT - Form"
 
     local procedure SetRepresentativeEnabled()
     begin
-        PageSetRepresentativeEnabled;
+        PageSetRepresentativeEnabled();
     end;
 
     local procedure YesNo(Boolean: Boolean): Text[3]
@@ -580,12 +580,12 @@ report 11307 "VAT - Form"
 
     local procedure MonthChoicePeriodTypeOnValidat()
     begin
-        ValidatePeriod;
+        ValidatePeriod();
     end;
 
     local procedure QuarterChoicePeriodTypeOnValid()
     begin
-        ValidatePeriod;
+        ValidatePeriod();
     end;
 }
 

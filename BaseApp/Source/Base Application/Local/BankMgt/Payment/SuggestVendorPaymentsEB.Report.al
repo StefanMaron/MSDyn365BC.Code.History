@@ -27,7 +27,7 @@ report 2000019 "Suggest Vendor Payments EB"
             begin
                 Window.Update(1, "No.");
                 AmountPerVendor := 0;
-                SuggestPayments
+                SuggestPayments();
             end;
 
             trigger OnPostDataItem()
@@ -42,7 +42,7 @@ report 2000019 "Suggest Vendor Payments EB"
                         repeat
                             Window.Update(1, "No.");
                             AmountPerVendor := 0;
-                            SuggestPayments;
+                            SuggestPayments();
                         until Next() = 0
                 end;
                 if OpenPayments then
@@ -203,68 +203,62 @@ report 2000019 "Suggest Vendor Payments EB"
     begin
         OnBeforeSuggestPayments(Vend, PaymJnlLine, VendLedgEntry);
 
-        with Vend do begin
-            CheckBlockedVendOnJnls(Vend, VendLedgEntry."Document Type"::Payment, false);
-            // select vendor ledger entries
-            VendLedgEntry.Reset();
-            VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
-            VendLedgEntry.SetRange("Vendor No.", "No.");
-            VendLedgEntry.SetRange(Open, true);
-            if GetFilter("Currency Filter") <> '' then
-                VendLedgEntry.SetFilter("Currency Code", GetFilter("Currency Filter"));
-            VendLedgEntry.SetFilter("Global Dimension 1 Code", GetFilter("Global Dimension 1 Filter"));
-            VendLedgEntry.SetFilter("Global Dimension 2 Code", GetFilter("Global Dimension 2 Filter"));
-
-            // first take credit memo's into account
-            if IncCreditMemos then begin
-                // no filtering on "due date" here
-                VendLedgEntry.SetRange(Positive, true);
-                VendLedgEntry.SetRange("On Hold", '');
-                VendLedgEntry.SetRange("Applies-to ID", '');
-                if VendLedgEntry.FindSet() then
-                    repeat
-                        SetPaymJnlLine;
-                    until VendLedgEntry.Next() = 0;
-            end;
-
-            // select open and due entries
-            VendLedgEntry.SetRange(Positive, false);
-            VendLedgEntry.SetRange("Due Date", 0D, DueDate);
+        Vend.CheckBlockedVendOnJnls(Vend, VendLedgEntry."Document Type"::Payment, false);
+        // select vendor ledger entries
+        VendLedgEntry.Reset();
+        VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
+        VendLedgEntry.SetRange("Vendor No.", Vend."No.");
+        VendLedgEntry.SetRange(Open, true);
+        if Vend.GetFilter("Currency Filter") <> '' then
+            VendLedgEntry.SetFilter("Currency Code", Vend.GetFilter("Currency Filter"));
+        VendLedgEntry.SetFilter("Global Dimension 1 Code", Vend.GetFilter("Global Dimension 1 Filter"));
+        VendLedgEntry.SetFilter("Global Dimension 2 Code", Vend.GetFilter("Global Dimension 2 Filter"));
+        // first take credit memo's into account
+        if IncCreditMemos then begin
+            // no filtering on "due date" here
+            VendLedgEntry.SetRange(Positive, true);
             VendLedgEntry.SetRange("On Hold", '');
             VendLedgEntry.SetRange("Applies-to ID", '');
             if VendLedgEntry.FindSet() then
                 repeat
-                    SetPaymJnlLine;
+                    SetPaymJnlLine();
                 until VendLedgEntry.Next() = 0;
-
-            // select open with payment discount
-            if IncPmtDiscount then begin
-                VendLedgEntry.SetRange(Positive, false);
-                VendLedgEntry.SetRange("Due Date", CalcDate('<+1D>', DueDate), 99991231D);
-                VendLedgEntry.SetRange("Pmt. Discount Date", PmtDiscDueDate, DueDate);
-                VendLedgEntry.SetFilter("Remaining Pmt. Disc. Possible", '<0');
-                VendLedgEntry.SetRange("On Hold", '');
-                VendLedgEntry.SetRange("Applies-to ID", '');
-                if VendLedgEntry.FindSet() then
-                    repeat
-                        SetPaymJnlLine;
-                    until VendLedgEntry.Next() = 0;
-            end;
-
-            // cleanup if nothing to pay for this vendor (e.g. Credit memo's > Invoices)
-            if AmountPerVendor <= 0 then begin
-                PaymJnlLine3.Reset();
-                PaymJnlLine3.SetCurrentKey("Account Type", "Account No.");
-                PaymJnlLine3.SetRange("Journal Template Name", PaymJnlTemplate.Name);
-                PaymJnlLine3.SetRange("Journal Batch Name", PaymJnlBatch.Name);
-                PaymJnlLine3.SetRange("Account Type", PaymJnlLine3."Account Type"::Vendor);
-                PaymJnlLine3.SetRange("Account No.", "No.");
-                PaymJnlLine3.SetRange(Status, PaymJnlLine3.Status::Created);
-                PaymJnlLine3.DeleteAll(true);
-                // reset maximum amount
-                MaximumAmount := MaximumAmount + AmountPerVendor;
-                OpenPayments := false;
-            end;
+        end;
+        // select open and due entries
+        VendLedgEntry.SetRange(Positive, false);
+        VendLedgEntry.SetRange("Due Date", 0D, DueDate);
+        VendLedgEntry.SetRange("On Hold", '');
+        VendLedgEntry.SetRange("Applies-to ID", '');
+        if VendLedgEntry.FindSet() then
+            repeat
+                SetPaymJnlLine();
+            until VendLedgEntry.Next() = 0;
+        // select open with payment discount
+        if IncPmtDiscount then begin
+            VendLedgEntry.SetRange(Positive, false);
+            VendLedgEntry.SetRange("Due Date", CalcDate('<+1D>', DueDate), 99991231D);
+            VendLedgEntry.SetRange("Pmt. Discount Date", PmtDiscDueDate, DueDate);
+            VendLedgEntry.SetFilter("Remaining Pmt. Disc. Possible", '<0');
+            VendLedgEntry.SetRange("On Hold", '');
+            VendLedgEntry.SetRange("Applies-to ID", '');
+            if VendLedgEntry.FindSet() then
+                repeat
+                    SetPaymJnlLine();
+                until VendLedgEntry.Next() = 0;
+        end;
+        // cleanup if nothing to pay for this vendor (e.g. Credit memo's > Invoices)
+        if AmountPerVendor <= 0 then begin
+            PaymJnlLine3.Reset();
+            PaymJnlLine3.SetCurrentKey("Account Type", "Account No.");
+            PaymJnlLine3.SetRange("Journal Template Name", PaymJnlTemplate.Name);
+            PaymJnlLine3.SetRange("Journal Batch Name", PaymJnlBatch.Name);
+            PaymJnlLine3.SetRange("Account Type", PaymJnlLine3."Account Type"::Vendor);
+            PaymJnlLine3.SetRange("Account No.", Vend."No.");
+            PaymJnlLine3.SetRange(Status, PaymJnlLine3.Status::Created);
+            PaymJnlLine3.DeleteAll(true);
+            // reset maximum amount
+            MaximumAmount := MaximumAmount + AmountPerVendor;
+            OpenPayments := false;
         end;
     end;
 
@@ -278,64 +272,59 @@ report 2000019 "Suggest Vendor Payments EB"
         OnBeforeSetPaymJnlLine(VendLedgEntry, IsHandled);
         if IsHandled then
             exit;
-
-        with PaymJnlLine do begin
-            // if the invoice already is attached to an unposted Payment Line, we skip it
-            PaymJnlLine2.Reset();
-            PaymJnlLine2.SetCurrentKey("Account Type", "Account No.");
-            PaymJnlLine2.SetRange("Account Type", PaymJnlLine2."Account Type"::Vendor);
-            PaymJnlLine2.SetRange("Account No.", VendLedgEntry."Vendor No.");
-            PaymJnlLine2.SetRange("Applies-to Doc. Type", VendLedgEntry."Document Type");
-            PaymJnlLine2.SetRange("Applies-to Doc. No.", VendLedgEntry."Document No.");
-            PaymJnlLine2.SetFilter(Status, '<>%1', PaymJnlLine2.Status::Posted);
-            if not PaymJnlLine2.FindFirst() then begin
-                Init();
-                "Journal Template Name" := PaymJnlTemplate.Name;
-                "Journal Batch Name" := PaymJnlBatch.Name;
-                "Line No." := "Line No." + 10000;
-
-                // bank account: we could add our preferred bank account to a vendor
-                Validate("Bank Account", PaymJnlTemplate."Bank Account");
-                "Posting Date" := PostingDate;
-                Validate("Account No.", VendLedgEntry."Vendor No.");
-                Validate("Pmt. Discount Date", PmtDiscDueDate);
-                Processing := true;
-                "Account Type" := "Account Type"::Vendor;
-                "Applies-to Doc. Type" := VendLedgEntry."Document Type";
-                "Payment Method Code" := Vend."Payment Method Code";
-                Validate("Applies-to Doc. No.", VendLedgEntry."Document No.");
-                "Source Code" := PaymJnlTemplate."Source Code";
-                "Reason Code" := PaymJnlBatch."Reason Code";
-
-                // adjust maximum amount
-                if UsePriority then
-                    if MaximumAmount >= "Amount (LCY)" then
-                        MaximumAmount := MaximumAmount - "Amount (LCY)"
-                    else
-                        exit;
-                // adjust amount per vendor
-                AmountPerVendor := AmountPerVendor + "Amount (LCY)";
-                if "Amount (LCY)" <> 0 then begin
-                    CreateDim(
-                      DimMgt.TypeToTableID2000001("Account Type"), "Account No.",
-                      DATABASE::"Bank Account", "Bank Account",
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
-                    if "Dimension Set ID" <> VendLedgEntry."Dimension Set ID" then begin
-                        DimSetIDArr[1] := "Dimension Set ID";
-                        DimSetIDArr[2] := VendLedgEntry."Dimension Set ID";
-                        "Dimension Set ID" :=
-                            DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-                    end;
-                    OnSetPaymJnlLineOnBeforePaymJnlLineInsert(PaymJnlLine, VendLedgEntry);
-                    Insert();
+        // if the invoice already is attached to an unposted Payment Line, we skip it
+        PaymJnlLine2.Reset();
+        PaymJnlLine2.SetCurrentKey("Account Type", "Account No.");
+        PaymJnlLine2.SetRange("Account Type", PaymJnlLine2."Account Type"::Vendor);
+        PaymJnlLine2.SetRange("Account No.", VendLedgEntry."Vendor No.");
+        PaymJnlLine2.SetRange("Applies-to Doc. Type", VendLedgEntry."Document Type");
+        PaymJnlLine2.SetRange("Applies-to Doc. No.", VendLedgEntry."Document No.");
+        PaymJnlLine2.SetFilter(Status, '<>%1', PaymJnlLine2.Status::Posted);
+        if not PaymJnlLine2.FindFirst() then begin
+            PaymJnlLine.Init();
+            PaymJnlLine."Journal Template Name" := PaymJnlTemplate.Name;
+            PaymJnlLine."Journal Batch Name" := PaymJnlBatch.Name;
+            PaymJnlLine."Line No." := PaymJnlLine."Line No." + 10000;
+            // bank account: we could add our preferred bank account to a vendor
+            PaymJnlLine.Validate("Bank Account", PaymJnlTemplate."Bank Account");
+            PaymJnlLine."Posting Date" := PostingDate;
+            PaymJnlLine.Validate("Account No.", VendLedgEntry."Vendor No.");
+            PaymJnlLine.Validate("Pmt. Discount Date", PmtDiscDueDate);
+            PaymJnlLine.Processing := true;
+            PaymJnlLine."Account Type" := PaymJnlLine."Account Type"::Vendor;
+            PaymJnlLine."Applies-to Doc. Type" := VendLedgEntry."Document Type";
+            PaymJnlLine."Payment Method Code" := Vend."Payment Method Code";
+            PaymJnlLine.Validate("Applies-to Doc. No.", VendLedgEntry."Document No.");
+            PaymJnlLine."Source Code" := PaymJnlTemplate."Source Code";
+            PaymJnlLine."Reason Code" := PaymJnlBatch."Reason Code";
+            // adjust maximum amount
+            if UsePriority then
+                if MaximumAmount >= PaymJnlLine."Amount (LCY)" then
+                    MaximumAmount := MaximumAmount - PaymJnlLine."Amount (LCY)"
+                else
+                    exit;
+            // adjust amount per vendor
+            AmountPerVendor := AmountPerVendor + PaymJnlLine."Amount (LCY)";
+            if PaymJnlLine."Amount (LCY)" <> 0 then begin
+                PaymJnlLine.CreateDim(
+                  PaymJnlLine.TypeToTableID2000001(PaymJnlLine."Account Type"), PaymJnlLine."Account No.",
+                  DATABASE::"Bank Account", PaymJnlLine."Bank Account",
+                  DATABASE::"Salesperson/Purchaser", PaymJnlLine."Salespers./Purch. Code");
+                if PaymJnlLine."Dimension Set ID" <> VendLedgEntry."Dimension Set ID" then begin
+                    DimSetIDArr[1] := PaymJnlLine."Dimension Set ID";
+                    DimSetIDArr[2] := VendLedgEntry."Dimension Set ID";
+                    PaymJnlLine."Dimension Set ID" :=
+                        DimMgt.GetCombinedDimensionSetID(DimSetIDArr, PaymJnlLine."Shortcut Dimension 1 Code", PaymJnlLine."Shortcut Dimension 2 Code");
                 end;
-            end else begin
-                if OpenPayments = false then
-                    PaymJnlLine4 := PaymJnlLine2;
-                OpenPayments := true;
-
-                AmountPerVendor := AmountPerVendor + PaymJnlLine2."Amount (LCY)";
+                OnSetPaymJnlLineOnBeforePaymJnlLineInsert(PaymJnlLine, VendLedgEntry);
+                PaymJnlLine.Insert();
             end;
+        end else begin
+            if OpenPayments = false then
+                PaymJnlLine4 := PaymJnlLine2;
+            OpenPayments := true;
+
+            AmountPerVendor := AmountPerVendor + PaymJnlLine2."Amount (LCY)";
         end;
     end;
 

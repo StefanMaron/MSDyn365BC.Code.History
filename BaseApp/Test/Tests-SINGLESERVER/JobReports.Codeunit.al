@@ -46,7 +46,7 @@ codeunit 136906 "Job Reports"
         LibraryService.SetupServiceMgtNoSeries();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        UpdateJobPostingGroup;
+        UpdateJobPostingGroup();
 
         SetJobNoSeries(JobsSetup, NoSeries);
 
@@ -76,11 +76,11 @@ codeunit 136906 "Job Reports"
         RunJobWIPToGL(Job);
 
         // 3. Verify: Verify blank WIP Amount.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         JobPostingGroup.Get(Job."Job Posting Group");
         LibraryReportDataset.SetRange(GLAccountCap, JobPostingGroup."Job Costs Applied Account");
         Assert.IsFalse(
-          LibraryReportDataset.GetNextRow, StrSubstNo('No records exist for account:%1', JobPostingGroup."Job Costs Applied Account"));
+          LibraryReportDataset.GetNextRow(), StrSubstNo('No records exist for account:%1', JobPostingGroup."Job Costs Applied Account"));
     end;
 
     [Test]
@@ -114,7 +114,6 @@ codeunit 136906 "Job Reports"
     procedure JobWIPToGLSaveToExcel()
     var
         Job: Record Job;
-        JobWipGLEntry: Record "Job WIP G/L Entry";
     begin
         // [SCENARIO 332702] Run report "Job WIP To G/L" with saving results to Excel file.
         Initialize();
@@ -137,7 +136,7 @@ codeunit 136906 "Job Reports"
 
     local procedure CreateAndPostJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; JobPlanningLine: Record "Job Planning Line")
     begin
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeContract, LibraryJob.ResourceType, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeContract(), LibraryJob.ResourceType(), JobTask, JobJournalLine);
         JobJournalLine.Validate("No.", JobPlanningLine."No.");
         JobJournalLine.Validate(Quantity, JobPlanningLine.Quantity / 2);  // Use partial Quantity.
         JobJournalLine.Validate("Unit Cost", JobPlanningLine."Unit Cost");
@@ -165,14 +164,14 @@ codeunit 136906 "Job Reports"
     local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task")
     begin
         // Use Random values for Quantity and Unit Cost because values are not important.
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, JobTask, JobPlanningLine);
-        JobPlanningLine.Validate("No.", LibraryResource.CreateResourceNo);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ResourceType(), JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", LibraryResource.CreateResourceNo());
         JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(100));
         JobPlanningLine.Validate("Unit Cost", LibraryRandom.RandInt(100));
         JobPlanningLine.Modify(true);
     end;
 
-    local procedure CreateJobTask(var JobTask: Record "Job Task"; Job: Record Job; JobTaskType: Option; WIPTotal: Option)
+    local procedure CreateJobTask(var JobTask: Record "Job Task"; Job: Record Job; JobTaskType: Enum "Job Task Type"; WIPTotal: Option)
     begin
         LibraryJob.CreateJobTask(Job, JobTask);
         JobTask.Validate("Job Task Type", JobTaskType);
@@ -180,7 +179,7 @@ codeunit 136906 "Job Reports"
         JobTask.Modify(true);
     end;
 
-    local procedure CreateJobWIPMethod(var JobWIPMethod: Record "Job WIP Method"; RecognizedCosts: Option; RecognizedSales: Option)
+    local procedure CreateJobWIPMethod(var JobWIPMethod: Record "Job WIP Method"; RecognizedCosts: Enum "Job WIP Recognized Costs Type"; RecognizedSales: Enum "Job WIP Recognized Sales Type")
     begin
         LibraryJob.CreateJobWIPMethod(JobWIPMethod);
         JobWIPMethod.Validate("Recognized Costs", RecognizedCosts);
@@ -262,7 +261,7 @@ codeunit 136906 "Job Reports"
         JobCalculateWIP.SetTableView(Job);
 
         // Use Document No. as Job No. because value is not important.
-        JobCalculateWIP.InitializeRequest;
+        JobCalculateWIP.InitializeRequest();
         JobCalculateWIP.UseRequestPage(false);
         JobCalculateWIP.Run();
     end;
@@ -294,8 +293,8 @@ codeunit 136906 "Job Reports"
     begin
         if JobPostingGroup.FindSet() then
             repeat
-                JobPostingGroup.Validate("WIP Costs Account", LibraryERM.CreateGLAccountNo);
-                JobPostingGroup.Validate("Job Costs Applied Account", LibraryERM.CreateGLAccountNo);
+                JobPostingGroup.Validate("WIP Costs Account", LibraryERM.CreateGLAccountNo());
+                JobPostingGroup.Validate("Job Costs Applied Account", LibraryERM.CreateGLAccountNo());
                 JobPostingGroup.Modify(true);
             until JobPostingGroup.Next() = 0;
     end;
@@ -305,9 +304,9 @@ codeunit 136906 "Job Reports"
         JobPostingGroup: Record "Job Posting Group";
     begin
         JobPostingGroup.Get(Code);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(GLAccountCap, JobPostingGroup."Job Costs Applied Account");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, JobPostingGroup.FieldCaption("Job Costs Applied Account"));
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), JobPostingGroup.FieldCaption("Job Costs Applied Account"));
         LibraryReportDataset.AssertCurrentRowValueEquals(WIPAmountCap, TotalCost);
     end;
 
@@ -324,7 +323,7 @@ codeunit 136906 "Job Reports"
         LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
         JobPostWIPToGL.JnlTemplateName.SetValue(TemplateName);
         JobPostWIPToGL.JnlBatchName.SetValue(BatchName);
-        JobPostWIPToGL.OK.Invoke;
+        JobPostWIPToGL.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -337,7 +336,7 @@ codeunit 136906 "Job Reports"
     [Scope('OnPrem')]
     procedure JobWIPToGLRequestPageHandler(var JobWIPtoGLRequestPage: TestRequestPage "Job WIP To G/L")
     begin
-        JobWIPtoGLRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobWIPtoGLRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -351,7 +350,7 @@ codeunit 136906 "Job Reports"
     [Scope('OnPrem')]
     procedure ConfirmHandlerMultipleResponses(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

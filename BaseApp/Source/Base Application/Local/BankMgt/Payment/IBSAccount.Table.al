@@ -11,6 +11,7 @@ table 2000012 "IBS Account"
     ObsoleteState = Removed;
     ObsoleteTag = '19.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

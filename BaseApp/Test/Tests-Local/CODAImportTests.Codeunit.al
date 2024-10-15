@@ -47,10 +47,10 @@ codeunit 144015 "CODA Import Tests"
 
         Commit();
 
-        BankAccountPage.OpenView;
+        BankAccountPage.OpenView();
         BankAccountPage.FILTER.SetFilter("No.", 'NBL');
-        BankAccountPage."No.".Activate;
-        DeleteAllCODALines;
+        BankAccountPage."No.".Activate();
+        DeleteAllCODALines();
 
         LibraryCODADataProvider.InsertSampleCODAStatement(CODAStatement, 'NBL');
 
@@ -65,13 +65,13 @@ codeunit 144015 "CODA Import Tests"
         Commit();
 
         // Process CODA Statement Lines
-        CODAStatementListPage.OpenView;
-        CODAStatementListPage.First;
-        CODAStatementPage.Trap;
+        CODAStatementListPage.OpenView();
+        CODAStatementListPage.First();
+        CODAStatementPage.Trap();
 
-        CODAStatementListPage.View.Invoke;
+        CODAStatementListPage.View().Invoke();
 
-        CODAStatementPage."Process CODA Statement Lines".Invoke;
+        CODAStatementPage."Process CODA Statement Lines".Invoke();
 
         CODAStatementPage.Close();
 
@@ -101,7 +101,7 @@ codeunit 144015 "CODA Import Tests"
         UpdateElectronicBanking(true);
 
         // [GIVEN] CODA Statement with single line where Statement Amount = "X", Unapplied Amount = "X" and Amount = 0
-        DeleteAllCODALines;
+        DeleteAllCODALines();
         ImportCODAStatement.SetBankAcc(BankAccount);
         ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.ImportMultipleStatementsToCODAstatementDataFiles(1));
         ImportCODAStatement.Run();
@@ -110,24 +110,24 @@ codeunit 144015 "CODA Import Tests"
 
         Assert.AreEqual(1, CODAStatement.Count, 'Line count failed');
 
-        CODAStatementListPage.OpenView;
-        CODAStatementListPage.First;
+        CODAStatementListPage.OpenView();
+        CODAStatementListPage.First();
 
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false); // Default application
         LibraryVariableStorage.Enqueue(false); // Dont print
-        CODAStatementPage.Trap;
-        CODAStatementListPage.View.Invoke;
+        CODAStatementPage.Trap();
+        CODAStatementListPage.View().Invoke();
 
         // [GIVEN] Processed CODA Statement content
-        CODAStatementPage."Process CODA Statement Lines".Invoke; // Process CODA Statement lines
+        CODAStatementPage."Process CODA Statement Lines".Invoke(); // Process CODA Statement lines
 
         // [WHEN] Transfer amounts to general ledger
-        CODAStatementPage."Transfer to General Ledger".Invoke; // Transfer to general ledger
+        CODAStatementPage."Transfer to General Ledger".Invoke(); // Transfer to general ledger
         CODAStatementPage.Close();
 
         // [THEN] General journal line created with Amount = "X"
-        FinancialJournalPage.OpenEdit;
+        FinancialJournalPage.OpenEdit();
         Assert.AreEqual('KBC', FinancialJournalPage."Bal. Account No.".Value, 'Balance Account No');
         Assert.AreEqual('Vendor', FinancialJournalPage."Account Type".Value, 'Account Type');
         Assert.AreEqual(Format(1352.48), FinancialJournalPage.Amount.Value, 'Amount');
@@ -156,7 +156,7 @@ codeunit 144015 "CODA Import Tests"
 
         UpdateVendorBankAccount('50000', 'Test', '467538877123', false);
 
-        DeleteAllCODALines;
+        DeleteAllCODALines();
         // Run the processing only report with the two data files.
         ImportCODAStatement.SetBankAcc(BankAccount);
         ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.ImportMultipleStatementsToCODAstatementDataFiles(1));
@@ -260,22 +260,22 @@ codeunit 144015 "CODA Import Tests"
           'CODAStatementLine."Unapplied Amount"');
 
         // Process the data.
-        CODAStatementListPage.Trap;
-        BankAccountPage.OpenView;
+        CODAStatementListPage.Trap();
+        BankAccountPage.OpenView();
         BankAccountPage.FILTER.SetFilter("No.", BankAccount."No.");
-        BankAccountPage."No.".Activate;
-        BankAccountPage."CODA S&tatements".Invoke;
-        CODAStatementListPage.First;
+        BankAccountPage."No.".Activate();
+        BankAccountPage."CODA S&tatements".Invoke();
+        CODAStatementListPage.First();
 
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false); // Default application
         LibraryVariableStorage.Enqueue(false); // Dont print
-        CODAStatementPage.Trap;
-        CODAStatementListPage.View.Invoke;
+        CODAStatementPage.Trap();
+        CODAStatementListPage.View().Invoke();
 
         // validate the processed CODA Statement content
-        CODAStatementPage."Process CODA Statement Lines".Invoke;
-        CODAStatementPage.StmtLines.First;
+        CODAStatementPage."Process CODA Statement Lines".Invoke();
+        CODAStatementPage.StmtLines.First();
         CODAStatementPage.StmtLines.Next();
         Assert.AreEqual(' ', CODAStatementPage.StmtLines."Application Status".Value, 'Application Status');
         Evaluate(PostingDate, Format(CODAStatementPage.StmtLines."Posting Date"));
@@ -316,22 +316,22 @@ codeunit 144015 "CODA Import Tests"
         Assert.AreEqual(0, CODAStatement.Information, 'Information');
 
         // Process the data.
-        CODAStatementListPage.Trap;
-        BankAccountPage.OpenView;
+        CODAStatementListPage.Trap();
+        BankAccountPage.OpenView();
         BankAccountPage.FILTER.SetFilter("No.", BankAccount."No.");
-        BankAccountPage."No.".Activate;
-        BankAccountPage."CODA S&tatements".Invoke;
-        CODAStatementListPage.First;
+        BankAccountPage."No.".Activate();
+        BankAccountPage."CODA S&tatements".Invoke();
+        CODAStatementListPage.First();
 
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false); // Default application
         LibraryVariableStorage.Enqueue(false); // Dont print
-        CODAStatementPage.Trap;
-        CODAStatementListPage.View.Invoke;
+        CODAStatementPage.Trap();
+        CODAStatementListPage.View().Invoke();
 
         // validate the processed CODA Statement content
-        CODAStatementPage."Process CODA Statement Lines".Invoke;
-        CODAStatementPage.StmtLines.First;
+        CODAStatementPage."Process CODA Statement Lines".Invoke();
+        CODAStatementPage.StmtLines.First();
         CODAStatementPage.StmtLines.Next();
         Assert.AreEqual('Partly applied', CODAStatementPage.StmtLines."Application Status".Value, 'Application Status');
         Evaluate(PostingDate, Format(CODAStatementPage.StmtLines."Posting Date"));
@@ -372,22 +372,22 @@ codeunit 144015 "CODA Import Tests"
         Assert.AreEqual(0, CODAStatement.Information, 'Information');
 
         // Process the data.
-        CODAStatementListPage.Trap;
-        BankAccountPage.OpenView;
+        CODAStatementListPage.Trap();
+        BankAccountPage.OpenView();
         BankAccountPage.FILTER.SetFilter("No.", BankAccount."No.");
-        BankAccountPage."No.".Activate;
-        BankAccountPage."CODA S&tatements".Invoke;
+        BankAccountPage."No.".Activate();
+        BankAccountPage."CODA S&tatements".Invoke();
         CODAStatementListPage.FILTER.SetFilter("Bank Account No.", BankAccount."No.");
 
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false); // Default application
         LibraryVariableStorage.Enqueue(false); // Dont print
-        CODAStatementPage.Trap;
-        CODAStatementListPage.View.Invoke;
+        CODAStatementPage.Trap();
+        CODAStatementListPage.View().Invoke();
 
         // validate the processed CODA Statement content
-        CODAStatementPage."Process CODA Statement Lines".Invoke;
-        CODAStatementPage.StmtLines.First;
+        CODAStatementPage."Process CODA Statement Lines".Invoke();
+        CODAStatementPage.StmtLines.First();
         CODAStatementPage.StmtLines.Next();
         Assert.AreEqual('Partly applied', CODAStatementPage.StmtLines."Application Status".Value, 'Application Status');
         Evaluate(PostingDate, Format(CODAStatementPage.StmtLines."Posting Date"));
@@ -429,22 +429,22 @@ codeunit 144015 "CODA Import Tests"
         Assert.AreEqual(0, CODAStatement.Information, 'Information');
 
         // Process the data.
-        CODAStatementListPage.Trap;
-        BankAccountPage.OpenView;
+        CODAStatementListPage.Trap();
+        BankAccountPage.OpenView();
         BankAccountPage.FILTER.SetFilter("No.", BankAccount."No.");
-        BankAccountPage."No.".Activate;
-        BankAccountPage."CODA S&tatements".Invoke;
+        BankAccountPage."No.".Activate();
+        BankAccountPage."CODA S&tatements".Invoke();
         CODAStatementListPage.FILTER.SetFilter("Bank Account No.", BankAccount."No.");
 
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false); // Default application
         LibraryVariableStorage.Enqueue(false); // Dont print
-        CODAStatementPage.Trap;
-        CODAStatementListPage.View.Invoke;
+        CODAStatementPage.Trap();
+        CODAStatementListPage.View().Invoke();
 
         // validate the processed CODA Statement content
-        CODAStatementPage."Process CODA Statement Lines".Invoke;
-        CODAStatementPage.StmtLines.First;
+        CODAStatementPage."Process CODA Statement Lines".Invoke();
+        CODAStatementPage.StmtLines.First();
         CODAStatementPage.StmtLines.Next();
         Assert.AreEqual('Partly applied', CODAStatementPage.StmtLines."Application Status".Value, 'Application Status');
         Evaluate(PostingDate, Format(CODAStatementPage.StmtLines."Posting Date"));
@@ -484,9 +484,9 @@ codeunit 144015 "CODA Import Tests"
         Commit();
 
         // Run the processing only report with the data file.
-        DeleteAllCODALines;
+        DeleteAllCODALines();
         ImportCODAStatement.SetBankAcc(BankAccount);
-        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.PrintOneOfMultipleCODAStatementsDataFile);
+        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.PrintOneOfMultipleCODAStatementsDataFile());
         ImportCODAStatement.Run();
 
         Commit();
@@ -495,18 +495,18 @@ codeunit 144015 "CODA Import Tests"
         Assert.AreEqual(33, CODAStatement.Count, 'Line count failed');
 
         // Process CODA Statement Lines
-        CODAStatementListPage.OpenView;
-        CODAStatementListPage.First;
-        CODAStatementPage.Trap;
+        CODAStatementListPage.OpenView();
+        CODAStatementListPage.First();
+        CODAStatementPage.Trap();
 
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        CODAStatementListPage.View.Invoke;
+        CODAStatementListPage.View().Invoke();
 
         // TODO : This action exposes a productbug. This test should continue on to
         // validate the processed CODA Statement content
-        asserterror CODAStatementPage."Process CODA Statement Lines".Invoke;
+        asserterror CODAStatementPage."Process CODA Statement Lines".Invoke();
     end;
 
     [Test]
@@ -536,24 +536,24 @@ codeunit 144015 "CODA Import Tests"
         BankAccount.Modify();
 
         // Run the processing only report with the two data files.
-        DeleteAllCODALines;
+        DeleteAllCODALines();
         ImportCODAStatement.SetBankAcc(BankAccount);
-        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.OntVangenCODA20090416DataFile);
+        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.OntVangenCODA20090416DataFile());
         ImportCODAStatement.Run();
 
         Commit();
 
-        CODAStatementListPage.OpenView;
-        CODAStatementListPage.First;
+        CODAStatementListPage.OpenView();
+        CODAStatementListPage.First();
 
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(false); // Default application
         LibraryVariableStorage.Enqueue(false); // Dont print
-        CODAStatementPage.Trap;
-        CODAStatementListPage.View.Invoke;
+        CODAStatementPage.Trap();
+        CODAStatementListPage.View().Invoke();
 
         // validate the processed CODA Statement content
-        CODAStatementPage."Process CODA Statement Lines".Invoke; // Process CODA Statement lines
+        CODAStatementPage."Process CODA Statement Lines".Invoke(); // Process CODA Statement lines
     end;
 
     [Test]
@@ -589,11 +589,11 @@ codeunit 144015 "CODA Import Tests"
         ReplaceTransactionCodingScenario373926(TempTransactionCoding);
 
         // [GIVEN] Import CODA statement from file
-        DeleteAllCODALines;
+        DeleteAllCODALines();
         ImportCODAStatement.SetBankAcc(BankAccount);
-        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.OntVangenCODAScenario373926DataFile);
+        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.OntVangenCODAScenario373926DataFile());
         ImportCODAStatement.Run();
-        Commit;
+        Commit();
 
         // [GIVEN] Open the imported CODA statement
         CODAStatement.FindFirst();
@@ -618,7 +618,7 @@ codeunit 144015 "CODA Import Tests"
         VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::"Partly applied", -1.5, 0, -1.5);
         VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::"Indirectly applied", -0.3, 0, -0.3);
         VerifyCODAStatementLine(CODAStatementLine, CODAStatementLine."Application Status"::"Partly applied", -0.3, 0, -0.3);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear down
         RestoreTransactionCoding(TempTransactionCoding);
@@ -644,7 +644,7 @@ codeunit 144015 "CODA Import Tests"
         UpdateBankAccountDetails(BankAccount);
 
         // [THEN] Delete the Existing CODA Statements.
-        DeleteAllCODALines;
+        DeleteAllCODALines();
 
         // [GIVEN] Run the Processing only report to import the sample data files.
         ImportCODAStatement.SetBankAcc(BankAccount);
@@ -711,7 +711,7 @@ codeunit 144015 "CODA Import Tests"
         LibraryVariableStorage.Dequeue(Variant);
         PostCODAStatementLines.PrintReport.SetValue(Variant); // PrintReport
 
-        PostCODAStatementLines.OK.Invoke;
+        PostCODAStatementLines.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -732,7 +732,7 @@ codeunit 144015 "CODA Import Tests"
     procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateListPage: TestPage "General Journal Template List")
     begin
         GeneralJournalTemplateListPage.FILTER.SetFilter(Name, 'KBC');
-        GeneralJournalTemplateListPage.OK.Invoke;
+        GeneralJournalTemplateListPage.OK().Invoke();
     end;
 
     [Normal]
@@ -779,18 +779,18 @@ codeunit 144015 "CODA Import Tests"
     var
         GeneralJournalTemplate: TestPage "General Journal Templates";
     begin
-        GeneralJournalTemplate.OpenView;
+        GeneralJournalTemplate.OpenView();
         if GeneralJournalTemplate.GotoKey(Name) then
-            GeneralJournalTemplate.Edit.Invoke
+            GeneralJournalTemplate.Edit().Invoke()
         else
-            GeneralJournalTemplate.New;
+            GeneralJournalTemplate.New();
 
         GeneralJournalTemplate.Name.SetValue := Name;
         GeneralJournalTemplate.Description.SetValue := Name;
         GeneralJournalTemplate.Type.SetValue := Type;
         GeneralJournalTemplate."Bal. Account Type".SetValue := BalanceAccountType;
         GeneralJournalTemplate."Bal. Account No.".SetValue := Name;
-        GeneralJournalTemplate.OK.Invoke;
+        GeneralJournalTemplate.OK().Invoke();
     end;
 
     [Normal]
@@ -798,11 +798,11 @@ codeunit 144015 "CODA Import Tests"
     var
         CompanyInformation: TestPage "Company Information";
     begin
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation."Country/Region Code".SetValue := 'BE';
         CompanyInformation."VAT Registration No.".SetValue := '';
         CompanyInformation."Enterprise No.".SetValue := InterpriseNo;
-        CompanyInformation.OK.Invoke;
+        CompanyInformation.OK().Invoke();
     end;
 
     [Normal]
@@ -810,9 +810,9 @@ codeunit 144015 "CODA Import Tests"
     var
         ElectronicBankingSetup: TestPage "Electronic Banking Setup";
     begin
-        ElectronicBankingSetup.OpenEdit;
+        ElectronicBankingSetup.OpenEdit();
         ElectronicBankingSetup."Summarize Gen. Jnl. Lines".SetValue := SummarizeGeneralJournal;
-        ElectronicBankingSetup.OK.Invoke;
+        ElectronicBankingSetup.OK().Invoke();
     end;
 
     [Normal]
@@ -836,14 +836,14 @@ codeunit 144015 "CODA Import Tests"
         if UpdatePreferredAccount then begin
             Commit();
 
-            VendorListPage.OpenView;
+            VendorListPage.OpenView();
             VendorListPage.FILTER.SetFilter("No.", VendorNo);
-            VendorListPage.First;
+            VendorListPage.First();
 
-            VendorCardPage.Trap;
-            VendorListPage.Edit.Invoke;
+            VendorCardPage.Trap();
+            VendorListPage.Edit().Invoke();
             VendorCardPage."Preferred Bank Account Code".SetValue(Code);
-            VendorCardPage.OK.Invoke;
+            VendorCardPage.OK().Invoke();
         end;
     end;
 
@@ -873,7 +873,7 @@ codeunit 144015 "CODA Import Tests"
         TransactionCoding.FindSet();
         repeat
             TempTransactionCoding := TransactionCoding;
-            TempTransactionCoding.Insert;
+            TempTransactionCoding.Insert();
         until TransactionCoding.Next() = 0;
         TransactionCoding.DeleteAll();
         InsertTransactionCoding(1, 1, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::Vendor, '');
@@ -913,7 +913,7 @@ codeunit 144015 "CODA Import Tests"
         TempTransactionCoding.FindSet();
         repeat
             TransactionCoding := TempTransactionCoding;
-            TransactionCoding.Insert;
+            TransactionCoding.Insert();
         until TempTransactionCoding.Next() = 0;
     end;
 
@@ -928,7 +928,7 @@ codeunit 144015 "CODA Import Tests"
         TransactionCoding."Globalisation Code" := GlobalisationCode;
         TransactionCoding."Account Type" := AccountType;
         TransactionCoding."Account No." := AccountNo;
-        TransactionCoding.Insert;
+        TransactionCoding.Insert();
     end;
 
     local procedure VerifyCODAStatementLine(var CODAStatementLine: Record "CODA Statement Line"; ApplicationStatus: Option; UnappliedAmount: Decimal; Amount: Decimal; StatementAmount: Decimal)
@@ -976,9 +976,9 @@ codeunit 144015 "CODA Import Tests"
         Commit();
 
         // Run the processing only report with the data file.
-        DeleteAllCODALines;
+        DeleteAllCODALines();
         ImportCODAStatement.SetBankAcc(BankAccount);
-        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.ImportAccountTypeTestDataFile);
+        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.ImportAccountTypeTestDataFile());
         ImportCODAStatement.Run();
 
         Commit();
@@ -1030,7 +1030,7 @@ codeunit 144015 "CODA Import Tests"
     [Scope('OnPrem')]
     procedure CODAStatementLineRequestPageHandler(var CODAStatementList: TestRequestPage "CODA Statement - List")
     begin
-        CODAStatementList.Cancel.Invoke();
+        CODAStatementList.Cancel().Invoke();
     end;
 }
 

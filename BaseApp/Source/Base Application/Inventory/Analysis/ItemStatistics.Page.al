@@ -290,16 +290,14 @@ page 5827 "Item Statistics"
     begin
         GLSetup.Get();
 
-        with Item do begin
-            if "No." <> '' then
-                ItemFilter := "No.";
-            if GetFilter("Date Filter") <> '' then
-                DateFilter := GetFilter("Date Filter");
-            if GetFilter("Variant Filter") <> '' then
-                VariantFilter := GetFilter("Variant Filter");
-            if GetFilter("Location Filter") <> '' then
-                LocationFilter := GetFilter("Location Filter");
-        end;
+        if Item."No." <> '' then
+            ItemFilter := Item."No.";
+        if Item.GetFilter("Date Filter") <> '' then
+            DateFilter := Item.GetFilter(Item."Date Filter");
+        if Item.GetFilter("Variant Filter") <> '' then
+            VariantFilter := Item.GetFilter(Item."Variant Filter");
+        if Item.GetFilter("Location Filter") <> '' then
+            LocationFilter := Item.GetFilter(Item."Location Filter");
 
         if ColumnDimCode = '' then
             ColumnDimCode := Text002;
@@ -456,85 +454,76 @@ page 5827 "Item Statistics"
 
     local procedure CopyDimValueToBuf(var TheDimValue: Record "Integer"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with ItemBuffer do
-            case "Line Option" of
-                "Line Option"::"Profit Calculation":
-                    case TheDimValue.Number of
-                        1:
-                            InsertRow('1', FieldCaption("Sales (LCY)"), 0, false, TheDimCodeBuf);
-                        2:
-                            InsertRow('2', FieldCaption("COGS (LCY)"), 0, false, TheDimCodeBuf);
-                        3:
-                            InsertRow('3', FieldCaption("Non-Invtbl. Costs (LCY)"), 0, false, TheDimCodeBuf);
-                        4:
-                            InsertRow('4', FieldCaption("Profit (LCY)"), 0, false, TheDimCodeBuf);
-                        5:
-                            InsertRow('5', FieldCaption("Profit %"), 0, false, TheDimCodeBuf);
-                    end;
-                "Line Option"::"Cost Specification":
-                    case TheDimValue.Number of
-                        1:
-                            InsertRow('1', FieldCaption("Inventoriable Costs"), 0, true, TheDimCodeBuf);
-                        2:
-                            InsertRow('2', FieldCaption("Direct Cost (LCY)"), 1, false, TheDimCodeBuf);
-                        3:
-                            InsertRow('3', FieldCaption("Revaluation (LCY)"), 1, false, TheDimCodeBuf);
-                        4:
-                            InsertRow('4', FieldCaption("Rounding (LCY)"), 1, false, TheDimCodeBuf);
-                        5:
-                            InsertRow('5', FieldCaption("Indirect Cost (LCY)"), 1, false, TheDimCodeBuf);
-                        6:
-                            InsertRow('6', FieldCaption("Variance (LCY)"), 1, false, TheDimCodeBuf);
-                        7:
-                            InsertRow('7', FieldCaption("Inventoriable Costs, Total"), 0, true, TheDimCodeBuf);
-                        8:
-                            InsertRow('8', FieldCaption("COGS (LCY)"), 0, true, TheDimCodeBuf);
-                        9:
-                            InsertRow('9', FieldCaption("Inventory (LCY)"), 0, true, TheDimCodeBuf);
-                    end;
-            end;
+        case ItemBuffer."Line Option" of
+            ItemBuffer."Line Option"::"Profit Calculation":
+                case TheDimValue.Number of
+                    1:
+                        InsertRow('1', ItemBuffer.FieldCaption("Sales (LCY)"), 0, false, TheDimCodeBuf);
+                    2:
+                        InsertRow('2', ItemBuffer.FieldCaption("COGS (LCY)"), 0, false, TheDimCodeBuf);
+                    3:
+                        InsertRow('3', ItemBuffer.FieldCaption("Non-Invtbl. Costs (LCY)"), 0, false, TheDimCodeBuf);
+                    4:
+                        InsertRow('4', ItemBuffer.FieldCaption("Profit (LCY)"), 0, false, TheDimCodeBuf);
+                    5:
+                        InsertRow('5', ItemBuffer.FieldCaption("Profit %"), 0, false, TheDimCodeBuf);
+                end;
+            ItemBuffer."Line Option"::"Cost Specification":
+                case TheDimValue.Number of
+                    1:
+                        InsertRow('1', ItemBuffer.FieldCaption("Inventoriable Costs"), 0, true, TheDimCodeBuf);
+                    2:
+                        InsertRow('2', ItemBuffer.FieldCaption("Direct Cost (LCY)"), 1, false, TheDimCodeBuf);
+                    3:
+                        InsertRow('3', ItemBuffer.FieldCaption("Revaluation (LCY)"), 1, false, TheDimCodeBuf);
+                    4:
+                        InsertRow('4', ItemBuffer.FieldCaption("Rounding (LCY)"), 1, false, TheDimCodeBuf);
+                    5:
+                        InsertRow('5', ItemBuffer.FieldCaption("Indirect Cost (LCY)"), 1, false, TheDimCodeBuf);
+                    6:
+                        InsertRow('6', ItemBuffer.FieldCaption("Variance (LCY)"), 1, false, TheDimCodeBuf);
+                    7:
+                        InsertRow('7', ItemBuffer.FieldCaption("Inventoriable Costs, Total"), 0, true, TheDimCodeBuf);
+                    8:
+                        InsertRow('8', ItemBuffer.FieldCaption("COGS (LCY)"), 0, true, TheDimCodeBuf);
+                    9:
+                        InsertRow('9', ItemBuffer.FieldCaption("Inventory (LCY)"), 0, true, TheDimCodeBuf);
+                end;
+        end;
         OnAfterCopyDimValueToBuf(ItemBuffer, TheDimValue, TheDimCodeBuf);
     end;
 
     local procedure CopyAddChargesToBuf(var TheItemCharge: Record "Item Charge"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheItemCharge."No.";
-            Name := CopyStr(
-                StrSubstNo('%1 %2', TheItemCharge."No.", TheItemCharge.Description), 1, 50);
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheItemCharge."No.";
+        TheDimCodeBuf.Name := CopyStr(
+            StrSubstNo('%1 %2', TheItemCharge."No.", TheItemCharge.Description), 1, 50);
     end;
 
     local procedure CopyLocationToBuf(var TheLocation: Record Location; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheLocation.Code;
-            Name := TheLocation.Name;
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheLocation.Code;
+        TheDimCodeBuf.Name := TheLocation.Name;
     end;
 
     local procedure CopyPeriodToBuf(var ThePeriod: Record Date; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := Format(ThePeriod."Period Start");
-            "Period Start" := ThePeriod."Period Start";
-            "Period End" := ThePeriod."Period End";
-            Name := ThePeriod."Period Name";
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := Format(ThePeriod."Period Start");
+        TheDimCodeBuf."Period Start" := ThePeriod."Period Start";
+        TheDimCodeBuf."Period End" := ThePeriod."Period End";
+        TheDimCodeBuf.Name := ThePeriod."Period Name";
     end;
 
     local procedure InsertRow(Code1: Code[10]; Name1: Text[80]; Indentation1: Integer; Bold1: Boolean; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := Code1;
-            Name := CopyStr(Name1, 1, MaxStrLen(Name));
-            Indentation := Indentation1;
-            "Show in Bold" := Bold1;
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := Code1;
+        TheDimCodeBuf.Name := CopyStr(Name1, 1, MaxStrLen(TheDimCodeBuf.Name));
+        TheDimCodeBuf.Indentation := Indentation1;
+        TheDimCodeBuf."Show in Bold" := Bold1;
     end;
 
     local procedure FindPeriod(SearchText: Code[10])
@@ -551,13 +540,12 @@ page 5827 "Item Statistics"
 
         PeriodPageMgt.FindDate(SearchText, Calendar, PeriodType);
 
-        with ItemBuffer do
-            if AmountType = AmountType::"Net Change" then begin
-                SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
-                if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
-                    SetRange("Date Filter", GetRangeMin("Date Filter"));
-            end else
-                SetRange("Date Filter", 0D, Calendar."Period End");
+        if AmountType = AmountType::"Net Change" then begin
+            ItemBuffer.SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
+            if ItemBuffer.GetRangeMin("Date Filter") = ItemBuffer.GetRangeMax(ItemBuffer."Date Filter") then
+                ItemBuffer.SetRange("Date Filter", ItemBuffer.GetRangeMin(ItemBuffer."Date Filter"));
+        end else
+            ItemBuffer.SetRange("Date Filter", 0D, Calendar."Period End");
 
         InternalDateFilter := ItemBuffer.GetFilter("Date Filter");
     end;
@@ -589,18 +577,16 @@ page 5827 "Item Statistics"
             ColumnDimCode := '';
         end;
 
-        with ItemBuffer do begin
-            "Column Option" := DimCodeToOption(ColumnDimCode);
-            InternalDateFilter := GetFilter("Date Filter");
-            if ("Line Option" <> "Line Option"::Period)
-               and ("Column Option" <> "Column Option"::Period)
-            then begin
-                DateFilter := InternalDateFilter;
-                if StrPos(DateFilter, '&') > 1 then
-                    DateFilter := CopyStr(DateFilter, 1, StrPos(DateFilter, '&') - 1);
-            end else
-                PeriodInitialized := false;
-        end;
+        ItemBuffer."Column Option" := DimCodeToOption(ColumnDimCode);
+        InternalDateFilter := ItemBuffer.GetFilter("Date Filter");
+        if (ItemBuffer."Line Option" <> ItemBuffer."Line Option"::Period)
+           and (ItemBuffer."Column Option" <> ItemBuffer."Column Option"::Period)
+        then begin
+            DateFilter := InternalDateFilter;
+            if StrPos(DateFilter, '&') > 1 then
+                DateFilter := CopyStr(DateFilter, 1, StrPos(DateFilter, '&') - 1);
+        end else
+            PeriodInitialized := false;
     end;
 
     procedure SetItem(var NewItem: Record Item)

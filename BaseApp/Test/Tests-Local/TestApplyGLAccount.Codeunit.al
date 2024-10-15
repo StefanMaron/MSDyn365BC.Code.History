@@ -1,10 +1,14 @@
 #if not CLEAN22
+#pragma warning disable AS0072
 codeunit 144023 "Test Apply G/L Account"
 {
     // // [FEATURE] [Apply G/L Account]
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -43,7 +47,7 @@ codeunit 144023 "Test Apply G/L Account"
         SetCreditAndDebitConsolidationAccounts(DebitAccountNo, CreditAccountNo);
 
         // Add the credit and debit consolidation accounts
-        AddConsolidationAccounts;
+        AddConsolidationAccounts();
 
         // Create business unit
         CreateBusinessUnit(BusinessUnit);
@@ -151,23 +155,23 @@ codeunit 144023 "Test Apply G/L Account"
 
         GLAccount.SetRange("No.", '580000');
         GLAccount.FindFirst();
-        ChartOfAccountsPage.OpenView;
+        ChartOfAccountsPage.OpenView();
         ChartOfAccountsPage.GotoRecord(GLAccount);
 
-        GeneralLedgerEntriesPage.Trap;
-        ChartOfAccountsPage."Ledger E&ntries".Invoke;
+        GeneralLedgerEntriesPage.Trap();
+        ChartOfAccountsPage."Ledger E&ntries".Invoke();
 
         GLEntry.SetRange("Document No.", SecondLineDocNo);
         GLEntry.FindFirst();
 
         GeneralLedgerEntriesPage.GotoRecord(GLEntry);
-        ApplyGeneralLedgerEntriesPage.Trap;
-        GeneralLedgerEntriesPage."Applied E&ntries".Invoke; // Applied Entries
+        ApplyGeneralLedgerEntriesPage.Trap();
+        GeneralLedgerEntriesPage."Applied E&ntries".Invoke(); // Applied Entries
 
-        ApplyGeneralLedgerEntriesPage."&Undo Application".Invoke;
-        Assert.AreNotEqual(0, ApplyGeneralLedgerEntriesPage."Remaining Amount".AsDEcimal, '');
-        Assert.AreEqual(true, ApplyGeneralLedgerEntriesPage.Open.AsBoolean, '');
-        Assert.AreEqual(0, ApplyGeneralLedgerEntriesPage."Closed by Amount".AsDEcimal, '');
+        ApplyGeneralLedgerEntriesPage."&Undo Application".Invoke();
+        Assert.AreNotEqual(0, ApplyGeneralLedgerEntriesPage."Remaining Amount".AsDecimal(), '');
+        Assert.AreEqual(true, ApplyGeneralLedgerEntriesPage.Open.AsBoolean(), '');
+        Assert.AreEqual(0, ApplyGeneralLedgerEntriesPage."Closed by Amount".AsDecimal(), '');
     end;
 
     [Test]
@@ -189,20 +193,20 @@ codeunit 144023 "Test Apply G/L Account"
         GLAccount.Reset();
         GLAccount.SetRange("No.", '580000');
         GLAccount.FindFirst();
-        ChartOfAccountsPage.OpenView;
+        ChartOfAccountsPage.OpenView();
         ChartOfAccountsPage.GotoRecord(GLAccount);
 
-        GeneralLedgerEntriesPage.Trap;
-        ChartOfAccountsPage."Ledger E&ntries".Invoke;
+        GeneralLedgerEntriesPage.Trap();
+        ChartOfAccountsPage."Ledger E&ntries".Invoke();
 
         GLEntry.SetRange("Document No.", SecondLineDocNo);
         GLEntry.FindFirst();
 
         GeneralLedgerEntriesPage.GotoRecord(GLEntry);
-        ApplyGeneralLedgerEntriesPage.Trap;
-        GeneralLedgerEntriesPage."Applied E&ntries".Invoke; // Applied Entries
+        ApplyGeneralLedgerEntriesPage.Trap();
+        GeneralLedgerEntriesPage."Applied E&ntries".Invoke(); // Applied Entries
 
-        asserterror ApplyGeneralLedgerEntriesPage.SetAppliesToID.Invoke;
+        asserterror ApplyGeneralLedgerEntriesPage.SetAppliesToID.Invoke();
     end;
 
     [Test]
@@ -227,14 +231,14 @@ codeunit 144023 "Test Apply G/L Account"
         // ---------------------------------------------------------------
         GLAccount.SetRange("No.", '510000');
         GLAccount.FindFirst();
-        ChartOfAccountsPage.OpenView;
+        ChartOfAccountsPage.OpenView();
         ChartOfAccountsPage.GotoRecord(GLAccount);
 
-        GeneralLedgerEntriesPage.Trap;
-        ChartOfAccountsPage."Ledger E&ntries".Invoke;
+        GeneralLedgerEntriesPage.Trap();
+        ChartOfAccountsPage."Ledger E&ntries".Invoke();
 
-        ApplyGeneralLedgerEntriesPage.Trap;
-        GeneralLedgerEntriesPage.ApplyEntries.Invoke;
+        ApplyGeneralLedgerEntriesPage.Trap();
+        GeneralLedgerEntriesPage.ApplyEntries.Invoke();
 
         ApplyGeneralLedgerEntriesPage.IncludeEntryFilter.SetValue := 'Open';
 
@@ -244,20 +248,20 @@ codeunit 144023 "Test Apply G/L Account"
         Assert.AreEqual('', ApplyGeneralLedgerEntriesPage."Applies-to ID".Value, 'Applies-to ID field is not empty.');
 
         // Invoke 'Set Applies-to ID' action on the first line
-        ApplyGeneralLedgerEntriesPage.SetAppliesToID.Invoke;
+        ApplyGeneralLedgerEntriesPage.SetAppliesToID.Invoke();
 
         // Verify data on first line
         ApplyGeneralLedgerEntriesPage.FindFirstField("Document No.", FirstLineDocNo);
 
-        NavigatePage.Trap;
-        ApplyGeneralLedgerEntriesPage."&Navigate".Invoke;
-        Assert.AreEqual(2, NavigatePage."No. of Records".AsInteger, '');
+        NavigatePage.Trap();
+        ApplyGeneralLedgerEntriesPage."&Navigate".Invoke();
+        Assert.AreEqual(2, NavigatePage."No. of Records".AsInteger(), '');
         NavigatePage.Close();
 
-        ApplyGeneralLedgerEntriesPage.Dimensions.Invoke;
+        ApplyGeneralLedgerEntriesPage.Dimensions.Invoke();
 
         // Invoke Post
-        asserterror ApplyGeneralLedgerEntriesPage."Post Application".Invoke;
+        asserterror ApplyGeneralLedgerEntriesPage."Post Application".Invoke();
     end;
 
     [Test]
@@ -276,18 +280,18 @@ codeunit 144023 "Test Apply G/L Account"
         // [GIVEN] G/L Entry "GLE" with Amount = 100
         GLAccountNo := LibraryERM.CreateGLAccountNo();
         Amount := MockGLEntry(GLAccountNo);
-        GeneralLedgerEntries.OpenView;
+        GeneralLedgerEntries.OpenView();
         GeneralLedgerEntries.FILTER.SetFilter("G/L Account No.", GLAccountNo);
-        ApplyGeneralLedgerEntries.Trap;
-        GeneralLedgerEntries.ApplyEntries.Invoke;
+        ApplyGeneralLedgerEntries.Trap();
+        GeneralLedgerEntries.ApplyEntries.Invoke();
 
         // [GIVEN] G/L Entry "GLE" has Applied-to ID set on Apply General Ledger Entries page
         // [GIVEN] Amount field is 100, Applied Amount is 0, Balance is 100
-        ApplyGeneralLedgerEntries.SetAppliesToID.Invoke;
+        ApplyGeneralLedgerEntries.SetAppliesToID.Invoke();
         VerifyAppliedAmountAndBalanceOnApplnGLEntriesPage(ApplyGeneralLedgerEntries, Amount, 0, Amount, UserId);
 
         // [WHEN] Invoke Set Applies-to ID for G/L Entry "GLE"
-        ApplyGeneralLedgerEntries.SetAppliesToID.Invoke;
+        ApplyGeneralLedgerEntries.SetAppliesToID.Invoke();
 
         // [THEN] Amount = 0, Applied Amount = 0, Balance = 0 on Apply General Ledger Entries page
         VerifyAppliedAmountAndBalanceOnApplnGLEntriesPage(ApplyGeneralLedgerEntries, 0, 0, 0, '');
@@ -328,14 +332,14 @@ codeunit 144023 "Test Apply G/L Account"
         // ---------------------------------------------------------------
         GLAccount.SetRange("No.", '580000');
         GLAccount.FindFirst();
-        ChartOfAccountsPage.OpenView;
+        ChartOfAccountsPage.OpenView();
         ChartOfAccountsPage.GotoRecord(GLAccount);
 
-        GeneralLedgerEntriesPage.Trap;
-        ChartOfAccountsPage."Ledger E&ntries".Invoke;
+        GeneralLedgerEntriesPage.Trap();
+        ChartOfAccountsPage."Ledger E&ntries".Invoke();
 
-        ApplyGeneralLedgerEntriesPage.Trap;
-        GeneralLedgerEntriesPage.ApplyEntries.Invoke;
+        ApplyGeneralLedgerEntriesPage.Trap();
+        GeneralLedgerEntriesPage.ApplyEntries.Invoke();
 
         ApplyGeneralLedgerEntriesPage.IncludeEntryFilter.SetValue := 'Open';
 
@@ -345,7 +349,7 @@ codeunit 144023 "Test Apply G/L Account"
         Assert.AreEqual('', ApplyGeneralLedgerEntriesPage."Applies-to ID".Value, 'Applies-to ID field is not empty.');
 
         // Invoke 'Set Applies-to ID' action on the first line
-        ApplyGeneralLedgerEntriesPage.SetAppliesToID.Invoke;
+        ApplyGeneralLedgerEntriesPage.SetAppliesToID.Invoke();
 
         // Select second line and verify
         ApplyGeneralLedgerEntriesPage.FindFirstField("Document No.", SecondLineDocNo);
@@ -353,7 +357,7 @@ codeunit 144023 "Test Apply G/L Account"
         Assert.AreEqual('', ApplyGeneralLedgerEntriesPage."Applies-to ID".Value, 'Applies-to ID fieldis not empty.');
 
         // Invoke 'Set Applies-to ID' action on the second line
-        ApplyGeneralLedgerEntriesPage.SetAppliesToID.Invoke;
+        ApplyGeneralLedgerEntriesPage.SetAppliesToID.Invoke();
 
         // Verify data on first line
         ApplyGeneralLedgerEntriesPage.FindFirstField("Document No.", FirstLineDocNo);
@@ -364,10 +368,10 @@ codeunit 144023 "Test Apply G/L Account"
         VerifyAppliedAmountAndBalanceOnApplnGLEntriesPage(ApplyGeneralLedgerEntriesPage, -1000, 1000, 0, UserId);
 
         // Invoke Post
-        ApplyGeneralLedgerEntriesPage."Post Application".Invoke;
+        ApplyGeneralLedgerEntriesPage."Post Application".Invoke();
 
         // ------------------------------------------------------------------------------
-        ApplyGeneralLedgerEntriesPage.First;
+        ApplyGeneralLedgerEntriesPage.First();
         VerifyAppliedAmountAndBalanceOnApplnGLEntriesPage(ApplyGeneralLedgerEntriesPage, 0, 0, 0, '');
     end;
 
@@ -462,7 +466,7 @@ codeunit 144023 "Test Apply G/L Account"
         LibraryVariableStorage.Dequeue(DequeueVar);
         ReqPage.JournalBatchName.SetValue := DequeueVar;       // Journal Batch Name
 
-        ReqPage.OK.Invoke;
+        ReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -494,14 +498,14 @@ codeunit 144023 "Test Apply G/L Account"
         GenJournalTemplate.FindFirst();
 
         GJTemplateListPage.GotoRecord(GenJournalTemplate);
-        GJTemplateListPage.OK.Invoke;
+        GJTemplateListPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DimensionSetEntriesHandler(var DimensionSetEntriesPage: TestPage "Dimension Set Entries")
     begin
-        DimensionSetEntriesPage.OK.Invoke;
+        DimensionSetEntriesPage.OK().Invoke();
     end;
 }
 #endif

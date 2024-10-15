@@ -152,7 +152,7 @@ codeunit 134389 "ERM Customer Statistics"
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, InvoiceNo);
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithUnitPrice, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithUnitPrice(), LibraryRandom.RandDec(10, 2));
 
         // Exercise.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -176,7 +176,7 @@ codeunit 134389 "ERM Customer Statistics"
 
         // Setup.
         Initialize();
-        ItemNo := CreateItemWithUnitPrice;
+        ItemNo := CreateItemWithUnitPrice();
         CreateSalesOrderAndVerifyFactBox(SalesLine.Type::Item, ItemNo, ItemNo);
     end;
 
@@ -296,7 +296,7 @@ codeunit 134389 "ERM Customer Statistics"
         Customer."No." := 'A';
         Customer."Bill-to Customer No." := '';
 
-        Assert.AreEqual(Customer."No.", Customer.GetBillToCustomerNo, WrongBillToCustErr);
+        Assert.AreEqual(Customer."No.", Customer.GetBillToCustomerNo(), WrongBillToCustErr);
     end;
 
     [Test]
@@ -309,7 +309,7 @@ codeunit 134389 "ERM Customer Statistics"
         Customer."No." := 'A';
         Customer."Bill-to Customer No." := 'B';
 
-        Assert.AreEqual(Customer."Bill-to Customer No.", Customer.GetBillToCustomerNo, WrongBillToCustErr);
+        Assert.AreEqual(Customer."Bill-to Customer No.", Customer.GetBillToCustomerNo(), WrongBillToCustErr);
     end;
 
     [Test]
@@ -324,7 +324,7 @@ codeunit 134389 "ERM Customer Statistics"
 
         // [GIVEN] Setup new Customer with Bill-to Customer No.
         CreateCustomerWithBilltoCust(Customer);
-        SalesHistBilltoFactBox.Trap;
+        SalesHistBilltoFactBox.Trap();
 
         // [WHEN] Open Sales Hist. Bill-to FactBox
         PAGE.Run(PAGE::"Sales Hist. Bill-to FactBox", Customer);
@@ -346,7 +346,7 @@ codeunit 134389 "ERM Customer Statistics"
         // [GIVEN] Setup new Customer with Bill-to Customer No.
         CreateCustomerWithBilltoCust(Customer);
 
-        ServiceHistBilltoFactBox.Trap;
+        ServiceHistBilltoFactBox.Trap();
 
         // [WHEN] Open Service Hist. Bill-to FactBox
         PAGE.Run(PAGE::"Service Hist. Bill-to FactBox", Customer);
@@ -368,7 +368,7 @@ codeunit 134389 "ERM Customer Statistics"
         // [GIVEN] Setup new Customer
         LibrarySales.CreateCustomer(Customer);
 
-        ServiceHistSelltoFactBox.Trap;
+        ServiceHistSelltoFactBox.Trap();
 
         // [WHEN] Open Service Hist. Sell-to FactBox
         Customer.SetRecFilter();
@@ -394,15 +394,15 @@ codeunit 134389 "ERM Customer Statistics"
         CreateBasicCustLedgerEntry(CustLedgerEntry, Customer."No.");
 
         // [WHEN] The user drills down on Balance (LCY) field from Customer List
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.GotoRecord(Customer);
-        CustomerLedgerEntries.Trap;
-        CustomerList."Balance (LCY)".DrillDown;
+        CustomerLedgerEntries.Trap();
+        CustomerList."Balance (LCY)".DrillDown();
 
         // [THEN] Customer Ledger Entries window opens, showing the ledger entries for the selected customer
-        CustomerLedgerEntries.First;
-        Assert.AreEqual(CustLedgerEntry."Entry No.", CustomerLedgerEntries."Entry No.".AsInteger, '');
-        Assert.IsFalse(CustomerLedgerEntries.Next, '');
+        CustomerLedgerEntries.First();
+        Assert.AreEqual(CustLedgerEntry."Entry No.", CustomerLedgerEntries."Entry No.".AsInteger(), '');
+        Assert.IsFalse(CustomerLedgerEntries.Next(), '');
         CustomerLedgerEntries.Close();
         CustomerList.Close();
     end;
@@ -423,15 +423,15 @@ codeunit 134389 "ERM Customer Statistics"
         CreateBasicCustLedgerEntry(CustLedgerEntry, Customer."No.");
 
         // [WHEN] The user drills down on Balance (LCY) field from Customer Card
-        CustomerCard.OpenView;
+        CustomerCard.OpenView();
         CustomerCard.GotoRecord(Customer);
-        CustomerLedgerEntries.Trap;
-        CustomerCard."Balance (LCY)".DrillDown;
+        CustomerLedgerEntries.Trap();
+        CustomerCard."Balance (LCY)".DrillDown();
 
         // [THEN] Customer Ledger Entries window opens, showing the ledger entries for the selected customer
-        CustomerLedgerEntries.First;
-        Assert.AreEqual(CustLedgerEntry."Entry No.", CustomerLedgerEntries."Entry No.".AsInteger, '');
-        Assert.IsFalse(CustomerLedgerEntries.Next, '');
+        CustomerLedgerEntries.First();
+        Assert.AreEqual(CustLedgerEntry."Entry No.", CustomerLedgerEntries."Entry No.".AsInteger(), '');
+        Assert.IsFalse(CustomerLedgerEntries.Next(), '');
         CustomerLedgerEntries.Close();
         CustomerCard.Close();
     end;
@@ -455,19 +455,19 @@ codeunit 134389 "ERM Customer Statistics"
         CustLedgerEntry.Modify(true);
 
         // [WHEN] The user drills down on Balance Due (LCY) field from Customer List
-        CustomerList.OpenView;
-        CustomerLedgerEntries.Trap;
+        CustomerList.OpenView();
+        CustomerLedgerEntries.Trap();
         CustomerList.FILTER.SetFilter("Date Filter", Format(CustLedgerEntry."Due Date"));
         CustomerList.GotoRecord(Customer);
-        CustomerList."Balance Due (LCY)".DrillDown;
+        CustomerList."Balance Due (LCY)".DrillDown();
 
         // [THEN] Customer Ledger Entries window opens, Due Date filter = Date Filter from Customer List.
         Assert.AreEqual(CustomerList.FILTER.GetFilter("Date Filter"), CustomerLedgerEntries.FILTER.GetFilter("Due Date"), '');
 
         // [THEN] Customer Ledger Entries window opens, showing the ledger entries for the selected customer
-        CustomerLedgerEntries.First;
-        Assert.AreEqual(CustLedgerEntry."Entry No.", CustomerLedgerEntries."Entry No.".AsInteger, '');
-        Assert.IsFalse(CustomerLedgerEntries.Next, '');
+        CustomerLedgerEntries.First();
+        Assert.AreEqual(CustLedgerEntry."Entry No.", CustomerLedgerEntries."Entry No.".AsInteger(), '');
+        Assert.IsFalse(CustomerLedgerEntries.Next(), '');
         CustomerLedgerEntries.Close();
         CustomerList.Close();
     end;
@@ -491,19 +491,19 @@ codeunit 134389 "ERM Customer Statistics"
         CustLedgerEntry.Modify(true);
 
         // [WHEN] The user drills down on Balance Due (LCY) field from Customer Card
-        CustomerCard.OpenView;
-        CustomerLedgerEntries.Trap;
+        CustomerCard.OpenView();
+        CustomerLedgerEntries.Trap();
         CustomerCard.FILTER.SetFilter("Date Filter", Format(CustLedgerEntry."Due Date"));
         CustomerCard.GotoRecord(Customer);
-        CustomerCard."Balance Due (LCY)".DrillDown;
+        CustomerCard."Balance Due (LCY)".DrillDown();
 
         // [THEN] Customer Ledger Entries window opens, Due Date filter = Date Filter from Customer List.
         Assert.AreEqual(CustomerCard.FILTER.GetFilter("Date Filter"), CustomerLedgerEntries.FILTER.GetFilter("Due Date"), '');
 
         // [THEN] Customer Ledger Entries window opens, showing the ledger entries for the selected customer
-        CustomerLedgerEntries.First;
-        Assert.AreEqual(CustLedgerEntry."Entry No.", CustomerLedgerEntries."Entry No.".AsInteger, '');
-        Assert.IsFalse(CustomerLedgerEntries.Next, '');
+        CustomerLedgerEntries.First();
+        Assert.AreEqual(CustLedgerEntry."Entry No.", CustomerLedgerEntries."Entry No.".AsInteger(), '');
+        Assert.IsFalse(CustomerLedgerEntries.Next(), '');
         CustomerLedgerEntries.Close();
         CustomerCard.Close();
     end;
@@ -525,14 +525,14 @@ codeunit 134389 "ERM Customer Statistics"
         LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Open "Sales Order List" page
-        SalesOrderList.OpenView;
+        SalesOrderList.OpenView();
 
         // [THEN] All fields related to Service Management are not visible
-        asserterror SalesOrderList.Control1902018507."Outstanding Serv. Orders (LCY)".Activate;
+        asserterror SalesOrderList.Control1902018507."Outstanding Serv. Orders (LCY)".Activate();
         Assert.ExpectedError(IsNotFoundOnThePageErr);
-        asserterror SalesOrderList.Control1902018507."Serv Shipped Not Invoiced(LCY)".Activate;
+        asserterror SalesOrderList.Control1902018507."Serv Shipped Not Invoiced(LCY)".Activate();
         Assert.ExpectedError(IsNotFoundOnThePageErr);
-        asserterror SalesOrderList.Control1902018507."Outstanding Serv.Invoices(LCY)".Activate;
+        asserterror SalesOrderList.Control1902018507."Outstanding Serv.Invoices(LCY)".Activate();
         Assert.ExpectedError(IsNotFoundOnThePageErr);
 
         // Tear down
@@ -553,22 +553,22 @@ codeunit 134389 "ERM Customer Statistics"
 
         // [GIVEN] Switch to Software as Service client and enable Full Setup
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [WHEN] Open "Sales Order List" page
-        SalesOrderList.OpenView;
+        SalesOrderList.OpenView();
 
         // [THEN] All fields related to Service Management are visible
         Assert.IsTrue(
-          SalesOrderList.Control1902018507."Outstanding Serv. Orders (LCY)".Visible,
+          SalesOrderList.Control1902018507."Outstanding Serv. Orders (LCY)".Visible(),
           StrSubstNo(FieldIsNotVisibleOnCustStatFactboxErr,
             SalesOrderList.Control1902018507."Outstanding Serv. Orders (LCY)".Caption));
         Assert.IsTrue(
-          SalesOrderList.Control1902018507."Serv Shipped Not Invoiced(LCY)".Visible,
+          SalesOrderList.Control1902018507."Serv Shipped Not Invoiced(LCY)".Visible(),
           StrSubstNo(FieldIsNotVisibleOnCustStatFactboxErr,
             SalesOrderList.Control1902018507."Serv Shipped Not Invoiced(LCY)".Caption));
         Assert.IsTrue(
-          SalesOrderList.Control1902018507."Outstanding Serv.Invoices(LCY)".Visible,
+          SalesOrderList.Control1902018507."Outstanding Serv.Invoices(LCY)".Visible(),
           StrSubstNo(FieldIsNotVisibleOnCustStatFactboxErr,
             SalesOrderList.Control1902018507."Outstanding Serv.Invoices(LCY)".Caption));
 
@@ -592,13 +592,13 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [WHEN] Open "Customer Statistics"
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.FILTER.SetFilter("No.", CustomerNo);
-        CustomerStatistics.Trap;
-        CustomerList.Statistics.Invoke;
+        CustomerStatistics.Trap();
+        CustomerList.Statistics.Invoke();
 
         // [THEN] Page "Customer Statistics" is not editable
-        Assert.IsFalse(CustomerStatistics.Editable, 'Page "Customer Statistics" must be not editable');
+        Assert.IsFalse(CustomerStatistics.Editable(), 'Page "Customer Statistics" must be not editable');
     end;
 
     [Test]
@@ -650,6 +650,8 @@ codeunit 134389 "ERM Customer Statistics"
 
         // [GIVEN] Sales Order with "Outstanding Amount (LCY)" = 100, "Shipped Not Invoiced (LCY)" = 40
         LibrarySales.CreateCustomer(Customer);
+        Commit();  // so background session can see the new customer
+
         SalesOrderOutstandingAmtLCY := LibraryRandom.RandDec(100, 2);
         SalesShippedNotInvoicedLCY := LibraryRandom.RandDec(100, 2);
         MockSalesLine(Customer."No.", SalesLine."Document Type"::Order, SalesOrderOutstandingAmtLCY, SalesShippedNotInvoicedLCY, 0);
@@ -668,26 +670,26 @@ codeunit 134389 "ERM Customer Statistics"
         MockServLine(Customer."No.", ServiceLine."Document Type"::Invoice, ServInvOutstandingAmtLCY, 0);
 
         // [WHEN] Open "Customer Statistics Factbox"
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.GotoRecord(Customer);
 
         // [THEN] Page "Customer Statistics Factbox" has "Outstanding Orders (LCY)" = 100, "Shipped Not Invoiced (LCY)" = 40, "Outstanding Invoices (LCY)" = 60,
         CustomerList.CustomerStatisticsFactBox."Outstanding Orders (LCY)".AssertEquals(SalesOrderOutstandingAmtLCY);
-        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Outstanding Orders (LCY)".HideValue, FieldIsNotHiddenErr);
+        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Outstanding Orders (LCY)".HideValue(), FieldIsNotHiddenErr);
         CustomerList.CustomerStatisticsFactBox."Shipped Not Invoiced (LCY)".AssertEquals(SalesShippedNotInvoicedLCY);
-        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Shipped Not Invoiced (LCY)".HideValue, FieldIsNotHiddenErr);
+        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Shipped Not Invoiced (LCY)".HideValue(), FieldIsNotHiddenErr);
         CustomerList.CustomerStatisticsFactBox."Outstanding Invoices (LCY)".AssertEquals(SalesInvOutstandingAmtLCY);
-        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Outstanding Invoices (LCY)".HideValue, FieldIsNotHiddenErr);
+        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Outstanding Invoices (LCY)".HideValue(), FieldIsNotHiddenErr);
         CustomerList.CustomerStatisticsFactBox."Outstanding Serv. Orders (LCY)".AssertEquals(ServOrderOutstandingAmtLCY);
-        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Outstanding Serv. Orders (LCY)".HideValue, FieldIsNotHiddenErr);
+        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Outstanding Serv. Orders (LCY)".HideValue(), FieldIsNotHiddenErr);
         CustomerList.CustomerStatisticsFactBox."Serv Shipped Not Invoiced(LCY)".AssertEquals(ServShippedNotInvoicedLCY);
-        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Serv Shipped Not Invoiced(LCY)".HideValue, FieldIsNotHiddenErr);
+        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Serv Shipped Not Invoiced(LCY)".HideValue(), FieldIsNotHiddenErr);
         CustomerList.CustomerStatisticsFactBox."Outstanding Serv.Invoices(LCY)".AssertEquals(ServInvOutstandingAmtLCY);
-        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Outstanding Serv.Invoices(LCY)".HideValue, FieldIsNotHiddenErr);
+        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Outstanding Serv.Invoices(LCY)".HideValue(), FieldIsNotHiddenErr);
         CustomerList.CustomerStatisticsFactBox."Total (LCY)".AssertEquals(
           SalesOrderOutstandingAmtLCY + SalesShippedNotInvoicedLCY + SalesInvOutstandingAmtLCY +
           ServOrderOutstandingAmtLCY + ServShippedNotInvoicedLCY + ServInvOutstandingAmtLCY);
-        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Total (LCY)".HideValue, FieldIsNotHiddenErr);
+        Assert.IsFalse(CustomerList.CustomerStatisticsFactBox."Total (LCY)".HideValue(), FieldIsNotHiddenErr);
     end;
 
     [Test]
@@ -774,8 +776,8 @@ codeunit 134389 "ERM Customer Statistics"
         // [WHEN] Calculate Customer's Total Amount and Available Credit
         // [THEN] Customer's Total Amount = -150
         // [THEN] Customer's Available Credit = 250
-        Assert.AreEqual(-ReturnAmountLCY, Customer.GetTotalAmountLCY, '');
-        Assert.AreEqual(CreditLimitLCY + ReturnAmountLCY, Customer.CalcAvailableCredit, '');
+        Assert.AreEqual(-ReturnAmountLCY, Customer.GetTotalAmountLCY(), '');
+        Assert.AreEqual(CreditLimitLCY + ReturnAmountLCY, Customer.CalcAvailableCredit(), '');
     end;
 
     [Test]
@@ -806,7 +808,7 @@ codeunit 134389 "ERM Customer Statistics"
         ReversePayment(Customer."No.", PaymentDate[3]);
 
         // [WHEN] Customer card page is being opened for "CUST"
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.FILTER.SetFilter("No.", Customer."No.");
 
         // [THEN] Customer statistics factbox shows Last Payment Received Date = 15.01
@@ -842,12 +844,12 @@ codeunit 134389 "ERM Customer Statistics"
         ReversePayment(Customer."No.", PaymentDate[3]);
 
         // [GIVEN] Open customer card page for "CUST"
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.FILTER.SetFilter("No.", Customer."No.");
 
         // [WHEN] Last Payment Received Date drill down is being invoked
-        CustomerLedgerEntries.Trap;
-        CustomerCard.CustomerStatisticsFactBox.LastPaymentReceiptDate.DrillDown;
+        CustomerLedgerEntries.Trap();
+        CustomerCard.CustomerStatisticsFactBox.LastPaymentReceiptDate.DrillDown();
 
         // [THEN] Opened list of payments has cursor on payment "PAYM2"
         CustomerLedgerEntries."Posting Date".AssertEquals(PaymentDate[2]);
@@ -899,10 +901,10 @@ codeunit 134389 "ERM Customer Statistics"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Open statistics for customer "CUST" is being opened
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.FILTER.SetFilter("No.", CustomerNo);
-        CustomerStatistics.Trap;
-        CustomerList.Statistics.Invoke;
+        CustomerStatistics.Trap();
+        CustomerList.Statistics.Invoke();
 
         // [THEN] Original Cost (LCY) = 100
         // [THEN] Original Profit (LCY) = 40
@@ -930,6 +932,7 @@ codeunit 134389 "ERM Customer Statistics"
 
         // [GIVEN] Create a Customer.
         LibrarySales.CreateCustomer(Customer);
+        Commit();  // so background session can see the new customer
 
         // [GIVEN] Create a Customer Ledger Entry.
         CreateBasicCustLedgerEntry(CustLedgerEntry, Customer."No.");
@@ -956,7 +959,7 @@ codeunit 134389 "ERM Customer Statistics"
         Assert.AreEqual(
             CustomerCard."Payments (LCY)".AsDecimal(),
             -DetailedCustLedgEntries."Amount (LCY)".AsDecimal(),
-            PaymentsLCYAndAmountLCYMustMatchErr);  
+            PaymentsLCYAndAmountLCYMustMatchErr);
         DetailedCustLedgEntries.Close();
         CustomerCard.Close();
     end;
@@ -988,7 +991,7 @@ codeunit 134389 "ERM Customer Statistics"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        UpdatePostedNoSeriesInSalesSetup; // required for RU
+        UpdatePostedNoSeriesInSalesSetup(); // required for RU
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Customer Statistics");
@@ -1016,7 +1019,7 @@ codeunit 134389 "ERM Customer Statistics"
         SalesInfoPaneMgt: Codeunit "Sales Info-Pane Management";
         SalesOrder: TestPage "Sales Order";
     begin
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer, WorkDate());
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer(), WorkDate());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Using Random for Quantity.
 
         // Exercise.
@@ -1039,7 +1042,7 @@ codeunit 134389 "ERM Customer Statistics"
     local procedure CreateCustomerWithBilltoCust(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Bill-to Customer No.", CreateCustomer);
+        Customer.Validate("Bill-to Customer No.", CreateCustomer());
         Customer.Modify(true);
     end;
 
@@ -1047,7 +1050,7 @@ codeunit 134389 "ERM Customer Statistics"
     var
         Customer: Record Customer;
     begin
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         Customer.Validate("Payment Terms Code", PaymentTermsCode);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -1077,7 +1080,7 @@ codeunit 134389 "ERM Customer Statistics"
         // Create Sales Invoice with Random Quantity.
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, PostingDate);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithUnitPrice, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithUnitPrice(), LibraryRandom.RandDec(10, 2));
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         SalesHeader.CalcFields("Amount Including VAT");
         exit(SalesHeader."Amount Including VAT");
@@ -1092,7 +1095,7 @@ codeunit 134389 "ERM Customer Statistics"
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithUnitPrice, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithUnitPrice(), LibraryRandom.RandDec(10, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         exit(SalesLine."Amount Including VAT");
     end;
@@ -1195,7 +1198,7 @@ codeunit 134389 "ERM Customer Statistics"
 
     local procedure FindCurrency(var Currency: Record Currency)
     begin
-        Currency.SetRange("Invoice Rounding Precision", LibraryERM.GetAmountRoundingPrecision);
+        Currency.SetRange("Invoice Rounding Precision", LibraryERM.GetAmountRoundingPrecision());
         LibraryERM.FindCurrency(Currency);
     end;
 
@@ -1219,7 +1222,7 @@ codeunit 134389 "ERM Customer Statistics"
         CodeCoverage: Record "Code Coverage";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
     begin
-        CodeCoverageMgt.Refresh;
+        CodeCoverageMgt.Refresh();
         with CodeCoverage do begin
             SetRange("Line Type", "Line Type"::Code);
             SetRange("Object Type", ObjectType);
@@ -1234,25 +1237,25 @@ codeunit 134389 "ERM Customer Statistics"
     var
         CustomerList: TestPage "Customer List";
     begin
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.FILTER.SetFilter("No.", CustomerNo);
-        CustStatsByCurrLines.Trap;
-        CustomerList."Statistics by C&urrencies".Invoke;
+        CustStatsByCurrLines.Trap();
+        CustomerList."Statistics by C&urrencies".Invoke();
     end;
 
     local procedure InvokeCustStatsByCurrLinesFromCustomerCard(var CustStatsByCurrLines: TestPage "Cust. Stats. by Curr. Lines"; CustomerNo: Code[20])
     var
         CustomerCard: TestPage "Customer Card";
     begin
-        CustomerCard.OpenView;
+        CustomerCard.OpenView();
         CustomerCard.FILTER.SetFilter("No.", CustomerNo);
-        CustStatsByCurrLines.Trap;
-        CustomerCard."Statistics by C&urrencies".Invoke;
+        CustStatsByCurrLines.Trap();
+        CustomerCard."Statistics by C&urrencies".Invoke();
     end;
 
     local procedure OpenSalesOrderAndFindLine(var SalesOrder: TestPage "Sales Order"; DocumentNo: Code[20]; No: Code[20]; Type: Enum "Sales Line Type")
     begin
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.FILTER.SetFilter("No.", DocumentNo);
         SalesOrder.SalesLines.FILTER.SetFilter(Type, Format(Type));
         SalesOrder.SalesLines.FILTER.SetFilter("No.", No);
@@ -1263,7 +1266,7 @@ codeunit 134389 "ERM Customer Statistics"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         SalesInvoice.OpenNew();
-        SalesInvoice."No.".AssistEdit;
+        SalesInvoice."No.".AssistEdit();
         SalesInvoice."Sell-to Customer Name".SetValue(SellToCustomerNo);
         exit(SalesInvoice."No.".Value);
     end;
@@ -1334,8 +1337,8 @@ codeunit 134389 "ERM Customer Statistics"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryERM.CreateNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryERM.CreateNoSeriesCode);
+        SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryERM.CreateNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryERM.CreateNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
     end;
 
@@ -1350,10 +1353,10 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerList: TestPage "Customer List";
         CustomerStatistics: TestPage "Customer Statistics";
     begin
-        CustomerList.OpenView;
+        CustomerList.OpenView();
         CustomerList.FILTER.SetFilter("No.", No);
-        CustomerStatistics.Trap;
-        CustomerList.Statistics.Invoke;
+        CustomerStatistics.Trap();
+        CustomerList.Statistics.Invoke();
         CustomerStatistics."Balance Due (LCY)".AssertEquals(BalanceDueLCY);
     end;
 
@@ -1371,26 +1374,26 @@ codeunit 134389 "ERM Customer Statistics"
     begin
         Assert.AreNearlyEqual(
           ExpectedCostAmount,
-          CustomerStatistics.ThisPeriodOriginalCostLCY.AsDEcimal,
-          LibraryERM.GetAmountRoundingPrecision,
+          CustomerStatistics.ThisPeriodOriginalCostLCY.AsDecimal(),
+          LibraryERM.GetAmountRoundingPrecision(),
           'Invalid This Period Original Cost (LCY) value');
 
         Assert.AreNearlyEqual(
           ExpectedProfitAmount,
-          CustomerStatistics.ThisPeriodOriginalProfitLCY.AsDEcimal,
-          LibraryERM.GetAmountRoundingPrecision,
+          CustomerStatistics.ThisPeriodOriginalProfitLCY.AsDecimal(),
+          LibraryERM.GetAmountRoundingPrecision(),
           'Invalid This Period Original Profit (LCY) value');
 
         Assert.AreNearlyEqual(
           ExpectedCostAmount,
-          CustomerStatistics.ThisPeriodAdjustedCostLCY.AsDEcimal,
-          LibraryERM.GetAmountRoundingPrecision,
+          CustomerStatistics.ThisPeriodAdjustedCostLCY.AsDecimal(),
+          LibraryERM.GetAmountRoundingPrecision(),
           'Invalid This Period Adjusted Cost (LCY) value');
 
         Assert.AreNearlyEqual(
           ExpectedProfitAmount,
-          CustomerStatistics.ThisPeriodAdjustedProfitLCY.AsDEcimal,
-          LibraryERM.GetAmountRoundingPrecision,
+          CustomerStatistics.ThisPeriodAdjustedProfitLCY.AsDecimal(),
+          LibraryERM.GetAmountRoundingPrecision(),
           'Invalid This Period Adjusted Profit (LCY) value');
 
         CustomerStatistics.ThisPeriodCostAdjmtAmountsLCY.AssertEquals(0);

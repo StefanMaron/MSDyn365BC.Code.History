@@ -48,24 +48,24 @@ codeunit 144024 "Test Financial Journals"
         SetupFinancialJournalPage(
           FinancialJournalPage, BalanceLastStatement, DocumentType::Payment, 'T6001', AccountType::Customer, '10000', 0);
 
-        DocumentNo := FinancialJournalPage."Document No.".Value;
+        DocumentNo := FinancialJournalPage."Document No.".Value();
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(DocumentNo);
 
-        FinancialJournalPage."Apply Entries".Invoke;
+        FinancialJournalPage."Apply Entries".Invoke();
 
         // Try to post
-        FinancialJournalPage."P&ost".Invoke;
+        FinancialJournalPage."P&ost".Invoke();
         FinancialJournalPage.Close();
 
         // Verify
-        GLRegisters.OpenView;
-        GLRegisters.First;
+        GLRegisters.OpenView();
+        GLRegisters.First();
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(DocumentNo);
         LibraryVariableStorage.Enqueue(BalanceLastStatement);
 
-        GLRegisters."General Ledger".Invoke;
+        GLRegisters."General Ledger".Invoke();
         GLRegisters.Close();
     end;
 
@@ -90,7 +90,7 @@ codeunit 144024 "Test Financial Journals"
         LibraryVariableStorage.Enqueue(FinancialJournalPage."Document No.".Value);
 
         // Try to post
-        FinancialJournalPage."P&ost".Invoke;
+        FinancialJournalPage."P&ost".Invoke();
 
         FinancialJournalPage.Close();
     end;
@@ -123,14 +123,14 @@ codeunit 144024 "Test Financial Journals"
 
         // Try to recon
         // Reconciliation (345)
-        Reconciliation.Trap;
-        FinancialJournalPage.Reconcile.Invoke;
+        Reconciliation.Trap();
+        FinancialJournalPage.Reconcile.Invoke();
 
         Reconciliation.FILTER.SetFilter("No.", '550005');
         Assert.AreEqual(BalanceAtDate - BalanceLastStatement + EndingBalance,
-          Reconciliation."Balance after Posting".AsDEcimal, 'Balance after post');
+          Reconciliation."Balance after Posting".AsDecimal(), 'Balance after post');
 
-        Reconciliation.OK.Invoke;
+        Reconciliation.OK().Invoke();
 
         FinancialJournalPage.Close();
     end;
@@ -147,7 +147,7 @@ codeunit 144024 "Test Financial Journals"
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60219
         Initialize();
 
-        FinancialJournalPage.OpenEdit;
+        FinancialJournalPage.OpenEdit();
         FinancialJournalPage.StatementEndingBalance.SetValue(100000);
         FinancialJournalPage."Document No.".SetValue('T7001');
         FinancialJournalPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
@@ -171,7 +171,7 @@ codeunit 144024 "Test Financial Journals"
 
         Initialize();
 
-        FinancialJournalPage.OpenEdit;
+        FinancialJournalPage.OpenEdit();
         FinancialJournalPage.StatementEndingBalance.SetValue(100000);
         FinancialJournalPage."Document No.".SetValue(' ');
         FinancialJournalPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
@@ -183,7 +183,7 @@ codeunit 144024 "Test Financial Journals"
         LibraryVariableStorage.Enqueue(FinancialJournalPage."Document No.".Value);
 
         // Try to post
-        asserterror FinancialJournalPage."P&ost".Invoke;
+        asserterror FinancialJournalPage."P&ost".Invoke();
 
         FinancialJournalPage.Close();
     end;
@@ -201,7 +201,7 @@ codeunit 144024 "Test Financial Journals"
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60217
         Initialize();
 
-        FinancialJournalPage.OpenEdit;
+        FinancialJournalPage.OpenEdit();
         FinancialJournalPage.StatementEndingBalance.SetValue(100000);
         FinancialJournalPage."Document No.".SetValue('T001');
         FinancialJournalPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
@@ -213,7 +213,7 @@ codeunit 144024 "Test Financial Journals"
         LibraryVariableStorage.Enqueue(FinancialJournalPage."Document No.".Value);
 
         // Try to post
-        asserterror FinancialJournalPage."P&ost".Invoke;
+        asserterror FinancialJournalPage."P&ost".Invoke();
 
         FinancialJournalPage.Close();
     end;
@@ -652,7 +652,7 @@ codeunit 144024 "Test Financial Journals"
         FinancialJournalPage.StatementEndingBalance.SetValue(-Amount);
 
         // [VERIFY] Verify Error should occur during post when Account No. is blank
-        asserterror FinancialJournalPage."P&ost".Invoke;
+        asserterror FinancialJournalPage."P&ost".Invoke();
         Assert.IsTrue(StrPos(GetLastErrorText, Format(AccountNoMustNotBlankErr)) <> 0, JournalMustNotPostErr);
         FinancialJournalPage.Close();
     end;
@@ -717,7 +717,7 @@ codeunit 144024 "Test Financial Journals"
         FinancialJournalPage.StatementEndingBalance.SetValue(-(Amounts[1] + Amounts[2]));
 
         // [VERIFY] Verify Error should occur during post multiple journal lines when Account No. is blank for any line
-        asserterror FinancialJournalPage."P&ost".Invoke;
+        asserterror FinancialJournalPage."P&ost".Invoke();
         Assert.IsTrue(StrPos(GetLastErrorText, Format(AccountNoMustNotBlankErr)) <> 0, JournalMustNotPostErr);
         FinancialJournalPage.Close();
     end;
@@ -748,7 +748,7 @@ codeunit 144024 "Test Financial Journals"
         // The due date must be after the discount due date.
         ReplacePaymentTerms(
           PmtTerms, 'NEW', '<1M>', '<' + Format(LibraryRandom.RandInt(20)) + 'D>', LibraryRandom.RandInt(200) / 10);
-        ModifyGenJnlBatchNoSeries;
+        ModifyGenJnlBatchNoSeries();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
@@ -791,7 +791,7 @@ codeunit 144024 "Test Financial Journals"
         exit(NoSeriesLine."Series Code");
     end;
 
-    local procedure CreateGenJournalTemplateWithPostingSeriesNo(TemplateType: Option; PostingNoSeries: Code[20]): Code[10]
+    local procedure CreateGenJournalTemplateWithPostingSeriesNo(TemplateType: Enum "Gen. Journal Template Type"; PostingNoSeries: Code[20]): Code[10]
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -861,7 +861,7 @@ codeunit 144024 "Test Financial Journals"
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
         LibraryERM.SelectGenJnlBatch(GenJnlBatch);
-        GenJnlBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJnlBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJnlBatch.Modify(true);
     end;
 
@@ -879,8 +879,8 @@ codeunit 144024 "Test Financial Journals"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        FinancialJournalPage.OpenEdit;
-        BalanceLastStatement := FinancialJournalPage.BalanceLastStatement.AsDEcimal;
+        FinancialJournalPage.OpenEdit();
+        BalanceLastStatement := FinancialJournalPage.BalanceLastStatement.AsDecimal();
         FinancialJournalPage.StatementEndingBalance.SetValue(EndingBalance);
         FinancialJournalPage."Document Type".SetValue(DocumentType);
         FinancialJournalPage."Document No.".SetValue(DocumentNo);
@@ -891,7 +891,7 @@ codeunit 144024 "Test Financial Journals"
         FinancialJournalPage."Bal. Account No.".SetValue(BankAccountNo);
 
         FinancialJournalPage.Next();
-        FinancialJournalPage.Previous;
+        FinancialJournalPage.Previous();
     end;
 
     local procedure SetupFinancialJournalLineOnPage(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AccountType: enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
@@ -935,7 +935,7 @@ codeunit 144024 "Test Financial Journals"
     procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateListPage: TestPage "General Journal Template List")
     begin
         GeneralJournalTemplateListPage.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
-        GeneralJournalTemplateListPage.OK.Invoke();
+        GeneralJournalTemplateListPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -947,19 +947,19 @@ codeunit 144024 "Test Financial Journals"
     begin
         ApplyCustomerEntriesPage.First();
         if ApplyCustomerEntriesPage.AppliesToID.Value <> '' then
-            ApplyCustomerEntriesPage."Set Applies-to ID".Invoke;
-        ApplyCustomerEntriesPage."Set Applies-to ID".Invoke;
+            ApplyCustomerEntriesPage."Set Applies-to ID".Invoke();
+        ApplyCustomerEntriesPage."Set Applies-to ID".Invoke();
         ApplyCustomerEntriesPage.Next();
         if ApplyCustomerEntriesPage.AppliesToID.Value <> '' then
-            ApplyCustomerEntriesPage."Set Applies-to ID".Invoke;
-        ApplyCustomerEntriesPage."Set Applies-to ID".Invoke;
+            ApplyCustomerEntriesPage."Set Applies-to ID".Invoke();
+        ApplyCustomerEntriesPage."Set Applies-to ID".Invoke();
 
         ApplyCustomerEntriesPage.First();
         LibraryVariableStorage.Dequeue(Variant);
         AppliesTo := Variant;
         Assert.AreEqual(AppliesTo, ApplyCustomerEntriesPage.AppliesToID.Value, 'Applies to ID does not match');
 
-        ApplyCustomerEntriesPage.OK.Invoke();
+        ApplyCustomerEntriesPage.OK().Invoke();
     end;
 
     [PageHandler]
@@ -976,9 +976,9 @@ codeunit 144024 "Test Financial Journals"
         GeneralLedgerEntries.First();
         Assert.AreEqual(Format(550005), GeneralLedgerEntries."G/L Account No.".Value, 'GL Account No.');
         Assert.AreEqual('Payment', GeneralLedgerEntries."Document Type".Value, 'Document Type');
-        Assert.AreEqual(-1 * Amount, GeneralLedgerEntries.Amount.AsDEcimal, 'Amount 1');
+        Assert.AreEqual(-1 * Amount, GeneralLedgerEntries.Amount.AsDecimal(), 'Amount 1');
         GeneralLedgerEntries.Next();
-        Assert.AreEqual(Amount, GeneralLedgerEntries.Amount.AsDEcimal, 'Amount 2');
+        Assert.AreEqual(Amount, GeneralLedgerEntries.Amount.AsDecimal(), 'Amount 2');
     end;
 }
 

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -43,7 +43,6 @@ report 2000022 "Create Gen. Jnl. Lines"
 
                     trigger OnValidate()
                     var
-                        GenJournalTemplate: Record "Gen. Journal Template";
                     begin
                         if GeneralJournalTemplateName = '' then
                             GeneralJournalBatchName := '';
@@ -121,23 +120,21 @@ report 2000022 "Create Gen. Jnl. Lines"
         GLAcc: Record "G/L Account";
     begin
         // Check General Journal
-        with GenJnlBatch do begin
-            Reset();
-            if not Get(GeneralJournalTemplateName, GeneralJournalBatchName) then
-                Error(PostingNotSpecifiedErr, FieldCaption(Name));
+        GenJnlBatch.Reset();
+        if not GenJnlBatch.Get(GeneralJournalTemplateName, GeneralJournalBatchName) then
+            Error(PostingNotSpecifiedErr, GenJnlBatch.FieldCaption(Name));
 
-            if not ("Bal. Account Type" = "Bal. Account Type"::"G/L Account") then
-                Error(BalAccTypeErr, Name);
+        if not (GenJnlBatch."Bal. Account Type" = GenJnlBatch."Bal. Account Type"::"G/L Account") then
+            Error(BalAccTypeErr, GenJnlBatch.Name);
 
-            if "Bal. Account No." = '' then
-                Error(BalAccNoErr, Name);
+        if GenJnlBatch."Bal. Account No." = '' then
+            Error(BalAccNoErr, GenJnlBatch.Name);
 
-            if not GLAcc.Get("Bal. Account No.") then
-                Error(NotGLAccErr, "Bal. Account No.");
+        if not GLAcc.Get(GenJnlBatch."Bal. Account No.") then
+            Error(NotGLAccErr, GenJnlBatch."Bal. Account No.");
 
-            if not (GLAcc."Account Type" = GLAcc."Account Type"::Posting) then
-                Error(NotPostingErr, GLAcc."No.");
-        end;
+        if not (GLAcc."Account Type" = GLAcc."Account Type"::Posting) then
+            Error(NotPostingErr, GLAcc."No.");
     end;
 
     var
@@ -165,10 +162,10 @@ report 2000022 "Create Gen. Jnl. Lines"
     var
         FileDomiciliations: Report "File Domiciliations";
         GenJnlLine: Record "Gen. Journal Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[10];
     begin
-        DocumentNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", DomJnlLine."Posting Date", false);
+        DocumentNo := NoSeries.PeekNextNo(GenJnlBatch."No. Series", DomJnlLine."Posting Date");
         FindLastGenJnlLine(GenJnlLine);
         FileDomiciliations.SetGlobalPostingVariables(GenJnlBatch, GenJnlLine, DocumentNo);
         FileDomiciliations.SetGenJnlLine(DomJnlLine);

@@ -562,7 +562,6 @@ report 6646 "Sales - Return Receipt"
 
     var
         SalesPurchPerson: Record "Salesperson/Purchaser";
-        CompanyInfo: Record "Company Information";
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
@@ -615,6 +614,7 @@ report 6646 "Sales - Return Receipt"
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
 
     protected var
+        CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";
@@ -640,11 +640,9 @@ report 6646 "Sales - Return Receipt"
 
     local procedure FormatDocumentFields(ReturnReceiptHeader: Record "Return Receipt Header")
     begin
-        with ReturnReceiptHeader do begin
-            FormatDocument.SetSalesPerson(SalesPurchPerson, "Salesperson Code", SalesPersonText);
+        FormatDocument.SetSalesPerson(SalesPurchPerson, ReturnReceiptHeader."Salesperson Code", SalesPersonText);
 
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-        end;
+        ReferenceText := FormatDocument.SetText(ReturnReceiptHeader."Your Reference" <> '', ReturnReceiptHeader.FieldCaption("Your Reference"));
     end;
 
     [IntegrationEvent(true, false)]

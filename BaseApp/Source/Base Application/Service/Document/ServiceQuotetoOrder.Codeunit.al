@@ -52,6 +52,9 @@ codeunit 5923 "Service-Quote to Order"
 
         CustCheckCreditLimit.ServiceHeaderCheck(ServOrderHeader);
 
+        CheckServiceItemBlockedForAll(Rec);
+        CheckItemServiceBlocked(Rec);
+
         TransferQuoteToOrderLines(ServQuoteLine, Rec, ServOrderLine, ServOrderHeader);
 
         MakeOrder(Rec);
@@ -74,7 +77,6 @@ codeunit 5923 "Service-Quote to Order"
         LoanerEntry: Record "Loaner Entry";
         ServCommentLine: Record "Service Comment Line";
         ServCommentLine2: Record "Service Comment Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         ServLogMgt: Codeunit ServLogManagement;
         ServiceLineReserve: Codeunit "Service Line-Reserve";
 
@@ -115,6 +117,10 @@ codeunit 5923 "Service-Quote to Order"
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         RecordLinkManagement: Codeunit "Record Link Management";
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+#endif
         SkipDelete: Boolean;
         IsHandled: Boolean;
     begin
@@ -136,7 +142,16 @@ codeunit 5923 "Service-Quote to Order"
         ServOrderHeader."Finishing Time" := 0T;
 
         TestNoSeries();
-        NoSeriesMgt.InitSeries(GetNoSeriesCode(), '', 0D, ServOrderHeader."No.", ServOrderHeader."No. Series");
+        ServOrderHeader."No. Series" := GetNoSeriesCode();
+#if not CLEAN24
+        NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(ServOrderHeader."No. Series", '', 0D, ServOrderHeader."No.", ServOrderHeader."No. Series", IsHandled);
+        if not IsHandled then begin
+#endif
+            ServOrderHeader."No." := NoSeries.GetNextNo(ServOrderHeader."No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(ServOrderHeader."No. Series", ServMgtSetup."Service Order Nos.", 0D, ServOrderHeader."No.");
+        end;
+#endif
 
         ServOrderHeader."Quote No." := ServiceHeader."No.";
         RecordLinkManagement.CopyLinks(ServiceHeader, ServOrderHeader);
@@ -271,6 +286,37 @@ codeunit 5923 "Service-Quote to Order"
                         if ItemCheckAvail.ServiceInvLineCheck(ServiceOrderLine) then
                             ItemCheckAvail.RaiseUpdateInterruptedError();
                 end;
+            until ServiceQuoteLine.Next() = 0;
+    end;
+
+    local procedure CheckServiceItemBlockedForAll(ServiceQuoteHeader: Record "Service Header")
+    var
+        ServiceItemLine: Record "Service Item Line";
+        ServOrderManagement: Codeunit ServOrderManagement;
+    begin
+        ServiceItemLine.SetLoadFields("Service Item No.");
+        ServiceItemLine.SetRange("Document Type", ServiceQuoteHeader."Document Type");
+        ServiceItemLine.SetRange("Document No.", ServiceQuoteHeader."No.");
+        ServiceItemLine.SetFilter("Service Item No.", '<>%1', '');
+        if ServiceItemLine.FindSet() then
+            repeat
+                ServOrderManagement.CheckServiceItemBlockedForAll(ServiceItemLine);
+            until ServiceItemLine.Next() = 0;
+    end;
+
+    local procedure CheckItemServiceBlocked(ServiceQuoteHeader: Record "Service Header")
+    var
+        ServiceQuoteLine: Record "Service Line";
+        ServOrderManagement: Codeunit ServOrderManagement;
+    begin
+        ServiceQuoteLine.SetLoadFields("No.", "Variant Code");
+        ServiceQuoteLine.SetRange("Document Type", ServiceQuoteHeader."Document Type");
+        ServiceQuoteLine.SetRange("Document No.", ServiceQuoteHeader."No.");
+        ServiceQuoteLine.SetRange(Type, ServiceQuoteLine.Type::Item);
+        ServiceQuoteLine.SetFilter("No.", '<>%1', '');
+        if ServiceQuoteLine.FindSet() then
+            repeat
+                ServOrderManagement.CheckItemServiceBlocked(ServiceQuoteLine);
             until ServiceQuoteLine.Next() = 0;
     end;
 

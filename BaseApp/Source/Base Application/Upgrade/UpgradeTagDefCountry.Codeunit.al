@@ -9,7 +9,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
     local procedure RegisterPerCompanyTags(var PerCompanyUpgradeTags: List of [Code[250]])
     begin
         // Country
-        PerCompanyUpgradeTags.Add(GetUpdateCountyNameTag);
+        PerCompanyUpgradeTags.Add(GetUpdateCountyNameTag());
         PerCompanyUpgradeTags.Add(GetCopyInvNoToPmtRefTag());
         PerCompanyUpgradeTags.Add(GetCustomerVATLiableTag());
     end;

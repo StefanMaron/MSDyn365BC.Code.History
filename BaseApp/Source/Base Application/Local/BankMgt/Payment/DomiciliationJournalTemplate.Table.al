@@ -13,6 +13,7 @@ table 2000020 "Domiciliation Journal Template"
     Caption = 'Domiciliation Journal Template';
     DataCaptionFields = Name;
     LookupPageID = "Domicil. Journal Templates";
+    DataClassification = CustomerContent;
 
     fields
     {

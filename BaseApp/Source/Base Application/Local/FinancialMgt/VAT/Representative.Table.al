@@ -13,6 +13,7 @@ table 11308 Representative
     Caption = 'Representative';
     DrillDownPageID = "Representative List";
     LookupPageID = "Representative List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -121,7 +122,7 @@ table 11308 Representative
     var
         ListOfFields: Text[250];
     begin
-        ListOfFields := GetListOfEmptyFields;
+        ListOfFields := GetListOfEmptyFields();
         if ListOfFields <> '' then
             Error(Text004, ListOfFields);
         exit(true);

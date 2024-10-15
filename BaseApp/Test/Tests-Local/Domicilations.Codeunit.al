@@ -61,9 +61,9 @@ codeunit 144004 Domicilations
         CustomerNo2: Code[20];
         DimSetID: array[2] of Integer;
     begin
-        CustomerNo := CreateCustomerWithNewDimension;
+        CustomerNo := CreateCustomerWithNewDimension();
         CreatePostSalesInvoice(CustomerNo);
-        CustomerNo2 := CreateCustomerWithNewDimension;
+        CustomerNo2 := CreateCustomerWithNewDimension();
         CreatePostSalesInvoice(CustomerNo2);
 
         SuggestDomiciliationsSetDimension(DimSetID, StrSubstNo('%1|%2', CustomerNo, CustomerNo2));
@@ -271,7 +271,7 @@ codeunit 144004 Domicilations
     begin
         LibrarySales.CreateCustomer(Customer);
         if SetDomiciliationNo then begin
-            Customer."Domiciliation No." := FindDomiciliationNo;
+            Customer."Domiciliation No." := FindDomiciliationNo();
             Customer.Modify();
         end;
         exit(Customer."No.");
@@ -415,7 +415,7 @@ codeunit 144004 Domicilations
             Assert.AreEqual(
               DimSetID[1], "Dimension Set ID",
               StrSubstNo(DimensionIsNotCorrectErr, FieldCaption("Dimension Set ID"), "Line No."));
-            Next;
+            Next();
             Assert.AreEqual(
               DimSetID[2], "Dimension Set ID",
               StrSubstNo(DimensionIsNotCorrectErr, FieldCaption("Dimension Set ID"), "Line No."));
@@ -424,7 +424,7 @@ codeunit 144004 Domicilations
 
     local procedure VerifyDomiciliationNo(DomiciliationNo1: Integer; DomiciliationNo2: Integer)
     begin
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         // Check Domiciliation Total Domiciliation Nos. fields' values
         LibraryReportValidation.VerifyCellValue(15, 7, Format(DomiciliationNo1));
         LibraryReportValidation.VerifyCellValue(16, 7, Format(DomiciliationNo2));
@@ -448,7 +448,7 @@ codeunit 144004 Domicilations
         FileName: Variant;
         GenJournalBatchName: Variant;
     begin
-        FileDomiciliations.Var1.SetValue(LibraryERM.SelectGenJnlTemplate);
+        FileDomiciliations.Var1.SetValue(LibraryERM.SelectGenJnlTemplate());
 
         LibraryVariableStorage.Dequeue(FileName);
         FileDomiciliations.FileName.SetValue(Format(FileName) + '.tmp');
@@ -456,21 +456,21 @@ codeunit 144004 Domicilations
         LibraryVariableStorage.Dequeue(GenJournalBatchName);
         FileDomiciliations.Var2.SetValue(GenJournalBatchName);
 
-        FileDomiciliations.SaveAsExcel(Format(LibraryReportValidation.GetFileName));
+        FileDomiciliations.SaveAsExcel(Format(LibraryReportValidation.GetFileName()));
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestDomiciliationsHandler(var Suggestdomicilations: TestRequestPage "Suggest domicilations")
     begin
-        Suggestdomicilations.OK.Invoke;
+        Suggestdomicilations.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DisabledRefundSuggestDomiciliationsHandler(var Suggestdomicilations: TestRequestPage "Suggest domicilations")
     begin
-        Assert.IsFalse(Suggestdomicilations.SelectPossibleRefunds.Enabled, 'Select Possible Refunds must be disabled');
+        Assert.IsFalse(Suggestdomicilations.SelectPossibleRefunds.Enabled(), 'Select Possible Refunds must be disabled');
         Suggestdomicilations.SelectPossibleRefunds.AssertEquals(false);
     end;
 
@@ -478,7 +478,7 @@ codeunit 144004 Domicilations
     [Scope('OnPrem')]
     procedure EnabledRefundSuggestDomiciliationsHandler(var Suggestdomicilations: TestRequestPage "Suggest domicilations")
     begin
-        Assert.IsTrue(Suggestdomicilations.SelectPossibleRefunds.Enabled, 'Select Possible Refunds must be enabled');
+        Assert.IsTrue(Suggestdomicilations.SelectPossibleRefunds.Enabled(), 'Select Possible Refunds must be enabled');
         Suggestdomicilations.SelectPossibleRefunds.AssertEquals(false);
     end;
 }

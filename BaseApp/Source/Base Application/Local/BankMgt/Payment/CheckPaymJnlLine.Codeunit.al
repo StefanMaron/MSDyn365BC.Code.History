@@ -46,21 +46,19 @@ codeunit 2000001 CheckPaymJnlLine
         PaymJnlLine: Record "Payment Journal Line";
         CheckJnlLine: Codeunit "Gen. Jnl.-Check Line";
     begin
-        with PaymJnlLine do begin
-            Reset();
-            CopyFilters(PaymentJnlLine);
-            if Find('-') then
-                SetRange("Posting Date", "Posting Date");
-            if Count <> PaymentJnlLine.Count then
-                Error(Text001);
-            SetRange("Posting Date");
-            if Find('-') then
-                repeat
-                    TestField("Posting Date");
-                    if CheckJnlLine.DateNotAllowed("Posting Date", TemplateName) then
-                        FieldError("Posting Date", Text002);
-                until Next() = 0;
-        end;
+        PaymJnlLine.Reset();
+        PaymJnlLine.CopyFilters(PaymentJnlLine);
+        if PaymJnlLine.Find('-') then
+            PaymJnlLine.SetRange("Posting Date", PaymJnlLine."Posting Date");
+        if PaymJnlLine.Count <> PaymentJnlLine.Count then
+            Error(Text001);
+        PaymJnlLine.SetRange("Posting Date");
+        if PaymJnlLine.Find('-') then
+            repeat
+                PaymJnlLine.TestField("Posting Date");
+                if CheckJnlLine.DateNotAllowed(PaymJnlLine."Posting Date", TemplateName) then
+                    PaymJnlLine.FieldError("Posting Date", Text002);
+            until PaymJnlLine.Next() = 0;
     end;
 
     procedure Init()
@@ -116,31 +114,29 @@ codeunit 2000001 CheckPaymJnlLine
     var
         LastLineNo: Integer;
     begin
-        with TempGroupPmtJnlLine do begin
-            Reset();
-            if FindLast() then
-                LastLineNo := "Line No.";
+        TempGroupPmtJnlLine.Reset();
+        if TempGroupPmtJnlLine.FindLast() then
+            LastLineNo := TempGroupPmtJnlLine."Line No.";
 
-            SetRange("Account Type", PmtJnlLine."Account Type");
-            SetRange("Account No.", PmtJnlLine."Account No.");
-            SetRange("Bank Account", PmtJnlLine."Bank Account");
-            SetRange("Beneficiary Bank Account", PmtJnlLine."Beneficiary Bank Account");
-            SetRange("Separate Line", PmtJnlLine."Separate Line");
-            OnFillGroupLineAmountBufOnAfterApplyFilters(TempGroupPmtJnlLine, PmtJnlLine);
-            if not FindFirst or PmtJnlLine."Separate Line" then begin
-                Init();
-                "Line No." := LastLineNo + 1;
-                "Account Type" := PmtJnlLine."Account Type";
-                "Account No." := PmtJnlLine."Account No.";
-                "Bank Account" := PmtJnlLine."Bank Account";
-                "Beneficiary Bank Account" := PmtJnlLine."Beneficiary Bank Account";
-                "Separate Line" := PmtJnlLine."Separate Line";
-                OnFillGroupLineAmountBufOnBeforeInsert(TempGroupPmtJnlLine, PmtJnlLine);
-                Insert();
-            end;
-            Amount := Amount + PmtJnlLine.Amount;
-            Modify();
+        TempGroupPmtJnlLine.SetRange("Account Type", PmtJnlLine."Account Type");
+        TempGroupPmtJnlLine.SetRange("Account No.", PmtJnlLine."Account No.");
+        TempGroupPmtJnlLine.SetRange("Bank Account", PmtJnlLine."Bank Account");
+        TempGroupPmtJnlLine.SetRange("Beneficiary Bank Account", PmtJnlLine."Beneficiary Bank Account");
+        TempGroupPmtJnlLine.SetRange("Separate Line", PmtJnlLine."Separate Line");
+        OnFillGroupLineAmountBufOnAfterApplyFilters(TempGroupPmtJnlLine, PmtJnlLine);
+        if not TempGroupPmtJnlLine.FindFirst() or PmtJnlLine."Separate Line" then begin
+            TempGroupPmtJnlLine.Init();
+            TempGroupPmtJnlLine."Line No." := LastLineNo + 1;
+            TempGroupPmtJnlLine."Account Type" := PmtJnlLine."Account Type";
+            TempGroupPmtJnlLine."Account No." := PmtJnlLine."Account No.";
+            TempGroupPmtJnlLine."Bank Account" := PmtJnlLine."Bank Account";
+            TempGroupPmtJnlLine."Beneficiary Bank Account" := PmtJnlLine."Beneficiary Bank Account";
+            TempGroupPmtJnlLine."Separate Line" := PmtJnlLine."Separate Line";
+            OnFillGroupLineAmountBufOnBeforeInsert(TempGroupPmtJnlLine, PmtJnlLine);
+            TempGroupPmtJnlLine.Insert();
         end;
+        TempGroupPmtJnlLine.Amount := TempGroupPmtJnlLine.Amount + PmtJnlLine.Amount;
+        TempGroupPmtJnlLine.Modify();
     end;
 
     procedure CheckTotalLineAmounts()
@@ -152,15 +148,13 @@ codeunit 2000001 CheckPaymJnlLine
         if IsHandled then
             exit;
 
-        with TempGroupPmtJnlLine do begin
-            Reset();
-            SetFilter(Amount, '<=%1', 0);
-            if FindSet() then
-                repeat
-                    InsertErrorLog(
-                      StrSubstNo(Text005, "Account Type", "Account No.", "Beneficiary Bank Account"));
-                until Next() = 0;
-        end;
+        TempGroupPmtJnlLine.Reset();
+        TempGroupPmtJnlLine.SetFilter(Amount, '<=%1', 0);
+        if TempGroupPmtJnlLine.FindSet() then
+            repeat
+                InsertErrorLog(
+                  StrSubstNo(Text005, TempGroupPmtJnlLine."Account Type", TempGroupPmtJnlLine."Account No.", TempGroupPmtJnlLine."Beneficiary Bank Account"));
+            until TempGroupPmtJnlLine.Next() = 0;
     end;
 
     procedure ErrorIfCurrencyNotEuro(PmtJnlLine: Record "Payment Journal Line")
@@ -184,15 +178,14 @@ codeunit 2000001 CheckPaymJnlLine
 
     procedure CheckBankForSEPA(PmtJnlLine: Record "Payment Journal Line")
     begin
-        with PmtJnlLine do
-            if not ErrorEmptyFieldInLine("Line No.", "Bank Account", FieldCaption("Bank Account")) then begin
-                GetBankAccount("Bank Account");
-                ErrorEmptyFieldInBank(PmtJnlLine, BankAcc.IBAN, BankAcc.FieldCaption(IBAN));
-                ErrorEmptyFieldInBank(PmtJnlLine, BankAcc."SWIFT Code", BankAcc.FieldCaption("SWIFT Code"));
+        if not ErrorEmptyFieldInLine(PmtJnlLine."Line No.", PmtJnlLine."Bank Account", PmtJnlLine.FieldCaption("Bank Account")) then begin
+            GetBankAccount(PmtJnlLine."Bank Account");
+            ErrorEmptyFieldInBank(PmtJnlLine, BankAcc.IBAN, BankAcc.FieldCaption(IBAN));
+            ErrorEmptyFieldInBank(PmtJnlLine, BankAcc."SWIFT Code", BankAcc.FieldCaption("SWIFT Code"));
 
-                if not ErrorEmptyFieldInBank(PmtJnlLine, BankAcc."Country/Region Code", BankAcc.FieldCaption("Country/Region Code")) then
-                    CheckSEPAAllowed(true, "Line No.", BankAcc."Country/Region Code");
-            end;
+            if not ErrorEmptyFieldInBank(PmtJnlLine, BankAcc."Country/Region Code", BankAcc.FieldCaption("Country/Region Code")) then
+                CheckSEPAAllowed(true, PmtJnlLine."Line No.", BankAcc."Country/Region Code");
+        end;
     end;
 
     procedure CheckBeneficiaryBankForSEPA(PmtJnlLine: Record "Payment Journal Line"; EuroSEPA: Boolean)
@@ -204,29 +197,26 @@ codeunit 2000001 CheckPaymJnlLine
         if IsHandled then
             exit;
 
-        with PmtJnlLine do begin
-            CheckIBANForSEPA(PmtJnlLine, EuroSEPA);
-            if IsForeignBank(PmtJnlLine."Bank Account") then
-                ErrorEmptyFieldInLine("Line No.", "SWIFT Code", FieldCaption("SWIFT Code"));
+        CheckIBANForSEPA(PmtJnlLine, EuroSEPA);
+        if IsForeignBank(PmtJnlLine."Bank Account") then
+            ErrorEmptyFieldInLine(PmtJnlLine."Line No.", PmtJnlLine."SWIFT Code", PmtJnlLine.FieldCaption("SWIFT Code"));
 
-            if not ErrorEmptyFieldInLine("Line No.", "Bank Country/Region Code", FieldCaption("Bank Country/Region Code")) then
-                CheckSEPAAllowed(EuroSEPA, "Line No.", "Bank Country/Region Code");
-        end;
+        if not ErrorEmptyFieldInLine(PmtJnlLine."Line No.", PmtJnlLine."Bank Country/Region Code", PmtJnlLine.FieldCaption("Bank Country/Region Code")) then
+            CheckSEPAAllowed(EuroSEPA, PmtJnlLine."Line No.", PmtJnlLine."Bank Country/Region Code");
     end;
 
     local procedure CheckIBANForSEPA(PmtJnlLine: Record "Payment Journal Line"; EuroSEPA: Boolean)
     var
         IBANTransfer: Boolean;
     begin
-        with PmtJnlLine do
-            if EuroSEPA then
-                ErrorEmptyFieldInLine("Line No.", "Beneficiary IBAN", FieldCaption("Beneficiary IBAN"))
-            else begin
-                GetCountry("Bank Country/Region Code");
-                IBANTransfer := ("Beneficiary IBAN" <> '') and Country."IBAN Country/Region";
-                if not IBANTransfer then
-                    ErrorEmptyFieldInLine("Line No.", "Beneficiary Bank Account No.", FieldCaption("Beneficiary Bank Account No."));
-            end;
+        if EuroSEPA then
+            ErrorEmptyFieldInLine(PmtJnlLine."Line No.", PmtJnlLine."Beneficiary IBAN", PmtJnlLine.FieldCaption("Beneficiary IBAN"))
+        else begin
+            GetCountry(PmtJnlLine."Bank Country/Region Code");
+            IBANTransfer := (PmtJnlLine."Beneficiary IBAN" <> '') and Country."IBAN Country/Region";
+            if not IBANTransfer then
+                ErrorEmptyFieldInLine(PmtJnlLine."Line No.", PmtJnlLine."Beneficiary Bank Account No.", PmtJnlLine.FieldCaption("Beneficiary Bank Account No."));
+        end;
     end;
 
     local procedure CheckSEPAAllowed(RequiredSEPAAllowed: Boolean; PmtJnlLineNo: Integer; CountryRegionCode: Code[10])

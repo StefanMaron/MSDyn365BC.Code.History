@@ -3,6 +3,7 @@
 table 5302 "Outlook Synch. Link"
 {
     Caption = 'Outlook Synch. Link';
+    DataClassification = CustomerContent;
     ReplicateData = false;
     ObsoleteState = Removed;
     ObsoleteReason = 'Legacy outlook sync functionality has been removed.';

@@ -724,13 +724,11 @@ report 501 "Intrastat - Form"
         if IsHandled then
             exit;
 
-        with "Intrastat Jnl. Line" do
-            if Count() > 0 then
-                if GetRangeMin(Type) = 0 then
-                    "Intrastat Jnl. Batch".TestField("System 19 reported", false)
-                else
-                    "Intrastat Jnl. Batch".TestField("System 29 reported", false);
-
+        if "Intrastat Jnl. Line".Count() > 0 then
+            if "Intrastat Jnl. Line".GetRangeMin(Type) = 0 then
+                "Intrastat Jnl. Batch".TestField("System 19 reported", false)
+            else
+                "Intrastat Jnl. Batch".TestField("System 29 reported", false);
     end;
 
     [IntegrationEvent(false, false)]

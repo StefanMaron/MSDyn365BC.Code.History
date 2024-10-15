@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -29,7 +29,6 @@ codeunit 2000000 PmtJrnlManagement
         Text002: Label 'Default Journal';
         Text003: Label 'It is not possible to display %1 in a field with a length of %2.';
         LastPaymentJnlLine: Record "Payment Journal Line";
-        Text004: Label 'Please set an Export Protocol Filter on the Payment Journal.';
 
     procedure TemplateSelection(var PaymJnlLine: Record "Payment Journal Line"; var JnlSelected: Boolean)
     var
@@ -262,24 +261,23 @@ codeunit 2000000 PmtJrnlManagement
         Cust: Record Customer;
         Vend: Record Vendor;
     begin
-        with PaymentJnlLine do
-            case "Account Type" of
-                0:
-                    begin
-                        GLAcc."No." := "Account No.";
-                        PAGE.Run(PAGE::"G/L Account Card", GLAcc);
-                    end;
-                "Account Type"::Customer:
-                    begin
-                        Cust."No." := "Account No.";
-                        PAGE.Run(PAGE::"Customer Card", Cust);
-                    end;
-                "Account Type"::Vendor:
-                    begin
-                        Vend."No." := "Account No.";
-                        PAGE.Run(PAGE::"Vendor Card", Vend);
-                    end;
-            end;
+        case PaymentJnlLine."Account Type" of
+            0:
+                begin
+                    GLAcc."No." := PaymentJnlLine."Account No.";
+                    PAGE.Run(PAGE::"G/L Account Card", GLAcc);
+                end;
+            PaymentJnlLine."Account Type"::Customer:
+                begin
+                    Cust."No." := PaymentJnlLine."Account No.";
+                    PAGE.Run(PAGE::"Customer Card", Cust);
+                end;
+            PaymentJnlLine."Account Type"::Vendor:
+                begin
+                    Vend."No." := PaymentJnlLine."Account No.";
+                    PAGE.Run(PAGE::"Vendor Card", Vend);
+                end;
+        end;
     end;
 
     procedure ShowEntries(PaymentJnlLine: Record "Payment Journal Line")
@@ -287,23 +285,22 @@ codeunit 2000000 PmtJrnlManagement
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with PaymentJnlLine do
-            case "Account Type" of
-                "Account Type"::Customer:
-                    begin
-                        CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
-                        CustLedgEntry.SetRange("Customer No.", "Account No.");
-                        if CustLedgEntry.FindLast() then;
-                        PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgEntry);
-                    end;
-                "Account Type"::Vendor:
-                    begin
-                        VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
-                        VendLedgEntry.SetRange("Vendor No.", "Account No.");
-                        if VendLedgEntry.FindLast() then;
-                        PAGE.Run(PAGE::"Vendor Ledger Entries", VendLedgEntry);
-                    end;
-            end;
+        case PaymentJnlLine."Account Type" of
+            PaymentJnlLine."Account Type"::Customer:
+                begin
+                    CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
+                    CustLedgEntry.SetRange("Customer No.", PaymentJnlLine."Account No.");
+                    if CustLedgEntry.FindLast() then;
+                    PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgEntry);
+                end;
+            PaymentJnlLine."Account Type"::Vendor:
+                begin
+                    VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
+                    VendLedgEntry.SetRange("Vendor No.", PaymentJnlLine."Account No.");
+                    if VendLedgEntry.FindLast() then;
+                    PAGE.Run(PAGE::"Vendor Ledger Entries", VendLedgEntry);
+                end;
+        end;
     end;
 
     procedure ConvertToDigit(AlphaNumValue: Text[250]; Length: Integer): Text[250]
@@ -362,55 +359,54 @@ codeunit 2000000 PmtJrnlManagement
         CurrExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
     begin
-        with PaymentJnlLine do
-            case "Account Type" of
-                "Account Type"::Customer:
-                    begin
-                        CustLedgEntry.SetCurrentKey("Document No.");
-                        CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                        CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                        CustLedgEntry.SetRange("Customer No.", "Account No.");
-                        CustLedgEntry.SetRange(Open, true);
-                        if CustLedgEntry.FindLast() then begin
-                            if CustLedgEntry."Currency Code" = "Currency Code" then
-                                CustLedgEntry.Validate("Remaining Pmt. Disc. Possible", -"Pmt. Disc. Possible")
-                            else begin
-                                if not Currency.Get(CustLedgEntry."Currency Code") then
-                                    Currency.InvoiceRoundingDirection;
-                                CustLedgEntry.Validate("Remaining Pmt. Disc. Possible",
-                                  Round(
-                                    CurrExchRate.ExchangeAmtFCYToFCY(
-                                      CustLedgEntry."Posting Date", "Currency Code", CustLedgEntry."Currency Code", -"Pmt. Disc. Possible"),
-                                    Currency."Amount Rounding Precision"));
-                            end;
-                            CustLedgEntry.Validate("Pmt. Discount Date", "Posting Date");
-                            CustLedgEntry.Modify(true);
+        case PaymentJnlLine."Account Type" of
+            PaymentJnlLine."Account Type"::Customer:
+                begin
+                    CustLedgEntry.SetCurrentKey("Document No.");
+                    CustLedgEntry.SetRange("Document Type", PaymentJnlLine."Applies-to Doc. Type");
+                    CustLedgEntry.SetRange("Document No.", PaymentJnlLine."Applies-to Doc. No.");
+                    CustLedgEntry.SetRange("Customer No.", PaymentJnlLine."Account No.");
+                    CustLedgEntry.SetRange(Open, true);
+                    if CustLedgEntry.FindLast() then begin
+                        if CustLedgEntry."Currency Code" = PaymentJnlLine."Currency Code" then
+                            CustLedgEntry.Validate("Remaining Pmt. Disc. Possible", -PaymentJnlLine."Pmt. Disc. Possible")
+                        else begin
+                            if not Currency.Get(CustLedgEntry."Currency Code") then
+                                Currency.InvoiceRoundingDirection();
+                            CustLedgEntry.Validate("Remaining Pmt. Disc. Possible",
+                              Round(
+                                CurrExchRate.ExchangeAmtFCYToFCY(
+                                  CustLedgEntry."Posting Date", PaymentJnlLine."Currency Code", CustLedgEntry."Currency Code", -PaymentJnlLine."Pmt. Disc. Possible"),
+                                Currency."Amount Rounding Precision"));
                         end;
+                        CustLedgEntry.Validate("Pmt. Discount Date", PaymentJnlLine."Posting Date");
+                        CustLedgEntry.Modify(true);
                     end;
-                "Account Type"::Vendor:
-                    begin
-                        VendLedgEntry.SetCurrentKey("Document No.");
-                        VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                        VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                        VendLedgEntry.SetRange("Vendor No.", "Account No.");
-                        VendLedgEntry.SetRange(Open, true);
-                        if VendLedgEntry.FindLast() then begin
-                            if VendLedgEntry."Currency Code" = "Currency Code" then
-                                VendLedgEntry.Validate("Remaining Pmt. Disc. Possible", -"Pmt. Disc. Possible")
-                            else begin
-                                if not Currency.Get(VendLedgEntry."Currency Code") then
-                                    Currency.InvoiceRoundingDirection;
-                                VendLedgEntry.Validate("Remaining Pmt. Disc. Possible",
-                                  Round(
-                                    CurrExchRate.ExchangeAmtFCYToFCY(
-                                      VendLedgEntry."Posting Date", "Currency Code", VendLedgEntry."Currency Code", -"Pmt. Disc. Possible"),
-                                    Currency."Amount Rounding Precision"));
-                            end;
-                            VendLedgEntry.Validate("Pmt. Discount Date", "Posting Date");
-                            VendLedgEntry.Modify(true);
+                end;
+            PaymentJnlLine."Account Type"::Vendor:
+                begin
+                    VendLedgEntry.SetCurrentKey("Document No.");
+                    VendLedgEntry.SetRange("Document Type", PaymentJnlLine."Applies-to Doc. Type");
+                    VendLedgEntry.SetRange("Document No.", PaymentJnlLine."Applies-to Doc. No.");
+                    VendLedgEntry.SetRange("Vendor No.", PaymentJnlLine."Account No.");
+                    VendLedgEntry.SetRange(Open, true);
+                    if VendLedgEntry.FindLast() then begin
+                        if VendLedgEntry."Currency Code" = PaymentJnlLine."Currency Code" then
+                            VendLedgEntry.Validate("Remaining Pmt. Disc. Possible", -PaymentJnlLine."Pmt. Disc. Possible")
+                        else begin
+                            if not Currency.Get(VendLedgEntry."Currency Code") then
+                                Currency.InvoiceRoundingDirection();
+                            VendLedgEntry.Validate("Remaining Pmt. Disc. Possible",
+                              Round(
+                                CurrExchRate.ExchangeAmtFCYToFCY(
+                                  VendLedgEntry."Posting Date", PaymentJnlLine."Currency Code", VendLedgEntry."Currency Code", -PaymentJnlLine."Pmt. Disc. Possible"),
+                                Currency."Amount Rounding Precision"));
                         end;
+                        VendLedgEntry.Validate("Pmt. Discount Date", PaymentJnlLine."Posting Date");
+                        VendLedgEntry.Modify(true);
                     end;
-            end;
+                end;
+        end;
     end;
 
     procedure SetApplID(PaymentJnlLine: Record "Payment Journal Line")
@@ -418,37 +414,36 @@ codeunit 2000000 PmtJrnlManagement
         VendLedgEntry: Record "Vendor Ledger Entry";
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with PaymentJnlLine do
-            case "Account Type" of
-                "Account Type"::Customer:
-                    begin
-                        CustLedgEntry.SetCurrentKey("Document No.");
-                        CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                        CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                        CustLedgEntry.SetRange("Customer No.", "Account No.");
-                        CustLedgEntry.SetRange("Entry No.", "Ledger Entry No.");
-                        CustLedgEntry.SetRange(Open, true);
-                        if CustLedgEntry.FindLast() then begin
-                            CustLedgEntry.Validate("Amount to Apply", -"Original Remaining Amount");
-                            CustLedgEntry.Validate("Applies-to ID", "Applies-to ID");
-                            CustLedgEntry.Modify(true);
-                        end;
+        case PaymentJnlLine."Account Type" of
+            PaymentJnlLine."Account Type"::Customer:
+                begin
+                    CustLedgEntry.SetCurrentKey("Document No.");
+                    CustLedgEntry.SetRange("Document Type", PaymentJnlLine."Applies-to Doc. Type");
+                    CustLedgEntry.SetRange("Document No.", PaymentJnlLine."Applies-to Doc. No.");
+                    CustLedgEntry.SetRange("Customer No.", PaymentJnlLine."Account No.");
+                    CustLedgEntry.SetRange("Entry No.", PaymentJnlLine."Ledger Entry No.");
+                    CustLedgEntry.SetRange(Open, true);
+                    if CustLedgEntry.FindLast() then begin
+                        CustLedgEntry.Validate("Amount to Apply", -PaymentJnlLine."Original Remaining Amount");
+                        CustLedgEntry.Validate("Applies-to ID", PaymentJnlLine."Applies-to ID");
+                        CustLedgEntry.Modify(true);
                     end;
-                "Account Type"::Vendor:
-                    begin
-                        VendLedgEntry.SetCurrentKey("Document No.");
-                        VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                        VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                        VendLedgEntry.SetRange("Vendor No.", "Account No.");
-                        VendLedgEntry.SetRange("Entry No.", "Ledger Entry No.");
-                        VendLedgEntry.SetRange(Open, true);
-                        if VendLedgEntry.FindLast() then begin
-                            VendLedgEntry.Validate("Amount to Apply", -"Original Remaining Amount");
-                            VendLedgEntry.Validate("Applies-to ID", "Applies-to ID");
-                            VendLedgEntry.Modify(true);
-                        end;
+                end;
+            PaymentJnlLine."Account Type"::Vendor:
+                begin
+                    VendLedgEntry.SetCurrentKey("Document No.");
+                    VendLedgEntry.SetRange("Document Type", PaymentJnlLine."Applies-to Doc. Type");
+                    VendLedgEntry.SetRange("Document No.", PaymentJnlLine."Applies-to Doc. No.");
+                    VendLedgEntry.SetRange("Vendor No.", PaymentJnlLine."Account No.");
+                    VendLedgEntry.SetRange("Entry No.", PaymentJnlLine."Ledger Entry No.");
+                    VendLedgEntry.SetRange(Open, true);
+                    if VendLedgEntry.FindLast() then begin
+                        VendLedgEntry.Validate("Amount to Apply", -PaymentJnlLine."Original Remaining Amount");
+                        VendLedgEntry.Validate("Applies-to ID", PaymentJnlLine."Applies-to ID");
+                        VendLedgEntry.Modify(true);
                     end;
-            end;
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

@@ -29,6 +29,7 @@ table 11307 "G/L Entry Application Buffer"
     Caption = 'G/L Entry Application Buffer';
     DrillDownPageID = "General Ledger Entries";
     LookupPageID = "General Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

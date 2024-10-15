@@ -11,7 +11,7 @@ codeunit 2000004 "Check SEPA Payments"
     trigger OnRun()
     begin
         CheckPaymJnlLine.Init();
-        CheckPaymJnlLine.CheckCompanyName;
+        CheckPaymJnlLine.CheckCompanyName();
 
         if Rec.FindSet() then begin
             CheckPaymJnlLine.CheckExportProtocol(Rec."Export Protocol Code");
@@ -23,11 +23,11 @@ codeunit 2000004 "Check SEPA Payments"
                 CheckPaymJnlLine.ErrorIfCurrencyNotEuro(Rec);
                 OnAfterCheckPaymJnlLine(Rec, CheckPaymJnlLine);
             until Rec.Next() = 0;
-            CheckPaymJnlLine.CheckTotalLineAmounts;
+            CheckPaymJnlLine.CheckTotalLineAmounts();
         end else
-            CheckPaymJnlLine.ErrorNoPayments;
+            CheckPaymJnlLine.ErrorNoPayments();
 
-        CheckPaymJnlLine.ShowErrorLog;
+        CheckPaymJnlLine.ShowErrorLog();
     end;
 
     var

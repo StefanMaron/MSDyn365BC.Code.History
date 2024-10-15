@@ -31,7 +31,7 @@ page 790 "G/L Account Categories"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
-                    StyleExpr = Rec."Has Children" OR (Rec.Indentation = 0);
+                    StyleExpr = Rec."Has Children" or (Rec.Indentation = 0);
                     ToolTip = 'Specifies a description of the record.';
                 }
                 field("Account Category"; Rec."Account Category")
@@ -68,7 +68,7 @@ page 790 "G/L Account Categories"
                     Caption = 'Balance';
                     Editable = false;
                     Style = Strong;
-                    StyleExpr = Rec."Has Children" OR (Rec.Indentation = 0);
+                    StyleExpr = Rec."Has Children" or (Rec.Indentation = 0);
                     ToolTip = 'Specifies the balance of the G/L account.';
                 }
             }

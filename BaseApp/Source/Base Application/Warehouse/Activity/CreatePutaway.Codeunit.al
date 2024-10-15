@@ -52,7 +52,7 @@ codeunit 7313 "Create Put-away"
         WMSManagement: Codeunit "WMS Management";
         UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        BinTypeFilter: Text[250];
+        BinTypeFilter: Text;
         MessageText: Text;
         WarehouseClassCode: Code[10];
         AssignedID: Code[50];
@@ -153,7 +153,7 @@ codeunit 7313 "Create Put-away"
                     OnCodeOnBeforeCreateBinTypeFilter(PostedWhseReceiptLine, CurrWarehouseActivityLine, CurrWarehouseActivityHeader, CurrLocation, LineNo, BreakbulkNo, BreakbulkFilter, QtyToPutAwayBase, RemQtyToPutAwayBase, BreakPackage, Breakbulk, CrossDockInfo, PutAwayItemUnitOfMeasure, DoNotFillQtytoHandle, EverythingHandled, IsHandled);
                     if not IsHandled then
                         if CurrLocation."Directed Put-away and Pick" then
-                            BinType.CreateBinTypeFilter(BinTypeFilter, 2);
+                            BinType.CreateBinTypeFilter(BinTypeFilter, BinType.FieldNo("Put away"));
 
                     IsHandled := false;
                     OnCodeOnBeforeSearchBin(PostedWhseReceiptLine, CurrWarehouseActivityLine, CurrWarehouseActivityHeader, CurrLocation, LineNo, BreakbulkNo, BreakbulkFilter, QtyToPutAwayBase, RemQtyToPutAwayBase, BreakPackage, Breakbulk, CrossDockInfo, PutAwayItemUnitOfMeasure, DoNotFillQtytoHandle, EverythingHandled, IsHandled);
@@ -495,7 +495,7 @@ codeunit 7313 "Create Put-away"
         exit(BinContentFound);
     end;
 
-    local procedure FindBin(LocationCode: Code[10]; WarehouseClassCode: Code[10]): Boolean
+    procedure FindBin(LocationCode: Code[10]; WarehouseClassCode: Code[10]): Boolean
     var
         WhseActivLine: Record "Warehouse Activity Line";
         BinFound: Boolean;
@@ -533,7 +533,7 @@ codeunit 7313 "Create Put-away"
                         exit(true);
             until CurrBin.Next(-1) = 0;
         end;
-        exit(false)
+        exit(false);
     end;
 
     procedure CalcQtyToPutAway(EmptyZoneBin: Boolean; NewBinContent: Boolean)
@@ -832,24 +832,30 @@ codeunit 7313 "Create Put-away"
         exit(Found);
     end;
 
+#if not CLEAN24
+    [Obsolete('Replaced with GetMessageText that is without Text length limit', '24.0')]
     procedure GetMessage(var ErrText000: Text[80])
     begin
         ErrText000 := CopyStr(MessageText, 1, MaxStrLen(ErrText000));
 
         OnAfterGetMessage(ErrText000);
     end;
+#endif
 
     procedure GetMessageText(var ErrorText: Text)
+#if not CLEAN24
     var
         ErrorText80: Text[80];
+#endif
     begin
         ErrorText := MessageText;
 
+#if not CLEAN24
         ErrorText80 := CopyStr(ErrorText, 1, MaxStrLen(ErrorText80));
         OnAfterGetMessage(ErrorText80);
         if CopyStr(ErrorText, 1, MaxStrLen(ErrorText80)) <> ErrorText80 then
             ErrorText := ErrorText80;
-
+#endif
         OnAfterGetMessageText(ErrorText);
     end;
 
@@ -962,10 +968,11 @@ codeunit 7313 "Create Put-away"
             until WarehouseActivityLine.Next() = 0;
     end;
 
-    local procedure IsFloatingBin(): Boolean
+    procedure IsFloatingBin(): Boolean
     begin
-        if CurrBin.Dedicated = true then
+        if CurrBin.Dedicated then
             exit(false);
+
         CurrBinContent.Reset();
         CurrBinContent.SetRange(CurrBinContent."Location Code", CurrBin."Location Code");
         CurrBinContent.SetRange(CurrBinContent."Zone Code", CurrBin."Zone Code");
@@ -1032,10 +1039,13 @@ codeunit 7313 "Create Put-away"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('Replaced with OnAfterGetMessageText as parent procedure GetMessage is replaced GetMessageText', '24.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetMessage(var MessageText: Text[80])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetMessageText(var MessageText: Text)

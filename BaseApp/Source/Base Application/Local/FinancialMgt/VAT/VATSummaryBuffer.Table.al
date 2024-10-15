@@ -12,6 +12,7 @@ table 11303 "VAT Summary Buffer"
     Caption = 'VAT Summary Buffer';
     DrillDownPageID = "VAT Posting Setup";
     LookupPageID = "VAT Posting Setup";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -1896,15 +1896,6 @@ Fields!GenJnlTempName.Value</Value>
                                       <GroupExpressions>
                                         <GroupExpression>=Fields!Name_GenJnlTemp.Value</GroupExpression>
                                       </GroupExpressions>
-                                      <Filters>
-                                        <Filter>
-                                          <FilterExpression>CSTR(Fields!General_LedgerCaption_Control36.Value)</FilterExpression>
-                                          <Operator>GreaterThan</Operator>
-                                          <FilterValues>
-                                            <FilterValue>""</FilterValue>
-                                          </FilterValues>
-                                        </Filter>
-                                      </Filters>
                                     </Group>
                                     <TablixMembers>
                                       <TablixMember>

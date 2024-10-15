@@ -493,7 +493,7 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type);
         Commit();
         FileTempBlob.CreateOutStream(FileOutStream);
-        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, '', false, false);
+        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, '', false, false); // BE
         IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlBatch);
         IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
         IntrastatMakeDiskTaxAuth.UseRequestPage(true);

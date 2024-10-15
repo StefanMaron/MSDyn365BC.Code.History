@@ -40,12 +40,12 @@ codeunit 134837 "Test Contact Lookup"
 
         // Setup - Create a Sales Order for the created customer
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         // Execute - Lookup the Contact field
         LibraryVariableStorage.Enqueue(Customer."Primary Contact No.");
-        SalesOrder."Sell-to Contact".Lookup;
+        SalesOrder."Sell-to Contact".Lookup();
 
         // Verify - Modal page handler does the verification
     end;
@@ -62,8 +62,8 @@ codeunit 134837 "Test Contact Lookup"
     begin
         // Setup - Initialize
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
         // Setup - Create a Sell-to Customer amd a Bill-to Customer with a Contact each
         LibrarySmallBusiness.CreateCustomer(SellToCustomer);
@@ -76,12 +76,12 @@ codeunit 134837 "Test Contact Lookup"
         SalesHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
         SalesHeader.Modify(true);
 
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         // Execute - Lookup the Contact field
         LibraryVariableStorage.Enqueue(BillToCustomer."Primary Contact No.");
-        SalesOrder."Bill-to Contact".Lookup;
+        SalesOrder."Bill-to Contact".Lookup();
 
         // Verify - Modal page handler does the verification
     end;
@@ -104,12 +104,12 @@ codeunit 134837 "Test Contact Lookup"
 
         // Setup - Create a Purchase Invoice for the created vendor
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         // Execute - Lookup the Contact field
         LibraryVariableStorage.Enqueue(Vendor."Primary Contact No.");
-        PurchaseInvoice."Buy-from Contact".Lookup;
+        PurchaseInvoice."Buy-from Contact".Lookup();
 
         // Verify - Modal page handler does the verification
     end;
@@ -138,12 +138,12 @@ codeunit 134837 "Test Contact Lookup"
         PurchaseHeader.Validate("Pay-to Vendor No.", PayToVendor."No.");
         PurchaseHeader.Modify(true);
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         // Execute - Lookup the Contact field
         LibraryVariableStorage.Enqueue(PayToVendor."Primary Contact No.");
-        PurchaseInvoice."Pay-to Contact".Lookup;
+        PurchaseInvoice."Pay-to Contact".Lookup();
 
         // Verify - Modal page handler does the verification
     end;
@@ -164,12 +164,12 @@ codeunit 134837 "Test Contact Lookup"
         Customer.Validate(Contact, StrSubstNo('%1 %2', LibraryUtility.GenerateRandomText(10), LibraryUtility.GenerateRandomText(10)));
 
         // Setup - Open a Customer Card
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
 
         // Execute - Lookup the Contact field
         LibraryVariableStorage.Enqueue(Customer."Primary Contact No.");
-        CustomerCard.ContactName.Lookup;
+        CustomerCard.ContactName.Lookup();
 
         // Verify - Modal page handler does the verification
     end;
@@ -190,12 +190,12 @@ codeunit 134837 "Test Contact Lookup"
         Vendor.Validate(Contact, StrSubstNo('%1 %2', LibraryUtility.GenerateRandomText(10), LibraryUtility.GenerateRandomText(10)));
 
         // Setup - Open a Vendor Card
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
 
         // Execute - Lookup the Contact field
         LibraryVariableStorage.Enqueue(Vendor."Primary Contact No.");
-        VendorCard.Control16.Lookup;
+        VendorCard.Control16.Lookup();
 
         // Verify - Modal page handler does the verification
     end;
@@ -223,7 +223,7 @@ codeunit 134837 "Test Contact Lookup"
 
         // [WHEN] Look up contact list from "Sell-to Contact"
         LibraryVariableStorage.Enqueue(Contact."No.");
-        SalesQuote."Sell-to Contact".Lookup;
+        SalesQuote."Sell-to Contact".Lookup();
 
         // [THEN] Filter of the field "Company No." of the contact list is equal to the "Company No." of "C"
         // Verification in ContactListCheckFilterModalPageHandler
@@ -568,8 +568,8 @@ codeunit 134837 "Test Contact Lookup"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Contact Lookup");
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
         LibraryVariableStorage.Clear();
         LibraryApplicationArea.EnableFoundationSetup();
         ObjectOptions.DeleteAll();
@@ -647,7 +647,7 @@ codeunit 134837 "Test Contact Lookup"
     var
         Contact: Record Contact;
     begin
-        Contact.Get(LibraryVariableStorage.DequeueText);
+        Contact.Get(LibraryVariableStorage.DequeueText());
         ContactList."No.".AssertEquals(Contact."No.");
         Contact.TestField("Company No.", ContactList.FILTER.GetFilter("Company No."));
     end;
@@ -658,7 +658,7 @@ codeunit 134837 "Test Contact Lookup"
     var
         Contact: Record Contact;
     begin
-        Contact.Get(LibraryVariableStorage.DequeueText);
+        Contact.Get(LibraryVariableStorage.DequeueText());
         Contact.TestField("Company No.", ContactList.FILTER.GetFilter("Company No."));
     end;
 }

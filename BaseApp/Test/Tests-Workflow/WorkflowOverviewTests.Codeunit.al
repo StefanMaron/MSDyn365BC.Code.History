@@ -45,20 +45,20 @@ codeunit 134209 "Workflow Overview Tests"
         // Setup
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
         LibrarySales.CreateCustomer(Customer);
 
         // Exercise - Send for approval
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.SendApprovalRequest.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
 
         // Verify
         LibraryVariableStorage.Enqueue(Format(Customer.RecordId, 0, 1));
-        CustomerCard.WorkflowStatus.First;
+        CustomerCard.WorkflowStatus.First();
         CustomerCard.WorkflowStatus.WorkflowDescription.AssertEquals(Workflow.Description);
-        CustomerCard.WorkflowStatus.WorkflowDescription.DrillDown;
-        Assert.IsFalse(CustomerCard.WorkflowStatus.Next, CustomerCard.WorkflowStatus.WorkflowDescription.Value);
+        CustomerCard.WorkflowStatus.WorkflowDescription.DrillDown();
+        Assert.IsFalse(CustomerCard.WorkflowStatus.Next(), CustomerCard.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     [Test]
@@ -82,27 +82,27 @@ codeunit 134209 "Workflow Overview Tests"
         // Setup
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow1, WorkflowSetup.CustomerWorkflowCode);
-        CreateEnabledWorkflow(Workflow2, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow1, WorkflowSetup.CustomerWorkflowCode());
+        CreateEnabledWorkflow(Workflow2, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
         LibrarySales.CreateCustomer(Customer);
 
         // Exercise - Send for approval
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoRecord(Customer);
-        CustomerCard.SendApprovalRequest.Invoke;
+        CustomerCard.SendApprovalRequest.Invoke();
 
         // Exercise - Change credit limit
         CustomerCard."Credit Limit (LCY)".SetValue(LibraryRandom.RandInt(1000));
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
 
         // Verify
-        CustomerCard.OpenView;
+        CustomerCard.OpenView();
         CustomerCard.GotoRecord(Customer);
         CustomerCard.WorkflowStatus.FILTER.SetFilter(CustomerCard.WorkflowStatus.FILTER."Workflow Code", Workflow1.Code);
-        Assert.IsTrue(CustomerCard.WorkflowStatus.First, Workflow1.Description + ' is missing from the factbox.');
+        Assert.IsTrue(CustomerCard.WorkflowStatus.First(), Workflow1.Description + ' is missing from the factbox.');
 
         CustomerCard.WorkflowStatus.FILTER.SetFilter(CustomerCard.WorkflowStatus.FILTER."Workflow Code", Workflow2.Code);
-        Assert.IsTrue(CustomerCard.WorkflowStatus.First, Workflow2.Description + ' is missing from the factbox.');
+        Assert.IsTrue(CustomerCard.WorkflowStatus.First(), Workflow2.Description + ' is missing from the factbox.');
     end;
 
     [Scope('OnPrem')]
@@ -133,7 +133,7 @@ codeunit 134209 "Workflow Overview Tests"
 
         ApprovalEntry.SetRange("Record ID to Approve", SalesHeader.RecordId);
         ApprovalEntry.FindFirst();
-        ApprovalEntry.ShowRecord;
+        ApprovalEntry.ShowRecord();
 
         // Verify: in handler.
     end;
@@ -145,7 +145,7 @@ codeunit 134209 "Workflow Overview Tests"
     var
         SalesHeader: Record "Sales Header";
     begin
-        TestSalesDocWorkflowsFactbox(WorkflowSetup.SalesInvoiceApprovalWorkflowCode, SalesHeader."Document Type"::Invoice);
+        TestSalesDocWorkflowsFactbox(WorkflowSetup.SalesInvoiceApprovalWorkflowCode(), SalesHeader."Document Type"::Invoice);
     end;
 
     [Test]
@@ -155,7 +155,7 @@ codeunit 134209 "Workflow Overview Tests"
     var
         SalesHeader: Record "Sales Header";
     begin
-        TestSalesDocWorkflowsFactbox(WorkflowSetup.SalesOrderApprovalWorkflowCode, SalesHeader."Document Type"::Order);
+        TestSalesDocWorkflowsFactbox(WorkflowSetup.SalesOrderApprovalWorkflowCode(), SalesHeader."Document Type"::Order);
     end;
 
     [Test]
@@ -165,7 +165,7 @@ codeunit 134209 "Workflow Overview Tests"
     var
         SalesHeader: Record "Sales Header";
     begin
-        TestSalesDocWorkflowsFactbox(WorkflowSetup.SalesQuoteApprovalWorkflowCode, SalesHeader."Document Type"::Quote);
+        TestSalesDocWorkflowsFactbox(WorkflowSetup.SalesQuoteApprovalWorkflowCode(), SalesHeader."Document Type"::Quote);
     end;
 
     [Test]
@@ -175,7 +175,7 @@ codeunit 134209 "Workflow Overview Tests"
     var
         SalesHeader: Record "Sales Header";
     begin
-        TestSalesDocWorkflowsFactbox(WorkflowSetup.SalesReturnOrderApprovalWorkflowCode, SalesHeader."Document Type"::"Return Order");
+        TestSalesDocWorkflowsFactbox(WorkflowSetup.SalesReturnOrderApprovalWorkflowCode(), SalesHeader."Document Type"::"Return Order");
     end;
 
     [Test]
@@ -185,7 +185,7 @@ codeunit 134209 "Workflow Overview Tests"
     var
         SalesHeader: Record "Sales Header";
     begin
-        TestSalesDocWorkflowsFactbox(WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode, SalesHeader."Document Type"::"Blanket Order");
+        TestSalesDocWorkflowsFactbox(WorkflowSetup.SalesBlanketOrderApprovalWorkflowCode(), SalesHeader."Document Type"::"Blanket Order");
     end;
 
     [Test]
@@ -195,7 +195,7 @@ codeunit 134209 "Workflow Overview Tests"
     var
         SalesHeader: Record "Sales Header";
     begin
-        TestSalesDocWorkflowsFactbox(WorkflowSetup.SalesCreditMemoApprovalWorkflowCode, SalesHeader."Document Type"::"Credit Memo");
+        TestSalesDocWorkflowsFactbox(WorkflowSetup.SalesCreditMemoApprovalWorkflowCode(), SalesHeader."Document Type"::"Credit Memo");
     end;
 
     [Scope('OnPrem')]
@@ -226,7 +226,7 @@ codeunit 134209 "Workflow Overview Tests"
 
         ApprovalEntry.SetRange("Record ID to Approve", PurchaseHeader.RecordId);
         ApprovalEntry.FindFirst();
-        ApprovalEntry.ShowRecord;
+        ApprovalEntry.ShowRecord();
 
         // Verify: in handler.
     end;
@@ -238,7 +238,7 @@ codeunit 134209 "Workflow Overview Tests"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        TestPurchDocWorkflowsFactbox(WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode, PurchaseHeader."Document Type"::Invoice);
+        TestPurchDocWorkflowsFactbox(WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode(), PurchaseHeader."Document Type"::Invoice);
     end;
 
     [Test]
@@ -248,7 +248,7 @@ codeunit 134209 "Workflow Overview Tests"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        TestPurchDocWorkflowsFactbox(WorkflowSetup.PurchaseOrderApprovalWorkflowCode, PurchaseHeader."Document Type"::Order);
+        TestPurchDocWorkflowsFactbox(WorkflowSetup.PurchaseOrderApprovalWorkflowCode(), PurchaseHeader."Document Type"::Order);
     end;
 
     [Test]
@@ -258,7 +258,7 @@ codeunit 134209 "Workflow Overview Tests"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        TestPurchDocWorkflowsFactbox(WorkflowSetup.PurchaseQuoteApprovalWorkflowCode, PurchaseHeader."Document Type"::Quote);
+        TestPurchDocWorkflowsFactbox(WorkflowSetup.PurchaseQuoteApprovalWorkflowCode(), PurchaseHeader."Document Type"::Quote);
     end;
 
     [Test]
@@ -269,7 +269,7 @@ codeunit 134209 "Workflow Overview Tests"
         PurchaseHeader: Record "Purchase Header";
     begin
         TestPurchDocWorkflowsFactbox(
-          WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode, PurchaseHeader."Document Type"::"Return Order");
+          WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode(), PurchaseHeader."Document Type"::"Return Order");
     end;
 
     [Test]
@@ -280,7 +280,7 @@ codeunit 134209 "Workflow Overview Tests"
         PurchaseHeader: Record "Purchase Header";
     begin
         TestPurchDocWorkflowsFactbox(
-          WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode, PurchaseHeader."Document Type"::"Blanket Order");
+          WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode(), PurchaseHeader."Document Type"::"Blanket Order");
     end;
 
     [Test]
@@ -290,7 +290,7 @@ codeunit 134209 "Workflow Overview Tests"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        TestPurchDocWorkflowsFactbox(WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode, PurchaseHeader."Document Type"::"Credit Memo");
+        TestPurchDocWorkflowsFactbox(WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode(), PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
     [Test]
@@ -312,20 +312,20 @@ codeunit 134209 "Workflow Overview Tests"
         // [GIVEN] Create the Workflow Setup
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.VendorWorkflowCode());
         LibraryPurchase.CreateVendor(Vendor);
 
         //[THEN] Exercise - Send for approval
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        VendorCard.SendApprovalRequest.Invoke;
+        VendorCard.SendApprovalRequest.Invoke();
 
         // [VERIFY]
         LibraryVariableStorage.Enqueue(Format(Vendor.RecordId, 0, 1));
-        VendorCard.WorkflowStatus.First;
+        VendorCard.WorkflowStatus.First();
         VendorCard.WorkflowStatus.WorkflowDescription.AssertEquals(Workflow.Description);
-        VendorCard.WorkflowStatus.WorkflowDescription.DrillDown;
-        Assert.IsFalse(VendorCard.WorkflowStatus.Next, VendorCard.WorkflowStatus.WorkflowDescription.Value);
+        VendorCard.WorkflowStatus.WorkflowDescription.DrillDown();
+        Assert.IsFalse(VendorCard.WorkflowStatus.Next(), VendorCard.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     local procedure Initialize()
@@ -333,7 +333,7 @@ codeunit 134209 "Workflow Overview Tests"
         UserSetup: Record "User Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Overview Tests");
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
@@ -353,7 +353,7 @@ codeunit 134209 "Workflow Overview Tests"
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowTemplateCode);
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
         WorkflowStep.FindFirst();
         LibraryWorkflow.InsertApprovalArgument(WorkflowStep.ID, WorkflowStepArgument."Approver Type"::Approver,
           WorkflowStepArgument."Approver Limit Type"::"Direct Approver", '', false);
@@ -364,18 +364,18 @@ codeunit 134209 "Workflow Overview Tests"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
     end;
 
     local procedure CreatePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
     end;
 
     [MessageHandler]
@@ -392,7 +392,7 @@ codeunit 134209 "Workflow Overview Tests"
     begin
         LibraryVariableStorage.Dequeue(RecID);
         WorkflowOverview.FILTER.SetFilter("Record ID", RecID);
-        Assert.IsTrue(WorkflowOverview.First, 'Unexpected step.');
+        Assert.IsTrue(WorkflowOverview.First(), 'Unexpected step.');
     end;
 
     [PageHandler]
@@ -402,9 +402,9 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowDesc: Variant;
     begin
         LibraryVariableStorage.Dequeue(WorkflowDesc);
-        SalesInvoice.WorkflowStatus.First;
+        SalesInvoice.WorkflowStatus.First();
         SalesInvoice.WorkflowStatus.WorkflowDescription.AssertEquals(WorkflowDesc);
-        Assert.IsFalse(SalesInvoice.WorkflowStatus.Next, SalesInvoice.WorkflowStatus.WorkflowDescription.Value);
+        Assert.IsFalse(SalesInvoice.WorkflowStatus.Next(), SalesInvoice.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     [PageHandler]
@@ -414,9 +414,9 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowDesc: Variant;
     begin
         LibraryVariableStorage.Dequeue(WorkflowDesc);
-        SalesOrder.WorkflowStatus.First;
+        SalesOrder.WorkflowStatus.First();
         SalesOrder.WorkflowStatus.WorkflowDescription.AssertEquals(WorkflowDesc);
-        Assert.IsFalse(SalesOrder.WorkflowStatus.Next, SalesOrder.WorkflowStatus.WorkflowDescription.Value);
+        Assert.IsFalse(SalesOrder.WorkflowStatus.Next(), SalesOrder.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     [PageHandler]
@@ -426,9 +426,9 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowDesc: Variant;
     begin
         LibraryVariableStorage.Dequeue(WorkflowDesc);
-        SalesQuote.WorkflowStatus.First;
+        SalesQuote.WorkflowStatus.First();
         SalesQuote.WorkflowStatus.WorkflowDescription.AssertEquals(WorkflowDesc);
-        Assert.IsFalse(SalesQuote.WorkflowStatus.Next, SalesQuote.WorkflowStatus.WorkflowDescription.Value);
+        Assert.IsFalse(SalesQuote.WorkflowStatus.Next(), SalesQuote.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     [PageHandler]
@@ -438,9 +438,9 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowDesc: Variant;
     begin
         LibraryVariableStorage.Dequeue(WorkflowDesc);
-        SalesReturnOrder.WorkflowStatus.First;
+        SalesReturnOrder.WorkflowStatus.First();
         SalesReturnOrder.WorkflowStatus.WorkflowDescription.AssertEquals(WorkflowDesc);
-        Assert.IsFalse(SalesReturnOrder.WorkflowStatus.Next, SalesReturnOrder.WorkflowStatus.WorkflowDescription.Value);
+        Assert.IsFalse(SalesReturnOrder.WorkflowStatus.Next(), SalesReturnOrder.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     [PageHandler]
@@ -450,9 +450,9 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowDesc: Variant;
     begin
         LibraryVariableStorage.Dequeue(WorkflowDesc);
-        BlanketSalesOrder.WorkflowStatus.First;
+        BlanketSalesOrder.WorkflowStatus.First();
         BlanketSalesOrder.WorkflowStatus.WorkflowDescription.AssertEquals(WorkflowDesc);
-        Assert.IsFalse(BlanketSalesOrder.WorkflowStatus.Next, BlanketSalesOrder.WorkflowStatus.WorkflowDescription.Value);
+        Assert.IsFalse(BlanketSalesOrder.WorkflowStatus.Next(), BlanketSalesOrder.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     [PageHandler]
@@ -462,9 +462,9 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowDesc: Variant;
     begin
         LibraryVariableStorage.Dequeue(WorkflowDesc);
-        SalesCreditMemo.WorkflowStatus.First;
+        SalesCreditMemo.WorkflowStatus.First();
         SalesCreditMemo.WorkflowStatus.WorkflowDescription.AssertEquals(WorkflowDesc);
-        Assert.IsFalse(SalesCreditMemo.WorkflowStatus.Next, SalesCreditMemo.WorkflowStatus.WorkflowDescription.Value);
+        Assert.IsFalse(SalesCreditMemo.WorkflowStatus.Next(), SalesCreditMemo.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     [PageHandler]
@@ -474,9 +474,9 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowDesc: Variant;
     begin
         LibraryVariableStorage.Dequeue(WorkflowDesc);
-        PurchaseInvoice.WorkflowStatus.First;
+        PurchaseInvoice.WorkflowStatus.First();
         PurchaseInvoice.WorkflowStatus.WorkflowDescription.AssertEquals(WorkflowDesc);
-        Assert.IsFalse(PurchaseInvoice.WorkflowStatus.Next, PurchaseInvoice.WorkflowStatus.WorkflowDescription.Value);
+        Assert.IsFalse(PurchaseInvoice.WorkflowStatus.Next(), PurchaseInvoice.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     [PageHandler]
@@ -486,9 +486,9 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowDesc: Variant;
     begin
         LibraryVariableStorage.Dequeue(WorkflowDesc);
-        PurchaseOrder.WorkflowStatus.First;
+        PurchaseOrder.WorkflowStatus.First();
         PurchaseOrder.WorkflowStatus.WorkflowDescription.AssertEquals(WorkflowDesc);
-        Assert.IsFalse(PurchaseOrder.WorkflowStatus.Next, PurchaseOrder.WorkflowStatus.WorkflowDescription.Value);
+        Assert.IsFalse(PurchaseOrder.WorkflowStatus.Next(), PurchaseOrder.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     [PageHandler]
@@ -498,9 +498,9 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowDesc: Variant;
     begin
         LibraryVariableStorage.Dequeue(WorkflowDesc);
-        PurchaseQuote.WorkflowStatus.First;
+        PurchaseQuote.WorkflowStatus.First();
         PurchaseQuote.WorkflowStatus.WorkflowDescription.AssertEquals(WorkflowDesc);
-        Assert.IsFalse(PurchaseQuote.WorkflowStatus.Next, PurchaseQuote.WorkflowStatus.WorkflowDescription.Value);
+        Assert.IsFalse(PurchaseQuote.WorkflowStatus.Next(), PurchaseQuote.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     [PageHandler]
@@ -510,9 +510,9 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowDesc: Variant;
     begin
         LibraryVariableStorage.Dequeue(WorkflowDesc);
-        PurchaseReturnOrder.WorkflowStatus.First;
+        PurchaseReturnOrder.WorkflowStatus.First();
         PurchaseReturnOrder.WorkflowStatus.WorkflowDescription.AssertEquals(WorkflowDesc);
-        Assert.IsFalse(PurchaseReturnOrder.WorkflowStatus.Next, PurchaseReturnOrder.WorkflowStatus.WorkflowDescription.Value);
+        Assert.IsFalse(PurchaseReturnOrder.WorkflowStatus.Next(), PurchaseReturnOrder.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     [PageHandler]
@@ -522,9 +522,9 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowDesc: Variant;
     begin
         LibraryVariableStorage.Dequeue(WorkflowDesc);
-        BlanketPurchaseOrder.WorkflowStatus.First;
+        BlanketPurchaseOrder.WorkflowStatus.First();
         BlanketPurchaseOrder.WorkflowStatus.WorkflowDescription.AssertEquals(WorkflowDesc);
-        Assert.IsFalse(BlanketPurchaseOrder.WorkflowStatus.Next, BlanketPurchaseOrder.WorkflowStatus.WorkflowDescription.Value);
+        Assert.IsFalse(BlanketPurchaseOrder.WorkflowStatus.Next(), BlanketPurchaseOrder.WorkflowStatus.WorkflowDescription.Value);
     end;
 
     [PageHandler]
@@ -534,9 +534,9 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowDesc: Variant;
     begin
         LibraryVariableStorage.Dequeue(WorkflowDesc);
-        PurchaseCreditMemo.WorkflowStatus.First;
+        PurchaseCreditMemo.WorkflowStatus.First();
         PurchaseCreditMemo.WorkflowStatus.WorkflowDescription.AssertEquals(WorkflowDesc);
-        Assert.IsFalse(PurchaseCreditMemo.WorkflowStatus.Next, PurchaseCreditMemo.WorkflowStatus.WorkflowDescription.Value);
+        Assert.IsFalse(PurchaseCreditMemo.WorkflowStatus.Next(), PurchaseCreditMemo.WorkflowStatus.WorkflowDescription.Value);
     end;
 }
 

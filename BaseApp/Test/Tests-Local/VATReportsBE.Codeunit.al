@@ -330,7 +330,7 @@ codeunit 144010 "VAT Reports BE"
         // Verify
         asserterror VATVIESDeclarationDiskOpen(0, WorkDate(), true, '', Customer."No.");
 
-        LibraryBEHelper.InitializeCompanyInformation;
+        LibraryBEHelper.InitializeCompanyInformation();
     end;
 
     [Test]
@@ -384,7 +384,7 @@ codeunit 144010 "VAT Reports BE"
         VATStatementSummaryOpen(
           DMY2Date(1, 1, Date2DMY(WorkDate(), 3) + 10), 12, true, 2, false, false, false,
           VATStatementName, VATStatementLine."Statement Template Name");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verify
         for I := 1 to 12 do
@@ -413,7 +413,7 @@ codeunit 144010 "VAT Reports BE"
         // [GIVEN] ACY is not set on General Ledger Setup
         AmtInAddCurr := false;
         // [GIVEN] Posted Sales Invoice has Amount = -X
-        PostingDate := GetLastAccPeriodStartDate;
+        PostingDate := GetLastAccPeriodStartDate();
         TotalLineAmount := PostSalesDocument(SalesLine, SalesHeader, PostingDate, AmtInAddCurr);
         // [GIVEN] VAT Statement Line Row A
         CreateVATStatement(
@@ -451,10 +451,10 @@ codeunit 144010 "VAT Reports BE"
         Initialize();
 
         // [GIVEN] ACY is set on General Ledger Setup
-        CreateAddnlReportingCurrency;
+        CreateAddnlReportingCurrency();
         AmtInAddCurr := true;
         // [GIVEN] Posted Sales Invoice has Amount = -X; ACY = -A
-        PostingDate := GetLastAccPeriodStartDate;
+        PostingDate := GetLastAccPeriodStartDate();
         TotalLineAmount := PostSalesDocument(SalesLine, SalesHeader, PostingDate, AmtInAddCurr);
         // [GIVEN] VAT Statement Line Row A
         CreateVATStatement(
@@ -599,14 +599,14 @@ codeunit 144010 "VAT Reports BE"
           LibraryRandom.RandDecInRange(1000, 2000, 5), VATProdPostingSetupCode[1], 0, VATProdPostingSetupCode[2]);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
+        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
         Commit();
 
         // [WHEN] Run "EC Sales List" report
         REPORT.Run(REPORT::"EC Sales List");
 
         // [THEN] Report should contains value in "Total Value of Item Service Supplies" column = 100,25
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValueOnWorksheet(
           33, 3, Format(Round(ExpectedValue[1], 0.01), 0, '<Integer Thousand><Decimals,3><Filler Character,0>'), '1');
         LibraryReportValidation.VerifyCellValueOnWorksheet(
@@ -642,14 +642,14 @@ codeunit 144010 "VAT Reports BE"
           0, VATProdPostingSetupCode[2], LibraryRandom.RandIntInRange(1000, 2000), VATProdPostingSetupCode[1]);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
+        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
         Commit();
 
         // [WHEN] Run "EC Sales List" report
         REPORT.Run(REPORT::"EC Sales List");
 
         // [THEN] Report should contains value in "Total Value of Item Service Supplies" column = 100,00
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValueOnWorksheet(
           33, 3, Format(ExpectedValue[2], 0, '<Integer Thousand><Decimals,3><Filler Character,0>'), '1');
         LibraryReportValidation.VerifyCellValueOnWorksheet(
@@ -700,7 +700,7 @@ codeunit 144010 "VAT Reports BE"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"VAT Reports BE");
 
-        LibraryBEHelper.InitializeCompanyInformation;
+        LibraryBEHelper.InitializeCompanyInformation();
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"VAT Reports BE");
@@ -811,7 +811,7 @@ codeunit 144010 "VAT Reports BE"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrencyAndExchangeRate;
+        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrencyAndExchangeRate();
         GeneralLedgerSetup.Modify(true);
         exit(GeneralLedgerSetup."Additional Reporting Currency");
     end;
@@ -1040,7 +1040,7 @@ codeunit 144010 "VAT Reports BE"
 
     local procedure VerifyVATStatementSummaryTotalInRow(RowNo: Code[10]; TotalAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VAT_Statement_Line__Row_No__', RowNo);
         LibraryReportDataset.AssertElementWithValueExists('TotalAmount_1_', TotalAmount);
     end;
@@ -1095,7 +1095,7 @@ codeunit 144010 "VAT Reports BE"
         LibraryVariableStorage.Dequeue(DequeuedVar);
         VATVIESDeclarationDiskReport.ID.SetValue(DequeuedVar);
 
-        VATVIESDeclarationDiskReport.OK.Invoke
+        VATVIESDeclarationDiskReport.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1130,16 +1130,16 @@ codeunit 144010 "VAT Reports BE"
             VATStatementSummaryReport."VAT Statement Name".SetFilter("Statement Template Name", DequeuedVar);
         end;
 
-        VATStatementSummaryReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATStatementSummaryReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ECSalesListRequestPageHandler(var ECSalesList: TestRequestPage "EC Sales List")
     begin
-        ECSalesList."VAT Entry".SetFilter("Bill-to/Pay-to No.", LibraryVariableStorage.DequeueText);
-        ECSalesList."VAT Entry".SetFilter("Posting Date", Format(LibraryVariableStorage.DequeueDate));
-        ECSalesList.SaveAsExcel(LibraryVariableStorage.DequeueText);
+        ECSalesList."VAT Entry".SetFilter("Bill-to/Pay-to No.", LibraryVariableStorage.DequeueText());
+        ECSalesList."VAT Entry".SetFilter("Posting Date", Format(LibraryVariableStorage.DequeueDate()));
+        ECSalesList.SaveAsExcel(LibraryVariableStorage.DequeueText());
     end;
 }
 

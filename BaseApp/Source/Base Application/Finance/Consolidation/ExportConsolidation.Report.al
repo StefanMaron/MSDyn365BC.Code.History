@@ -501,16 +501,14 @@ report 91 "Export Consolidation"
 
     local procedure UpdateExportedInfo(var GLEntry3: Record "G/L Entry")
     begin
-        with GLEntry3 do begin
-            if Amount < 0 then begin
-                "G/L Account".TestField("Consol. Credit Acc.");
-                "G/L Account No." := "G/L Account"."Consol. Credit Acc.";
-            end else begin
-                "G/L Account".TestField("Consol. Debit Acc.");
-                "G/L Account No." := "G/L Account"."Consol. Debit Acc.";
-            end;
-            Modify();
+        if GLEntry3.Amount < 0 then begin
+            "G/L Account".TestField("Consol. Credit Acc.");
+            GLEntry3."G/L Account No." := "G/L Account"."Consol. Credit Acc.";
+        end else begin
+            "G/L Account".TestField("Consol. Debit Acc.");
+            GLEntry3."G/L Account No." := "G/L Account"."Consol. Debit Acc.";
         end;
+        GLEntry3.Modify();
     end;
 
     local procedure CheckClosingPostings(GLAccNo: Code[20]; StartDate: Date; EndDate: Date)

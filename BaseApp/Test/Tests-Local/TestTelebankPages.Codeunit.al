@@ -28,7 +28,7 @@ codeunit 144022 "Test Telebank Pages"
             ElectronicBankingSetup.Delete();
 
         // Execute
-        ElectronicBankingSetupCard.OpenEdit;
+        ElectronicBankingSetupCard.OpenEdit();
         ElectronicBankingSetupCard.Close();
 
         // Verify
@@ -42,7 +42,7 @@ codeunit 144022 "Test Telebank Pages"
         EBPaymentJournal: TestPage "EB Payment Journal";
     begin
         // Execute
-        EBPaymentJournal.OpenEdit;
+        EBPaymentJournal.OpenEdit();
 
         // Verify
         Assert.AreEqual('', Format(EBPaymentJournal.ExportProtocolCode), '');
@@ -69,10 +69,10 @@ codeunit 144022 "Test Telebank Pages"
         LibraryPaymentJournalBE.InitPmtJournalLine(PaymentJnlTemplate, PaymJournalBatch, PaymentJournalLine);
 
         // Exercise
-        EBPaymentJournalBatches.OpenView;
+        EBPaymentJournalBatches.OpenView();
         EBPaymentJournalBatches.FILTER.SetFilter(Name, PaymJournalBatch.Name);
-        EBPaymentJournalBatches.First;
-        EBPaymentJournalBatches."Edit Journal".Invoke;
+        EBPaymentJournalBatches.First();
+        EBPaymentJournalBatches."Edit Journal".Invoke();
         EBPaymentJournalBatches.Close();
 
         // Verify: Page 2000001 opens - caught by page handler.
@@ -86,8 +86,8 @@ codeunit 144022 "Test Telebank Pages"
         EBPaymentJournal: TestPage "EB Payment Journal";
     begin
         // Execute
-        EBPaymentJournal.OpenEdit;
-        EBPaymentJournal.BankAccountCodeFilter.Lookup;
+        EBPaymentJournal.OpenEdit();
+        EBPaymentJournal.BankAccountCodeFilter.Lookup();
         // Verify
         Assert.AreEqual('', Format(EBPaymentJournal.ExportProtocolCode), '');
         Assert.AreEqual(BankAccountCodeFilter, DelChr(Format(EBPaymentJournal.BankAccountCodeFilter), '<>', ''''), '');
@@ -103,11 +103,11 @@ codeunit 144022 "Test Telebank Pages"
         EBPaymentJournal: TestPage "EB Payment Journal";
     begin
         // Init
-        EBPaymentJournal.OpenEdit;
+        EBPaymentJournal.OpenEdit();
 
         // Exercise
-        if EBPaymentJournal.Last then;
-        EBPaymentJournal.New;
+        if EBPaymentJournal.Last() then;
+        EBPaymentJournal.New();
 
         // Verify
         Assert.AreEqual('', Format(EBPaymentJournal."Account No."), '');
@@ -133,36 +133,36 @@ codeunit 144022 "Test Telebank Pages"
         LibraryPaymentJournalBE.CreateBatch(PaymentJnlTemplate, PaymJournalBatch);
         LibraryPaymentJournalBE.InitPmtJournalLine(PaymentJnlTemplate, PaymJournalBatch, PaymentJournalLine);
         ExportProtocol.Init();
-        ExportProtocol.Code := CopyStr(CreateGuid, 1, MaxStrLen(ExportProtocol.Code));
+        ExportProtocol.Code := CopyStr(CreateGuid(), 1, MaxStrLen(ExportProtocol.Code));
         ExportProtocol.Description := ExportProtocol.Code;
         ExportProtocol."Export Object Type" := ExportProtocol."Export Object Type"::Report;
         ExportProtocol.Insert();
         Commit();
         Vendor.FindFirst();
-        EBPaymentJournal.OpenEdit;
-        EBPaymentJournal.CurrentJnlBatchName.Lookup;
+        EBPaymentJournal.OpenEdit();
+        EBPaymentJournal.CurrentJnlBatchName.Lookup();
         EBPaymentJournal.CurrentJnlBatchName.SetValue(PaymJournalBatch.Name);
         EBPaymentJournal.ExportProtocolCode.SetValue(ExportProtocol.Code);
 
         // Exercise
-        if EBPaymentJournal.Last then;
-        EBPaymentJournal.New;
+        if EBPaymentJournal.Last() then;
+        EBPaymentJournal.New();
         EBPaymentJournal."Posting Date".SetValue(WorkDate());
         EBPaymentJournal."Account Type".SetValue(PaymentJournalLine."Account Type"::Vendor);
         EBPaymentJournal."Account No.".SetValue(Vendor."No.");
-        EBPaymentJournal.New;
+        EBPaymentJournal.New();
         EBPaymentJournal."Posting Date".SetValue(WorkDate());
         EBPaymentJournal."Account Type".SetValue(PaymentJournalLine."Account Type"::Vendor);
         EBPaymentJournal."Account No.".SetValue(Vendor."No.");
         Commit();
 
         // Verify: Verify that the correct pages are opened and handled by handler functions.
-        EBPaymentJournal.Dimensions.Invoke;
-        EBPaymentJournal.Card.Invoke;
-        EBPaymentJournal.LedgerEntries.Invoke;
+        EBPaymentJournal.Dimensions.Invoke();
+        EBPaymentJournal.Card.Invoke();
+        EBPaymentJournal.LedgerEntries.Invoke();
         Commit();
-        EBPaymentJournal.SuggestVendorPayments.Invoke;
-        asserterror EBPaymentJournal.CheckPaymentLines.Invoke;
+        EBPaymentJournal.SuggestVendorPayments.Invoke();
+        asserterror EBPaymentJournal.CheckPaymentLines.Invoke();
 
         // Cleanup
         EBPaymentJournal.Close();
@@ -179,7 +179,7 @@ codeunit 144022 "Test Telebank Pages"
         DomiciliationJournal: TestPage "Domiciliation Journal";
     begin
         // Verify that it opens directly
-        DomiciliationJournal.OpenEdit;
+        DomiciliationJournal.OpenEdit();
         // Cleanup
         DomiciliationJournal.Close();
     end;
@@ -199,10 +199,10 @@ codeunit 144022 "Test Telebank Pages"
         Commit();
 
         // Exercise
-        DomiciliationJournalBatches.OpenView;
+        DomiciliationJournalBatches.OpenView();
         DomiciliationJournalBatches.FILTER.SetFilter(Name, DomiciliationJournalBatch.Name);
-        DomiciliationJournalBatches.First;
-        DomiciliationJournalBatches."Edit Journal".Invoke;
+        DomiciliationJournalBatches.First();
+        DomiciliationJournalBatches."Edit Journal".Invoke();
         DomiciliationJournalBatches.Close();
 
         // Verify: Page 2000022 opens - caught by page handler.
@@ -219,11 +219,11 @@ codeunit 144022 "Test Telebank Pages"
         DomiciliationJournal: TestPage "Domiciliation Journal";
     begin
         // Init
-        DomiciliationJournal.OpenEdit;
+        DomiciliationJournal.OpenEdit();
 
         // Exercise
-        if DomiciliationJournal.Last then;
-        DomiciliationJournal.New;
+        if DomiciliationJournal.Last() then;
+        DomiciliationJournal.New();
 
         // Verify
         Assert.AreEqual('', Format(DomiciliationJournal."Customer No."), '');
@@ -251,32 +251,32 @@ codeunit 144022 "Test Telebank Pages"
         Commit();
         Customer.FindFirst();
         BankAccount.FindSet();
-        DomiciliationJournal.OpenEdit;
-        DomiciliationJournal.CurrentJnlBatchName.Lookup;
+        DomiciliationJournal.OpenEdit();
+        DomiciliationJournal.CurrentJnlBatchName.Lookup();
         DomiciliationJournal.CurrentJnlBatchName.SetValue(DomiciliationJournalBatch.Name);
 
         // Exercise
-        if DomiciliationJournal.Last then;
-        DomiciliationJournal.New;
+        if DomiciliationJournal.Last() then;
+        DomiciliationJournal.New();
         DomiciliationJournal."Posting Date".SetValue(WorkDate());
         DomiciliationJournal."Customer No.".SetValue(Customer."No.");
         DomiciliationJournal."Bank Account No.".SetValue(BankAccount."No.");
-        DomiciliationJournal.New;
+        DomiciliationJournal.New();
         DomiciliationJournal."Posting Date".SetValue(WorkDate());
         DomiciliationJournal."Customer No.".SetValue(Customer."No.");
         DomiciliationJournal."Bank Account No.".SetValue(BankAccount."No.");
         BankAccount.Next();
         DomiciliationJournal."Bank Account No.".SetValue(BankAccount."No.");
-        DomiciliationJournal.Previous;
+        DomiciliationJournal.Previous();
         Commit();
 
         // Verify: Verify that the correct pages are opened and handled by handler functions.
         Assert.AreEqual(BankAccount."No.", DomiciliationJournal."Bank Account No.".Value, '');
-        DomiciliationJournal.Dimensions.Invoke;
-        DomiciliationJournal.Card.Invoke;
-        DomiciliationJournal.LedgerEntries.Invoke;
+        DomiciliationJournal.Dimensions.Invoke();
+        DomiciliationJournal.Card.Invoke();
+        DomiciliationJournal.LedgerEntries.Invoke();
         Commit();
-        DomiciliationJournal.SuggestDomiciliations.Invoke;
+        DomiciliationJournal.SuggestDomiciliations.Invoke();
 
         // Cleanup
         DomiciliationJournal.Close();
@@ -501,9 +501,9 @@ codeunit 144022 "Test Telebank Pages"
     [Scope('OnPrem')]
     procedure BankAccountListHandler(var BankAccountList: TestPage "Bank Account List")
     begin
-        BankAccountList.First;
-        BankAccountCodeFilter := BankAccountList."No.".Value;
-        BankAccountList.OK.Invoke;
+        BankAccountList.First();
+        BankAccountCodeFilter := BankAccountList."No.".Value();
+        BankAccountList.OK().Invoke();
     end;
 
     [PageHandler]
@@ -524,8 +524,8 @@ codeunit 144022 "Test Telebank Pages"
     [Scope('OnPrem')]
     procedure EBPaymentJournalTemplateHandler(var EBPaymentJournalTemplates: TestPage "EB Payment Journal Templates")
     begin
-        EBPaymentJournalTemplates.First;
-        EBPaymentJournalTemplates.OK.Invoke;
+        EBPaymentJournalTemplates.First();
+        EBPaymentJournalTemplates.OK().Invoke();
     end;
 
     [PageHandler]
@@ -546,65 +546,65 @@ codeunit 144022 "Test Telebank Pages"
     [Scope('OnPrem')]
     procedure DomiciliationJournalBatchesLookUpHandler(var DomiciliationJournalBatches: TestPage "Domiciliation Journal Batches")
     begin
-        DomiciliationJournalBatches.First;
-        DomiciliationJournalBatches.OK.Invoke;
+        DomiciliationJournalBatches.First();
+        DomiciliationJournalBatches.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DomiciliationJournalTemplateHandler(var DomicilJournalTemplates: TestPage "Domicil. Journal Templates")
     begin
-        DomicilJournalTemplates.First;
-        DomicilJournalTemplates.OK.Invoke;
+        DomicilJournalTemplates.First();
+        DomicilJournalTemplates.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DimensionSetHandler(var EditDimensionSetEntries: TestPage "Edit Dimension Set Entries")
     begin
-        EditDimensionSetEntries.OK.Invoke;
+        EditDimensionSetEntries.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure CustomerCardHandler(var CustomerCard: TestPage "Customer Card")
     begin
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure CustomerEntriesHandler(var CustomerLedgerEntries: TestPage "Customer Ledger Entries")
     begin
-        CustomerLedgerEntries.OK.Invoke;
+        CustomerLedgerEntries.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure VendorCardHandler(var VendorCard: TestPage "Vendor Card")
     begin
-        VendorCard.OK.Invoke;
+        VendorCard.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure VendorEntriesHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
-        VendorLedgerEntries.OK.Invoke;
+        VendorLedgerEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPage2000019Handler(var SuggestVendorPaymentsEB: TestRequestPage "Suggest Vendor Payments EB")
     begin
-        SuggestVendorPaymentsEB.Cancel.Invoke;
+        SuggestVendorPaymentsEB.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPage2000039Handler(var Suggestdomicilations: TestRequestPage "Suggest domicilations")
     begin
-        Suggestdomicilations.Cancel.Invoke;
+        Suggestdomicilations.Cancel().Invoke();
     end;
 }
 

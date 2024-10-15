@@ -1,5 +1,7 @@
 namespace System.Threading;
 
+using System.Environment;
+
 page 675 "My Job Queue"
 {
     Caption = 'My Job Queue';
@@ -61,24 +63,6 @@ page 675 "My Job Queue"
                     Visible = false;
                 }
             }
-#if not CLEAN21
-            group(Control18)
-            {
-                ShowCaption = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'PingPong control has been deprecated.';
-                ObsoleteTag = '21.0';
-                field(PingPong; DeprecatedFuncTxt)
-                {
-                    Visible = false;
-                    Caption = 'Deprecated';
-                    ToolTip = 'Deprecated';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'PingPong control has been deprecated.';
-                    ObsoleteTag = '21.0';
-                }
-            }
-#endif
         }
     }
 
@@ -156,6 +140,15 @@ page 675 "My Job Queue"
                 ShortCutKey = 'Return';
                 ToolTip = 'Change the settings for the job queue entry.';
             }
+            action(ScheduledTasks)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Scheduled Tasks';
+                Image = ShowList;
+                RunObject = Page "Scheduled Tasks";
+                AccessByPermission = TableData "Scheduled Task" = R;
+                ToolTip = 'View information about which tasks are ready to run in the job queue. The page also shows information about the company that each task is set up to run in.';
+            }
         }
     }
 
@@ -171,8 +164,5 @@ page 675 "My Job Queue"
 
     var
         StatusIsError: Boolean;
-#if not CLEAN21
-        DeprecatedFuncTxt: Label 'This function has been deprecated.';
-#endif        
 }
 

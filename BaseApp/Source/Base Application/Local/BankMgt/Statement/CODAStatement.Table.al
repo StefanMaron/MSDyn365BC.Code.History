@@ -11,6 +11,7 @@ table 2000040 "CODA Statement"
     Caption = 'CODA Statement';
     DataCaptionFields = "Bank Account No.", "Statement No.";
     LookupPageID = "CODA Statement List";
+    DataClassification = CustomerContent;
 
     fields
     {

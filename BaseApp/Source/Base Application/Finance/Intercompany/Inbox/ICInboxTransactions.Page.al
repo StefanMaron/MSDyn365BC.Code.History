@@ -219,23 +219,6 @@ page 615 "IC Inbox Transactions"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
-#if not CLEAN21
-                group("Set Line Action")
-                {
-                    Caption = 'Set Line Action';
-                    Image = SelectLineToApply;
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Not needed, will be removed.';
-                    ObsoleteTag = '21.0';
-                }
-                separator(Action38)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Not needed, will be removed.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 action("Complete Line Actions")
                 {
                     ApplicationArea = Intercompany;
@@ -249,14 +232,6 @@ page 615 "IC Inbox Transactions"
                         RunInboxTransactions(Rec);
                     end;
                 }
-#if not CLEAN21
-                separator(Action9)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Not needed, will be removed.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 action("Import Transaction File")
                 {
                     ApplicationArea = Intercompany;
@@ -394,15 +369,6 @@ page 615 "IC Inbox Transactions"
             {
                 Caption = 'Functions', Comment = 'Generated from the PromotedActionCategories property index 3.';
 
-#if not CLEAN21
-                actionref("Import Transaction File_Promoted"; "Import Transaction File")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category5)
             {

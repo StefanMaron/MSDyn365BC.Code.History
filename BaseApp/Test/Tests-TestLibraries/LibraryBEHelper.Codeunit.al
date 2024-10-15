@@ -27,7 +27,7 @@ codeunit 143000 "Library - BE Helper"
                 Modify();
             end;
             if "Enterprise No." = '' then begin
-                "Enterprise No." := CreateMOD97CompliantCode;
+                "Enterprise No." := CreateMOD97CompliantCode();
                 Modify();
             end;
             if "Country/Region Code" <> 'BE' then begin
@@ -120,7 +120,7 @@ codeunit 143000 "Library - BE Helper"
     [Scope('OnPrem')]
     procedure CreateEnterpriseNo(): Code[20]
     begin
-        exit('TVA' + CreateMOD97CompliantCode)
+        exit('TVA' + CreateMOD97CompliantCode());
     end;
 
     [Scope('OnPrem')]
@@ -194,7 +194,7 @@ codeunit 143000 "Library - BE Helper"
     begin
         LibrarySales.CreateCustomer(Customer);
 
-        CreateVATRegNoFormat(CountryCode, GetVATRegNoFormatText);
+        CreateVATRegNoFormat(CountryCode, GetVATRegNoFormatText());
         with Customer do begin
             "Country/Region Code" := CountryCode;
             if CountryCode <> 'BE' then
@@ -212,7 +212,7 @@ codeunit 143000 "Library - BE Helper"
 
         CreateCustomer(Customer, CompanyInformation."Country/Region Code");
         with Customer do begin
-            Validate("Enterprise No.", CreateEnterpriseNo);
+            Validate("Enterprise No.", CreateEnterpriseNo());
             Modify();
         end;
         ClearVATEntriesByEnterpriseNo(Customer."Enterprise No.");

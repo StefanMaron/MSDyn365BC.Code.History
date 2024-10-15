@@ -7,6 +7,7 @@ namespace Microsoft.Projects.TimeSheet;
 table 953 "Time Sheet Comment Line"
 {
     Caption = 'Time Sheet Comment Line';
+    DataClassification = CustomerContent;
 
     fields
     {

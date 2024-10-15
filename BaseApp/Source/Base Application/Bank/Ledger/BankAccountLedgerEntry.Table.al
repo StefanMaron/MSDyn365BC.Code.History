@@ -20,6 +20,7 @@ table 271 "Bank Account Ledger Entry"
     Caption = 'Bank Account Ledger Entry';
     DrillDownPageID = "Bank Account Ledger Entries";
     LookupPageID = "Bank Account Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -385,7 +386,7 @@ table 271 "Bank Account Ledger Entry"
         OnAfterCopyFromGenJnlLine(Rec, GenJnlLine);
     end;
 
-    Local procedure SetBankAccReconciliationLine(GenJnlLine: Record "Gen. Journal Line")
+    local procedure SetBankAccReconciliationLine(GenJnlLine: Record "Gen. Journal Line")
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin

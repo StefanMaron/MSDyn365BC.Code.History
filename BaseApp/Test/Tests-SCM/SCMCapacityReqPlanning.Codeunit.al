@@ -251,7 +251,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Capacity Req. Planning");
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         // Lazy Setup.
         if isInitialized then

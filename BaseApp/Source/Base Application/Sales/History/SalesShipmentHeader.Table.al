@@ -41,6 +41,7 @@ table 110 "Sales Shipment Header"
     DataCaptionFields = "No.", "Sell-to Customer Name";
     DrillDownPageID = "Posted Sales Shipments";
     LookupPageID = "Posted Sales Shipments";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -49,6 +50,11 @@ table 110 "Sales Shipment Header"
             Caption = 'Sell-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+
+            trigger OnValidate()
+            begin
+                UpdateSellToCustomerId();
+            end;
         }
         field(3; "No."; Code[20])
         {
@@ -59,6 +65,11 @@ table 110 "Sales Shipment Header"
             Caption = 'Bill-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+
+            trigger OnValidate()
+            begin
+                UpdateBillToCustomerId();
+            end;
         }
         field(5; "Bill-to Name"; Text[100])
         {
@@ -433,10 +444,22 @@ table 110 "Sales Shipment Header"
                     Validate("Shipping Agent Service Code", '');
             end;
         }
+#if not CLEAN24
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
+            ObsoleteReason = 'Field length will be increased to 50.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(106; "Package Tracking No."; Text[50])
+        {
+            Caption = 'Package Tracking No.';
+        }
+#pragma warning restore AS0086
+#endif
         field(109; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -572,6 +595,28 @@ table 110 "Sales Shipment Header"
         {
             Caption = 'Allow Line Disc.';
         }
+        field(9001; "Customer Id"; Guid)
+        {
+            Caption = 'Customer Id';
+            DataClassification = SystemMetadata;
+            TableRelation = Customer.SystemId;
+
+            trigger OnValidate()
+            begin
+                UpdateSellToCustomerNo();
+            end;
+        }
+        field(9002; "Bill-to Customer Id"; Guid)
+        {
+            Caption = 'Bill-to Customer Id';
+            DataClassification = SystemMetadata;
+            TableRelation = Customer.SystemId;
+
+            trigger OnValidate()
+            begin
+                UpdateBillToCustomerNo();
+            end;
+        }
         field(11310; "Enterprise No."; Text[50])
         {
             Caption = 'Enterprise No.';
@@ -610,6 +655,12 @@ table 110 "Sales Shipment Header"
         {
         }
     }
+
+    trigger OnInsert()
+    begin
+        UpdateSellToCustomerId();
+        UpdateBillToCustomerId();
+    end;
 
     trigger OnDelete()
     var
@@ -660,15 +711,13 @@ table 110 "Sales Shipment Header"
         ReportSelection: Record "Report Selections";
         IsHandled: Boolean;
     begin
-        with SalesShptHeader do begin
-            Copy(Rec);
-            OnBeforePrintRecords(SalesShptHeader, ShowRequestForm, IsHandled);
-            if IsHandled then
-                exit;
+        SalesShptHeader.Copy(Rec);
+        OnBeforePrintRecords(SalesShptHeader, ShowRequestForm, IsHandled);
+        if IsHandled then
+            exit;
 
-            ReportSelection.PrintWithDialogForCust(
-              ReportSelection.Usage::"S.Shipment", SalesShptHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));
-        end;
+        ReportSelection.PrintWithDialogForCust(
+          ReportSelection.Usage::"S.Shipment", SalesShptHeader, ShowRequestForm, SalesShptHeader.FieldNo("Bill-to Customer No."));
     end;
 
     procedure CheckNoPrinted()
@@ -706,7 +755,7 @@ table 110 "Sales Shipment Header"
     begin
         IsHandled := false;
         OnBeforeNavigate(Rec, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         NavigatePage.SetDoc("Posting Date", "No.");
@@ -824,6 +873,56 @@ table 110 "Sales Shipment Header"
         CalcFields("Work Description");
         "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
         exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
+    end;
+
+    local procedure UpdateSellToCustomerId()
+    var
+        Customer: Record Customer;
+    begin
+        if "Sell-to Customer No." = '' then begin
+            Clear("Customer Id");
+            exit;
+        end;
+
+        if not Customer.Get("Sell-to Customer No.") then
+            exit;
+
+        "Customer Id" := Customer.SystemId;
+    end;
+
+    local procedure UpdateBillToCustomerId()
+    var
+        Customer: Record Customer;
+    begin
+        if "Bill-to Customer No." = '' then begin
+            Clear("Bill-to Customer Id");
+            exit;
+        end;
+
+        if not Customer.Get("Bill-to Customer No.") then
+            exit;
+
+        "Bill-to Customer Id" := Customer.SystemId;
+    end;
+
+    local procedure UpdateSellToCustomerNo()
+    var
+        Customer: Record Customer;
+    begin
+        if not IsNullGuid("Customer Id") then
+            Customer.GetBySystemId("Customer Id");
+
+        "Sell-to Customer No." := Customer."No.";
+    end;
+
+    local procedure UpdateBillToCustomerNo()
+    var
+        Customer: Record Customer;
+    begin
+        if not IsNullGuid("Bill-to Customer Id") then
+            Customer.GetBySystemId("Bill-to Customer Id");
+
+        "Bill-to Customer No." := Customer."No.";
     end;
 
     [IntegrationEvent(false, false)]

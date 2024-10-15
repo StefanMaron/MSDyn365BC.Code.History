@@ -35,7 +35,7 @@ codeunit 1620 "PEPPOL Validation"
         EmptyUnitOfMeasureErr: Label 'You must specify a valid International Standard Code for the Unit of Measure for %1.', Comment = 'Parameter 1 - document type (Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order), 2 - document number';
         MissingDescriptionErr: Label 'Description field is empty. \Field must be filled if you want to send the posted document as an electronic document.', Comment = 'Parameter 1 - document type (), 2 - document number';
         PEPPOLManagement: Codeunit "PEPPOL Management";
-        ConfirmManagement: Codeunit "Confirm Management";	
+        ConfirmManagement: Codeunit "Confirm Management";
         MissingCompInfGLNOrVATRegNoOrEnterpNoErr: Label 'You must fill in either the GLN, VAT Registration No., or Enterprise No. field in the Company Information window.';
         MissingCustGLNOrVATRegNoOrEnterpNoErr: Label 'You must fill in either the GLN, VAT Registration No., or Enterprise No. field for customer %1.', Comment = '%1 - Customer No.';
         NegativeUnitPriceErr: Label 'The unit price is negative in %1. It cannot be negative if you want to send the posted document as an electronic document. \\Do you want to continue?', Comment = '%1 - record ID';
@@ -48,70 +48,68 @@ codeunit 1620 "PEPPOL Validation"
         Customer: Record Customer;
         IsHandled: Boolean;
     begin
-        with SalesHeader do begin
-            CompanyInfo.Get();
-            GLSetup.Get();
+        CompanyInfo.Get();
+        GLSetup.Get();
 
-            IsHandled := false;
-            OnBeforeCheckSalesDocument(SalesHeader, CompanyInfo, IsHandled);
-            if IsHandled then
-                exit;
+        IsHandled := false;
+        OnBeforeCheckSalesDocument(SalesHeader, CompanyInfo, IsHandled);
+        if IsHandled then
+            exit;
 
-            CheckCurrencyCode("Currency Code");
+        CheckCurrencyCode(SalesHeader."Currency Code");
 
-            if "Responsibility Center" <> '' then begin
-                ResponsibilityCenter.Get("Responsibility Center");
-                ResponsibilityCenter.TestField(Name);
-                ResponsibilityCenter.TestField(Address);
-                ResponsibilityCenter.TestField(City);
-                ResponsibilityCenter.TestField("Post Code");
-                ResponsibilityCenter.TestField("Country/Region Code");
-            end else begin
-                CompanyInfo.TestField(Name);
-                CompanyInfo.TestField(Address);
-                CompanyInfo.TestField(City);
-                CompanyInfo.TestField("Post Code");
-            end;
+        if SalesHeader."Responsibility Center" <> '' then begin
+            ResponsibilityCenter.Get(SalesHeader."Responsibility Center");
+            ResponsibilityCenter.TestField(Name);
+            ResponsibilityCenter.TestField(Address);
+            ResponsibilityCenter.TestField(City);
+            ResponsibilityCenter.TestField("Post Code");
+            ResponsibilityCenter.TestField("Country/Region Code");
+        end else begin
+            CompanyInfo.TestField(Name);
+            CompanyInfo.TestField(Address);
+            CompanyInfo.TestField(City);
+            CompanyInfo.TestField("Post Code");
+        end;
 
-            CompanyInfo.TestField("Country/Region Code");
-            CheckCountryRegionCode(CompanyInfo."Country/Region Code");
+        CompanyInfo.TestField("Country/Region Code");
+        CheckCountryRegionCode(CompanyInfo."Country/Region Code");
 
-            IsHandled := false;
-            OnCheckSalesDocumentOnBeforeCheckCompanyVATRegNo(SalesHeader, CompanyInfo, IsHandled);
-            if not IsHandled then
-                if CompanyInfo.GLN + CompanyInfo."VAT Registration No." + CompanyInfo."Enterprise No." = '' then
-                    Error(MissingCompInfGLNOrVATRegNoOrEnterpNoErr);
-            TestField("Bill-to Name");
-            TestField("Bill-to Address");
-            TestField("Bill-to City");
-            TestField("Bill-to Post Code");
-            TestField("Bill-to Country/Region Code");
-            CheckCountryRegionCode("Bill-to Country/Region Code");
+        IsHandled := false;
+        OnCheckSalesDocumentOnBeforeCheckCompanyVATRegNo(SalesHeader, CompanyInfo, IsHandled);
+        if not IsHandled then
+            if CompanyInfo.GLN + CompanyInfo."VAT Registration No." + CompanyInfo."Enterprise No." = '' then
+                Error(MissingCompInfGLNOrVATRegNoOrEnterpNoErr);
+        SalesHeader.TestField("Bill-to Name");
+        SalesHeader.TestField("Bill-to Address");
+        SalesHeader.TestField("Bill-to City");
+        SalesHeader.TestField("Bill-to Post Code");
+        SalesHeader.TestField("Bill-to Country/Region Code");
+        CheckCountryRegionCode(SalesHeader."Bill-to Country/Region Code");
 
-            IsHandled := false;
-            OnCheckSalesDocumentOnBeforeCheckCustomerVATRegNo(SalesHeader, Customer, IsHandled);
-            if not IsHandled then
-                if ("Document Type" in ["Document Type"::Invoice, "Document Type"::Order, "Document Type"::"Credit Memo"]) and
-                   Customer.Get("Bill-to Customer No.")
-                then
+        IsHandled := false;
+        OnCheckSalesDocumentOnBeforeCheckCustomerVATRegNo(SalesHeader, Customer, IsHandled);
+        if not IsHandled then
+            if (SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order, SalesHeader."Document Type"::"Credit Memo"]) and
+               Customer.Get(SalesHeader."Bill-to Customer No.")
+            then
                 if (Customer.GLN + Customer."VAT Registration No." + Customer."Enterprise No.") = '' then
                     Error(MissingCustGLNOrVATRegNoOrEnterpNoErr, Customer."No.");
 
-            if "Document Type" = "Document Type"::"Credit Memo" then
-                if "Applies-to Doc. Type" = "Applies-to Doc. Type"::Invoice then
-                    TestField("Applies-to Doc. No.");
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then
+            if SalesHeader."Applies-to Doc. Type" = SalesHeader."Applies-to Doc. Type"::Invoice then
+                SalesHeader.TestField("Applies-to Doc. No.");
 
-            if "Document Type" in ["Document Type"::Invoice, "Document Type"::Order] then
-                TestField("Shipment Date");
-            TestField("Your Reference");
-            CheckShipToAddress(SalesHeader);
-            TestField("Due Date");
+        if SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order] then
+            SalesHeader.TestField("Shipment Date");
+        SalesHeader.TestField("Your Reference");
+        CheckShipToAddress(SalesHeader);
+        SalesHeader.TestField("Due Date");
 
-            if CompanyInfo.IBAN = '' then
-                CompanyInfo.TestField("Bank Account No.");
-            CompanyInfo.TestField("Bank Branch No.");
-            CompanyInfo.TestField("SWIFT Code");
-        end;
+        if CompanyInfo.IBAN = '' then
+            CompanyInfo.TestField("Bank Account No.");
+        CompanyInfo.TestField("Bank Branch No.");
+        CompanyInfo.TestField("SWIFT Code");
 
         OnAfterCheckSalesDocument(SalesHeader, CompanyInfo);
     end;
@@ -120,14 +118,12 @@ codeunit 1620 "PEPPOL Validation"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            if FindSet() then
-                repeat
-                    CheckSalesDocumentLine(SalesLine)
-                until Next() = 0;
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                CheckSalesDocumentLine(SalesLine)
+            until SalesLine.Next() = 0;
     end;
 
     local procedure CheckSalesDocumentLine(SalesLine: Record "Sales Line")
@@ -145,25 +141,24 @@ codeunit 1620 "PEPPOL Validation"
             exit;
 
         PEPPOLMgt.GetLineUnitCodeInfo(SalesLine, unitCode, unitCodeListID);
-        with SalesLine do begin
-            if (Type <> Type::" ") and ("No." <> '') and (unitCode = '') then
-                Error(EmptyUnitOfMeasureErr, "Unit of Measure Code");
+        if (SalesLine.Type <> SalesLine.Type::" ") and (SalesLine."No." <> '') and (unitCode = '') then
+            Error(EmptyUnitOfMeasureErr, SalesLine."Unit of Measure Code");
 
-            IsHandled := false;
-            OnCheckSalesDocumentLineOnBeforeCheckEmptyDescription(SalesLine, IsHandled);
-            if not IsHandled then
-                if CheckSalesLineTypeAndDescription(SalesLine) then
-                    Error(MissingDescriptionErr);
+        IsHandled := false;
+        OnCheckSalesDocumentLineOnBeforeCheckEmptyDescription(SalesLine, IsHandled);
+        if not IsHandled then
+            if CheckSalesLineTypeAndDescription(SalesLine) then
+                Error(MissingDescriptionErr);
 
-            if (Type <> Type::" ") and ("No." <> '') then begin // Not a description line
-                if GeneralLedgerSetup.UseVat() then
-                    TestField("VAT Prod. Posting Group");
-                VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                VATPostingSetup.TestField("Tax Category");
-                if (Type = Type::Item) and ("Unit Price" < 0) then
-                    if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(NegativeUnitPriceErr, RecordId), false) then
-                        Error('');
-            end;
+        if (SalesLine.Type <> SalesLine.Type::" ") and (SalesLine."No." <> '') then begin
+            // Not a description line
+            if GeneralLedgerSetup.UseVat() then
+                SalesLine.TestField("VAT Prod. Posting Group");
+            VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
+            VATPostingSetup.TestField("Tax Category");
+            if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine."Unit Price" < 0) then
+                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(NegativeUnitPriceErr, SalesLine.RecordId), false) then
+                    Error('');
         end;
     end;
 

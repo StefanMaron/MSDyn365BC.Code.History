@@ -811,7 +811,6 @@ page 11300 "Financial Journal"
         ReportPrint: Codeunit "Test Report-Print";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
-        CurrentJnlBatchName: Code[10];
         AccName: Text[100];
         BalAccName: Text[100];
         ShowBalance: Boolean;
@@ -826,6 +825,7 @@ page 11300 "Financial Journal"
         ImportBankStatementBalanceMsg: Label 'The Statement Ending Balance field may not show the actual balance according to the imported bank statement.';
 
     protected var
+        CurrentJnlBatchName: Code[10];
         BalanceLastStatement: Decimal;
         StatementEndingBalance: Decimal;
         Balance: Decimal;

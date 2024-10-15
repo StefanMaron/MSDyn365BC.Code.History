@@ -88,7 +88,7 @@ codeunit 144026 "Test Detail Trial Balance Mods"
 
     local procedure VerifyGLEntryValues(GLAcc1: Code[20]; GLAcc2: Code[20]; PrintAccDet1: Boolean; PrintAccDet2: Boolean)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Name_GLAcc', GLAcc1);
         LibraryReportDataset.AssertElementWithValueExists('PrintAccountDetails', PrintAccDet1);
         LibraryReportDataset.SetRange('Name_GLAcc', GLAcc2);
@@ -99,8 +99,8 @@ codeunit 144026 "Test Detail Trial Balance Mods"
     [Scope('OnPrem')]
     procedure DetailTrialBalanceReqPageHandler(var DetailTrialBalanceRequestPage: TestRequestPage "Detail Trial Balance")
     begin
-        DetailTrialBalanceRequestPage.PrintDetailsOnAllAccounts.SetValue(LibraryVariableStorage.DequeueBoolean);
-        DetailTrialBalanceRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DetailTrialBalanceRequestPage.PrintDetailsOnAllAccounts.SetValue(LibraryVariableStorage.DequeueBoolean());
+        DetailTrialBalanceRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

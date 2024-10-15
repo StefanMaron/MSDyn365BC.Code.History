@@ -9,6 +9,7 @@ table 9656 "Report Layout Update Log"
     Caption = 'Report Layout Update Log';
     DataPerCompany = false;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

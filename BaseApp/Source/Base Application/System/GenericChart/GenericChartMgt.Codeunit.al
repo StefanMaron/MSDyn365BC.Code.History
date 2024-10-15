@@ -50,18 +50,16 @@ codeunit 9180 "Generic Chart Mgt"
         if not GetChartBuilder(Chart, chartBuilder) then
             exit;
 
-        with TempGenericChartSetup do begin
-            if chartBuilder.TableId > 0 then begin
-                "Source Type" := "Source Type"::Table;
-                "Source ID" := chartBuilder.TableId;
-                "Object Name" := chartBuilder.TableName;
-            end else begin
-                "Source Type" := "Source Type"::Query;
-                "Source ID" := chartBuilder.QueryId;
-                "Object Name" := chartBuilder.QueryName;
-            end;
-            GetSourceIDName("Source Type", "Source ID", "Object Name");
+        if chartBuilder.TableId > 0 then begin
+            TempGenericChartSetup."Source Type" := TempGenericChartSetup."Source Type"::Table;
+            TempGenericChartSetup."Source ID" := chartBuilder.TableId;
+            TempGenericChartSetup."Object Name" := chartBuilder.TableName;
+        end else begin
+            TempGenericChartSetup."Source Type" := TempGenericChartSetup."Source Type"::Query;
+            TempGenericChartSetup."Source ID" := chartBuilder.QueryId;
+            TempGenericChartSetup."Object Name" := chartBuilder.QueryName;
         end;
+        GetSourceIDName(TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", TempGenericChartSetup."Object Name");
 
         BuildMemoBuf(TempGenericChartMemoBuf, DescriptionCode(), chartBuilder.GetMultilanguageDescription());
 
@@ -70,53 +68,49 @@ codeunit 9180 "Generic Chart Mgt"
         BuildTempGenericChartFilter(TempGenericChartSetup, TempGenericChartFilter, chartBuilder, FilterText);
         TempGenericChartSetup."Filter Text" := FilterText;
         FinalizeFilterText(TempGenericChartSetup."Filter Text");
-
         // X, Y and Z axes:
-        with TempGenericChartSetup do begin
-            "X-Axis Field ID" := chartBuilder.XDimensionId;      // Number of field
-            "X-Axis Field Name" := chartBuilder.XDimensionName;  // Name of field
-            GetFieldColumnNoName("Source Type", "Source ID", "X-Axis Field ID", "X-Axis Field Name", false);
-            "X-Axis Show Title" := chartBuilder.ShowXDimensionTitle;
-            BuildCaptionBuf(TempGenericChartCaptionsBuf, XAxisTitleCode(), chartBuilder.GetXDimensionMultilanguageTitle());
-            BuildCaptionBuf(TempGenericChartCaptionsBuf, XAxisCaptionCode(), chartBuilder.GetXDimensionMultilanguageCaption());
-            "Y-Axis Show Title" := chartBuilder.ShowYAxisTitle;
-            BuildCaptionBuf(TempGenericChartCaptionsBuf, YAxisTitleCode(), chartBuilder.GetYAxisMultilanguageTitle());
+        TempGenericChartSetup."X-Axis Field ID" := chartBuilder.XDimensionId;
+        // Number of field
+        TempGenericChartSetup."X-Axis Field Name" := chartBuilder.XDimensionName;
+        // Name of field
+        GetFieldColumnNoName(TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", TempGenericChartSetup."X-Axis Field ID", TempGenericChartSetup."X-Axis Field Name", false);
+        TempGenericChartSetup."X-Axis Show Title" := chartBuilder.ShowXDimensionTitle;
+        BuildCaptionBuf(TempGenericChartCaptionsBuf, XAxisTitleCode(), chartBuilder.GetXDimensionMultilanguageTitle());
+        BuildCaptionBuf(TempGenericChartCaptionsBuf, XAxisCaptionCode(), chartBuilder.GetXDimensionMultilanguageCaption());
+        TempGenericChartSetup."Y-Axis Show Title" := chartBuilder.ShowYAxisTitle;
+        BuildCaptionBuf(TempGenericChartCaptionsBuf, YAxisTitleCode(), chartBuilder.GetYAxisMultilanguageTitle());
 
-            if chartBuilder.HasZDimension then begin
-                "Z-Axis Field ID" := chartBuilder.ZDimensionId();
-                "Z-Axis Field Name" := chartBuilder.ZDimensionName();
-                GetFieldColumnNoName("Source Type", "Source ID", "Z-Axis Field ID", "Z-Axis Field Name", false);
-                "Z-Axis Show Title" := chartBuilder.ShowZDimensionTitle();
-                BuildCaptionBuf(TempGenericChartCaptionsBuf, ZAxisTitleCode(), chartBuilder.GetZDimensionMultilanguageTitle());
-                BuildCaptionBuf(TempGenericChartCaptionsBuf, ZAxisCaptionCode(), chartBuilder.GetZDimensionMultilanguageCaption());
-            end;
+        if chartBuilder.HasZDimension then begin
+            TempGenericChartSetup."Z-Axis Field ID" := chartBuilder.ZDimensionId();
+            TempGenericChartSetup."Z-Axis Field Name" := chartBuilder.ZDimensionName();
+            GetFieldColumnNoName(TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", TempGenericChartSetup."Z-Axis Field ID", TempGenericChartSetup."Z-Axis Field Name", false);
+            TempGenericChartSetup."Z-Axis Show Title" := chartBuilder.ShowZDimensionTitle();
+            BuildCaptionBuf(TempGenericChartCaptionsBuf, ZAxisTitleCode(), chartBuilder.GetZDimensionMultilanguageTitle());
+            BuildCaptionBuf(TempGenericChartCaptionsBuf, ZAxisCaptionCode(), chartBuilder.GetZDimensionMultilanguageCaption());
         end;
-
         // Measures:
-        with TempGenericChartYAxis do begin
-            DeleteAll();
-            CaptionCode := RequiredMeasureCode();
-            for i := 0 to chartBuilder.MeasureCount - 1 do begin
-                Init();
-                ID := Chart.ID;
-                "Line No." := 10000 * (i + 1);
-                if chartBuilder.HasMeasureField(i) then begin
-                    "Y-Axis Measure Field ID" := chartBuilder.GetMeasureId(i);
-                    "Y-Axis Measure Field Name" := chartBuilder.GetMeasureName(i);
-                    BuildCaptionBuf(TempGenericChartCaptionsBuf, CaptionCode, chartBuilder.GetMultilanguageMeasureCaption(i));
-                    GetFieldColumnNoName(
-                      TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", "Y-Axis Measure Field ID",
-                      "Y-Axis Measure Field Name", false);
+        TempGenericChartYAxis.DeleteAll();
+        CaptionCode := RequiredMeasureCode();
+        for i := 0 to chartBuilder.MeasureCount - 1 do begin
+            TempGenericChartYAxis.Init();
+            TempGenericChartYAxis.ID := Chart.ID;
+            TempGenericChartYAxis."Line No." := 10000 * (i + 1);
+            if chartBuilder.HasMeasureField(i) then begin
+                TempGenericChartYAxis."Y-Axis Measure Field ID" := chartBuilder.GetMeasureId(i);
+                TempGenericChartYAxis."Y-Axis Measure Field Name" := chartBuilder.GetMeasureName(i);
+                BuildCaptionBuf(TempGenericChartCaptionsBuf, CaptionCode, chartBuilder.GetMultilanguageMeasureCaption(i));
+                GetFieldColumnNoName(
+                  TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", TempGenericChartYAxis."Y-Axis Measure Field ID",
+                  TempGenericChartYAxis."Y-Axis Measure Field Name", false);
 
-                    if CaptionCode = RequiredMeasureCode() then
-                        CaptionCode := OptionalMeasure1Code()
-                    else
-                        CaptionCode := IncStr(CaptionCode)
-                end;
-                "Chart Type" := ChartType2GraphType(chartBuilder.GetMeasureChartType(i));
-                Aggregation := Operator2Aggregation(chartBuilder.GetMeasureOperator(i));
-                Insert();
+                if CaptionCode = RequiredMeasureCode() then
+                    CaptionCode := OptionalMeasure1Code()
+                else
+                    CaptionCode := IncStr(CaptionCode)
             end;
+            TempGenericChartYAxis."Chart Type" := ChartType2GraphType(chartBuilder.GetMeasureChartType(i));
+            TempGenericChartYAxis.Aggregation := Operator2Aggregation(chartBuilder.GetMeasureOperator(i));
+            TempGenericChartYAxis.Insert();
         end;
     end;
 
@@ -163,36 +157,34 @@ codeunit 9180 "Generic Chart Mgt"
         BuildMultilanguageText(TempGenericChartCaptionsBuf, YAxisTitleCode(), MultilanguageText);
         chartBuilder.SetYAxisMultilanguageTitle(MultilanguageText);
 
-        with TempGenericChartYAxis do
-            if Find('-') then begin
-                CaptionCode := RequiredMeasureCode();
-                repeat
-                    BuildMultilanguageText(TempGenericChartCaptionsBuf, CaptionCode, MultilanguageText);
-                    DataMeasureType := GraphType2ChartType("Chart Type");
-                    DataAggregationType := Aggregation2Operator(Aggregation);
-                    chartBuilder.AddMeasure(
-                      "Y-Axis Measure Field ID", "Y-Axis Measure Field Name", MultilanguageText, DataMeasureType, DataAggregationType);
-                    if CaptionCode = RequiredMeasureCode() then
-                        CaptionCode := OptionalMeasure1Code()
-                    else
-                        CaptionCode := IncStr(CaptionCode)
-                until Next() = 0
-            end;
+        if TempGenericChartYAxis.Find('-') then begin
+            CaptionCode := RequiredMeasureCode();
+            repeat
+                BuildMultilanguageText(TempGenericChartCaptionsBuf, CaptionCode, MultilanguageText);
+                DataMeasureType := GraphType2ChartType(TempGenericChartYAxis."Chart Type");
+                DataAggregationType := Aggregation2Operator(TempGenericChartYAxis.Aggregation);
+                chartBuilder.AddMeasure(
+                  TempGenericChartYAxis."Y-Axis Measure Field ID", TempGenericChartYAxis."Y-Axis Measure Field Name", MultilanguageText, DataMeasureType, DataAggregationType);
+                if CaptionCode = RequiredMeasureCode() then
+                    CaptionCode := OptionalMeasure1Code()
+                else
+                    CaptionCode := IncStr(CaptionCode)
+            until TempGenericChartYAxis.Next() = 0
+        end;
 
         // Filters:
-        with TempGenericChartFilter do
-            if Find('-') then
-                repeat
-                    GetFieldColumnNoName(
-                      TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", "Filter Field ID", "Filter Field Name", true);
-                    if "Filter Field ID" > 0 then
-                        case TempGenericChartSetup."Source Type" of
-                            TempGenericChartSetup."Source Type"::Table:
-                                chartBuilder.AddTableFilter("Filter Field ID", "Filter Field Name", "Filter Value");
-                            TempGenericChartSetup."Source Type"::Query:
-                                chartBuilder.AddQueryFilter("Filter Field ID", "Filter Field Name", "Filter Value");
-                        end;
-                until Next() = 0;
+        if TempGenericChartFilter.Find('-') then
+            repeat
+                GetFieldColumnNoName(
+                  TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", TempGenericChartFilter."Filter Field ID", TempGenericChartFilter."Filter Field Name", true);
+                if TempGenericChartFilter."Filter Field ID" > 0 then
+                    case TempGenericChartSetup."Source Type" of
+                        TempGenericChartSetup."Source Type"::Table:
+                            chartBuilder.AddTableFilter(TempGenericChartFilter."Filter Field ID", TempGenericChartFilter."Filter Field Name", TempGenericChartFilter."Filter Value");
+                        TempGenericChartSetup."Source Type"::Query:
+                            chartBuilder.AddQueryFilter(TempGenericChartFilter."Filter Field ID", TempGenericChartFilter."Filter Field Name", TempGenericChartFilter."Filter Value");
+                    end;
+            until TempGenericChartFilter.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -465,17 +457,15 @@ codeunit 9180 "Generic Chart Mgt"
 
     local procedure FilterFieldCategory(var "Field": Record "Field"; Category: Integer; FilteringLookup: Boolean)
     begin
-        with Field do begin
-            case Category of
-                0:
-                    SetRange(Type);
-                1, 2:
-                    SetFilter(Type, TypeFilterText(Category));
-            end;
-            SetRange(Class);
-            if not FilteringLookup then
-                SetFilter(Class, '<>%1', Class::FlowFilter);
+        case Category of
+            0:
+                Field.SetRange(Type);
+            1, 2:
+                Field.SetFilter(Type, TypeFilterText(Category));
         end;
+        Field.SetRange(Class);
+        if not FilteringLookup then
+            Field.SetFilter(Class, '<>%1', Field.Class::FlowFilter);
     end;
 
     local procedure ValidateChart(TempGenericChartSetup: Record "Generic Chart Setup" temporary; var TempGenericChartYAxis: Record "Generic Chart Y-Axis" temporary; var TempGenericChartFilter: Record "Generic Chart Filter" temporary)
@@ -485,28 +475,26 @@ codeunit 9180 "Generic Chart Mgt"
         DummyCaption: Text[250];
         DummyInt: Integer;
     begin
-        with TempGenericChartSetup do begin
-            case "Source Type" of
-                "Source Type"::Table:
-                    AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
-                "Source Type"::Query:
-                    AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Query);
-            end;
-            AllObjWithCaption.SetRange("Object ID", "Source ID");
-            AllObjWithCaption.FindFirst();
-            if TempGenericChartYAxis.FindSet() then
-                repeat
-                    ValidateFieldColumn(
-                      TempGenericChartSetup, DummyInt, TempGenericChartYAxis."Y-Axis Measure Field Name", DummyCaption, 2, false, DummyAggregation);
-                until TempGenericChartYAxis.Next() = 0;
-            if TempGenericChartFilter.FindSet() then
-                repeat
-                    ValidateFieldColumn(
-                      TempGenericChartSetup, DummyInt, TempGenericChartFilter."Filter Field Name", DummyCaption, 0, true, DummyAggregation);
-                until TempGenericChartFilter.Next() = 0;
-            ValidateFieldColumn(TempGenericChartSetup, DummyInt, "X-Axis Field Name", "X-Axis Title", 0, false, DummyAggregation);
-            ValidateFieldColumn(TempGenericChartSetup, DummyInt, "Z-Axis Field Name", "Z-Axis Title", 0, false, DummyAggregation);
+        case TempGenericChartSetup."Source Type" of
+            TempGenericChartSetup."Source Type"::Table:
+                AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
+            TempGenericChartSetup."Source Type"::Query:
+                AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Query);
         end;
+        AllObjWithCaption.SetRange("Object ID", TempGenericChartSetup."Source ID");
+        AllObjWithCaption.FindFirst();
+        if TempGenericChartYAxis.FindSet() then
+            repeat
+                ValidateFieldColumn(
+                  TempGenericChartSetup, DummyInt, TempGenericChartYAxis."Y-Axis Measure Field Name", DummyCaption, 2, false, DummyAggregation);
+            until TempGenericChartYAxis.Next() = 0;
+        if TempGenericChartFilter.FindSet() then
+            repeat
+                ValidateFieldColumn(
+                  TempGenericChartSetup, DummyInt, TempGenericChartFilter."Filter Field Name", DummyCaption, 0, true, DummyAggregation);
+            until TempGenericChartFilter.Next() = 0;
+        ValidateFieldColumn(TempGenericChartSetup, DummyInt, TempGenericChartSetup."X-Axis Field Name", TempGenericChartSetup."X-Axis Title", 0, false, DummyAggregation);
+        ValidateFieldColumn(TempGenericChartSetup, DummyInt, TempGenericChartSetup."Z-Axis Field Name", TempGenericChartSetup."Z-Axis Title", 0, false, DummyAggregation);
     end;
 
     local procedure LoadQueryColumns(var MetaData: DotNet QueryMetadataReader; var TempGenericChartQueryColumn: Record "Generic Chart Query Column" temporary; ObjID: Integer; FieldTypeFilter: Integer; FilteringLookup: Boolean)
@@ -641,38 +629,36 @@ codeunit 9180 "Generic Chart Mgt"
     begin
         case SourceType of
             SourceType::Table:
-                with Field do
-                    if FieldColNo > 0 then begin
-                        FieldColName := '';
-                        if Get(SourceNo, FieldColNo) then
-                            FieldColName := FieldName;
-                    end else begin
-                        SetRange(TableNo, SourceNo);
-                        if FindSet() then
-                            repeat
-                                if UpperCase(FieldName) = UpperCase(FieldColName) then begin
-                                    Found := true;
-                                    FieldColNo := "No.";
-                                end;
-                            until (Next() = 0) or Found;
-                    end;
+                if FieldColNo > 0 then begin
+                    FieldColName := '';
+                    if Field.Get(SourceNo, FieldColNo) then
+                        FieldColName := Field.FieldName;
+                end else begin
+                    Field.SetRange(TableNo, SourceNo);
+                    if Field.FindSet() then
+                        repeat
+                            if UpperCase(Field.FieldName) = UpperCase(FieldColName) then begin
+                                Found := true;
+                                FieldColNo := Field."No.";
+                            end;
+                        until (Field.Next() = 0) or Found;
+                end;
             SourceType::Query:
                 begin
                     GetQueryColumnList(TempGenericChartQueryColumn, SourceNo, 0, FilteringLookup);
-                    with TempGenericChartQueryColumn do
-                        if FieldColNo > 0 then begin
-                            FieldColName := '';
-                            SetRange("Query Column No.", FieldColNo);
-                            if FindFirst() then
-                                FieldColName := "Column Name";
-                        end else
-                            if FindSet() then
-                                repeat
-                                    if UpperCase("Column Name") = UpperCase(FieldColName) then begin
-                                        Found := true;
-                                        FieldColNo := "Query Column No.";
-                                    end;
-                                until (Next() = 0) or Found;
+                    if FieldColNo > 0 then begin
+                        FieldColName := '';
+                        TempGenericChartQueryColumn.SetRange("Query Column No.", FieldColNo);
+                        if TempGenericChartQueryColumn.FindFirst() then
+                            FieldColName := TempGenericChartQueryColumn."Column Name";
+                    end else
+                        if TempGenericChartQueryColumn.FindSet() then
+                            repeat
+                                if UpperCase(TempGenericChartQueryColumn."Column Name") = UpperCase(FieldColName) then begin
+                                    Found := true;
+                                    FieldColNo := TempGenericChartQueryColumn."Query Column No.";
+                                end;
+                            until (TempGenericChartQueryColumn.Next() = 0) or Found;
                 end;
         end;
     end;
@@ -681,24 +667,22 @@ codeunit 9180 "Generic Chart Mgt"
     var
         AllObjWithCaption: Record AllObjWithCaption;
     begin
-        with AllObjWithCaption do begin
-            case SourceType of
-                SourceType::Table:
-                    SetRange("Object Type", "Object Type"::Table);
-                SourceType::Query:
-                    SetRange("Object Type", "Object Type"::Query);
-            end;
-            if SourceID > 0 then begin
-                SetRange("Object ID", SourceID);
-                FindFirst();
-                SourceName := "Object Name";
-                exit;
-            end;
-            if SourceName <> '' then begin
-                SetRange("Object Name", SourceName);
-                FindFirst();
-                SourceID := "Object ID";
-            end;
+        case SourceType of
+            SourceType::Table:
+                AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
+            SourceType::Query:
+                AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Query);
+        end;
+        if SourceID > 0 then begin
+            AllObjWithCaption.SetRange("Object ID", SourceID);
+            AllObjWithCaption.FindFirst();
+            SourceName := AllObjWithCaption."Object Name";
+            exit;
+        end;
+        if SourceName <> '' then begin
+            AllObjWithCaption.SetRange("Object Name", SourceName);
+            AllObjWithCaption.FindFirst();
+            SourceID := AllObjWithCaption."Object ID";
         end;
     end;
 
@@ -706,40 +690,38 @@ codeunit 9180 "Generic Chart Mgt"
     var
         i: Integer;
     begin
-        with TempGenericChartFilter do begin
-            DeleteAll();
-            case TempGenericChartSetup."Source Type" of
-                TempGenericChartSetup."Source Type"::Table:
-                    for i := 0 to chartBuilder.TableFilterCount - 1 do begin
-                        Init();
-                        ID := TempGenericChartSetup.ID;
-                        "Line No." := i + 1;
-                        "Filter Field ID" := chartBuilder.GetTableFilterFieldId(i);
-                        "Filter Field Name" := chartBuilder.GetTableFilterFieldName(i);
-                        GetFieldColumnNoName(
-                          TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", "Filter Field ID", "Filter Field Name", true);
-                        "Filter Value" := chartBuilder.GetTableFilterValue(i);
-                        if "Filter Value" <> '' then
-                            BuildFilterText(FilterText,
-                              CopyStr("Filter Field Name" + ' : ' + "Filter Value", 1, MaxStrLen(FilterText)));
-                        Insert();
-                    end;
-                TempGenericChartSetup."Source Type"::Query:
-                    for i := 0 to chartBuilder.QueryFilterCount - 1 do begin
-                        Init();
-                        ID := TempGenericChartSetup.ID;
-                        "Line No." := i + 1;
-                        "Filter Field ID" := chartBuilder.GetQueryFilterFieldId(i);
-                        "Filter Field Name" := chartBuilder.GetQueryFilterFieldName(i);
-                        GetFieldColumnNoName(
-                          TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", "Filter Field ID", "Filter Field Name", true);
-                        "Filter Value" := chartBuilder.GetQueryFilterValue(i);
-                        if "Filter Value" <> '' then
-                            BuildFilterText(FilterText,
-                              CopyStr("Filter Field Name" + ' : ' + "Filter Value", 1, MaxStrLen(FilterText)));
-                        Insert();
-                    end;
-            end;
+        TempGenericChartFilter.DeleteAll();
+        case TempGenericChartSetup."Source Type" of
+            TempGenericChartSetup."Source Type"::Table:
+                for i := 0 to chartBuilder.TableFilterCount - 1 do begin
+                    TempGenericChartFilter.Init();
+                    TempGenericChartFilter.ID := TempGenericChartSetup.ID;
+                    TempGenericChartFilter."Line No." := i + 1;
+                    TempGenericChartFilter."Filter Field ID" := chartBuilder.GetTableFilterFieldId(i);
+                    TempGenericChartFilter."Filter Field Name" := chartBuilder.GetTableFilterFieldName(i);
+                    GetFieldColumnNoName(
+                      TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", TempGenericChartFilter."Filter Field ID", TempGenericChartFilter."Filter Field Name", true);
+                    TempGenericChartFilter."Filter Value" := chartBuilder.GetTableFilterValue(i);
+                    if TempGenericChartFilter."Filter Value" <> '' then
+                        BuildFilterText(FilterText,
+                          CopyStr(TempGenericChartFilter."Filter Field Name" + ' : ' + TempGenericChartFilter."Filter Value", 1, MaxStrLen(FilterText)));
+                    TempGenericChartFilter.Insert();
+                end;
+            TempGenericChartSetup."Source Type"::Query:
+                for i := 0 to chartBuilder.QueryFilterCount - 1 do begin
+                    TempGenericChartFilter.Init();
+                    TempGenericChartFilter.ID := TempGenericChartSetup.ID;
+                    TempGenericChartFilter."Line No." := i + 1;
+                    TempGenericChartFilter."Filter Field ID" := chartBuilder.GetQueryFilterFieldId(i);
+                    TempGenericChartFilter."Filter Field Name" := chartBuilder.GetQueryFilterFieldName(i);
+                    GetFieldColumnNoName(
+                      TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", TempGenericChartFilter."Filter Field ID", TempGenericChartFilter."Filter Field Name", true);
+                    TempGenericChartFilter."Filter Value" := chartBuilder.GetQueryFilterValue(i);
+                    if TempGenericChartFilter."Filter Value" <> '' then
+                        BuildFilterText(FilterText,
+                          CopyStr(TempGenericChartFilter."Filter Field Name" + ' : ' + TempGenericChartFilter."Filter Value", 1, MaxStrLen(FilterText)));
+                    TempGenericChartFilter.Insert();
+                end;
         end;
     end;
 
@@ -750,44 +732,40 @@ codeunit 9180 "Generic Chart Mgt"
         if FieldNumber < 0 then
             exit(false);
         if FieldNumber = 0 then
-            exit(FilterType in [0, 2]); // The column method is Count which is a numeral
-        with Field do begin
-            SetRange(TableNo, TableNumber);
-            SetRange("No.", FieldNumber);
-            if FilterType > 0 then
-                SetFilter(Type, TypeFilterText(FilterType));
-            if FindFirst() then begin
-                FieldType.Type := Type;
-                exit(true);
-            end;
-            exit(false);
+            exit(FilterType in [0, 2]);
+        // The column method is Count which is a numeral
+        Field.SetRange(TableNo, TableNumber);
+        Field.SetRange("No.", FieldNumber);
+        if FilterType > 0 then
+            Field.SetFilter(Type, TypeFilterText(FilterType));
+        if Field.FindFirst() then begin
+            FieldType.Type := Field.Type;
+            exit(true);
         end;
+        exit(false);
     end;
 
     local procedure TypeFilterText(Category: Integer): Text
     var
         DummyField: Record "Field";
     begin
-        with DummyField do
-            case Category of
-                1:
-                    exit(
-                      StrSubstNo(
-                        '%1|%2|%3|%4|%5|%6|%7', Type::Date, Type::Time, Type::DateFormula, Type::Text, Type::Code, Type::Option, Type::DateTime));
-                2:
-                    exit(StrSubstNo('%1|%2|%3|%4|%5', Type::Decimal, Type::Binary, Type::Integer, Type::BigInteger, Type::Duration));
-            end;
+        case Category of
+            1:
+                exit(
+                  StrSubstNo(
+                    '%1|%2|%3|%4|%5|%6|%7', DummyField.Type::Date, DummyField.Type::Time, DummyField.Type::DateFormula, DummyField.Type::Text, DummyField.Type::Code, DummyField.Type::Option, DummyField.Type::DateTime));
+            2:
+                exit(StrSubstNo('%1|%2|%3|%4|%5', DummyField.Type::Decimal, DummyField.Type::Binary, DummyField.Type::Integer, DummyField.Type::BigInteger, DummyField.Type::Duration));
+        end;
     end;
 
     procedure CheckSourceTypeID(TempGenericChartSetup: Record "Generic Chart Setup" temporary; CheckSourceID: Boolean)
     begin
-        with TempGenericChartSetup do begin
-            if "Source Type" = "Source Type"::" " then
-                Error(Text001, FieldCaption("Source Type"));
-            if CheckSourceID then
-                if "Source ID" = 0 then
-                    Error(Text001, FieldCaption("Source ID"));
-        end;
+        if TempGenericChartSetup."Source Type" = TempGenericChartSetup."Source Type"::" " then
+            Error(Text001, TempGenericChartSetup.FieldCaption("Source Type"));
+        if CheckSourceID then
+            if TempGenericChartSetup."Source ID" = 0 then
+                Error(Text001, TempGenericChartSetup.FieldCaption("Source ID"));
     end;
 
     [Scope('OnPrem')]
@@ -809,19 +787,17 @@ codeunit 9180 "Generic Chart Mgt"
     var
         TempGenericChartQueryColumn: Record "Generic Chart Query Column" temporary;
     begin
-        with TempGenericChartSetup do begin
-            if "Source Type" <> "Source Type"::Query then
-                exit;
-            if ColumnName = '' then
-                exit;
-            if Aggregation in [Aggregation::None, Aggregation::Count] then
-                exit;
-            GetQueryColumnList(TempGenericChartQueryColumn, "Source ID", 0, false);
-            TempGenericChartQueryColumn.SetRange("Column Name", ColumnName);
-            if not TempGenericChartQueryColumn.FindFirst() then
-                exit;
-            ValidateCompliance(TempGenericChartQueryColumn."Column Data Type", Aggregation);
-        end;
+        if TempGenericChartSetup."Source Type" <> TempGenericChartSetup."Source Type"::Query then
+            exit;
+        if ColumnName = '' then
+            exit;
+        if Aggregation in [Aggregation::None, Aggregation::Count] then
+            exit;
+        GetQueryColumnList(TempGenericChartQueryColumn, TempGenericChartSetup."Source ID", 0, false);
+        TempGenericChartQueryColumn.SetRange("Column Name", ColumnName);
+        if not TempGenericChartQueryColumn.FindFirst() then
+            exit;
+        ValidateCompliance(TempGenericChartQueryColumn."Column Data Type", Aggregation);
     end;
 
     local procedure ValidateCompliance(ColumnDataType: Option Date,Time,DateFormula,Decimal,Text,"Code",Binary,Boolean,"Integer",Option,BigInteger,DateTime; Aggregation: Option "None","Count","Sum","Min","Max",Avg)

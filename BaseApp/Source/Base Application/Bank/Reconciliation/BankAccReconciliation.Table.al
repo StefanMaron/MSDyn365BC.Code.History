@@ -16,6 +16,7 @@ table 273 "Bank Acc. Reconciliation"
     LookupPageID = "Bank Acc. Reconciliation List";
     Permissions = TableData "Bank Account" = rm,
                   TableData "Data Exch." = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -26,6 +27,8 @@ table 273 "Bank Acc. Reconciliation"
             TableRelation = "Bank Account";
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "Statement No." = '' then begin
                     BankAcc.Get("Bank Account No.");
@@ -36,7 +39,7 @@ table 273 "Bank Acc. Reconciliation"
                                 SetLastPaymentStatementNo(BankAcc);
                                 "Statement No." := IncStr(BankAcc."Last Payment Statement No.");
                             end else
-                                "Statement No." := NoSeriesManagement.GetNextNo(BankAcc."Pmt. Rec. No. Series", Today(), true);
+                                "Statement No." := NoSeries.GetNextNo(BankAcc."Pmt. Rec. No. Series", Today());
                         "Statement Type"::"Bank Reconciliation":
                             begin
                                 SetLastStatementNo(BankAcc);
@@ -228,13 +231,8 @@ table 273 "Bank Acc. Reconciliation"
         {
             AutoFormatExpression = GetCurrencyCode();
             ObsoleteReason = 'Type is not used to determine if the bank rec. line is associated to a CLE, instead find explicitly CLEs with their corresponding BLE No. . See BankAccReconTest codeunit TotalOutstandingPayments for an example';
-#if not CLEAN21
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
-#endif
             CalcFormula = sum("Bank Acc. Reconciliation Line"."Applied Amount" where("Statement Type" = field("Statement Type"),
                                                                                "Bank Account No." = field("Bank Account No."),
                                                                                "Statement No." = field("Statement No."),
@@ -278,13 +276,8 @@ table 273 "Bank Acc. Reconciliation"
         {
             AutoFormatExpression = GetCurrencyCode();
             ObsoleteReason = 'Difference is now tracked manually instead. Type field was redundant and error prone.';
-#if not CLEAN21
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
-#endif
             CalcFormula = sum("Bank Acc. Reconciliation Line"."Applied Amount" where("Statement Type" = field("Statement Type"),
                                                                                       "Bank Account No." = field("Bank Account No."),
                                                                                       "Statement No." = field("Statement No."),
@@ -298,13 +291,8 @@ table 273 "Bank Acc. Reconciliation"
         {
             AutoFormatExpression = GetCurrencyCode();
             ObsoleteReason = 'Difference is now tracked manually instead. Type field was redundant and error prone.';
-#if not CLEAN21
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
-#endif
             CalcFormula = sum("Bank Acc. Reconciliation Line"."Applied Amount" where("Statement Type" = field("Statement Type"),
                                                                                       "Bank Account No." = field("Bank Account No."),
                                                                                       "Statement No." = field("Statement No."),
@@ -402,7 +390,6 @@ table 273 "Bank Acc. Reconciliation"
     end;
 
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         BankAcc: Record "Bank Account";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         PostedBankAccStmt: Record "Bank Account Statement";
@@ -579,7 +566,7 @@ table 273 "Bank Acc. Reconciliation"
     begin
         IsHandled := false;
         OnBeforeImportAndProcessToNewStatement(BankAccReconciliation, DataExch, DataExchDef, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         if not SelectBankAccountToUse(BankAccount, true) then

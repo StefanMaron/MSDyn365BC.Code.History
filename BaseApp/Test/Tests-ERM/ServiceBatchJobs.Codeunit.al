@@ -43,11 +43,11 @@ codeunit 136122 "Service Batch Jobs"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Batch Jobs");
 
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryService.SetupServiceMgtNoSeries();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
@@ -227,7 +227,7 @@ codeunit 136122 "Service Batch Jobs"
         CopyServiceLines(TempServiceLine, ServiceLine);
 
         // 2. Exercise: Run Batch Post Service Invoices Report.
-        ExecuteConfirmHandlerInvoiceES;
+        ExecuteConfirmHandlerInvoiceES();
         ServiceHeader.SetRange("No.", ServiceHeader."No.");
         Clear(BatchPostServiceCrMemos);
         BatchPostServiceCrMemos.SetTableView(ServiceHeader);
@@ -569,7 +569,7 @@ codeunit 136122 "Service Batch Jobs"
         Clear(ServiceInvoiceSubform);
         ServiceInvoiceSubform.SetTableView(ServiceLine);
         ServiceInvoiceSubform.SetRecord(ServiceLine);
-        ServiceInvoiceSubform.GetShipment;
+        ServiceInvoiceSubform.GetShipment();
     end;
 
     local procedure CreateServiceContract(var ServiceContractHeader: Record "Service Contract Header"; ServiceContractType: Enum "Service Contract Type")
@@ -598,7 +598,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibraryService.FindContractAccountGroup(ServiceContractAccountGroup);
-        ServiceContractAccountGroup.Validate("Non-Prepaid Contract Acc.", LibraryERM.CreateGLAccountWithSalesSetup);
+        ServiceContractAccountGroup.Validate("Non-Prepaid Contract Acc.", LibraryERM.CreateGLAccountWithSalesSetup());
         ServiceContractAccountGroup.Modify(true);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractType, Customer."No.");
         ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", ServiceContractAccountGroup.Code);
@@ -618,10 +618,10 @@ codeunit 136122 "Service Batch Jobs"
     begin
         // Service Header of Specified Document Type, Service Line with Type Item, Resource, Cost and G/L Account.
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
-        CreateServiceLine(ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
-        CreateServiceLine(ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
-        CreateServiceLine(ServiceHeader, ServiceLine.Type::Cost, SelectServiceCost);
-        CreateServiceLine(ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        CreateServiceLine(ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        CreateServiceLine(ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo());
+        CreateServiceLine(ServiceHeader, ServiceLine.Type::Cost, SelectServiceCost());
+        CreateServiceLine(ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
         Commit();
     end;
 
@@ -662,7 +662,7 @@ codeunit 136122 "Service Batch Jobs"
     var
         ServiceLine: Record "Service Line";
     begin
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate("Service Item Line No.", ServiceItemLineLineNo);
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));  // Use Random because value is not important.
         ServiceLine.Modify(true);
@@ -887,7 +887,7 @@ codeunit 136122 "Service Batch Jobs"
 
     local procedure SelectShipToAddress(var ShipToAddress: Record "Ship-to Address")
     begin
-        LibrarySales.CreateShipToAddress(ShipToAddress, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateShipToAddress(ShipToAddress, LibrarySales.CreateCustomerNo());
     end;
 
     local procedure SetWorkDateOnContractExpirationDateAndPostCrMemo(ServiceContractHeader: Record "Service Contract Header")
@@ -1010,7 +1010,7 @@ codeunit 136122 "Service Batch Jobs"
         ServiceItemLog: Record "Service Item Log";
     begin
         ServiceItemLog.SetRange("Service Item No.", ServiceItemNo);
-        Assert.IsFalse(ServiceItemLog.FindFirst, ServiceItemError);
+        Assert.IsFalse(ServiceItemLog.FindFirst(), ServiceItemError);
     end;
 
     local procedure VerifyServiceLines(DocumentNo: Code[20])
@@ -1034,7 +1034,7 @@ codeunit 136122 "Service Batch Jobs"
         ServiceLedgerEntry.SetRange("Service Contract No.", ContractNo);
         ServiceLedgerEntry.SetRange("Moved from Prepaid Acc.", false);
         ServiceLedgerEntry.SetRange(Open, false);
-        Assert.IsFalse(ServiceLedgerEntry.FindFirst, StrSubstNo(ServiceLedgerEntryError, ServiceLedgerEntry.TableCaption()))
+        Assert.IsFalse(ServiceLedgerEntry.FindFirst(), StrSubstNo(ServiceLedgerEntryError, ServiceLedgerEntry.TableCaption()))
     end;
 
     local procedure VerifyNonPrepaidGLEntry(ContractNo: Code[20]; Exists: Boolean)
@@ -1083,7 +1083,7 @@ codeunit 136122 "Service Batch Jobs"
         ServiceShipmentLine.FindFirst();
 
         GetServiceShipmentLines.SetRecord(ServiceShipmentLine);
-        GetServiceShipmentLines.GetShipmentLines;
+        GetServiceShipmentLines.GetShipmentLines();
     end;
 
     [ConfirmHandler]

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,12 +17,12 @@ codeunit 2000003 "Check International Payments"
         CheckDomesticPmt: Codeunit "Check Domestic Payments";
     begin
         TempBankAcc.DeleteAll();
-        CheckPaymJnlLine.ClearErrorLog;
+        CheckPaymJnlLine.ClearErrorLog();
 
         // Check if there is anything to export and exit if not
         if Rec.Count = 0 then begin
             CheckPaymJnlLine.InsertErrorLog(Text003);
-            CheckPaymJnlLine.ShowErrorLog;
+            CheckPaymJnlLine.ShowErrorLog();
         end;
 
         if Rec.FindSet() then
@@ -38,9 +38,9 @@ codeunit 2000003 "Check International Payments"
             until Rec.Next() = 0;
 
         // Check if exactly one bank account is used
-        CheckForOnlyOneBankAcc;
+        CheckForOnlyOneBankAcc();
 
-        CheckPaymJnlLine.ShowErrorLog;
+        CheckPaymJnlLine.ShowErrorLog();
     end;
 
     var
@@ -53,7 +53,6 @@ codeunit 2000003 "Check International Payments"
         Text002: Label 'Only one valid bank account should appear within the filter for this export protocol. ';
         Text003: Label 'There are no payment records to be processed.';
         PmtJnlManagement: Codeunit PmtJrnlManagement;
-        Text005: Label 'Bank account number %1 for bank code %2 did not satisfy MOD97 test in payment journal line number %3.', Comment = 'Parameter 1 - bank account number, 2 - bank code, 3 - integer number.';
 
     [Scope('OnPrem')]
     procedure CheckBenBankAccountNumber(var PmtJnlLine: Record "Payment Journal Line")

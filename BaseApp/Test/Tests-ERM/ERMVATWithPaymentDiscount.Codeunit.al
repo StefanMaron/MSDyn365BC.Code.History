@@ -38,7 +38,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     begin
         // Test Discount Amount with Pmt Disc Excl VAT field TRUE and with Currency Code.
         Initialize();
-        PmtDiscExclVATForSalesInvoice(CreateCurrency);
+        PmtDiscExclVATForSalesInvoice(CreateCurrency());
     end;
 
     local procedure PmtDiscExclVATForSalesInvoice(CurrencyCode: Code[10])
@@ -140,7 +140,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     begin
         // Verify Pmt. Disc. Given(LCY) is not updated when Payment is not made against the Sales Invoice with Currency.
         Initialize();
-        PaymentDiscountOnSalesDocument(SalesHeader."Document Type"::Invoice, CreateCurrency, 1);
+        PaymentDiscountOnSalesDocument(SalesHeader."Document Type"::Invoice, CreateCurrency(), 1);
     end;
 
     [Test]
@@ -162,7 +162,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     begin
         // Verify Pmt. Disc. Given(LCY) is not updated when Payment is not made against the Sales Credit Memo with Currency.
         Initialize();
-        PaymentDiscountOnSalesDocument(SalesHeader."Document Type"::"Credit Memo", CreateCurrency, -1);
+        PaymentDiscountOnSalesDocument(SalesHeader."Document Type"::"Credit Memo", CreateCurrency(), -1);
     end;
 
     local procedure PaymentDiscountOnSalesDocument(DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; AmountSign: Integer)
@@ -200,7 +200,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     begin
         // Verify Pmt. Disc. Given(LCY) is not updated when Payment is not made against the Purchase Invoice with Currency.
         Initialize();
-        PaymentDiscountOnPurchDocument(PurchaseHeader."Document Type"::Invoice, CreateCurrency, -1);
+        PaymentDiscountOnPurchDocument(PurchaseHeader."Document Type"::Invoice, CreateCurrency(), -1);
     end;
 
     [Test]
@@ -222,7 +222,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     begin
         // Verify Pmt. Disc. Given(LCY) is not updated when Payment is not made against the Purchase Credit Memo with Currency.
         Initialize();
-        PaymentDiscountOnPurchDocument(PurchaseHeader."Document Type"::"Credit Memo", CreateCurrency, 1);
+        PaymentDiscountOnPurchDocument(PurchaseHeader."Document Type"::"Credit Memo", CreateCurrency(), 1);
     end;
 
     local procedure PaymentDiscountOnPurchDocument(DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]; AmountSign: Integer)
@@ -268,17 +268,17 @@ codeunit 134031 "ERM VAT With Payment Discount"
         // Setup and Exercise: Performed inside SetupPmtDiscAndPostGenJournalLine Function, taking Random Amount.
         DiscountAmount :=
           SetupPmtDiscAndPostGenJournalLine(
-            GenJournalLine, PmtDiscExclVAT, GenJournalLine."Account Type"::Customer, CreateCustomer, LibraryRandom.RandDec(100, 2));
+            GenJournalLine, PmtDiscExclVAT, GenJournalLine."Account Type"::Customer, CreateCustomer(), LibraryRandom.RandDec(100, 2));
 
         // Verify: Verify Original Payment Discount Possible and Remaining Payment Discount Possible for Customer in Customer Ledger Entry.
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
         Assert.AreNearlyEqual(
-          DiscountAmount, CustLedgerEntry."Original Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision,
+          DiscountAmount, CustLedgerEntry."Original Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountErrorMessage, CustLedgerEntry.FieldCaption("Original Pmt. Disc. Possible"), DiscountAmount,
             CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
         Assert.AreNearlyEqual(
-          DiscountAmount, CustLedgerEntry."Remaining Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision,
+          DiscountAmount, CustLedgerEntry."Remaining Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountErrorMessage, CustLedgerEntry.FieldCaption("Remaining Pmt. Disc. Possible"), DiscountAmount,
             CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
@@ -311,17 +311,17 @@ codeunit 134031 "ERM VAT With Payment Discount"
         // Setup and Exercise: Performed inside SetupPmtDiscAndPostGenJournalLine Function, taking Random negative Amount for Vendor.
         DiscountAmount :=
           SetupPmtDiscAndPostGenJournalLine(
-            GenJournalLine, PmtDiscExclVAT, GenJournalLine."Account Type"::Vendor, CreateVendor, -LibraryRandom.RandDec(100, 2));
+            GenJournalLine, PmtDiscExclVAT, GenJournalLine."Account Type"::Vendor, CreateVendor(), -LibraryRandom.RandDec(100, 2));
 
         // Verify: Verify Original Payment Discount Possible and Remaining Payment Discount Possible for Vendor in Vendor Ledger Entry.
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
         Assert.AreNearlyEqual(
-          DiscountAmount, VendorLedgerEntry."Original Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision,
+          DiscountAmount, VendorLedgerEntry."Original Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountErrorMessage, VendorLedgerEntry.FieldCaption("Original Pmt. Disc. Possible"), DiscountAmount,
             VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
         Assert.AreNearlyEqual(
-          DiscountAmount, VendorLedgerEntry."Remaining Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision,
+          DiscountAmount, VendorLedgerEntry."Remaining Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountErrorMessage, VendorLedgerEntry.FieldCaption("Remaining Pmt. Disc. Possible"), DiscountAmount,
             VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
@@ -337,7 +337,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
             exit;
         LibraryERMCountryData.CreateVATData();
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT With Payment Discount");
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
@@ -421,7 +421,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; PmtDiscExclVAT: Boolean; CurrencyCode: Code[10]; DocumentType: Enum "Purchase Document Type"): Code[20]
     begin
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(PmtDiscExclVAT);
-        CreatePurchaseDocument(PurchaseHeader, CreateVendor, CurrencyCode, DocumentType);
+        CreatePurchaseDocument(PurchaseHeader, CreateVendor(), CurrencyCode, DocumentType);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         PurchaseHeader.CalcFields("Amount Including VAT", Amount);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -430,7 +430,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
     local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; PmtDiscExclVAT: Boolean; CurrencyCode: Code[10]; DocumentType: Enum "Sales Document Type") PostedInvoiceNo: Code[20]
     begin
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(PmtDiscExclVAT);
-        CreateSalesDocument(SalesHeader, CreateCustomer, CurrencyCode, DocumentType);
+        CreateSalesDocument(SalesHeader, CreateCustomer(), CurrencyCode, DocumentType);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         SalesHeader.CalcFields("Amount Including VAT", Amount);
         PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -497,7 +497,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Sales Document Type")
@@ -508,7 +508,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
     end;
 
     local procedure CreateVendor(): Code[20]

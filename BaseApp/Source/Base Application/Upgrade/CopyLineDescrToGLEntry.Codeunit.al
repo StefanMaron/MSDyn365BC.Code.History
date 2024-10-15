@@ -12,8 +12,8 @@ codeunit 104152 "Copy Line Descr. To G/L Entry"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
-         
-        SetCopyLineDescrToGLEntries;
+
+        SetCopyLineDescrToGLEntries();
     end;
 
     local procedure SetCopyLineDescrToGLEntries()

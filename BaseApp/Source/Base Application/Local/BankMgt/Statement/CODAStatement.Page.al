@@ -100,7 +100,7 @@ page 2000040 "CODA Statement"
 
                 trigger OnAction()
                 begin
-                    CurrPage.StmtLines.PAGE.Apply;
+                    CurrPage.StmtLines.PAGE.Apply();
                 end;
             }
             group("F&unctions")

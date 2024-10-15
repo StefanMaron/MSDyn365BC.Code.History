@@ -170,7 +170,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         // Check that correct VAT Amount Applied after posting Purchase Invoice with Currency and making Payment against it.
         Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
-        PartialUnrealizedVATPurchase(GenJournalLine, PurchInvHeader, VATPostingSetup, CreateCurrency);
+        PartialUnrealizedVATPurchase(GenJournalLine, PurchInvHeader, VATPostingSetup, CreateCurrency());
 
         // Verify: Verify the VAT Amount in VAT Entry.
         VerifyVATEntry(GenJournalLine, PurchInvHeader."Currency Code", GenJournalLine.Amount);
@@ -189,7 +189,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         // Check that correct VAT Amount Applied after posting Purchase Invoice with Currency and making Payment against it.
         Initialize();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
-        PartialUnrealizedVATPurchase(GenJournalLine, PurchInvHeader, VATPostingSetup, CreateCurrency);
+        PartialUnrealizedVATPurchase(GenJournalLine, PurchInvHeader, VATPostingSetup, CreateCurrency());
 
         // Make Payment again for the Invoice with Currency and Apply the Payment on Invoice.
         CreateAndPostJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, PurchInvHeader."Buy-from Vendor No.",
@@ -419,7 +419,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", DocumentNo);
         CustLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreNearlyEqual(
-          0, CustLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision,
+          0, CustLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, CustLedgerEntry.FieldCaption("Remaining Amount"), 0,
             CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No."));
     end;
@@ -439,7 +439,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
     begin
         // Test VAT Entry after Apply Refund on Credit Memo for Vendor with Unrealized VAT Type as First and Currency.
 
-        PartialApplyCreditMemo(CreateCurrency);
+        PartialApplyCreditMemo(CreateCurrency());
     end;
 
     local procedure PartialApplyCreditMemo(CurrencyCode: Code[10])
@@ -490,7 +490,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
     begin
         // Test Vendor Ledger Entry after Apply Refund on Credit Memo for Vendor Twice with Unrealized VAT Type as First and Currency.
 
-        ApplyCreditMemoTwice(CreateCurrency);
+        ApplyCreditMemoTwice(CreateCurrency());
     end;
 
     [Test]
@@ -632,7 +632,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
 
         // Setup: Update General Ledger Setup and VAT Setup, Create Currency, Create and Post Purchase Invoice.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         PostedDocumentNo := PostPurchInvoiceWithUnrealVAT(VATPostingSetup, CurrencyCode);
         FindPurchaseInvoiceLine(PurchInvLine, PostedDocumentNo);
         HalfVATAmount := CalculateHalfPurchaseVATAmount(PostedDocumentNo);
@@ -663,7 +663,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         // Setup: Update General Ledger Setup and VAT Setup, Create and Post Sales Invoice.
         // Payment against Invoice with Half VAT Amount and Apply the Payment over Invoice.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         PostedDocumentNo := PostPurchInvoiceWithUnrealVAT(VATPostingSetup, CurrencyCode);
         FindPurchaseInvoiceLine(PurchInvLine, PostedDocumentNo);
         HalfVATAmount := CalculateHalfPurchaseVATAmount(PostedDocumentNo);
@@ -717,7 +717,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", DocumentNo);
         VendorLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreNearlyEqual(
-          0, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision,
+          0, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountError, VendorLedgerEntry.FieldCaption("Remaining Amount"),
             0, VendorLedgerEntry.TableCaption(), VendorLedgerEntry."Entry No."));
@@ -800,22 +800,22 @@ codeunit 134014 "ERM Unreal VAT Option First"
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Customer No.", CustomerNo);
         CustomerLedgerEntries.FILTER.SetFilter("Document No.", DocumentNo);
         CustomerLedgerEntries.FILTER.SetFilter("Document Type", Format(DocumentType));
-        CustomerLedgerEntries."Apply Entries".Invoke;
+        CustomerLedgerEntries."Apply Entries".Invoke();
     end;
 
     local procedure ApplyVendorLedgerEntries(VendorNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Vendor No.", VendorNo);
         VendorLedgerEntries.FILTER.SetFilter("Document No.", DocumentNo);
         VendorLedgerEntries.FILTER.SetFilter("Document Type", Format(DocumentType));
-        VendorLedgerEntries.ActionApplyEntries.Invoke;
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     local procedure ApplyAndPostCustomerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
@@ -869,7 +869,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
           "Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -960,10 +960,10 @@ codeunit 134014 "ERM Unreal VAT Option First"
         VATPostingSetup.Validate("VAT %", LibraryRandom.RandDec(10, 2));
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::First);
-        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -1104,7 +1104,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         Currency.Validate("Unrealized Gains Acc.", GLAccount."No.");
         Currency.Validate("Residual Gains Account", GLAccount."No.");
         Currency.Validate("Residual Losses Account", GLAccount."No.");
-        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY);
+        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY());
         Currency.Modify(true);
         exit(Currency.Code);
     end;
@@ -1165,7 +1165,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         // Invoice and making  partial Payment below VAT.
 
         // Setup: Update General Ledger Setup and VAT Posting Setup, Create General Journal Template and General Journal Batch.
-        UpdateGeneralLedgerSetup(CreateCurrency, true);
+        UpdateGeneralLedgerSetup(CreateCurrency(), true);
 
         SelectGenJournalBatch(GenJournalBatch);
         CustomerNo := CreateCustomerApplyToOldest(VATPostingSetup."VAT Bus. Posting Group");
@@ -1217,7 +1217,7 @@ codeunit 134014 "ERM Unreal VAT Option First"
         FindGLEntry(GLEntry, GenJournalLine."Document No.", GenJournalLine."Document Type"::Payment);
         Amount := LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate());
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, GLEntry.Amount, Amount, GLEntry.TableCaption(), GLEntry."Entry No."));
     end;
 
@@ -1245,30 +1245,30 @@ codeunit 134014 "ERM Unreal VAT Option First"
         VATEntry.SetRange("Bill-to/Pay-to No.", GenJournalLine."Account No.");
         VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
         VATEntry.SetRange("Document Type", GenJournalLine."Document Type");
-        Assert.IsFalse(VATEntry.FindFirst, 'VAT Entries must not exist.');
+        Assert.IsFalse(VATEntry.FindFirst(), 'VAT Entries must not exist.');
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries."Post Application".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Post Application".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.ActionPostApplication.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ActionPostApplication.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostApplicationHandler(var PostApplication: TestPage "Post Application")
     begin
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [MessageHandler]

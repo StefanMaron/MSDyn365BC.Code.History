@@ -7,6 +7,7 @@ namespace Microsoft.Bank.Payment;
 table 2000006 "Export Check Error Log"
 {
     Caption = 'Export Check Error Log';
+    DataClassification = CustomerContent;
 
     fields
     {

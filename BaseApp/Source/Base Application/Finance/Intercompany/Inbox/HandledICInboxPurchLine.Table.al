@@ -14,6 +14,7 @@ using Microsoft.Utilities;
 table 441 "Handled IC Inbox Purch. Line"
 {
     Caption = 'Handled IC Inbox Purch. Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -79,7 +80,7 @@ table 441 "Handled IC Inbox Purch. Line"
         field(45; "Job No."; Code[20])
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             Editable = false;
         }
         field(54; "Indirect Cost %"; Decimal)

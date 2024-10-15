@@ -15,7 +15,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         IsInitialized: Boolean;
         AmountError: Label '%1 must be %2.';
 
@@ -129,7 +129,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2. Exercise: Reverse GL Register for Recurring Journal.
-        ReverseGLRegister;
+        ReverseGLRegister();
 
         // 3. Verify: Verify Reversed GL Entry for Recurring Journal.
         VerifyGLEntry(GenJnlAllocation."Account No.", -(GenJournalLine.Amount + GenJnlAllocation."VAT Amount"));
@@ -184,7 +184,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         LibraryERM.PostGeneralJnlLine(GenJournalLine2);
 
         // Exercise: Reverse GL Register for Recurring Journal.
-        ReverseGLRegister;
+        ReverseGLRegister();
 
         // Verify: Verify GL Entry after Reversal.
         VerifyGLEntry(GenJournalLine."Bal. Account No.", -GenJournalLine.Amount);
@@ -236,7 +236,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         LibraryERM.PostGeneralJnlLine(GenJournalLine2);
 
         // 2. Exercise: Reverse GL Register for Recurring Journal.
-        ReverseGLRegister;
+        ReverseGLRegister();
 
         // 3. Verify: Verify GL Entry after Reversal.
         VerifyGLEntry(GenJournalLine."Bal. Account No.", -GenJournalLine.Amount);
@@ -329,7 +329,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
 
         // [GIVEN] Gen. Journal Template with "Force Doc. Balance" = true; Gen. Journal Batch with non-empty "Posting No. Series".
         CreateRecurringGenJournalBatch(GenJournalBatch);
-        UpdatePostingNoSeriesOnGenJnlBatch(GenJournalBatch, LibraryUtility.GetGlobalNoSeriesCode);
+        UpdatePostingNoSeriesOnGenJnlBatch(GenJournalBatch, LibraryUtility.GetGlobalNoSeriesCode());
         UpdateForceDocBalanceOnGenJnlTemplate(GenJournalBatch."Journal Template Name", true);
 
         // [GIVEN] Four recurring Gen. Journal lines with Reversing Variable method and created with Document No. in order TEST1, TEST2, TEST1, TEST2.
@@ -341,16 +341,16 @@ codeunit 134146 "ERM Reverse Recurring Journal"
 
         CreateGenJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
-          LibraryERM.CreateGLAccountNo, Amount[1], DocumentNo[1]);
+          LibraryERM.CreateGLAccountNo(), Amount[1], DocumentNo[1]);
         CreateGenJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
-          LibraryERM.CreateGLAccountNo, Amount[2], DocumentNo[2]);
+          LibraryERM.CreateGLAccountNo(), Amount[2], DocumentNo[2]);
         CreateGenJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
-          LibraryERM.CreateGLAccountNo, -Amount[1], DocumentNo[1]);
+          LibraryERM.CreateGLAccountNo(), -Amount[1], DocumentNo[1]);
         CreateGenJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
-          LibraryERM.CreateGLAccountNo, -Amount[2], DocumentNo[2]);
+          LibraryERM.CreateGLAccountNo(), -Amount[2], DocumentNo[2]);
 
         // [WHEN] Post recurring Gen. Journal Lines.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -477,10 +477,10 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         NextDocumentNo: Code[20];
         i: Integer;
     begin
-        NextDocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NextDocumentNo := NoSeriesBatch.GetNextNo(NoSeriesCode);
         for i := 1 to ArrayLen(PostedDocumentNo) do begin
             PostedDocumentNo[i] := NextDocumentNo;
-            NoSeriesManagement.IncrementNoText(NextDocumentNo, 1);
+            NextDocumentNo := IncStr(NextDocumentNo);
         end;
     end;
 
@@ -552,7 +552,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         end;
 
         // reversed G/L Entries
-        GLEntry.SetRange("Posting Date", WorkDate + 1);
+        GLEntry.SetRange("Posting Date", WorkDate() + 1);
         for i := 1 to ArrayLen(Amount) do begin
             GLEntry.SetRange("Document No.", PostedDocumentNo[i + 2]);
             Assert.RecordCount(GLEntry, 2);

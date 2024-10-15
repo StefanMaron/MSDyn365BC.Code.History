@@ -48,68 +48,67 @@ codeunit 436 "Acc. Sched. BarChart DrillDown"
         if ColumnLayout."Column Type" = ColumnLayout."Column Type"::Formula then
             Message(Text002, ColumnLayout.Formula)
         else
-            with AccSchedLine do
-                if "Totaling Type" in ["Totaling Type"::Formula, "Totaling Type"::"Set Base For Percent"] then
-                    Message(Text003, Totaling)
-                else
-                    if Totaling <> '' then begin
-                        CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");
-                        CopyFilter("G/L Budget Filter", GLAcc."Budget Filter");
-                        AccSchedManagement.SetGLAccRowFilters(GLAcc, AccSchedLine);
-                        OnAfterAccSchedManagementSetGLAccRowFilters(GLAcc, AccSchedLine, ColumnLayout);
-                        AccSchedManagement.SetGLAccColumnFilters(GLAcc, AccSchedLine, ColumnLayout);
-                        OnAfterAccSchedManagementSetGLAccColumnFilters(GLAcc, AccSchedLine, ColumnLayout);
-                        AccSchedName.Get("Schedule Name");
-                        if AccSchedName."Analysis View Name" = '' then begin
-                            CopyFilter("Dimension 1 Filter", GLAcc."Global Dimension 1 Filter");
-                            CopyFilter("Dimension 2 Filter", GLAcc."Global Dimension 2 Filter");
-                            CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");
-                            GLAcc.FilterGroup(2);
-                            GLAcc.SetFilter("Global Dimension 1 Filter", AccSchedManagement.GetDimTotalingFilter(1, "Dimension 1 Totaling"));
-                            GLAcc.SetFilter("Global Dimension 2 Filter", AccSchedManagement.GetDimTotalingFilter(2, "Dimension 2 Totaling"));
-                            GLAcc.FilterGroup(8);
-                            GLAcc.SetFilter(
-                              "Global Dimension 1 Filter", AccSchedManagement.GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
-                            GLAcc.SetFilter(
-                              "Global Dimension 2 Filter", AccSchedManagement.GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
-                            GLAcc.SetFilter("Business Unit Filter", ColumnLayout."Business Unit Totaling");
-                            GLAcc.FilterGroup(0);
-                            PAGE.Run(PAGE::"Chart of Accounts (G/L)", GLAcc)
-                        end else begin
-                            GLAcc.CopyFilter("Date Filter", GLAccAnalysisView."Date Filter");
-                            GLAcc.CopyFilter("Budget Filter", GLAccAnalysisView."Budget Filter");
-                            GLAcc.CopyFilter("Business Unit Filter", GLAccAnalysisView."Business Unit Filter");
-                            GLAccAnalysisView.SetRange("Analysis View Filter", AccSchedName."Analysis View Name");
-                            CopyFilter("Dimension 1 Filter", GLAccAnalysisView."Dimension 1 Filter");
-                            CopyFilter("Dimension 2 Filter", GLAccAnalysisView."Dimension 2 Filter");
-                            CopyFilter("Dimension 3 Filter", GLAccAnalysisView."Dimension 3 Filter");
-                            CopyFilter("Dimension 4 Filter", GLAccAnalysisView."Dimension 4 Filter");
-                            GLAccAnalysisView.FilterGroup(2);
-                            GLAccAnalysisView.SetFilter("Dimension 1 Filter", AccSchedManagement.GetDimTotalingFilter(1, "Dimension 1 Totaling"));
-                            GLAccAnalysisView.SetFilter("Dimension 2 Filter", AccSchedManagement.GetDimTotalingFilter(2, "Dimension 2 Totaling"));
-                            GLAccAnalysisView.SetFilter("Dimension 3 Filter", AccSchedManagement.GetDimTotalingFilter(3, "Dimension 3 Totaling"));
-                            GLAccAnalysisView.SetFilter("Dimension 4 Filter", AccSchedManagement.GetDimTotalingFilter(4, "Dimension 4 Totaling"));
-                            GLAccAnalysisView.FilterGroup(8);
-                            GLAccAnalysisView.SetFilter(
-                              "Dimension 1 Filter",
-                              AccSchedManagement.GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
-                            GLAccAnalysisView.SetFilter(
-                              "Dimension 2 Filter",
-                              AccSchedManagement.GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
-                            GLAccAnalysisView.SetFilter(
-                              "Dimension 3 Filter",
-                              AccSchedManagement.GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"));
-                            GLAccAnalysisView.SetFilter(
-                              "Dimension 4 Filter",
-                              AccSchedManagement.GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
-                            GLAccAnalysisView.SetFilter("Business Unit Filter", ColumnLayout."Business Unit Totaling");
-                            GLAccAnalysisView.FilterGroup(0);
-                            Clear(ChartofAccAnalysisView);
-                            ChartofAccAnalysisView.InsertTempGLAccAnalysisViews(GLAcc);
-                            ChartofAccAnalysisView.SetTableView(GLAccAnalysisView);
-                            ChartofAccAnalysisView.Run();
-                        end;
+            if AccSchedLine."Totaling Type" in [AccSchedLine."Totaling Type"::Formula, AccSchedLine."Totaling Type"::"Set Base For Percent"] then
+                Message(Text003, AccSchedLine.Totaling)
+            else
+                if AccSchedLine.Totaling <> '' then begin
+                    AccSchedLine.CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");
+                    AccSchedLine.CopyFilter("G/L Budget Filter", GLAcc."Budget Filter");
+                    AccSchedManagement.SetGLAccRowFilters(GLAcc, AccSchedLine);
+                    OnAfterAccSchedManagementSetGLAccRowFilters(GLAcc, AccSchedLine, ColumnLayout);
+                    AccSchedManagement.SetGLAccColumnFilters(GLAcc, AccSchedLine, ColumnLayout);
+                    OnAfterAccSchedManagementSetGLAccColumnFilters(GLAcc, AccSchedLine, ColumnLayout);
+                    AccSchedName.Get(AccSchedLine."Schedule Name");
+                    if AccSchedName."Analysis View Name" = '' then begin
+                        AccSchedLine.CopyFilter("Dimension 1 Filter", GLAcc."Global Dimension 1 Filter");
+                        AccSchedLine.CopyFilter("Dimension 2 Filter", GLAcc."Global Dimension 2 Filter");
+                        AccSchedLine.CopyFilter("Business Unit Filter", GLAcc."Business Unit Filter");
+                        GLAcc.FilterGroup(2);
+                        GLAcc.SetFilter("Global Dimension 1 Filter", AccSchedManagement.GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"));
+                        GLAcc.SetFilter("Global Dimension 2 Filter", AccSchedManagement.GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"));
+                        GLAcc.FilterGroup(8);
+                        GLAcc.SetFilter(
+                          "Global Dimension 1 Filter", AccSchedManagement.GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
+                        GLAcc.SetFilter(
+                          "Global Dimension 2 Filter", AccSchedManagement.GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
+                        GLAcc.SetFilter("Business Unit Filter", ColumnLayout."Business Unit Totaling");
+                        GLAcc.FilterGroup(0);
+                        PAGE.Run(PAGE::"Chart of Accounts (G/L)", GLAcc)
+                    end else begin
+                        GLAcc.CopyFilter("Date Filter", GLAccAnalysisView."Date Filter");
+                        GLAcc.CopyFilter("Budget Filter", GLAccAnalysisView."Budget Filter");
+                        GLAcc.CopyFilter("Business Unit Filter", GLAccAnalysisView."Business Unit Filter");
+                        GLAccAnalysisView.SetRange("Analysis View Filter", AccSchedName."Analysis View Name");
+                        AccSchedLine.CopyFilter("Dimension 1 Filter", GLAccAnalysisView."Dimension 1 Filter");
+                        AccSchedLine.CopyFilter("Dimension 2 Filter", GLAccAnalysisView."Dimension 2 Filter");
+                        AccSchedLine.CopyFilter("Dimension 3 Filter", GLAccAnalysisView."Dimension 3 Filter");
+                        AccSchedLine.CopyFilter("Dimension 4 Filter", GLAccAnalysisView."Dimension 4 Filter");
+                        GLAccAnalysisView.FilterGroup(2);
+                        GLAccAnalysisView.SetFilter("Dimension 1 Filter", AccSchedManagement.GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"));
+                        GLAccAnalysisView.SetFilter("Dimension 2 Filter", AccSchedManagement.GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"));
+                        GLAccAnalysisView.SetFilter("Dimension 3 Filter", AccSchedManagement.GetDimTotalingFilter(3, AccSchedLine."Dimension 3 Totaling"));
+                        GLAccAnalysisView.SetFilter("Dimension 4 Filter", AccSchedManagement.GetDimTotalingFilter(4, AccSchedLine."Dimension 4 Totaling"));
+                        GLAccAnalysisView.FilterGroup(8);
+                        GLAccAnalysisView.SetFilter(
+                          "Dimension 1 Filter",
+                          AccSchedManagement.GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
+                        GLAccAnalysisView.SetFilter(
+                          "Dimension 2 Filter",
+                          AccSchedManagement.GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
+                        GLAccAnalysisView.SetFilter(
+                          "Dimension 3 Filter",
+                          AccSchedManagement.GetDimTotalingFilter(3, ColumnLayout."Dimension 3 Totaling"));
+                        GLAccAnalysisView.SetFilter(
+                          "Dimension 4 Filter",
+                          AccSchedManagement.GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
+                        GLAccAnalysisView.SetFilter("Business Unit Filter", ColumnLayout."Business Unit Totaling");
+                        GLAccAnalysisView.FilterGroup(0);
+                        Clear(ChartofAccAnalysisView);
+                        ChartofAccAnalysisView.InsertTempGLAccAnalysisViews(GLAcc);
+                        ChartofAccAnalysisView.SetTableView(GLAccAnalysisView);
+                        ChartofAccAnalysisView.Run();
                     end;
+                end;
     end;
 
     var

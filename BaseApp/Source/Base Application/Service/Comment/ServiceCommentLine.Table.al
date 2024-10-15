@@ -11,6 +11,7 @@ table 5906 "Service Comment Line"
     DataCaptionFields = Type, "No.";
     DrillDownPageID = "Service Comment Sheet";
     LookupPageID = "Service Comment Sheet";
+    DataClassification = CustomerContent;
 
     fields
     {

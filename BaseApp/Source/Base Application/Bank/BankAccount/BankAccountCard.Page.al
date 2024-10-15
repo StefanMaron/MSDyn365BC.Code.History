@@ -516,7 +516,7 @@ page 370 "Bank Account Card"
                     RunObject = Page "Bank Account Ledger Entries";
                     RunPageLink = "Bank Account No." = field("No.");
                     RunPageView = sorting("Bank Account No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -528,7 +528,7 @@ page 370 "Bank Account Card"
                     RunObject = Page "Check Ledger Entries";
                     RunPageLink = "Bank Account No." = field("No.");
                     RunPageView = sorting("Bank Account No.")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View check ledger entries that result from posting transactions in a payment journal for the relevant bank account.';
                 }
                 group("COD&A")
@@ -600,7 +600,7 @@ page 370 "Bank Account Card"
                     RunObject = Page "Positive Pay Entries";
                     RunPageLink = "Bank Account No." = field("No.");
                     RunPageView = sorting("Bank Account No.", "Upload Date-Time")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View the bank ledger entries that are related to Positive Pay transactions.';
                     Visible = false;
                 }
@@ -646,7 +646,7 @@ page 370 "Bank Account Card"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Link to Online Bank Account';
-                Enabled = NOT Linked;
+                Enabled = not Linked;
                 Image = LinkAccount;
                 ToolTip = 'Create a link to an online bank account from the selected bank account.';
                 Visible = ShowBankLinkingActions;
@@ -965,7 +965,7 @@ page 370 "Bank Account Card"
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
-        NoFieldVisible := DocumentNoVisibility.BankAccountNoIsVisible;
+        NoFieldVisible := DocumentNoVisibility.BankAccountNoIsVisible();
     end;
 
     local procedure RunReport(ReportNumber: Integer; BankActNumber: Code[20])

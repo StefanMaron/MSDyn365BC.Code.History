@@ -146,7 +146,9 @@ page 5906 "Service Item Worksheet"
                         Editable = false;
                         ToolTip = 'Specifies the address.';
                     }
+#pragma warning disable AA0100
                     field("ServHeader.""Address 2"""; ServHeader."Address 2")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Service;
                         Caption = 'Address 2';
@@ -170,12 +172,16 @@ page 5906 "Service Item Worksheet"
                             Caption = 'County';
                         }
                     }
+#pragma warning disable AA0100
                     field("ServHeader.""Post Code"""; ServHeader."Post Code")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Service;
                         Caption = 'Post Code';
                     }
+#pragma warning disable AA0100
                     field("ServHeader.""Country/Region Code"""; ServHeader."Country/Region Code")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
@@ -185,7 +191,9 @@ page 5906 "Service Item Worksheet"
                             IsSellToCountyVisible := FormatAddress.UseCounty(ServHeader."Country/Region Code");
                         end;
                     }
+#pragma warning disable AA0100
                     field("ServHeader.""Contact Name"""; ServHeader."Contact Name")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Service;
                         Caption = 'Contact Name';
@@ -193,7 +201,9 @@ page 5906 "Service Item Worksheet"
                         ToolTip = 'Specifies the name of the person you regularly contact when you do business with this customer.';
                     }
                 }
+#pragma warning disable AA0100
                 field("ServHeader.""Phone No."""; ServHeader."Phone No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Phone No.';
@@ -275,7 +285,9 @@ page 5906 "Service Item Worksheet"
                             IsShipToCountyVisible := FormatAddress.UseCounty(ShiptoCountryRegion);
                         end;
                     }
+#pragma warning disable AA0100
                     field("ServHeader.""Ship-to Contact"""; ServHeader."Ship-to Contact")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Service;
                         Caption = 'Contact';
@@ -283,7 +295,9 @@ page 5906 "Service Item Worksheet"
                         ToolTip = 'Specifies the contact person at the customer''s address.';
                     }
                 }
+#pragma warning disable AA0100
                 field("ServHeader.""Ship-to Phone"""; ServHeader."Ship-to Phone")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Ship-to Phone No.';
@@ -501,7 +515,7 @@ page 5906 "Service Item Worksheet"
                     ApplicationArea = Planning;
                     Caption = 'Demand Overview';
                     Image = Forecast;
-                    ToolTip = 'Get an overview of demand for your items when planning sales, production, jobs, or service management and when they will be available.';
+                    ToolTip = 'Get an overview of demand for your items when planning sales, production, projects, or service management and when they will be available.';
 
                     trigger OnAction()
                     var

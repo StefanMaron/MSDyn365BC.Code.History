@@ -135,7 +135,7 @@ codeunit 144220 "BE - SEPA.03 CT Unit Test"
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(IBAN), DATABASE::"Bank Account");
         BankAccount."SWIFT Code" :=
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("SWIFT Code"), DATABASE::"Bank Account");
-        BankAccount."Credit Transfer Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        BankAccount."Credit Transfer Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         BankAccount.Modify();
     end;
 

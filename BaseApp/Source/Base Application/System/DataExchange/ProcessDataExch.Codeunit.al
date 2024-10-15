@@ -215,7 +215,7 @@ codeunit 1201 "Process Data Exch."
         TypeHelper: Codeunit "Type Helper";
         Value: Variant;
     begin
-        Value := FieldRef.Value;
+        Value := FieldRef.Value();
 
         if not TypeHelper.Evaluate(
              Value, ValueText, DataExchColumnDef."Data Format", DataExchColumnDef."Data Formatting Culture")
@@ -332,7 +332,7 @@ codeunit 1201 "Process Data Exch."
         if TempFieldIdsToNegate.FindSet() then begin
             repeat
                 FieldRef := RecRef.Field(TempFieldIdsToNegate.Number);
-                Amount := FieldRef.Value;
+                Amount := FieldRef.Value();
                 FieldRef.Value := -Amount;
                 FieldRef.Validate();
             until TempFieldIdsToNegate.Next() = 0;
@@ -391,7 +391,7 @@ codeunit 1201 "Process Data Exch."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetFieldOnBeforeDataExchColumnDefGet(var DataExchField: Record 1221; var DataExchColumnDef: Record 1223; var IsHandled: Boolean);
+    local procedure OnSetFieldOnBeforeDataExchColumnDefGet(var DataExchField: Record "Data Exch. Field"; var DataExchColumnDef: Record "Data Exch. Column Def"; var IsHandled: Boolean);
     begin
     end;
 

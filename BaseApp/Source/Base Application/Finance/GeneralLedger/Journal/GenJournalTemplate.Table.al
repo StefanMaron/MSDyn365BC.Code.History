@@ -18,6 +18,7 @@ table 80 "Gen. Journal Template"
     Caption = 'Gen. Journal Template';
     LookupPageID = "General Journal Template List";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -148,7 +149,7 @@ table 80 "Gen. Journal Template"
         }
         field(15; "Test Report Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Test Report ID")));
             Caption = 'Test Report Caption';
             Editable = false;
@@ -156,7 +157,7 @@ table 80 "Gen. Journal Template"
         }
         field(16; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
                                                                            "Object ID" = field("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
@@ -164,7 +165,7 @@ table 80 "Gen. Journal Template"
         }
         field(17; "Posting Report Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Posting Report ID")));
             Caption = 'Posting Report Caption';
             Editable = false;
@@ -220,7 +221,7 @@ table 80 "Gen. Journal Template"
                 if "No. Series" <> '' then begin
                     if Recurring then
                         Error(
-                          Text000,
+                          RecurringJnlFieldErr,
                           FieldCaption("Posting No. Series"));
                     if "No. Series" = "Posting No. Series" then
                         "Posting No. Series" := '';
@@ -235,7 +236,7 @@ table 80 "Gen. Journal Template"
             trigger OnValidate()
             begin
                 if ("Posting No. Series" = "No. Series") and ("Posting No. Series" <> '') then
-                    FieldError("Posting No. Series", StrSubstNo(Text001, "Posting No. Series"));
+                    FieldError("Posting No. Series", StrSubstNo(ValueNotAllowedFieldErr, "Posting No. Series"));
             end;
         }
         field(23; "Copy VAT Setup to Jnl. Lines"; Boolean)
@@ -272,7 +273,7 @@ table 80 "Gen. Journal Template"
         field(26; "Cust. Receipt Report Caption"; Text[250])
         {
             AccessByPermission = TableData Customer = R;
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Cust. Receipt Report ID")));
             Caption = 'Cust. Receipt Report Caption';
             Editable = false;
@@ -287,7 +288,7 @@ table 80 "Gen. Journal Template"
         field(28; "Vendor Receipt Report Caption"; Text[250])
         {
             AccessByPermission = TableData Vendor = R;
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Vendor Receipt Report ID")));
             Caption = 'Vendor Receipt Report Caption';
             Editable = false;
@@ -340,6 +341,12 @@ table 80 "Gen. Journal Template"
         {
             Clustered = true;
         }
+        key(Key2; Type, "Bal. Account Type", "Bal. Account No.")
+        {
+        }
+        key(Key3; Type, Recurring, "No. Series")
+        {
+        }
     }
 
     fieldgroups
@@ -370,8 +377,8 @@ table 80 "Gen. Journal Template"
         GenJnlAlloc: Record "Gen. Jnl. Allocation";
         SourceCodeSetup: Record "Source Code Setup";
 
-        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
-        Text001: Label 'must not be %1';
+        RecurringJnlFieldErr: Label 'Only the %1 field can be filled in on recurring journals.', comment = '%1 = a field name';
+        ValueNotAllowedFieldErr: Label 'must not be %1', comment = '%1 = a field value';
 
     local procedure CheckGLAcc(AccNo: Code[20])
     var

@@ -18,7 +18,7 @@ page 147 "Posted Purchase Credit Memos"
     QueryCategory = 'Posted Purchase Credit Memos';
     SourceTable = "Purch. Cr. Memo Hdr.";
     SourceTableView = sorting("Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout
@@ -260,7 +260,7 @@ page 147 "Posted Purchase Credit Memos"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             part(GLEntriesPart; "G/L Entries Part")
             {
@@ -345,7 +345,7 @@ page 147 "Posted Purchase Credit Memos"
                 Ellipsis = true;
                 Image = Print;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 var
@@ -380,7 +380,7 @@ page 147 "Posted Purchase Credit Memos"
                 Image = Navigate;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 begin

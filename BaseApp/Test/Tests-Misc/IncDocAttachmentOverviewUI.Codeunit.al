@@ -31,13 +31,13 @@ codeunit 139001 "Inc Doc Attachment Overview UI"
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment2);
 
         // Execute
-        IncomingDocuments.OpenEdit;
+        IncomingDocuments.OpenEdit();
         IncomingDocuments.GotoRecord(IncomingDocument);
 
-        Assert.IsTrue(IncomingDocuments.IncomingDocAttachFactBox.First, 'The record must be present');
+        Assert.IsTrue(IncomingDocuments.IncomingDocAttachFactBox.First(), 'The record must be present');
 
         repeat
-            IncomingDocuments.IncomingDocAttachFactBox.Name.DrillDown;
+            IncomingDocuments.IncomingDocAttachFactBox.Name.DrillDown();
         until IncomingDocuments.IncomingDocAttachFactBox.Next();
     end;
 
@@ -60,13 +60,13 @@ codeunit 139001 "Inc Doc Attachment Overview UI"
         CreateIncomingDocumentAttachment(IncomingDocument, IncomingDocumentAttachment2);
 
         // Execute
-        IncomingDocuments.OpenEdit;
+        IncomingDocuments.OpenEdit();
         IncomingDocuments.GotoRecord(IncomingDocument);
 
-        Assert.IsTrue(IncomingDocuments.IncomingDocAttachFactBox.First, 'The record must be present');
+        Assert.IsTrue(IncomingDocuments.IncomingDocAttachFactBox.First(), 'The record must be present');
 
         repeat
-            IncomingDocuments.IncomingDocAttachFactBox.Export.Invoke;
+            IncomingDocuments.IncomingDocAttachFactBox.Export.Invoke();
         until IncomingDocuments.IncomingDocAttachFactBox.Next();
     end;
 

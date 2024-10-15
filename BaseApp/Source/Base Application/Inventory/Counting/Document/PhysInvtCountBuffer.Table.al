@@ -3,6 +3,7 @@ namespace Microsoft.Inventory.Counting.Document;
 table 5888 "Phys. Invt. Count Buffer"
 {
     Caption = 'Phys. Invt. Count Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -26,6 +27,11 @@ table 5888 "Phys. Invt. Count Buffer"
             Caption = 'Exp. Qty. (Base)';
             DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
+        }
+        field(13; "Exp. Package No."; Code[50])
+        {
+            Caption = 'Exp. Package No.';
+            DataClassification = SystemMetadata;
         }
         field(20; "Rec. No."; Integer)
         {
@@ -53,6 +59,11 @@ table 5888 "Phys. Invt. Count Buffer"
             DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
+        field(25; "Rec. Package No."; Code[50])
+        {
+            Caption = 'Rec. Package No.';
+            DataClassification = SystemMetadata;
+        }
         field(30; "Track. Serial No."; Code[50])
         {
             Caption = 'Track. Serial No.';
@@ -75,6 +86,11 @@ table 5888 "Phys. Invt. Count Buffer"
             DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
+        field(34; "Track. Package No."; Code[50])
+        {
+            Caption = 'Track. Package No.';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -93,6 +109,15 @@ table 5888 "Phys. Invt. Count Buffer"
     begin
         "Track. Serial No." := SerialNo;
         "Track. Lot No." := LotNo;
+        "Track. Qty. Pos. (Base)" := QtyPosBase;
+        "Track. Qty. Neg. (Base)" := QtyNegBase;
+    end;
+
+    procedure SetTrackingFields(SerialNo: Code[50]; LotNo: Code[50]; PackageNo: Code[50]; QtyPosBase: Decimal; QtyNegBase: Decimal)
+    begin
+        "Track. Serial No." := SerialNo;
+        "Track. Lot No." := LotNo;
+        "Track. Package No." := PackageNo;
         "Track. Qty. Pos. (Base)" := QtyPosBase;
         "Track. Qty. Neg. (Base)" := QtyNegBase;
     end;

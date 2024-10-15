@@ -15,12 +15,12 @@ codeunit 2000002 "Check Domestic Payments"
     begin
         TempBankAcc.DeleteAll();
         GLSetup.Get();
-        CheckPaymJnlLine.ClearErrorLog;
+        CheckPaymJnlLine.ClearErrorLog();
 
         // Check if there is anything to export and exit if not
         if Rec.Count = 0 then begin
             CheckPaymJnlLine.InsertErrorLog(Text003);
-            CheckPaymJnlLine.ShowErrorLog;
+            CheckPaymJnlLine.ShowErrorLog();
         end;
 
         if Rec.FindSet() then
@@ -36,9 +36,9 @@ codeunit 2000002 "Check Domestic Payments"
             until Rec.Next() = 0;
 
         // Check if exactly one bank account is used
-        CheckForOnlyOneBankAcc;
+        CheckForOnlyOneBankAcc();
 
-        CheckPaymJnlLine.ShowErrorLog;
+        CheckPaymJnlLine.ShowErrorLog();
     end;
 
     var

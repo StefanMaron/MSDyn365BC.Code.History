@@ -6,6 +6,7 @@ using System.Integration;
 table 1610 "Office Add-in"
 {
     Caption = 'Office Add-in';
+    DataClassification = CustomerContent;
     DataPerCompany = false;
     ReplicateData = false;
 

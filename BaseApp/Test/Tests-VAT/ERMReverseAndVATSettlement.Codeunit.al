@@ -48,7 +48,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         // Setup: First run VAT Settlement Report to Calculate VAT Entry for all records, then Create and Post General Journal Line and
         // Run VAT Settlement Report for Posted Entry only.
         Initialize();
-        CalcAndVATSettlement(LibraryERM.CreateGLAccountNo, DocNo);
+        CalcAndVATSettlement(LibraryERM.CreateGLAccountNo(), DocNo);
         CreatePostGeneralJournalLine(GenJournalLine, WorkDate());
         VATAmount :=
           FindVATAmount(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group", GenJournalLine.Amount);
@@ -75,7 +75,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         // Setup: First run VAT Settlement Report to Calculate VAT Entry for all records, then Create and Post General Journal Line and
         // VAT Settlement Report for Posted Entry only.
         Initialize();
-        CalcAndVATSettlement(LibraryERM.CreateGLAccountNo, DocNo);
+        CalcAndVATSettlement(LibraryERM.CreateGLAccountNo(), DocNo);
         CreatePostGeneralJournalLine(GenJournalLine, WorkDate());
 
         // Exercise: Run VAT Settlement Batch Job.
@@ -233,14 +233,12 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
     procedure RunCalcPostVATSttlmtWithPostSetOnSalesDocReverseChargeVATInconsitencies()
     var
         VATPostingSetup: array[3] of Record "VAT Posting Setup";
-        VATEntry: array[3] of Record "VAT Entry";
         ERMReverseAndVATSettlement: Codeunit "ERM Reverse And VAT Settlement";
         GLEntriesPreview: TestPage "G/L Entries Preview";
         PostedDocNo: array[3] of Code[20];
         VATSettlementDocNo: Code[20];
         TotalBalance: Decimal;
         Amount: Decimal;
-        SettlementVATEntryNo: array[3] of Integer;
     begin
         // [FEATURE] [Report] [Sales]
         // [SCENARIO ] Run Calc. and Post VAT Settlement report with Post option set on three posted Sales Invoices with different VAT Posting Setup of "Reverse Charge VAT" calculation type with added inconsistency.
@@ -489,9 +487,9 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         CreateAndSetupThreeSalesTaxVATPostingSetup(VATPostingSetup, TaxAreaCode, TaxGroupCode);
 
         // [GIVEN] Three posted Purchase Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 are created.
-        PostedDocNo[1] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1], true);
-        PostedDocNo[2] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2], true);
-        PostedDocNo[3] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3], true);
+        PostedDocNo[1] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1]);
+        PostedDocNo[2] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2]);
+        PostedDocNo[3] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3]);
 
         // [WHEN] Run report Calc. And Post VAT Settlement with Post option set. Show VAT Entries option is set.
         RunCalcAndPostVATSettlementReport(VATSettlementDocNo, VATPostingSetup, true);
@@ -528,9 +526,9 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         CreateAndSetupThreeSalesTaxVATPostingSetup(VATPostingSetup, TaxAreaCode, TaxGroupCode);
 
         // [GIVEN] Three posted Purchase Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 are created.
-        PostedDocNo[1] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1], true);
-        PostedDocNo[2] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2], true);
-        PostedDocNo[3] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3], true);
+        PostedDocNo[1] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1]);
+        PostedDocNo[2] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2]);
+        PostedDocNo[3] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3]);
 
         // [WHEN] Run report Calc. And Post VAT Settlement with Post option not set. Show VAT Entries option is set.
         RunCalcAndPostVATSettlementReport(VATSettlementDocNo, VATPostingSetup, false);
@@ -566,9 +564,9 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         CreateAndSetupThreeSalesTaxVATPostingSetup(VATPostingSetup, TaxAreaCode, TaxGroupCode);
 
         // [GIVEN] Three posted Purchase Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 are created.
-        PostedDocNo[1] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1], false);
-        PostedDocNo[2] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2], false);
-        PostedDocNo[3] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3], false);
+        PostedDocNo[1] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1]);
+        PostedDocNo[2] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2]);
+        PostedDocNo[3] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3]);
 
         // [WHEN] Run report Calc. And Post VAT Settlement with Post option set. Show VAT Entries option is set.
         RunCalcAndPostVATSettlementReport(VATSettlementDocNo, VATPostingSetup, true);
@@ -605,9 +603,9 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         CreateAndSetupThreeSalesTaxVATPostingSetup(VATPostingSetup, TaxAreaCode, TaxGroupCode);
 
         // [GIVEN] Three posted Purchase Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 are created.
-        PostedDocNo[1] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1], false);
-        PostedDocNo[2] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2], false);
-        PostedDocNo[3] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3], false);
+        PostedDocNo[1] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1]);
+        PostedDocNo[2] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2]);
+        PostedDocNo[3] := CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3]);
 
         // [WHEN] Run report Calc. And Post VAT Settlement with Post option not set. Show VAT Entries option is set.
         RunCalcAndPostVATSettlementReport(VATSettlementDocNo, VATPostingSetup, false);
@@ -654,9 +652,9 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -728,7 +726,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
     end;
 
-    local procedure CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup: Record "VAT Posting Setup"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; UseTax: Boolean) PostedDocNo: Code[20]
+    local procedure CreateAndPostGenJnlLinePurchaseInvoiceForSalesTax(VATPostingSetup: Record "VAT Posting Setup"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]) PostedDocNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -771,7 +769,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup[2], VATCalculationType, 0);
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup[3], VATCalculationType, LibraryRandom.RandDecInRange(10, 20, 2));
         for i := 1 to ArrayLen(VATPostingSetup) do begin
-            VATPostingSetup[i].Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+            VATPostingSetup[i].Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
             VATPostingSetup[i].Modify(true);
         end;
     end;
@@ -829,8 +827,8 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         BatchName: Code[10];
     begin
         LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        DocNo := GetNextJnlDocNo(TemplateName, BatchName, false);
-        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate, TemplateName, BatchName, AccountNo, false, true);
+        DocNo := GetNextJnlDocNo(TemplateName, BatchName);
+        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), TemplateName, BatchName, AccountNo, false, true);
         CalcandPostVATSettlement.SetInitialized(false);
         CalcandPostVATSettlement.SaveAsExcel(TemporaryPath + AccountNo + '.xls');
     end;
@@ -843,8 +841,8 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         BatchName: Code[10];
     begin
         LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        DocumentNo := GetNextJnlDocNo(TemplateName, BatchName, false);
-        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), TemplateName, BatchName, LibraryERM.CreateGLAccountNo, true, PostSettlement);
+        DocumentNo := GetNextJnlDocNo(TemplateName, BatchName);
+        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), TemplateName, BatchName, LibraryERM.CreateGLAccountNo(), true, PostSettlement);
         FilterVATPostingSetup.SetFilter("VAT Bus. Posting Group", '%1|%2|%3', VATPostingSetup[1]."VAT Bus. Posting Group", VATPostingSetup[2]."VAT Bus. Posting Group", VATPostingSetup[3]."VAT Bus. Posting Group");
         CalcandPostVATSettlement.SetTableView(FilterVATPostingSetup);
         Commit();
@@ -859,8 +857,8 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         BatchName: Code[10];
     begin
         LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        DocumentNo := GetNextJnlDocNo(TemplateName, BatchName, false);
-        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), TemplateName, BatchName, LibraryERM.CreateGLAccountNo, true, PostSettlement);
+        DocumentNo := GetNextJnlDocNo(TemplateName, BatchName);
+        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), TemplateName, BatchName, LibraryERM.CreateGLAccountNo(), true, PostSettlement);
         FilterVATPostingSetup.SetFilter("VAT Bus. Posting Group", '%1|%2|%3', VATPostingSetup[1]."VAT Bus. Posting Group", VATPostingSetup[2]."VAT Bus. Posting Group", VATPostingSetup[3]."VAT Bus. Posting Group");
         CalcandPostVATSettlement.SetTableView(FilterVATPostingSetup);
         CalcandPostVATSettlement.UseRequestPage(false);
@@ -965,17 +963,17 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
           StrSubstNo(VATBaseError, Base, VATEntry.Base, VATEntry.TableCaption()));
     end;
 
-    local procedure GetNextJnlDocNo(TemplateName: Code[10]; BatchName: Code[10]; ModifySeries: Boolean): Code[20]
+    local procedure GetNextJnlDocNo(TemplateName: Code[10]; BatchName: Code[10]): Code[20]
     var
         GenJnlBatch: Record "Gen. Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         GenJnlBatch.Get(TemplateName, BatchName);
         if GenJnlBatch."Posting No. Series" <> '' then
-            exit(NoSeriesManagement.GetNextNo(GenJnlBatch."Posting No. Series", WorkDate(), ModifySeries));
+            exit(NoSeries.PeekNextNo(GenJnlBatch."Posting No. Series"));
 
         GenJnlBatch.TestField("No. Series");
-        exit(NoSeriesManagement.GetNextNo(GenJnlBatch."No. Series", WorkDate(), ModifySeries));
+        exit(NoSeries.PeekNextNo(GenJnlBatch."No. Series"));
     end;
 
     local procedure VerifyVATEntryClosedByEntryNo(VATEntry: array[3] of Record "VAT Entry"; SettlementVATEntryNo: array[3] of Integer)
@@ -993,7 +991,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         Node: DotNet XmlNode;
         i: Integer;
     begin
-        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText, '');
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText(), '');
 
         for i := 1 to ArrayLen(VATEntry) do begin
             LibraryXPathXMLReader.GetNodeByElementNameByIndex('/DataSet/Result/VATBusPstGr_VATPostSetup', Node, (i * 2) - 2);

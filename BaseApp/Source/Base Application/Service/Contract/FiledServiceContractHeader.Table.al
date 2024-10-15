@@ -23,6 +23,7 @@ table 5970 "Filed Service Contract Header"
     LookupPageID = "Filed Service Contract List";
     Permissions = TableData "Filed Service Contract Header" = rimd,
                   TableData "Filed Contract Line" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -550,90 +551,88 @@ table 5970 "Filed Service Contract Header"
         ServContractLine: Record "Service Contract Line";
         NextEntryNo: Integer;
     begin
-        with ServContractHeader do begin
-            TestField("Contract No.");
+        ServContractHeader.TestField("Contract No.");
 
-            FiledContractLine.LockTable();
-            FiledServContractHeader.LockTable();
+        FiledContractLine.LockTable();
+        FiledServContractHeader.LockTable();
 
-            FiledServContractHeader.Reset();
-            NextEntryNo := FiledServContractHeader.GetLastEntryNo() + 1;
+        FiledServContractHeader.Reset();
+        NextEntryNo := FiledServContractHeader.GetLastEntryNo() + 1;
 
-            FiledServContractHeader.Init();
-            CalcFields(
-              Name, Address, "Address 2", "Post Code", City, County, "Country/Region Code", "Name 2",
-              "Bill-to Name", "Bill-to Address", "Bill-to Address 2", "Bill-to Post Code",
-              "Bill-to City", "Bill-to County", "Bill-to Country/Region Code", "Bill-to Name 2",
-              "Calcd. Annual Amount");
-            if "Ship-to Code" = '' then begin
-                "Ship-to Name" := Name;
-                "Ship-to Address" := Address;
-                "Ship-to Address 2" := "Address 2";
-                "Ship-to Post Code" := "Post Code";
-                "Ship-to City" := City;
-                "Ship-to County" := County;
-                "Ship-to Country/Region Code" := "Country/Region Code";
-                "Ship-to Name 2" := "Name 2";
-            end else
-                CalcFields(
-                  "Ship-to Name", "Ship-to Address", "Ship-to Address 2", "Ship-to Post Code", "Ship-to City",
-                  "Ship-to County", "Ship-to Country/Region Code", "Ship-to Name 2");
+        FiledServContractHeader.Init();
+        ServContractHeader.CalcFields(
+          Name, Address, "Address 2", "Post Code", City, County, "Country/Region Code", "Name 2",
+          "Bill-to Name", "Bill-to Address", "Bill-to Address 2", "Bill-to Post Code",
+          "Bill-to City", "Bill-to County", "Bill-to Country/Region Code", "Bill-to Name 2",
+          "Calcd. Annual Amount");
+        if ServContractHeader."Ship-to Code" = '' then begin
+            ServContractHeader."Ship-to Name" := ServContractHeader.Name;
+            ServContractHeader."Ship-to Address" := ServContractHeader.Address;
+            ServContractHeader."Ship-to Address 2" := ServContractHeader."Address 2";
+            ServContractHeader."Ship-to Post Code" := ServContractHeader."Post Code";
+            ServContractHeader."Ship-to City" := ServContractHeader.City;
+            ServContractHeader."Ship-to County" := ServContractHeader.County;
+            ServContractHeader."Ship-to Country/Region Code" := ServContractHeader."Country/Region Code";
+            ServContractHeader."Ship-to Name 2" := ServContractHeader."Name 2";
+        end else
+            ServContractHeader.CalcFields(
+              "Ship-to Name", "Ship-to Address", "Ship-to Address 2", "Ship-to Post Code", "Ship-to City",
+              "Ship-to County", "Ship-to Country/Region Code", "Ship-to Name 2");
 
-            FiledServContractHeader.TransferFields(ServContractHeader);
+        FiledServContractHeader.TransferFields(ServContractHeader);
 
-            if SigningQuotation then
-                FiledServContractHeader."Reason for Filing" :=
-                  FiledServContractHeader."Reason for Filing"::"Contract Signed";
+        if SigningQuotation then
+            FiledServContractHeader."Reason for Filing" :=
+              FiledServContractHeader."Reason for Filing"::"Contract Signed";
 
-            if CancelContract then
-                FiledServContractHeader."Reason for Filing" :=
-                  FiledServContractHeader."Reason for Filing"::"Contract Canceled";
+        if CancelContract then
+            FiledServContractHeader."Reason for Filing" :=
+              FiledServContractHeader."Reason for Filing"::"Contract Canceled";
 
-            FiledServContractHeader."Contract Type Relation" := "Contract Type";
-            FiledServContractHeader."Contract No. Relation" := "Contract No.";
-            FiledServContractHeader."Entry No." := NextEntryNo;
-            FiledServContractHeader."File Date" := Today;
-            FiledServContractHeader."File Time" := Time;
-            FiledServContractHeader."Filed By" := UserId;
-            FiledServContractHeader.Name := Name;
-            FiledServContractHeader.Address := Address;
-            FiledServContractHeader."Address 2" := "Address 2";
-            FiledServContractHeader."Post Code" := "Post Code";
-            FiledServContractHeader.City := City;
-            FiledServContractHeader."Bill-to Name" := "Bill-to Name";
-            FiledServContractHeader."Bill-to Address" := "Bill-to Address";
-            FiledServContractHeader."Bill-to Address 2" := "Bill-to Address 2";
-            FiledServContractHeader."Bill-to Post Code" := "Bill-to Post Code";
-            FiledServContractHeader."Bill-to City" := "Bill-to City";
-            FiledServContractHeader."Ship-to Name" := "Ship-to Name";
-            FiledServContractHeader."Ship-to Address" := "Ship-to Address";
-            FiledServContractHeader."Ship-to Address 2" := "Ship-to Address 2";
-            FiledServContractHeader."Ship-to Post Code" := "Ship-to Post Code";
-            FiledServContractHeader."Ship-to City" := "Ship-to City";
-            FiledServContractHeader."Calcd. Annual Amount" := "Calcd. Annual Amount";
-            FiledServContractHeader."Bill-to County" := "Bill-to County";
-            FiledServContractHeader.County := County;
-            FiledServContractHeader."Ship-to County" := "Ship-to County";
-            FiledServContractHeader."Country/Region Code" := "Country/Region Code";
-            FiledServContractHeader."Bill-to Country/Region Code" := "Bill-to Country/Region Code";
-            FiledServContractHeader."Ship-to Country/Region Code" := "Ship-to Country/Region Code";
-            FiledServContractHeader."Name 2" := "Name 2";
-            FiledServContractHeader."Bill-to Name 2" := "Bill-to Name 2";
-            FiledServContractHeader."Ship-to Name 2" := "Ship-to Name 2";
-            OnFileContractOnBeforeFiledServContractHeaderInsert(ServContractHeader, FiledServContractHeader);
-            FiledServContractHeader.Insert();
+        FiledServContractHeader."Contract Type Relation" := ServContractHeader."Contract Type";
+        FiledServContractHeader."Contract No. Relation" := ServContractHeader."Contract No.";
+        FiledServContractHeader."Entry No." := NextEntryNo;
+        FiledServContractHeader."File Date" := Today;
+        FiledServContractHeader."File Time" := Time;
+        FiledServContractHeader."Filed By" := UserId;
+        FiledServContractHeader.Name := ServContractHeader.Name;
+        FiledServContractHeader.Address := ServContractHeader.Address;
+        FiledServContractHeader."Address 2" := ServContractHeader."Address 2";
+        FiledServContractHeader."Post Code" := ServContractHeader."Post Code";
+        FiledServContractHeader.City := ServContractHeader.City;
+        FiledServContractHeader."Bill-to Name" := ServContractHeader."Bill-to Name";
+        FiledServContractHeader."Bill-to Address" := ServContractHeader."Bill-to Address";
+        FiledServContractHeader."Bill-to Address 2" := ServContractHeader."Bill-to Address 2";
+        FiledServContractHeader."Bill-to Post Code" := ServContractHeader."Bill-to Post Code";
+        FiledServContractHeader."Bill-to City" := ServContractHeader."Bill-to City";
+        FiledServContractHeader."Ship-to Name" := ServContractHeader."Ship-to Name";
+        FiledServContractHeader."Ship-to Address" := ServContractHeader."Ship-to Address";
+        FiledServContractHeader."Ship-to Address 2" := ServContractHeader."Ship-to Address 2";
+        FiledServContractHeader."Ship-to Post Code" := ServContractHeader."Ship-to Post Code";
+        FiledServContractHeader."Ship-to City" := ServContractHeader."Ship-to City";
+        FiledServContractHeader."Calcd. Annual Amount" := ServContractHeader."Calcd. Annual Amount";
+        FiledServContractHeader."Bill-to County" := ServContractHeader."Bill-to County";
+        FiledServContractHeader.County := ServContractHeader.County;
+        FiledServContractHeader."Ship-to County" := ServContractHeader."Ship-to County";
+        FiledServContractHeader."Country/Region Code" := ServContractHeader."Country/Region Code";
+        FiledServContractHeader."Bill-to Country/Region Code" := ServContractHeader."Bill-to Country/Region Code";
+        FiledServContractHeader."Ship-to Country/Region Code" := ServContractHeader."Ship-to Country/Region Code";
+        FiledServContractHeader."Name 2" := ServContractHeader."Name 2";
+        FiledServContractHeader."Bill-to Name 2" := ServContractHeader."Bill-to Name 2";
+        FiledServContractHeader."Ship-to Name 2" := ServContractHeader."Ship-to Name 2";
+        OnFileContractOnBeforeFiledServContractHeaderInsert(ServContractHeader, FiledServContractHeader);
+        FiledServContractHeader.Insert();
 
-            ServContractLine.Reset();
-            ServContractLine.SetRange("Contract Type", "Contract Type");
-            ServContractLine.SetRange("Contract No.", "Contract No.");
-            if ServContractLine.Find('-') then
-                repeat
-                    FiledContractLine.Init();
-                    FiledContractLine."Entry No." := FiledServContractHeader."Entry No.";
-                    FiledContractLine.TransferFields(ServContractLine);
-                    FiledContractLine.Insert();
-                until ServContractLine.Next() = 0;
-        end;
+        ServContractLine.Reset();
+        ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
+        ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
+        if ServContractLine.Find('-') then
+            repeat
+                FiledContractLine.Init();
+                FiledContractLine."Entry No." := FiledServContractHeader."Entry No.";
+                FiledContractLine.TransferFields(ServContractLine);
+                FiledContractLine.Insert();
+            until ServContractLine.Next() = 0;
 
         OnAfterFileContract(FiledServContractHeader, ServContractHeader);
     end;

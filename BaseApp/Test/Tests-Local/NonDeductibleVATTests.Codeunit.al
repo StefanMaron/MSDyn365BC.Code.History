@@ -66,7 +66,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         OldACYCode: Code[10];
     begin
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         OldACYCode := UpdACYInGenLedgSetup(CurrencyCode);
 
         ReverseChargeVAT(CurrencyCode);
@@ -83,7 +83,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         OldUnrealVAT: Boolean;
     begin
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         OldACYCode := UpdACYInGenLedgSetup(CurrencyCode);
         OldUnrealVAT := UpdUnrealVATInGenLedgSetup(true);
 
@@ -544,7 +544,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         NonDeductibleVATAmount2: Decimal;
     begin
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60359
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // Create a VATPostingGroup that dos not have 0% VAT.
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
@@ -771,7 +771,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Header of Statistics page contains VAT only from line with Normal VAT
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
         OpenPurchInvStatistics(DocumentNo);
 
         PurchaseInvoiceStatistics.VATAmount.AssertEquals(
@@ -781,7 +781,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
 
         // [THEN] Line of Statistics page considering info about the Line with Reverse Charge VAT has "VAT %" = 0, "VAT Amount" = 0 and
         // [THEN] "Amount Including VAT" = "Amount"
-        PurchaseInvoiceStatistics.SubForm.First;
+        PurchaseInvoiceStatistics.SubForm.First();
         VerifyPurchInvStatLine(PurchaseInvoiceStatistics, 0, 0, PurchaseLineReverseCharge.Amount);
         // BUG: 409219
         PurchaseInvoiceStatistics.SubForm."VAT Base (Lowered)".AssertEquals(
@@ -853,7 +853,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Header of Statistics page contains VAT only from line with Normal VAT
-        PurchaseCrMemoStatistics.Trap;
+        PurchaseCrMemoStatistics.Trap();
         OpenPurchCrMemoStatistics(DocumentNo);
 
         PurchaseCrMemoStatistics.VATAmount.AssertEquals(
@@ -863,7 +863,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
 
         // [THEN] Line of Statistics page considering info about the Line with Reverse Charge VAT has "VAT %" = 0, "VAT Amount" = 0 and
         // [THEN] "Amount Including VAT" = "Amount"
-        PurchaseCrMemoStatistics.SubForm.First;
+        PurchaseCrMemoStatistics.SubForm.First();
         VerifyPurchCrMemoStatLine(PurchaseCrMemoStatistics, 0, 0, PurchaseLineReverseCharge.Amount);
         // BUG: 409219
         PurchaseCrMemoStatistics.SubForm."VAT Base (Lowered)".AssertEquals(
@@ -1027,9 +1027,9 @@ codeunit 144000 "Non-Deductible VAT Tests"
         PurchaseLine2.Modify();
 
         // [WHEN] Check Statistics in Purhase Invoice page
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.Statistics.Invoke;
+        PurchaseInvoice.Statistics.Invoke();
 
         // Following checks are performed in PurchaseStatisticsModalPageHandler handler
         // [THEN] "Total" on Statistics page contains sum of Amounts (1000 + 2000) and non deductible VATs (1000*0.1*0.2 + 2000*0.1*0.3) = 3080
@@ -1115,9 +1115,9 @@ codeunit 144000 "Non-Deductible VAT Tests"
         PurchInvHeader.Get(DocumentNo);
 
         // [WHEN] Check Statistics in Posted Purhase Invoice page
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
-        PostedPurchaseInvoice.Statistics.Invoke;
+        PostedPurchaseInvoice.Statistics.Invoke();
 
         // Following checks are performed in PostedPurchaseStatisticsModalPageHandler handler
         // [THEN] "Total" on Statistics page contains sum of Amounts (1000 + 2000) and non deductible VATs (1000*0.1*0.2 + 2000*0.1*0.3) = 3080
@@ -1155,25 +1155,25 @@ codeunit 144000 "Non-Deductible VAT Tests"
         Initialize();
 
         // [GIVEN] The 1st line of Purchase Invoice having only the "Description" filled in
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseLine.Init();
         PurchaseLine.Description := CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10);
         PurchaseLine.Insert();
 
         // [GIVEN] The 2nd line of Purchase Invoice having No. and Amount filled in
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
 
         // [GIVEN] Purchase Invoice is posted
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [WHEN] Openning Statistics for Posted Purchase Invoice
         PurchInvHeader.Get(DocumentNo);
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
         PAGE.Run(PAGE::"Purchase Invoice Statistics", PurchInvHeader);
 
         // [THEN] Statistics page is opened and the line's "Amount Including VAT" value is equal to "Amount" in Purchase Header
-        Assert.AreEqual(PurchInvHeader.Amount, PurchaseInvoiceStatistics.AmountInclVAT.AsDEcimal, PurchStatisticsErr);
+        Assert.AreEqual(PurchInvHeader.Amount, PurchaseInvoiceStatistics.AmountInclVAT.AsDecimal(), PurchStatisticsErr);
     end;
 
     [Test]
@@ -1190,27 +1190,27 @@ codeunit 144000 "Non-Deductible VAT Tests"
         Initialize();
 
         // [GIVEN] 1st Purchase Invoice Line with 90 % Non Deductible VAT
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Non Deductible VAT %", LibraryRandom.RandInt(90));
         PurchaseLine.Modify(true);
 
         // [GIVEN] 2nd Purchase Invoice Line without Non Deductible VAT
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
         PurchaseLine.Modify(true);
 
         // [WHEN] Open Purchase Invoice Statistics
-        PurchaseStatistics.Trap;
+        PurchaseStatistics.Trap();
         PAGE.Run(PAGE::"Purchase Statistics", PurchaseHeader);
 
         // [THEN] "VAT Amount" field is not editable in all lines
-        Assert.IsFalse(PurchaseStatistics.SubForm."VAT Amount".Editable, VATAmountIsEditableErr);
+        Assert.IsFalse(PurchaseStatistics.SubForm."VAT Amount".Editable(), VATAmountIsEditableErr);
         PurchaseStatistics.SubForm.Next();
-        Assert.IsFalse(PurchaseStatistics.SubForm."VAT Amount".Editable, VATAmountIsEditableErr);
+        Assert.IsFalse(PurchaseStatistics.SubForm."VAT Amount".Editable(), VATAmountIsEditableErr);
     end;
 
     [Test]
@@ -1297,9 +1297,9 @@ codeunit 144000 "Non-Deductible VAT Tests"
         EnqueueAmountsForPurchStatisticsHandler(NonDeductibleVATAmount, VATAmount, AmountWithoutVAT[1], 0, true);
 
         // [WHEN] Open Statistics for Purchase Invoice "PI"
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.Statistics.Invoke;
+        PurchaseInvoice.Statistics.Invoke();
 
         // Verification is done inside PurchaseStatisticsModalPageHandler
         // [THEN] General Tab has "21% VAT" = 21, "Total Incl. VAT" = 121, Purchase (LCY) = 100
@@ -1344,9 +1344,9 @@ codeunit 144000 "Non-Deductible VAT Tests"
         EnqueueAmountsForPurchStatisticsHandler(NonDeductibleVATAmount, VATAmount, AmountWithoutVAT[1], PurchaseLine.Amount, false);
 
         // [WHEN] Open Statistics for Purchase Invoice
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.Statistics.Invoke;
+        PurchaseInvoice.Statistics.Invoke();
 
         // Verification is done inside PurchaseStatisticsModalPageHandler
         // [THEN] General Tab has "21% VAT" = 21, "Total Incl. VAT" = 363, Purchase (LCY) = 331.50 (100 + 10.50 + 200 + 21)
@@ -1394,9 +1394,9 @@ codeunit 144000 "Non-Deductible VAT Tests"
         EnqueueAmountsForPurchStatisticsHandler(NonDeductibleVATAmount, VATAmount, AmountWithoutVAT[1], PurchaseLine.Amount, false);
 
         // [WHEN] Openning Statistics for Posted Purchase Invoice
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
-        PostedPurchaseInvoice.Statistics.Invoke;
+        PostedPurchaseInvoice.Statistics.Invoke();
 
         // Verification is done inside PostedPurchaseStatisticsModalPageHandler
         // [THEN] General Tab has "21% VAT" = 21, "Total Incl. VAT" = 363, Purchase (LCY) = 331.50 (100 + 10.50 + 200 + 21)
@@ -1444,7 +1444,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         VerifyGLEntryAmount(GLAccountNo, -(NonDedVATAmount[1] + NonDedVATAmount[2]));
 
         // [THEN] Report has been printed with following values:
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         // [THEN] VAT Entry Line1: DocumentNo = "A", Base = 1080, Amount = 120, Non Ded. VAT Amount = 80
         VerifyVATSettlementReportVATEntryRow(18, InvoiceNo[1], BaseAmount[1], VATAmount[1], NonDedVATAmount[1]);
         // [THEN] VAT Entry Line2: DocumentNo = "B", Base = 2160, Amount = 240, Non Ded. VAT Amount = 160
@@ -1508,7 +1508,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         VerifyGLEntryAmount(GLAccountNo, VATAmount[1] - NonDedVATAmount[2]);
 
         // [THEN] Report has been printed with following values:
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         // [THEN] First VAT Entry corresponds to "Normal" VAT Setup: DocumentNo = "A", Base = 1000, Amount = 200, Non Ded. VAT Amount = 0
         VerifyVATSettlementReportVATSetupValues(17, VATPostingSetup[1]);
         VerifyVATSettlementReportVATEntryRow(18, InvoiceNo[1], BaseAmount[1], VATAmount[1], 0);
@@ -1576,7 +1576,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         VerifyGLEntryAmount(GLAccountNo, VATAmount[2] - NonDedVATAmount[1]);
 
         // [THEN] Report has been printed with following values:
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         // [THEN] First VAT Entry corresponds to "Reverse Charge" VAT Setup: DocumentNo = "A", Base = 2160, Amount = 240, Non Ded. VAT Amount = 160
         VerifyVATSettlementReportVATSetupValues(17, VATPostingSetup[1]);
         VerifyVATSettlementReportVATEntryRow(18, InvoiceNo[1], BaseAmount[1], VATAmount[1], NonDedVATAmount[1]);
@@ -1670,7 +1670,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         // [WHEN] Post purchase invoice (FCY, FCY to LCY currency factor = 10) with G/L Account "X" and Amount = 1000
         PurchInvHeader.Get(
           CreateAndPostPurchaseInvoice(
-            VATPostingSetup, LibraryERM.CreateCurrencyWithRandomExchRates, GLAccount, VATBase, VATAmount, NonDedVATAmount));
+            VATPostingSetup, LibraryERM.CreateCurrencyWithRandomExchRates(), GLAccount, VATBase, VATAmount, NonDedVATAmount));
         ConvertAmounts(VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY, VATBase, VATAmount, NonDedVATAmount, PurchInvHeader."Currency Code", '');
 
         // [THEN] VATEntry."Non Ded. VAT Amount" = (10000 * 20%) * 40% = 800
@@ -1711,7 +1711,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         Initialize();
 
         // [GIVEN] GLSetup."Additional Reporting Currency" = "ACY" (LCY to ACY currency factor = 10)
-        LibraryERM.SetAddReportingCurrency(LibraryERM.CreateCurrencyWithRandomExchRates);
+        LibraryERM.SetAddReportingCurrency(LibraryERM.CreateCurrencyWithRandomExchRates());
 
         // [GIVEN] G/L Account "X" with Reverse Charge 20% and Non Deductible VAT 40%
         CreateVATSetupWithGLAccount(
@@ -1720,7 +1720,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         // [WHEN] Post purchase invoice (LCY) with G/L Account "X" and Amount = 1000
         PurchInvHeader.Get(CreateAndPostPurchaseInvoice(VATPostingSetup, '', GLAccount, VATBase, VATAmount, NonDedVATAmount));
         ConvertAmounts(
-          VATBaseACY, VATAmountACY, NonDedVATAmountACY, VATBase, VATAmount, NonDedVATAmount, '', LibraryERM.GetAddReportingCurrency);
+          VATBaseACY, VATAmountACY, NonDedVATAmountACY, VATBase, VATAmount, NonDedVATAmount, '', LibraryERM.GetAddReportingCurrency());
 
         // [THEN] VATEntry."Non Ded. VAT Amount" = (1000 * 20%) * 40% = 80
         // [THEN] VATEntry."Base" = 1000 + 80 = 1080
@@ -1768,7 +1768,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         LibraryPurchase.SetInvoiceRounding(false);
 
         // [GIVEN] GLSetup."Additional Reporting Currency" = "ACY" (LCY to ACY currency factor = 10)
-        LibraryERM.SetAddReportingCurrency(LibraryERM.CreateCurrencyWithRandomExchRates);
+        LibraryERM.SetAddReportingCurrency(LibraryERM.CreateCurrencyWithRandomExchRates());
 
         // [GIVEN] G/L Account "X" with Reverse Charge 20% and Non Deductible VAT 40%
         CreateVATSetupWithGLAccount(
@@ -1777,13 +1777,13 @@ codeunit 144000 "Non-Deductible VAT Tests"
         // [WHEN] Post purchase invoice (FCY, FCY to LCY currency factor = 10) with G/L Account "X" and Amount = 1000
         PurchInvHeader.Get(
           CreateAndPostPurchaseInvoice(
-            VATPostingSetup, LibraryERM.CreateCurrencyWithRandomExchRates, GLAccount, VATBase, VATAmount, NonDedVATAmount));
+            VATPostingSetup, LibraryERM.CreateCurrencyWithRandomExchRates(), GLAccount, VATBase, VATAmount, NonDedVATAmount));
         ConvertAmounts(
           VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY, VATBase, VATAmount, NonDedVATAmount,
           PurchInvHeader."Currency Code", '');
         ConvertAmounts(
           VATBaseACY, VATAmountACY, NonDedVATAmountACY, VATBase, VATAmount, NonDedVATAmount,
-          PurchInvHeader."Currency Code", LibraryERM.GetAddReportingCurrency);
+          PurchInvHeader."Currency Code", LibraryERM.GetAddReportingCurrency());
 
         // [THEN] VATEntry."Non Ded. VAT Amount" = (10000 * 20%) * 40% = 800
         // [THEN] VATEntry."Base" = 10000 + 800 = 10800
@@ -1831,7 +1831,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         LibraryPurchase.SetInvoiceRounding(false);
 
         // [GIVEN] GLSetup."Additional Reporting Currency" = "ACY" (LCY to ACY currency factor = 10)
-        LibraryERM.SetAddReportingCurrency(LibraryERM.CreateCurrencyWithRandomExchRates);
+        LibraryERM.SetAddReportingCurrency(LibraryERM.CreateCurrencyWithRandomExchRates());
 
         // [GIVEN] G/L Account "X" with Reverse Charge 20% and Non Deductible VAT 40%
         CreateVATSetupWithGLAccount(
@@ -1840,13 +1840,13 @@ codeunit 144000 "Non-Deductible VAT Tests"
         // [WHEN] Post purchase invoice (FCY, FCY = ACY) with G/L Account "X" and Amount = 1000
         PurchInvHeader.Get(
           CreateAndPostPurchaseInvoice(
-            VATPostingSetup, LibraryERM.GetAddReportingCurrency, GLAccount, VATBase, VATAmount, NonDedVATAmount));
+            VATPostingSetup, LibraryERM.GetAddReportingCurrency(), GLAccount, VATBase, VATAmount, NonDedVATAmount));
         ConvertAmounts(
           VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY, VATBase, VATAmount, NonDedVATAmount,
           PurchInvHeader."Currency Code", '');
         ConvertAmounts(
           VATBaseACY, VATAmountACY, NonDedVATAmountACY, VATBase, VATAmount, NonDedVATAmount,
-          PurchInvHeader."Currency Code", LibraryERM.GetAddReportingCurrency);
+          PurchInvHeader."Currency Code", LibraryERM.GetAddReportingCurrency());
 
         // [THEN] VATEntry."Non Ded. VAT Amount" = (100 * 20%) * 40% = 8
         // [THEN] VATEntry."Base" = 100 + 8 = 108
@@ -1923,9 +1923,9 @@ codeunit 144000 "Non-Deductible VAT Tests"
         // [FEATURE] [Document Totals] [UT]
         // [SCENARIO 291696] Document Totals does not involve non-deductible VAT from other documents
         LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup,
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(),
           LibraryRandom.RandIntInRange(100, 200));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
         PurchaseLine.Validate("VAT %", LibraryRandom.RandIntInRange(10, 30));
@@ -1959,7 +1959,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         // [SCENARIO 313336] PurchaseDeltaUpdateTotals calculates "Amount Including VAT" and VATAmount correctly when both lines "VAT Calculation Type" <> "Reverse Charge VAT".
         Initialize();
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type".FromInteger(LibraryRandom.RandInt(5)), LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type".FromInteger(LibraryRandom.RandInt(5)), LibraryPurchase.CreateVendorNo());
         MockPurchaseLine(OldPurchaseLine, PurchaseHeader, OldPurchaseLine."VAT Calculation Type"::"Normal VAT", 10, 200);
         MockPurchaseLine(NewPurchaseLine, PurchaseHeader, NewPurchaseLine."VAT Calculation Type"::"Normal VAT", 10, 100);
         DocumentTotals.PurchaseDeltaUpdateTotals(OldPurchaseLine, ZeroPurchaseLine, TotalPurchaseLine, VATAmt, InvDiscAmt, InvDiscPcs);
@@ -1988,7 +1988,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         // [SCENARIO 313336] PurchaseDeltaUpdateTotals calculates "Amount Including VAT" and VATAmount correctly when both lines "VAT Calculation Type" = "Reverse Charge VAT".
         Initialize();
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type".FromInteger(LibraryRandom.RandInt(5)), LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type".FromInteger(LibraryRandom.RandInt(5)), LibraryPurchase.CreateVendorNo());
         MockPurchaseLine(OldPurchaseLine, PurchaseHeader, OldPurchaseLine."VAT Calculation Type"::"Reverse Charge VAT", 10, 200);
         MockPurchaseLine(NewPurchaseLine, PurchaseHeader, NewPurchaseLine."VAT Calculation Type"::"Reverse Charge VAT", 10, 100);
         DocumentTotals.PurchaseDeltaUpdateTotals(OldPurchaseLine, ZeroPurchaseLine, TotalPurchaseLine, VATAmt, InvDiscAmt, InvDiscPcs);
@@ -2017,7 +2017,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         // [SCENARIO 313336] PurchaseDeltaUpdateTotals calculates "Amount Including VAT" and VATAmount correctly when new line uses "VAT Calculation Type" = "Reverse Charge VAT", old one doesn't.
         Initialize();
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type".FromInteger(LibraryRandom.RandInt(5)), LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type".FromInteger(LibraryRandom.RandInt(5)), LibraryPurchase.CreateVendorNo());
         MockPurchaseLine(OldPurchaseLine, PurchaseHeader, OldPurchaseLine."VAT Calculation Type"::"Normal VAT", 10, 200);
         MockPurchaseLine(NewPurchaseLine, PurchaseHeader, NewPurchaseLine."VAT Calculation Type"::"Reverse Charge VAT", 10, 100);
         DocumentTotals.PurchaseDeltaUpdateTotals(OldPurchaseLine, ZeroPurchaseLine, TotalPurchaseLine, VATAmt, InvDiscAmt, InvDiscPcs);
@@ -2046,7 +2046,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         // [SCENARIO 313336] PurchaseDeltaUpdateTotals calculates "Amount Including VAT" and VATAmount correctly when old line uses "VAT Calculation Type" = "Reverse Charge VAT", new one doesn't.
         Initialize();
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type".FromInteger(LibraryRandom.RandInt(5)), LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type".FromInteger(LibraryRandom.RandInt(5)), LibraryPurchase.CreateVendorNo());
         MockPurchaseLine(OldPurchaseLine, PurchaseHeader, OldPurchaseLine."VAT Calculation Type"::"Reverse Charge VAT", 10, 200);
         MockPurchaseLine(NewPurchaseLine, PurchaseHeader, NewPurchaseLine."VAT Calculation Type"::"Normal VAT", 10, 100);
         DocumentTotals.PurchaseDeltaUpdateTotals(OldPurchaseLine, ZeroPurchaseLine, TotalPurchaseLine, VATAmt, InvDiscAmt, InvDiscPcs);
@@ -2347,10 +2347,8 @@ codeunit 144000 "Non-Deductible VAT Tests"
     [Scope('OnPrem')]
     procedure PurchaseDocumentTotalsOnSequenceOfUpdateLineAmountAndNonDeductibleVATPercent()
     var
-        TotalPurchaseLine: Record "Purchase Line";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        GLEntry: Record "G/L Entry";
         VATPercent: Decimal;
         VATAmount: Decimal;
         LineAmount: Decimal;
@@ -2379,18 +2377,16 @@ codeunit 144000 "Non-Deductible VAT Tests"
         PurchaseHeader.Find();
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        VerifySumOfGLEntryAmountForGLAccount(GLEntry."Document Type"::Invoice, InvoiceNo, PurchaseLine."No.", LineAmount);
+        VerifySumOfGLEntryAmountForGLAccount(InvoiceNo, PurchaseLine."No.", LineAmount);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseDocumentUpdateDeferralCodeAndNonDeductibleVAT()
     var
-        TotalPurchaseLine: Record "Purchase Line";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         DeferralTemplate: Record "Deferral Template";
-        GLEntry: Record "G/L Entry";
         VATPercent: Decimal;
         VATAmount: Decimal;
         LineAmount: Decimal;
@@ -2424,7 +2420,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         PurchaseHeader.Find();
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        VerifySumOfGLEntryAmountForGLAccount(GLEntry."Document Type"::Invoice, InvoiceNo, DeferralTemplate."Deferral Account", VATBaseAmount + NonDeductibleVATAmount);
+        VerifySumOfGLEntryAmountForGLAccount(InvoiceNo, DeferralTemplate."Deferral Account", VATBaseAmount + NonDeductibleVATAmount);
     end;
 
     [Test]
@@ -2493,7 +2489,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
           VATPostingSetup, GLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(20, 40));
 
         // [WHEN] Create and post purchase credit memo for account "X" with job, VATBase = 1126
-        CreateAndPostPurchaseCrMemoForJob(VATPostingSetup, '', GLAccount, VATBase, JobTask);
+        CreateAndPostPurchaseCrMemoForJob(VATPostingSetup, GLAccount, VATBase, JobTask);
 
         // [THEN] Job ledger entry has Unit Cost = 1126
         VerifyJobLedgerEntryLCY(JobTask, VATBase);
@@ -2517,7 +2513,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
           VATPostingSetup, GLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(20, 40));
 
         // [WHEN] Create and post purchase credit memo for account "X" with job, Currency Code = "YYY", VATBase = 1126
-        CreateAndPostPurchaseCrMemoForJob(VATPostingSetup, LibraryERM.CreateCurrencyWithRandomExchRates(), GLAccount, VATBase, JobTask);
+        CreateAndPostPurchaseCrMemoForJob(VATPostingSetup, GLAccount, VATBase, JobTask);
 
         // [THEN] Job ledger entry has Unit Cost = 1126
         VerifyJobLedgerEntry(JobTask, VATBase);
@@ -2899,7 +2895,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Non-Deductible VAT");
 
-        LibraryERMCountryData.SetZeroVATSetupForPurchInvRoundingAccounts;
+        LibraryERMCountryData.SetZeroVATSetupForPurchInvRoundingAccounts();
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySetupStorage.SavePurchasesSetup();
 
@@ -2915,7 +2911,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
         VATPostingSetup."VAT %" := VATPercent;
-        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup."Reverse Chrg. VAT Acc." := VATPostingSetup."Purchase VAT Account";
         VATPostingSetup."VAT Calculation Type" := VATCalculationType;
         VATPostingSetup."VAT Identifier" := VATIdentifier;
@@ -3088,7 +3084,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         exit(
           Round(
             LibraryERM.ConvertCurrency(AmountFCY, PurchInvHeader."Currency Code", '', PurchInvHeader."Posting Date"),
-            LibraryERM.GetAmountRoundingPrecision));
+            LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure GetLoweredVATAmount(DirectUnitCost: Decimal; VATDiscPct: Decimal; VATPct: Decimal): Decimal
@@ -3104,7 +3100,6 @@ codeunit 144000 "Non-Deductible VAT Tests"
     local procedure CreatePurchaseLineWithVATType(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATType: Enum "Tax Calculation Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
-        GLAccount: Record "G/L Account";
     begin
         CreateVATPostingSetupWithBusPostGroup(
           VATPostingSetup,
@@ -3277,7 +3272,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateAndPostPurchaseCrMemoForJob(VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; GLAccount: Record "G/L Account"; var VATBase: Decimal; var JobTask: Record "Job Task"): Code[20]
+    local procedure CreateAndPostPurchaseCrMemoForJob(VATPostingSetup: Record "VAT Posting Setup"; GLAccount: Record "G/L Account"; var VATBase: Decimal; var JobTask: Record "Job Task"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -3350,7 +3345,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         PurchaseHeader.Validate("Posting Date", CalcDate('<-CM>', WorkDate()));
         PurchaseHeader.Modify(true);
@@ -3363,7 +3358,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         PurchaseLine.Validate("Non Deductible VAT %", LibraryRandom.RandIntInRange(10, 50));
         PurchaseLine.Validate("Deferral Code", DeferralTemplateCode);
         PurchaseLine.Modify(true);
-        exit(PurchaseLine.GetDeferralAmount);
+        exit(PurchaseLine.GetDeferralAmount());
     end;
 
     local procedure CreateCopyVATPostingSetup(var VATPostingSetupNew: Record "VAT Posting Setup"; VATPostingSetup: Record "VAT Posting Setup")
@@ -3507,7 +3502,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         Clear(CalcAndPostVATSettlement);
 
         LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        CalcAndPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate, TemplateName, BatchName, GLAccount."No.", true, Post);
+        CalcAndPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), TemplateName, BatchName, GLAccount."No.", true, Post);
         CalcAndPostVATSettlement.InitializeRequest2(false);
         Commit();
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
@@ -3524,9 +3519,9 @@ codeunit 144000 "Non-Deductible VAT Tests"
           LibraryRandom.RandIntInRange(5, 10), LineDiscount, VATPct);
         NonDeductibleVATPct[2] := LibraryRandom.RandInt(99);
         AmountWithoutVAT[2] := LibraryRandom.RandIntInRange(100, 1000);
-        VATAmount[2] := LibraryBEHelper.CalcPercentage(AmountWithoutVAT[2], VATPct, LibraryERM.GetAmountRoundingPrecision);
+        VATAmount[2] := LibraryBEHelper.CalcPercentage(AmountWithoutVAT[2], VATPct, LibraryERM.GetAmountRoundingPrecision());
         NonDeductibleVATAmount[2] :=
-          LibraryBEHelper.CalcPercentage(VATAmount[2], NonDeductibleVATPct[2], LibraryERM.GetAmountRoundingPrecision);
+          LibraryBEHelper.CalcPercentage(VATAmount[2], NonDeductibleVATPct[2], LibraryERM.GetAmountRoundingPrecision());
     end;
 
     local procedure SetupAmountsForNonVATPurchaseStatOneLine(var NonDeductibleVATPct: array[2] of Integer; var AmountWithoutVAT: array[2] of Decimal; var AmountWithoutVATAndDiscount: Decimal; var VATAmount: array[2] of Decimal; var NonDeductibleVATAmount: array[2] of Decimal; NonDedVATPct: Integer; LineDiscount: Integer; VATPct: Decimal)
@@ -3534,10 +3529,10 @@ codeunit 144000 "Non-Deductible VAT Tests"
         NonDeductibleVATPct[1] := NonDedVATPct;
         AmountWithoutVAT[1] := LibraryRandom.RandIntInRange(100, 1000);
         AmountWithoutVATAndDiscount :=
-          LibraryBEHelper.CalcPercentageChange(AmountWithoutVAT[1], LineDiscount, LibraryERM.GetAmountRoundingPrecision, false);
-        VATAmount[1] := LibraryBEHelper.CalcPercentage(AmountWithoutVATAndDiscount, VATPct, LibraryERM.GetAmountRoundingPrecision);
+          LibraryBEHelper.CalcPercentageChange(AmountWithoutVAT[1], LineDiscount, LibraryERM.GetAmountRoundingPrecision(), false);
+        VATAmount[1] := LibraryBEHelper.CalcPercentage(AmountWithoutVATAndDiscount, VATPct, LibraryERM.GetAmountRoundingPrecision());
         NonDeductibleVATAmount[1] :=
-          LibraryBEHelper.CalcPercentage(VATAmount[1], NonDeductibleVATPct[1], LibraryERM.GetAmountRoundingPrecision);
+          LibraryBEHelper.CalcPercentage(VATAmount[1], NonDeductibleVATPct[1], LibraryERM.GetAmountRoundingPrecision());
     end;
 
     local procedure ConvertAmounts(var VATBaseTarget: Decimal; var VATAmountTarget: Decimal; var NonDedVATAmountTarget: Decimal; VATBaseSource: Decimal; VATAmountSource: Decimal; NonDedVATAmountSource: Decimal; CurrencyCodeSource: Code[10]; CurrencyCodeTarget: Code[10])
@@ -3910,7 +3905,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         GLEntry.TestField("VAT Amount", ExpectedVAT);
     end;
 
-    local procedure VerifySumOfGLEntryAmountForGLAccount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
+    local procedure VerifySumOfGLEntryAmountForGLAccount(DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -3953,12 +3948,12 @@ codeunit 144000 "Non-Deductible VAT Tests"
         AmountWithoutVATAndDiscount1: Decimal;
         AmountWithoutVAT2: Decimal;
     begin
-        NonDeductibleVATAmount[1] := LibraryVariableStorage.DequeueDecimal;
-        NonDeductibleVATAmount[2] := LibraryVariableStorage.DequeueDecimal;
-        VATAmount[1] := LibraryVariableStorage.DequeueDecimal;
-        VATAmount[2] := LibraryVariableStorage.DequeueDecimal;
-        AmountWithoutVATAndDiscount1 := LibraryVariableStorage.DequeueDecimal;
-        AmountWithoutVAT2 := LibraryVariableStorage.DequeueDecimal;
+        NonDeductibleVATAmount[1] := LibraryVariableStorage.DequeueDecimal();
+        NonDeductibleVATAmount[2] := LibraryVariableStorage.DequeueDecimal();
+        VATAmount[1] := LibraryVariableStorage.DequeueDecimal();
+        VATAmount[2] := LibraryVariableStorage.DequeueDecimal();
+        AmountWithoutVATAndDiscount1 := LibraryVariableStorage.DequeueDecimal();
+        AmountWithoutVAT2 := LibraryVariableStorage.DequeueDecimal();
 
         PurchaseStatistics.TotalAmount1.AssertEquals(
           AmountWithoutVATAndDiscount1 + AmountWithoutVAT2 + NonDeductibleVATAmount[1] + NonDeductibleVATAmount[2]);
@@ -3967,14 +3962,14 @@ codeunit 144000 "Non-Deductible VAT Tests"
 
         PurchaseStatistics.TotalAmount2.AssertEquals(AmountWithoutVATAndDiscount1 + AmountWithoutVAT2 + VATAmount[1] + VATAmount[2]);
 
-        if LibraryVariableStorage.DequeueBoolean then
+        if LibraryVariableStorage.DequeueBoolean() then
             VerifyPurchStatisticSubform(
               PurchaseStatistics,
               AmountWithoutVATAndDiscount1 + AmountWithoutVAT2,
               VATAmount[1] + VATAmount[2],
               NonDeductibleVATAmount[1] + NonDeductibleVATAmount[2])
         else begin
-            PurchaseStatistics.SubForm.First;
+            PurchaseStatistics.SubForm.First();
             VerifyPurchStatisticSubform(
               PurchaseStatistics, AmountWithoutVATAndDiscount1, VATAmount[1], NonDeductibleVATAmount[1]);
             PurchaseStatistics.SubForm.Next();
@@ -4000,12 +3995,12 @@ codeunit 144000 "Non-Deductible VAT Tests"
         AmountWithoutVATAndDiscount1: Decimal;
         AmountWithoutVAT2: Decimal;
     begin
-        NonDeductibleVATAmount[1] := LibraryVariableStorage.DequeueDecimal;
-        NonDeductibleVATAmount[2] := LibraryVariableStorage.DequeueDecimal;
-        VATAmount[1] := LibraryVariableStorage.DequeueDecimal;
-        VATAmount[2] := LibraryVariableStorage.DequeueDecimal;
-        AmountWithoutVATAndDiscount1 := LibraryVariableStorage.DequeueDecimal;
-        AmountWithoutVAT2 := LibraryVariableStorage.DequeueDecimal;
+        NonDeductibleVATAmount[1] := LibraryVariableStorage.DequeueDecimal();
+        NonDeductibleVATAmount[2] := LibraryVariableStorage.DequeueDecimal();
+        VATAmount[1] := LibraryVariableStorage.DequeueDecimal();
+        VATAmount[2] := LibraryVariableStorage.DequeueDecimal();
+        AmountWithoutVATAndDiscount1 := LibraryVariableStorage.DequeueDecimal();
+        AmountWithoutVAT2 := LibraryVariableStorage.DequeueDecimal();
 
         PurchaseInvoiceStatistics.VendAmount.AssertEquals(
           AmountWithoutVATAndDiscount1 + AmountWithoutVAT2 + NonDeductibleVATAmount[1] + NonDeductibleVATAmount[2]);
@@ -4016,14 +4011,14 @@ codeunit 144000 "Non-Deductible VAT Tests"
         PurchaseInvoiceStatistics.AmountInclVAT.AssertEquals(
           AmountWithoutVATAndDiscount1 + AmountWithoutVAT2 + VATAmount[1] + VATAmount[2]);
 
-        if LibraryVariableStorage.DequeueBoolean then
+        if LibraryVariableStorage.DequeueBoolean() then
             VerifyPurchInvoiceStatisticSubform(
               PurchaseInvoiceStatistics,
               AmountWithoutVATAndDiscount1 + AmountWithoutVAT2,
               VATAmount[1] + VATAmount[2],
               NonDeductibleVATAmount[1] + NonDeductibleVATAmount[2])
         else begin
-            PurchaseInvoiceStatistics.SubForm.First;
+            PurchaseInvoiceStatistics.SubForm.First();
             VerifyPurchInvoiceStatisticSubform(
               PurchaseInvoiceStatistics, AmountWithoutVATAndDiscount1, VATAmount[1], NonDeductibleVATAmount[1]);
             PurchaseInvoiceStatistics.SubForm.Next();
@@ -4036,7 +4031,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
     [Scope('OnPrem')]
     procedure RHCalcAndPostVATSettlement(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
     begin
-        CalcAndPostVATSettlement.SaveAsExcel(LibraryReportValidation.GetFileName);
+        CalcAndPostVATSettlement.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 

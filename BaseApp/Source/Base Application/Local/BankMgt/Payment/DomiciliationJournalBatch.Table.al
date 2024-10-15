@@ -12,6 +12,7 @@ table 2000021 "Domiciliation Journal Batch"
     Caption = 'Domiciliation Journal Batch';
     DataCaptionFields = Name, Description;
     LookupPageID = "Domiciliation Journal Batches";
+    DataClassification = CustomerContent;
 
     fields
     {

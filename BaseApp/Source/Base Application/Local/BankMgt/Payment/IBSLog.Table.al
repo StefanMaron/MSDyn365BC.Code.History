@@ -13,6 +13,7 @@ table 2000010 "IBS Log"
     ObsoleteState = Removed;
     ObsoleteTag = '19.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

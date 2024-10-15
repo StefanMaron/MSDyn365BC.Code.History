@@ -331,20 +331,23 @@ codeunit 8618 "Config. Excel Exchange"
         ConfigPackage: Record "Config. Package";
         ConfigPackageTable: Record "Config. Package Table";
     begin
-        with TempConfigPackageTable do
-            case ColumnNo of
-                1: // first column contains Package Code
-                    "Package Code" := CopyStr(Value, 1, MaxStrLen("Package Code"));
-                3: // third column contains Table ID
-                    begin
-                        "Processing Order" := WrkSheetId;
-                        Evaluate("Table ID", Value);
-                        "Delayed Insert" := not ConfigPackage.Get("Package Code"); // New Package flag value
-                        Validated := not ConfigPackageTable.Get("Package Code", "Table ID"); // New Table flag value
-                        if IsTableSelected("Table ID") then
-                            Insert();
-                    end;
-            end;
+        case ColumnNo of
+            1:
+                // first column contains Package Code
+                TempConfigPackageTable."Package Code" := CopyStr(Value, 1, MaxStrLen(TempConfigPackageTable."Package Code"));
+            3:
+                // third column contains Table ID
+                begin
+                    TempConfigPackageTable."Processing Order" := WrkSheetId;
+                    Evaluate(TempConfigPackageTable."Table ID", Value);
+                    TempConfigPackageTable."Delayed Insert" := not ConfigPackage.Get(TempConfigPackageTable."Package Code");
+                    // New Package flag value
+                    TempConfigPackageTable.Validated := not ConfigPackageTable.Get(TempConfigPackageTable."Package Code", TempConfigPackageTable."Table ID");
+                    // New Table flag value
+                    if IsTableSelected(TempConfigPackageTable."Table ID") then
+                        TempConfigPackageTable.Insert();
+                end;
+        end;
     end;
 
     local procedure NextCellInRow(Enumerator: DotNet IEnumerator; CellData: DotNet CellData; RowNo: Integer): Boolean
@@ -447,7 +450,7 @@ codeunit 8618 "Config. Excel Exchange"
                 FirstDataRow := 4;
                 while Enumerator.MoveNext() do begin
                     CellData := Enumerator.Current;
-                    CellValueText := CellData.Value;
+                    CellValueText := CellData.Value();
                     RowChanged := CurrentRowIndex <> CellData.RowNumber;
                     if not SheetHeaderRead then begin // Read config and table information
                         if (CellData.RowNumber = 1) and (CellData.ColumnNumber = 1) then begin
@@ -781,7 +784,7 @@ codeunit 8618 "Config. Excel Exchange"
         // <x:table id="5" ... ref="A3:E6" ...>
         // table.Reference = "A3:E6" (A3 - top left table corner, E6 - bottom right corner)
         // we convert "A" - to column index
-        String := Table.Reference.Value;
+        String := Table.Reference.Value();
         Length := String.IndexOf(':');
         String := DelChr(String.Substring(0, Length), '=', '0123456789');
         Length := String.Length - 1;

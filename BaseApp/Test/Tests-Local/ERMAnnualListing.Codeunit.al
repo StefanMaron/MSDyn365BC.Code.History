@@ -843,7 +843,7 @@ codeunit 144005 "ERM Annual Listing"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Annual Listing");
 
         isInitialized := true;
-        LibraryBEHelper.InitializeCompanyInformation;
+        LibraryBEHelper.InitializeCompanyInformation();
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Annual Listing");
     end;
@@ -862,7 +862,7 @@ codeunit 144005 "ERM Annual Listing"
     local procedure PrepareCountry(var Country: Record "Country/Region")
     begin
         LibraryERM.CreateCountryRegion(Country);
-        CreateVATRegNoFormat(Country.Code, GetVATRegNoFormatText);
+        CreateVATRegNoFormat(Country.Code, GetVATRegNoFormatText());
     end;
 
     local procedure PrepareCustomer(var Customer: Record Customer; CountryCode: Code[10])
@@ -871,7 +871,7 @@ codeunit 144005 "ERM Annual Listing"
         with Customer do begin
             "Country/Region Code" := CountryCode;
             "VAT Registration No." := CreateVatRegNo(CountryCode);
-            "Enterprise No." := CreateEnterpriseNo;
+            "Enterprise No." := CreateEnterpriseNo();
             Modify();
         end;
     end;
@@ -889,7 +889,7 @@ codeunit 144005 "ERM Annual Listing"
             Modify(true);
         end;
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDecInRange(10, 20, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDecInRange(10, 20, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -930,7 +930,7 @@ codeunit 144005 "ERM Annual Listing"
 
     local procedure CreateEnterpriseNo(): Code[20]
     begin
-        exit('TVA' + CreateMOD97CompliantCode)
+        exit('TVA' + CreateMOD97CompliantCode());
     end;
 
     local procedure CreateMOD97CompliantCode() CodeMod97Compliant: Code[10]
@@ -1103,7 +1103,7 @@ codeunit 144005 "ERM Annual Listing"
             Modify(true);
         end;
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDecInRange(10, 20, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDecInRange(10, 20, 2));
 
         CreateVATPostingSetupWithZeroVATPercentage(VATPostingSetup, SalesLine."VAT Bus. Posting Group");
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -1134,7 +1134,7 @@ codeunit 144005 "ERM Annual Listing"
             Modify(true);
         end;
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDecInRange(12, 14, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDecInRange(12, 14, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -1178,7 +1178,7 @@ codeunit 144005 "ERM Annual Listing"
         VatAnnualListingDisk.Country.SetValue(DequeuedVar); // Country
         LibraryVariableStorage.Dequeue(DequeuedVar);
         VatAnnualListingDisk.Minimum.SetValue(DequeuedVar); // Minimum Amount
-        VatAnnualListingDisk.OK.Invoke;
+        VatAnnualListingDisk.OK().Invoke();
     end;
 }
 

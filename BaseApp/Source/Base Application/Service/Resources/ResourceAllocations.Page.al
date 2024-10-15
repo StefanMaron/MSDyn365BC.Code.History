@@ -155,7 +155,7 @@ page 6005 "Resource Allocations"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Res. &Group Availability';
                     Image = Calendar;
-                    ToolTip = 'View allocations per resource group, such as the entire capacity, the quantity allocated to jobs on order, the quantity available after quotes, the quantity assigned to jobs on quote, and the remaining capacity after all jobs on quote or order.';
+                    ToolTip = 'View allocations per resource group, such as the entire capacity, the quantity allocated to projects on order, the quantity available after quotes, the quantity assigned to projects on quote, and the remaining capacity after all projects on quote or order.';
 
                     trigger OnAction()
                     begin

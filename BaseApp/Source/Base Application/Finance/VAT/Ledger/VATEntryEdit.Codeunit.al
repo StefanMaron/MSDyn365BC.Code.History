@@ -20,6 +20,9 @@ codeunit 338 "VAT Entry - Edit"
         VATEntry."Enterprise No." := Rec."Enterprise No.";
         OnBeforeVATEntryModify(VATEntry, Rec);
         VATEntry.TestField("Entry No.", Rec."Entry No.");
+        VATEntry.TestField("Posting Date", Rec."Posting Date");
+        VATEntry.TestField(Amount, Rec.Amount);
+        VATEntry.TestField(Base, Rec.Base);
         VATEntry.Modify();
         OnRunOnAfterVATEntryModify(VATEntry, Rec);
         Rec := VATEntry;

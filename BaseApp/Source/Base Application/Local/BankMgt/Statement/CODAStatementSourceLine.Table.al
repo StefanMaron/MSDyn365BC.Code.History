@@ -9,6 +9,7 @@ using Microsoft.Bank.BankAccount;
 table 2000042 "CODA Statement Source Line"
 {
     Caption = 'CODA Statement Source Line';
+    DataClassification = CustomerContent;
 
     fields
     {

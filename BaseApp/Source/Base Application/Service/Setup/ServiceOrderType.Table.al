@@ -6,6 +6,7 @@ table 5903 "Service Order Type"
 {
     Caption = 'Service Order Type';
     LookupPageID = "Service Order Types";
+    DataClassification = CustomerContent;
 
     fields
     {

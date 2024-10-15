@@ -6,6 +6,7 @@ table 8614 "Config. Package Record"
 {
     Caption = 'Config. Package Record';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

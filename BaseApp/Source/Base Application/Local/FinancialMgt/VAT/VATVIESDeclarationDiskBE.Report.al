@@ -144,7 +144,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
             begin
                 if AddRepresentative then begin
                     Representative.Get(Identifier);
-                    Representative.CheckCompletion;
+                    Representative.CheckCompletion();
                 end;
             end;
         }
@@ -156,7 +156,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
             var
                 Result: Boolean;
             begin
-                Result := CreateIntervatXML;
+                Result := CreateIntervatXML();
                 if SilenceRun then
                     exit;
 
@@ -170,7 +170,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
                     Message(Text007);
                     CurrReport.Quit();
                 end;
-                InitializeXMLFile;
+                InitializeXMLFile();
             end;
         }
     }
@@ -214,7 +214,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
                             trigger OnValidate()
                             begin
-                                ValidateMonthQuarter;
+                                ValidateMonthQuarter();
                             end;
                         }
                         field(Vyear; Vyear)
@@ -225,7 +225,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
                             trigger OnValidate()
                             begin
-                                ValidateYear;
+                                ValidateYear();
                             end;
                         }
                         field(TestDeclaration; TestDeclaration)
@@ -246,7 +246,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
                             trigger OnValidate()
                             begin
-                                SetRepresentativeEnabled;
+                                SetRepresentativeEnabled();
                             end;
                         }
                         field(ID; Identifier)
@@ -278,7 +278,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
         trigger OnOpenPage()
         begin
-            SetRepresentativeEnabled;
+            SetRepresentativeEnabled();
         end;
     }
 
@@ -310,11 +310,11 @@ report 11315 "VAT-VIES Declaration Disk BE"
         if "VAT Entry".GetFilter("VAT Reporting Date") <> '' then
             Error(Text013, "VAT Entry".FieldCaption("VAT Reporting Date"));
 
-        ValidateMonthQuarter;
-        ValidateYear;
+        ValidateMonthQuarter();
+        ValidateYear();
 
         if not AddRepresentative then
-            INTERVATHelper.VerifyCpyInfoEmailExists;
+            INTERVATHelper.VerifyCpyInfoEmailExists();
 
         if Choice = Choice::Quarter then begin
             Vdatefrom := DMY2Date(1, (Vquarter * 3) - 2, Vyear);
@@ -404,7 +404,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
         if Buffer.FindFirst() then begin
             Buffer.Amount := Buffer.Amount + Buffer2.Amount;
             if Buffer.Amount = 0 then
-                Buffer.Delete
+                Buffer.Delete()
             else
                 Buffer.Modify();
         end else begin
@@ -446,7 +446,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
         AddHeader(XMLCurrNode);
 
         if AddRepresentative then begin
-            Representative.AddRepresentativeElement(XMLCurrNode, DocNameSpace, GetSequenceNumber);
+            Representative.AddRepresentativeElement(XMLCurrNode, DocNameSpace, GetSequenceNumber());
             XMLCurrNode := XMLCurrNode.ParentNode;
         end;
 
@@ -475,7 +475,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
     local procedure SetRepresentativeEnabled()
     begin
-        PageSetRepresentativeEnabled;
+        PageSetRepresentativeEnabled();
     end;
 
     local procedure GetSequenceNumber(): Integer
@@ -519,7 +519,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
         XMLCurrNode := XMLNewChild;
         XMLDOMMgt.AddAttribute(XMLCurrNode, 'SequenceNumber', '1');
         XMLDOMMgt.AddAttribute(XMLCurrNode, 'ClientsNbr', Format(Buffer.Count));
-        INTERVATHelper.AddElementDeclarant(XMLCurrNode, GetSequenceNumber);
+        INTERVATHelper.AddElementDeclarant(XMLCurrNode, GetSequenceNumber());
         XMLCurrNode := XMLCurrNode.ParentNode;
 
         Buffer.CalcSums(Amount);
@@ -622,13 +622,11 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
     local procedure RefreshBufferOnZeroBalance(CountryRegionCode: Code[10]; VATRegistrationNo: Code[20])
     begin
-        with Buffer do begin
-            SetRange("VAT Registration No.", FormatBufferVATNo(GetEUCountryRegionCode(CountryRegionCode), VATRegistrationNo));
-            CalcSums(Amount);
-            if Amount = 0 then
-                DeleteAll();
-            SetRange("VAT Registration No.");
-        end;
+        Buffer.SetRange("VAT Registration No.", FormatBufferVATNo(GetEUCountryRegionCode(CountryRegionCode), VATRegistrationNo));
+        Buffer.CalcSums(Amount);
+        if Buffer.Amount = 0 then
+            Buffer.DeleteAll();
+        Buffer.SetRange("VAT Registration No.");
     end;
 
     local procedure GetEUCountryRegionCode(CountryRegionCode: Code[10]): Code[10]

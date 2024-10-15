@@ -431,7 +431,7 @@ codeunit 144006 "CODA Tests"
         // [SCENARIO 287687] When Stan applies Customer Ledger Entry to a CODA Statement Line, "Applies-to ID" field is updated for CODA Statement Line.
         Initialize();
 
-        CreateCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, false);
+        CreateCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo(), false);
 
         with CODAStatementLine do begin
             Init();
@@ -925,7 +925,7 @@ codeunit 144006 "CODA Tests"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"CODA Tests");
 
-        LibraryBEHelper.InitializeCompanyInformation;
+        LibraryBEHelper.InitializeCompanyInformation();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"CODA Tests");
     end;
@@ -1112,16 +1112,16 @@ codeunit 144006 "CODA Tests"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText);
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText());
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1129,18 +1129,18 @@ codeunit 144006 "CODA Tests"
     procedure CancelApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
         ApplyVendorEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText());
-        ApplyVendorEntries.Cancel.Invoke();
+        ApplyVendorEntries.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SetAppliesToIDAndOkOrCancelVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText);
+        ApplyVendorEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText());
         if LibraryVariableStorage.DequeueBoolean() then
-            ApplyVendorEntries.OK.Invoke()
+            ApplyVendorEntries.OK().Invoke()
         else
-            ApplyVendorEntries.Cancel.Invoke();
+            ApplyVendorEntries.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1148,10 +1148,10 @@ codeunit 144006 "CODA Tests"
     procedure SetAppliesToIDOkOrCancelVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
         if LibraryVariableStorage.DequeueBoolean() then begin
-            ApplyVendorEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText);
-            ApplyVendorEntries.OK.Invoke();
+            ApplyVendorEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText());
+            ApplyVendorEntries.OK().Invoke();
         end else
-            ApplyVendorEntries.Cancel.Invoke();
+            ApplyVendorEntries.Cancel().Invoke();
     end;
 }
 

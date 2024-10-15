@@ -197,7 +197,7 @@ codeunit 144029 "Manual VAT Correction"
         // [SCENARIO TAB.030] 'Additional-Currency Amount' calculation (TC157004)
 
         // [GIVEN] Additional Reporting Currency is set on General Ledger Setup
-        CreateAddnlReportingCurrency;
+        CreateAddnlReportingCurrency();
         // [GIVEN] Page Manual VAT Correction
 
         // [GIVEN] Inserted record with Amount=Y
@@ -214,7 +214,7 @@ codeunit 144029 "Manual VAT Correction"
           Round(TempManualVATCorrection."Additional-Currency Amount"),
           Round(GetExchangedAmount(WorkDate(), SetAmount)), AmountIncorrectErr);
 
-        ClearAddnlReportingCurrency;
+        ClearAddnlReportingCurrency();
     end;
 
     [Test]
@@ -232,13 +232,13 @@ codeunit 144029 "Manual VAT Correction"
         TempManualVATCorrection.Insert();
 
         // [WHEN] Open page Manual VAT Correction
-        ManualVATCorrectionList.OpenEdit;
-        ManualVATCorrectionList.First;
+        ManualVATCorrectionList.OpenEdit();
+        ManualVATCorrectionList.First();
 
         // [THEN] 'Additional-Currency Amount' is not editable
-        Assert.IsTrue(ManualVATCorrectionList.Amount.Editable, 'Amount must be editable.');
+        Assert.IsTrue(ManualVATCorrectionList.Amount.Editable(), 'Amount must be editable.');
         Assert.IsFalse(
-          ManualVATCorrectionList."Additional-Currency Amount".Editable,
+          ManualVATCorrectionList."Additional-Currency Amount".Editable(),
           'Additional-Currency Amount must not be editable.');
     end;
 
@@ -252,7 +252,7 @@ codeunit 144029 "Manual VAT Correction"
         // [SCENARIO TAB.031] 'Additional-Currency Amount' when ACY is not set
 
         // [GIVEN] Additional Reporting Currency is <empty> on General Ledger Setup
-        ClearAddnlReportingCurrency;
+        ClearAddnlReportingCurrency();
 
         // [GIVEN] Page Manual VAT Correction
 
@@ -325,7 +325,7 @@ codeunit 144029 "Manual VAT Correction"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrencyAndExchangeRate;
+        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrencyAndExchangeRate();
         GeneralLedgerSetup.Modify(true);
         exit(GeneralLedgerSetup."Additional Reporting Currency");
     end;

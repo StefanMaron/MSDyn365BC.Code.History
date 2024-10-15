@@ -10,7 +10,6 @@ codeunit 144021 "Test VAT - Form Report"
     end;
 
     var
-        IntervatHelper: Codeunit "INTERVAT Helper";
         LibraryBEHelper: Codeunit "Library - BE Helper";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -43,7 +42,7 @@ codeunit 144021 "Test VAT - Form Report"
         CorrectionAmount := AddManVATCorrection('01', StartDate);
 
         // [WHEN] Export to XML by Report 11307 VAT - Form
-        xmlFileName := LibraryReportDataset.GetFileName;
+        xmlFileName := LibraryReportDataset.GetFileName();
         OpenVATFormRep(
           Period::Month, Date2DMY(StartDate, 2), Date2DMY(StartDate, 3), IncludeVATEntries::Open,
           Prepayment::LeaveEmpty, false, false, false, false, xmlFileName, false, 0);
@@ -52,7 +51,7 @@ codeunit 144021 "Test VAT - Form Report"
         LibraryXMLRead.Initialize(xmlFileName);
         LibraryXMLRead.VerifyNodeValue('Amount', CorrectionAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -64,7 +63,7 @@ codeunit 144021 "Test VAT - Form Report"
     begin
         ProcessVATFormReportAndValidate(Period::Month, 1, true);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -76,7 +75,7 @@ codeunit 144021 "Test VAT - Form Report"
     begin
         ProcessVATFormReportAndValidate(Period::Month, 10, false);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -88,7 +87,7 @@ codeunit 144021 "Test VAT - Form Report"
     begin
         ProcessVATFormReportAndValidate(Period::Quarter, 1, true);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -100,7 +99,7 @@ codeunit 144021 "Test VAT - Form Report"
     begin
         ProcessVATFormReportAndValidate(Period::Quarter, 4, false);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -117,15 +116,15 @@ codeunit 144021 "Test VAT - Form Report"
         // Setup.
         Initialize();
         StartDate := CalcDate('<+CY+1D>', WorkDate());
-        xmlFileName := LibraryReportDataset.GetFileName;
+        xmlFileName := LibraryReportDataset.GetFileName();
 
         // Exercise.
         asserterror OpenVATFormRep(Period::Month, 1, Date2DMY(StartDate, 3), IncludeVATEntries::Open,
             Prepayment::LeaveEmpty, false, false, false, true, xmlFileName, false, 0);
 
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -142,7 +141,7 @@ codeunit 144021 "Test VAT - Form Report"
         // Setup.
         Initialize();
         StartDate := CalcDate('<+CY+1D>', WorkDate());
-        xmlFileName := LibraryReportDataset.GetFileName;
+        xmlFileName := LibraryReportDataset.GetFileName();
 
         // Exercise.
         asserterror OpenVATFormRep(Period::Month, 13, Date2DMY(StartDate, 3), IncludeVATEntries::Open,
@@ -165,7 +164,7 @@ codeunit 144021 "Test VAT - Form Report"
         // Setup.
         Initialize();
         StartDate := CalcDate('<+CY+1D>', WorkDate());
-        xmlFileName := LibraryReportDataset.GetFileName;
+        xmlFileName := LibraryReportDataset.GetFileName();
 
         // Exercise.
         asserterror OpenVATFormRep(Period::Quarter, 5, Date2DMY(StartDate, 3), IncludeVATEntries::Open,
@@ -197,7 +196,7 @@ codeunit 144021 "Test VAT - Form Report"
 
         // [GIVEN] In the Request Page of "VAT - Form" Report, "Is Correction" = TRUE, "Previous Sequence No." = 11, "Year" = 2023, "Month" = 1
         StartDate := CalcDate('<1Y>', WorkDate());
-        xmlFileName := LibraryReportDataset.GetFileName;
+        xmlFileName := LibraryReportDataset.GetFileName();
         SeqNo := LibraryRandom.RandInt(9999);
         Month := Date2DMY(StartDate, 2);
         Year := Date2DMY(StartDate, 3);
@@ -212,7 +211,7 @@ codeunit 144021 "Test VAT - Form Report"
         CompanyInformation.Get();
         LibraryXMLRead.VerifyNodeValue('ReplacedVATDeclaration', StrSubstNo(ExpectedReplacedVATDeclarationTok, Format(SeqNo), RemoveNonNumericCharacters(CompanyInformation."Enterprise No."), Format(Year), Format(Month).PadLeft(2, '0'))); // TFSID: 492248
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -234,7 +233,7 @@ codeunit 144021 "Test VAT - Form Report"
         // [GIVEN] In the Request Page of "VAT - Form" Report, "Is Correction" = FALSE
         // [WHEN] Export to XML by Report 11307 VAT - Form
         StartDate := CalcDate('<1Y>', WorkDate());
-        xmlFileName := LibraryReportDataset.GetFileName;
+        xmlFileName := LibraryReportDataset.GetFileName();
         OpenVATFormRep(
           Period::Month, Date2DMY(StartDate, 2), Date2DMY(StartDate, 3), IncludeVATEntries::Open,
           Prepayment::LeaveEmpty, false, false, false, false, xmlFileName, false, 0);
@@ -243,7 +242,7 @@ codeunit 144021 "Test VAT - Form Report"
         LibraryXMLRead.Initialize(xmlFileName);
         LibraryXMLRead.VerifyElementAbsenceInSubtree('VATDeclaration', 'ReplacedVATDeclaration');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -299,7 +298,7 @@ codeunit 144021 "Test VAT - Form Report"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test VAT - Form Report");
 
         isInitialized := true;
-        LibraryBEHelper.InitializeCompanyInformation;
+        LibraryBEHelper.InitializeCompanyInformation();
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test VAT - Form Report");
     end;
@@ -351,7 +350,7 @@ codeunit 144021 "Test VAT - Form Report"
         // Create customer, an item and post an invoice to that customer for the item
         LibraryBEHelper.CreateCustomerItemSalesInvoiceAndPost(Customer);
 
-        xmlFileName := LibraryReportDataset.GetFileName;
+        xmlFileName := LibraryReportDataset.GetFileName();
 
         // Exercise.
         OpenVATFormRep(Period, PeriodValue, Date2DMY(StartDate, 3), IncludeVATEntries::Open,
@@ -442,7 +441,7 @@ codeunit 144021 "Test VAT - Form Report"
     begin
         VATFormRepCustRequestPageHandler(VATForm);
 
-        VATForm.OK.Invoke();
+        VATForm.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -450,8 +449,8 @@ codeunit 144021 "Test VAT - Form Report"
     procedure VATFormRepRequestPageWithCommentHandler(var VATForm: TestRequestPage "VAT - Form")
     begin
         VATFormRepCustRequestPageHandler(VATForm);
-        VATForm.CommentControl.SetValue(LibraryVariableStorage.DequeueText);
-        VATForm.OK.Invoke();
+        VATForm.CommentControl.SetValue(LibraryVariableStorage.DequeueText());
+        VATForm.OK().Invoke();
     end;
 
     local procedure VATFormRepCustRequestPageHandler(var VATForm: TestRequestPage "VAT - Form")

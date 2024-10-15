@@ -6,6 +6,7 @@ namespace Microsoft.Finance.GeneralLedger.Reports;
 
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Foundation.Enums;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Reporting;
@@ -1056,7 +1057,7 @@ report 11312 "Checklist Revenue and VAT"
         PeriodPageManagement: Codeunit PeriodPageManagement;
         Selection: Enum "VAT Statement Report Selection";
         PeriodSelection: Enum "VAT Statement Report Period Selection";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodType: Enum "Analysis Period Type";
         TotalAmount: array[13] of Decimal;
         GlAccountFilter: Text[250];
         Heading: Text[50];

@@ -31,9 +31,6 @@ codeunit 1430 "Role Center Notification Mgt."
 
     var
         IsPreview: Boolean;
-#if not CLEAN21
-        EvaluationNotificationIdTxt: Label 'cb28c63d-4daf-453a-b41b-a8de9963d563', Locked = true;
-#endif
         TrialNotificationIdTxt: Label '9e359b60-3d2e-40c7-8680-3365d51937f7', Locked = true;
         TrialSuspendedNotificationIdTxt: Label '9e359b60-3d2e-40c7-8680-3365d51937f7', Locked = true;
         TrialExtendedNotificationIdTxt: Label '9e359b60-3d2e-40c7-8680-3365d51937f7';
@@ -44,9 +41,6 @@ codeunit 1430 "Role Center Notification Mgt."
         ChangeToPremiumExpNotificationIdTxt: Label '58982418-e1d1-4879-bda2-6033ca151b83', Locked = true;
         WSDeprecationNotificationIdTxt: Label 'a482b656-b7f4-46d9-8ca8-843083158057', Locked = true;
         TrialNotificationDaysSinceStartTxt: Label '15', Locked = true;
-#if not CLEAN21
-        EvaluationNotificationLinkTxt: Label 'Set up a company';
-#endif
         TrialNotificationLinkTxt: Label 'Request partner contact...';
         TrialNotificationExtendLinkTxt: Label 'Extend trial...';
         TrialSuspendedNotificationLinkTxt: Label 'Request partner contact...';
@@ -55,9 +49,6 @@ codeunit 1430 "Role Center Notification Mgt."
         TrialExtendedSuspendedNotificationSubscribeLinkTxt: Label 'Request partner contact...';
         PaidWarningNotificationLinkTxt: Label 'Renew subscription...';
         PaidSuspendedNotificationLinkTxt: Label 'Renew subscription...';
-#if not CLEAN21
-        EvaluationNotificationMsg: Label 'Ready to try Business Central with your own company data? Weâ€™ll walk you through the setup.';
-#endif
         TrialNotificationMsg: Label 'Your trial period expires in %1 days. Ready to subscribe, or do you need more time?', Comment = '%1=Count of days until trial expires';
         TrialNotificationPreviewMsg: Label 'Your trial period expires in %1 days.', Comment = '%1=Count of days until trial expires';
         TrialSuspendedNotificationMsg: Label 'Your trial period has expired. You can subscribe or extend the period to get more time.';
@@ -78,20 +69,6 @@ codeunit 1430 "Role Center Notification Mgt."
         ChangeToPremiumExpNotificationNameTok: Label 'Suggest to change the Experience setting.';
         ContactAPartnerURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2038439', Locked = true;
         BuyThroughPartnerURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=860971', Locked = true;
-
-#if not CLEAN21
-    local procedure CreateAndSendEvaluationNotification()
-    var
-        EvaluationNotification: Notification;
-    begin
-        EvaluationNotification.Id := GetEvaluationNotificationId();
-        EvaluationNotification.Message := EvaluationNotificationMsg; // current message is not meant to reference the trial duration
-        EvaluationNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
-        EvaluationNotification.AddAction(
-          EvaluationNotificationLinkTxt, CODEUNIT::"Role Center Notification Mgt.", 'EvaluationNotificationAction');
-        EvaluationNotification.Send();
-    end;
-#endif
 
     procedure FixNowWSDeprecation(Notification: Notification)
     begin
@@ -211,31 +188,6 @@ codeunit 1430 "Role Center Notification Mgt."
         SandboxNotification.Send();
     end;
 
-#if not CLEAN21
-    [Obsolete('Evaluation notification is removed', '21.0')]
-    procedure HideEvaluationNotificationAfterStartingTrial()
-    var
-        TenantLicenseState: Codeunit "Tenant License State";
-        EvaluationNotification: Notification;
-    begin
-        if not TenantLicenseState.IsTrialMode() then
-            exit;
-        if not AreNotificationsSupported() then
-            exit;
-        EvaluationNotification.Id := GetEvaluationNotificationId();
-        EvaluationNotification.Recall();
-    end;
-
-    [Obsolete('Evaluation notification is removed', '21.0')]
-    procedure GetEvaluationNotificationId(): Guid
-    var
-        EvaluationNotificationId: Guid;
-    begin
-        Evaluate(EvaluationNotificationId, EvaluationNotificationIdTxt);
-        exit(EvaluationNotificationId);
-    end;
-#endif
-
     procedure GetTrialNotificationId(): Guid
     var
         TrialNotificationId: Guid;
@@ -339,33 +291,6 @@ codeunit 1430 "Role Center Notification Mgt."
 
         exit(true);
     end;
-
-#if not CLEAN21
-    local procedure IsEvaluationNotificationEnabled(): Boolean
-    var
-        RoleCenterNotifications: Record "Role Center Notifications";
-        ClientTypeManagement: Codeunit "Client Type Management";
-        TenantLicenseState: Codeunit "Tenant License State";
-    begin
-        if not TenantLicenseState.IsEvaluationMode() then
-            exit(false);
-
-        if not AreNotificationsSupported() then
-            exit(false);
-
-        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
-            exit(false);
-
-        RoleCenterNotifications.Initialize();
-
-        if RoleCenterNotifications.GetEvaluationNotificationState() =
-           RoleCenterNotifications."Evaluation Notification State"::Disabled
-        then
-            exit(false);
-
-        exit(true);
-    end;
-#endif
 
     local procedure IsTrialNotificationEnabled(): Boolean
     var
@@ -523,24 +448,6 @@ codeunit 1430 "Role Center Notification Mgt."
           ResultSandbox)
     end;
 
-#if not CLEAN21
-    [Obsolete('Evaluation notification is removed', '21.0')]
-    procedure ShowEvaluationNotification(): Boolean
-    var
-        Company: Record Company;
-    begin
-        if not IsEvaluationNotificationEnabled() then
-            exit(false);
-
-        // Verify, that the user has company setup rights
-        if not Company.WritePermission() then
-            exit(false);
-
-        CreateAndSendEvaluationNotification();
-        exit(true);
-    end;
-#endif
-
     procedure ShowTrialNotification(): Boolean
     begin
         IsRunningPreviewEvent();
@@ -639,14 +546,6 @@ codeunit 1430 "Role Center Notification Mgt."
         CreateAndSendSandboxNotification();
         exit(true);
     end;
-
-#if not CLEAN21
-    [Obsolete('Evaluation notification is removed', '21.0')]
-    procedure EvaluationNotificationAction(EvaluationNotification: Notification)
-    begin
-        StartTrial();
-    end;
-#endif
 
     procedure TrialNotificationAction(TrialNotification: Notification)
     begin
@@ -753,35 +652,6 @@ codeunit 1430 "Role Center Notification Mgt."
         exit(DaysSinceStart);
     end;
 
-#if not CLEAN21
-    local procedure StartTrial()
-    var
-        UserPermissions: Codeunit "User Permissions";
-        CompanyName: Text;
-    begin
-        if not (UserPermissions.IsSuper(UserSecurityId()) and FindNonEvaluationCompany(CompanyName)) then begin
-            CreateAndSendEvaluationNotification();
-            exit;
-        end;
-
-        Codeunit.Run(Codeunit::"Start Trial");
-    end;
-
-    local procedure FindNonEvaluationCompany(var CompanyName: Text): Boolean
-    var
-        Company: Record Company;
-    begin
-        Company.SetRange("Evaluation Company", false);
-
-        if Company.FindFirst() then begin
-            CompanyName := Company.Name;
-            exit(true);
-        end;
-
-        exit(false);
-    end;
-#endif
-
     local procedure ExtendTrial()
     begin
         DisableBuyNotification();
@@ -864,14 +734,6 @@ codeunit 1430 "Role Center Notification Mgt."
     begin
         exit('');
     end;
-
-#if not CLEAN21
-    [Obsolete('Evaluation notification is removed', '21.0')]
-    procedure EvaluationNotificationMessage(): Text
-    begin
-        exit(EvaluationNotificationMsg);
-    end;
-#endif
 
     procedure TrialNotificationMessage(): Text
     begin

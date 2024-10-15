@@ -545,8 +545,8 @@ report 5913 "Service - Shipment"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Service Shipment Header");
@@ -621,7 +621,7 @@ report 5913 "Service - Shipment"
         RespCenter: Record "Responsibility Center";
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         ItemTrackingAppendix: Report "Item Tracking Appendix";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
@@ -733,11 +733,9 @@ report 5913 "Service - Shipment"
 
     local procedure FormatDocumentFields(ServiceShipmentHeader: Record "Service Shipment Header")
     begin
-        with ServiceShipmentHeader do begin
-            FormatDocument.SetSalesPerson(SalesPurchPerson, "Salesperson Code", SalesPersonText);
+        FormatDocument.SetSalesPerson(SalesPurchPerson, ServiceShipmentHeader."Salesperson Code", SalesPersonText);
 
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-        end;
+        ReferenceText := FormatDocument.SetText(ServiceShipmentHeader."Your Reference" <> '', ServiceShipmentHeader.FieldCaption("Your Reference"));
     end;
 }
 

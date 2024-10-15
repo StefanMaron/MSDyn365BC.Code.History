@@ -1,6 +1,7 @@
 ﻿table 2000043 "Transaction Coding"
 {
     Caption = 'Transaction Coding';
+    DataClassification = CustomerContent;
 
     fields
     {
