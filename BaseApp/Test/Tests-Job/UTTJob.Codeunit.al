@@ -36,6 +36,7 @@ codeunit 136350 "UT T Job"
         TimeSheetLinesErr: Label 'You cannot delete job %1 because it has open or submitted time sheet lines.', Comment = 'You cannot delete job JOB001 because it has open or submitted time sheet lines.';
         CustomerBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2', Comment = '%1 - Customer No, %2 - Blocked Type';
         BlockedCustomerExpectedErr: Label 'Blocked Customer error was expected';
+        ShipToCityNotMatchedErr: Label '%1 must be equal to %2 in Job table.', Comment = '%1 = Ship-to City field caption, %2 = Expected city value';
 
     [Test]
     [Scope('OnPrem')]
@@ -1327,6 +1328,49 @@ codeunit 136350 "UT T Job"
         Job.TestField("Sell-to Customer No.", SellToCustomer[2]."No.");
         Job.TestField("Sell-to Address", SellToCustomer[2].Address);
         Job.TestField("Bill-to Address", SellToCustomer[2].Address);
+    end;
+
+    [Test]
+    procedure VerifyJobShipToCityUpdatedWhenShipToPostCodeValueChanged()
+    var
+        Job: Record Job;
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ShipToAddress: Record "Ship-to Address";
+        PostCode: Record "Post Code";
+        JobCardPage: TestPage "Job Card";
+        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
+    begin
+        // [SCENARIO 466244] The "Ship-to Post Code" field does not update the State and City fields when updated as the "Bill-to Post Code" does.
+        Initialize();
+
+        // [GIVEN] A contact with customer and address.
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        LibrarySales.CreateCustomerAddress(Customer);
+
+        // [GIVEN] Add ship-to address and customer primary contact.
+        AddShipToAddressToCustomer(ShipToAddress, Customer);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+
+        // [GIVEN] Create job with customer assigned.
+        LibraryJob.CreateJob(Job, Customer."No.");
+
+        // [THEN] Open Job Card.
+        JobCardPage.OpenEdit();
+        JobCardPage.GoToRecord(Job);
+
+        // [WHEN] Setting the Ship-To to "Default (Sell-To address)".
+        JobCardPage.ShippingOptions.SetValue(ShipToOptions::"Custom Address");
+
+        // [GIVEN] Create new Post Code.
+        LibraryERM.CreatePostCode(PostCode);
+
+        // [THEN] Update Job Ship-To Code with newly create Post Code.
+        Job.Validate("Ship-to Post Code", PostCode.Code);
+
+        // [VERIFY] Verify: Job Ship-to City and Post Code city are equal.
+        Assert.IsTrue((PostCode.City = Job."Ship-to City"), StrSubstNo(ShipToCityNotMatchedErr, Job.FieldCaption("Ship-to City"), PostCode.City));
     end;
 
     local procedure Initialize()

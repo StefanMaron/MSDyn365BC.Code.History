@@ -1420,6 +1420,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                 begin
                     PEPPOLMgt.GetLegalMonetaryInfo(
                       SalesHeader,
+                      TempSalesLineRounding,
                       TempVATAmtLine,
                       LineExtensionAmount,
                       LegalMonetaryTotalCurrencyID,
@@ -2072,6 +2073,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         TempVATProductPostingGroup: Record "VAT Product Posting Group" temporary;
+        TempSalesLineRounding: Record "Sales Line" temporary;
         PEPPOLMgt: Codeunit "PEPPOL Management";
         DummyVar: Text;
         SpecifyASalesCreditMemoNoErr: Label 'You must specify a sales credit memo number.';
@@ -2139,6 +2141,13 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                     SalesCrMemoHeader.SetRecFilter();
                     SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
                     SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
+                    if SalesCrMemoLine.FindSet() then
+                        repeat
+                            SalesLine.TransferFields(SalesCrMemoLine);
+                            PEPPOLMgt.GetInvoiceRoundingLine(TempSalesLineRounding, SalesLine);
+                        until SalesCrMemoLine.Next() = 0;
+                    if TempSalesLineRounding."Line No." <> 0 then
+                        SalesCrMemoLine.SetFilter("Line No.", '<>%1', TempSalesLineRounding."Line No.");
 
                     ProcessedDocType := ProcessedDocType::Sale;
                 end;
@@ -2150,6 +2159,13 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                     ServiceCrMemoHeader.SetRecFilter();
                     ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
                     ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
+                    if ServiceCrMemoLine.FindSet() then
+                        repeat
+                            SalesLine.TransferFields(ServiceCrMemoLine);
+                            PEPPOLMgt.GetInvoiceRoundingLine(TempSalesLineRounding, SalesLine);
+                        until ServiceCrMemoLine.Next() = 0;
+                    if TempSalesLineRounding."Line No." <> 0 then
+                        ServiceCrMemoLine.SetFilter("Line No.", '<>%1', TempSalesLineRounding."Line No.");
 
                     ProcessedDocType := ProcessedDocType::Service;
                 end;

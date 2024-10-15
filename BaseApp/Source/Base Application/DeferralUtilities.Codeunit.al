@@ -501,6 +501,8 @@ codeunit 1720 "Deferral Utilities"
         DeferralHeader: Record "Deferral Header";
         DeferralTemplate: Record "Deferral Template";
         OldDeferralPostingDate: Date;
+        UseDeferralCalculationMethod: Enum "Deferral Calculation Method";
+        UseNoOfPeriods: Integer;
     begin
         if DeferralCode = '' then
             // If the user cleared the deferral code, we should remove the saved schedule...
@@ -519,9 +521,18 @@ codeunit 1720 "Deferral Utilities"
                         PostingDate := OldDeferralPostingDate;
                     end;
 
+                    UseDeferralCalculationMethod := DeferralTemplate."Calc. Method";
+                    UseNoOfPeriods := DeferralTemplate."No. of Periods";
+                    DeferralHeader.SetLoadFields("Calc. Method", "No. of Periods");
+                    if DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
+                        UseDeferralCalculationMethod := DeferralHeader."Calc. Method";
+                        if DeferralHeader."No. of Periods" >= 1 then
+                            UseNoOfPeriods := DeferralHeader."No. of Periods";
+                    end;
+
                     CreateDeferralSchedule(DeferralCode, DeferralDocType,
                       GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo, Amount,
-                      DeferralTemplate."Calc. Method", PostingDate, DeferralTemplate."No. of Periods",
+                      UseDeferralCalculationMethod, PostingDate, UseNoOfPeriods,
                       true, GetDeferralDescription(GenJnlBatchName, DocumentNo, Description),
                       AdjustStartDate, CurrencyCode);
                 end;

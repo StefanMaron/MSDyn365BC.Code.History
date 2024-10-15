@@ -705,6 +705,7 @@ codeunit 367 CheckManagement
         GenJnlLine."Document No." := DocumentNo;
         GenJnlLine."Account Type" := AccountType;
         GenJnlLine."Posting Date" := PostingDate;
+        GenJnlLine."VAT Reporting Date" := PostingDate;
         GenJnlLine.Validate("Account No.", AccountNo);
         GenJnlLine.Description := Description;
         GenJnlLine."Source Code" := SourceCodeSetup."Financially Voided Check";

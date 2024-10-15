@@ -1932,7 +1932,9 @@ table 901 "Assembly Line"
     begin
         InitDefaultDimensionSources(DefaultDimSource);
         if DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(CurrFieldNo)) then
-            CreateDim(DefaultDimSource, HeaderDimensionSetID);
+            CreateDim(DefaultDimSource, HeaderDimensionSetID)
+        else
+            "Dimension Set ID" := HeaderDimensionSetID;
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])

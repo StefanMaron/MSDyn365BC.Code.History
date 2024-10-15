@@ -46,24 +46,25 @@ codeunit 5771 "Whse.-Sales Release"
         if SalesLine.FindSet() then begin
             First := true;
             repeat
-                if ((SalesHeader."Document Type" = "Sales Document Type"::Order) and (SalesLine.Quantity >= 0)) or
-                    ((SalesHeader."Document Type" = "Sales Document Type"::"Return Order") and (SalesLine.Quantity < 0))
-                then
-                    WhseType := WhseType::Outbound
-                else
-                    WhseType := WhseType::Inbound;
+                if SalesLine.IsInventoriableItem() then begin
+                    if ((SalesHeader."Document Type" = "Sales Document Type"::Order) and (SalesLine.Quantity >= 0)) or
+                        ((SalesHeader."Document Type" = "Sales Document Type"::"Return Order") and (SalesLine.Quantity < 0))
+                    then
+                        WhseType := WhseType::Outbound
+                    else
+                        WhseType := WhseType::Inbound;
 
-                OnReleaseOnBeforeCreateWhseRequest(SalesLine, OldWhseType, WhseType, First);
+                    OnReleaseOnBeforeCreateWhseRequest(SalesLine, OldWhseType, WhseType, First);
+                    if First or (SalesLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
+                        CreateWarehouseRequest(SalesHeader, SalesLine, WhseType, WarehouseRequest);
 
-                if First or (SalesLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
-                    CreateWarehouseRequest(SalesHeader, SalesLine, WhseType, WarehouseRequest);
+                    OnAfterReleaseOnAfterCreateWhseRequest(
+                        SalesHeader, SalesLine, WhseType.AsInteger(), First, OldWhseType.AsInteger(), OldLocationCode);
 
-                OnAfterReleaseOnAfterCreateWhseRequest(
-                    SalesHeader, SalesLine, WhseType.AsInteger(), First, OldWhseType.AsInteger(), OldLocationCode);
-
-                First := false;
-                OldLocationCode := SalesLine."Location Code";
-                OldWhseType := WhseType;
+                    First := false;
+                    OldLocationCode := SalesLine."Location Code";
+                    OldWhseType := WhseType;
+                end;
             until SalesLine.Next() = 0;
         end;
 
