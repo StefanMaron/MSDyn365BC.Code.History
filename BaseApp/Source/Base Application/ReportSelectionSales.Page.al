@@ -1,4 +1,4 @@
-page 306 "Report Selection - Sales"
+﻿page 306 "Report Selection - Sales"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Report Selection - Sales';
@@ -156,6 +156,7 @@ page 306 "Report Selection - Sales"
             ReportUsage2::"Sales Order Picking List":
                 SetRange(Usage, Usage::"S.Sales Order Picking List");
         end;
+        OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
         FilterGroup(0);
         CurrPage.Update;
     end;
@@ -210,6 +211,11 @@ page 306 "Report Selection - Sales"
                 end;
             SetRange(Usage);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Option)
+    begin
     end;
 }
 

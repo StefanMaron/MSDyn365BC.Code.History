@@ -3,6 +3,9 @@ report 328 "Vendor Document Nos."
     DefaultLayout = RDLC;
     RDLCLayout = './VendorDocumentNos.rdlc';
     Caption = 'Vendor Document Nos.';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Infrequently used report.';
+    ObsoleteTag = '18.0';
 
     dataset
     {

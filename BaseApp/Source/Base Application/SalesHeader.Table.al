@@ -19,6 +19,7 @@
             trigger OnValidate()
             var
                 StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+                IsHandled: Boolean;
             begin
                 CheckCreditLimitIfLineNotInsertedYet;
                 if "No." = '' then
@@ -80,7 +81,10 @@
                 end;
 
                 GetCust("Sell-to Customer No.");
-                Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, false);
+                IsHandled := false;
+                OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs(Rec, Cust, IsHandled);
+                if not IsHandled then
+                    Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, false);
                 if not ApplicationAreaMgmt.IsSalesTaxEnabled then
                     Cust.TestField("Gen. Bus. Posting Group");
                 OnAfterCheckSellToCust(Rec, xRec, Cust, CurrFieldNo);
@@ -97,14 +101,7 @@
                 "Send IC Document" := ("Sell-to IC Partner Code" <> '') and ("IC Direction" = "IC Direction"::Outgoing);
 
                 Validate("Ship-to Code", Cust."Ship-to Code");
-                if Cust."Bill-to Customer No." <> '' then
-                    Validate("Bill-to Customer No.", Cust."Bill-to Customer No.")
-                else begin
-                    if "Bill-to Customer No." = "Sell-to Customer No." then
-                        SkipBillToContact := true;
-                    Validate("Bill-to Customer No.", "Sell-to Customer No.");
-                    SkipBillToContact := false;
-                end;
+                SetBillToCustomerNo(Cust);
 
                 GetShippingTime(FieldNo("Sell-to Customer No."));
 
@@ -118,6 +115,7 @@
                 if not SkipSellToContact then
                     UpdateSellToCont("Sell-to Customer No.");
 
+                OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification(Rec);
                 if (xRec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> "Sell-to Customer No.") then
                     RecallModifyAddressNotification(GetModifyCustomerAddressNotificationId);
             end;
@@ -142,6 +140,8 @@
             TableRelation = Customer;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 TestStatusOpen;
                 BilltoCustomerNoChanged := xRec."Bill-to Customer No." <> "Bill-to Customer No.";
@@ -169,7 +169,10 @@
                     end;
 
                 GetCust("Bill-to Customer No.");
-                Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, false);
+                IsHandled := false;
+                OnValidateBillToCustomerNoOnBeforeCheckBlockedCustOnDocs(Rec, Cust, IsHandled);
+                if not IsHandled then
+                    Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, false);
                 Cust.TestField("Customer Posting Group");
                 PostingSetupMgt.CheckCustPostingGroupReceivablesAccount("Customer Posting Group");
                 GLN := Cust.GLN;
@@ -210,6 +213,7 @@
                 "Bill-to IC Partner Code" := Cust."IC Partner Code";
                 "Send IC Document" := ("Bill-to IC Partner Code" <> '') and ("IC Direction" = "IC Direction"::Outgoing);
 
+                OnValidateBillToCustomerNoOnBeforeRecallModifyAddressNotification(Rec);
                 if (xRec."Bill-to Customer No." <> '') and (xRec."Bill-to Customer No." <> "Bill-to Customer No.") then
                     RecallModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId);
             end;
@@ -223,7 +227,13 @@
             trigger OnLookup()
             var
                 Customer: Record Customer;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBillToName(Rec, Customer, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Bill-to Customer No." <> '' then
                     Customer.Get("Bill-to Customer No.");
 
@@ -320,7 +330,13 @@
             trigger OnValidate()
             var
                 ShipToAddr: Record "Ship-to Address";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateShipToCode(Rec, xRec, Cust, ShipToAddr, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Document Type" = "Document Type"::Order) and
                    (xRec."Ship-to Code" <> "Ship-to Code")
                 then begin
@@ -364,6 +380,7 @@
                             MessageIfSalesLinesExist(FieldCaption("Shipping Agent Code"));
                         if xRec."Shipping Agent Service Code" <> "Shipping Agent Service Code" then
                             MessageIfSalesLinesExist(FieldCaption("Shipping Agent Service Code"));
+                        OnValidateShipToCodeOnBeforeValidateTaxLiable(Rec, xRec);
                         if xRec."Tax Liable" <> "Tax Liable" then
                             Validate("Tax Liable");
                     end;
@@ -562,7 +579,14 @@
             TableRelation = "Shipment Method";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateShipmentMethodCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen;
             end;
         }
@@ -1121,8 +1145,12 @@
             var
                 Customer: Record Customer;
                 EnvInfoProxy: Codeunit "Env. Info Proxy";
+                IsHandled: Boolean;
             begin
-                OnBeforeValidateSellToCustomerName(Rec, Customer);
+                IsHandled := false;
+                OnBeforeValidateSellToCustomerName(Rec, Customer, IsHandled);
+                if IsHandled then
+                    exit;
 
                 if not EnvInfoProxy.IsInvoicing and ShouldSearchForCustomerByName("Sell-to Customer No.") then
                     Validate("Sell-to Customer No.", Customer.GetCustNo("Sell-to Customer Name"));
@@ -1431,7 +1459,14 @@
             TableRelation = "Shipping Agent";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateShippingAgentCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen;
                 if xRec."Shipping Agent Code" = "Shipping Agent Code" then
                     exit;
@@ -2459,7 +2494,14 @@
             TableRelation = "Shipping Agent Services".Code WHERE("Shipping Agent Code" = FIELD("Shipping Agent Code"));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateShippingAgentServiceCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen;
                 GetShippingTime(FieldNo("Shipping Agent Service Code"));
                 UpdateSalesLinesByFieldNo(FieldNo("Shipping Agent Service Code"), CurrFieldNo <> 0);
@@ -2954,6 +2996,8 @@
             if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote] then
                 "Shipment Date" := WorkDate;
 
+        IsHandled := false;
+        OnInitRecordOnBeforeAssignWorkDateToPostingDate(Rec, IsHandled);
         if not ("Document Type" in ["Document Type"::"Blanket Order", "Document Type"::Quote]) and
            ("Posting Date" = 0D)
         then
@@ -3082,7 +3126,7 @@
         IsHandled := false;
         OnBeforeGetNoSeriesCode(Rec, SalesSetup, NoSeriesCode, IsHandled);
         if IsHandled then
-            exit;
+            exit(NoSeriesCode);
 
         case "Document Type" of
             "Document Type"::Quote:
@@ -3152,6 +3196,7 @@
         PostSalesDelete: Codeunit "PostSales-Delete";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
+        OnBeforeConfirmDeletion(Rec);
         SourceCodeSetup.Get();
         SourceCodeSetup.TestField("Deleted Document");
         SourceCode.Get(SourceCodeSetup."Deleted Document");
@@ -3322,6 +3367,8 @@
             Error(RecreateSalesLinesCancelErr, ChangedFieldName);
 
         SalesLine.BlockDynamicTracking(false);
+
+        OnAfterRecreateSalesLines(Rec, ChangedFieldName);
     end;
 
     local procedure StoreSalesCommentLineToTemp(var TempSalesCommentLine: Record "Sales Comment Line" temporary)
@@ -3757,7 +3804,7 @@
             TestField("Sell-to Contact No.");
             TestField("Sell-to Customer Template Code");
             GetContact(Cont, "Sell-to Contact No.");
-            Cont.CreateCustomer("Sell-to Customer Template Code");
+            CreateCustomerFromSellToCustomerTemplate(Cont);
             Commit();
             Get("Document Type"::Quote, "No.");
         end;
@@ -3766,12 +3813,36 @@
             TestField("Bill-to Contact No.");
             TestField("Bill-to Customer Template Code");
             GetContact(Cont, "Bill-to Contact No.");
-            Cont.CreateCustomer("Bill-to Customer Template Code");
+            CreateCustomerFromBillToCustomerTemplate(Cont);
             Commit();
             Get("Document Type"::Quote, "No.");
         end;
 
         exit(("Bill-to Customer No." <> '') and ("Sell-to Customer No." <> ''));
+    end;
+
+    local procedure CreateCustomerFromSellToCustomerTemplate(Cont: Record Contact)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateCustomerFromSellToCustomerTemplate(Rec, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
+        Cont.CreateCustomer("Sell-to Customer Template Code");
+    end;
+
+    local procedure CreateCustomerFromBillToCustomerTemplate(Cont: Record Contact)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateCustomerFromBillToCustomerTemplate(Rec, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
+        Cont.CreateCustomer("Bill-to Customer Template Code");
     end;
 
     local procedure CheckShipmentInfo(var SalesLine: Record "Sales Line"; BillTo: Boolean)
@@ -3812,7 +3883,14 @@
     end;
 
     local procedure CheckReturnInfo(var SalesLine: Record "Sales Line"; BillTo: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckReturnInfo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Document Type" = "Document Type"::"Return Order" then
             SalesLine.SetFilter("Return Qty. Received", '<>0')
         else
@@ -3953,6 +4031,7 @@
             exit;
         end;
         "Sell-to Contact No." := Cont."No.";
+        OnUpdateSellToCustOnAfterSetSellToContactNo(Rec, Customer, Cont);
 
         if Cont.Type = Cont.Type::Person then
             ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."No.");
@@ -4159,7 +4238,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetShippingTime(Rec, xRec, CalledByFieldNo, IsHandled);
+        OnBeforeGetShippingTime(Rec, xRec, CalledByFieldNo, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
         if (CalledByFieldNo <> CurrFieldNo) and (CurrFieldNo <> 0) then
@@ -4199,7 +4278,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckCreditMaxBeforeInsert(Rec, IsHandled);
+        OnBeforeCheckCreditMaxBeforeInsert(Rec, IsHandled, HideCreditCheckDialogue);
         if IsHandled then
             exit;
 
@@ -4269,7 +4348,7 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforeUpdateShipToAddress(Rec, IsHandled);
+        OnBeforeUpdateShipToAddress(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -4352,6 +4431,7 @@
             repeat
                 OnUpdateAllLineDimOnBeforeGetSalesLineNewDimsetID(SalesLine, NewParentDimSetID, OldParentDimSetID);
                 NewDimSetID := DimMgt.GetDeltaDimSetID(SalesLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
+                OnUpdateAllLineDimOnAfterGetSalesLineNewDimsetID(Rec, xRec, SalesLine, NewDimSetID, NewParentDimSetID, OldParentDimSetID);
                 if SalesLine."Dimension Set ID" <> NewDimSetID then begin
                     SalesLine."Dimension Set ID" := NewDimSetID;
 
@@ -4536,6 +4616,8 @@
     var
         SalesInvDisc: Codeunit "Sales-Calc. Discount";
     begin
+        OnBeforeCalcInvDiscForHeader(Rec);
+
         GetSalesSetup;
         if SalesSetup."Calc. Inv. Discount" then
             SalesInvDisc.CalculateIncDiscForHeader(Rec);
@@ -4557,7 +4639,14 @@
     end;
 
     local procedure SynchronizeForReservations(var NewSalesLine: Record "Sales Line"; OldSalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSynchronizeForReservations(Rec, NewSalesLine, OldSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         NewSalesLine.CalcFields("Reserved Quantity");
         if NewSalesLine."Reserved Quantity" = 0 then
             exit;
@@ -5026,8 +5115,14 @@
     end;
 
     procedure OpenSalesOrderStatistics()
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeOpenSalesOrderStatistics(Rec);
+        IsHandled := false;
+        OnBeforeOpenSalesOrderStatistics(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcInvDiscForHeader;
         CreateDimSetForPrepmtAccDefaultDim;
         Commit();
@@ -5127,6 +5222,7 @@
             OnAfterInsertTempSalesLine(SalesLine, TempSalesLine);
             SalesLineReserve.CopyReservEntryToTemp(TempReservEntry, SalesLine);
             RecreateReqLine(SalesLine, 0, true);
+            OnRecreateReservEntryReqLineOnAfterLoop(Rec);
         until SalesLine.Next = 0;
     end;
 
@@ -5171,7 +5267,7 @@
                 end;
                 SalesLine."Purchase Order No." := TempSalesLine."Purchase Order No.";
                 SalesLine."Purch. Order Line No." := TempSalesLine."Purch. Order Line No.";
-                SalesLine."Drop Shipment" := SalesLine."Purch. Order Line No." <> 0;
+                SalesLine."Drop Shipment" := TempSalesLine."Drop Shipment";
             end;
             SalesLine.Validate("Shipment Date", TempSalesLine."Shipment Date");
         end;
@@ -5207,7 +5303,14 @@
     end;
 
     local procedure UpdateOutboundWhseHandlingTime()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateOutboundWhseHandlingTime(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Location Code" <> '' then begin
             if Location.Get("Location Code") then
                 "Outbound Whse. Handling Time" := Location."Outbound Whse. Handling Time";
@@ -5292,6 +5395,8 @@
         end;
         if SellToCustomerNo <> '' then
             Validate("Sell-to Customer No.", SellToCustomerNo);
+
+        OnAfterSetSellToCustomerFromFilter(Rec);
     end;
 
     procedure CopySellToCustomerFilter()
@@ -5482,7 +5587,7 @@
         OnCopySelltoCustomerAddressFieldsFromCustomerOnAfterAssignRespCenter(Rec, SellToCustomer, CurrFieldNo);
         UpdateLocationCode(SellToCustomer."Location Code");
 
-        OnAfterCopySellToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer, CurrFieldNo);
+        OnAfterCopySellToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer, CurrFieldNo, SkipBillToContact);
     end;
 
     local procedure CopyShipToCustomerAddressFieldsFromCust(var SellToCustomer: Record Customer)
@@ -5564,7 +5669,14 @@
     end;
 
     procedure SetBillToCustomerAddressFieldsFromCustomer(var BillToCustomer: Record Customer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetBillToCustomerAddressFieldsFromCustomer(Rec, BillToCustomer, SkipBillToContact, IsHandled);
+        if IsHandled then
+            exit;
+
         "Bill-to Customer Template Code" := '';
         "Bill-to Name" := BillToCustomer.Name;
         "Bill-to Name 2" := BillToCustomer."Name 2";
@@ -5649,7 +5761,14 @@
     end;
 
     local procedure UpdateShipToAddressFromSellToAddress(FieldNumber: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateShipToAddressFromSellToAddress(Rec, FieldNumber, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Ship-to Code" = '') and ShipToAddressEqualsOldSellToAddress then
             case FieldNumber of
                 FieldNo("Ship-to Address"):
@@ -5668,6 +5787,8 @@
                 FieldNo("Ship-to Country/Region Code"):
                     "Ship-to Country/Region Code" := "Sell-to Country/Region Code";
             end;
+
+        OnAfterUpdateShipToAddressFromSellToAddress(Rec, xRec, FieldNumber);
     end;
 
     local procedure ShipToAddressEqualsOldSellToAddress(): Boolean
@@ -5953,7 +6074,13 @@
     local procedure SetDefaultSalesperson()
     var
         UserSetupSalespersonCode: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDefaultSalesperson(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         UserSetupSalespersonCode := GetUserSetupSalespersonCode;
         if UserSetupSalespersonCode <> '' then
             if Salesperson.Get(UserSetupSalespersonCode) then
@@ -5976,6 +6103,8 @@
         if SalesHeader.GetFilter("Sell-to Customer No.") = xSalesHeader."Sell-to Customer No." then
             if SalesHeader."Sell-to Customer No." <> xSalesHeader."Sell-to Customer No." then
                 SalesHeader.SetRange("Sell-to Customer No.");
+
+        OnAfterSelltoCustomerNoOnAfterValidate(Rec, xRec);
     end;
 
     procedure SelectSalesHeaderCustomerTemplate(): Code[10]
@@ -6193,7 +6322,13 @@
     local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
     var
         UserSetupSalespersonCode: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSalespersonCode(Rec, SalesPersonCodeToCheck, SalesPersonCodeToAssign, IsHandled);
+        if IsHandled then
+            exit;
+
         UserSetupSalespersonCode := GetUserSetupSalespersonCode;
         if SalesPersonCodeToCheck <> '' then begin
             if Salesperson.Get(SalesPersonCodeToCheck) then
@@ -6381,6 +6516,7 @@
         if Customer.LookupCustomer(Customer) then begin
             "Sell-to Customer Name" := Customer.Name;
             Validate("Sell-to Customer No.", Customer."No.");
+            GetShippingTime(FieldNo("Sell-to Customer Name"));
             if "No." <> '' then
                 StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
             exit(true);
@@ -6398,6 +6534,30 @@
 
         if "Promised Delivery Date" <> 0D then
             Error(Text028, FieldCaption("Requested Delivery Date"), FieldCaption("Promised Delivery Date"));
+    end;
+
+    local procedure SetBillToCustomerNo(var Cust: Record Customer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetBillToCustomerNo(Rec, Cust, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Cust."Bill-to Customer No." <> '' then
+            Validate("Bill-to Customer No.", Cust."Bill-to Customer No.")
+        else begin
+            if "Bill-to Customer No." = "Sell-to Customer No." then
+                SkipBillToContact := true;
+            Validate("Bill-to Customer No.", "Sell-to Customer No.");
+            SkipBillToContact := false;
+        end;
+    end;
+
+    procedure GetStatusCheckSuspended(): Boolean
+    begin
+        exit(StatusCheckSuspended);
     end;
 
     [IntegrationEvent(false, false)]
@@ -6566,6 +6726,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSelltoCustomerNoOnAfterValidate(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSendSalesHeader(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
     end;
@@ -6601,7 +6766,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopySellToCustomerAddressFieldsFromCustomer(var SalesHeader: Record "Sales Header"; SellToCustomer: Record Customer; CurrentFieldNo: Integer)
+    local procedure OnAfterCopySellToCustomerAddressFieldsFromCustomer(var SalesHeader: Record "Sales Header"; SellToCustomer: Record Customer; CurrentFieldNo: Integer; var SkipBillToContact: Boolean)
     begin
     end;
 
@@ -6631,7 +6796,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckCreditMaxBeforeInsert(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckCreditMaxBeforeInsert(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; HideCreditCheckDialogue: Boolean)
     begin
     end;
 
@@ -6642,6 +6807,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCustomerContactRelation(var SalesHeader: Record "Sales Header"; Cont: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckReturnInfo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6676,12 +6846,27 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmDeletion(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyShipToCustomerAddressFieldsFromCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(var SalesHeader: Record "Sales Header"; ShipToAddress: Record "Ship-to Address"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCustomerFromSellToCustomerTemplate(var SalesHeader: Record "Sales Header"; var Cont: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCustomerFromBillToCustomerTemplate(var SalesHeader: Record "Sales Header"; var Cont: Record Contact; var IsHandled: Boolean)
     begin
     end;
 
@@ -6721,7 +6906,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetShippingTime(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var CalledByFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeGetShippingTime(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var CalledByFieldNo: Integer; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -6781,7 +6966,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenSalesOrderStatistics(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeOpenSalesOrderStatistics(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6861,12 +7046,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultSalesperson(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSynchronizeForReservations(var SalesHeader: Record "Sales Header"; var NewSalesLine: Record "Sales Line"; OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6891,6 +7086,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateOutboundWhseHandlingTime(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSalesLineAmounts(SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -6906,7 +7106,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateShipToAddress(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateShipToAddress(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; CurrFieldNo: Integer)
     begin
     end;
 
@@ -7041,7 +7241,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateSellToCustomerName(var SalesHeader: Record "Sales Header"; var Customer: Record Customer)
+    local procedure OnBeforeValidateSellToCustomerName(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 
@@ -7062,6 +7262,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreateSalesLinesOnBeforeSalesLineDeleteAll(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateReservEntryReqLineOnAfterLoop(var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -7102,6 +7307,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSellToCustOnAfterSetFromSearchContact(var SalesHeader: Record "Sales Header"; var SearchContact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSellToCustOnAfterSetSellToContactNo(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; var Cont: Record Contact)
     begin
     end;
 
@@ -7211,6 +7421,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnAfterGetSalesLineNewDimsetID(SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var NewDimSetID: Integer; NewParentDimSetID: Integer; OldParentDimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShippingNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -7232,6 +7447,101 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckPromisedDeliveryDate(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateShipToAddressFromSellToAddress(var SalesHeader: Record "Sales Header"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSalespersonCode(var SalesHeader: Record "Sales Header"; SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateShipToAddressFromSellToAddress(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNumber: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; Cust: Record Customer; ShipToAddr: Record "Ship-to Address"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetBillToCustomerNo(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBillToCustomerNoOnBeforeCheckBlockedCustOnDocs(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecreateSalesLines(var SalesHeader: Record "Sales Header"; ChangedFieldName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetBillToCustomerAddressFieldsFromCustomer(var SalesHeader: Record "Sales Header"; var BillToCustomer: Record Customer; var SkipBillToContact: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSellToCustomerFromFilter(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBillToCustomerNoOnBeforeRecallModifyAddressNotification(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcInvDiscForHeader(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBillToName(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShipToCodeOnBeforeValidateTaxLiable(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipmentMethodCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShippingAgentCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitRecordOnBeforeAssignWorkDateToPostingDate(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShippingAgentServiceCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

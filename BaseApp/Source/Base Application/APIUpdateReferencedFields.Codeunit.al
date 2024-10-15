@@ -56,4 +56,16 @@ codeunit 5152 "API - Update Referenced Fields"
     begin
         Rec.UpdateReferencedIdFields();
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Variant", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure UpdateReferencedIdsItemVariantOnInsert(var Rec: Record "Item Variant"; RunTrigger: Boolean)
+    begin
+        Rec.UpdateReferencedIds();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Variant", 'OnBeforeRenameEvent', '', false, false)]
+    local procedure UpdateReferencedIdsItemVariantOnRename(var Rec: Record "Item Variant"; RunTrigger: Boolean)
+    begin
+        Rec.UpdateReferencedIds();
+    end;
 }

@@ -663,8 +663,6 @@ report 1306 "Standard Sales - Invoice"
                 }
 
                 trigger OnAfterGetRecord()
-                var
-                    EnvironmentInfo: Codeunit "Environment Information";
                 begin
                     InitializeShipmentLine;
                     if Type = Type::"G/L Account" then
@@ -704,14 +702,8 @@ report 1306 "Standard Sales - Invoice"
                         Clear(DummyCompanyInfo.Picture);
                     FirstLineHasBeenOutput := true;
 
-                    if ("Job No." <> '') and (not EnvironmentInfo.IsSaaS) then
-                        JobNo := ''
-                    else
-                        JobNo := "Job No.";
-                    if ("Job Task No." <> '') and (not EnvironmentInfo.IsSaaS) then
-                        JobTaskNo := ''
-                    else
-                        JobTaskNo := "Job Task No.";
+                    JobNo := "Job No.";
+                    JobTaskNo := "Job Task No.";
 
                     if JobTaskNo <> '' then begin
                         JobTaskNoLbl := JobTaskNoLbl2;
@@ -760,10 +752,12 @@ report 1306 "Standard Sales - Invoice"
                 }
 
                 trigger OnAfterGetRecord()
+                var
+                    TypeHelper: Codeunit "Type Helper";
                 begin
                     if WorkDescriptionInstream.EOS then
                         CurrReport.Break();
-                    WorkDescriptionInstream.ReadText(WorkDescriptionLine);
+                    WorkDescriptionLine := TypeHelper.ReadAsTextWithSeparator(WorkDescriptionInstream, TypeHelper.LFSeparator);
                 end;
 
                 trigger OnPostDataItem()
@@ -883,7 +877,7 @@ report 1306 "Standard Sales - Invoice"
             dataitem(VATClauseLine; "VAT Amount Line")
             {
                 DataItemTableView = SORTING("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", Positive);
-				UseTemporary = true;
+                UseTemporary = true;
                 column(VATClausesHeader; VATClausesText)
                 {
                 }

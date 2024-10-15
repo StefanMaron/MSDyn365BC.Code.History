@@ -1,4 +1,4 @@
-table 38 "Purchase Header"
+﻿table 38 "Purchase Header"
 {
     Caption = 'Purchase Header';
     DataCaptionFields = "No.", "Buy-from Vendor Name";
@@ -80,6 +80,7 @@ table 38 "Purchase Header"
                 "Buy-from IC Partner Code" := Vend."IC Partner Code";
                 "Send IC Document" := ("Buy-from IC Partner Code" <> '') and ("IC Direction" = "IC Direction"::Outgoing);
 
+                OnValidateBuyFromVendorNoOnValidateBuyFromVendorNoOnBeforeValidatePayToVendor(Rec);
                 if Vend."Pay-to Vendor No." <> '' then
                     Validate("Pay-to Vendor No.", Vend."Pay-to Vendor No.")
                 else begin
@@ -114,6 +115,8 @@ table 38 "Purchase Header"
 
                 if not SkipBuyFromContact then
                     UpdateBuyFromCont("Buy-from Vendor No.");
+
+                OnValidateBuyFromVendorNoOnAfterUpdateBuyFromCont(Rec);
 
                 if (xRec."Buy-from Vendor No." <> '') and (xRec."Buy-from Vendor No." <> "Buy-from Vendor No.") then
                     RecallModifyAddressNotification(GetModifyVendorAddressNotificationId);
@@ -161,6 +164,7 @@ table 38 "Purchase Header"
                         "Pay-to Vendor No." := xRec."Pay-to Vendor No.";
                 end;
 
+                OnValidatePayToVendorNoOnBeforeGetPayToVend(Rec);
                 GetVend("Pay-to Vendor No.");
                 CheckBlockedVendOnDocs(Vend);
                 Vend.TestField("Vendor Posting Group");
@@ -226,6 +230,7 @@ table 38 "Purchase Header"
 
                 "Pay-to IC Partner Code" := Vend."IC Partner Code";
 
+                OnValidatePayToVendorNoOnBeforeRecallModifyAddressNotification(Rec);
                 if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> "Pay-to Vendor No.") then
                     RecallModifyAddressNotification(GetModifyPayToVendorAddressNotificationId);
             end;
@@ -407,7 +412,6 @@ table 38 "Purchase Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen();
                 if ("Document Type" in ["Document Type"::Quote, "Document Type"::Order]) and
                    not ("Order Date" = xRec."Order Date")
                 then
@@ -1300,6 +1304,8 @@ table 38 "Purchase Header"
                     "Buy-from Vendor Name" := Vend.Name;
                     "Buy-from Vendor Name 2" := Vend."Name 2";
                     CopyBuyFromVendorAddressFieldsFromVendor(Vend, true);
+                    
+                    OnValidateOrderAddressCodeOnAfterCopyBuyFromVendorAddressFieldsFromVendor(Rec);
 
                     if IsCreditDocType() then begin
                         "Ship-to Name" := Vend.Name;
@@ -2079,7 +2085,6 @@ table 38 "Purchase Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen();
                 if "Promised Receipt Date" <> 0D then
                     Error(
                       Text034,
@@ -2108,7 +2113,6 @@ table 38 "Purchase Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen();
                 LeadTimeMgt.CheckLeadTimeIsNotNegative("Lead Time Calculation");
 
                 if "Lead Time Calculation" <> xRec."Lead Time Calculation" then
@@ -2122,7 +2126,6 @@ table 38 "Purchase Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen();
                 if "Inbound Whse. Handling Time" <> xRec."Inbound Whse. Handling Time" then
                     UpdatePurchLinesByFieldNo(FieldNo("Inbound Whse. Handling Time"), CurrFieldNo <> 0);
             end;
@@ -2770,8 +2773,6 @@ table 38 "Purchase Header"
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
         TempInteger: Record "Integer" temporary;
-        SalesHeader: Record "Sales Header";
-        PurchCommentLine: Record "Purch. Comment Line";
         TempPurchCommentLine: Record "Purch. Comment Line" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ConfirmManagement: Codeunit "Confirm Management";
@@ -2806,45 +2807,13 @@ table 38 "Purchase Header"
             PurchLine.SetRange("Document No.", "No.");
             OnRecreatePurchLinesOnAfterPurchLineSetFilters(PurchLine);
             if PurchLine.FindSet then begin
-                repeat
-                    PurchLine.TestField("Quantity Received", 0);
-                    PurchLine.TestField("Quantity Invoiced", 0);
-                    PurchLine.TestField("Return Qty. Shipped", 0);
-                    PurchLine.CalcFields("Reserved Qty. (Base)");
-                    PurchLine.TestField("Reserved Qty. (Base)", 0);
-                    PurchLine.TestField("Receipt No.", '');
-                    PurchLine.TestField("Return Shipment No.", '');
-                    PurchLine.TestField("Blanket Order No.", '');
-                    IsHandled := false;
-                    OnRecreatePurchLinesOnDropShipmentSpecialOrder(PurchLine, IsHandled);
-                    if not IsHandled then
-                        if PurchLine."Drop Shipment" or PurchLine."Special Order" then begin
-                            case true of
-                                PurchLine."Drop Shipment":
-                                    SalesHeader.Get(SalesHeader."Document Type"::Order, PurchLine."Sales Order No.");
-                                PurchLine."Special Order":
-                                    SalesHeader.Get(SalesHeader."Document Type"::Order, PurchLine."Special Order Sales No.");
-                            end;
-                            TestField("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-                            CheckShipToCode(SalesHeader."Ship-to Code");
-                        end;
-
-                    PurchLine.TestField("Prepmt. Amt. Inv.", 0);
-                    TempPurchLine := PurchLine;
-                    if PurchLine.Nonstock then begin
-                        PurchLine.Nonstock := false;
-                        PurchLine.Modify();
-                    end;
-                    OnRecreatePurchLinesOnBeforeTempPurchLineInsert(TempPurchLine, PurchLine);
-                    TempPurchLine.Insert();
-                until PurchLine.Next() = 0;
-
+                RecreateTempPurchLines(TempPurchLine);
                 StorePurchCommentLineToTemp(TempPurchCommentLine);
-                PurchCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
+                DeletePurchCommentLines();
 
                 TransferItemChargeAssgntPurchToTemp(ItemChargeAssgntPurch, TempItemChargeAssgntPurch);
 
-                PurchLine.DeleteAll(true);
+                DeletePurchLines(PurchLine);
 
                 PurchLine.Init();
                 PurchLine."Line No." := 0;
@@ -2863,15 +2832,18 @@ table 38 "Purchase Header"
                             PurchLine.Validate("Description 2", TempPurchLine."Description 2");
                         end else begin
                             PurchLine.Validate("No.", TempPurchLine."No.");
-                            if PurchLine.Type <> PurchLine.Type::" " then
-                                case true of
-                                    TempPurchLine."Drop Shipment":
-                                        TransferSavedFieldsDropShipment(PurchLine, TempPurchLine);
-                                    TempPurchLine."Special Order":
-                                        TransferSavedFieldsSpecialOrder(PurchLine, TempPurchLine);
-                                    else
-                                        TransferSavedFields(PurchLine, TempPurchLine);
-                                end;
+                            IsHandled := false;
+                            OnRecreatePurchLinesOnBeforeTransferSavedFields(Rec, TempPurchLine, IsHandled);
+                            if not IsHandled then
+                                if PurchLine.Type <> PurchLine.Type::" " then
+                                    case true of
+                                        TempPurchLine."Drop Shipment":
+                                            TransferSavedFieldsDropShipment(PurchLine, TempPurchLine);
+                                        TempPurchLine."Special Order":
+                                            TransferSavedFieldsSpecialOrder(PurchLine, TempPurchLine);
+                                        else
+                                            TransferSavedFields(PurchLine, TempPurchLine);
+                                    end;
                         end;
 
                         OnRecreatePurchLinesOnBeforeInsertPurchLine(PurchLine, TempPurchLine, ChangedFieldName);
@@ -2914,7 +2886,13 @@ table 38 "Purchase Header"
     local procedure StorePurchCommentLineToTemp(var TempPurchCommentLine: Record "Purch. Comment Line" temporary)
     var
         PurchCommentLine: Record "Purch. Comment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeStorePurchCommentLineToTemp(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchCommentLine.SetRange("Document Type", "Document Type");
         PurchCommentLine.SetRange("No.", "No.");
         if PurchCommentLine.FindSet() then
@@ -3308,7 +3286,13 @@ table 38 "Purchase Header"
     var
         ResvEngMgt: Codeunit "Reservation Engine Mgt.";
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmResvDateConflict(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ResvEngMgt.ResvExistsForPurchHeader(Rec) then
             if not ConfirmManagement.GetResponseOrDefault(Text050, true) then
                 Error('');
@@ -3765,6 +3749,7 @@ table 38 "Purchase Header"
             repeat
                 OnUpdateAllLineDimOnBeforeGetPurchLineNewDimsetID(PurchLine, NewParentDimSetID, OldParentDimSetID);
                 NewDimSetID := DimMgt.GetDeltaDimSetID(PurchLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
+                OnUpdateAllLineDimOnAfterGetPurchLineNewDimsetID(Rec, xRec, PurchLine, NewDimSetID, NewParentDimSetID, OldParentDimSetID);
                 if PurchLine."Dimension Set ID" <> NewDimSetID then begin
                     PurchLine."Dimension Set ID" := NewDimSetID;
 
@@ -4196,7 +4181,14 @@ table 38 "Purchase Header"
     end;
 
     local procedure TransferItemChargeAssgntPurchToTemp(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferItemChargeAssgntPurchToTemp(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", "No.");
         if ItemChargeAssgntPurch.FindSet then begin
@@ -4695,7 +4687,13 @@ table 38 "Purchase Header"
     local procedure SetDefaultPurchaser()
     var
         UserSetupPurchaserCode: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDefaultPurchaser(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         UserSetupPurchaserCode := GetUserSetupPurchaserCode;
         if UserSetupPurchaserCode <> '' then
             if SalespersonPurchaser.Get(UserSetupPurchaserCode) then
@@ -5305,6 +5303,81 @@ table 38 "Purchase Header"
         end;
     end;
 
+    local procedure RecreateTempPurchLines(var TempPurchLine: Record "Purchase Line")
+    begin
+        repeat
+            TestPurchLineFieldsBeforeRecreate();
+            TempPurchLine := PurchLine;
+            if PurchLine.Nonstock then begin
+                PurchLine.Nonstock := false;
+                PurchLine.Modify();
+            end;
+            OnRecreatePurchLinesOnBeforeTempPurchLineInsert(TempPurchLine, PurchLine);
+            TempPurchLine.Insert();
+            OnRecreateTempPurchLinesOnAfterTempPurchLineInsert(Rec);
+        until PurchLine.Next() = 0;
+    end;
+
+    local procedure TestPurchLineFieldsBeforeRecreate()
+    var
+        SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestPurchLineFieldsBeforeRecreate(Rec, PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchLine.TestField("Quantity Received", 0);
+        PurchLine.TestField("Quantity Invoiced", 0);
+        PurchLine.TestField("Return Qty. Shipped", 0);
+        PurchLine.CalcFields("Reserved Qty. (Base)");
+        PurchLine.TestField("Reserved Qty. (Base)", 0);
+        PurchLine.TestField("Receipt No.", '');
+        PurchLine.TestField("Return Shipment No.", '');
+        PurchLine.TestField("Blanket Order No.", '');
+        IsHandled := false;
+        OnRecreatePurchLinesOnDropShipmentSpecialOrder(PurchLine, IsHandled);
+        if not IsHandled then
+            if PurchLine."Drop Shipment" or PurchLine."Special Order" then begin
+                case true of
+                    PurchLine."Drop Shipment":
+                        SalesHeader.Get(SalesHeader."Document Type"::Order, PurchLine."Sales Order No.");
+                    PurchLine."Special Order":
+                        SalesHeader.Get(SalesHeader."Document Type"::Order, PurchLine."Special Order Sales No.");
+                end;
+                TestField("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+                CheckShipToCode(SalesHeader."Ship-to Code");
+            end;
+
+        PurchLine.TestField("Prepmt. Amt. Inv.", 0);
+    end;
+
+    local procedure DeletePurchCommentLines()
+    var
+        PurchCommentLine: Record "Purch. Comment Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeletePurchCommentLines(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
+    end;
+
+    local procedure DeletePurchLines(var PurchLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeletePurchLines(Rec, xRec, PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchLine.DeleteAll(true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var PurchaseHeader: Record "Purchase Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
     begin
@@ -5536,6 +5609,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmResvDateConflict(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDeletePurchaseLines(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -5622,6 +5700,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDocDim(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultPurchaser(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5722,6 +5805,16 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateBuyFromVendorNoOnAfterUpdateBuyFromCont(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBuyFromVendorNoOnValidateBuyFromVendorNoOnBeforeValidatePayToVendor(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRename(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -5797,6 +5890,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateOrderAddressCodeOnAfterCopyBuyFromVendorAddressFieldsFromVendor(var PurchaseHeader: Record "Purchase Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateOrderAddressCodeOnBeforeUpdateLocationCode(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
@@ -5818,6 +5916,16 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeValidateDueDateWhenBlank(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePayToVendorNoOnBeforeGetPayToVend(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePayToVendorNoOnBeforeRecallModifyAddressNotification(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -5867,6 +5975,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnAfterGetPurchLineNewDimsetID(PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var NewDimSetID: Integer; NewParentDimSetID: Integer; OldParentDimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateReceivingNoSeries(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -5878,6 +5991,41 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlockedVendOnDocs(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; Vend: Record Vendor; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestPurchLineFieldsBeforeRecreate(var PurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateTempPurchLinesOnAfterTempPurchLineInsert(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeletePurchCommentLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStorePurchCommentLineToTemp(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferItemChargeAssgntPurchToTemp(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeletePurchLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreatePurchLinesOnBeforeTransferSavedFields(var Rec: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line" temporary; var IsHandled: Boolean)
     begin
     end;
 }

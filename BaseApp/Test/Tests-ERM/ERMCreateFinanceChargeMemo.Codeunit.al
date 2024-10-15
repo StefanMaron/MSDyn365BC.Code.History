@@ -27,6 +27,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         WrongNumberOfPrintedDocsErr: Label 'Wrong number of printed Finance Charge Memos.';
         PrintDocRef: Option " ",Print,Email;
         EmailTxt: Label 'abc@microsoft.com', Locked = true;
+        ProceedOnIssuingWithInvRoundingQst: Label 'The invoice rounding amount will be added to the finance charge memo when it is posted according to invoice rounding setup.\Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -266,7 +267,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         IssueFinChargeMemoEmail();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('IssueFinanceChargeMemosHandler,EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestIssueFinChargeMemoEmail()
@@ -275,6 +276,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     begin
         LibraryEmailFeature.SetEmailFeatureEnabled(true);
         IssueFinChargeMemoEmail();
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
     end;
 
     procedure IssueFinChargeMemoEmail()
@@ -305,6 +307,128 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         IssuedFinChargeMemoHeader.Init();
         IssuedFinChargeMemoHeader.SetRange("Customer No.", Customer."No.");
         Assert.RecordIsNotEmpty(IssuedFinChargeMemoHeader);
+        ResetObjectOptions(REPORT::"Issue Finance Charge Memos");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FinChargeMemoInvoiceRoundingStatistics()
+    var
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        FinanceChargeMemoLine: Record "Finance Charge Memo Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        FinanceChargeMemoStatistics: TestPage "Finance Charge Memo Statistics";
+        TotalAmount: Decimal;
+    begin
+        // [FEATURE] [Invoice Rounding] [Statistics]
+        // [SCENARIO 369814] Finance Charge Memo Statistics with Invoice Rounding
+        Initialize();
+
+        // [GIVEN] Amount Rounding Precision = 0.01, Invoice Rounding Precision = 0.1 in G/L Setup
+        UpdateGLSetupInvRoundingPrecision();
+        GeneralLedgerSetup.Get();
+
+        // [GIVEN] Finance Charge Memo with G/L Accout Line = 1912.41
+        LibraryERM.CreateFinanceChargeMemoHeader(
+          FinanceChargeMemoHeader, CreateCustomerWithFinanceChargeTerms(CreateFinanceChargeTerms(1)));
+        CreateFinChargeMemoLineForInvRounding(
+          FinanceChargeMemoLine, FinanceChargeMemoHeader, GeneralLedgerSetup."Amount Rounding Precision");
+
+        FinanceChargeMemoHeader.CalcFields("Additional Fee", "Interest Amount");
+        TotalAmount := FinanceChargeMemoHeader."Additional Fee" + FinanceChargeMemoHeader."Interest Amount";
+
+        // [WHEN] Finance Charge Memo Statistics is opened
+        FinanceChargeMemoStatistics.Trap();
+        Page.Run(PAGE::"Finance Charge Memo Statistics", FinanceChargeMemoHeader);
+
+        // [THEN] Invoice Rounding Amount = -0.01, Total = 1912.41 on Statistics page
+        FinanceChargeMemoStatistics.FinChrgMemoTotal.AssertEquals(TotalAmount);
+        FinanceChargeMemoStatistics.InvoiceRoundingAmount.AssertEquals(
+          Round(TotalAmount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)") - TotalAmount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerifyMsg')]
+    [Scope('OnPrem')]
+    procedure IssueFinChargeMemoWithInvRoundingConfirmFalse()
+    var
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        FinanceChargeMemoLine: Record "Finance Charge Memo Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+    begin
+        // [FEATURE] [Invoice Rounding]
+        // [SCENARIO 369814] Issue Finance Charge Memo with Invoice Rounding confirmed No
+        Initialize();
+
+        // [GIVEN] Amount Rounding Precision = 0.01, Invoice Rounding Precision = 0.1 in G/L Setup
+        UpdateGLSetupInvRoundingPrecision();
+        GeneralLedgerSetup.Get();
+
+        // [GIVEN] Finance Charge Memo with G/L Accout Line = 1912.41
+        LibraryERM.CreateFinanceChargeMemoHeader(
+          FinanceChargeMemoHeader, CreateCustomerWithFinanceChargeTerms(CreateFinanceChargeTerms(1)));
+        CreateFinChargeMemoLineForInvRounding(
+          FinanceChargeMemoLine, FinanceChargeMemoHeader, GeneralLedgerSetup."Amount Rounding Precision");
+        Commit();
+
+        // [WHEN] Confirm 'No' when issue Finance Charge Memo
+        LibraryVariableStorage.Enqueue(ProceedOnIssuingWithInvRoundingQst);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
+
+        // [THEN] Finance Charge Memo is not issued
+        IssuedFinChargeMemoHeader.SetRange("Customer No.", FinanceChargeMemoHeader."Customer No.");
+        ASSERTERROR IssuedFinChargeMemoHeader.FindFirst();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerifyMsg')]
+    [Scope('OnPrem')]
+    procedure IssueFinChargeMemoWithInvRoundingConfirmTrue()
+    var
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        FinanceChargeMemoLine: Record "Finance Charge Memo Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
+        InvRoundingAmountAmount: Decimal;
+    begin
+        // [FEATURE] [Invoice Rounding]
+        // [SCENARIO 369814] Issue Finance Charge Memo with Invoice Rounding confirmed Yes
+        Initialize();
+
+        // [GIVEN] Amount Rounding Precision = 0.01, Invoice Rounding Precision = 0.1 in G/L Setup
+        UpdateGLSetupInvRoundingPrecision();
+        GeneralLedgerSetup.Get();
+
+        // [GIVEN] Finance Charge Memo with G/L Accout Line = 1912.41
+        LibraryERM.CreateFinanceChargeMemoHeader(
+          FinanceChargeMemoHeader, CreateCustomerWithFinanceChargeTerms(CreateFinanceChargeTerms(1)));
+        CreateFinChargeMemoLineForInvRounding(
+          FinanceChargeMemoLine, FinanceChargeMemoHeader, GeneralLedgerSetup."Amount Rounding Precision");
+
+        FinanceChargeMemoHeader.CalcFields("Additional Fee", "Interest Amount");
+        InvRoundingAmountAmount := FinanceChargeMemoHeader."Additional Fee" + FinanceChargeMemoHeader."Interest Amount";
+        InvRoundingAmountAmount :=
+          Round(InvRoundingAmountAmount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)") - InvRoundingAmountAmount;
+        Commit();
+
+        // [WHEN] Confirm 'Yes' when issue Finance Charge Memo
+        LibraryVariableStorage.Enqueue(ProceedOnIssuingWithInvRoundingQst);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
+
+        // [THEN] Invoice Rounding Amount is posted in issued fin. charge memo with Amount = -0.01
+        IssuedFinChargeMemoHeader.SetRange("Customer No.", FinanceChargeMemoHeader."Customer No.");
+        IssuedFinChargeMemoHeader.FindFirst();
+        IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", IssuedFinChargeMemoHeader."No.");
+        IssuedFinChargeMemoLine.SetFilter("No.", '<>%1', FinanceChargeMemoLine."No.");
+        IssuedFinChargeMemoLine.FindFirst();
+        IssuedFinChargeMemoLine.TestField(Amount, InvRoundingAmountAmount);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -319,6 +443,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Create Finance Charge Memo");
 
+        SetGLSetupInvoiceRounding();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -453,6 +578,35 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         exit(FinChargeMemoHeader."No.");
     end;
 
+    local procedure CreateFinChargeMemoLineForInvRounding(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; AmountRoundingPrecision: Decimal)
+    var
+        GLAccount: Record "G/L Account";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.CreateFinanceChargeMemoLine(
+            FinanceChargeMemoLine, FinanceChargeMemoHeader."No.", FinanceChargeMemoLine.Type::"G/L Account");
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GenProductPostingGroup.Get(GLAccount."Gen. Prod. Posting Group");
+        GenProductPostingGroup.Validate("Def. VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
+        GenProductPostingGroup.Modify(true);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, FinanceChargeMemoHeader."VAT Bus. Posting Group", VATProductPostingGroup.Code);
+        VATPostingSetup."VAT Identifier" := VATPostingSetup."VAT Prod. Posting Group";
+        VATPostingSetup.Validate("VAT %", 0);
+        VATPostingSetup.Modify(true);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        GLAccount.Modify(true);
+
+        FinanceChargeMemoLine.Validate("No.", GLAccount."No.");
+        FinanceChargeMemoLine.Validate(
+            Amount,
+            (LibraryRandom.RandIntInRange(10000, 20000) * 10 + 1) * AmountRoundingPrecision);
+        FinanceChargeMemoLine.Modify(true);
+    end;
+
     local procedure IssueAndPrintFinChargeMemo()
     var
         IssueFinanceChargeMemos: Report "Issue Finance Charge Memos";
@@ -556,10 +710,44 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     begin
     end;
 
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerVerifyMsg(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure FinanceChargeMemoListHandler(var FinanceChargeMemoList: TestPage "Finance Charge Memo List")
     begin
+    end;
+
+    local procedure ResetObjectOptions(ReportID: Integer)
+    var
+        ObjectOptions: Record "Object Options";
+    begin
+        ObjectOptions.SetRange("Object Type", ObjectOptions."Object Type"::Report);
+        ObjectOptions.SetRange("Object ID", ReportID);
+        ObjectOptions.DeleteAll();
+    end;
+
+    local procedure SetGLSetupInvoiceRounding()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := GeneralLedgerSetup."Amount Rounding Precision";
+        GeneralLedgerSetup.Modify();
+    end;
+
+    local procedure UpdateGLSetupInvRoundingPrecision()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        LibraryERM.SetInvRoundingPrecisionLCY(GeneralLedgerSetup."Amount Rounding Precision" * 10);
     end;
 
     local procedure VerifyFinanceChargeMemoAmount(PreAssignedNo: Code[20]; CalcFinanceChargeMemoAmount: Decimal)

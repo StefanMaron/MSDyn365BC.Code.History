@@ -151,10 +151,16 @@ codeunit 5750 "Whse.-Create Source Document"
         end;
     end;
 
-    procedure FromPurchLine2ShptLine(WhseShptHeader: Record "Warehouse Shipment Header"; PurchLine: Record "Purchase Line"): Boolean
+    procedure FromPurchLine2ShptLine(WhseShptHeader: Record "Warehouse Shipment Header"; PurchLine: Record "Purchase Line") Result: Boolean
     var
         WhseShptLine: Record "Warehouse Shipment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFromPurchLine2ShptLine(PurchLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with WhseShptLine do begin
             InitNewLine(WhseShptHeader."No.");
             SetSource(DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.");
@@ -226,11 +232,17 @@ codeunit 5750 "Whse.-Create Source Document"
         end;
     end;
 
-    procedure FromTransLine2ShptLine(WhseShptHeader: Record "Warehouse Shipment Header"; TransLine: Record "Transfer Line"): Boolean
+    procedure FromTransLine2ShptLine(WhseShptHeader: Record "Warehouse Shipment Header"; TransLine: Record "Transfer Line") Result: Boolean
     var
         WhseShptLine: Record "Warehouse Shipment Line";
         TransHeader: Record "Transfer Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFromTransLine2ShptLine(TransLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with WhseShptLine do begin
             InitNewLine(WhseShptHeader."No.");
             SetSource(DATABASE::"Transfer Line", 0, TransLine."Document No.", TransLine."Line No.");
@@ -317,7 +329,13 @@ codeunit 5750 "Whse.-Create Source Document"
     local procedure SetQtysOnShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; Qty: Decimal; QtyBase: Decimal)
     var
         Location: Record Location;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetQtysOnShptLine(WarehouseShipmentLine, Qty, QtyBase, IsHandled);
+        if IsHandled then
+            exit;
+
         with WarehouseShipmentLine do begin
             Quantity := Qty;
             "Qty. (Base)" := QtyBase;
@@ -615,6 +633,21 @@ codeunit 5750 "Whse.-Create Source Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateShptLineFromTransLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFromPurchLine2ShptLine(var PurchLine: Record "Purchase Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFromTransLine2ShptLine(var TransLine: Record "Transfer Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetQtysOnShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Qty: Decimal; var QtyBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 

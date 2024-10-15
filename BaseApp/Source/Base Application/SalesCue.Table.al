@@ -1,4 +1,4 @@
-table 9053 "Sales Cue"
+﻿table 9053 "Sales Cue"
 {
     Caption = 'Sales Cue';
 
@@ -10,7 +10,7 @@ table 9053 "Sales Cue"
         }
         field(2; "Sales Quotes - Open"; Integer)
         {
-            CalcFormula = Count ("Sales Header" WHERE("Document Type" = FILTER(Quote),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER(Quote),
                                                       Status = FILTER(Open),
                                                       "Responsibility Center" = FIELD("Responsibility Center Filter")));
             Caption = 'Sales Quotes - Open';
@@ -20,7 +20,7 @@ table 9053 "Sales Cue"
         field(3; "Sales Orders - Open"; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count ("Sales Header" WHERE("Document Type" = FILTER(Order),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER(Order),
                                                       Status = FILTER(Open),
                                                       "Responsibility Center" = FIELD("Responsibility Center Filter")));
             Caption = 'Sales Orders - Open';
@@ -30,7 +30,7 @@ table 9053 "Sales Cue"
         field(4; "Ready to Ship"; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count ("Sales Header" WHERE("Document Type" = FILTER(Order),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER(Order),
                                                       Status = FILTER(Released),
                                                       "Completely Shipped" = CONST(false),
                                                       "Shipment Date" = FIELD("Date Filter2"),
@@ -42,7 +42,7 @@ table 9053 "Sales Cue"
         field(5; Delayed; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count ("Sales Header" WHERE("Document Type" = FILTER(Order),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER(Order),
                                                       Status = FILTER(Released),
                                                       "Completely Shipped" = CONST(false),
                                                       "Shipment Date" = FIELD("Date Filter"),
@@ -55,7 +55,7 @@ table 9053 "Sales Cue"
         field(6; "Sales Return Orders - Open"; Integer)
         {
             AccessByPermission = TableData "Return Receipt Header" = R;
-            CalcFormula = Count ("Sales Header" WHERE("Document Type" = FILTER("Return Order"),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER("Return Order"),
                                                       Status = FILTER(Open),
                                                       "Responsibility Center" = FIELD("Responsibility Center Filter")));
             Caption = 'Sales Return Orders - Open';
@@ -64,7 +64,7 @@ table 9053 "Sales Cue"
         }
         field(7; "Sales Credit Memos - Open"; Integer)
         {
-            CalcFormula = Count ("Sales Header" WHERE("Document Type" = FILTER("Credit Memo"),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER("Credit Memo"),
                                                       Status = FILTER(Open),
                                                       "Responsibility Center" = FIELD("Responsibility Center Filter")));
             Caption = 'Sales Credit Memos - Open';
@@ -74,7 +74,7 @@ table 9053 "Sales Cue"
         field(8; "Partially Shipped"; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count ("Sales Header" WHERE("Document Type" = FILTER(Order),
+            CalcFormula = Count("Sales Header" WHERE("Document Type" = FILTER(Order),
                                                       Status = FILTER(Released),
                                                       Shipped = FILTER(true),
                                                       "Completely Shipped" = FILTER(false),
@@ -93,14 +93,14 @@ table 9053 "Sales Cue"
         }
         field(10; "Sales Inv. - Pending Doc.Exch."; Integer)
         {
-            CalcFormula = Count ("Sales Invoice Header" WHERE("Document Exchange Status" = FILTER("Sent to Document Exchange Service" | "Delivery Failed")));
+            CalcFormula = Count("Sales Invoice Header" WHERE("Document Exchange Status" = FILTER("Sent to Document Exchange Service" | "Delivery Failed")));
             Caption = 'Sales Invoices - Pending Document Exchange';
             Editable = false;
             FieldClass = FlowField;
         }
         field(12; "Sales CrM. - Pending Doc.Exch."; Integer)
         {
-            CalcFormula = Count ("Sales Cr.Memo Header" WHERE("Document Exchange Status" = FILTER("Sent to Document Exchange Service" | "Delivery Failed")));
+            CalcFormula = Count("Sales Cr.Memo Header" WHERE("Document Exchange Status" = FILTER("Sent to Document Exchange Service" | "Delivery Failed")));
             Caption = 'Sales Credit Memos - Pending Document Exchange';
             Editable = false;
             FieldClass = FlowField;
@@ -164,8 +164,7 @@ table 9053 "Sales Cue"
         FilterOrders(SalesHeader, FieldNo(Delayed));
         if SalesHeader.FindSet then begin
             repeat
-                SumDelayDays += MaximumDelayAmongLines(SalesHeader);
-                CountDelayedInvoices += 1;
+                SummarizeDelayedData(SalesHeader, SumDelayDays, CountDelayedInvoices);
             until SalesHeader.Next = 0;
             AverageDays := SumDelayDays / CountDelayedInvoices;
         end;
@@ -258,6 +257,19 @@ table 9053 "Sales Cue"
         PAGE.Run(PAGE::"Sales Order List", SalesHeader);
     end;
 
+    local procedure SummarizeDelayedData(var SalesHeader: Record "Sales Header"; var SumDelayDays: Integer; var CountDelayedInvoices: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSummarizeDelayedData(SalesHeader, SumDelayDays, CountDelayedInvoices, IsHandled);
+        if IsHandled then
+            exit;
+
+        SumDelayDays += MaximumDelayAmongLines(SalesHeader);
+        CountDelayedInvoices += 1;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCountOrdersOnAfterCountPurchOrdersSetFilters(var CountSalesOrders: Query "Count Sales Orders")
     begin
@@ -265,6 +277,11 @@ table 9053 "Sales Cue"
 
     [IntegrationEvent(false, false)]
     local procedure OnFilterOrdersOnAfterSalesHeaderSetFilters(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSummarizeDelayedData(var SalesHeader: Record "Sales Header"; var SumDelayDays: Integer; var CountDelayedInvoices: Integer; var IsHandled: Boolean)
     begin
     end;
 }

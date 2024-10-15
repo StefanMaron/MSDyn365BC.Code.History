@@ -116,8 +116,16 @@ codeunit 1392 "Monitor Sensitive Field"
     begin
         GetSetupTable(FieldMonitoringSetup);
 
-        if FieldMonitoringSetup."Email Account Name" = '' then
-            Error(EmailAccountMissingErr);
+        if EmailFeature.IsEnabled() then begin
+            if FieldMonitoringSetup."Email Account Name" = '' then
+                Error(EmailAccountMissingErr);
+        end else
+            if not SMTPMail.IsEnabled() then begin
+                if Confirm(SMTPSetupQst) then
+                    Page.Run(Page::"Email Setup Wizard");
+
+                Error('');
+            end;
 
         if FieldMonitoringSetup."Monitor Status" then
             exit;
@@ -242,20 +250,38 @@ codeunit 1392 "Monitor Sensitive Field"
     var
         PromoteMonitorSensitiveFieldNotification: Notification;
     begin
-        if not EmailFeature.IsEnabled() then
-            exit;
-            
         if IsMonitorEnabled() then
             exit;
 
         if not IsNotificationEnabled(GetPromoteMonitorFeatureNotificationId()) then
             exit;
-        PromoteMonitorSensitiveFieldNotification.AddAction(EnableFieldMonitoringMsg, CODEUNIT::"Monitor Sensitive Field", 'OpenFieldMonitoringSetup');
+        PromoteMonitorSensitiveFieldNotification.AddAction(EnableFieldMonitoringMsg, CODEUNIT::"Monitor Sensitive Field", 'OpenFieldMonitoringSetupWizard');
         CreateNotification(PromoteMonitorSensitiveFieldNotification, GetPromoteMonitorFeatureNotificationId(), PromoteMonitorFeatureMsg, NotificationScope::LocalScope);
         PromoteMonitorSensitiveFieldNotification.Send();
     end;
 
-    procedure OpenFieldMonitoringSetup(notification: Notification)
+    procedure ShowEmailFeatureEnabledNotification()
+    var
+        EmailFeatureEnabledNotification: Notification;
+    begin
+        if IsAskUserToUseNewEmailFeature() then begin
+            EmailFeatureEnabledNotification.AddAction(OpenSetupMsg, CODEUNIT::"Monitor Sensitive Field", 'OpenFieldMonitoringSetup');
+            CreateNotification(EmailFeatureEnabledNotification, GetEmailFeatureEnabledNotificationId(), EmailFeatureEnabledNotificationMsg, NotificationScope::LocalScope);
+            EmailFeatureEnabledNotification.Send();
+        end;
+    end;
+
+    procedure ShowEmailFeatureEnabledInSetupPageNotification()
+    var
+        EmailFeatureEnabledNotification: Notification;
+    begin
+        if IsAskUserToUseNewEmailFeature() then begin
+            CreateNotification(EmailFeatureEnabledNotification, GetEmailFeatureEnabledNotificationId(), EmailFeatureEnabledNotificationSetupMsg, NotificationScope::LocalScope);
+            EmailFeatureEnabledNotification.Send();
+        end;
+    end;
+
+    procedure OpenFieldMonitoringSetupWizard(notification: Notification)
     begin
         Page.Run(Page::"Monitor Field Setup Wizard");
     end;
@@ -263,6 +289,11 @@ codeunit 1392 "Monitor Sensitive Field"
     procedure OpenFieldMonitoringWorksheet(notification: Notification)
     begin
         Page.Run(Page::"Monitored Fields Worksheet");
+    end;
+
+    procedure OpenFieldMonitoringSetup(notification: Notification)
+    begin
+        Page.Run(Page::"Field Monitoring Setup");
     end;
 
     local procedure ShowChangeLogHiddenTablesNotification()
@@ -286,6 +317,16 @@ codeunit 1392 "Monitor Sensitive Field"
         exit(FieldMonitoringSetup."Monitor Status");
     end;
 
+    local procedure IsAskUserToUseNewEmailFeature(): Boolean
+    var
+        FieldMonitoringSetup: Record "Field Monitoring Setup";
+    begin
+        if not IsNotificationEnabled(GetEmailFeatureEnabledNotificationId()) then
+            exit(false);
+        GetSetupTable(FieldMonitoringSetup);
+        exit(EmailFeature.IsEnabled() and FieldMonitoringSetup."Monitor Status" and (FieldMonitoringSetup."Email Account Name" = ''));
+    end;
+
     local procedure CreateNotification(var MonitorNotification: Notification; Id: Text; Message: Text; MonitorNotificationScope: NotificationScope)
     begin
         MonitorNotification.Id := Id;
@@ -305,6 +346,9 @@ codeunit 1392 "Monitor Sensitive Field"
             GetPromoteMonitorFeatureNotificationId():
                 MyNotifications.InsertDefault(Notification.Id, PromoteMonitorFeatureNotificationNameTok,
                   PromoteMonitorFeatureNotificationDescTok, false);
+            GetEmailFeatureEnabledNotificationId():
+                MyNotifications.InsertDefault(Notification.Id, EmailFeatureEnabledNotificationNameTok,
+                  EmailFeatureEnabledNotificationDescTok, false);
         end;
 
         MyNotifications.Disable(Notification.Id)
@@ -421,6 +465,11 @@ codeunit 1392 "Monitor Sensitive Field"
         exit(ChangeLogHiddenTablesNotificationIdTxt);
     end;
 
+    procedure GetEmailFeatureEnabledNotificationId(): Guid
+    begin
+        exit(EmailFeatureEnabledNotificationIdTxt);
+    end;
+
     local procedure CheckPermission(User: Record User; TableNo: Integer; ReadPermission: Option " ",Yes,Indirect; InsertPermission: Option " ",Yes,Indirect; ModifyPermission: Option " ",Yes,Indirect; DeletePermission: Option " ",Yes,Indirect): Boolean
     var
         Permission: Record Permission;
@@ -428,8 +477,10 @@ codeunit 1392 "Monitor Sensitive Field"
     begin
         EffectivePermissions.PopulatePermissionRecordWithEffectivePermissionsForObject(Permission, User."User Security ID",
            CopyStr(CompanyName(), 1, 50), Permission."Object Type"::"Table Data", TableNo);
-        exit((Permission."Read Permission" = ReadPermission) and (Permission."Insert Permission" = InsertPermission) and
-            (Permission."Modify Permission" = ModifyPermission) and (Permission."Delete Permission" = DeletePermission));
+        exit((Permission."Read Permission" = ReadPermission) and
+            ((Permission."Insert Permission" = InsertPermission) or (Permission."Insert Permission" = Permission."Insert Permission"::Yes)) and
+            (Permission."Modify Permission" = ModifyPermission) and
+            ((Permission."Delete Permission" = DeletePermission) or (Permission."Delete Permission" = Permission."Delete Permission"::Yes)));
     end;
 
     local procedure AddFilter(var FilterString: Text; NewFilter: Text)
@@ -450,9 +501,6 @@ codeunit 1392 "Monitor Sensitive Field"
         Info: ModuleInfo;
         CurrentGlobalLanguage: Integer;
     begin
-        if not EmailFeature.IsEnabled() then
-            exit;
-
         NavApp.GetCurrentModuleInfo(Info);
         CurrentGlobalLanguage := GLOBALLANGUAGE();
 
@@ -464,6 +512,7 @@ codeunit 1392 "Monitor Sensitive Field"
     end;
 
     var
+        SMTPMail: Codeunit "SMTP Mail";
         EmailFeature: Codeunit "Email Feature";
         PageCaptionTxt: Label 'Add Fields To Monitor Fields Worksheet';
         SystemTableErr: Label 'You cannot monitor fields on the specified table. For example, the table ID might not exist or it might be a system table.';
@@ -475,19 +524,26 @@ codeunit 1392 "Monitor Sensitive Field"
         ConfirmEnableQst: Label 'Monitoring fields can impact performance. We recommend that you only monitor fields that contain sensitive data.';
         MonitorStatusChangeTxt: Label 'Sensitive field monitor status has changed to %1', Locked = true;
         TableNoFilterTxt: Label '1..%1|%2..%3|%4..%5|%6..%7|%8|%9..1999999999|%10|%11', Locked = true;
-        EmailAccountMissingErr: label 'To start monitoring fields, you must specify the email account to send notification emails from when field values change.';
+        EmailAccountMissingErr: label 'You must specify the email account to send notification email from when field values change. Specify the account in the Notification Email Account field. If no accounts are available, you can add one.';
         MonitorSetupTxt: Label 'Monitor Field Change Setup';
         HelpMonitorFieldChangeTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2128531', Locked = true;
         HelpMonitorDescriptionTxt: Label 'Set up monitor field change feature';
         DontShowThisAgainMsg: Label 'Don''t show this again.';
         EnableFieldMonitoringMsg: Label 'Enable Field Monitoring';
         OpenWorksheetMsg: Label 'Open the Monitored Fields Worksheet';
+        OpenSetupMsg: Label 'Open Field Monitoring Setup';
         HiddenTablesNotificationMsg: Label 'Some tables are hidden because they are contain fields that are being monitored for changes.';
+        EmailFeatureEnabledNotificationMsg: Label 'Enhanced email capabilities are available. To start using them, specify an email account in the Notification Email Account field.';
+        EmailFeatureEnabledNotificationSetupMsg: Label 'Enhanced email capabilities are available. To start using them, specify an email account in the Notification Email Account field.';
         PromoteMonitorFeatureMsg: Label 'This page contains sensitive business data. You can set up a notification to alert you when data changes.';
         HiddenTablesNotificationNameTok: Label 'Notify users about hidden tables in the Change Log Setup.';
         HiddenTablesNotificationDescTok: Label 'Notify users that some tables are hidden in the Change Log Table List page because they contain fields that are being monitored for changes.';
-        PromoteMonitorFeatureNotificationNameTok: Label 'Notify users about monitoring sensitive data';
-        PromoteMonitorFeatureNotificationDescTok: Label 'Notify users about hidden tables in the Change Log setup.';
-        ChangeLogHiddenTablesNotificationIdTxt: Label '2e7fe3ad-6382-4cbd-93f8-79bad5b53854';
-        PromoteMonitorFeatureNotificationIdTxt: Label '6a2fe3ad-6382-4acd-34f8-7dbad5b51245';
+        EmailFeatureEnabledNotificationNameTok: Label 'Notify users about required setup to use enhanced email capabilities in monitoring sensitive data.';
+        EmailFeatureEnabledNotificationDescTok: Label 'Notify users about required setup to use enhanced email capabilities in monitoring sensitive data.';
+        PromoteMonitorFeatureNotificationNameTok: Label 'Notify users about monitoring sensitive data.';
+        PromoteMonitorFeatureNotificationDescTok: Label 'Notify users about monitoring sensitive data.';
+        ChangeLogHiddenTablesNotificationIdTxt: Label '2e7fe3ad-6382-4cbd-93f8-79bad5b53854', Locked = true;
+        PromoteMonitorFeatureNotificationIdTxt: Label '6a2fe3ad-6382-4acd-34f8-7dbad5b51245', Locked = true;
+        EmailFeatureEnabledNotificationIdTxt: Label '3a51e3ad-6382-4a2d-37f8-7d2a35451ad5', Locked = true;
+        SMTPSetupQst: Label 'To send notifications about changes in field values you must set up email in Business Central. Do you want to do that now?';
 }

@@ -21,25 +21,6 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure ProductOnInsertGetsDraftStateOnInsert()
-    var
-        CRMProduct: Record "CRM Product";
-    begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
-
-        with CRMProduct do begin
-            Init;
-            StateCode := StateCode::Active;
-            StatusCode := StatusCode::" ";
-            Insert; // handled by ValidateProductOnInsert
-            TestField(StateCode, StateCode::Draft);
-        end;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
     procedure ProductPriceLevelNeedsPriceLevelIDOnInsert()
     var
         CRMProductpricelevel: Record "CRM Productpricelevel";

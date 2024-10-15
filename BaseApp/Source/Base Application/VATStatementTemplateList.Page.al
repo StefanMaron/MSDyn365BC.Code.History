@@ -15,12 +15,12 @@ page 319 "VAT Statement Template List"
                 ShowCaption = false;
                 field(Name; Name)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the VAT statement template you are about to create.';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT statement template.';
                 }
             }
