@@ -1112,6 +1112,8 @@ codeunit 18143 "GST Sales Validation"
             exit;
 
         SalesLine."Invoice Type" := SalesHeader."Invoice Type";
+        if SalesLine."Location Code" <> '' then
+            SalesLine."Location Code" := SalesHeader."Location Code";
         UpdateGSTPlaceOfSupply(Item."HSN/SAC Code", Item."GST Group Code", Item.Exempted, Item."GST Credit", SalesLine);
     end;
 
@@ -1242,8 +1244,14 @@ codeunit 18143 "GST Sales Validation"
         if not (Customer."GST Customer Type" in ["GST Customer Type"::Registered, "GST Customer Type"::" "]) and
             not (Customer."GST Registration Type" = "GST Registration Type"::GSTIN) then
             Error(GSTCustRegErr);
-        if (Customer."P.A.N. No." <> '') and (Customer."P.A.N. Status" = Customer."P.A.N. Status"::" ") then
-            GSTBaseValidation.CheckGSTRegistrationNo(Customer."State Code", Customer."GST Registration No.", Customer."P.A.N. No.")
+
+        if (Customer."P.A.N. No." <> '') and (Customer."P.A.N. Status" = Customer."P.A.N. Status"::" ") then begin
+            if (Customer."GST Registration Type" = "GST Registration Type"::GSTIN) then
+                GSTBaseValidation.CheckGSTRegistrationNo(Customer."State Code", Customer."GST Registration No.", Customer."P.A.N. No.")
+            else
+                if (Customer."GST Registration Type" in ["GST Registration Type"::GID, "GST Registration Type"::UID]) then
+                    GSTBaseValidation.CheckGSTRegistrationNoforGidandUid(Customer."State Code", Customer."GST Registration No.", Customer."P.A.N. No.")
+        end
         else
             if Customer."GST Registration No." <> '' then
                 Error(PANErr);

@@ -1042,8 +1042,15 @@ table 7302 "Bin Content"
           WhseJnlLine."Qty. (Absolute, Base)");
     end;
 
-    procedure CalcQtyUOM(): Decimal
+    procedure CalcQtyUOM() Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcQtyUOM(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GetItem("Item No.");
         CalcFields("Quantity (Base)");
         if Item."No." <> '' then
@@ -1409,6 +1416,11 @@ table 7302 "Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateBinCode(var BinContent: Record "Bin Content"; xBinContent: Record "Bin Content"; Bin: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyUOM(var BinContent: Record "Bin Content"; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 

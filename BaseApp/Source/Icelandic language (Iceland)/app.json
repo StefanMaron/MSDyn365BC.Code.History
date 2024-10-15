@@ -2,7 +2,7 @@
     "id":  "2ed02040-0300-4d64-b8c5-a48d09dddfc6",
     "name":  "Icelandic language (Iceland)",
     "publisher":  "Microsoft",
-    "version":  "19.5.36567.36700",
+    "version":  "19.6.38118.0",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "19.5.0.0"
+    "application":  "19.6.0.0"
 }

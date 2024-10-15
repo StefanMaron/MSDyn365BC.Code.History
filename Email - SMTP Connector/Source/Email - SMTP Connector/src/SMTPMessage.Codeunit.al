@@ -3,7 +3,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-codeunit 4514 "SMTP Message"
+codeunit 4514 "Connector SMTP Message"
 {
     Access = Internal;
 
