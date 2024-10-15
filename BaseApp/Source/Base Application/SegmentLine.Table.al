@@ -104,7 +104,7 @@ table 5077 "Segment Line"
         field(5; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
         }
         field(6; "Correspondence Type"; Enum "Correspondence Type")
         {
