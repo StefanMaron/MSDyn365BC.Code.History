@@ -142,27 +142,6 @@ codeunit 5333 "CRM Integration Telemetry"
             SendConnectionTelemetry(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5330, 'OnAfterCRMIntegrationEnabled', '', true, true)]
-    local procedure ScheduleCRMIntTelemetryAfterIntegrationEnabled()
-    begin
-        ScheduleIntegrationTelemetryAfterIntegrationEnabled();
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, 7201, 'OnAfterIntegrationEnabled', '', true, true)]
-    local procedure ScheduleIntegrationtTelemetryAfterIntegrationEnabled()
-    begin
-        ScheduleIntegrationTelemetryAfterIntegrationEnabled();
-    end;
-
-    local procedure ScheduleIntegrationTelemetryAfterIntegrationEnabled()
-    var
-        CodeUnitMetadata: Record "CodeUnit Metadata";
-        TelemetryManagement: Codeunit "Telemetry Management";
-    begin
-        if CodeUnitMetadata.Get(CODEUNIT::"CRM Integration Telemetry") then
-            TelemetryManagement.ScheduleCalEventsForTelemetryAsync(CodeUnitMetadata.RecordId, CODEUNIT::"Create Telemetry Cal. Events", 10);
-    end;
-
     [Scope('OnPrem')]
     procedure LogTelemetryWhenConnectionEnabled()
     begin

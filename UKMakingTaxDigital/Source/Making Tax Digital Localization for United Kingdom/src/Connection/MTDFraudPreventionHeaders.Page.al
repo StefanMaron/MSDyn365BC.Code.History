@@ -6,10 +6,8 @@
 page 10537 "MTD Fraud Prevention Headers"
 {
     Caption = 'HMRC Fraud Prevention Headers Setup';
-    ApplicationArea = Basic, Suite;
     PageType = List;
     SourceTable = "MTD Default Fraud Prev. Hdr";
-    UsageCategory = Administration;
 
     layout
     {

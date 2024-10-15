@@ -81,11 +81,11 @@ table 7114 "Analysis Line"
             ELSE
             IF (Type = CONST(Vendor)) Vendor
             ELSE
-            IF (Type = CONST("Item Group")) "Dimension Value".Code WHERE("Dimension Code" = FIELD("Group Dimension Code"))
+            IF (Type = CONST("Item Group")) "Dimension Value".Code WHERE("Dimension Code" = FIELD("Group Dimension Code"),Blocked = CONST(false))
             ELSE
-            IF (Type = CONST("Customer Group")) "Dimension Value".Code WHERE("Dimension Code" = FIELD("Group Dimension Code"))
+            IF (Type = CONST("Customer Group")) "Dimension Value".Code WHERE("Dimension Code" = FIELD("Group Dimension Code"),Blocked = CONST(false))
             ELSE
-            IF (Type = CONST("Sales/Purchase person")) "Dimension Value".Code WHERE("Dimension Code" = FIELD("Group Dimension Code"));
+            IF (Type = CONST("Sales/Purchase person")) "Dimension Value".Code WHERE("Dimension Code" = FIELD("Group Dimension Code"),Blocked = CONST(false));
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
