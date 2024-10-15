@@ -185,26 +185,9 @@ table 288 "Vendor Bank Account"
             Caption = 'Use for Electronic Payments';
             trigger OnValidate()
             var
-                Vendor: Record Vendor;
-                VendorBankAccount: Record "Vendor Bank Account";
                 IsHandled: Boolean;
             begin
-                IsHandled := false;
                 OnValidateUseforElectronicPayments(xRec, IsHandled);
-                if IsHandled then
-                    exit;
-
-                TestField(Code);
-                TestField("Vendor No.");
-                if "Use for Electronic Payments" then begin
-                    VendorBankAccount.SetRange("Vendor No.", "Vendor No.");
-                    VendorBankAccount.SetFilter(Code, '<>%1', Code);
-                    VendorBankAccount.SetRange("Use for Electronic Payments", true);
-                    if not VendorBankAccount.IsEmpty() then
-                        Error(SingleUsageElectronicPaymentsErr,
-                            VendorBankAccount.TableCaption, VendorBankAccount.FieldCaption("Use for Electronic Payments"),
-                            Vendor.TableCaption, "Vendor No.");
-                end;
             end;
         }
         field(27000; "Bank Code"; Code[3])
@@ -249,7 +232,6 @@ table 288 "Vendor Bank Account"
         PostCode: Record "Post Code";
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a Bank Account No. or an IBAN.';
         BankAccDeleteErr: Label 'You cannot delete this bank account because it is associated with one or more open ledger entries.';
-        SingleUsageElectronicPaymentsErr: Label 'You must have exactly one %1 with %2 checked for %3 %4.', Comment = '%1=Vendor Bank Account table caption,%2=Bank account field caption - use for electronic payments,%3=Vendor/Customer table caption,%4=Vendor/Customer number';
 
     procedure GetBankAccountNoWithCheck() AccountNo: Text
     begin

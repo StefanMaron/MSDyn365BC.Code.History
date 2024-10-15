@@ -446,55 +446,69 @@ report 10155 "Purchase Advice"
         Reorder_Amount_1_is_the_quantity_you_should_order_if_you_do_not_want_to_take_those_factors_into_account_CaptionLbl: Label 'Reorder Amount 1 is the quantity you should order if you do not want to take those factors into account.';
 
     procedure CalculateReorder(QtyExpected: Decimal): Decimal
+    var
+        QtyToOrder: Decimal;
+        RoundingDirection: Text;
     begin
         // Calculates the quantity that should be ordered based
         // on the quantity that you expect the inventory to be.
-        if QtyExpected >= Item."Reorder Point" then
-            exit(0);
-        if Item."Maximum Inventory" <= 0 then begin
-            if Item."Reorder Quantity" > 0 then
-                exit(Round((Item."Reorder Point" - QtyExpected) / Item."Reorder Quantity", 1, '>')
-                  * Item."Reorder Quantity");
+        with Item do begin
+            if QtyExpected >= "Reorder Point" then
+                exit(0);
 
-            exit(Item."Reorder Point" - QtyExpected);
+            if "Maximum Inventory" <= 0 then begin
+                QtyToOrder := "Reorder Point" - QtyExpected;
+                RoundingDirection := '>';
+            end else begin
+                if ("Reorder Point" > "Maximum Inventory") or
+                   (QtyExpected + "Reorder Quantity" > "Maximum Inventory")
+                then
+                    exit(0);
+                QtyToOrder := "Maximum Inventory" - QtyExpected;
+                RoundingDirection := '<';
+            end;
+
+            if "Reorder Quantity" > 0 then
+                QtyToOrder := Round(QtyToOrder / "Reorder Quantity", 1, RoundingDirection) * "Reorder Quantity";
+
+            if "Order Multiple" > 0 then
+                QtyToOrder := Round(QtyToOrder, "Order Multiple", '>');
+
+            exit(QtyToOrder);
         end;
-
-        if (Item."Reorder Point" > Item."Maximum Inventory") or
-           ((QtyExpected + Item."Reorder Quantity") > Item."Maximum Inventory")
-        then
-            exit(0);
-
-        if Item."Reorder Quantity" > 0 then
-            exit(Round((Item."Maximum Inventory" - QtyExpected) / Item."Reorder Quantity", 1, '<')
-              * Item."Reorder Quantity");
-
-        exit(Item."Maximum Inventory" - QtyExpected);
     end;
 
     procedure CalculateReorderSKU(QtyExpected: Decimal): Decimal
+    var
+        QtyToOrder: Decimal;
+        RoundingDirection: Text;
     begin
         // Calculates the quantity that should be ordered based
         // on the quantity that you expect the inventory to be.
-        if QtyExpected >= "Stockkeeping Unit"."Reorder Point" then
-            exit(0);
-        if "Stockkeeping Unit"."Maximum Inventory" <= 0 then begin
-            if "Stockkeeping Unit"."Reorder Quantity" > 0 then
-                exit(Round(("Stockkeeping Unit"."Reorder Point" - QtyExpected) / "Stockkeeping Unit"."Reorder Quantity", 1, '>')
-                  * "Stockkeeping Unit"."Reorder Quantity");
+        with "Stockkeeping Unit" do begin
+            if QtyExpected >= "Reorder Point" then
+                exit(0);
 
-            exit("Stockkeeping Unit"."Reorder Point" - QtyExpected);
+            if "Maximum Inventory" <= 0 then begin
+                QtyToOrder := "Reorder Point" - QtyExpected;
+                RoundingDirection := '>';
+            end else begin
+                if ("Reorder Point" > "Maximum Inventory") or
+                   (QtyExpected + "Reorder Quantity" > "Maximum Inventory")
+                then
+                    exit(0);
+                QtyToOrder := "Maximum Inventory" - QtyExpected;
+                RoundingDirection := '<';
+            end;
+
+            if "Reorder Quantity" > 0 then
+                QtyToOrder := Round(QtyToOrder / "Reorder Quantity", 1, RoundingDirection) * "Reorder Quantity";
+
+            if "Order Multiple" > 0 then
+                QtyToOrder := Round(QtyToOrder, "Order Multiple", '>');
+
+            exit(QtyToOrder);
         end;
-
-        if ("Stockkeeping Unit"."Reorder Point" > "Stockkeeping Unit"."Maximum Inventory") or
-           ((QtyExpected + "Stockkeeping Unit"."Reorder Quantity") > "Stockkeeping Unit"."Maximum Inventory")
-        then
-            exit(0);
-
-        if "Stockkeeping Unit"."Reorder Quantity" > 0 then
-            exit(Round(("Stockkeeping Unit"."Maximum Inventory" - QtyExpected) / "Stockkeeping Unit"."Reorder Quantity", 1, '<')
-              * "Stockkeeping Unit"."Reorder Quantity");
-
-        exit("Stockkeeping Unit"."Maximum Inventory" - QtyExpected);
     end;
 }
 

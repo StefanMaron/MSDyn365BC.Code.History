@@ -3435,6 +3435,93 @@ codeunit 137069 "SCM Production Orders"
         PlanningComponent.TestField("Expected Quantity", 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure StartingEndingDateTimeShouldBeRecalculatedForProdOrderRoutingLinesWhenLotSizeChanges()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        OldProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
+    begin
+        // [FEATURE] [Planning] [Prod. Order Routing Line]
+        Initialize();
+
+        // [GIVEN] Create Item "I" with routing, having four lines:
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        CreateWorkCenterRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.", 0, 5, 0, 0);
+        CreateWorkCenterRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.", 0, 5, 0, 0);
+        CreateWorkCenterRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.", 0, 5, 0, 0);
+        CreateWorkCenterRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.", 0, 5, 0, 0);
+
+        ChangeStatusOfProductionRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
+
+        CreateItem(Item, Item."Replenishment System"::"Prod. Order");
+        UpdateRoutingAndBOMOnItem(Item, '', RoutingHeader."No.");
+
+        // [GIVEN] Create planned Production Order with item "I"
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, Item."No.", 10);
+
+        // [WHEN] Refresh order forward.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, false, false);
+
+        // [THEN] Corresponding data in "Prod. Order Routing Line" table contains 4 Lines;
+        ProdOrderRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
+        Assert.RecordCount(ProdOrderRoutingLine, 4);
+
+        ProdOrderRoutingLine.FindSet();
+        repeat
+            OldProdOrderRoutingLine.Copy(ProdOrderRoutingLine);
+            OldProdOrderRoutingLine.Insert();
+        until ProdOrderRoutingLine.Next() = 0;
+
+        // [WHEN] Changing the lot size from 1 to to 10 for line 2.
+        ProdOrderRoutingLine.FindSet();
+        ProdOrderRoutingLine.Next();
+        ProdOrderRoutingLine.Validate("Lot Size", 10);
+
+        OldProdOrderRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
+        OldProdOrderRoutingLine.FindSet();
+        ProdOrderRoutingLine.FindSet();
+
+        // [THEN] First line is untouched.
+        ProdOrderRoutingLine.TestField("Starting Date-Time", OldProdOrderRoutingLine."Starting Date-Time");
+        ProdOrderRoutingLine.TestField("Ending Date-Time", OldProdOrderRoutingLine."Ending Date-Time");
+
+        ProdOrderRoutingLine.Next();
+        OldProdOrderRoutingLine.Next();
+
+        // [THEN] Second line is ending earlier.
+        ProdOrderRoutingLine.TestField("Starting Date-Time", OldProdOrderRoutingLine."Starting Date-Time");
+        Assert.IsTrue(ProdOrderRoutingLine."Ending Date-Time" < OldProdOrderRoutingLine."Ending Date-Time",
+            'Expected new ending date-time to be earlier than original.');
+
+        OldProdOrderRoutingLine.Next();
+        ProdOrderRoutingLine.Next();
+
+        // [THEN] The rest should have the same time span but start earlier.
+        repeat
+            Assert.AreEqual(
+                ProdOrderRoutingLine."Ending Date-Time" - ProdOrderRoutingLine."Starting Date-Time",
+                OldProdOrderRoutingLine."Ending Date-Time" - OldProdOrderRoutingLine."Starting Date-Time",
+                'Expected line to have similar length.'
+            );
+
+            Assert.IsTrue(ProdOrderRoutingLine."Starting Date-Time" < OldProdOrderRoutingLine."Starting Date-Time",
+                'Expected new starting date-time to be earlier than original.');
+
+            Assert.IsTrue(ProdOrderRoutingLine."Ending Date-Time" < OldProdOrderRoutingLine."Ending Date-Time",
+                'Expected new ending date-time to be earlier than original.');
+
+        until (OldProdOrderRoutingLine.Next() = 0) and (ProdOrderRoutingLine.Next() = 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

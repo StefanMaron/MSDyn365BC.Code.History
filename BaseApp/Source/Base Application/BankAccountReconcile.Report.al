@@ -103,7 +103,7 @@ report 10409 "Bank Account - Reconcile"
                     column(Description_CheckLedgEntry; Description)
                     {
                     }
-                    column(Amount_CheckLedgEntry; Amount)
+                    column(Amount_CheckLedgEntry; ReversedCheckAmount)
                     {
                     }
                     column(PostingDate_CheckLedgEntry; "Posting Date")
@@ -121,7 +121,8 @@ report 10409 "Bank Account - Reconcile"
 
                     trigger OnAfterGetRecord()
                     begin
-                        WithdrawAmount := WithdrawAmount + Amount;
+                        ReversedCheckAmount := -Amount;
+                        WithdrawAmount := WithdrawAmount + ReversedCheckAmount;
                     end;
 
                     trigger OnPreDataItem()
@@ -327,6 +328,7 @@ report 10409 "Bank Account - Reconcile"
         WithdrawAmount: Decimal;
         DepositAmount: Decimal;
         AdjustAmount: Decimal;
+        ReversedCheckAmount: Decimal;
         NewPagePerRecordNo: Integer;
         BankAccountReconcileCaptionLbl: Label 'Bank Account - Reconcile';
         PageCaptionLbl: Label 'Page';

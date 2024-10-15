@@ -1,4 +1,4 @@
-table 454 "Approval Entry"
+﻿table 454 "Approval Entry"
 {
     Caption = 'Approval Entry';
     ReplicateData = true;
@@ -73,7 +73,7 @@ table 454 "Approval Entry"
         }
         field(13; Comment; Boolean)
         {
-            CalcFormula = Exist ("Approval Comment Line" WHERE("Table ID" = FIELD("Table ID"),
+            CalcFormula = Exist("Approval Comment Line" WHERE("Table ID" = FIELD("Table ID"),
                                                                "Record ID to Approve" = FIELD("Record ID to Approve"),
                                                                "Workflow Step Instance ID" = FIELD("Workflow Step Instance ID")));
             Caption = 'Comment';
@@ -118,7 +118,7 @@ table 454 "Approval Entry"
         }
         field(21; "Pending Approvals"; Integer)
         {
-            CalcFormula = Count ("Approval Entry" WHERE("Record ID to Approve" = FIELD("Record ID to Approve"),
+            CalcFormula = Count("Approval Entry" WHERE("Record ID to Approve" = FIELD("Record ID to Approve"),
                                                         Status = FILTER(Created | Open),
                                                         "Workflow Step Instance ID" = FIELD("Workflow Step Instance ID")));
             Caption = 'Pending Approvals';
@@ -135,7 +135,7 @@ table 454 "Approval Entry"
         }
         field(26; "Number of Approved Requests"; Integer)
         {
-            CalcFormula = Count ("Approval Entry" WHERE("Record ID to Approve" = FIELD("Record ID to Approve"),
+            CalcFormula = Count("Approval Entry" WHERE("Record ID to Approve" = FIELD("Record ID to Approve"),
                                                         Status = FILTER(Approved),
                                                         "Workflow Step Instance ID" = FIELD("Workflow Step Instance ID")));
             Caption = 'Number of Approved Requests';
@@ -143,7 +143,7 @@ table 454 "Approval Entry"
         }
         field(27; "Number of Rejected Requests"; Integer)
         {
-            CalcFormula = Count ("Approval Entry" WHERE("Record ID to Approve" = FIELD("Record ID to Approve"),
+            CalcFormula = Count("Approval Entry" WHERE("Record ID to Approve" = FIELD("Record ID to Approve"),
                                                         Status = FILTER(Rejected),
                                                         "Workflow Step Instance ID" = FIELD("Workflow Step Instance ID")));
             Caption = 'Number of Rejected Requests';
@@ -160,7 +160,7 @@ table 454 "Approval Entry"
         }
         field(31; "Related to Change"; Boolean)
         {
-            CalcFormula = Exist ("Workflow - Record Change" WHERE("Workflow Step Instance ID" = FIELD("Workflow Step Instance ID"),
+            CalcFormula = Exist("Workflow - Record Change" WHERE("Workflow Step Instance ID" = FIELD("Workflow Step Instance ID"),
                                                                   "Record ID" = FIELD("Record ID to Approve")));
             Caption = 'Related to Change';
             FieldClass = FlowField;
@@ -230,19 +230,31 @@ table 454 "Approval Entry"
     procedure ShowRecord()
     var
         RecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowRecord(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not RecRef.Get("Record ID to Approve") then
             exit;
         RecRef.SetRecFilter;
         PageManagement.PageRun(RecRef);
     end;
 
-    procedure RecordCaption(): Text
+    procedure RecordCaption() Result: Text
     var
         AllObjWithCaption: Record AllObjWithCaption;
         RecRef: RecordRef;
         PageNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRecordCaption(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not RecRef.Get("Record ID to Approve") then
             exit;
         PageNo := PageManagement.GetPageID(RecRef);
@@ -392,6 +404,16 @@ table 454 "Approval Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMarkAllWhereUserisApproverOrSender(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowRecord(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecordCaption(var ApprovalEntry: Record "Approval Entry"; var Result: Text; var IsHandled: Boolean)
     begin
     end;
 }

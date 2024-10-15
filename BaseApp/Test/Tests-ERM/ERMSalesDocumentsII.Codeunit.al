@@ -3738,10 +3738,13 @@ codeunit 134386 "ERM Sales Documents II"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Documents II");
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
+        DocumentNoVisibility.ClearState();
+
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Documents II");
@@ -5040,7 +5043,10 @@ codeunit 134386 "ERM Sales Documents II"
     end;
 
     local procedure UpdateSalesReceivablesSetup(NewStockOutWarning: Boolean; CreditWarning: Option)
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
+        DocumentNoVisibility.ClearState();
         LibrarySales.SetStockoutWarning(NewStockOutWarning);
         LibrarySales.SetCreditWarnings(CreditWarning);
     end;
@@ -5080,7 +5086,9 @@ codeunit 134386 "ERM Sales Documents II"
     local procedure UpdateNoSeriesOnSalesSetup(ManualNos: Boolean)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
+        DocumentNoVisibility.ClearState();
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Blanket Order Nos.", CreateNoSeriesWithManualNos(ManualNos));
         SalesReceivablesSetup.Validate("Invoice Nos.", CreateNoSeriesWithManualNos(ManualNos));

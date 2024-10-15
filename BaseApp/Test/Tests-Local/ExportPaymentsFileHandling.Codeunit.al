@@ -96,17 +96,21 @@ codeunit 142500 "Export Payments File Handling"
         BankAccount: Record "Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
         ExportPaymentsRB: Codeunit "Export Payments (RB)";
-        VendorNo: Code[20];
+        VendorNo, VendorBankAccountNo : Code[20];
     begin
         // Verify that no error of Input Qualifier while doing export payment.
         Initialize;
 
         // Setup: Create Gen journal line and create Vendor bank account.
         UpdateCompanyInfo;
-        VendorNo := CreateVendorWithBankAccount(BankAccount."Export Format"::US);
+
+        VendorNo := CreateLongNameVendorNo();
+        VendorBankAccountNo := LibraryRandom.RandText(20);
+        CreateVendorBankAccount(VendorNo, VendorBankAccountNo, BankAccount."Export Format"::US);
+
         CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::US);
         ModifyBankAccount(BankAccount);
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, BankAccount."No.");
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, BankAccount."No.", VendorBankAccountNo);
 
         // Exercise: Export Payment.
         ExportPaymentsRB.StartExportFile(BankAccount."No.", GenJournalLine);
@@ -123,7 +127,7 @@ codeunit 142500 "Export Payments File Handling"
         BankAccount: Record "Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
         ExportPaymentsRB: Codeunit "Export Payments (RB)";
-        VendorNo: Code[20];
+        VendorNo, VendorBankAccountNo : Code[20];
     begin
         // Verify data of the RB exported file (only related to HF 363117)
         // this test should be used for future changes of RB electronic payment format
@@ -131,10 +135,14 @@ codeunit 142500 "Export Payments File Handling"
 
         // Setup: Create Gen journal line and create Vendor bank account.
         UpdateCompanyInfo;
-        VendorNo := CreateVendorWithBankAccount(BankAccount."Export Format"::US);
+
+        VendorNo := CreateLongNameVendorNo();
+        VendorBankAccountNo := LibraryRandom.RandText(20);
+        CreateVendorBankAccount(VendorNo, VendorBankAccountNo, BankAccount."Export Format"::US);
+
         CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::US);
         ModifyBankAccount(BankAccount);
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, BankAccount."No.");
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, BankAccount."No.", VendorBankAccountNo);
 
         // Exercise: Export Payment.
         ExportPaymentsRB.StartExportFile(BankAccount."No.", GenJournalLine);
@@ -151,7 +159,7 @@ codeunit 142500 "Export Payments File Handling"
     var
         BankAccount: Record "Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
-        VendorNo: Code[20];
+        VendorNo, VendorBankAccountNo : Code[20];
         TempPath: Text;
     begin
         // [FEATURE] [Export Payments (ACH)] [Payables]
@@ -161,10 +169,13 @@ codeunit 142500 "Export Payments File Handling"
 
         // [GIVEN] Vendor with Name = "XY", where "X" = 16-chars length string, "Y" = 34-chars length string
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::US);
-        VendorNo := CreateVendorWithBankAccount(BankAccount."Export Format"::US);
+
+        VendorNo := CreateLongNameVendorNo();
+        VendorBankAccountNo := LibraryRandom.RandText(20);
+        CreateVendorBankAccount(VendorNo, VendorBankAccountNo, BankAccount."Export Format"::US);
 
         // [GIVEN] Vendor general journal payment line
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, BankAccount."No.");
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, BankAccount."No.", VendorBankAccountNo);
 
         // [WHEN] Export Payments (ACH)
         ExportPayments_ACH(GenJournalLine);
@@ -181,7 +192,7 @@ codeunit 142500 "Export Payments File Handling"
     var
         BankAccount: Record "Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
-        CustomerNo: Code[20];
+        CustomerNo, CustomerBankAccountNo : Code[20];
         TempPath: Text;
     begin
         // [FEATURE] [Export Payments (ACH)] [Receivables]
@@ -191,10 +202,13 @@ codeunit 142500 "Export Payments File Handling"
 
         // [GIVEN] Customer with Name = "XY", where "X" = 16-chars length string, "Y" = 34-chars length string
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::US);
-        CustomerNo := CreateCustomerWithBankAccount(BankAccount."Export Format"::US);
+
+        CustomerNo := CreateLongNameCustomerNo();
+        CustomerBankAccountNo := LibraryRandom.RandText(20);
+        CreateCustomerBankAccount(CustomerNo, CustomerBankAccountNo, BankAccount."Export Format"::US);
 
         // [GIVEN] Customer general journal payment line
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, BankAccount."No.");
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, BankAccount."No.", CustomerBankAccountNo);
 
         // [WHEN] Export Payments (ACH)
         ExportPayments_ACH(GenJournalLine);
@@ -211,7 +225,7 @@ codeunit 142500 "Export Payments File Handling"
     var
         BankAccount: Record "Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
-        VendorNo: Code[20];
+        VendorNo, VendorBankAccountNo : Code[20];
         TempPath: Text;
     begin
         // [FEATURE] [Export Payments (Cecoban)] [Payables]
@@ -221,10 +235,13 @@ codeunit 142500 "Export Payments File Handling"
 
         // [GIVEN] Vendor with Name = "XY", where "X" = 40-chars length string, "Y" = 10-chars length string
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::MX);
-        VendorNo := CreateVendorWithBankAccount(BankAccount."Export Format"::MX);
+
+        VendorNo := CreateLongNameVendorNo();
+        VendorBankAccountNo := LibraryRandom.RandText(20);
+        CreateVendorBankAccount(VendorNo, VendorBankAccountNo, BankAccount."Export Format"::MX);
 
         // [GIVEN] Vendor general journal payment line
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, BankAccount."No.");
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, BankAccount."No.", VendorBankAccountNo);
 
         // [WHEN] Export Payments (Cecoban)
         ExportPayments_Cecoban(GenJournalLine);
@@ -241,7 +258,7 @@ codeunit 142500 "Export Payments File Handling"
     var
         BankAccount: Record "Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
-        CustomerNo: Code[20];
+        CustomerNo, CustomerBankAccountNo : Code[20];
         TempPath: Text;
     begin
         // [FEATURE] [Export Payments (Cecoban)] [Receivables]
@@ -251,10 +268,13 @@ codeunit 142500 "Export Payments File Handling"
 
         // [GIVEN] Customer with Name = "XY", where "X" = 40-chars length string, "Y" = 10-chars length string
         TempPath := CreateBankAccountWithExportPaths(BankAccount, BankAccount."Export Format"::MX);
-        CustomerNo := CreateCustomerWithBankAccount(BankAccount."Export Format"::MX);
+
+        CustomerNo := CreateLongNameCustomerNo();
+        CustomerBankAccountNo := LibraryRandom.RandText(20);
+        CreateCustomerBankAccount(CustomerNo, CustomerBankAccountNo, BankAccount."Export Format"::MX);
 
         // [GIVEN] Customer general journal payment line
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, BankAccount."No.");
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, BankAccount."No.", CustomerBankAccountNo);
 
         // [WHEN] Export Payments (Cecoban)
         ExportPayments_Cecoban(GenJournalLine);
@@ -326,7 +346,7 @@ codeunit 142500 "Export Payments File Handling"
         exit(FileName);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; BankAccountNo: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; BankAccountNo: Code[20]; RecipientBanAccount: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         LibraryUTUtility: Codeunit "Library UT Utility";
@@ -343,36 +363,33 @@ codeunit 142500 "Export Payments File Handling"
             Validate("Bank Payment Type", "Bank Payment Type"::"Electronic Payment");
             Validate("Transaction Code", CopyStr(LibraryUTUtility.GetNewCode10, 1, MaxStrLen("Transaction Code")));
             Validate("Company Entry Description", CopyStr(AccountNo, 1, 10));
+            Validate("Recipient Bank Account", RecipientBanAccount);
             Modify(true);
         end;
     end;
 
-    local procedure CreateVendorWithBankAccount(ExportFormat: Option ,US,CA,MX): Code[20]
+    local procedure CreateVendorBankAccount(VendorNo: Code[20]; Code: Code[20]; ExportFormat: Option ,US,CA,MX)
     var
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, CreateLongNameVendorNo);
-        with VendorBankAccount do begin
-            Validate("Bank Account No.", "Vendor No.");
-            Validate("Use for Electronic Payments", true);
-            Validate("Transit No.", GetTransitNo(ExportFormat));
-            Modify;
-            exit("Vendor No.");
-        end;
+        VendorBankAccount."Vendor No." := VendorNo;
+        VendorBankAccount.Code := Code;
+        VendorBankAccount."Use for Electronic Payments" := true;
+        VendorBankAccount."Transit No." := GetTransitNo(ExportFormat);
+        VendorBankAccount."Bank Account No." := VendorNo;
+        VendorBankAccount.Insert();
     end;
 
-    local procedure CreateCustomerWithBankAccount(ExportFormat: Option ,US,CA,MX): Code[20]
+    local procedure CreateCustomerBankAccount(CustomerNo: Code[20]; Code: Code[20]; ExportFormat: Option ,US,CA,MX)
     var
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CreateLongNameCustomerNo);
-        with CustomerBankAccount do begin
-            Validate("Bank Account No.", "Customer No.");
-            Validate("Use for Electronic Payments", true);
-            Validate("Transit No.", GetTransitNo(ExportFormat));
-            Modify;
-            exit("Customer No.");
-        end;
+        CustomerBankAccount."Customer No." := CustomerNo;
+        CustomerBankAccount.Code := Code;
+        CustomerBankAccount."Use for Electronic Payments" := true;
+        CustomerBankAccount."Transit No." := GetTransitNo(ExportFormat);
+        CustomerBankAccount."Bank Account No." := CustomerNo;
+        CustomerBankAccount.Insert();
     end;
 
     local procedure CreateLongNameVendorNo(): Code[20]

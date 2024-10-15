@@ -453,6 +453,7 @@ codeunit 378 "Transfer Extended Text"
     begin
         ReminderLine2.SetRange("Reminder No.", ReminderLine."Reminder No.");
         ReminderLine2.SetRange("Attached to Line No.", ReminderLine."Line No.");
+        OnDeleteReminderLinesOnAfterReminderLine2SetFilters(ReminderLine2, ReminderLine);
         ReminderLine2 := ReminderLine;
         if ReminderLine2.Find('>') then begin
             repeat
@@ -468,6 +469,7 @@ codeunit 378 "Transfer Extended Text"
     begin
         FinChrgMemoLine2.SetRange("Finance Charge Memo No.", FinChrgMemoLine."Finance Charge Memo No.");
         FinChrgMemoLine2.SetRange("Attached to Line No.", FinChrgMemoLine."Line No.");
+        OnDeleteFinChrgMemoLinesOnAfterFinChrgMemoLine2SetFilters(FinChrgMemoLine2, FinChrgMemoLine);
         FinChrgMemoLine2 := FinChrgMemoLine;
         if FinChrgMemoLine2.Find('>') then begin
             repeat
@@ -733,12 +735,22 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnDeleteFinChrgMemoLinesOnAfterFinChrgMemoLine2SetFilters(var FinChrgMemoLine2: Record "Finance Charge Memo Line"; var FinChrgMemoLine: Record "Finance Charge Memo Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDeletePurchLinesOnAfterSetFilters(var ToPurchaseLine: Record "Purchase Line"; FromPurchaseLine: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteSalesLinesOnAfterSetFilters(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteReminderLinesOnAfterReminderLine2SetFilters(var ReminderLine2: Record "Reminder Line"; var ReminderLine: Record "Reminder Line")
     begin
     end;
 

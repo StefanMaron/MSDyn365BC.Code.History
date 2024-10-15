@@ -503,6 +503,7 @@ page 302 "Customer Entry Statistics"
             CustLedgEntry[j].SetCurrentKey("Document Type", "Customer No.", "Posting Date");
             CustLedgEntry[j].SetRange("Document Type", j); // Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund
             CustLedgEntry[j].SetRange("Customer No.", "No.");
+            OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcAmount(CustLedgEntry[j]);
             if CustLedgEntry[j].FindLast then
                 CustLedgEntry[j].CalcFields(Amount, "Remaining Amount");
         end;
@@ -510,6 +511,7 @@ page 302 "Customer Entry Statistics"
         CustLedgEntry2.SetCurrentKey("Customer No.", Open);
         CustLedgEntry2.SetRange("Customer No.", "No.");
         CustLedgEntry2.SetRange(Open, true);
+        OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcRemainingAmountLCY(CustLedgEntry2);
         if CustLedgEntry2.Find('+') then
             repeat
                 j := CustLedgEntry2."Document Type".AsInteger();
@@ -540,6 +542,7 @@ page 302 "Customer Entry Statistics"
             NoOfInv := 0;
 
             CustLedgEntry2.SetFilter("Posting Date", CustDateFilter[i]);
+            OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcDaysToPay(CustLedgEntry2);
             if CustLedgEntry2.Find('+') then
                 repeat
                     j := CustLedgEntry2."Document Type".AsInteger();
@@ -597,5 +600,19 @@ page 302 "Customer Entry Statistics"
         DaysToPay := DaysToPay + NoOfDays;
         NoOfInv := NoOfInv + 1;
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcRemainingAmountLCY(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcDaysToPay(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+}

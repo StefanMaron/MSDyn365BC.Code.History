@@ -59,8 +59,6 @@ codeunit 10093 "Export Payments (IAT)"
         ExportFileNotCompletedErr: Label 'Cannot start new export batch until previous batch is completed.';
         ExportDetailsFileNotStartedErr: Label 'Cannot export details until an export file is started.';
         ExportDetailsFileNotCompletedErr: Label 'Cannot export details until an export batch is started.';
-        CustBankAccErr: Label 'Customer No. %1 has no bank account setup for electronic payments.', Comment = '%1 the Customer No.';
-        CustMoreThanOneBankAccErr: Label 'Customer No. %1 has more than one bank account setup for electronic payments.', Comment = '%1 the customer No.';
         ExportBatchFileNotStartedErr: Label 'Cannot end export batch until an export file is started.';
         ExportBatchNotStartedErr: Label 'Cannot end export batch until an export batch is started.';
         ExportFileNotEndedFileNotStartedErr: Label 'Cannot end export file until an export file is started.';
@@ -163,6 +161,7 @@ codeunit 10093 "Export Payments (IAT)"
     procedure StartExportBatch(GenJournalLine: Record "Gen. Journal Line"; ServiceClassCode: Code[10]; SettleDate: Date)
     var
         GLSetup: Record "General Ledger Setup";
+        EFTRecipientBankAccountMgt: codeunit "EFT Recipient Bank Account Mgt";
         BatchHeaderRec: Text[250];
     begin
         if not FileIsInProcess then
@@ -191,7 +190,7 @@ codeunit 10093 "Export Payments (IAT)"
                               FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), Vendor.TableCaption, Customer.TableCaption);
 
             if DestinationAcctType = 'V' then begin
-                ExportPaymentsACH.CheckVendorTransitNum(DestinationAcctNo, Vendor, VendorBankAcct, true);
+                ExportPaymentsACH.CheckVendorTransitNum(GenJournalLine, DestinationAcctNo, Vendor, VendorBankAcct, true);
                 DestinationName := Vendor.Name;
                 DestinationFederalIDNo := Vendor."Federal ID No.";
                 DestinationAddress := Vendor.Address + ' ' + Vendor."Address 2";
@@ -221,14 +220,7 @@ codeunit 10093 "Export Payments (IAT)"
                     DestinationCounty := Customer.County;
                     DestinationPostCode := Customer."Post Code";
 
-                    CustBankAcct.SetRange("Customer No.", DestinationAcctNo);
-                    CustBankAcct.SetRange("Use for Electronic Payments", true);
-                    CustBankAcct.FindFirst;
-
-                    if CustBankAcct.Count < 1 then
-                        Error(CustBankAccErr, DestinationAcctNo);
-                    if CustBankAcct.Count > 1 then
-                        Error(CustMoreThanOneBankAccErr, DestinationAcctNo);
+                    EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustBankAcct, GenJournalLine, Customer."No.");
 
                     if not ExportPaymentsACH.CheckDigit(CustBankAcct."Transit No.") then
                         CustBankAcct.FieldError("Transit No.", StrSubstNo(CustTransitNumNotValidErr, CustBankAcct."Transit No.", Customer."No."));

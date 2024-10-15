@@ -334,10 +334,11 @@ table 1237 "Transformation Rule"
 
     local procedure RegularExpressionReplace(StringToReplace: Text; Pattern: Text; NewValue: Text) Result: Text
     var
-        DotNet_Regex: Codeunit DotNet_Regex;
+        RegexOptions: Record "Regex Options";
+        Regex: Codeunit Regex;
     begin
-        DotNet_Regex.RegexIgnoreCase(Pattern);
-        Result := DotNet_Regex.Replace(StringToReplace, NewValue);
+        RegexOptions.IgnoreCase := true;
+        Result := Regex.Replace(StringToReplace, Pattern, NewValue, RegexOptions);
     end;
 
     local procedure RegularExpressionMatch(StringToMatch: Text; Pattern: Text): Text

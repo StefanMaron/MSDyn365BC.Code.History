@@ -74,7 +74,7 @@
             column(InvoiceAmount; InvoiceAmount)
             {
             }
-            column(SalesHeader__External_Document_No__; SalesHeader."External Document No.")
+            column(SalesHeader__External_Document_No__; "External Document No.")
             {
             }
             column(Sales_Header_Document_Type; "Document Type")
