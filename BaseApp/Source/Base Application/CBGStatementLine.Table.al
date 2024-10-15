@@ -948,10 +948,13 @@
             if "Applies-to ID" <> '' then
                 GenJnlLine.Validate("Applies-to ID", "Applies-to ID");
 
-        if "Debit Incl. VAT" <> 0 then
+        if "Debit Incl. VAT" <> 0 then begin
+            GenJnlLine.Amount := "Debit Incl. VAT";
             GenJnlLine.Validate("Debit Amount", "Debit Incl. VAT")
-        else
+        end else begin
+            GenJnlLine.Amount := -"Credit Incl. VAT";
             GenJnlLine.Validate("Credit Amount", "Credit Incl. VAT");
+        end;
 
         if GenJnlLine."VAT Calculation Type" <> GenJnlLine."VAT Calculation Type"::"Full VAT" then
             if ("Debit VAT" <> 0) and ("Debit VAT" <> GenJnlLine."VAT Amount") then

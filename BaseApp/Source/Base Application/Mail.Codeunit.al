@@ -212,7 +212,7 @@ codeunit 397 Mail
 
         if EmailFeature.IsEnabled() then
             AddAddressToCollection('DefaultEmailAccount', GetDefaultScenarioEmailAddress(), TempNameValueBuffer);
-        AddAddressToCollection('SMTPSetup', GetBasicAuthAddressFromSMTPSetup, TempNameValueBuffer); // To be removed together with deprecated SMTP objects
+        AddAddressToCollection('SMTPSetup', GetAddressFromSMTPSetup, TempNameValueBuffer); // To be removed together with deprecated SMTP objects
     end;
 
     local procedure AddAddressToCollection(EmailKey: Text; EmailAddress: Text; var TempNameValueBuffer: Record "Name/Value Buffer" temporary): Boolean
@@ -245,7 +245,7 @@ codeunit 397 Mail
         exit(true);
     end;
 
-    local procedure GetBasicAuthAddressFromSMTPSetup(): Text
+    local procedure GetAddressFromSMTPSetup(): Text
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
         MailManagement: Codeunit "Mail Management";
@@ -253,7 +253,7 @@ codeunit 397 Mail
         with SMTPMailSetup do begin
             if not FindFirst then
                 exit;
-            if Authentication = Authentication::Basic then
+            if Authentication in [Authentication::Basic, Authentication::OAuth2] then
                 if "User ID" <> '' then
                     if MailManagement.CheckValidEmailAddress(GetSender) then
                         exit(GetSender);

@@ -1423,6 +1423,7 @@ codeunit 134900 "ERM Batch Job"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure DropShipmentSalesOrderFCYPurchOrderLCY()
     var
@@ -1435,6 +1436,7 @@ codeunit 134900 "ERM Batch Job"
         // [FEATURE] [Drop Shipment] [Purchase]
         // [SCENARIO 375430] Amounts should be recalculated to LCY in Value Entries when post Purchase Order for FCY Sales Order with Drop Shipment
         Initialize;
+        ExecuteUIHandlers;
 
         // [GIVEN] Currency 'HUF' has exch. rates: 3 on 01.07; 4 on 05.07
         LibrarySales.CreateCustomer(Customer);
@@ -4230,6 +4232,11 @@ codeunit 134900 "ERM Batch Job"
             JobQueueLogEntry.FindFirst();
             Assert.AreEqual(JobQueueLogEntry."Job Queue Category Code", JobQueueCategory.Code, 'Wrong job queue category code');
         end;
+    end;
+
+    local procedure ExecuteUIHandlers()
+    begin
+        if Confirm('') then;
     end;
 
     [RequestPageHandler]

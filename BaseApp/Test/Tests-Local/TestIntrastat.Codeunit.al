@@ -21,9 +21,9 @@
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         IsInitialized: Boolean;
-        TransactionTypeMustHaveValueErr: Label 'Transaction Type must have a value in Intrastat Jnl. Line';
         FileNotCreatedErr: Label 'Intrastat file was not created';
         ExportCancelledErr: Label 'Export cancelled.';
+        AdvChecklistErr: Label 'There are one or more errors. For details, see the journal error FactBox.';
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandlerFalse,CreateIntrastatDeclDiskReqPageHandler')]
@@ -112,7 +112,11 @@
         asserterror RunIntrastatMakeDiskTaxAuth(Filename);
 
         // Verify
-        Assert.ExpectedError(TransactionTypeMustHaveValueErr);
+#if CLEAN19
+        VerifyAdvanvedChecklistError(IntrastatJnlLine,IntrastatJnlLine.FieldName("Transaction Type"));
+#else
+        VerifyTestfieldChecklistError(IntrastatJnlLine.FieldName("Transaction Type"));
+#endif
     end;
 
     [Test]
@@ -206,7 +210,7 @@
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
 
         // [THEN] Intrastat Journal Line Amount = "X"
-        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Round(Item."Unit Price", 1));
+        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", -1, -Round(Item."Unit Price", 1));
     end;
 
     [Test]
@@ -446,6 +450,7 @@
         repeat
             IntrastatJnlLine.Validate("Transport Method", TransportMethod);
             IntrastatJnlLine.Validate("Transaction Type", TransactionType);
+            IntrastatJnlLine."Transaction Specification" := LibraryUtility.GenerateGUID();
             IntrastatJnlLine.Validate("Net Weight", LibraryRandom.RandDecInRange(1, 10, 2));
             IntrastatJnlLine.Validate("Entry/Exit Point", ExitEntryPoint);
             IntrastatJnlLine.Modify(true);
@@ -524,6 +529,35 @@
             Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
         end;
+    end;
+
+    local procedure VerifyTestfieldChecklistError(FieldName: Text)
+    begin
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(FieldName);
+    end;
+
+    local procedure VerifyAdvanvedChecklistError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        ErrorMessage: Record "Error Message";
+    begin
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(AdvChecklistErr);
+        VerifyBatchError(IntrastatJnlLine, FieldName);
+    end;
+
+    local procedure VerifyBatchError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        ErrorMessage: Record "Error Message";
+    begin
+        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
+        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
+        ErrorMessage.SetContext(IntrastatJnlBatch);
+        Assert.AreEqual(1, ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Error), '');
+        ErrorMessage.FindFirst();
+        Assert.ExpectedMessage(FieldName, ErrorMessage.Description);
     end;
 
     [RequestPageHandler]

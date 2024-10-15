@@ -1610,7 +1610,10 @@
                              CBGStatementLine.Date, CBGStatementLine."Account No.", UseDocumentNo,
                              CBGStatement.Currency, ApplyingAmount, OriginalAppliedAmount, RefAccountType::Customer)
                         then begin
-                            PutCustPmtTolAmount(NewCustLedgEntry, AppliedAmount, ApplyingAmount, CBGStatementLineApplID);
+                            if ApplyingAmount <> 0 then
+                                PutCustPmtTolAmount(NewCustLedgEntry, ApplyingAmount, AppliedAmount, CBGStatementLineApplID)
+                            else
+                                DelCustPmtTolAcc(NewCustLedgEntry, CBGStatementLineApplID);
                         end else
                             exit(false);
                     end else
@@ -1622,13 +1625,13 @@
                              CBGStatement.Currency, ApplyingAmount, OriginalAppliedAmount, RefAccountType::Vendor)
                         then begin
                             if (AppliedAmount <> 0) and (ApplyingAmount <> 0) then
-                                PutVendPmtTolAmount(NewVendLedgEntry, AppliedAmount, ApplyingAmount, CBGStatementLineApplID)
+                                PutVendPmtTolAmount(NewVendLedgEntry, ApplyingAmount, AppliedAmount, CBGStatementLineApplID)
                             else
                                 DelVendPmtTolAcc(NewVendLedgEntry, CBGStatementLineApplID);
                         end else
                             exit(false);
                     end else
-                        PutVendPmtTolAmount(NewVendLedgEntry, AppliedAmount, ApplyingAmount, CBGStatementLineApplID);
+                        PutVendPmtTolAmount(NewVendLedgEntry, ApplyingAmount, AppliedAmount, CBGStatementLineApplID);
                 end;
             end;
 

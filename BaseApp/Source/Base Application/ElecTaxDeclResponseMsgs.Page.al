@@ -85,16 +85,23 @@ page 11416 "Elec. Tax Decl. Response Msgs."
 
                     trigger OnAction()
                     var
+                        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
                         ElecTaxDeclHeader: Record "Elec. Tax Declaration Header";
                         EnvironmentInfo: Codeunit "Environment Information";
                         Handled: Boolean;
+                        UseReqWindow: Boolean;
                     begin
                         OnReceiveResponseMessages(Handled, Rec);
                         if Handled then
                             exit;
                         ElecTaxDeclHeader.SetFilter("Declaration Type", GetFilter("Declaration Type"));
                         ElecTaxDeclHeader.SetFilter("No.", GetFilter("Declaration No."));
-                        REPORT.RunModal(REPORT::"Receive Response Messages", EnvironmentInfo.IsSaaS(), false, ElecTaxDeclHeader);
+                        ElecTaxDeclarationSetup.Get();
+                        if ElecTaxDeclarationSetup."Use Certificate Setup" then
+                            UseReqWindow := false
+                        else
+                            UseReqWindow := EnvironmentInfo.IsSaaS();
+                        REPORT.RunModal(REPORT::"Receive Response Messages", UseReqWindow, false, ElecTaxDeclHeader);
                     end;
                 }
                 action(ProcessResponseMessages)

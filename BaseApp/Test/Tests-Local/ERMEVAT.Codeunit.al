@@ -575,6 +575,9 @@ codeunit 144051 "ERM EVAT"
 
         // [GIVEN] Electronic Tax Declaration with type = "VAT Declaration"
         InitializeElecTaxDeclSetup(false, false);
+        // TFS ID 398781: Stan can submit electronic tax declaration with the "Use Certificate Setup" option enabled
+        EnableUseCertificateSetupOption();
+
         VATStatementName.FindFirst;
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
         LibraryVariableStorage.Enqueue(VATStatementName.Name);
@@ -1189,6 +1192,28 @@ codeunit 144051 "ERM EVAT"
         CompanyInfo.City := 'Seattle';
         CompanyInfo."Post Code" := '5678';
         CompanyInfo.Modify(true);
+    end;
+
+    local procedure EnableUseCertificateSetupOption()
+    var
+        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
+    begin
+        ElecTaxDeclarationSetup.Get();
+        ElecTaxDeclarationSetup."Use Certificate Setup" := true;
+        ElecTaxDeclarationSetup."Client Certificate Code" := InsertIsolatedCertificate();
+        ElecTaxDeclarationSetup."Service Certificate Code" := InsertIsolatedCertificate();
+        ElecTaxDeclarationSetup.Modify();
+    end;
+
+    local procedure InsertIsolatedCertificate(): Code[20]
+    var
+        IsolatedCertificate: Record "Isolated Certificate";
+    begin
+        IsolatedCertificate.Init();
+        IsolatedCertificate.Code :=
+          LibraryUtility.GenerateRandomCode(IsolatedCertificate.FieldNo(Code), DATABASE::"Isolated Certificate");
+        IsolatedCertificate.Insert;
+        exit(IsolatedCertificate.Code);
     end;
 
     local procedure CalculateVATAmount() VATAmount: Decimal
