@@ -277,14 +277,19 @@ table 1060 "Payment Service Setup"
         SelectedPaymentServices := CopyStr(SelectedPaymentServices, 2);
     end;
 
-    procedure CanChangePaymentService(DocumentVariant: Variant): Boolean
+    procedure CanChangePaymentService(DocumentVariant: Variant) Result: Boolean
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         DataTypeManagement: Codeunit "Data Type Management";
         DocumentRecordRef: RecordRef;
         PaymentMethodCodeFieldRef: FieldRef;
+        IsHandled: Boolean;
     begin
         DataTypeManagement.GetRecordRef(DocumentVariant, DocumentRecordRef);
+        IsHandled := false;
+        OnCanChangePaymentServiceOnAfterGetRecordRef(DocumentVariant, DocumentRecordRef, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
         case DocumentRecordRef.Number of
             DATABASE::"Sales Invoice Header":
                 begin
@@ -451,6 +456,11 @@ table 1060 "Payment Service Setup"
 
     [IntegrationEvent(false, false)]
     procedure OnDoNotIncludeAnyPaymentServicesOnAllDocuments()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCanChangePaymentServiceOnAfterGetRecordRef(DocumentVariant: Variant; DocumentRecordRef: RecordRef; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

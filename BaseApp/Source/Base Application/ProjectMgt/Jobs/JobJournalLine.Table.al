@@ -1238,7 +1238,9 @@ table 210 "Job Journal Line"
                 GetItemTranslation();
             "Posting Group" := Item."Inventory Posting Group";
             "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
-            Validate("Unit of Measure Code", Item."Base Unit of Measure");
+            OnCopyFromItemOnBeforeValidateUoMCode(Rec, Item, IsHandled);
+            if not IsHandled then
+                Validate("Unit of Measure Code", Item."Base Unit of Measure");
         end;
 
         OnAfterAssignItemValues(Rec, Item);
@@ -1311,7 +1313,7 @@ table 210 "Job Journal Line"
 
     procedure SetUpNewLine(LastJobJnlLine: Record "Job Journal Line")
     var
-        JobSetup: Record "Jobs Setup";
+        JobsSetup: Record "Jobs Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1319,7 +1321,7 @@ table 210 "Job Journal Line"
         if IsHandled then
             exit;
 
-        JobSetup.Get();
+        JobsSetup.Get();
         JobJnlTemplate.Get("Journal Template Name");
         JobJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         JobJnlLine.SetRange("Journal Template Name", "Journal Template Name");
@@ -1327,16 +1329,17 @@ table 210 "Job Journal Line"
         if JobJnlLine.FindFirst() then begin
             "Posting Date" := LastJobJnlLine."Posting Date";
             "Document Date" := LastJobJnlLine."Posting Date";
-            if JobSetup."Document No. Is Job No." and (LastJobJnlLine."Document No." = '') then
+            if JobsSetup."Document No. Is Job No." and (LastJobJnlLine."Document No." = '') then
                 "Document No." := Rec."Job No."
             else
                 "Document No." := LastJobJnlLine."Document No.";
             Type := LastJobJnlLine.Type;
             Validate("Line Type", LastJobJnlLine."Line Type");
         end else begin
+            OnSetUpNewLineOnNewLine(JobJnlLine, JobJnlTemplate, JobJnlBatch);
             "Posting Date" := WorkDate();
             "Document Date" := WorkDate();
-            if JobSetup."Document No. Is Job No." then begin
+            if JobsSetup."Document No. Is Job No." then begin
                 if "Document No." = '' then
                     "Document No." := Rec."Job No.";
             end else
@@ -1544,39 +1547,39 @@ table 210 "Job Journal Line"
         DontCheckStandardCost := true;
     end;
 
-    local procedure CalcUnitCost(ItemLedgEntry: Record "Item Ledger Entry"): Decimal
+    local procedure CalcUnitCost(ItemLedgerEntry: Record "Item Ledger Entry"): Decimal
     var
         ValueEntry: Record "Value Entry";
         UnitCost: Decimal;
     begin
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
-        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)");
         UnitCost :=
-          (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)") / ItemLedgEntry.Quantity;
+          (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)") / ItemLedgerEntry.Quantity;
 
         exit(Abs(UnitCost * "Qty. per Unit of Measure"));
     end;
 
-    local procedure CalcUnitCostFrom(ItemLedgEntry: Record "Item Ledger Entry"): Decimal
+    local procedure CalcUnitCostFrom(ItemLedgerEntry: Record "Item Ledger Entry"): Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
         ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
-        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)");
         exit(
           (ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)") /
-          ItemLedgEntry.Quantity * "Qty. per Unit of Measure");
+          ItemLedgerEntry.Quantity * "Qty. per Unit of Measure");
     end;
 
-    local procedure SetCountryRegionCodeFromJob(Job: Record Job)
+    local procedure SetCountryRegionCodeFromJob(Job2: Record Job)
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetCountryRegionCodeFromJob(Rec, Job, IsHandled);
+        OnBeforeSetCountryRegionCodeFromJob(Rec, Job2, IsHandled);
         if IsHandled then
             exit;
 
@@ -1585,30 +1588,30 @@ table 210 "Job Journal Line"
 
     local procedure SelectItemEntry(CurrentFieldNo: Integer)
     var
-        ItemLedgEntry: Record "Item Ledger Entry";
-        JobJnlLine2: Record "Job Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        JobJournalLine2: Record "Job Journal Line";
     begin
-        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code");
-        ItemLedgEntry.SetRange("Item No.", "No.");
-        ItemLedgEntry.SetRange(Correction, false);
+        ItemLedgerEntry.SetCurrentKey("Item No.", Open, "Variant Code");
+        ItemLedgerEntry.SetRange("Item No.", "No.");
+        ItemLedgerEntry.SetRange(Correction, false);
 
         if "Location Code" <> '' then
-            ItemLedgEntry.SetRange("Location Code", "Location Code");
+            ItemLedgerEntry.SetRange("Location Code", "Location Code");
 
         if CurrentFieldNo = FieldNo("Applies-to Entry") then begin
-            ItemLedgEntry.SetRange(Positive, true);
-            ItemLedgEntry.SetRange(Open, true);
+            ItemLedgerEntry.SetRange(Positive, true);
+            ItemLedgerEntry.SetRange(Open, true);
         end else
-            ItemLedgEntry.SetRange(Positive, false);
-        OnSelectItemEntryOnAfterSetItemLedgerEntryFilters(ItemLedgEntry, CurrentFieldNo, Rec);
+            ItemLedgerEntry.SetRange(Positive, false);
+        OnSelectItemEntryOnAfterSetItemLedgerEntryFilters(ItemLedgerEntry, CurrentFieldNo, Rec);
 
-        if PAGE.RunModal(PAGE::"Item Ledger Entries", ItemLedgEntry) = ACTION::LookupOK then begin
-            JobJnlLine2 := Rec;
+        if PAGE.RunModal(PAGE::"Item Ledger Entries", ItemLedgerEntry) = ACTION::LookupOK then begin
+            JobJournalLine2 := Rec;
             if CurrentFieldNo = FieldNo("Applies-to Entry") then
-                JobJnlLine2.Validate("Applies-to Entry", ItemLedgEntry."Entry No.")
+                JobJournalLine2.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.")
             else
-                JobJnlLine2.Validate("Applies-from Entry", ItemLedgEntry."Entry No.");
-            Rec := JobJnlLine2;
+                JobJournalLine2.Validate("Applies-from Entry", ItemLedgerEntry."Entry No.");
+            Rec := JobJournalLine2;
         end;
     end;
 
@@ -1658,30 +1661,30 @@ table 210 "Job Journal Line"
         HasGotGLSetup := true;
     end;
 
-    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    procedure SetReservationEntry(var ReservationEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSource(DATABASE::"Job Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", "Journal Batch Name", 0);
-        ReservEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
-        ReservEntry."Expected Receipt Date" := "Posting Date";
-        ReservEntry."Shipment Date" := "Posting Date";
+        ReservationEntry.SetSource(DATABASE::"Job Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", "Journal Batch Name", 0);
+        ReservationEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        ReservationEntry."Expected Receipt Date" := "Posting Date";
+        ReservationEntry."Shipment Date" := "Posting Date";
     end;
 
-    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    procedure SetReservationFilters(var ReservationEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSourceFilter(DATABASE::"Job Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", false);
-        ReservEntry.SetSourceFilter("Journal Batch Name", 0);
+        ReservationEntry.SetSourceFilter(DATABASE::"Job Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Line No.", false);
+        ReservationEntry.SetSourceFilter("Journal Batch Name", 0);
 
-        OnAfterSetReservationFilters(ReservEntry, Rec);
+        OnAfterSetReservationFilters(ReservationEntry, Rec);
     end;
 
     procedure ReservEntryExist(): Boolean
     var
-        ReservEntry: Record "Reservation Entry";
+        ReservationEntry: Record "Reservation Entry";
     begin
-        ReservEntry.InitSortingAndFilters(false);
-        SetReservationFilters(ReservEntry);
-        ReservEntry.ClearTrackingFilter();
-        exit(not ReservEntry.IsEmpty);
+        ReservationEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservationEntry);
+        ReservationEntry.ClearTrackingFilter();
+        exit(not ReservationEntry.IsEmpty());
     end;
 
     procedure UpdateAllAmounts()
@@ -2626,6 +2629,16 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDimensions(var JobJournalLine: Record "Job Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUpNewLineOnNewLine(var JobJournalLine: Record "Job Journal Line"; var JobJournalTemplate: Record "Job Journal Template"; var JobJournalBatch: Record "Job Journal Batch");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromItemOnBeforeValidateUoMCode(var JobJournalLine: Record "Job Journal Line"; Item: Record Item; var IsHandled: Boolean);
     begin
     end;
 }

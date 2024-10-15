@@ -187,7 +187,13 @@ table 5605 "FA Journal Setup"
         FAJnlBatch: Record "FA Journal Batch";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DocumentNo: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetFAJnlDocumentNo(FAJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with FAJnlLine do begin
             FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
             if (FAJnlBatch."No. Series" <> '') and not Find('=><') then
@@ -203,7 +209,13 @@ table 5605 "FA Journal Setup"
         GenJnlBatch: Record "Gen. Journal Batch";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DocumentNo: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetGenJnlDocumentNo(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do begin
             GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
             if (GenJnlBatch."No. Series" <> '') and not Find('=><') then
@@ -304,6 +316,7 @@ table 5605 "FA Journal Setup"
                     FAJnlSetup.Modify();
                 end;
             until FAJnlSetup.Next() = 0;
+        OnAfterIncFAJnlBatchName(FAJnlBatch);
     end;
 
     procedure IncGenJnlBatchName(var GenJnlBatch: Record "Gen. Journal Batch")
@@ -319,6 +332,7 @@ table 5605 "FA Journal Setup"
                     FAJnlSetup.Modify();
                 end;
             until FAJnlSetup.Next() = 0;
+        OnAfterIncGenJnlBatchName(GenJnlBatch);
     end;
 
     procedure IncInsuranceJnlBatchName(var InsuranceJnlBatch: Record "Insurance Journal Batch")
@@ -353,6 +367,26 @@ table 5605 "FA Journal Setup"
 
     [IntegrationEvent(false, false)]
     local procedure OnGenJnlNameOnBeforeGenJnlTemplateGet(var DepreciationBook: Record "Depreciation Book"; var GenJournalLine: Record "Gen. Journal Line"; NextLineNo: Integer; var TemplateName: Code[10]; var BatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFAJnlDocumentNo(var FAJournalLine: Record "FA Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIncGenJnlBatchName(var GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIncFAJnlBatchName(var FAJournalBatch: Record "FA Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetGenJnlDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

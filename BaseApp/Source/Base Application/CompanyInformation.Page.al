@@ -444,7 +444,7 @@ Page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                                        ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
+                    ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
                 }
                 field("Registered Name"; Rec."Registered Name")
                 {
@@ -913,7 +913,7 @@ Page 1 "Company Information"
             exit;
 
         if Group = AddressTok then begin
-            if ("Country/Region Code" <> 'GB') and ("Country/Region Code" <> '') then
+            if not PostcodeBusinessLogic.SupportedCountryOrRegionCode("Country/Region Code") then
                 exit;
 
             if ("Post Code" = '') and not ShowInputFields then
@@ -923,7 +923,7 @@ Page 1 "Company Information"
             TempEnteredAutocompleteAddress.Postcode := "Post Code";
         end else
             if Group = ShipToTok then begin
-                if ("Country/Region Code" <> 'GB') and ("Country/Region Code" <> '') then
+                if not PostcodeBusinessLogic.SupportedCountryOrRegionCode("Country/Region Code") then
                     exit;
 
                 if ("Ship-to Post Code" = '') and not ShowInputFields then
@@ -971,8 +971,8 @@ Page 1 "Company Information"
             IsAddressLookupTextEnabled := false;
             IsShipToAddressLookupTextEnabled := false;
         end else begin
-            IsAddressLookupTextEnabled := ("Country/Region Code" = 'GB') or ("Country/Region Code" = '');
-            IsShipToAddressLookupTextEnabled := ("Ship-to Country/Region Code" = 'GB') or ("Ship-to Country/Region Code" = '');
+            IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode("Country/Region Code");
+            IsShipToAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode("Ship-to Country/Region Code");
         end;
     end;
 

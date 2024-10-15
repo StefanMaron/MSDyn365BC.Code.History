@@ -2557,6 +2557,8 @@ page 21 "Customer Card"
 
     trigger OnOpenPage()
     begin
+        OnBeforeOnOpenPage(Rec);
+
         if Rec.GetFilter("Date Filter") = '' then
             SetRange("Date Filter", 0D, WorkDate());
         if GuiAllowed() then
@@ -2913,7 +2915,7 @@ page 21 "Customer Card"
         TempAutocompleteAddress: Record "Autocomplete Address" temporary;
         PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
     begin
-        if ("Country/Region Code" <> 'GB') and ("Country/Region Code" <> '') then
+        if not PostcodeBusinessLogic.SupportedCountryOrRegionCode("Country/Region Code") then
             exit;
 
         if not PostcodeBusinessLogic.IsConfigured or (("Post Code" = '') and not ShowInputFields) then
@@ -2946,9 +2948,9 @@ page 21 "Customer Card"
         if not CurrPage.Editable or not PostcodeBusinessLogic.IsConfigured() then
             IsAddressLookupTextEnabled := false
         else
-            IsAddressLookupTextEnabled := ("Country/Region Code" = 'GB') or ("Country/Region Code" = '');
+            IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode("Country/Region Code");
     end;
-    
+
 #if not CLEAN22
     var
         PowerAutomateTemplatesEnabled: Boolean;
@@ -3003,6 +3005,11 @@ page 21 "Customer Card"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateCustomerFromTemplateOnBeforeCurrPageUpdate(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage(var Customer: Record Customer)
     begin
     end;
 }

@@ -1,7 +1,8 @@
 ﻿codeunit 9510 "Document Service Management"
 {
     // Provides functions for the storage of documents to online services such as O365 (Office 365).
-    Permissions = TableData "Document Service Cache" = rimd;
+    Permissions = tabledata "Document Service Cache" = rimd,
+                  tabledata "Tenant Media" = rimd;
 
     trigger OnRun()
     begin

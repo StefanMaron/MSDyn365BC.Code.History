@@ -483,7 +483,7 @@ codeunit 7312 "Create Pick"
 #if not CLEAN20
             OnFindBWPickBinOnBeforeFindFromBinContent(FromBinContent, SourceType, TotalQtyPickedBase, IsHandled, TotalQtyToPickBase);
 #endif
-            OnFindBWPickBinOnBeforeFromBinContentFindSet(FromBinContent, SourceType, TotalQtyPickedBase, TotalQtyToPickBase, IsHandled, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo);
+            OnFindBWPickBinOnBeforeFromBinContentFindSet(FromBinContent, SourceType, TotalQtyPickedBase, TotalQtyToPickBase, IsHandled, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, LocationCode, ItemNo, VariantCode, ToBinCode);
             if not IsHandled then
                 if FindSet() then
                     repeat
@@ -1715,6 +1715,7 @@ codeunit 7312 "Create Pick"
             SetRange("Breakbulk No.", 0);
             if WhseItemTrkgExists then
                 SetTrackingFilterFromWhseItemTrackingLineIfNotBlank(TempWhseItemTrackingLine);
+            OnCalcQtyOutstandingBaseAfterSetFilters(TempWhseActivLine, TempWhseItemTrackingLine);
             CalcSums("Qty. Outstanding (Base)");
             PickQtyAssigned := "Qty. Outstanding (Base)";
         end;
@@ -1783,6 +1784,8 @@ codeunit 7312 "Create Pick"
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
+
+        OnAfterGetLocation(LocationCode);
     end;
 
     local procedure GetBinType(BinTypeCode: Code[10])
@@ -3899,7 +3902,7 @@ codeunit 7312 "Create Pick"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindBWPickBinOnBeforeFromBinContentFindSet(var FromBinContent: Record "Bin Content"; SourceType: Integer; var TotalQtyPickedBase: Decimal; var TotalQtyToPickBase: Decimal; var IsHandled: Boolean; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
+    local procedure OnFindBWPickBinOnBeforeFromBinContentFindSet(var FromBinContent: Record "Bin Content"; SourceType: Integer; var TotalQtyPickedBase: Decimal; var TotalQtyToPickBase: Decimal; var IsHandled: Boolean; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20])
     begin
     end;
 
@@ -4021,6 +4024,16 @@ codeunit 7312 "Create Pick"
         var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; CrossDock: Boolean;
         var TotalQtytoPickBase: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup"; IsMovementWorksheet: Boolean;
         WhseItemTrkgExists: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetLocation(LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyOutstandingBaseAfterSetFilters(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
     begin
     end;
 }

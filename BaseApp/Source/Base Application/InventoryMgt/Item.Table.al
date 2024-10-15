@@ -2186,8 +2186,10 @@
                         ItemUnitOfMeasure.Get("No.", ProdBOMHeader."Unit of Measure Code");
                         if ProdBOMHeader.Status = ProdBOMHeader.Status::Certified then begin
                             MfgSetup.Get();
-                            if MfgSetup."Dynamic Low-Level Code" then
+                            if MfgSetup."Dynamic Low-Level Code" then begin
                                 CODEUNIT.Run(CODEUNIT::"Calculate Low-Level Code", Rec);
+                                OnValidateProductionBOMNoOnAfterCodeunitRun(ProdBOMHeader, Rec);
+                            end;
                         end;
                     end;
                 end;
@@ -2400,14 +2402,18 @@
                 ReservEntry: Record "Reservation Entry";
                 ActionMessageEntry: Record "Action Message Entry";
                 TempReservationEntry: Record "Reservation Entry" temporary;
+                ShouldRaiseRegenerativePlanningMessage: Boolean;
             begin
                 if "Order Tracking Policy" <> "Order Tracking Policy"::None then
                     TestField(Type, Type::Inventory);
                 if xRec."Order Tracking Policy" = "Order Tracking Policy" then
                     exit;
-                if "Order Tracking Policy".AsInteger() > xRec."Order Tracking Policy".AsInteger() then begin
-                    Message(Text99000000 + Text99000001, "Order Tracking Policy");
-                end else begin
+
+                ShouldRaiseRegenerativePlanningMessage := "Order Tracking Policy".AsInteger() > xRec."Order Tracking Policy".AsInteger();
+                OnValidateOrderTrackingPolicyOnBeforeUpdateReservation(Rec, ShouldRaiseRegenerativePlanningMessage);
+                if ShouldRaiseRegenerativePlanningMessage then
+                    Message(Text99000000 + Text99000001, "Order Tracking Policy")
+                else begin
                     ActionMessageEntry.SetCurrentKey("Reservation Entry");
                     ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
                     ReservEntry.SetRange("Item No.", "No.");
@@ -3222,10 +3228,17 @@
     procedure CheckPurchLine(CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
         PurchaseLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPurchLine(Rec, CurrFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchaseLine.SetCurrentKey(Type, "No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", "No.");
+        OnCheckPurchLineOnAfterPurchLineSetFilters(Rec, PurchaseLine, CurrFieldNo, CheckFieldNo, CheckFieldCaption);
         PurchaseLine.SetLoadFields("Document Type");
         if PurchaseLine.FindFirst() then begin
             if CurrFieldNo = 0 then
@@ -3445,6 +3458,7 @@
     begin
         if "Price Includes VAT" then begin
             VATPostingSetup.Get("VAT Bus. Posting Gr. (Price)", "VAT Prod. Posting Group");
+            OnCalcVATOnAfterVATPostingSetupGet(VATPostingSetup);
             case VATPostingSetup."VAT Calculation Type" of
                 VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
                     VATPostingSetup."VAT %" := 0;
@@ -4132,6 +4146,31 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateItemCategoryCode(var Item: Record Item; xItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateOrderTrackingPolicyOnBeforeUpdateReservation(var Item: Record Item; var ShouldRaiseRegenerativePlanningMessage: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateProductionBOMNoOnAfterCodeunitRun(ProductionBOMHeader: Record "Production BOM Header"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPurchLine(Item: Record Item; CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckPurchLineOnAfterPurchLineSetFilters(Item: Record Item; var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     begin
     end;
 }

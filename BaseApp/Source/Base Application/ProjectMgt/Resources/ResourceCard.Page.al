@@ -898,7 +898,7 @@
         TempAutocompleteAddress: Record "Autocomplete Address" temporary;
         PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
     begin
-        if ("Country/Region Code" <> 'GB') and ("Country/Region Code" <> '') then
+        if not PostcodeBusinessLogic.SupportedCountryOrRegionCode("Country/Region Code") then
             exit;
 
         if not PostcodeBusinessLogic.IsConfigured() or (("Post Code" = '') and not ShowInputFields) then
@@ -931,7 +931,7 @@
         if not CurrPage.Editable or not PostcodeBusinessLogic.IsConfigured() then
             IsAddressLookupTextEnabled := false
         else
-            IsAddressLookupTextEnabled := ("Country/Region Code" = 'GB') or ("Country/Region Code" = '');
+            IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode("Country/Region Code");
     end;
 
     local procedure SetNoFieldVisible()

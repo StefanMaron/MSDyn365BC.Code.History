@@ -823,7 +823,7 @@
                 EverythingInvoiced := false;
 
             IsHandled := false;
-            OnPostSalesLineOnAfterSetEverythingInvoiced(SalesLine, EverythingInvoiced, IsHandled);
+            OnPostSalesLineOnAfterSetEverythingInvoiced(SalesLine, EverythingInvoiced, IsHandled, SalesHeader);
             if not IsHandled then
                 if Quantity <> 0 then begin
                     if ReverseChargeApplies and "Reverse Charge Item" then begin
@@ -7665,7 +7665,8 @@
                           TempDropShptPostBuffer."Order No.", TempDropShptPostBuffer."Order Line No.");
                         InsertPurchRcptLine(PurchRcptHeader, PurchOrderLine, TempDropShptPostBuffer);
                         PurchPost.UpdateBlanketOrderLine(PurchOrderLine, true, false, false);
-                        OnPostDropOrderShipmentOnAfterUpdateBlanketOrderLine(PurchOrderHeader, PurchOrderLine, TempDropShptPostBuffer, SalesShptHeader, SalesHeader, PurchRcptHeader, TempTrackingSpecification);
+                        OnPostDropOrderShipmentOnAfterUpdateBlanketOrderLine(
+                            PurchOrderHeader, PurchOrderLine, TempDropShptPostBuffer, SalesShptHeader, SalesHeader, PurchRcptHeader, TempTrackingSpecification, SrcCode);
                     until TempDropShptPostBuffer.Next() = 0;
                     TempDropShptPostBuffer.SetRange("Order No.");
                     OnAfterInsertDropOrderPurchRcptHeader(PurchRcptHeader);
@@ -10821,7 +10822,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDropOrderShipmentOnAfterUpdateBlanketOrderLine(PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line"; TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; SalesShptHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header"; PurchRcptHeader: Record "Purch. Rcpt. Header"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    local procedure OnPostDropOrderShipmentOnAfterUpdateBlanketOrderLine(PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line"; TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; SalesShptHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header"; PurchRcptHeader: Record "Purch. Rcpt. Header"; var TempTrackingSpecification: Record "Tracking Specification" temporary; SrcCode: Code[10])
     begin
     end;
 
@@ -11019,7 +11020,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostSalesLineOnAfterSetEverythingInvoiced(SalesLine: Record "Sales Line"; var EverythingInvoiced: Boolean; var IsHandled: Boolean)
+    local procedure OnPostSalesLineOnAfterSetEverythingInvoiced(SalesLine: Record "Sales Line"; var EverythingInvoiced: Boolean; var IsHandled: Boolean; SalesHeader: Record "Sales Header")
     begin
     end;
 

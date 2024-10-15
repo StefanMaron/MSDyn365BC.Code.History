@@ -230,6 +230,13 @@ table 7200 "CDS Connection Setup"
             Caption = 'Virtual Tables Config ID';
             DataClassification = SystemMetadata;
         }
+        field(241; BaseCurrencyCode; Text[5])
+        {
+            Caption = 'Base Currency Code';
+            Description = 'ISO currency code for the base currency.';
+            TableRelation = "CRM Transactioncurrency".ISOCurrencyCode;
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -504,16 +511,19 @@ table 7200 "CDS Connection Setup"
     procedure SetBaseCurrencyData()
     var
         CRMOrganization: Record "CRM Organization";
+        CRMTransactionCurrency: Record "CRM Transactioncurrency";
     begin
         CDSIntegrationMgt.RegisterConnection();
         CDSIntegrationMgt.ActivateConnection();
-        if CRMOrganization.FindFirst() then begin
-            CurrencyDecimalPrecision := CRMOrganization.CurrencyDecimalPrecision;
-            BaseCurrencyId := CRMOrganization.BaseCurrencyId;
-            BaseCurrencyPrecision := CRMOrganization.BaseCurrencyPrecision;
-            BaseCurrencySymbol := CRMOrganization.BaseCurrencySymbol;
-            Modify();
-        end;
+        if CRMOrganization.FindFirst() then
+            if CRMTransactioncurrency.Get(CRMOrganization.BaseCurrencyId) then begin
+                CurrencyDecimalPrecision := CRMOrganization.CurrencyDecimalPrecision;
+                BaseCurrencyId := CRMOrganization.BaseCurrencyId;
+                BaseCurrencyPrecision := CRMOrganization.BaseCurrencyPrecision;
+                BaseCurrencySymbol := CRMOrganization.BaseCurrencySymbol;
+                BaseCurrencyCode := CRMTransactionCurrency.ISOCurrencyCode;
+                Modify();
+            end;
     end;
 
     [Scope('OnPrem')]

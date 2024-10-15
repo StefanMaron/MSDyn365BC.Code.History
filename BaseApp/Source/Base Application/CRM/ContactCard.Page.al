@@ -1483,6 +1483,8 @@ page 5050 "Contact Card"
     var
         OfficeManagement: Codeunit "Office Management";
     begin
+        OnBeforeOnOpenPage(Rec);
+
         IsOfficeAddin := OfficeManagement.IsAvailable();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
@@ -1567,7 +1569,7 @@ page 5050 "Contact Card"
         TempAutocompleteAddress: Record "Autocomplete Address" temporary;
         PostcodeBusinessLogic: Codeunit "Postcode Business Logic";
     begin
-        if ("Country/Region Code" <> 'GB') and ("Country/Region Code" <> '') then
+        if not PostcodeBusinessLogic.SupportedCountryOrRegionCode("Country/Region Code") then
             exit;
 
         if not PostcodeBusinessLogic.IsConfigured or (("Post Code" = '') and not ShowInputFields) then
@@ -1600,7 +1602,7 @@ page 5050 "Contact Card"
         if not CurrPage.Editable or not PostcodeBusinessLogic.IsConfigured() then
             IsAddressLookupTextEnabled := false
         else
-            IsAddressLookupTextEnabled := ("Country/Region Code" = 'GB') or ("Country/Region Code" = '');
+            IsAddressLookupTextEnabled := PostcodeBusinessLogic.SupportedCountryOrRegionCode("Country/Region Code");
     end;
 
     local procedure SetNoFieldVisible()
@@ -1637,6 +1639,11 @@ page 5050 "Contact Card"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnNewRecord(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage(var Contact: Record Contact)
     begin
     end;
 }

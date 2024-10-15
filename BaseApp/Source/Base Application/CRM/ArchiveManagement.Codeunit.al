@@ -545,12 +545,26 @@ codeunit 5063 ArchiveManagement
     end;
 
     procedure ArchSalesDocumentNoConfirm(var SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeArchSalesDocumentNoConfirm(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         StoreSalesDocument(SalesHeader, false);
     end;
 
     procedure ArchPurchDocumentNoConfirm(var PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeArchPurchDocumentNoConfirm(PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         StorePurchDocument(PurchHeader, false);
     end;
 
@@ -926,6 +940,16 @@ codeunit 5063 ArchiveManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnRestoreDeferralsOnAfterGetDeferralHeaderArchive(DeferralHeaderArchive: Record "Deferral Header Archive"; var DeferralHeader: Record "Deferral Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeArchPurchDocumentNoConfirm(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeArchSalesDocumentNoConfirm(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

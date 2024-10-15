@@ -130,6 +130,11 @@ codeunit 10500 "Postcode Business Logic"
         exit(SavePostcode);
     end;
 
+    internal procedure SupportedCountryOrRegionCode(CountryOrRegionCode: Code[10]): Boolean
+    begin
+        exit(CountryOrRegionCode in ['GB', 'UK', '']);
+    end;
+
     local procedure CreateNewPostcodeIfNotExists(var TempAutocompleteAddress: Record "Autocomplete Address" temporary)
     var
         PostCode: Record "Post Code";
