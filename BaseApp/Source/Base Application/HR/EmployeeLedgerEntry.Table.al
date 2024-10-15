@@ -279,7 +279,7 @@ table 5222 "Employee Ledger Entry"
                 TestField(Open, true);
                 CalcFields("Remaining Amount");
 
-                if "Amount to Apply" * "Remaining Amount" < 0 then
+                if AreOppositeSign("Amount to Apply", "Remaining Amount") then
                     FieldError("Amount to Apply", MustHaveSameSignErr);
 
                 if Abs("Amount to Apply") > Abs("Remaining Amount") then
@@ -514,6 +514,16 @@ table 5222 "Employee Ledger Entry"
         "Amount to Apply" := CVLedgerEntryBuffer."Amount to Apply";
 
         OnAfterCopyEmplLedgerEntryFromCVLedgEntryBuffer(Rec, CVLedgerEntryBuffer);
+    end;
+
+    local procedure AreOppositeSign(Amount1: Decimal; Amount2: Decimal): Boolean
+    var
+        Math: Codeunit "Math";
+    begin
+        if (Amount1 = 0) or (Amount2 = 0) then
+            exit(false);
+
+        exit(Math.Sign(Amount1) <> Math.Sign(Amount2));
     end;
 
     [IntegrationEvent(false, false)]

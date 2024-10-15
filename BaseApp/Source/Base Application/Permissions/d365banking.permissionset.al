@@ -91,6 +91,7 @@
                   tabledata "VAT Entry" = Rimd,
                   tabledata "VAT Setup" = R,
                   tabledata "VAT Posting Parameters" = R,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "Vendor Bank Account" = R,
                   tabledata "Vendor Ledger Entry" = Rimd,
                   tabledata "Vendor Posting Group" = RIMD;

@@ -139,20 +139,23 @@
                     if DeprBook2."Fiscal Year 365 Days" then
                         Error(FiscalYear365Err);
 
-                if "Depreciation Starting Date" <> 0D then begin
-                    ModifyDeprFields();
-                    ShowDeprMethodError := ("No. of Depreciation Years" <> 0) and not LinearMethod();
-                    OnValidateNoofDepreciationYearsOnAfterCalcShowDeprMethodError(Rec, ShowDeprMethodError);
-                    if ShowDeprMethodError then
-                        DeprMethodError();
+                IsHandled := false;
+                OnValidateNoofDepreciationYearsOnBeforeTestFieldDeprStartingDate(Rec, IsHandled);
+                if not IsHandled then
+                    if "Depreciation Starting Date" <> 0D then begin
+                        ModifyDeprFields();
+                        ShowDeprMethodError := ("No. of Depreciation Years" <> 0) and not LinearMethod();
+                        OnValidateNoofDepreciationYearsOnAfterCalcShowDeprMethodError(Rec, ShowDeprMethodError);
+                        if ShowDeprMethodError then
+                            DeprMethodError();
 
-                    "No. of Depreciation Months" := Round("No. of Depreciation Years" * 12, 0.00000001);
-                    AdjustLinearMethod("Straight-Line %", "Fixed Depr. Amount");
-                    "Depreciation Ending Date" := CalcEndingDate();
+                        "No. of Depreciation Months" := Round("No. of Depreciation Years" * 12, 0.00000001);
+                        AdjustLinearMethod("Straight-Line %", "Fixed Depr. Amount");
+                        "Depreciation Ending Date" := CalcEndingDate();
 
-                    if "Depreciation Method" = "Depreciation Method"::"DB/SL-RU" then
-                        "Declining-Balance %" := Round(100 / "No. of Depreciation Months", 0.00000001);
-                end;
+                        if "Depreciation Method" = "Depreciation Method"::"DB/SL-RU" then
+                            "Declining-Balance %" := Round(100 / "No. of Depreciation Months", 0.00000001);
+                    end;
             end;
         }
         field(7; "No. of Depreciation Months"; Decimal)
@@ -271,7 +274,10 @@
                 IsHandled: Boolean;
                 ShowDeprMethodError: Boolean;
             begin
-                TestField("Depreciation Starting Date");
+                IsHandled := false;
+                OnValidateDepreciationEndingDateOnBeforeTestFieldDeprStartingDate(Rec, IsHandled);
+                if not IsHandled then
+                    TestField("Depreciation Starting Date");
                 ShowDeprMethodError := ("Depreciation Ending Date" <> 0D) and not LinearMethod();
                 OnValidateDepreciationEndingDateOnAfterCalcShowDeprMethodError(Rec, ShowDeprMethodError);
                 if ShowDeprMethodError then
@@ -1487,4 +1493,15 @@
     local procedure OnBeforeCheckApplyDeprBookDefaults(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDepreciationEndingDateOnBeforeTestFieldDeprStartingDate(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoofDepreciationYearsOnBeforeTestFieldDeprStartingDate(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
 }
+

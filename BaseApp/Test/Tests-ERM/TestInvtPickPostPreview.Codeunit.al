@@ -17,8 +17,10 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibrarySales: Codeunit "Library - Sales";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryJob: codeunit "Library - Job";
         IsInitialized: Boolean;
         WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
@@ -286,6 +288,94 @@ codeunit 134778 "Test Invt. Pick Post Preview"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler,CreateInvtPickRequestPageHandler,ItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryPickPostWithLotAndBin_ProdConsumption()
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Location: Record Location;
+        Bin: Record Bin;
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        WhseActivityPost: Codeunit "Whse.-Activity-Post";
+        Qty1: Decimal;
+        Qty2: Decimal;
+        Lot1: Code[20];
+        Lot2: Code[20];
+        CannotMatchItemTrackingErr: Label 'Cannot match item tracking.\Document No.: %1, Line No.: %2, Item: %3 %4', Comment = '%1 - source document no., %2 - source document line no., %3 - item no., %4 - item description';
+    begin
+        // [FEATURE] [Production] [Inventory Pick] [Item Tracking]
+        // [SCENARIO] Update Item Tracking on Inventory Pick of values set on Production Order Component during pick posting causes error
+        Initialize();
+
+        // [GIVEN] Location for Inventory Pick where the 'Require Pick' and 'Bin Mandatory' is true
+        // [GIVEN] Warehouse Employee setup for User and Location
+        CreateLocationWMSWithWhseEmployee(Location, true, false, true, false, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, CopyStr(
+                            LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), 1,
+                            LibraryUtility.GetFieldLength(DATABASE::Bin, Bin.FieldNo(Code))), '', '');
+        Location.Validate("Default Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Component Item with enough in stock in the chosen location and bin
+        CreateItemWithItemTrackingCode(CompItem);
+        Qty1 := LibraryRandom.RandIntInRange(10, 100);
+        Lot1 := LibraryUtility.GenerateGUID();
+        CreateAndPostInvtAdjustmentWithItemTracking(CompItem."No.", Location.Code, Bin.Code, Qty1, Lot1);
+
+        Qty2 := LibraryRandom.RandIntInRange(10, 100);
+        Lot2 := LibraryUtility.GenerateGUID();
+        CreateAndPostInvtAdjustmentWithItemTracking(CompItem."No.", Location.Code, Bin.Code, Qty2, Lot2);
+
+        // [GIVEN] Create Production Item and set the BOM
+        CreateItem(ProdItem, CompItem."Unit Cost" * 2, CompItem."Costing Method"::Average);
+        CreateProductionBOM(ProdItem, CompItem);
+
+        // [GIVEN] Create production order for prod item "P" and refresh order.
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, ProdItem."No.", 4);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Validate("Bin Code", Bin.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Get Prod Order Component and set the Item Tracking
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.FindFirst();
+
+        LibraryVariableStorage.Enqueue(Lot2);
+        LibraryVariableStorage.Enqueue(ProdOrderComponent."Remaining Quantity");
+        ProdOrderComponent.OpenItemTrackingLines();
+
+        // [GIVEN] Create Inventory Pick for the Production Order is run.
+        ProductionOrder.CreateInvtPutAwayPick();
+
+        // [GIVEN] Inventory Pick lines are created
+        FindWarehouseActivityLine(WarehouseActivityLine, Database::"Prod. Order Component", ProductionOrder."No.", WarehouseActivityHeader.Type::"Invt. Pick");
+        WarehouseActivityLine.TestField(Quantity, ProdOrderComponent."Remaining Quantity");
+        WarehouseActivityLine.TestField("Lot No.", Lot2);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.SetQtyToHandleWhseActivity(WarehouseActivityHeader, WarehouseActivityLine.Quantity);
+
+        // [WHEN] Inventory Pick Line is updated with different Lot No 
+        WarehouseActivityLine.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.", WarehouseActivityLine."Line No.");
+        WarehouseActivityLine.Validate("Lot No.", Lot1);
+        WarehouseActivityLine.Modify();
+
+        // [THEN] During the posting of the Inventory Pick, the error is thrown
+        WhseActivityPost.SetInvoiceSourceDoc(false);
+        WhseActivityPost.PrintDocument(false);
+        WhseActivityPost.SetSuppressCommit(false);
+        WhseActivityPost.ShowHideDialog(false);
+        WhseActivityPost.SetIsPreview(false);
+        asserterror WhseActivityPost.Run(WarehouseActivityLine);
+        Assert.ExpectedError(StrSubstNo(CannotMatchItemTrackingErr, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Line No.", ProdOrderComponent."Item No.", ProdOrderComponent.Description));
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PreviewInventoryPickPostWithBin_JobUsage()
@@ -425,6 +515,25 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         Item.Modify(true);
     end;
 
+    local procedure CreateItemWithItemTrackingCode(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        Item.Validate("Item Tracking Code", CreateItemTrackingCode);
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemTrackingCode(): Code[10]
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCode.Modify(true);
+        exit(ItemTrackingCode.Code);
+    end;
+
     local procedure CreateProductionBOM(var ProdItem: Record Item; CompItem: Record Item)
     var
         ProductionBOMHeader: Record "Production BOM Header";
@@ -469,6 +578,17 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, BinCode, Qty);
         ItemJournalLine.Validate("Unit Cost", UnitCost);
         ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateAndPostInvtAdjustmentWithItemTracking(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; LotNo: Code[20])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, BinCode, Qty);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        ItemJournalLine.OpenItemTrackingLines(false);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
@@ -546,6 +666,16 @@ codeunit 134778 "Test Invt. Pick Post Preview"
     procedure MessageHandler(Message: Text[1024])
     begin
         // Message Handler.
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines.New;
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+        ItemTrackingLines.OK.Invoke;
     end;
 }
 

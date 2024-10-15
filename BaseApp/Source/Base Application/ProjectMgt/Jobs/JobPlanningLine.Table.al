@@ -1676,7 +1676,15 @@
     var
         Job: Record Job;
         JobTask: Record "Job Task";
+        Result: Text;
+        IsHandled: Boolean;
     begin
+        Result := '';
+        IsHandled := false;
+        OnBeforeCaption(Rec, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if not Job.Get("Job No.") then
             exit('');
         if not JobTask.Get("Job No.", "Job Task No.") then
@@ -3161,5 +3169,10 @@
     local procedure OnAfterFindPriceAndDiscount(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; CalledByFieldNo: Integer)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCaption(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean; var Result: Text)
+    begin
+    end;    
 }
 

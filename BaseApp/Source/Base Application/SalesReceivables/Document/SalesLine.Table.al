@@ -242,12 +242,15 @@
 
                 OnAfterAssignFieldsForNo(Rec, xRec, SalesHeader);
 
-                if Type <> Type::" " then
-                    if not IsTemporary() then begin
-                        PostingSetupMgt.CheckGenPostingSetupSalesAccount("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                        PostingSetupMgt.CheckGenPostingSetupCOGSAccount("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                        PostingSetupMgt.CheckVATPostingSetupSalesAccount("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                    end;
+                IsHandled := false;
+                OnValidateNoOnBeforeCheckPostingSetups(Rec, IsHandled);
+                if not IsHandled then
+                    if Type <> Type::" " then
+                        if not IsTemporary() then begin
+                            PostingSetupMgt.CheckGenPostingSetupSalesAccount("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
+                            PostingSetupMgt.CheckGenPostingSetupCOGSAccount("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
+                            PostingSetupMgt.CheckVATPostingSetupSalesAccount("VAT Bus. Posting Group", "VAT Prod. Posting Group");
+                        end;
 
                 if HasTypeToFillMandatoryFields() then
                     ValidateVATProdPostingGroupRU();
@@ -1792,6 +1795,7 @@
 
             trigger OnValidate()
             var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
                 IsHandled: Boolean;
             begin
                 TestStatusOpen();
@@ -1800,6 +1804,9 @@
                 OnValidatePrepaymentPercentageOnBeforeUpdatePrepmtSetupFields(Rec, IsHandled);
                 if IsHandled then
                     exit;
+
+                FeatureTelemetry.LogUptake('0000KQB', 'Prepayment Sales', Enum::"Feature Uptake Status"::Used);
+                FeatureTelemetry.LogUsage('0000KQC', 'Prepayment Sales', 'Prepayment added');
 
                 UpdatePrepmtSetupFields();
 
@@ -4074,7 +4081,7 @@
 
         InitDeferralCode();
         SetDefaultItemQuantity();
-        OnAfterAssignItemValues(Rec, Item, SalesHeader);
+        OnAfterAssignItemValues(Rec, Item, SalesHeader, xRec, CurrFieldNo);
     end;
 
     local procedure CopyFromResource()
@@ -5114,7 +5121,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckItemAvailable(Rec, CalledByFieldNo, IsHandled, CurrFieldNo, xRec);
+        OnBeforeCheckItemAvailable(Rec, CalledByFieldNo, IsHandled, CurrFieldNo, xRec, SalesHeader);
         if IsHandled then
             exit;
 
@@ -5982,7 +5989,13 @@
     protected procedure DeleteChargeChargeAssgnt(DocType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer)
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteChargeChargeAssgnt(DocType, DocNo, DocLineNo, Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if DocType <> "Document Type"::"Blanket Order" then
             if "Quantity Invoiced" <> 0 then begin
                 CalcFields("Qty. Assigned");
@@ -7058,7 +7071,13 @@
     var
         LineAmount: Decimal;
         LineDiscAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetLineAmountToHandle(QtyToHandle, Rec, Currency, IsHandled);
+        If IsHandled then
+            exit(QtyToHandle);
+
         if "Line Discount %" = 100 then
             exit(0);
 
@@ -8142,7 +8161,14 @@
     end;
 
     local procedure ReduceInvoiceDiscValueOnHeader(InvDiscountAmount: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReduceInvoiceDiscValueOnHeader(SalesHeader, InvDiscountAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         if IsNullGuid(SalesHeader.SystemId) then
             exit;
         if SalesHeader."Invoice Discount Value" = 0 then
@@ -9205,7 +9231,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignItemValues(var SalesLine: Record "Sales Line"; Item: Record Item; SalesHeader: Record "Sales Header")
+    local procedure OnAfterAssignItemValues(var SalesLine: Record "Sales Line"; Item: Record Item; SalesHeader: Record "Sales Header"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -9478,7 +9504,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckItemAvailable(var SalesLine: Record "Sales Line"; CalledByFieldNo: Integer; var IsHandled: Boolean; CurrentFieldNo: Integer; xSalesLine: Record "Sales Line")
+    local procedure OnBeforeCheckItemAvailable(var SalesLine: Record "Sales Line"; CalledByFieldNo: Integer; var IsHandled: Boolean; CurrentFieldNo: Integer; xSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -11003,5 +11029,25 @@
     local procedure OnAfterSetHideValidationDialog(var SalesLine: Record "Sales Line"; NewHideValidationDialog: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetLineAmountToHandle(var QtyToHandle: Decimal; var SalesLine: Record "Sales Line"; Currency: Record Currency; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnBeforeCheckPostingSetups(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReduceInvoiceDiscValueOnHeader(var SalesHeader: Record "Sales Header"; InvDiscountAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteChargeChargeAssgnt(SalesDocumentType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer; var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;    
 }
 

@@ -1,6 +1,7 @@
 ﻿table 352 "Default Dimension"
 {
     Caption = 'Default Dimension';
+    LookupPageID = "Default Dimensions";
 
     fields
     {

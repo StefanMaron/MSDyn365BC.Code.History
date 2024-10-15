@@ -116,6 +116,7 @@
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
                   tabledata "VAT Registration No. Format" = R,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "VAT Setup Posting Groups" = R,
                   tabledata Vendor = RIMD,
                   tabledata "Vendor Bank Account" = RIMD,

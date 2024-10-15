@@ -349,6 +349,7 @@ table 1706 "Deferral Posting Buffer"
         SetRange("Posting Date", DeferralPostBuffer."Posting Date");
         SetRange("Partial Deferral", DeferralPostBuffer."Partial Deferral");
         SetRange("Deferral Line No.", DeferralPostBuffer."Deferral Line No.");
+        OnUpdateOnAfterSetFilters(Rec, DeferralPostBuffer);
         if FindFirst() then begin
             Amount += DeferralPostBuffer.Amount;
             "Amount (LCY)" += DeferralPostBuffer."Amount (LCY)";

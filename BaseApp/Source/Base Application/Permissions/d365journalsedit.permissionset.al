@@ -42,6 +42,7 @@
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
                   tabledata "VAT Registration No. Format" = R,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "VAT Setup" = R,
                   tabledata "VAT Posting Parameters" = R,
                   tabledata "Vendor Invoice Disc." = R,

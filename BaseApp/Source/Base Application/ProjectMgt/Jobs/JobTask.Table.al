@@ -526,7 +526,15 @@ table 1001 "Job Task"
     procedure Caption(): Text
     var
         Job: Record Job;
+        Result: Text;
+        IsHandled: Boolean;
     begin
+        Result := '';
+        IsHandled := false;
+        OnBeforeCaption(Rec, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if not Job.Get("Job No.") then
             exit('');
         exit(StrSubstNo('%1 %2 %3 %4',
@@ -642,6 +650,11 @@ table 1001 "Job Task"
 
     [IntegrationEvent(false, false)]
     local procedure OnJobLedgEntriesExistOnAfterSetFilter(var JobTask: Record "Job Task"; var JobLedgerEntry: Record "Job Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCaption(JobTask: Record "Job Task"; var IsHandled: Boolean; var Result: Text)
     begin
     end;
 }

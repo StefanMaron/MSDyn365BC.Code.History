@@ -61,7 +61,10 @@
         if Flag then
             InsertDispAcc(Rec, true);
 
-        OnAfterRun(Rec);
+        OnAfterRun(Rec, TempFAGLPostBuf, NumberOfEntries, OrgGenJnlLine, NetDisp,
+                    FAGLPostBuf, DisposalEntry, BookValueEntry, NextEntryNo, GLEntryNo,
+                    DisposalEntryNo, DisposalAmount, GainLossAmount, FAPostingGr2
+        );
     end;
 
     var
@@ -187,9 +190,10 @@
                                 FAGLPostBuf."FA Allocation Type" := "Allocation Type";
                                 FAGLPostBuf."FA Allocation Line No." := "Line No.";
                                 InsertBufferEntry();
+                                OnInsertBufferBalAccOnAfterInsertBufferEntryFromFAAllocAcc(FAAlloc, TempFAGLPostBuf, FAPostingType, DeprBookCode, PostingGrCode, NewAmount, AutomaticEntry, Correction, NumberOfEntries, OrgGenJnlLine, NetDisp);
                             end;
                         end;
-                    end;
+                    end;                        
                 until Next() = 0;
 
             if (Abs(TotalAllocAmount) < Abs(AllocAmount)) or Flag then begin
@@ -205,10 +209,13 @@
                 SetDefaultDimID(GLAccNo, DimSetID);
                 FAGLPostBuf."Automatic Entry" := AutomaticEntry;
                 FAGLPostBuf.Correction := Correction;
-                OnInsertBufferBalAccOnAfterAssignFromFAPostingGrAcc(FAAlloc, FAGLPostBuf);
-                if NewAmount <> 0 then
+                OnInsertBufferBalAccOnAfterAssignFromFAPostingGrAcc(FAAlloc, FAGLPostBuf, FAPostingType, AllocAmount);
+                if NewAmount <> 0 then begin
                     InsertBufferEntry();
+                    OnInsertBufferBalAccOnAfterInsertBufferEntryFromFAPostingGrAcc(FAAlloc, TempFAGLPostBuf, FAPostingType, DeprBookCode, PostingGrCode, AllocAmount, TotalAllocAmount, GLAccNo, GlobalDim1Code, GlobalDim2Code, DimSetID, AutomaticEntry, Correction, NumberOfEntries, OrgGenJnlLine, NetDisp);
+                end;
             end;
+            OnAfterInsertBufferBalAcc(FAGLPostBuf, TempFAGLPostBuf, GLEntryNo, NextEntryNo, NumberOfEntries, OrgGenJnlLine, NetDisp, FAPostingType);
         end;
     end;
 
@@ -252,7 +259,15 @@
     end;
 
     local procedure GetPostingType(var FALedgEntry: Record "FA Ledger Entry"): Enum "FA Posting Group Account Type"
+    var
+        FAPostingGroupAccountType: Enum "FA Posting Group Account Type";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPostingType(FALedgEntry, FAPostingGroupAccountType, IsHandled);
+        if IsHandled then
+            exit(FAPostingGroupAccountType);
+
         case FALedgEntry."FA Posting Type" of
             FALedgEntry."FA Posting Type"::"Gain/Loss":
                 begin
@@ -371,7 +386,14 @@
     local procedure GetGLAccNoFromFAPostingGroup(FAPostingGr: Record "FA Posting Group"; FAPostingType: Enum "FA Posting Group Account Type") GLAccNo: Code[20]
     var
         FieldErrorText: Text[50];
+        IsHandled: Boolean;
     begin
+        GLAccNo := '';
+        IsHandled := false;
+        OnBeforeGetGLAccNoFromFAPostingGroup(FAPostingGr, FAPostingType, GLAccNo, IsHandled);
+        if IsHandled then
+            exit(GlAccNo);
+
         FieldErrorText := Text000;
         with FAPostingGr do
             case FAPostingType of
@@ -523,6 +545,7 @@
         ReturnValue: Boolean;
     begin
         TempFAGLPostBuf.SetCurrentKey("Disposal Entry No.", "Entry No.");
+        OnBeforeFindFirstGLAcc(TempFAGLPostBuf);
         ReturnValue := TempFAGLPostBuf.Find('-');
         FAGLPostBuf := TempFAGLPostBuf;
         exit(ReturnValue);
@@ -575,7 +598,7 @@
 
     local procedure CorrectDisposalEntry()
     var
-        LastDisposal: Boolean;
+        LastDisposal, IsHandled : Boolean;
         GLAmount: Decimal;
     begin
         TempFAGLPostBuf.Get(DisposalEntryNo);
@@ -589,6 +612,13 @@
             TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain
         else
             TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
+        IsHandled := false;
+        OnCorrectDisposalEntryOnBeforeSetGainLossAccount(FADeprBook, FAPostingGr2, TempFAGLPostBuf, GLAmount, IsHandled);
+        if not IsHandled then
+            if GLAmount <= 0 then
+                TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain()
+            else
+                TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
         OnBeforeTempFAGLPostBufModify(FAPostingGr2, TempFAGLPostBuf, GLAmount);
         TempFAGLPostBuf.Modify();
         FAGLPostBuf := TempFAGLPostBuf;
@@ -598,23 +628,46 @@
             exit;
         if FAPostingGr2.GetSalesAccountOnDisposalGain = FAPostingGr2.GetSalesAccountOnDisposalLoss then
             exit;
+        IsHandled := false;
+        OnCorrectDisposalEntryOnAfterCheckIdenticalAccountGainLoss(FADeprBook, FAPostingGr2, IsHandled);
+        if IsHandled then
+            exit;
+
         FAGLPostBuf."FA Entry No." := 0;
         FAGLPostBuf."FA Entry Type" := FAGLPostBuf."FA Entry Type"::" ";
         FAGLPostBuf."Automatic Entry" := true;
         OrgGenJnlLine := false;
         if FADeprBook."Gain/Loss" <= 0 then begin
-            FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain();
+            IsHandled := false;
+            OnCorrectDisposalEntryNonPositiveGainLossOnBeforeSetAccountGain(FADeprBook, FAPostingGr2, FAGLPostBuf, IsHandled);
+            if not IsHandled then
+                FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain();
+
             FAGLPostBuf.Amount := DisposalAmount;
             InsertBufferEntry();
-            FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
+
+            IsHandled := false;
+            OnCorrectDisposalEntryNonPositiveGainLossOnBeforeSetAccountLoss(FADeprBook, FAPostingGr2, FAGLPostBuf, IsHandled);
+            if not IsHandled then
+                FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
+
             FAGLPostBuf.Amount := -DisposalAmount;
             FAGLPostBuf.Correction := not FAGLPostBuf.Correction;
             InsertBufferEntry();
         end else begin
-            FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
+            IsHandled := false;
+            OnCorrectDisposalEntryPositiveGainLossOnBeforeSetAccountLoss(FADeprBook, FAPostingGr2, FAGLPostBuf, IsHandled);
+            if not IsHandled then
+                FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
+
             FAGLPostBuf.Amount := DisposalAmount;
             InsertBufferEntry();
-            FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain();
+
+            IsHandled := false;
+            OnCorrectDisposalEntryPositiveGainLossOnBeforeSetAccountGain(FADeprBook, FAPostingGr2, FAGLPostBuf, IsHandled);
+            if not IsHandled then
+                FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain();
+
             FAGLPostBuf.Amount := -DisposalAmount;
             FAGLPostBuf.Correction := not FAGLPostBuf.Correction;
             InsertBufferEntry();
@@ -627,17 +680,25 @@
         FAGLPostBuf: Record "FA G/L Posting Buffer";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         BookValueAmount: Decimal;
+        IsHandled: Boolean;
     begin
         DepreciationCalc.SetFAFilter(
           FALedgEntry, FADeprBook."FA No.", FADeprBook."Depreciation Book Code", true);
         FALedgEntry.SetRange("FA Posting Category", FALedgEntry."FA Posting Category"::Disposal);
         FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Book Value on Disposal");
+        OnCorrectBookValueEntryOnAfterSetFilterFALedgEntry(FALedgEntry);
         FALedgEntry.CalcSums(Amount);
         BookValueAmount := FALedgEntry.Amount;
         TempFAGLPostBuf.Get(DisposalEntryNo);
         FAGLPostBuf := TempFAGLPostBuf;
         if IdenticalSign(FADeprBook."Gain/Loss", GainLossAmount, BookValueAmount) then
             exit;
+
+        IsHandled := false;
+        OnCorrectBookValueEntryOnAfterCheckIdenticalGainLossAmtSign(FADeprBook, FAPostingGr2, IsHandled);
+        if IsHandled then
+            exit;
+
         if FAPostingGr2.GetBookValueAccountOnDisposalGain() = FAPostingGr2.GetBookValueAccountOnDisposalLoss() then
             exit;
         OrgGenJnlLine := false;
@@ -705,6 +766,7 @@
         DepreciationCalc.SetFAFilter(
           FALedgEntry, FADeprBook."FA No.", FADeprBook."Depreciation Book Code", true);
         FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Proceeds on Disposal");
+        OnCalcLastDisposalOnAfterSetFilter(FALedgEntry);
         exit(not FALedgEntry.FindFirst());
     end;
 
@@ -775,7 +837,10 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRun(var FALedgerEntry: Record "FA Ledger Entry")
+    local procedure OnAfterRun(var FALedgerEntry: Record "FA Ledger Entry"; var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary; var NumberOfEntries: Integer; var OrgGenJnlLine: Boolean; var NetDisp: Boolean;
+                                var FAGLPostingBuffer: Record "FA G/L Posting Buffer"; var DisposalEntry: Boolean; var BookValueEntry: Boolean; var NextEntryNo: Integer;
+                                var GLEntryNo: Integer; var DisposalEntryNo: Integer;
+                                var DisposalAmount: Decimal; var GainLossAmount: Decimal; var FAPostingGroup2: Record "FA Posting Group")
     begin
     end;
 
@@ -850,7 +915,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertBufferBalAccOnAfterAssignFromFAPostingGrAcc(FAAllocation: Record "FA Allocation"; var FAGLPostBuf: Record "FA G/L Posting Buffer")
+    local procedure OnInsertBufferBalAccOnAfterAssignFromFAPostingGrAcc(FAAllocation: Record "FA Allocation"; var FAGLPostBuf: Record "FA G/L Posting Buffer"; FAPostingType: Enum "FA Posting Group Account Type"; AllocAmount: Decimal)
     begin
     end;
 
@@ -866,7 +931,7 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFAInsertGLAccount(var FALedgerEntry: Record "FA Ledger Entry"; var TempFAGLPostBuf: Record "FA G/L Posting Buffer" temporary;
-                                              var FAGLPostBuf: Record "FA G/L Posting Buffer"; DisposalEntry: Boolean; BookValueEntry: Boolean; var NextEntryNo: Integer;
+                                              var FAGLPostBuf: Record "FA G/L Posting Buffer"; var DisposalEntry: Boolean; var BookValueEntry: Boolean; var NextEntryNo: Integer;
                                               var GLEntryNo: Integer; var OrgGenJnlLine: Boolean; var NetDisp: Boolean; var NumberOfEntries: Integer; var DisposalEntryNo: Integer;
                                               var DisposalAmount: Decimal; var GainLossAmount: Decimal; var FAPostingGr2: Record "FA Posting Group"; var IsHandled: Boolean)
     begin
@@ -879,6 +944,88 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateNoOfEmptyLines(var GenJnlLine: Record "Gen. Journal Line"; var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary; var NextLineNo: Integer; var NoOfEmptyLines: Integer; var NoOfEmptyLines2: Integer; var NumberOfEntries: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertBufferBalAccOnAfterInsertBufferEntryFromFAAllocAcc(FAAllocation: Record "FA Allocation"; var TempFAGLPostBuf: Record "FA G/L Posting Buffer" temporary; FAPostingType: Enum "FA Posting Group Account Type"; DeprBookCode: Code[10]; PostingGrCode: Code[20]; NewAmount: Decimal; AutomaticEntry: Boolean; Correction: Boolean; var NumberOfEntries: Integer; OrgGenJnlLine: Boolean; NetDisp: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertBufferBalAccOnAfterInsertBufferEntryFromFAPostingGrAcc(FAAllocation: Record "FA Allocation"; var TempFAGLPostBuf: Record "FA G/L Posting Buffer" temporary; FAPostingType: Enum "FA Posting Group Account Type"; DeprBookCode: Code[10]; PostingGrCode: Code[20]; AllocAmount: Decimal; TotalAllocAmount: Decimal; GLAccNo: Code[20]; GlobalDim1Code: Code[20]; GlobalDim2Code: Code[20]; DimSetID: Integer; AutomaticEntry: Boolean; Correction: Boolean; var NumberOfEntries: Integer; OrgGenJnlLine: Boolean; NetDisp: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindFirstGLAcc(var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetGLAccNoFromFAPostingGroup(FAPostingGroup: Record "FA Posting Group"; FAPostingGroupAccountType: Enum "FA Posting Group Account Type"; var GLAccNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPostingType(FALedgerEntry: Record "FA Ledger Entry"; var FAPostingGroupAccountType: Enum "FA Posting Group Account Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertBufferBalAcc(FAGLPostingBuffer: Record "FA G/L Posting Buffer"; var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary;
+                                              GLEntryNo: Integer; var NextEntryNo: Integer; var NumberOfEntries: Integer;
+                                              OrgGenJnlLine: Boolean; NetDisp: Boolean; FAPostingType: Enum "FA Posting Group Account Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectDisposalEntryNonPositiveGainLossOnBeforeSetAccountGain(FADepreciationBook: Record "FA Depreciation Book"; FAPostingGroup: Record "FA Posting Group";
+                                                                    var FAGLPostingBuffer: Record "FA G/L Posting Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectDisposalEntryPositiveGainLossOnBeforeSetAccountGain(FADepreciationBook: Record "FA Depreciation Book"; FAPostingGroup: Record "FA Posting Group";
+                                                                    var FAGLPostingBuffer: Record "FA G/L Posting Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectDisposalEntryOnAfterCheckIdenticalAccountGainLoss(FADepreciationBook: Record "FA Depreciation Book"; FAPostingGroup: Record "FA Posting Group"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectDisposalEntryNonPositiveGainLossOnBeforeSetAccountLoss(FADepreciationBook: Record "FA Depreciation Book"; FAPostingGroup: Record "FA Posting Group";
+                                                        var FAGLPostingBuffer: Record "FA G/L Posting Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectDisposalEntryPositiveGainLossOnBeforeSetAccountLoss(FADepreciationBook: Record "FA Depreciation Book"; FAPostingGroup: Record "FA Posting Group";
+                                                        var FAGLPostingBuffer: Record "FA G/L Posting Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectDisposalEntryOnBeforeSetGainLossAccount(FADepreciationBook: Record "FA Depreciation Book"; FAPostingGroup: Record "FA Posting Group";
+                                                   var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer"; GLAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectBookValueEntryOnAfterSetFilterFALedgEntry(var FALedgerEntry: Record "FA Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLastDisposalOnAfterSetFilter(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectBookValueEntryOnAfterCheckIdenticalGainLossAmtSign(FADepreciationBook: Record "FA Depreciation Book"; FAPostingGroup: Record "FA Posting Group"; var IsHandled: Boolean)
     begin
     end;
 }

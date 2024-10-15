@@ -3113,6 +3113,75 @@
         Assert.AreEqual(PurchaseHeader2."No.", DeferralHeader."Document No.", DocumentNoErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestCancellingInvoiceForBigAmount()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        GLEntry: Record "G/L Entry";
+        ReasonCode: Record "Reason Code";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+        PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
+        UnitPrice: Decimal;
+    begin
+        // [SCENARIO 473457] "Value is either too large or too small for a Decimal" while canceling invoice with big amount.
+        Initialize();
+
+        // [GIVEN] Save large value to calculation of Invoice
+        UnitPrice := 4 * Power(10, 14);
+
+        // [GIVEN] Get Last G/L Entry Posted
+        if GLEntry.FindLast() then;
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Reason Code
+        LibraryERM.CreateReasonCode(ReasonCode);
+
+        // [GIVEN] Create Purchase Invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Update Reason Code in Purchase Header
+        PurchaseHeader."Reason Code" := ReasonCode.Code;
+        PurchaseHeader.Modify();
+
+        // [GIVEN] Create Purchase Line
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+
+        // [GIVEN] Update Unit Price in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", UnitPrice);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        Codeunit.Run(Codeunit::"Purch.-Post", PurchaseHeader);
+
+        // [GIVEN] Filter Posted Purchase Invoice on Purch. Inv. Header table
+        PurchInvHeader.SetFilter("Buy-from Vendor No.", Vendor."No.");
+        PurchInvHeader.FindFirst();
+
+        // [GIVEN] Open Posted Purchase Invoice page.
+        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
+
+        // [GIVEN] Enqueue Cancel Confirm Handler values.
+        LibraryVariableStorage.Enqueue(true); // for the cancel confirm handler
+        LibraryVariableStorage.Enqueue(true); // for the open credit memo confirm handler
+
+        // [THEN] Click on Cancel button of Posted Purchase Invoice and close the page
+        PostedPurchaseCreditMemo.Trap;
+        PostedPurchaseInvoice.CancelInvoice.Invoke;
+        PostedPurchaseCreditMemo.Close();
+
+        // [VERIFY] Verify Purchase Credit Memo posted successfully and everything will be reverted.
+        CheckEverythingIsReverted(Item, Vendor, GLEntry);
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";
@@ -4365,6 +4434,8 @@
         FilterQuantityOnGetReceiptLines(GetReceiptLines, CopyStr(LibraryVariableStorage.DequeueText, 1, 20), QtyToReceive);
     end;
 
+
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure InvokeGetReceiptLinesPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
@@ -4374,6 +4445,42 @@
         LibraryVariableStorage.Dequeue(QtyToReceive);
         FilterQuantityOnGetReceiptLines(GetReceiptLines, CopyStr(LibraryVariableStorage.DequeueText, 1, 20), QtyToReceive);
         GetReceiptLines.OK.Invoke;
+    end;
+
+    local procedure CheckEverythingIsReverted(Item: Record Item; Vendor: Record Vendor; LastGLEntry: Record "G/L Entry")
+    var
+        VendorPostingGroup: Record "Vendor Posting Group";
+        GLEntry: Record "G/L Entry";
+        ValueEntry: Record "Value Entry";
+        TotalDebit: Decimal;
+        TotalCredit: Decimal;
+        TotalCost: Decimal;
+        TotalQty: Decimal;
+    begin
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+        ValueEntry.SetRange("Source Type", ValueEntry."Source Type"::Vendor);
+        ValueEntry.SetRange("Source No.", Vendor."No.");
+        ValueEntry.FindSet();
+        repeat
+            TotalQty += ValueEntry."Item Ledger Entry Quantity";
+            TotalCost += ValueEntry."Cost Amount (Actual)";
+        until ValueEntry.Next() = 0;
+        Assert.AreEqual(0, TotalQty, '');
+        Assert.AreEqual(0, TotalCost, '');
+
+        // Vendor balance should go back to zero
+        Vendor.CalcFields(Balance);
+        Assert.AreEqual(0, Vendor.Balance, '');
+
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        GLEntry.SetFilter("Entry No.", '>%1', LastGLEntry."Entry No.");
+        GLEntry.FindSet();
+        repeat
+            TotalDebit += GLEntry."Credit Amount";
+            TotalCredit += GLEntry."Debit Amount";
+        until GLEntry.Next() = 0;
+
+        Assert.AreEqual(TotalDebit, TotalCredit, '');
     end;
 
     [MessageHandler]
