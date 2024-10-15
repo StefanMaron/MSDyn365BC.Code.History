@@ -765,7 +765,7 @@ table 273 "Bank Acc. Reconciliation"
     begin
         BankAccReconciliationLine.SetRange("Statement Type", "Statement Type");
         BankAccReconciliationLine.SetRange("Statement No.", "Statement No.");
-        BankAccReconciliationLine.SetFilter("Bank Account No.", "Bank Account No.");
+        BankAccReconciliationLine.SetRange("Bank Account No.", "Bank Account No.");
         BankAccReconciliationLine.SetCurrentKey("Transaction Date");
         BankAccReconciliationLine.Ascending := false;
         if BankAccReconciliationLine.FindFirst() then

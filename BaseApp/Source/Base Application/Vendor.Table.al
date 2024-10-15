@@ -604,7 +604,13 @@ table 23 Vendor
             Caption = 'VAT Registration No.';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVATRegistrationNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
                 if ("VAT Registration No." <> '') and Country.DetermineCountry("Country/Region Code") then
                     Error(Text11301, FieldCaption("Enterprise No."));
 
@@ -2461,6 +2467,11 @@ table 23 Vendor
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostCode(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVATRegistrationNo(var Rec: Record "Vendor"; xRec: Record "Vendor"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

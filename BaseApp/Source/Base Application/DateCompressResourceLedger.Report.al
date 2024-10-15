@@ -85,9 +85,6 @@ report 1198 "Date Compress Resource Ledger"
             var
                 GLSetup: Record "General Ledger Setup";
             begin
-                if not Confirm(Text000, false) then
-                    CurrReport.Break();
-
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
 
@@ -141,6 +138,13 @@ report 1198 "Date Compress Resource Ledger"
                         ApplicationArea = Jobs;
                         Caption = 'Ending Date';
                         ToolTip = 'Specifies the date to which the report or batch job processes information.';
+
+                        trigger OnValidate()
+                        var
+                            DateCompression: Codeunit "Date Compression";
+                        begin
+                            DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+                        end;
                     }
                     field("EntrdDateComprReg.""Period Length"""; EntrdDateComprReg."Period Length")
                     {
@@ -221,25 +225,26 @@ report 1198 "Date Compress Resource Ledger"
         {
         }
 
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        var
+            ConfirmManagement: Codeunit "Confirm Management";
+        begin
+            if CloseAction = Action::Cancel then
+                exit;
+            if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
+                CurrReport.Break();
+        end;
+
         trigger OnOpenPage()
+        var
+            DateCompression: Codeunit "Date Compression";
         begin
             if EntrdDateComprReg."Ending Date" = 0D then
-                EntrdDateComprReg."Ending Date" := Today;
+                EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
             if EntrdResLedgEntry.Description = '' then
                 EntrdResLedgEntry.Description := Text009;
 
-            with "Res. Ledger Entry" do begin
-                InsertField(FieldNo("Document No."), FieldCaption("Document No."));
-                InsertField(FieldNo("Work Type Code"), FieldCaption("Work Type Code"));
-                InsertField(FieldNo("Job No."), FieldCaption("Job No."));
-                InsertField(FieldNo("Unit of Measure Code"), FieldCaption("Unit of Measure Code"));
-                InsertField(FieldNo("Global Dimension 1 Code"), FieldCaption("Global Dimension 1 Code"));
-                InsertField(FieldNo("Global Dimension 2 Code"), FieldCaption("Global Dimension 2 Code"));
-                InsertField(FieldNo(Chargeable), FieldCaption(Chargeable));
-                InsertField(FieldNo("Source Type"), FieldCaption("Source No."));
-                InsertField(FieldNo("Source No."), FieldCaption("Source No."));
-            end;
-
+            InitializeParameter();
             RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Compress Resource Ledger", '');
         end;
     }
@@ -249,14 +254,24 @@ report 1198 "Date Compress Resource Ledger"
     }
 
     trigger OnPreReport()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         DimSelectionBuf.CompareDimText(
           3, REPORT::"Date Compress Resource Ledger", '', RetainDimText, Text010);
         ResLedgEntryFilter := CopyStr("Res. Ledger Entry".GetFilters, 1, MaxStrLen(DateComprReg.Filter));
+
+        DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+        LogStartTelemetryMessage();
+    end;
+
+    trigger OnPostReport()
+    begin
+        LogEndTelemetryMessage();
     end;
 
     var
-        Text000: Label 'This batch job deletes entries.Therefore, it is important that you make a backup of the database before you run the batch job.\\Do you want to date compress the entries?';
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         Text003: Label '%1 must be specified.';
         Text004: Label 'Date compressing resource ledger entries...\\Resource No.         #1##########\Date                 #2######\\No. of new entries   #3######\No. of entries del.  #4######';
         Text009: Label 'Date Compressed';
@@ -287,6 +302,21 @@ report 1198 "Date Compress Resource Ledger"
         ComprDimEntryNo: Integer;
         DimEntryNo: Integer;
         RetainDimText: Text[250];
+        StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
+        EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
+
+    local procedure InitializeParameter()
+    begin
+        InsertField("Res. Ledger Entry".FieldNo("Document No."), "Res. Ledger Entry".FieldCaption("Document No."));
+        InsertField("Res. Ledger Entry".FieldNo("Work Type Code"), "Res. Ledger Entry".FieldCaption("Work Type Code"));
+        InsertField("Res. Ledger Entry".FieldNo("Job No."), "Res. Ledger Entry".FieldCaption("Job No."));
+        InsertField("Res. Ledger Entry".FieldNo("Unit of Measure Code"), "Res. Ledger Entry".FieldCaption("Unit of Measure Code"));
+        InsertField("Res. Ledger Entry".FieldNo("Global Dimension 1 Code"), "Res. Ledger Entry".FieldCaption("Global Dimension 1 Code"));
+        InsertField("Res. Ledger Entry".FieldNo("Global Dimension 2 Code"), "Res. Ledger Entry".FieldCaption("Global Dimension 2 Code"));
+        InsertField("Res. Ledger Entry".FieldNo(Chargeable), "Res. Ledger Entry".FieldCaption(Chargeable));
+        InsertField("Res. Ledger Entry".FieldNo("Source Type"), "Res. Ledger Entry".FieldCaption("Source No."));
+        InsertField("Res. Ledger Entry".FieldNo("Source No."), "Res. Ledger Entry".FieldCaption("Source No."));
+    end;
 
     local procedure InitRegisters()
     var
@@ -453,5 +483,63 @@ report 1198 "Date Compress Resource Ledger"
         NewResLedgEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
         NewResLedgEntry.Insert();
     end;
+
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainWorkTypeCode: Boolean; RetainJobNo: Boolean; RetainUnitOfMeasurecode: Boolean; RetainSourceType: Boolean; RetainSourceNo: Boolean; RetainChargeable: Boolean; RetainDimensionText: Text[250])
+    begin
+        InitializeParameter();
+        EntrdDateComprReg."Starting Date" := StartingDate;
+        EntrdDateComprReg."Ending Date" := EndingDate;
+        EntrdDateComprReg."Period Length" := PeriodLength;
+        EntrdResLedgEntry.Description := Description;
+        Retain[1] := RetainDocumentNo;
+        Retain[2] := RetainWorkTypeCode;
+        Retain[3] := RetainJobNo;
+        Retain[4] := RetainUnitOfMeasurecode;
+        Retain[8] := RetainSourceType;
+        Retain[9] := RetainSourceNo;
+        Retain[7] := RetainChargeable;
+        RetainDimText := RetainDimensionText;
+    end;
+
+    local procedure LogStartTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
+        TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
+        TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
+        TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
+        // TelemetryDimensions.Add('Description', EntrdResLedgEntry.Description);
+        TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[1], 0, 9));
+        TelemetryDimensions.Add('RetainWorkTypeCode', Format(Retain[2], 0, 9));
+        TelemetryDimensions.Add('RetainJobNo', Format(Retain[3], 0, 9));
+        TelemetryDimensions.Add('RetainUnitOfMeasurecode', Format(Retain[4], 0, 9));
+        TelemetryDimensions.Add('RetainSourceType', Format(Retain[8], 0, 9));
+        TelemetryDimensions.Add('RetainSourceNo', Format(Retain[9], 0, 9));
+        TelemetryDimensions.Add('RetainChargeable', Format(Retain[7], 0, 9));
+        TelemetryDimensions.Add('RetainDimensions', RetainDimText);
+        // TelemetryDimensions.Add('Filters', "Res. Ledger Entry".GetFilters());
+
+        Session.LogMessage('0000F4U', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+    end;
+
+    local procedure LogEndTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));
+        TelemetryDimensions.Add('TableID', Format(DateComprReg."Table ID", 0, 9));
+        TelemetryDimensions.Add('NoRecordsDeleted', Format(DateComprReg."No. Records Deleted", 0, 9));
+        TelemetryDimensions.Add('NoofNewRecords', Format(DateComprReg."No. of New Records", 0, 9));
+
+        Session.LogMessage('0000F4V', StrSubstNo(EndDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+    end;
+
 }
 

@@ -86,6 +86,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
 
         // [GIVEN] Posted General Journal Line with Transaction No. = 200
         Initialize;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         CreatePostGeneralJournalLine(GenJournalLine, LibraryFiscalYear.GetFirstPostingDate(true));
         TransactionNo := GetGLEntryTransactionNo(GenJournalLine."Bal. Account No.", GenJournalLine."Document No.");
 

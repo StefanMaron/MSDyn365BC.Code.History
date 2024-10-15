@@ -684,7 +684,7 @@ page 5330 "CRM Connection Setup"
     local procedure RefreshData()
     begin
         UpdateIsEnabledState;
-        RefreshDataFromCRM;
+        RefreshDataFromCRM(false);
         SetAutoCreateSalesOrdersEditable;
         RefreshSynchJobsData;
         UpdateEnableFlags;

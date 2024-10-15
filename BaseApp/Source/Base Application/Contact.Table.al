@@ -167,7 +167,14 @@
             Caption = 'VAT Registration No.';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVATRegistrationNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("VAT Registration No." <> '') and Country.DetermineCountry("Country/Region Code") then
                     Error(Text11301, FieldCaption("Enterprise No."));
                 "VAT Registration No." := UpperCase("VAT Registration No.");
@@ -942,7 +949,14 @@
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         RMSetup.Get();
 
         if "No." = '' then begin
@@ -3591,6 +3605,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeProcessPersonNameChange(var IsHandled: Boolean)
     begin
@@ -3613,6 +3632,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateNo(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVATRegistrationNo(var Contact: Record Contact; xContact: Record Contact; FieldNumber: Integer; var IsHandled: Boolean)
     begin
     end;
 

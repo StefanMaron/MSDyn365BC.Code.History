@@ -129,12 +129,8 @@ report 95 "Date Compress VAT Entries"
 
             trigger OnPreDataItem()
             var
-                ConfirmManagement: Codeunit "Confirm Management";
                 LastTransactionNo: Integer;
             begin
-                if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
-                    CurrReport.Break();
-
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
 
@@ -190,6 +186,13 @@ report 95 "Date Compress VAT Entries"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Ending Date';
                         ToolTip = 'Specifies the last date to be included in the date compression. The compression affects all VAT entries from the Starting Date field.';
+
+                        trigger OnValidate()
+                        var
+                            DateCompression: Codeunit "Date Compression";
+                        begin
+                            DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+                        end;
                     }
                     field("EntrdDateComprReg.""Period Length"""; EntrdDateComprReg."Period Length")
                     {
@@ -246,10 +249,22 @@ report 95 "Date Compress VAT Entries"
         {
         }
 
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        var
+            ConfirmManagement: Codeunit "Confirm Management";
+        begin
+            if CloseAction = Action::Cancel then
+                exit;
+            if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
+                CurrReport.Break();
+        end;
+
         trigger OnOpenPage()
+        var
+            DateCompression: Codeunit "Date Compression";
         begin
             if EntrdDateComprReg."Ending Date" = 0D then
-                EntrdDateComprReg."Ending Date" := Today;
+                EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
 
             with "VAT Entry" do begin
                 InsertField(FieldNo("Document No."), FieldCaption("Document No."));
@@ -267,8 +282,18 @@ report 95 "Date Compress VAT Entries"
     }
 
     trigger OnPreReport()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         VATEntryFilter := CopyStr("VAT Entry".GetFilters, 1, MaxStrLen(DateComprReg.Filter));
+
+        DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+        LogStartTelemetryMessage();
+    end;
+
+    trigger OnPostReport()
+    begin
+        LogEndTelemetryMessage();
     end;
 
     var
@@ -304,7 +329,9 @@ report 95 "Date Compress VAT Entries"
         NoOfDeleted: Integer;
         GLRegExists: Boolean;
         i: Integer;
-        CompressEntriesQst: Label 'This batch job deletes entries. Therefore, it is important that you make a backup of the database before you run the batch job.\\Do you want to date compress the entries?';
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+        StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
+        EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
     local procedure InitRegisters()
     begin
@@ -391,9 +418,11 @@ report 95 "Date Compress VAT Entries"
     end;
 
     local procedure InitializeParameter()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         if EntrdDateComprReg."Ending Date" = 0D then
-            EntrdDateComprReg."Ending Date" := Today;
+            EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
 
         with "VAT Entry" do begin
             InsertField(FieldNo("Document No."), FieldCaption("Document No."));
@@ -418,5 +447,43 @@ report 95 "Date Compress VAT Entries"
         Retain[5] := RetainInternalRefNo;
         Retain[6] := RetainJnlTemplateName;
     end;
+
+    local procedure LogStartTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
+        TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
+        TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
+        TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
+        TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[1], 0, 9));
+        TelemetryDimensions.Add('RetainBilltoPaytoNo', Format(Retain[2], 0, 9));
+        TelemetryDimensions.Add('RetainEU3PartyTrade', Format(Retain[3], 0, 9));
+        TelemetryDimensions.Add('RetainCountryRegionCode', Format(Retain[4], 0, 9));
+        TelemetryDimensions.Add('RetainInternalRefNo', Format(Retain[5], 0, 9));
+        // TelemetryDimensions.Add('Filters', "VAT Entry".GetFilters());
+        TelemetryDimensions.Add('RetainJnlTemplateName', Format(Retain[6], 0, 9));
+
+        Session.LogMessage('0000F4W', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+    end;
+
+    local procedure LogEndTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));
+        TelemetryDimensions.Add('TableID', Format(DateComprReg."Table ID", 0, 9));
+        TelemetryDimensions.Add('NoRecordsDeleted', Format(DateComprReg."No. Records Deleted", 0, 9));
+        TelemetryDimensions.Add('NoofNewRecords', Format(DateComprReg."No. of New Records", 0, 9));
+
+        Session.LogMessage('0000F4X', StrSubstNo(EndDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+    end;
+
 }
 

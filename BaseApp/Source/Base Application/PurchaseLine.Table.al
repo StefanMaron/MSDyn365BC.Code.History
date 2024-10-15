@@ -266,11 +266,14 @@
             begin
                 TestStatusOpen;
 
-                if "Location Code" <> '' then
-                    if IsNonInventoriableItem then begin
-                        GetItem(Item);
-                        Item.TestField(Type, Item.Type::Inventory);
-                    end;
+                IsHandled := false;
+                OnBeforeUpdateLocationCode(Rec, IsHandled);
+                if not IsHandled then
+                    if "Location Code" <> '' then
+                        if IsNonInventoriableItem then begin
+                            GetItem(Item);
+                            Item.TestField(Type, Item.Type::Inventory);
+                        end;
                 if xRec."Location Code" <> "Location Code" then begin
                     if "Prepmt. Amt. Inv." <> 0 then
                         if not ConfirmManagement.GetResponseOrDefault(
@@ -698,8 +701,10 @@
                       Round(
                         (UnitCostCurrency - "Direct Unit Cost" + "Line Discount Amount" / Quantity) /
                         ("Direct Unit Cost" - "Line Discount Amount" / Quantity) * 100, 0.00001);
-                    if IndirectCostPercent >= 0 then
+                    if IndirectCostPercent >= 0 then begin
                         "Indirect Cost %" := IndirectCostPercent;
+                        CheckLineTypeOnIndirectCostPercentUpdate();
+                    end;
                 end;
 
                 UpdateSalesCostFromUnitCostLCY();
@@ -1015,8 +1020,7 @@
                 TestField("No.");
                 TestStatusOpen;
 
-                if Type = Type::"Charge (Item)" then
-                    TestField("Indirect Cost %", 0);
+                CheckLineTypeOnIndirectCostPercentUpdate();
 
                 if (Type = Type::Item) and ("Prod. Order No." = '') then begin
                     GetItem(Item);
@@ -3874,6 +3878,8 @@
     end;
 
     local procedure InitHeaderDefaults(PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line" temporary)
+    var
+        IsHandled: Boolean;
     begin
         CheckBuyFromVendorNo(PurchHeader);
 
@@ -3882,8 +3888,13 @@
         "Expected Receipt Date" := PurchHeader."Expected Receipt Date";
         "Shortcut Dimension 1 Code" := PurchHeader."Shortcut Dimension 1 Code";
         "Shortcut Dimension 2 Code" := PurchHeader."Shortcut Dimension 2 Code";
-        if not IsNonInventoriableItem then
-            "Location Code" := PurchHeader."Location Code";
+        IsHandled := false;
+        OnBeforeUpdateLocationCode(Rec, IsHandled);
+        if IsHandled then
+            "Location Code" := PurchHeader."Location Code"
+        else
+            if not IsNonInventoriableItem then
+                "Location Code" := PurchHeader."Location Code";
         "Transaction Type" := PurchHeader."Transaction Type";
         "Transport Method" := PurchHeader."Transport Method";
         "Pay-to Vendor No." := PurchHeader."Pay-to Vendor No.";
@@ -3989,6 +4000,19 @@
         LineAmount := "Line Amount" - "Inv. Discount Amount";
 
         OnAfterCalcLineAmount(Rec, LineAmount);
+    end;
+
+    local procedure CheckLineTypeOnIndirectCostPercentUpdate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckLineTypeOnIndirectCostPercentUpdate(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Type <> Type::Item then
+            TestField("Indirect Cost %", 0);
     end;
 
     local procedure CalcQtyPerUnitOfMeasure(Item: Record Item)
@@ -4952,38 +4976,52 @@
         ItemListPage: Page "Item List";
         SelectionFilter: Text;
     begin
-        if IsCreditDocType then
-            SelectionFilter := ItemListPage.SelectActiveItems
+        OnBeforeSelectMultipleItems(Rec);
+
+        if IsCreditDocType() then
+            SelectionFilter := ItemListPage.SelectActiveItems()
         else
-            SelectionFilter := ItemListPage.SelectActiveItemsForPurchase;
+            SelectionFilter := ItemListPage.SelectActiveItemsForPurchase();
         if SelectionFilter <> '' then
             AddItems(SelectionFilter);
+
+        OnAfterSelectMultipleItems(Rec);
     end;
 
     local procedure AddItems(SelectionFilter: Text)
     var
         Item: Record Item;
         PurchLine: Record "Purchase Line";
-        LastPurchLine: Record "Purchase Line";
-        TransferExtendedText: Codeunit "Transfer Extended Text";
+        IsHandled: Boolean;
     begin
-        OnBeforeAddItems(Rec, SelectionFilter);
+        IsHandled := false;
+        OnBeforeAddItems(Rec, SelectionFilter, IsHandled);
+        if IsHandled then
+            exit;
 
         InitNewLine(PurchLine);
         Item.SetFilter("No.", SelectionFilter);
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
+                AddItem(PurchLine, Item."No.");
+            until Item.Next() = 0;
+    end;
+
+    procedure AddItem(var PurchLine: Record "Purchase Line"; ItemNo: Code[20])
+    var
+        LastPurchLine: Record "Purchase Line";
+        TransferExtendedText: Codeunit "Transfer Extended Text";
+    begin
                 PurchLine.Init();
                 PurchLine."Line No." += 10000;
                 PurchLine.Validate(Type, Type::Item);
-                PurchLine.Validate("No.", Item."No.");
+        PurchLine.Validate("No.", ItemNo);
                 PurchLine.Insert(true);
                 if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
                     TransferExtendedText.InsertPurchExtTextRetLast(PurchLine, LastPurchLine);
                     PurchLine."Line No." := LastPurchLine."Line No."
                 end;
                 OnAfterAddItem(PurchLine, LastPurchLine);
-            until Item.Next() = 0;
     end;
 
     local procedure InitNewLine(var NewPurchLine: Record "Purchase Line")
@@ -7108,7 +7146,14 @@
     end;
 
     local procedure UpdateItemReference()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateItemReference(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ItemReferenceMgt.IsEnabled() then
             ItemReferenceMgt.EnterPurchaseItemReference(Rec);
 #if not CLEAN16            
@@ -7867,6 +7912,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemReference(var Rec: Record "Purchase Line"; xRec: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDirectUnitCost(var PurchLine: Record "Purchase Line"; xPurchLine: Record "Purchase Line"; CalledByFieldNo: Integer; CurrFieldNo: Integer; var Handled: Boolean)
     begin
     end;
@@ -7987,6 +8037,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSelectMultipleItems(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; PurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -8075,7 +8130,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAddItems(var PurchaseLine: Record "Purchase Line"; SelectionFilter: Text)
+    local procedure OnBeforeAddItems(var PurchaseLine: Record "Purchase Line"; SelectionFilter: Text; var IsHandled: Boolean)
     begin
     end;
 
@@ -8250,6 +8305,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectMultipleItems(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDeferrals(PurchaseLine: Record "Purchase Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -8411,6 +8471,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateType(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLineTypeOnIndirectCostPercentUpdate(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8901,6 +8966,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateVATProdPostingGroup(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateLocationCode(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

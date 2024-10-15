@@ -44,7 +44,13 @@ table 7505 "Item Attribute Value Mapping"
         ItemAttribute: Record "Item Attribute";
         ItemAttributeValue: Record "Item Attribute Value";
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemAttribute.Get("Item Attribute ID");
         if ItemAttribute.Type = ItemAttribute.Type::Option then
             exit;
@@ -62,6 +68,21 @@ table 7505 "Item Attribute Value Mapping"
             ItemAttributeValue.Delete();
     end;
 
+    trigger OnInsert()
+    var
+        ItemAttributeValue: Record "Item Attribute Value";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+    begin
+        RecRef.Open("Table ID");
+        FieldRef := RecRef.Field(1);
+        FieldRef.SetRange("No.");
+        RecRef.FindFirst();
+
+        if "Item Attribute Value ID" <> 0 then
+            ItemAttributeValue.Get("Item Attribute ID", "Item Attribute Value ID");
+    end;
+
     procedure RenameItemAttributeValueMapping(PrevNo: Code[20]; NewNo: Code[20])
     var
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
@@ -73,6 +94,11 @@ table 7505 "Item Attribute Value Mapping"
                 ItemAttributeValueMapping := Rec;
                 ItemAttributeValueMapping.Rename("Table ID", NewNo, "Item Attribute ID");
             until Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; var IsHandled: Boolean)
+    begin
     end;
 }
 

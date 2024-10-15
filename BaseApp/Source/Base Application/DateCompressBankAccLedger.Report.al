@@ -79,9 +79,6 @@ report 1498 "Date Compress Bank Acc. Ledger"
                 GLSetup: Record "General Ledger Setup";
                 LastTransactionNo: Integer;
             begin
-                if not Confirm(Text000, false) then
-                    CurrReport.Break();
-
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
 
@@ -137,6 +134,13 @@ report 1498 "Date Compress Bank Acc. Ledger"
                         ApplicationArea = Suite;
                         Caption = 'Ending Date';
                         ToolTip = 'Specifies the date to which the report or batch job processes information.';
+
+                        trigger OnValidate()
+                        var
+                            DateCompression: Codeunit "Date Compression";
+                        begin
+                            DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+                        end;
                     }
                     field("EntrdDateComprReg.""Period Length"""; EntrdDateComprReg."Period Length")
                     {
@@ -193,6 +197,16 @@ report 1498 "Date Compress Bank Acc. Ledger"
         {
         }
 
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        var
+            ConfirmManagement: Codeunit "Confirm Management";
+        begin
+            if CloseAction = Action::Cancel then
+                exit;
+            if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
+                CurrReport.Break();
+        end;
+
         trigger OnOpenPage()
         begin
             InitializeParameter;
@@ -204,14 +218,24 @@ report 1498 "Date Compress Bank Acc. Ledger"
     }
 
     trigger OnPreReport()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         DimSelectionBuf.CompareDimText(
           3, REPORT::"Date Compress Bank Acc. Ledger", '', RetainDimText, Text010);
         BankAccLedgEntryFilter := CopyStr("Bank Account Ledger Entry".GetFilters, 1, MaxStrLen(DateComprReg.Filter));
+
+        DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+        LogStartTelemetryMessage();
+    end;
+
+    trigger OnPostReport()
+    begin
+        LogEndTelemetryMessage();
     end;
 
     var
-        Text000: Label 'This batch job deletes entries. Therefore, it is important that you make a backup of the database before you run the batch job.\\Do you want to date compress the entries?';
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         Text003: Label '%1 must be specified.';
         Text004: Label 'Date compressing bank account ledger entries...\\Bank Account No.       #1##########\Date                   #2######\\No. of new entries     #3######\No. of entries deleted #4######';
         Text009: Label 'Date Compressed';
@@ -244,6 +268,8 @@ report 1498 "Date Compress Bank Acc. Ledger"
         ComprDimEntryNo: Integer;
         DimEntryNo: Integer;
         RetainDimText: Text[250];
+        StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
+        EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
     local procedure InitRegisters()
     var
@@ -434,9 +460,11 @@ report 1498 "Date Compress Bank Acc. Ledger"
     end;
 
     local procedure InitializeParameter()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         if EntrdDateComprReg."Ending Date" = 0D then
-            EntrdDateComprReg."Ending Date" := Today;
+            EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
         if EntrdBankAccLedgEntry.Description = '' then
             EntrdBankAccLedgEntry.Description := Text009;
 
@@ -449,7 +477,15 @@ report 1498 "Date Compress Bank Acc. Ledger"
         end;
     end;
 
-    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[50]; RetainDocumentNo: Boolean; RetainOutContactCode: Boolean; RetainDimensionText: Text[50])
+#if not CLEAN19
+    [Obsolete('Use the overload with RetainJnlTemplate instead', '19.0')]
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainOurContactCode: Boolean; RetainDimensionText: Text[250])
+    begin
+        InitializeRequest(StartingDate, EndingDate, PeriodLength, Description, RetainDocumentNo, RetainOurContactCode, RetainDimensionText, false);
+    end;
+#endif
+
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainOurContactCode: Boolean; RetainDimensionText: Text[250]; RetainJnlTemplate: Boolean)
     begin
         InitializeParameter;
         EntrdDateComprReg."Starting Date" := StartingDate;
@@ -457,8 +493,45 @@ report 1498 "Date Compress Bank Acc. Ledger"
         EntrdDateComprReg."Period Length" := PeriodLength;
         EntrdBankAccLedgEntry.Description := Description;
         Retain[1] := RetainDocumentNo;
-        Retain[2] := RetainOutContactCode;
+        Retain[2] := RetainOurContactCode;
         RetainDimText := RetainDimensionText;
+        Retain[5] := RetainJnlTemplate;
+    end;
+
+    local procedure LogStartTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
+        TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
+        TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
+        TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
+        // TelemetryDimensions.Add('Description', EntrdBankAccLedgEntry.Description);
+        TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[1], 0, 9));
+        TelemetryDimensions.Add('RetainOurContactCode', Format(Retain[2], 0, 9));
+        TelemetryDimensions.Add('RetainDimensions', RetainDimText);
+        // TelemetryDimensions.Add('Filters', "Bank Account Ledger Entry".GetFilters());
+        TelemetryDimensions.Add('RetainJnlTemplate', Format(Retain[5], 0, 9));
+
+        Session.LogMessage('0000F4I', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+    end;
+
+    local procedure LogEndTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));
+        TelemetryDimensions.Add('TableID', Format(DateComprReg."Table ID", 0, 9));
+        TelemetryDimensions.Add('NoRecordsDeleted', Format(DateComprReg."No. Records Deleted", 0, 9));
+        TelemetryDimensions.Add('NoofNewRecords', Format(DateComprReg."No. of New Records", 0, 9));
+
+        Session.LogMessage('0000F4J', StrSubstNo(EndDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
 
     [IntegrationEvent(false, false)]

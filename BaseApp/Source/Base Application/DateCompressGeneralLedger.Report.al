@@ -114,7 +114,8 @@ report 98 "Date Compress General Ledger"
 
                 if AnalysisView.FindFirst then begin
                     AnalysisView.CheckDimensionsAreRetained(3, REPORT::"Date Compress General Ledger", false);
-                    AnalysisView.CheckViewsAreUpdated;
+                    if not SkipAnalysisViewUpdateCheck then
+                        AnalysisView.CheckViewsAreUpdated;
                     Commit();
                 end;
 
@@ -175,6 +176,13 @@ report 98 "Date Compress General Ledger"
                         Caption = 'Ending Date';
                         ClosingDates = true;
                         ToolTip = 'Specifies the date to which the report or batch job processes information.';
+
+                        trigger OnValidate()
+                        var
+                            DateCompression: Codeunit "Date Compression";
+                        begin
+                            DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+                        end;
                     }
                     field("EntrdDateComprReg.""Period Length"""; EntrdDateComprReg."Period Length")
                     {
@@ -192,7 +200,7 @@ report 98 "Date Compress General Ledger"
                     group("Retain Field Contents")
                     {
                         Caption = 'Retain Field Contents';
-                        field("Retain[7]"; Retain[7])
+                        field("Retain[7]"; Retain[7]) // Quantity must be last
                         {
                             ApplicationArea = Suite;
                             Caption = 'Journal Template Name';
@@ -238,7 +246,7 @@ report 98 "Date Compress General Ledger"
                     group("Retain Totals")
                     {
                         Caption = 'Retain Totals';
-                        field("Retain[8]"; Retain[8])
+                        field("Retain[8]"; Retain[8]) // Quantity must be last
                         {
                             ApplicationArea = Suite;
                             Caption = 'Quantity';
@@ -275,8 +283,18 @@ report 98 "Date Compress General Ledger"
     }
 
     trigger OnPreReport()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         DimSelectionBuf.CompareDimText(3, REPORT::"Date Compress General Ledger", '', RetainDimText, Text010);
+
+        DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+        LogStartTelemetryMessage();
+    end;
+
+    trigger OnPostReport()
+    begin
+        LogEndTelemetryMessage();
     end;
 
     var
@@ -316,7 +334,10 @@ report 98 "Date Compress General Ledger"
         ComprDimEntryNo: Integer;
         DimEntryNo: Integer;
         RetainDimText: Text[250];
-        CompressEntriesQst: Label 'This batch job deletes entries. Therefore, it is important that you make a backup of the database before you run the batch job.\\Do you want to date compress the entries?';
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+        SkipAnalysisViewUpdateCheck: Boolean;
+        StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
+        EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
     local procedure InitRegisters()
     begin
@@ -513,9 +534,11 @@ report 98 "Date Compress General Ledger"
     end;
 
     local procedure InitializeParameter()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         if EntrdDateComprReg."Ending Date" = 0D then
-            EntrdDateComprReg."Ending Date" := Today;
+            EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
         if EntrdGLEntry.Description = '' then
             EntrdGLEntry.Description := Text009;
 
@@ -528,13 +551,21 @@ report 98 "Date Compress General Ledger"
             InsertField(FieldNo("Global Dimension 2 Code"), FieldCaption("Global Dimension 2 Code"));
             InsertField(FieldNo("Journal Template Name"), FieldCaption("Journal Template Name"));
             NoOfFieldsContents := NoOfFields;
-            InsertField(FieldNo(Quantity), FieldCaption(Quantity));
+            InsertField(FieldNo(Quantity), FieldCaption(Quantity)); // Quantity must be last (and after count of fields)
         end;
 
         RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Compress General Ledger", '');
     end;
 
-    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[50]; RetainDocumentType: Boolean; RetainDocumentNo: Boolean; RetainJobNo: Boolean; RetainBuisnessUnitCode: Boolean; RetainQuantity: Boolean; RetainDimensionText: Text[250])
+#if not CLEAN19
+    [Obsolete('Use the overload with RetainJnlTemplate instead.', '19.0')]
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentType: Boolean; RetainDocumentNo: Boolean; RetainJobNo: Boolean; RetainBuisnessUnitCode: Boolean; RetainQuantity: Boolean; RetainDimensionText: Text[250])
+    begin
+        InitializeRequest(StartingDate, EndingDate, PeriodLength, Description, RetainDocumentType, RetainDocumentNo, RetainJobNo, RetainBuisnessUnitCode, RetainQuantity, RetainDimensionText, false);
+    end;
+#endif
+
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentType: Boolean; RetainDocumentNo: Boolean; RetainJobNo: Boolean; RetainBuisnessUnitCode: Boolean; RetainQuantity: Boolean; RetainDimensionText: Text[250]; RetainJnlTemplate: Boolean)
     begin
         InitializeParameter;
         EntrdDateComprReg."Starting Date" := StartingDate;
@@ -545,8 +576,53 @@ report 98 "Date Compress General Ledger"
         Retain[2] := RetainDocumentNo;
         Retain[3] := RetainJobNo;
         Retain[4] := RetainBuisnessUnitCode;
-        Retain[7] := RetainQuantity;
+        Retain[8] := RetainQuantity; // Quantity must be last
         RetainDimText := RetainDimensionText;
+        Retain[7] := RetainJnlTemplate; // Quantity must be last
+    end;
+
+    internal procedure SetSkipAnalysisViewUpdateCheck();
+    begin
+        SkipAnalysisViewUpdateCheck := true;
+    end;
+
+    local procedure LogStartTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
+        TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
+        TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
+        TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
+        // TelemetryDimensions.Add('Description', EntrdGLEntry.Description);
+        TelemetryDimensions.Add('RetainDocumentType', Format(Retain[1], 0, 9));
+        TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[2], 0, 9));
+        TelemetryDimensions.Add('RetainJobNo', Format(Retain[3], 0, 9));
+        TelemetryDimensions.Add('RetainBusinessUnitCode', Format(Retain[4], 0, 9));
+        TelemetryDimensions.Add('RetainQuantity', Format(Retain[8], 0, 9));
+        TelemetryDimensions.Add('RetainDimensions', RetainDimText);
+        // TelemetryDimensions.Add('Filters', "G/L Entry".GetFilters());
+        TelemetryDimensions.Add('RetainJnlTemplate', Format(Retain[7], 0, 9));
+
+        Session.LogMessage('0000F4O', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+    end;
+
+    local procedure LogEndTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));
+        TelemetryDimensions.Add('TableID', Format(DateComprReg."Table ID", 0, 9));
+        TelemetryDimensions.Add('NoRecordsDeleted', Format(DateComprReg."No. Records Deleted", 0, 9));
+        TelemetryDimensions.Add('NoofNewRecords', Format(DateComprReg."No. of New Records", 0, 9));
+
+        Session.LogMessage('0000F4P', StrSubstNo(EndDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
 
     [IntegrationEvent(false, false)]
