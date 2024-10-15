@@ -151,7 +151,10 @@ codeunit 1201 "Process Data Exch."
                 else
                     Error(DataTypeNotSupportedErr, DataExchColumnDef.Description, DataExchFieldMapping."Data Exch. Def Code", FieldRef.Type);
             end;
-        FieldRef.Validate;
+        IsHandled := false;
+        OnSetFieldOnBeforeFieldRefValidate(TransformedValue, DataExchField, DataExchFieldMapping, FieldRef, DataExchColumnDef, IsHandled);
+        if not IsHandled then
+            FieldRef.Validate;
     end;
 
     local procedure SetOptionField(ValueText: Text; FieldRef: FieldRef)
@@ -317,6 +320,11 @@ codeunit 1201 "Process Data Exch."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterProcessColumnMapping(var DataExch: Record "Data Exch.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFieldOnBeforeFieldRefValidate(TransformedValue: Text; var DataExchField: Record "Data Exch. Field"; DataExchFieldMapping: Record "Data Exch. Field Mapping"; FieldRef: FieldRef; DataExchColumnDef: Record "Data Exch. Column Def"; var IsHandled: Boolean)
     begin
     end;
 }

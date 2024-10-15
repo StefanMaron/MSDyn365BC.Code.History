@@ -13,6 +13,7 @@ page 5098 "Task Card"
             group(General)
             {
                 Caption = 'General';
+                Editable = PagePartsEditable;
                 field("No."; "No.")
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -265,6 +266,7 @@ page 5098 "Task Card"
             group("Related Activities")
             {
                 Caption = 'Related Activities';
+                Editable = PagePartsEditable;
                 field("Campaign No."; "Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -301,6 +303,7 @@ page 5098 "Task Card"
             group(Recurring)
             {
                 Caption = 'Recurring';
+                Editable = PagePartsEditable;
                 field(Control39; Recurring)
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -467,13 +470,13 @@ page 5098 "Task Card"
     begin
         SwitchCardControls;
         if "No." <> "Organizer To-do No." then
-            CurrPage.Editable := false
+            PagePartsEditable := false
         else
-            CurrPage.Editable := true;
+            PagePartsEditable := true;
         SetRecurringEditable;
         EnableFields;
         ContactNoOnFormat(Format("Contact No."));
-        if Contact.Get("Contact No.") then;
+        Contact.GetOrClear("Contact No.");
     end;
 
     trigger OnInit()
@@ -548,6 +551,8 @@ page 5098 "Task Card"
         [InDataSet]
         CalcDueDateFromEnable: Boolean;
         IsSoftwareAsAService: Boolean;
+        [InDataSet]
+        PagePartsEditable: Boolean;
 
     procedure SetRecurringEditable()
     begin

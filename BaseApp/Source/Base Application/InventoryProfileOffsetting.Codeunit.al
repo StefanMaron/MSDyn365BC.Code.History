@@ -1,4 +1,4 @@
-codeunit 99000854 "Inventory Profile Offsetting"
+﻿codeunit 99000854 "Inventory Profile Offsetting"
 {
     Permissions = TableData "Reservation Entry" = id,
                   TableData "Prod. Order Capacity Need" = rmd;
@@ -1081,7 +1081,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                (Item."Replenishment System" = Item."Replenishment System"::"Prod. Order") and
                (not IsReservedForProdComponent));
 
-        OnAfterShouldDeleteReservEntry(ReservEntry, ToDate, DeleteCondition);
+        OnAfterShouldDeleteReservEntry(ReservEntry, ToDate, DeleteCondition, CurrTemplateName, CurrWorksheetName);
         exit(DeleteCondition);
     end;
 
@@ -1702,6 +1702,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         OriginalSupplyDate: Date;
         NewSupplyDate: Date;
+        CanBeRescheduled: Boolean;
     begin
         if FromLotAccumulationPeriodStartDate(LotAccumulationPeriodStartDate, DemandInvtProfile."Due Date") then begin
             NewSupplyDate := LotAccumulationPeriodStartDate;
@@ -1715,18 +1716,22 @@ codeunit 99000854 "Inventory Profile Offsetting"
         WeAreSureThatDatesMatch := false;
 
         if DemandInvtProfile."Due Date" < SupplyInvtProfile."Due Date" then begin
-            if CheckScheduleIn(SupplyInvtProfile, DemandInvtProfile."Due Date", NewSupplyDate, true) then
+            CanBeRescheduled := CheckScheduleIn(SupplyInvtProfile, DemandInvtProfile."Due Date", NewSupplyDate, true);
+            if CanBeRescheduled then
                 WeAreSureThatDatesMatch := true
             else
                 NextState := NextState::CreateSupply;
         end else
             if DemandInvtProfile."Due Date" > SupplyInvtProfile."Due Date" then begin
-                if CheckScheduleOut(SupplyInvtProfile, DemandInvtProfile."Due Date", NewSupplyDate, true) then
+                CanBeRescheduled := CheckScheduleOut(SupplyInvtProfile, DemandInvtProfile."Due Date", NewSupplyDate, true);
+                if CanBeRescheduled then
                     WeAreSureThatDatesMatch := not ScheduleAllOutChangesSequence(SupplyInvtProfile, NewSupplyDate)
                 else
                     NextState := NextState::ReduceSupply;
-            end else
+            end else begin
                 WeAreSureThatDatesMatch := true;
+                CanBeRescheduled := SupplyInvtProfile."Planning Flexibility" = SupplyInvtProfile."Planning Flexibility"::Unlimited;
+            end;
 
         if WeAreSureThatDatesMatch and IsReorderPointPlanning then begin
             // Now we know the final position on the timeline of the SupplyInvtProfile.
@@ -1743,9 +1748,10 @@ codeunit 99000854 "Inventory Profile Offsetting"
         end;
 
         if WeAreSureThatDatesMatch then begin
-            if NewSupplyDate <> OriginalSupplyDate then
+            if CanBeRescheduled and (NewSupplyDate <> OriginalSupplyDate) then begin
                 Reschedule(SupplyInvtProfile, NewSupplyDate, 0T);
-            SupplyInvtProfile.TestField("Due Date", NewSupplyDate);
+                SupplyInvtProfile.TestField("Due Date", NewSupplyDate);
+            end;
             SupplyInvtProfile."Fixed Date" := SupplyInvtProfile."Due Date"; // We note the latest possible date on the SupplyInvtProfile.
             NextState := NextState::MatchQty;
         end;
@@ -2503,7 +2509,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         end;
                         OnMaintainPlanningLineOnBeforeValidateNo(ReqLine, SupplyInvtProfile, TempSKU);
                         Validate("No.");
-                        Validate("Unit of Measure Code", SupplyInvtProfile."Unit of Measure Code");
+                        ValidateUOMFromInventoryProfile(ReqLine, SupplyInvtProfile);
                         "Starting Time" := ManufacturingSetup."Normal Starting Time";
                         "Ending Time" := ManufacturingSetup."Normal Ending Time";
                         OnMaintainPlanningLineOnAfterValidateFieldsForNewReqLine(ReqLine, SupplyInvtProfile, TempSKU);
@@ -2629,6 +2635,18 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SupplyInvtProfile.Modify();
 
         OnAfterMaintainPlanningLine(ReqLine);
+    end;
+
+    local procedure ValidateUOMFromInventoryProfile(var RequisitionLine: Record "Requisition Line"; InventoryProfile: Record "Inventory Profile")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateUOMFromInventoryProfile(RequisitionLine, InventoryProfile, TempSKU, IsHandled);
+        if IsHandled then
+            exit;
+
+        RequisitionLine.Validate("Unit of Measure Code", InventoryProfile."Unit of Measure Code");
     end;
 
     procedure AdjustReorderQty(OrderQty: Decimal; SKU: Record "Stockkeeping Unit"; SupplyLineNo: Integer; MinQty: Decimal): Decimal
@@ -3650,6 +3668,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     local procedure AllowLotAccumulation(SupplyInvtProfile: Record "Inventory Profile"; DemandDueDate: Date) AccumulationOK: Boolean
     begin
         AccumulationOK := CalcDate(TempSKU."Lot Accumulation Period", SupplyInvtProfile."Due Date") >= DemandDueDate;
+        OnAfterAllowLotAccumulation(SupplyInvtProfile, DemandDueDate, TempSKU, AccumulationOK);
     end;
 
     local procedure ShallSupplyBeClosed(SupplyInventoryProfile: Record "Inventory Profile"; DemandDueDate: Date; IsReorderPointPlanning: Boolean): Boolean
@@ -4824,6 +4843,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAllowLotAccumulation(SupplyInventoryProfile: Record "Inventory Profile"; DemandDueDate: Date; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var AccumulationOK: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAdjustPlanLineAfterValidateQuantity(var ReqLine: Record "Requisition Line"; var SupplyInventoryProfile: Record "Inventory Profile");
     begin
     end;
@@ -4894,6 +4918,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateUOMFromInventoryProfile(var RequisitionLine: Record "Requisition Line"; InventoryProfile: Record "Inventory Profile"; StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetQtyToHandle(var ReservationEntry: Record "Reservation Entry");
     begin
     end;
@@ -4914,7 +4943,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShouldDeleteReservEntry(ReservationEntry: Record "Reservation Entry"; ToDate: Date; var DeleteCondition: Boolean)
+    local procedure OnAfterShouldDeleteReservEntry(ReservationEntry: Record "Reservation Entry"; ToDate: Date; var DeleteCondition: Boolean; TemplateName: Code[10]; WorksheetName: Code[10])
     begin
     end;
 

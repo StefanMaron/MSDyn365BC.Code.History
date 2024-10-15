@@ -708,6 +708,7 @@ codeunit 139158 "Invoice Mapping Tests"
         PurchaseHeader: Record "Purchase Header";
         CurrencyCode: Code[10];
     begin
+        // [FEATURE] [Incoming Document]
         // [SCENARIO 294747] Purchase Invoice is not posted when totals differ from Incoming Document totals in case Incoming Document has LCY
         Initialize;
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;

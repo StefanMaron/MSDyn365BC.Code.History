@@ -128,7 +128,7 @@ codeunit 1371 "Sales Batch Post Mgt."
         BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::Receive, SalesHeader.Receive);
         BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::Print, SalesHeader."Print Posted Documents");
 
-        OnAfterPrepareSalesHeader(SalesHeader);
+        OnAfterPrepareSalesHeader(SalesHeader, BatchProcessingMgt);
     end;
 
     procedure SetPostingCodeunitId(NewPostingCodeunitId: Integer)
@@ -320,7 +320,7 @@ codeunit 1371 "Sales Batch Post Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPrepareSalesHeader(var SalesHeader: Record "Sales Header")
+    local procedure OnAfterPrepareSalesHeader(var SalesHeader: Record "Sales Header"; var BatchProcessingMgt: Codeunit "Batch Processing Mgt.")
     begin
     end;
 
