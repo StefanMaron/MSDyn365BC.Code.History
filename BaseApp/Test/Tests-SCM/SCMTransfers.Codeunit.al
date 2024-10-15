@@ -2644,6 +2644,84 @@ codeunit 137038 "SCM Transfers"
         ItemLedgerEntry.TestField("Lot No.", LotNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferOrderCreateInboundWhseRequestShipAgentServCode()
+    var
+        TransferHeader: Record "Transfer Header";
+        WarehouseRequest: Record "Warehouse Request";
+        WhseTransferRelease: Codeunit "Whse.-Transfer Release";
+        ShippingAgentCode: Code[10];
+        ShippingAgentServiceCode: Code[10];
+    begin
+        // [SCENARIO 428923] Shipping Agent Service Code value is saved when Inbound Whse Request created from Transfer Order
+        Initialize();
+
+        // [GIVEN] Transfer Order "T".
+        MockTransferOrder(TransferHeader);
+
+        // [GIVEN] Create Shipping Agent with service code "SC"
+        CreateShippingAgentServiceCodeWith1YShippingTime(ShippingAgentCode, ShippingAgentServiceCode);
+
+        // [GIVEN] Set Transfer Header Shipping Agent Code and Shipping Agent Service Code = "SC"
+        TransferHeader.Validate("Shipping Agent Code", ShippingAgentCode);
+        TransferHeader.Validate("Shipping Agent Service Code", ShippingAgentServiceCode);
+        TransferHeader.Modify();
+
+        // [GIVEN] No inbound warehouse requests exist for "T".
+        // [GIVEN] Creation of warehouse request is set to be invoked not from the transfer order (i.e. on posting the transfer shipment).
+        WhseTransferRelease.SetCallFromTransferOrder(false);
+
+        // [WHEN] Create inbound warehouse request for "T".
+        WhseTransferRelease.InitializeWhseRequest(WarehouseRequest, TransferHeader, TransferHeader.Status);
+        WhseTransferRelease.CreateInboundWhseRequest(WarehouseRequest, TransferHeader);
+
+        // [THEN] New inbound warehouse request for "T" is created, Shipping Agent Service Code = "SC".
+        FilterWhseRequest(
+              WarehouseRequest, WarehouseRequest.Type::Inbound, TransferHeader."Transfer-to Code", 1, TransferHeader."No.");
+        WarehouseRequest.FindFirst();
+        WarehouseRequest.TestField("Shipping Agent Service Code", ShippingAgentServiceCode);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferOrderCreateOutboundWhseRequestShipAgentServCode()
+    var
+        TransferHeader: Record "Transfer Header";
+        WarehouseRequest: Record "Warehouse Request";
+        WhseTransferRelease: Codeunit "Whse.-Transfer Release";
+        ShippingAgentCode: Code[10];
+        ShippingAgentServiceCode: Code[10];
+    begin
+        // [SCENARIO 428923] Shipping Agent Service Code value is saved when Outbound Whse Request created from Transfer Order
+        Initialize();
+
+        // [GIVEN] Transfer Order "T".
+        MockTransferOrder(TransferHeader);
+
+        // [GIVEN] Create Shipping Agent with service code "SC"
+        CreateShippingAgentServiceCodeWith1YShippingTime(ShippingAgentCode, ShippingAgentServiceCode);
+
+        // [GIVEN] Set Transfer Header Shipping Agent Code and Shipping Agent Service Code = "SC"
+        TransferHeader.Validate("Shipping Agent Code", ShippingAgentCode);
+        TransferHeader.Validate("Shipping Agent Service Code", ShippingAgentServiceCode);
+        TransferHeader.Modify();
+
+        // [GIVEN] No inbound warehouse requests exist for "T".
+        // [GIVEN] Creation of warehouse request is set to be invoked not from the transfer order (i.e. on posting the transfer shipment).
+        WhseTransferRelease.SetCallFromTransferOrder(false);
+
+        // [WHEN] Create outbound warehouse request for "T".
+        WhseTransferRelease.InitializeWhseRequest(WarehouseRequest, TransferHeader, TransferHeader.Status);
+        WhseTransferRelease.CreateOutboundWhseRequest(WarehouseRequest, TransferHeader);
+
+        // [THEN] New outbound warehouse request for "T" is created, Shipping Agent Service Code = "SC".
+        FilterWhseRequest(
+              WarehouseRequest, WarehouseRequest.Type::Outbound, TransferHeader."Transfer-from Code", 0, TransferHeader."No.");
+        WarehouseRequest.FindFirst();
+        WarehouseRequest.TestField("Shipping Agent Service Code", ShippingAgentServiceCode);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

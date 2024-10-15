@@ -193,6 +193,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
         if not IntrastatSetup.Get() then
             exit;
 
+        if IntrastatJnlLine.GetFilter(Type) <> '' then
+            exit;
+
         if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
             exit;
 

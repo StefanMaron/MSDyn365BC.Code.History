@@ -615,15 +615,33 @@ table 6660 "Return Receipt Header"
         UserSetupMgt: Codeunit "User Setup Management";
         Text001: Label 'Posted Document Dimensions';
 
-    procedure GetCustomerVATRegistrationNumber(): Text
+    procedure GetCustomerVATRegistrationNumber() ReturnValue: Text
+    var
+        CountryRegion: Record "Country/Region";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCustomerVATRegistrationNumber(Rec, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
+        if CountryRegion.DetermineCountry("Bill-to Country/Region Code") then
+            exit("Enterprise No.");
         exit("VAT Registration No.");
     end;
 
-    procedure GetCustomerVATRegistrationNumberLbl(): Text
+    procedure GetCustomerVATRegistrationNumberLbl() ReturnValue: Text
+    var
+        CountryRegion: Record "Country/Region";
+        IsHandled: Boolean;
     begin
-        if "VAT Registration No." = '' then
-            exit('');
+        IsHandled := false;
+        OnBeforeGetCustomerVATRegistrationNumberLbl(Rec, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
+        if CountryRegion.DetermineCountry("Bill-to Country/Region Code") then
+            exit(FieldCaption("Enterprise No."));
         exit(FieldCaption("VAT Registration No."));
     end;
 
@@ -727,6 +745,16 @@ table 6660 "Return Receipt Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ReturnReceiptHeader: Record "Return Receipt Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustomerVATRegistrationNumber(var ReturnReceiptHeader: Record "Return Receipt Header"; var ReturnValue: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustomerVATRegistrationNumberLbl(var ReturnReceiptHeader: Record "Return Receipt Header"; var ReturnValue: Text; var IsHandled: Boolean)
     begin
     end;
 

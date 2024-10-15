@@ -295,6 +295,9 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         GenPostingSetup: Record "General Posting Setup";
         Item: Record Item;
     begin
+        if SalesCrMemoLine."VAT Calculation Type" = SalesCrMemoLine."VAT Calculation Type"::"Sales Tax" then
+            exit;
+
         with GenPostingSetup do begin
             Get(SalesCrMemoLine."Gen. Bus. Posting Group", SalesCrMemoLine."Gen. Prod. Posting Group");
             TestField("Sales Account");

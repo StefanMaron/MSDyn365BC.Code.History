@@ -1008,9 +1008,10 @@
             until AnalysisView.Next() = 0;
     end;
 
-    procedure IsPostingAllowed(PostingDate: Date): Boolean
+    procedure IsPostingAllowed(PostingDate: Date) Result: Boolean
     begin
-        exit(PostingDate >= "Allow Posting From");
+        Result := PostingDate >= "Allow Posting From";
+        OnAfterIsPostingAllowed(Rec, PostingDate, Result);
     end;
 
     procedure JobQueueActive(): Boolean
@@ -1115,6 +1116,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckRoundingError(var ErrorMessage: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterIsPostingAllowed(GeneralLedgerSetup: Record "General Ledger Setup"; PostingDate: Date; var Result: Boolean)
     begin
     end;
 

@@ -382,7 +382,13 @@
     var
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
         RemainingNumOfLines: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssignEqually(ItemChargeAssgntPurch, Currency, TotalQtyToAssign, TotalAmtToAssign, IsHandled);
+        if IsHandled then
+            exit;
+
         repeat
             if not ItemChargeAssgntPurch.PurchLineInvoiced then begin
                 TempItemChargeAssgntPurch := ItemChargeAssgntPurch;
@@ -847,6 +853,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAssignItemCharges(var PurchaseLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignEqually(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var IsHandled: Boolean)
     begin
     end;
 

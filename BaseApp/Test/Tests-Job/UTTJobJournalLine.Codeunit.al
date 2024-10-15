@@ -324,8 +324,7 @@ codeunit 136351 "UT T Job Journal Line"
         // [SCENARIO 258997] Country/Region code assigns from Job to Job Journal Line
 
         Initialize();
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
+        LibraryJob.CreateJob(Job, LibrarySales.CreateCustomerNo());
         LibraryERM.CreateCountryRegion(CountryRegion);
         Job.Validate("Bill-to Country/Region Code", CountryRegion.Code);
         Job.Modify(true);

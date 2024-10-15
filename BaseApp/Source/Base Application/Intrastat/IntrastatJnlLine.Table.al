@@ -437,6 +437,8 @@
         Vendor: Record Vendor;
         TransferReceiptHeader: Record "Transfer Receipt Header";
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         EU3rdPartyTrade: Boolean;
     begin
         ItemLedgerEntry.Get("Source Entry No.");
@@ -476,7 +478,8 @@
                         IsVendorPrivatePerson(PurchRcptHeader."Pay-to Vendor No."), false));
             ItemLedgerEntry."Document Type"::"Service Shipment":
                 if ServiceShipmentHeader.Get(ItemLedgerEntry."Document No.") then begin
-                    Customer.Get(ServiceShipmentHeader."Bill-to Customer No.");
+                    if not Customer.Get(ServiceShipmentHeader."Bill-to Customer No.") then
+                        exit('');
                     exit(
                       GetPartnerIDForCountry(
                         ServiceShipmentHeader."Bill-to Country/Region Code",
@@ -485,7 +488,8 @@
                 end;
             ItemLedgerEntry."Document Type"::"Service Invoice":
                 if ServiceInvoiceHeader.Get(ItemLedgerEntry."Document No.") then begin
-                    Customer.Get(ServiceInvoiceHeader."Bill-to Customer No.");
+                    if not Customer.Get(ServiceInvoiceHeader."Bill-to Customer No.") then
+                        exit('');
                     exit(
                       GetPartnerIDForCountry(
                         ServiceInvoiceHeader."Bill-to Country/Region Code",
@@ -494,7 +498,8 @@
                 end;
             ItemLedgerEntry."Document Type"::"Service Credit Memo":
                 if ServiceCrMemoHeader.Get(ItemLedgerEntry."Document No.") then begin
-                    Customer.Get(ServiceCrMemoHeader."Bill-to Customer No.");
+                    if not Customer.Get(ServiceCrMemoHeader."Bill-to Customer No.") then
+                        exit('');
                     exit(
                       GetPartnerIDForCountry(
                         ServiceCrMemoHeader."Bill-to Country/Region Code",
@@ -513,22 +518,30 @@
                             ItemLedgerEntry."Country/Region Code", TransferShipmentHeader."Partner VAT ID", '', false, false));
         end;
 
+        if not IntrastatSetup.Get() then
+            IntrastatSetup.Init();
         case ItemLedgerEntry."Source Type" of
             ItemLedgerEntry."Source Type"::Customer:
                 begin
-                    Customer.Get(ItemLedgerEntry."Source No.");
+                    if not Customer.Get(ItemLedgerEntry."Source No.") then
+                        exit('');
                     exit(
                       GetPartnerIDForCountry(
-                        ItemLedgerEntry."Country/Region Code", Customer."VAT Registration No.", Customer."Enterprise No.",
-                        Customer."Partner Type" = Customer."Partner Type"::Person, EU3rdPartyTrade));
+                        ItemLedgerEntry."Country/Region Code",
+                        IntraJnlManagement.GetVATRegNo(
+                          Customer."Country/Region Code", Customer."VAT Registration No.", IntrastatSetup."Cust. VAT No. on File"),
+                        Customer."Enterprise No.", Customer."Partner Type" = Customer."Partner Type"::Person, EU3rdPartyTrade));
                 end;
             ItemLedgerEntry."Source Type"::Vendor:
                 begin
-                    Vendor.Get(ItemLedgerEntry."Source No.");
+                    if not Vendor.Get(ItemLedgerEntry."Source No.") then
+                        exit('');
                     exit(
                       GetPartnerIDForCountry(
-                        ItemLedgerEntry."Country/Region Code", Vendor."VAT Registration No.", Vendor."Enterprise No.",
-                        Vendor."Partner Type" = Vendor."Partner Type"::Person, false));
+                        ItemLedgerEntry."Country/Region Code",
+                        IntraJnlManagement.GetVATRegNo(
+                          Vendor."Country/Region Code", Vendor."VAT Registration No.", IntrastatSetup."Vend. VAT No. on File"),
+                        Vendor."Enterprise No.", Vendor."Partner Type" = Vendor."Partner Type"::Person, false));
                 end;
         end;
     end;
@@ -538,6 +551,8 @@
         Job: Record Job;
         JobLedgerEntry: Record "Job Ledger Entry";
         Customer: Record Customer;
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
     begin
         if not JobLedgerEntry.Get("Source Entry No.") then
             exit('');
@@ -545,13 +560,17 @@
             exit('');
         if not Customer.Get(Job."Bill-to Customer No.") then
             exit('');
+        if not IntrastatSetup.Get() then
+            IntrastatSetup.Init();
         exit(
           GetPartnerIDForCountry(
-            Customer."Country/Region Code", Customer."VAT Registration No.", Customer."Enterprise No.",
-            Customer."Partner Type" = Customer."Partner Type"::Person, false));
+            Customer."Country/Region Code",
+            IntraJnlManagement.GetVATRegNo(
+              Customer."Country/Region Code", Customer."VAT Registration No.", IntrastatSetup."Cust. VAT No. on File"),
+            Customer."Enterprise No.", Customer."Partner Type" = Customer."Partner Type"::Person, false));
     end;
 
-    local procedure GetPartnerIDForCountry(CountryRegionCode: Code[10]; VATRegistrationNo: Code[20]; EnterpriseNo: Text[50]; IsPrivatePerson: Boolean; IsThirdPartyTrade: Boolean): Text[50]
+    local procedure GetPartnerIDForCountry(CountryRegionCode: Code[10]; VATRegistrationNo: Text[50]; EnterpriseNo: Text[50]; IsPrivatePerson: Boolean; IsThirdPartyTrade: Boolean): Text[50]
     var
         CountryRegion: Record "Country/Region";
     begin

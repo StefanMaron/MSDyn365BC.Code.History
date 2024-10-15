@@ -1,4 +1,4 @@
-codeunit 1000 "Job Calculate WIP"
+﻿codeunit 1000 "Job Calculate WIP"
 {
     Permissions = TableData "Job Ledger Entry" = rm,
                   TableData "Job Task" = rimd,
@@ -538,6 +538,7 @@ codeunit 1000 "Job Calculate WIP"
             until JobTaskDimension.Next() = 0;
         if not DimMgt.CheckDimBuffer(TempDimensionBuffer) then
             Error(DimMgt.GetDimCombErr);
+        OnInitWIPBufferEntryFromTaskOnBeforeSetDimCombinationID(TempDimensionBuffer, JobTask);
         TempJobWIPBuffer[1]."Dim Combination ID" := DimMgt.CreateDimSetIDFromDimBuf(TempDimensionBuffer);
 
         Job.Get(JobTask."Job No.");
@@ -747,6 +748,7 @@ codeunit 1000 "Job Calculate WIP"
                     JobWIPEntry."Dimension Set ID" := TempJobWIPBuffer[1]."Dim Combination ID";
                     DimMgt.UpdateGlobalDimFromDimSetID(JobWIPEntry."Dimension Set ID", JobWIPEntry."Global Dimension 1 Code",
                       JobWIPEntry."Global Dimension 2 Code");
+                    OnCreateWIPEntriesOnBeforeJobWIPEntryInsert(JobWIPEntry);
                     JobWIPEntry.Insert(true);
                     NextEntryNo := NextEntryNo + 1;
                 end;
@@ -1198,7 +1200,17 @@ codeunit 1000 "Job Calculate WIP"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateWIPEntriesOnBeforeJobWIPEntryInsert(var JobWIPEntry: Record "Job WIP Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateJobWIPTotalOnAfterUpdateJobWIPTotal(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitWIPBufferEntryFromTaskOnBeforeSetDimCombinationID(var TempDimensionBuffer: Record "Dimension Buffer" temporary; JobTask: Record "Job Task")
     begin
     end;
 

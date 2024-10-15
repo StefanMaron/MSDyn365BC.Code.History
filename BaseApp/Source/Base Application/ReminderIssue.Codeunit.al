@@ -12,8 +12,6 @@ codeunit 393 "Reminder-Issue"
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
         ReminderCommentLine: Record "Reminder Comment Line";
         IsHandled: Boolean;
-        DimSetIDArr: array[10] of Integer;
-        DummyGlobalDimCode: Code[20];
     begin
         IsHandled := false;
         OnBeforeIssueReminder(ReminderHeader, ReplacePostingDate, PostingDate, IsHandled, IssuedReminderHeader);
@@ -76,7 +74,7 @@ codeunit 393 "Reminder-Issue"
                 if ReminderInterestAmount < 0 then
                     Error(Text001);
                 InitGenJnlLine(GenJnlLine."Account Type"::"G/L Account", CustPostingGr.GetInterestAccount, true);
-                OnRunOnAfterInitGenJnlLinePostInterest(GenJnlLine);
+                OnRunOnAfterInitGenJnlLinePostInterest(GenJnlLine, ReminderHeader, ReminderLine);
                 GenJnlLine.Validate("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                 GenJnlLine.Validate(Amount, -ReminderInterestAmount - ReminderInterestVATAmount);
                 OnRunOnBeforeGenJnlLineUpdateLineBalance(GenJnlLine, ReminderInterestVATAmount, TotalAmount);
@@ -84,33 +82,28 @@ codeunit 393 "Reminder-Issue"
                 TotalAmount := TotalAmount - GenJnlLine.Amount;
                 TotalAmountLCY := TotalAmountLCY - GenJnlLine."Balance (LCY)";
                 GenJnlLine."Bill-to/Pay-to No." := "Customer No.";
+                OnRunOnBeforeGenJnlLineInsertPostInterest(GenJnlLine, ReminderHeader, ReminderLine);
                 GenJnlLine.Insert();
-                OnRunOnAfterGenJnlLineInsertPostInterest(GenJnlLine);
+                OnRunOnAfterGenJnlLineInsertPostInterest(GenJnlLine, ReminderHeader, ReminderLine);
             end;
 
             if (TotalAmount <> 0) or (TotalAmountLCY <> 0) then begin
                 InitGenJnlLine(GenJnlLine."Account Type"::Customer, "Customer No.", true);
                 GenJnlLine.Validate(Amount, TotalAmount);
                 GenJnlLine.Validate("Amount (LCY)", TotalAmountLCY);
-                OnRunOnBeforeGenJnlLineInsertTotalAmount(GenJnlLine);
+                OnRunOnBeforeGenJnlLineInsertTotalAmount(GenJnlLine, ReminderHeader, ReminderLine);
                 GenJnlLine.Insert();
-                OnRunOnAfterGenJnlLineInsertTotalAmount(GenJnlLine);
+                OnRunOnAfterGenJnlLineInsertTotalAmount(GenJnlLine, ReminderHeader, ReminderLine);
             end;
 
             Clear(GenJnlPostLine);
             if GenJnlLine.Find('-') then
                 repeat
                     GenJnlLine2 := GenJnlLine;
-                    GenJnlLine2."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
-                    GenJnlLine2."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
-                    DimSetIDArr[1] := "Dimension Set ID";
-                    DimSetIDArr[2] := GenJnlLine."Dimension Set ID";
-                    GenJnlLine2."Dimension Set ID" :=
-                        DimMgt.GetCombinedDimensionSetID(
-                            DimSetIDArr, DummyGlobalDimCode, DummyGlobalDimCode);
-                    OnBeforeGenJnlPostLineRun(GenJnlLine2, GenJnlLine);
+                    SetGenJnlLine2Dim();
+                    OnBeforeGenJnlPostLineRun(GenJnlLine2, GenJnlLine, ReminderHeader, ReminderLine);
                     GenJnlPostLine.Run(GenJnlLine2);
-                    OnRunOnAfterGenJnlPostLineRun(GenJnlLine2, GenJnlLine);
+                    OnRunOnAfterGenJnlPostLineRun(GenJnlLine2, GenJnlLine, ReminderHeader, ReminderLine);
                 until GenJnlLine.Next() = 0;
 
             GenJnlLine.DeleteAll();
@@ -219,6 +212,24 @@ codeunit 393 "Reminder-Issue"
     end;
 #endif
 
+    local procedure SetGenJnlLine2Dim()
+    var
+        DimSetIDArr: array[10] of Integer;
+        DummyGlobalDimCode: Code[20];
+    begin
+        with ReminderHeader do begin
+            GenJnlLine2."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
+            GenJnlLine2."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
+            DimSetIDArr[1] := "Dimension Set ID";
+            DimSetIDArr[2] := GenJnlLine."Dimension Set ID";
+            GenJnlLine2."Dimension Set ID" :=
+                DimMgt.GetCombinedDimensionSetID(
+                    DimSetIDArr, DummyGlobalDimCode, DummyGlobalDimCode);
+        end;
+
+        OnAfterSetGenJnlLine2Dim(ReminderHeader, GenJnlLine2);
+    end;
+
     procedure GetIssuedReminder(var NewIssuedReminderHeader: Record "Issued Reminder Header")
     begin
         NewIssuedReminderHeader := IssuedReminderHeader;
@@ -279,6 +290,7 @@ codeunit 393 "Reminder-Issue"
         with IssuedReminderHeader do begin
             Find;
             "No. Printed" := "No. Printed" + 1;
+            OnIncrNoPrintedOnBeforeModify(IssuedReminderHeader);
             Modify;
             Commit();
         end;
@@ -543,6 +555,11 @@ codeunit 393 "Reminder-Issue"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetGenJnlLine2Dim(ReminderHeader: Record "Reminder Header"; var GenJnlLine2: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTestDeleteHeader(var IssuedReminderHeader: Record "Issued Reminder Header"; ReminderHeader: Record "Reminder Header")
     begin
     end;
@@ -587,7 +604,7 @@ codeunit 393 "Reminder-Issue"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGenJnlPostLineRun(var GenJnlLine2: Record "Gen. Journal Line"; GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnBeforeGenJnlPostLineRun(var GenJnlLine2: Record "Gen. Journal Line"; GenJnlLine: Record "Gen. Journal Line"; var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
     begin
     end;
 
@@ -622,27 +639,37 @@ codeunit 393 "Reminder-Issue"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterGenJnlPostLineRun(var GenJnlLine2: Record "Gen. Journal Line"; var GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnIncrNoPrintedOnBeforeModify(var IssuedReminderHeader: Record "Issued Reminder Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterInitGenJnlLinePostInterest(var GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnRunOnAfterGenJnlPostLineRun(var GenJnlLine2: Record "Gen. Journal Line"; var GenJnlLine: Record "Gen. Journal Line"; var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterGenJnlLineInsertPostInterest(var GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnRunOnAfterInitGenJnlLinePostInterest(var GenJnlLine: Record "Gen. Journal Line"; var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterGenJnlLineInsertTotalAmount(var GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnRunOnAfterGenJnlLineInsertPostInterest(var GenJnlLine: Record "Gen. Journal Line"; var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeGenJnlLineInsertTotalAmount(var GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnRunOnBeforeGenJnlLineInsertPostInterest(var GenJnlLine: Record "Gen. Journal Line"; var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterGenJnlLineInsertTotalAmount(var GenJnlLine: Record "Gen. Journal Line"; var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeGenJnlLineInsertTotalAmount(var GenJnlLine: Record "Gen. Journal Line"; var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
     begin
     end;
 

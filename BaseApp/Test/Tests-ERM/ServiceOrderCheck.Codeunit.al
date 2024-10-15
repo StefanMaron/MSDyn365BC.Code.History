@@ -21,6 +21,7 @@ codeunit 136114 "Service Order Check"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         isInitialized: Boolean;
         ServiceOrderError: Label 'Service Order must not exist.';
         ItemShipmentLineServiceTier: Label '%1 must be equal to ''Item''  in %2: %3=%4, %5=%6. Current value is ''%7''.';
@@ -1367,6 +1368,44 @@ codeunit 136114 "Service Order Check"
         LibraryReportValidation.VerifyCellValue(RowNo + 2, ColNo, Format(WorkDate() + 1));
     end;
 
+    [Test]
+    [HandlerFunctions('ServiceInvoiceRequestPageHandlerDataset')]
+    [Scope('OnPrem')]
+    procedure ReportServiceInvoiceCompanyBankBranchNo()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceItem: Record "Service Item";
+        CompanyInformation: Record "Company Information";
+        RequestPageXML: Text;
+    begin
+        // [SCENARIO 428309] Report Service Invoice prints company bank branch no.
+        Initialize();
+
+        // [GIVEN] Company information with "Bank Branch No." = "XXX"
+        CompanyInformation.Get();
+        CompanyInformation."Bank Branch No." := LibraryUtility.GenerateRandomNumericText(MaxStrLen(CompanyInformation."Bank Branch No."));
+        CompanyInformation.Modify();
+
+        // [GIVEN] Service Order with service lines with items "Item1" and "Item2" shipped on "01.03.21".
+        CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
+        CreateServiceLineWithResource(ServiceHeader, ServiceItem."No.");
+
+        // [GIVEN] Service Order is invoiced.
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [WHEN] "Service - Invoice" report is run.
+        FindServiceInvoiceHeader(ServiceInvoiceHeader, ServiceHeader."No.");
+        ServiceInvoiceHeader.SetRecFilter();
+        Commit();
+        RequestPageXML := Report.RunRequestPage(Report::"Service - Invoice", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Service - Invoice", ServiceInvoiceHeader, RequestPageXML);
+
+        // [THEN] Report dataset contains "Bank Branch No." value "XXX"
+        LibraryReportDataset.AssertElementWithValueExists('CompanyBankBranchNo', CompanyInformation."Bank Branch No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2215,6 +2254,12 @@ codeunit 136114 "Service Order Check"
     procedure ServiceInvoiceRequestPageHandler(var ServiceInvoice: TestRequestPage "Service - Invoice")
     begin
         ServiceInvoice.SaveAsExcel(LibraryReportValidation.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceRequestPageHandlerDataset(var ServiceInvoice: TestRequestPage "Service - Invoice")
+    begin
     end;
 
     [ModalPageHandler]

@@ -288,8 +288,6 @@ report 11308 "VAT Annual Listing"
 
     requestpage
     {
-        SaveValues = true;
-
         layout
         {
             area(content)

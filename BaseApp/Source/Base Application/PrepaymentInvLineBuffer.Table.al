@@ -1,4 +1,4 @@
-table 461 "Prepayment Inv. Line Buffer"
+﻿table 461 "Prepayment Inv. Line Buffer"
 {
     Caption = 'Prepayment Inv. Line Buffer';
     ReplicateData = false;
@@ -369,7 +369,7 @@ table 461 "Prepayment Inv. Line Buffer"
         if CompressPrepayment then
             Description := GLAcc.Name;
 
-        OnAfterFillFromGLAcc(Rec, GLAcc);
+        OnAfterFillFromGLAcc(Rec, GLAcc, CompressPrepayment);
     end;
 
     procedure AdjustVATBase(VATAdjustment: array[2] of Decimal)
@@ -441,7 +441,7 @@ table 461 "Prepayment Inv. Line Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFillFromGLAcc(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; GLAccount: Record "G/L Account")
+    local procedure OnAfterFillFromGLAcc(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; GLAccount: Record "G/L Account"; CompressPayment: Boolean)
     begin
     end;
 

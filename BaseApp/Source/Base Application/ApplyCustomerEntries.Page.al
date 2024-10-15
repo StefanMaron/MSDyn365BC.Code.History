@@ -677,7 +677,7 @@
         if ApplnType = ApplnType::"Applies-to Doc. No." then begin
             if OK then begin
                 RaiseError := TempApplyingCustLedgEntry."Posting Date" < Rec."Posting Date";
-                OnBeforeEarlierPostingDateError(TempApplyingCustLedgEntry, Rec, RaiseError, CalcType.AsInteger());
+                OnBeforeEarlierPostingDateError(TempApplyingCustLedgEntry, Rec, RaiseError, CalcType.AsInteger(), OK);
                 if RaiseError then begin
                     OK := false;
                     Error(
@@ -991,7 +991,7 @@
             repeat
                 if CalcType = CalcType::"Gen. Jnl. Line" then begin
                     RaiseError := TempApplyingCustLedgEntry."Posting Date" < CustLedgerEntry."Posting Date";
-                    OnBeforeEarlierPostingDateError(TempApplyingCustLedgEntry, CustLedgerEntry, RaiseError, CalcType.AsInteger());
+                    OnBeforeEarlierPostingDateError(TempApplyingCustLedgEntry, CustLedgerEntry, RaiseError, CalcType.AsInteger(), OK);
                     if RaiseError then
                         Error(
                             EarlierPostingDateErr, TempApplyingCustLedgEntry."Document Type", TempApplyingCustLedgEntry."Document No.",
@@ -1604,7 +1604,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeEarlierPostingDateError(ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; var RaiseError: Boolean; CalcType: Option)
+    local procedure OnBeforeEarlierPostingDateError(ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; var RaiseError: Boolean; CalcType: Option; var OK: Boolean)
     begin
     end;
 

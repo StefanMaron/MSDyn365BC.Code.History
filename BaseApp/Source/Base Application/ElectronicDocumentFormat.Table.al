@@ -102,6 +102,7 @@ table 61 "Electronic Document Format"
         end;
 
         RecRef.GetTable(DocumentVariant);
+        OnSendElectronicallyOnAfterRecRefGetTable(RecRef);
 
         RecordExportBuffer.LockTable();
         if RecRef.FindSet() then
@@ -187,6 +188,7 @@ table 61 "Electronic Document Format"
         end;
 
         RecRef.GetTable(DocumentVariant);
+        OnSendElectronicallyOnAfterRecRefGetTable(RecRef);
 
         RecordExportBuffer.LockTable();
         if RecRef.FindSet() then
@@ -547,6 +549,11 @@ table 61 "Electronic Document Format"
 
     [IntegrationEvent(false, false)]
     local procedure OnSendElectronicallyOnBeforeRecordExportBufferInsert(var RecordExportBuffer: Record "Record Export Buffer"; RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendElectronicallyOnAfterRecRefGetTable(var RecRef: RecordRef)
     begin
     end;
 

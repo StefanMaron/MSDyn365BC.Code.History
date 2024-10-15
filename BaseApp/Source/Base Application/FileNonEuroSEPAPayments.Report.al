@@ -229,6 +229,7 @@ report 2000006 "File Non Euro SEPA Payments"
         StartGroupHeader(XMLNewChild);
         PaymentInformationCounter := 0;
         NumberOfTransactions := 0;
+        ControlSum := 0;
 
         SaveToFileName := RBMgt.ServerTempFileName('.xml');
     end;
@@ -261,6 +262,7 @@ report 2000006 "File Non Euro SEPA Payments"
         Text005: Label 'The file %1 already exists.';
         NonEuroSEPAPaymentsFileNameTxt: Label 'NonEuroSEPAPayments.xml';
         NumberOfTransactions: Integer;
+        ControlSum: Decimal;
         [InDataSet]
         IncludeDimTextEnable: Boolean;
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
@@ -324,6 +326,7 @@ report 2000006 "File Non Euro SEPA Payments"
         XMLNodeCurr := XMLNodeCurr.FirstChild;
 
         AddElement(XMLNodeCurr, 'NbOfTxs', Format(NumberOfTransactions, 0, 9), '', XMLNewChild);
+        AddElement(XMLNodeCurr, 'CtrlSum', Format(ControlSum, 0, 9), '', XMLNewChild);
 
         AddElement(XMLNodeCurr, 'InitgPty', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
@@ -440,6 +443,7 @@ report 2000006 "File Non Euro SEPA Payments"
             GLSetup.Get();
             RootNode := XMLNodeCurr;
             NumberOfTransactions += 1;
+            ControlSum += Amount;
 
             AddElement(XMLNodeCurr, 'CdtTrfTxInf', '', '', XMLNewChild);
             XMLNodeCurr := XMLNewChild;

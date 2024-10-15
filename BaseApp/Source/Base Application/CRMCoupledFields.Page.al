@@ -67,6 +67,7 @@ page 5337 "CRM Coupled Fields"
         DeleteAll();
         IntegrationFieldMapping.Reset();
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", CouplingRecordBuffer."CRM Table Name");
+        IntegrationFieldMapping.SetRange(Status, IntegrationFieldMapping.Status::Enabled);
         if IntegrationFieldMapping.FindSet() then
             repeat
                 Init;

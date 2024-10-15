@@ -100,7 +100,7 @@
         RefPostingState: Option "Checking lines","Checking balance","Updating bal. lines","Posting Lines","Posting revers. lines","Updating lines";
         PreviewMode: Boolean;
         SkippedLineMsg: Label 'One or more lines has not been posted because the amount is zero.';
-        ConfirmPostingAfterCurrentPeriodQst: Label 'The posting date of one or more journal lines is after the current calendar date. Do you want to continue?';
+        ConfirmPostingAfterWorkingDateQst: Label 'The posting date of one or more journal lines is after the working date. Do you want to continue?';
         SuppressCommit: Boolean;
         ReversePostingDateErr: Label 'Posting Date for reverse cannot be less than %1', Comment = '%1 = Posting Date';
         FirstLine: Boolean;
@@ -174,7 +174,7 @@
         ICLastDate: Date;
         VATInfoSourceLineIsInserted: Boolean;
         SkippedLine: Boolean;
-        PostingAfterCurrentFiscalYearConfirmed: Boolean;
+        PostingAfterWorkingDateConfirmed: Boolean;
         IsHandled: Boolean;
     begin
         OnBeforeProcessLines(GenJnlLine, PreviewMode, SuppressCommit);
@@ -203,7 +203,7 @@
             repeat
                 LineCount := LineCount + 1;
                 UpdateDialog(RefPostingState::"Checking lines", LineCount, NoOfRecords);
-                CheckLine(GenJnlLine, PostingAfterCurrentFiscalYearConfirmed);
+                CheckLine(GenJnlLine, PostingAfterWorkingDateConfirmed);
                 TempGenJnlLine := GenJnlLine5;
                 TempGenJnlLine.Insert();
                 if Next() = 0 then
@@ -1429,7 +1429,7 @@
         OnAfterPostGenJournalLine(GenJournalLine, Result);
     end;
 
-    local procedure CheckLine(var GenJnlLine: Record "Gen. Journal Line"; var PostingAfterCurrentFiscalYearConfirmed: Boolean)
+    local procedure CheckLine(var GenJnlLine: Record "Gen. Journal Line"; var PostingAfterWorkingDateConfirmed: Boolean)
     var
         GenJournalLineToUpdate: Record "Gen. Journal Line";
         ErrorMessageManagement: Codeunit "Error Message Management";
@@ -1441,10 +1441,10 @@
         IsModified := UpdateRecurringAmt(GenJournalLineToUpdate);
         CheckAllocations(GenJournalLineToUpdate);
         GenJnlLine5.Copy(GenJournalLineToUpdate);
-        if not PostingAfterCurrentFiscalYearConfirmed then
-            PostingAfterCurrentFiscalYearConfirmed :=
-              PostingSetupMgt.ConfirmPostingAfterCurrentCalendarDate(
-                ConfirmPostingAfterCurrentPeriodQst, GenJnlLine5."Posting Date");
+        if not PostingAfterWorkingDateConfirmed then
+            PostingAfterWorkingDateConfirmed :=
+              PostingSetupMgt.ConfirmPostingAfterWorkingDate(
+                ConfirmPostingAfterWorkingDateQst, GenJnlLine5."Posting Date");
         PrepareGenJnlLineAddCurr(GenJnlLine5);
         ErrorMessageManagement.PushContext(ErrorContextElement, GenJnlLine5.RecordId, 0, '');
         OnCheckLineOnBeforeRunCheck(GenJnlLine5);

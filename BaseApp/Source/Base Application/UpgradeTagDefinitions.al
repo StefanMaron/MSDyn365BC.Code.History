@@ -108,8 +108,12 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetConfigFieldMapUpgradeTag());
         PerCompanyUpgradeTags.Add(GetICSetupUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemCrossReferenceInPEPPOLUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetUseCustomLookupUpgradeTag());
+        PerCompanyUpgradeTags.Add(SanitizeCloudMigratedDataUpgradeTag());
+
         PerCompanyUpgradeTags.Add(GetGLEntryJournalTemplateNameUpgradeTag());
         PerCompanyUpgradeTags.Add(GetGLRegisterJournalTemplateNameUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetGenJournalTemplateDatesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetVATEntryJournalTemplateNameUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCustLedgerEntryPmtDiscPossibleUpgradeTag());
         PerCompanyUpgradeTags.Add(GetVendLedgerEntryPmtDiscPossibleUpgradeTag());
@@ -894,6 +898,11 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-415286-GLRegisterJournalTemplateName-20211026');
     end;
 
+    procedure GetGenJournalTemplateDatesUpgradeTag(): Code[250]
+    begin
+        exit('MS-415286-GenJournalTemplateDates-20211026');
+    end;
+
     procedure GetVATEntryJournalTemplateNameUpgradeTag(): Code[250]
     begin
         exit('MS-415286-VATEntryJournalTemplateName-20211026');
@@ -923,6 +932,16 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetItemCrossReferenceInPEPPOLUpgradeTag(): Code[250]
     begin
         exit('MS-422103-GetItemCrossReferenceInPEPPOLUpgradeTag-20220114');
+    end;
+
+    internal procedure GetUseCustomLookupUpgradeTag(): Code[250]
+    begin
+        exit('MS-426799-GetUseCustomLookupUpgradeTag-20220406');
+    end;
+
+    internal procedure SanitizeCloudMigratedDataUpgradeTag(): Code[250]
+    begin
+        exit('MS-433866-GetSanitizeCloudMigrationOnce-20220426');
     end;
 }
 

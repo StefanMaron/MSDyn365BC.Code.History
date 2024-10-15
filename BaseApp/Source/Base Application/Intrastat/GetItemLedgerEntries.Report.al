@@ -609,6 +609,11 @@
     local procedure CalculateTotals(ItemLedgerEntry: Record "Item Ledger Entry")
     var
         VATPostingSetup: Record "VAT Posting Setup";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        VATEntry: Record "VAT Entry";
         TotalInvoicedQty: Decimal;
         TotalCostAmt: Decimal;
         TotalAmtExpected: Decimal;
@@ -658,6 +663,45 @@
                         end;
                     end;
                 until ValueEntry.Next() = 0;
+
+            if ValueEntry.Count() = 1 then
+                case ValueEntry."Document Type" of
+                    ValueEntry."Document Type"::"Purchase Invoice":
+                        if PurchInvHeader.Get(ValueEntry."Document No.") then
+                            if PurchInvHeader."VAT Base Discount %" <> 0 then begin
+                                PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+                                PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
+                                PurchInvLine.SetRange("No.", "Item No.");
+                                if PurchInvLine.Count() = 1 then begin
+                                    VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+                                    VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+                                    VATEntry.SetRange("Document No.", ValueEntry."Document No.");
+                                    VATEntry.SetRange("Posting Date", ValueEntry."Posting Date");
+                                    if VATEntry.Count() = 1 then begin
+                                        VATEntry.FindFirst();
+                                        TotalCostAmt := VATEntry.Base;
+                                    end;
+                                end;
+                            end;
+                    ValueEntry."Document Type"::"Sales Invoice":
+                        if SalesInvoiceHeader.Get(ValueEntry."Document No.") then
+                            if SalesInvoiceHeader."VAT Base Discount %" <> 0 then begin
+                                SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+                                SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
+                                SalesInvoiceLine.SetRange("No.", "Item No.");
+                                if SalesInvoiceLine.Count() = 1 then begin
+                                    VATEntry.SetRange(Type, VATEntry.Type::Sale);
+                                    VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+                                    VATEntry.SetRange("Document No.", ValueEntry."Document No.");
+                                    VATEntry.SetRange("Posting Date", ValueEntry."Posting Date");
+                                    if VATEntry.Count() = 1 then begin
+                                        VATEntry.FindFirst();
+                                        TotalCostAmt := -VATEntry.Base;
+                                        TotalAmt := TotalCostAmt;
+                                    end;
+                                end;
+                            end;
+                end;
 
             if Quantity <> TotalInvoicedQty then begin
                 TotalAmt := TotalAmt + TotalAmtExpected;

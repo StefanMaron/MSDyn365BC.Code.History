@@ -588,9 +588,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", CustomerNo);
-        Job.Modify(true);
+        LibraryJob.CreateJob(Job, CustomerNo);
         LibraryJob.CreateJobTask(Job, JobTask);
 
         CreateDefaultJobPlanningLine(JobTask, JobPlanningLine."Line Type"::Budget, JobPlanningLine);

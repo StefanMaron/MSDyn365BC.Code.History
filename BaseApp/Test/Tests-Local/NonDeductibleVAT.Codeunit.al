@@ -29,6 +29,7 @@ codeunit 144000 "Non-Deductible VAT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryJob: Codeunit "Library - Job";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -2426,6 +2427,176 @@ codeunit 144000 "Non-Deductible VAT"
         VerifySumOfGLEntryAmountForGLAccount(GLEntry."Document Type"::Invoice, InvoiceNo, DeferralTemplate."Deferral Account", VATBaseAmount + NonDeductibleVATAmount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceLCYWithJob()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        JobTask: Record "Job Task";
+        VATBase: Decimal;
+    begin
+        // [FEATURE] [Purchase] [VAT] [Job] [Invoice]
+        // [SCENARIO 421859] Job ledger entries amounts include non deductible VAT for invoice in LCY
+        Initialize();
+
+        // [GIVEN] G/L Account "X" with Normal VAT and Non Deductible VAT 60%
+        CreateVATSetupWithGLAccount(
+          VATPostingSetup, GLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(20, 40));
+
+        // [WHEN] Create and post purchase invoice for account "X" with job, VATBase = 1126
+        CreateAndPostPurchaseInvoiceForJob(VATPostingSetup, '', GLAccount, VATBase, JobTask);
+
+        // [THEN] Job ledger entry has Unit Cost = 1126
+        VerifyJobLedgerEntryLCY(JobTask, VATBase);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceCurrencyWithJob()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        JobTask: Record "Job Task";
+        VATBase: Decimal;
+    begin
+        // [FEATURE] [Purchase] [VAT] [Job] [Invoice]
+        // [SCENARIO 421859] Job ledger entries amounts include non deductible VAT for invoice in currency
+        Initialize();
+
+        // [GIVEN] G/L Account "X" with Normal VAT and Non Deductible VAT 60%
+        CreateVATSetupWithGLAccount(
+          VATPostingSetup, GLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(20, 40));
+
+        // [WHEN] Create and post purchase invoice for account "X" with job, Currency Code = "YYY", VATBase = 1126
+        CreateAndPostPurchaseInvoiceForJob(VATPostingSetup, LibraryERM.CreateCurrencyWithRandomExchRates(), GLAccount, VATBase, JobTask);
+
+        // [THEN] Job ledger entry has Unit Cost = 1126
+        VerifyJobLedgerEntry(JobTask, VATBase);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseCrMemoLCYWithJob()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        JobTask: Record "Job Task";
+        VATBase: Decimal;
+    begin
+        // [FEATURE] [Purchase] [VAT] [Job] [Credit Memo]
+        // [SCENARIO 421859] Job ledger entries amounts include non deductible VAT for credit memo in LCY
+        Initialize();
+
+        // [GIVEN] G/L Account "X" with Normal VAT and Non Deductible VAT 60%
+        CreateVATSetupWithGLAccount(
+          VATPostingSetup, GLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(20, 40));
+
+        // [WHEN] Create and post purchase credit memo for account "X" with job, VATBase = 1126
+        CreateAndPostPurchaseCrMemoForJob(VATPostingSetup, '', GLAccount, VATBase, JobTask);
+
+        // [THEN] Job ledger entry has Unit Cost = 1126
+        VerifyJobLedgerEntryLCY(JobTask, VATBase);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseCrMemoCurrencyWithJob()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        JobTask: Record "Job Task";
+        VATBase: Decimal;
+    begin
+        // [FEATURE] [Purchase] [VAT] [Job] [Credit Memo]
+        // [SCENARIO 421859] Job ledger entries amounts include non deductible VAT for credit memo in currency
+        Initialize();
+
+        // [GIVEN] G/L Account "X" with Normal VAT and Non Deductible VAT 60%
+        CreateVATSetupWithGLAccount(
+          VATPostingSetup, GLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(20, 40));
+
+        // [WHEN] Create and post purchase credit memo for account "X" with job, Currency Code = "YYY", VATBase = 1126
+        CreateAndPostPurchaseCrMemoForJob(VATPostingSetup, LibraryERM.CreateCurrencyWithRandomExchRates(), GLAccount, VATBase, JobTask);
+
+        // [THEN] Job ledger entry has Unit Cost = 1126
+        VerifyJobLedgerEntry(JobTask, VATBase);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsVATBaseCheckModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckVATAmountOnPurchInvoiceWithSingleLineReverseVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLineReverseCharge: Record "Purchase Line";
+        VATPostingSetupReverseChargeVAT: Record "VAT Posting Setup";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [Reverse Charge VAT] [Purchase Invoice] [VAT Base Discount]
+        // [SCENARIO 432547] If there is discount according to Payment Terms, it should be used while calculating Reverse Charge VAT
+        Initialize();
+
+        // [GIVEN] Purchase Invoice Header for new Vendor with 2% VAT Base Discount
+        CreatePurchHeaderWithVATBaseDisc(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+
+        // [GIVEN] Purchase Invoice Line for G/L Account with 19% Reverse Charge VAT and "Direct unit Cost" = 1000
+        CreatePurchaseLineWithVATType(
+          PurchaseLineReverseCharge, PurchaseHeader,
+          PurchaseLineReverseCharge."VAT Calculation Type"::"Reverse Charge VAT");
+
+        VATPostingSetupReverseChargeVAT.Get(
+          PurchaseLineReverseCharge."VAT Bus. Posting Group", PurchaseLineReverseCharge."VAT Prod. Posting Group");
+
+        // [WHEN] When open invoice's statistics
+        PurchaseHeader.TestField("VAT Base Discount %");
+        LibraryVariableStorage.Enqueue(GetLoweredVATBase(PurchaseLineReverseCharge."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"));
+        PurchaseInvoice.OpenView();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice.Statistics.Invoke();
+
+        // [THEN] "VAT Base (Lowered)" = 980 on VAT amount lines.
+        // verified in handler
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsVATBaseCheckModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckVATAmountOnPurchInvoiceWithSingleLineNormalVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLineReverseCharge: Record "Purchase Line";
+        VATPostingSetupReverseChargeVAT: Record "VAT Posting Setup";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [Normal VAT] [Purchase Invoice] [VAT Base Discount]
+        // [SCENARIO 432547] "VAT Base (Lowered)" must reflect "VAT Base Discount %" calculating Normal VAT
+        Initialize();
+
+        // [GIVEN] Purchase Invoice Header for new Vendor with 2% VAT Base Discount
+        CreatePurchHeaderWithVATBaseDisc(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+
+        // [GIVEN] Purchase Invoice Line for G/L Account with 19% Normal VAT and "Direct unit Cost" = 1000
+        CreatePurchaseLineWithVATType(
+          PurchaseLineReverseCharge, PurchaseHeader,
+          PurchaseLineReverseCharge."VAT Calculation Type"::"Normal VAT");
+
+        VATPostingSetupReverseChargeVAT.Get(
+          PurchaseLineReverseCharge."VAT Bus. Posting Group", PurchaseLineReverseCharge."VAT Prod. Posting Group");
+
+        // [WHEN] When open invoice's statistics
+        PurchaseHeader.TestField("VAT Base Discount %");
+        LibraryVariableStorage.Enqueue(GetLoweredVATBase(PurchaseLineReverseCharge."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"));
+        PurchaseInvoice.OpenView();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice.Statistics.Invoke();
+
+        // [THEN] "VAT Base (Lowered)" = 980 on VAT amount lines.
+        // verified in handler
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2439,8 +2610,8 @@ codeunit 144000 "Non-Deductible VAT"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Non-Deductible VAT");
 
         LibraryERMCountryData.SetZeroVATSetupForPurchInvRoundingAccounts;
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
 
         isInitialized := true;
         Commit();
@@ -2695,10 +2866,10 @@ codeunit 144000 "Non-Deductible VAT"
         PurchInvHeader: Record "Purch. Inv. Header";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PurchInvHeader.Get(DocumentNo);
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
-        PostedPurchaseInvoice.Statistics.Invoke;
+        PostedPurchaseInvoice.Statistics.Invoke();
     end;
 
     local procedure OpenPurchCrMemoStatistics(DocumentNo: Code[20])
@@ -2706,10 +2877,10 @@ codeunit 144000 "Non-Deductible VAT"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PostedPurchaseCrMemo: TestPage "Posted Purchase Credit Memo";
     begin
-        PostedPurchaseCrMemo.OpenView;
+        PostedPurchaseCrMemo.OpenView();
         PurchCrMemoHdr.Get(DocumentNo);
         PostedPurchaseCrMemo.GotoRecord(PurchCrMemoHdr);
-        PostedPurchaseCrMemo.Statistics.Invoke;
+        PostedPurchaseCrMemo.Statistics.Invoke();
     end;
 
     local procedure CreatePurchHeaderWithVATBaseDisc(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
@@ -2772,6 +2943,75 @@ codeunit 144000 "Non-Deductible VAT"
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreateAndPostPurchaseInvoiceForJob(VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; GLAccount: Record "G/L Account"; var VATBase: Decimal; var JobTask: Record "Job Task"): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Job: Record Job;
+        CurrencyExchRate: Record "Currency Exchange Rate";
+        DirectUnitCost: Decimal;
+        VATAmount: Decimal;
+        NonDedVATAmount: Decimal;
+    begin
+        DirectUnitCost := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        VATAmount := Round(DirectUnitCost * VATPostingSetup."VAT %" / 100);
+        NonDedVATAmount := Round(VATAmount * GLAccount."% Non deductible VAT" / 100);
+        VATAmount -= NonDedVATAmount;
+        VATBase := DirectUnitCost + NonDedVATAmount;
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Apply Usage Link", false);
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        CreatePurchaseInvoiceHeader(PurchaseHeader, VATPostingSetup."VAT Bus. Posting Group");
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Modify(true);
+
+        if CurrencyCode <> '' then
+            VATBase :=
+                CurrencyExchRate.ExchangeAmtFCYToLCY(
+                    PurchaseHeader."Posting Date",
+                    CurrencyCode,
+                    VATBase,
+                    PurchaseHeader."Currency Factor");
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreateAndPostPurchaseCrMemoForJob(VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; GLAccount: Record "G/L Account"; var VATBase: Decimal; var JobTask: Record "Job Task"): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Job: Record Job;
+        DirectUnitCost: Decimal;
+        VATAmount: Decimal;
+        NonDedVATAmount: Decimal;
+    begin
+        DirectUnitCost := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        VATAmount := Round(DirectUnitCost * VATPostingSetup."VAT %" / 100);
+        NonDedVATAmount := Round(VATAmount * GLAccount."% Non deductible VAT" / 100);
+        VATAmount -= NonDedVATAmount;
+        VATBase := DirectUnitCost + NonDedVATAmount;
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Apply Usage Link", false);
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        CreatePurchaseCrMemoHeader(PurchaseHeader, VATPostingSetup."VAT Bus. Posting Group");
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
         PurchaseLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
@@ -3392,6 +3632,28 @@ codeunit 144000 "Non-Deductible VAT"
         GLEntry.TestField(Amount, ExpectedAmount);
     end;
 
+    local procedure VerifyJobLedgerEntryLCY(JobTask: Record "Job Task"; ExpectedAmount: Decimal)
+    var
+        JobLedgerEntry: Record "Job Ledger Entry";
+    begin
+        JobLedgerEntry.SetRange("Job No.", JobTask."Job No.");
+        JobLedgerEntry.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobLedgerEntry.FindLast();
+        JobLedgerEntry.TestField("Unit Cost", ExpectedAmount);
+        JobLedgerEntry.TestField("Total Cost", JobLedgerEntry.Quantity * JobLedgerEntry."Unit Cost");
+    end;
+
+    local procedure VerifyJobLedgerEntry(JobTask: Record "Job Task"; ExpectedAmount: Decimal)
+    var
+        JobLedgerEntry: Record "Job Ledger Entry";
+    begin
+        JobLedgerEntry.SetRange("Job No.", JobTask."Job No.");
+        JobLedgerEntry.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobLedgerEntry.FindLast();
+        Assert.AreNearlyEqual(ExpectedAmount, JobLedgerEntry."Unit Cost", 0.01, 'Invalid Unit Cost');
+        Assert.AreNearlyEqual(JobLedgerEntry.Quantity * JobLedgerEntry."Unit Cost", JobLedgerEntry."Total Cost", 0.01, 'Invalid Total Cost');
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatisticsModalPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
@@ -3429,6 +3691,14 @@ codeunit 144000 "Non-Deductible VAT"
             VerifyPurchStatisticSubform(
               PurchaseStatistics, AmountWithoutVAT2, VATAmount[2], NonDeductibleVATAmount[2]);
         end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseStatisticsVATBaseCheckModalPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    begin
+        Assert.AreEqual(
+            LibraryVariableStorage.DequeueDecimal(), PurchaseStatistics.SubForm."VAT Base (Lowered)".AsDecimal(), '');
     end;
 
     [PageHandler]
