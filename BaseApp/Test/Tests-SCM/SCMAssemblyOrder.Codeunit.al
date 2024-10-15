@@ -36,6 +36,7 @@ codeunit 137908 "SCM Assembly Order"
         TXTQtyPerNoChange: Label 'You cannot change Quantity per when Type is '' ''.';
         RoundingTo0Err: Label 'Rounding of the field';
         RoundingErr: Label 'is of lesser precision than expected';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
     [Normal]
     local procedure Initialize()
@@ -57,6 +58,33 @@ codeunit 137908 "SCM Assembly Order"
     local procedure CreateAssemblyOrderWithoutLines(var AssemblyHeader: Record "Assembly Header"; DueDate: Date; ItemNo: Code[20])
     begin
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(DueDate, ItemNo, 0)); // no lines
+    end;
+
+    local procedure FindAssemblyLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line")
+    begin
+        AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.FindFirst();
+    end;
+
+    local procedure FindItemUnitOfMeasure(Item: Record Item; Var ItemUOM: Record "Item Unit of Measure")
+    begin
+        ItemUOM.Get(Item."No.", Item."Base Unit of Measure");
+    end;
+
+    local procedure CalculateAssemblyLineQty(AssemblyHeader: Record "Assembly Header"; BOMComponent: Record "BOM Component"; ItemUOM: Record "Item Unit of Measure"): Decimal;
+    begin
+        exit(Round(AssemblyHeader.Quantity * BOMComponent."Quantity per", ItemUOM."Qty. Rounding Precision"));
+    end;
+
+    local procedure MatchTxt(AssemblyLine: Record "Assembly Line"; ExpectedQuantity: Decimal): Text
+    begin
+        exit(
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                AssemblyLine.FieldCaption(Quantity),
+                ExpectedQuantity,
+                AssemblyLine.TableCaption()));
     end;
 
     [Test]
@@ -2104,6 +2132,87 @@ codeunit 137908 "SCM Assembly Order"
         // no error has occured
 
         asserterror Error('') // roll back
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler')]
+    procedure RoundingPrecisioninItemQuantityOnAssembelyOrder()
+    var
+        NonBaseUOM: Record "Unit of Measure";
+        Item: Record Item;
+        Item2: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        BOMComponent: Record "BOM Component";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ExpectedQuantity: Decimal;
+        MustMatchTxt: Text;
+    begin
+        // [SCENARIO 487935] Issue in rounding precision in the item quantity when creating Assembly orders. 
+        Initialize();
+
+        // [GIVEN] Create an UOM.
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+
+        // [GIVEN] Create a Item and assign Qty Rounding Precision 1.
+        LibraryInventory.CreateItem(Item);
+        ItemUOM.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUOM.Validate("Qty. Rounding Precision", 1);
+        ItemUOM.Modify();
+
+        // [GIVEN] Create another Item.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create Bom Component.
+        LibraryManufacturing.CreateBOMComponent(
+            BOMComponent,
+            Item2."No.",
+            BOMComponent.Type::Item,
+            Item."No.",
+            LibraryRandom.RandDec(0, 1),
+            Item."Base Unit of Measure");
+
+        //[GIVEN] Create an Assembly Header Without Line.
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate(), Item2."No.");
+
+        // [GIVEN] Validate the quantity on Assembly Order
+        AssemblyHeader.Validate(Quantity, LibraryRandom.RandDec(100, 2));
+        AssemblyHeader.Modify(true);
+
+        FindAssemblyLine(AssemblyHeader, AssemblyLine);
+        FindItemUnitOfMeasure(Item, ItemUOM);
+
+        // [THEN] Calculate Expected Assembly Order Quantity.
+        ExpectedQuantity := CalculateAssemblyLineQty(AssemblyHeader, BOMComponent, ItemUOM);
+
+        // [THEN]  Calculate Expected Text.
+        MustMatchTxt := MatchTxt(AssemblyLine, ExpectedQuantity);
+
+        // [VERIFY] Assembly Line Quantity when Rounding Precision was not 0.
+        Assert.AreEqual(ExpectedQuantity, AssemblyLine.Quantity, MustMatchTxt);
+
+        // [GIVEN] Change the quantity on Assembly Header.
+        AssemblyHeader.Validate(Quantity, LibraryRandom.RandDec(500, 4));
+        AssemblyHeader.Modify(true);
+
+        FindAssemblyLine(AssemblyHeader, AssemblyLine);
+        FindItemUnitOfMeasure(Item, ItemUOM);
+
+        // [THEN] Calculate Expected Assembly Order Quantity.
+        ExpectedQuantity := CalculateAssemblyLineQty(AssemblyHeader, BOMComponent, ItemUOM);
+
+        // [THEN]  Calculate Expected Text.
+        MustMatchTxt := MatchTxt(AssemblyLine, ExpectedQuantity);
+
+        // [VERIFY] Assembly Line Quantity when Rounding Precision was not 0.
+        Assert.AreEqual(ExpectedQuantity, AssemblyLine.Quantity, MustMatchTxt);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }
 

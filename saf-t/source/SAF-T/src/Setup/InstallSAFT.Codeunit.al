@@ -29,7 +29,6 @@ codeunit 5288 "Install SAF-T"
 
         AuditFileExportSetup.InitSetup("Audit File Export Format"::SAFT);
         MappingHelperSAFT.InsertSAFTSourceCodes();
-        MappingHelperSAFT.UpdateMasterDataWithNoSeries();
         MappingHelperSAFT.UpdateSAFTSourceCodesBySetup();
     end;
 

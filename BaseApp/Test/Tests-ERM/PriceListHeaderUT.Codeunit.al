@@ -63,7 +63,7 @@ codeunit 134118 "Price List Header UT"
 
         PriceListHeader.Testfield(Code);
         PriceListHeader.TestField("No. Series", '');
-        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Any);
     end;
 
     [Test]
@@ -79,7 +79,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader.Insert(true);
 
         PriceListHeader.Testfield(Code);
-        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Any);
         SalesReceivablesSetup.Get();
         PriceListHeader.TestField("No. Series", SalesReceivablesSetup."Price List Nos.");
     end;
@@ -97,7 +97,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader.Insert(true);
 
         PriceListHeader.Testfield(Code);
-        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Any);
         PurchasesPayablesSetup.Get();
         PriceListHeader.TestField("No. Series", PurchasesPayablesSetup."Price List Nos.");
     end;
@@ -115,7 +115,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader.Insert(true);
 
         PriceListHeader.Testfield(Code);
-        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Any);
         JobsSetup.Get();
         PriceListHeader.TestField("No. Series", JobsSetup."Price List Nos.");
     end;
@@ -726,7 +726,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Source Type" as "Customer" in Price list header
         PriceListHeader.Validate("Source Type", "Price Source Type"::Customer);
         // [THEN] "Amount Type" is 'Price'
-        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListHeader.TestField("Amount Type", "Price Amount Type"::Any);
     end;
 
     [Test]
