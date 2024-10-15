@@ -7,6 +7,7 @@ codeunit 2020 "Image Analysis Management"
 
     var
         HttpMessageHandler: DotNet HttpMessageHandler;
+        [NonDebuggable]
         "Key": Text;
         Uri: Text;
         LimitType: Option Year,Month,Day,Hour;
@@ -26,6 +27,7 @@ codeunit 2020 "Image Analysis Management"
         ImageAnalysisSecretTxt: Label 'cognitive-vision-params', Locked = true;
         MissingImageAnalysisSecretErr: Label 'There is a missing configuration value on our end. Try again later.';
 
+    [NonDebuggable]
     procedure Initialize()
     var
         ImageAnalysisSetup: Record "Image Analysis Setup";
@@ -90,6 +92,7 @@ codeunit 2020 "Image Analysis Management"
         FileManagement.BLOBExportToServerFile(TempBlob, ImagePath);
     end;
 
+    [NonDebuggable]
     procedure SetUriAndKey(UriValue: Text; KeyValue: Text)
     begin
         Uri := UriValue;
@@ -157,6 +160,7 @@ codeunit 2020 "Image Analysis Management"
         exit(Analyze(ImageAnalysisResult, AnalysisType::Faces));
     end;
 
+    [NonDebuggable]
     local procedure Analyze(var ImageAnalysisResult: Codeunit "Image Analysis Result"; AnalysisType: Option Tags,Faces,Color): Boolean
     var
         ImageAnalysisSetup: Record "Image Analysis Setup";
@@ -188,6 +192,7 @@ codeunit 2020 "Image Analysis Management"
         exit(not HasError);
     end;
 
+    [NonDebuggable]
     [TryFunction]
     local procedure InvokeAnalysis(var JSONManagement: Codeunit "JSON Management"; AnalysisType: Option Tags,Faces,Color)
     var
@@ -296,38 +301,62 @@ codeunit 2020 "Image Analysis Management"
         exit(StrPos(Uri, '/customvision/') <> 0);
     end;
 
+    [NonDebuggable]
     [TryFunction]
     [Scope('OnPrem')]
     procedure GetImageAnalysisCredentials(var ApiKey: Text; var ApiUri: Text; var LimitType: Option; var LimitValue: Integer)
     var
         AzureKeyVault: Codeunit "Azure Key Vault";
-        JSONManagement: Codeunit "JSON Management";
         MachineLearningKeyVaultMgmt: Codeunit "Machine Learning KeyVaultMgmt.";
-        ImageAnalysisParameter: DotNet JObject;
+        ImageAnalysisParametersList: JsonArray;
+        ImageAnalysisParameters: JsonObject;
+        JToken: JsonToken;
         ImageAnalysisParametersText: Text;
         LimitTypeTxt: Text;
         LimitValueTxt: Text;
     begin
         if not AzureKeyVault.GetAzureKeyVaultSecret(ImageAnalysisSecretTxt, ImageAnalysisParametersText) then
             Error(MissingImageAnalysisSecretErr);
-        JSONManagement.InitializeCollection(ImageAnalysisParametersText);
-        if JSONManagement.GetCollectionCount > 0 then begin
-            JSONManagement.GetJObjectFromCollectionByIndex(
-              ImageAnalysisParameter,
-              Random(JSONManagement.GetCollectionCount) - 1);
-            JSONManagement.GetStringPropertyValueFromJObjectByName(ImageAnalysisParameter, 'key', ApiKey);
-            JSONManagement.GetStringPropertyValueFromJObjectByName(ImageAnalysisParameter, 'endpoint', ApiUri);
-            JSONManagement.GetStringPropertyValueFromJObjectByName(ImageAnalysisParameter, 'limittype', LimitTypeTxt);
-            if LimitTypeTxt = '' then
-                Error(MissingImageAnalysisSecretErr);
 
-            LimitType := MachineLearningKeyVaultMgmt.GetLimitTypeOptionFromText(LimitTypeTxt);
+        // Check if the value is a proper JSON array
+        if not ImageAnalysisParametersList.ReadFrom(ImageAnalysisParametersText) then
+            exit;
 
-            JSONManagement.GetStringPropertyValueFromJObjectByName(ImageAnalysisParameter, 'limitvalue', LimitValueTxt);
-            if LimitValueTxt = '' then
+        // Check if the JSON array has values
+        if not (ImageAnalysisParametersList.Count > 0) then
+            exit;
+
+        if not ImageAnalysisParametersList.Get(Random(ImageAnalysisParametersList.Count()) - 1, JToken) then
+            exit;
+
+        ImageAnalysisParameters := JToken.AsObject();
+
+        ApiKey := ExtractParameterValue(ImageAnalysisParameters, 'key', false);
+        ApiUri := ExtractParameterValue(ImageAnalysisParameters, 'endpoint', false);
+        LimitTypeTxt := ExtractParameterValue(ImageAnalysisParameters, 'limittype', true);
+        LimitValueTxt := ExtractParameterValue(ImageAnalysisParameters, 'limitvalue', true);
+
+        LimitType := MachineLearningKeyVaultMgmt.GetLimitTypeOptionFromText(LimitTypeTxt);
+        Evaluate(LimitValue, LimitValueTxt);
+    end;
+
+    [NonDebuggable]
+    local procedure ExtractParameterValue(Parameters: JsonObject; ParameterName: Text; IsMandatory: Boolean): Text
+    var
+        ParameterValue: JsonToken;
+        ParameterValueText: Text;
+    begin
+        if not Parameters.Get(ParameterName, ParameterValue) then begin
+            if IsMandatory then
                 Error(MissingImageAnalysisSecretErr);
-            Evaluate(LimitValue, LimitValueTxt);
+            exit('');
         end;
+
+        ParameterValueText := ParameterValue.AsValue().AsText();
+        if (ParameterValueText = '') and IsMandatory then
+            Error(MissingImageAnalysisSecretErr);
+
+        exit(ParameterValueText);
     end;
 
     [IntegrationEvent(TRUE, false)]

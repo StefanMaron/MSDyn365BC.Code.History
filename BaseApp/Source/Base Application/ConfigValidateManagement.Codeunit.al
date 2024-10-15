@@ -867,11 +867,8 @@ codeunit 8617 "Config. Validate Management"
     local procedure OADateToDateTime(DateTimeDecimal: Decimal): DateTime
     var
         DotNetDateTime: DotNet DateTime;
-        DotNetDateTimeKind: DotNet DateTimeKind;
     begin
-        DotNetDateTime := DotNetDateTime.FromOADate(DateTimeDecimal);
-        exit(
-          DotNetDateTime.DateTime(DotNetDateTime.Ticks, DotNetDateTimeKind.Local));
+        exit(DotNetDateTime.FromOADate(DateTimeDecimal));
     end;
 }
 

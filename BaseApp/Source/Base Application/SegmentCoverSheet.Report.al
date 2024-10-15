@@ -356,7 +356,7 @@ report 5064 "Segment - Cover Sheet"
     }
 
     var
-        MarkTxt: Label 'x', Comment = '{locked}';
+        MarkTxt: Label 'x', Locked = true;
         CompanyInfo: Record "Company Information";
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;

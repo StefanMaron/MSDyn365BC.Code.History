@@ -1215,6 +1215,15 @@ table 5405 "Production Order"
             until ProdOrderLine.Next = 0;
     end;
 
+    [Scope('OnPrem')]
+    procedure GetStartingEndingDateAndTime(var StartingTime: Time; var StartingDate: Date; var EndingTime: Time; var EndingDate: Date)
+    begin
+        StartingTime := DT2Time("Starting Date-Time");
+        StartingDate := DT2Date("Starting Date-Time");
+        EndingTime := DT2Time("Ending Date-Time");
+        EndingDate := DT2Date("Ending Date-Time");
+    end;
+
     local procedure InitFromSourceNo(SourceDescription: Text[100]; SourceDescription2: Text[50]; RoutingNo: Code[20]; InventoryPostingGroup: Code[20]; GenProdPostingGroup: Code[20]; GenBusPostingGroup: Code[20]; UnitCost: Decimal)
     begin
         Description := SourceDescription;

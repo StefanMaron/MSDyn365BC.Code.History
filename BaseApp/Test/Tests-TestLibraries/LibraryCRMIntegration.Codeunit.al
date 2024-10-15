@@ -1159,7 +1159,7 @@ codeunit 139164 "Library - CRM Integration"
                 exit;
 
         CRMPricelevel.Init;
-        CRMPricelevel.Name := CRMSynchHelper.GetDefaultNAVPriceListName;
+        CRMPricelevel.Name := CRMSynchHelper.GetDefaultPriceListName;
         CRMPricelevel.Insert;
 
         CRMConnectionSetup.Validate("Default CRM Price List ID", CRMPricelevel.PriceLevelId);

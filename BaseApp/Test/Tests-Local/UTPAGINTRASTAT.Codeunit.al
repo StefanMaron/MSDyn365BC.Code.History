@@ -9,6 +9,10 @@ codeunit 142035 "UT PAG INTRASTAT"
 
     var
         LibraryUTUtility: Codeunit "Library UT Utility";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        FileManagement: Codeunit "File Management";
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -178,6 +182,39 @@ codeunit 142035 "UT PAG INTRASTAT"
         IntrastatJournal.Close;
     end;
 
+    [Test]
+    [HandlerFunctions('IntrastatFormDESaveAsPDFReportHandler')]
+    [Scope('OnPrem')]
+    procedure PrintIntrastatFormDE()
+    var
+        DACHReportSelections: Record "DACH Report Selections";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJournal: TestPage "Intrastat Journal";
+        CountryRegion: Record "Country/Region";
+        TransactionType: Record "Transaction Type";
+        TransportMethod: Record "Transport Method";
+        IntrastatArea: record "Area";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 333888] Report "Intrastat - Form DE" can be printed without errors
+
+        // [GIVEN]: Create DACH Report Selections with Usage Intrastat Form.
+        CreateDACHReportSelections(DACHReportSelections, DACHReportSelections.Usage::"Intrastat Form", 11012, 'Intrastat - Form DE');
+        // [GIVEN] Prepare intrastat journal line to print
+        CreateIntrastatJournalLineToPrint(IntrastatJnlLine);
+
+        // [WHEN] Report "Intrastat - Form DE" is being printed
+        Commit;
+        LibraryVariableStorage.Enqueue(IntrastatJnlLine.Type);
+
+        IntrastatJournal.OpenEdit;
+        IntrastatJournal.Form.Invoke;
+        IntrastatJournal.Close;
+        // [THEN] No RDLC rendering errors
+    end;
+
     local procedure CreateDACHReportSelections(var DACHReportSelections: Record "DACH Report Selections"; Usage: Option; ReportID: Integer; ReportName: Text[80])
     begin
         DACHReportSelections.DeleteAll;
@@ -196,6 +233,34 @@ codeunit 142035 "UT PAG INTRASTAT"
         IntrastatJnlLine."Journal Batch Name" := JournalBatchName;
         IntrastatJnlLine."Line No." := 1;
         IntrastatJnlLine.Insert;
+    end;
+
+    local procedure CreateIntrastatJournalLineToPrint(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJournal: TestPage "Intrastat Journal";
+        CountryRegion: Record "Country/Region";
+        TransactionType: Record "Transaction Type";
+        TransportMethod: Record "Transport Method";
+        IntrastatArea: record "Area";
+    begin
+        CreateIntrastatJnlTemplateAndBatch(IntrastatJnlTemplate, IntrastatJnlBatch);
+        CreateIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlTemplate.Name, IntrastatJnlBatch.Name);
+        LibraryERM.FindCountryRegion(CountryRegion);
+        CountryRegion."Intrastat Code" := CountryRegion.Code;
+        CountryRegion.Modify();
+        IntrastatJnlLine."Country/Region Code" := CountryRegion.Code;
+        IntrastatJnlLine."Tariff No." := LibraryUtility.CreateCodeRecord(DATABASE::"Tariff Number");
+        TransactionType.FindFirst;
+        IntrastatJnlLine."Transaction Type" := TransactionType.Code;
+        TransportMethod.FindFirst;
+        IntrastatJnlLine."Transport Method" := TransportMethod.Code;
+        IntrastatJnlLine."Total Weight" := 1;
+        IntrastatJnlLine."Area" := LibraryUtility.CreateCodeRecord(DATABASE::"Tariff Number");
+        IntrastatJnlLine."Transaction Specification" := LibraryUtility.CreateCodeRecord(DATABASE::"Transaction Specification");
+        IntrastatJnlLine."Country/Region of Origin Code" := CountryRegion.Code;
+        IntrastatJnlLine.Modify();
     end;
 
     local procedure CreateIntrastatJnlTemplateAndBatch(var IntrastatJnlTemplate: Record "Intrastat Jnl. Template"; var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
@@ -225,6 +290,17 @@ codeunit 142035 "UT PAG INTRASTAT"
     [Scope('OnPrem')]
     procedure IntrastatFormDEReportHandler(var IntrastatFormDE: Report "Intrastat - Form DE")
     begin
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure IntrastatFormDESaveAsPDFReportHandler(var IntrastatFormDE: Report "Intrastat - Form DE")
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        IntrastatJnlLine.SetRange(Type, LibraryVariableStorage.DequeueInteger());
+        IntrastatFormDE.SetTableView(IntrastatJnlLine);
+        IntrastatFormDE.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
 
     [ReportHandler]

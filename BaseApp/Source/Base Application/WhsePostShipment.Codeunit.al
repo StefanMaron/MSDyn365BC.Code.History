@@ -94,7 +94,7 @@ codeunit 5763 "Whse.-Post Shipment"
             GetLocation("Location Code");
             WhseShptHeader.Get("No.");
             WhseShptHeader.TestField("Posting Date");
-            OnAfterCheckWhseShptLines(WhseShptHeader, WhseShptLine, Invoice);
+            OnAfterCheckWhseShptLines(WhseShptHeader, WhseShptLine, Invoice, SuppressCommit);
             if WhseShptHeader."Shipping No." = '' then begin
                 WhseShptHeader.TestField("Shipping No. Series");
                 WhseShptHeader."Shipping No." :=
@@ -109,9 +109,11 @@ codeunit 5763 "Whse.-Post Shipment"
             WhseShptHeader.Modify;
 
             SetCurrentKey("No.", "Source Type", "Source Subtype", "Source No.", "Source Line No.");
+            OnAfterSetCurrentKeyForWhseShptLine(WhseShptLine);
             FindSet(true, true);
             repeat
                 SetSourceFilter("Source Type", "Source Subtype", "Source No.", -1, false);
+                OnAfterSetSourceFilterForWhseShptLine(WhseShptLine);
                 GetSourceDocument;
                 MakePreliminaryChecks;
 
@@ -129,6 +131,7 @@ codeunit 5763 "Whse.-Post Shipment"
                 SetRange("Source Type");
                 SetRange("Source Subtype");
                 SetRange("Source No.");
+                OnAfterReleaseSourceForFilterWhseShptLine(WhseShptLine);
             until Next = 0;
         end;
 
@@ -171,6 +174,7 @@ codeunit 5763 "Whse.-Post Shipment"
         PurchRelease: Codeunit "Release Purchase Document";
         ReleaseServiceDocument: Codeunit "Release Service Document";
         ModifyHeader: Boolean;
+        ValidatePostingDate: Boolean;
     begin
         OnBeforeInitSourceDocumentHeader(WhseShptLine);
 
@@ -178,8 +182,9 @@ codeunit 5763 "Whse.-Post Shipment"
             case "Source Type" of
                 DATABASE::"Sales Line":
                     begin
+                        OnInitSourceDocumentHeaderOnBeforeValidatePostingDate(SalesHeader, WhseShptLine, ValidatePostingDate);
                         if (SalesHeader."Posting Date" = 0D) or
-                           (SalesHeader."Posting Date" <> WhseShptHeader."Posting Date")
+                           (SalesHeader."Posting Date" <> WhseShptHeader."Posting Date") or ValidatePostingDate
                         then begin
                             OnInitSourceDocumentHeaderOnBeforeReopenSalesHeader(SalesHeader, Invoice);
                             SalesRelease.Reopen(SalesHeader);
@@ -222,7 +227,7 @@ codeunit 5763 "Whse.-Post Shipment"
                             SalesHeader."Shipment Method Code" := WhseShptHeader."Shipment Method Code";
                             ModifyHeader := true;
                         end;
-                        OnInitSourceDocumentHeaderOnBeforeSalesHeaderModify(SalesHeader, WhseShptHeader, ModifyHeader, Invoice);
+                        OnInitSourceDocumentHeaderOnBeforeSalesHeaderModify(SalesHeader, WhseShptHeader, ModifyHeader, Invoice, WhseShptLine);
                         if ModifyHeader then
                             SalesHeader.Modify;
                     end;
@@ -641,6 +646,8 @@ codeunit 5763 "Whse.-Post Shipment"
                 WhseComment2."No." := PostedWhseShptHeader."No.";
                 WhseComment2.Insert;
             until WhseComment.Next = 0;
+
+        OnAfterCreatePostedShptHeader(PostedWhseShptHeader, WhseShptHeader);
     end;
 
     procedure CreatePostedShptLine(var WhseShptLine: Record "Warehouse Shipment Line"; var PostedWhseShptHeader: Record "Posted Whse. Shipment Header"; var PostedWhseShptLine: Record "Posted Whse. Shipment Line"; var TempHandlingSpecification: Record "Tracking Specification")
@@ -1115,7 +1122,12 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckWhseShptLines(var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseShptLine: Record "Warehouse Shipment Line"; Invoice: Boolean)
+    local procedure OnAfterCheckWhseShptLines(var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseShptLine: Record "Warehouse Shipment Line"; Invoice: Boolean; SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreatePostedShptHeader(var PostedWhseShptHeader: Record "Posted Whse. Shipment Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header");
     begin
     end;
 
@@ -1225,7 +1237,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitSourceDocumentHeaderOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var ModifyHeader: Boolean; Invoice: Boolean)
+    local procedure OnInitSourceDocumentHeaderOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var ModifyHeader: Boolean; Invoice: Boolean; var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 
@@ -1290,6 +1302,11 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnBeforeValidatePostingDate(var SalesHeader: Record "Sales Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ValidatePostingDate: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocumentOnBeforePrintSalesInvoice(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -1306,6 +1323,21 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocumentOnBeforePrintTransferShipment(var Transfer: Record "Transfer Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCurrentKeyForWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceFilterForWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReleaseSourceForFilterWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line");
     begin
     end;
 }

@@ -18,6 +18,7 @@ codeunit 5005396 "Print Document Comfort"
         DeliveryReminderHeader.SetRange("No.", DeliveryReminderHeader."No.");
         DACHReportSelections.SetRange(Usage, DACHReportSelections.Usage::"Delivery Reminder Test");
         DACHReportSelections.SetFilter("Report ID", '<>0');
+        OnDeliveryRemindPrintOnAfterSetFilters(DACHReportSelections, DeliveryReminderHeader);
         DACHReportSelections.Find('-');
         repeat
             REPORT.RunModal(DACHReportSelections."Report ID", true, false, DeliveryReminderHeader)
@@ -50,6 +51,11 @@ codeunit 5005396 "Print Document Comfort"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIssuedDeliveryRemindPrint(var IssuedDeliveryReminderHeader: Record "Issued Deliv. Reminder Header"; ShowRequestForm: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeliveryRemindPrintOnAfterSetFilters(var DACHReportSelections: Record "DACH Report Selections"; var DeliveryReminderHeader: Record "Delivery Reminder Header")
     begin
     end;
 }

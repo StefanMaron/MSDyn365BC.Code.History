@@ -114,6 +114,11 @@ page 460 "Purchases & Payables Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies that you cannot receive or invoice an order that has an unpaid prepayment amount.';
                 }
+                field("Default Del. Rem. Date Field"; "Default Del. Rem. Date Field")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the date field of the purchase order line corresponding to the creation of delivery reminders.';
+                }
                 field("Prepmt. Auto Update Frequency"; "Prepmt. Auto Update Frequency")
                 {
                     ApplicationArea = Prepayments;

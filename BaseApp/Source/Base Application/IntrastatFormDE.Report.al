@@ -25,7 +25,7 @@ report 11012 "Intrastat - Form DE"
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
                 {
                 }
-                column(DataItem1140002; StrSubstNo(Text1140002, CopyStr("Intrastat Jnl. Batch"."Statistics Period", 3, 2) + CopyStr("Intrastat Jnl. Batch"."Statistics Period", 1, 2)))
+                column(STRSUBSTNO_Text1140002_COPYSTR__Intrastat_Jnl__Batch___Statistics_Period; StrSubstNo(Text1140002, CopyStr("Intrastat Jnl. Batch"."Statistics Period", 3, 2) + CopyStr("Intrastat Jnl. Batch"."Statistics Period", 1, 2)))
                 {
                 }
                 column(COMPANYNAME; COMPANYPROPERTY.DisplayName)

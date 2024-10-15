@@ -209,12 +209,19 @@ report 11517 "Inventory Value (Help Report)"
                 ValueEntry."Cost Posted to G/L" += "Cost Posted to G/L";
                 ValueEntry."Invoiced Quantity" += "Invoiced Quantity";
 
+                OnBeforeUpdateTempItemStatisticsBuffer(TempItemStatisticsBuffer, ValueEntry, ValueEntry2, ItemLedgEntry);
+
                 if BufferRecExists then
                     TempItemStatisticsBuffer.Modify
                 else
                     TempItemStatisticsBuffer.Insert;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateTempItemStatisticsBuffer(var TempItemStatisticsBuffer: Record "Item Statistics Buffer"; var ValueEntry: Record "Value Entry"; ValueEntry2: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry");
+    begin
     end;
 }
 

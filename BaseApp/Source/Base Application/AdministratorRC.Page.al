@@ -22,21 +22,23 @@ page 8900 "Administrator Main Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Extension Management';
-                        RunObject = Page "Extension Management";
+                        RunObject = page "Extension Management";
                     }
                     action("Profiles")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Profiles';
+                        Caption = 'Profiles (Roles)';
                         RunObject = page "Profile List";
                     }
                     action("Devices")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Devices';
                         RunObject = page "Devices";
                     }
                     action("Control Add-ins")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Control Add-ins';
                         RunObject = page "Control Add-ins";
                     }
@@ -313,6 +315,7 @@ page 8900 "Administrator Main Role Center"
                     }
                     action("Companies")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Companies';
                         RunObject = page "Companies";
                     }
@@ -417,11 +420,13 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Data Exchange';
                     action("Import from a Data File")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Import from a Data File';
                         RunObject = page "Import Data";
                     }
                     action("Export to a Data File")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Export to a Data File';
                         RunObject = page "Export Data";
                     }
@@ -510,11 +515,13 @@ page 8900 "Administrator Main Role Center"
                 Caption = 'Users';
                 action("Users")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Users';
                     RunObject = page "Users";
                 }
                 action("User Groups")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'User Groups';
                     RunObject = page "User Groups";
                 }
@@ -526,6 +533,7 @@ page 8900 "Administrator Main Role Center"
                 }
                 action("Permission Sets")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Permission Sets';
                     RunObject = page "Permission Sets";
                 }
@@ -835,11 +843,13 @@ page 8900 "Administrator Main Role Center"
                 }
                 action("Account Schedule KPI Web Servi")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Account Schedule KPI Web Service Setup';
                     RunObject = page "Acc. Sched. KPI Web Srv. Setup";
                 }
                 action("Acc. Sched. KPI Web Service")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Account Schedule KPI Web Service';
                     RunObject = page "Acc. Sched. KPI Web Service";
                 }

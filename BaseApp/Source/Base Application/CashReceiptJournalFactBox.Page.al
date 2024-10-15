@@ -261,7 +261,7 @@ page 35516 "Cash Receipt Journal FactBox"
         DueDays := 0;
         OeRemainAmountFC := 0;
         PaymDiscDeductAmount := 0;
-        RemainAfterPayment := 0;
+        RemainAfterPayment := -Amount * Factor;
         PMTDiscount := 0;
         AcceptedPaymentTol := 0;
         RemainAfterPaymentCaption := Text001;
@@ -298,6 +298,7 @@ page 35516 "Cash Receipt Journal FactBox"
         IsAppliedToOneEntry := CustLedgEntry.Count = 1;
         CustPaymtTerm := Cust."Payment Terms Code";
         repeat
+            CurrRemainAfterPayment := 0;
             // Calculate Days for Age, Payment Discount
             if ("Posting Date" > 0D) and IsAppliedToOneEntry then begin
                 PostingDate := CustLedgEntry."Posting Date";
@@ -345,8 +346,7 @@ page 35516 "Cash Receipt Journal FactBox"
                     "Posting Date", CustLedgEntry."Currency Code", "Currency Code", CurrAcceptedPaymentTol);
             CurrAcceptedPaymentTol := Round(CurrAcceptedPaymentTol, Currency."Amount Rounding Precision");
 
-            CurrRemainAfterPayment +=
-              CurrOeRemainAmountFC - (-Amount * Factor) - CurrPaymDiscDeductAmount - CurrAcceptedPaymentTol;
+            CurrRemainAfterPayment := -CurrOeRemainAmountFC + CurrPaymDiscDeductAmount + CurrAcceptedPaymentTol;
 
             if ("Currency Code" <> CustLedgEntry."Currency Code") and
                (("Currency Code" <> '') and (CustLedgEntry."Currency Code" <> ''))
@@ -358,7 +358,7 @@ page 35516 "Cash Receipt Journal FactBox"
 
             // Pmt. Disc is not applied if entry is not closed
             if CurrRemainAfterPayment > 0 then begin
-                CurrRemainAfterPayment := CurrRemainAfterPayment + CurrPaymDiscDeductAmount;
+                CurrRemainAfterPayment := CurrRemainAfterPayment - CurrPaymDiscDeductAmount;
                 RemainAfterPaymentText := Format(CurrRemainAfterPayment, 0, Text002);
                 CurrPaymDiscDeductAmount := 0;
             end;
