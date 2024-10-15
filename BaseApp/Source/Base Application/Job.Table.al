@@ -878,6 +878,7 @@
         ReservationEntriesDeleteQst: Label 'Any reservation entries that exist for this job will be deleted. \Do you want to continue?';
         ReservationEntriesExistErr: Label 'You cannot set the status to %1 because the job has reservations on the job planning lines.', Comment = '%1=The job status name';
         AutoReserveNotPossibleMsg: Label 'Automatic reservation is not possible for one or more job planning lines. \Please reserve manually.';
+        StatusCompletedErr: Label 'You cannot select the Job %1, its status set to %2.', Comment = '%1= The Job no. field; %2 = Status of that job.';
 
     procedure AssistEdit(OldJob: Record Job): Boolean
     begin
@@ -1219,6 +1220,20 @@
                 JobPlanningLine.Validate("Currency Date");
                 JobPlanningLine.Modify();
             until JobPlanningLine.Next() = 0;
+    end;
+
+    procedure TestStatusCompleted()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestStatusCompleted(Rec, IsHandled);
+        If IsHandled then
+            exit;
+
+        if not (Status = Status::Completed) then
+            exit;
+        Error(StatusCompletedErr, "No.", Status);
     end;
 
     local procedure CurrencyUpdatePurchLines()
@@ -1859,6 +1874,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCustOnBeforeAssignIncoiceCurrencyCode(var Job: Record Job; xJob: Record Job; Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestStatusCompleted(var Job: Record Job; var IsHandled: Boolean)
     begin
     end;
 }
