@@ -1,6 +1,7 @@
 codeunit 104030 "Upgrade Plan Permissions"
 {
     Subtype = Upgrade;
+    Permissions = TableData "User Group Plan" = rimd;
 
     trigger OnRun()
     begin
@@ -40,7 +41,7 @@ codeunit 104030 "Upgrade Plan Permissions"
         D365MonitorFieldsTxt: Label 'D365 Monitor Fields', Locked = true;
         SecurityUserGroupTok: Label 'D365 SECURITY', Locked = true;
         CannotCreatePermissionSetLbl: Label 'Permission Set %1 is missing from this environment and cannot be created.', Comment = '%1 = Permission Set Code', Locked = true;
-	
+
     local procedure AddFeatureDataUpdatePernissions()
     var
         Permission: Record Permission;
@@ -192,10 +193,10 @@ codeunit 104030 "Upgrade Plan Permissions"
 
         if EnvironmentInformation.IsSaaS() then
             exit;
-        
+
         if not PermissionSet.Get(PermissionSetID) then
             exit;
-            
+
         Permission."Role ID" := PermissionSetID;
         Permission."Object Type" := ObjType;
         Permission."Object ID" := ObjId;

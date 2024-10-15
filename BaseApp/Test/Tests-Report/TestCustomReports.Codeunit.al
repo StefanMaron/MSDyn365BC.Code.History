@@ -65,7 +65,7 @@ codeunit 134761 "Test Custom Reports"
         NoOutputErr: Label 'No data exists for the specified report filters.';
         BlankStartDateErr: Label 'Start Date must have a value.';
         ReportIDMustHaveValueErr: Label 'Report ID must have a value';
-        TargetEmailErr: Label 'The target email address has not been specified in';
+        TargetEmailErr: Label 'The target email address has not been specified on the document layout for %1, %2';
         PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a %2% payment discount.', Comment = '%1 Discount Due Date %2 = value of Payment Discount % ';
 
     [Test]
@@ -581,7 +581,8 @@ codeunit 134761 "Test Custom Reports"
         CustomerLocal.SetRecFilter;
         asserterror RunStatementReportWithStandardSelection(CustomerLocal, CustomLayoutReporting, TemporaryPath, true, true);
 
-        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, TargetEmailErr);
+        AssertErrorMessageOnPage(
+            ErrorMessages, ErrorMessages.First, StrSubstNo(TargetEmailErr, CustomerLocal.RecordId, ReportSelectionsUsage::"C.Statement"));
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
     end;
 
