@@ -1622,10 +1622,6 @@
                     Item.SetRange("Variant Filter", "Variant Code");
                     Item.SetRange("Lot No. Filter", ItemTrkgCode);
                     Item.CalcFields(Inventory, "Reserved Qty. on Inventory");
-                    LineReservedQty :=
-                      WhseAvailMgt.CalcLineReservedQtyOnInvt(
-                        "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, '',
-                        ItemTrkgCode, TempWhseActivLine);
                     ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
                     ReservEntry.SetRange("Item No.", "Item No.");
                     ReservEntry.SetRange("Variant Code", "Variant Code");
@@ -1648,6 +1644,15 @@
                             then
                                 AvailQtyFromOtherResvLines := AvailQtyFromOtherResvLines + Abs(ReservEntry2."Quantity (Base)");
                         until ReservEntry.Next = 0;
+
+                    TempWhseActivLine := Rec;
+                    TempWhseActivLine."Qty. Outstanding (Base)" *= -1;
+                    TempWhseActivLine.Insert();
+
+                    LineReservedQty :=
+                      WhseAvailMgt.CalcLineReservedQtyOnInvt(
+                        "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, '',
+                        ItemTrkgCode, TempWhseActivLine);
 
                     if (Item.Inventory - Abs(Item."Reserved Qty. on Inventory") +
                         LineReservedQty + AvailQtyFromOtherResvLines +

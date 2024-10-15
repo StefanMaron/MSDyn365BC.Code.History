@@ -726,6 +726,41 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview.OK.Invoke;
     end;
 
+    [Test]
+    procedure PurchaseInvoiceInvAndDiscPreview()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [Invoice] [UI]
+        // [SCENARIO 379797] Stan can preview posting of Purchase Invoice when invoice discount is specified for the invoice
+        Initialize();
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
+          '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate);
+
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInDecimalRange(100, 200, 2));
+        PurchaseLine.Modify(true);
+
+        Commit();
+
+        PurchaseHeader.CalcFields(Amount);
+        PurchaseHeader.TestField(Amount);
+
+        GLPostingPreview.Trap();
+
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice.PurchLines.InvoiceDiscountAmount.SetValue(PurchaseHeader.Amount / 10);
+        Commit();
+        PurchaseInvoice.Preview.Invoke();
+
+        GLPostingPreview.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -735,9 +770,9 @@ codeunit 134762 "Test Purchase Preview"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Purchase Preview");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Purchase Preview");
