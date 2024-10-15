@@ -50,8 +50,6 @@ codeunit 142006 "Export Business Data"
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryXMLRead: Codeunit "Library - XML Read";
-        [RunOnClient]
-        ClientDirectoryHelper: DotNet Directory;
         LogFileTxt: Label 'Log.txt';
         DurationTxt: Label 'Duration:';
         DurationErr: Label 'Duration is not found.';
@@ -85,6 +83,10 @@ codeunit 142006 "Export Business Data"
         GLAccTxt: Label 'GLAcc 2022';
         FAAccTxt: Label 'FAAcc 2022';
         ItemAccTxt: Label 'Item 2022';
+        CVLedgerEntryLineFormatTxt: Label '%1;"%2";%3';
+        DtldCVLedgEntryLineFormatTxt: Label '%1;%2;"%3";%4';
+        CVLedgerEntryFileNameTxt: Label 'CVLedgerEntryBuffer.txt';
+        DtldCVLedgEntryFileNameTxt: Label 'DetailedCVLedgEntryBuffer.txt';
 
     [Test]
     [Scope('OnPrem')]
@@ -1901,6 +1903,43 @@ codeunit 142006 "Export Business Data"
         DataExportSetup.DeleteAll(true);
     end;
 
+    [Test]
+    procedure RunReportWhenMultipleBlobsPerTable()
+    var
+        CVLedgEntryBuffer: Record "CV Ledger Entry Buffer";
+        DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
+        DataExportRecDefinition: Record "Data Export Record Definition";
+        ExpectedFileNames: array[5] of Text;
+        ZipFilePath: Text;
+        NoOfParentEntries: Integer;
+        NoOfChildEntries: Integer;
+        i: Integer;
+    begin
+        // [SCENARIO 464058] Run Export Business Data when exported data size exceeds 2GB blob size.
+        // To emulate scenario we set size threshold for blob to 30 bytes by invoking ExportBusinessData.InitializeBlobMaxSizeThreshold().
+        // Size for each exported line is between 18 and 35 bytes, so in each blob there will be stored 1 or 2 lines.
+        // In this scenario we test how data from multiple blobs is merged into one file. Default blob size threshold is ~1.7GB and set in OnInitReport().
+
+        // [GIVEN] Data Export Record Definition with parent and child Record Sources "CVLedgerEntryBuffer" and "Detailed CV Ledg. Entry Buffer".
+        // [GIVEN] 3 records CV Ledger Entry Buffer with 2 Detailed CV Ledg. Entry Buffer records for each CV Ledger Entry Buffer.
+        SetupParentChildTablesForExport(DataExportRecDefinition, ExpectedFileNames);
+        NoOfParentEntries := 3;
+        NoOfChildEntries := 2;
+        for i := 1 to NoOfParentEntries do
+            InsertChildEntries(NoOfChildEntries);
+
+        // [WHEN] Run Export Business Data report with limitation on blob size of 30 bytes.
+        ZipFilePath := ExportBusinessDataSetBlobSize(DataExportRecDefinition, 30);
+
+        // [THEN] Zip file is created, it contains CVLedgerEntryBuffer.txt, DetailedCVLedgEntryBuffer.txt and Log.txt files.
+        // [THEN] CVLedgerEntryBuffer.txt contains 3 lines, DetailedCVLedgEntryBuffer.txt contains 6 lines.
+        // [THEN] Log.txt contains information that 3 CVLedgerEntryBuffer and 6 DetailedCVLedgEntryBuffer records were exported.
+        VerifyCVLedgerEntryContentInDataFile(ZipFilePath);
+        VerifyDtldCVLedgerEntryContentInDataFile(ZipFilePath);
+        ValidateLogFile(ZipFilePath, 1, CVLedgEntryBuffer.TableName, NoOfParentEntries);
+        ValidateLogFile(ZipFilePath, 2, DtldCVLedgEntryBuffer.TableName, NoOfParentEntries * NoOfChildEntries);
+    end;
+
     local procedure GetPKFieldIndex(): Integer
     begin
         exit(1);
@@ -2531,9 +2570,13 @@ codeunit 142006 "Export Business Data"
     local procedure InsertParentEntry(): Integer
     var
         CVLedgEntryBuffer: Record "CV Ledger Entry Buffer";
+        LastEntryNo: Integer;
+        DummyEntryFound: Boolean;
     begin
+        DummyEntryFound := CVLedgEntryBuffer.FindLast();
+        LastEntryNo := CVLedgEntryBuffer."Entry No.";
         with CVLedgEntryBuffer do begin
-            "Entry No." := 1;
+            "Entry No." := LastEntryNo + 1;
             "Posting Date" := WorkDate();
             "Document Type" := "Document Type"::Invoice;
             Insert();
@@ -2546,16 +2589,20 @@ codeunit 142006 "Export Business Data"
     var
         DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
         ParentEntryNo: Integer;
+        LastEntryNo: Integer;
+        DummyEntryFound: Boolean;
         i: Integer;
     begin
         ParentEntryNo := InsertParentEntry;
 
+        DummyEntryFound := DtldCVLedgEntryBuffer.FindLast();
+        LastEntryNo := DtldCVLedgEntryBuffer."Entry No.";
         with DtldCVLedgEntryBuffer do begin
             for i := 1 to NoOfEntries do begin
-                "Entry No." += 1;
+                "Entry No." := LastEntryNo + i;
                 "CV Ledger Entry No." := ParentEntryNo;
                 "Posting Date" := WorkDate();
-                "Entry Type" += 1;
+                "Entry Type" := i;
                 Insert();
             end;
 
@@ -2737,6 +2784,66 @@ codeunit 142006 "Export Business Data"
         exit(EntryNo);
     end;
 
+    local procedure VerifyCVLedgerEntryContentInDataFile(ZipFilePath: Text)
+    var
+        CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer";
+        TempBlob: Codeunit "Temp Blob";
+        ExtractedFileOutStream: OutStream;
+        ExtractedFileInStream: InStream;
+        DummyFileLength: Integer;
+        NoOfLinesInFile: Integer;
+        NoOfCVLedgerEntries: Integer;
+        ExpectedLine: Text;
+        ActualLine: Text;
+    begin
+        NoOfCVLedgerEntries := CVLedgerEntryBuffer.Count();
+        TempBlob.CreateOutStream(ExtractedFileOutStream);
+        ExtractEntryFromZipFile(ZipFilePath, CVLedgerEntryFileNameTxt, ExtractedFileOutStream, DummyFileLength);
+        TempBlob.CreateInStream(ExtractedFileInStream);
+        NoOfLinesInFile := 0;
+        CVLedgerEntryBuffer.FindSet();
+        while not ExtractedFileInStream.EOS() do begin
+            NoOfLinesInFile += 1;
+            ExtractedFileInStream.ReadText(ActualLine);
+            ExpectedLine :=
+                StrSubstNo(CVLedgerEntryLineFormatTxt, CVLedgerEntryBuffer."Entry No.", CVLedgerEntryBuffer."Document Type",
+                Format(CVLedgerEntryBuffer.Amount, 0, '<Precision,2><Standard Format,0>'));
+            Assert.AreEqual(ExpectedLine, ActualLine, '');
+            CVLedgerEntryBuffer.Next();
+        end;
+        Assert.AreEqual(NoOfCVLedgerEntries, NoOfLinesInFile, '');
+    end;
+
+    local procedure VerifyDtldCVLedgerEntryContentInDataFile(ZipFilePath: Text)
+    var
+        DtldCVLedgerEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
+        TempBlob: Codeunit "Temp Blob";
+        ExtractedFileOutStream: OutStream;
+        ExtractedFileInStream: InStream;
+        DummyFileLength: Integer;
+        NoOfLinesInFile: Integer;
+        NoOfCVLedgerEntries: Integer;
+        ExpectedLine: Text;
+        ActualLine: Text;
+    begin
+        NoOfCVLedgerEntries := DtldCVLedgerEntryBuffer.Count();
+        TempBlob.CreateOutStream(ExtractedFileOutStream);
+        ExtractEntryFromZipFile(ZipFilePath, DtldCVLedgEntryFileNameTxt, ExtractedFileOutStream, DummyFileLength);
+        TempBlob.CreateInStream(ExtractedFileInStream);
+        NoOfLinesInFile := 0;
+        DtldCVLedgerEntryBuffer.FindSet();
+        while not ExtractedFileInStream.EOS() do begin
+            NoOfLinesInFile += 1;
+            ExtractedFileInStream.ReadText(ActualLine);
+            ExpectedLine :=
+                StrSubstNo(DtldCVLedgEntryLineFormatTxt, DtldCVLedgerEntryBuffer."Entry No.", DtldCVLedgerEntryBuffer."CV Ledger Entry No.",
+                DtldCVLedgerEntryBuffer."Entry Type", Format(DtldCVLedgerEntryBuffer."Posting Date", 10, '<day,2>.<month,2>.<year4>'));
+            Assert.AreEqual(ExpectedLine, ActualLine, '');
+            DtldCVLedgerEntryBuffer.Next();
+        end;
+        Assert.AreEqual(NoOfCVLedgerEntries, NoOfLinesInFile, '');
+    end;
+
     local procedure VerifyDTDFileNameInIndexXML(ExportPath: Text)
     var
         TempBlob: Codeunit "Temp Blob";
@@ -2873,25 +2980,49 @@ codeunit 142006 "Export Business Data"
         exit(ExportBusinessDataSetPeriod(DataExportRecord, WorkDate(), WorkDate()));
     end;
 
-    local procedure ExportBusinessDataSetPeriod(var DataExportRecord: Record "Data Export Record Definition"; StartDate: Date; EndDate: Date): Text
+    local procedure ExportBusinessDataSetPeriod(var DataExportRecord: Record "Data Export Record Definition"; StartDate: Date; EndDate: Date) ZipFileName: Text
     var
         ExportBusData: Report "Export Business Data";
-        FileMgt: Codeunit "File Management";
-        PathName: Text;
-        ZipFileName: Text;
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        DummyFileName: Text;
     begin
-        PathName := DefaultFilePathName;
-        ZipFileName := DataExportRecord."Data Exp. Rec. Type Code" + '.zip';
-        with ExportBusData do begin
-            InitializeRequest(StartDate, EndDate);
-            SetClientFileName(FileMgt.CombinePath(PathName, ZipFileName));
-            UseRequestPage(false);
-            DataExportRecord.SetRange("Data Export Code", DataExportRecord."Data Export Code");
-            DataExportRecord.SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
-            SetTableView(DataExportRecord);
-            Run;
-        end;
-        Exit(FileMgt.CombinePath(PathName, ZipFileName));
+        LibraryFileMgtHandler.SetDownloadSubscriberActivated(true);
+        LibraryFileMgtHandler.SetSaveFileActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+
+        DummyFileName := LibraryUtility.GenerateGUID();
+        ExportBusData.InitializeRequest(StartDate, EndDate);
+        ExportBusData.SetClientFileName(DummyFileName);
+        ExportBusData.UseRequestPage(false);
+        DataExportRecord.SetRecFilter();
+        ExportBusData.SetTableView(DataExportRecord);
+        ExportBusData.Run();
+
+        UnbindSubscription(LibraryFileMgtHandler);
+        ZipFileName := LibraryFileMgtHandler.GetServerTempFileName();
+    end;
+
+    local procedure ExportBusinessDataSetBlobSize(var DataExportRecord: Record "Data Export Record Definition"; BlobMaxSizeThreshold: Integer) ZipFileName: Text
+    var
+        ExportBusData: Report "Export Business Data";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        DummyFileName: Text;
+    begin
+        LibraryFileMgtHandler.SetDownloadSubscriberActivated(true);
+        LibraryFileMgtHandler.SetSaveFileActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+
+        DummyFileName := LibraryUtility.GenerateGUID();
+        ExportBusData.InitializeRequest(WorkDate(), WorkDate());
+        ExportBusData.SetClientFileName(DummyFileName);
+        ExportBusData.UseRequestPage(false);
+        DataExportRecord.SetRecFilter();
+        ExportBusData.SetTableView(DataExportRecord);
+        ExportBusData.InitializeBlobMaxSizeThreshold(BlobMaxSizeThreshold);
+        ExportBusData.Run();
+
+        UnbindSubscription(LibraryFileMgtHandler);
+        ZipFileName := LibraryFileMgtHandler.GetServerTempFileName();
     end;
 
     local procedure RunExportBusinessDataZipStreamOutput(DataExportRecDef: Record "Data Export Record Definition")
@@ -2904,21 +3035,6 @@ codeunit 142006 "Export Business Data"
         ExportBusinessData.SetClientFileName('');
         ExportBusinessData.UseRequestPage(false);
         ExportBusinessData.Run();
-    end;
-
-    local procedure DefaultFilePathName(): Text[250]
-    var
-        FilePathName: Text;
-    begin
-        FilePathName := TemporaryPath + Format(CreateGuid());
-        CreateDirectory(FilePathName);
-        exit(FilePathName);
-    end;
-
-    local procedure CreateDirectory(FilePathName: Text)
-    begin
-        if not ClientDirectoryHelper.Exists(FilePathName) then
-            ClientDirectoryHelper.CreateDirectory(FilePathName);
     end;
 
     local procedure InitializeFlowFieldScenario(var DataExportRecord: Record "Data Export Record Definition"; var DataExportRecordSource: Record "Data Export Record Source"; var Customer: Record Customer; DateFilterHandling: Option " ",Period,"End Date Only","Start Date Only")
@@ -3117,12 +3233,14 @@ codeunit 142006 "Export Business Data"
     var
         RecRef: RecordRef;
         FieldRef: FieldRef;
+        CustomerNo: Code[20];
     begin
         RecRef.Open(TableNo);
         FieldRef := RecRef.Field(FieldNo);
         RecRef.FindSet();
         repeat
-            Customer.Get(RecRef.Field(1));
+            CustomerNo := RecRef.Field(1).Value;
+            Customer.Get(CustomerNo);
             Assert.AreEqual(
               CalcNetChange(Customer), FieldRef.Value, FlowFilterRecExportErr)
         until RecRef.Next() = 0;
@@ -3575,7 +3693,7 @@ codeunit 142006 "Export Business Data"
         Reply := true;
     end;
 
-    local procedure ExtractEntryFromZipFile(ZipFilePath: Text; EntryName: Text; ExtractedEntryOutStream: OutStream; ExtractedEntryLength: Integer);
+    local procedure ExtractEntryFromZipFile(ZipFilePath: Text; EntryName: Text; ExtractedEntryOutStream: OutStream; var ExtractedEntryLength: Integer);
     var
         ZipFile: File;
         ZipFileInStream: InStream;
@@ -3588,4 +3706,3 @@ codeunit 142006 "Export Business Data"
         ZipFile.Close();
     end;
 }
-
