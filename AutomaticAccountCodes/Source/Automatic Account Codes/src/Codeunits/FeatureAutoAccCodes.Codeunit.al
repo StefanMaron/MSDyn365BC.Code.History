@@ -25,9 +25,15 @@ codeunit 4851 "Feature Auto. Acc. Codes" implements "Feature Data Update"
 
     procedure UpdateData(FeatureDataUpdateStatus: Record "Feature Data Update Status");
     var
+        AutoAccCodesFeatureMgt: Codeunit "Auto. Acc. Codes Feature Mgt.";
         StartDateTime: DateTime;
         EndDateTime: DateTime;
     begin
+        if FeatureDataUpdateStatus."Feature Key" <> AutoAccCodesFeatureMgt.GetFeatureKeyId() then
+            exit;
+        if FeatureDataUpdateStatus."Data Update Required" = false then
+            exit;
+
         StartDateTime := CurrentDateTime;
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, 'UpgradeAutomaticAccountCodes', StartDateTime);
         UpgradeAutomaticAccountCodes();
@@ -51,8 +57,6 @@ codeunit 4851 "Feature Auto. Acc. Codes" implements "Feature Data Update"
         Result := StrSubstNo(Description1Txt, AutomaticAccHdrTxt, AutomaticAccLnTxt);
         OnAfterGetListOfTables(Result);
     end;
-
-
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterUpdateData', '', false, false)]
     local procedure HandleOnOnAfterUpdateData(var FeatureDataUpdateStatus: Record "Feature Data Update Status")
@@ -78,7 +82,6 @@ codeunit 4851 "Feature Auto. Acc. Codes" implements "Feature Data Update"
         FeatureDataUpdateStatus.ModifyAll("Feature Status", FeatureDataUpdateStatus."Feature Status"::Enabled);
         IsHandled := true;
     end;
-
 
     local procedure UpgradeAutomaticAccountCodes()
     var
@@ -237,7 +240,7 @@ codeunit 4851 "Feature Auto. Acc. Codes" implements "Feature Data Update"
 
         SourceRecRef.FindSet();
 
-        Repeat
+        repeat
             Clear(SourceField);
             SourceField.SetRange(TableNo, SourceTableId);
             SourceField.SetRange(Class, SourceField.Class::Normal);
@@ -250,7 +253,7 @@ codeunit 4851 "Feature Auto. Acc. Codes" implements "Feature Data Update"
                     TargetFieldRef.VALUE := SourceFieldRef.VALUE;
                 until SourceField.Next() = 0;
             TargetRecRef.Insert();
-        Until SourceRecRef.Next() = 0;
+        until SourceRecRef.Next() = 0;
         SourceRecRef.Close();
         TargetRecRef.Close();
     end;
