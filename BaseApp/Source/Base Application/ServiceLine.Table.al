@@ -1069,6 +1069,7 @@
             trigger OnValidate()
             var
                 VATPostingSetup: Record "VAT Posting Setup";
+                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
             begin
                 TestStatusOpen();
                 GetServHeader();
@@ -1088,6 +1089,7 @@
                         "Unit Price" * (100 + "VAT %" + "EC %") / (100 + xRec."VAT %" + xRec."EC %"),
                         Currency."Unit-Amount Rounding Precision"));
                 UpdateAmounts();
+                SIISchemeCodeMgt.UpdatePurchSpecialSchemeCodeInServiceine(Rec);
             end;
         }
         field(91; "Currency Code"; Code[10])
@@ -2580,6 +2582,10 @@
             AutoFormatType = 1;
             Caption = 'EC Difference';
             Editable = false;
+        }
+        field(10709; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
+        {
+            Caption = 'Special Scheme Code';
         }
     }
 

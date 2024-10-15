@@ -80,7 +80,7 @@ report 10710 "Make 349 Declaration"
                                           Customer2."No.", Customer2.Name, VATCredSales."VAT Reporting Date",
                                           VATCredSales."Document Type", VATCredSales."Document No.",
                                           VATCredSales."EU 3-Party Trade", VATCredSales."EU Service", VATCredSales.Base >= 0,
-                                          VATCredSales."Entry No.", 0, VATCredSales."Delivery Operation Code");
+                                          VATCredSales."Entry No.", 0, VATCredSales."Delivery Operation Code", VATCredSales."Posting Date");
                                 end;
                             until VATCredSales.Next() = 0;
 
@@ -128,7 +128,7 @@ report 10710 "Make 349 Declaration"
                                         InsertVendWarning349(
                                           Vendor2."No.", Vendor2.Name, VATCredPurch."VAT Reporting Date",
                                           VATCredPurch."Document Type", VATCredPurch."Document No.",
-                                          VATCredPurch."EU 3-Party Trade", VATCredPurch."EU Service", VATCredPurch.Base >= 0, VATCredPurch."Entry No.", 0);
+                                          VATCredPurch."EU 3-Party Trade", VATCredPurch."EU Service", VATCredPurch.Base >= 0, VATCredPurch."Entry No.", 0, VATCredPurch."Posting Date");
                                 end;
                             until VATCredPurch.Next() = 0;
 
@@ -179,6 +179,7 @@ report 10710 "Make 349 Declaration"
                     AccOrigDeclAmount: array[3] of Decimal;
                     i: Integer;
                     NoTaxableNormalAmountSales: array[3] of Decimal;
+                    CorrectedInvPostingDate: Date;
                 begin
                     while (Customer."VAT Registration No." = PreVATRegNo) or (Customer."VAT Registration No." = '') do
                         if Customer.Next() = 0 then
@@ -276,11 +277,28 @@ report 10710 "Make 349 Declaration"
                             CustVendWarning349.SetRange("Include Correction", true);
                             if CustVendWarning349.FindSet() then
                                 repeat
-                                    if ((CustVendWarning349."Original Declaration FY" <> FiscalYear) or
-                                        (CustVendWarning349."Original Declaration Period" <> GetPeriodAsText()) or
-                                        (not IsCorrectiveCrMemo(CustVendWarning349)))
+                                    CorrectedInvPostingDate := GetCorrectedInvoicePostingDate(CustVendWarning349);
+                                    if IsCorrectiveCrMemo(CustVendWarning349) and
+                                       (GetYearAsText(CorrectedInvPostingDate) = FiscalYear) and
+                                       ((GetMonthAsText(CorrectedInvPostingDate) = GetPeriodAsText()) or (Period = Period::"0A"))    // 0A - Annual
                                     then begin
-                                        // Credit Memo corrects Invoice from previous period OR Credit Memo does not correct any Invoice
+                                        // Credit Memo corrects Invoice from the same period
+                                        if "VAT Registration No." <> '' then begin
+                                            if CustVendWarning349."EU Service" then
+                                                CorrectAmountEU()
+                                            else begin
+                                                if CustVendWarning349."EU 3-Party Trade" then begin
+                                                    AmountOpTri += CustVendWarning349."Original Declared Amount";
+                                                    CorrIncludedForOpTriAmount := true;
+                                                end else begin
+                                                    InitVATEntry(VATEntry, CustVendWarning349."VAT Entry No.");
+                                                    SummarizeBaseAmount(VATEntry, -CustVendWarning349."Original Declared Amount", Amount);
+                                                end;
+                                            end;
+                                        end;
+                                    end else begin
+                                        // Credit Memo corrects Invoice from previous period OR Credit Memo does not correct any Invoice OR \
+                                        // (Credit Memo corrects Invoice from previous period AND Original Declaration Period was not changed on Customer/Vendor Warnings 349)
                                         TotalCorreAmt += CustVendWarning349."Original Declared Amount";
                                         NoOfCorrections += 1;
 
@@ -391,22 +409,6 @@ report 10710 "Make 349 Declaration"
                                             end else
                                                 EmptyVATRegNo := true;
                                         end;
-
-                                    end else begin
-                                        // Credit Memo corrects Invoice from the same period
-                                        if "VAT Registration No." <> '' then begin
-                                            if CustVendWarning349."EU Service" then
-                                                CorrectAmountEU()
-                                            else begin
-                                                if CustVendWarning349."EU 3-Party Trade" then begin
-                                                    AmountOpTri += CustVendWarning349."Original Declared Amount";
-                                                    CorrIncludedForOpTriAmount := true;
-                                                end else begin
-                                                    InitVATEntry(VATEntry, CustVendWarning349."VAT Entry No.");
-                                                    SummarizeBaseAmount(VATEntry, -CustVendWarning349."Original Declared Amount", Amount);
-                                                end;
-                                            end;
-                                        end;
                                     end;
                                 until CustVendWarning349.Next() = 0;
                         until Customer2.Next() = 0;
@@ -468,6 +470,8 @@ report 10710 "Make 349 Declaration"
                 PrintOnlyIfDetail = false;
 
                 trigger OnAfterGetRecord()
+                var
+                    CorrectedInvPostingDate: Date;
                 begin
                     while (Vendor."VAT Registration No." = PreVATRegNo) or (Vendor."VAT Registration No." = '') do
                         if Vendor.Next() = 0 then
@@ -559,11 +563,26 @@ report 10710 "Make 349 Declaration"
                             CustVendWarning349.SetRange("Include Correction", true);
                             if CustVendWarning349.FindSet() then
                                 repeat
-                                    if ((CustVendWarning349."Original Declaration FY" <> FiscalYear) or
-                                        (CustVendWarning349."Original Declaration Period" <> GetPeriodAsText()) or
-                                        (not IsCorrectiveCrMemo(CustVendWarning349)))
+                                    CorrectedInvPostingDate := GetCorrectedInvoicePostingDate(CustVendWarning349);
+                                    if IsCorrectiveCrMemo(CustVendWarning349) and
+                                       (GetYearAsText(CorrectedInvPostingDate) = FiscalYear) and
+                                       ((GetMonthAsText(CorrectedInvPostingDate) = GetPeriodAsText()) or (Period = Period::"0A"))    // 0A - Annual
                                     then begin
-                                        // Credit Memo corrects Invoice from previous period OR Credit Memo does not correct any Invoice
+                                        // Credit Memo corrects Invoice from the same period
+                                        if "VAT Registration No." <> '' then begin
+                                            if CustVendWarning349."EU Service" then
+                                                CorrectAmountEU()
+                                            else begin
+                                                if CustVendWarning349."EU 3-Party Trade" then begin
+                                                    AmountOpTri -= CustVendWarning349."Original Declared Amount";
+                                                    CorrIncludedForOpTriAmount := true;
+                                                end else
+                                                    CorrectAmountPurchNoEU();
+                                            end;
+                                        end;
+                                    end else begin
+                                        // Credit Memo corrects Invoice from previous period OR Credit Memo does not correct any Invoice OR \
+                                        // (Credit Memo corrects Invoice from previous period AND Original Declaration Period was not changed on Customer/Vendor Warnings 349)
                                         TotalCorreAmt += CustVendWarning349."Original Declared Amount";
                                         NoOfCorrections += 1;
                                         AccumPrevDeclAmount := 0;
@@ -665,18 +684,6 @@ report 10710 "Make 349 Declaration"
                                                     end;
                                             end else
                                                 EmptyVATRegNo := true;
-                                        end;
-                                    end else begin
-                                        if "VAT Registration No." <> '' then begin
-                                            if CustVendWarning349."EU Service" then
-                                                CorrectAmountEU()
-                                            else begin
-                                                if CustVendWarning349."EU 3-Party Trade" then begin
-                                                    AmountOpTri -= CustVendWarning349."Original Declared Amount";
-                                                    CorrIncludedForOpTriAmount := true;
-                                                end else
-                                                    CorrectAmountPurchNoEU();
-                                            end;
                                         end;
                                     end;
                                 until CustVendWarning349.Next() = 0;
@@ -1693,6 +1700,28 @@ report 10710 "Make 349 Declaration"
         exit(Format(PeriodInt, 2, '<Integer,2><Filler Character,0>'));
     end;
 
+    local procedure GetMonthAsText(DateValue: Date): Text[2]
+    var
+        MonthInt: Integer;
+    begin
+        if DateValue = 0D then
+            exit('00');
+
+        MonthInt := Date2DMY(DateValue, 2);
+        exit(Format(MonthInt, 2, '<Integer,2><Filler Character,0>'));
+    end;
+
+    local procedure GetYearAsText(DateValue: Date): Text[4]
+    var
+        YearInt: Integer;
+    begin
+        if DateValue = 0D then
+            exit('0000');
+
+        YearInt := Date2DMY(DateValue, 3);
+        exit(Format(YearInt));
+    end;
+
     local procedure GetPrevDeclaredAmount(var CustomerVendorWarning349: Record "Customer/Vendor Warning 349"): Decimal
     var
         VATEntry: Record "VAT Entry";
@@ -1799,6 +1828,42 @@ report 10710 "Make 349 Declaration"
         end;
     end;
 
+    local procedure GetCorrectedInvoicePostingDate(CustVendWarning349: Record "Customer/Vendor Warning 349"): Date
+    var
+        VATEntry: Record "VAT Entry";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        InitVATEntry(VATEntry, CustVendWarning349."VAT Entry No.");
+        if VATEntry."Document Type" <> "Gen. Journal Document Type"::"Credit Memo" then
+            exit(0D);
+
+        case CustVendWarning349.Type of
+            CustVendWarning349.Type::Sale:
+                begin
+                    if SalesCrMemoHeader.Get(CustVendWarning349."Document No.") then
+                        if SalesInvoiceHeader.Get(SalesCrMemoHeader."Corrected Invoice No.") then
+                            exit(SalesInvoiceHeader."Posting Date");
+
+                    if ServiceCrMemoHeader.Get(CustVendWarning349."Document No.") then
+                        if ServiceInvoiceHeader.Get(ServiceCrMemoHeader."Corrected Invoice No.") then
+                            exit(ServiceInvoiceHeader."Posting Date");
+                end;
+            CustVendWarning349.Type::Purchase:
+                begin
+                    if PurchCrMemoHeader.Get(CustVendWarning349."Document No.") then
+                        if PurchInvHeader.Get(PurchCrMemoHeader."Corrected Invoice No.") then
+                            exit(PurchInvHeader."Posting Date");
+                end;
+        end;
+
+        exit(0D);
+    end;
+
     local procedure CombineEUCountryAndVATRegNo(CountryRegion: Record "Country/Region"; VATRegistrationNo: Code[20]) CombinedVATRegNo: Text[17]
     begin
         if StrPos(VATRegistrationNo, CountryRegion."EU Country/Region Code") = 0 then
@@ -1808,7 +1873,7 @@ report 10710 "Make 349 Declaration"
           Format(CountryRegion.GetVATRegistrationNoLimitedBySetup(VATRegistrationNo), MaxStrLen(CombinedVATRegNo));
     end;
 
-    local procedure InsertVendWarning349(No: Code[20]; Name: Text[100]; VATReportingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; NoTaxableEntryNo: Integer)
+    local procedure InsertVendWarning349(No: Code[20]; Name: Text[100]; VATReportingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; NoTaxableEntryNo: Integer; PostingDate: Date)
     begin
         CalcVendDeclarationPeriodInfo(DocType, DocNo, No);
 
@@ -1826,6 +1891,7 @@ report 10710 "Make 349 Declaration"
         CustVendWarning349."Original Declaration Period" := GetPeriodAsText();
         CustVendWarning349."VAT Entry No." := VATEntryNo;
         CustVendWarning349."No Taxable Entry No." := NoTaxableEntryNo;
+        CustVendWarning349."Posting Date" := PostingDate;
 
         if PositiveBase then
             CustVendWarning349.Sign := '-'
@@ -1834,7 +1900,7 @@ report 10710 "Make 349 Declaration"
         CustVendWarning349.Insert();
     end;
 
-    local procedure InsertCustWarning349(No: Code[20]; Name: Text[100]; VATReportingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; NoTaxableEntryNo: Integer; DeliveryOperationCode: Option)
+    local procedure InsertCustWarning349(No: Code[20]; Name: Text[100]; VATReportingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; NoTaxableEntryNo: Integer; DeliveryOperationCode: Option; PostingDate: Date)
     begin
         CalcCustDeclarationPeriodInfo(DocType, DocNo, No);
 
@@ -1853,6 +1919,7 @@ report 10710 "Make 349 Declaration"
         CustVendWarning349."VAT Entry No." := VATEntryNo;
         CustVendWarning349."No Taxable Entry No." := NoTaxableEntryNo;
         CustVendWarning349."Delivery Operation Code" := DeliveryOperationCode;
+        CustVendWarning349."Posting Date" := PostingDate;
 
         if PositiveBase then
             CustVendWarning349.Sign := '-'
@@ -1876,7 +1943,7 @@ report 10710 "Make 349 Declaration"
             InsertCustWarning349(
               Customer2."No.", Customer2.Name, NoTaxableEntry."VAT Reporting Date",
               NoTaxableEntry."Document Type"::"Credit Memo", NoTaxableEntry."Document No.",
-              NoTaxableEntry."EU 3-Party Trade", NoTaxableEntry."EU Service", false, 0, NoTaxableEntry."Entry No.", 0);
+              NoTaxableEntry."EU 3-Party Trade", NoTaxableEntry."EU Service", false, 0, NoTaxableEntry."Entry No.", 0, NoTaxableEntry."Posting Date");
         until NoTaxableEntry.Next() = 0;
     end;
 
@@ -1910,7 +1977,7 @@ report 10710 "Make 349 Declaration"
             InsertVendWarning349(
               Vendor2."No.", Vendor2.Name, NoTaxableEntry."VAT Reporting Date",
               NoTaxableEntry."Document Type"::"Credit Memo", NoTaxableEntry."Document No.",
-              NoTaxableEntry."EU 3-Party Trade", NoTaxableEntry."EU Service", false, 0, NoTaxableEntry."Entry No.");
+              NoTaxableEntry."EU 3-Party Trade", NoTaxableEntry."EU Service", false, 0, NoTaxableEntry."Entry No.", NoTaxableEntry."Posting Date");
         until NoTaxableEntry.Next() = 0;
     end;
 

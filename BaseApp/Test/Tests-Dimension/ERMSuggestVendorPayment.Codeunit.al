@@ -2508,6 +2508,58 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         Assert.RecordCount(GenJournalLine, 3);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentSuggestingBillLessThanWithAmountLCY()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        AmountLCY: Decimal;
+    begin
+        // [SCENARIO 463732] Suggest Vendor Payments is not accurate and it suggests lines for a higher amount than the Available Amount (LCY) in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Prepare Vendor with Payment Method with Create Bills = Yes and Payment Terms with 3 installments
+        LibraryCarteraPayables.CreateCarteraVendorUseBillToCarteraPayment(Vendor, '');
+        LibraryCarteraPayables.CreateVendorBankAccount(Vendor, '');
+        LibraryCarteraPayables.CreateMultipleInstallments(Vendor."Payment Terms Code", 3);
+
+        // [GIVEN] Post Purchase Invoice, 3 bills for this invoice are posted
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader, Vendor."No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Save Vendor "Balance (LCY)"
+        Vendor.CalcFields("Balance (LCY)");
+        AmountLCY := Vendor."Balance (LCY)";
+
+        // [GIVEN] Prepare payment journal batch
+        PreparePaymentJournalBatch(GenJournalBatch, LibraryERM.CreateBankAccountNo());
+
+        // [GIVEN] Suggest Vendor Payment for Vendor creates 1 payment journal lines
+        SuggestVendorPaymentWithAmountLCY(
+          GenJournalBatch, Vendor."No.", DMY2Date(31, 12, Date2DMY(WorkDate(), 3)), false,
+           AmountLCY / 2, GenJournalLine."Bal. Account Type"::"Bank Account",
+          GenJournalBatch."Bal. Account No.", "Bank Payment Type"::" ", false);
+
+        // [GIVEN] Suggest Vendor Payment for Vendor creates 2 payment journal lines
+        SuggestVendorPaymentWithAmountLCY(
+          GenJournalBatch, Vendor."No.", DMY2Date(31, 12, Date2DMY(WorkDate(), 3)), false,
+           AmountLCY - 1, GenJournalLine."Bal. Account Type"::"Bank Account",
+          GenJournalBatch."Bal. Account No.", "Bank Payment Type"::" ", false);
+
+        // [THEN] Sum all entries "Amount (LCY)" on Gen Journal Line for Vendor 
+        GenJournalLine.Reset();
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.CalcSums("Amount (LCY)");
+
+        // [VERIFY] "Amount (LCY)" on Gen Journal Line will be less than amount defined on Suggest Vendor Payment
+        Assert.IsTrue((AmountLCY - 1) >= GenJournalLine."Amount (LCY)", '');
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -3837,6 +3889,40 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         VendorNo := CreateVendorWithVendorBankAccountForElectronicPayments;
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, WorkDate(), VendorNo, GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandInt(100));
+    end;
+
+    local procedure SuggestVendorPaymentWithAmountLCY(
+                    GenJournalBatch: Record "Gen. Journal Batch";
+                    VendorNo: Code[20];
+                    LastPaymentDate: Date;
+                    FindPaymentDiscounts: Boolean;
+                    AmountLCY: Decimal;
+                    BalAccountType: Enum "Gen. Journal Account Type";
+                    BalAccountNo: Code[20];
+                    BankPaymentType: Enum "Bank Payment Type";
+                    SummarizePerVendor: Boolean)
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        SuggestVendorPayments: Report "Suggest Vendor Payments";
+    begin
+        GenJournalLine.Init();  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
+        GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
+        SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
+
+        if VendorNo = '' then
+            Vendor.SetRange("No.")
+        else
+            Vendor.SetRange("No.", VendorNo);
+        SuggestVendorPayments.SetTableView(Vendor);
+
+        // Required Random Value for "Document No." field value is not important.
+        SuggestVendorPayments.InitializeRequest(
+          LastPaymentDate, FindPaymentDiscounts, AmountLCY, false, LastPaymentDate, Format(LibraryRandom.RandInt(100)),
+          SummarizePerVendor, BalAccountType, BalAccountNo, BankPaymentType);
+        SuggestVendorPayments.UseRequestPage(false);
+        SuggestVendorPayments.RunModal();
     end;
 
     [RequestPageHandler]

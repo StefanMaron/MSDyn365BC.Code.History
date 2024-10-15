@@ -79,6 +79,16 @@ table 89 "Financial Report User Filters"
             Caption = 'Date Filter';
             DataClassification = SystemMetadata;
         }
+        field(51; "Row Definition"; Code[10])
+        {
+            Caption = 'Row Definition';
+            DataClassification = SystemMetadata;
+        }
+        field(52; "Column Definition"; Code[10])
+        {
+            Caption = 'Column Definition';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

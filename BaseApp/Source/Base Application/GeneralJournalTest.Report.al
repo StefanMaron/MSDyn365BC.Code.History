@@ -324,6 +324,9 @@ report 2 "General Journal - Test"
                     begin
                         OnBeforeGenJournalLineOnAfterGetRecord("Gen. Journal Line", "Gen. Journal Batch", GenJnlTemplate);
 
+                        DebitAmtLCY := 0;
+                        CreditAmtLCY := 0;
+
                         if "Currency Code" = '' then
                             "Amount (LCY)" := Amount;
                         if "Amount (LCY)" > 0 then
@@ -1228,7 +1231,6 @@ report 2 "General Journal - Test"
     begin
         GenJournalLine2.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine2.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine2.SetRange("Document Type", GenJournalLine."Document Type");
         GenJournalLine2.SetRange("Document No.", GenJournalLine."Document No.");
         GenJournalLine2.CalcSums("Balance (LCY)");
         exit(GenJournalLine2."Balance (LCY)");

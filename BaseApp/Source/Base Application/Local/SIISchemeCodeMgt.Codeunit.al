@@ -5,6 +5,9 @@ codeunit 10758 "SII Scheme Code Mgt."
     begin
     end;
 
+    var
+        ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
+
     procedure GetMaxNumberOfRegimeCodes(): Integer
     var
     begin
@@ -195,6 +198,99 @@ codeunit 10758 "SII Scheme Code Mgt."
         SIIPurchDocSchemeCode.Insert(true);
     end;
 
+    procedure UpdatePurchaseSpecialSchemeCodeInPurchaseHeader(PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseLine: Record "Purchase Line";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        If PurchaseHeader."Special Scheme Code" = xPurchaseHeader."Special Scheme Code" then
+            exit;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        if not PurchaseLine.FindSet(true) then
+            exit;
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(ConfirmChangeQst, PurchaseHeader.FieldCaption("Special Scheme Code")), true) then
+            exit;
+        repeat
+            PurchaseLine.Validate("Special Scheme Code", PurchaseHeader."Special Scheme Code");
+            PurchaseLine.Modify(true);
+        until PurchaseLine.Next() = 0;
+    end;
+
+    procedure UpdateSalesSpecialSchemeCodeInSalesHeader(SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        If SalesHeader."Special Scheme Code" = xSalesHeader."Special Scheme Code" then
+            exit;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if not SalesLine.FindSet(true) then
+            exit;
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(ConfirmChangeQst, SalesHeader.FieldCaption("Special Scheme Code")), true) then
+            exit;
+        repeat
+            SalesLine.Validate("Special Scheme Code", SalesHeader."Special Scheme Code");
+            SalesLine.Modify(true);
+        until SalesLine.Next() = 0;
+    end;
+
+    procedure UpdateServiceSpecialSchemeCodeInSalesHeader(ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
+    var
+        ServiceLine: Record "Service Line";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        If ServiceHeader."Special Scheme Code" = xServiceHeader."Special Scheme Code" then
+            exit;
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        if not ServiceLine.FindSet(true) then
+            exit;
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(ConfirmChangeQst, ServiceHeader.FieldCaption("Special Scheme Code")), true) then
+            exit;
+        repeat
+            ServiceLine.Validate("Special Scheme Code", ServiceHeader."Special Scheme Code");
+            ServiceLine.Modify(true);
+        until ServiceLine.Next() = 0;
+    end;
+
+    procedure UpdateSalesSpecialSchemeCodeInSalesLine(var SalesLine: Record "Sales Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        SalesLine."Special Scheme Code" := SalesLine."Special Scheme Code"::"01 General";
+        if not VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
+            exit;
+        if VATPostingSetup."Sales Special Scheme Code" = VATPostingSetup."Sales Special Scheme Code"::" " then
+            exit;
+        SalesLine."Special Scheme Code" := VATPostingSetup."Sales Special Scheme Code" - 1;
+    end;
+
+    procedure UpdatePurchSpecialSchemeCodeInPurchLine(var PurchaseLine: Record "Purchase Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        PurchaseLine."Special Scheme Code" := PurchaseLine."Special Scheme Code"::"01 General";
+        if not VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group") then
+            exit;
+        if VATPostingSetup."Purch. Special Scheme Code" = VATPostingSetup."Purch. Special Scheme Code"::" " then
+            exit;
+        PurchaseLine."Special Scheme Code" := VATPostingSetup."Purch. Special Scheme Code" - 1;
+    end;
+
+    procedure UpdatePurchSpecialSchemeCodeInServiceine(var ServiceLine: Record "Service Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        ServiceLine."Special Scheme Code" := ServiceLine."Special Scheme Code"::"01 General";
+        if not VATPostingSetup.Get(ServiceLine."VAT Bus. Posting Group", ServiceLine."VAT Prod. Posting Group") then
+            exit;
+        if VATPostingSetup."Sales Special Scheme Code" = VATPostingSetup."Sales Special Scheme Code"::" " then
+            exit;
+        ServiceLine."Special Scheme Code" := VATPostingSetup."Sales Special Scheme Code" - 1;
+    end;
+
     local procedure GetSpecialRegimeDocTypeFromSIIDocUploadState(SIIDocUploadState: Record "SII Doc. Upload State"): Integer
     var
         SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
@@ -267,6 +363,7 @@ codeunit 10758 "SII Scheme Code Mgt."
         VATClause: Record "VAT Clause";
         SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
         Found: Boolean;
+        SpecialSchemeCodeToInsert: Boolean;
     begin
         SIISalesDocumentSchemeCode."Entry Type" := SIISalesDocumentSchemeCode."Entry Type"::Sales;
         SIISalesDocumentSchemeCode."Document Type" := SalesHeader."Document Type";
@@ -278,6 +375,11 @@ codeunit 10758 "SII Scheme Code Mgt."
             exit;
 
         repeat
+            SpecialSchemeCodeToInsert := false;
+            If SalesLine."Special Scheme Code" <> SalesLine."Special Scheme Code"::"01 General" then begin
+                SIISalesDocumentSchemeCode."Special Scheme Code" := SalesLine."Special Scheme Code" + 1;
+                SpecialSchemeCodeToInsert := true;
+            end;
             if (VATPostingSetup."VAT Bus. Posting Group" <> SalesLine."VAT Bus. Posting Group") or
                 (VATPostingSetup."VAT Prod. Posting Group" <> SalesLine."VAT Prod. Posting Group")
             then begin
@@ -289,15 +391,18 @@ codeunit 10758 "SII Scheme Code Mgt."
                     if VATPostingSetup."VAT Clause Code" <> VATClause.Code then begin
                         VATClause.Get(VATPostingSetup."VAT Clause Code");
                         Found :=
-                          VATClause."SII Exemption Code" in [VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21",
-                                                              VATClause."SII Exemption Code"::"E3 Exempt on account of Article 22"]
+                        VATClause."SII Exemption Code" in [VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21",
+                                                            VATClause."SII Exemption Code"::"E3 Exempt on account of Article 22"]
                     end;
-                if VATPostingSetup."Sales Special Scheme Code" <> 0 then begin
-                    SalesHeader."Special Scheme Code" := VATPostingSetup."Sales Special Scheme Code" - 1;
+                if (VATPostingSetup."Sales Special Scheme Code" <> 0) and (not SpecialSchemeCodeToInsert) then begin
                     SIISalesDocumentSchemeCode."Special Scheme Code" := VATPostingSetup."Sales Special Scheme Code";
-                    if not SIISalesDocumentSchemeCode.Find() then
-                        SIISalesDocumentSchemeCode.Insert();
+                    SpecialSchemeCodeToInsert := true;
                 end;
+            end;
+            if SpecialSchemeCodeToInsert then begin
+                if not SIISalesDocumentSchemeCode.Find() then
+                    SIISalesDocumentSchemeCode.Insert();
+                SalesHeader."Special Scheme Code" := SIISalesDocumentSchemeCode."Special Scheme Code" - 1;
             end;
         until (SalesLine.Next() = 0) or Found;
         if Found then begin
@@ -318,6 +423,7 @@ codeunit 10758 "SII Scheme Code Mgt."
         VATClause: Record "VAT Clause";
         SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
         Found: Boolean;
+        SpecialSchemeCodeToInsert: Boolean;
     begin
         SIISalesDocumentSchemeCode."Entry Type" := SIISalesDocumentSchemeCode."Entry Type"::Service;
         SIISalesDocumentSchemeCode."Document Type" := PassedServHeader."Document Type";
@@ -329,6 +435,11 @@ codeunit 10758 "SII Scheme Code Mgt."
             exit;
 
         repeat
+            SpecialSchemeCodeToInsert := false;
+            If ServiceLine."Special Scheme Code" <> ServiceLine."Special Scheme Code"::"01 General" then begin
+                SIISalesDocumentSchemeCode."Special Scheme Code" := ServiceLine."Special Scheme Code" + 1;
+                SpecialSchemeCodeToInsert := true;
+            end;
             if (VATPostingSetup."VAT Bus. Posting Group" <> ServiceLine."VAT Bus. Posting Group") or
                 (VATPostingSetup."VAT Prod. Posting Group" <> ServiceLine."VAT Prod. Posting Group")
             then begin
@@ -343,12 +454,15 @@ codeunit 10758 "SII Scheme Code Mgt."
                           VATClause."SII Exemption Code" in [VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21",
                                                               VATClause."SII Exemption Code"::"E3 Exempt on account of Article 22"]
                     end;
-                if VATPostingSetup."Sales Special Scheme Code" <> 0 then begin
-                    PassedServHeader."Special Scheme Code" := VATPostingSetup."Sales Special Scheme Code" - 1;
+                if (VATPostingSetup."Sales Special Scheme Code" <> 0) and (not SpecialSchemeCodeToInsert) then begin
                     SIISalesDocumentSchemeCode."Special Scheme Code" := VATPostingSetup."Sales Special Scheme Code";
-                    if not SIISalesDocumentSchemeCode.Find() then
-                        SIISalesDocumentSchemeCode.Insert();
+                    SpecialSchemeCodeToInsert := true;
                 end;
+            end;
+            if SpecialSchemeCodeToInsert then begin
+                if not SIISalesDocumentSchemeCode.Find() then
+                    SIISalesDocumentSchemeCode.Insert();
+                PassedServHeader."Special Scheme Code" := SIISalesDocumentSchemeCode."Special Scheme Code" - 1;
             end;
         until (ServiceLine.Next() = 0) or Found;
         if Found then begin
@@ -367,6 +481,7 @@ codeunit 10758 "SII Scheme Code Mgt."
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code";
+        SpecialSchemeCodeToInsert: Boolean;
     begin
         SIIPurchDocSchemeCode."Document Type" := PurchaseHeader."Document Type";
         SIIPurchDocSchemeCode."Document No." := PurchaseHeader."No.";
@@ -377,6 +492,11 @@ codeunit 10758 "SII Scheme Code Mgt."
             exit;
 
         repeat
+            SpecialSchemeCodeToInsert := false;
+            If PurchaseLine."Special Scheme Code" <> PurchaseLine."Special Scheme Code"::"01 General" then begin
+                SIIPurchDocSchemeCode."Special Scheme Code" := PurchaseLine."Special Scheme Code" + 1;
+                SpecialSchemeCodeToInsert := true;
+            end;
             if (VATPostingSetup."VAT Bus. Posting Group" <> PurchaseLine."VAT Bus. Posting Group") or
                 (VATPostingSetup."VAT Prod. Posting Group" <> PurchaseLine."VAT Prod. Posting Group")
             then begin
@@ -385,9 +505,13 @@ codeunit 10758 "SII Scheme Code Mgt."
                 if VATPostingSetup."Purch. Special Scheme Code" <> 0 then begin
                     PurchaseHeader."Special Scheme Code" := VATPostingSetup."Purch. Special Scheme Code" - 1;
                     SIIPurchDocSchemeCode."Special Scheme Code" := VATPostingSetup."Purch. Special Scheme Code";
-                    if not SIIPurchDocSchemeCode.Find() then
-                        SIIPurchDocSchemeCode.Insert();
+                    SpecialSchemeCodeToInsert := true;
                 end;
+            end;
+            if SpecialSchemeCodeToInsert then begin
+                if not SIIPurchDocSchemeCode.Find() then
+                    SIIPurchDocSchemeCode.Insert();
+                PurchaseHeader."Special Scheme Code" := SIIPurchDocSchemeCode."Special Scheme Code" - 1;
             end;
         until PurchaseLine.Next() = 0;
     end;

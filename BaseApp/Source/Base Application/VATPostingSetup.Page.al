@@ -219,9 +219,16 @@ page 472 "VAT Posting Setup"
     }
 
     trigger OnOpenPage()
+#if not CLEAN23    
+    var
+        NoTaxableMgt: Codeunit "No Taxable Mgt.";
+#endif
     begin
         SetAccountsVisibility(UnrealizedVATVisible, AdjustForPmtDiscVisible);
+#if not CLEAN23
+        NoTaxableMgt.CheckVATPostingSetupOnPage();
     end;
+#endif
 
     var
         CopyVATPostingSetup: Report "Copy - VAT Posting Setup";

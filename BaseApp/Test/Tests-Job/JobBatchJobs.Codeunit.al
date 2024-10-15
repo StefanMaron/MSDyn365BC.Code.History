@@ -57,7 +57,6 @@
         XDefaultJobWIPNoTxt: Label 'WIP0000001', Comment = 'CF stands for Cash Flow.';
         XDefaultJobWIPEndNoTxt: Label 'WIP9999999';
         XJobWIPDescriptionTxt: Label 'Job-WIP';
-        QuantityNegativeErr: Label '%1 must be positive to create Sales Invoice in Job Planning Line Job No.=''%2'',Job Task No.=''%3'',Line No.=''%4''.', Comment = '%1 = Quantity, %2 = Job No., %3 = Job Task No., %4 = Line No.';
 
     [Test]
     [HandlerFunctions('ChangeJobDatesHandler')]
@@ -1408,32 +1407,36 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue,JobTransferToSalesInvoiceHandler,MessageHandler')]
     [Scope('OnPrem')]
-    procedure VerifySalesInvoiceNotCreatedForNegativeJobPlanningLine()
+    procedure VerifyJobJournalLineBlankAfterPosting()
     var
         JobTask: Record "Job Task";
-        JobJournalLine: Record "Job Journal Line";
         JobPlanningLine: Record "Job Planning Line";
+        JobJournalBatch: Record "Job Journal Batch";
+        JobJournalLine: Record "Job Journal Line";
+        DocumentNo: Code[20];
     begin
-        // [SCENARIO 459398] Sales invoice with negative line created from job cannot be posted
+        // [SCENARIO 463554] When a line is posted in the Job Journal, an "empty" journal line remains afterwards.
         Initialize();
 
-        // [GIVEN] Create Job, Job Task, Job Journal Line and post it after updating quantity.
+        // [GIVEN] Create "Job Task" and "Job Planning Line".
         CreateJobAndJobTask(JobTask);
-        CreateAndPostJobJournalLineWithResourceAndNegativeQuantity(JobJournalLine, JobTask);
-        FindJobPlanningLine(JobPlanningLine, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, CreateResource, JobTask);
 
-        // [WHEN] Create Sales Invoice from Job Planning Lines.
-        asserterror JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);  // Use False for Invoice.
+        // [GIVEN] Create "Job Journal Batch" and "Document No.".
+        CreateJobJournalBatch(JobJournalBatch);
+        Evaluate(DocumentNo, LibraryUtility.GenerateRandomCode(JobJournalLine.FieldNo("Document No."), DATABASE::"Job Journal Line"));
 
-        // [VERIFY] Verify: Error Quantity must be positive to create Sales Invoice in Job Planning Line Job No., Job Task No. and Line No.
-        Assert.ExpectedError(
-            StrSubstNo(QuantityNegativeErr,
-            JobPlanningLine.FieldCaption(Quantity),
-            JobPlanningLine."Job No.",
-            JobPlanningLine."Job Task No.",
-            JobPlanningLine."Line No."));
+        // [GIVEN] Create Job Journal Line.
+        LibraryJob.CreateJobJournalLineForType("Job Line Type"::Billable, JobJournalLine.Type::Resource, JobTask, JobJournalLine);
+
+        // [WHEN] Post Job Journal Line.
+        PostJobJournalBatch(JobJournalLine);
+
+        // [VERIFY] Verify no line inserted after posting of Job Journal Line.
+        JobJournalLine.SetRange("Journal Template Name", JobJournalBatch."Journal Template Name");
+        JobJournalLine.SetRange("Journal Batch Name", JobJournalBatch.Name);
+        Assert.IsTrue(JobJournalLine.IsEmpty(), '');
     end;
 
     local procedure Initialize()
@@ -2667,14 +2670,10 @@
         JobList."Attached Documents".Documents.AssertEquals(1);
     end;
 
-    local procedure CreateAndPostJobJournalLineWithResourceAndNegativeQuantity(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task")
+    local procedure PostJobJournalBatch(var JobJournalLine: Record "Job Journal Line")
     begin
-        LibraryJob.CreateJobJournalLineForType("Job Line Type"::Billable, JobJournalLine.Type::Resource, JobTask, JobJournalLine);
-        JobJournalLine.Validate("No.", CreateResource);
-        JobJournalLine.Validate(Quantity, -LibraryRandom.RandInt(10));  // Use Random because value is not important.
-        JobJournalLine.Validate("Line Amount", JobJournalLine."Line Amount" - LibraryUtility.GenerateRandomFraction);  // Update Line Amount for generating Line Discount Amount.
-        JobJournalLine.Modify(true);
-        LibraryJob.PostJobJournal(JobJournalLine);
+        // Post job journal batch
+        Codeunit.Run(Codeunit::"Job Jnl.-Post Batch", JobJournalLine);
     end;
 }
 

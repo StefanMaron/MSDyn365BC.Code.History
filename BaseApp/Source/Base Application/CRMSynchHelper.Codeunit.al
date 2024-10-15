@@ -1443,6 +1443,7 @@ codeunit 5342 "CRM Synch. Helper"
         Customer: Record Customer;
         Vendor: Record Vendor;
         Contact: Record Contact;
+        SalesHeader: Record "Sales Header";
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
         SalesPersonPurchaser: Record "Salesperson/Purchaser";
@@ -1457,6 +1458,8 @@ codeunit 5342 "CRM Synch. Helper"
                 SalesPersonPurchaserFieldRef := SourceRecordRef.Field(Vendor.FieldNo(Vendor."Purchaser Code"));
             Database::Contact:
                 SalesPersonPurchaserFieldRef := SourceRecordRef.Field(Contact.FieldNo(Contact."Salesperson Code"));
+            Database::"Sales Header":
+                SalesPersonPurchaserFieldRef := SourceRecordRef.Field(SalesHeader.FieldNo(SalesHeader."Salesperson Code"));
             else
                 exit(CDSUserId);
         end;

@@ -519,6 +519,11 @@
                     BlankZero = true;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
                 }
+                field("Special Scheme Code"; Rec."Special Scheme Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the special scheme code.';
+                }
                 field("Prepmt Amt to Deduct"; Rec."Prepmt Amt to Deduct")
                 {
                     ApplicationArea = Prepayments;

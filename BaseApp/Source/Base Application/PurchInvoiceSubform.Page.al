@@ -1,4 +1,4 @@
-﻿page 55 "Purch. Invoice Subform"
+page 55 "Purch. Invoice Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -54,7 +54,7 @@
                 {
                     ApplicationArea = All;
                     ShowMandatory = Type <> Type::" ";
-                    ToolTip = 'Specifies what you are buying, such as a product or a fixed asset. You’ll see different lists of things to choose from depending on your choice in the Type field.';
+                    ToolTip = 'Specifies what you are buying, such as a product or a fixed asset. You�ll see different lists of things to choose from depending on your choice in the Type field.';
 
                     trigger OnValidate()
                     var
@@ -421,6 +421,11 @@
                         ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
+                }
+                field("Special Scheme Code"; Rec."Special Scheme Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the special scheme code.';
                 }
                 field("Job No."; Rec."Job No.")
                 {

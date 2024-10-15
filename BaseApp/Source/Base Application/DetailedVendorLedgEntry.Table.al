@@ -248,7 +248,7 @@ table 380 "Detailed Vendor Ledg. Entry"
         {
             Clustered = true;
         }
-        key(Key2; "Vendor Ledger Entry No.", "Posting Date")
+        key(Key2; "Vendor Ledger Entry No.", "Posting Date", "Excluded from calculation")
         {
             SumIndexFields = Amount, "Amount (LCY)";
         }

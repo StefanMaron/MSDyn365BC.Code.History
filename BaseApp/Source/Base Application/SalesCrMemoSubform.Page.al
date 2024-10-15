@@ -1,4 +1,4 @@
-﻿page 96 "Sales Cr. Memo Subform"
+page 96 "Sales Cr. Memo Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -424,6 +424,11 @@
                         ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
+                }
+                field("Special Scheme Code"; Rec."Special Scheme Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the special scheme code.';
                 }
                 field("Job No."; Rec."Job No.")
                 {

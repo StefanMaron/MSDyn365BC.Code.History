@@ -5637,6 +5637,9 @@ End Function
         <Field Name="Description">
           <DataField>Description</DataField>
         </Field>
+        <Field Name="YourReference_DtldCustLedgEntries">
+          <DataField>YourReference_DtldCustLedgEntries</DataField>
+        </Field>
         <Field Name="DueDate_DtldCustLedgEntries">
           <DataField>DueDate_DtldCustLedgEntries</DataField>
         </Field>
@@ -5717,6 +5720,9 @@ End Function
         </Field>
         <Field Name="Desc_CustLedgEntry2">
           <DataField>Desc_CustLedgEntry2</DataField>
+        </Field>
+        <Field Name="YourReference_CustLedgEntry2">
+          <DataField>YourReference_CustLedgEntry2</DataField>
         </Field>
         <Field Name="DueDate_CustLedgEntry2">
           <DataField>DueDate_CustLedgEntry2</DataField>

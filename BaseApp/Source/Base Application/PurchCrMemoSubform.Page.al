@@ -442,6 +442,11 @@ page 98 "Purch. Cr. Memo Subform"
                         UpdateForm(false);
                     end;
                 }
+                field("Special Scheme Code"; Rec."Special Scheme Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the special scheme code.';
+                }
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;

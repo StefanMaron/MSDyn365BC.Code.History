@@ -534,6 +534,10 @@ table 5995 "Service Cr.Memo Line"
             AutoFormatType = 1;
             Caption = 'EC Difference';
         }
+        field(10709; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
+        {
+            Caption = 'Special Scheme Code';
+        }
     }
 
     keys

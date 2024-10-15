@@ -1453,6 +1453,7 @@
 
             trigger OnValidate()
             var
+                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -1507,6 +1508,7 @@
 
                 OnValidateVATProdPostingGroupOnBeforeUpdateAmounts(Rec, xRec, SalesHeader, Currency);
                 UpdateAmounts();
+                SIISchemeCodeMgt.UpdateSalesSpecialSchemeCodeInSalesLine(Rec);
             end;
         }
         field(91; "Currency Code"; Code[10])
@@ -3342,6 +3344,10 @@
             DecimalPlaces = 0 : 5;
             Editable = false;
             MinValue = 0;
+        }
+        field(10704; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
+        {
+            Caption = 'Special Scheme Code';
         }
     }
 

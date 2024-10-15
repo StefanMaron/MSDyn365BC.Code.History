@@ -661,6 +661,10 @@ table 125 "Purch. Cr. Memo Line"
             AutoFormatType = 1;
             Caption = 'EC Difference';
         }
+        field(10709; "Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
+        {
+            Caption = 'Special Scheme Code';
+        }
     }
 
     keys

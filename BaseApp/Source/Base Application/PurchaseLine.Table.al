@@ -1384,6 +1384,7 @@
 
             trigger OnValidate()
             var
+                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
                 IsHandled: Boolean;
                 ShouldUpdateUnitCost: Boolean;
             begin
@@ -1432,6 +1433,7 @@
                             "Direct Unit Cost" * (100 + "VAT %" + "EC %") / (100 + xRec."VAT %" + xRec."EC %"),
                             Currency."Unit-Amount Rounding Precision"));
                     UpdateAmounts();
+                    SIISchemeCodeMgt.UpdatePurchSpecialSchemeCodeInPurchLine(Rec);
                 end;
             end;
         }
@@ -3478,6 +3480,10 @@
             DecimalPlaces = 0 : 5;
             Editable = false;
             MinValue = 0;
+        }
+        field(10709; "Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
+        {
+            Caption = 'Special Scheme Code';
         }
         field(99000750; "Routing No."; Code[20])
         {
