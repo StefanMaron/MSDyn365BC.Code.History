@@ -550,7 +550,7 @@ report 408 "Purchase - Receipt"
         GiroNoCaptionLbl: Label 'Giro No.';
         BankNameCaptionLbl: Label 'Bank';
         AccNoCaptionLbl: Label 'Account No.';
-        ShipmentNoCaptionLbl: Label 'Shipment No.';
+        ShipmentNoCaptionLbl: Label 'Receipt No.';
         HeaderDimCaptionLbl: Label 'Header Dimensions';
         LineDimCaptionLbl: Label 'Line Dimensions';
         PaytoAddrCaptionLbl: Label 'Pay-to Address';

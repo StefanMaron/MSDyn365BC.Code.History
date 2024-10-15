@@ -506,7 +506,7 @@ report 5912 "Service - Credit Memo"
                         column(VATClauseCode; VATAmountLine."VAT Clause Code")
                         {
                         }
-                        column(VATClauseDescription; VATClause.Description)
+                        column(VATClauseDescription; VATClauseText)
                         {
                         }
                         column(VATClauseDescription2; VATClause."Description 2")
@@ -535,7 +535,7 @@ report 5912 "Service - Credit Memo"
                             VATAmountLine.GetLine(Number);
                             if not VATClause.Get(VATAmountLine."VAT Clause Code") then
                                 CurrReport.Skip();
-                            VATClause.GetDescription("Service Cr.Memo Header");
+                            VATClauseText := VATClause.GetDescriptionText("Service Cr.Memo Header");
                         end;
 
                         trigger OnPreDataItem()
@@ -733,6 +733,7 @@ report 5912 "Service - Credit Memo"
         TotalText: Text[50];
         TotalExclVATText: Text[50];
         TotalInclVATText: Text[50];
+        VATClauseText: Text;
         MoreLines: Boolean;
         NoOfCopies: Integer;
         NoOfLoops: Integer;

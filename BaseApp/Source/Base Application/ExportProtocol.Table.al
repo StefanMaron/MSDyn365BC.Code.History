@@ -58,6 +58,7 @@ table 2000005 "Export Protocol"
         }
         field(41; "Grouped Payment"; Boolean)
         {
+            Caption = 'SEPA Batch Booking';
         }
     }
 
