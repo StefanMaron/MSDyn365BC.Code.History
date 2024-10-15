@@ -175,6 +175,9 @@ page 5335 "Integration Table Mapping List"
             action(ResetConfiguration)
             {
                 ApplicationArea = Suite;
+                Promoted = true;
+                PromotedIsBig = true;
+                PromotedCategory = Category5;
                 Caption = 'Use Default Synchronization Setup';
                 Image = ResetStatus;
                 ToolTip = 'Resets the integration table mappings and synchronization jobs to the default values for a connection with Dataverse. All current mappings are deleted.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';

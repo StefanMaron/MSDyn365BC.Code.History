@@ -552,10 +552,11 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestCostBudgetByCostObjectPrevSetError()
+    procedure TestCostBudgetByCostObjectPrevSetNoErrorIfPrevSetLessMaximumSetLength()
     var
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
     begin
+        // [SCENARIO 414679] No error when previous set exists and step is less than MaximumSetLength
         Initialize();
 
         LibraryLowerPermissions.SetO365Setup();
@@ -565,8 +566,7 @@
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostObjectPage.OpenEdit();
         CostBudgetByCostObjectPage.NextColumn.Invoke;
-        asserterror CostBudgetByCostObjectPage.PreviousSet.Invoke;
-        Assert.ExpectedError(PreviousSetNotFoundError);
+        CostBudgetByCostObjectPage.PreviousSet.Invoke;
         CostBudgetByCostObjectPage.Close();
     end;
 
@@ -872,18 +872,18 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestCostBudgetByCostCenterPrevSetError()
+    procedure TestCostBudgetByCostCenterPrevSetNoErrorIfPrevSetLessMaximumSetLength()
     var
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
     begin
+        // [SCENARIO 414679] No error when previous set exists and step is less than MaximumSetLength
         Initialize();
         CheckCreateCostCenters;
 
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostCenterPage.OpenEdit();
         CostBudgetByCostCenterPage.NextColumn.Invoke;
-        asserterror CostBudgetByCostCenterPage.PreviousSet.Invoke;
-        Assert.ExpectedError(PreviousSetNotFoundError);
+        CostBudgetByCostCenterPage.PreviousSet.Invoke;
         CostBudgetByCostCenterPage.Close();
     end;
 

@@ -1,4 +1,4 @@
-page 30 "Item Card"
+﻿page 30 "Item Card"
 {
     Caption = 'Item Card';
     PageType = Card;
@@ -276,6 +276,18 @@ page 30 "Item Card"
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the classification required for reporting to the Mexican tax authorities (SAT)';
+                }
+                field("SAT Hazardous Material"; "SAT Hazardous Material")
+                {
+                    ApplicationArea = BasicMX;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the type of hazardous material being transported.';
+                }
+                field("SAT Packaging Type"; "SAT Packaging Type")
+                {
+                    ApplicationArea = BasicMX;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the type of packaging that is required to transport the hazardous material.';
                 }
                 field("Over-Receipt Code"; "Over-Receipt Code")
                 {

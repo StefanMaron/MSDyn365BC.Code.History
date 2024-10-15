@@ -38,6 +38,7 @@ codeunit 113 "Vend. Entry-Edit"
         OnBeforeVendLedgEntryModify(VendLedgEntry, Rec);
         VendLedgEntry.TestField("Entry No.", "Entry No.");
         VendLedgEntry.Modify();
+        OnRunOnAfterVendLedgEntryMofidy(VendLedgEntry);
         Rec := VendLedgEntry;
     end;
 
@@ -52,6 +53,11 @@ codeunit 113 "Vend. Entry-Edit"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeDtldVendLedgEntryModifyAll(FromVendLedgEntry: Record "Vendor Ledger Entry"; var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterVendLedgEntryMofidy(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

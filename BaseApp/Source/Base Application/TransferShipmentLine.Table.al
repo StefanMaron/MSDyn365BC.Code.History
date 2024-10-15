@@ -1,4 +1,4 @@
-table 5745 "Transfer Shipment Line"
+﻿table 5745 "Transfer Shipment Line"
 {
     Caption = 'Transfer Shipment Line';
     LookupPageID = "Posted Transfer Shipment Lines";
@@ -176,6 +176,10 @@ table 5745 "Transfer Shipment Line"
             TableRelation = Bin.Code WHERE("Location Code" = FIELD("Transfer-from Code"),
                                             "Item Filter" = FIELD("Item No."),
                                             "Variant Filter" = FIELD("Variant Code"));
+        }
+        field(10003; "Custom Transit Number"; Text[30])
+        {
+            Caption = 'Custom Transit Number';
         }
     }
 

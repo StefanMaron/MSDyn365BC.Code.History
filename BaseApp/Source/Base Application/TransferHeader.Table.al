@@ -1,4 +1,4 @@
-table 5740 "Transfer Header"
+﻿table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -609,6 +609,52 @@ table 5740 "Transfer Header"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
+        field(10044; "Transport Operators"; Integer)
+        {
+            Caption = 'Transport Operators';
+            CalcFormula = Count ("CFDI Transport Operator" WHERE ("Document Table ID" = CONST (5740),
+                                                                 "Document No." = FIELD ("No.")));
+            FieldClass = FlowField;
+        }
+        field(10045; "Transit-from Date/Time"; DateTime)
+        {
+            Caption = 'Transit-from Date/Time';
+        }
+        field(10046; "Transit Hours"; Integer)
+        {
+            Caption = 'Transit Hours';
+        }
+        field(10047; "Transit Distance"; Decimal)
+        {
+            Caption = 'Transit Distance';
+        }
+        field(10048; "Insurer Name"; Text[50])
+        {
+            Caption = 'Insurer Name';
+        }
+        field(10049; "Insurer Policy Number"; Text[30])
+        {
+            Caption = 'Insurer Policy Number';
+        }
+        field(10050; "Foreign Trade"; Boolean)
+        {
+            Caption = 'Foreign Trade';
+        }
+        field(10051; "Vehicle Code"; Code[20])
+        {
+            Caption = 'Vehicle Code';
+            TableRelation = "Fixed Asset";
+        }
+        field(10052; "Trailer 1"; Code[20])
+        {
+            Caption = 'Trailer 1';
+            TableRelation = "Fixed Asset" WHERE ("SAT Trailer Type" = FILTER (<> ''));
+        }
+        field(10053; "Trailer 2"; Code[20])
+        {
+            Caption = 'Trailer 2';
+            TableRelation = "Fixed Asset" WHERE ("SAT Trailer Type" = FILTER (<> ''));
+        }
     }
 
     keys
@@ -965,6 +1011,7 @@ table 5740 "Transfer Header"
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
         WhseRequest: Record "Warehouse Request";
         InvtCommentLine: Record "Inventory Comment Line";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
         No: Code[20];
         IsHandled: Boolean;
     begin
@@ -997,6 +1044,8 @@ table 5740 "Transfer Header"
 
         OnDeleteOneTransferOrderOnBeforeTransHeaderDelete(TransHeader2, HideValidationDialog);
         TransHeader2.Delete();
+        EInvoiceMgt.DeleteCFDITransportOperatorsAfterPosting(DATABASE::"Transfer Header", 0, TransHeader2."No.");
+
         if not HideValidationDialog then
             Message(TransferOrderPostedMsg1, No);
     end;

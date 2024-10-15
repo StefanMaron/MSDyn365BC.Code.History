@@ -71,6 +71,15 @@ page 10811 "Generate EFT File Lines"
     end;
 
     [Scope('OnPrem')]
+    procedure GetFirstColumn(): Text[50]
+    begin
+        if Rec.FindFirst() then
+            exit(Rec."Journal Template Name" + ' · ' + Rec."Journal Batch Name" + ' · ' + Format(Rec."Line No.") + ' · ' + Format(Rec."Sequence No."))
+        else
+            exit('');
+    end;
+
+    [Scope('OnPrem')]
     procedure GetColumns(var TempEFTExportWorkset: Record "EFT Export Workset" temporary)
     begin
         TempEFTExportWorkset.DeleteAll();

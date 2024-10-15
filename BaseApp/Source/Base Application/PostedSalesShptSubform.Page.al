@@ -1,4 +1,4 @@
-page 131 "Posted Sales Shpt. Subform"
+﻿page 131 "Posted Sales Shpt. Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -286,6 +286,11 @@ page 131 "Posted Sales Shpt. Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units per parcel of the item. In the sales statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular sales document.';
                     Visible = false;
+                }
+                field("Custom Transit Number"; "Custom Transit Number")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies a unique transit number as five groups of digits separated by two spaces. The number identifies the transport, the year of transport, the customs office, and other required information.';
                 }
             }
         }

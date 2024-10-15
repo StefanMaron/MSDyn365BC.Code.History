@@ -663,7 +663,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-        PostPaymentToGLAccount(GLAccount."No.", BankAccRecon."Bank Account No.", TransactionAmount);
+        PostPaymentToGLAccount(GLAccount."No.", BankAccRecon."Bank Account No.", TransactionAmount, TextToAccountMapping."Mapping Text");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
@@ -698,7 +698,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-        PostPaymentToGLAccount(GLAccount."No.", BankAccRecon."Bank Account No.", TransactionAmount);
+        PostPaymentToGLAccount(GLAccount."No.", BankAccRecon."Bank Account No.", TransactionAmount, TransactionText);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
@@ -2489,7 +2489,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure PostPaymentToGLAccount(GLAccountNo: Code[20]; BankAccNo: Code[20]; Amount: Decimal)
+    local procedure PostPaymentToGLAccount(GLAccountNo: Code[20]; BankAccNo: Code[20]; Amount: Decimal; LineDescription: Text)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -2507,6 +2507,9 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
           GenJournalLine."Bal. Account Type"::"Bank Account",
           BankAccNo,
           -Amount);
+
+        GenJournalLine.Description := CopyStr(LineDescription, 1, MaxStrLen(GenJournalLine.Description));
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
