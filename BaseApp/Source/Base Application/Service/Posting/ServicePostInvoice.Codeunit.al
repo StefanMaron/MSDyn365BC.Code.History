@@ -9,6 +9,7 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
 using Microsoft.Service.Document;
 using Microsoft.Service.Pricing;
+using Microsoft.Service.Setup;
 
 codeunit 817 "Service Post Invoice" implements "Invoice Posting"
 {
@@ -127,9 +128,8 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
                     then
                         GenPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group");
 
-        InvoicePostingBuffer.PrepareService(ServiceLine);
+        PrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);
 
-        // OnFillInvPostingBuffer(SalesTaxCalculationOverridden, ServiceLine, ServiceLineACY, TotalAmount, TotalAmountACY, TotalVAT, TotalVATACY);
         if not SalesTaxCalculationOverridden then begin
             TotalVAT := ServiceLine."Amount Including VAT" - ServiceLine.Amount;
             TotalVATACY := ServiceLineACY."Amount Including VAT" - ServiceLineACY.Amount;
@@ -260,6 +260,54 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
               ServiceHeader."Prices Including VAT", -ServiceLine."Line Discount Amount", -ServiceLineACY."Line Discount Amount");
     end;
 
+    internal procedure PrepareInvoicePostingBuffer(var ServiceLine: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+        ServicePostInvoiceEvents.RunOnBeforePrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);
+
+        Clear(InvoicePostingBuffer);
+        case ServiceLine.Type of
+            ServiceLine.Type::Item:
+                InvoicePostingBuffer.Type := InvoicePostingBuffer.Type::Item;
+            ServiceLine.Type::Resource:
+                InvoicePostingBuffer.Type := InvoicePostingBuffer.Type::Resource;
+            ServiceLine.Type::"G/L Account":
+                InvoicePostingBuffer.Type := InvoicePostingBuffer.Type::"G/L Account";
+        end;
+        InvoicePostingBuffer."System-Created Entry" := true;
+        InvoicePostingBuffer."Gen. Bus. Posting Group" := ServiceLine."Gen. Bus. Posting Group";
+        InvoicePostingBuffer."Gen. Prod. Posting Group" := ServiceLine."Gen. Prod. Posting Group";
+        InvoicePostingBuffer."VAT Bus. Posting Group" := ServiceLine."VAT Bus. Posting Group";
+        InvoicePostingBuffer."VAT Prod. Posting Group" := ServiceLine."VAT Prod. Posting Group";
+        InvoicePostingBuffer."VAT Calculation Type" := ServiceLine."VAT Calculation Type";
+        InvoicePostingBuffer."Global Dimension 1 Code" := ServiceLine."Shortcut Dimension 1 Code";
+        InvoicePostingBuffer."Global Dimension 2 Code" := ServiceLine."Shortcut Dimension 2 Code";
+        InvoicePostingBuffer."Dimension Set ID" := ServiceLine."Dimension Set ID";
+        InvoicePostingBuffer."Job No." := ServiceLine."Job No.";
+        InvoicePostingBuffer."VAT %" := ServiceLine."VAT %";
+        InvoicePostingBuffer."VAT Difference" := ServiceLine."VAT Difference";
+
+        UpdateEntryDescriptionFromServiceLine(ServiceLine, InvoicePostingBuffer);
+
+#if not CLEAN25
+        InvoicePostingBuffer.RunOnAfterPrepareService(ServiceLine, InvoicePostingBuffer);
+#endif
+        ServicePostInvoiceEvents.RunOnAfterPrepareInvoicePostingBuffer(ServiceLine, InvoicePostingBuffer);
+    end;
+
+    local procedure UpdateEntryDescriptionFromServiceLine(ServiceLine: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceSetup: Record "Service Mgt. Setup";
+    begin
+        ServiceSetup.Get();
+        ServiceHeader.get(ServiceLine."Document Type", ServiceLine."Document No.");
+        InvoicePostingBuffer.UpdateEntryDescription(
+            ServiceSetup."Copy Line Descr. to G/L Entry",
+            ServiceLine."Line No.",
+            ServiceLine.Description,
+            ServiceHeader."Posting Description", false);
+    end;
+
     local procedure UpdateInvoicePostingBuffer(InvoicePostingBuffer: Record "Invoice Posting Buffer"; ServiceLine: Record "Service Line")
     begin
         InvoicePostingBuffer."Dimension Set ID" := ServiceLine."Dimension Set ID";
@@ -313,7 +361,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
             InvoicePostingParameters."Document Type", InvoicePostingParameters."Document No.",
             InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
 
-        GenJnlLine.CopyFromServiceHeader(ServiceHeader);
+        ServiceHeader.CopyToGenJournalLine(GenJnlLine);
 
         InvoicePostingBuffer.CopyToGenJnlLine(GenJnlLine);
         GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Sale;
@@ -343,11 +391,11 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
 
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
         GenJnlLine."Account No." := ServiceHeader."Bill-to Customer No.";
-        GenJnlLine.CopyFromServiceHeader(ServiceHeader);
+        ServiceHeader.CopyToGenJournalLine(GenJnlLine);
         GenJnlLine.SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
 
-        GenJnlLine.CopyFromServiceHeaderApplyTo(ServiceHeader);
-        GenJnlLine.CopyFromServiceHeaderPayment(ServiceHeader);
+        ServiceHeader.CopyToGenJournalLineApplyTo(GenJnlLine);
+        ServiceHeader.CopyToGenJournalLinePayment(GenJnlLine);
 
         GenJnlLine.Amount := -TotalServiceLine."Amount Including VAT";
         GenJnlLine."Source Currency Amount" := -TotalServiceLine."Amount Including VAT";
@@ -398,7 +446,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
 
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
         GenJnlLine."Account No." := ServiceHeader."Bill-to Customer No.";
-        GenJnlLine.CopyFromServiceHeader(ServiceHeader);
+        ServiceHeader.CopyToGenJournalLine(GenJnlLine);
         GenJnlLine.SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
 
         SetApplyToDocNo(ServiceHeader, GenJnlLine);

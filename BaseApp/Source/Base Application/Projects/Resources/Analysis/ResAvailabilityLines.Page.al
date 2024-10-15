@@ -75,15 +75,6 @@ page 361 "Res. Availability Lines"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies capacity, minus quantity on order (Project), minus quantity on service order, minus project quotes allocation. ';
                 }
-#pragma warning disable AA0100
-                field("Resource.""Qty. on Service Order"""; Rec."Qty. on Service Order")
-#pragma warning restore AA0100
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Qty. on Service Order';
-                    DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies how many units of the item are allocated to service orders, meaning listed on outstanding service order lines.';
-                }
                 field(QtyOnAssemblyOrder; Rec."Qty. on Assembly Order")
                 {
                     ApplicationArea = Assembly;
@@ -168,20 +159,19 @@ page 361 "Res. Availability Lines"
     local procedure CalcLine()
     begin
         SetDateFilter();
-        Resource.CalcFields(Capacity, "Qty. on Order (Job)", "Qty. Quoted (Job)", "Qty. on Service Order", "Qty. on Assembly Order");
+        Resource.CalcFields(Capacity, "Qty. on Order (Job)", "Qty. Quoted (Job)", "Qty. on Assembly Order");
 
         Rec.Capacity := Resource.Capacity;
         Rec."Qty. on Order (Job)" := Resource."Qty. on Order (Job)";
         Rec."Availability After Orders" := Resource.Capacity - Resource."Qty. on Order (Job)";
         Rec."Job Quotes Allocation" := Resource."Qty. Quoted (Job)";
         Rec."Availability After Quotes" := Rec."Availability After Orders" - Resource."Qty. Quoted (Job)";
-        Rec."Qty. on Service Order" := Resource."Qty. on Service Order";
         Rec."Qty. on Assembly Order" := Resource."Qty. on Assembly Order";
-        Rec."Net Availability" := Rec."Availability After Quotes" - Resource."Qty. on Service Order" - Resource."Qty. on Assembly Order";
+        Rec."Net Availability" := Rec."Availability After Quotes" - Resource."Qty. on Assembly Order";
 
         CapacityAfterOrders := Resource.Capacity - Resource."Qty. on Order (Job)";
         CapacityAfterQuotes := CapacityAfterOrders - Resource."Qty. Quoted (Job)";
-        NetAvailability := CapacityAfterQuotes - Resource."Qty. on Service Order" - Resource."Qty. on Assembly Order";
+        NetAvailability := CapacityAfterQuotes - Resource."Qty. on Assembly Order";
 
         OnAfterCalcLine(Resource, CapacityAfterOrders, CapacityAfterQuotes, NetAvailability, Rec);
     end;

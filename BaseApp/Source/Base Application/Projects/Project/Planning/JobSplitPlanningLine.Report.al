@@ -58,7 +58,11 @@ report 1088 "Job Split Planning Line"
     var
         CalcBatches: Codeunit "Job Calculate Batches";
         NoOfLinesSplit: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 planning line(s) successfully split.';
+#pragma warning restore AA0470
         Text001: Label 'There were no planning lines to split.';
+#pragma warning restore AA0074
 }
 

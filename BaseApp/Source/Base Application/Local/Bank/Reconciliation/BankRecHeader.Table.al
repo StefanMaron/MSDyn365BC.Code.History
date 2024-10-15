@@ -65,7 +65,7 @@ table 10120 "Bank Rec. Header"
         {
             AutoFormatType = 1;
             CalcFormula = sum("G/L Entry".Amount where("G/L Account No." = field("G/L Bank Account No."),
-                                                        "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                        "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'G/L Balance ($)';
             Editable = false;
             FieldClass = FlowField;

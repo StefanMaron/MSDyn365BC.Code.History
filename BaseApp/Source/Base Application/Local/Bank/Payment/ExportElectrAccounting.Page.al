@@ -46,7 +46,7 @@ page 27000 "Export Electr. Accounting"
             {
                 ApplicationArea = BasicMX;
                 Caption = 'Month';
-                Enabled = NOT ClosingBalanceSheet;
+                Enabled = not ClosingBalanceSheet;
                 MaxValue = 12;
                 MinValue = 1;
                 ShowMandatory = true;

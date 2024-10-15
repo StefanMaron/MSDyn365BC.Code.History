@@ -223,6 +223,9 @@ report 1309 "Standard Sales - Return Rcpt."
             column(ShipToAddress8; ShipToAddr[8])
             {
             }
+            column(ShipToPhoneNo; Header."Ship-to Phone No.")
+            {
+            }
             column(SellToContactPhoneNoLbl; SellToContactPhoneNoLbl)
             {
             }
@@ -449,6 +452,8 @@ report 1309 "Standard Sales - Return Rcpt."
 
                     OnBeforeLineOnAfterGetRecord(Header, Line);
 
+                    if FormatDocument.HideDocumentLine(HideLinesWithZeroQuantity, Line, FieldNo(Quantity)) then
+                        CurrReport.Skip();
                     if FirstLineHasBeenOutput then
                         Clear(DummyCompanyInfo.Picture);
                     FirstLineHasBeenOutput := true;
@@ -565,6 +570,12 @@ report 1309 "Standard Sales - Return Rcpt."
                         Caption = 'Show Correction Lines';
                         ToolTip = 'Specifies if the correction lines of an undoing of quantity posting will be shown on the report.';
                     }
+                    field(HideLinesWithZeroQuantityControl; HideLinesWithZeroQuantity)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies if the lines with zero quantity are printed.';
+                        Caption = 'Hide lines with zero quantity';
+                    }
                 }
             }
         }
@@ -607,6 +618,13 @@ report 1309 "Standard Sales - Return Rcpt."
             LayoutFile = './Sales/History/StandardSalesReturnRcptBlue.docx';
             Caption = 'Standard Sales Return Receipt - Blue (Word)';
             Summary = 'The Standard Sales Return Receipt - Blue (Word) provides a simple layout with a blue theme.';
+        }
+        layout("StandardSalesReturnRcptBlueThemable.docx")
+        {
+            Type = Word;
+            LayoutFile = './Sales/History/StandardSalesReturnRcptBlueThemable.docx';
+            Caption = 'Standard Sales Return Receipt - themable Word layout';
+            Summary = 'The Standard Sales Return Receipt - Themable (Word) provides a Themable layout.';
         }
     }
 
@@ -681,7 +699,6 @@ report 1309 "Standard Sales - Return Rcpt."
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
         CustAddr: array[8] of Text[100];
-        ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         SalesPersonText: Text[50];
         FormattedQuantity: Text;
@@ -730,6 +747,8 @@ report 1309 "Standard Sales - Return Rcpt."
 
     protected var
         CompanyInfo: Record "Company Information";
+        ShipToAddr: array[8] of Text[100];
+        HideLinesWithZeroQuantity: Boolean;
 
     local procedure InitLogInteraction()
     begin

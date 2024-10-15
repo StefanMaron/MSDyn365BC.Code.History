@@ -357,7 +357,7 @@ codeunit 142067 "UT REPORTS GENERAL"
         "Code": Variant;
     begin
         LibraryVariableStorage.Dequeue(Code);
-        LanguageList.Language.SetFilter(Code, Code);
+        LanguageList.LanguageDataItem.SetFilter(Code, Code);
         LanguageList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 

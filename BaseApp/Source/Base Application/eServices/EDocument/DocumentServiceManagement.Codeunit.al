@@ -408,7 +408,6 @@ codeunit 9510 "Document Service Management"
         Location := GetDefaultLocation();
     end;
 
-    [NonDebuggable]
     local procedure GetDefaultLocation(): Text[250]
     var
         UrlHelper: Codeunit "Url Helper";
@@ -423,12 +422,12 @@ codeunit 9510 "Document Service Management"
         ResponseErrorMessage: Text;
         ResponseErrorDetails: Text;
         Endpoint: Text;
-        Token: Text;
+        Token: SecretText;
     begin
         Endpoint := GetGraphDriveRootUrl();
-        Token := AzureAdMgt.GetOnBehalfAccessToken(UrlHelper.GetGraphUrl());
+        Token := AzureAdMgt.GetOnBehalfAccessTokenAsSecretText(UrlHelper.GetGraphUrl());
 
-        if Token = '' then begin
+        if Token.IsEmpty() then begin
             Session.LogMessage('0000FSJ', EmptyTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
             Error(AccessTokenEmptyErr);
         end;
@@ -436,7 +435,7 @@ codeunit 9510 "Document Service Management"
         HttpWebRequestMgt.Initialize(Endpoint);
         HttpWebRequestMgt.DisableUI();
         HttpWebRequestMgt.SetReturnType('application/json');
-        HttpWebRequestMgt.AddHeader('Authorization', 'Bearer ' + Token);
+        HttpWebRequestMgt.AddHeader('Authorization', SecretStrSubstNo('Bearer %1', Token));
 
         if not HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseContent, ResponseErrorMessage, ResponseErrorDetails, StatusCode, ResponseHeaders) then begin
             if StatusCode in [401, 404] then // Seems to mostly occur when the backend is still provisioning
@@ -500,7 +499,7 @@ codeunit 9510 "Document Service Management"
     local procedure SetProperties(GetTokenFromCache: Boolean; var DocumentServiceRec: Record "Document Service")
     var
         DocumentServiceHelper: DotNet NavDocumentServiceHelper;
-        AccessToken: Text;
+        AccessToken: SecretText;
     begin
         OnBeforeSetProperties(DocumentServiceRec);
         // The Document Service will throw an exception if the property is not known to the service type provider.
@@ -516,7 +515,7 @@ codeunit 9510 "Document Service Management"
             DocumentService.Credentials := DocumentServiceHelper.ProvideCredentials();
         end else begin
             GetAccessToken(DocumentServiceRec.Location, AccessToken, GetTokenFromCache);
-            DocumentService.Properties.SetProperty('Token', AccessToken);
+            DocumentService.Properties.SetProperty('Token', AccessToken.Unwrap());
         end;
 
         if not (DocumentServiceHelper.LastErrorMessage = '') then
@@ -579,7 +578,6 @@ codeunit 9510 "Document Service Management"
     end;
 
     [TryFunction]
-    [NonDebuggable]
     local procedure GetDriveFolderInfo(FolderUrl: Text; var FolderJson: JsonObject)
     var
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
@@ -603,7 +601,6 @@ codeunit 9510 "Document Service Management"
     end;
 
     [TryFunction]
-    [NonDebuggable]
     local procedure GetFileContent(var DocumentSharing: Record "Document Sharing")
     var
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
@@ -639,7 +636,6 @@ codeunit 9510 "Document Service Management"
     end;
 
     [TryFunction]
-    [NonDebuggable]
     local procedure GetFileDownloadUrl(var DocumentSharing: Record "Document Sharing"; var FileUrl: Text)
     var
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
@@ -676,7 +672,6 @@ codeunit 9510 "Document Service Management"
     end;
 
     [TryFunction]
-    [NonDebuggable]
     local procedure DeleteDriveItem(DocumentSharing: Record "Document Sharing")
     var
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
@@ -699,7 +694,6 @@ codeunit 9510 "Document Service Management"
         end;
     end;
 
-    [NonDebuggable]
     local procedure ResolveItemId(var DocumentSharing: Record "Document Sharing")
     var
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
@@ -742,14 +736,13 @@ codeunit 9510 "Document Service Management"
         Session.LogMessage('0000JB5', StrSubstNo(SharepointItemIdMsg, DocumentSharing."Item Id"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
     end;
 
-    [NonDebuggable]
     local procedure InitializeWebRequest(Url: Text; Method: Text; ReturnType: Text; var HttpWebRequestMgt: Codeunit "Http Web Request Mgt.")
     var
         AzureADMgt: Codeunit "Azure AD Mgt.";
-        Token: Text;
+        Token: SecretText;
     begin
-        Token := AzureADMgt.GetAccessToken(GetGraphDomain(), AzureADMgt.GetO365ResourceName(), false);
-        if Token = '' then begin
+        Token := AzureADMgt.GetAccessTokenAsSecretText(GetGraphDomain(), AzureADMgt.GetO365ResourceName(), false);
+        if Token.IsEmpty() then begin
             Session.LogMessage('0000FMK', EmptyTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
             LicenseError();
         end;
@@ -758,7 +751,7 @@ codeunit 9510 "Document Service Management"
         HttpWebRequestMgt.DisableUI();
         HttpWebRequestMgt.SetMethod(Method);
         HttpWebRequestMgt.SetReturnType(ReturnType);
-        HttpWebRequestMgt.AddHeader('Authorization', 'Bearer ' + Token);
+        HttpWebRequestMgt.AddHeader('Authorization', SecretStrSubstNo('Bearer %1', Token));
     end;
 
     local procedure LicenseError()
@@ -932,9 +925,21 @@ codeunit 9510 "Document Service Management"
         end else
             TrySaveStreamFromRec(InStream, TargetName, ConflictBehavior, DocumentServiceRec, DocumentUri, UploadedFileName);
     end;
+#if not CLEAN25
 
     [NonDebuggable]
+    [Obsolete('Replaced by GetAccessToken(Location: Text; var AccessToken: SecretText; GetTokenFromCache: Boolean)', '25.0')]
     local procedure GetAccessToken(Location: Text; var AccessToken: Text; GetTokenFromCache: Boolean)
+    var
+        AccessTokenAsSecretText: SecretText;
+    begin
+        AccessTokenAsSecretText := AccessToken;
+        GetAccessToken(Location, AccessTokenAsSecretText, GetTokenFromCache);
+        AccessToken := AccessTokenAsSecretText.Unwrap();
+    end;
+#endif
+
+    local procedure GetAccessToken(Location: Text; var AccessToken: SecretText; GetTokenFromCache: Boolean)
     var
         DocumentServiceScenario: Record "Document Service Scenario";
         AzureAdMgt: Codeunit "Azure AD Mgt.";
@@ -944,7 +949,7 @@ codeunit 9510 "Document Service Management"
         PromptInteraction: Enum "Prompt Interaction";
         Scopes: List of [Text];
         ClientId: Text;
-        ClientSecret: Text;
+        ClientSecret: SecretText;
         Resource: Text;
         RedirectURL: Text;
         AuthError: Text;
@@ -952,15 +957,15 @@ codeunit 9510 "Document Service Management"
         Session.LogMessage('0000FSI', StrSubstNo(TokenRequestTxt, Format(GetTokenFromCache)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
         FeatureTelemetry.LogUsage('0000HUM', OneDriveFeatureNameTelemetryTxt, TokenRequestEventTelemetryTxt); // To Account for Platform usage scenarios
 
-        AccessToken := '';
+        Clear(AccessToken);
         Resource := GetResourceUrl(Location);
         if EnvironmentInformation.IsSaaSInfrastructure() then
-            AccessToken := AzureAdMgt.GetOnBehalfAccessToken(Resource)
+            AccessToken := AzureAdMgt.GetOnBehalfAccessTokenAsSecretText(Resource)
         else
             if not DocumentServiceScenario.IsEmpty() then
-                AccessToken := AzureAdMgt.GetAccessToken(Resource, Resource, true);
+                AccessToken := AzureAdMgt.GetAccessTokenAsSecretText(Resource, Resource, true);
 
-        if AccessToken <> '' then begin
+        if not AccessToken.IsEmpty() then begin
             Session.LogMessage('0000GPT', AcquiredTokenOnBehalfFlowTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
             exit;
         end;
@@ -975,7 +980,7 @@ codeunit 9510 "Document Service Management"
 
         if GetTokenFromCache then
             OAuth2.AcquireAuthorizationCodeTokenFromCache(ClientId, ClientSecret, RedirectURL, OAuthAuthorityUrlLbl, Scopes, AccessToken);
-        if AccessToken <> '' then
+        if not AccessToken.IsEmpty() then
             exit;
 
         Session.LogMessage('0000DB7', AccessTokenAcquiredFromCacheErr, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
@@ -990,18 +995,18 @@ codeunit 9510 "Document Service Management"
                     AuthError
                 );
 
-        if AccessToken = '' then begin
+        if AccessToken.IsEmpty() then begin
             Session.LogMessage('0000DB8', StrSubstNo(AuthTokenOrCodeNotReceivedErr, AuthError), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
             Error(AccessTokenErrMsg);
         end;
     end;
 
-    [NonDebuggable]
     local procedure GetClientId(): Text
     var
         DocumentServiceRec: Record "Document Service";
         AzureKeyVault: Codeunit "Azure Key Vault";
         EnvironmentInformation: Codeunit "Environment Information";
+        [NonDebuggable]
         ClientId: Text;
     begin
         if EnvironmentInformation.IsSaaSInfrastructure() then
@@ -1024,13 +1029,14 @@ codeunit 9510 "Document Service Management"
         Error(MissingClientIdOrSecretErr);
     end;
 
-    [NonDebuggable]
-    local procedure GetClientSecret(): Text
+    local procedure GetClientSecret(): SecretText
     var
         DocumentServiceRec: Record "Document Service";
         AzureKeyVault: Codeunit "Azure Key Vault";
         EnvironmentInformation: Codeunit "Environment Information";
-        ClientSecret: Text;
+        ClientSecret: SecretText;
+        [NonDebuggable]
+        ClientSecretFromEvent: Text;
     begin
         if EnvironmentInformation.IsSaaSInfrastructure() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(SharePointClientSecretAKVSecretNameLbl, ClientSecret) then
@@ -1042,14 +1048,15 @@ codeunit 9510 "Document Service Management"
 
         if not DocumentServiceRec.IsEmpty() then begin
             ClientSecret := GetClientSecretFromIsolatedStorage();
-            if ClientSecret <> '' then begin
+            if not ClientSecret.IsEmpty() then begin
                 Session.LogMessage('0000DBE', InitializedClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
                 exit(ClientSecret);
             end;
         end;
 
-        OnGetSharePointClientSecret(ClientSecret);
-        if ClientSecret <> '' then begin
+        OnGetSharePointClientSecret(ClientSecretFromEvent);
+        ClientSecret := ClientSecretFromEvent;
+        if not ClientSecret.IsEmpty() then begin
             Session.LogMessage('0000DBF', InitializedClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
             exit(ClientSecret);
         end;
@@ -1058,7 +1065,6 @@ codeunit 9510 "Document Service Management"
     end;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
     local procedure GetRedirectURL(): Text
     var
         DocumentServiceRec: Record "Document Service";
@@ -1077,7 +1083,6 @@ codeunit 9510 "Document Service Management"
         exit(RedirectURL);
     end;
 
-    [NonDebuggable]
     local procedure GetScopes(Location: Text; var Scopes: List of [Text])
     begin
         Location := GetResourceUrl(Location);
@@ -1085,7 +1090,6 @@ codeunit 9510 "Document Service Management"
         Scopes.Add(Location + '/User.ReadWrite.All');
     end;
 
-    [NonDebuggable]
     local procedure GetResourceUrl(Location: Text): Text
     var
         Uri: Codeunit Uri;
@@ -1095,8 +1099,7 @@ codeunit 9510 "Document Service Management"
     end;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
-    internal procedure SetClientSecret(ClientSecret: Text)
+    internal procedure SetClientSecret(ClientSecret: SecretText)
     var
         DocumentServiceRec: Record "Document Service";
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
@@ -1104,7 +1107,7 @@ codeunit 9510 "Document Service Management"
         if not DocumentServiceRec.FindFirst() then
             Error(NoConfigErr);
 
-        if ClientSecret = '' then
+        if ClientSecret.IsEmpty() then
             if not IsNullGuid(DocumentServiceRec."Client Secret Key") then begin
                 IsolatedStorageManagement.Delete(DocumentServiceRec."Client Secret Key", DATASCOPE::Company);
                 exit;
@@ -1119,12 +1122,11 @@ codeunit 9510 "Document Service Management"
     end;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
-    local procedure GetClientSecretFromIsolatedStorage(): Text
+    local procedure GetClientSecretFromIsolatedStorage(): SecretText
     var
         DocumentServiceRec: Record "Document Service";
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
-        ClientSecret: Text;
+        ClientSecret: SecretText;
     begin
         if not DocumentServiceRec.FindFirst() then
             Error(NoConfigErr);
@@ -1141,9 +1143,8 @@ codeunit 9510 "Document Service Management"
     end;
 
     [Scope('OnPrem')]
-    [NonDebuggable]
     [TryFunction]
-    internal procedure TryGetClientSecretFromIsolatedStorage(var ClientSecret: Text)
+    internal procedure TryGetClientSecretFromIsolatedStorage(var ClientSecret: SecretText)
     begin
         ClientSecret := GetClientSecretFromIsolatedStorage();
     end;
@@ -1155,12 +1156,12 @@ codeunit 9510 "Document Service Management"
         DocumentServiceScenario: Record "Document Service Scenario";
         DocumentServiceRec: Record "Document Service";
         ResultJson: JsonObject;
-        Token: Text;
+        Token: SecretText;
         Result: Text;
     begin
         if DocumentServiceScenario.IsEmpty() then begin
             GetAccessToken(Location, Token, true);
-            Session.SetDocumentServiceToken(Token);
+            Session.SetDocumentServiceToken(Token.Unwrap());
         end;
 
         if Location = '' then
@@ -1170,7 +1171,7 @@ codeunit 9510 "Document Service Management"
 
         ResultJson.Add(DocumentServiceRec.FieldName(Location), Location);
         ResultJson.Add(DocumentServiceRec.FieldName(Folder), GetDefaultFolderName() + '/' + GetSafeCompanyName());
-        ResultJson.Add('Token', Token);
+        ResultJson.Add('Token', Token.Unwrap());
 
         ResultJson.WriteTo(Result);
         Session.SetDocumentServiceToken(Result);
@@ -1280,10 +1281,23 @@ codeunit 9510 "Document Service Management"
             exit(true);
         end;
     end;
+#if not CLEAN25
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    [Obsolete('Replaced by TestLocationResolves(Location: Text[250]; AccessToken: SecretText)', '25.0')]
+    procedure TestLocationResolves(Location: Text[250]; AccessToken: Text): Boolean
+    var
+        AccessTokenAsSecretText: SecretText;
+    begin
+        AccessTokenAsSecretText := AccessToken;
+        exit(TestLocationResolves(Location, AccessTokenAsSecretText))
+    end;
+#endif
 
     [NonDebuggable]
     [Scope('OnPrem')]
-    procedure TestLocationResolves(Location: Text[250]; AccessToken: Text): Boolean
+    procedure TestLocationResolves(Location: Text[250]; AccessToken: SecretText): Boolean
     var
         DocumentServiceRec: Record "Document Service";
     begin
@@ -1294,7 +1308,7 @@ codeunit 9510 "Document Service Management"
         DocumentService.Properties.SetProperty(DocumentServiceRec.FieldName("Authentication Type"), DocumentServiceRec."Authentication Type"::OAuth2);
         DocumentService.Properties.SetProperty(DocumentServiceRec.FieldName("User Name"), '');
         DocumentService.Properties.SetProperty(DocumentServiceRec.FieldName("Document Repository"), '');
-        DocumentService.Properties.SetProperty('Token', AccessToken);
+        DocumentService.Properties.SetProperty('Token', AccessToken.Unwrap());
 
         Location := DocumentService.GetLocation();
         exit(Location <> '');

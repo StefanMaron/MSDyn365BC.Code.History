@@ -1329,7 +1329,7 @@ codeunit 132212 "Library - Patterns"
                     end else
                         CreateRefJournalLinePerItem(TempItemLedgerEntry, TempRefItemJnlLine, PostingDate, ByLocation, ByVariant);
                 until TempLocation.Next() = 0;
-            end else begin
+            end else
                 if ByVariant then begin
                     TempItemVariant.FindSet();
                     repeat
@@ -1338,7 +1338,6 @@ codeunit 132212 "Library - Patterns"
                     until TempItemVariant.Next() = 0;
                 end else
                     CreateRefJournalLinePerItem(TempItemLedgerEntry, TempRefItemJnlLine, PostingDate, ByLocation, ByVariant);
-            end;
         end else begin
             if ItemLedgerEntry.FindSet() then
                 repeat

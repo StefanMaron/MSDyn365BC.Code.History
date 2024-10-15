@@ -1486,8 +1486,7 @@
 
     local procedure CalcCurrencyFactor(CurrencyExchangeRate: Record "Currency Exchange Rate"): Decimal
     begin
-        with CurrencyExchangeRate do
-            exit("Exchange Rate Amount" / "Relational Exch. Rate Amount");
+        exit(CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount");
     end;
 
     local procedure ValidateCustWithFCYOnOrder(var CurrencyExchangeRate: Record "Currency Exchange Rate"; var SalesHeader: Record "Sales Header")
@@ -1693,15 +1692,13 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreEqual(No, "No.",
-              StrSubstNo(IncorrectValueErr, "No.", FieldCaption("No.")));
-            Assert.AreEqual(CurrencyCode, "Currency Code",
-              StrSubstNo(IncorrectValueErr, "Currency Code", FieldCaption("Currency Code")));
-        end;
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.FindFirst();
+        Assert.AreEqual(No, SalesLine."No.",
+          StrSubstNo(IncorrectValueErr, SalesLine."No.", SalesLine.FieldCaption("No.")));
+        Assert.AreEqual(CurrencyCode, SalesLine."Currency Code",
+          StrSubstNo(IncorrectValueErr, SalesLine."Currency Code", SalesLine.FieldCaption("Currency Code")));
     end;
 
     local procedure ExecuteUIHandler()

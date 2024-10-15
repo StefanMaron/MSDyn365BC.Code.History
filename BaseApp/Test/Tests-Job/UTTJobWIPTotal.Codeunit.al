@@ -52,11 +52,10 @@ codeunit 136357 "UT T Job WIP Total"
     var
         JobPostingGroup: Record "Job Posting Group";
     begin
-        with JobPostingGroup do
-            if FindSet() then
-                repeat
-                    LibraryJob.UpdateJobPostingGroup(JobPostingGroup);
-                until Next() = 0;
+        if JobPostingGroup.FindSet() then
+            repeat
+                LibraryJob.UpdateJobPostingGroup(JobPostingGroup);
+            until JobPostingGroup.Next() = 0;
     end;
 
     [Normal]
@@ -893,17 +892,15 @@ codeunit 136357 "UT T Job WIP Total"
     var
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
     begin
-        with JobPlanningLineInvoice do begin
-            SetRange("Job No.", JobPlanningLine."Job No.");
-            SetRange("Job Task No.", JobPlanningLine."Job Task No.");
-            SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
-            if DocumentType = SalesHeader."Document Type"::Invoice then
-                SetRange("Document Type", "Document Type"::Invoice)
-            else
-                SetRange("Document Type", "Document Type"::"Credit Memo");
-            FindFirst();
-            SalesHeader.Get(DocumentType, "Document No.")
-        end
+        JobPlanningLineInvoice.SetRange("Job No.", JobPlanningLine."Job No.");
+        JobPlanningLineInvoice.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        JobPlanningLineInvoice.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        if DocumentType = SalesHeader."Document Type"::Invoice then
+            JobPlanningLineInvoice.SetRange("Document Type", JobPlanningLineInvoice."Document Type"::Invoice)
+        else
+            JobPlanningLineInvoice.SetRange("Document Type", JobPlanningLineInvoice."Document Type"::"Credit Memo");
+        JobPlanningLineInvoice.FindFirst();
+        SalesHeader.Get(DocumentType, JobPlanningLineInvoice."Document No.")
     end;
 
     local procedure RunJobCalculateWIP(Job: Record Job)

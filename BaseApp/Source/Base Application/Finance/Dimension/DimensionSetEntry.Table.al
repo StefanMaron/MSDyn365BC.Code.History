@@ -85,6 +85,9 @@ table 480 "Dimension Set Entry"
         key(Key3; "Dimension Code", "Dimension Value Code", "Dimension Set ID")
         {
         }
+        key(Key4; SystemModifiedAt)
+        {
+        }
     }
 
     fieldgroups

@@ -116,12 +116,10 @@ codeunit 139169 "CRM Synch. Job Scenarios"
 
         // [GIVEN] The last record, not included in the filter, is coupled and modified.
         TestUid := CreateGuid();
-        with TestIntegrationTable do begin
-            Reset();
-            Init();
-            "Integration Uid" := TestUid;
-            Insert();
-        end;
+        TestIntegrationTable.Reset();
+        TestIntegrationTable.Init();
+        TestIntegrationTable."Integration Uid" := TestUid;
+        TestIntegrationTable.Insert();
         // Create coupling
         UnitOfMeasure.Reset();
         UnitOfMeasure.FindLast();
@@ -631,11 +629,13 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);

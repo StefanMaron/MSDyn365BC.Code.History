@@ -4,12 +4,12 @@ using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Interaction;
 using Microsoft.CRM.Segment;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Pricing.Calculation;
 #endif
 using Microsoft.Pricing.PriceList;
 using Microsoft.Sales.Customer;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Sales.Pricing;
 #endif
 using System.Utilities;
@@ -27,13 +27,17 @@ codeunit 7030 "Campaign Target Group Mgt"
         CampaignTargetGr: Record "Campaign Target Group";
         InteractLogEntry: Record "Interaction Log Entry";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 is now activated.';
         Text001: Label '%1 %2 is now deactivated.';
         Text002: Label 'To activate the sales prices and/or line discounts, you must apply the relevant %1(s) to the %2 and place a check mark in the %3 field on the %1.';
         Text004: Label 'There are no Sales Prices or Sales Line Discounts currently linked to this %1. Do you still want to activate?';
+#pragma warning restore AA0470
         Text006: Label 'Activating prices for the Contacts...\\';
         Text007: Label 'Segment Lines  @1@@@@@@@@@@';
         Text008: Label 'Logged Segment Lines  @1@@@@@@@@@@';
+#pragma warning restore AA0074
 
     procedure ActivateCampaign(var Campaign: Record Campaign)
     var
@@ -258,11 +262,11 @@ codeunit 7030 "Campaign Target Group Mgt"
     local procedure NoPriceDiscForCampaign(CampaignNo: Code[20]): Boolean
     var
         PriceListLine: Record "Price List Line";
-#if not CLEAN23
+#if not CLEAN25
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
 #endif
     begin
-#if not CLEAN23
+#if not CLEAN25
         if not PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
             exit(NoPriceDiscV15ForCampaign(CampaignNo));
 #endif
@@ -271,7 +275,7 @@ codeunit 7030 "Campaign Target Group Mgt"
         exit(PriceListLine.IsEmpty());
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by NoPriceDiscForCampaign', '17.0')]
     local procedure NoPriceDiscV15ForCampaign(CampaignNo: Code[20]): Boolean;
     var

@@ -275,24 +275,19 @@ codeunit 136352 "UT T Job Task Line"
     begin
         Initialize();
         SetUp();
-
-        with JobTask do begin
-            // Prepare Job Task for later tests.
-            Validate("WIP-Total", "WIP-Total"::Excluded);
-            Assert.IsTrue("Job Posting Group" <> '', 'Job Posting Group is not initalized with a Job Posting Group');
-
-            // Verify that Job Task Type can't be modified when Job Planning Lines exist.
-            asserterror Validate("Job Task Type", "Job Task Type"::Total);
-
-            // Verify that Job Task Type can be modified when no Job Planning Lines / Job Ledger Entries exist.
-            JobPlanningLine.SetRange("Job Task No.", "Job Task No.");
-            JobPlanningLine.DeleteAll(true);
-            Validate("Job Task Type", "Job Task Type"::Total);
-            Assert.AreEqual("Job Task Type"::Total, "Job Task Type", 'Job Task Type was not set even if no Job Planning Lines existed.');
-            Assert.IsTrue(
-              "Job Posting Group" = '', 'Job Posting Group is not blanked when Type is set to something different then Posting');
-            Assert.IsTrue("WIP-Total" = "WIP-Total"::" ", 'WIP-Total is not blanked when Type is set to something different then Posting');
-        end;
+        // Prepare Job Task for later tests.
+        JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Excluded);
+        Assert.IsTrue(JobTask."Job Posting Group" <> '', 'Job Posting Group is not initalized with a Job Posting Group');
+        // Verify that Job Task Type can't be modified when Job Planning Lines exist.
+        asserterror JobTask.Validate("Job Task Type", JobTask."Job Task Type"::Total);
+        // Verify that Job Task Type can be modified when no Job Planning Lines / Job Ledger Entries exist.
+        JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobPlanningLine.DeleteAll(true);
+        JobTask.Validate("Job Task Type", JobTask."Job Task Type"::Total);
+        Assert.AreEqual(JobTask."Job Task Type"::Total, JobTask."Job Task Type", 'Job Task Type was not set even if no Job Planning Lines existed.');
+        Assert.IsTrue(
+          JobTask."Job Posting Group" = '', 'Job Posting Group is not blanked when Type is set to something different then Posting');
+        Assert.IsTrue(JobTask."WIP-Total" = JobTask."WIP-Total"::" ", 'WIP-Total is not blanked when Type is set to something different then Posting');
 
         TearDown();
     end;
@@ -408,34 +403,30 @@ codeunit 136352 "UT T Job Task Line"
 
         // Test that InitWIPFields initalizes all fields correctly.
         JobWIPMethod.FindFirst();
-        with JobTask do begin
-            "Recognized Sales Amount" := 1;
-            "Recognized Costs Amount" := 1;
-            Modify();
-        end;
+        JobTask."Recognized Sales Amount" := 1;
+        JobTask."Recognized Costs Amount" := 1;
+        JobTask.Modify();
 
-        with JobWIPTotal do begin
-            Init();
-            "Job No." := Job."No.";
-            "Job Task No." := JobTask."Job Task No.";
-            "WIP Posting Date" := WorkDate();
-            "WIP Method" := JobWIPMethod.Code;
-            "Schedule (Total Cost)" := 1;
-            "Schedule (Total Price)" := 1;
-            "Usage (Total Cost)" := 1;
-            "Usage (Total Price)" := 1;
-            "Contract (Total Cost)" := 1;
-            "Contract (Total Price)" := 1;
-            "Contract (Invoiced Price)" := 1;
-            "Contract (Invoiced Cost)" := 1;
-            "WIP Posting Date Filter" := 'test';
-            "WIP Planning Date Filter" := 'test';
-            "Calc. Recog. Costs Amount" := 1;
-            "Calc. Recog. Sales Amount" := 1;
-            "Cost Completion %" := 1;
-            "Invoiced %" := 1;
-            Insert();
-        end;
+        JobWIPTotal.Init();
+        JobWIPTotal."Job No." := Job."No.";
+        JobWIPTotal."Job Task No." := JobTask."Job Task No.";
+        JobWIPTotal."WIP Posting Date" := WorkDate();
+        JobWIPTotal."WIP Method" := JobWIPMethod.Code;
+        JobWIPTotal."Schedule (Total Cost)" := 1;
+        JobWIPTotal."Schedule (Total Price)" := 1;
+        JobWIPTotal."Usage (Total Cost)" := 1;
+        JobWIPTotal."Usage (Total Price)" := 1;
+        JobWIPTotal."Contract (Total Cost)" := 1;
+        JobWIPTotal."Contract (Total Price)" := 1;
+        JobWIPTotal."Contract (Invoiced Price)" := 1;
+        JobWIPTotal."Contract (Invoiced Cost)" := 1;
+        JobWIPTotal."WIP Posting Date Filter" := 'test';
+        JobWIPTotal."WIP Planning Date Filter" := 'test';
+        JobWIPTotal."Calc. Recog. Costs Amount" := 1;
+        JobWIPTotal."Calc. Recog. Sales Amount" := 1;
+        JobWIPTotal."Cost Completion %" := 1;
+        JobWIPTotal."Invoiced %" := 1;
+        JobWIPTotal.Insert();
 
         JobWIPTotal.SetRange("Job No.", Job."No.");
         JobWIPTotal.SetRange("Job Task No.", JobTask."Job Task No.");
@@ -444,10 +435,8 @@ codeunit 136352 "UT T Job Task Line"
 
         JobTask.InitWIPFields();
 
-        with JobTask do begin
-            Assert.AreEqual(0, "Recognized Sales Amount", 'Field initalized wrongly.');
-            Assert.AreEqual(0, "Recognized Costs Amount", 'Field initalized wrongly.');
-        end;
+        Assert.AreEqual(0, JobTask."Recognized Sales Amount", 'Field initalized wrongly.');
+        Assert.AreEqual(0, JobTask."Recognized Costs Amount", 'Field initalized wrongly.');
 
         Assert.IsFalse(JobWIPTotal.FindFirst(), 'Job WIP Total does still exist for the Job Task Line');
 
@@ -550,12 +539,10 @@ codeunit 136352 "UT T Job Task Line"
     var
         JobWIPEntry: Record "Job WIP Entry";
     begin
-        with JobWIPEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(JobWIPEntry, FieldNo("Entry No."));
-            "Job No." := JobNo;
-            Insert();
-            Modify();
-        end;
+        JobWIPEntry."Entry No." := LibraryUtility.GetNewRecNo(JobWIPEntry, JobWIPEntry.FieldNo("Entry No."));
+        JobWIPEntry."Job No." := JobNo;
+        JobWIPEntry.Insert();
+        JobWIPEntry.Modify();
     end;
 }
 

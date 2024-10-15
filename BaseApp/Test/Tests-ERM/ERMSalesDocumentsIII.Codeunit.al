@@ -29,28 +29,21 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.', Comment = '.';
         CustomerMustBeDeletedErr: Label 'Customer must be deleted.';
         NoOfRecordErr: Label 'No. of records must be 1.';
-        DeleteRetRcptOrderErr: Label 'No. Printed must have a value in Return Receipt Header: No.=%1. It cannot be zero or empty.', Comment = '.';
-        DeleteSalesCrMemoErr: Label 'No. Printed must have a value in Sales Cr.Memo Header: No.=%1. It cannot be zero or empty.', Comment = '.';
-        GetRetRcptErr: Label 'Argument NoSeriesCode in GetNoSeriesLine cannot be blank.';
+        GetRetRcptErr: Label 'You cannot get a No. Series Line with empty No. Series Code.';
         PostGreaterQtyErr: Label 'You cannot invoice more than';
         OutstdSalesOrdErr: Label 'You cannot delete Customer %1 because there is at least one outstanding Sales Return Order for this customer.', Comment = '.';
         OutstdSalesReturnErr: Label 'You cannot delete Item %1 because there is at least one outstanding Sales Return Order that includes this item.', Comment = '%1: Field(No)';
-        SalesHeaderStatusErr: Label 'Status must be equal to ''Open''  in Sales Header: Document Type=%1, No.=%2. Current value is ''Released''.', Comment = '.';
-        RetQtyRcdErr: Label 'Return Qty. Rcd. Not Invd. must be equal to ''0''  in Sales Line: Document Type=Return Order, Document No.=%1, Line No.=%2. Current value is ''%3''.', Comment = '.';
-        RetQtyRcdAftReopenErr: Label 'Return Qty. Received must be equal to ''0''  in Sales Line: Document Type=Return Order, Document No.=%1, Line No.=%2. Current value is ''%3''.', Comment = '.';
-        ReturnRcptNoErr: Label 'Return Receipt No. must be equal to ''''  in Sales Line: Document Type=Credit Memo, Document No.=%1, Line No.=%2. Current value is ''%3''.', Comment = '.';
         ReturnQuantityErr: Label 'You cannot return more than %1 units.', Comment = '.';
         QtyToInvSignErr: Label 'Qty. to Invoice must have the same sign as the return receipt in Sales Line Document Type=''Credit Memo'',Document No.=''%1'',Line No.=''%2''.', Comment = '.';
         QtyInvoiceErr: Label 'The quantity that you are trying to invoice is greater than the quantity in return receipt %1.', Comment = '.';
         AdjustCostMsg: Label 'Some unadjusted value entries will not be covered with the new setting.';
-        SalesLnTypeErr: Label 'Type must be equal to ''Item''  in Sales Line: Document Type=Credit Memo, Document No.=%1, Line No.=%2. Current value is '' ''.', Comment = '.';
         WhseShipmentIsRequiredErr: Label 'Warehouse Shipment is required for Line No.';
         WhseReceiveIsRequiredErr: Label 'Warehouse Receive is required for Line No.';
         SalesOrderArchiveRespCenterErr: Label 'Sales Order Archives displays documents for Responisbility Center that should not be shown for current user';
@@ -71,7 +64,6 @@ codeunit 134387 "ERM Sales Documents III"
         ReviewLinesManuallyMsg: Label ' You should review the lines and manually update prices and discounts if needed.';
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the sales lines.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.', Locked = true;
-        TaxAreaCodeInvalidErr: Label 'The Tax Area does not exist. Identification fields and values: Code=''%1''';
         ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
         InternetURLTxt: Label 'www.microsoft.com', Locked = true;
         HttpTxt: Label 'http://', Locked = true;
@@ -510,7 +502,7 @@ codeunit 134387 "ERM Sales Documents III"
         UpdateGeneralLedgerVATSetup(VATRoundingType);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure StartingDateAsWorkDateOnSalesPrice()
@@ -563,12 +555,12 @@ codeunit 134387 "ERM Sales Documents III"
 
         // [GIVEN] "Sales Setup"."Allow Document Deletion Before"
         LibrarySales.SetAllowDocumentDeletionBeforeDate(ReturnReceiptHeader."Posting Date" + 1);
-        
+
         // Exercise.
         asserterror ReturnReceiptHeader.Delete(true);
 
         // Verify: Verify Error while delete Posted Sales Return Receipt.
-        Assert.ExpectedError(StrSubstNo(DeleteRetRcptOrderErr, DocumentNo));
+        Assert.ExpectedTestFieldError(ReturnReceiptHeader.FieldCaption("No. Printed"), '');
     end;
 
     [Test]
@@ -591,7 +583,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror SalesCrMemoHeader.Delete(true);
 
         // Verify. Verify Error while delete Posted Sales Credit Memo.
-        Assert.ExpectedError(StrSubstNo(DeleteSalesCrMemoErr, DocumentNo));
+        Assert.ExpectedTestFieldError(SalesCrMemoHeader.FieldCaption("No. Printed"), '');
     end;
 
     [Test]
@@ -775,7 +767,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
 
         // Verify: Verify Error on changing Sales Return order Header Information.
-        Assert.ExpectedError(StrSubstNo(SalesHeaderStatusErr, SalesHeader."Document Type", SalesHeader."No."));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     [Test]
@@ -796,7 +788,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror SalesHeader.Delete(true);
 
         // Verify: Verify Error on deleting Sales Header.
-        Assert.ExpectedError(StrSubstNo(RetQtyRcdErr, SalesLine."Document No.", SalesLine."Line No.", SalesLine."Return Qty. Received"));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Return Qty. Rcd. Not Invd."), Format(0));
     end;
 
     [Test]
@@ -819,8 +811,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
 
         // Verify: Verify Error on changing Sales Return order Header "Sell-to Customer No." field.
-        Assert.ExpectedError(
-          StrSubstNo(RetQtyRcdAftReopenErr, SalesLine."Document No.", SalesLine."Line No.", SalesLine."Return Qty. Received"));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Return Qty. Received"), Format(0));
     end;
 
     [Test]
@@ -842,7 +833,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror SalesHeader.Delete(true);
 
         // Verify: Verify Error on deleting Sales Header.
-        Assert.ExpectedError(StrSubstNo(RetQtyRcdErr, SalesLine."Document No.", SalesLine."Line No.", SalesLine."Return Qty. Received"));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Return Qty. Rcd. Not Invd."), Format(0));
     end;
 
     [Test]
@@ -865,7 +856,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror SalesLine.Validate(Type, SalesLine2.Type::Resource);
 
         // Verify: Verify Error while changing Sales Return Order Line Type.
-        Assert.ExpectedError(StrSubstNo(RetQtyRcdErr, SalesLine."Document No.", SalesLine."Line No.", SalesLine."Return Qty. Received"));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Return Qty. Rcd. Not Invd."), Format(0));
     end;
 
     [Test]
@@ -886,7 +877,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror SalesLine.Validate("No.", LibraryERM.CreateGLAccountWithSalesSetup());
 
         // Verify: Verify Error while changing Sales Return Order Line "No." field.
-        Assert.ExpectedError(StrSubstNo(SalesHeaderStatusErr, SalesLine."Document Type", SalesLine."Document No."));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     [Test]
@@ -907,7 +898,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror SalesLine.Delete(true);
 
         // Verify: Verify Error while deleting Sales Return Order Line.
-        Assert.ExpectedError(StrSubstNo(SalesHeaderStatusErr, SalesHeader."Document Type", SalesHeader."No."));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     [Test]
@@ -953,7 +944,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
 
         // Verify: Verify Error on Changing Sales Return order Header "Sell-to Customer No." field.
-        Assert.ExpectedError(StrSubstNo(ReturnRcptNoErr, SalesLine."Document No.", SalesLine."Line No.", SalesLine."Return Receipt No."));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Return Receipt No."), '');
     end;
 
     [Test]
@@ -977,7 +968,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror SalesLine.Validate(Type, SalesLine.Type::Resource);
 
         // Verify: Verify Error on Changing Credit Memo Line Type field.
-        Assert.ExpectedError(StrSubstNo(ReturnRcptNoErr, SalesLine."Document No.", SalesLine."Line No.", SalesLine."Return Receipt No."));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Return Receipt No."), '');
     end;
 
     [Test]
@@ -1132,7 +1123,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror LibrarySales.ExplodeBOM(SalesLine);
 
         // Verify: Verify Error while applying Explode BOM on Sales Return Order Line.
-        Assert.ExpectedError(StrSubstNo(SalesLnTypeErr, SalesHeader."No.", SalesLine."Line No."));
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption(Type), Format(SalesLine.Type::Item));
     end;
 
     [Test]
@@ -1605,23 +1596,21 @@ codeunit 134387 "ERM Sales Documents III"
 
         InitSalesLine(SalesLine, SalesLine."Document Type"::Order);
 
-        with SalesShipmentLine do begin
-            InitFromSalesLine(SalesShipmentHeader, SalesLine);
-            Assert.AreEqual(SalesShipmentHeader."Posting Date", "Posting Date", FieldCaption("Posting Date"));
-            Assert.AreEqual(SalesShipmentHeader."No.", "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(SalesLine."Qty. to Ship", Quantity, FieldCaption(Quantity));
-            Assert.AreEqual(SalesLine."Qty. to Ship (Base)", "Quantity (Base)", FieldCaption("Quantity (Base)"));
-            Assert.AreEqual(SalesLine."Qty. to Invoice", "Quantity Invoiced", FieldCaption("Quantity Invoiced"));
-            Assert.AreEqual(SalesLine."Qty. to Invoice (Base)", "Qty. Invoiced (Base)", FieldCaption("Qty. Invoiced (Base)"));
-            Assert.AreEqual(
-              SalesLine."Qty. to Ship" - SalesLine."Qty. to Invoice",
-              "Qty. Shipped Not Invoiced", FieldCaption("Qty. Shipped Not Invoiced"));
-            Assert.AreEqual(SalesLine."Document No.", "Order No.", FieldCaption("Order No."));
-            Assert.AreEqual(SalesLine."Line No.", "Order Line No.", FieldCaption("Order Line No."));
-            Assert.AreEqual(Type::" ", Type, FieldCaption(Type));
-            Assert.AreEqual(SalesLine."No.", "No.", FieldCaption("No."));
-            Assert.AreEqual(SalesLine.Description, Description, FieldCaption(Description));
-        end;
+        SalesShipmentLine.InitFromSalesLine(SalesShipmentHeader, SalesLine);
+        Assert.AreEqual(SalesShipmentHeader."Posting Date", SalesShipmentLine."Posting Date", SalesShipmentLine.FieldCaption("Posting Date"));
+        Assert.AreEqual(SalesShipmentHeader."No.", SalesShipmentLine."Document No.", SalesShipmentLine.FieldCaption("Document No."));
+        Assert.AreEqual(SalesLine."Qty. to Ship", SalesShipmentLine.Quantity, SalesShipmentLine.FieldCaption(Quantity));
+        Assert.AreEqual(SalesLine."Qty. to Ship (Base)", SalesShipmentLine."Quantity (Base)", SalesShipmentLine.FieldCaption("Quantity (Base)"));
+        Assert.AreEqual(SalesLine."Qty. to Invoice", SalesShipmentLine."Quantity Invoiced", SalesShipmentLine.FieldCaption("Quantity Invoiced"));
+        Assert.AreEqual(SalesLine."Qty. to Invoice (Base)", SalesShipmentLine."Qty. Invoiced (Base)", SalesShipmentLine.FieldCaption("Qty. Invoiced (Base)"));
+        Assert.AreEqual(
+          SalesLine."Qty. to Ship" - SalesLine."Qty. to Invoice",
+          SalesShipmentLine."Qty. Shipped Not Invoiced", SalesShipmentLine.FieldCaption("Qty. Shipped Not Invoiced"));
+        Assert.AreEqual(SalesLine."Document No.", SalesShipmentLine."Order No.", SalesShipmentLine.FieldCaption("Order No."));
+        Assert.AreEqual(SalesLine."Line No.", SalesShipmentLine."Order Line No.", SalesShipmentLine.FieldCaption("Order Line No."));
+        Assert.AreEqual(SalesShipmentLine.Type::" ", SalesShipmentLine.Type, SalesShipmentLine.FieldCaption(Type));
+        Assert.AreEqual(SalesLine."No.", SalesShipmentLine."No.", SalesShipmentLine.FieldCaption("No."));
+        Assert.AreEqual(SalesLine.Description, SalesShipmentLine.Description, SalesShipmentLine.FieldCaption(Description));
     end;
 
     [Test]
@@ -1640,16 +1629,14 @@ codeunit 134387 "ERM Sales Documents III"
 
         InitSalesLine(SalesLine, SalesLine."Document Type"::Order);
 
-        with SalesInvoiceLine do begin
-            InitFromSalesLine(SalesInvoiceHeader, SalesLine);
-            Assert.AreEqual(SalesInvoiceHeader."Posting Date", "Posting Date", FieldCaption("Posting Date"));
-            Assert.AreEqual(SalesInvoiceHeader."No.", "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(SalesLine."Qty. to Invoice", Quantity, FieldCaption(Quantity));
-            Assert.AreEqual(SalesLine."Qty. to Invoice (Base)", "Quantity (Base)", FieldCaption("Quantity (Base)"));
-            Assert.AreEqual(Type::" ", Type, FieldCaption(Type));
-            Assert.AreEqual(SalesLine."No.", "No.", FieldCaption("No."));
-            Assert.AreEqual(SalesLine.Description, Description, FieldCaption(Description));
-        end;
+        SalesInvoiceLine.InitFromSalesLine(SalesInvoiceHeader, SalesLine);
+        Assert.AreEqual(SalesInvoiceHeader."Posting Date", SalesInvoiceLine."Posting Date", SalesInvoiceLine.FieldCaption("Posting Date"));
+        Assert.AreEqual(SalesInvoiceHeader."No.", SalesInvoiceLine."Document No.", SalesInvoiceLine.FieldCaption("Document No."));
+        Assert.AreEqual(SalesLine."Qty. to Invoice", SalesInvoiceLine.Quantity, SalesInvoiceLine.FieldCaption(Quantity));
+        Assert.AreEqual(SalesLine."Qty. to Invoice (Base)", SalesInvoiceLine."Quantity (Base)", SalesInvoiceLine.FieldCaption("Quantity (Base)"));
+        Assert.AreEqual(SalesInvoiceLine.Type::" ", SalesInvoiceLine.Type, SalesInvoiceLine.FieldCaption(Type));
+        Assert.AreEqual(SalesLine."No.", SalesInvoiceLine."No.", SalesInvoiceLine.FieldCaption("No."));
+        Assert.AreEqual(SalesLine.Description, SalesInvoiceLine.Description, SalesInvoiceLine.FieldCaption(Description));
     end;
 
     [Test]
@@ -1668,16 +1655,14 @@ codeunit 134387 "ERM Sales Documents III"
 
         InitSalesLine(SalesLine, SalesLine."Document Type"::"Return Order");
 
-        with SalesCrMemoLine do begin
-            InitFromSalesLine(SalesCrMemoHeader, SalesLine);
-            Assert.AreEqual(SalesCrMemoHeader."Posting Date", "Posting Date", FieldCaption("Posting Date"));
-            Assert.AreEqual(SalesCrMemoHeader."No.", "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(SalesLine."Qty. to Invoice", Quantity, FieldCaption(Quantity));
-            Assert.AreEqual(SalesLine."Qty. to Invoice (Base)", "Quantity (Base)", FieldCaption("Quantity (Base)"));
-            Assert.AreEqual(Type::" ", Type, FieldCaption(Type));
-            Assert.AreEqual(SalesLine."No.", "No.", FieldCaption("No."));
-            Assert.AreEqual(SalesLine.Description, Description, FieldCaption(Description));
-        end;
+        SalesCrMemoLine.InitFromSalesLine(SalesCrMemoHeader, SalesLine);
+        Assert.AreEqual(SalesCrMemoHeader."Posting Date", SalesCrMemoLine."Posting Date", SalesCrMemoLine.FieldCaption("Posting Date"));
+        Assert.AreEqual(SalesCrMemoHeader."No.", SalesCrMemoLine."Document No.", SalesCrMemoLine.FieldCaption("Document No."));
+        Assert.AreEqual(SalesLine."Qty. to Invoice", SalesCrMemoLine.Quantity, SalesCrMemoLine.FieldCaption(Quantity));
+        Assert.AreEqual(SalesLine."Qty. to Invoice (Base)", SalesCrMemoLine."Quantity (Base)", SalesCrMemoLine.FieldCaption("Quantity (Base)"));
+        Assert.AreEqual(SalesCrMemoLine.Type::" ", SalesCrMemoLine.Type, SalesCrMemoLine.FieldCaption(Type));
+        Assert.AreEqual(SalesLine."No.", SalesCrMemoLine."No.", SalesCrMemoLine.FieldCaption("No."));
+        Assert.AreEqual(SalesLine.Description, SalesCrMemoLine.Description, SalesCrMemoLine.FieldCaption(Description));
     end;
 
     [Test]
@@ -1696,23 +1681,21 @@ codeunit 134387 "ERM Sales Documents III"
 
         InitSalesLine(SalesLine, SalesLine."Document Type"::"Return Order");
 
-        with ReturnReceiptLine do begin
-            InitFromSalesLine(ReturnReceiptHeader, SalesLine);
-            Assert.AreEqual(ReturnReceiptHeader."Posting Date", "Posting Date", FieldCaption("Posting Date"));
-            Assert.AreEqual(ReturnReceiptHeader."No.", "Document No.", FieldCaption("Document No."));
-            Assert.AreEqual(SalesLine."Return Qty. to Receive", Quantity, FieldCaption(Quantity));
-            Assert.AreEqual(SalesLine."Return Qty. to Receive (Base)", "Quantity (Base)", FieldCaption("Quantity (Base)"));
-            Assert.AreEqual(SalesLine."Qty. to Invoice", "Quantity Invoiced", FieldCaption("Quantity Invoiced"));
-            Assert.AreEqual(SalesLine."Qty. to Invoice (Base)", "Qty. Invoiced (Base)", FieldCaption("Qty. Invoiced (Base)"));
-            Assert.AreEqual(
-              SalesLine."Return Qty. to Receive" - SalesLine."Qty. to Invoice",
-              "Return Qty. Rcd. Not Invd.", FieldCaption("Return Qty. Rcd. Not Invd."));
-            Assert.AreEqual(SalesLine."Document No.", "Return Order No.", FieldCaption("Return Order No."));
-            Assert.AreEqual(SalesLine."Line No.", "Return Order Line No.", FieldCaption("Return Order Line No."));
-            Assert.AreEqual(Type::" ", Type, FieldCaption(Type));
-            Assert.AreEqual(SalesLine."No.", "No.", FieldCaption("No."));
-            Assert.AreEqual(SalesLine.Description, Description, FieldCaption(Description));
-        end;
+        ReturnReceiptLine.InitFromSalesLine(ReturnReceiptHeader, SalesLine);
+        Assert.AreEqual(ReturnReceiptHeader."Posting Date", ReturnReceiptLine."Posting Date", ReturnReceiptLine.FieldCaption("Posting Date"));
+        Assert.AreEqual(ReturnReceiptHeader."No.", ReturnReceiptLine."Document No.", ReturnReceiptLine.FieldCaption("Document No."));
+        Assert.AreEqual(SalesLine."Return Qty. to Receive", ReturnReceiptLine.Quantity, ReturnReceiptLine.FieldCaption(Quantity));
+        Assert.AreEqual(SalesLine."Return Qty. to Receive (Base)", ReturnReceiptLine."Quantity (Base)", ReturnReceiptLine.FieldCaption("Quantity (Base)"));
+        Assert.AreEqual(SalesLine."Qty. to Invoice", ReturnReceiptLine."Quantity Invoiced", ReturnReceiptLine.FieldCaption("Quantity Invoiced"));
+        Assert.AreEqual(SalesLine."Qty. to Invoice (Base)", ReturnReceiptLine."Qty. Invoiced (Base)", ReturnReceiptLine.FieldCaption("Qty. Invoiced (Base)"));
+        Assert.AreEqual(
+          SalesLine."Return Qty. to Receive" - SalesLine."Qty. to Invoice",
+          ReturnReceiptLine."Return Qty. Rcd. Not Invd.", ReturnReceiptLine.FieldCaption("Return Qty. Rcd. Not Invd."));
+        Assert.AreEqual(SalesLine."Document No.", ReturnReceiptLine."Return Order No.", ReturnReceiptLine.FieldCaption("Return Order No."));
+        Assert.AreEqual(SalesLine."Line No.", ReturnReceiptLine."Return Order Line No.", ReturnReceiptLine.FieldCaption("Return Order Line No."));
+        Assert.AreEqual(ReturnReceiptLine.Type::" ", ReturnReceiptLine.Type, ReturnReceiptLine.FieldCaption(Type));
+        Assert.AreEqual(SalesLine."No.", ReturnReceiptLine."No.", ReturnReceiptLine.FieldCaption("No."));
+        Assert.AreEqual(SalesLine.Description, ReturnReceiptLine.Description, ReturnReceiptLine.FieldCaption(Description));
     end;
 
     [Test]
@@ -1837,7 +1820,7 @@ codeunit 134387 "ERM Sales Documents III"
         VATPostingSetup.Delete(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('GetSalesPricePageHandler')]
     [Scope('OnPrem')]
@@ -1966,7 +1949,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror SalesOrder.Control1906127307.SalesPrices.DrillDown();
 
         // [THEN] Update fails with an error: "Status must be equal to Open in Sales Header"
-        Assert.ExpectedError(StrSubstNo(SalesHeaderStatusErr, SalesHeader."Document Type", SalesHeader."No."));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     [Test]
@@ -2003,7 +1986,7 @@ codeunit 134387 "ERM Sales Documents III"
         asserterror SalesOrder.Control1906127307.SalesPrices.DrillDown();
 
         // [THEN] Update fails with an error: "Status must be equal to Open in Sales Header"
-        Assert.ExpectedError(StrSubstNo(SalesHeaderStatusErr, SalesHeader."Document Type", SalesHeader."No."));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 #endif
     [Test]
@@ -2910,7 +2893,7 @@ codeunit 134387 "ERM Sales Documents III"
         VerifyTransactionTypeWhenInsertSalesDocument(SalesHeader."Document Type"::Order);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -3448,7 +3431,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
@@ -4165,7 +4148,7 @@ codeunit 134387 "ERM Sales Documents III"
 
         // [THEN] Error: "The Tax Area does not exist. Identification fields and values: Code='TAC01'."
         Assert.ExpectedErrorCode('DB:RecordNotFound');
-        Assert.ExpectedError(StrSubstNo(TaxAreaCodeInvalidErr, TaxAreaCode));
+        Assert.ExpectedErrorCannotFind(Database::"Tax Area", TaxAreaCode);
     end;
 
     [Test]
@@ -4200,7 +4183,7 @@ codeunit 134387 "ERM Sales Documents III"
         Customer.TestField("Tax Area Code", '');
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -5041,14 +5024,12 @@ codeunit 134387 "ERM Sales Documents III"
 
         // [THEN] There were no attempts to delete requisition lines for order promising.
         CodeCoverageMgt.Refresh();
-        with CodeCoverage do begin
-            SetRange("Line Type", "Line Type"::Code);
-            SetRange("Object Type", "Object Type"::Table);
-            SetRange("Object ID", DATABASE::"Sales Header");
-            SetFilter("No. of Hits", '>%1', 0);
-            SetFilter(Line, StrSubstNo('@*%1*', 'ReqLine.DeleteAll'));
-            Assert.RecordIsEmpty(CodeCoverage);
-        end;
+        CodeCoverage.SetRange("Line Type", CodeCoverage."Line Type"::Code);
+        CodeCoverage.SetRange("Object Type", CodeCoverage."Object Type"::Table);
+        CodeCoverage.SetRange("Object ID", DATABASE::"Sales Header");
+        CodeCoverage.SetFilter("No. of Hits", '>%1', 0);
+        CodeCoverage.SetFilter(Line, StrSubstNo('@*%1*', 'ReqLine.DeleteAll'));
+        Assert.RecordIsEmpty(CodeCoverage);
     end;
 
     [Test]
@@ -5060,7 +5041,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesOrder: TestPage "Sales Order";
     begin
         // [FEATURE] [UT]
-        // [SCENARIO 372368] Shipping Time should be populated with a value from Customer when Sell-to Customer Name is validated on Sales Order by LookUp.
+        // [SCENARIO 372368] Shipping Time is populated with a value from Customer when Sell-to Customer Name is validated on Sales Order by LookUp.
         Initialize();
 
         // [GIVEN] New customer. "No." = "X", "Shipping Time" = "T".
@@ -5088,7 +5069,7 @@ codeunit 134387 "ERM Sales Documents III"
         ShippingTime: DateFormula;
     begin
         // [FEATURE] [UT]
-        // [SCENARIO 372368] Shipping Time should be populated with a value from Sipping Agent Service when Sell-to Customer No. is validated on Sales Order by LookUp.
+        // [SCENARIO 372368] Shipping Time is populated with a value from Sipping Agent Service when Sell-to Customer No. is validated on Sales Order by LookUp.
         Initialize();
 
         // [GIVEN] Created Shipping Agent and Shipping Agent Service with "Shipping Time" = "T"
@@ -5358,7 +5339,7 @@ codeunit 134387 "ERM Sales Documents III"
         VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderInvoice, SalesLineChargeItem."No.", QtyToAssign);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -5373,7 +5354,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO 393339] Action "Get Document Lines to Reserse" copies Unit Price from Posted Return Receipt and not from current Sales Price
         Initialize();
 
-        UpdateSalesSetup(True, False);
+        UpdateSalesSetup(true, false);
         // [GIVEN] Posted Sales Credit Memo with one line for Item "I1": "Unit Price" = 10
         CreateSalesDocumentWithItem(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
@@ -5868,12 +5849,44 @@ codeunit 134387 "ERM Sales Documents III"
                 SalesReturnOrderSubform.Caption()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyCityIsNotChangedWhenCityIsAlreadySetAndPostCodeIsValidated()
+    var
+        PostCodeA: Record "Post Code";
+        PostCodeB: Record "Post Code";
+        PostCode: Record "Post Code";
+        CountryRegion: Record "Country/Region";
+        PostCodeCode: Code[20];
+        CountryRegionCode: Code[10];
+        CityTxt: array[2] of Text[30];
+        CountyTxt: Text[30];
+    begin
+        // [FEATURE] 
+        // [SCENARIO] Verify that the city that is already set on the customer is not changed when the Post Code is validated
+        Initialize();
+
+        // [GIVEN] Multiple Post Codes for the same country with the same post code and diffrent city name
+        CountryRegion.Next(LibraryRandom.RandInt(CountryRegion.Count()));
+        CountryRegionCode := CountryRegion.Code;
+        PostCodeCode := CopyStr(LibraryUtility.GenerateRandomCode(PostCodeA.FieldNo(Code), DATABASE::"Post Code"), 1, LibraryUtility.GetFieldLength(DATABASE::"Post Code", PostCodeA.FieldNo(Code)));
+        CreatePostCode(PostCodeA, PostCodeCode, '', CountryRegionCode);
+        CreatePostCode(PostCodeB, PostCodeCode, '', CountryRegionCode);
+        CityTxt[1] := PostCodeA.City;
+        CityTxt[2] := PostCodeB.City;
+
+        // [WHEN] The Post Code is validated with the city name
+        PostCode.ValidatePostCode(CityTxt[1], PostCodeCode, CountyTxt, CountryRegionCode, false);
+        PostCode.ValidatePostCode(CityTxt[2], PostCodeCode, CountyTxt, CountryRegionCode, false);
+
+        // [THEN] The City is not changed
+        Assert.AreEqual(PostCodeA.City, CityTxt[1], 'The City should not be changed');
+        Assert.AreEqual(PostCodeB.City, CityTxt[2], 'The City should not be changed');
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
-#if not CLEAN22
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Documents III");
@@ -5889,15 +5902,6 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-#if not CLEAN22
-        if not IntrastatSetup.Get() then begin
-            IntrastatSetup.Init();
-            IntrastatSetup.Insert();
-        end;
-        LibraryERM.SetDefaultTransactionTypesInIntrastatSetup();
-
-        LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
-#endif
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         ReportSelections.SetRange(Usage, LibraryERMCountryData.GetReportSelectionsUsageSalesQuote());
@@ -5914,16 +5918,14 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, Type::"G/L Account",
-              LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandIntInRange(2, 5));
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, "No.", 0);
-            Validate("No.", '');
-            LineDescription := CopyStr(LibraryUtility.GenerateRandomXMLText(10), 1, MaxStrLen(Description));
-            Validate(Description, LineDescription);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+            LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandIntInRange(2, 5));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type, SalesLine."No.", 0);
+        SalesLine.Validate("No.", '');
+        LineDescription := CopyStr(LibraryUtility.GenerateRandomXMLText(10), 1, MaxStrLen(SalesLine.Description));
+        SalesLine.Validate(Description, LineDescription);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateAndArchiveSalesOrderWithRespCenter(CustomerNo: Code[20]; RespCenterCode: Code[10])
@@ -6079,7 +6081,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; ItemNo: Code[20]; CustomerNo: Code[20]; MinQty: Decimal; DiscountPct: Decimal)
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -6172,7 +6174,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.PostSalesDocument(SalesHeader, true, PostInvoice);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateSalesPriceForItemAndAllCustomers(var SalesPrice: Record "Sales Price")
     var
         Item: Record Item;
@@ -6401,52 +6403,45 @@ codeunit 134387 "ERM Sales Documents III"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            "Document Type" := "Document Type"::Invoice;
-            "Document No." := DocumentNo;
-            "Line No." := 10000; // Value is important for test
-            Insert();
-        end;
+        SalesLine."Document Type" := SalesLine."Document Type"::Invoice;
+        SalesLine."Document No." := DocumentNo;
+        SalesLine."Line No." := 10000;
+        // Value is important for test
+        SalesLine.Insert();
     end;
 
     local procedure MockSalesOrder(var SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Order;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Header");
-            Insert();
-        end;
+        SalesHeader.Init();
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+        SalesHeader."No." := LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("No."), DATABASE::"Sales Header");
+        SalesHeader.Insert();
     end;
 
     local procedure MockSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            "Document Type" := SalesHeader."Document Type";
-            "Document No." := SalesHeader."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(SalesLine, FieldNo("Line No."));
-            Insert();
-        end;
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." := LibraryUtility.GetNewRecNo(SalesLine, SalesLine.FieldNo("Line No."));
+        SalesLine.Insert();
     end;
 
     local procedure InitSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
-        with SalesLine do begin
-            Init();
-            "Document Type" := DocumentType;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Line No." := LibraryRandom.RandIntInRange(1000, 2000);
-            Type := Type::Item;
-            "No." := '';
-            Description := LibraryUtility.GenerateGUID();
-            Quantity := LibraryRandom.RandDecInRange(300, 400, 2);
-            "Qty. to Ship" := LibraryRandom.RandDecInRange(200, 300, 2);
-            "Qty. to Ship (Base)" := LibraryRandom.RandDecInRange(200, 300, 2);
-            "Qty. to Invoice" := LibraryRandom.RandDecInRange(100, 200, 2);
-            "Qty. to Invoice (Base)" := LibraryRandom.RandDecInRange(100, 200, 2);
-            "Return Qty. to Receive" := LibraryRandom.RandDecInRange(200, 300, 2);
-            "Return Qty. to Receive (Base)" := LibraryRandom.RandDecInRange(200, 300, 2);
-        end;
+        SalesLine.Init();
+        SalesLine."Document Type" := DocumentType;
+        SalesLine."Document No." := LibraryUtility.GenerateGUID();
+        SalesLine."Line No." := LibraryRandom.RandIntInRange(1000, 2000);
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine."No." := '';
+        SalesLine.Description := LibraryUtility.GenerateGUID();
+        SalesLine.Quantity := LibraryRandom.RandDecInRange(300, 400, 2);
+        SalesLine."Qty. to Ship" := LibraryRandom.RandDecInRange(200, 300, 2);
+        SalesLine."Qty. to Ship (Base)" := LibraryRandom.RandDecInRange(200, 300, 2);
+        SalesLine."Qty. to Invoice" := LibraryRandom.RandDecInRange(100, 200, 2);
+        SalesLine."Qty. to Invoice (Base)" := LibraryRandom.RandDecInRange(100, 200, 2);
+        SalesLine."Return Qty. to Receive" := LibraryRandom.RandDecInRange(200, 300, 2);
+        SalesLine."Return Qty. to Receive (Base)" := LibraryRandom.RandDecInRange(200, 300, 2);
     end;
 
     local procedure ValidateSalesLineStandardCode(var SalesLine: Record "Sales Line"; StandardTextCode: Code[20])
@@ -6515,33 +6510,29 @@ codeunit 134387 "ERM Sales Documents III"
 
     local procedure FilterSalesCreditMemoLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; ItemNo: Code[20])
     begin
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::"Credit Memo");
-            SetRange("Document No.", DocumentNo);
-            SetRange("No.", ItemNo);
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.SetRange("No.", ItemNo);
     end;
 
     local procedure ModifyAndAddSalesLine(SalesHeader: Record "Sales Header"; ZeroQtyToShip: Boolean)
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindLast();
-            Validate(Quantity, -Quantity);
-            Modify();
-            "Line No." += 10000;
-            Validate(Quantity, -Quantity * 2);
-            if ZeroQtyToShip then begin
-                Insert();
-                "Line No." += 10000;
-                Validate("Qty. to Ship", 0);
-            end else
-                Validate("Qty. to Ship", Quantity / 2);
-            Insert();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindLast();
+        SalesLine.Validate(Quantity, -SalesLine.Quantity);
+        SalesLine.Modify();
+        SalesLine."Line No." += 10000;
+        SalesLine.Validate(Quantity, -SalesLine.Quantity * 2);
+        if ZeroQtyToShip then begin
+            SalesLine.Insert();
+            SalesLine."Line No." += 10000;
+            SalesLine.Validate("Qty. to Ship", 0);
+        end else
+            SalesLine.Validate("Qty. to Ship", SalesLine.Quantity / 2);
+        SalesLine.Insert();
     end;
 
     local procedure ModifyReturnReasonCode(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; ReturnReasonCode: Code[10])
@@ -6558,12 +6549,10 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine: Record "Sales Line";
     begin
         FindSalesLine(SalesLine, DocumentType, DocumentNo, LineType);
-        with SalesLine do begin
-            Validate(Quantity, NewQuantity);
-            Validate("Unit Price", NewUnitPrice);
-            Validate("Line Discount Amount", NewLineDiscountAmt);
-            Modify();
-        end;
+        SalesLine.Validate(Quantity, NewQuantity);
+        SalesLine.Validate("Unit Price", NewUnitPrice);
+        SalesLine.Validate("Line Discount Amount", NewLineDiscountAmt);
+        SalesLine.Modify();
     end;
 
     local procedure GetPostedDocumentLines(No: Code[20]; OptionString: Option)
@@ -6692,7 +6681,7 @@ codeunit 134387 "ERM Sales Documents III"
         exit(CustomerNo);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure OpenSalesPricesPage(SalesPrices: TestPage "Sales Prices"; CustomerNo: Code[20]; StartingDateFilter: Text[30])
     var
         CustomerList: TestPage "Customer List";
@@ -6852,26 +6841,22 @@ codeunit 134387 "ERM Sales Documents III"
     var
         DummySalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        with DummySalesInvoiceLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::" ");
-            SetRange("No.", '');
-            SetRange(Description, ExpectedDescription);
-            Assert.RecordIsNotEmpty(DummySalesInvoiceLine);
-        end;
+        DummySalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        DummySalesInvoiceLine.SetRange(Type, DummySalesInvoiceLine.Type::" ");
+        DummySalesInvoiceLine.SetRange("No.", '');
+        DummySalesInvoiceLine.SetRange(Description, ExpectedDescription);
+        Assert.RecordIsNotEmpty(DummySalesInvoiceLine);
     end;
 
     local procedure VerifySalesShptDescriptionLineExists(DocumentNo: Code[20]; ExpectedDescription: Text[50])
     var
         DummySalesShipmentLine: Record "Sales Shipment Line";
     begin
-        with DummySalesShipmentLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::" ");
-            SetRange("No.", '');
-            SetRange(Description, ExpectedDescription);
-            Assert.RecordIsNotEmpty(DummySalesShipmentLine);
-        end;
+        DummySalesShipmentLine.SetRange("Document No.", DocumentNo);
+        DummySalesShipmentLine.SetRange(Type, DummySalesShipmentLine.Type::" ");
+        DummySalesShipmentLine.SetRange("No.", '');
+        DummySalesShipmentLine.SetRange(Description, ExpectedDescription);
+        Assert.RecordIsNotEmpty(DummySalesShipmentLine);
     end;
 
     local procedure VerifySalesShptDocExists(OrderNo: Code[20])
@@ -6886,26 +6871,22 @@ codeunit 134387 "ERM Sales Documents III"
     var
         DummySalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        with DummySalesCrMemoLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::" ");
-            SetRange("No.", '');
-            SetRange(Description, ExpectedDescription);
-            Assert.RecordIsNotEmpty(DummySalesCrMemoLine);
-        end;
+        DummySalesCrMemoLine.SetRange("Document No.", DocumentNo);
+        DummySalesCrMemoLine.SetRange(Type, DummySalesCrMemoLine.Type::" ");
+        DummySalesCrMemoLine.SetRange("No.", '');
+        DummySalesCrMemoLine.SetRange(Description, ExpectedDescription);
+        Assert.RecordIsNotEmpty(DummySalesCrMemoLine);
     end;
 
     local procedure VerifySalesRetRcptDescriptionLineExists(DocumentNo: Code[20]; ExpectedDescription: Text[50])
     var
         DummyReturnReceiptLine: Record "Return Receipt Line";
     begin
-        with DummyReturnReceiptLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::" ");
-            SetRange("No.", '');
-            SetRange(Description, ExpectedDescription);
-            Assert.RecordIsNotEmpty(DummyReturnReceiptLine);
-        end;
+        DummyReturnReceiptLine.SetRange("Document No.", DocumentNo);
+        DummyReturnReceiptLine.SetRange(Type, DummyReturnReceiptLine.Type::" ");
+        DummyReturnReceiptLine.SetRange("No.", '');
+        DummyReturnReceiptLine.SetRange(Description, ExpectedDescription);
+        Assert.RecordIsNotEmpty(DummyReturnReceiptLine);
     end;
 
     local procedure VerifySalesLineCount(SalesHeader: Record "Sales Header"; ExpectedCount: Integer)
@@ -6919,11 +6900,9 @@ codeunit 134387 "ERM Sales Documents III"
 
     local procedure VerifySalesLineDescription(SalesLine: Record "Sales Line"; ExpectedType: Enum "Sales Line Type"; ExpectedNo: Code[20]; ExpectedDescription: Text)
     begin
-        with SalesLine do begin
-            Assert.AreEqual(ExpectedType, Type, FieldCaption(Type));
-            Assert.AreEqual(ExpectedNo, "No.", FieldCaption("No."));
-            Assert.AreEqual(ExpectedDescription, Description, FieldCaption(Description));
-        end;
+        Assert.AreEqual(ExpectedType, SalesLine.Type, SalesLine.FieldCaption(Type));
+        Assert.AreEqual(ExpectedNo, SalesLine."No.", SalesLine.FieldCaption("No."));
+        Assert.AreEqual(ExpectedDescription, SalesLine.Description, SalesLine.FieldCaption(Description));
     end;
 
     local procedure VerifySalesInvoiceLinesAgainstSalesOrderLines(SalesHeaderOrder: Record "Sales Header"; SalesHeaderInvoice: Record "Sales Header"; NoOfLines: Integer)
@@ -7166,6 +7145,31 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine.ShowItemChargeAssgnt();
     end;
 
+    procedure CreatePostCode(var PostCode: Record "Post Code"; Code: Code[20]; City: Text[30]; CountryRegionCode: Code[10])
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        PostCode.Init();
+        if Code = '' then
+            Code := CopyStr(
+                LibraryUtility.GenerateRandomCode(PostCode.FieldNo(Code), DATABASE::"Post Code"),
+                1,
+                LibraryUtility.GetFieldLength(DATABASE::"Post Code", PostCode.FieldNo(Code)));
+        PostCode.Validate(Code, Code);
+        if City = '' then
+            City := CopyStr(
+                    LibraryUtility.GenerateRandomCode(PostCode.FieldNo(City), DATABASE::"Post Code"),
+                    1,
+                    LibraryUtility.GetFieldLength(DATABASE::"Post Code", PostCode.FieldNo(City)));
+        PostCode.Validate(City, City);
+        if CountryRegionCode = '' then begin
+            CountryRegion.Next(LibraryRandom.RandInt(CountryRegion.Count()));
+            CountryRegionCode := CountryRegion.Code;
+        end;
+        PostCode.Validate("Country/Region Code", CountryRegionCode);
+        PostCode.Insert(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure CreateEmptyPostedInvConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -7340,7 +7344,7 @@ codeunit 134387 "ERM Sales Documents III"
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPricePageHandler(var GetSalesPrice: TestPage "Get Sales Price") // V15

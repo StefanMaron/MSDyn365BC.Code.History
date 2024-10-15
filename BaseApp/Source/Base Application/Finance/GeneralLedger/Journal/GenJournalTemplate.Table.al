@@ -108,13 +108,8 @@ table 80 "Gen. Journal Template"
                             "Source Code" := SourceCodeSetup."Job G/L Journal";
                             "Page ID" := PAGE::"Job G/L Journal";
                         end;
-                    Type::"Payroll Accrual":
-                        begin
-                        end;
                     Type::"Sales Tax":
-                        begin
-                            "Page ID" := PAGE::"Sales Tax Journal";
-                        end;
+                        "Page ID" := PAGE::"Sales Tax Journal";
                 end;
 
                 if Recurring then

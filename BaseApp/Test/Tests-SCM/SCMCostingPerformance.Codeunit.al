@@ -348,13 +348,11 @@ codeunit 133504 "SCM Costing Performance"
         CreateItem(Item, Item."Costing Method"::Average);
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", Quantity);
-        with ProdOrderLine do begin
-            Status := Status::Released;
-            "Prod. Order No." := ProductionOrder."No.";
-            "Line No." := 1;
-            "Item No." := Item."No.";
-            Insert(true);
-        end;
+        ProdOrderLine.Status := ProdOrderLine.Status::Released;
+        ProdOrderLine."Prod. Order No." := ProductionOrder."No.";
+        ProdOrderLine."Line No." := 1;
+        ProdOrderLine."Item No." := Item."No.";
+        ProdOrderLine.Insert(true);
     end;
 
     local procedure SalePurchSale(CostingMethod: Enum "Costing Method")

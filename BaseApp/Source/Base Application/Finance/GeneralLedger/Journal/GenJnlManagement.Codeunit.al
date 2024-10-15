@@ -26,12 +26,16 @@ codeunit 230 GenJnlManagement
         OpenFromBatch: Boolean;
         AccountNames: Dictionary of [Text, Text];
 
+#pragma warning disable AA0074
         Text000: Label 'Fixed Asset G/L Journal';
+#pragma warning disable AA0470
         Text001: Label '%1 journal';
+#pragma warning restore AA0470
         Text002: Label 'RECURRING';
         Text003: Label 'Recurring General Journal';
         Text004: Label 'DEFAULT';
         Text005: Label 'Default Journal';
+#pragma warning restore AA0074
 
     procedure TemplateSelection(PageID: Integer; PageTemplate: Enum "Gen. Journal Template Type"; RecurringJnl: Boolean; var GenJnlLine: Record "Gen. Journal Line"; var JnlSelected: Boolean)
     var

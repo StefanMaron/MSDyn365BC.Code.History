@@ -503,7 +503,6 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Visible = false;
                 }
-
                 field("Positive Pay Export Code"; Rec."Positive Pay Export Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1060,8 +1059,12 @@ page 370 "Bank Account Card"
         "Client No.Enable": Boolean;
         "Client NameEnable": Boolean;
         "Input QualifierEnable": Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'There may be a statement using the %1.\\Do you want to change Balance Last Statement?';
+#pragma warning restore AA0470
         Text002: Label 'Canceled.';
+#pragma warning restore AA0074
         ContactActionVisible: Boolean;
         Linked: Boolean;
         OnlineBankAccountLinkingErr: Label 'You must link the bank account to an online bank account.\\Choose the Link to Online Bank Account action.';

@@ -334,11 +334,9 @@ codeunit 137036 "SCM PS Bugs - II"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        with PurchaseHeader do begin
-            Get("Document Type", "No.");
-            Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
-            Modify();
-        end;
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify();
 
         // Exercise.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -755,12 +753,10 @@ codeunit 137036 "SCM PS Bugs - II"
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        with ProdOrderLine do begin
-            SetRange("Prod. Order No.", ProdOrderNo);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            Delete(true);
-        end;
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.Delete(true);
     end;
 
     local procedure DropShipmentPrepare(var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header") ItemNo: Code[20]
@@ -1066,13 +1062,11 @@ codeunit 137036 "SCM PS Bugs - II"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindFirst();
-            Validate("Qty. to Invoice", Quantity / 2);
-            Modify();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        SalesLine.Validate("Qty. to Invoice", SalesLine.Quantity / 2);
+        SalesLine.Modify();
     end;
 
     local procedure VerifyNewBatchRequisitionLine(JournalBatchName: Code[10]; DocumentNo: Code[20])

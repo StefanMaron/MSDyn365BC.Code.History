@@ -7,7 +7,8 @@ table 5199 Attendee
 {
     Caption = 'Attendee';
     DataClassification = CustomerContent;
-    Permissions = tabledata "Salesperson/Purchaser" = R;
+    Permissions = tabledata "Salesperson/Purchaser" = R,
+                  tabledata Contact = R;
 
     fields
     {
@@ -191,15 +192,19 @@ table 5199 Attendee
         Attendee: Record Attendee;
         Task: Record "To-do";
 
+#pragma warning disable AA0074
         Text001: Label 'A task organizer must always be a salesperson.';
         Text002: Label 'You cannot have more than one task organizer.';
         Text003: Label 'This attendee already exists.';
         Text004: Label 'You cannot select the %1 for %2 because he/she does not have an email address.', Comment = '%1 = field caption for Send Invitation, %2 = Salesperson Name';
         Text005: Label 'You cannot delete a task organizer.';
+#pragma warning restore AA0074
         CannotChangeForTaskOrgErr: Label 'You cannot change an %1 for a task organizer.', Comment = '%1 = Attendance Type';
         SendInvitationIsNotAvailableErr: Label 'The Send Invitation option is not available for a task organizer.';
+#pragma warning disable AA0074
         Text008: Label 'You cannot change the task organizer.';
         Text011: Label 'You cannot set %1 as organizer because he/she does not have email address.', Comment = '%1 = Sales / Purchaseer person name';
+#pragma warning restore AA0074
 
     procedure ValidateAttendee(AttendeeRec: Record Attendee; var Attendee: Record Attendee)
     var

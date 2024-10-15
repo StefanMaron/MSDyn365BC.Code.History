@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Archive;
+namespace Microsoft.Purchases.Archive;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -644,6 +644,11 @@ table 5109 "Purchase Header Archive"
         field(179; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
+        }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
         }
         field(480; "Dimension Set ID"; Integer)
         {

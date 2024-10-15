@@ -20,12 +20,9 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         LibraryRandom: Codeunit "Library - Random";
         AssertMsg: Label '%1 Field:"%2" different from expected.';
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a Bank Account No. or an IBAN.';
-        BankAccNotFoundErr: Label 'The %1 does not exist.';
         ExpectedErrorFailedErr: Label 'Assert.ExpectedError failed. Expected: %1. Actual: %2.';
-        ExpectedTestFieldErrorErr: Label '%1 must have a value in %2: Entry No.=%3. It cannot be zero or empty.';
         HasErrorsErr: Label 'The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.';
         IncorrectLengthOfValuesErr: Label 'The payment that you are trying to export is different from the specified %1, %2.\\The value in the %3 field does not have the length that is required by the export format. \Expected: %4 \Actual: %5 \Field Value: %6', Comment = 'N/A';
-        MissingPaymentExportFormatErr: Label '%1 must have a value in %2: %3=%4. It cannot be zero or empty.', Comment = '%1 is a field in table %2, and %3 is the field that indentifies the record and %4 is the value of the %3 field.';
         PmtDataExportingFlagErr: Label 'Payment data on %1 exporting status is wrong.';
         DataExchLineDefNotFoundErr: Label 'The %1 export format does not support the Payment Method Code %2.', Comment = '%1=data exch. name,%2=payment type';
         RecipientBankAccErr: Label 'Recipient Bank Account is wrong.';
@@ -437,7 +434,6 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     [Scope('OnPrem')]
     procedure CustLedgerEntryNotExportedHasFilter()
     var
-        BankAccount: Record "Bank Account";
         CustLedgerEntry1: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         PmtExportMgtCustLedgEntry: Codeunit "Pmt Export Mgt Cust Ledg Entry";
@@ -458,7 +454,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         asserterror PmtExportMgtCustLedgEntry.ExportCustPaymentFileYN(CustLedgerEntry2);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(BankAccNotFoundErr, BankAccount.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Bank Account");
     end;
 
     [Test]
@@ -565,9 +561,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         asserterror GenJnlLine.ExportPaymentFile();
 
         // Verify
-        Assert.ExpectedError(
-          StrSubstNo(MissingPaymentExportFormatErr, BankAccount.FieldCaption("Payment Export Format"),
-            BankAccount.TableCaption(), BankAccount.FieldCaption("No."), BankAccount."No."));
+        Assert.ExpectedTestFieldError(BankAccount.FieldCaption("Payment Export Format"), '');
     end;
 
     [Test]
@@ -1182,7 +1176,6 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     [Scope('OnPrem')]
     procedure VendorLedgerEntryNotExportedHasFilter()
     var
-        BankAccount: Record "Bank Account";
         VendLedgerEntry1: Record "Vendor Ledger Entry";
         VendLedgerEntry2: Record "Vendor Ledger Entry";
         PmtExportMgtVendLedgEntry: Codeunit "Pmt Export Mgt Vend Ledg Entry";
@@ -1203,7 +1196,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         asserterror PmtExportMgtVendLedgEntry.ExportVendorPaymentFileYN(VendLedgerEntry2);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(BankAccNotFoundErr, BankAccount.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Bank Account");
     end;
 
     [Test]
@@ -1829,15 +1822,15 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         RecRef.Open(DATABASE::"Payment Export Data");
 
         if GetLastErrorCode = 'TestField' then
-            ExpectedError := StrSubstNo(ExpectedTestFieldErrorErr, RecRef.Field(FieldNo).Caption, TempPmtExportData.TableCaption(), 1)
-        else begin
+            Assert.ExpectedTestFieldError(RecRef.Field(FieldNo).Caption, '')
+        else
             ExpectedError :=
               StrSubstNo(IncorrectLengthOfValuesErr,
                 DataExchDef.Type::"Payment Export", DataExchDef.Code, RecRef.Field(FieldNo).Caption,
-                Length, StrLen(ExpectedOutput), ExpectedOutput)
-        end;
+                Length, StrLen(ExpectedOutput), ExpectedOutput);
 
-        AssertExpectedError(ExpectedError);
+        if ExpectedError <> '' then
+            AssertExpectedError(ExpectedError);
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         Assert.IsTrue(DataExchField.IsEmpty, 'No line should be imported');
     end;
@@ -2218,11 +2211,9 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
     local procedure ApplyToOpenLedgerEntriesWithAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line"; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     begin
-        with GenJnlLine do begin
-            Validate("Applies-to Doc. Type", AppliesToDocType);
-            Validate("Applies-to Doc. No.", AppliesToDocNo);
-            Modify();
-        end;
+        GenJnlLine.Validate("Applies-to Doc. Type", AppliesToDocType);
+        GenJnlLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        GenJnlLine.Modify();
     end;
 
     local procedure ApplyToOpenLedgerEntriesWithAppliesToID(var GenJnlLine: Record "Gen. Journal Line"; var VendLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])
@@ -2230,10 +2221,8 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry."Applies-to ID" := AppliesToID;
         VendLedgerEntry.Modify();
 
-        with GenJnlLine do begin
-            Validate("Applies-to ID", AppliesToID);
-            Modify();
-        end;
+        GenJnlLine.Validate("Applies-to ID", AppliesToID);
+        GenJnlLine.Modify();
     end;
 
     local procedure SuggestVendorPayment(VendLedgerEntry: Record "Vendor Ledger Entry"; GenJnlBatch: Record "Gen. Journal Batch"; var GenJnlLine: Record "Gen. Journal Line")
@@ -2275,12 +2264,10 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     begin
         LibraryERM.CreateBankAccount(BankAccount);
 
-        with BankAccount do begin
-            "Bank Branch No." := BankBranchNo;
-            "Bank Account No." := BankAccountNo;
-            IBAN := '';
-            Modify();
-        end;
+        BankAccount."Bank Branch No." := BankBranchNo;
+        BankAccount."Bank Account No." := BankAccountNo;
+        BankAccount.IBAN := '';
+        BankAccount.Modify();
     end;
 
     local procedure CreateAnyBankAccount(var BankAccount: Record "Bank Account")
@@ -2308,71 +2295,63 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         PaymentMethod: Record "Payment Method";
     begin
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." := LastCustLedgerEntryNo() + 1000;
-            "Customer No." := LibrarySales.CreateCustomerNo();
-            "Posting Date" := WorkDate();
-            "Document Type" := DocumentType;
-            "Document No." := LibraryUtility.GenerateGUID();
-            Open := true;
-            "Due Date" := CalcDate('<1D>', "Posting Date");
-            "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := LibraryUtility.GenerateGUID();
-            Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
-            LibraryPaymentExport.CreatePaymentMethod(PaymentMethod);
-            "Payment Method Code" := PaymentMethod.Code;
-            "Recipient Bank Account" := LibraryUtility.GenerateGUID();
-            "Message to Recipient" := LibraryUtility.GenerateGUID();
-            "Exported to Payment File" := Exported;
-            Insert();
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LastCustLedgerEntryNo() + 1000;
+        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo();
+        CustLedgerEntry."Posting Date" := WorkDate();
+        CustLedgerEntry."Document Type" := DocumentType;
+        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry."Due Date" := CalcDate('<1D>', CustLedgerEntry."Posting Date");
+        CustLedgerEntry."Bal. Account Type" := CustLedgerEntry."Bal. Account Type"::"Bank Account";
+        CustLedgerEntry."Bal. Account No." := LibraryUtility.GenerateGUID();
+        CustLedgerEntry.Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
+        LibraryPaymentExport.CreatePaymentMethod(PaymentMethod);
+        CustLedgerEntry."Payment Method Code" := PaymentMethod.Code;
+        CustLedgerEntry."Recipient Bank Account" := LibraryUtility.GenerateGUID();
+        CustLedgerEntry."Message to Recipient" := LibraryUtility.GenerateGUID();
+        CustLedgerEntry."Exported to Payment File" := Exported;
+        CustLedgerEntry.Insert();
     end;
 
     local procedure CreateCustWithCustBankAcc(var CustomerBankAccount: Record "Customer Bank Account"; BankBranchNo: Text[20]; BankAccountNo: Text[30]; NewIBAN: Code[50])
     begin
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, LibrarySales.CreateCustomerNo());
 
-        with CustomerBankAccount do begin
-            "Bank Branch No." := CopyStr(BankBranchNo, 1, MaxStrLen("Bank Branch No."));
-            "Bank Account No." := BankAccountNo;
-            IBAN := NewIBAN;
-            Modify();
-        end;
+        CustomerBankAccount."Bank Branch No." := CopyStr(BankBranchNo, 1, MaxStrLen(CustomerBankAccount."Bank Branch No."));
+        CustomerBankAccount."Bank Account No." := BankAccountNo;
+        CustomerBankAccount.IBAN := NewIBAN;
+        CustomerBankAccount.Modify();
     end;
 
     local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountNo: Code[20])
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPaymentExport.SelectPaymentJournalTemplate());
-        with GenJournalBatch do begin
-            "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := BalAccountNo;
-            "Allow Payment Export" := true;
-            Modify();
-        end;
+        GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
+        GenJournalBatch."Bal. Account No." := BalAccountNo;
+        GenJournalBatch."Allow Payment Export" := true;
+        GenJournalBatch.Modify();
     end;
 
     local procedure CreateGenJournalLine(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; VendLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        with GenJnlLine do begin
-            Init();
-            "Journal Template Name" := GenJnlBatch."Journal Template Name";
-            "Journal Batch Name" := GenJnlBatch.Name;
-            "Line No." := LibraryRandom.RandInt(10000);
-            "Account Type" := "Account Type"::Vendor;
-            "Account No." := VendLedgerEntry."Vendor No.";
-            "Posting Date" := WorkDate();
-            "Document Type" := "Document Type"::Payment;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "External Document No." := LibraryUtility.GenerateGUID();
-            Amount := VendLedgerEntry.Amount;
-            "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
-            "Bal. Account No." := GenJnlBatch."Bal. Account No.";
-            "Payment Method Code" := VendLedgerEntry."Payment Method Code";
-            "Recipient Bank Account" := LibraryUtility.GenerateGUID();
-            "Message to Recipient" := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        GenJnlLine.Init();
+        GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
+        GenJnlLine."Line No." := LibraryRandom.RandInt(10000);
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
+        GenJnlLine."Account No." := VendLedgerEntry."Vendor No.";
+        GenJnlLine."Posting Date" := WorkDate();
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+        GenJnlLine."Document No." := LibraryUtility.GenerateGUID();
+        GenJnlLine."External Document No." := LibraryUtility.GenerateGUID();
+        GenJnlLine.Amount := VendLedgerEntry.Amount;
+        GenJnlLine."Bal. Account Type" := GenJnlBatch."Bal. Account Type";
+        GenJnlLine."Bal. Account No." := GenJnlBatch."Bal. Account No.";
+        GenJnlLine."Payment Method Code" := VendLedgerEntry."Payment Method Code";
+        GenJnlLine."Recipient Bank Account" := LibraryUtility.GenerateGUID();
+        GenJnlLine."Message to Recipient" := LibraryUtility.GenerateGUID();
+        GenJnlLine.Insert();
     end;
 
     local procedure CreateVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; Exported: Boolean)
@@ -2380,26 +2359,24 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         PaymentMethod: Record "Payment Method";
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        with VendLedgerEntry do begin
-            Init();
-            "Entry No." := LastVendorLedgerEntryNo() + 1000;
-            "Vendor No." := LibraryPurchase.CreateVendorNo();
-            "Posting Date" := WorkDate();
-            "Document Type" := DocumentType;
-            "Document No." := LibraryUtility.GenerateGUID();
-            Open := true;
-            "Due Date" := CalcDate('<1D>', "Posting Date");
-            Amount := -LibraryRandom.RandDecInRange(100, 1000, 2);
-            "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := LibraryUtility.GenerateGUID();
-            LibraryERM.CreatePaymentMethod(PaymentMethod);
-            "Payment Method Code" := PaymentMethod.Code;
-            LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, "Vendor No.");
-            "Recipient Bank Account" := VendorBankAccount.Code;
-            "Message to Recipient" := LibraryUtility.GenerateGUID();
-            "Exported to Payment File" := Exported;
-            Insert();
-        end;
+        VendLedgerEntry.Init();
+        VendLedgerEntry."Entry No." := LastVendorLedgerEntryNo() + 1000;
+        VendLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo();
+        VendLedgerEntry."Posting Date" := WorkDate();
+        VendLedgerEntry."Document Type" := DocumentType;
+        VendLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
+        VendLedgerEntry.Open := true;
+        VendLedgerEntry."Due Date" := CalcDate('<1D>', VendLedgerEntry."Posting Date");
+        VendLedgerEntry.Amount := -LibraryRandom.RandDecInRange(100, 1000, 2);
+        VendLedgerEntry."Bal. Account Type" := VendLedgerEntry."Bal. Account Type"::"Bank Account";
+        VendLedgerEntry."Bal. Account No." := LibraryUtility.GenerateGUID();
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        VendLedgerEntry."Payment Method Code" := PaymentMethod.Code;
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendLedgerEntry."Vendor No.");
+        VendLedgerEntry."Recipient Bank Account" := VendorBankAccount.Code;
+        VendLedgerEntry."Message to Recipient" := LibraryUtility.GenerateGUID();
+        VendLedgerEntry."Exported to Payment File" := Exported;
+        VendLedgerEntry.Insert();
         CreateDtldVendLedgEntry(VendLedgerEntry);
     end;
 
@@ -2407,12 +2384,10 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     begin
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo());
 
-        with VendorBankAccount do begin
-            "Bank Branch No." := BankBranchNo;
-            "Bank Account No." := BankAccountNo;
-            IBAN := NewIBAN;
-            Modify();
-        end;
+        VendorBankAccount."Bank Branch No." := BankBranchNo;
+        VendorBankAccount."Bank Account No." := BankAccountNo;
+        VendorBankAccount.IBAN := NewIBAN;
+        VendorBankAccount.Modify();
     end;
 
     local procedure CreateGenJnlBatchWithLines(var BatchCount: Integer): Code[10]
@@ -2453,22 +2428,18 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     var
         DataExch: Record "Data Exch.";
     begin
-        with DataExch do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DataExch, FieldNo("Entry No."));
-            Insert();
-            exit("Entry No.");
-        end;
+        DataExch.Init();
+        DataExch."Entry No." := LibraryUtility.GetNewRecNo(DataExch, DataExch.FieldNo("Entry No."));
+        DataExch.Insert();
+        exit(DataExch."Entry No.");
     end;
 
     local procedure MockDataExchField(var DataExchField: Record "Data Exch. Field"; PostExchNo: Integer)
     begin
-        with DataExchField do begin
-            Init();
-            "Data Exch. No." := PostExchNo;
-            "Line No." := LibraryRandom.RandInt(100);
-            Insert();
-        end;
+        DataExchField.Init();
+        DataExchField."Data Exch. No." := PostExchNo;
+        DataExchField."Line No." := LibraryRandom.RandInt(100);
+        DataExchField.Insert();
     end;
 
     local procedure CreateDtldVendLedgEntry(VendLedgEntry: Record "Vendor Ledger Entry")
@@ -2477,31 +2448,27 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         RecRef: RecordRef;
     begin
         RecRef.Open(DATABASE::"Vendor Ledger Entry");
-        with DtldVendLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Vendor Ledger Entry No." := VendLedgEntry."Entry No.";
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            "Posting Date" := VendLedgEntry."Posting Date";
-            "Document Type" := VendLedgEntry."Document Type";
-            "Document No." := VendLedgEntry."Document No.";
-            Amount := VendLedgEntry.Amount;
-            "Amount (LCY)" := Amount;
-            "Vendor No." := VendLedgEntry."Vendor No.";
-            "Ledger Entry Amount" := true;
-            Insert();
-        end;
+        DtldVendLedgEntry.Init();
+        DtldVendLedgEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, DtldVendLedgEntry.FieldNo("Entry No."));
+        DtldVendLedgEntry."Vendor Ledger Entry No." := VendLedgEntry."Entry No.";
+        DtldVendLedgEntry."Entry Type" := DtldVendLedgEntry."Entry Type"::"Initial Entry";
+        DtldVendLedgEntry."Posting Date" := VendLedgEntry."Posting Date";
+        DtldVendLedgEntry."Document Type" := VendLedgEntry."Document Type";
+        DtldVendLedgEntry."Document No." := VendLedgEntry."Document No.";
+        DtldVendLedgEntry.Amount := VendLedgEntry.Amount;
+        DtldVendLedgEntry."Amount (LCY)" := DtldVendLedgEntry.Amount;
+        DtldVendLedgEntry."Vendor No." := VendLedgEntry."Vendor No.";
+        DtldVendLedgEntry."Ledger Entry Amount" := true;
+        DtldVendLedgEntry.Insert();
     end;
 
     local procedure FindAppliedGenJnlLine(GenJnlBatch: Record "Gen. Journal Batch"; VendLedgerEntry: Record "Vendor Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJnlBatch.Name);
-            SetRange("Applies-to Doc. Type", VendLedgerEntry."Document Type");
-            SetRange("Applies-to Doc. No.", VendLedgerEntry."Document No.");
-            FindFirst();
-        end;
+        GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+        GenJnlLine.SetRange("Applies-to Doc. Type", VendLedgerEntry."Document Type");
+        GenJnlLine.SetRange("Applies-to Doc. No.", VendLedgerEntry."Document No.");
+        GenJnlLine.FindFirst();
     end;
 
     local procedure LastCustLedgerEntryNo(): Integer

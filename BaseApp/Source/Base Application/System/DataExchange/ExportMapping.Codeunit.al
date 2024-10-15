@@ -30,9 +30,11 @@ codeunit 1269 "Export Mapping"
     end;
 
     var
+#pragma warning disable AA0470
         ProgressMsg: Label 'Processing line no. #1######.';
         MappingNotFoundErr: Label 'No mapping was found for format definition %1 and line definition %2.';
         RecordsNotFoundErr: Label 'No records were found for source table %1 using the filters: %2.';
+#pragma warning restore AA0470
 
     local procedure FindMapping(var DataExchMapping: Record "Data Exch. Mapping"; DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20])
     begin
@@ -122,7 +124,7 @@ codeunit 1269 "Export Mapping"
             RecRef.CurrentKeyIndex(DataExchMapping."Key Index");
 
         if not RecRef.FindSet() then begin
-            OnBeforeCheckRecRefCount(IsHandled);
+            OnBeforeCheckRecRefCount(IsHandled, DataExchMapping);
             if not IsHandled then
                 Error(RecordsNotFoundErr, RecRef.Number(), RecRef.GetView());
         end;
@@ -209,7 +211,8 @@ codeunit 1269 "Export Mapping"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckRecRefCount(var IsHandled: Boolean)
+    local procedure OnBeforeCheckRecRefCount(var IsHandled: Boolean; DataExchMapping: Record "Data Exch. Mapping")
     begin
     end;
+
 }

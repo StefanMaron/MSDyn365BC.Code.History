@@ -43,11 +43,11 @@ codeunit 149118 "BCPT Post Sales with N Lines" implements "BCPT Test Param. Prov
         NoOfLinesParamLbl: Label 'Lines';
         ParamValidationErr: Label 'Parameter is not defined in the correct format. The expected format is "%1"', Comment = '%1 is a string';
 
-
     local procedure InitTest();
     var
         SalesSetup: Record "Sales & Receivables Setup";
         NoSeriesLine: Record "No. Series Line";
+        RecordModified: Boolean;
     begin
         SalesSetup.Get();
         SalesSetup.TestField("Order Nos.");
@@ -58,9 +58,12 @@ codeunit 149118 "BCPT Post Sales with N Lines" implements "BCPT Test Param. Prov
                 NoSeriesLine."Ending No." := '';
                 NoSeriesLine.Validate(Implementation, Enum::"No. Series Implementation"::Sequence);
                 NoSeriesLine.Modify(true);
+                RecordModified := true;
             end;
         until NoSeriesLine.Next() = 0;
-        commit();
+
+        if RecordModified then
+            Commit();
 
         if Evaluate(NoOfLinesToCreate, GlobalBCPTTestContext.GetParameter(NoOfLinesParamLbl)) then;
     end;

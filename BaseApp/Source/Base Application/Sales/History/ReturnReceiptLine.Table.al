@@ -561,8 +561,12 @@ table 6661 "Return Receipt Line"
         TranslationHelper: Codeunit "Translation Helper";
         CurrencyRead: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Return Receipt No. %1:';
+#pragma warning restore AA0470
         Text001: Label 'The program cannot find this purchase line.';
+#pragma warning restore AA0074
 
     procedure GetCurrencyCode(): Code[10]
     begin
@@ -746,12 +750,11 @@ table 6661 "Return Receipt Line"
         if IsHandled then
             exit;
 
-        if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Return Order No.") then begin
+        if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Return Order No.") then
             if not SalesOrderHeader."Get Shipment Used" then begin
                 SalesOrderHeader."Get Shipment Used" := true;
                 SalesOrderHeader.Modify();
             end;
-        end;
     end;
 
     local procedure CopySalesLinePriceAndDiscountFromSalesOrderLine(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line")

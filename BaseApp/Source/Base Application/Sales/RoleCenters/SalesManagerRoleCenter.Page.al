@@ -127,6 +127,11 @@ page 9005 "Sales Manager Role Center"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'User Tasks';
                 }
+                part("Job Queue Tasks"; "Job Queue Tasks Activities")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Job Queue Tasks';
+                }
             }
 #endif
         }

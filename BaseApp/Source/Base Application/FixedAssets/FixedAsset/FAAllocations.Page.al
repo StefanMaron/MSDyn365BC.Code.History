@@ -9,6 +9,8 @@ page 5623 "FA Allocations"
     DataCaptionFields = "Code", "Allocation Type";
     PageType = Worksheet;
     SourceTable = "FA Allocation";
+    AboutTitle = 'About FA Allocations';
+    AboutText = 'The **FA Allocations** are used to allocate transactions to various departments or projects. Allocation is applied to fixed asset classes, not to individual assets.';
 
     layout
     {
@@ -20,6 +22,8 @@ page 5623 "FA Allocations"
                 field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = FixedAssets;
+                    AboutTitle = 'Manage Account No.';
+                    AboutText = 'Choose the G/L Account No. on which the allocation value will be posted.';
                     ToolTip = 'Specifies the account number to allocate to for the fixed asset allocation type on this line.';
                 }
                 field("Account Name"; Rec."Account Name")
@@ -31,6 +35,8 @@ page 5623 "FA Allocations"
                 field("Allocation %"; Rec."Allocation %")
                 {
                     ApplicationArea = FixedAssets;
+                    AboutTitle = 'Manage Allocation Percentage';
+                    AboutText = 'Specify the allocation percentage to calculate the amount during the transactions.';
                     ToolTip = 'Specifies the percentage to use when allocating the amount for the allocation type.';
                 }
             }

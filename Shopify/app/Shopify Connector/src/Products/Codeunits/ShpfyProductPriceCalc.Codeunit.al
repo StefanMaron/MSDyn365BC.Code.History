@@ -1,8 +1,5 @@
 namespace Microsoft.Integration.Shopify;
 
-#if not CLEAN22
-using System.IO;
-#endif
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Customer;
@@ -16,9 +13,6 @@ codeunit 30182 "Shpfy Product Price Calc."
     Access = Internal;
     SingleInstance = true;
     Permissions =
-#if not CLEAN22
-        tabledata "Config. Template Header" = r,
-#endif
         tabledata Customer = rmid,
         tabledata Item = r,
         tabledata "Item Unit of Measure" = r,
@@ -37,6 +31,7 @@ codeunit 30182 "Shpfy Product Price Calc."
         TaxLiable: Boolean;
         VATCountryRegionCode: Code[10];
         CustomerPriceGroup: Code[10];
+        CustomerNo: Code[20];
         CustomerDiscGroup: Code[20];
         CustomerPostingGroup: Code[20];
         PricesIncludingVAT: Boolean;
@@ -59,7 +54,7 @@ codeunit 30182 "Shpfy Product Price Calc."
         ShpfyUpdatePriceSouce: codeunit "Shpfy Update Price Source";
         IsHandled: Boolean;
     begin
-        ProductEvents.OnBeforeCalculateUnitPrice(Item, ItemVariant, UnitOfMeasure, Shop, UnitCost, Price, ComparePrice, IsHandled);
+        ProductEvents.OnBeforeCalculateUnitPrice(Item, ItemVariant, UnitOfMeasure, Shop, Catalog, UnitCost, Price, ComparePrice, IsHandled);
         if not IsHandled then begin
             BindSubscription(ShpfyUpdatePriceSouce);
             if TempSalesHeader.FindFirst() then begin
@@ -90,29 +85,42 @@ codeunit 30182 "Shpfy Product Price Calc."
             if ComparePrice <= Price then
                 ComparePrice := 0;
         end;
-        ProductEvents.OnAfterCalculateUnitPrice(Item, ItemVariant, UnitOfMeasure, Shop, UnitCost, Price, ComparePrice);
+        ProductEvents.OnAfterCalculateUnitPrice(Item, ItemVariant, UnitOfMeasure, Shop, Catalog, UnitCost, Price, ComparePrice);
     end;
 
     /// <summary> 
     /// Create Temp Sales Header.
     /// </summary>
     local procedure CreateTempSalesHeader()
+    var
+        Customer: Record Customer;
     begin
         Clear(TempSalesHeader);
         TempSalesHeader."Document Type" := TempSalesHeader."Document Type"::Quote;
         TempSalesHeader."No." := Shop.Code;
-        TempSalesHeader."Sell-to Customer No." := Shop.Code;
-        TempSalesHeader."Bill-to Customer No." := Shop.Code;
+        if CustomerNo <> '' then begin
+            Customer.Get(CustomerNo);
+            TempSalesHeader."Sell-to Customer No." := CustomerNo;
+            TempSalesHeader."Bill-to Customer No." := CustomerNo;
+            TempSalesHeader."Customer Price Group" := Customer."Customer Price Group";
+            TempSalesHeader."Customer Disc. Group" := Customer."Customer Disc. Group";
+            TempSalesHeader."Allow Line Disc." := Customer."Allow Line Disc.";
+        end
+        else begin
+            TempSalesHeader."Sell-to Customer No." := Shop.Code;
+            TempSalesHeader."Bill-to Customer No." := Shop.Code;
+            TempSalesHeader."Customer Price Group" := CustomerPriceGroup;
+            TempSalesHeader."Customer Disc. Group" := CustomerDiscGroup;
+            TempSalesHeader."Allow Line Disc." := AllowLineDisc;
+        end;
+
         TempSalesHeader."Gen. Bus. Posting Group" := GenBusPostingGroup;
         TempSalesHeader."VAT Bus. Posting Group" := VATBusPostingGroup;
         TempSalesHeader."Tax Area Code" := TaxAreaCode;
         TempSalesHeader."Tax Liable" := TaxLiable;
         TempSalesHeader."VAT Country/Region Code" := VATCountryRegionCode;
-        TempSalesHeader."Customer Price Group" := CustomerPriceGroup;
-        TempSalesHeader."Customer Disc. Group" := CustomerDiscGroup;
         TempSalesHeader."Customer Posting Group" := CustomerPostingGroup;
         TempSalesHeader."Prices Including VAT" := PricesIncludingVAT;
-        TempSalesHeader."Allow Line Disc." := AllowLineDisc;
         TempSalesHeader.Validate("Document Date", WorkDate());
         TempSalesHeader.Validate("Order Date", WorkDate());
         TempSalesHeader.Validate("Currency Code", Shop."Currency Code");
@@ -212,6 +220,7 @@ codeunit 30182 "Shpfy Product Price Calc."
                     CustomerPostingGroup := ShopifyCatalog."Customer Posting Group";
                     PricesIncludingVAT := ShopifyCatalog."Prices Including VAT";
                     AllowLineDisc := ShopifyCatalog."Allow Line Disc.";
+                    CustomerNo := ShopifyCatalog."Customer No.";
                 end;
         end;
     end;

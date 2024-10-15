@@ -683,6 +683,9 @@ report 6641 "Return Order"
                         column(ShiptoAddressCaption; ShiptoAddressCaptionLbl)
                         {
                         }
+                        column(ShipToPhoneNo; "Purchase Header"."Ship-to Phone No.")
+                        {
+                        }
 
                         trigger OnPreDataItem()
                         begin
@@ -885,11 +888,17 @@ report 6641 "Return Order"
         TotalAmount: Decimal;
         TotalInvoiceDiscountAmount: Decimal;
 
+#pragma warning disable AA0074
         Text004: Label 'Return Order %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text005: Label 'Page %1';
+#pragma warning restore AA0470
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
+#pragma warning disable AA0470
         Text009: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074        
         InvDiscAmtCaptionLbl: Label 'Invoice Discount Amount';
         VATAmtSpecificationCaptionLbl: Label 'VAT Amount Specification';
         VATIdentifierCaptionLbl: Label 'VAT Identifier';

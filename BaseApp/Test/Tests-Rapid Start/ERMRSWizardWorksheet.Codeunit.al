@@ -555,7 +555,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         CheckPage(DATABASE::"Purch. Rcpt. Header", PAGE::"Posted Purchase Receipts");
         CheckPage(DATABASE::"Purch. Inv. Header", PAGE::"Posted Purchase Invoices");
         CheckPage(DATABASE::"Purch. Cr. Memo Hdr.", PAGE::"Posted Purchase Credit Memos");
-#if not CLEAN23
+#if not CLEAN25
         CheckPage(DATABASE::"Sales Price", PAGE::"Sales Prices");
         CheckPage(DATABASE::"Purchase Price", PAGE::"Purchase Prices");
 #endif
@@ -2507,14 +2507,12 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
     local procedure CreateConfigSetup(var ConfigSetup: Record "Config. Setup")
     begin
-        with ConfigSetup do begin
-            if not Get() then begin
-                Init();
-                Insert();
-            end;
-            Name := LibraryUtility.GenerateGUID();
-            Modify();
+        if not ConfigSetup.Get() then begin
+            ConfigSetup.Init();
+            ConfigSetup.Insert();
         end;
+        ConfigSetup.Name := LibraryUtility.GenerateGUID();
+        ConfigSetup.Modify();
     end;
 
     local procedure CheckPage(TableID: Integer; PageID: Integer)

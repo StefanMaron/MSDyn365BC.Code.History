@@ -292,10 +292,12 @@ report 7318 "Whse.-Shipment - Create Pick"
         WhseActivHeader.SetRange(Type, WhseActivHeader.Type::Pick);
         WhseActivHeader.SetRange("No.", FirstActivityNo, LastActivityNo);
         OnBeforeSortWhseActivHeaders(WhseActivHeader, FirstActivityNo, LastActivityNo, HideNothingToHandleErr);
-        if WhseActivHeader.Find('-') then begin
+        if WhseActivHeader.FindSet(DoNotFillQtytoHandleReq) then begin
             repeat
                 if SortActivity <> SortActivity::None then
                     WhseActivHeader.SortWhseDoc();
+                WhseActivHeader."Do Not Fill Qty. to Handle" := DoNotFillQtytoHandleReq;
+                WhseActivHeader.Modify();
             until WhseActivHeader.Next() = 0;
 
             if PrintDocReq then begin

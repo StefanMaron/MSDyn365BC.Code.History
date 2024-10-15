@@ -13,6 +13,8 @@ codeunit 5901 ServLoanerManagement
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The %1 field is empty.';
         Text001: Label 'You cannot receive loaner %1 because it has not been lent.';
         Text002: Label 'Loaner no. %1 has not been lent connection with %2 no. %3.';
@@ -20,6 +22,8 @@ codeunit 5901 ServLoanerManagement
         Text004: Label 'There is no loaner to receive on the service shipment item line document no.=%1,line no.=%2.';
         Text005: Label 'Do you want to receive loaner %1?';
         Text006: Label 'There is no service shipment header within the filter.\Filters: order no.: %1\Do you want to receive the loaner anyway?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure LendLoaner(ServItemLine: Record "Service Item Line")
     var

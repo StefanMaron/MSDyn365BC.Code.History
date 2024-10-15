@@ -94,8 +94,12 @@ table 801 "Online Map Parameter Setup"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'Inserting default values will delete your current setup.\Do you wish to continue?';
+#pragma warning disable AA0470
         Text002: Label 'Address parameters must only occur twice in the Directions URL. Validate the use of {%1}.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure InsertDefaults()
     var

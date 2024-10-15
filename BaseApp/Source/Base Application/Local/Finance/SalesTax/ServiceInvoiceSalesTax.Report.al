@@ -442,7 +442,7 @@ report 10474 "Service Invoice-Sales Tax"
                     }
                     dataitem(LineFee; "Integer")
                     {
-                        DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = filter(1 ..));
+                        DataItemTableView = sorting(Number) order(ascending) where(Number = filter(1 ..));
                         column(LineFeeCaptionLbl; TempLineFeeNoteOnReportHist.ReportText)
                         {
                         }
@@ -512,8 +512,8 @@ report 10474 "Service Invoice-Sales Tax"
 
                 GetLineFeeNoteOnReportHist("No.");
 
-                FormatAddress.ServiceInvBillTo(BillToAddress, "Service Invoice Header");
-                FormatAddress.ServiceInvShipTo(ShipToAddress, ShipToAddress, "Service Invoice Header");
+                ServiceFormatAddress.ServiceInvBillTo(BillToAddress, "Service Invoice Header");
+                ServiceFormatAddress.ServiceInvShipTo(ShipToAddress, ShipToAddress, "Service Invoice Header");
 
                 if "Payment Terms Code" = '' then
                     Clear(PaymentTerms)
@@ -558,12 +558,11 @@ report 10474 "Service Invoice-Sales Tax"
                                (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
                             then begin
                                 BrkIdx := BrkIdx + 1;
-                                if BrkIdx > 1 then begin
+                                if BrkIdx > 1 then
                                     if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
                                         BreakdownTitle := Text006
                                     else
                                         BreakdownTitle := Text003;
-                                end;
                                 if BrkIdx > ArrayLen(BreakdownAmt) then begin
                                     BrkIdx := BrkIdx - 1;
                                     BreakdownLabel[BrkIdx] := Text004;
@@ -691,6 +690,7 @@ report 10474 "Service Invoice-Sales Tax"
         ServiceShipmentBuffer: Record "Service Shipment Buffer" temporary;
         ServiceInvCountPrinted: Codeunit "Service Inv.-Printed";
         FormatAddress: Codeunit "Format Address";
+        ServiceFormatAddress: Codeunit "Service Format Address";
         SalesTaxCalc: Codeunit "Sales Tax Calculate";
         NextEntryNo: Integer;
         FirstValueEntryNo: Integer;
@@ -914,13 +914,13 @@ report 10474 "Service Invoice-Sales Tax"
 
         LineFeeNoteOnReportHist.SetRange("Cust. Ledger Entry No", CustLedgerEntry."Entry No.");
         LineFeeNoteOnReportHist.SetRange("Language Code", Customer."Language Code");
-        if LineFeeNoteOnReportHist.FindSet() then begin
+        if LineFeeNoteOnReportHist.FindSet() then
             repeat
                 TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
                 TempLineFeeNoteOnReportHist.Insert();
-            until LineFeeNoteOnReportHist.Next() = 0;
-        end else begin
+            until LineFeeNoteOnReportHist.Next() = 0
+        else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", LanguageMgt.GetUserLanguageCode());
             if LineFeeNoteOnReportHist.FindSet() then
                 repeat

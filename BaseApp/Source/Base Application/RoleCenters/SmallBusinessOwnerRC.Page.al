@@ -30,7 +30,7 @@ using Microsoft.FixedAssets.Journal;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Calendar;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Foundation.ExtendedText;
 #endif
 using Microsoft.Foundation.Navigate;
@@ -44,7 +44,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Pricing.Worksheet;
 #endif
 using Microsoft.Projects.Resources.Journal;
@@ -87,6 +87,10 @@ page 9020 "Small Business Owner RC"
                     ApplicationArea = Basic, Suite;
                 }
                 part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
+                part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
                 {
                     ApplicationArea = Suite;
                 }
@@ -210,7 +214,7 @@ page 9020 "Small Business Owner RC"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'List Price Sheet';
-#if not CLEAN23
+#if not CLEAN25
                 RunPageView = where("Object Type" = const(Report), "Object ID" = const(10148)); // "List Price Sheet"
                 RunObject = Page "Role Center Page Dispatcher";
 #else
@@ -849,7 +853,7 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Resource Groups";
                     ToolTip = 'View all resource groups.';
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action("Resource Price Changes")
                 {
                     ApplicationArea = Basic, Suite;
@@ -943,7 +947,7 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Reason Codes";
                     ToolTip = 'View or set up codes that specify reasons why entries were created, such as Return, to specify why a purchase credit memo was posted.';
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action("Extended Texts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1125,7 +1129,7 @@ page 9020 "Small Business Owner RC"
                 RunObject = Page "Purchase Journal";
                 ToolTip = 'Open the list of purchase journals where you can batch post purchase transactions to G/L, bank, customer, vendor and fixed assets accounts.';
             }
-#if not CLEAN23
+#if not CLEAN25
             action("Sales Price &Worksheet")
             {
                 ApplicationArea = Basic, Suite;

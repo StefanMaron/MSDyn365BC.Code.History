@@ -39,12 +39,12 @@ page 1010 "Job WIP Methods"
                 field("WIP Cost"; Rec."WIP Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the calculation formula, depending on the parameters that you have specified when creating a calculation method for WIP. You can edit the check box, depending on the values set in the Recognized Costs and Recognized Sales fields.';
+                    ToolTip = 'Specifies if the Project Costs Applied and Recognized Costs are posted to the general ledger. For system defined WIP methods, the WIP Cost field is always enabled. For WIP methods that you create, you can only clear the check box if you set Recognized Costs to Usage (Total Cost). ';
                 }
                 field("WIP Sales"; Rec."WIP Sales")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the parameters that apply when creating a calculation method for WIP. You can edit the check box, depending on the values set in the Recognized Costs and Recognized Sales fields.';
+                    ToolTip = 'Specifies if the contract (invoiced price) is posted to the general ledger. For system-defined WIP methods, the WIP Sales field is the default and is checked. For WIP methods that you create, you can only clear the check box if you set Recognized Sales to Contract (Invoiced Price).';
                 }
                 field(Valid; Rec.Valid)
                 {

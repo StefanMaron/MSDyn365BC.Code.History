@@ -210,7 +210,7 @@ codeunit 10320 "Exp. Launcher EFT"
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
-        if DataExchLineDef.FindSet() then begin
+        if DataExchLineDef.FindSet() then
             repeat
                 // Insert the Data Exchange Detail records
                 DataExch.SetRange("Data Exch. Def Code", DataExchDefCode);
@@ -256,7 +256,6 @@ codeunit 10320 "Exp. Launcher EFT"
                         CODEUNIT.Run(DataExchDef."Reading/Writing Codeunit", DataExch);
 
             until DataExchLineDef.Next() = 0;
-        end;
     end;
 
     local procedure ProcessFooters(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; var BankAccount: Record "Bank Account"; DataExchDefCode: Code[20]; var FooterArray: array[100] of Integer; Filename: Text; var DataExchEntryCodeFooter: Integer; var EFTValues: Codeunit "EFT Values")
@@ -306,13 +305,11 @@ codeunit 10320 "Exp. Launcher EFT"
                             else
                                 ExportEFTACH.EndExportFile(DataExch."Entry No.", EFTValues);
                         end else
-                            if TempEFTExportWorkset."Bank Payment Type" = TempEFTExportWorkset."Bank Payment Type"::"Electronic Payment-IAT"
-                            then begin
+                            if TempEFTExportWorkset."Bank Payment Type" = TempEFTExportWorkset."Bank Payment Type"::"Electronic Payment-IAT" then
                                 if FooterCount = 1 then
                                     ExportEFTIAT.EndExportBatch(DataExch."Entry No.", EFTValues)
                                 else
                                     ExportEFTIAT.EndExportFile(DataExch."Entry No.", EFTValues);
-                            end;
                     BankAccount."Export Format"::CA:
                         ExportEFTRB.EndExportFile(DataExch."Entry No.", EFTValues);
                     BankAccount."Export Format"::MX:

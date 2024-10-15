@@ -162,7 +162,7 @@ table 5965 "Service Contract Header"
 
             trigger OnValidate()
             var
-                CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
+                ServCheckCreditLimit: Codeunit "Serv. Check Credit Limit";
                 ConfirmManagement: Codeunit "Confirm Management";
                 IsHandled: Boolean;
             begin
@@ -220,7 +220,7 @@ table 5965 "Service Contract Header"
                     end;
 
                     if not HideValidationDialog then
-                        CustCheckCrLimit.ServiceContractHeaderCheck(Rec);
+                        ServCheckCreditLimit.ServiceContractHeaderCheck(Rec);
 
                     CalcFields(
                       "Bill-to Name", "Bill-to Name 2", "Bill-to Address", "Bill-to Address 2",
@@ -623,11 +623,10 @@ table 5965 "Service Contract Header"
                           FieldCaption("First Service Date"),
                           FieldCaption("Starting Date"));
 
-                    if "Contract Type" = "Contract Type"::Quote then begin
+                    if "Contract Type" = "Contract Type"::Quote then
                         if ContractLinesExist() then
                             Message(
                               Text031, FieldCaption("First Service Date"));
-                    end;
                 end;
             end;
         }
@@ -822,12 +821,9 @@ table 5965 "Service Contract Header"
                         Error(
                           Text030,
                           FieldCaption("Service Period"));
-                    if "Contract Type" = "Contract Type"::Quote then begin
+                    if "Contract Type" = "Contract Type"::Quote then
                         if ContractLinesExist() then
-                            Message(
-                              Text031,
-                              FieldCaption("Service Period"));
-                    end;
+                            Message(Text031, FieldCaption("Service Period"));
                     if ContractLinesExist() and (Format("Service Period") <> '') then begin
                         ServContractLine.Reset();
                         ServContractLine.SetRange("Contract Type", "Contract Type");
@@ -1247,15 +1243,22 @@ table 5965 "Service Contract Header"
                 PaymentMethod: Record "Payment Method";
                 SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
             begin
-                if PaymentMethod.Get("Payment Method Code") then begin
+                if PaymentMethod.Get("Payment Method Code") then
                     if PaymentMethod."Direct Debit" then begin
                         "Direct Debit Mandate ID" := SEPADirectDebitMandate.GetDefaultMandate("Bill-to Customer No.", "Expiration Date");
                         if "Payment Terms Code" = '' then
                             "Payment Terms Code" := PaymentMethod."Direct Debit Pmt. Terms Code";
                     end else
                         "Direct Debit Mandate ID" := '';
-                end;
             end;
+        }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            CalcFormula = lookup("Ship-to Address"."Phone No." where("Customer No." = field("Customer No."), Code = field("Ship-to Code")));
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+            Editable = false;
+            FieldClass = FlowField;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -1452,6 +1455,7 @@ table 5965 "Service Contract Header"
     trigger OnDelete()
     var
         ServLedgEntry: Record "Service Ledger Entry";
+        FiledServiceContractHeader: Record "Filed Service Contract Header";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         if not UserMgt.CheckRespCenter(2, "Responsibility Center") then
@@ -1460,7 +1464,7 @@ table 5965 "Service Contract Header"
               RespCenter.TableCaption(), UserMgt.GetSalesFilter());
 
         if "Contract Type" = "Contract Type"::Contract then begin
-            MoveEntries.MoveServContractLedgerEntries(Rec);
+            ServMoveEntries.MoveServContractLedgerEntries(Rec);
 
             if Status = Status::Signed then
                 Error(Text003, Format(Status), TableCaption);
@@ -1495,11 +1499,14 @@ table 5965 "Service Contract Header"
         ServHour.SetRange("Service Contract No.", "Contract No.");
         ServHour.DeleteAll();
 
-        FiledServContract.Reset();
-        FiledServContract.SetCurrentKey("Contract Type Relation", "Contract No. Relation");
-        FiledServContract.SetRange("Contract Type Relation", "Contract Type");
-        FiledServContract.SetRange("Contract No. Relation", "Contract No.");
-        FiledServContract.DeleteAll(true);
+        ServMgtSetup.SetLoadFields("Del. Filed Cont. w. main Cont.");
+        ServMgtSetup.Get();
+        if ServMgtSetup."Del. Filed Cont. w. main Cont." then begin
+            FiledServiceContractHeader.SetCurrentKey("Contract Type Relation", "Contract No. Relation");
+            FiledServiceContractHeader.SetRange("Contract Type Relation", "Contract Type");
+            FiledServiceContractHeader.SetRange("Contract No. Relation", "Contract No.");
+            FiledServiceContractHeader.DeleteAll(true);
+        end;
     end;
 
     trigger OnInsert()
@@ -1559,16 +1566,24 @@ table 5965 "Service Contract Header"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Do you want to create the contract using a contract template?';
+#pragma warning disable AA0470
         Text002: Label 'You cannot delete this document. Your identification is set up to process from %1 %2 only.';
         Text003: Label 'You cannot delete %1 %2.';
         Text006: Label 'The %1 field can only be changed to Canceled.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CancelTheContractQst: Label '%1 It is not possible to change a service contract to its previous status.\\Do you want to cancel the contract?', Comment = '%1: Text008';
         OpenPrepaymentEntriesExistTxt: Label 'Open prepayment entries exist for the contract.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text009: Label 'You cannot change the %1 field to %2 when the %3 field is %4.';
         Text010: Label 'Do you want to cancel %1?';
         Text011: Label 'You cannot change the %1 field manually because there are contract lines for this customer.\\';
+#pragma warning restore AA0470
         Text012: Label 'To change the customer, use the Change Customer function.';
+#pragma warning disable AA0470
         Text014: Label 'Do you want to change %1?';
         Text023: Label '%1 cannot be less than %2.';
         Text024: Label 'The %1 cannot be before the %2.';
@@ -1581,6 +1596,8 @@ table 5965 "Service Contract Header"
         Text032: Label 'You cannot change %1 because %2 %3 has been invoiced.';
         Text034: Label 'Some of the contract lines have a longer response time than the %1 field on the service contract header. Do you want to update them?';
         Text040: Label 'Your identification is set up to process from %1 %2 only.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ServHeader: Record "Service Header";
         ServContractHeader: Record "Service Contract Header";
         ServContractLine: Record "Service Contract Line";
@@ -1589,7 +1606,6 @@ table 5965 "Service Contract Header"
         Cust: Record Customer;
         ShipToAddr: Record "Ship-to Address";
         ContractChangeLog: Record "Contract Change Log";
-        FiledServContract: Record "Filed Service Contract Header";
         ContractGainLossEntry: Record "Contract Gain/Loss Entry";
         RespCenter: Record "Responsibility Center";
         ServHour: Record "Service Hour";
@@ -1601,37 +1617,63 @@ table 5965 "Service Contract Header"
         ServContractMgt: Codeunit ServContractManagement;
         ServOrderMgt: Codeunit ServOrderManagement;
         DimMgt: Codeunit DimensionManagement;
-        MoveEntries: Codeunit MoveEntries;
+        ServMoveEntries: Codeunit "Serv. Move Entries";
         DaysInThisInvPeriod: Integer;
         DaysInFullInvPeriod: Integer;
         TempDate: Date;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text041: Label '%1 cannot be changed to %2 because this %3 has been invoiced';
         Text042: Label 'The amounts on the service contract header and service contract lines have not been updated. The value of the %1 field indicates the currency in which the amounts in the sales documents belonging to this contract are calculated. The amounts on the service contract are presented in LCY only.';
         Text044: Label 'Contact %1 %2 is not related to customer %3.';
         Text045: Label 'Contact %1 %2 is related to a different company than customer %3.';
+#pragma warning restore AA0470
         Text048: Label 'There are unposted invoices linked to this contract.\\Do you want to cancel the contract?';
         Text049: Label 'There are unposted credit memos linked to this contract.\\Do you want to cancel the contract?';
+#pragma warning disable AA0470
         Text051: Label 'Contact %1 %2 is not related to a customer.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ContactNo: Code[20];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text052: Label '%1 service ledger entries exist for this service contract\Would you like to continue?';
+#pragma warning restore AA0470
         Text053: Label 'The deletion process has been interrupted.';
+#pragma warning restore AA0074
         SkipContact: Boolean;
         SkipBillToContact: Boolean;
+#pragma warning disable AA0074
         Text054: Label 'You cannot checkmark this field because you do not have permissions for the Service Order Management Area.';
         Text055: Label 'There are unposted invoices and credit memos linked to this contract.\\Do you want to cancel the contract?';
+#pragma warning restore AA0074
         StrToInsert: Text[250];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text056: Label 'The contract expiration dates on the service contract lines that are later than %1 on the %2 will be replaced with %3.\Do you want to continue?';
         Text057: Label 'You cannot select both the %1 and the %2 check boxes.';
+#pragma warning restore AA0470
         Text058: Label 'You cannot use the Distribution functionality if there are no contract lines in the service contract.';
         Text059: Label 'You cannot use the Distribution Based on Profit option if the sum of values in the Profit field on the contract lines equals to zero.';
         Text060: Label 'You cannot use the Distribution Based on Line Amount option if the sum of values in the Line Amount field on the contract lines equals to zero.';
+#pragma warning disable AA0470
         Text061: Label 'The annual amount difference has been distributed and one or more contract lines have zero or less in the %1 fields.\You can enter an amount in the %1 field.';
         Text062: Label 'Some lines containing service items have been added to one or more contracts\while the quote had the %1 %2.\Do you want to see these lines?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Confirmed: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text063: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InvPeriodDuration: DateFormula;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text064: Label '%1 cannot be less than %2.';
         Text065: Label '%1 cannot be more than %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         HideValidationDialog: Boolean;
@@ -2046,6 +2088,7 @@ table 5965 "Service Contract Header"
             "Ship-to Post Code" := "Post Code";
             "Ship-to City" := City;
             "Ship-to County" := County;
+            "Ship-to Phone No." := "Phone No.";
             "Ship-to Country/Region Code" := "Country/Region Code";
         end;
         OnAfterUpdateShipToCode(Rec);
@@ -2457,6 +2500,7 @@ table 5965 "Service Contract Header"
     local procedure ChangeContractStatus()
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
+        FiledServiceContractHeader: Record "Filed Service Contract Header";
         ConfirmManagement: Codeunit "Confirm Management";
         AnyServItemInOtherContract: Boolean;
         IsHandled: Boolean;
@@ -2512,7 +2556,7 @@ table 5965 "Service Contract Header"
                             Status := xRec.Status;
                             exit;
                         end;
-                    FiledServContract.FileContractBeforeCancellation(xRec);
+                    FiledServiceContractHeader.FileContractBeforeCancellation(xRec);
                 end;
             "Contract Type"::Quote:
                 case Status of

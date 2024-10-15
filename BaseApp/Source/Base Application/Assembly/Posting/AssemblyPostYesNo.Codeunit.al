@@ -17,7 +17,11 @@ codeunit 901 "Assembly-Post (Yes/No)"
 
     var
         AssemblyHeader: Record "Assembly Header";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Do you want to post the %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     begin

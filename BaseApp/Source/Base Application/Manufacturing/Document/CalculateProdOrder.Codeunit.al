@@ -51,8 +51,12 @@ codeunit 99000773 "Calculate Prod. Order"
         Blocked: Boolean;
         ProdOrderModify: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'BOM phantom structure for %1 is higher than 50 levels.';
         Text001: Label '%1 %2 %3 can not be calculated, if at least one %4 has been posted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         OperationCannotFollowErr: Label 'Operation No. %1 cannot follow another operation in the routing of this Prod. Order Line.', Comment = '%1 = Operation No.';
         OperationCannotPrecedeErr: Label 'Operation No. %1 cannot precede another operation in the routing of this Prod. Order Line.', Comment = '%1 = Operation No.';
 
@@ -525,8 +529,9 @@ codeunit 99000773 "Calculate Prod. Order"
         if not IsHandled then begin
             if ProdOrderLine."Planning Level Code" = 0 then
                 NewDueDate :=
-                  LeadTimeMgt.PlannedDueDate(
-                    ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code", ProdOrderLine."Ending Date", '', 2)
+                  LeadTimeMgt.GetPlannedDueDate(
+                    ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
+                    ProdOrderLine."Ending Date", '', "Requisition Ref. Order Type"::"Prod. Order")
             else
                 NewDueDate := ProdOrderLine."Ending Date";
 
@@ -939,15 +944,15 @@ codeunit 99000773 "Calculate Prod. Order"
         if Direction = Direction::Forward then
             // Ending Date calculated forward from Starting Date
             ProdOrderLine."Ending Date" :=
-            LeadTimeMgt.PlannedEndingDate(
-              ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code", '', LeadTime, 2,
-              ProdOrderLine."Starting Date")
+            LeadTimeMgt.GetPlannedEndingDate(
+              ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code", '',
+              LeadTime, "Requisition Ref. Order Type"::"Prod. Order", ProdOrderLine."Starting Date")
         else
             // Starting Date calculated backward from Ending Date
             ProdOrderLine."Starting Date" :=
-            LeadTimeMgt.PlannedStartingDate(
-              ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code", '', LeadTime, 2,
-              ProdOrderLine."Ending Date");
+            LeadTimeMgt.GetPlannedStartingDate(
+              ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code", '',
+              LeadTime, "Requisition Ref. Order Type"::"Prod. Order", ProdOrderLine."Ending Date");
 
         CalculateProdOrderDates(ProdOrderLine, LetDueDateDecrease);
 

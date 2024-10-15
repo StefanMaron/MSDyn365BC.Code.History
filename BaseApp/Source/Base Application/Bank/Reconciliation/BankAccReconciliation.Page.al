@@ -528,13 +528,6 @@ page 379 "Bank Acc. Reconciliation"
         RefreshSharedTempTable();
     end;
 
-#if not CLEAN22
-    internal procedure UpdateBankAccountLedgerEntrySubpageOnAfterSetFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
-    begin
-        OnUpdateBankAccountLedgerEntrySubpageOnAfterSetFilters(BankAccountLedgerEntry);
-    end;
-#endif
-
     local procedure GetImportBankStatementNotificatoinId(): Guid
     begin
         exit('aa54bf06-b8b9-420d-a4a8-1f55a3da3e2a');
@@ -661,14 +654,6 @@ page 379 "Bank Acc. Reconciliation"
         IgnoreExistingBankAccReconciliationAndContinueQst: Label 'There are ongoing reconciliations for this bank account. \\Do you want to continue?';
         ExistingBankAccReconciliationAndContinueMsg: Label 'There are ongoing reconciliations for this bank account in which entries are matched.';
         ModifyBankAccLedgerEntriesForModificationQst: Label 'One or more of the selected entries have been matched on another bank account reconciliation.\\Do you want to continue?';
-
-#if not CLEAN22
-    [Obsolete('Use the event OnAfterApplyControledFilters in ApplyBankLedferEntries.Page.al', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnUpdateBankAccountLedgerEntrySubpageOnAfterSetFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnActionSuggestLinesOnBeforeSuggestBankAccReconLines(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var IsHandled: Boolean)

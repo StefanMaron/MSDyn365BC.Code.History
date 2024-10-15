@@ -446,12 +446,10 @@ codeunit 134141 "ERM Bank Reconciliation"
 
         SetupBankAccReconciliation(BankAccReconciliation, BankAccReconciliationLine);
         Customer.FindFirst();
-        with BankAccReconciliationLine do begin
-            Validate("Account Type", "Account Type"::Customer);
-            Validate("Account No.", Customer."No.");
-            Validate("Account Type", "Account Type"::"G/L Account");
-            Assert.AreEqual('', "Account No.", '');
-        end;
+        BankAccReconciliationLine.Validate("Account Type", BankAccReconciliationLine."Account Type"::Customer);
+        BankAccReconciliationLine.Validate("Account No.", Customer."No.");
+        BankAccReconciliationLine.Validate("Account Type", BankAccReconciliationLine."Account Type"::"G/L Account");
+        Assert.AreEqual('', BankAccReconciliationLine."Account No.", '');
     end;
 
     [Test]
@@ -3811,10 +3809,13 @@ codeunit 134141 "ERM Bank Reconciliation"
         MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
         BankAccountNo: Code[20];
     begin
+        // [SCENARIO 537300] An acceptable match for a Bank Ledger Entry A is found, afterwards a very good match is found for a different Bank Ledger Entry B is found, a better match for BLE A is in the end. The algorithm should prefer the last BLE match.
         Initialize();
+        // [GIVEN] Two different Bank Ledger Entries.
         BankAccountNo := CreateBankAccount(BankAccount);
         CreateAndPostGenJournalLineWithAmount(GenJournalLine, BankAccountNo, 73600);
         CreateAndPostGenJournalLineWithAmount(GenJournalLine, BankAccountNo, 600);
+        // [GIVEN] A Bank Reconciliation with the first line close to the first BLE, the second line matching exactly the second BLE, and a better match for the first BLE.
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
         BankAccReconciliation."Statement Date" := WorkDate();
         BankAccReconciliation.Modify();
@@ -3829,12 +3830,14 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
         BankAccReconciliationLine.Validate("Statement Amount", -73600);
         BankAccReconciliationLine.Modify();
+        // [WHEN] Running the automatch.
         MatchBankRecLines.BankAccReconciliationAutoMatch(BankAccReconciliation, 1);
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.SetFilter("Statement No.", '<>%1', '');
         Assert.AreEqual(2, BankAccountLedgerEntry.Count(), 'There should be two entries matched');
         BankAccountLedgerEntry.FindSet();
         BankAccReconciliationLine.Get(BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", BankAccountLedgerEntry."Statement Line No.");
+        // [THEN]  The best matches should be suggested.
         Assert.AreEqual(0, BankAccReconciliationLine.Difference, 'The difference should be 0');
         BankAccountLedgerEntry.Next();
         BankAccReconciliationLine.Get(BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", BankAccountLedgerEntry."Statement Line No.");
@@ -4351,6 +4354,41 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', SecondReconciliationAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('BankAccReconTestRequestPageHandler')]
+    procedure BankAccountTestReportShouldNotConsiderCorruptedEntriesAsOutstanding()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccount: Record "G/L Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        RequestPageXML: Text;
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO 538667] Bank Ledger Entries posted from old NA's Bank Rec. Worksheets are not considered as outstanding by the report.
+        // [GIVEN] A Bank Account with a Bank Ledger Entry previously closed by a Bank Rec. Worksheet (ClosedAt date 0D).
+        Initialize();
+        GeneralLedgerSetup.Get();
+        LibraryERM.CreateGLAccount(GLAccount);
+        BankAccountNo := LibraryERM.CreateBankAccountNoWithNewPostingGroup(GLAccount);
+        BankAccountLedgerEntry.FindLast();
+        BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
+        BankAccountLedgerEntry."Entry No." += 1;
+        BankAccountLedgerEntry.Open := false;
+        BankAccountLedgerEntry."Remaining Amount" := 0;
+        BankAccountLedgerEntry."Closed at Date" := 0D;
+        BankAccountLedgerEntry.Amount := 1000;
+        BankAccountLedgerEntry.Insert();
+        // [GIVEN] A bank reconciliation for this bank.
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        Commit();
+        // [WHEN] The test report is run.
+        RequestPageXML := Report.RunRequestPage(Report::"Bank Acc. Recon. - Test", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"Bank Acc. Recon. - Test", BankAccReconciliation, RequestPageXML);
+        // [THEN] The total outstanding transactions should be zero.
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', 0);
+    end;
+
     local procedure Initialize()
     var
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
@@ -4414,18 +4452,14 @@ codeunit 134141 "ERM Bank Reconciliation"
     begin
         // Create General Journal Template and Batch for posting checks.
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        with GenJournalTemplate do begin
-            Validate(Type, Type::Payments);
-            Validate(Recurring, false);
-            Modify(true);
-        end;
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Payments);
+        GenJournalTemplate.Validate(Recurring, false);
+        GenJournalTemplate.Modify(true);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        with GenJournalBatch do begin
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", CreateBankAccount());
-            Modify(true);
-            BankAccount.Get("Bal. Account No.");
-        end;
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", CreateBankAccount());
+        GenJournalBatch.Modify(true);
+        BankAccount.Get(GenJournalBatch."Bal. Account No.");
 
         // Generate a journal line.
         LibraryERM.CreateGeneralJnlLine(
@@ -4897,13 +4931,11 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
-        with AppliedPaymentEntry do begin
-            Init();
-            TransferFromBankAccReconLine(BankAccReconciliationLine);
-            "Applies-to Entry No." := AppliesToEntryNo;
-            Description := NewDescription;
-            Insert();
-        end;
+        AppliedPaymentEntry.Init();
+        AppliedPaymentEntry.TransferFromBankAccReconLine(BankAccReconciliationLine);
+        AppliedPaymentEntry."Applies-to Entry No." := AppliesToEntryNo;
+        AppliedPaymentEntry.Description := NewDescription;
+        AppliedPaymentEntry.Insert();
     end;
 
     local procedure MockBankAccLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; IsReversed: Boolean)
@@ -5118,11 +5150,9 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
-        with BankAccReconciliationLine do begin
-            FilterBankRecLines(BankAccReconciliation);
-            CalcSums("Statement Amount");
-            exit("Statement Amount");
-        end;
+        BankAccReconciliationLine.FilterBankRecLines(BankAccReconciliation);
+        BankAccReconciliationLine.CalcSums("Statement Amount");
+        exit(BankAccReconciliationLine."Statement Amount");
     end;
 
     local procedure MatchBankReconLineManually(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
@@ -5227,15 +5257,13 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
-        with BankAccountLedgerEntry do begin
-            SetRange("Bank Account No.", AccountNo);
-            SetRange("Document No.", DocumentNo);
-            FindSet();
+        BankAccountLedgerEntry.SetRange("Bank Account No.", AccountNo);
+        BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
+        BankAccountLedgerEntry.FindSet();
 
-            repeat
-                Assert.IsFalse(Open, 'Bank ledger entry did not close:');
-            until Next() = 0;
-        end;
+        repeat
+            Assert.IsFalse(BankAccountLedgerEntry.Open, 'Bank ledger entry did not close:');
+        until BankAccountLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyBankAccReconcLine(BankAccountNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)

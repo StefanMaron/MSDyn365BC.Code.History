@@ -127,6 +127,8 @@ report 5807 "Item Age Composition - Qty."
 
     requestpage
     {
+        AboutTitle = 'About Item Age Composition – Quantity';
+        AboutText = 'Review the age of stock in your warehouse by quantity to determine obsolescence and identify slow moving inventory. View your open inventory value split across 5 aging buckets based on the period length and ending date. Filter the report by Location to determine the age of Inventory by warehouse.';
         SaveValues = true;
 
         layout
@@ -202,7 +204,9 @@ report 5807 "Item Age Composition - Qty."
         TotalInvtQty: Decimal;
         PrintLine: Boolean;
 
+#pragma warning disable AA0074
         Text002: Label 'Enter the ending date';
+#pragma warning restore AA0074
         ItemAgeCompositionQtyCaptionLbl: Label 'Item Age Composition - Quantity';
         PageNoCaptionLbl: Label 'Page';
         AfterCaptionLbl: Label 'After...';

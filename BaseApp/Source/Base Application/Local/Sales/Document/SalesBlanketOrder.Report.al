@@ -83,12 +83,11 @@ report 10069 "Sales Blanket Order"
                                    (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
                                 then begin
                                     BrkIdx := BrkIdx + 1;
-                                    if BrkIdx > 1 then begin
+                                    if BrkIdx > 1 then
                                         if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
                                             BreakdownTitle := Text006
                                         else
                                             BreakdownTitle := Text003;
-                                    end;
                                     if BrkIdx > ArrayLen(BreakdownAmt) then begin
                                         BrkIdx := BrkIdx - 1;
                                         BreakdownLabel[BrkIdx] := Text004;
@@ -506,7 +505,7 @@ report 10069 "Sales Blanket Order"
                     Clear(Cust);
 
                 if LogInteraction then
-                    if not CurrReport.Preview then begin
+                    if not CurrReport.Preview then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               2, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
@@ -515,7 +514,6 @@ report 10069 "Sales Blanket Order"
                             SegManagement.LogDocument(
                               2, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                               "Campaign No.", "Posting Description", "Opportunity No.");
-                    end;
 
                 Clear(BreakdownTitle);
                 Clear(BreakdownLabel);

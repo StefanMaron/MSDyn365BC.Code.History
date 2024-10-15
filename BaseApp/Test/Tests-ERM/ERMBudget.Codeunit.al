@@ -2639,15 +2639,13 @@ codeunit 134922 "ERM Budget"
     var
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
     begin
-        with AnalysisViewBudgetEntry do begin
-            Init();
-            "Analysis View Code" := AnalysisViewCode;
-            "G/L Account No." := GLAccNo;
-            "Entry No." := LibraryRandom.RandInt(100);
-            Amount := Sign * LibraryRandom.RandDec(100, 2);
-            Insert();
-            exit(Amount);
-        end;
+        AnalysisViewBudgetEntry.Init();
+        AnalysisViewBudgetEntry."Analysis View Code" := AnalysisViewCode;
+        AnalysisViewBudgetEntry."G/L Account No." := GLAccNo;
+        AnalysisViewBudgetEntry."Entry No." := LibraryRandom.RandInt(100);
+        AnalysisViewBudgetEntry.Amount := Sign * LibraryRandom.RandDec(100, 2);
+        AnalysisViewBudgetEntry.Insert();
+        exit(AnalysisViewBudgetEntry.Amount);
     end;
 
     local procedure ExportBudgetToExcel(GLBudgetName: Code[10]; var FileName: Text)
@@ -2955,13 +2953,11 @@ codeunit 134922 "ERM Budget"
 
     local procedure CreateItemBudgetName(var ItemBudgetName: Record "Item Budget Name"; ItemNo: Code[20]; BudgetAmount: Decimal; AnalysisArea: Enum "Analysis Area Type")
     begin
-        with ItemBudgetName do begin
-            Init();
-            Validate("Analysis Area", AnalysisArea);
-            Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Item Budget Name"));
-            Insert(true);
-            CreateItemBudgetEntry(Name, ItemNo, BudgetAmount, AnalysisArea);
-        end;
+        ItemBudgetName.Init();
+        ItemBudgetName.Validate("Analysis Area", AnalysisArea);
+        ItemBudgetName.Validate(Name, LibraryUtility.GenerateRandomCode(ItemBudgetName.FieldNo(Name), DATABASE::"Item Budget Name"));
+        ItemBudgetName.Insert(true);
+        CreateItemBudgetEntry(ItemBudgetName.Name, ItemNo, BudgetAmount, AnalysisArea);
     end;
 
     local procedure CreateItemBudgetWithDimensionCode(var ItemBudgetName: Record "Item Budget Name"; DimensionCode: Code[20]; AnalysisArea: Enum "Analysis Area Type")
@@ -2975,16 +2971,14 @@ codeunit 134922 "ERM Budget"
     var
         ItemBudgetEntry: Record "Item Budget Entry";
     begin
-        with ItemBudgetEntry do begin
-            LibraryInventory.CreateItemBudgetEntry(ItemBudgetEntry, AnalysisArea, BudgetName, WorkDate(), ItemNo);
-            case AnalysisArea of
-                AnalysisArea::Sales:
-                    Validate("Sales Amount", BudgetAmount);
-                AnalysisArea::Purchase:
-                    Validate("Cost Amount", BudgetAmount);
-            end;
-            Modify(true);
+        LibraryInventory.CreateItemBudgetEntry(ItemBudgetEntry, AnalysisArea, BudgetName, WorkDate(), ItemNo);
+        case AnalysisArea of
+            AnalysisArea::Sales:
+                ItemBudgetEntry.Validate("Sales Amount", BudgetAmount);
+            AnalysisArea::Purchase:
+                ItemBudgetEntry.Validate("Cost Amount", BudgetAmount);
         end;
+        ItemBudgetEntry.Modify(true);
     end;
 
     local procedure InsertGLBudgetEntry(var GLBudgetEntry: Record "G/L Budget Entry"; Global1DimCode: Code[20]; Global2DimCode: Code[20])
@@ -2995,25 +2989,21 @@ codeunit 134922 "ERM Budget"
         GLBudgetEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(GLBudgetEntry, GLBudgetEntry.FieldNo("Entry No."));
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        with GLBudgetEntry do begin
-            Validate("Budget Name", GLBudgetName.Name);
-            Validate(Date, WorkDate());
-            Validate("G/L Account No.", LibraryERM.CreateGLAccountNo());
-            Validate("Global Dimension 1 Code", Global1DimCode);
-            Validate("Global Dimension 2 Code", Global2DimCode);
-            Insert(true);
-        end;
+        GLBudgetEntry.Validate("Budget Name", GLBudgetName.Name);
+        GLBudgetEntry.Validate(Date, WorkDate());
+        GLBudgetEntry.Validate("G/L Account No.", LibraryERM.CreateGLAccountNo());
+        GLBudgetEntry.Validate("Global Dimension 1 Code", Global1DimCode);
+        GLBudgetEntry.Validate("Global Dimension 2 Code", Global2DimCode);
+        GLBudgetEntry.Insert(true);
     end;
 
     local procedure SetGLBudgetEntryAmount(var GLBudgetEntry: Record "G/L Budget Entry"; GLBudgetNameName: Code[10]; GLAccountNo: Code[20]; NewAmount: Decimal)
     begin
-        with GLBudgetEntry do begin
-            SetRange("Budget Name", GLBudgetNameName);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-            Amount := NewAmount;
-            Modify();
-        end;
+        GLBudgetEntry.SetRange("Budget Name", GLBudgetNameName);
+        GLBudgetEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLBudgetEntry.FindFirst();
+        GLBudgetEntry.Amount := NewAmount;
+        GLBudgetEntry.Modify();
     end;
 
     local procedure CreateItemViewWithItemBudgetEntry(var ItemAnalysisView: Record "Item Analysis View"; AnalysisArea: Enum "Analysis Area Type"; ItemNo: Code[20])
@@ -3216,14 +3206,12 @@ codeunit 134922 "ERM Budget"
     var
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
     begin
-        with AnalysisViewBudgetEntry do begin
-            SetRange("Entry No.", GLBudgetEntry."Entry No.");
-            SetRange("Analysis View Code", AnalysisViewCode);
-            SetRange("Budget Name", GLBudgetNameName);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-            TestField(Amount, GLBudgetEntry.Amount);
-        end;
+        AnalysisViewBudgetEntry.SetRange("Entry No.", GLBudgetEntry."Entry No.");
+        AnalysisViewBudgetEntry.SetRange("Analysis View Code", AnalysisViewCode);
+        AnalysisViewBudgetEntry.SetRange("Budget Name", GLBudgetNameName);
+        AnalysisViewBudgetEntry.SetRange("G/L Account No.", GLAccountNo);
+        AnalysisViewBudgetEntry.FindFirst();
+        AnalysisViewBudgetEntry.TestField(Amount, GLBudgetEntry.Amount);
     end;
 
     local procedure SetupDimensionExportToExcel(DimensionValue: array[6] of Record "Dimension Value")
@@ -3526,28 +3514,24 @@ codeunit 134922 "ERM Budget"
     var
         ItemBudgetName: Record "Item Budget Name";
     begin
-        with ItemBudgetName do begin
-            SetFilter(Name, '<>%1', CurrentBudgetName);
-            FindFirst();
-            exit(Name);
-        end;
+        ItemBudgetName.SetFilter(Name, '<>%1', CurrentBudgetName);
+        ItemBudgetName.FindFirst();
+        exit(ItemBudgetName.Name);
     end;
 
     local procedure VerifyGLAccAnalysisViewDebitCreditAmount(AnalysisViewCode: Code[10]; GLAccNo: Code[20]; ExpectedDebitAmount: Decimal; ExpectedCreditAmount: Decimal)
     var
         TempGLAccAnalysisView: Record "G/L Account (Analysis View)" temporary;
     begin
-        with TempGLAccAnalysisView do begin
-            Init();
-            "No." := GLAccNo;
-            Insert();
-            SetFilter("Analysis View Filter", AnalysisViewCode);
-            CalcFields("Budgeted Debit Amount", "Budgeted Credit Amount");
-            Assert.AreEqual(
-              ExpectedDebitAmount, "Budgeted Debit Amount", StrSubstNo(WrongFieldValueErr, FieldCaption("Budgeted Debit Amount")));
-            Assert.AreEqual(
-              ExpectedCreditAmount, "Budgeted Credit Amount", StrSubstNo(WrongFieldValueErr, FieldCaption("Budgeted Credit Amount")));
-        end;
+        TempGLAccAnalysisView.Init();
+        TempGLAccAnalysisView."No." := GLAccNo;
+        TempGLAccAnalysisView.Insert();
+        TempGLAccAnalysisView.SetFilter("Analysis View Filter", AnalysisViewCode);
+        TempGLAccAnalysisView.CalcFields("Budgeted Debit Amount", "Budgeted Credit Amount");
+        Assert.AreEqual(
+          ExpectedDebitAmount, TempGLAccAnalysisView."Budgeted Debit Amount", StrSubstNo(WrongFieldValueErr, TempGLAccAnalysisView.FieldCaption("Budgeted Debit Amount")));
+        Assert.AreEqual(
+          ExpectedCreditAmount, TempGLAccAnalysisView."Budgeted Credit Amount", StrSubstNo(WrongFieldValueErr, TempGLAccAnalysisView.FieldCaption("Budgeted Credit Amount")));
     end;
 
     local procedure VerifyDimCaptionInCellValue(ColumnName: Text; RowNo: Integer; DimensionCode: Text[30])

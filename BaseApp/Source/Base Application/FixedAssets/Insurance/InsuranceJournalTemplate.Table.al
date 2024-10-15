@@ -150,6 +150,10 @@ table 5633 "Insurance Journal Template"
         InsuranceJnlBatch: Record "Insurance Journal Batch";
         SourceCodeSetup: Record "Source Code Setup";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'must not be %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

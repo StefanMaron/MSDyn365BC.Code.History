@@ -1,4 +1,4 @@
-namespace Microsoft.Inventory.Requisition;
+﻿namespace Microsoft.Inventory.Requisition;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Enums;
@@ -16,11 +16,8 @@ using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.WorkCenter;
-using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using System.Text;
 
 codeunit 99000813 "Carry Out Action"
@@ -1388,16 +1385,7 @@ codeunit 99000813 "Carry Out Action"
 
     procedure ReserveBindingOrderToProd(var ProdOrderLine: Record "Prod. Order Line"; var RequisitionLine: Record "Requisition Line")
     var
-        SalesLine: Record "Sales Line";
-        ProdOrderComponent: Record "Prod. Order Component";
-        AssemblyLine: Record "Assembly Line";
-        JobPlanningLine: Record "Job Planning Line";
-        ServiceLine: Record "Service Line";
-        SalesLineReserve: Codeunit "Sales Line-Reserve";
-        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
-        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
-        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
-        ServiceLineReserve: Codeunit "Service Line-Reserve";
+        TrackingSpecification: Record "Tracking Specification";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
     begin
@@ -1412,66 +1400,19 @@ codeunit 99000813 "Carry Out Action"
             ReservQtyBase := ProdOrderLine."Remaining Qty. (Base)" - ProdOrderLine."Reserved Qty. (Base)";
         end;
 
-        case RequisitionLine."Demand Type" of
-            Database::"Prod. Order Component":
-                begin
-                    ProdOrderComponent.Get(
-                      RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.", RequisitionLine."Demand Ref. No.");
-                    ProdOrderCompReserve.BindToProdOrder(ProdOrderComponent, ProdOrderLine, ReservQty, ReservQtyBase);
-                end;
-            Database::"Sales Line":
-                begin
-                    SalesLine.Get(RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.");
-                    SalesLineReserve.BindToProdOrder(SalesLine, ProdOrderLine, ReservQty, ReservQtyBase);
-                    if SalesLine.Reserve = SalesLine.Reserve::Never then begin
-                        SalesLine.Reserve := SalesLine.Reserve::Optional;
-                        SalesLine.Modify();
-                    end;
-                end;
-            Database::"Assembly Line":
-                begin
-                    AssemblyLine.Get(RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.");
-                    AssemblyLineReserve.BindToProdOrder(AssemblyLine, ProdOrderLine, ReservQty, ReservQtyBase);
-                    if AssemblyLine.Reserve = AssemblyLine.Reserve::Never then begin
-                        AssemblyLine.Reserve := AssemblyLine.Reserve::Optional;
-                        AssemblyLine.Modify();
-                    end;
-                end;
-            Database::"Job Planning Line":
-                begin
-                    JobPlanningLine.SetRange("Job Contract Entry No.", RequisitionLine."Demand Line No.");
-                    JobPlanningLine.FindFirst();
-                    JobPlanningLineReserve.BindToProdOrder(JobPlanningLine, ProdOrderLine, ReservQty, ReservQtyBase);
-                    if JobPlanningLine.Reserve = JobPlanningLine.Reserve::Never then begin
-                        JobPlanningLine.Reserve := JobPlanningLine.Reserve::Optional;
-                        JobPlanningLine.Modify();
-                    end;
-                end;
-            Database::"Service Line":
-                begin
-                    ServiceLine.Get(RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.");
-                    ServiceLineReserve.BindToProdOrder(ServiceLine, ProdOrderLine, ReservQty, ReservQtyBase);
-                    if ServiceLine.Reserve = ServiceLine.Reserve::Never then begin
-                        ServiceLine.Reserve := ServiceLine.Reserve::Optional;
-                        ServiceLine.Modify();
-                    end;
-                end;
-        end;
+        TrackingSpecification.InitTrackingSpecification(
+            Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
+            ProdOrderLine."Variant Code", ProdOrderLine."Location Code", ProdOrderLine."Qty. per Unit of Measure");
+
+        RequisitionLine.ReserveBindingOrder(
+            TrackingSpecification, ProdOrderLine.Description, ProdOrderLine."Ending Date", ReservQty, ReservQtyBase, true);
+
         ProdOrderLine.Modify();
     end;
 
     procedure ReserveBindingOrderToTrans(var TransferLine: Record "Transfer Line"; var RequisitionLine: Record "Requisition Line")
     var
-        ProdOrderComponent: Record "Prod. Order Component";
-        SalesLine: Record "Sales Line";
-        AssemblyLine: Record "Assembly Line";
-        JobPlanningLine: Record "Job Planning Line";
-        ServiceLine: Record "Service Line";
-        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
-        SalesLineReserve: Codeunit "Sales Line-Reserve";
-        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
-        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
-        ServiceLineReserve: Codeunit "Service Line-Reserve";
+        TrackingSpecification: Record "Tracking Specification";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
     begin
@@ -1484,66 +1425,19 @@ codeunit 99000813 "Carry Out Action"
             ReservQtyBase := TransferLine."Outstanding Qty. (Base)" - TransferLine."Reserved Qty. Inbnd. (Base)";
         end;
 
-        case RequisitionLine."Demand Type" of
-            Database::"Prod. Order Component":
-                begin
-                    ProdOrderComponent.Get(
-                      RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.", RequisitionLine."Demand Ref. No.");
-                    ProdOrderCompReserve.BindToTransfer(ProdOrderComponent, TransferLine, ReservQty, ReservQtyBase);
-                end;
-            Database::"Sales Line":
-                begin
-                    SalesLine.Get(RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.");
-                    SalesLineReserve.BindToTransfer(SalesLine, TransferLine, ReservQty, ReservQtyBase);
-                    if SalesLine.Reserve = SalesLine.Reserve::Never then begin
-                        SalesLine.Reserve := SalesLine.Reserve::Optional;
-                        SalesLine.Modify();
-                    end;
-                end;
-            Database::"Assembly Line":
-                begin
-                    AssemblyLine.Get(RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.");
-                    AssemblyLineReserve.BindToTransfer(AssemblyLine, TransferLine, ReservQty, ReservQtyBase);
-                    if AssemblyLine.Reserve = AssemblyLine.Reserve::Never then begin
-                        AssemblyLine.Reserve := AssemblyLine.Reserve::Optional;
-                        AssemblyLine.Modify();
-                    end;
-                end;
-            Database::"Job Planning Line":
-                begin
-                    JobPlanningLine.SetRange("Job Contract Entry No.", RequisitionLine."Demand Line No.");
-                    JobPlanningLine.FindFirst();
-                    JobPlanningLineReserve.BindToTransfer(JobPlanningLine, TransferLine, ReservQty, ReservQtyBase);
-                    if JobPlanningLine.Reserve = JobPlanningLine.Reserve::Never then begin
-                        JobPlanningLine.Reserve := JobPlanningLine.Reserve::Optional;
-                        JobPlanningLine.Modify();
-                    end;
-                end;
-            Database::"Service Line":
-                begin
-                    ServiceLine.Get(RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.");
-                    ServiceLineReserve.BindToTransfer(ServiceLine, TransferLine, ReservQty, ReservQtyBase);
-                    if ServiceLine.Reserve = ServiceLine.Reserve::Never then begin
-                        ServiceLine.Reserve := ServiceLine.Reserve::Optional;
-                        ServiceLine.Modify();
-                    end;
-                end;
-        end;
+        TrackingSpecification.InitTrackingSpecification(
+            Database::"Transfer Line", 1, TransferLine."Document No.", '', 0, TransferLine."Line No.",
+            TransferLine."Variant Code", TransferLine."Transfer-to Code", TransferLine."Qty. per Unit of Measure");
+
+        RequisitionLine.ReserveBindingOrder(
+            TrackingSpecification, TransferLine.Description, TransferLine."Receipt Date", ReservQty, ReservQtyBase, true);
+
         TransferLine.Modify();
     end;
 
     procedure ReserveBindingOrderToAsm(var AssemblyHeader: Record "Assembly Header"; var RequisitionLine: Record "Requisition Line")
     var
-        SalesLine: Record "Sales Line";
-        ProdOrderComponent: Record "Prod. Order Component";
-        AssemblyLine: Record "Assembly Line";
-        JobPlanningLine: Record "Job Planning Line";
-        ServiceLine: Record "Service Line";
-        SalesLineReserve: Codeunit "Sales Line-Reserve";
-        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
-        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
-        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
-        ServiceLineReserve: Codeunit "Service Line-Reserve";
+        TrackingSpecification: Record "Tracking Specification";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
     begin
@@ -1558,106 +1452,32 @@ codeunit 99000813 "Carry Out Action"
             ReservQtyBase := AssemblyHeader."Remaining Quantity (Base)" - AssemblyHeader."Reserved Qty. (Base)";
         end;
 
-        case RequisitionLine."Demand Type" of
-            Database::"Prod. Order Component":
-                begin
-                    ProdOrderComponent.Get(
-                      RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.", RequisitionLine."Demand Ref. No.");
-                    ProdOrderCompReserve.BindToAssembly(ProdOrderComponent, AssemblyHeader, ReservQty, ReservQtyBase);
-                end;
-            Database::"Sales Line":
-                begin
-                    SalesLine.Get(RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.");
-                    SalesLineReserve.BindToAssembly(SalesLine, AssemblyHeader, ReservQty, ReservQtyBase);
-                    if SalesLine.Reserve = SalesLine.Reserve::Never then begin
-                        SalesLine.Reserve := SalesLine.Reserve::Optional;
-                        SalesLine.Modify();
-                    end;
-                end;
-            Database::"Assembly Line":
-                begin
-                    AssemblyLine.Get(RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.");
-                    AssemblyLineReserve.BindToAssembly(AssemblyLine, AssemblyHeader, ReservQty, ReservQtyBase);
-                    if AssemblyLine.Reserve = AssemblyLine.Reserve::Never then begin
-                        AssemblyLine.Reserve := AssemblyLine.Reserve::Optional;
-                        AssemblyLine.Modify();
-                    end;
-                end;
-            Database::"Job Planning Line":
-                begin
-                    JobPlanningLine.SetRange("Job Contract Entry No.", RequisitionLine."Demand Line No.");
-                    JobPlanningLine.FindFirst();
-                    JobPlanningLineReserve.BindToAssembly(JobPlanningLine, AssemblyHeader, ReservQty, ReservQtyBase);
-                    if JobPlanningLine.Reserve = JobPlanningLine.Reserve::Never then begin
-                        JobPlanningLine.Reserve := JobPlanningLine.Reserve::Optional;
-                        JobPlanningLine.Modify();
-                    end;
-                end;
-            Database::"Service Line":
-                begin
-                    ServiceLine.Get(RequisitionLine."Demand Subtype", RequisitionLine."Demand Order No.", RequisitionLine."Demand Line No.");
-                    ServiceLineReserve.BindToAssembly(ServiceLine, AssemblyHeader, ReservQty, ReservQtyBase);
-                    if ServiceLine.Reserve = ServiceLine.Reserve::Never then begin
-                        ServiceLine.Reserve := ServiceLine.Reserve::Optional;
-                        ServiceLine.Modify();
-                    end;
-                end;
-        end;
+        TrackingSpecification.InitTrackingSpecification(
+            Database::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", '', 0, 0,
+            AssemblyHeader."Variant Code", AssemblyHeader."Location Code", AssemblyHeader."Qty. per Unit of Measure");
+
+        RequisitionLine.ReserveBindingOrder(
+            TrackingSpecification, AssemblyHeader.Description, AssemblyHeader."Due Date", ReservQty, ReservQtyBase, true);
+
         AssemblyHeader.Modify();
     end;
 
     procedure ReserveBindingOrderToReqline(var DemandRequisitionLine: Record "Requisition Line"; var SupplyRequisitionLine: Record "Requisition Line")
     var
-        ProdOrderComponent: Record "Prod. Order Component";
-        SalesLine: Record "Sales Line";
-        AssemblyLine: Record "Assembly Line";
-        JobPlanningLine: Record "Job Planning Line";
-        ServiceLine: Record "Service Line";
-        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
-        SalesLineReserve: Codeunit "Sales Line-Reserve";
-        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
-        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
-        ServiceLineReserve: Codeunit "Service Line-Reserve";
+        TrackingSpecification: Record "Tracking Specification";
+        ReservQty: Decimal;
+        ReservQtyBase: Decimal;
     begin
-        case SupplyRequisitionLine."Demand Type" of
-            Database::"Prod. Order Component":
-                begin
-                    ProdOrderComponent.Get(
-                      SupplyRequisitionLine."Demand Subtype", SupplyRequisitionLine."Demand Order No.", SupplyRequisitionLine."Demand Line No.",
-                      SupplyRequisitionLine."Demand Ref. No.");
-                    ProdOrderCompReserve.BindToRequisition(
-                      ProdOrderComponent, DemandRequisitionLine, SupplyRequisitionLine."Needed Quantity", SupplyRequisitionLine."Needed Quantity (Base)");
-                end;
-            Database::"Sales Line":
-                begin
-                    SalesLine.Get(SupplyRequisitionLine."Demand Subtype", SupplyRequisitionLine."Demand Order No.", SupplyRequisitionLine."Demand Line No.");
-                    if (SalesLine.Reserve = SalesLine.Reserve::Never) and not SalesLine."Drop Shipment" then begin
-                        SalesLine.Reserve := SalesLine.Reserve::Optional;
-                        SalesLine.Modify();
-                    end;
-                    SalesLineReserve.BindToRequisition(
-                      SalesLine, DemandRequisitionLine, SupplyRequisitionLine."Needed Quantity", SupplyRequisitionLine."Needed Quantity (Base)");
-                end;
-            Database::"Assembly Line":
-                begin
-                    AssemblyLine.Get(SupplyRequisitionLine."Demand Subtype", SupplyRequisitionLine."Demand Order No.", SupplyRequisitionLine."Demand Line No.");
-                    AssemblyLineReserve.BindToRequisition(
-                      AssemblyLine, DemandRequisitionLine, SupplyRequisitionLine."Needed Quantity", SupplyRequisitionLine."Needed Quantity (Base)");
-                end;
-            Database::"Job Planning Line":
-                begin
-                    JobPlanningLine.SetRange("Job Contract Entry No.", SupplyRequisitionLine."Demand Line No.");
-                    JobPlanningLine.FindFirst();
-                    JobPlanningLineReserve.BindToRequisition(
-                      JobPlanningLine, DemandRequisitionLine, SupplyRequisitionLine."Needed Quantity", SupplyRequisitionLine."Needed Quantity (Base)");
-                end;
-            Database::"Service Line":
-                begin
-                    ServiceLine.Get(SupplyRequisitionLine."Demand Subtype", SupplyRequisitionLine."Demand Order No.", SupplyRequisitionLine."Demand Line No.");
-                    ServiceLineReserve.BindToRequisition(
-                      ServiceLine, DemandRequisitionLine, SupplyRequisitionLine."Needed Quantity", SupplyRequisitionLine."Needed Quantity (Base)");
-                end;
-        end;
+        TrackingSpecification.InitTrackingSpecification(
+            Database::"Requisition Line",
+            0, DemandRequisitionLine."Worksheet Template Name", DemandRequisitionLine."Journal Batch Name", 0, DemandRequisitionLine."Line No.",
+            DemandRequisitionLine."Variant Code", DemandRequisitionLine."Location Code", DemandRequisitionLine."Qty. per Unit of Measure");
+
+        ReservQty := SupplyRequisitionLine."Needed Quantity";
+        ReservQtyBase := SupplyRequisitionLine."Needed Quantity (Base)";
+
+        SupplyRequisitionLine.ReserveBindingOrder(
+            TrackingSpecification, DemandRequisitionLine.Description, DemandRequisitionLine."Due Date", ReservQty, ReservQtyBase, true);
     end;
 
     local procedure CopyProdBOMComments(ProdOrderComponent: Record "Prod. Order Component")

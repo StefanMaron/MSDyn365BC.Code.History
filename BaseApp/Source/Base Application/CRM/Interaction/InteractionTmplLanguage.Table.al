@@ -137,10 +137,12 @@ table 5103 "Interaction Tmpl. Language"
     var
         AttachmentRecord: Record Attachment;
         ClientTypeManagement: Codeunit "Client Type Management";
+#pragma warning disable AA0074
         Text000: Label 'You have canceled the create process.';
         Text001: Label 'Replace existing attachment?';
         Text002: Label 'You have canceled the import process.';
         Text005: Label 'Export Attachment';
+#pragma warning restore AA0074
 
     procedure CreateAttachment()
     var

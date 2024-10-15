@@ -194,10 +194,12 @@ report 6031 "Update Contract Prices"
         PerformUpd: Option "Update Contract Prices","Print Only";
         UpdateServContract: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'You must fill in the Price Update % field.';
         Text001: Label 'The price update % is unusually large.\\Confirm that this is the correct percentage.';
         Text002: Label 'The program has stopped the batch job at your request.';
         Text003: Label 'You must fill in the Update to Date field.';
+#pragma warning restore AA0074
 
     procedure InitializeRequest(UpdateToDateFrom: Date; PricePercentage: Decimal; PerformUpdate: Option)
     begin

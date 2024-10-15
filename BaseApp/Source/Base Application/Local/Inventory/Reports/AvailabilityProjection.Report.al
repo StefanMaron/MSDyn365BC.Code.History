@@ -972,7 +972,7 @@ report 10130 "Availability Projection"
                           "Positive Adjmt. (Qty.)", "Negative Adjmt. (Qty.)",
                           "Transferred (Qty.)", "Consumptions (Qty.)", "Outputs (Qty.)",
                           "Rel. Scheduled Receipt (Qty.)", "Rel. Scheduled Need (Qty.)",
-                          "Scheduled Receipt (Qty.)", "Scheduled Need (Qty.)");
+                          "Scheduled Receipt (Qty.)", "Qty. on Component Lines");
                         TQtyOnSalesOrders[i] := Item."Qty. on Sales Order";
                         TQtyOnPurchOrders[i] := Item."Qty. on Purch. Order";
                         TQtyOnServiceOrders[i] := Item."Qty. on Service Order";
@@ -990,7 +990,7 @@ report 10130 "Availability Projection"
                             IncludeMfg::"Include planned and released orders":
                                 begin
                                     TQtySchedOutput[i] := Item."Scheduled Receipt (Qty.)";
-                                    TQtySchedConsumption[i] := Item."Scheduled Need (Qty.)";
+                                    TQtySchedConsumption[i] := Item."Qty. on Component Lines";
                                 end;
                         end;
                         if i = 1 then begin
@@ -1098,7 +1098,7 @@ report 10130 "Availability Projection"
                       "Positive Adjmt. (Qty.)", "Negative Adjmt. (Qty.)",
                       "Transferred (Qty.)", "Consumptions (Qty.)", "Outputs (Qty.)",
                       "Rel. Scheduled Receipt (Qty.)", "Rel. Scheduled Need (Qty.)",
-                      "Scheduled Receipt (Qty.)", "Scheduled Need (Qty.)");
+                      "Scheduled Receipt (Qty.)", "Qty. on Component Lines");
                     QtyOnSalesOrders[i] := "Qty. on Sales Order";
                     QtyOnPurchOrders[i] := "Qty. on Purch. Order";
                     QtyOnServiceOrders[i] := "Qty. on Service Order";
@@ -1116,7 +1116,7 @@ report 10130 "Availability Projection"
                         IncludeMfg::"Include planned and released orders":
                             begin
                                 QtySchedOutput[i] := "Scheduled Receipt (Qty.)";
-                                QtySchedConsumption[i] := "Scheduled Need (Qty.)";
+                                QtySchedConsumption[i] := "Qty. on Component Lines";
                             end;
                     end;
                     if i = 1 then begin

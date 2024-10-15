@@ -10,26 +10,23 @@ codeunit 136502 "UT Time Sheets Posting"
 
     var
         LibraryResource: Codeunit "Library - Resource";
-        LibraryService: Codeunit "Library - Service";
         LibraryAssembly: Codeunit "Library - Assembly";
-        TimeSheetMgt: Codeunit "Time Sheet Management";
         TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibraryJob: Codeunit "Library - Job";
-#if not CLEAN23
+#if not CLEAN25
         LibraryRandom: Codeunit "Library - Random";
 #endif
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
-        Text016: Label 'Time Sheet field %1 value is incorrect.';
         Text020: Label 'There is no Time Sheet';
         Text021: Label 'Unexpected time sheet searching error.';
         Text023: Label 'Quantity cannot be';
         Text024: Label '%1 field %2 value is incorrect.';
-        Text027: Label 'Service Line field %1 value is incorrect.';
+
         IsInitialized: Boolean;
 
     [Test]
@@ -198,282 +195,6 @@ codeunit 136502 "UT Time Sheets Posting"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestTimeSheet_ServiceOrderShipConsume()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        SavedServiceLine: Record "Service Line";
-    begin
-        // [FEATURE] [Order] [Service]
-        // [SCENARIO] Verify time sheet total quantity after ship and consume service order with timesheet resource.
-
-        Initialize();
-        LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
-
-        ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
-        ServiceLine.Modify();
-
-        // get values from service order
-        SavedServiceLine.Copy(ServiceLine);
-
-        LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
-
-        LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, SavedServiceLine."Document No.", SavedServiceLine."Line No.",
-          SavedServiceLine."Qty. to Consume", false);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestTimeSheet_ServiceOrderShip()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        SavedServiceLine: Record "Service Line";
-    begin
-        // [FEATURE] [Order] [Service]
-        // [SCENARIO] Verify time sheet total quantity after ship service order with timesheet resource.
-
-        Initialize();
-        LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
-
-        // get values from service order
-        SavedServiceLine.Copy(ServiceLine);
-
-        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
-
-        LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, SavedServiceLine."Document No.", SavedServiceLine."Line No.",
-          SavedServiceLine."Qty. to Ship", true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestWithoutTimeSheet_ServiceOrderShip()
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        Resource: Record Resource;
-        UserSetup: Record "User Setup";
-    begin
-        // [FEATURE] [Order] [Service]
-        // [SCENARIO] Verify an error when trying to ship service order with time sheet resource.
-
-        Initialize();
-
-        // create user setup
-        LibraryTimeSheet.CreateUserSetup(UserSetup, false);
-
-        // resource - person
-        LibraryTimeSheet.CreateTimeSheetResource(Resource);
-        Resource.Validate("Time Sheet Owner User ID", UserSetup."User ID");
-        Resource.Validate("Time Sheet Approver User ID", UserId);
-        Resource.Modify();
-
-        LibraryTimeSheet.CreateServiceOrder(ServiceHeader, WorkDate());
-
-        // create service line
-        CreateServiceLine(ServiceLine, ServiceHeader, Resource."No.", LibraryTimeSheet.GetRandomDecimal());
-
-        asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
-        Assert.IsTrue(StrPos(GetLastErrorText, Text020) > 0, Text021);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestCopyLinesFromTimeSheet_PostServiceOrderShip()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        SavedServiceLine: Record "Service Line";
-    begin
-        // [FEATURE] [Order] [Service]
-        // [SCENARIO] Create time sheet resource and service order, copy service lines from time sheet into service order, ship service order, verify TS lines
-
-        Initialize();
-        // create time sheet with lines and linked to resource empty service order
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
-
-        // copy service lines from time sheet into service order
-        TimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
-
-        // create service line
-        CreateServiceLine(ServiceLine, ServiceHeader, TimeSheetHeader."Resource No.", LibraryTimeSheet.GetRandomDecimal());
-
-        // get values from service order
-        SavedServiceLine.Copy(ServiceLine);
-
-        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
-
-        LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, SavedServiceLine."Document No.", SavedServiceLine."Line No.",
-          SavedServiceLine."Qty. to Ship", true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestPostServiceOrderShip_CopyLinesFromTimeSheet()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
-        ServiceLineQuantity: Decimal;
-        ServiceHeaderNo: Code[20];
-        ServiceLineNo: Integer;
-    begin
-        // [FEATURE] [Order] [Service]
-        // [SCENARIO] Ship service order with time sheet resource, create time sheet line and copy service lines from TS, verify Quantities in service lines.
-
-        Initialize();
-        // create service order with line and linked to resource empty time sheet
-        LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
-
-        // get values from service order
-        ServiceLineQuantity := ServiceLine."Qty. to Ship";
-        ServiceHeaderNo := ServiceHeader."No.";
-        ServiceLineNo := ServiceLine."Line No.";
-
-        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
-
-        LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', ServiceHeader."No.", '');
-        TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
-        LibraryTimeSheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal());
-        // submit and approve lines
-        TimeSheetApprovalMgt.Submit(TimeSheetLine);
-        TimeSheetApprovalMgt.Approve(TimeSheetLine);
-
-        // copy service lines from time sheet into service order
-        TimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
-
-        ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
-        ServiceLine.SetRange("Document No.", ServiceHeaderNo);
-        Assert.AreEqual(2, ServiceLine.Count,
-          StrSubstNo(Text016, 'COUNT of rows'));
-
-        ServiceLine.SetRange("Line No.", ServiceLineNo);
-        ServiceLine.FindFirst();
-        Assert.AreEqual(ServiceLineQuantity, ServiceLine.Quantity,
-          StrSubstNo(Text016, ServiceLine.FieldCaption(Quantity)));
-
-        ServiceLine.Reset();
-        ServiceLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        ServiceLine.FindFirst();
-        Assert.AreEqual(TimeSheetLine."Total Quantity", ServiceLine.Quantity,
-          StrSubstNo(Text016, ServiceLine.FieldCaption(Quantity)));
-    end;
-
-    [Test]
-    [HandlerFunctions('HndlConfirm')]
-    [Scope('OnPrem')]
-    procedure TestTimeSheet_ServiceOrderUndoShipment()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        ServiceShipmentLine: Record "Service Shipment Line";
-        SavedServiceLine: Record "Service Line";
-    begin
-        // [FEATURE] [Order] [Service]
-        // [SCENARIO] Check Quantity in time sheet line after undo shipment of service order with time sheet resource.
-
-        Initialize();
-        LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
-
-        // get values from service order
-        SavedServiceLine.Copy(ServiceLine);
-
-        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
-
-        ServiceShipmentLine.SetRange("Order No.", SavedServiceLine."Document No.");
-        ServiceShipmentLine.FindFirst();
-        CODEUNIT.Run(CODEUNIT::"Undo Service Shipment Line", ServiceShipmentLine);
-
-        LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, SavedServiceLine."Document No.", SavedServiceLine."Line No.",
-          -SavedServiceLine."Qty. to Ship", true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestTimeSheet_ServiceOrderPartialShipInvoice()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        ServiceLineQuantity: Decimal;
-        ServiceHeaderNo: Code[20];
-        ServiceLineNo: Integer;
-        Iteration: Integer;
-    begin
-        // [FEATURE] [Order] [Service]
-        // [SCENARIO] Check Quantity in timesheet line after partially shipping & invoicing service order with time sheet resource in two steps.
-
-        Initialize();
-        LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
-
-        // get values from service order
-        ServiceLineQuantity := ServiceLine."Qty. to Ship";
-        ServiceHeaderNo := ServiceHeader."No.";
-        ServiceLineNo := ServiceLine."Line No.";
-
-        for Iteration := 1 to 2 do begin
-            ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
-            ServiceLine.SetRange("Document No.", ServiceHeaderNo);
-            if ServiceLine.FindSet() then
-                repeat
-                    ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity / 2);
-                    ServiceLine.Modify();
-                until ServiceLine.Next() = 0;
-            ServiceHeader.Find();
-            LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
-            LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, ServiceHeaderNo, ServiceLineNo, ServiceLineQuantity / 2, true);
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestTimeSheet_ServiceOrderPartialShipConsume()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        ServiceLineQuantity: Decimal;
-        ServiceHeaderNo: Code[20];
-        ServiceLineNo: Integer;
-        Iteration: Integer;
-    begin
-        // [FEATURE] [Order] [Service]
-        // [SCENARIO] Check Quantity in timesheet line after partially shipping & consuming service order with time sheet resource in two steps.
-
-        Initialize();
-        LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
-        ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
-        ServiceLine.Modify();
-
-        // get values from service order
-        ServiceLineQuantity := ServiceLine."Qty. to Consume";
-        ServiceHeaderNo := ServiceHeader."No.";
-        ServiceLineNo := ServiceLine."Line No.";
-
-        for Iteration := 1 to 2 do begin
-            ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
-            ServiceLine.SetRange("Document No.", ServiceHeaderNo);
-            if ServiceLine.FindSet() then
-                repeat
-                    ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity / 2);
-                    ServiceLine.Validate("Qty. to Invoice", 0);
-                    ServiceLine.Modify();
-                until ServiceLine.Next() = 0;
-            ServiceHeader.Find();
-            LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
-            LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, ServiceHeaderNo, ServiceLineNo, ServiceLineQuantity / 2, false);
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestJobJournal_PostingQtyMoreThanTimeSheetLine()
     var
         TimeSheetHeader: Record "Time Sheet Header";
@@ -528,65 +249,6 @@ codeunit 136502 "UT Time Sheets Posting"
         ResJnlLine.Modify();
 
         asserterror ResJnlPostLine.RunWithCheck(ResJnlLine);
-        Assert.IsTrue(StrPos(GetLastErrorText, Text023) > 0, Text021);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestServiceOrder_PostingQtyMoreThanTimeSheetLine_Ship()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-    begin
-        // [FEATURE] [Order] [Service]
-        // [SCENARIO] Verify that service order with service line having Quantity greater than timesheet line cannot be shipped.
-
-        Initialize();
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
-
-        TimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
-
-        ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
-        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        ServiceLine.FindFirst();
-        ServiceLine.Validate(Quantity, TimeSheetLine."Total Quantity" + LibraryTimeSheet.GetRandomDecimal());
-        ServiceLine.Modify();
-
-        ServiceHeader.Find();
-        asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
-        Assert.IsTrue(StrPos(GetLastErrorText, Text023) > 0, Text021);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestServiceOrder_PostingQtyMoreThanTimeSheetLine_ShipConsume()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-    begin
-        // [FEATURE] [Order] [Service]
-        // [SCENARIO] Verify that service order with service line having Quantity greater than timesheet line cannot be shipped and consumed.
-
-        Initialize();
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
-
-        TimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
-
-        ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
-        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        ServiceLine.FindFirst();
-        ServiceLine.Validate(Quantity, TimeSheetLine."Total Quantity" + LibraryTimeSheet.GetRandomDecimal());
-        ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
-        ServiceLine.Modify();
-
-        ServiceHeader.Find();
-        asserterror LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
         Assert.IsTrue(StrPos(GetLastErrorText, Text023) > 0, Text021);
     end;
 
@@ -660,47 +322,6 @@ codeunit 136502 "UT Time Sheets Posting"
         SuggestResourceJournalLines(ResJnlLine, TimeSheetHeader);
 
         CheckResJnlLineRemainingQuantity(ResJnlLine, TimeSheetHeader."Resource No.", TimeSheetLine."Total Quantity" - Delta);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestServiceOrder_PartialPosting_Ship()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        ServiceShipmentLine: Record "Service Shipment Line";
-        ServiceHeaderNo: Code[20];
-        ServiceLineNo: Integer;
-        Delta: Decimal;
-    begin
-        // [FEATURE] [Order] [Service]
-        // [SCENARIO] Verify time sheet posting entry and Remaining Quantity in service line after partially shipping service order with time sheet resource.
-
-        Initialize();
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
-        ServiceHeaderNo := ServiceHeader."No.";
-        Delta := TimeSheetLine."Total Quantity" * (LibraryTimeSheet.GetRandomDecimal() / 100);
-
-        TimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
-
-        TimeSheetLine.CalcFields("Total Quantity");
-        CheckServicelLineRemainingQuantity(ServiceLine, ServiceHeaderNo, TimeSheetLine, TimeSheetLine."Total Quantity", false);
-        ServiceLineNo := ServiceLine."Line No.";
-
-        ServiceLine.Validate("Qty. to Ship", Delta);
-        ServiceLine.Modify();
-        ServiceHeader.Find();
-        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
-
-        ServiceShipmentLine.SetRange("Order No.", ServiceHeaderNo);
-        ServiceShipmentLine.SetRange("Order Line No.", ServiceLineNo);
-        ServiceShipmentLine.SetRange("No.", TimeSheetHeader."Resource No.");
-        ServiceShipmentLine.FindFirst();
-        CheckTimeSheetPostingEntry(TimeSheetLine, ServiceShipmentLine."Document No.", Delta);
-
-        CheckServicelLineRemainingQuantity(ServiceLine, ServiceHeaderNo, TimeSheetLine, TimeSheetLine."Total Quantity" - Delta, false);
     end;
 
     [Test]
@@ -859,7 +480,7 @@ codeunit 136502 "UT Time Sheets Posting"
         CheckTimeSheetPostingEntry(TimeSheetLine, PostedAssemblyLine."Document No.", PostedAssemblyLine.Quantity);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SuggestJobJournalLineTSLineDiscountPct()
@@ -924,7 +545,7 @@ codeunit 136502 "UT Time Sheets Posting"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT Time Sheets Posting");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateJobResourcePriceWithLineDiscountPct(var JobResourcePrice: Record "Job Resource Price"; JobNo: Code[20]; JobTaskNo: Code[20]; Type: Option; "Code": Code[20])
     begin
         LibraryJob.CreateJobResourcePrice(
@@ -934,14 +555,6 @@ codeunit 136502 "UT Time Sheets Posting"
         JobResourcePrice.Modify(true);
     end;
 #endif
-
-    local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ResourceNo: Code[20]; Qty: Decimal)
-    begin
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
-        ServiceLine.Validate("Service Item Line No.", 10000);
-        ServiceLine.Validate(Quantity, Qty);
-        ServiceLine.Modify();
-    end;
 
     [Normal]
     local procedure FindResourceJournalBatch(var ResJournalBatch: Record "Res. Journal Batch")
@@ -965,14 +578,12 @@ codeunit 136502 "UT Time Sheets Posting"
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
         LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
-        with CauseOfAbsence do begin
-            if "Unit of Measure Code" = '' then begin
-                HumanResourceUnitOfMeasure.FindFirst();
-                Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
-                Modify(true);
-            end;
-            exit(Code);
+        if CauseOfAbsence."Unit of Measure Code" = '' then begin
+            HumanResourceUnitOfMeasure.FindFirst();
+            CauseOfAbsence.Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
+            CauseOfAbsence.Modify(true);
         end;
+        exit(CauseOfAbsence.Code);
     end;
 
     local procedure SuggestJobJournalLines(var JobJnlLine: Record "Job Journal Line"; TimeSheetHeader: Record "Time Sheet Header"; TimeSheetLine: Record "Time Sheet Line")
@@ -1041,21 +652,6 @@ codeunit 136502 "UT Time Sheets Posting"
         ResJnlLine.FindLast();
         Assert.AreEqual(
           TimeSheetLineRemainingQuantity, ResJnlLine.Quantity, StrSubstNo(Text024, ResJnlLine.TableCaption(), ResJnlLine.FieldCaption(Quantity)));
-    end;
-
-    local procedure CheckServicelLineRemainingQuantity(var ServiceLine: Record "Service Line"; ServiceHeaderNo: Code[20]; TimeSheetLine: Record "Time Sheet Line"; TimeSheetLineRemainingQuantity: Decimal; Consume: Boolean)
-    begin
-        ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
-        ServiceLine.SetRange("Document No.", ServiceHeaderNo);
-        ServiceLine.SetRange("Time Sheet No.", TimeSheetLine."Time Sheet No.");
-        ServiceLine.SetRange("Time Sheet Line No.", TimeSheetLine."Line No.");
-        ServiceLine.FindFirst();
-        if not Consume then
-            Assert.AreEqual(
-              TimeSheetLineRemainingQuantity, ServiceLine."Qty. to Ship", StrSubstNo(Text027, ServiceLine.FieldCaption("Qty. to Ship")))
-        else
-            Assert.AreEqual(
-              TimeSheetLineRemainingQuantity, ServiceLine."Qty. to Consume", StrSubstNo(Text027, ServiceLine.FieldCaption("Qty. to Consume")));
     end;
 
     [ConfirmHandler]

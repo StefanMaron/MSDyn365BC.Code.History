@@ -111,6 +111,8 @@ page 985 "Document Search"
         DocumentNo: Code[20];
         Amount: Decimal;
         AmountTolerance: Decimal;
+#pragma warning disable AA0470
         ToleranceTxt: Label 'The program will search for documents with amounts between %1 and %2.';
+#pragma warning restore AA0470
 }
 

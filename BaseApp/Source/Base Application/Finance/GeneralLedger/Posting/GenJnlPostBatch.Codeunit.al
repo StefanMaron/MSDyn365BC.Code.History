@@ -46,16 +46,22 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     var
+#pragma warning disable AA0470
         PostingStateMsg: Label 'Journal Batch Name    #1##########\\Posting @2@@@@@@@@@@@@@\#3#############', Comment = 'This is a message for dialog window. Parameters do not require translation.';
+#pragma warning restore AA0470
         CheckingLinesMsg: Label 'Checking lines';
         CheckingBalanceMsg: Label 'Checking balance';
         UpdatingBalLinesMsg: Label 'Updating bal. lines';
         PostingLinesMsg: Label 'Posting lines';
         PostingReversLinesMsg: Label 'Posting revers. lines';
         UpdatingLinesMsg: Label 'Updating lines';
+#pragma warning disable AA0074
         Text008: Label 'must be the same on all lines for the same document';
+#pragma warning disable AA0470
         Text009: Label '%1 %2 posted on %3 includes more than one customer or vendor. ';
+#pragma warning restore AA0470
         Text010: Label 'In order for the program to calculate VAT, the entries must be separated by another document number or by an empty line.';
+#pragma warning disable AA0470
         Text012: Label '%5 %2 is out of balance by %1. ';
         Text013: Label 'Please check that %3, %4, %5 and %6 are correct for each line.';
         Text014: Label 'The lines in %1 are out of balance by %2. ';
@@ -65,13 +71,17 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         Text018: Label 'Your reversing entries for %1 are out of balance by %2. ';
         Text019: Label '%3 %1 is out of balance due to the additional reporting currency. ';
         Text020: Label 'Please check that %2 is correct for each line.';
+#pragma warning restore AA0470
         Text021: Label 'cannot be specified when using recurring journals.';
         Text022: Label 'The Balance and Reversing Balance recurring methods can be used only for G/L accounts.';
         Text023: Label 'Allocations can only be used with recurring journals.';
         Text024: Label '<Month Text>', Locked = true;
+#pragma warning disable AA0470
         Text026: Label '%5 %2 is out of balance by %1 %7. ';
         Text027: Label 'The lines in %1 are out of balance by %2 %5. ';
+#pragma warning restore AA0470
         Text028: Label 'The Balance and Reversing Balance recurring methods can be used only with Allocations.';
+#pragma warning restore AA0074
         ConfirmManualCheckTxt: Label 'A balancing account is not specified for one or more lines. If you print checks without specifying balancing accounts you will not be able to void the checks, if needed. Do you want to continue?';
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
@@ -117,9 +127,13 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         LastFAAddCurrExchRate: Decimal;
         LastCurrencyCode: Code[10];
         CurrencyBalance: Decimal;
+#pragma warning disable AA0074
         Text029: Label '%1 %2 posted on %3 includes more than one customer, vendor or IC Partner.', Comment = '%1 = Document Type;%2 = Document No.;%3=Posting Date';
+#pragma warning disable AA0470
         Text030: Label 'You cannot enter G/L Account or Bank Account in both %1 and %2.';
         Text031: Label 'Line No. %1 does not contain a G/L Account or Bank Account. When the %2 field contains an account number, either the %3 field or the %4 field must contain a G/L Account or Bank Account.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         RefPostingState: Option "Checking lines","Checking balance","Updating bal. lines","Posting Lines","Posting revers. lines","Updating lines";
         PreviewMode: Boolean;
         SkippedLineMsg: Label 'One or more lines has not been posted because the amount is zero.';
@@ -210,6 +224,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             Window.Open(PostingStateMsg);
             Window.Update(1, GenJnlLine."Journal Batch Name");
         end;
+
         // Check lines
         LineCount := 0;
         StartLineNo := GenJnlLine."Line No.";
@@ -372,13 +387,10 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 ShouldCheckDocNoBasedOnNoSeries := not PreviewMode and (GenJnlBatch."No. Series" <> '') and (LastDocNo <> GenJnlLine."Document No.") and (not GenJnlLine."Check Printed");
                 SkipCheckingPostingNoSeries := false;
                 OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(GenJnlLine, GenJnlBatch, ShouldCheckDocNoBasedOnNoSeries, SkipCheckingPostingNoSeries);
-                if ShouldCheckDocNoBasedOnNoSeries then begin
 #if not CLEAN24
-#pragma warning disable AL0432
+                if ShouldCheckDocNoBasedOnNoSeries then begin
                     // raises the old event.
                     GenJnlLine.ObsoleteCheckDocNoBasedOnNoSeries(LastDocNo, GenJnlBatch."No. Series", NoSeriesMgt);
-#pragma warning restore AL0432
-#endif
                     if GenJnlLine."Document No." = NoSeriesBatch.PeekNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date") then
                         // No. used is same as peek so need to save it.
                         NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date")
@@ -386,6 +398,15 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                         // manual nos should be allowed.
                         NoSeriesBatch.TestManual(GenJnlBatch."No. Series", GenJnlLine."Document No.");
                 end;
+#else
+                if ShouldCheckDocNoBasedOnNoSeries then
+                    if GenJnlLine."Document No." = NoSeriesBatch.PeekNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date") then
+                        // No. used is same as peek so need to save it.
+                        NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date")
+                    else
+                        // manual nos should be allowed.
+                        NoSeriesBatch.TestManual(GenJnlBatch."No. Series", GenJnlLine."Document No.");
+#endif
                 if not SkipCheckingPostingNoSeries then
                     if GenJnlLine."Posting No. Series" <> '' then
                         GenJnlLine.TestField("Posting No. Series", GenJnlBatch."Posting No. Series");
@@ -954,12 +975,6 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 TempGenJnlLine1 := TempGenJnlLine2;
             end;
             if (CurrentICPartner <> '') and (TempGenJnlLine1."IC Direction" = TempGenJnlLine1."IC Direction"::Outgoing) then begin
-#if not CLEAN22
-                if (TempGenJnlLine1."IC Partner G/L Acc. No." <> '') and (TempGenJnlLine1."IC Account No." = '') then begin
-                    TempGenJnlLine1."IC Account Type" := TempGenJnlLine1."IC Account Type"::"G/L Account";
-                    TempGenJnlLine1."IC Account No." := TempGenJnlLine1."IC Partner G/L Acc. No.";
-                end;
-#endif
                 if (TempGenJnlLine1."Account Type" in [TempGenJnlLine1."Account Type"::"G/L Account", TempGenJnlLine1."Account Type"::"Bank Account"]) and
                    (TempGenJnlLine1."Bal. Account Type" in [TempGenJnlLine1."Bal. Account Type"::"G/L Account", TempGenJnlLine1."Account Type"::"Bank Account"]) and
                    (TempGenJnlLine1."Account No." <> '') and

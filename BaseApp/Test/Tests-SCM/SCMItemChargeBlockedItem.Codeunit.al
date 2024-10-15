@@ -16,8 +16,6 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
-        ItemBlockedErr: Label 'Blocked must be equal to ''No''  in Item: No.=%1';
-        TestFieldCodeErr: Label 'TestField';
         IsInitialized: Boolean;
 
     [Test]
@@ -245,6 +243,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     var
         PurchaseHeader: Record "Purchase Header";
         ItemLedgerEntry: Record "Item Ledger Entry";
+        Item: Record Item;
         ItemNo: Code[20];
     begin
         // [FEATURE] [Purchase] [Receipt] [Blocked]
@@ -267,8 +266,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Error 'Blocked must be equal to 'No'  in Item: No.="I"'
-        Assert.ExpectedError(StrSubstNo(ItemBlockedErr, ItemNo));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -277,6 +275,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     var
         PurchaseHeader: Record "Purchase Header";
         ItemLedgerEntry: Record "Item Ledger Entry";
+        Item: Record Item;
         ItemNo: Code[20];
         FromLocationCode: Code[10];
         ToLocationCode: Code[10];
@@ -304,8 +303,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Error 'Blocked must be equal to 'No'  in Item: No.="I"'
-        Assert.ExpectedError(StrSubstNo(ItemBlockedErr, ItemNo));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -314,6 +312,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     var
         PurchaseHeader: Record "Purchase Header";
         ItemLedgerEntry: Record "Item Ledger Entry";
+        Item: Record Item;
         ItemNo: Code[20];
     begin
         // [FEATURE] [Purchase] [Return Receipt] [Blocked]
@@ -336,8 +335,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Error 'Blocked must be equal to 'No'  in Item: No.="I"'
-        Assert.ExpectedError(StrSubstNo(ItemBlockedErr, ItemNo));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -346,6 +344,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     var
         PurchaseHeader: Record "Purchase Header";
         ItemLedgerEntry: Record "Item Ledger Entry";
+        Item: Record Item;
         ItemNo: Code[20];
     begin
         // [FEATURE] [Purchase] [Sales Shipment] [Blocked]
@@ -369,8 +368,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Error 'Blocked must be equal to 'No'  in Item: No.="I"'
-        Assert.ExpectedError(StrSubstNo(ItemBlockedErr, ItemNo));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -379,6 +377,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     var
         PurchaseHeader: Record "Purchase Header";
         ItemLedgerEntry: Record "Item Ledger Entry";
+        Item: Record Item;
         ItemNo: Code[20];
     begin
         // [FEATURE] [Purchase] [Return Shipment] [Blocked]
@@ -402,8 +401,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Error 'Blocked must be equal to 'No'  in Item: No.="I"'
-        Assert.ExpectedError(StrSubstNo(ItemBlockedErr, ItemNo));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -412,6 +410,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     var
         SalesHeader: Record "Sales Header";
         ItemLedgerEntry: Record "Item Ledger Entry";
+        Item: Record Item;
         ItemNo: Code[20];
     begin
         // [FEATURE] [Sales] [Shipment] [Blocked]
@@ -434,8 +433,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Error 'Blocked must be equal to 'No'  in Item: No.="I"'
-        Assert.ExpectedError(StrSubstNo(ItemBlockedErr, ItemNo));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -444,6 +442,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     var
         SalesHeader: Record "Sales Header";
         ItemLedgerEntry: Record "Item Ledger Entry";
+        Item: Record Item;
         ItemNo: Code[20];
     begin
         // [FEATURE] [Sales] [Return Receipt] [Blocked]
@@ -466,8 +465,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Error 'Blocked must be equal to 'No'  in Item: No.="I"'
-        Assert.ExpectedError(StrSubstNo(ItemBlockedErr, ItemNo));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     local procedure Initialize()

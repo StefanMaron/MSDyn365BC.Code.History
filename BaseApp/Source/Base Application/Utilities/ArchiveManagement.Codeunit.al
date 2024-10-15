@@ -37,6 +37,8 @@ codeunit 5063 ArchiveManagement
         RecordLinkManagement: Codeunit "Record Link Management";
         ReleaseSalesDoc: Codeunit "Release Sales Document";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Document %1 has been archived.';
         Text002: Label 'Do you want to Restore %1 %2 Version %3?';
         Text003: Label '%1 %2 has been restored.';
@@ -44,8 +46,12 @@ codeunit 5063 ArchiveManagement
         Text005: Label '%1 %2 has been partly posted.\Restore not possible.';
         Text006: Label 'Entries exist for on or more of the following:\  - %1\  - %2\  - %3.\Restoration of document will delete these entries.\Continue with restore?';
         Text007: Label 'Archive %1 no.: %2?';
+#pragma warning restore AA0470
         Text008: Label 'Item Tracking Line';
-        Text009: Label 'Unposted %1 %2 does not exist anymore.\It is not possible to restore the %1.';        
+#pragma warning disable AA0470
+        Text009: Label 'Unposted %1 %2 does not exist anymore.\It is not possible to restore the %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AutoArchiveSalesDocument(var SalesHeader: Record "Sales Header")
     var
@@ -500,7 +506,7 @@ codeunit 5063 ArchiveManagement
                         exit(PurchHeaderArchive."Version No." + 1);
 
                     exit(1);
-                end;            
+                end;
             else begin
                 OnGetNextVersionNo(TableId, DocType, DocNo, DocNoOccurrence, VersionNo);
                 exit(VersionNo)
@@ -514,7 +520,7 @@ codeunit 5063 ArchiveManagement
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         SalesSetup.Get();
-        if not ((SalesSetup."Archive Quotes" in [SalesSetup."Archive Quotes"::Question, SalesSetup."Archive Quotes"::Always]) OR SalesSetup."Archive Orders") then
+        if not ((SalesSetup."Archive Quotes" in [SalesSetup."Archive Quotes"::Question, SalesSetup."Archive Quotes"::Always]) or SalesSetup."Archive Orders") then
             exit(false);
         exit(SalesHeaderArchive.WritePermission);
     end;
@@ -525,7 +531,7 @@ codeunit 5063 ArchiveManagement
         PurchaseSetup: Record "Purchases & Payables Setup";
     begin
         PurchaseSetup.Get();
-        if not ((PurchaseSetup."Archive Quotes" in [PurchaseSetup."Archive Quotes"::Question, PurchaseSetup."Archive Quotes"::Always]) OR PurchaseSetup."Archive Orders") then
+        if not ((PurchaseSetup."Archive Quotes" in [PurchaseSetup."Archive Quotes"::Question, PurchaseSetup."Archive Quotes"::Always]) or PurchaseSetup."Archive Orders") then
             exit(false);
         exit(PurchaseHeaderArchive.WritePermission);
     end;

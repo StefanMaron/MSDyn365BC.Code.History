@@ -56,7 +56,6 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Peppol;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Setup;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Setup;
@@ -68,9 +67,6 @@ using System.Integration;
 using System.Globalization;
 using System.Feedback;
 using System.IO;
-#if not CLEAN22
-using System.Security.AccessControl;
-#endif
 using System.Upgrade;
 
 codeunit 2 "Company-Initialize"
@@ -96,11 +92,7 @@ codeunit 2 "Company-Initialize"
                   TableData "FA Setup" = i,
                   TableData "Nonstock Item Setup" = i,
                   TableData "Warehouse Setup" = i,
-                  TableData "Service Mgt. Setup" = i,
                   tabledata "Trial Balance Setup" = i,
-#if not CLEAN22
-                  TableData "User Group Member" = d,
-#endif
                   TableData "Config. Setup" = i,
                   TableData "VAT Setup" = i;
 
@@ -144,7 +136,9 @@ codeunit 2 "Company-Initialize"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Initializing company...';
+#pragma warning restore AA0074
         SEPACTCodeTxt: Label 'SEPACT', Comment = 'No need to translate - but can be translated at will.';
         SEPACTNameTxt: Label 'SEPA Credit Transfer';
         SEPADDCodeTxt: Label 'SEPADD', Comment = 'No need to translate - but can be translated at will.';
@@ -153,6 +147,7 @@ codeunit 2 "Company-Initialize"
         SEPACTName09Txt: Label 'SEPA Credit Transfer pain.001.001.09';
         SEPADDCode08Txt: Label 'SEPADDPAIN00800108', Locked = true;
         SEPADDName08Txt: Label 'SEPA Direct Debit pain.008.001.08';
+#pragma warning disable AA0074
         Text001: Label 'SALES';
         Text002: Label 'Sales';
         Text003: Label 'PURCHASES';
@@ -160,6 +155,7 @@ codeunit 2 "Company-Initialize"
         Text005: Label 'DELETE';
         Text006: Label 'INVTPCOST';
         Text007: Label 'EXCHRATADJ';
+        Text008: Label 'GLCURREVAL';
         Text010: Label 'CLSINCOME';
         Text011: Label 'CONSOLID';
         Text012: Label 'Consolidation';
@@ -174,11 +170,15 @@ codeunit 2 "Company-Initialize"
         Text023: Label 'PROJJNL';
         Text024: Label 'SALESAPPL';
         Text025: Label 'Sales Entry Application';
+#pragma warning restore AA0074
         PaymentReconJnlTok: Label 'PAYMTRECON', Comment = 'Payment Reconciliation Journal Code';
+#pragma warning disable AA0074
         Text026: Label 'PURCHAPPL';
         Text027: Label 'Purchase Entry Application';
+#pragma warning restore AA0074
         EmployeeEntryApplicationCodeTxt: Label 'EMPLAPPL', Comment = 'EMPL stands for employee, APPL stands for application';
         EmployeeEntryApplicationTxt: Label 'Employee Entry Application';
+#pragma warning disable AA0074
         Text028: Label 'VATSTMT';
         Text029: Label 'COMPRGL';
         Text030: Label 'COMPRVAT';
@@ -220,8 +220,6 @@ codeunit 2 "Company-Initialize"
         Text071: Label 'WHITEM';
         Text072: Label 'WHPHYSINVT';
         Text073: Label 'WHRCLSSJNL';
-        Text074: Label 'SERVICE';
-        Text075: Label 'Service Management';
         Text076: Label 'BANKREC';
         Text077: Label 'WHPUTAWAY';
         Text078: Label 'WHPICK';
@@ -234,8 +232,10 @@ codeunit 2 "Company-Initialize"
         Text085: Label 'Intercompany';
         Text086: Label 'UNAPPSALES';
         Text087: Label 'Unapplied Sales Entry Application';
+#pragma warning restore AA0074
         UnappliedEmplEntryApplnCodeTxt: Label 'UNAPPEMPL', Comment = 'EMPL stands for employee, UNAPP stands for unapply';
         UnappliedEmplEntryApplnTxt: Label 'Unapplied Employee Entry Application';
+#pragma warning disable AA0074
         Text088: Label 'UNAPPPURCH';
         Text089: Label 'Unapplied Purchase Entry Application';
         Text090: Label 'REVERSAL';
@@ -266,6 +266,7 @@ codeunit 2 "Company-Initialize"
         Text116: Label 'Cost Allocation';
         Text117: Label 'TRABUD', Comment = 'Uppercase of the translation of Transfer Budget to Actual with a max of 10 char';
         Text118: Label 'Transfer Budget to Actual';
+#pragma warning restore AA0074
         DocumentCreatedToAvoidGapInNoSeriesTxt: Label 'Document created to avoid gap in No. Series';
         InvtReceiptsTxt: Label 'INVTRCPT', Comment = 'INVENTORY RECEIPTS';
         InvtShipmentsTxt: Label 'INVTSHPT', Comment = 'INVENTORY SHIPMENTS';
@@ -304,10 +305,10 @@ codeunit 2 "Company-Initialize"
         HumanResourcesSetup: Record "Human Resources Setup";
         MarketingSetup: Record "Marketing Setup";
         InteractionTemplateSetup: Record "Interaction Template Setup";
-        ServiceMgtSetup: Record "Service Mgt. Setup";
         NonstockItemSetup: Record "Nonstock Item Setup";
         FASetup: Record "FA Setup";
         CashFlowSetup: Record "Cash Flow Setup";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         CostAccSetup: Record "Cost Accounting Setup";
         WhseSetup: Record "Warehouse Setup";
         AssemblySetup: Record "Assembly Setup";
@@ -339,11 +340,6 @@ codeunit 2 "Company-Initialize"
         if not InteractionTemplateSetup.FindFirst() then begin
             InteractionTemplateSetup.Init();
             InteractionTemplateSetup.Insert();
-        end;
-
-        if not ServiceMgtSetup.FindFirst() then begin
-            ServiceMgtSetup.Init();
-            ServiceMgtSetup.Insert();
         end;
 
         if not PurchSetup.FindFirst() then begin
@@ -467,6 +463,7 @@ codeunit 2 "Company-Initialize"
 #else
             InsertSourceCode(SourceCodeSetup."Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Exch. Rate Adjustment"));
 #endif
+            InsertSourceCode(SourceCodeSetup."G/L Currency Revaluation", Text008, ReportName(REPORT::"G/L Currency Revaluation"));
             InsertSourceCode(SourceCodeSetup."Close Income Statement", Text010, ReportName(REPORT::"Close Income Statement"));
             InsertSourceCode(SourceCodeSetup.Consolidation, Text011, Text012);
             InsertSourceCode(SourceCodeSetup."General Journal", Text013, PageName(PAGE::"General Journal"));
@@ -525,7 +522,6 @@ codeunit 2 "Company-Initialize"
             InsertSourceCode(SourceCodeSetup."Whse. Put-away", Text077, Text080);
             InsertSourceCode(SourceCodeSetup."Whse. Pick", Text078, Text081);
             InsertSourceCode(SourceCodeSetup."Whse. Movement", Text079, Text082);
-            InsertSourceCode(SourceCodeSetup."Service Management", Text074, Text075);
             InsertSourceCode(SourceCodeSetup."IC General Journal", Text084, Text085);
             InsertSourceCode(SourceCodeSetup."Cash Flow Worksheet", Text109, Text110);
             InsertSourceCode(SourceCodeSetup.Assembly, Text107, Text108);
@@ -542,6 +538,7 @@ codeunit 2 "Company-Initialize"
             InsertSourceCode(SourceCodeSetup."Production Order", ProductionOrderLbl, ProductionOrderTxt);
             InsertSourceCode(SourceCodeSetup."Bank Rec. Adjustment", Text1020000, Text1020001);
             InsertSourceCode(SourceCodeSetup.Deposits, Text1020002, Text1020003);
+            OnBeforeSourceCodeSetupInsert(SourceCodeSetup);
             SourceCodeSetup.Insert();
         end;
     end;
@@ -560,6 +557,7 @@ codeunit 2 "Company-Initialize"
 
     local procedure InitReportSelection()
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         ReportSelections: Record "Report Selections";
         ReportSelectionMgt: Codeunit "Report Selection Mgt.";
     begin
@@ -662,20 +660,10 @@ codeunit 2 "Company-Initialize"
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
           CODEUNIT::"PEPPOL Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation".AsInteger());
 
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Invoice".AsInteger());
-
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo".AsInteger());
-
-        ElectronicDocumentFormat.InsertElectronicFormat(
-          PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"PEPPOL Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation".AsInteger());
+        OnAfterInitElectronicFormats();
     end;
 
-    local procedure InsertSourceCode(var SourceCodeDefCode: Code[10]; "Code": Code[10]; Description: Text[100])
+    procedure InsertSourceCode(var SourceCodeDefCode: Code[10]; "Code": Code[10]; Description: Text[100])
     var
         SourceCode: Record "Source Code";
     begin
@@ -781,10 +769,6 @@ codeunit 2 "Company-Initialize"
     local procedure OnAfterCompanyDeleteRemoveReferences(var Rec: Record Company; RunTrigger: Boolean)
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
-#if not CLEAN22
-        UserGroupMember: Record "User Group Member";
-        UserGroupAccessControl: Record "User Group Access Control";
-#endif
         ApplicationAreaSetup: Record "Application Area Setup";
         CustomReportLayout: Record "Custom Report Layout";
         ReportLayoutSelection: Record "Report Layout Selection";
@@ -795,12 +779,6 @@ codeunit 2 "Company-Initialize"
 
         AssistedCompanySetupStatus.SetRange("Company Name", Rec.Name);
         AssistedCompanySetupStatus.DeleteAll();
-#if not CLEAN22
-        UserGroupMember.SetRange("Company Name", Rec.Name);
-        UserGroupMember.DeleteAll();
-        UserGroupAccessControl.SetRange("Company Name", Rec.Name);
-        UserGroupAccessControl.DeleteAll();
-#endif
         ApplicationAreaSetup.SetRange("Company Name", Rec.Name);
         ApplicationAreaSetup.DeleteAll();
         CustomReportLayout.SetRange("Company Name", Rec.Name);
@@ -831,6 +809,16 @@ codeunit 2 "Company-Initialize"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitSetupTables()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitElectronicFormats()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSourceCodeSetupInsert(var SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
 }

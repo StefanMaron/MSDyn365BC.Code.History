@@ -39,6 +39,7 @@ page 6631 "Sales Return Order Subform"
                 {
                     ApplicationArea = Advanced;
                     ToolTip = 'Specifies the type of entity that will be posted for this sales line, such as Item, Resource, or G/L Account.';
+                    Visible = not TypeAsTextFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -58,7 +59,7 @@ page 6631 "Sales Return Order Subform"
                     LookupPageID = "Option Lookup List";
                     TableRelation = "Option Lookup Buffer"."Option Caption" where("Lookup Type" = const(Sales));
                     ToolTip = 'Specifies the type of transaction that will be posted with the document line. If you select Comment, then you can enter any text in the Description field, such as a message to a customer. ';
-                    Visible = IsFoundation;
+                    Visible = TypeAsTextFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -959,7 +960,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowTracking();
+                        Rec.ShowOrderTracking();
                     end;
                 }
             }
@@ -981,7 +982,7 @@ page 6631 "Sales Return Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -993,7 +994,7 @@ page 6631 "Sales Return Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -1005,7 +1006,7 @@ page 6631 "Sales Return Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -1018,7 +1019,7 @@ page 6631 "Sales Return Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -1041,7 +1042,7 @@ page 6631 "Sales Return Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -1093,7 +1094,7 @@ page 6631 "Sales Return Order Subform"
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
                     Enabled = Rec.Type = Rec.Type::Item;
-                    ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
+                    ToolTip = 'View or edit serial, lot and package numbers for the selected item. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
@@ -1127,7 +1128,7 @@ page 6631 "Sales Return Order Subform"
                         if Rec.ShowDeferrals(Rec."Posting Date", Rec."Currency Code") then begin
                             Rec."Returns Deferral Start Date" :=
                                 DeferralUtilities.GetDeferralStartDate(
-                                    Enum::"Deferral Document Type"::Sales.AsInteger(), Rec."Document Type".AsInteger(),
+                                    "Deferral Document Type"::Sales.AsInteger(), Rec."Document Type".AsInteger(),
                                     Rec."Document No.", Rec."Line No.", Rec."Deferral Code", Rec."Posting Date");
                             CurrPage.SaveRecord();
                         end;
@@ -1246,7 +1247,7 @@ page 6631 "Sales Return Order Subform"
         SalesSetup.Get();
         Currency.InitRoundingPrecision();
         TempOptionLookupBuffer.FillLookupBuffer(Enum::"Option Lookup Type"::Sales);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
+        TypeAsTextFieldVisible := ApplicationAreaMgmtFacade.IsFoundationEnabled() and not ApplicationAreaMgmtFacade.IsAdvancedEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1283,13 +1284,13 @@ page 6631 "Sales Return Order Subform"
         SalesSetup: Record "Sales & Receivables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        SalesAvailabilityMgt: Codeunit "Sales Availability Mgt.";
         SalesCalcDiscByType: Codeunit "Sales - Calc Discount By Type";
         AmountWithDiscountAllowed: Decimal;
         TypeAsText: Text[30];
+        TypeAsTextFieldVisible: Boolean;
         ItemChargeStyleExpression: Text;
         VariantCodeMandatory: Boolean;
-        IsFoundation: Boolean;
         LocationCodeVisible: Boolean;
         CurrPageIsEditable: Boolean;
         AttachingLinesEnabled: Boolean;
@@ -1389,14 +1390,6 @@ page 6631 "Sales Return Order Subform"
     begin
         Rec.Find();
         Rec.ShowReservation();
-    end;
-
-    local procedure ShowTracking()
-    var
-        TrackingForm: Page "Order Tracking";
-    begin
-        TrackingForm.SetSalesLine(Rec);
-        TrackingForm.RunModal();
     end;
 
     local procedure ItemChargeAssgnt()
@@ -1558,7 +1551,7 @@ page 6631 "Sales Return Order Subform"
     var
         RecRef: RecordRef;
     begin
-        if not IsFoundation then
+        if not TypeAsTextFieldVisible then
             exit;
 
         OnBeforeUpdateTypeText(Rec);

@@ -195,11 +195,17 @@ report 23 "G/L Document Nos."
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'No number series has been used for the following entries:';
+#pragma warning disable AA0470
         Text001: Label 'The number series %1 %2 has been used for the following entries:';
+#pragma warning restore AA0470
         Text002: Label 'There is a gap in the number series.';
         Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
+#pragma warning disable AA0470
         Text004: Label 'G/L Entry: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         G_L_Document_Nos_CaptionLbl: Label 'G/L Document Nos.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         SourceCode_DescriptionCaptionLbl: Label 'Source Description';

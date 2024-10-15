@@ -53,14 +53,6 @@ xmlport 12 "IC Outbox Imp/Exp"
                 fieldattribute(DocDate; ICOutboxTrans."Document Date")
                 {
                 }
-#if not CLEAN22
-                fieldattribute(ICPartnerAccNo; ICOutboxTrans."IC Partner G/L Acc. No.")
-                {
-                }
-                fieldattribute(SourceLineNo; ICOutboxTrans."IC Partner G/L Acc. No.")
-                {
-                }
-#endif
                 fieldattribute(TransICAccountType; ICOutboxTrans."IC Account Type")
                 {
                 }

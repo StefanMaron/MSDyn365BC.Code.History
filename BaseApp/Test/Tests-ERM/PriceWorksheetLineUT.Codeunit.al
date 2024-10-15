@@ -26,23 +26,15 @@ codeunit 134198 "Price Worksheet Line UT"
         StartingDateErr: Label 'Starting Date %1 cannot be after Ending Date %2.', Comment = '%1 and %2 - dates';
         CampaignDateErr: Label 'If Source Type is Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
         AssetTypeForUOMErr: Label 'Product Type must be equal to Item or Resource.';
-        AssetTypeMustBeItemErr: Label 'Product Type must be equal to ''Item''';
-        AssetTypeMustBeResourceErr: Label 'Product Type must be equal to ''Resource''';
         AssetTypeMustNotBeAllErr: Label 'Product Type must not be (All)';
         AssetNoMustHaveValueErr: Label 'Product No. must have a value';
         NotPostingJobTaskTypeErr: Label 'Project Task Type must be equal to ''Posting''';
         WrongPriceListCodeErr: Label 'The field Price List Code of table Price Worksheet Line contains a value (%1) that cannot be found';
         FieldNotAllowedForAmountTypeErr: Label 'Field %1 is not allowed in the price list line where %2 is %3.',
             Comment = '%1 - the field caption; %2 - Amount Type field caption; %3 - amount type value: Discount or Price';
-        AmountTypeMustBeDiscountErr: Label 'Defines must be equal to ''Discount''';
-        ItemDiscGroupMustNotBePurchaseErr: Label 'Product Type must not be Item Discount Group';
         LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
-        SourceTypeMustBeErr: Label 'Assign-to Type must be equal to ''%1''', Comment = '%1 - source type value';
         ParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. must have a value';
-        ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. must be equal to ''''';
         SourceNoMustBeFilledErr: Label 'Assign-to No. must have a value';
-        SourceNoMustBeBlankErr: Label 'Assign-to No. must be equal to ''''';
-        SourceGroupJobErr: Label 'Source Group must be equal to ''Project''';
         IsInitialized: Boolean;
 
     [Test]
@@ -508,7 +500,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [WHEN] set "Source Type" as 'Job Task' in the line
         asserterror PriceWorksheetLine.Validate("Source Type", "Price Source Type"::"Job Task");
         // [THEN] Error message: "Source Type must be equal to Job"
-        Assert.ExpectedError(StrSubstNo(SourceTypeMustBeErr, "Price Source Type"::Job));
+        Assert.ExpectedTestFieldError(PriceWorksheetLine.FieldCaption("Source Type"), Format(PriceWorksheetLine."Source Type"::Job));
     end;
 
     [Test]
@@ -780,7 +772,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [WHEN] Validate "Work Type Code" with a valid code
         asserterror PriceWorksheetLine.Validate("Work Type Code", GetWorkTypeCode());
         // [THEN] Error message: 'Asset Type must be Resource'
-        Assert.ExpectedError(AssetTypeMustBeResourceErr);
+        Assert.ExpectedTestFieldError(PriceWorksheetLine.FieldCaption("Asset Type"), Format(PriceWorksheetLine."Asset Type"::Resource));
     end;
 
     [Test]
@@ -1066,10 +1058,10 @@ codeunit 134198 "Price Worksheet Line UT"
         PriceWorksheetLine.TestField("Amount Type", PriceWorksheetLine."Amount Type"::Discount);
 
         asserterror PriceWorksheetLine.Validate("Amount Type", PriceWorksheetLine."Amount Type"::Price);
-        Assert.ExpectedError(AmountTypeMustBeDiscountErr);
+        Assert.ExpectedTestFieldError(PriceWorksheetLine.FieldCaption("Amount Type"), Format(PriceWorksheetLine."Amount Type"::Discount));
 
         asserterror PriceWorksheetLine.Validate("Amount Type", PriceWorksheetLine."Amount Type"::Any);
-        Assert.ExpectedError(AmountTypeMustBeDiscountErr);
+        Assert.ExpectedTestFieldError(PriceWorksheetLine.FieldCaption("Amount Type"), Format(PriceWorksheetLine."Amount Type"::Discount));
     end;
 
     [Test]
@@ -1083,7 +1075,7 @@ codeunit 134198 "Price Worksheet Line UT"
 
         PriceWorksheetLine."Price Type" := "Price Type"::Purchase;
         asserterror PriceWorksheetLine.Validate("Asset Type", "Price Asset Type"::"Item Discount Group");
-        Assert.ExpectedError(ItemDiscGroupMustNotBePurchaseErr);
+        Assert.ExpectedTestFieldError(PriceWorksheetLine.FieldCaption("Asset Type"), Format(PriceWorksheetLine."Asset Type"::"Item Discount Group"));
     end;
 
     [Test]
@@ -1299,7 +1291,7 @@ codeunit 134198 "Price Worksheet Line UT"
         asserterror PriceWorksheetLine.CopyFrom(PriceListHeader);
 
         // [THEN] Error: 'Defines must be equal to 'Discount''
-        Assert.ExpectedError(AmountTypeMustBeDiscountErr);
+        Assert.ExpectedTestFieldError(PriceWorksheetLine.FieldCaption("Amount Type"), Format(PriceWorksheetLine."Amount Type"::Discount));
     end;
 
     [Test]
@@ -1348,7 +1340,7 @@ codeunit 134198 "Price Worksheet Line UT"
         asserterror PriceWorksheetLine.Verify();
 
         // [THEN] Error: "Assign-to No. must be equal to ''''"
-        Assert.ExpectedError(SourceNoMustBeBlankErr);
+        Assert.ExpectedTestFieldError(PriceWorksheetLine.FieldCaption("Source No."), '''');
     end;
 
     [Test]
@@ -1387,7 +1379,7 @@ codeunit 134198 "Price Worksheet Line UT"
         asserterror PriceWorksheetLine.Verify();
 
         // [THEN] Error: "Assign-to Parent No. must be equal to ''''"
-        Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
+        Assert.ExpectedTestFieldError(PriceWorksheetLine.FieldCaption("Parent Source No."), '''');
     end;
 
     [Test]
@@ -2186,7 +2178,7 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T120_DeletePricesOnResourceDeletion()
     var
-        Resource: Array[2] of Record Resource;
+        Resource: array[2] of Record Resource;
     begin
         // [FEATURE] [Resource]
         Initialize();
@@ -2205,7 +2197,7 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T121_DeletePricesOnResourceGroupDeletion()
     var
-        ResourceGroup: Array[2] of Record "Resource Group";
+        ResourceGroup: array[2] of Record "Resource Group";
     begin
         // [FEATURE] [Resource Group]
         Initialize();
@@ -2224,7 +2216,7 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T122_DeletePricesOnItemDeletion()
     var
-        Item: Array[2] of Record Item;
+        Item: array[2] of Record Item;
     begin
         // [FEATURE] [Item]
         Initialize();
@@ -2243,7 +2235,7 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T123_DeletePricesOnItemDiscountGroupDeletion()
     var
-        ItemDiscountGroup: Array[2] of Record "Item Discount Group";
+        ItemDiscountGroup: array[2] of Record "Item Discount Group";
     begin
         // [FEATURE] [Item Discount Group]
         Initialize();
@@ -2263,7 +2255,7 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T124_DeletePricesOnGLAccountDeletion()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-        GLAccount: Array[2] of Record "G/L Account";
+        GLAccount: array[2] of Record "G/L Account";
     begin
         // [FEATURE] [G/L Account]
         Initialize();
@@ -2286,7 +2278,7 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T125_DeletePricesOnServiceCostDeletion()
     var
-        ServiceCost: Array[2] of Record "Service Cost";
+        ServiceCost: array[2] of Record "Service Cost";
     begin
         // [FEATURE] [Service Cost]
         Initialize();
@@ -2306,7 +2298,7 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T126_DeletePricesOnItemVariantDeletion()
     var
         Item: Record Item;
-        ItemVariant: Array[2] of Record "Item Variant";
+        ItemVariant: array[2] of Record "Item Variant";
     begin
         // [FEATURE] [Item Variant]
         Initialize();
@@ -2326,7 +2318,7 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T130_ModifyPricesOnResourceRename()
     var
-        Resource: Array[2] of Record Resource;
+        Resource: array[2] of Record Resource;
         OldNo: Code[20];
     begin
         // [FEATURE] [Resource]
@@ -2347,7 +2339,7 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T131_ModifyPricesOnResourceGroupRename()
     var
-        ResourceGroup: Array[2] of Record "Resource Group";
+        ResourceGroup: array[2] of Record "Resource Group";
         OldNo: Code[20];
     begin
         // [FEATURE] [Resource Group]
@@ -2368,7 +2360,7 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T132_ModifyPricesOnItemRename()
     var
-        Item: Array[2] of Record Item;
+        Item: array[2] of Record Item;
         OldNo: Code[20];
     begin
         // [FEATURE] [Item]
@@ -2389,7 +2381,7 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T133_ModifyPricesOnItemDiscountGroupRename()
     var
-        ItemDiscountGroup: Array[2] of Record "Item Discount Group";
+        ItemDiscountGroup: array[2] of Record "Item Discount Group";
         OldNo: Code[20];
     begin
         // [FEATURE] [Item Discount Group]
@@ -2410,7 +2402,7 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T134_ModifyPricesOnGLAccountRename()
     var
-        GLAccount: Array[2] of Record "G/L Account";
+        GLAccount: array[2] of Record "G/L Account";
         OldNo: Code[20];
     begin
         // [FEATURE] [G/L Account]
@@ -2431,7 +2423,7 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T135_ModifyPricesOnServiceCostRename()
     var
-        ServiceCost: Array[2] of Record "Service Cost";
+        ServiceCost: array[2] of Record "Service Cost";
         OldNo: Code[20];
     begin
         // [FEATURE] [Service Cost]
@@ -2453,7 +2445,7 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T136_ModifyPricesOnItemVariantRename()
     var
         Item: Record Item;
-        ItemVariant: Array[2] of Record "Item Variant";
+        ItemVariant: array[2] of Record "Item Variant";
         OldNo: Code[10];
     begin
         // [FEATURE] [Item Variant]
@@ -2475,7 +2467,7 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T137_ModifyPricesOnUnitOfMeasureRename()
     var
-        UnitOfMeasure: Array[2] of Record "Unit Of Measure";
+        UnitOfMeasure: array[2] of Record "Unit Of Measure";
         OldNo: Code[20];
     begin
         // [FEATURE] [Unit of Measure]
@@ -2604,7 +2596,7 @@ codeunit 134198 "Price Worksheet Line UT"
         asserterror PriceWorksheetLine.Validate("Variant Code", ItemVariant.Code);
 
         // [THEN] Error message: 'Asset Type must be Item.'
-        Assert.ExpectedError(AssetTypeMustBeItemErr);
+        Assert.ExpectedTestFieldError(PriceWorksheetLine.FieldCaption("Asset Type"), Format(PriceWorksheetLine."Asset Type"::Item));
     end;
 
     [Test]
@@ -2662,7 +2654,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [WHEN] Set "Cost Factor" as 1
         asserterror PriceWorksheetLine.Validate("Cost Factor", 1);
         // [THEN] Error message: 'Source Group must be equal to Project'
-        Assert.ExpectedError(SourceGroupJobErr);
+        Assert.ExpectedTestFieldError(PriceWorksheetLine.FieldCaption("Source Group"), Format(PriceWorksheetLine."Source Group"::Job));
     end;
 
     [Test]

@@ -772,18 +772,28 @@ report 120 "Aged Accounts Receivable"
         PeriodStartDate: array[5] of Date;
         PeriodEndDate: array[5] of Date;
         HeaderText: array[5] of Text[30];
+#pragma warning disable AA0074
         Text000: Label 'Not Due';
+#pragma warning restore AA0074
         AfterTok: Label 'After';
         BeforeTok: Label 'Before';
         CurrencyCode: Code[10];
+#pragma warning disable AA0074
         Text002: Label 'days';
+#pragma warning disable AA0470
         Text004: Label 'Aged by %1';
         Text005: Label 'Total for %1';
         Text006: Label 'Aged as of %1';
         Text007: Label 'Aged by %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NumberOfCurrencies: Integer;
+#pragma warning disable AA0074
         Text009: Label 'Due Date,Posting Date,Document Date';
+#pragma warning disable AA0470
         Text010: Label 'The Date Formula %1 cannot be used. Try to restate it. E.g. 1M+CM instead of CM+1M.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
         CustFilterCheck: Boolean;

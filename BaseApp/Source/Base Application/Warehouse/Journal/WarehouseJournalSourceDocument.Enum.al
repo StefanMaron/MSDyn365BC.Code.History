@@ -25,7 +25,8 @@ enum 7311 "Warehouse Journal Source Document"
     value(15; "Consumption Jnl.") { Caption = 'Consumption Jnl.'; }
     value(16; "Output Jnl.") { Caption = 'Output Jnl.'; }
     value(17; "BOM Jnl.") { Caption = 'BOM Jnl.'; }
-    value(18; "Serv. Order") { Caption = 'Serv. Order'; }
+    // Implemented in enum extension Serv. Whse. Jnl. Source Doc.
+    // value(18; "Serv. Order") { Caption = 'Serv. Order'; }
     value(19; "Job Jnl.") { Caption = 'Project Jnl.'; }
     value(20; "Assembly Consumption") { Caption = 'Assembly Consumption'; }
     value(21; "Assembly Order") { Caption = 'Assembly Order'; }

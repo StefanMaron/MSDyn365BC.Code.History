@@ -910,10 +910,10 @@ page 10039 "Purchase Order Stats."
 
         for i := 1 to MaxIndexNo do begin
             if (i = 1) or not PartialInvoicing then
-                if IndexNo[i] = 1 then begin
+                if IndexNo[i] = 1 then
                     TempSalesTaxLine1.SetInvoiceDiscountAmount(
-                      TotalPurchLine[IndexNo[i]]."Inv. Discount Amount", TotalPurchLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
-                end else
+                      TotalPurchLine[IndexNo[i]]."Inv. Discount Amount", TotalPurchLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %")
+                else
                     TempSalesTaxLine2.SetInvoiceDiscountAmount(
                       TotalPurchLine[IndexNo[i]]."Inv. Discount Amount", TotalPurchLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
 

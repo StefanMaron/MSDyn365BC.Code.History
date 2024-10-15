@@ -357,13 +357,17 @@ report 38 "Trial Balance by Period"
         PageGroupNo: Integer;
         GLAccountType: Integer;
         LastPage: Boolean;
+#pragma warning disable AA0074
         Text004: Label 'Enter the starting date for the first period.';
         Text005: Label 'The starting date is not the starting date of an accounting period.';
         Text011: Label 'Amounts are rounded to 1';
         Text012: Label 'Amounts are in whole 1000s.';
         Text013: Label 'Amounts are in whole 1000000s.';
+#pragma warning disable AA0470
         Text014: Label 'Indentation Level %1 is not used in the Chart of Accounts. This Chart of Accounts uses max. %2 levels.';
         IndentationLevelCap: Label 'Indentation Level : %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         IsNewPage: Boolean;
         MaxIndent: Text[5];
         LastPageText50Lbl: Label '/ Last Page';

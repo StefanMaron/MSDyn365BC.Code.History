@@ -951,18 +951,17 @@ report 10412 "Check (Check/Stub/Stub)"
                         CheckAmountText := CheckAmountText + DollarSignBefore + DollarSignAfter;
                         Index := 0;
                         if CheckAmountText = Text024Txt then
-                            if StrLen(CheckAmountText) < (ControlLen - 12) then begin
+                            if StrLen(CheckAmountText) < (ControlLen - 12) then
                                 repeat
                                     Index := Index + 1;
                                     CheckAmountText := InsStr(CheckAmountText, '*', StrLen(CheckAmountText) + 1);
                                 until (Index = ControlLen) or (StrLen(CheckAmountText) >= (ControlLen - 12))
-                            end else
-                                if StrLen(CheckAmountText) < (ControlLen - 11) then begin
+                            else
+                                if StrLen(CheckAmountText) < (ControlLen - 11) then
                                     repeat
                                         Index := Index + 1;
                                         CheckAmountText := InsStr(CheckAmountText, '*', StrLen(CheckAmountText) + 1);
-                                    until (Index = ControlLen) or (StrLen(CheckAmountText) >= (ControlLen - 11))
-                                end;
+                                    until (Index = ControlLen) or (StrLen(CheckAmountText) >= (ControlLen - 11));
                         CheckAmountText :=
                           DelStr(CheckAmountText, StartingLen + 1, StrLen(DollarSignBefore + DollarSignAfter));
                         NewLen := StrLen(CheckAmountText);
@@ -978,7 +977,7 @@ report 10412 "Check (Check/Stub/Stub)"
                         else
                             CheckStyleIndex := 1;
 
-                        OnAfterGetRecordOfPrintCheck(GenJnlLine);    
+                        OnAfterGetRecordOfPrintCheck(GenJnlLine);
                     end;
                 }
 
@@ -1944,8 +1943,8 @@ report 10412 "Check (Check/Stub/Stub)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPreDataItemOfPrintSettledLoop(var GenJournalLine: Record "Gen. Journal Line"; BalancingType: Enum "Gen. Journal Account Type"; ApplyMethod: Option Payment,OneLineOneEntry,OneLineID,MoreLinesOneEntry) 
-    begin         
+    local procedure OnAfterPreDataItemOfPrintSettledLoop(var GenJournalLine: Record "Gen. Journal Line"; BalancingType: Enum "Gen. Journal Account Type"; ApplyMethod: Option Payment,OneLineOneEntry,OneLineID,MoreLinesOneEntry)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

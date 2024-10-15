@@ -24,14 +24,12 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // [FEATURE] [Job Queue Entry]
-        with JobQueueEntry do begin
-            Init();
-            ID := CreateGuid();
-            "Run in User Session" := false;
-            "Object Type to Run" := "Object Type to Run"::Report;
-            Validate("Run on Mondays", true);
-            Insert();
-        end;
+        JobQueueEntry.Init();
+        JobQueueEntry.ID := CreateGuid();
+        JobQueueEntry."Run in User Session" := false;
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Report;
+        JobQueueEntry.Validate("Run on Mondays", true);
+        JobQueueEntry.Insert();
     end;
 
     [Test]
@@ -45,14 +43,12 @@ codeunit 139018 "Job Queue Entry Tests"
         // [FEATURE] [Date Formula]
         Assert.IsTrue(Evaluate(DateFormula, '<CM>'), '<CM> is not evaluated as DateFormula');
         NextRunDateTime := CreateDateTime(CalcDate(DateFormula, Today), 0T);
-        with JobQueueEntry do begin
-            Init();
-            Validate("Next Run Date Formula", DateFormula);
+        JobQueueEntry.Init();
+        JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
 
-            TestField("Recurring Job");
-            // [THEN] "Earliest Start Date/Time" is calculated as end of month
-            TestField("Earliest Start Date/Time", NextRunDateTime);
-        end;
+        JobQueueEntry.TestField("Recurring Job");
+        // [THEN] "Earliest Start Date/Time" is calculated as end of month
+        JobQueueEntry.TestField("Earliest Start Date/Time", NextRunDateTime);
     end;
 
     [Test]
@@ -64,13 +60,11 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [FEATURE] [Date Formula]
         Clear(DateFormula);
-        with JobQueueEntry do begin
-            Init();
-            "Recurring Job" := true;
-            Validate("Next Run Date Formula", DateFormula);
+        JobQueueEntry.Init();
+        JobQueueEntry."Recurring Job" := true;
+        JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
 
-            TestField("Recurring Job", false);
-        end;
+        JobQueueEntry.TestField("Recurring Job", false);
     end;
 
     [Test]
@@ -82,27 +76,25 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [FEATURE] [Date Formula]
         Assert.IsTrue(Evaluate(DateFormula, '<CM>'), '<CM> is not evaluated as DateFormula');
-        with JobQueueEntry do begin
-            Init();
-            Validate("Run on Mondays", true);
-            Validate("Run on Tuesdays", true);
-            Validate("Run on Wednesdays", true);
-            Validate("Run on Thursdays", true);
-            Validate("Run on Fridays", true);
-            Validate("Run on Saturdays", true);
-            Validate("Run on Sundays", true);
+        JobQueueEntry.Init();
+        JobQueueEntry.Validate("Run on Mondays", true);
+        JobQueueEntry.Validate("Run on Tuesdays", true);
+        JobQueueEntry.Validate("Run on Wednesdays", true);
+        JobQueueEntry.Validate("Run on Thursdays", true);
+        JobQueueEntry.Validate("Run on Fridays", true);
+        JobQueueEntry.Validate("Run on Saturdays", true);
+        JobQueueEntry.Validate("Run on Sundays", true);
 
-            Validate("Next Run Date Formula", DateFormula);
+        JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
 
-            TestField("Recurring Job");
-            TestField("Run on Mondays", false);
-            TestField("Run on Tuesdays", false);
-            TestField("Run on Wednesdays", false);
-            TestField("Run on Thursdays", false);
-            TestField("Run on Fridays", false);
-            TestField("Run on Saturdays", false);
-            TestField("Run on Sundays", false);
-        end;
+        JobQueueEntry.TestField("Recurring Job");
+        JobQueueEntry.TestField("Run on Mondays", false);
+        JobQueueEntry.TestField("Run on Tuesdays", false);
+        JobQueueEntry.TestField("Run on Wednesdays", false);
+        JobQueueEntry.TestField("Run on Thursdays", false);
+        JobQueueEntry.TestField("Run on Fridays", false);
+        JobQueueEntry.TestField("Run on Saturdays", false);
+        JobQueueEntry.TestField("Run on Sundays", false);
     end;
 
     [Test]
@@ -114,43 +106,41 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [FEATURE] [Date Formula]
         Assert.IsTrue(Evaluate(DateFormula, '<CM>'), '<CM> is not evaluated as DateFormula');
-        with JobQueueEntry do begin
-            Init();
-            Validate("Next Run Date Formula", DateFormula);
-            Validate("Run on Mondays", true);
-            TestField("Recurring Job");
-            Assert.AreEqual('', Format("Next Run Date Formula"), 'Mondays');
+        JobQueueEntry.Init();
+        JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
+        JobQueueEntry.Validate("Run on Mondays", true);
+        JobQueueEntry.TestField("Recurring Job");
+        Assert.AreEqual('', Format(JobQueueEntry."Next Run Date Formula"), 'Mondays');
 
-            Validate("Next Run Date Formula", DateFormula);
-            Validate("Run on Tuesdays", true);
-            TestField("Recurring Job");
-            Assert.AreEqual('', Format("Next Run Date Formula"), 'Tuesdays');
+        JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
+        JobQueueEntry.Validate("Run on Tuesdays", true);
+        JobQueueEntry.TestField("Recurring Job");
+        Assert.AreEqual('', Format(JobQueueEntry."Next Run Date Formula"), 'Tuesdays');
 
-            Validate("Next Run Date Formula", DateFormula);
-            Validate("Run on Wednesdays", true);
-            TestField("Recurring Job");
-            Assert.AreEqual('', Format("Next Run Date Formula"), 'Wednesdays');
+        JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
+        JobQueueEntry.Validate("Run on Wednesdays", true);
+        JobQueueEntry.TestField("Recurring Job");
+        Assert.AreEqual('', Format(JobQueueEntry."Next Run Date Formula"), 'Wednesdays');
 
-            Validate("Next Run Date Formula", DateFormula);
-            Validate("Run on Thursdays", true);
-            TestField("Recurring Job");
-            Assert.AreEqual('', Format("Next Run Date Formula"), 'Thursdays');
+        JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
+        JobQueueEntry.Validate("Run on Thursdays", true);
+        JobQueueEntry.TestField("Recurring Job");
+        Assert.AreEqual('', Format(JobQueueEntry."Next Run Date Formula"), 'Thursdays');
 
-            Validate("Next Run Date Formula", DateFormula);
-            Validate("Run on Fridays", true);
-            TestField("Recurring Job");
-            Assert.AreEqual('', Format("Next Run Date Formula"), 'Fridays');
+        JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
+        JobQueueEntry.Validate("Run on Fridays", true);
+        JobQueueEntry.TestField("Recurring Job");
+        Assert.AreEqual('', Format(JobQueueEntry."Next Run Date Formula"), 'Fridays');
 
-            Validate("Next Run Date Formula", DateFormula);
-            Validate("Run on Saturdays", true);
-            TestField("Recurring Job");
-            Assert.AreEqual('', Format("Next Run Date Formula"), 'Saturdays');
+        JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
+        JobQueueEntry.Validate("Run on Saturdays", true);
+        JobQueueEntry.TestField("Recurring Job");
+        Assert.AreEqual('', Format(JobQueueEntry."Next Run Date Formula"), 'Saturdays');
 
-            Validate("Next Run Date Formula", DateFormula);
-            Validate("Run on Sundays", true);
-            TestField("Recurring Job");
-            Assert.AreEqual('', Format("Next Run Date Formula"), 'Sundays');
-        end;
+        JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
+        JobQueueEntry.Validate("Run on Sundays", true);
+        JobQueueEntry.TestField("Recurring Job");
+        Assert.AreEqual('', Format(JobQueueEntry."Next Run Date Formula"), 'Sundays');
     end;
 
     [Test]
@@ -164,13 +154,11 @@ codeunit 139018 "Job Queue Entry Tests"
         // [FEATURE] [Date Formula]
         Assert.IsTrue(Evaluate(DateFormula, '<CM>'), '<CM> is not evaluated as DateFormula');
         ActualDateTime := CurrentDateTime;
-        with JobQueueEntry do begin
-            Init();
-            "Earliest Start Date/Time" := ActualDateTime;
-            Validate("Next Run Date Formula", DateFormula);
-            // [THEN] "Earliest Start Date/Time" is not changed
-            TestField("Earliest Start Date/Time", ActualDateTime);
-        end;
+        JobQueueEntry.Init();
+        JobQueueEntry."Earliest Start Date/Time" := ActualDateTime;
+        JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
+        // [THEN] "Earliest Start Date/Time" is not changed
+        JobQueueEntry.TestField("Earliest Start Date/Time", ActualDateTime);
     end;
 
     [Test]
@@ -180,13 +168,12 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // [SCENARIO 159943] If "Ending Time" specified for Job Queue Entry is earlier than "Starting Time", then calculated ending date should be the day after starting date
-        with JobQueueEntry do begin
-            Init();
-            ID := CreateGuid();
-            "Recurring Job" := true;
-            "Starting Time" := 180000T; // 18:00:00
-            "Ending Time" := 001500T; // 00:15:00
-        end;
+        JobQueueEntry.Init();
+        JobQueueEntry.ID := CreateGuid();
+        JobQueueEntry."Recurring Job" := true;
+        JobQueueEntry."Starting Time" := 180000T;
+        // 18:00:00
+        JobQueueEntry."Ending Time" := 001500T; // 00:15:00
         Assert.AreEqual(
           CreateDateTime(WorkDate() + 1, JobQueueEntry."Ending Time"),
           JobQueueEntry.GetEndingDateTime(CreateDateTime(WorkDate(), 0T)),
@@ -201,13 +188,11 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntryCard: TestPage "Job Queue Entry Card";
     begin
         // [GIVEN] An "On-Hold" Job Queue Entry
-        with JobQueueEntry do begin
-            ID := CreateGuid();
-            "Starting Time" := DT2Time(CurrentDateTime - 1000 * 60 * 60);
-            "Earliest Start Date/Time" := CurrentDateTime + 1000 * 60 * 10;
-            Status := Status::"On Hold";
-            "No. of Minutes between Runs" := 10;
-        end;
+        JobQueueEntry.ID := CreateGuid();
+        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime - 1000 * 60 * 60);
+        JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime + 1000 * 60 * 10;
+        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
+        JobQueueEntry."No. of Minutes between Runs" := 10;
         JobQueueEntry.Insert(false);
 
         // [WHEN] Opening the Job Queue Entry Card
@@ -229,13 +214,11 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [GIVEN] A "Ready" Job Queue Entry
         JobQueueEntryId := CreateGuid();
-        with JobQueueEntry do begin
-            ID := JobQueueEntryId;
-            "Starting Time" := DT2Time(CurrentDateTime - 1000 * 60 * 60);
-            "Earliest Start Date/Time" := CurrentDateTime + 1000 * 60 * 2;
-            Status := Status::Ready;
-            "No. of Minutes between Runs" := 2;
-        end;
+        JobQueueEntry.ID := JobQueueEntryId;
+        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime - 1000 * 60 * 60);
+        JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime + 1000 * 60 * 2;
+        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+        JobQueueEntry."No. of Minutes between Runs" := 2;
         JobQueueEntry.Insert(false);
 
         // [WHEN] Opening the Job Queue Entry Card
@@ -694,7 +677,6 @@ codeunit 139018 "Job Queue Entry Tests"
         // [SCENARIO] The job queue entry runs only if it is within the start and end time
 
         // [GIVEN] An existing job queue entry
-        Initialize();
         CreateJobQueueEntry(JobQueueEntry, JobQueueEntry.Status::Ready);
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := Codeunit::"Notification Entry Dispatcher";
@@ -702,6 +684,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime + 60000);
         JobQueueEntry."Ending Time" := DT2Time(CurrentDateTime + 61000);
         JobQueueEntry.Modify(true);
+        JobQueueLogEntry.DeleteAll();
 
         // [WHEN] The job queue entry is run
         Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
@@ -729,12 +712,13 @@ codeunit 139018 "Job Queue Entry Tests"
         // [SCENARIO] The job queue entry runs only if it is within the start and end time
 
         // [GIVEN] An existing job queue entry
-        Initialize();
         CreateJobQueueEntry(JobQueueEntry, JobQueueEntry.Status::Ready);
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := Codeunit::"Notification Entry Dispatcher";
         JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime + 60000);
         JobQueueEntry.Modify(true);
+
+        JobQueueLogEntry.DeleteAll();
 
         // [WHEN] The job queue entry is run
         Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
@@ -762,13 +746,13 @@ codeunit 139018 "Job Queue Entry Tests"
         // [SCENARIO] The job queue entry runs only if it is within the start and end time
 
         // [GIVEN] An existing job queue entry
-        Initialize();
-
         CreateJobQueueEntry(JobQueueEntry, JobQueueEntry.Status::Ready);
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := Codeunit::"Notification Entry Dispatcher";
         JobQueueEntry."Ending Time" := DT2Time(CurrentDateTime - 1000);
         JobQueueEntry.Modify(true);
+
+        JobQueueLogEntry.DeleteAll();
 
         // [WHEN] The job queue entry is run
         Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
@@ -794,6 +778,7 @@ codeunit 139018 "Job Queue Entry Tests"
         ApprovalEntry: Record "Approval Entry";
         Workflow: Record Workflow;
         EmailAccount: Record "Email Account";
+        EmailScenario: Codeunit "Email Scenario";
         ConnectorMock: Codeunit "Connector Mock";
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
@@ -817,6 +802,7 @@ codeunit 139018 "Job Queue Entry Tests"
         // [GIVEN] Approval users setup
         ConnectorMock.Initialize();
         ConnectorMock.AddAccount(EmailAccount);
+        EmailScenario.SetDefaultEmailAccount(EmailAccount);
 
         LibraryDocumentApprovals.SetupUserWithApprover(UserSetup);
         UserSetup."E-Mail" := EmailAccount."Email Address";
@@ -835,19 +821,6 @@ codeunit 139018 "Job Queue Entry Tests"
         ApprovalEntry.FindFirst();
         Assert.AreEqual(JobQueueEntry.RecordId(), ApprovalEntry."Record ID to Approve", 'Approval Entry created for wrong JQ');
         Assert.AreEqual(UserSetup."Approver ID", ApprovalEntry."Approver ID", 'Wrong Approver ID assigned to Approval Entry');
-    end;
-
-    local procedure Initialize()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        JobQueueLogEntry: Record "Job Queue Log Entry";
-        RestrictedRecord: Record "Restricted Record";
-        LibraryWorkflow: Codeunit "Library - Workflow";
-    begin
-        RestrictedRecord.DeleteAll();
-        LibraryWorkflow.DisableAllWorkflows();
-        JobQueueEntry.DeleteAll();
-        JobQueueLogEntry.DeleteAll();
     end;
 
     local procedure CreateJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; InitialStatus: Option)

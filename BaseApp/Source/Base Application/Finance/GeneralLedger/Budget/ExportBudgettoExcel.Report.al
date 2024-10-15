@@ -365,13 +365,19 @@ report 82 "Export Budget to Excel"
         BusUnitDimCode: Code[20];
         TestMode: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Column Dimensions';
         Text001: Label 'You can only export one budget at a time.';
         Text002: Label 'You must specify a Start Date, No. of Periods, and a Period Length.';
+#pragma warning disable AA0470
         Text003: Label 'You can only select a maximum of %1 column dimensions.';
+#pragma warning restore AA0470
         Text005: Label 'Analyzing Data...\\';
         Text006: Label 'Export Filters';
+#pragma warning disable AA0470
         Text007: Label 'Some filters cannot be converted into Excel formulas. You will have to check %1 errors in the Excel worksheet. Do you want to create the Excel worksheet?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         DimSelectionBuf: Record "Dimension Selection Buffer";

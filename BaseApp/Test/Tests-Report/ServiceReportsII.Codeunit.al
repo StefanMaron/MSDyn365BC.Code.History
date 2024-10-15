@@ -1134,12 +1134,10 @@ codeunit 136905 "Service Reports - II"
 
     local procedure FindServiceLedgerEntryConsume(var ServiceLedgerEntry: Record "Service Ledger Entry"; OrderNo: Code[20])
     begin
-        with ServiceLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::Shipment);
-            SetRange("Document No.", FindServiceShipmentHeader(OrderNo));
-            SetRange("Entry Type", "Entry Type"::Consume);
-            FindSet();
-        end;
+        ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
+        ServiceLedgerEntry.SetRange("Document No.", FindServiceShipmentHeader(OrderNo));
+        ServiceLedgerEntry.SetRange("Entry Type", ServiceLedgerEntry."Entry Type"::Consume);
+        ServiceLedgerEntry.FindSet();
     end;
 
     local procedure FindServiceShipmentHeader(OrderNo: Code[20]): Code[20]

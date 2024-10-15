@@ -274,9 +274,11 @@ report 10003 "Closing Trial Balance"
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter the starting date for the fiscal year.';
         Text001: Label 'For the Fiscal Year: %1';
         Text002: Label '(using %1)';
+#pragma warning restore AA0074
         Closing_Trial_BalanceCaptionLbl: Label 'Closing Trial Balance';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Current_YearCaptionLbl: Label 'Current Year';

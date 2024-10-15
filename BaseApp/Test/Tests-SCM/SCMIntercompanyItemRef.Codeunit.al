@@ -508,13 +508,11 @@ codeunit 137630 "SCM Intercompany Item Ref."
     var
         ICPartner: Record "IC Partner";
     begin
-        with ICPartner do begin
-            Get(CreateICPartner());
-            Validate("Outbound Sales Item No. Type", "Outbound Sales Item No. Type"::"Common Item No.");
-            Validate("Outbound Purch. Item No. Type", "Outbound Purch. Item No. Type"::"Common Item No.");
-            Modify();
-            exit(Code);
-        end;
+        ICPartner.Get(CreateICPartner());
+        ICPartner.Validate("Outbound Sales Item No. Type", ICPartner."Outbound Sales Item No. Type"::"Common Item No.");
+        ICPartner.Validate("Outbound Purch. Item No. Type", ICPartner."Outbound Purch. Item No. Type"::"Common Item No.");
+        ICPartner.Modify();
+        exit(ICPartner.Code);
     end;
 
     local procedure CreateICPartner(): Code[20]
@@ -1024,33 +1022,27 @@ codeunit 137630 "SCM Intercompany Item Ref."
 
     local procedure UpdatePurchaseLineICPartnerInfo(var PurchaseLine: Record "Purchase Line"; ICPartnerCode: Code[20]; ICPartnerRefType: Enum "IC Partner Reference Type"; ICGLAccountNo: Code[20])
     begin
-        with PurchaseLine do begin
-            Validate("IC Partner Code", ICPartnerCode);
-            Validate("IC Partner Ref. Type", ICPartnerRefType);
-            Validate("IC Partner Reference", ICGLAccountNo);
-            Modify(true);
-        end;
+        PurchaseLine.Validate("IC Partner Code", ICPartnerCode);
+        PurchaseLine.Validate("IC Partner Ref. Type", ICPartnerRefType);
+        PurchaseLine.Validate("IC Partner Reference", ICGLAccountNo);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure UpdateSalesLineICPartnerInfo(var SalesLine: Record "Sales Line"; ICPartnerCode: Code[20]; ICPartnerRefType: Enum "IC Partner Reference Type"; ICGLAccountNo: Code[20])
     begin
-        with SalesLine do begin
-            Validate("IC Partner Code", ICPartnerCode);
-            Validate("IC Partner Ref. Type", ICPartnerRefType);
-            Validate("IC Partner Reference", ICGLAccountNo);
-            Modify(true);
-        end;
+        SalesLine.Validate("IC Partner Code", ICPartnerCode);
+        SalesLine.Validate("IC Partner Ref. Type", ICPartnerRefType);
+        SalesLine.Validate("IC Partner Reference", ICGLAccountNo);
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdateCommonItemNo(ItemNo: Code[20]; NewCommonItemNo: Code[20])
     var
         Item: Record Item;
     begin
-        with Item do begin
-            Get(ItemNo);
-            Validate("Common Item No.", NewCommonItemNo);
-            Modify();
-        end;
+        Item.Get(ItemNo);
+        Item.Validate("Common Item No.", NewCommonItemNo);
+        Item.Modify();
     end;
 
     local procedure UpdateICPartnerWithOutboundType(ICPartnerCode: Code[20]; OutboundType: Enum "IC Outb. Sales Item No. Type")

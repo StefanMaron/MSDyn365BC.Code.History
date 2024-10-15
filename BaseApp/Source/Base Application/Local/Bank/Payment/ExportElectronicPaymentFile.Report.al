@@ -32,7 +32,7 @@ report 11380 "Export Electronic Payment File"
             {
                 DataItemLink = "Applies-to ID" = field("Applies-to ID");
                 DataItemLinkReference = "Gen. Journal Line";
-                DataItemTableView = sorting("Customer No.", Open, Positive, "Due Date", "Currency Code") ORDER(Descending) where(Open = const(true));
+                DataItemTableView = sorting("Customer No.", Open, Positive, "Due Date", "Currency Code") order(descending) where(Open = const(true));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -71,7 +71,7 @@ report 11380 "Export Electronic Payment File"
             {
                 DataItemLink = "Applies-to ID" = field("Applies-to ID");
                 DataItemLinkReference = "Gen. Journal Line";
-                DataItemTableView = sorting("Vendor No.", Open, Positive, "Due Date", "Currency Code") ORDER(Descending) where(Open = const(true));
+                DataItemTableView = sorting("Vendor No.", Open, Positive, "Due Date", "Currency Code") order(descending) where(Open = const(true));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -469,7 +469,7 @@ report 11380 "Export Electronic Payment File"
         end;
         if not IATFileCreated and
            (GenJournalLine."Bank Payment Type" = GenJournalLine."Bank Payment Type"::"Electronic Payment-IAT")
-        then begin
+        then
             if BankAccount."Export Format" = BankAccount."Export Format"::US then begin
                 ExportPaymentsIAT.StartExportFile(BankAccount."No.", '');
                 BankAccount.Find();
@@ -480,7 +480,6 @@ report 11380 "Export Electronic Payment File"
                   BankAccount.FieldCaption("Export Format"),
                   BankAccount.TableCaption(),
                   BankAccount."No.");
-        end;
     end;
 
     local procedure SetPayeeType(var GenJournalLine: Record "Gen. Journal Line")

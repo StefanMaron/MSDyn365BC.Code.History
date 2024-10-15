@@ -404,8 +404,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         CreateGLAccount(GLAccount);
         Count := LibraryRandom.RandInt(8) + 2;
         for i := 1 to Count do begin
-            with SalesHeader[i] do
-                CreateSalesDocWithLine(SalesHeader[i], SalesLine, "Document Type"::Invoice, SalesLine.Type::"G/L Account", GLAccount."No.", 0D);
+            CreateSalesDocWithLine(SalesHeader[i], SalesLine, SalesHeader[i]."Document Type"::Invoice, SalesLine.Type::"G/L Account", GLAccount."No.", 0D);
             DocNos += SalesHeader[i]."No." + '|';
         end;
         DocNos := DelChr(DocNos, '>', '|');
@@ -822,6 +821,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         NoSeriesLine: Record "No. Series Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryNoSeries: Codeunit "Library - No. Series";
     begin
         case DocType of
             DocType::"Credit Memo":
@@ -829,12 +829,12 @@ codeunit 139051 "Add-in Hyperlink Sales"
                     SalesReceivablesSetup.Get();
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'SCRM-0000', 'SCRM-1999');
-                    LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
+                    LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     SalesReceivablesSetup."Credit Memo Nos." := NoSeries.Code;
 
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'SPCRM2000', 'SPCRM3999');
-                    LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
+                    LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     SalesReceivablesSetup."Posted Credit Memo Nos." := NoSeries.Code;
                     SalesReceivablesSetup.Modify();
                 end;
@@ -843,12 +843,12 @@ codeunit 139051 "Add-in Hyperlink Sales"
                     SalesReceivablesSetup.Get();
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'S-INV4000', 'S-INV5999');
-                    LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
+                    LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     SalesReceivablesSetup."Invoice Nos." := NoSeries.Code;
 
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'SPINV6000', 'SPINV7999');
-                    LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
+                    LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     SalesReceivablesSetup."Posted Invoice Nos." := NoSeries.Code;
                     SalesReceivablesSetup.Modify();
                 end;
@@ -857,7 +857,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
                     SalesReceivablesSetup.Get();
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'SORD0000', 'SORD1999');
-                    LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
+                    LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     SalesReceivablesSetup."Order Nos." := NoSeries.Code;
                     SalesReceivablesSetup.Modify();
                 end;
@@ -866,7 +866,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
                     SalesReceivablesSetup.Get();
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'SQUO-0000', 'SQUO-1999');
-                    LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
+                    LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     SalesReceivablesSetup."Quote Nos." := NoSeries.Code;
                     SalesReceivablesSetup.Modify();
                 end;

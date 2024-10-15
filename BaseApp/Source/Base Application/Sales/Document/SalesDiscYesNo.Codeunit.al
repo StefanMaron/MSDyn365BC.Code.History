@@ -25,7 +25,9 @@ codeunit 61 "Sales-Disc. (Yes/No)"
     var
         SalesLine: Record "Sales Line";
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to calculate the invoice discount?';
+#pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)

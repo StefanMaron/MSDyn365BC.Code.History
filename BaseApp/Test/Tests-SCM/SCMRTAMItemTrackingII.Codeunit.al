@@ -1743,14 +1743,11 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         PostInventoryActivity(
           SalesLine."Document No.", DummyWarehouseActivityLine."Source Document"::"Sales Order", Location.Code, Item."No.",
           DummyWarehouseActivityLine."Activity Type"::"Invt. Pick");
-
         // [THEN] "Quantity Shipped" on Sales Line = "X".
-        with SalesLine do begin
-            Find();
-            Assert.AreEqual(
-              QtyToShip, "Quantity Shipped",
-              StrSubstNo(IncorrectShippedQtyMsg, FieldCaption("Quantity Shipped"), FieldCaption("Qty. to Ship")));
-        end;
+        SalesLine.Find();
+        Assert.AreEqual(
+          QtyToShip, SalesLine."Quantity Shipped",
+          StrSubstNo(IncorrectShippedQtyMsg, SalesLine.FieldCaption("Quantity Shipped"), SalesLine.FieldCaption("Qty. to Ship")));
     end;
 
     [Test]
@@ -2033,28 +2030,24 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         CreateAndReleaseWhseShipmentFromSalesOrderWithTracking(
           SalesHeader, WarehouseShipmentHeader, Item."No.", LocationWhite.Code, Quantity, true);
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
-
         // [WHEN] Open Pick, lookup "Lot No." on a line, then press Cancel.
-        with WarehouseActivityLine do begin
-            FindWarehouseActivityLine(
-              WarehouseActivityLine, SalesHeader."No.", "Source Document"::"Sales Order", LocationWhite.Code,
-              Item."No.", '', "Activity Type"::Pick);
-            ExpirationDate := "Expiration Date";
-        end;
+        FindWarehouseActivityLine(
+            WarehouseActivityLine, SalesHeader."No.", WarehouseActivityLine."Source Document"::"Sales Order", LocationWhite.Code,
+            Item."No.", '', WarehouseActivityLine."Activity Type"::Pick);
+        ExpirationDate := WarehouseActivityLine."Expiration Date";
 
-        ItemTrackingSummaryCancel := true; // Cancel in ItemTrackingSummaryPageHandler
-        with WarehouseActivityLine do begin
-            LookUpTrackingSummary(
-              WarehouseActivityLine,
-              ("Activity Type".AsInteger() <= "Activity Type"::Movement.AsInteger()) or ("Action Type" <> "Action Type"::Place),
-              -1, "Item Tracking Type"::"Lot No."); // LOOKUP
-
-            // [THEN] "Expiration Date" is preserved in Pick lines.
-            FindSet();
-            repeat
-                TestField("Expiration Date", ExpirationDate);
-            until Next() = 0;
-        end;
+        ItemTrackingSummaryCancel := true;
+        // Cancel in ItemTrackingSummaryPageHandler
+        WarehouseActivityLine.LookUpTrackingSummary(
+            WarehouseActivityLine,
+            (WarehouseActivityLine."Activity Type".AsInteger() <= WarehouseActivityLine."Activity Type"::Movement.AsInteger()) or (WarehouseActivityLine."Action Type" <> WarehouseActivityLine."Action Type"::Place),
+            -1, "Item Tracking Type"::"Lot No.");
+        // LOOKUP
+        // [THEN] "Expiration Date" is preserved in Pick lines.
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.TestField("Expiration Date", ExpirationDate);
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     [Test]
@@ -3863,13 +3856,11 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         CreateAndReleaseSalesOrder(
           SalesHeader, SalesLine, ItemNo, LocationCode, LibraryRandom.RandIntInRange(11, 20), true);
         LibrarySales.AutoReserveSalesLine(SalesLine);
-        with SalesLine do begin
-            Validate("Qty. to Ship", LibraryRandom.RandInt(10));
-            Modify(true);
-            LibraryVariableStorage.Enqueue(false);
-            LibraryVariableStorage.Enqueue(Quantity - "Qty. to Ship");
-            OpenItemTrackingLines();
-        end;
+        SalesLine.Validate("Qty. to Ship", LibraryRandom.RandInt(10));
+        SalesLine.Modify(true);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity - SalesLine."Qty. to Ship");
+        SalesLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateAndPostTrackedPurchaseLinesAndTransferFullQtyInSingleLine(var TransferHeader: Record "Transfer Header"; ItemNo: Code[20]; LotNo: array[2] of Code[20])
@@ -4338,15 +4329,13 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WarehouseActivityLine: Record "Warehouse Activity Line";
         i: Integer;
     begin
-        with WarehouseActivityLine do begin
-            FindWarehouseActivityLine(
-              WarehouseActivityLine, SourceNo, SourceDocument, LocationCode, ItemNo, LotNo, "Activity Type"::"Put-away");
-            for i := "Action Type"::Take.AsInteger() to "Action Type"::Place.AsInteger() do begin
-                SetRange("Action Type", i);
-                FindLast();
-                Validate("Qty. to Handle", QtyToHandle);
-                Modify(true);
-            end;
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, SourceNo, SourceDocument, LocationCode, ItemNo, LotNo, WarehouseActivityLine."Activity Type"::"Put-away");
+        for i := WarehouseActivityLine."Action Type"::Take.AsInteger() to WarehouseActivityLine."Action Type"::Place.AsInteger() do begin
+            WarehouseActivityLine.SetRange("Action Type", i);
+            WarehouseActivityLine.FindLast();
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+            WarehouseActivityLine.Modify(true);
         end;
     end;
 
@@ -4546,13 +4535,11 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Action Type", ActionType);
-            FindWarehouseActivityLine(
-              WarehouseActivityLine, '', "Warehouse Activity Source Document"::" ", LocationCode, ItemNo, '', "Activity Type"::"Invt. Movement");
-            Validate("Lot No.", LotNo);
-            Modify(true);
-        end;
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, '', "Warehouse Activity Source Document"::" ", LocationCode, ItemNo, '', WarehouseActivityLine."Activity Type"::"Invt. Movement");
+        WarehouseActivityLine.Validate("Lot No.", LotNo);
+        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure MoveFromBinTypeToBinType(var BinType: Record "Bin Type"; var BinTypeBuffer: Record "Bin Type")
@@ -4573,12 +4560,10 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgEntry do begin
-            SetRange("Document No.", DocNo);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            exit("Lot No.");
-        end;
+        ItemLedgEntry.SetRange("Document No.", DocNo);
+        ItemLedgEntry.SetRange("Item No.", ItemNo);
+        ItemLedgEntry.FindFirst();
+        exit(ItemLedgEntry."Lot No.");
     end;
 
     local procedure CreateInvtMvtFromInternalMvtWithLotNo(LocationCode: Code[10]; ItemNo: Code[20]; BinCode: Code[20]; LotNo: Code[50])
@@ -4642,18 +4627,14 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
 
     local procedure VerifyPurchaseLineReceived(var PurchaseLine: Record "Purchase Line")
     begin
-        with PurchaseLine do begin
-            Find();
-            TestField("Quantity Received", Quantity);
-        end;
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Quantity Received", PurchaseLine.Quantity);
     end;
 
     local procedure VerifySalesLineShipped(var SalesLine: Record "Sales Line")
     begin
-        with SalesLine do begin
-            Find();
-            TestField("Quantity Shipped", Quantity);
-        end;
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
     end;
 
     local procedure VerifyTrackingOnPostedSalesInvoice(OrderNo: Code[20])
@@ -4751,13 +4732,11 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     var
         DummyRegisteredInvtMovementLine: Record "Registered Invt. Movement Line";
     begin
-        with DummyRegisteredInvtMovementLine do begin
-            Init();
-            SetRange("Item No.", ItemNo);
-            SetRange("Lot No.", LotNo);
-            SetRange("Bin Code", BinCode);
-            Assert.RecordIsNotEmpty(DummyRegisteredInvtMovementLine);
-        end;
+        DummyRegisteredInvtMovementLine.Init();
+        DummyRegisteredInvtMovementLine.SetRange("Item No.", ItemNo);
+        DummyRegisteredInvtMovementLine.SetRange("Lot No.", LotNo);
+        DummyRegisteredInvtMovementLine.SetRange("Bin Code", BinCode);
+        Assert.RecordIsNotEmpty(DummyRegisteredInvtMovementLine);
     end;
 
     local procedure VerifyReservEntriesNotExist(ItemNo: Code[20])
@@ -4788,14 +4767,12 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindSet();
-            repeat
-                TestField(Open, false);
-                TestField("Remaining Quantity", 0);
-            until Next() = 0;
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindSet();
+        repeat
+            ItemLedgerEntry.TestField(Open, false);
+            ItemLedgerEntry.TestField("Remaining Quantity", 0);
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyWarehouseEntry(EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; SignFactor: Integer)

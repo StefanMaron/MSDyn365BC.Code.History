@@ -3,7 +3,6 @@
 using System.Environment;
 using System.Reflection;
 using System.Security.User;
-using System.Apps;
 
 page 9171 "Profile List"
 {
@@ -249,26 +248,8 @@ page 9171 "Profile List"
         IsWebClient := ClientTypeManagement.GetCurrentClientType() = ClientType::Web;
     end;
 
-    trigger OnAfterGetRecord()
-    begin
-        // Solves the case where the profile is user-created; not using a local variable allows to keep the sorting capabilities
-        if Rec."App Name" = '' then
-            Rec."App Name" := CopyStr(ExtensionManagement.GetAppName(Rec."App ID"), 1, MaxStrLen(Rec."App Name"));
-    end;
-
-    trigger OnNextRecord(Steps: Integer): Integer
-    var
-        EmptyGuid: Guid;
-    begin
-        // Since this value is set in OnAfterGetRecord, sorting by this field causes confusion in server that looks for the next record with a wrong string 
-        if Rec."App ID" = EmptyGuid then
-            Rec."App Name" := '';
-        exit(Rec.Next(Steps));
-    end;
-
     var
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
-        ExtensionManagement: Codeunit "Extension Management";
         ClientTypeManagement: Codeunit "Client Type Management";
         IsWebClient: Boolean;
 }

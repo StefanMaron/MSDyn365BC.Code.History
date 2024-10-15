@@ -2215,20 +2215,18 @@ codeunit 142053 "ERM Sales/Purchase Document"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
     begin
-        with LibraryInventory do begin
-            SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-            SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-            CreateItemJournalLine(
-              ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
-            ItemJournalLine.Validate("Location Code", LocationCode);
-            ItemJournalLine.Validate("Bin Code", BinCode);
-            if EntryType = ItemJournalLine."Entry Type"::Transfer then begin
-                ItemJournalLine.Validate("New Location Code", NewLocationCode);
-                ItemJournalLine.Validate("New Bin Code", NewBinCode);
-            end;
-            ItemJournalLine.Modify(true);
-            PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Bin Code", BinCode);
+        if EntryType = ItemJournalLine."Entry Type"::Transfer then begin
+            ItemJournalLine.Validate("New Location Code", NewLocationCode);
+            ItemJournalLine.Validate("New Bin Code", NewBinCode);
         end;
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
     local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Invoice: Boolean; Quantity: Decimal; ReturnQtyToShip: Decimal): Code[20]
@@ -2513,14 +2511,12 @@ codeunit 142053 "ERM Sales/Purchase Document"
         ICGLAccount: Record "IC G/L Account";
     begin
         LibraryERM.CreateICGLAccount(ICGLAccount);
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", GLAccountNo, LibraryRandom.RandDec(10, 2));
-            Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-            Validate("IC Partner Code", CreateICPartner());
-            Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"G/L Account");
-            Validate("IC Partner Reference", ICGLAccount."No.");
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Validate("IC Partner Code", CreateICPartner());
+        SalesLine.Validate("IC Partner Ref. Type", SalesLine."IC Partner Ref. Type"::"G/L Account");
+        SalesLine.Validate("IC Partner Reference", ICGLAccount."No.");
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateSalesOrderUsingGLAccount(var SalesLine: Record "Sales Line"): Code[20]
@@ -2654,13 +2650,11 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         TaxAreaCode := CreateTaxAreaLine(TaxDetail, TaxDetail."Tax Type"::"Sales Tax Only");
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor(TaxAreaCode, ''));
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::Item, CreateItem(TaxDetail."Tax Group Code"), LibraryRandom.RandDec(10, 2));
-            Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(50, 100));
-            Validate("Tax Group Code", TaxDetail."Tax Group Code");
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(TaxDetail."Tax Group Code"), LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(50, 100));
+        PurchaseLine.Validate("Tax Group Code", TaxDetail."Tax Group Code");
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CancelSalesInvoice(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesInvHeaderNo: Code[20])
@@ -2882,33 +2876,27 @@ codeunit 142053 "ERM Sales/Purchase Document"
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            Get(CustomerNo);
-            Validate("Gen. Bus. Posting Group", NewGenBusPostingGroupCode);
-            Modify(true);
-        end;
+        Customer.Get(CustomerNo);
+        Customer.Validate("Gen. Bus. Posting Group", NewGenBusPostingGroupCode);
+        Customer.Modify(true);
     end;
 
     local procedure UpdateVendorGenBusPostingGroup(VendorNo: Code[20]; NewGenBusPostingGroupCode: Code[20])
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            Get(VendorNo);
-            Validate("Gen. Bus. Posting Group", NewGenBusPostingGroupCode);
-            Modify(true);
-        end;
+        Vendor.Get(VendorNo);
+        Vendor.Validate("Gen. Bus. Posting Group", NewGenBusPostingGroupCode);
+        Vendor.Modify(true);
     end;
 
     local procedure UpdateGLAccGenProdPostingGroup(GLAccountNo: Code[20]; NewGenProdPostingGroupCode: Code[20])
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            Get(GLAccountNo);
-            Validate("Gen. Prod. Posting Group", NewGenProdPostingGroupCode);
-            Modify(true);
-        end;
+        GLAccount.Get(GLAccountNo);
+        GLAccount.Validate("Gen. Prod. Posting Group", NewGenProdPostingGroupCode);
+        GLAccount.Modify(true);
     end;
 
     local procedure VerifyErrorOnSalesCommentLine(DocumentType: Enum "Sales Comment Document Type"; DocumentNo: Code[20]; LineNo: Integer)
@@ -2990,14 +2978,13 @@ codeunit 142053 "ERM Sales/Purchase Document"
     var
         ICOutboxJnlLine: Record "IC Outbox Jnl. Line";
     begin
-        with ICOutboxJnlLine do begin
-            SetRange("Account Type", "Account Type"::"IC Partner");
-            SetRange("Account No.", ICPartnerCode);
-            FindFirst();
-            // The amount validation needs to be fixed, it's effectively testing Amount = Amount
-            TaxAmount := Amount; // Needed to satisfy PreCAL
-            TestField(Amount, TaxAmount);
-        end;
+        ICOutboxJnlLine.SetRange("Account Type", ICOutboxJnlLine."Account Type"::"IC Partner");
+        ICOutboxJnlLine.SetRange("Account No.", ICPartnerCode);
+        ICOutboxJnlLine.FindFirst();
+        // The amount validation needs to be fixed, it's effectively testing Amount = Amount
+        TaxAmount := ICOutboxJnlLine.Amount;
+        // Needed to satisfy PreCAL
+        ICOutboxJnlLine.TestField(Amount, TaxAmount);
     end;
 
     local procedure VerifySalesCommentLine(DocumentType: Enum "Sales Comment Document Type"; DocumentNo: Code[20]; LineNo: Integer; Comment: Text[80])
@@ -3012,12 +2999,10 @@ codeunit 142053 "ERM Sales/Purchase Document"
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        with SalesCrMemoLine do begin
-            SetRange(Type, Type::"G/L Account");
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            TestField("No.", ExpectedNo);
-        end;
+        SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::"G/L Account");
+        SalesCrMemoLine.SetRange("Document No.", DocumentNo);
+        SalesCrMemoLine.FindFirst();
+        SalesCrMemoLine.TestField("No.", ExpectedNo);
     end;
 
     [Scope('OnPrem')]
@@ -3037,12 +3022,10 @@ codeunit 142053 "ERM Sales/Purchase Document"
     var
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
-        with PurchCrMemoLine do begin
-            SetRange(Type, Type::"G/L Account");
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            TestField("No.", ExpectedNo);
-        end;
+        PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::"G/L Account");
+        PurchCrMemoLine.SetRange("Document No.", DocumentNo);
+        PurchCrMemoLine.FindFirst();
+        PurchCrMemoLine.TestField("No.", ExpectedNo);
     end;
 
     [ConfirmHandler]

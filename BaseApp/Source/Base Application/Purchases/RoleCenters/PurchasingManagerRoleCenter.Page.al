@@ -43,7 +43,6 @@ using Microsoft.Sales.Document;
 #if CLEAN23
 using Microsoft.Sales.Pricing;
 #endif
-using Microsoft.Service.Document;
 using Microsoft.Utilities;
 
 page 8905 "Purchasing Manager Role Center"
@@ -382,12 +381,6 @@ page 8905 "Purchasing Manager Role Center"
                     ApplicationArea = Assembly;
                     Caption = 'Assembly Orders';
                     RunObject = page "Assembly Orders";
-                }
-                action("Orders3")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Service Orders';
-                    RunObject = page "Service Orders";
                 }
                 action("Jobs")
                 {

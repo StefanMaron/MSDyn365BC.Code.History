@@ -22,7 +22,6 @@ codeunit 137801 "SCM - Planning UT"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
-        OpenWorksheetErr: Label '%1 must have a value in %2: %3=%4. It cannot be zero or empty.', Comment = '[Page ID] must have a value in [Table Caption]: [PK Field Name]=[PK Field Value]. It cannot be zero or empty.';
         UnexpectedRequisitionLineErr: Label 'Requisition line is unexpected.';
         LeadTimeCalcNegativeErr: Label 'The amount of time to replenish the item must not be negative.';
         WrongQuantityInReqLine: Label 'The quantity %1 is wrong. It must be either %2 or %3.', Comment = 'Example: The quantity 11 is wrong. It must be either 12 or 8.';
@@ -80,14 +79,7 @@ codeunit 137801 "SCM - Planning UT"
         asserterror VerifyShowDocumentOnRequisitionLine(RequisitionWorksheetTemplateName);
 
         // Verify
-        with ReqWkshTemplate do
-            Assert.ExpectedError(
-              StrSubstNo(
-                OpenWorksheetErr,
-                FieldCaption("Page ID"),
-                TableCaption,
-                FieldCaption(Name),
-                RequisitionWorksheetTemplateName));
+        Assert.ExpectedTestFieldError(ReqWkshTemplate.FieldCaption("Page ID"), '');
     end;
 
     [Test]
@@ -707,44 +699,36 @@ codeunit 137801 "SCM - Planning UT"
 
     local procedure MockPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
-        with PurchaseHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Order;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Purchase Header");
-            Insert();
-        end;
+        PurchaseHeader.Init();
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
+        PurchaseHeader."No." := LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("No."), DATABASE::"Purchase Header");
+        PurchaseHeader.Insert();
 
-        with PurchaseLine do begin
-            Init();
-            "Document Type" := PurchaseHeader."Document Type";
-            "Document No." := PurchaseHeader."No.";
-            Type := Type::Item;
-            "No." := LibraryInventory.CreateItemNo();
-            Insert();
-        end;
+        PurchaseLine.Init();
+        PurchaseLine."Document Type" := PurchaseHeader."Document Type";
+        PurchaseLine."Document No." := PurchaseHeader."No.";
+        PurchaseLine.Type := PurchaseLine.Type::Item;
+        PurchaseLine."No." := LibraryInventory.CreateItemNo();
+        PurchaseLine.Insert();
     end;
 
     local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
     begin
-        with PurchaseLine do begin
-            "Document Type" := "Document Type"::"Return Order";
-            "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Purchase Line");
-            Type := Type::Item;
-            "No." := ItemNo;
-            "Expected Receipt Date" := WorkDate();
-            "Outstanding Qty. (Base)" := -LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        PurchaseLine."Document Type" := PurchaseLine."Document Type"::"Return Order";
+        PurchaseLine."Document No." := LibraryUtility.GenerateRandomCode(PurchaseLine.FieldNo("Document No."), DATABASE::"Purchase Line");
+        PurchaseLine.Type := PurchaseLine.Type::Item;
+        PurchaseLine."No." := ItemNo;
+        PurchaseLine."Expected Receipt Date" := WorkDate();
+        PurchaseLine."Outstanding Qty. (Base)" := -LibraryRandom.RandDec(100, 2);
+        PurchaseLine.Insert();
     end;
 
     local procedure CreateReqWkshTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; PageID: Integer)
     begin
-        with ReqWkshTemplate do begin
-            Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Req. Wksh. Template");
-            Type := Type::Planning;
-            "Page ID" := PageID;
-            Insert();
-        end;
+        ReqWkshTemplate.Name := LibraryUtility.GenerateRandomCode(ReqWkshTemplate.FieldNo(Name), DATABASE::"Req. Wksh. Template");
+        ReqWkshTemplate.Type := ReqWkshTemplate.Type::Planning;
+        ReqWkshTemplate."Page ID" := PageID;
+        ReqWkshTemplate.Insert();
     end;
 
     local procedure VerifyReqLines(var Item: Record Item; ReqWkshTempName: Code[10]; SalesLineQuantity: Decimal)
@@ -754,19 +738,17 @@ codeunit 137801 "SCM - Planning UT"
         // Requisition worksheet should contain 2 lines:
         // 1 line has quantity Item."Safety Stock Quantity" + SalesLine."Outstanding Qty. (Base)"
         // 1 line has quantity Item."Maximum Inventory" - Item."Safety Stock Quantity"
-        with RequisitionLine do begin
-            SetRange("Worksheet Template Name", ReqWkshTempName);
-            FindSet();
-            repeat
-                if not (Quantity in [Item."Safety Stock Quantity" + SalesLineQuantity,
-                                     Item."Maximum Inventory" - Item."Safety Stock Quantity"])
-                then
-                    Error(
-                      WrongQuantityInReqLine, Quantity,
-                      Item."Safety Stock Quantity" + SalesLineQuantity,
-                      Item."Maximum Inventory" - Item."Safety Stock Quantity");
-            until Next() = 0;
-        end;
+        RequisitionLine.SetRange("Worksheet Template Name", ReqWkshTempName);
+        RequisitionLine.FindSet();
+        repeat
+            if not (RequisitionLine.Quantity in [Item."Safety Stock Quantity" + SalesLineQuantity,
+                                 Item."Maximum Inventory" - Item."Safety Stock Quantity"])
+            then
+                Error(
+                  WrongQuantityInReqLine, RequisitionLine.Quantity,
+                  Item."Safety Stock Quantity" + SalesLineQuantity,
+                  Item."Maximum Inventory" - Item."Safety Stock Quantity");
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure VerifyShowDocumentOnRequisitionLine(RequisitionWorksheetTemplateName: Code[10])

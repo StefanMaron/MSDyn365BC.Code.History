@@ -174,8 +174,8 @@ page 511 "Change Exchange Rate"
         RefCurrencyCode2: Code[10];
         CurrencyCode3: Code[10];
         CurrencyFactor: Decimal;
-        Fix: Option;
-        Fix2: Option;
+        Fix: Enum "Fix Exch. Rate Amount Type";
+        Fix2: Enum "Fix Exch. Rate Amount Type";
         UseExchRate: Boolean;
         DynamicDataCaption: Text[50];
         CurrencyCode4: Code[10];
@@ -192,8 +192,10 @@ page 511 "Change Exchange Rate"
         CurrencyCode2Editable: Boolean;
         RefCurrencyCode2Editable: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'The value must be greater than 0.';
         Text001: Label 'The %1 field is not set up properly in the Currency Exchange Rates window. For %2 or the currency set up in the %3 field, the %1 field should be set to both.', Comment = '%1 Caption for  "Fix Exchange Rate Amount" %2 a currencu code %3 Caption for "Relational Currency Code"';
+#pragma warning restore AA0074
 
     protected var
         CurrencyCode: Code[10];

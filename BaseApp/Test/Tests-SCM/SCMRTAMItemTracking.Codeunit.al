@@ -63,7 +63,6 @@ codeunit 137052 "SCM RTAM Item Tracking"
         WarrantyDateErr: Label 'Warranty Date must have a value in Tracking Specification';
         LotNumberRequiredErr: Label 'You must assign a lot number for item %1', Comment = '%1 = Item No.';
         QtyToHandleErr: Label 'Qty. to Handle (Base) in the item tracking assigned to the document line for item %1', Comment = '%1 = Item No.';
-        QuantityHandledErr: Label 'Quantity Handled (Base) must be equal to ''0''  in Tracking Specification';
         SomeOutputMissingMsg: Label 'Some output is still missing';
         ItemLedgerEntrySummaryTypeTxt: Label 'Item Ledger Entry';
         TransferLineSummaryTypeTxt: Label 'Transfer Line, Inbound';
@@ -2718,14 +2717,11 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         // [WHEN] Post Sales Return Order
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
         // [THEN] Item Ledger Entry is created where Cost Amount (Actual) = 0
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", Item."No.");
-            FindFirst();
-            CalcFields("Cost Amount (Actual)");
-            TestField("Cost Amount (Actual)", 0);
-        end;
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", 0);
     end;
 
     [Test]
@@ -2770,14 +2766,11 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         // [WHEN] Call CopyHandledItemTrkgToInvLine procedure from Item Tracking Management.
         ItemTrackingManagement.CopyHandledItemTrkgToInvLine(FromSalesLine, ToSalesLine);
-
         // [THEN] "Item Tracking" option field in Reservation Entry created by the call of the procedure contains "Lot and Serial No." value.
-        with ReservationEntry do begin
-            FilterReservationEntryBySource(
-              ReservationEntry, 0, ToSalesLine."Document Type".AsInteger(), ToSalesLine."Document No.", Format(ToSalesLine."Line No."));
-            FindFirst();
-            TestField("Item Tracking", "Item Tracking"::"Lot and Serial No.");
-        end;
+        FilterReservationEntryBySource(
+          ReservationEntry, 0, ToSalesLine."Document Type".AsInteger(), ToSalesLine."Document No.", Format(ToSalesLine."Line No."));
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Item Tracking", ReservationEntry."Item Tracking"::"Lot and Serial No.");
     end;
 
     [Test]
@@ -2808,14 +2801,11 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         // [WHEN] Call CopyHandledItemTrkgToInvLine2 procedure from Item Tracking Management.
         ItemTrackingManagement.CopyHandledItemTrkgToInvLine(FromPurchaseLine, ToPurchaseLine);
-
         // [THEN] "Item Tracking" option field in Reservation Entry created by the call of the procedure contains "Lot and Serial No." value.
-        with ReservationEntry do begin
-            FilterReservationEntryBySource(
-              ReservationEntry, 0, ToPurchaseLine."Document Type".AsInteger(), ToPurchaseLine."Document No.", Format(ToPurchaseLine."Line No."));
-            FindFirst();
-            TestField("Item Tracking", "Item Tracking"::"Lot and Serial No.");
-        end;
+        FilterReservationEntryBySource(
+          ReservationEntry, 0, ToPurchaseLine."Document Type".AsInteger(), ToPurchaseLine."Document No.", Format(ToPurchaseLine."Line No."));
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Item Tracking", ReservationEntry."Item Tracking"::"Lot and Serial No.");
     end;
 
     [Test]
@@ -3966,12 +3956,10 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
     local procedure FilterReservationEntryBySource(var ReservationEntry: Record "Reservation Entry"; SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Text[100])
     begin
-        with ReservationEntry do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source ID", SourceID);
-            SetFilter("Source Ref. No.", SourceRefNo);
-        end;
+        ReservationEntry.SetRange("Source Type", SourceType);
+        ReservationEntry.SetRange("Source Subtype", SourceSubtype);
+        ReservationEntry.SetRange("Source ID", SourceID);
+        ReservationEntry.SetFilter("Source Ref. No.", SourceRefNo);
     end;
 
     local procedure UpdateWarrantyDateOnReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; SourceType: Integer; SourceID: Code[20])
@@ -4136,60 +4124,53 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
     local procedure MockSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; ShipmentNo: Code[20])
     begin
-        with SalesLine do begin
-            Init();
-            "Document Type" := DocumentType;
-            "Document No." := LibraryUtility.GenerateGUID();
-            Type := Type::Item;
-            "No." := ItemNo;
-            "Shipment No." := ShipmentNo;
-            Insert();
-        end;
+        SalesLine.Init();
+        SalesLine."Document Type" := DocumentType;
+        SalesLine."Document No." := LibraryUtility.GenerateGUID();
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine."No." := ItemNo;
+        SalesLine."Shipment No." := ShipmentNo;
+        SalesLine.Insert();
     end;
 
     local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; ShipmentNo: Code[20])
     begin
-        with PurchaseLine do begin
-            Init();
-            "Document Type" := DocumentType;
-            "Document No." := LibraryUtility.GenerateGUID();
-            Type := Type::Item;
-            "No." := ItemNo;
-            "Return Shipment No." := ShipmentNo;
-            Insert();
-        end;
+        PurchaseLine.Init();
+        PurchaseLine."Document Type" := DocumentType;
+        PurchaseLine."Document No." := LibraryUtility.GenerateGUID();
+        PurchaseLine.Type := PurchaseLine.Type::Item;
+        PurchaseLine."No." := ItemNo;
+        PurchaseLine."Return Shipment No." := ShipmentNo;
+        PurchaseLine.Insert();
     end;
 
     local procedure MockItemEntryRelation(var ItemEntryRelation: Record "Item Entry Relation"; SourceType: Integer; SourceID: Code[20])
     var
         RecRef: RecordRef;
     begin
-        with ItemEntryRelation do begin
-            Init();
-            RecRef.GetTable(ItemEntryRelation);
-            "Item Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Item Entry No."));
-            "Source Type" := SourceType;
-            "Source ID" := SourceID;
-            "Lot No." := LibraryUtility.GenerateGUID();
-            "Serial No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        ItemEntryRelation.Init();
+        RecRef.GetTable(ItemEntryRelation);
+        ItemEntryRelation."Item Entry No." := LibraryUtility.GetNewLineNo(RecRef, ItemEntryRelation.FieldNo("Item Entry No."));
+        ItemEntryRelation."Source Type" := SourceType;
+        ItemEntryRelation."Source ID" := SourceID;
+        ItemEntryRelation."Lot No." := LibraryUtility.GenerateGUID();
+        ItemEntryRelation."Serial No." := LibraryUtility.GenerateGUID();
+        ItemEntryRelation.Insert();
     end;
 
     local procedure MockTrackingSpecificationFromItemEntryRelation(ItemEntryRelation: Record "Item Entry Relation"; ItemNo: Code[20])
     var
         TrackingSpecification: Record "Tracking Specification";
     begin
-        with TrackingSpecification do begin
-            Init();
-            "Entry No." := ItemEntryRelation."Item Entry No.";
-            "Item No." := ItemNo;
-            "Lot No." := ItemEntryRelation."Lot No.";
-            "Serial No." := ItemEntryRelation."Serial No.";
-            "Quantity (Base)" := LibraryRandom.RandIntInRange(11, 20);
-            "Quantity Invoiced (Base)" := LibraryRandom.RandInt(10); // document is not fully invoiced
-            Insert();
-        end;
+        TrackingSpecification.Init();
+        TrackingSpecification."Entry No." := ItemEntryRelation."Item Entry No.";
+        TrackingSpecification."Item No." := ItemNo;
+        TrackingSpecification."Lot No." := ItemEntryRelation."Lot No.";
+        TrackingSpecification."Serial No." := ItemEntryRelation."Serial No.";
+        TrackingSpecification."Quantity (Base)" := LibraryRandom.RandIntInRange(11, 20);
+        TrackingSpecification."Quantity Invoiced (Base)" := LibraryRandom.RandInt(10);
+        // document is not fully invoiced
+        TrackingSpecification.Insert();
     end;
 
     local procedure GetReturnShipmentLines(var PurchaseLine: Record "Purchase Line")
@@ -4398,9 +4379,11 @@ codeunit 137052 "SCM RTAM Item Tracking"
     end;
 
     local procedure VerifyErrorMsgByUpdateItemTrackingLines(SalesLine: Record "Sales Line")
+    var
+        TrackingSpec: Record "Tracking Specification";
     begin
         asserterror SalesLine.OpenItemTrackingLines();
-        Assert.ExpectedError(QuantityHandledErr);
+        Assert.ExpectedTestFieldError(TrackingSpec.FieldCaption("Quantity Handled (Base)"), Format(0));
     end;
 
     local procedure VerifyServiceItemSerialNoIsNotEmpty(ItemNo: Code[20])

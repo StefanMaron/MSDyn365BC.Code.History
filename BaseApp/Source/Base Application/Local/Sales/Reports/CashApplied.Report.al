@@ -182,12 +182,11 @@ report 10041 "Cash Applied"
                 CalcFields("Amount (LCY)");
                 EntryAppMgt.GetAppliedCustEntries(TempAppliedCustLedgEntry, "Cust. Ledger Entry", true);
 
-                if OldCustomerno <> "Customer No." then begin
+                if OldCustomerno <> "Customer No." then
                     if not Customer.Get("Customer No.") then
                         Clear(Customer)
                     else
                         OldCustomerno := "Customer No.";
-                end;
                 TotalAmout := TotalAmout + "Amount (LCY)";
             end;
 

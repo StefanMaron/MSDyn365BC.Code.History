@@ -843,29 +843,25 @@ codeunit 134921 "ERM Standard Journal"
         GenJournalLine: Record "Gen. Journal Line";
         DocumentNo: Code[20];
     begin
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            FindSet();
-            DocumentNo := "Document No.";
-            repeat
-                TestField("Document No.", DocumentNo);
-            until Next() = 0;
-        end;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindSet();
+        DocumentNo := GenJournalLine."Document No.";
+        repeat
+            GenJournalLine.TestField("Document No.", DocumentNo);
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure VerifyEmptyDocumentNumberForCreatedGenJnlLines(GenJournalBatch: Record "Gen. Journal Batch")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            FindSet();
-            repeat
-                TestField("Document No.", '');
-            until Next() = 0;
-        end;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindSet();
+        repeat
+            GenJournalLine.TestField("Document No.", '');
+        until GenJournalLine.Next() = 0;
     end;
 
     [ConfirmHandler]

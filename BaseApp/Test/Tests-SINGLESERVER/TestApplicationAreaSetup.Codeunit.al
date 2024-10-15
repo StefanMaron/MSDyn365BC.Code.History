@@ -947,6 +947,7 @@ codeunit 139004 "Test ApplicationArea Setup"
     procedure TestValidateAppAreasOnSetExperienceTierToEssential()
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
+        ApplicationAreaSetup: Record "Application Area Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         TestApplicationAreaSetup: Codeunit "Test ApplicationArea Setup";
         ExperienceTier: Text;
@@ -962,7 +963,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         // [WHEN] all app areas are disabled
         // [THEN] an error is thrown
         asserterror ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
-        Assert.ExpectedError('Basic must be equal to ''Yes''  in Application Area Setup');
+        Assert.ExpectedTestFieldError(ApplicationAreaSetup.FieldCaption(Basic), Format(true));
 
         // [THEN] the application area is not changed
         ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany(ExperienceTier);
@@ -974,6 +975,7 @@ codeunit 139004 "Test ApplicationArea Setup"
     procedure TestValidateAppAreasOnSetExperienceTierToBasic()
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
+        ApplicationAreaSetup: Record "Application Area Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         TestApplicationAreaSetup: Codeunit "Test ApplicationArea Setup";
         ExperienceTier: Text;
@@ -989,7 +991,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         // [WHEN] all app areas are disabled
         // [THEN] an error is thrown
         asserterror ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Basic));
-        Assert.ExpectedError('Basic must be equal to ''Yes''  in Application Area Setup');
+        Assert.ExpectedTestFieldError(ApplicationAreaSetup.FieldCaption(Basic), Format(true));
 
         // [THEN] the application area is not changed
         ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany(ExperienceTier);

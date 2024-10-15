@@ -333,7 +333,9 @@ report 5198 "Add Contacts"
         OldProgress: Integer;
         NewProgress: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Inserting contacts @1@@@@@@@@@@@@@';
+#pragma warning restore AA0074
 
     protected var
         TempCont: Record Contact temporary;

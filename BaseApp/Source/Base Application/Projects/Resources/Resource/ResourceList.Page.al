@@ -11,10 +11,9 @@ using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Reports;
 using Microsoft.Projects.Resources.Analysis;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
-using Microsoft.Service.Analysis;
 using System.Text;
 using Microsoft.Projects.Resources.Reports;
 
@@ -144,17 +143,29 @@ page 77 "Resource List"
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies that the resource is coupled to a product in Dynamics 365 Sales.';
+                    ToolTip = 'Specifies that the resource is coupled to an entity in Dataverse.';
                     Visible = CRMIntegrationEnabled;
                 }
             }
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::Resource), "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::Resource), "No." = field("No.");
             }
             part(Control1906609707; "Resource Statistics FactBox")
@@ -162,7 +173,9 @@ page 77 "Resource List"
                 ApplicationArea = Jobs;
                 SubPageLink = "No." = field("No."),
                               "Chargeable Filter" = field("Chargeable Filter"),
+#if not CLEAN25
                               "Service Zone Filter" = field("Service Zone Filter"),
+#endif
                               "Unit of Measure Filter" = field("Unit of Measure Filter");
                 Visible = true;
             }
@@ -171,7 +184,9 @@ page 77 "Resource List"
                 ApplicationArea = Jobs;
                 SubPageLink = "No." = field("No."),
                               "Chargeable Filter" = field("Chargeable Filter"),
+#if not CLEAN25
                               "Service Zone Filter" = field("Service Zone Filter"),
+#endif
                               "Unit of Measure Filter" = field("Unit of Measure Filter");
                 Visible = true;
             }
@@ -561,7 +576,7 @@ page 77 "Resource List"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN23
+#if not CLEAN25
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
@@ -637,15 +652,6 @@ page 77 "Resource List"
                     RunPageOnRec = true;
                     ToolTip = 'View this project''s resource capacity.';
                 }
-                action("Resource Allocated per Service &Order")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Resource Allocated per Service &Order';
-                    Image = ViewServiceOrder;
-                    RunObject = Page "Res. Alloc. per Service Order";
-                    RunPageLink = "Resource Filter" = field("No.");
-                    ToolTip = 'View the service order allocations of the resource.';
-                }
                 action("Resource A&vailability")
                 {
                     ApplicationArea = Jobs;
@@ -707,7 +713,7 @@ page 77 "Resource List"
                 RunObject = Report "Cost Breakdown";
                 ToolTip = 'View the direct unit costs and the total direct costs for each resource. Only usage postings are considered in this report. Resource usage can be posted in the resource journal or the project journal.';
             }
-#if not CLEAN23
+#if not CLEAN25
             action("Resource - Price List")
             {
                 ApplicationArea = Jobs;
@@ -819,7 +825,7 @@ page 77 "Resource List"
                 actionref("Units of Measure_Promoted"; "Units of Measure")
                 {
                 }
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Costs_Promoted; Costs)
                 {
                     ObsoleteState = Pending;
@@ -827,7 +833,7 @@ page 77 "Resource List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Prices_Promoted; Prices)
                 {
                     ObsoleteState = Pending;
@@ -858,7 +864,7 @@ page 77 "Resource List"
                 actionref("Resource - Cost Breakdown_Promoted"; "Resource - Cost Breakdown")
                 {
                 }
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Resource - Price List_Promoted"; "Resource - Price List")
                 {
                     ObsoleteState = Pending;

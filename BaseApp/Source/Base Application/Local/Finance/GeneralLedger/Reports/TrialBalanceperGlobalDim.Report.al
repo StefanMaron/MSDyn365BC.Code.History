@@ -278,7 +278,7 @@ report 10023 "Trial Balance, per Global Dim."
                     /* Format the numbers (if any) */
                     if NumbersToPrint() then begin
                         /* format the individual numbers, first numerically */
-                        for i := 1 to 12 do begin
+                        for i := 1 to 12 do
                             if RoundTo = RoundTo::Dollars then
                                 WorkAmount[i] := Round(WorkAmount[i], 1)
                             else
@@ -289,7 +289,6 @@ report 10023 "Trial Balance, per Global Dim."
                                         WorkAmount[i] := Round(WorkAmount[i] / 1000, 1);
                                 end else                                     // to nearest penny
                                     WorkAmount[i] := Round(WorkAmount[i], 0.01);
-                        end;
                         /* now format the strings */
                         for i := 1 to 12 do begin
                             PrintAmount[i] := Format(WorkAmount[i]);
@@ -608,12 +607,11 @@ report 10023 "Trial Balance, per Global Dim."
         /* Period Headings */
         if ColumnFlags[7] then begin                              // YTD
             PeriodText := 'As of ' + Format(ToDate, 0, 4);
-            if ColumnFlags[9] then begin
+            if ColumnFlags[9] then
                 if Show = Show::Budget then                           // Budget
                     PeriodText := 'Actual vs Budget a' + DelStr(PeriodText, 1, 1)
                 else                                                  // Prior YTD
                     PeriodText := PeriodText + ' and ' + Format(Date2DMY(PriorToDate, 3));
-            end;
         end else
             if ColumnFlags[9] then begin
                 if Show = Show::Budget then                             // Budget

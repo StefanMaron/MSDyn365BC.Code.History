@@ -245,11 +245,9 @@ codeunit 134999 "ERM Excel Reports"
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            "No." := LibraryUTUtility.GetNewCode();
-            Insert();
-            exit("No.");
-        end;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer.Insert();
+        exit(Customer."No.");
     end;
 
     local procedure VerifyGeneralJournalTestTotalBalance()

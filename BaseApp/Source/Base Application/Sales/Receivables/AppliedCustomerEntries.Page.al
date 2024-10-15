@@ -352,7 +352,9 @@ page 61 "Applied Customer Entries"
         DimVisible2: Boolean;
         HasDocumentAttachment: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Document';
+#pragma warning restore AA0074
 
     local procedure FindApplnEntriesDtldtLedgEntry()
     var

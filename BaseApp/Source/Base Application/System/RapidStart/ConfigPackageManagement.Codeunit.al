@@ -34,9 +34,13 @@ codeunit 8611 "Config. Package Management"
 
         ErrorTypeEnum: Option General,TableRelation;
         HideDialog: Boolean;
+#pragma warning disable AA0470
         KeyFieldValueMissingErr: Label 'The value of the key field %1 has not been filled in for record %2 : %3.', Comment = 'Parameter 1 - field name, 2 - table name, 3 - code value. Example: The value of the key field Customer Posting Group has not been filled in for record Customer : XXXXX.';
+#pragma warning restore AA0470
         ValidatingTableRelationsMsg: Label 'Validating table relations';
+#pragma warning disable AA0470
         RecordsXofYMsg: Label 'Records: %1 of %2', Comment = 'Sample: 5 of 1025. 1025 is total number of records, 5 is a number of the current record ';
+#pragma warning restore AA0470
         ApplyingPackageMsg: Label 'Applying package %1', Comment = '%1 = The name of the package being applied.';
         ApplyingTableMsg: Label 'Applying table %1', Comment = '%1 = The name of the table being applied.';
         NoTablesAndErrorsMsg: Label '%1 tables are processed.\%2 errors found.\%3 records inserted.\%4 records modified.', Comment = '%1 = number of tables processed, %2 = number of errors, %3 = number of records inserted, %4 = number of records modified';

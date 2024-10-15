@@ -549,17 +549,15 @@ codeunit 134764 TestPowerBIQueries
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ValueEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
-            "Item Ledger Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
-            "Source Type" := "Source Type"::Customer;
-            "Source No." := CustomerNo;
-            "Document Type" := DocumentType;
-            "Item No." := ItemNo;
-            "Item Ledger Entry Quantity" := Qty;
-            Insert();
-        end;
+        ValueEntry.Init();
+        ValueEntry."Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, ValueEntry.FieldNo("Entry No."));
+        ValueEntry."Item Ledger Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+        ValueEntry."Source Type" := ValueEntry."Source Type"::Customer;
+        ValueEntry."Source No." := CustomerNo;
+        ValueEntry."Document Type" := DocumentType;
+        ValueEntry."Item No." := ItemNo;
+        ValueEntry."Item Ledger Entry Quantity" := Qty;
+        ValueEntry.Insert();
     end;
 
     local procedure VerifyPowerBICustomerList(PowerBICustomerList: Query "Power BI Customer List"; No: Code[20]; CreditLimit: Decimal; BalanceDue: Decimal; PostDate: Date; CustLedgEntry: Integer; Amount: Decimal; TransactionNo: Integer; EntryNo: Integer)

@@ -1,7 +1,6 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Foundation.NoSeries;
-using Microsoft.Inventory.Availability;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Service.Comment;
@@ -21,7 +20,7 @@ codeunit 5923 "Service-Quote to Order"
     var
         ServQuoteLine: Record "Service Line";
         Customer: Record Customer;
-        CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
+        ServCheckCreditLimit: Codeunit "Serv. Check Credit Limit";
         DocType: Enum "Sales Document Type";
         SkipDelete: Boolean;
         IsHandled: Boolean;
@@ -50,7 +49,7 @@ codeunit 5923 "Service-Quote to Order"
 
         Rec.ValidateSalesPersonOnServiceHeader(Rec, true, false);
 
-        CustCheckCreditLimit.ServiceHeaderCheck(ServOrderHeader);
+        ServCheckCreditLimit.ServiceHeaderCheck(ServOrderHeader);
 
         CheckServiceItemBlockedForAll(Rec);
         CheckItemServiceBlocked(Rec);
@@ -267,7 +266,7 @@ codeunit 5923 "Service-Quote to Order"
 
     local procedure TransferQuoteToOrderLines(var ServiceQuoteLine: Record "Service Line"; var ServiceQuoteHeader: Record "Service Header"; var ServiceOrderLine: Record "Service Line"; var ServiceOrderHeader: Record "Service Header")
     var
-        ItemCheckAvail: Codeunit "Item-Check Avail.";
+        ServItemCheckAvail: Codeunit "Serv. Item Check Avail.";
         IsHandled: Boolean;
     begin
         ServiceQuoteLine.Reset();
@@ -287,8 +286,8 @@ codeunit 5923 "Service-Quote to Order"
                     ServiceOrderLine."Line No." := 0;
                     ServiceOrderLine.Validate("Reserved Qty. (Base)");
                     if GuiAllowed then
-                        if ItemCheckAvail.ServiceInvLineCheck(ServiceOrderLine) then
-                            ItemCheckAvail.RaiseUpdateInterruptedError();
+                        if ServItemCheckAvail.ServiceInvLineCheck(ServiceOrderLine) then
+                            ServItemCheckAvail.RaiseUpdateInterruptedError();
                 end;
             until ServiceQuoteLine.Next() = 0;
     end;
@@ -419,4 +418,3 @@ codeunit 5923 "Service-Quote to Order"
     begin
     end;
 }
-

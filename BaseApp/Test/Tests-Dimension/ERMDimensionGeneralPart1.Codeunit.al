@@ -1657,36 +1657,32 @@ codeunit 134477 "ERM Dimension General Part-1"
     var
         RecRef: RecordRef;
     begin
-        with CustLedgEntry do begin
-            Init();
-            RecRef.GetTable(CustLedgEntry);
-            "Entry No." :=
-              LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Global Dimension 1 Code" := OldDimValue.Code;
-            "Dimension Set ID" :=
-              LibraryDimension.CreateDimSet(
-                LibraryDimension.CreateDimSet(0, OldDimValue."Dimension Code", OldDimValue.Code),
-                NewDimValue."Dimension Code", NewDimValue.Code);
-            Insert();
-        end;
+        CustLedgEntry.Init();
+        RecRef.GetTable(CustLedgEntry);
+        CustLedgEntry."Entry No." :=
+          LibraryUtility.GetNewLineNo(RecRef, CustLedgEntry.FieldNo("Entry No."));
+        CustLedgEntry."Global Dimension 1 Code" := OldDimValue.Code;
+        CustLedgEntry."Dimension Set ID" :=
+          LibraryDimension.CreateDimSet(
+            LibraryDimension.CreateDimSet(0, OldDimValue."Dimension Code", OldDimValue.Code),
+            NewDimValue."Dimension Code", NewDimValue.Code);
+        CustLedgEntry.Insert();
     end;
 
     local procedure CreateVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; OldDimValue: Record "Dimension Value"; NewDimValue: Record "Dimension Value")
     var
         RecRef: RecordRef;
     begin
-        with VendLedgEntry do begin
-            Init();
-            RecRef.GetTable(VendLedgEntry);
-            "Entry No." :=
-              LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Global Dimension 1 Code" := OldDimValue.Code;
-            "Dimension Set ID" :=
-              LibraryDimension.CreateDimSet(
-                LibraryDimension.CreateDimSet(0, OldDimValue."Dimension Code", OldDimValue.Code),
-                NewDimValue."Dimension Code", NewDimValue.Code);
-            Insert();
-        end;
+        VendLedgEntry.Init();
+        RecRef.GetTable(VendLedgEntry);
+        VendLedgEntry."Entry No." :=
+          LibraryUtility.GetNewLineNo(RecRef, VendLedgEntry.FieldNo("Entry No."));
+        VendLedgEntry."Global Dimension 1 Code" := OldDimValue.Code;
+        VendLedgEntry."Dimension Set ID" :=
+          LibraryDimension.CreateDimSet(
+            LibraryDimension.CreateDimSet(0, OldDimValue."Dimension Code", OldDimValue.Code),
+            NewDimValue."Dimension Code", NewDimValue.Code);
+        VendLedgEntry.Insert();
     end;
 
     local procedure EnqueueDetailAnalysisDimMatrixItem()

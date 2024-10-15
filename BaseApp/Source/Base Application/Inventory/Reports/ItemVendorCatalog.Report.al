@@ -249,9 +249,9 @@ report 10164 "Item/Vendor Catalog"
     end;
 
     var
-        Vendor: Record Vendor;
         Item: Record Item;
         CompanyInformation: Record "Company Information";
+        Vendor: Record Vendor;
         ExtendedPriceEnabled: Boolean;
         StartingDate: Date;
         DirectUnitCost: Decimal;

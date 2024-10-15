@@ -3,9 +3,6 @@ namespace Microsoft.Bank.Setup;
 using Microsoft.Finance.GeneralLedger.Setup;
 using System.Integration;
 
-#if not CLEAN22
-#pragma warning disable AS0109
-#endif
 table 1062 "Payment Reporting Argument"
 {
     Caption = 'Payment Reporting Argument';

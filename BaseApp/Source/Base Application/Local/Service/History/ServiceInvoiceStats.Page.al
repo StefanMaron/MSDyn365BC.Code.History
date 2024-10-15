@@ -154,7 +154,7 @@ page 10056 "Service Invoice Stats."
                     Caption = 'Cost Adjmt. Amount (LCY)';
                     ToolTip = 'Specifies the cost adjustment amount, in local currency.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries();
                     end;
@@ -236,9 +236,9 @@ page 10056 "Service Invoice Stats."
     trigger OnAfterGetRecord()
     var
         TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary;
+        ServCostCalculationMgt: Codeunit "Serv. Cost Calculation Mgt.";
         PrevPrintOrder: Integer;
         PrevTaxPercent: Decimal;
-        CostCalcMgt: Codeunit "Cost Calculation Management";
     begin
         ClearAll();
         TaxArea.Get(Rec."Tax Area Code");
@@ -270,7 +270,7 @@ page 10056 "Service Invoice Stats."
                         TaxPercentage := ServInvLine."VAT %"
                     else
                         TaxPercentage := -1;
-                TotalAdjCostLCY := TotalAdjCostLCY + CostCalcMgt.CalcServInvLineCostLCY(ServInvLine);
+                TotalAdjCostLCY := TotalAdjCostLCY + ServCostCalculationMgt.CalcServInvLineCostLCY(ServInvLine);
             until ServInvLine.Next() = 0;
         TaxAmount := AmountInclTax - CustAmount;
         InvDiscAmount := Round(InvDiscAmount, Currency."Amount Rounding Precision");

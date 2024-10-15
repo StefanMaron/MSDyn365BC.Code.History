@@ -439,12 +439,11 @@ report 10057 "Projected Cash Receipts"
                     else
                         CustTotalLabel := CustTotalLabel + GLSetup."LCY Code";
                     CustTotalLabel := CustTotalLabel + ')';
-                    if TempCurrency.Count > 0 then begin
+                    if TempCurrency.Count > 0 then
                         if Number = 1 then
                             TempCurrency.Find('-')
                         else
                             TempCurrency.Next();
-                    end;
                 end;
 
                 trigger OnPreDataItem()

@@ -771,12 +771,11 @@ page 25 "Customer Ledger Entries"
                     begin
                         CurrPage.SetSelectionFilter(CustLedgerEntry);
                         ProgressWindow.Open(ProcessingInvoiceMsg);
-                        if CustLedgerEntry.FindSet() then begin
+                        if CustLedgerEntry.FindSet() then
                             repeat
                                 CustLedgerEntry.RequestStampEDocument();
                                 ProgressWindow.Update(1, CustLedgerEntry."Entry No.");
                             until CustLedgerEntry.Next() = 0;
-                        end;
                         ProgressWindow.Close();
                     end;
                 }
@@ -806,12 +805,11 @@ page 25 "Customer Ledger Entries"
                     begin
                         CurrPage.SetSelectionFilter(CustLedgerEntry);
                         ProgressWindow.Open(ProcessingInvoiceMsg);
-                        if CustLedgerEntry.FindSet() then begin
+                        if CustLedgerEntry.FindSet() then
                             repeat
                                 CustLedgerEntry.CancelEDocument();
                                 ProgressWindow.Update(1, CustLedgerEntry."Entry No.");
                             until CustLedgerEntry.Next() = 0;
-                        end;
                         ProgressWindow.Close();
                     end;
                 }

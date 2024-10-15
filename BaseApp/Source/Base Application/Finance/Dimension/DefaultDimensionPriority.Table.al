@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.Finance.Dimension;
 
 using Microsoft.Foundation.AuditCodes;
-using Microsoft.Service.Contract;
 using System.Reflection;
 
 table 354 "Default Dimension Priority"
@@ -85,7 +84,8 @@ table 354 "Default Dimension Priority"
     local procedure GetDefaultDimTableList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
     begin
         DimensionManagement.DefaultDimObjectNoList(TempAllObjWithCaption);
-        DimensionManagement.InsertObject(TempAllObjWithCaption, Database::"Service Contract Header");
+
+        OnAfterGetDefaultDimTableList(TempAllObjWithCaption);
     end;
 
     procedure InitializeDefaultDimPrioritiesForSourceCode()
@@ -138,6 +138,11 @@ table 354 "Default Dimension Priority"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitializeDefaultDimPriorities(var DefaultDimPriority: Record "Default Dimension Priority"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDefaultDimTableList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
     begin
     end;
 }

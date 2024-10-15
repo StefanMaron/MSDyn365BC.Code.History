@@ -30,7 +30,11 @@ codeunit 1004 "Job Transfer Line"
         Currency: Record Currency;
         LCYCurrency: Record Currency;
         CurrencyRoundingRead: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 %2 does not exist.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         JobPlanningLineNotFoundErr: Label 'Could not find any lines on the %1 page that are related to the %2 where the value in the %3 field is %4, and value in the %5 field is %6.', Comment = '%1=page caption, %2=table caption, %3,%5=field caption, %4,%6=field value';
         DuplicateJobplanningLinesErr: Label 'We found more than one %1s where the value in the %2 field is %3. The value in the %2 field must be unique.', Comment = '%1=table caption, %2=field caption, %3=field value';
 
@@ -87,9 +91,6 @@ codeunit 1004 "Job Transfer Line"
         JobLedgEntry."Add.-Currency Line Amount" :=
           -JobJnlLine2."Source Currency Line Amount";
 
-        JobLedgEntry."Service Order No." := JobJnlLine2."Service Order No.";
-        JobLedgEntry."Posted Service Shipment No." := JobJnlLine2."Posted Service Shipment No.";
-
         // Amounts
         JobLedgEntry."Qty. per Unit of Measure" := JobJnlLine2."Qty. per Unit of Measure";
 
@@ -129,7 +130,6 @@ codeunit 1004 "Job Transfer Line"
         JobPlanningLine."Variant Code" := JobJnlLine."Variant Code";
         JobPlanningLine."Bin Code" := JobJnlLine."Bin Code";
         JobPlanningLine.CopyTrackingFromJobJnlLine(JobJnlLine);
-        JobPlanningLine."Service Order No." := JobJnlLine."Service Order No.";
         JobPlanningLine."Ledger Entry Type" := JobJnlLine."Ledger Entry Type";
         JobPlanningLine."Ledger Entry No." := JobJnlLine."Ledger Entry No.";
         JobPlanningLine."System-Created Entry" := true;
@@ -178,6 +178,7 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Job No." := JobPlanningLine."Job No.";
         JobJnlLine."Job Task No." := JobPlanningLine."Job Task No.";
         JobJnlLine.Type := JobPlanningLine.Type;
+        JobTask.SetLoadFields("Job No.", "Job Task No.");
         JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
         JobJnlLine."Posting Date" := SalesHeader."Posting Date";
         JobJnlLine."Document Date" := SalesHeader."Document Date";
@@ -201,7 +202,6 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Customer Price Group" := JobPlanningLine."Customer Price Group";
         JobJnlLine."Location Code" := SalesLine."Location Code";
         JobJnlLine."Bin Code" := SalesLine."Bin Code";
-        JobJnlLine."Service Order No." := JobPlanningLine."Service Order No.";
         SourceCodeSetup.Get();
         JobJnlLine."Source Code" := SourceCodeSetup.Sales;
         JobJnlLine."Reason Code" := SalesHeader."Reason Code";
@@ -278,6 +278,7 @@ codeunit 1004 "Job Transfer Line"
             JobJnlLine."Line Type" := JobPlanningLine.ConvertToJobLineType();
         end;
 
+        JobTask.SetLoadFields("Job Posting Group");
         JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
         JobJnlLine."Posting Group" := JobTask."Job Posting Group";
         JobJnlLine."Posting Date" := PostingDate;
@@ -308,7 +309,6 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Customer Price Group" := JobPlanningLine."Customer Price Group";
         JobJnlLine."Variant Code" := JobPlanningLine."Variant Code";
         JobJnlLine."Bin Code" := JobPlanningLine."Bin Code";
-        JobJnlLine."Service Order No." := JobPlanningLine."Service Order No.";
         JobJnlLine."Country/Region Code" := JobPlanningLine."Country/Region Code";
         JobJnlLine."Source Code" := JobJournalTemplate."Source Code";
 
@@ -355,12 +355,12 @@ codeunit 1004 "Job Transfer Line"
 
         JobPlanningLine.SetLoadFields(
             "Job No.", "Job Task No.", "Usage Link", "Line No.", "Line Type", Type, "No.", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
-            "Serial No.", "Lot No.", Description, "Description 2", "Unit of Measure Code", "Currency Code", "Currency Factor", "Resource Group No.",
-            "Location Code", "Work Type Code", "Customer Price Group", "Variant Code", "Bin Code", "Service Order No.", "Country/Region Code",
+            "Serial No.", "Lot No.", "Package No.", Description, "Description 2", "Unit of Measure Code", "Currency Code", "Currency Factor", "Resource Group No.",
+            "Location Code", "Work Type Code", "Customer Price Group", "Variant Code", "Bin Code", "Country/Region Code",
             "Qty. per Unit of Measure", "Direct Unit Cost (LCY)", "Unit Cost", "Unit Price", "Line Discount %", "Document No.", "Assemble to Order");
         JobPlanningLine.SetRange("Job No.", WarehouseActivityLine."Source No.");
         JobPlanningLine.SetRange("Job Contract Entry No.", WarehouseActivityLine."Source Line No.");
-
+        OnFromWarehouseActivityLineToJnlLineOnAfterSetJobPlanningLineFilters(JobPlanningLine, WarehouseActivityLine);
         if JobPlanningLine.IsEmpty() then
             Error(JobPlanningLineNotFoundErr, JobPlanningLines.Caption(), WarehouseActivityLine.TableCaption(), WarehouseActivityLine.FieldCaption("Source No."),
                     WarehouseActivityLine."Source No.", WarehouseActivityLine.FieldCaption("Source Line No."), WarehouseActivityLine."Source Line No.");
@@ -390,6 +390,7 @@ codeunit 1004 "Job Transfer Line"
             JobJnlLine."Line Type" := JobPlanningLine.ConvertToJobLineType();
         end;
 
+        JobTask.SetLoadFields("Job Posting Group");
         JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
         JobJnlLine."Posting Group" := JobTask."Job Posting Group";
         JobJnlLine."Posting Date" := PostingDate;
@@ -416,7 +417,6 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Customer Price Group" := JobPlanningLine."Customer Price Group";
         JobJnlLine."Variant Code" := WarehouseActivityLine."Variant Code";
         JobJnlLine."Bin Code" := WarehouseActivityLine."Bin Code";
-        JobJnlLine."Service Order No." := JobPlanningLine."Service Order No.";
         JobJnlLine."Country/Region Code" := JobPlanningLine."Country/Region Code";
         JobJnlLine."Source Code" := JobJournalTemplate."Source Code";
         JobJnlLine."Serial No." := WarehouseActivityLine."Serial No.";
@@ -448,6 +448,7 @@ codeunit 1004 "Job Transfer Line"
 
         JobJnlLine."Job No." := GenJnlLine."Job No.";
         JobJnlLine."Job Task No." := GenJnlLine."Job Task No.";
+        JobTask.SetLoadFields("Job No.", "Job Task No.");
         JobTask.Get(GenJnlLine."Job No.", GenJnlLine."Job Task No.");
 
         JobJnlLine."Posting Date" := GenJnlLine."Posting Date";
@@ -466,6 +467,7 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Gen. Prod. Posting Group" := GenJnlLine."Gen. Prod. Posting Group";
         JobJnlLine."Source Code" := GenJnlLine."Source Code";
         JobJnlLine."Reason Code" := GenJnlLine."Reason Code";
+        Job.SetLoadFields("Customer Price Group");
         Job.Get(JobJnlLine."Job No.");
         JobJnlLine."Customer Price Group" := Job."Customer Price Group";
         JobJnlLine."External Document No." := GenJnlLine."External Document No.";
@@ -536,7 +538,6 @@ codeunit 1004 "Job Transfer Line"
         JobPlanningLine."Country/Region Code" := JobLedgEntry."Country/Region Code";
         JobPlanningLine."Description 2" := JobLedgEntry."Description 2";
         JobPlanningLine.CopyTrackingFromJobLedgEntry(JobLedgEntry);
-        JobPlanningLine."Service Order No." := JobLedgEntry."Service Order No.";
         JobPlanningLine."Job Ledger Entry No." := JobLedgEntry."Entry No.";
         JobPlanningLine."Ledger Entry Type" := JobLedgEntry."Ledger Entry Type";
         JobPlanningLine."Ledger Entry No." := JobLedgEntry."Ledger Entry No.";
@@ -611,6 +612,7 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine.DontCheckStdCost();
         JobJnlLine.Validate("Job No.", PurchLine."Job No.");
         JobJnlLine.Validate("Job Task No.", PurchLine."Job Task No.");
+        JobTask.SetLoadFields("Job No.", "Job Task No.");
         JobTask.Get(PurchLine."Job No.", PurchLine."Job Task No.");
         JobJnlLine.Validate("Posting Date", PurchHeader."Posting Date");
         JobJournalLineValidateType(JobJnlLine, PurchLine);
@@ -759,8 +761,10 @@ codeunit 1004 "Job Transfer Line"
         end;
 
         JobJnlLine."Job Planning Line No." := PurchLine."Job Planning Line No.";
-        JobJnlLine."Remaining Qty." := PurchLine."Job Remaining Qty.";
-        JobJnlLine."Remaining Qty. (Base)" := PurchLine."Job Remaining Qty. (Base)";
+        if PurchLine.Type <> PurchLine.Type::"G/L Account" then begin
+            JobJnlLine."Remaining Qty." := PurchLine."Job Remaining Qty.";
+            JobJnlLine."Remaining Qty. (Base)" := PurchLine."Job Remaining Qty. (Base)";
+        end;
         JobJnlLine."Location Code" := PurchLine."Location Code";
         JobJnlLine."Bin Code" := PurchLine."Bin Code";
         JobJnlLine."Line Type" := PurchLine."Job Line Type";
@@ -963,6 +967,11 @@ codeunit 1004 "Job Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFromGenJnlLineToJnlLine(var JobJnlLine: Record "Job Journal Line"; GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromWarehouseActivityLineToJnlLineOnAfterSetJobPlanningLineFilters(var JobPlanningLine: Record "Job Planning Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 }

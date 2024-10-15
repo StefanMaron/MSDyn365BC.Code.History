@@ -89,12 +89,14 @@ codeunit 455 "Job Queue User Handler"
     local procedure RescheduleJobQueueEntriesOnCompanyOpen()
     var
         JobQueueEntry: Record "Job Queue Entry";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        JobQueueEntry2: Record "Job Queue Entry";
         ScheduledTask: Record "Scheduled Task";
         User: Record User;
     begin
         if not GuiAllowed then
             exit;
-        if not (JobQueueEntry.WritePermission() and JobQueueEntry.ReadPermission()) then
+        if not (JobQueueEntry2.WritePermission() and JobQueueEntry.ReadPermission()) then
             exit;
         if not JobQueueEntry.HasRequiredPermissions() then
             exit;

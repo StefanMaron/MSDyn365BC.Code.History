@@ -89,25 +89,6 @@ page 9082 "Customer Statistics FactBox"
                     ToolTip = 'Specifies your expected sales income from the customer in LCY based on unpaid sales invoices.';
                 }
             }
-            group(Service)
-            {
-                Caption = 'Service';
-                field("Outstanding Serv. Orders (LCY)"; Rec."Outstanding Serv. Orders (LCY)")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies your expected service income from the customer in LCY based on ongoing service orders.';
-                }
-                field("Serv Shipped Not Invoiced(LCY)"; Rec."Serv Shipped Not Invoiced(LCY)")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies your expected service income from the customer in LCY based on service orders that are shipped but not invoiced.';
-                }
-                field("Outstanding Serv.Invoices(LCY)"; Rec."Outstanding Serv.Invoices(LCY)")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies your expected service income from the customer in LCY based on unpaid service invoices.';
-                }
-            }
             group(Payments)
             {
                 Caption = 'Payments';
@@ -253,7 +234,9 @@ page 9082 "Customer Statistics FactBox"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Overdue Amounts (LCY)';
+#pragma warning restore AA0074
         TaskIdCalculateCue: Integer;
         CurrCustomerNo: Code[20];
         LinkedVendorNo: Code[20];

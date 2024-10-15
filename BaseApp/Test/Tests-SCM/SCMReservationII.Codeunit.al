@@ -2196,28 +2196,24 @@ codeunit 137065 "SCM Reservation II"
             DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         WhseShipmentHeader.Get(WhseShipmentHeaderNo);
         LibraryWarehouse.CreateWhsePick(WhseShipmentHeader);
-
-        with WhseActivityLine do begin
-            // [GIVEN] Set "Qty. to Handle" to "Q".
-            FindWarehouseActivityLine(
-              WhseActivityLine, SalesHeader."No.", "Source Document"::"Sales Order", "Action Type"::Take);
-            SetRange("Action Type");
-            ModifyAll("Qty. to Handle", Qty);
-
-            // [WHEN] Try to change Bin Code.
-            LibraryWarehouse.FindBin(Bin, LocationWhite.Code, Zone.Code, 1); // Specific value
-            FindWarehouseActivityHeader(
-              WhseActivityHeader, SalesHeader."No.", "Source Document"::"Sales Order", "Action Type"::Take);
-            Clear(WarehousePick);
-            WarehousePick.OpenEdit();
-            WarehousePick.GotoRecord(WhseActivityHeader);
-            WarehousePick.WhseActivityLines."Bin Code".SetValue(Bin.Code);
-
-            // [THEN] Bin code successfully changed.
-            FindWarehouseActivityLine(
-              WhseActivityLine, SalesHeader."No.", "Source Document"::"Sales Order", "Action Type"::Take);
-            TestField("Bin Code", Bin.Code);
-        end;
+        // [GIVEN] Set "Qty. to Handle" to "Q".
+        FindWarehouseActivityLine(
+          WhseActivityLine, SalesHeader."No.", WhseActivityLine."Source Document"::"Sales Order", WhseActivityLine."Action Type"::Take);
+        WhseActivityLine.SetRange("Action Type");
+        WhseActivityLine.ModifyAll("Qty. to Handle", Qty);
+        // [WHEN] Try to change Bin Code.
+        LibraryWarehouse.FindBin(Bin, LocationWhite.Code, Zone.Code, 1);
+        // Specific value
+        FindWarehouseActivityHeader(
+          WhseActivityHeader, SalesHeader."No.", WhseActivityLine."Source Document"::"Sales Order", WhseActivityLine."Action Type"::Take);
+        Clear(WarehousePick);
+        WarehousePick.OpenEdit();
+        WarehousePick.GotoRecord(WhseActivityHeader);
+        WarehousePick.WhseActivityLines."Bin Code".SetValue(Bin.Code);
+        // [THEN] Bin code successfully changed.
+        FindWarehouseActivityLine(
+          WhseActivityLine, SalesHeader."No.", WhseActivityLine."Source Document"::"Sales Order", WhseActivityLine."Action Type"::Take);
+        WhseActivityLine.TestField("Bin Code", Bin.Code);
     end;
 
     [Test]
@@ -2544,13 +2540,11 @@ codeunit 137065 "SCM Reservation II"
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        with ProdOrderComponent do begin
-            SetRange(Status, ProdOrderLine.Status);
-            SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-            SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-            FindFirst();
-            AutoReserve();
-        end;
+        ProdOrderComponent.SetRange(Status, ProdOrderLine.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.FindFirst();
+        ProdOrderComponent.AutoReserve();
     end;
 
     local procedure CreateAndUpdateLocation(var Location: Record Location; RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean; BinMandatory: Boolean)
@@ -2726,14 +2720,12 @@ codeunit 137065 "SCM Reservation II"
         CreateRouting(
           RoutingHeader, LibraryRandom.RandDec(50, 2), LibraryRandom.RandDec(50, 2),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10));
-        with Item do begin
-            Validate("Costing Method", "Costing Method"::Standard);
-            Validate("Indirect Cost %", LibraryRandom.RandInt(10));
-            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
-            Validate("Production BOM No.", ProductionBOMHeader."No.");
-            Validate("Routing No.", RoutingHeader."No.");
-            Modify(true);
-        end;
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Indirect Cost %", LibraryRandom.RandInt(10));
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
         ChildItem.Validate("Unit Cost", LibraryRandom.RandDec(10000, 5));
         ChildItem.Modify(true);
 
@@ -3106,13 +3098,11 @@ codeunit 137065 "SCM Reservation II"
         SelectProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status);
         LibraryManufacturing.CreateProductionOrderComponent(
           ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Line No.");
-        with ProdOrderComponent do begin
-            Validate("Item No.", ItemNo);
-            Validate("Quantity per", QuantityPer);
-            Validate("Location Code", LocationCode);
-            Validate("Bin Code", BinCode);
-            Modify(true);
-        end;
+        ProdOrderComponent.Validate("Item No.", ItemNo);
+        ProdOrderComponent.Validate("Quantity per", QuantityPer);
+        ProdOrderComponent.Validate("Location Code", LocationCode);
+        ProdOrderComponent.Validate("Bin Code", BinCode);
+        ProdOrderComponent.Modify(true);
     end;
 
     local procedure CreatePickFromSalesOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
@@ -3156,12 +3146,10 @@ codeunit 137065 "SCM Reservation II"
 
     local procedure RemoveProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20]; ItemNo: Code[20])
     begin
-        with ProdOrderComponent do begin
-            SetRange("Prod. Order No.", ProdOrderNo);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            Delete(true);
-        end;
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderComponent.SetRange("Item No.", ItemNo);
+        ProdOrderComponent.FindFirst();
+        ProdOrderComponent.Delete(true);
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
@@ -3235,12 +3223,10 @@ codeunit 137065 "SCM Reservation II"
 
     local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
-        with RegisteredWhseActivityLine do begin
-            SetRange("Source Document", SourceDocument);
-            SetRange("Source No.", SourceNo);
-            SetRange("Action Type", ActionType);
-            FindSet();
-        end;
+        RegisteredWhseActivityLine.SetRange("Source Document", SourceDocument);
+        RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
+        RegisteredWhseActivityLine.SetRange("Action Type", ActionType);
+        RegisteredWhseActivityLine.FindSet();
     end;
 
     local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
@@ -3252,12 +3238,10 @@ codeunit 137065 "SCM Reservation II"
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; No: Code[20])
     begin
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", DocumentNo);
-            SetRange("No.", No);
-            FindFirst();
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.SetRange("No.", No);
+        SalesLine.FindFirst();
     end;
 
     local procedure GenerateMatrixDataForBOMVersion(var VersionCode: array[4] of Text[80]; ProductionBOMNo: Code[20]): Integer
@@ -3372,15 +3356,13 @@ codeunit 137065 "SCM Reservation II"
 
     local procedure SetExpirationDateOnItemTracking(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WarehouseJournalLine: Record "Warehouse Journal Line"; ExpirationDate: Date)
     begin
-        with WhseItemTrackingLine do begin
-            SetRange("Source Type", DATABASE::"Warehouse Journal Line");
-            SetRange("Source ID", WarehouseJournalLine."Journal Batch Name");
-            SetRange("Location Code", WarehouseJournalLine."Location Code");
-            SetRange("Source Ref. No.", WarehouseJournalLine."Line No.");
-            FindFirst();
-            Validate("Expiration Date", ExpirationDate);
-            Modify(true);
-        end;
+        WhseItemTrackingLine.SetRange("Source Type", DATABASE::"Warehouse Journal Line");
+        WhseItemTrackingLine.SetRange("Source ID", WarehouseJournalLine."Journal Batch Name");
+        WhseItemTrackingLine.SetRange("Location Code", WarehouseJournalLine."Location Code");
+        WhseItemTrackingLine.SetRange("Source Ref. No.", WarehouseJournalLine."Line No.");
+        WhseItemTrackingLine.FindFirst();
+        WhseItemTrackingLine.Validate("Expiration Date", ExpirationDate);
+        WhseItemTrackingLine.Modify(true);
     end;
 
     local procedure UpdateInventoryInWhseItemJournal(LocationCode: Code[10]; var CompItem: array[3] of Record Item; Quantity: Decimal)
@@ -3569,34 +3551,31 @@ codeunit 137065 "SCM Reservation II"
     var
         Item: Record Item;
     begin
-        with Item do begin
-            Get(ItemNo);
-            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
-            Validate("Manufacturing Policy", "Manufacturing Policy"::"Make-to-Order");
-            Validate("Production BOM No.", ProductionBOMNo);
-            Modify(true);
-        end;
+        Item.Get(ItemNo);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Modify(true);
     end;
 
     local procedure UpdateLocation(var Location: Record Location; PutAway: Boolean; Pick: Boolean; Receive: Boolean; Shipment: Boolean; BinRequired: Boolean)
     begin
-        with Location do begin
-            Validate("Require Receive", Receive);
-            Validate("Require Shipment", Shipment);
-            Validate("Require Put-away", PutAway);
-            Validate("Require Pick", Pick);
+        Location.Validate("Require Receive", Receive);
+        Location.Validate("Require Shipment", Shipment);
+        Location.Validate("Require Put-away", PutAway);
+        Location.Validate("Require Pick", Pick);
 
-            if Pick then
-                if Shipment then
-                    "Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)"
-                else
-                    "Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
-            if PutAway then
-                "Prod. Output Whse. Handling" := "Prod. Output Whse. Handling"::"Inventory Put-away";
+        if Pick then
+            if Shipment then
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)"
+            else
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+        if PutAway then
+            Location."Prod. Output Whse. Handling" := Location."Prod. Output Whse. Handling"::"Inventory Put-away";
 
-            "Bin Mandatory" := BinRequired; // Skip Validate to improve performance.
-            Modify(true);
-        end;
+        Location."Bin Mandatory" := BinRequired;
+        // Skip Validate to improve performance.
+        Location.Modify(true);
     end;
 
     local procedure UpdateInventoryUsingWhseJournal(Location: Record Location; Item: Record Item; Quantity: Decimal)
@@ -3654,24 +3633,20 @@ codeunit 137065 "SCM Reservation II"
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        with ProdOrderComponent do begin
-            SetRange("Prod. Order No.", ProdOrderNo);
-            FindFirst();
-            Assert.AreEqual(QtyPer, "Quantity per", FieldCaption("Quantity per"));
-            Assert.AreEqual(ExpectedQty, "Expected Quantity", FieldCaption("Expected Quantity"));
-        end;
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderComponent.FindFirst();
+        Assert.AreEqual(QtyPer, ProdOrderComponent."Quantity per", ProdOrderComponent.FieldCaption("Quantity per"));
+        Assert.AreEqual(ExpectedQty, ProdOrderComponent."Expected Quantity", ProdOrderComponent.FieldCaption("Expected Quantity"));
     end;
 
     local procedure VerifyQtyOnPlanningComponent(ItemNo: Code[20]; QtyPer: Decimal; ExpectedQty: Decimal)
     var
         PlanningComponent: Record "Planning Component";
     begin
-        with PlanningComponent do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            Assert.AreEqual(QtyPer, "Quantity per", FieldCaption("Quantity per"));
-            Assert.AreEqual(ExpectedQty, "Expected Quantity", FieldCaption("Expected Quantity"));
-        end;
+        PlanningComponent.SetRange("Item No.", ItemNo);
+        PlanningComponent.FindFirst();
+        Assert.AreEqual(QtyPer, PlanningComponent."Quantity per", PlanningComponent.FieldCaption("Quantity per"));
+        Assert.AreEqual(ExpectedQty, PlanningComponent."Expected Quantity", PlanningComponent.FieldCaption("Expected Quantity"));
     end;
 
     local procedure VerifyReservationQtyOnSalesLine(DocumentNo: Code[20]; ReservedQuantity: Decimal)
@@ -3700,15 +3675,13 @@ codeunit 137065 "SCM Reservation II"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Location Code", LocationCode);
-            SetRange("Item No.", ItemNo);
-            SetRange("Lot No.", LotNo);
-            FindSet();
-            repeat
-                Assert.AreEqual(ExpectedQty, Quantity, PickErr);
-            until Next() = 0;
-        end;
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Lot No.", LotNo);
+        WarehouseActivityLine.FindSet();
+        repeat
+            Assert.AreEqual(ExpectedQty, WarehouseActivityLine.Quantity, PickErr);
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyRegisteredWhseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; ActionType: Enum "Warehouse Action Type")
@@ -3742,16 +3715,14 @@ codeunit 137065 "SCM Reservation II"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Source No.", SourceNo);
-            FindSet();
+        ItemLedgerEntry.SetRange("Source No.", SourceNo);
+        ItemLedgerEntry.FindSet();
 
-            TestField(Quantity, Quantity1);
-            Next();
-            TestField(Quantity, Quantity1);
-            Next();
-            TestField(Quantity, Quantity2);
-        end;
+        ItemLedgerEntry.TestField(Quantity, Quantity1);
+        ItemLedgerEntry.Next();
+        ItemLedgerEntry.TestField(Quantity, Quantity1);
+        ItemLedgerEntry.Next();
+        ItemLedgerEntry.TestField(Quantity, Quantity2);
     end;
 
     local procedure VerifyItemLedgerEntriesForCostAmountActual(ItemNo: Code[20])
@@ -3898,12 +3869,11 @@ codeunit 137065 "SCM Reservation II"
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
         FindRegisteredWhseActivityLine(RegisteredWhseActivityLine, SourceDocument, SourceNo, ActionType);
-        with RegisteredWhseActivityLine do
-            repeat
-                TestField("Lot No.");
-                TestField("Item No.", ItemNo);
-                SumQuantity += Quantity;
-            until Next() = 0;
+        repeat
+            RegisteredWhseActivityLine.TestField("Lot No.");
+            RegisteredWhseActivityLine.TestField("Item No.", ItemNo);
+            SumQuantity += RegisteredWhseActivityLine.Quantity;
+        until RegisteredWhseActivityLine.Next() = 0;
     end;
 
     local procedure AreSameMessages(Message: Text[1024]; Message2: Text[1024]): Boolean

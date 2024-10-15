@@ -6,6 +6,8 @@ page 5609 "FA Journal Setup"
     DataCaptionFields = "Depreciation Book Code";
     PageType = List;
     SourceTable = "FA Journal Setup";
+    AboutTitle = 'About FA Journal Setup';
+    AboutText = 'With the **FA Journal Setup** you can manage the user ID-wise batch and template configuration with this the user can use the assigned batch and template only to perform the entries.';
 
     layout
     {

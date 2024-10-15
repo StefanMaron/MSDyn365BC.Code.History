@@ -330,6 +330,14 @@ codeunit 1390 "Document Notifications"
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure EnableSalesExternalDocAlreadyExistNotificationOnInitializingWithDefaultState()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.SetShowExternalDocAlreadyExistNotificationDefaultState(true);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
     local procedure EnableWarningWhenPostingSalesQtyZero()
     var
         SalesHeader: Record "Sales Header";

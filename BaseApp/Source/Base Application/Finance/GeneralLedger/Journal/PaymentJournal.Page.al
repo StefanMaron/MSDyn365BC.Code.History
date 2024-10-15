@@ -1052,11 +1052,10 @@ page 256 "Payment Journal"
                                     if Rec."Bank Payment Type" = Rec."Bank Payment Type"::"Electronic Payment-IAT" then
                                         BankExportImportSetup.Get(BankAccount."EFT Export Code");
 
-                                if GenJournalLine.FindFirst() then begin
+                                if GenJournalLine.FindFirst() then
                                     repeat
                                         ExportNewLines := BulkVendorRemitReporting.ProcessLine(GenJournalLine);
                                     until (ExportNewLines = true) or (GenJournalLine.Next() = 0);
-                                end;
 
                                 if ExportNewLines then begin
                                     GenJnlLineRecordRef.GetTable(GenJournalLine);
@@ -1304,7 +1303,7 @@ page 256 "Payment Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Generate EFT File';
-                    Enabled = NOT (AMCFormat = TRUE);
+                    Enabled = not (AMCFormat = true);
                     Image = ExportFile;
                     ToolTip = 'Generate a file based on the exported payment journal lines. A window showing the file content opens from where you complete the electronic funds transfer.';
 
@@ -1618,38 +1617,11 @@ page 256 "Payment Journal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create approval flow';
                         ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-#if not CLEAN22
-                        Visible = IsSaaS and PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-#else
                         Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
-#endif
                         CustomActionType = FlowTemplateGallery;
                         FlowTemplateCategoryName = 'd365bc_approval_generalJournal';
                     }
                 }
-#if not CLEAN22
-                action(CreateFlow)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Create a Power Automate approval flow';
-                    Image = Flow;
-                    ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-                    Visible = IsSaaS and not PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-                    ObsoleteReason = 'This action will be handled by platform as part of the CreateFlowFromTemplate customaction';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-
-                    trigger OnAction()
-                    var
-                        FlowServiceManagement: Codeunit "Flow Service Management";
-                        FlowTemplateSelector: Page "Flow Template Selector";
-                    begin
-                        // Opens page 6400 where the user can use filtered templates to create new flows.
-                        FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetJournalTemplateFilter());
-                        FlowTemplateSelector.Run();
-                    end;
-                }
-#endif
             }
             group(Workflow)
             {
@@ -2009,10 +1981,6 @@ page 256 "Payment Journal"
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
 
         SetJobQueueVisibility();
-
-#if not CLEAN22
-        InitPowerAutomateTemplateVisibility();
-#endif
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -2519,22 +2487,6 @@ page 256 "Payment Journal"
         exit(true);
     end;
 
-#if not CLEAN22
-    var
-        PowerAutomateTemplatesEnabled: Boolean;
-        PowerAutomateTemplatesFeatureLbl: Label 'PowerAutomateTemplates', Locked = true;
-
-    local procedure InitPowerAutomateTemplateVisibility()
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        PowerAutomateTemplatesEnabled := true;
-        if FeatureKey.Get(PowerAutomateTemplatesFeatureLbl) then
-            if FeatureKey.Enabled <> FeatureKey.Enabled::"All Users" then
-                PowerAutomateTemplatesEnabled := false;
-    end;
-#endif
-
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlManagement: Codeunit GenJnlManagement; var AccName: Text[100]; var BalAccName: Text[100])
     begin
@@ -2610,3 +2562,4 @@ page 256 "Payment Journal"
     begin
     end;
 }
+

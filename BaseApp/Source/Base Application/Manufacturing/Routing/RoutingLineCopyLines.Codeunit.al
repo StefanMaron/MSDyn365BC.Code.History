@@ -8,9 +8,13 @@ codeunit 99000753 "Routing Line-Copy Lines"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The %1 cannot be copied to itself.';
         Text001: Label '%1 on %2 %3 must not be %4';
         Text002: Label '%1 on %2 %3 %4 must not be %5';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CopyRouting(FromRoutingHeaderNo: Code[20]; FromVersionCode: Code[20]; var RoutingHeader: Record "Routing Header"; ToVersionCode: Code[20])
     var

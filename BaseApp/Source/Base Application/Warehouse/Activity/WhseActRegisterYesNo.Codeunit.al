@@ -18,8 +18,12 @@ codeunit 7306 "Whse.-Act.-Register (Yes/No)"
         WhseActivityRegister: Codeunit "Whse.-Activity-Register";
         WMSMgt: Codeunit "WMS Management";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Do you want to register the %1 Document?';
         Text002: Label 'The document %1 is not supported.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

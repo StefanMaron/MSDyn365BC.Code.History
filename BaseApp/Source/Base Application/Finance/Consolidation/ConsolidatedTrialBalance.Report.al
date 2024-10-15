@@ -329,10 +329,14 @@ report 10007 "Consolidated Trial Balance"
         GLBalanceSum: Decimal;
         EliminationAmount: Decimal;
         PeriodText: Text;
+#pragma warning disable AA0074
         Text000: Label 'Please enter the starting date for the consolidation period.';
         Text001: Label 'Please enter the ending date for the consolidation period.';
+#pragma warning disable AA0470
         Text002: Label 'Period: %1';
+#pragma warning restore AA0470
         Text003: Label '(using %1)';
+#pragma warning restore AA0074
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
         Consolidated_Trial_BalanceCaptionLbl: Label 'Consolidated Trial Balance';

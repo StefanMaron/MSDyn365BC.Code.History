@@ -350,7 +350,7 @@ page 10027 "Sales Order Shipment Subform"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     Enabled = Rec.Type = Rec.Type::Item;
-                    ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
+                    ToolTip = 'View or edit serial, lot and package numbers for the selected item. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
@@ -477,10 +477,10 @@ page 10027 "Sales Order Shipment Subform"
 
     procedure ShowTracking()
     var
-        TrackingForm: Page "Order Tracking";
+        OrderTracking: Page "Order Tracking";
     begin
-        TrackingForm.SetSalesLine(Rec);
-        TrackingForm.RunModal();
+        OrderTracking.SetVariantRec(Rec, Rec."No.", Rec."Outstanding Qty. (Base)", Rec."Shipment Date", Rec."Shipment Date");
+        OrderTracking.RunModal();
     end;
 
     procedure ItemChargeAssgnt()

@@ -419,6 +419,8 @@ report 7151 "Item Dimensions - Total"
 
     requestpage
     {
+        AboutTitle = 'About Item Dimensions - Total';
+        AboutText = 'Build a grouping of dimensions for each permutation of dimension values, defined through a hierarchy of dimension levels from an analysis view. View a total of inventory transactions for each group, with the ability to extend this to show user-defined period buckets, with different parameters, from item actual or budget entries.';
         SaveValues = true;
 
         layout
@@ -696,6 +698,7 @@ report 7151 "Item Dimensions - Total"
         PrintEndTotals: array[50] of Boolean;
         ItemFilterSet: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter an analysis view code.';
         Text001: Label 'Enter a column template.';
         Text002: Label 'Enter a date filter.';
@@ -705,6 +708,7 @@ report 7151 "Item Dimensions - Total"
         Text006: Label '(Thousands)';
         Text007: Label '(Millions)';
         Text009: Label '(no location code)';
+#pragma warning restore AA0074
         ColumnTemplateCaptionLbl: Label 'Column Template';
         PeriodCaptionLbl: Label 'Period';
         AnalysisViewCaptionLbl: Label 'Analysis View';

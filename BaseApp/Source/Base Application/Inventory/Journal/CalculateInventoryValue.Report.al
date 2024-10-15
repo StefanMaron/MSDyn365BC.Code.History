@@ -348,9 +348,13 @@ report 5899 "Calculate Inventory Value"
         DuplWarningQst: Label 'Duplicate Revaluation Journals will be generated.\Do you want to continue?';
         HideDuplWarning: Boolean;
 
+#pragma warning disable AA0074
         Text003: Label 'You must enter a document number.';
+#pragma warning disable AA0470
         Text010: Label 'Processing items #1##########';
         Text011: Label 'You cannot revalue by Calculate Per Item for item %1 using posting date %2. You can only use the posting date %3 for this period.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         ByLocation2: Boolean;

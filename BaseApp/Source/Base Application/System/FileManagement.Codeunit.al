@@ -14,18 +14,27 @@ codeunit 419 "File Management"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'Default';
+#pragma warning restore AA0074
         FileDoesNotExistErr: Label 'The file %1 does not exist.', Comment = '%1 File Path';
+#pragma warning disable AA0074
         Text006: Label 'Export';
         Text007: Label 'Import';
+#pragma warning restore AA0074
         PathHelper: DotNet Path;
         [RunOnClient]
         DirectoryHelper: DotNet Directory;
         ServerFileHelper: DotNet File;
         ServerDirectoryHelper: DotNet Directory;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text013: Label 'The file name %1 already exists.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AllFilesFilterTxt: Label '*.*', Locked = true;
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
+#pragma warning disable AA0074
         XMLFileType: Label 'XML Files (*.xml)|*.xml', Comment = '{Split=r''\|''}{Locked=s''1''}';
         WordFileType: Label 'Word Files (*.doc)|*.doc', Comment = '{Split=r''\|''}{Locked=s''1''}';
         Word2007FileType: Label 'Word Files (*.docx;*.doc)|*.docx;*.doc', Comment = '{Split=r''\|''}{Locked=s''1''}';
@@ -35,8 +44,11 @@ codeunit 419 "File Management"
         HTMFileType: Label 'HTM Files (*.htm)|*.htm', Comment = '{Split=r''\|''}{Locked=s''1''}';
         XSLTFileType: Label 'XSLT Files (*.xslt)|*.xslt', Comment = '{Split=r''\|''}{Locked=s''1''}';
         TXTFileType: Label 'Text Files (*.txt)|*.txt', Comment = '{Split=r''\|''}{Locked=s''1''}';
+#pragma warning restore AA0074
         RDLFileTypeTok: Label 'SQL Report Builder (*.rdl;*.rdlc)|*.rdl;*.rdlc', Comment = '{Split=r''\|''}{Locked=s''1''}';
+#pragma warning disable AA0470
         UnsupportedFileExtErr: Label 'Unsupported file extension (.%1). The supported file extensions are (%2).';
+#pragma warning restore AA0470
         SingleFilterErr: Label 'Specify a file filter and an extension filter when using this function.';
         InvalidWindowsChrStringTxt: Label '"#%&*:<>?\/{|}~', Locked = true;
         DownloadImageTxt: Label 'Download image';

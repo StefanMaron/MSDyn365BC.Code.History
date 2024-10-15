@@ -133,6 +133,15 @@ codeunit 5467 "PDF Document Management"
         exit(true);
     end;
 
+    procedure GeneratePdfBlobWithDocumentType(ParentId: Guid; DocumentId: Guid; DocumentType: Enum "Attachment Entity Buffer Document Type"; var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary): Boolean
+    begin
+        if GeneratePdfBlobWithDocumentType(DocumentId, DocumentType, TempAttachmentEntityBuffer) then begin
+            TempAttachmentEntityBuffer.Rename(TempAttachmentEntityBuffer.Id, ParentId);
+            TempAttachmentEntityBuffer.Modify();
+            exit(true);
+        end;
+    end;
+
     procedure GeneratePdfBlobWithDocumentType(DocumentId: Guid; DocumentType: Enum "Attachment Entity Buffer Document Type"; var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary): Boolean
     var
         CompanyInformation: Record "Company Information";

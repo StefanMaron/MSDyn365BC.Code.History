@@ -123,12 +123,18 @@ report 1139 "Delete Cost Budget Entries"
         CostBudgetEntry: Record "Cost Budget Entry";
         Window: Dialog;
 
+#pragma warning disable AA0074
         Text000: Label 'From Register No. must not be higher than To Register No..';
+#pragma warning disable AA0470
         Text001: Label 'All corresponding cost budget entries and budget register entries will be deleted. Do you want to delete cost budget register %1 to %2?';
+#pragma warning restore AA0470
         Text004: Label 'Are you sure?';
         Text005: Label 'Delete cost register\';
+#pragma warning disable AA0470
         Text006: Label 'Register  no.      #1######';
         Text007: Label 'Register %1 can no longer be deleted because it is marked as closed.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure InitializeRequest(FromEntryNo: Integer; ToEntryNo: Integer)
     begin

@@ -256,18 +256,18 @@ report 10060 "Salesperson Statistics by Inv."
                 begin
                     if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then
                         "Profit (LCY)" += CostCalcMgt.CalcCustLedgAdjmtCostLCY("Cust. Ledger Entry");
-                    if "Sales (LCY)" > 0 then begin
-                        "Profit%" := Round("Profit (LCY)" / "Sales (LCY)" * 100, 0.1);
-                    end else
+                    if "Sales (LCY)" > 0 then
+                        "Profit%" := Round("Profit (LCY)" / "Sales (LCY)" * 100, 0.1)
+                    else
                         "Profit%" := 0;
                 end;
             }
 
             trigger OnPreDataItem()
             begin
-                if PrintDetail then begin
-                    SubTitle := '(Detail)';
-                end else
+                if PrintDetail then
+                    SubTitle := '(Detail)'
+                else
                     SubTitle := '(Summary)';
             end;
         }

@@ -323,10 +323,13 @@ table 85 "Acc. Schedule Line"
         HasGLSetup: Boolean;
 
         ForceUnderLineMsg: Label '%1 will be set to false.', Comment = '%1= Field underline ';
+#pragma warning disable AA0074
         Text000: Label 'Default Schedule';
+#pragma warning disable AA0470
         Text001: Label 'The parenthesis at position %1 is misplaced.';
         Text002: Label 'You cannot have two consecutive operators. The error occurred at position %1.';
         Text003: Label 'There is an operand missing after position %1.';
+#pragma warning restore AA0470
         Text004: Label 'There are more left parentheses than right parentheses.';
         Text005: Label 'There are more right parentheses than left parentheses.';
         Text006: Label '1,6,,Dimension 1 Filter';
@@ -338,7 +341,10 @@ table 85 "Acc. Schedule Line"
         Text012: Label '1,5,,Dimension 2 Totaling';
         Text013: Label '1,5,,Dimension 3 Totaling';
         Text014: Label '1,5,,Dimension 4 Totaling';
+#pragma warning disable AA0470
         Text015: Label 'The %1 refers to %2 %3, which does not exist. The field %4 on table %5 has now been deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         UnderlineTrueMsg: Label 'The %1 should be true when %2 is %3.', Comment = '%1 - Double Underline; %2 - Totaling Type; %3 - value of Totaling Type';
 
     procedure LookUpDimFilter(DimNo: Integer; var Text: Text) Result: Boolean

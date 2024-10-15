@@ -360,7 +360,9 @@ report 209 "Sales Reservation Avail."
         LineQuantityOnHand: Decimal;
         EntryQuantityOnHand: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'Sales lines must be shown.';
+#pragma warning restore AA0074
         SalesResrvtnAvalbtyCaptionLbl: Label 'Sales Reservation Availability';
         CurrRepPageNoCaptionLbl: Label 'Page';
         SalesLineShpmtDtCaptionLbl: Label 'Shipment Date';

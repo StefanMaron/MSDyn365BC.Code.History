@@ -131,10 +131,10 @@ report 10131 "Availability Status"
             trigger OnAfterGetRecord()
             begin
                 CalcFields(Inventory, "Qty. on Sales Order", "Qty. on Purch. Order", "Qty. on Service Order",
-                  "Scheduled Receipt (Qty.)", "Scheduled Need (Qty.)",
+                  "Scheduled Receipt (Qty.)", "Qty. on Component Lines",
                   "Rel. Scheduled Receipt (Qty.)", "Rel. Scheduled Need (Qty.)");
                 QuantityOnRelProdOrd := "Rel. Scheduled Receipt (Qty.)" - "Rel. Scheduled Need (Qty.)";
-                QuantityOnPlanProdOrd := "Scheduled Receipt (Qty.)" - "Scheduled Need (Qty.)" - QuantityOnRelProdOrd;
+                QuantityOnPlanProdOrd := "Scheduled Receipt (Qty.)" - "Qty. on Component Lines" - QuantityOnRelProdOrd;
                 QtyAvailable := Inventory - "Qty. on Sales Order" + "Qty. on Purch. Order"
                   - "Qty. on Service Order" + QuantityOnRelProdOrd + QuantityOnPlanProdOrd;
             end;

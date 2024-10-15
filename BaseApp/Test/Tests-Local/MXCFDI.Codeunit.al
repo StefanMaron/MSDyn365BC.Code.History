@@ -52,7 +52,6 @@
         RFCNoFieldTxt: Label 'RFC No.';
         CFDIPurposeFieldTxt: Label 'CFDI Purpose';
         CFDIRelationFieldTxt: Label 'CFDI Relation';
-        PaymentMethodMissingErr: Label 'Payment Method Code must have a value in %1: Document Type=%2';
         IfEmptyErr: Label '''%1'' in ''%2'' must not be blank.', Comment = '%1=caption of a field, %2=key of record';
         PACDetailDoesNotExistErr: Label 'Record %1 does not exist for %2, %3, %4.';
         NoElectronicStampErr: Label 'There is no electronic stamp';
@@ -1155,7 +1154,7 @@
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(PaymentMethodMissingErr, SalesHeader.TableCaption(), SalesHeader."Document Type"::"Credit Memo"));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption("Payment Method Code"), '');
     end;
 
     [Test]
@@ -1173,8 +1172,7 @@
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // Verify
-        Assert.ExpectedError(
-          StrSubstNo(PaymentMethodMissingErr, ServiceHeader.TableCaption(), ServiceHeader."Document Type"::"Credit Memo"));
+        Assert.ExpectedTestFieldError(ServiceHeader.FieldCaption("Payment Method Code"), '');
     end;
 
     [Test]
@@ -1235,7 +1233,7 @@
 
         // [THEN] String for digital stamp has 'ValorUnitario' = 0, 'Importe' = 0  (TFS 329513)
         // [THEN] Original stamp string has NumParcialidad (partial payment number) = '1' (TFS 363806)
-        // [THEN] String for digital stamp has 'FormaDePagoP' = '03' (TFS 375439)       
+        // [THEN] String for digital stamp has 'FormaDePagoP' = '03' (TFS 375439)          
         InitOriginalStringFromCustLedgerEntry(CustLedgerEntry, OriginalStr);
         Assert.AreEqual('0', SelectStr(23, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ValorUnitario', OriginalStr));
         Assert.AreEqual('0', SelectStr(24, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Importe', OriginalStr));
@@ -2071,7 +2069,7 @@
             GetPostedSalesInvoice(SalesInvoiceHeader, CustLedgerEntryInv[i]."Document No.");
         end;
 
-        // [GIVEN] Payment "Pmt1" with amount of -250 (100/2 + 200)
+        // [GIVEN] Payment "Pmt1" with amount of -150 (100/2 + 200)
         PaymentNo1 := CreatePostPayment(CustomerNo, '', -CustLedgerEntryInv[1].Amount / 2 - CustLedgerEntryInv[2].Amount, '');
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo1);
 
@@ -5243,7 +5241,6 @@
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         InStream: InStream;
         OriginalStr: Text;
         FANo: Code[20];
@@ -5271,7 +5268,7 @@
 
         // [THEN] 'Concepto' node has attributes 'ClaveProdServ' = SAT Classification Code of the Fixed Asset, 'NoIdentificacion' = "FA", 'ClaveUnidad' = 'H87'
         // [THEN] String for digital stamp has 'ClaveProdServ' = SAT Classification Code of the Fixed Asset, 'NoIdentificacion' = "FA", 'ClaveUnidad' = 'H87'
-        VerifyCFDIConceptoFields(OriginalStr, FANo, SATUtilities.GetSATUnitOfMeasureFixedAsset(), SalesLine.Type::"Fixed Asset");
+        VerifyCFDIConceptoFields(OriginalStr, FANo, SATUtilities.GetSATUnitOfMeasureFixedAsset(), 4);
     end;
 
     [Test]
@@ -5281,7 +5278,6 @@
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         InStream: InStream;
         OriginalStr: Text;
         FANo: Code[20];
@@ -5310,7 +5306,7 @@
 
         // [THEN] 'Concepto' node has attributes 'ClaveProdServ' = '01010101', 'NoIdentificacion' = "FA", 'ClaveUnidad' = 'H87'
         // [THEN] String for digital stamp has 'ClaveProdServ' = '01010101', 'NoIdentificacion' = "FA", 'ClaveUnidad' = 'H87'
-        VerifyCFDIConceptoFields(OriginalStr, FANo, SATUtilities.GetSATUnitOfMeasureFixedAsset(), SalesLine.Type::"Fixed Asset");
+        VerifyCFDIConceptoFields(OriginalStr, FANo, SATUtilities.GetSATUnitOfMeasureFixedAsset(), 4);
     end;
 
     [Test]
@@ -5354,7 +5350,7 @@
 
         // [THEN] 'Concepto' node has attributes 'ClaveProdServ' = SAT Classification Code of the G/L Account, 'NoIdentificacion' = "GLAcc", 'ClaveUnidad' = 'E48'
         // [THEN] String for digital stamp has 'ClaveProdServ' = SAT Classification Code of theG/L Account, 'NoIdentificacion' = "GLAcc", 'ClaveUnidad' = 'E48'
-        VerifyCFDIConceptoFields(OriginalStr, GLAccount."No.", SATUtilities.GetSATUnitOfMeasureGLAccount(), SalesLine.Type::"G/L Account");
+        VerifyCFDIConceptoFields(OriginalStr, GLAccount."No.", SATUtilities.GetSATUnitOfMeasureGLAccount(), 1);
     end;
 
     [Test]
@@ -6265,7 +6261,7 @@
         SalesHeader.Validate(SalesHeader."Prepayment %", LibraryRandom.RandIntInRange(10, 50));
         SalesHeader.Modify(true);
         CreateSalesLineItem(SalesLine, SalesHeader, CreateItem(), LibraryRandom.RandIntInRange(2, 5), 0, 16, false, false);
-
+        
         // [GIVEN] Posted prepayment invoice, Amount Including VAT = 2320, VAT = 16%
         SalesInvoiceHeader.Get(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader));
 
@@ -8100,102 +8096,102 @@
 
         case TableNo of
             DATABASE::"Sales Invoice Header":
-                with SalesInvoiceHeader do begin
-                    Get(PostedDocumentNo);
-                    TestField("Electronic Document Status", ExpectedStatus);
-                    TestField("No. of E-Documents Sent", ExpectedNoOfEmailsSent);
-                    Assert.AreEqual(ExpectedDateTimeSentEmpty, "Date/Time Sent" = '',
-                      StrSubstNo(ValueErr, FieldName("Date/Time Sent")));
-                    Assert.AreEqual(ExpectedDateTimeCanceledEmpty, "Date/Time Canceled" = '',
-                      StrSubstNo(ValueErr, FieldName("Date/Time Canceled")));
-                    Assert.AreEqual(ExpectedCancellationIDEmpty, "CFDI Cancellation ID" = '',
-                      StrSubstNo(ValueErr, FieldName("CFDI Cancellation ID")));
-                    TestField("Date/Time Stamped", ExpectedDateTimeStamped);
-                    TestField("PAC Web Service Name", ExpectedPACCode);
-                    TestField("Fiscal Invoice Number PAC", ExpectedInvoiceNoPAC);
-                    TestField("Error Code", ExpectedErrorCode);
-                    TestField("Error Description", ExpectedErrorDesc);
-                    CalcFields("Digital Stamp PAC");
-                    DummyTempBlob.FromRecord(SalesInvoiceHeader, FieldNo("Digital Stamp PAC"));
+                begin
+                    SalesInvoiceHeader.Get(PostedDocumentNo);
+                    SalesInvoiceHeader.TestField("Electronic Document Status", ExpectedStatus);
+                    SalesInvoiceHeader.TestField("No. of E-Documents Sent", ExpectedNoOfEmailsSent);
+                    Assert.AreEqual(ExpectedDateTimeSentEmpty, SalesInvoiceHeader."Date/Time Sent" = '',
+                      StrSubstNo(ValueErr, SalesInvoiceHeader.FieldName("Date/Time Sent")));
+                    Assert.AreEqual(ExpectedDateTimeCanceledEmpty, SalesInvoiceHeader."Date/Time Canceled" = '',
+                      StrSubstNo(ValueErr, SalesInvoiceHeader.FieldName("Date/Time Canceled")));
+                    Assert.AreEqual(ExpectedCancellationIDEmpty, SalesInvoiceHeader."CFDI Cancellation ID" = '',
+                      StrSubstNo(ValueErr, SalesInvoiceHeader.FieldName("CFDI Cancellation ID")));
+                    SalesInvoiceHeader.TestField("Date/Time Stamped", ExpectedDateTimeStamped);
+                    SalesInvoiceHeader.TestField("PAC Web Service Name", ExpectedPACCode);
+                    SalesInvoiceHeader.TestField("Fiscal Invoice Number PAC", ExpectedInvoiceNoPAC);
+                    SalesInvoiceHeader.TestField("Error Code", ExpectedErrorCode);
+                    SalesInvoiceHeader.TestField("Error Description", ExpectedErrorDesc);
+                    SalesInvoiceHeader.CalcFields("Digital Stamp PAC");
+                    DummyTempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Digital Stamp PAC"));
                     VerifyDigitalStamp(DummyTempBlob, ExpectedDigitalStamp);
                     Clear(DummyTempBlob);
-                    CalcFields("Original Document XML");
-                    DummyTempBlob.FromRecord(SalesInvoiceHeader, FieldNo("Original Document XML"));
+                    SalesInvoiceHeader.CalcFields("Original Document XML");
+                    DummyTempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
                     VerifyCancelXML(
-                      DummyTempBlob, "Electronic Document Status" = "Electronic Document Status"::Canceled,
-                      "CFDI Cancellation Reason Code", '');
+                      DummyTempBlob, SalesInvoiceHeader."Electronic Document Status" = SalesInvoiceHeader."Electronic Document Status"::Canceled,
+                      SalesInvoiceHeader."CFDI Cancellation Reason Code", '');
                 end;
             DATABASE::"Sales Cr.Memo Header":
-                with SalesCrMemoHeader do begin
-                    Get(PostedDocumentNo);
-                    TestField("Electronic Document Status", ExpectedStatus);
-                    TestField("No. of E-Documents Sent", ExpectedNoOfEmailsSent);
-                    Assert.AreEqual(ExpectedDateTimeSentEmpty, "Date/Time Sent" = '',
-                      StrSubstNo(ValueErr, FieldName("Date/Time Sent")));
-                    Assert.AreEqual(ExpectedDateTimeCanceledEmpty, "Date/Time Canceled" = '',
-                      StrSubstNo(ValueErr, FieldName("Date/Time Canceled")));
-                    TestField("Date/Time Stamped", ExpectedDateTimeStamped);
-                    TestField("PAC Web Service Name", ExpectedPACCode);
-                    TestField("Fiscal Invoice Number PAC", ExpectedInvoiceNoPAC);
-                    TestField("Error Code", ExpectedErrorCode);
-                    TestField("Error Description", ExpectedErrorDesc);
-                    CalcFields("Digital Stamp PAC");
-                    DummyTempBlob.FromRecord(SalesCrMemoHeader, FieldNo("Digital Stamp PAC"));
+                begin
+                    SalesCrMemoHeader.Get(PostedDocumentNo);
+                    SalesCrMemoHeader.TestField("Electronic Document Status", ExpectedStatus);
+                    SalesCrMemoHeader.TestField("No. of E-Documents Sent", ExpectedNoOfEmailsSent);
+                    Assert.AreEqual(ExpectedDateTimeSentEmpty, SalesCrMemoHeader."Date/Time Sent" = '',
+                      StrSubstNo(ValueErr, SalesCrMemoHeader.FieldName("Date/Time Sent")));
+                    Assert.AreEqual(ExpectedDateTimeCanceledEmpty, SalesCrMemoHeader."Date/Time Canceled" = '',
+                      StrSubstNo(ValueErr, SalesCrMemoHeader.FieldName("Date/Time Canceled")));
+                    SalesCrMemoHeader.TestField("Date/Time Stamped", ExpectedDateTimeStamped);
+                    SalesCrMemoHeader.TestField("PAC Web Service Name", ExpectedPACCode);
+                    SalesCrMemoHeader.TestField("Fiscal Invoice Number PAC", ExpectedInvoiceNoPAC);
+                    SalesCrMemoHeader.TestField("Error Code", ExpectedErrorCode);
+                    SalesCrMemoHeader.TestField("Error Description", ExpectedErrorDesc);
+                    SalesCrMemoHeader.CalcFields("Digital Stamp PAC");
+                    DummyTempBlob.FromRecord(SalesCrMemoHeader, SalesCrMemoHeader.FieldNo("Digital Stamp PAC"));
                     VerifyDigitalStamp(DummyTempBlob, ExpectedDigitalStamp);
                     Clear(DummyTempBlob);
-                    CalcFields("Original Document XML");
-                    DummyTempBlob.FromRecord(SalesCrMemoHeader, FieldNo("Original Document XML"));
+                    SalesCrMemoHeader.CalcFields("Original Document XML");
+                    DummyTempBlob.FromRecord(SalesCrMemoHeader, SalesCrMemoHeader.FieldNo("Original Document XML"));
                     VerifyCancelXML(
-                      DummyTempBlob, "Electronic Document Status" = "Electronic Document Status"::Canceled,
-                      "CFDI Cancellation Reason Code", '');
+                      DummyTempBlob, SalesCrMemoHeader."Electronic Document Status" = SalesCrMemoHeader."Electronic Document Status"::Canceled,
+                      SalesCrMemoHeader."CFDI Cancellation Reason Code", '');
                 end;
             DATABASE::"Service Invoice Header":
-                with ServiceInvoiceHeader do begin
-                    Get(PostedDocumentNo);
-                    TestField("Electronic Document Status", ExpectedStatus);
-                    TestField("No. of E-Documents Sent", ExpectedNoOfEmailsSent);
-                    Assert.AreEqual(ExpectedDateTimeSentEmpty, "Date/Time Sent" = '',
-                      StrSubstNo(ValueErr, FieldName("Date/Time Sent")));
-                    Assert.AreEqual(ExpectedDateTimeCanceledEmpty, "Date/Time Canceled" = '',
-                      StrSubstNo(ValueErr, FieldName("Date/Time Canceled")));
-                    TestField("Date/Time Stamped", ExpectedDateTimeStamped);
-                    TestField("PAC Web Service Name", ExpectedPACCode);
-                    TestField("Fiscal Invoice Number PAC", ExpectedInvoiceNoPAC);
-                    TestField("Error Code", ExpectedErrorCode);
-                    TestField("Error Description", ExpectedErrorDesc);
-                    CalcFields("Digital Stamp PAC");
-                    DummyTempBlob.FromRecord(ServiceInvoiceHeader, FieldNo("Digital Stamp PAC"));
+                begin
+                    ServiceInvoiceHeader.Get(PostedDocumentNo);
+                    ServiceInvoiceHeader.TestField("Electronic Document Status", ExpectedStatus);
+                    ServiceInvoiceHeader.TestField("No. of E-Documents Sent", ExpectedNoOfEmailsSent);
+                    Assert.AreEqual(ExpectedDateTimeSentEmpty, ServiceInvoiceHeader."Date/Time Sent" = '',
+                      StrSubstNo(ValueErr, ServiceInvoiceHeader.FieldName("Date/Time Sent")));
+                    Assert.AreEqual(ExpectedDateTimeCanceledEmpty, ServiceInvoiceHeader."Date/Time Canceled" = '',
+                      StrSubstNo(ValueErr, ServiceInvoiceHeader.FieldName("Date/Time Canceled")));
+                    ServiceInvoiceHeader.TestField("Date/Time Stamped", ExpectedDateTimeStamped);
+                    ServiceInvoiceHeader.TestField("PAC Web Service Name", ExpectedPACCode);
+                    ServiceInvoiceHeader.TestField("Fiscal Invoice Number PAC", ExpectedInvoiceNoPAC);
+                    ServiceInvoiceHeader.TestField("Error Code", ExpectedErrorCode);
+                    ServiceInvoiceHeader.TestField("Error Description", ExpectedErrorDesc);
+                    ServiceInvoiceHeader.CalcFields("Digital Stamp PAC");
+                    DummyTempBlob.FromRecord(ServiceInvoiceHeader, ServiceInvoiceHeader.FieldNo("Digital Stamp PAC"));
                     VerifyDigitalStamp(DummyTempBlob, ExpectedDigitalStamp);
                     Clear(DummyTempBlob);
-                    CalcFields("Original Document XML");
-                    DummyTempBlob.FromRecord(ServiceInvoiceHeader, FieldNo("Original Document XML"));
+                    ServiceInvoiceHeader.CalcFields("Original Document XML");
+                    DummyTempBlob.FromRecord(ServiceInvoiceHeader, ServiceInvoiceHeader.FieldNo("Original Document XML"));
                     VerifyCancelXML(
-                      DummyTempBlob, "Electronic Document Status" = "Electronic Document Status"::Canceled,
-                      "CFDI Cancellation Reason Code", '');
+                      DummyTempBlob, ServiceInvoiceHeader."Electronic Document Status" = ServiceInvoiceHeader."Electronic Document Status"::Canceled,
+                      ServiceInvoiceHeader."CFDI Cancellation Reason Code", '');
                 end;
             DATABASE::"Service Cr.Memo Header":
-                with ServiceCrMemoHeader do begin
-                    Get(PostedDocumentNo);
-                    TestField("Electronic Document Status", ExpectedStatus);
-                    TestField("No. of E-Documents Sent", ExpectedNoOfEmailsSent);
-                    Assert.AreEqual(ExpectedDateTimeSentEmpty, "Date/Time Sent" = '',
-                      StrSubstNo(ValueErr, FieldName("Date/Time Sent")));
-                    Assert.AreEqual(ExpectedDateTimeCanceledEmpty, "Date/Time Canceled" = '',
-                      StrSubstNo(ValueErr, FieldName("Date/Time Canceled")));
-                    TestField("Date/Time Stamped", ExpectedDateTimeStamped);
-                    TestField("PAC Web Service Name", ExpectedPACCode);
-                    TestField("Fiscal Invoice Number PAC", ExpectedInvoiceNoPAC);
-                    TestField("Error Code", ExpectedErrorCode);
-                    TestField("Error Description", ExpectedErrorDesc);
-                    CalcFields("Digital Stamp PAC");
-                    DummyTempBlob.FromRecord(ServiceCrMemoHeader, FieldNo("Digital Stamp PAC"));
+                begin
+                    ServiceCrMemoHeader.Get(PostedDocumentNo);
+                    ServiceCrMemoHeader.TestField("Electronic Document Status", ExpectedStatus);
+                    ServiceCrMemoHeader.TestField("No. of E-Documents Sent", ExpectedNoOfEmailsSent);
+                    Assert.AreEqual(ExpectedDateTimeSentEmpty, ServiceCrMemoHeader."Date/Time Sent" = '',
+                      StrSubstNo(ValueErr, ServiceCrMemoHeader.FieldName("Date/Time Sent")));
+                    Assert.AreEqual(ExpectedDateTimeCanceledEmpty, ServiceCrMemoHeader."Date/Time Canceled" = '',
+                      StrSubstNo(ValueErr, ServiceCrMemoHeader.FieldName("Date/Time Canceled")));
+                    ServiceCrMemoHeader.TestField("Date/Time Stamped", ExpectedDateTimeStamped);
+                    ServiceCrMemoHeader.TestField("PAC Web Service Name", ExpectedPACCode);
+                    ServiceCrMemoHeader.TestField("Fiscal Invoice Number PAC", ExpectedInvoiceNoPAC);
+                    ServiceCrMemoHeader.TestField("Error Code", ExpectedErrorCode);
+                    ServiceCrMemoHeader.TestField("Error Description", ExpectedErrorDesc);
+                    ServiceCrMemoHeader.CalcFields("Digital Stamp PAC");
+                    DummyTempBlob.FromRecord(ServiceCrMemoHeader, ServiceCrMemoHeader.FieldNo("Digital Stamp PAC"));
                     VerifyDigitalStamp(DummyTempBlob, ExpectedDigitalStamp);
                     Clear(DummyTempBlob);
-                    CalcFields("Original Document XML");
-                    DummyTempBlob.FromRecord(ServiceCrMemoHeader, FieldNo("Original Document XML"));
+                    ServiceCrMemoHeader.CalcFields("Original Document XML");
+                    DummyTempBlob.FromRecord(ServiceCrMemoHeader, ServiceCrMemoHeader.FieldNo("Original Document XML"));
                     VerifyCancelXML(
-                      DummyTempBlob, "Electronic Document Status" = "Electronic Document Status"::Canceled,
-                      "CFDI Cancellation Reason Code", '');
+                      DummyTempBlob, ServiceCrMemoHeader."Electronic Document Status" = ServiceCrMemoHeader."Electronic Document Status"::Canceled,
+                      ServiceCrMemoHeader."CFDI Cancellation Reason Code", '');
                 end;
             DATABASE::"Sales Shipment Header":
                 begin
@@ -9091,16 +9087,16 @@
           OriginalStrCSV, RFCNo, CFDIPurpose, CFDIRelation, PaymentMethodCode, PaymentTermsCode, UnitOfMeasureCode, RelationIdx);
     end;
 
-    local procedure VerifyCFDIConceptoFields(OriginalStr: Text; NoIdentificacion: Code[20]; SATUnitOfMeasure: Code[10]; LineType: Enum "Sales Line Type")
+    local procedure VerifyCFDIConceptoFields(OriginalStr: Text; NoIdentificacion: Code[20]; SATUnitOfMeasure: Code[10]; LineType: Option)
     begin
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'ClaveProdServ', SATUtilities.GetSATClassification(LineType, NoIdentificacion));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'ClaveProdServ', SATUtilities.GetSATItemClassification(LineType, NoIdentificacion));
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'NoIdentificacion', NoIdentificacion);
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Conceptos/cfdi:Concepto', 'ClaveUnidad', SATUnitOfMeasure);
 
         Assert.AreEqual(
-          SATUtilities.GetSATClassification(LineType, NoIdentificacion), SelectStr(22, OriginalStr),
+          SATUtilities.GetSATItemClassification(LineType, NoIdentificacion), SelectStr(22, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'SAT Item Classification', OriginalStr));
         Assert.AreEqual(
           NoIdentificacion, SelectStr(23, OriginalStr),

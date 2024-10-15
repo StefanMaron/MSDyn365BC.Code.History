@@ -587,11 +587,9 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure SetupCustomerInvoiceRoundingAccount(CustomerPostingGroupCode: Code[20]; VATPostingSetup: Record "VAT Posting Setup")
@@ -599,13 +597,11 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         CustomerPostingGroup: Record "Customer Posting Group";
         GLAccount: Record "G/L Account";
     begin
-        with CustomerPostingGroup do begin
-            Get(CustomerPostingGroupCode);
-            Validate(
-              "Invoice Rounding Account",
-              LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
-            Modify(true);
-        end;
+        CustomerPostingGroup.Get(CustomerPostingGroupCode);
+        CustomerPostingGroup.Validate(
+          "Invoice Rounding Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
+        CustomerPostingGroup.Modify(true);
     end;
 
     local procedure CreateItemVATWithDeferral(AllowInvDisc: Boolean; VATProdPostingGroup: Code[20]; var DeferralPercent: Decimal; TaxGroupCode: Code[20]): Code[20]
@@ -716,12 +712,10 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            LibraryPurchase.CreateVendor(Vendor);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure SetupVendorInvoiceRoundingAccount(VendorPostingGroupCode: Code[20]; VATPostingSetup: Record "VAT Posting Setup")
@@ -729,13 +723,11 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         VendorPostingGroup: Record "Vendor Posting Group";
         GLAccount: Record "G/L Account";
     begin
-        with VendorPostingGroup do begin
-            Get(VendorPostingGroupCode);
-            Validate(
-              "Invoice Rounding Account",
-              LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
-            Modify(true);
-        end;
+        VendorPostingGroup.Get(VendorPostingGroupCode);
+        VendorPostingGroup.Validate(
+          "Invoice Rounding Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        VendorPostingGroup.Modify(true);
     end;
 
     local procedure GetPurchaseVATAmountLine(PurchaseHeader: Record "Purchase Header"; var VATAmountLine: Record "VAT Amount Line"; UpdateType: Integer)
@@ -798,7 +790,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DeferralLineSetRange(DeferralLine, DeferralDocType, DocType, DocNo, LineNo);
         Clear(DeferralAmount);
         Period := 0;
-        if DeferralLine.FindSet() then begin
+        if DeferralLine.FindSet() then
             repeat
                 if Period = 0 then
                     PostingDate := HeaderPostingDate
@@ -809,7 +801,6 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
                 DeferralAmount := DeferralAmount + DeferralLine.Amount;
                 Period := Period + 1;
             until DeferralLine.Next() = 0;
-        end;
         DeferralHeader.TestField("Amount to Defer", DeferralAmount);
     end;
 
@@ -954,13 +945,11 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Transaction No.", TransactionNo);
-            SetFilter("Gen. Posting Type", '<>%1', "Gen. Posting Type"::" ");
-            CalcSums(Amount, "VAT Amount");
-            Assert.AreEqual(ExpectedAmount, Abs(Amount), FieldCaption(Amount));
-            Assert.AreEqual(ExpectedVATAmount, Abs("VAT Amount"), FieldCaption("VAT Amount"));
-        end;
+        GLEntry.SetRange("Transaction No.", TransactionNo);
+        GLEntry.SetFilter("Gen. Posting Type", '<>%1', GLEntry."Gen. Posting Type"::" ");
+        GLEntry.CalcSums(Amount, "VAT Amount");
+        Assert.AreEqual(ExpectedAmount, Abs(GLEntry.Amount), GLEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedVATAmount, Abs(GLEntry."VAT Amount"), GLEntry.FieldCaption("VAT Amount"));
     end;
 
     local procedure SalesIvcLineCalcSum(DocNo: Code[20]; var SalesLineAmtExcVAT: Decimal; var SalesLineAmt: Decimal)
@@ -1118,11 +1107,9 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
 
     local procedure UpdateVATPostingSetupAccounts(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with VATPostingSetup do begin
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup());
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountWithPurchSetup());
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountWithPurchSetup());
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure GetDeferralTemplateAccount(DeferralCode: Code[10]): Code[20]

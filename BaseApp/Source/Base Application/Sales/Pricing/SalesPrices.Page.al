@@ -1,4 +1,4 @@
-﻿#if not CLEAN23
+﻿#if not CLEAN25
 namespace Microsoft.Sales.Pricing;
 
 using Microsoft.CRM.Campaign;
@@ -387,8 +387,12 @@ page 7002 "Sales Prices"
         StartingDateFilter: Text;
         CurrencyCodeFilter: Text;
         PageCaptionText: Text;
+#pragma warning disable AA0074
         Text000: Label 'All Customers';
+#pragma warning disable AA0470
         Text001: Label 'No %1 within the filter %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SalesCodeFilterCtrlEnable: Boolean;
         IsOnMobile: Boolean;
         IsLookupMode: Boolean;

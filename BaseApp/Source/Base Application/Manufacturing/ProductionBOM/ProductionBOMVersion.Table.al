@@ -168,7 +168,11 @@ table 99000779 "Production BOM Version"
     var
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMVersion: Record "Production BOM Version";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot rename the %1 when %2 is %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AssistEdit(OldProdBOMVersion: Record "Production BOM Version"): Boolean
     var

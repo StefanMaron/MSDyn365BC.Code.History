@@ -644,7 +644,9 @@ page 302 "Customer Entry Statistics"
         CustBalanceLCY: Decimal;
         i: Integer;
         j: Integer;
+#pragma warning disable AA0074
         Text000: Label 'Placeholder';
+#pragma warning restore AA0074
 
     local procedure UpdateDaysToPay(NoOfDays: Integer)
     begin

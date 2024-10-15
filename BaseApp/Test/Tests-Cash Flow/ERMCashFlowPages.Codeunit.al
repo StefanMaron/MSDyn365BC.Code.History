@@ -691,12 +691,10 @@ codeunit 134558 "ERM Cash Flow Pages"
 
     local procedure CreateCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; AccountType: Enum "Cash Flow Account Type")
     begin
-        with CashFlowAccount do begin
-            Init();
-            Evaluate("No.", LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Cash Flow Account"));
-            "Account Type" := AccountType;
-            Insert(true);
-        end;
+        CashFlowAccount.Init();
+        Evaluate(CashFlowAccount."No.", LibraryUtility.GenerateRandomCode(CashFlowAccount.FieldNo("No."), DATABASE::"Cash Flow Account"));
+        CashFlowAccount."Account Type" := AccountType;
+        CashFlowAccount.Insert(true);
     end;
 
     local procedure FillAndPostCFJnlServiceOrderOnly(ServiceHeader: Record "Service Header"; CashFlowForecast: Record "Cash Flow Forecast")
@@ -721,18 +719,16 @@ codeunit 134558 "ERM Cash Flow Pages"
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cash Flow Pages");
-        with CashFlowChartSetup do begin
-            if Get(UserId) then
-                Delete();
+        if CashFlowChartSetup.Get(UserId) then
+            CashFlowChartSetup.Delete();
 
-            Init();
-            "User ID" := UserId;
-            "Start Date" := StartDate;
-            "Period Length" := PeriodLength;
-            Show := NewShow;
-            "Group By" := GroupBy;
-            Insert();
-        end;
+        CashFlowChartSetup.Init();
+        CashFlowChartSetup."User ID" := UserId;
+        CashFlowChartSetup."Start Date" := StartDate;
+        CashFlowChartSetup."Period Length" := PeriodLength;
+        CashFlowChartSetup.Show := NewShow;
+        CashFlowChartSetup."Group By" := GroupBy;
+        CashFlowChartSetup.Insert();
     end;
 
     local procedure CleanUpJournal(CashFlowForecast: Record "Cash Flow Forecast"; CFAccount: Record "Cash Flow Account")

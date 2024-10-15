@@ -833,36 +833,12 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SourceRecID[3], true);
 
         // [THEN] "Error Messages" contains 8 lines:
-        // [THEN] 4 (2 header + 2 line) lines for 'Sales Header: Order, 1002' and 4 (2 header + 2 line) lines for 'Sales Header: Order, 1003'
-        Assert.RecordCount(ErrorMessage, InitialErrorMessageRecordCount + 8);
+        // [THEN] 1 for 'Sales Header: Order, 1002' and 1 for 'Sales Header: Order, 1003'
+        Assert.RecordCount(ErrorMessage, InitialErrorMessageRecordCount + 2);
         for i := 1 to 4 do begin
             ErrorMessage.SetRange("Context Record ID", SourceRecId[i]);
-            Assert.RecordCount(ErrorMessage, 2);
-
-            ErrorMessage.FindFirst();
-            Assert.ExpectedMessage(ErrorMessage."Message", ExpectedErrorMessage[1]);
-            Assert.AreEqual(ErrorMessage."Record ID", SourceDimRecID[1], 'Wrong Dimension Record Id');
-            Assert.AreEqual(ErrorMessage."Field Number", SourceFieldNo[1], 'Wrong Dimension Field Id');
-
-            ErrorMessage.Next();
-            Assert.ExpectedMessage(ErrorMessage."Message", ExpectedErrorMessage[2]);
-            Assert.AreEqual(ErrorMessage."Record ID", SourceDimRecID[2], 'Wrong Dimension Record Id');
-            Assert.AreEqual(ErrorMessage."Field Number", SourceFieldNo[2], 'Wrong Dimension Field Id');
+            Assert.RecordCount(ErrorMessage, 0);
         end;
-
-
-        /*
-        Assert.RecordCount(TempErrorMessage, ErrorCount);
-        i := 0;
-        TempErrorMessage.FindSet();
-        repeat
-            i += 1;
-            Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage."Message");
-            Assert.AreEqual(RecID[i], TempErrorMessage."Context Record ID", 'Context Record ID' + Format(i));
-            Assert.AreEqual(SourceDimRecID[i], TempErrorMessage."Record ID", 'Record ID' + Format(i));
-            Assert.AreEqual(SourceFieldNo[i], TempErrorMessage."Field Number", 'Field Number' + Format(i));
-        until TempErrorMessage.Next() = 0;
-        */
     end;
 
     [Test]
@@ -1753,22 +1729,12 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SourceRecID[1], true);
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SourceRecID[3], true);
 
-        // [THEN] "Error Messages" contains 8 lines:
-        // [THEN] 4 (2 header + 2 line) lines for 'Purchase Header: Order, 1002' and 4 (2 header + 2 line) lines for 'Purchase Header: Order, 1003'
-        Assert.RecordCount(ErrorMessage, InitialErrorMessageRecordCount + 8);
+        // [THEN] "Error Messages" contains 2 lines:
+        // [THEN] 1 for 'Purchase Header: Order, 1002' and 1 line for 'Purchase Header: Order, 1003'
+        Assert.RecordCount(ErrorMessage, InitialErrorMessageRecordCount + 2);
         for i := 1 to 4 do begin
             ErrorMessage.SetRange("Context Record ID", SourceRecId[i]);
-            Assert.RecordCount(ErrorMessage, 2);
-
-            ErrorMessage.FindFirst();
-            Assert.ExpectedMessage(ErrorMessage."Message", ExpectedErrorMessage[1]);
-            Assert.AreEqual(ErrorMessage."Record ID", SourceDimRecID[1], 'Wrong Dimension Record Id');
-            Assert.AreEqual(ErrorMessage."Field Number", SourceFieldNo[1], 'Wrong Dimension Field Id');
-
-            ErrorMessage.Next();
-            Assert.ExpectedMessage(ErrorMessage."Message", ExpectedErrorMessage[2]);
-            Assert.AreEqual(ErrorMessage."Record ID", SourceDimRecID[2], 'Wrong Dimension Record Id');
-            Assert.AreEqual(ErrorMessage."Field Number", SourceFieldNo[2], 'Wrong Dimension Field Id');
+            Assert.RecordCount(ErrorMessage, 0);
         end;
     end;
 
@@ -2386,10 +2352,9 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Gen. Journal Template "GJT", Gen. Journal Batch "GJB", Line No. "1000".
         LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-        with GenJnlLine do
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-              GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, "Document Type"::" ", "Account Type"::"G/L Account", GLAccNo[1],
-              "Bal. Account Type"::"G/L Account", GLAccNo[2], LibraryRandom.RandInt(100));
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, GenJnlLine."Document Type"::" ", GenJnlLine."Account Type"::"G/L Account", GLAccNo[1],
+            GenJnlLine."Bal. Account Type"::"G/L Account", GLAccNo[2], LibraryRandom.RandInt(100));
 
         // [WHEN] Gen. Journal Line is posted.
         asserterror LibraryERM.PostGeneralJnlLine(GenJnlLine);

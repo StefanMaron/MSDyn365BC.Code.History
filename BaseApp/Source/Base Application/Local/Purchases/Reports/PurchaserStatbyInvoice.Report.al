@@ -261,9 +261,9 @@ report 10100 "Purchaser Stat. by Invoice"
                 begin
                     CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
                     "Payment&Credits" := "Amount (LCY)" - "Remaining Amt. (LCY)" - "Pmt. Disc. Rcd.(LCY)";
-                    if UseExternalDocNo then begin
-                        DocNo := "External Document No.";
-                    end else
+                    if UseExternalDocNo then
+                        DocNo := "External Document No."
+                    else
                         DocNo := "Document No.";
                 end;
 
@@ -276,9 +276,9 @@ report 10100 "Purchaser Stat. by Invoice"
             trigger OnPreDataItem()
             begin
                 Clear("Payment&Credits");
-                if PrintDetail then begin
-                    SubTitle := Text000;
-                end else
+                if PrintDetail then
+                    SubTitle := Text000
+                else
                     SubTitle := Text001;
             end;
         }

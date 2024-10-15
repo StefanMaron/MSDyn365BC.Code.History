@@ -21,7 +21,7 @@ page 10150 "O365 Tax Settings Card"
             group(Control1020019)
             {
                 ShowCaption = false;
-                Visible = NOT IsCanada;
+                Visible = not IsCanada;
                 group(Control1020001)
                 {
                     InstructionalText = 'Enter your city tax information';
@@ -167,7 +167,7 @@ page 10150 "O365 Tax Settings Card"
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
-                    Enabled = NOT IsDefaultArea;
+                    Enabled = not IsDefaultArea;
                     ShowCaption = false;
 
                     trigger OnDrillDown()
@@ -271,12 +271,11 @@ page 10150 "O365 Tax Settings Card"
 
     local procedure InitializeTaxAreaLines()
     begin
-        if TempSalesTaxSetupWizard."Tax Area Code" <> '' then begin
+        if TempSalesTaxSetupWizard."Tax Area Code" <> '' then
             if IsCanada then
                 InitializeTaxSetupFromTaxAreaLinesForCA()
             else
                 O365TaxSettingsManagement.InitializeTaxSetupFromTaxAreaLinesForUS(TempSalesTaxSetupWizard);
-        end;
         UpdateTotalTaxRate();
     end;
 

@@ -144,6 +144,7 @@ page 7200 "CDS Connection Setup"
                         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
                         FeatureTelemetry: Codeunit "Feature Telemetry";
                         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+                        DataverseEnabledLbl: Label 'User %1 enabled integration to Dataverse.', Locked = true;
                     begin
                         RefreshStatuses := true;
                         CurrPage.Update(true);
@@ -151,6 +152,7 @@ page 7200 "CDS Connection Setup"
                             FeatureTelemetry.LogUptake('0000H7J', 'Dataverse', Enum::"Feature Uptake Status"::"Set up");
                             FeatureTelemetry.LogUptake('0000IIM', 'Dataverse Base Entities', Enum::"Feature Uptake Status"::"Set up");
                             Session.LogMessage('0000CDE', CDSConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                            Session.LogAuditMessage(StrSubstNo(DataverseEnabledLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
 
                             if (Rec."Server Address" <> '') and (Rec."Server Address" <> TestServerAddressTok) then
                                 if CDSIntegrationImpl.MultipleCompaniesConnected() then
@@ -408,6 +410,7 @@ page 7200 "CDS Connection Setup"
                     TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
                     CRMConnectionSetup: Record "CRM Connection Setup";
                     CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+                    EmptySecretText: SecretText;
                 begin
                     TempCDSConnectionSetup."Server Address" := Rec."Server Address";
                     TempCDSConnectionSetup."User Name" := Rec."User Name";
@@ -420,13 +423,13 @@ page 7200 "CDS Connection Setup"
                     if (TempCDSConnectionSetup."Connection String".IndexOf('{CERTIFICATE}') > 0) and (TempCDSConnectionSetup."User Name" <> Rec."User Name") then begin
                         if CRMConnectionSetup.IsEnabled() then begin
                             CRMConnectionSetup."User Name" := TempCDSConnectionSetup."User Name";
-                            CRMConnectionSetup.SetPassword('');
+                            CRMConnectionSetup.SetPassword(EmptySecretText);
                             CRMConnectionSetup."Proxy Version" := TempCDSConnectionSetup."Proxy Version";
                             CRMConnectionSetup.SetConnectionString(TempCDSConnectionSetup."Connection String");
                         end;
 
                         Rec."User Name" := TempCDSConnectionSetup."User Name";
-                        Rec.SetPassword('');
+                        Rec.SetPassword(EmptySecretText);
                         Rec."Proxy Version" := TempCDSConnectionSetup."Proxy Version";
                         Rec."Connection String" := TempCDSConnectionSetup."Connection String";
                         Rec.Modify();
@@ -939,12 +942,12 @@ page 7200 "CDS Connection Setup"
             InitializeDefaultOwnershipModel();
             InitializeDefaultBusinessUnit();
             InitializeDefaultRedirectUrl();
-            CDSEnvironment.SetLinkedDataverseEnvironmentUrl(Rec, CDSEnvironment.GetGlobalDiscoverabilityOnBehalfToken());
+            CDSEnvironment.SetLinkedDataverseEnvironmentUrl(Rec, CDSEnvironment.GetGlobalDiscoverabilityOnBehalfTokenAsSecretText());
             Rec.Insert();
             Rec.LoadConnectionStringElementsFromCRMConnectionSetup();
         end else begin
-            UserPassword := Rec.GetPassword();
-            ClientSecret := Rec.GetClientSecret();
+            UserPassword := '**********';
+            ClientSecret := '**********';
             if Rec."Redirect URL" = '' then
                 InitializeDefaultRedirectUrl();
             if (not IsValidAuthenticationType()) or (not IsValidProxyVersion()) or (not IsValidOwnershipModel() or (not IsValidBusinessUnit())) then begin

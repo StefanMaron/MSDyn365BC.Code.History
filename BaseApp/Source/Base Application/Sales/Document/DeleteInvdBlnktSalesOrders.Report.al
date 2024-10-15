@@ -86,6 +86,12 @@ report 291 "Delete Invd Blnkt Sales Orders"
                 if GuiAllowed() then
                     ProgressDialog.Open(ProcessingProgressTxt);
             end;
+
+            trigger OnPostDataItem()
+            begin
+                if GuiAllowed() then
+                    ProgressDialog.Close();
+            end;
         }
     }
 

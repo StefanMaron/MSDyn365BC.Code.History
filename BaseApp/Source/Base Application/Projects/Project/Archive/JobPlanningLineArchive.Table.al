@@ -547,10 +547,6 @@ table 5137 "Job Planning Line Archive"
         {
             Caption = 'Planned Delivery Date';
         }
-        field(5900; "Service Order No."; Code[20])
-        {
-            Caption = 'Service Order No.';
-        }
         field(6515; "Package No."; Code[50])
         {
             Caption = 'Package No.';

@@ -267,13 +267,13 @@ report 10155 "Purchase Advice"
                         AverageDailyUsage := 0;
                     Item2.SetRange("Date Filter");
                     CalcFields(Inventory, "Qty. on Sales Order", "Qty. on Purch. Order",
-                      "Qty. on Service Order", "Scheduled Need (Qty.)", Description);
+                      "Qty. on Service Order", "Qty. on Component Lines", Description);
                     if (Inventory - "Qty. on Sales Order") > 0 then
                         BackOrderQuantity := 0
                     else
                         BackOrderQuantity := Abs(Inventory - "Qty. on Sales Order");
                     QtyAvailable := Inventory - "Qty. on Sales Order" + "Qty. on Purch. Order" -
-                      "Scheduled Need (Qty.)" - "Qty. on Service Order";
+                      "Qty. on Component Lines" - "Qty. on Service Order";
                     ReorderAmount1 := CalculateReorderSKU(QtyAvailable);
 
                     // Calculate the expected daily usage of the product during the lead time so
@@ -316,13 +316,13 @@ report 10155 "Purchase Advice"
                         AverageDailyUsage := 0;
                     SetRange("Date Filter");
                     CalcFields(Inventory, "Qty. on Sales Order", "Qty. on Purch. Order",
-                      "Qty. on Service Order", "Scheduled Need (Qty.)");
+                      "Qty. on Service Order", "Qty. on Component Lines");
                     if (Inventory - "Qty. on Sales Order") > 0 then
                         BackOrderQuantity := 0
                     else
                         BackOrderQuantity := Abs(Inventory - "Qty. on Sales Order");
                     QtyAvailable := Inventory - "Qty. on Sales Order" + "Qty. on Purch. Order" -
-                      "Scheduled Need (Qty.)" - "Qty. on Service Order";
+                      "Qty. on Component Lines" - "Qty. on Service Order";
                     ReorderAmount1 := CalculateReorder(QtyAvailable);
 
                     // Calculate the expected daily usage of the product during the lead time so

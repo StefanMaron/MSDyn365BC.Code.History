@@ -180,7 +180,7 @@ report 10500 "GST/HST Internet File Transfer"
         TotalGSTHSTAdjstmnt := Abs(TotalGSTHSTAdjstmnt);
 
         CompanyInfo.Get();
-        if AccountIdentifier.Get(CompanyInfo."Federal ID No.", AccountIdentifier."Program Identifier"::RT) then begin
+        if AccountIdentifier.Get(CompanyInfo."Federal ID No.", AccountIdentifier."Program Identifier"::RT) then
             VATFile.Write(
               'SFT*' + CompanyInfo."Software Identification Code" + '~TRS*GST34' + '~ACN*' +
               CompanyInfo."Federal ID No." + 'RT' + AccountIdentifier."Reference No." + '~SDT*' +
@@ -202,8 +202,8 @@ report 10500 "GST/HST Internet File Transfer"
                   TotalGSTHSTAdjstmnt - TotalITCAdjsmnt - Rebate +
                   TaxDueOnAcquisition + OtherGSTHST), 11, '115') + '~135*' +
               FormatDecimals(NewHousingRebates, 11, '135') + '~136*' +
-              FormatDecimals(PensionRebate, 11, '136') + '~EOD');
-        end else
+              FormatDecimals(PensionRebate, 11, '136') + '~EOD')
+        else
             Error(Text007);
     end;
 

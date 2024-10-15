@@ -699,12 +699,18 @@ report 7112 "Analysis Report"
         Dim2FilterEnable: Boolean;
         Dim3FilterEnable: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label '(Thousands)';
         Text001: Label '(Millions)';
         Text002: Label '* ERROR *';
+#pragma warning disable AA0470
         Text003: Label 'All amounts are in %1.';
+#pragma warning restore AA0470
         Text004: Label 'Not Available';
+#pragma warning disable AA0470
         Text005: Label '1,6,,Dimension %1 Filter';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AnalysisColumnTemplNameCaptionLbl: Label 'Analysis Column';
         AnalysisLineTemplateNameCaptionLbl: Label 'Analysis Line';
         FiscalStartDateCaptionLbl: Label 'Fiscal Start Date';

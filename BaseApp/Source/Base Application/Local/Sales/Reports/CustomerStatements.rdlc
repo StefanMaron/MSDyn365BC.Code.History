@@ -2643,6 +2643,9 @@ End Function
         <Field Name="TempCustLedgEntry__Posting_Date_">
           <DataField>TempCustLedgEntry__Posting_Date_</DataField>
         </Field>
+        <Field Name="TempCustLedgEntry__Document_Dat_">
+          <DataField>TempCustLedgEntry__Document_Dat_</DataField>
+        </Field>
         <Field Name="GetTermsString_TempCustLedgEntry_">
           <DataField>GetTermsString_TempCustLedgEntry_</DataField>
         </Field>

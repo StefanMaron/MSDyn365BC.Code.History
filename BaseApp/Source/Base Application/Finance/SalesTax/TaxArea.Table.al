@@ -45,12 +45,11 @@ table 318 "Tax Area"
             trigger OnValidate()
             begin
                 TaxAreaLine.SetRange("Tax Area", Code);
-                if TaxAreaLine.Find('-') then begin
+                if TaxAreaLine.Find('-') then
                     repeat
                         TaxJurisdiction.Get(TaxAreaLine."Tax Jurisdiction Code");
                         TestField("Country/Region", TaxJurisdiction."Country/Region");
                     until TaxAreaLine.Next() = 0;
-                end;
             end;
         }
         field(10011; "Round Tax"; Option)

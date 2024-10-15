@@ -1109,6 +1109,8 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseEmployee.Delete(true);
     end;
 
+    // Skip test for PriceListReport
+
     [Test]
     [HandlerFunctions('WhereUsedListRequestPageHandler')]
     [Scope('OnPrem')]

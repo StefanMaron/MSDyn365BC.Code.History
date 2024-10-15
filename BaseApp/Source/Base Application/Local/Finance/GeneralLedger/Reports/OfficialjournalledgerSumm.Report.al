@@ -145,10 +145,9 @@ report 14030 "Official journal ledger Summ."
 
                 trigger OnAfterGetRecord()
                 begin
-                    if GLFilterAccType = GLFilterAccType::Mayor then begin
+                    if GLFilterAccType = GLFilterAccType::Mayor then
                         if StrLen("No.") <> 3 then
                             CurrReport.Skip();
-                    end;
                     CreditAmt := 0;
                     DebitAmt := 0;
                     Name := 'Mov. regularización';
@@ -235,10 +234,9 @@ report 14030 "Official journal ledger Summ."
 
                 trigger OnAfterGetRecord()
                 begin
-                    if GLFilterAccType = GLFilterAccType::Mayor then begin
+                    if GLFilterAccType = GLFilterAccType::Mayor then
                         if StrLen("No.") <> 3 then
                             CurrReport.Skip();
-                    end;
 
                     CreditAmt := 0;
                     DebitAmt := 0;
@@ -483,12 +481,11 @@ report 14030 "Official journal ledger Summ."
                         CreditAmt := CreditAmt + GLAcc."Additional-Currency Net Change"
                     else
                         DebitAmt := DebitAmt + Abs(GLAcc."Additional-Currency Net Change");
-                end else begin
+                end else
                     if GLAcc."Net Change" > 0 then
                         CreditAmt := CreditAmt + GLAcc."Net Change"
                     else
                         DebitAmt := DebitAmt + Abs(GLAcc."Net Change");
-                end;
             until GLAcc.Next() = 0;
     end;
 
@@ -510,12 +507,11 @@ report 14030 "Official journal ledger Summ."
                         CreditAmt := CreditAmt + Abs(GLAcc."Additional-Currency Net Change")
                     else
                         DebitAmt := DebitAmt + GLAcc."Additional-Currency Net Change";
-                end else begin
+                end else
                     if GLAcc."Net Change" < 0 then
                         CreditAmt := CreditAmt + Abs(GLAcc."Net Change")
                     else
                         DebitAmt := DebitAmt + GLAcc."Net Change";
-                end;
 
             until GLAcc.Next() = 0;
     end;

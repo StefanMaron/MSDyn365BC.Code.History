@@ -620,6 +620,9 @@ report 5911 "Service - Invoice"
                         column(CustomerNo_ServiceInvHdrCaption; "Service Invoice Header".FieldCaption("Customer No."))
                         {
                         }
+                        column(ShipToPhoneNo; "Service Invoice Header"."Ship-to Phone")
+                        {
+                        }
 
                         trigger OnPreDataItem()
                         begin
@@ -790,7 +793,9 @@ report 5911 "Service - Invoice"
         ServiceItemSerialNo: Code[50];
         DisplayAdditionalFeeNote: Boolean;
 
+#pragma warning disable AA0074
         Text004: Label 'Service - Invoice %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text005: Label 'Page %1';
         Text007: Label 'Phone No.';
         Text008: Label 'Fax No.';
@@ -823,6 +828,8 @@ report 5911 "Service - Invoice"
         Text035: Label 'Total';
         Text036: Label 'Payment Terms';
         Text037: Label 'Ship-to Address';
+#pragma warning restore AA0470
+#pragma warning restore AA0074  
         QuantityCaptionLbl: Label 'Qty';
         SerialNoCaptionLbl: Label 'Serial No.';
 
@@ -1067,10 +1074,12 @@ report 5911 "Service - Invoice"
     end;
 
     local procedure FormatAddressFields(var ServiceInvoiceHeader: Record "Service Invoice Header")
+    var
+        ServiceFormatAddress: Codeunit "Service Format Address";
     begin
         FormatAddr.GetCompanyAddr(ServiceInvoiceHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
-        FormatAddr.ServiceInvBillTo(CustAddr, ServiceInvoiceHeader);
-        ShowShippingAddr := FormatAddr.ServiceInvShipTo(ShipToAddr, CustAddr, ServiceInvoiceHeader);
+        ServiceFormatAddress.ServiceInvBillTo(CustAddr, ServiceInvoiceHeader);
+        ShowShippingAddr := ServiceFormatAddress.ServiceInvShipTo(ShipToAddr, CustAddr, ServiceInvoiceHeader);
     end;
 
     local procedure FormatDocumentFields(ServiceInvoiceHeader: Record "Service Invoice Header")

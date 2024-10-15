@@ -86,6 +86,8 @@ page 5840 "Standard Cost Worksheet Names"
         StdCostWkshName: Record "Standard Cost Worksheet Name";
         StdCostWksh: Record "Standard Cost Worksheet";
 
+#pragma warning disable AA0074
         Text001: Label 'Default';
+#pragma warning restore AA0074
 }
 

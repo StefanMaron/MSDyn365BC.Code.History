@@ -30,7 +30,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         NotificationMsg: Label 'The available inventory for item %1 is lower than the entered quantity at this location.', Comment = '%1=Item No.';
         CannotCreateBinWithoutLocationErr: Label 'Location Code must have a value';
         LibrarySales: Codeunit "Library - Sales";
-        ItemTrkgManagedByWhseMsg: Label 'You cannot assign a lot or serial number because item tracking for this document line is done through a warehouse activity.';
+        ItemTrkgManagedByWhseMsg: Label 'You cannot assign a serial, lot or package number because item tracking for this document line is done through a warehouse activity.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1396,12 +1396,11 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
         if DPPLocation then
             WarehouseActivityHeader.Type := WarehouseActivityHeader.Type::Pick
-        else begin
+        else
             if InvtPick then
                 WarehouseActivityHeader.Type := WarehouseActivityHeader.Type::"Invt. Pick"
             else
                 WarehouseActivityHeader.Type := WarehouseActivityHeader.Type::"Invt. Movement";
-        end;
         WarehouseActivityHeader."No." := LibraryUtility.GenerateGUID();
         WarehouseActivityHeader."Registering No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
         WarehouseActivityHeader.Insert();
@@ -1664,13 +1663,11 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Source ID", PurchaseLine."Document No.");
-            SetRange("Source Ref. No.", PurchaseLine."Line No.");
-            SetRange("Item No.", PurchaseLine."No.");
-            FindFirst();
-            exit("Lot No.");
-        end;
+        ReservationEntry.SetRange("Source ID", PurchaseLine."Document No.");
+        ReservationEntry.SetRange("Source Ref. No.", PurchaseLine."Line No.");
+        ReservationEntry.SetRange("Item No.", PurchaseLine."No.");
+        ReservationEntry.FindFirst();
+        exit(ReservationEntry."Lot No.");
     end;
 
     local procedure PostWarehouseReceipt(SourceNo: Code[20])
@@ -1689,23 +1686,20 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            FindFirstWhseActivityLine(WarehouseActivityLine, SourceNo, Qty);
+        FindFirstWhseActivityLine(WarehouseActivityLine, SourceNo, Qty);
 
-            Validate("Qty. to Handle", QtyToHandle);
-            Validate("Bin Code", BinCode[1]);
-            Modify(true);
+        WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+        WarehouseActivityLine.Validate("Bin Code", BinCode[1]);
+        WarehouseActivityLine.Modify(true);
 
-            SplitLine(WarehouseActivityLine);
+        WarehouseActivityLine.SplitLine(WarehouseActivityLine);
+        // only one empty exists after split
+        WarehouseActivityLine.SetRange(Quantity);
+        WarehouseActivityLine.SetRange("Bin Code", '');
+        WarehouseActivityLine.FindFirst();
 
-            // only one empty exists after split
-            SetRange(Quantity);
-            SetRange("Bin Code", '');
-            FindFirst();
-
-            Validate("Bin Code", BinCode[2]);
-            Modify(true);
-        end;
+        WarehouseActivityLine.Validate("Bin Code", BinCode[2]);
+        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure RegisterPutAway(SourceNo: Code[20])
@@ -1720,14 +1714,12 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
     local procedure FindFirstWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; Qty: Decimal)
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Action Type", "Action Type"::Place);
-            SetRange("Source No.", SourceNo);
-            SetRange("Source Document", "Source Document"::"Purchase Order");
-            if Qty <> 0 then
-                SetRange(Quantity, Qty);
-            FindFirst();
-        end
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Purchase Order");
+        if Qty <> 0 then
+            WarehouseActivityLine.SetRange(Quantity, Qty);
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure VSTF330787CreateLocation(DPPLocation: Boolean): Code[10]
@@ -1776,12 +1768,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         Location: Record Location;
     begin
-        with Location do begin
-            Get(CreateSimpleLocation());
-            "Use As In-Transit" := true;
-            Modify();
-            exit(Code);
-        end;
+        Location.Get(CreateSimpleLocation());
+        Location."Use As In-Transit" := true;
+        Location.Modify();
+        exit(Location.Code);
     end;
 
     local procedure VSTF330787CreateBin(LocationCode: Code[10]): Code[10]
@@ -2031,77 +2021,69 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
     local procedure CreateTransHeader(var TransHeader: Record "Transfer Header"; TransFromCode: Code[10]; TransToCode: Code[10]; InTransitCode: Code[10])
     begin
-        with TransHeader do begin
-            Init();
-            "Transfer-from Code" := TransFromCode;
-            "Transfer-to Code" := TransToCode;
-            "In-Transit Code" := InTransitCode;
-            Insert(true);
-        end;
+        TransHeader.Init();
+        TransHeader."Transfer-from Code" := TransFromCode;
+        TransHeader."Transfer-to Code" := TransToCode;
+        TransHeader."In-Transit Code" := InTransitCode;
+        TransHeader.Insert(true);
     end;
 
     local procedure CreateTransLine(var TransLine: Record "Transfer Line"; TransHeader: Record "Transfer Header"; ItemUnitOfMeasure: Record "Item Unit of Measure"; Qty: Decimal)
     var
         RecRef: RecordRef;
     begin
-        with TransLine do begin
-            "Document No." := TransHeader."No.";
-            RecRef.GetTable(TransLine);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            Validate("Item No.", ItemUnitOfMeasure."Item No.");
-            Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
-            ItemUnitOfMeasure.Get("Item No.", "Unit of Measure Code");
-            "Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
-            Quantity := Qty;
-            "Quantity (Base)" := Qty * "Qty. per Unit of Measure";
-            "Outstanding Quantity" := Quantity;
-            "Outstanding Qty. (Base)" := "Quantity (Base)";
-            "Receipt Date" := WorkDate();
-            "Transfer-from Code" := TransHeader."Transfer-from Code";
-            "Transfer-to Code" := TransHeader."Transfer-to Code";
-            "Shipment Date" := WorkDate();
-            "Receipt Date" := WorkDate();
-            Insert();
-        end;
+        TransLine."Document No." := TransHeader."No.";
+        RecRef.GetTable(TransLine);
+        TransLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, TransLine.FieldNo("Line No."));
+        TransLine.Validate("Item No.", ItemUnitOfMeasure."Item No.");
+        TransLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ItemUnitOfMeasure.Get(TransLine."Item No.", TransLine."Unit of Measure Code");
+        TransLine."Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
+        TransLine.Quantity := Qty;
+        TransLine."Quantity (Base)" := Qty * TransLine."Qty. per Unit of Measure";
+        TransLine."Outstanding Quantity" := TransLine.Quantity;
+        TransLine."Outstanding Qty. (Base)" := TransLine."Quantity (Base)";
+        TransLine."Receipt Date" := WorkDate();
+        TransLine."Transfer-from Code" := TransHeader."Transfer-from Code";
+        TransLine."Transfer-to Code" := TransHeader."Transfer-to Code";
+        TransLine."Shipment Date" := WorkDate();
+        TransLine."Receipt Date" := WorkDate();
+        TransLine.Insert();
     end;
 
     local procedure CreateReservEntryForTransfer(TransLine: Record "Transfer Line"; ItemUOM: Record "Item Unit of Measure"; LotNo: Code[50]; Qty: Decimal; Qty2: Decimal)
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        with ReservEntry do begin
-            FindLast();
-            Init();
-            "Item No." := ItemUOM."Item No.";
-            "Qty. per Unit of Measure" := ItemUOM."Qty. per Unit of Measure";
-            "Reservation Status" := "Reservation Status"::Surplus;
-            "Source Type" := DATABASE::"Transfer Line";
-            "Source ID" := TransLine."Document No.";
-            "Source Ref. No." := TransLine."Line No.";
-            "Lot No." := LotNo;
-            "Item Tracking" := "Item Tracking"::"Lot No.";
+        ReservEntry.FindLast();
+        ReservEntry.Init();
+        ReservEntry."Item No." := ItemUOM."Item No.";
+        ReservEntry."Qty. per Unit of Measure" := ItemUOM."Qty. per Unit of Measure";
+        ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Surplus;
+        ReservEntry."Source Type" := DATABASE::"Transfer Line";
+        ReservEntry."Source ID" := TransLine."Document No.";
+        ReservEntry."Source Ref. No." := TransLine."Line No.";
+        ReservEntry."Lot No." := LotNo;
+        ReservEntry."Item Tracking" := ReservEntry."Item Tracking"::"Lot No.";
 
-            "Location Code" := TransLine."Transfer-from Code";
-            Positive := false;
-            "Source Subtype" := 0;
-            InsertReservEntry(ReservEntry, -Qty, ItemUOM."Qty. per Unit of Measure");
-            InsertReservEntry(ReservEntry, -Qty2, ItemUOM."Qty. per Unit of Measure");
+        ReservEntry."Location Code" := TransLine."Transfer-from Code";
+        ReservEntry.Positive := false;
+        ReservEntry."Source Subtype" := 0;
+        InsertReservEntry(ReservEntry, -Qty, ItemUOM."Qty. per Unit of Measure");
+        InsertReservEntry(ReservEntry, -Qty2, ItemUOM."Qty. per Unit of Measure");
 
-            "Location Code" := TransLine."Transfer-to Code";
-            Positive := true;
-            "Source Subtype" := 1;
-            InsertReservEntry(ReservEntry, Qty, ItemUOM."Qty. per Unit of Measure");
-            InsertReservEntry(ReservEntry, Qty2, ItemUOM."Qty. per Unit of Measure");
-        end;
+        ReservEntry."Location Code" := TransLine."Transfer-to Code";
+        ReservEntry.Positive := true;
+        ReservEntry."Source Subtype" := 1;
+        InsertReservEntry(ReservEntry, Qty, ItemUOM."Qty. per Unit of Measure");
+        InsertReservEntry(ReservEntry, Qty2, ItemUOM."Qty. per Unit of Measure");
     end;
 
     local procedure MockItem(var Item: Record Item)
     begin
-        with Item do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Item);
-            Insert();
-        end;
+        Item.Init();
+        Item."No." := LibraryUtility.GenerateRandomCode(Item.FieldNo("No."), DATABASE::Item);
+        Item.Insert();
     end;
 
     local procedure MockItemNo(): Code[20]
@@ -2129,12 +2111,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
     local procedure MockItemUOM(var ItemUnitOfMeasure: Record "Item Unit of Measure"; ItemNo: Code[20]; QtyPerUOM: Decimal)
     begin
-        with ItemUnitOfMeasure do begin
-            "Item No." := ItemNo;
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Item Unit of Measure");
-            "Qty. per Unit of Measure" := QtyPerUOM;
-            Insert();
-        end;
+        ItemUnitOfMeasure."Item No." := ItemNo;
+        ItemUnitOfMeasure.Code := LibraryUtility.GenerateRandomCode(ItemUnitOfMeasure.FieldNo(Code), DATABASE::"Item Unit of Measure");
+        ItemUnitOfMeasure."Qty. per Unit of Measure" := QtyPerUOM;
+        ItemUnitOfMeasure.Insert();
     end;
 
     local procedure MockItemUOMCode(ItemNo: Code[20]; QtyPerUOM: Decimal): Code[10]
@@ -2149,27 +2129,23 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         TransferLine: Record "Transfer Line";
     begin
-        with TransferLine do begin
-            Init();
-            "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Transfer Line");
-            "Line No." := 10000;
-            "Item No." := ItemNo;
-            "Outstanding Qty. (Base)" := OutstandingQty;
-            Insert();
-        end;
+        TransferLine.Init();
+        TransferLine."Document No." := LibraryUtility.GenerateRandomCode(TransferLine.FieldNo("Document No."), DATABASE::"Transfer Line");
+        TransferLine."Line No." := 10000;
+        TransferLine."Item No." := ItemNo;
+        TransferLine."Outstanding Qty. (Base)" := OutstandingQty;
+        TransferLine.Insert();
     end;
 
     local procedure MockServiceHeader(): Code[20]
     var
         ServiceHeader: Record "Service Header";
     begin
-        with ServiceHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Order;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Service Header");
-            Insert(true);
-            exit("No.");
-        end;
+        ServiceHeader.Init();
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
+        ServiceHeader."No." := LibraryUtility.GenerateRandomCode(ServiceHeader.FieldNo("No."), DATABASE::"Service Header");
+        ServiceHeader.Insert(true);
+        exit(ServiceHeader."No.");
     end;
 
     local procedure MockServiceLine(var ServiceLine: Record "Service Line")
@@ -2186,45 +2162,39 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
     local procedure MockWhseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10])
     begin
-        with WarehouseActivityHeader do begin
-            Init();
-            Type := ActivityType;
-            "No." := LibraryUtility.GenerateGUID();
-            "Location Code" := LocationCode;
-            Insert();
-        end;
+        WarehouseActivityHeader.Init();
+        WarehouseActivityHeader.Type := ActivityType;
+        WarehouseActivityHeader."No." := LibraryUtility.GenerateGUID();
+        WarehouseActivityHeader."Location Code" := LocationCode;
+        WarehouseActivityHeader.Insert();
     end;
 
     local procedure MockWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; LineNo: Integer; ActionType: Enum "Warehouse Action Type")
     begin
-        with WarehouseActivityLine do begin
-            Init();
-            "Activity Type" := WarehouseActivityHeader.Type;
-            "No." := WarehouseActivityHeader."No.";
-            "Line No." := LineNo;
-            "Action Type" := ActionType;
-            "Item No." := LibraryUtility.GenerateGUID();
-            Quantity := LibraryRandom.RandIntInRange(10, 20);
-            "Qty. Outstanding" := Quantity;
-            "Qty. to Handle" := LibraryRandom.RandInt(5);
-            Insert();
-        end;
+        WarehouseActivityLine.Init();
+        WarehouseActivityLine."Activity Type" := WarehouseActivityHeader.Type;
+        WarehouseActivityLine."No." := WarehouseActivityHeader."No.";
+        WarehouseActivityLine."Line No." := LineNo;
+        WarehouseActivityLine."Action Type" := ActionType;
+        WarehouseActivityLine."Item No." := LibraryUtility.GenerateGUID();
+        WarehouseActivityLine.Quantity := LibraryRandom.RandIntInRange(10, 20);
+        WarehouseActivityLine."Qty. Outstanding" := WarehouseActivityLine.Quantity;
+        WarehouseActivityLine."Qty. to Handle" := LibraryRandom.RandInt(5);
+        WarehouseActivityLine.Insert();
     end;
 
     local procedure MockWhseActivityLineWithBinAndShelf(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; BinCode: Code[20]; ShelfNo: Code[10])
     begin
-        with WarehouseActivityLine do begin
-            Init();
-            "Activity Type" := WarehouseActivityHeader.Type;
-            "No." := WarehouseActivityHeader."No.";
-            "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine, FieldNo("Line No."));
-            "Action Type" := ActionType;
-            "Location Code" := WarehouseActivityHeader."Location Code";
-            "Item No." := ItemNo;
-            "Bin Code" := BinCode;
-            "Shelf No." := ShelfNo;
-            Insert();
-        end;
+        WarehouseActivityLine.Init();
+        WarehouseActivityLine."Activity Type" := WarehouseActivityHeader.Type;
+        WarehouseActivityLine."No." := WarehouseActivityHeader."No.";
+        WarehouseActivityLine."Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine, WarehouseActivityLine.FieldNo("Line No."));
+        WarehouseActivityLine."Action Type" := ActionType;
+        WarehouseActivityLine."Location Code" := WarehouseActivityHeader."Location Code";
+        WarehouseActivityLine."Item No." := ItemNo;
+        WarehouseActivityLine."Bin Code" := BinCode;
+        WarehouseActivityLine."Shelf No." := ShelfNo;
+        WarehouseActivityLine.Insert();
     end;
 
     local procedure MockPickWorksheetLineWithBinAndShelf(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LocationCode: Code[10]; ItemNo: Code[20]; BinCode: Code[20]; ShelfNo: Code[10])
@@ -2248,26 +2218,22 @@ codeunit 137504 "SCM Warehouse Unit Tests"
 
     local procedure InsertReservEntry(var ReservEntry: Record "Reservation Entry"; QtyBase: Decimal; QtyPerUOM: Decimal)
     begin
-        with ReservEntry do begin
-            "Entry No." += 1;
-            "Quantity (Base)" := QtyBase;
-            Quantity := Round("Quantity (Base)" / QtyPerUOM, 0.00001);
-            "Qty. to Handle (Base)" := "Quantity (Base)";
-            "Qty. to Invoice (Base)" := "Quantity (Base)";
-            Insert();
-        end;
+        ReservEntry."Entry No." += 1;
+        ReservEntry."Quantity (Base)" := QtyBase;
+        ReservEntry.Quantity := Round(ReservEntry."Quantity (Base)" / QtyPerUOM, 0.00001);
+        ReservEntry."Qty. to Handle (Base)" := ReservEntry."Quantity (Base)";
+        ReservEntry."Qty. to Invoice (Base)" := ReservEntry."Quantity (Base)";
+        ReservEntry.Insert();
     end;
 
     local procedure GetWhseShptFromTransfer(var WhseShptHeader: Record "Warehouse Shipment Header"; TransNo: Code[20])
     var
         WhseShptLine: Record "Warehouse Shipment Line";
     begin
-        with WhseShptLine do begin
-            SetRange("Source Document", "Source Document"::"Outbound Transfer");
-            SetRange("Source No.", TransNo);
-            FindFirst();
-            WhseShptHeader.Get("No.");
-        end;
+        WhseShptLine.SetRange("Source Document", WhseShptLine."Source Document"::"Outbound Transfer");
+        WhseShptLine.SetRange("Source No.", TransNo);
+        WhseShptLine.FindFirst();
+        WhseShptHeader.Get(WhseShptLine."No.");
     end;
 
     local procedure GetLastActvHdrCreatedNoSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; LocationCode: Code[10]; ActivityType: Enum "Warehouse Activity Type")
@@ -2281,31 +2247,27 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
-        with RegisteredWhseActivityLine do begin
-            SetCurrentKey(
-              "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.",
-              "Whse. Document No.", "Serial No.", "Lot No.", "Action Type");
-            SetRange("Activity Type", "Activity Type"::Pick);
-            SetRange("Action Type", "Action Type"::Place);
-            SetRange("Item No.", ItemNo);
-            CalcSums("Qty. (Base)");
+        RegisteredWhseActivityLine.SetCurrentKey(
+          "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.",
+          "Whse. Document No.", "Serial No.", "Lot No.", "Action Type");
+        RegisteredWhseActivityLine.SetRange("Activity Type", RegisteredWhseActivityLine."Activity Type"::Pick);
+        RegisteredWhseActivityLine.SetRange("Action Type", RegisteredWhseActivityLine."Action Type"::Place);
+        RegisteredWhseActivityLine.SetRange("Item No.", ItemNo);
+        RegisteredWhseActivityLine.CalcSums("Qty. (Base)");
 
-            exit("Qty. (Base)");
-        end;
+        exit(RegisteredWhseActivityLine."Qty. (Base)");
     end;
 
     local procedure GetItemTrackingAmount(ItemNo: Code[20]) "Sum": Decimal
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Source Subtype", "Source Subtype"::"0");
-            SetRange("Item No.", ItemNo);
-            if FindSet() then
-                repeat
-                    Sum += "Qty. to Handle (Base)";
-                until Next() = 0;
-        end;
+        ReservationEntry.SetRange("Source Subtype", ReservationEntry."Source Subtype"::"0");
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        if ReservationEntry.FindSet() then
+            repeat
+                Sum += ReservationEntry."Qty. to Handle (Base)";
+            until ReservationEntry.Next() = 0;
     end;
 
     local procedure SetQtyToHandleOnActivityLines(WhseActivityHdr: Record "Warehouse Activity Header"; LotNo: Code[50]; BinCode: Code[20]; QtyToHandle: Decimal)
@@ -2313,24 +2275,23 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WhseActivityLine: Record "Warehouse Activity Line";
         QtyTaken: Decimal;
     begin
-        with WhseActivityLine do begin
-            SetRange("Activity Type", WhseActivityHdr.Type);
-            SetRange("No.", WhseActivityHdr."No.");
-            SetRange("Lot No.", LotNo);
-            SetRange("Bin Code", BinCode);
-            FindSet(true);
-            QtyTaken := "Qty. to Handle";
-            Validate("Qty. to Handle", QtyToHandle);
+        WhseActivityLine.SetRange("Activity Type", WhseActivityHdr.Type);
+        WhseActivityLine.SetRange("No.", WhseActivityHdr."No.");
+        WhseActivityLine.SetRange("Lot No.", LotNo);
+        WhseActivityLine.SetRange("Bin Code", BinCode);
+        WhseActivityLine.FindSet(true);
+        QtyTaken := WhseActivityLine."Qty. to Handle";
+        WhseActivityLine.Validate("Qty. to Handle", QtyToHandle);
 
-            Modify(true);
+        WhseActivityLine.Modify(true);
 
-            SetRange("Bin Code"); // action type "Place" has another bin code
-            Next();
-            TestField("Action Type", "Action Type"::Place);
-            TestField("Qty. to Handle", QtyTaken);
-            Validate("Qty. to Handle", QtyToHandle);
-            Modify(true);
-        end;
+        WhseActivityLine.SetRange("Bin Code");
+        // action type "Place" has another bin code
+        WhseActivityLine.Next();
+        WhseActivityLine.TestField("Action Type", WhseActivityLine."Action Type"::Place);
+        WhseActivityLine.TestField("Qty. to Handle", QtyTaken);
+        WhseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+        WhseActivityLine.Modify(true);
     end;
 
     [Test]
@@ -3067,62 +3028,54 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         Location: Record Location;
     begin
-        with Location do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::Location);
-            Insert();
-            exit(Code);
-        end;
+        Location.Init();
+        Location.Code := LibraryUtility.GenerateRandomCode(Location.FieldNo(Code), DATABASE::Location);
+        Location.Insert();
+        exit(Location.Code);
     end;
 
     local procedure MockCustomLocationCode(NewRequirePick: Boolean; NewRequireShipment: Boolean; NewBinMandatory: Boolean; NewDirectedPutAwayAndPick: Boolean): Code[10]
     var
         Location: Record Location;
     begin
-        with Location do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::Location);
-            "Require Pick" := NewRequirePick;
-            "Require Shipment" := NewRequireShipment;
-            "Bin Mandatory" := NewBinMandatory;
-            "Directed Put-away and Pick" := NewDirectedPutAwayAndPick;
-            if "Require Pick" then
-                if "Require Shipment" then
-                    "Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)"
-                else
-                    "Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+        Location.Init();
+        Location.Code := LibraryUtility.GenerateRandomCode(Location.FieldNo(Code), DATABASE::Location);
+        Location."Require Pick" := NewRequirePick;
+        Location."Require Shipment" := NewRequireShipment;
+        Location."Bin Mandatory" := NewBinMandatory;
+        Location."Directed Put-away and Pick" := NewDirectedPutAwayAndPick;
+        if Location."Require Pick" then
+            if Location."Require Shipment" then
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)"
+            else
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
 
-            if "Require Put-away" then
-                "Prod. Output Whse. Handling" := "Prod. Output Whse. Handling"::"Inventory Put-away";
+        if Location."Require Put-away" then
+            Location."Prod. Output Whse. Handling" := Location."Prod. Output Whse. Handling"::"Inventory Put-away";
 
-            Insert();
-            exit(Code);
-        end;
+        Location.Insert();
+        exit(Location.Code);
     end;
 
     local procedure MockILE(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
     begin
-        with ItemLedgerEntry do begin
-            FindLast();
-            "Entry No." += 1;
-            "Item No." := ItemNo;
-            "Entry Type" := "Entry Type"::"Positive Adjmt.";
-            "Location Code" := LocationCode;
-            Quantity := Qty;
-            Insert();
-        end;
+        ItemLedgerEntry.FindLast();
+        ItemLedgerEntry."Entry No." += 1;
+        ItemLedgerEntry."Item No." := ItemNo;
+        ItemLedgerEntry."Entry Type" := ItemLedgerEntry."Entry Type"::"Positive Adjmt.";
+        ItemLedgerEntry."Location Code" := LocationCode;
+        ItemLedgerEntry.Quantity := Qty;
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure MockCustomILE(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; NewOpen: Boolean; VariantCode: Code[10]; GlobalDim1Value: Code[10]; GlobalDim2Value: Code[10])
     begin
         MockILE(ItemLedgerEntry, ItemNo, LocationCode, Qty);
-        with ItemLedgerEntry do begin
-            Open := NewOpen;
-            "Variant Code" := VariantCode;
-            "Global Dimension 1 Code" := GlobalDim1Value;
-            "Global Dimension 2 Code" := GlobalDim2Value;
-            Modify();
-        end;
+        ItemLedgerEntry.Open := NewOpen;
+        ItemLedgerEntry."Variant Code" := VariantCode;
+        ItemLedgerEntry."Global Dimension 1 Code" := GlobalDim1Value;
+        ItemLedgerEntry."Global Dimension 2 Code" := GlobalDim2Value;
+        ItemLedgerEntry.Modify();
     end;
 
     local procedure MockILENo(ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal): Integer
@@ -3150,15 +3103,13 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetCurrentKey("Sorting Sequence No.");
-            SetRange("Activity Type", WarehouseActivityHeader.Type);
-            SetRange("No.", WarehouseActivityHeader."No.");
-            SetRange("Action Type", ActionType);
-            FindFirst();
-            TestField("Shelf No.", ShelfNo);
-            TestField("Bin Code", BinCode);
-        end;
+        WarehouseActivityLine.SetCurrentKey("Sorting Sequence No.");
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Shelf No.", ShelfNo);
+        WarehouseActivityLine.TestField("Bin Code", BinCode);
     end;
 
     [MessageHandler]

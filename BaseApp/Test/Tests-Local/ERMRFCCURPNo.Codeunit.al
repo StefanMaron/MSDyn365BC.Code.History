@@ -148,28 +148,6 @@ codeunit 144054 "ERM RFC/CURP No."
         Assert.ExpectedError(StrSubstNo(FieldErr, CURPNo, CompanyInformation.FieldCaption("CURP No.")));
     end;
 
-#if not CLEAN22
-    [Obsolete('RFC No. cannot be 0 length but RFC Number can. The test is obsolete.', '22.0')]
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure ErrorOnUpdatingBlankRFCNoOnCompanyInformation()
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        // Setup: Update RFC No. on Company Information.
-        Initialize();
-        UpdateCompanyInformation(CompanyInformation);
-
-        // Exercise.
-        asserterror CompanyInformation.Validate("RFC No.", '');
-        CompanyInformation.Validate("RFC Number", '');
-
-        // Verify: Error message for valid RFC No.
-        Assert.ExpectedError(StrSubstNo(FieldErr, '', CompanyInformation.FieldCaption("RFC No.")));
-    end;
-#endif
-
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]

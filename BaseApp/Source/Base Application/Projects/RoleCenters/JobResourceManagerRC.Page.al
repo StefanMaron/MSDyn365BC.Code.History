@@ -19,7 +19,6 @@ using Microsoft.Sales.Customer;
 #if CLEAN23
 using Microsoft.Sales.Pricing;
 #endif
-using Microsoft.Service.Resources;
 using Microsoft.Utilities;
 using Microsoft.Foundation.Task;
 using System.Threading;
@@ -85,6 +84,10 @@ page 9014 "Job Resource Manager RC"
                 ApplicationArea = Jobs;
             }
             part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
             {
                 ApplicationArea = Suite;
             }
@@ -319,22 +322,6 @@ page 9014 "Job Resource Manager RC"
                     ToolTip = 'View or edit prices for the resource.';
                 }
 #endif
-                action("Resource Service Zones")
-                {
-                    ApplicationArea = Jobs;
-                    Caption = 'Resource Service Zones';
-                    Image = Resource;
-                    RunObject = Page "Resource Service Zones";
-                    ToolTip = 'View the assignment of resources to service zones. When you allocate a resource to a service task that is to be performed at the customer site, you can select a resource that is located in the same service zone as the customer.';
-                }
-                action("Resource Locations")
-                {
-                    ApplicationArea = Jobs;
-                    Caption = 'Resource Locations';
-                    Image = Resource;
-                    RunObject = Page "Resource Locations";
-                    ToolTip = 'View where resources are located or assign resources to locations.';
-                }
                 action("Work Types")
                 {
                     ApplicationArea = Manufacturing;

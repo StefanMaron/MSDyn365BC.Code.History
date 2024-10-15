@@ -650,12 +650,11 @@ report 1401 Check
                         CheckAmountText := CheckAmountText + DollarSignBefore + DollarSignAfter;
                         Index := 0;
                         if CheckAmountText = Text024 then begin
-                            if StrLen(CheckAmountText) < (ControlLen - 12) then begin
+                            if StrLen(CheckAmountText) < (ControlLen - 12) then
                                 repeat
                                     Index := Index + 1;
                                     CheckAmountText := InsStr(CheckAmountText, '*', StrLen(CheckAmountText) + 1);
-                                until (Index = ControlLen) or (StrLen(CheckAmountText) >= (ControlLen - 12))
-                            end;
+                                until (Index = ControlLen) or (StrLen(CheckAmountText) >= (ControlLen - 12));
                         end else
                             if StrLen(CheckAmountText) < (ControlLen - 11) then
                                 repeat
@@ -1168,19 +1167,25 @@ report 1401 Check
         NetAmount: Text[30];
         LineAmount2: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'Preview is not allowed.';
         Text001: Label 'Last Check No. must be filled in.';
+#pragma warning disable AA0470
         Text002: Label 'Filters on %1 and %2 are not allowed.';
+#pragma warning restore AA0470
         Text003: Label 'XXXXXXXXXXXXXXXX';
         Text004: Label 'must be entered.';
         Text005: Label 'The Bank Account and the General Journal Line must have the same currency.';
         Text008: Label 'Both Bank Accounts must have the same currency.';
         Text010: Label 'XXXXXXXXXX';
         Text011: Label 'XXXX';
+#pragma warning disable AA0470
         Text013: Label '%1 already exists.';
         Text014: Label 'Check for %1 %2';
+#pragma warning restore AA0470
         Text016: Label 'In the Check report, One Check per Vendor and Document No.\must not be activated when Applies-to ID is specified in the journal lines.';
         Text019: Label 'Total';
+#pragma warning disable AA0470
         Text020: Label 'The total amount of check %1 is %2. The amount must be positive.';
         Text021: Label 'VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID';
         Text022: Label 'NON-NEGOTIABLE';
@@ -1195,6 +1200,19 @@ report 1401 Check
         USText001: Label 'Warning:  Checks cannot be financially voided when Force Doc. Balance is set to No in the Journal Template.  Do you want to continue anyway?';
         USText002: Label 'Process cancelled at user request.';
         USText004: Label 'Last Check No. must include at least one digit, so that it can be incremented.';
+        USText006: Label 'You cannot use the <blank> %1 option with a Canadian style check. Please check %2 %3.';
+        USText007: Label 'You cannot use the Spanish %1 option with a Canadian style check. Please check %2 %3.';
+#pragma warning restore AA0470
+        PostingDesc: Text[100];
+        CheckStyleIndex: Integer;
+        BankCurrencyCode: Text[30];
+        BankTransitNo: Text[20];
+        BankAccountNo: Text[30];
+        StartingLen: Integer;
+        ControlLen: Integer;
+        Index: Integer;
+        NewLen: Integer;
+        PageNo: Integer;
         DateIndicator: Text[10];
         CheckDateFormat: Option " ","MM DD YYYY","DD MM YYYY","YYYY MM DD";
         CheckStyle: Option ,US,CA;
@@ -1211,18 +1229,6 @@ report 1401 Check
         PrnChkVoidText: array[2] of Text[30];
         PrnChkDateIndicator: array[2] of Text[10];
         PrnChkCurrencyCode: array[2] of Code[10];
-        USText006: Label 'You cannot use the <blank> %1 option with a Canadian style check. Please check %2 %3.';
-        USText007: Label 'You cannot use the Spanish %1 option with a Canadian style check. Please check %2 %3.';
-        PostingDesc: Text[100];
-        CheckStyleIndex: Integer;
-        BankCurrencyCode: Text[30];
-        BankTransitNo: Text[20];
-        BankAccountNo: Text[30];
-        StartingLen: Integer;
-        ControlLen: Integer;
-        Index: Integer;
-        NewLen: Integer;
-        PageNo: Integer;
         CheckNoTextCaptionLbl: Label 'Check No.';
         NetAmountLbl: Label 'Net Amount';
         LineDiscountCaptionLbl: Label 'Discount';

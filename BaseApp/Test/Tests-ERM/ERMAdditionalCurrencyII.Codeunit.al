@@ -19,7 +19,9 @@
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
+#if not CLEAN23
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
+#endif
         WrongAmountErr: Label '%1 must be %2 in %3.';
         WrongBankAccLedgEntryAmtErr: Label 'Wrong %1 in Bank Account Ledger Entry.';
 
@@ -192,6 +194,7 @@
         SalesInvoiceWithPaymentGeneralAndModifiedExchRate(false, false);
     end;
 
+#if not CLEAN23
     [Test]
     [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
@@ -213,6 +216,7 @@
         // in case of decreasing Exchange Rate and Adjust Exchange Rate
         SalesInvoiceWithPaymentGeneralAndModifiedExchRate(false, true);
     end;
+#endif
 
     local procedure SalesInvoiceWithPaymentGeneralAndModifiedExchRate(IsLossEntry: Boolean; IsAdjustExchRate: Boolean)
     var
@@ -413,6 +417,7 @@
         PurchInvoiceWithPaymentGeneralAndModifiedExchRate(false, false);
     end;
 
+#if not CLEAN23
     [Test]
     [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
@@ -434,6 +439,7 @@
         // in case of decreasing Exchange Rate and Adjust Exchange Rate
         PurchInvoiceWithPaymentGeneralAndModifiedExchRate(false, true);
     end;
+#endif
 
     local procedure PurchInvoiceWithPaymentGeneralAndModifiedExchRate(IsLossEntry: Boolean; IsAdjustExchRate: Boolean)
     var
@@ -1169,6 +1175,7 @@
         Assert.AreEqual(
           ExpectedAmount, GLEntry."Additional-Currency Amount", GLEntry.FieldCaption("Additional-Currency Amount"));
     end;
+#if not CLEAN23
 
     [MessageHandler]
     [Scope('OnPrem')]
@@ -1176,5 +1183,6 @@
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
+#endif
 }
 

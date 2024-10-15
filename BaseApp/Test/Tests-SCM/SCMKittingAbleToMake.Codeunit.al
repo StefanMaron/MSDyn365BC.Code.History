@@ -724,13 +724,11 @@ codeunit 137107 "SCM Kitting - Able To Make"
         Item.Description := LibraryUtility.GenerateGUID();
         Item.Modify(true);
 
-        with ProductionBOMLine do begin
-            Init();
-            Type := Type::Item;
-            "No." := Item."No.";
-            Description := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        ProductionBOMLine.Init();
+        ProductionBOMLine.Type := ProductionBOMLine.Type::Item;
+        ProductionBOMLine."No." := Item."No.";
+        ProductionBOMLine.Description := LibraryUtility.GenerateGUID();
+        ProductionBOMLine.Insert();
 
         EntryNo := LibraryUtility.GetNewRecNo(BOMBuffer, BOMBuffer.FieldNo("Entry No."));
         BOMBuffer.TransferFromProdComp(EntryNo, ProductionBOMLine, 0, 0, 0, 0, WorkDate(), '', Item, 1);
@@ -756,13 +754,11 @@ codeunit 137107 "SCM Kitting - Able To Make"
         WorkCenter.Name := LibraryUtility.GenerateGUID();
         WorkCenter.Insert();
 
-        with RoutingLine do begin
-            Init();
-            Type := Type::"Work Center";
-            "No." := WorkCenter."No.";
-            Description := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        RoutingLine.Init();
+        RoutingLine.Type := RoutingLine.Type::"Work Center";
+        RoutingLine."No." := WorkCenter."No.";
+        RoutingLine.Description := LibraryUtility.GenerateGUID();
+        RoutingLine.Insert();
 
         EntryNo := LibraryUtility.GetNewRecNo(BOMBuffer, BOMBuffer.FieldNo("Entry No."));
         BOMBuffer.TransferFromProdRouting(EntryNo, RoutingLine, 0, 0, WorkDate(), '');
@@ -787,13 +783,11 @@ codeunit 137107 "SCM Kitting - Able To Make"
         Item.Description := LibraryUtility.GenerateGUID();
         Item.Modify(true);
 
-        with BOMComponent do begin
-            Init();
-            Type := Type::Item;
-            "No." := Item."No.";
-            Description := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        BOMComponent.Init();
+        BOMComponent.Type := BOMComponent.Type::Item;
+        BOMComponent."No." := Item."No.";
+        BOMComponent.Description := LibraryUtility.GenerateGUID();
+        BOMComponent.Insert();
 
         EntryNo := LibraryUtility.GetNewRecNo(BOMBuffer, BOMBuffer.FieldNo("Entry No."));
         BOMBuffer.TransferFromBOMComp(EntryNo, BOMComponent, 0, 0, 0, WorkDate(), '');

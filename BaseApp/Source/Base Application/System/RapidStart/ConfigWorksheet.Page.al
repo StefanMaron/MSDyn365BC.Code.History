@@ -696,11 +696,15 @@ page 8632 "Config. Worksheet"
         NameIndent: Integer;
         NextLineNo: Integer;
         NextVertNo: Integer;
+#pragma warning disable AA0074
         Text001: Label 'You must assign a package code before you can carry out this action.';
         Text002: Label 'You must select table lines with the same package code.';
         Text003: Label 'Do you want to apply package data for the selected tables?';
         Text004: Label 'Do you want to import data from the Excel template?';
+#pragma warning disable AA0470
         Text005: Label 'Do you want to export data from %1 tables to the Excel template?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure ExchangeLines(var ConfigLine1: Record "Config. Line"; var ConfigLine2: Record "Config. Line")
     var

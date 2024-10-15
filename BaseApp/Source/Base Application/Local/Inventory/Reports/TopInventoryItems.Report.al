@@ -124,10 +124,9 @@ report 10162 "Top __ Inventory Items"
                     if TopSorting = TopSorting::Largest then begin
                         if TopAmount[i + 1] > TopAmount[i] then
                             Interchange(i);
-                    end else begin
+                    end else
                         if TopAmount[i + 1] < TopAmount[i] then
                             Interchange(i);
-                    end;
                 end;
             end;
 

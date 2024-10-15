@@ -56,13 +56,19 @@ codeunit 398 "Sales Tax Calculate"
         TaxCountry: Option US,CA;
         IsTotalTaxAmountRoundingSpecified: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 in %2 %3 must be filled in with unique values when %4 is %5.';
         Text001: Label 'The sales tax amount for the %1 %2 and the %3 %4 is incorrect. ';
+#pragma warning restore AA0470
         Text003: Label 'Lines is not initialized';
+#pragma warning disable AA0470
         Text004: Label 'The calculated sales tax amount is %5, but was supposed to be %6.';
         Text1020000: Label 'Tax country/region %1 is being used.  You must use %2.';
         Text1020001: Label 'Note to Programmers: The function "CopyTaxDifferences" must not be called unless the function "EndSalesTaxCalculation", or the function "PutSalesTaxAmountLineTable", is called first.';
         Text1020003: Label 'Invalid function call. Function reserved for external tax engines only.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CallExternalTaxEngineForDoc(DocTable: Integer; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]) STETransactionID: Text[20]
     begin
@@ -558,21 +564,19 @@ codeunit 398 "Sales Tax Calculate"
 
         TaxAreaLine.SetCurrentKey("Tax Area", "Calculation Order");
         TaxAreaLine.SetRange("Tax Area", TaxAreaCode);
-        if TaxAreaLine.Find('+') then begin
+        if TaxAreaLine.Find('+') then
             repeat
                 SetTaxDetailFilter(TaxDetail, TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode, Date);
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Excise Tax");
                 if TaxDetail.FindLast() and
                    ((TaxDetail."Tax Below Maximum" <> 0) or (TaxDetail."Tax Above Maximum" <> 0)) and
                    not TaxDetail."Expense/Capitalize"
-                then begin
+                then
                     if (Abs(Quantity) <= TaxDetail."Maximum Amount/Qty.") or
                        (TaxDetail."Maximum Amount/Qty." = 0)
                     then
                         exit(true);
-                end;
             until TaxAreaLine.Next(-1) = 0;
-        end;
 
         exit(false);
     end;
@@ -1479,12 +1483,11 @@ codeunit 398 "Sales Tax Calculate"
                                 TaxAmount := Amount * TempSalesTaxAmountLine."Tax Amount" / TempSalesTaxAmountLine."Tax Base Amount"
                             else
                                 TaxAmount := Amount * TempSalesTaxAmountLine."Tax %" / 100;
-                        end else begin
+                        end else
                             if (SalesLine."Quantity (Base)" = 0) or (TempSalesTaxAmountLine.Quantity = 0) then
                                 TaxAmount := 0
                             else
                                 TaxAmount := TempSalesTaxAmountLine."Tax Amount" * ExchangeFactor * SalesLine."Quantity (Base)" / TempSalesTaxAmountLine.Quantity;
-                        end;
                         if TaxAmount = 0 then
                             ReturnTaxAmount := 0
                         else begin
@@ -1602,12 +1605,11 @@ codeunit 398 "Sales Tax Calculate"
                                 TaxAmount := Amount * TempSalesTaxAmountLine."Tax Amount" / TempSalesTaxAmountLine."Tax Base Amount"
                             else
                                 TaxAmount := Amount * TempSalesTaxAmountLine."Tax %" / 100;
-                        end else begin
+                        end else
                             if (PurchLine."Quantity (Base)" = 0) or (TempSalesTaxAmountLine.Quantity = 0) then
                                 TaxAmount := 0
                             else
                                 TaxAmount := TempSalesTaxAmountLine."Tax Amount" * ExchangeFactor * PurchLine."Quantity (Base)" / TempSalesTaxAmountLine.Quantity;
-                        end;
                         if (PurchLine."Use Tax" or TempSalesTaxAmountLine."Expense/Capitalize") and (TaxAmount <> 0) then begin
                             ExpenseTaxAmountRounding := ExpenseTaxAmountRounding + TaxAmount;
                             if PurchLine3.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.") then begin
@@ -1741,12 +1743,11 @@ codeunit 398 "Sales Tax Calculate"
                         if TempSalesTaxAmountLine."Tax Type" = TempSalesTaxAmountLine."Tax Type"::"Sales and Use Tax" then begin
                             Amount := (ServLine."Line Amount" - ServLine."Inv. Discount Amount");
                             TaxAmount := Amount * TempSalesTaxAmountLine."Tax %" / 100;
-                        end else begin
+                        end else
                             if (ServLine."Quantity (Base)" = 0) or (TempSalesTaxAmountLine.Quantity = 0) then
                                 TaxAmount := 0
                             else
                                 TaxAmount := TempSalesTaxAmountLine."Tax Amount" * ExchangeFactor * ServLine."Quantity (Base)" / TempSalesTaxAmountLine.Quantity;
-                        end;
                         if TaxAmount = 0 then
                             ReturnTaxAmount := 0
                         else begin
@@ -2110,12 +2111,6 @@ codeunit 398 "Sales Tax Calculate"
                     SalesLine.Modify();
                 end;
             until SalesLine.Next() = 0;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Not relevant anymore: redesign of Sales Tax roundings.', '18.0')]
-    procedure SetPrepmtPosting(NewPrepmtPosting: Boolean)
-    begin
     end;
 
     internal procedure SetTotalTaxAmountRounding(NewTotalTaxAmountRounding: Decimal)

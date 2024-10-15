@@ -12,10 +12,12 @@ codeunit 5646 FAReclassJnlManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'RECLASSIFY';
         Text001: Label 'FA Reclass. Journal';
         Text002: Label 'DEFAULT';
         Text003: Label 'Default Journal';
+#pragma warning restore AA0074
         OldFANo: Code[20];
         OldFANo2: Code[20];
         OpenFromBatch: Boolean;

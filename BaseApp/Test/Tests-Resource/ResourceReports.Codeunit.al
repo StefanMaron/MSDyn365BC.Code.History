@@ -19,7 +19,7 @@ codeunit 136902 "Resource Reports"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         TextErr: Label 'Recurring Method must be specified.';
-#if not CLEAN23
+#if not CLEAN25
         ValidationErr: Label '%1 must be %2 .';
 #endif
 
@@ -308,7 +308,7 @@ codeunit 136902 "Resource Reports"
         VerifyResource(Resource);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('ResourcePriceListReportHandler')]
     [Scope('OnPrem')]
@@ -449,7 +449,7 @@ codeunit 136902 "Resource Reports"
         ResJournalLine.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateResourcePrice(var ResourcePrice: Record "Resource Price"; ResourceNo: Code[20]; WorkTypeCode: Code[10])
     begin
         LibraryResource.CreateResourcePrice(ResourcePrice, ResourcePrice.Type, ResourceNo, WorkTypeCode, '');
@@ -483,7 +483,7 @@ codeunit 136902 "Resource Reports"
         ResourceJournalTest.Run();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure RunResourcePriceListReport(No: Code[20]; CurrencyCode: Code[10])
     var
         Resource: Record Resource;
@@ -571,7 +571,7 @@ codeunit 136902 "Resource Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalPrice_ResJnlLine', ResJournalLine."Total Price");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifyResourcePriceList(ResourcePrice: Record "Resource Price"; ResourceUnitPrice: Decimal)
     begin
         LibraryReportDataset.LoadDataSetFile();

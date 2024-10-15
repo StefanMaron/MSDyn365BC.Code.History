@@ -130,9 +130,11 @@ page 476 "Copy Tax Setup"
         TaxAreasEnable: Boolean;
         TaxDetailEnable: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'You must select a company other than the current company.';
         Text001: Label 'You must select a company from which to copy.';
         Text002: Label 'Nothing was selected to copy.\You must select one or more tables to copy.';
+#pragma warning restore AA0074
 
     local procedure CopyTable1OnPush()
     begin

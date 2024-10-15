@@ -122,6 +122,6 @@ table 7250 "Bank Acc. Rec. AI Proposal"
     end;
 
     var
-        PostPaymentProposalTxt: label 'Post payment to account %1 (%2) and apply to the resulting entry.', Comment = '%1 - G/L Account number, %2 - G/L Account name';
-        ApplyToLedgerEntryTxt: label 'Apply to entry %1 (%2).', Comment = '%1 - bank accout ledger entry number, %2 bank account ledger entry description';
+        PostPaymentProposalTxt: label 'Post payment to account %1 (%2) and match with the resulting entry.', Comment = '%1 - G/L Account number, %2 - G/L Account name';
+        ApplyToLedgerEntryTxt: label 'Match with entry %1 (%2).', Comment = '%1 - bank accout ledger entry number, %2 bank account ledger entry description';
 }

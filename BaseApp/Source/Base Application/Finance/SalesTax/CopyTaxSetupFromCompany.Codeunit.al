@@ -10,10 +10,12 @@ codeunit 399 "Copy Tax Setup From Company"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Tax Groups        @1@@@@@@@@@@@\';
         Text001: Label 'Tax Jurisdictions @2@@@@@@@@@@@\';
         Text002: Label 'Tax Areas         @3@@@@@@@@@@@\';
         Text003: Label 'Tax Detail        @4@@@@@@@@@@@';
+#pragma warning restore AA0074
         Window: Dialog;
         CurrentRecord: Integer;
         RecordCount: Integer;

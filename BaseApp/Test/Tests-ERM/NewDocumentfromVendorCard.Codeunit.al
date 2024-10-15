@@ -304,7 +304,7 @@ codeunit 134770 "New Document from Vendor Card"
         VendorCard.GoToRecord(Vendor);
         VendorCard."Primary Contact No.".Lookup();
 
-        // [THEN] Company No. in Contact Card has a value Verified in ContactListRunModal.
+        // [THEN] Company No. in Contact Card has a value in ContactListRunModal.
     end;
 
     local procedure Initialize()

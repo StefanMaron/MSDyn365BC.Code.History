@@ -24,6 +24,7 @@ permissionset 3285 "Outlook Sync - Admin"
                   tabledata "Job Queue Category" = RIMD,
                   tabledata "Job Queue Entry" = RIMD,
                   tabledata "Job Queue Log Entry" = Rid,
+                  tabledata "Job Queue Role Center Cue" = RIMD,
                   tabledata "Office Add-in" = RIMD,
                   tabledata "Office Add-in Setup" = RIMD,
                   tabledata "Office Admin. Credentials" = RIMD;

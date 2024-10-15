@@ -494,32 +494,30 @@ codeunit 134802 "Positive Pay Test Unit 2"
         FilterCheckLedgerEntry(CheckLedgerEntry, BankAccountNumber);
 
         Initialize();
-        with GenJournalLine do begin
-            // Try to hit as many account types as possible, for code coverage
-            for CheckCount := 1 to 2 do
-                CreateAndPostGenJournalLine(
-                  GenJournalLine, "Document Type"::Payment, "Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
-                  "Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
-            for CheckCount := 1 to 2 do
-                CreateAndPostGenJournalLine(
-                  GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
-                  "Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
-            for CheckCount := 1 to 2 do
-                CreateAndPostGenJournalLine(
-                  GenJournalLine, "Document Type"::" ", "Account Type"::Customer, LibrarySales.CreateCustomerNo(),
-                  "Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
-            for CheckCount := 1 to 2 do
-                CreateAndPostGenJournalLine(
-                  GenJournalLine, "Document Type"::Payment, "Account Type"::"Bank Account", BankAccountNumber,
-                  "Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
-            // Create a couple of checks to void
-            for CheckCount := 1 to 2 do begin
-                CreateAndPostGenJournalLine(
-                  GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
-                  "Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
-                LibraryVariableStorage.Enqueue(VoidType::"Void check only");
-                VoidCheck("Document No.");
-            end;
+        // Try to hit as many account types as possible, for code coverage
+        for CheckCount := 1 to 2 do
+            CreateAndPostGenJournalLine(
+              GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+              GenJournalLine."Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
+        for CheckCount := 1 to 2 do
+            CreateAndPostGenJournalLine(
+              GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+              GenJournalLine."Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
+        for CheckCount := 1 to 2 do
+            CreateAndPostGenJournalLine(
+              GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+              GenJournalLine."Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
+        for CheckCount := 1 to 2 do
+            CreateAndPostGenJournalLine(
+              GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"Bank Account", BankAccountNumber,
+              GenJournalLine."Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
+        // Create a couple of checks to void
+        for CheckCount := 1 to 2 do begin
+            CreateAndPostGenJournalLine(
+              GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+              GenJournalLine."Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
+            LibraryVariableStorage.Enqueue(VoidType::"Void check only");
+            VoidCheck(GenJournalLine."Document No.");
         end;
     end;
 
@@ -583,12 +581,10 @@ codeunit 134802 "Positive Pay Test Unit 2"
 
     local procedure FindAccountingPeriod(var AccountingPeriod: Record "Accounting Period")
     begin
-        with AccountingPeriod do begin
-            SetRange("New Fiscal Year", false);
-            SetRange(Closed, false);
-            SetRange("Date Locked", false);
-            FindFirst();
-        end;
+        AccountingPeriod.SetRange("New Fiscal Year", false);
+        AccountingPeriod.SetRange(Closed, false);
+        AccountingPeriod.SetRange("Date Locked", false);
+        AccountingPeriod.FindFirst();
     end;
 
     local procedure FindPositivePayExportDataExchDef(LineType: Option): Code[20]
@@ -776,16 +772,14 @@ codeunit 134802 "Positive Pay Test Unit 2"
         BankExportImportSetup.Modify(true);
 
         SaveDataExchColumnDef := DataExchColumnDef;
-        with DataExchColumnDef do begin
-            "Text Padding Required" := TextPaddingRequired;
-            "Pad Character" := PadCharacter;
-            "Data Format" := DataFormat;
-            Modify();
-            DataExchFieldMapping.Get("Data Exch. Def Code", "Data Exch. Line Def Code", DATABASE::"Positive Pay Detail", "Column No.", 7);
-            SaveDataExchFieldMapping := DataExchFieldMapping;
-            DataExchFieldMapping."Transformation Rule" := TransformationRule;
-            DataExchFieldMapping.Modify();
-        end;
+        DataExchColumnDef."Text Padding Required" := TextPaddingRequired;
+        DataExchColumnDef."Pad Character" := PadCharacter;
+        DataExchColumnDef."Data Format" := DataFormat;
+        DataExchColumnDef.Modify();
+        DataExchFieldMapping.Get(DataExchColumnDef."Data Exch. Def Code", DataExchColumnDef."Data Exch. Line Def Code", DATABASE::"Positive Pay Detail", DataExchColumnDef."Column No.", 7);
+        SaveDataExchFieldMapping := DataExchFieldMapping;
+        DataExchFieldMapping."Transformation Rule" := TransformationRule;
+        DataExchFieldMapping.Modify();
 
         // Bank Account to use the Bank Export/Import Code
         BankAccountNo := CreateBankAccount(BankExportImportSetup.Code);

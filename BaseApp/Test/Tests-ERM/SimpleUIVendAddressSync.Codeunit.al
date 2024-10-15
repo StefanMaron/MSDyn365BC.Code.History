@@ -922,6 +922,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
               MaxStrLen(PurchaseHeader."Ship-to County")), 1, MaxStrLen(PurchaseHeader."Ship-to County"));
         PurchaseHeader."Ship-to Post Code" := CopyStr(LibraryUtility.GenerateRandomText(
               MaxStrLen(PurchaseHeader."Ship-to Post Code")), 1, MaxStrLen(PurchaseHeader."Ship-to Post Code"));
+        PurchaseHeader."Ship-to Phone No." := LibraryUtility.GenerateRandomPhoneNo();
 
         LibraryERM.CreateCountryRegion(CountryRegion);
         PurchaseHeader."Ship-to Country/Region Code" := CountryRegion.Code;
@@ -1026,6 +1027,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         PurchaseHeader.TestField("Ship-to City", CompanyInformation."Ship-to City");
         PurchaseHeader.TestField("Ship-to County", CompanyInformation."Ship-to County");
         PurchaseHeader.TestField("Ship-to Country/Region Code", CompanyInformation."Ship-to Country/Region Code");
+        PurchaseHeader.TestField("Ship-to Phone No.", CompanyInformation."Ship-to Phone No.");
     end;
 
     local procedure VerifyPayToAddressSyncedFromVendor(var PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor)

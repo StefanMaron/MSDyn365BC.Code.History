@@ -32,7 +32,6 @@ codeunit 137157 "SCM Order Promising II"
         LibraryRandom: Codeunit "Library - Random";
         OrderPromising: Option CapableToPromise,AvailableToPromise;
         isInitialized: Boolean;
-        ReservedQuantityMustBeZeroOnSalesLine: Label '%1 must be equal to ''0''  in %2', Comment = '%1 = Field Caption, %2 = Table Caption';
         PlannedDeliveryDateErr: Label 'Incorrect Planned Delivery Date on Order Promising Line.';
         OriginalShipmentDateErr: Label 'Incorrect Original Shipment Date on Order Promising Line.';
         EarliestShipmentDateErr: Label 'Incorrect Earliest Shipment Date on Order Promising Line.';
@@ -116,11 +115,7 @@ codeunit 137157 "SCM Order Promising II"
         asserterror SalesHeader.Validate("Currency Code", Currency.Code);
 
         // Verify: Verify error message.
-        Assert.IsTrue(
-          StrPos(
-            GetLastErrorText,
-            StrSubstNo(ReservedQuantityMustBeZeroOnSalesLine, SalesLine.FieldCaption("Reserved Qty. (Base)"), SalesLine.TableCaption())) >
-          0, GetLastErrorText);
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Reserved Qty. (Base)"), Format(0));
     end;
 
     [Test]
@@ -447,79 +442,108 @@ codeunit 137157 "SCM Order Promising II"
     [Test]
     [Scope('OnPrem')]
     procedure SalesOrderWithShippingTimeUsingShippingAgentAndBaseCalendar()
+    var
+        SalesLine: Record "Sales Line";
+        ShippingTime: Integer;
     begin
-        // Setup.
+        // [SCENARIO] Planned delivery date in sales order is adjusted to respect non-working days during the shipping time
+
         Initialize();
-        SalesOrderUsingShippingAgentAndBaseCalendar(WorkDate(), 0, LibraryRandom.RandInt(5), '');  // Use 0 for Warehouse Outbound Handling Time and blank for Location.
+
+        // [GIVEN] Create a customer with a base calendar, set the date 23.01.26 as a non-working day
+        // [WHEN] Create a sales order with shipping time 1 day and the shipment date 22.01.26
+        ShippingTime := LibraryRandom.RandInt(5);
+        CreateSalesOrderWithShipmentDate(SalesLine, WorkDate(), 0, ShippingTime, CreateCustomerWithBaseCalendar(), '');
+
+        // [THEN] Planned shipment date in the sales order is 22.01.26, palnned delivery date 24.01.26 
+        VerifySalesLine(SalesLine, WorkDate() + ShippingTime + 1, WorkDate(), WorkDate());
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SalesOrderWithOutboundWarehouseHandlingTimeUsingShippingAgentAndBaseCalendar()
+    var
+        SalesLine: Record "Sales Line";
+        OutboundWhseHandlingTime: Integer;
     begin
-        // Setup.
+        // [SCENARIO] Planned shipment date and planned delivery date in sales order are adjusted to respect non-working days during the outbound warehouse handling time
+
         Initialize();
-        SalesOrderUsingShippingAgentAndBaseCalendar(WorkDate(), LibraryRandom.RandInt(5), 0, '');  // Use 0 for Shipping Time and blank for Location.
+
+        // [GIVEN] Create a customer with a base calendar, set the date 23.01.26 as a non-working day
+        // [WHEN] Create a sales order with outbound warehouse handling time 1 day and the shipment date 22.01.26
+        OutboundWhseHandlingTime := LibraryRandom.RandInt(5);
+        CreateSalesOrderWithShipmentDate(SalesLine, WorkDate(), OutboundWhseHandlingTime, 0, CreateCustomerWithBaseCalendar(), '');
+
+        // [THEN] Both planned shipment date and planned delivery date in the sales order are 24.01.26
+        VerifySalesLine(SalesLine, WorkDate() + OutboundWhseHandlingTime + 1, WorkDate() + OutboundWhseHandlingTime + 1, WorkDate());
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SalesOrderWithOutboundWarehouseHandlingTimeAndShipmentDateAsNonWorkingDateUsingShippingAgentAndBaseCalendar()
+    var
+        SalesLine: Record "Sales Line";
+        OutboundWhseHandlingTime: Integer;
     begin
-        // Setup.
+        // [SCENARIO] Planned shipment date and planned delivery date in sales order are adjusted to respect non-working days when the shipment date is non-working
+
         Initialize();
-        SalesOrderUsingShippingAgentAndBaseCalendar(GetNonWorkingDateUsingBaseCalendar(), LibraryRandom.RandInt(5), 0, '');  // Use 0 for Shipping Time and blank for Location.
+
+        // [GIVEN] Create a customer with a base calendar, set the date 23.01.26 as a non-working day
+        // [WHEN] Create a sales order with outbound warehouse handling time 1 day and the shipment date 23.01.26
+        OutboundWhseHandlingTime := LibraryRandom.RandInt(5);
+        CreateSalesOrderWithShipmentDate(SalesLine, WorkDate() + 1, OutboundWhseHandlingTime, 0, CreateCustomerWithBaseCalendar(), '');
+
+        // [THEN] Both planned shipment date and planned delivery date in the sales order are 24.01.26
+        VerifySalesLine(SalesLine, WorkDate() + OutboundWhseHandlingTime + 1, WorkDate() + OutboundWhseHandlingTime + 1, WorkDate() + 1);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SalesOrderWithOutboundWarehouseHandlingTimeAndShippingTimeUsingShippingAgentAndBaseCalendar()
+    var
+        SalesLine: Record "Sales Line";
+        ShippingTime: Integer;
+        OutboundWhseHandlingTime: Integer;
     begin
-        // Setup.
+        // [SCENARIO] Planned shipment date and planned delivery date in sales order are adjusted to respect non-working days with both shipment time and warehouse handling time
+
         Initialize();
-        SalesOrderUsingShippingAgentAndBaseCalendar(WorkDate(), LibraryRandom.RandInt(5), LibraryRandom.RandInt(5), '');  // Use blank for Location.
+
+        // [GIVEN] Create a customer with a base calendar, set the date 23.01.26 as a non-working day
+        // [WHEN] Create a sales order with outbound warehouse handling time 1 day, shipping time 1 day, and the shipment date 23.01.26
+        ShippingTime := LibraryRandom.RandInt(5);
+        OutboundWhseHandlingTime := LibraryRandom.RandInt(5);
+
+        CreateSalesOrderWithShipmentDate(SalesLine, WorkDate(), OutboundWhseHandlingTime, ShippingTime, CreateCustomerWithBaseCalendar(), '');
+
+        // [THEN] Both planned shipment date and planned delivery date in the sales order are 25.01.26
+        VerifySalesLine(SalesLine, WorkDate() + OutboundWhseHandlingTime + ShippingTime + 1, WorkDate() + OutboundWhseHandlingTime + 1, WorkDate());
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SalesOrderWithLocationUsingShippingAgentAndBaseCalendar()
-    begin
-        // Setup.
-        Initialize();
-        UpdateBaseCalendarOnLocation(LocationBlue);
-        SalesOrderUsingShippingAgentAndBaseCalendar(
-          WorkDate(), LibraryRandom.RandInt(5), LibraryRandom.RandInt(5), LocationBlue.Code);
-    end;
-
-    local procedure SalesOrderUsingShippingAgentAndBaseCalendar(ShipmentDate: Date; OutboundWarehouseHandlingTime: Integer; ShippingTime: Integer; LocationCode: Code[10])
     var
-        Item: Record Item;
-        BaseCalendar: Record "Base Calendar";
-        Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        ShippingAgentServices: Record "Shipping Agent Services";
-        PlannedShipmentDate: Date;
-        PlannedDeliveryDate: Date;
+        ShippingTime: Integer;
+        OutboundWhseHandlingTime: Integer;
     begin
-        // Create Item and Customer with Shipping Agent and Base Calendar.
-        LibraryInventory.CreateItem(Item);
-        CreateBaseCalendarWithBaseCalendarChange(BaseCalendar);
-        CreateShippingAgentWithShippingAgentService(ShippingAgentServices, BaseCalendar.Code);
-        CreateCustomerWithShippingAgentAndBaseCalendar(Customer, ShippingAgentServices, BaseCalendar.Code);
+        // [SCENARIO] Planned shipment date and planned delivery date in sales order are adjusted to respect non-working days in a location calendar
+        Initialize();
 
-        // Exercise.
-        CreateSalesOrderWithShipmentDate(
-          SalesHeader, SalesLine, ShipmentDate, OutboundWarehouseHandlingTime, ShippingTime, Customer."No.", Item."No.", LocationCode);
+        // [GIVEN] Create a customer with a base calendar, set the date 23.01.26 as a non-working day
+        // [GIVEN] Create a location "L" with a base calendar, set the date 24.01.26 as a non-working day
+        ShippingTime := LibraryRandom.RandInt(5);
+        OutboundWhseHandlingTime := LibraryRandom.RandInt(5);
+        UpdateBaseCalendarOnLocation(LocationBlue, WorkDate() + 2);
 
-        // Verify: Planned Shipment Date, Planned Delivery Date and Shipment Date on Sales Line.
-        PlannedShipmentDate :=
-          CalculateDateWithNonWorkingDaysUsingBaseCalendar(
-            SalesHeader."Shipment Date", CalcDate(SalesHeader."Outbound Whse. Handling Time", SalesHeader."Shipment Date"), 1);  // Use 1 for Forward Planning.
-        PlannedDeliveryDate :=
-          CalculateDateWithNonWorkingDaysUsingBaseCalendar(
-            PlannedShipmentDate, CalcDate(SalesHeader."Shipping Time", PlannedShipmentDate), 1);  // Use 1 for Forward Planning.
-        VerifySalesLine(SalesLine, PlannedDeliveryDate, PlannedShipmentDate, SalesHeader."Shipment Date");
+        // [WHEN] Create a sales order on location "L", set outbound warehouse handling time 1 day, shipping time 1 day, and the shipment date 23.01.26
+        CreateSalesOrderWithShipmentDate(SalesLine, WorkDate(), OutboundWhseHandlingTime, ShippingTime, CreateCustomerWithBaseCalendar(), LocationBlue.Code);
+
+        // [THEN] Both planned shipment date and planned delivery date in the sales order are 26.01.26
+        VerifySalesLine(SalesLine, WorkDate() + OutboundWhseHandlingTime + ShippingTime + 2, WorkDate() + OutboundWhseHandlingTime + 2, WorkDate());
     end;
 
     [Test]
@@ -562,7 +586,7 @@ codeunit 137157 "SCM Order Promising II"
 
         if CompanyBaseCalendar then begin
             // Exercise.
-            CreateBaseCalendarWithBaseCalendarChange(BaseCalendar);
+            CreateBaseCalendarWithBaseCalendarChange(BaseCalendar, WorkDate() + 1);
             OldBaseCalendarCode := UpdateBaseCalendarOnCompanyInformation(BaseCalendar.Code);
             RunOrderPromisingFromSalesLine(SalesLine, OrderPromising::CapableToPromise, false);  // Use False for Accept.
 
@@ -641,24 +665,7 @@ codeunit 137157 "SCM Order Promising II"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure SalesOrderWithShippingTimeAndBaseCalendar()
-    begin
-        // Setup.
-        Initialize();
-        SalesOrderWithBaseCalendarAndShippingTime(false);  // Use False for without Requested Delivery Date.
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SalesOrderRequestedDeliveryDateWithBaseCalendar()
-    begin
-        // Setup.
-        Initialize();
-        SalesOrderWithBaseCalendarAndShippingTime(true);  // Use True for with Requested Delivery Date.
-    end;
-
-    local procedure SalesOrderWithBaseCalendarAndShippingTime(UpdateRequestedDeliveryDate: Boolean)
+    procedure SalesOrderWithBaseCalendarAndShippingTime()
     var
         BaseCalendar: Record "Base Calendar";
         Customer: Record Customer;
@@ -669,9 +676,11 @@ codeunit 137157 "SCM Order Promising II"
         PlannedDate: Date;
         PlannedShipmentDate: Date;
     begin
+        Initialize();
+
         // Create Base Calendar with Base Calendar Change. Create Customer with Shipping Agent and Base Calendar.
         LibraryInventory.CreateItem(Item);
-        CreateBaseCalendarWithBaseCalendarChange(BaseCalendar);
+        CreateBaseCalendarWithBaseCalendarChange(BaseCalendar, WorkDate() + 1);
         CreateShippingAgentWithShippingAgentService(ShippingAgentServices, BaseCalendar.Code);
         CreateCustomerWithShippingAgentAndBaseCalendar(Customer, ShippingAgentServices, BaseCalendar.Code);
 
@@ -679,23 +688,16 @@ codeunit 137157 "SCM Order Promising II"
         CreateSalesOrderWithShipmentDate(SalesHeader, SalesLine, WorkDate(), 0, LibraryRandom.RandInt(5), Customer."No.", Item."No.", '');  // Use 0 for Outbound Warehouse Handling Time and Blank for Location.
 
         // Verify.
-        PlannedShipmentDate := CalculateDateWithNonWorkingDaysUsingBaseCalendar(WorkDate(), WorkDate(), 1);
-        PlannedDate :=
-          CalculateDateWithNonWorkingDaysUsingBaseCalendar(
-            PlannedShipmentDate, CalcDate(SalesHeader."Shipping Time", PlannedShipmentDate), 1);  // Use 1 for Forward Planning.
+        PlannedShipmentDate := WorkDate();
+        PlannedDate := CalcDate(SalesHeader."Shipping Time", PlannedShipmentDate) + 1;
         VerifySalesLine(SalesLine, PlannedDate, PlannedShipmentDate, WorkDate());
 
-        if UpdateRequestedDeliveryDate then begin
-            // Exercise.
-            UpdateRequestedDeliveryDateOnSalesOrder(SalesHeader, CalcDate('<' + GetDefaultSafetyLeadTime() + '>', PlannedDate));
+        // Exercise.
+        UpdateRequestedDeliveryDateOnSalesOrder(SalesHeader, PlannedDate);
 
-            // Verify.
-            PlannedDate :=
-              CalculateDateWithNonWorkingDaysUsingBaseCalendar(
-                CalcDate('<-' + Format(SalesHeader."Shipping Time") + '>', SalesHeader."Requested Delivery Date"),
-                SalesHeader."Requested Delivery Date", -1);  // Use -1 for Backward Planning.
-            VerifySalesLine(SalesLine, SalesHeader."Requested Delivery Date", PlannedDate, PlannedDate);
-        end;
+        // Verify.
+        PlannedDate := CalcDate('<-' + Format(SalesHeader."Shipping Time") + '>', SalesHeader."Requested Delivery Date") - 1;
+        VerifySalesLine(SalesLine, SalesHeader."Requested Delivery Date", PlannedDate, PlannedDate);
     end;
 
     [Test]
@@ -924,7 +926,7 @@ codeunit 137157 "SCM Order Promising II"
 
         // [THEN] Requisition line is created.
         RequisitionLine.SetRange("No.", SalesLine."No.");
-        RequisitionLine.FindFirst();
+        Assert.RecordIsNotEmpty(RequisitionLine);
 
         // [THEN] The sales line is not reserved from requisition line.
         SalesLine.Find();
@@ -1071,7 +1073,7 @@ codeunit 137157 "SCM Order Promising II"
 
         // [GIVEN] Sales Order with same Requested Delivery Date and 10 PCS of the Item (Planned Shipment Date was the same)
         CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), CalcDate('<1W>', WorkDate()), ItemNo, LocationCode, BaseQty * 2);
-        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, SalesHeader);
 
         // [WHEN] Calculate Available to Promise for the 2nd Sales Order
         AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
@@ -1109,7 +1111,7 @@ codeunit 137157 "SCM Order Promising II"
 
         // [GIVEN] Service Line with same Requested Delivery Date and 10 PCS of the Item (Needed by Date was the same)
         CreateServiceOrder(ServiceHeader, ServiceLine, CalcDate('<1W>', WorkDate()), ItemNo, LocationCode, BaseQty * 2);
-        AvailabilityManagement.SetServHeader(OrderPromisingLine, ServiceHeader);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, ServiceHeader);
 
         // [WHEN] Calculate Available to Promise for the 2nd Service Line
         AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
@@ -1147,7 +1149,7 @@ codeunit 137157 "SCM Order Promising II"
 
         // [GIVEN] Job Planning Line with same Requested Delivery Date and 10 PCS of the Item (Needed by Date was the same)
         CreateJobWithJobPlanningLine(Job, JobPlanningLine, CalcDate('<1W>', WorkDate()), ItemNo, LocationCode, BaseQty * 2);
-        AvailabilityManagement.SetJob(OrderPromisingLine, Job);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, Job);
 
         // [WHEN] Calculate Available to Promise for the 2nd Job Planning Line
         AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
@@ -1190,12 +1192,11 @@ codeunit 137157 "SCM Order Promising II"
         CreateJobWithJobPlanningLine(Job, JobPlanningLine, CalcDate('<1W>', WorkDate()), Item."No.", LocationCode, BaseQty);
 
         // [WHEN] Calculate Capable to Promise for the Job Planning Line
-        AvailabilityManagement.SetJob(OrderPromisingLine, Job);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, Job);
         AvailabilityManagement.CalcCapableToPromise(OrderPromisingLine, Job."No.");
 
         // [THEN] Check Requsition Line is not deleted
-        RequisitionLine.SetRange("No.", Item."No.");
-        RequisitionLine.FindFirst();
+        Assert.RecordIsNotEmpty(RequisitionLine);
     end;
 
     local procedure CreateItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System")
@@ -1240,7 +1241,7 @@ codeunit 137157 "SCM Order Promising II"
 
         // [GIVEN] Purchase Order with similar Purchase Line and with Expected Receipt Date = 1/1/2021
         CreatePurchaseOrder(PurchaseHeader, WorkDate(), PurchaseLine."No.", PurchaseLine."Location Code", PurchaseLine.Quantity);
-        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, SalesHeader);
 
         // [WHEN] Calculate Available to Promise for the Sales Line
         AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
@@ -1271,7 +1272,7 @@ codeunit 137157 "SCM Order Promising II"
 
         // [GIVEN] Special Order Purchase Order for the Sales Order with Expected Receipt Date = 10/1/2021
         CreateSpecialOrderPurchaseOrderForSalesOrder(PurchaseLine, SalesHeader."Sell-to Customer No.", CalcDate('<1W>', WorkDate()));
-        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, SalesHeader);
 
         // [WHEN] Calculate Available to Promise for the Sales Line
         AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
@@ -1301,7 +1302,7 @@ codeunit 137157 "SCM Order Promising II"
 
         // [GIVEN] Purchase Order with same Item, Location, Qunatity and with Expected Receipt Date = 1/1/2021
         CreatePurchaseOrder(PurchaseHeader, WorkDate(), SalesLine."No.", SalesLine."Location Code", SalesLine.Quantity);
-        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, SalesHeader);
 
         // [WHEN] Calculate Available to Promise for the Sales Line
         AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
@@ -1344,7 +1345,7 @@ codeunit 137157 "SCM Order Promising II"
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', LibraryRandom.RandDate(30));
 
         // [WHEN] Calculate Available to Promise for the sales line.
-        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, SalesHeader);
         AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
 
         // [THEN] Shipment date on reservation entries for the sales line remains WORKDATE.
@@ -1376,7 +1377,7 @@ codeunit 137157 "SCM Order Promising II"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
 
-        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, SalesHeader);
         AvailabilityManagement.CalcCapableToPromise(OrderPromisingLine, SalesHeader."No.");
 
         EarliestShipmentDate := OrderPromisingLine."Earliest Shipment Date";
@@ -1539,6 +1540,39 @@ codeunit 137157 "SCM Order Promising II"
         JobPlanningLine.TestField(Reserve, JobPlanningLine.Reserve::Never);
     end;
 
+    [Test]
+    [HandlerFunctions('OrderPromisingLinesPageHandler,ConfirmHandler')]
+    procedure RecreateRequisitionLineForOrderPromising()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 523712] Recreate Requisition Line for Order Promising when the sales line is recreated.
+        Initialize();
+
+        // [GIVEN] Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), WorkDate(), LibraryInventory.CreateItemNo(), '', 10);
+
+        // [GIVEN] Run "Order Promising" from the Sales Line.
+        RunOrderPromisingFromSalesLine(SalesLine, OrderPromising::CapableToPromise, true);
+
+        // [THEN] Requisition Line with Order Promising link is created for the Sales Line.
+        RequisitionLine.SetRange("Order Promising ID", SalesLine."Document No.");
+        RequisitionLine.SetRange("Order Promising Line ID", SalesLine."Line No.");
+        Assert.RecordIsNotEmpty(RequisitionLine);
+
+        // [WHEN] Recreate the Sales Line.
+        SalesHeader.RecreateSalesLines(SalesHeader.FieldCaption("Sell-to Customer Name"));
+
+        // [THEN] The requisition Line is recreated for the sales Line.
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        RequisitionLine.SetRange("Order Promising ID", SalesLine."Document No.");
+        RequisitionLine.SetRange("Order Promising Line ID", SalesLine."Line No.");
+        Assert.RecordIsNotEmpty(RequisitionLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1595,26 +1629,6 @@ codeunit 137157 "SCM Order Promising II"
         LibraryPurchase.SetOrderNoSeriesInSetup();
     end;
 
-    local procedure CalculateDateWithNonWorkingDaysUsingBaseCalendar(FromDate: Date; ToDate: Date; SignFactor: Integer) DateWithNonWorkingDays: Date
-    var
-        BaseCalendarChange: Record "Base Calendar Change";
-        Date: Record Date;
-    begin
-        if SignFactor > 0 then begin
-            DateWithNonWorkingDays := ToDate;
-            Date.SetRange("Period Start", CalcDate('<1D>', FromDate), ToDate);  // Value required for Forward Planning.
-        end else begin
-            DateWithNonWorkingDays := FromDate;
-            Date.SetRange("Period Start", FromDate, CalcDate('<-1D>', ToDate));
-        end;
-        Date.SetRange("Period Name", Format(BaseCalendarChange.Day::Sunday));
-        DateWithNonWorkingDays := CalcDate('<' + Format(SignFactor * Date.Count) + 'D>', DateWithNonWorkingDays);  // Add or Substract Non-working days to date.
-
-        // Use 7 for Sunday required for test.
-        if Date2DWY(DateWithNonWorkingDays, 1) = 7 then
-            DateWithNonWorkingDays := CalcDate('<' + Format(SignFactor) + 'D>', DateWithNonWorkingDays);
-    end;
-
     local procedure CreateLocationCode(): Code[10]
     var
         Location: Record Location;
@@ -1656,14 +1670,24 @@ codeunit 137157 "SCM Order Promising II"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
     end;
 
-    local procedure CreateBaseCalendarWithBaseCalendarChange(var BaseCalendar: Record "Base Calendar")
+    local procedure CreateBaseCalendarWithBaseCalendarChange(var BaseCalendar: Record "Base Calendar"; NonWorkingDate: Date)
     var
         BaseCalendarChange: Record "Base Calendar Change";
     begin
         LibraryService.CreateBaseCalendar(BaseCalendar);
-        LibraryInventory.CreateBaseCalendarChange(
-          BaseCalendarChange, BaseCalendar.Code, BaseCalendarChange."Recurring System"::"Weekly Recurring", 0D,
-          BaseCalendarChange.Day::Sunday);  // Use 0D for Date.
+        LibraryInventory.CreateBaseCalendarChange(BaseCalendarChange, BaseCalendar.Code, BaseCalendarChange."Recurring System"::" ", NonWorkingDate, 0);
+    end;
+
+    local procedure CreateCustomerWithBaseCalendar(): Code[20]
+    var
+        Customer: Record Customer;
+        BaseCalendar: Record "Base Calendar";
+        ShippingAgentServices: Record "Shipping Agent Services";
+    begin
+        CreateBaseCalendarWithBaseCalendarChange(BaseCalendar, WorkDate() + 1);
+        CreateShippingAgentWithShippingAgentService(ShippingAgentServices, BaseCalendar.Code);
+        CreateCustomerWithShippingAgentAndBaseCalendar(Customer, ShippingAgentServices, BaseCalendar.Code);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCustomerWithShippingAgentAndBaseCalendar(var Customer: Record Customer; ShippingAgentServices: Record "Shipping Agent Services"; BaseCalendarCode: Code[10])
@@ -1768,6 +1792,15 @@ codeunit 137157 "SCM Order Promising II"
     begin
         CreateSalesHeader(SalesHeader, PostingDate, RequestedDeliveryDate);
         CreateSalesLine(SalesHeader, SalesLine, ItemNo, LocationCode, Quantity);
+    end;
+
+    local procedure CreateSalesOrderWithShipmentDate(var SalesLine: Record "Sales Line"; ShipmentDate: Date; OutboundWarehouseHandlingTime: Integer; ShippingTime: Integer; CustomerNo: Code[20]; LocationCode: Code[10])
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+    begin
+        LibraryInventory.CreateItem(Item);
+        CreateSalesOrderWithShipmentDate(SalesHeader, SalesLine, ShipmentDate, OutboundWarehouseHandlingTime, ShippingTime, CustomerNo, Item."No.", LocationCode);
     end;
 
     local procedure CreateSalesOrderWithShipmentDate(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShipmentDate: Date; OutboundWarehouseHandlingTime: Integer; ShippingTime: Integer; CustomerNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10])
@@ -1927,31 +1960,8 @@ codeunit 137157 "SCM Order Promising II"
             Result := CalcDate('<' + Format(Location."Outbound Whse. Handling Time") + '>', Result);
         end;
 
-        if UseBaseCalendar and
-           (not CheckNonWorkingDateUsingBaseCalendar(Result))
-        then
+        if UseBaseCalendar then
             Result := CalcDate('<1D>', Result);
-    end;
-
-    local procedure GetNonWorkingDateUsingBaseCalendar(): Date
-    var
-        BaseCalendarChange: Record "Base Calendar Change";
-        Date: Record Date;
-    begin
-        Date.SetFilter("Period Start", '>=%1', WorkDate());
-        Date.SetRange("Period Name", Format(BaseCalendarChange.Day::Sunday));
-        Date.FindFirst();
-        exit(Date."Period Start");
-    end;
-
-    local procedure CheckNonWorkingDateUsingBaseCalendar(CheckDate: Date): Boolean
-    var
-        BaseCalendarChange: Record "Base Calendar Change";
-        Date: Record Date;
-    begin
-        Date.SetRange("Period Start", CheckDate);
-        Date.SetRange("Period Name", Format(BaseCalendarChange.Day::Sunday));
-        exit(Date.IsEmpty);
     end;
 
     local procedure VerifySalesLineDetails(var SalesOrder: TestPage "Sales Order"; DocumentNo: Code[20]; ItemNo: Code[20]; ShipmentDate: Date; ItemAvailability: Decimal; AvailableInventory: Decimal)
@@ -1986,11 +1996,11 @@ codeunit 137157 "SCM Order Promising II"
         SalesOrder.SalesLines.OrderPromising.Invoke();
     end;
 
-    local procedure UpdateBaseCalendarOnLocation(var Location: Record Location)
+    local procedure UpdateBaseCalendarOnLocation(var Location: Record Location; NonWorkingDate: Date)
     var
         BaseCalendar: Record "Base Calendar";
     begin
-        CreateBaseCalendarWithBaseCalendarChange(BaseCalendar);
+        CreateBaseCalendarWithBaseCalendarChange(BaseCalendar, NonWorkingDate);
         Location.Validate("Base Calendar Code", BaseCalendar.Code);
         Location.Modify(true);
     end;
@@ -2046,11 +2056,9 @@ codeunit 137157 "SCM Order Promising II"
 
     local procedure UpdateSKUReplenishmentSystemWithTransfer(var SKU: Record "Stockkeeping Unit"; TransferFromCode: Code[10])
     begin
-        with SKU do begin
-            Validate("Replenishment System", "Replenishment System"::Transfer);
-            Validate("Transfer-from Code", TransferFromCode);
-            Modify();
-        end;
+        SKU.Validate("Replenishment System", SKU."Replenishment System"::Transfer);
+        SKU.Validate("Transfer-from Code", TransferFromCode);
+        SKU.Modify();
     end;
 
     local procedure UpdatePlannedOrderNosOnMfgSetup(NoSeriesCode: Code[20])
@@ -2103,20 +2111,18 @@ codeunit 137157 "SCM Order Promising II"
         ReqLineCount: Integer;
         i: Integer;
     begin
-        with RequisitionLine do begin
-            SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
-            SetRange("Ref. Order Type", "Ref. Order Type"::"Prod. Order");
-            SetRange("Ref. Order Status", "Ref. Order Status"::Planned);
-            SetRange("No. Series", NoSeriesCode);
-            ReqLineCount := Count;
+        RequisitionLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
+        RequisitionLine.SetRange("Ref. Order Type", RequisitionLine."Ref. Order Type"::"Prod. Order");
+        RequisitionLine.SetRange("Ref. Order Status", RequisitionLine."Ref. Order Status"::Planned);
+        RequisitionLine.SetRange("No. Series", NoSeriesCode);
+        ReqLineCount := RequisitionLine.Count;
 
-            Find('-');
-            RefOrderNo := "Ref. Order No.";
-            for i := 1 to ReqLineCount - 1 do begin
-                Next();
-                RefOrderNo := IncStr(RefOrderNo);
-                TestField("Ref. Order No.", RefOrderNo);
-            end;
+        RequisitionLine.Find('-');
+        RefOrderNo := RequisitionLine."Ref. Order No.";
+        for i := 1 to ReqLineCount - 1 do begin
+            RequisitionLine.Next();
+            RefOrderNo := IncStr(RefOrderNo);
+            RequisitionLine.TestField("Ref. Order No.", RefOrderNo);
         end;
     end;
 

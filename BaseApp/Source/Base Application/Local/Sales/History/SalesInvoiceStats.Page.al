@@ -151,7 +151,7 @@ page 10041 "Sales Invoice Stats."
                     Caption = 'Cost Adjmt. Amount ($)';
                     ToolTip = 'Specifies the adjusted cost of the sales order based on the total adjusted cost, total sales, and unit cost.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries();
                     end;

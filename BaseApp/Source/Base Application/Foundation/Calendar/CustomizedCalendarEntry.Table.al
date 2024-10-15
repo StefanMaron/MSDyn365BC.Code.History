@@ -8,7 +8,6 @@ using Microsoft.Foundation.Shipping;
 using Microsoft.Inventory.Location;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
-using Microsoft.Service.Setup;
 
 table 7603 "Customized Calendar Entry"
 {
@@ -103,7 +102,6 @@ table 7603 "Customized Calendar Entry"
         Customer: Record Customer;
         Vendor: Record Vendor;
         Location: Record Location;
-        ServMgtSetup: Record "Service Mgt. Setup";
         ShippingAgentService: Record "Shipping Agent Services";
         IsHandled: Boolean;
     begin
@@ -125,9 +123,6 @@ table 7603 "Customized Calendar Entry"
                 "Source Type"::"Shipping Agent":
                     if ShippingAgentService.Get("Source Code", "Additional Source Code") then
                         exit("Source Code" + ' ' + "Additional Source Code" + ' ' + ShippingAgentService.Description);
-                "Source Type"::Service:
-                    if ServMgtSetup.Get() then
-                        exit("Source Code" + ' ' + ServMgtsetup.TableCaption());
                 else
                     OnGetCaptionOnCaseElse(Rec, TableCaption);
             end;

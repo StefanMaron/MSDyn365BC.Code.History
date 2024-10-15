@@ -829,13 +829,19 @@ report 25 "Account Schedule"
         PadChar: Char;
         PadString: Text;
 
+#pragma warning disable AA0074
         Text000: Label '(Thousands)';
         Text001: Label '(Millions)';
         Text002: Label '* ERROR *';
+#pragma warning disable AA0470
         Text003: Label 'All amounts are in %1.';
+#pragma warning restore AA0470
         Text004: Label 'Not Available';
+#pragma warning disable AA0470
         Text005: Label '1,6,,Dimension %1 Filter';
+#pragma warning restore AA0470
         Text006: Label 'Enter the Column Definition Name.';
+#pragma warning restore AA0074
         ColumnLayoutNameCaptionLbl: Label 'Column Definition';
         AccScheduleName_Name_CaptionLbl: Label 'Financial Report';
         FiscalStartDateCaptionLbl: Label 'Fiscal Start Date';

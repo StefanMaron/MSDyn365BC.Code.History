@@ -194,6 +194,8 @@ report 99000791 "Production Order Statistics"
 
     requestpage
     {
+        AboutTitle = 'About Production Order Statistics';
+        AboutText = 'Analyse your actual costs and variance from expected cost for production orders to make key decisions about your production execution and its impact on costs. Displays a breakdown of all cost categories for a production order including material, capacity, subcontracting, and overheads.';
 
         layout
         {

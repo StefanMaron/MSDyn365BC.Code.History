@@ -225,8 +225,10 @@ page 762 "Finance Performance"
         AccSchedChartManagement: Codeunit "Acc. Sched. Chart Management";
         StatusText: Text[250];
         Period: Option " ",Next,Previous;
+#pragma warning disable AA0074
         Text001: Label '%1 | %2 (Updated %3)', Comment = '%1 Account Schedule Chart Setup Name, %2 Period Length, %3 Current time';
         Text002: Label '%1 | %2..%3 | %4 (Updated %5)', Comment = '%1 Account Schedule Chart Setup Name, %2 = Start Date, %3 = End Date, %4 Period Length, %5 Current time';
+#pragma warning restore AA0074
         NoDescriptionMsg: Label 'A description was not specified for this chart.';
         IsChartAddInReady: Boolean;
 

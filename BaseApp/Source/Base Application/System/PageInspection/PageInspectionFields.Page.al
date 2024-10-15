@@ -61,25 +61,21 @@ page 9632 "Page Inspection Fields"
     {
         area(Processing)
         {
-            group(VSCodeRequests)
+            action(NavigateToSource)
             {
-                Caption = 'Visual Studio Code';
-                action(NavigateToSource)
-                {
-                    AccessByPermission = System "Tools, Zoom" = X;
-                    ApplicationArea = All;
-                    Caption = 'Explore field in VS Code';
-                    Image = View;
-                    ToolTip = 'Navigate the field definition in source code in Visual Studio Code and attach debugger to current session.';
-                    Scope = Repeater;
+                AccessByPermission = System "Tools, Zoom" = X;
+                ApplicationArea = All;
+                Caption = 'Explore field in VS Code';
+                Image = View;
+                ToolTip = 'Navigate the field definition in source code in Visual Studio Code and attach debugger to current session.';
+                Scope = Repeater;
 
-                    trigger OnAction()
-                    var
-                        VSCodeRequestHelper: Codeunit "VS Code Request Helper";
-                    begin
-                        HyperLink(VSCodeRequestHelper.GetUrlToNavigateFieldInVSCode(Rec));
-                    end;
-                }
+                trigger OnAction()
+                var
+                    PageInspectionVSCodeHelper: Codeunit "Page Inspection VS Code Helper";
+                begin
+                    PageInspectionVSCodeHelper.NavigateFieldDefinitionInVSCode(Rec);
+                end;
             }
         }
     }

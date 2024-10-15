@@ -60,9 +60,6 @@ table 751 "Standard General Journal Line"
                       FieldCaption("Account Type"), FieldCaption("Bal. Account Type"));
 
                 Validate("Account No.", '');
-#if not CLEAN22
-                Validate("IC Partner G/L Acc. No.", '');
-#endif
                 Validate("IC Account No.", '');
 
                 if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Bank Account"] then begin
@@ -143,9 +140,6 @@ table 751 "Standard General Journal Line"
                 UpdateSource();
                 CreateDimFromDefaultDim(FieldNo("Account No."));
 
-#if not CLEAN22
-                Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo());
-#endif
                 if (Rec."IC Account Type" = Rec."IC Account Type"::"G/L Account") then
                     Validate("IC Account No.", GetDefaultICPartnerGLAccNo());
             end;
@@ -271,9 +265,6 @@ table 751 "Standard General Journal Line"
                 UpdateSource();
                 CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
 
-#if not CLEAN22
-                Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo());
-#endif
                 if (Rec."IC Account Type" = Rec."IC Account Type"::"G/L Account") then
                     Validate("IC Account No.", GetDefaultICPartnerGLAccNo());
             end;
@@ -1198,33 +1189,9 @@ table 751 "Standard General Journal Line"
         {
             Caption = 'IC Partner G/L Acc. No.';
             TableRelation = "IC G/L Account";
-#if not CLEAN22
-            ObsoleteReason = 'This field will be replaced by IC Account No.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteReason = 'Replaced by IC Account No.';
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
-
-#if not CLEAN22
-            trigger OnValidate()
-            var
-                ICGLAccount: Record "IC G/L Account";
-                GenJnlTemplate: Record "Gen. Journal Template";
-            begin
-                if "IC Partner G/L Acc. No." <> '' then begin
-                    GenJnlTemplate.Get("Journal Template Name");
-                    GenJnlTemplate.TestField(Type, GenJnlTemplate.Type::Intercompany);
-                    if ICGLAccount.Get("IC Partner G/L Acc. No.") then
-                        ICGLAccount.TestField(Blocked, false);
-                end;
-
-                Rec."IC Account Type" := Rec."IC Account Type"::"G/L Account";
-                Rec."IC Account No." := Rec."IC Partner G/L Acc. No.";
-            end;
-#endif
         }
         field(118; "Sell-to/Buy-from No."; Code[20])
         {
@@ -1258,14 +1225,6 @@ table 751 "Standard General Journal Line"
             if ("Bal. Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
             else
             if ("Bal. Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Bal. Account No."), Blocked = const(false));
-
-#if not CLEAN22
-            trigger OnValidate()
-            begin
-                if Rec."IC Account Type" = Rec."IC Account Type"::"G/L Account" then
-                    Rec."IC Partner G/L Acc. No." := Rec."IC Account No.";
-            end;
-#endif
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -1324,6 +1283,8 @@ table 751 "Standard General Journal Line"
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         CurrencyCode: Code[10];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 or %2 must be G/L Account or Bank Account.';
         Text001: Label 'You cannot rename a %1.';
         Text002: Label 'cannot be specified without %1';
@@ -1335,6 +1296,8 @@ table 751 "Standard General Journal Line"
         Text012: Label '%1 must be positive.';
         Text013: Label 'The %1 must not be more than %2.';
         Text014: Label 'The %1 %2 has a %3 %4.\Do you still want to use %1 %2 in this journal line?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure UpdateLineBalance()
     begin

@@ -12,7 +12,6 @@ codeunit 104061 "Upgrade User Groups"
 
     trigger OnUpgradePerDatabase()
     var
-        TableMetadata: Record "Table Metadata";
         UpgradeTag: Codeunit "Upgrade Tag";
         HybridDeployment: Codeunit "Hybrid Deployment";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
@@ -21,10 +20,7 @@ codeunit 104061 "Upgrade User Groups"
             exit;
 
         // Only forcefully migrate user groups when the feature tables are removed (v25+)
-        if not TableMetadata.Get(Database::"User Group") then
-            exit;
-
-        if not (TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed) then
+        if not IsUserGroupObsoleteStateRemoved() then
             exit;
 
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUserGroupsMigrationUpgradeTag()) then
@@ -33,6 +29,16 @@ codeunit 104061 "Upgrade User Groups"
         RunUpgrade();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUserGroupsMigrationUpgradeTag());
+    end;
+
+    internal procedure IsUserGroupObsoleteStateRemoved(): Boolean
+    var
+        TableMetadata: Record "Table Metadata";
+    begin
+        if not TableMetadata.Get(Database::"User Group") then
+            exit(false);
+
+        exit(TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed);
     end;
 
     internal procedure RunUpgrade()
@@ -59,8 +65,6 @@ codeunit 104061 "Upgrade User Groups"
         TransferDefaultPermissionsPerPlan();
 
         OnMigrateUserGroups();
-
-        DeleteUserGroups();
     end;
 
     local procedure CreateTenantPermissionSetsForSelectedGroups(UserGroupsToConvert: List of [Code[20]])
@@ -145,23 +149,6 @@ codeunit 104061 "Upgrade User Groups"
                             UserGroupPermissionSet.Scope);
                     until UserGroupPermissionSet.Next() = 0;
             until UserGroupPlan.Next() = 0;
-    end;
-
-    local procedure DeleteUserGroups()
-    var
-        UserGroup: Record "User Group";
-        UserGroupPermissionSet: Record "User Group Permission Set";
-        UserGroupAccessControl: Record "User Group Access Control";
-        UserGroupMember: Record "User Group Member";
-        UserGroupPlan: Record "User Group Plan";
-    begin
-        // The correct permission sets are already assigned to users - we only need to clean up
-        // the user group tables in the correct order, so that the permission sets are not removed.
-        UserGroupAccessControl.DeleteAll();
-        UserGroupPermissionSet.DeleteAll();
-        UserGroupMember.DeleteAll();
-        UserGroupPlan.DeleteAll();
-        UserGroup.DeleteAll();
     end;
 
     [IntegrationEvent(false, false)]

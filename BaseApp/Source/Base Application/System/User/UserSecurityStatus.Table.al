@@ -51,13 +51,8 @@ table 9062 "User Security Status"
             Caption = 'Belongs to User Group';
             FieldClass = FlowField;
             ObsoleteReason = 'User group membership cannot be calculated via a flow field in the new user group system.';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
         }
         field(20; "Users - To review"; Integer)
         {
@@ -79,15 +74,8 @@ table 9062 "User Security Status"
             Caption = 'Users - Not Group Members';
             FieldClass = FlowField;
             ObsoleteReason = 'User group membership cannot be calculated via a flow field in the new user group system.';
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-            CalcFormula = count("User Security Status" where("Belongs to User Group" = const(false),
-                                                              "User Security ID" = filter(<> '{00000000-0000-0000-0000-000000000000}')));
-#endif
         }
         field(25; "CDS Integration Errors"; Integer)
         {

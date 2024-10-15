@@ -9,6 +9,7 @@ using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Location;
 using Microsoft.Sales.Customer;
+using Microsoft.Service.Archive;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
@@ -574,6 +575,9 @@ report 5902 "Service Quote"
                         column(Ship_to_AddressCaption; Ship_to_AddressCaptionLbl)
                         {
                         }
+                        column(ShipToPhoneNo; "Service Header"."Ship-to Phone")
+                        {
+                        }
 
                         trigger OnPreDataItem()
                         begin
@@ -611,14 +615,31 @@ report 5902 "Service Quote"
             }
 
             trigger OnAfterGetRecord()
+            var
+                ServiceDocumentArchiveMgmt: Codeunit "Service Document Archive Mgmt.";
             begin
-                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.Language(LanguageMgt.GetLanguageIdOrDefault("Language Code"));
                 CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Service Header");
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
+
+                if not IsReportInPreviewMode() and
+                   ((CurrReport.UseRequestPage()) and ArchiveDocument or
+                   not (CurrReport.UseRequestPage()) and (ServiceSetup."Archive Quotes" <> ServiceSetup."Archive Quotes"::Never))
+                then
+                    case ServiceSetup."Archive Quotes" of
+                        ServiceSetup."Archive Quotes"::Always:
+                            ServiceDocumentArchiveMgmt.ArchServiceDocumentNoConfirm("Service Header");
+                        ServiceSetup."Archive Quotes"::Question:
+                            begin
+                                CurrReport.Language(LanguageMgt.GetLanguageIdOrDefault(LanguageMgt.GetUserLanguageCode()));
+                                ServiceDocumentArchiveMgmt.ArchiveServiceDocument("Service Header");
+                                CurrReport.Language(LanguageMgt.GetLanguageIdOrDefault("Language Code"));
+                            end;
+                    end;
             end;
         }
     }
@@ -653,6 +674,18 @@ report 5902 "Service Quote"
                         Enabled = LogInteractionEnable;
                         ToolTip = 'Specifies if you want to record the service quotes that you want to print as interactions and add them to the Interaction Log Entry table.';
                     }
+                    field(ArchiveDocument; ArchiveDocument)
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Archive Document';
+                        ToolTip = 'Specifies if the document is archived after you preview or print it.';
+
+                        trigger OnValidate()
+                        begin
+                            if not ArchiveDocument then
+                                LogInteraction := false;
+                        end;
+                    }
                 }
             }
         }
@@ -664,6 +697,7 @@ report 5902 "Service Quote"
         trigger OnInit()
         begin
             LogInteractionEnable := true;
+            ArchiveDocument := ServiceSetup."Archive Quotes" <> ServiceSetup."Archive Quotes"::Never;
         end;
 
         trigger OnOpenPage()
@@ -705,11 +739,14 @@ report 5902 "Service Quote"
         if LogInteraction and not IsReportInPreviewMode() then
             if "Service Header".FindSet() then
                 repeat
+                    "Service Header".CalcFields("No. of Archived Versions");
                     if "Service Header"."Contact No." <> '' then
-                        SegManagement.LogDocument(25, "Service Header"."No.", 0, 0, Database::Contact, "Service Header"."Contact No.",
+                        SegManagement.LogDocument(25, "Service Header"."No.", "Service Header"."Doc. No. Occurrence",
+                         "Service Header"."No. of Archived Versions", Database::Contact, "Service Header"."Contact No.",
                           "Service Header"."Salesperson Code", '', '', '')
                     else
-                        SegManagement.LogDocument(25, "Service Header"."No.", 0, 0, Database::Customer, "Service Header"."Customer No.",
+                        SegManagement.LogDocument(25, "Service Header"."No.", "Service Header"."Doc. No. Occurrence",
+                        "Service Header"."No. of Archived Versions", Database::Customer, "Service Header"."Customer No.",
                           "Service Header"."Salesperson Code", '', '', '');
                 until "Service Header".Next() = 0;
     end;
@@ -727,6 +764,7 @@ report 5902 "Service Quote"
         NoOfLoops: Integer;
         Number1: Integer;
         Number2: Integer;
+        ArchiveDocument: Boolean;
         ShowInternalInfo: Boolean;
         ShowShippingAddr: Boolean;
         Continue: Boolean;
@@ -743,9 +781,12 @@ report 5902 "Service Quote"
         TotGrossAmt: Decimal;
         OutputNo: Integer;
         LogInteractionEnable: Boolean;
-
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Service Quote %1';
         Text002: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Service_Header___Order_Date_CaptionLbl: Label 'Order Date';
         Invoice_toCaptionLbl: Label 'Invoice to';
         CompanyInfo__Phone_No__CaptionLbl: Label 'Phone No.';
@@ -776,12 +817,14 @@ report 5902 "Service Quote"
     end;
 
     local procedure FormatAddressFields(var ServiceHeader: Record "Service Header")
+    var
+        ServiceFormatAddress: Codeunit "Service Format Address";
     begin
         FormatAddr.GetCompanyAddr(ServiceHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
-        FormatAddr.ServiceOrderSellto(CustAddr, ServiceHeader);
+        ServiceFormatAddress.ServiceOrderSellto(CustAddr, ServiceHeader);
         ShowShippingAddr := ServiceHeader."Ship-to Code" <> '';
         if ShowShippingAddr then
-            FormatAddr.ServiceOrderShipto(ShipToAddr, ServiceHeader);
+            ServiceFormatAddress.ServiceOrderShipto(ShipToAddr, ServiceHeader);
     end;
 
     [IntegrationEvent(false, false)]

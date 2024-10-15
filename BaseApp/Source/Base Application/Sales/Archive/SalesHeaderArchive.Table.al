@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Archive;
+namespace Microsoft.Sales.Archive;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -718,6 +718,11 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Work Description';
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -806,13 +811,8 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Bill-to Customer Template Code (obsoleted)';
             ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Bill-to Customer Templ. Code".';
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
         }
         field(5055; "Opportunity No."; Code[20])
         {

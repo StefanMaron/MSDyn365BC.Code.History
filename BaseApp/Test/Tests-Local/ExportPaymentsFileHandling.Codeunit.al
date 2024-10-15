@@ -1,4 +1,4 @@
-codeunit 142500 "Export Payments File Handling"
+﻿codeunit 142500 "Export Payments File Handling"
 {
     // 1. Verify that no error of Input Qualifier while doing export payement.
     // 
@@ -317,14 +317,12 @@ codeunit 142500 "Export Payments File Handling"
     begin
         TempPath := GetTempPath();
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            "E-Pay Export File Path" := CopyStr(CreateDirectory(TempPath + 'Misc\'), 1, MaxStrLen("E-Pay Export File Path"));
-            "E-Pay Trans. Program Path" := CopyStr(CreateDirectory(TempPath + 'Trans\'), 1, MaxStrLen("E-Pay Trans. Program Path"));
-            "Last E-Pay Export File Name" := 'ExportPayments000.txt';
-            "Export Format" := ExportFormat;
-            "Transit No." := GetTransitNo(ExportFormat);
-            Modify();
-        end;
+        BankAccount."E-Pay Export File Path" := CopyStr(CreateDirectory(TempPath + 'Misc\'), 1, MaxStrLen(BankAccount."E-Pay Export File Path"));
+        BankAccount."E-Pay Trans. Program Path" := CopyStr(CreateDirectory(TempPath + 'Trans\'), 1, MaxStrLen(BankAccount."E-Pay Trans. Program Path"));
+        BankAccount."Last E-Pay Export File Name" := 'ExportPayments000.txt';
+        BankAccount."Export Format" := ExportFormat;
+        BankAccount."Transit No." := GetTransitNo(ExportFormat);
+        BankAccount.Modify();
     end;
 
     local procedure CreateClientExportFile(): Text[30]
@@ -341,20 +339,18 @@ codeunit 142500 "Export Payments File Handling"
         LibraryUTUtility: Codeunit "Library UT Utility";
     begin
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, AccountType, AccountNo, LibraryRandom.RandDec(100, 2));
-            if "Account Type" = "Account Type"::Vendor then
-                Amount := -Amount;
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", BankAccountNo);
-            Validate("Bank Payment Type", "Bank Payment Type"::"Electronic Payment");
-            Validate("Transaction Code", CopyStr(LibraryUTUtility.GetNewCode10(), 1, MaxStrLen("Transaction Code")));
-            Validate("Company Entry Description", CopyStr(AccountNo, 1, 10));
-            Validate("Recipient Bank Account", RecipientBanAccount);
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, AccountType, AccountNo, LibraryRandom.RandDec(100, 2));
+        if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor then
+            GenJournalLine.Amount := -GenJournalLine.Amount;
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccountNo);
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Electronic Payment");
+        GenJournalLine.Validate("Transaction Code", CopyStr(LibraryUTUtility.GetNewCode10(), 1, MaxStrLen(GenJournalLine."Transaction Code")));
+        GenJournalLine.Validate("Company Entry Description", CopyStr(AccountNo, 1, 10));
+        GenJournalLine.Validate("Recipient Bank Account", RecipientBanAccount);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreateVendorBankAccount(VendorNo: Code[20]; Code: Code[20]; ExportFormat: Option ,US,CA,MX)
@@ -386,11 +382,9 @@ codeunit 142500 "Export Payments File Handling"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Name), 0));
-            Modify();
-            exit("No.");
-        end;
+        Vendor.Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Vendor.Name), 0));
+        Vendor.Modify();
+        exit(Vendor."No.");
     end;
 
     local procedure CreateLongNameCustomerNo(): Code[20]
@@ -398,11 +392,9 @@ codeunit 142500 "Export Payments File Handling"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Name), 0));
-            Modify();
-            exit("No.");
-        end;
+        Customer.Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Customer.Name), 0));
+        Customer.Modify();
+        exit(Customer."No.");
     end;
 
     local procedure GetTempPath(): Text
@@ -427,10 +419,8 @@ codeunit 142500 "Export Payments File Handling"
     var
         BankAccount: Record "Bank Account";
     begin
-        with BankAccount do begin
-            Get(BankAccountNo);
-            exit("E-Pay Export File Path" + "Last E-Pay Export File Name");
-        end;
+        BankAccount.Get(BankAccountNo);
+        exit(BankAccount."E-Pay Export File Path" + BankAccount."Last E-Pay Export File Name");
     end;
 
     local procedure CreateDirectory(FilePathName: Text): Text
@@ -442,29 +432,25 @@ codeunit 142500 "Export Payments File Handling"
     var
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
-        with BankAccount do begin
-            LibraryERM.FindBankAccountPostingGroup(BankAccountPostingGroup);
-            Validate("Export Format", "Export Format"::CA);
-            Validate("Transit No.", "No.");
-            Validate("Client No.", "No.");
-            Validate("Client Name", "Client No.");
-            Validate("Last E-Pay Export File Name", "No.");
-            Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
-            Validate("E-Pay Export File Path", TemporaryPath);
-            Validate("Last E-Pay Export File Name", Format(LibraryRandom.RandInt(10)));
-            Modify(true);
-        end;
+        LibraryERM.FindBankAccountPostingGroup(BankAccountPostingGroup);
+        BankAccount.Validate("Export Format", BankAccount."Export Format"::CA);
+        BankAccount.Validate("Transit No.", BankAccount."No.");
+        BankAccount.Validate("Client No.", BankAccount."No.");
+        BankAccount.Validate("Client Name", BankAccount."Client No.");
+        BankAccount.Validate("Last E-Pay Export File Name", BankAccount."No.");
+        BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
+        BankAccount.Validate("E-Pay Export File Path", TemporaryPath);
+        BankAccount.Validate("Last E-Pay Export File Name", Format(LibraryRandom.RandInt(10)));
+        BankAccount.Modify(true);
     end;
 
     local procedure UpdateCompanyInfo()
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate("Federal ID No.", LibraryUtility.GenerateGUID());
-            Modify();
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Federal ID No.", LibraryUtility.GenerateGUID());
+        CompanyInformation.Modify();
     end;
 
     local procedure VerifyMovedFile(BankAccount: Record "Bank Account"; FileName: Text)
@@ -514,10 +500,9 @@ codeunit 142500 "Export Payments File Handling"
     begin
         NameLength := 100;
         LineText := LibraryTextFileValidation.ReadValueFromLine(CopyStr(FileName, 1, 1024), 3, 59, NameLength);
-        for i := 1 to StrLen(LineText) - 1 do begin
+        for i := 1 to StrLen(LineText) - 1 do
             if (LineText[i] = ' ') and (LineText[i + 1] = ' ') then
                 NameLength := i - 1;    // Name is followed by two spaces
-        end;
         CustVendName := CopyStr(LineText, 1, NameLength);
         exit(CustVendName);
     end;

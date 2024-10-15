@@ -35,12 +35,18 @@ codeunit 5940 ServContractManagement
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 cannot be created for service contract  %2, because %3 and %4 are not equal.';
         Text002: Label 'Service Contract: %1';
+#pragma warning restore AA0470
         Text003: Label 'Service contract line(s) included in:';
+#pragma warning disable AA0470
         Text004: Label 'A credit memo cannot be created, because the %1 %2 is after the work date.';
         Text005: Label '%1 %2 removed';
         Text006: Label 'Do you want to create a service invoice for the period %1 .. %2 ?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GLAcc: Record "G/L Account";
         ServMgtSetup: Record "Service Mgt. Setup";
         ServLedgEntry: Record "Service Ledger Entry";
@@ -61,22 +67,42 @@ codeunit 5940 ServContractManagement
         ServLineNo: Integer;
         NextEntry: Integer;
         AppliedEntry: Integer;
+#pragma warning disable AA0074
         Text007: Label 'Invoice cannot be created because amount to invoice for this invoice period is zero.';
+#pragma warning disable AA0470
         Text008: Label 'The combination of dimensions used in %1 %2 is blocked. %3';
         Text009: Label 'The dimensions used in %1 %2 are invalid. %3';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InvoicingStartingPeriod: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text010: Label 'You cannot create an invoice for contract %1 before the service under this contract is completed because the %2 check box is selected.';
+#pragma warning restore AA0470
         Text012: Label 'You must fill in the New Customer No. field.';
+#pragma warning disable AA0470
         Text013: Label '%1 cannot be created because the %2 is too long. Please shorten the %3 %4 %5 by removing %6 character(s).';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TempServLineDescription: Text[250];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text014: Label 'A %1 cannot be created because %2 %3 has at least one unposted %4 linked to it.';
         Text015: Label '%1 %2 for the existing %3 %4 for %5 %6 differs from the newly calculated %1 %7. Do you want to use the existing %1?', Comment = 'Location Code SILVER for the existing Service Credit Memo 1001 for Service Contract 1002 differs from the newly calculated Location Code BLUE. Do you want to use the existing Location Code?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AppliedGLAccount: Code[20];
         CheckMParts: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         CombinedCurrenciesErr1: Label 'Customer %1 has service contracts with different currency codes %2 and %3, which cannot be combined on one invoice.';
+#pragma warning restore AA0470
         CombinedCurrenciesErr2: Label 'Limit the Create Contract Invoices batch job to certain currency codes or clear the Combine Invoices field on the involved service contracts.';
+#pragma warning restore AA0074
         BlankTxt: Label '<blank>';
+#pragma warning disable AA0470
         ErrorSplitErr: Label '%1\\%2.';
+#pragma warning restore AA0470
         AmountType: Option ,Amount,DiscAmount,UnitPrice,UnitCost;
         TempServLedgEntriesIsSet: Boolean;
 
@@ -711,7 +737,7 @@ codeunit 5940 ServContractManagement
         ServContractHeader: Record "Service Contract Header";
         StdText: Record "Standard Text";
         Cust: Record Customer;
-        TransferExtendedText: Codeunit "Transfer Extended Text";
+        ServiceTransferExtText: Codeunit "Service Transfer Ext. Text";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -738,9 +764,8 @@ codeunit 5940 ServContractManagement
                         ServLineNo := ServLineNo + 10000;
                         ServLine."Line No." := ServLineNo;
                         ServLine.Insert();
-                        if TransferExtendedText.ServCheckIfAnyExtText(ServLine, true) then
-                            TransferExtendedText.InsertServExtText(ServLine);
-                        if TransferExtendedText.MakeUpdate() then;
+                        if ServiceTransferExtText.ServCheckIfAnyExtText(ServLine, true) then
+                            ServiceTransferExtText.InsertServExtText(ServLine);
                         ServLine."No." := '';
                         OnBeforeLastServLineModify(ServLine);
                         ServLine.Modify();
@@ -1299,7 +1324,7 @@ codeunit 5940 ServContractManagement
                 FindLinePeriodStartsByInvoicedToDate(ServContractLine, PeriodStarts, LinePeriodStarts);
 
                 LinePeriodEnds := PeriodEnds;
-                if ServContractLine."Contract Expiration Date" <> 0D then begin
+                if ServContractLine."Contract Expiration Date" <> 0D then
                     if ServContractLine."Contract Expiration Date" < PeriodStarts then
                         ContractLineIncluded := false
                     else
@@ -1307,7 +1332,6 @@ codeunit 5940 ServContractManagement
                            (ServContractLine."Contract Expiration Date" <= PeriodEnds)
                         then
                             LinePeriodStarts := PeriodStarts;
-                end;
                 if ContractLineIncluded then
                     AmountCalculated := AmountCalculated +
                       CalcContractLineAmount(ServContractLine."Line Amount", LinePeriodStarts, LinePeriodEnds);
@@ -1711,7 +1735,7 @@ codeunit 5940 ServContractManagement
         ServContractLine: Record "Service Contract Line";
         Cust: Record Customer;
         ContractChangeLog: Record "Contract Change Log";
-        CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
+        ServCheckCreditLimit: Codeunit "Serv. Check Credit Limit";
         UserMgt: Codeunit "User Setup Management";
         OldSalespersonCode: Code[20];
         OldCurrencyCode: Code[10];
@@ -1730,12 +1754,12 @@ codeunit 5940 ServContractManagement
                 ContractChangeLog.LogContractChange(
                   ServContractHeader."Contract No.", 0, ServContractHeader.FieldCaption(ServContractHeader."Customer No."), 0, ServContractHeader."Customer No.", NewCustomertNo, '', 0);
             ServContractHeader."Customer No." := NewCustomertNo;
-            CustCheckCrLimit.OnNewCheckRemoveCustomerNotifications(ServContractHeader.RecordId, true);
+            ServCheckCreditLimit.OnNewCheckRemoveCustomerNotifications(ServContractHeader.RecordId, true);
 
             Cust.Get(NewCustomertNo);
             ServContractHeader.SetHideValidationDialog(true);
             IsHandled := false;
-            OnChangeCustNoOnServContractOnAfterGetCust(Cust, ServContractHeader, CustCheckCrLimit, IsHandled);
+            OnChangeCustNoOnServContractOnAfterGetCustomer(Cust, ServContractHeader, ServCheckCreditLimit, IsHandled);
             if not IsHandled then begin
                 if Cust."Bill-to Customer No." <> '' then
                     ServContractHeader.Validate("Bill-to Customer No.", Cust."Bill-to Customer No.")
@@ -1744,7 +1768,7 @@ codeunit 5940 ServContractManagement
                 ServContractHeader."Responsibility Center" := UserMgt.GetRespCenter(2, Cust."Responsibility Center");
                 ServContractHeader.UpdateShiptoCode();
                 ServContractHeader.CalcFields(Name, "Name 2", Address, "Address 2", "Post Code", City, County, "Country/Region Code");
-                CustCheckCrLimit.ServiceContractHeaderCheck(ServContractHeader);
+                ServCheckCreditLimit.ServiceContractHeaderCheck(ServContractHeader);
             end;
         end;
 
@@ -1784,7 +1808,7 @@ codeunit 5940 ServContractManagement
             else
                 ServContractHeader.CalcFields(
                   "Ship-to Name", "Ship-to Name 2", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to Post Code", "Ship-to City", "Ship-to County", "Ship-to Country/Region Code");
+                  "Ship-to Post Code", "Ship-to City", "Ship-to County", "Ship-to Country/Region Code", "Ship-to Phone No.");
         end;
 
         OnAfterProcessShiptoCodeChange(ServContractHeader, NewShipToCode);
@@ -2888,14 +2912,6 @@ codeunit 5940 ServContractManagement
     begin
     end;
 
-#if not CLEAN22
-    [Obsolete('Removed code that caused issues with Service Invoice calculation.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateAllServLinesOnAfterCreateServiceLedgerEntry(var ServContractLine: Record "Service Contract Line"; var ServiceApplyEntry: Integer)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnCreateAllServLinesOnAfterCalcShouldCraeteServiceApplyEntry(var ServHeader: Record "Service Header"; ServContractToInvoice: Record "Service Contract Header"; var ServContractLine: Record "Service Contract Line"; var PartInvoiceFrom: Date; var PartInvoiceTo: Date; var ServiceApplyEntry: Integer; var ShouldCraeteServiceApplyEntry: Boolean)
     begin
@@ -3026,8 +3042,16 @@ codeunit 5940 ServContractManagement
     begin
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by event OnChangeCustNoOnServContractOnAfterGetCustomer', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnChangeCustNoOnServContractOnAfterGetCust(Customer: Record Customer; var ServiceContractHeader: Record "Service Contract Header"; var CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangeCustNoOnServContractOnAfterGetCustomer(Customer: Record Customer; var ServiceContractHeader: Record "Service Contract Header"; var ServCheckCreditLimit: Codeunit "Serv. Check Credit Limit"; var IsHandled: Boolean)
     begin
     end;
 

@@ -2,7 +2,7 @@ codeunit 139096 "Power BI Mock Service Provider" implements "Power BI Service Pr
 {
     Access = Internal;
 
-    procedure Initialize(AzureAccessToken: Text; PowerBIUrl: Text)
+    procedure Initialize(AzureAccessToken: SecretText; PowerBIUrl: Text)
     begin
 
     end;
@@ -88,7 +88,7 @@ codeunit 139096 "Power BI Mock Service Provider" implements "Power BI Service Pr
         OperationSuccess(OperationResult);
     end;
 
-    procedure UpdateDatasourceCredentials(DataSourceId: Guid; GatewayId: Guid; BusinessCentralAccessToken: Text; var OperationResult: DotNet OperationResult)
+    procedure UpdateDatasourceCredentials(DataSourceId: Guid; GatewayId: Guid; BusinessCentralAccessToken: SecretText; var OperationResult: DotNet OperationResult)
     begin
         CheckFailStep();
 

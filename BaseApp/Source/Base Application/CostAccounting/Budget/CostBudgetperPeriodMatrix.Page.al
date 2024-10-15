@@ -409,8 +409,12 @@ page 1131 "Cost Budget per Period Matrix"
         MATRIX_CellData: array[32] of Decimal;
         Emphasize: Boolean;
         NameIndent: Integer;
+#pragma warning disable AA0074
         Text000: Label 'Set View As to Net Change before you edit entries.';
+#pragma warning disable AA0470
         Text001: Label '%1 or %2 must not be blank.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CurrRegNo: Integer;
 
     local procedure SetDateFilter(MATRIX_ColumnOrdinal: Integer)

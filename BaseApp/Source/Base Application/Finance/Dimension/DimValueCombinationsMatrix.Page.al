@@ -450,7 +450,9 @@ page 9253 "Dim. Value Combinations Matrix"
         MATRIX_CurrentNoOfMatrixColumn: Integer;
         MATRIX_CellData: array[32] of Text[1024];
         MATRIX_ColumnCaption: array[32] of Text[1024];
+#pragma warning disable AA0074
         Text000: Label 'Open,Blocked';
+#pragma warning restore AA0074
         Row: Code[20];
         SelectedDimValueCode: Code[20];
         Field1Visible: Boolean;

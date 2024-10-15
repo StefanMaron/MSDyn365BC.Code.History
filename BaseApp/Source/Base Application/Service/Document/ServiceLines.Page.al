@@ -613,10 +613,26 @@ page 5905 "Service Lines"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Line"),
+                              "No." = field("Document No."),
+                              "Document Type" = field("Document Type"),
+                              "Line No." = field("Line No.");
+                Visible = false;
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Line"),
                               "No." = field("Document No."),
                               "Document Type" = field("Document Type"),
@@ -788,7 +804,7 @@ page 5905 "Service Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByEvent());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::"Event");
                             CurrPage.Update(true);
                         end;
                     }
@@ -801,7 +817,7 @@ page 5905 "Service Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByPeriod());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::Period);
                             CurrPage.Update(true);
                         end;
                     }
@@ -814,7 +830,7 @@ page 5905 "Service Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByVariant());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::Variant);
                             CurrPage.Update(true);
                         end;
                     }
@@ -828,7 +844,7 @@ page 5905 "Service Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByLocation());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::Location);
                             CurrPage.Update(true);
                         end;
                     }
@@ -852,7 +868,7 @@ page 5905 "Service Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByBOM());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::BOM);
                             CurrPage.Update(true);
                         end;
                     }
@@ -876,7 +892,7 @@ page 5905 "Service Lines"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -1062,12 +1078,12 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     var
-                        TimeSheetMgt: Codeunit "Time Sheet Management";
+                        ServTimeSheetMgt: Codeunit "Serv. Time Sheet Mgt.";
                         ConfirmManagement: Codeunit "Confirm Management";
                     begin
                         if ConfirmManagement.GetResponseOrDefault(Text012, true) then begin
                             ServHeader.Get(Rec."Document Type", Rec."Document No.");
-                            TimeSheetMgt.CreateServDocLinesFromTS(ServHeader);
+                            ServTimeSheetMgt.CreateServDocLinesFromTS(ServHeader);
                         end;
                     end;
                 }
@@ -1122,7 +1138,7 @@ page 5905 "Service Lines"
                         end;
                     end;
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action("Get Li&ne Discount")
                 {
                     AccessByPermission = TableData "Sales Line Discount" = R;
@@ -1404,16 +1420,20 @@ page 5905 "Service Lines"
         ServMgtSetup: Record "Service Mgt. Setup";
         ServHeader: Record "Service Header";
         ServItemLine: Record "Service Item Line";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        ServAvailabilityMgt: Codeunit "Serv. Availability Mgt.";
         ServItemLineNo: Integer;
         AddExtendedText: Boolean;
         ExtendedPriceEnabled: Boolean;
         ItemReferenceVisible: Boolean;
         VariantCodeMandatory: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text008: Label 'You cannot open the window because %1 is %2 in the %3 table.';
+#pragma warning restore AA0470
         Text011: Label 'This will reset all price adjusted lines to default values. Do you want to continue?';
         Text012: Label 'Do you want to create service lines from time sheets?';
+#pragma warning restore AA0074
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -1449,17 +1469,17 @@ page 5905 "Service Lines"
 
     procedure InsertExtendedText(Unconditionally: Boolean)
     var
-        TransferExtendedText: Codeunit "Transfer Extended Text";
+        ServiceTransferExtText: Codeunit "Service Transfer Ext. Text";
     begin
         OnBeforeInsertExtendedText(Rec);
 
-        if TransferExtendedText.ServCheckIfAnyExtText(Rec, Unconditionally) then begin
+        if ServiceTransferExtText.ServCheckIfAnyExtText(Rec, Unconditionally) then begin
             AddExtendedText := true;
             CurrPage.SaveRecord();
             AddExtendedText := false;
-            TransferExtendedText.InsertServExtText(Rec);
+            ServiceTransferExtText.InsertServExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate() then
+        if ServiceTransferExtText.MakeUpdate() then
             CurrPage.Update();
     end;
 

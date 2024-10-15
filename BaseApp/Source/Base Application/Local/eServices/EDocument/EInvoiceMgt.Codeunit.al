@@ -757,10 +757,9 @@ codeunit 10145 "E-Invoice Mgt."
             '0000C73', StrSubstNo(StampReqSuccessMsg, GetDocTypeTextFromDatabaseId(DocumentHeaderRecordRef.Number)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         // If Advance Settle, and everything went well, then need to create CFDI document for Advance reverse.
-        if AdvanceSettle then begin
+        if AdvanceSettle then
             if SalesInvoiceHeader."Electronic Document Status" = SalesInvoiceHeader."Electronic Document Status"::"Stamp Received" then
                 RequestStamp(DocumentHeaderRecordRef, true, true);
-        end;
 
         OnAfterRequestStamp(DocumentHeaderRecordRef);
     end;
@@ -2526,7 +2525,7 @@ codeunit 10145 "E-Invoice Mgt."
                 AddElementCFDI(XMLCurrNode, 'Concepto', '', DocNameSpace, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 AddAttribute(
-                  XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No."));
+                  XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No."));
                 AddAttribute(XMLDoc, XMLCurrNode, 'NoIdentificacion', TempDocumentLine."No.");
                 AddAttribute(XMLDoc, XMLCurrNode, 'Cantidad', Format(TempDocumentLine.Quantity, 0, 9));
                 AddAttribute(XMLDoc, XMLCurrNode, 'ClaveUnidad', SATUtilities.GetSATUnitofMeasure(TempDocumentLine."Unit of Measure Code"));
@@ -2624,7 +2623,7 @@ codeunit 10145 "E-Invoice Mgt."
                 AddElementCFDI(XMLCurrNode, 'Concepto', '', DocNameSpace, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 AddAttribute(
-                  XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No."));
+                  XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No."));
                 AddAttribute(XMLDoc, XMLCurrNode, 'NoIdentificacion', TempDocumentLine."No.");
                 AddAttribute(XMLDoc, XMLCurrNode, 'Cantidad', Format(TempDocumentLine.Quantity, 0, 9));
                 AddAttribute(XMLDoc, XMLCurrNode, 'ClaveUnidad', SATUtilities.GetSATUnitofMeasure(TempDocumentLine."Unit of Measure Code"));
@@ -2836,7 +2835,7 @@ codeunit 10145 "E-Invoice Mgt."
                 AddElementCFDI(XMLCurrNode, 'Concepto', '', CFDINamespaceTxt, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 AddAttribute(
-                  XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No."));
+                  XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No."));
                 AddAttribute(XMLDoc, XMLCurrNode, 'NoIdentificacion', TempDocumentLine."No.");
                 AddAttribute(XMLDoc, XMLCurrNode, 'Cantidad', Format(TempDocumentLine.Quantity, 0, 9));
                 AddAttribute(XMLDoc, XMLCurrNode, 'ClaveUnidad', SATUtilities.GetSATUnitofMeasure(TempDocumentLine."Unit of Measure Code"));
@@ -2925,7 +2924,7 @@ codeunit 10145 "E-Invoice Mgt."
                     Item.Get(TempDocumentLine."No.")
                 else
                     Item.Init();
-                SATClassificationCode := SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No.");
+                SATClassificationCode := SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.");
                 AddElementCartaPorte(XMLCurrNode, 'Mercancia', '', CartaPorteNamespaceTxt, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 AddAttribute(XMLDoc, XMLCurrNode, 'BienesTransp', SATClassificationCode);
@@ -3197,7 +3196,7 @@ codeunit 10145 "E-Invoice Mgt."
         FilterDocumentLines(TempDocumentLine, TempDocumentHeader."No.");
         if TempDocumentLine.FindSet() then
             repeat
-                WriteOutStr(OutStream, SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|');
+                WriteOutStr(OutStream, SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|');
                 // ClaveProdServ
                 WriteOutStr(OutStream, TempDocumentLine."No." + '|');
                 // NoIdentificacion
@@ -3230,24 +3229,6 @@ codeunit 10145 "E-Invoice Mgt."
         AddStrComercioExterior(TempDocumentLineCCE, TempDocumentHeader, OutStream);
 
         WriteOutStrAllowOneCharacter(OutStream, '|');
-    end;
-
-    [Obsolete('Replaced with CreateOriginalStr33AdvanceSettleDetailed', '19.0')]
-    procedure CreateOriginalStr33AdvanceSettle(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; DateTimeFirstReqSent: Text; SubTotal: Decimal; RetainAmt: Decimal; var TempBlob: Codeunit "Temp Blob"; UUID: Text[50])
-    var
-        TempDocumentLineRetention: Record "Document Line" temporary;
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
-        TotalTax: Decimal;
-        TotalRetention: Decimal;
-        TotalDiscount: Decimal;
-    begin
-        SubTotal := 0;
-        TotalTax := 0;
-        TotalRetention := 0;
-        TotalDiscount := 0;
-        CreateOriginalStr33AdvanceSettleDetailed(
-          TempDocumentHeader, TempDocumentLine, TempDocumentLineRetention, TempVATAmountLine,
-          DateTimeFirstReqSent, TempBlob, UUID, SubTotal, TotalTax, TotalRetention, TotalDiscount);
     end;
 
     procedure CreateOriginalStr33AdvanceSettleDetailed(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempDocumentLineRetention: Record "Document Line" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; DateTimeFirstReqSent: Text; var TempBlob: Codeunit "Temp Blob"; UUID: Text[50]; SubTotal: Decimal; TotalTax: Decimal; TotalRetention: Decimal; TotalDiscount: Decimal)
@@ -3306,7 +3287,7 @@ codeunit 10145 "E-Invoice Mgt."
 
         if TempDocumentLine.FindSet() then
             repeat
-                WriteOutStr(OutStream, SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|');
+                WriteOutStr(OutStream, SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|');
                 // ClaveProdServ
                 WriteOutStr(OutStream, TempDocumentLine."No." + '|');
                 // NoIdentificacion
@@ -3503,7 +3484,7 @@ codeunit 10145 "E-Invoice Mgt."
         FilterDocumentLines(TempDocumentLine, TempDocumentHeader."No.");
         if TempDocumentLine.FindSet() then
             repeat
-                WriteOutStr(OutStream, SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|'); // ClaveProdServ
+                WriteOutStr(OutStream, SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|'); // ClaveProdServ
                 WriteOutStr(OutStream, TempDocumentLine."No." + '|'); // NoIdentificacion
                 WriteOutStr(OutStream, Format(TempDocumentLine.Quantity, 0, 9) + '|'); // Cantidad
                 WriteOutStr(OutStream, SATUtilities.GetSATUnitofMeasure(TempDocumentLine."Unit of Measure Code") + '|'); // ClaveUnidad
@@ -3566,7 +3547,7 @@ codeunit 10145 "E-Invoice Mgt."
                     Item.Get(TempDocumentLine."No.")
                 else
                     Item.Init();
-                SATClassificationCode := SATUtilities.GetSATClassification(TempDocumentLine.Type, TempDocumentLine."No.");
+                SATClassificationCode := SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.");
                 WriteOutStr(OutStream, SATClassificationCode + '|'); // BienesTransp
                 WriteOutStr(OutStream, EncodeString(TempDocumentLine.Description) + '|'); // Descripcion
                 WriteOutStr(OutStream, Format(TempDocumentLine.Quantity, 0, 9) + '|'); // Cantidad
@@ -4445,21 +4426,6 @@ codeunit 10145 "E-Invoice Mgt."
         QRCodeProvider := QRCodeProvider.QRCodeProvider();
         TempBLOB.CreateOutStream(BlobOutStr);
         QRCodeProvider.GetBarcodeStream(QRCodeInput, BlobOutStr);
-    end;
-
-    [Obsolete('Replaced with CreateTempDocument', '19.0')]
-    procedure CreateAbstractDocument(DocumentHeaderVariant: Variant; var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; AdvanceSettle: Boolean)
-    var
-        TempDocumentLineRetention: Record "Document Line" temporary;
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
-        SubTotal: Decimal;
-        TotalTax: Decimal;
-        TotalRetention: Decimal;
-        TotalDiscount: Decimal;
-    begin
-        CreateTempDocument(
-          DocumentHeaderVariant, TempDocumentHeader, TempDocumentLine, TempDocumentLineRetention, TempVATAmountLine,
-          SubTotal, TotalTax, TotalRetention, TotalDiscount, AdvanceSettle);
     end;
 
     procedure CreateTempDocument(DocumentHeaderVariant: Variant; var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempDocumentLineRetention: Record "Document Line" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; var SubTotal: Decimal; var TotalTax: Decimal; var TotalRetention: Decimal; var TotalDiscount: Decimal; AdvanceSettle: Boolean)
@@ -5725,7 +5691,7 @@ codeunit 10145 "E-Invoice Mgt."
         exit(DATABASE::"Sales Cr.Memo Header");
     end;
 
-    local procedure GetRelatedDocumentData(DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; EntrySourceCode: Code[10]; VAR TempVATAmountLine: Record "VAT Amount Line" temporary; VAR FiscalInvoiceNumberPAC: Text[50]; VAR DocAmountInclVAT: Decimal; VAR SubjectToTax: Text);
+    local procedure GetRelatedDocumentData(DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; EntrySourceCode: Code[10]; var TempVATAmountLine: Record "VAT Amount Line" temporary; var FiscalInvoiceNumberPAC: Text[50]; var DocAmountInclVAT: Decimal; var SubjectToTax: Text);
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
@@ -6075,10 +6041,10 @@ IsVATExemptLine(TempDocumentLine));
             repeat
                 AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
                 AddNodeTrasladoRetentionPerLine(
-    XMLDoc, XMLCurrNode, XMLNewChild,
-    TempDocumentLine.Amount, TempDocumentLineRetention."Retention VAT %",
-    TempDocumentLineRetention."Unit Price/Direct Unit Cost" * TempDocumentLineRetention.Quantity,
-    IsVATExemptLine(TempDocumentLineRetention));
+                    XMLDoc, XMLCurrNode, XMLNewChild,
+                    TempDocumentLine.Amount, TempDocumentLineRetention."Retention VAT %",
+                    TempDocumentLineRetention."Unit Price/Direct Unit Cost" * TempDocumentLineRetention.Quantity,
+                    IsVATExemptLine(TempDocumentLineRetention));
             until TempDocumentLineRetention.Next() = 0;
             XMLCurrNode := XMLCurrNode.ParentNode; // Retenciones
         end;
@@ -6544,17 +6510,19 @@ IsVATExemptLine(TempDocumentLine));
         exit(false);
     end;
 
-    local procedure MapServiceTypeToTempDocType(Type: Enum "Service Line Type") LineType: Enum "Sales Line Type"
+    local procedure MapServiceTypeToTempDocType(Type: Enum "Service Line Type"): Integer
+    var
+        TrueType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)";
     begin
         case Type of
             Type::Item:
-                exit(LineType::Item);
+                exit(TrueType::Item);
             Type::Resource:
-                exit(LineType::Resource);
+                exit(TrueType::Resource);
             Type::"G/L Account":
-                exit(LineType::"G/L Account");
+                exit(TrueType::"G/L Account");
             else
-                exit(LineType::" ");
+                exit(TrueType::" ");
         end;
     end;
 
@@ -7542,7 +7510,7 @@ IsVATExemptLine(TempDocumentLine));
             Database::"Sales Cr.Memo Header":
                 exit('Sales Cr.Memo');
             Database::"Service Invoice Header":
-                Exit('Service Invoice');
+                exit('Service Invoice');
             Database::"Service Cr.Memo Header":
                 exit('Service Cr.Memo');
             Database::"Sales Shipment Header":

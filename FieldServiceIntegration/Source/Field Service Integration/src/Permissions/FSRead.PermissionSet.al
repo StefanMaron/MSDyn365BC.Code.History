@@ -20,6 +20,7 @@ permissionset 6611 "FS - Read"
                   tabledata "FS Customer Asset Category" = R,
                   tabledata "FS Project Task" = R,
                   tabledata "FS Resource Pay Type" = R,
+                  tabledata "FS Warehouse" = R,
                   tabledata "FS Work Order" = R,
                   tabledata "FS Work Order Incident" = R,
                   tabledata "FS Work Order Product" = R,

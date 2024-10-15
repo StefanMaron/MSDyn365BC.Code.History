@@ -22,6 +22,7 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.RateChange;
 using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Registration;
 using Microsoft.Finance.VAT.Calculation;
 
 permissionset 6207 "Recievables Journals - Post"
@@ -83,5 +84,6 @@ permissionset 6207 "Recievables Journals - Post"
                   tabledata "VAT Reporting Code" = R,
                   tabledata "VAT Setup Posting Groups" = R,
                   tabledata "VAT Setup" = R,
-                  tabledata "VAT Posting Parameters" = R;
+                  tabledata "VAT Posting Parameters" = R,
+                  tabledata "Alt. Cust. VAT Reg." = R;
 }

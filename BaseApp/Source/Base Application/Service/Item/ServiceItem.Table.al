@@ -36,6 +36,7 @@ table 5940 "Service Item"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -135,6 +136,7 @@ table 5940 "Service Item"
         field(4; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -145,6 +147,7 @@ table 5940 "Service Item"
         field(5; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            OptimizeForTextSearch = true;
         }
         field(6; Status; Enum "Service Item Status")
         {
@@ -334,6 +337,7 @@ table 5940 "Service Item"
         field(12; "Location of Service Item"; Text[30])
         {
             Caption = 'Location of Service Item';
+            OptimizeForTextSearch = true;
         }
         field(13; "Sales Unit Price"; Decimal)
         {
@@ -605,6 +609,7 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
             Caption = 'Item Description';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -612,6 +617,7 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer.Name where("No." = field("Customer No.")));
             Caption = 'Name';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -619,6 +625,7 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer.Address where("No." = field("Customer No.")));
             Caption = 'Address';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -626,6 +633,7 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer."Address 2" where("No." = field("Customer No.")));
             Caption = 'Address 2';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -640,6 +648,7 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer.City where("No." = field("Customer No.")));
             Caption = 'City';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
             TableRelation = "Post Code".City;
@@ -649,6 +658,7 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer.Contact where("No." = field("Customer No.")));
             Caption = 'Contact';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -656,6 +666,7 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer."Phone No." where("No." = field("Customer No.")));
             Caption = 'Phone No.';
+            OptimizeForTextSearch = true;
             Editable = false;
             ExtendedDatatype = PhoneNo;
             FieldClass = FlowField;
@@ -665,6 +676,7 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address".Name where("Customer No." = field("Customer No."),
                                                                Code = field("Ship-to Code")));
             Caption = 'Ship-to Name';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -673,6 +685,7 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address".Address where("Customer No." = field("Customer No."),
                                                                   Code = field("Ship-to Code")));
             Caption = 'Ship-to Address';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -681,6 +694,7 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address"."Address 2" where("Customer No." = field("Customer No."),
                                                                       Code = field("Ship-to Code")));
             Caption = 'Ship-to Address 2';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -697,6 +711,7 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address".City where("Customer No." = field("Customer No."),
                                                                Code = field("Ship-to Code")));
             Caption = 'Ship-to City';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
             TableRelation = "Post Code".City;
@@ -707,6 +722,7 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address".Contact where("Customer No." = field("Customer No."),
                                                                   Code = field("Ship-to Code")));
             Caption = 'Ship-to Contact';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -715,6 +731,7 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address"."Phone No." where("Customer No." = field("Customer No."),
                                                                       Code = field("Ship-to Code")));
             Caption = 'Ship-to Phone No.';
+            OptimizeForTextSearch = true;
             Editable = false;
             ExtendedDatatype = PhoneNo;
             FieldClass = FlowField;
@@ -823,12 +840,14 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Vendor.Name where("No." = field("Vendor No.")));
             Caption = 'Vendor Name';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
         field(72; "Vendor Item Name"; Text[100])
         {
             Caption = 'Vendor Item Name';
+            OptimizeForTextSearch = true;
         }
         field(73; Comment; Boolean)
         {
@@ -889,6 +908,7 @@ table 5940 "Service Item"
             CalcFormula = lookup(Customer.County where("No." = field("Customer No.")));
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -898,6 +918,7 @@ table 5940 "Service Item"
                                                                  Code = field("Ship-to Code")));
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -931,6 +952,7 @@ table 5940 "Service Item"
         {
             CalcFormula = lookup(Customer."Name 2" where("No." = field("Customer No.")));
             Caption = 'Name 2';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -939,6 +961,7 @@ table 5940 "Service Item"
             CalcFormula = lookup("Ship-to Address"."Name 2" where("Customer No." = field("Customer No."),
                                                                    Code = field("Ship-to Code")));
             Caption = 'Ship-to Name 2';
+            OptimizeForTextSearch = true;
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1017,6 +1040,7 @@ table 5940 "Service Item"
         field(104; "Sales/Serv. Shpt. Document No."; Code[20])
         {
             Caption = 'Sales/Serv. Shpt. Document No.';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Shipment Type" = const(Sales)) "Sales Shipment Line"."Document No."
             else
             if ("Shipment Type" = const(Service)) "Service Shipment Line"."Document No.";
@@ -1031,6 +1055,15 @@ table 5940 "Service Item"
         field(106; "Shipment Type"; Enum "Service Item Shipment Type")
         {
             Caption = 'Shipment Type';
+        }
+        field(211; "Ship-to E-Mail"; Text[80])
+        {
+            CalcFormula = lookup("Ship-to Address"."E-Mail" where("Customer No." = field("Customer No."), Code = field("Ship-to Code")));
+            Caption = 'Ship-to Email';
+            OptimizeForTextSearch = true;
+            ExtendedDatatype = EMail;
+            Editable = false;
+            FieldClass = FlowField;
         }
         field(721; "Coupled to Dataverse"; Boolean)
         {
@@ -1091,7 +1124,7 @@ table 5940 "Service Item"
         if IsHandled then
             exit;
 
-        MoveEntries.MoveServiceItemLedgerEntries(Rec);
+        ServMoveEntries.MoveServiceItemLedgerEntries(Rec);
 
         ResultDescription := CheckIfCanBeDeleted();
         if ResultDescription <> '' then
@@ -1130,10 +1163,10 @@ table 5940 "Service Item"
             NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(ServMgtSetup."Service Item Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
             if not IsHandled then begin
 #endif
-            "No. Series" := ServMgtSetup."Service Item Nos.";
-            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                "No. Series" := xRec."No. Series";
-            "No." := NoSeries.GetNextNo("No. Series");
+                "No. Series" := ServMgtSetup."Service Item Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
 #if not CLEAN24
                 NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", ServMgtSetup."Service Item Nos.", 0D, "No.");
             end;
@@ -1179,20 +1212,28 @@ table 5940 "Service Item"
         Currency: Record Currency;
         NoSeries: Codeunit "No. Series";
         ServLogMgt: Codeunit ServLogManagement;
-        MoveEntries: Codeunit MoveEntries;
+        ServMoveEntries: Codeunit "Serv. Move Entries";
         ResSkillMgt: Codeunit "Resource Skill Mgt.";
         DimMgt: Codeunit DimensionManagement;
         CancelResSkillChanges: Boolean;
         CancelResSkillAssignment: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot delete %1 %2,because it is attached to a service order.';
         Text001: Label 'You cannot delete %1 %2, because it is used as %3 for %1 %4.';
         Text002: Label 'You cannot delete %1 %2, because it belongs to one or more contracts.';
         Text003: Label '%1 %2 already exists in %3 %4.';
         Text004: Label 'You cannot change %1 %2 because the %3 %4 belongs to one or more contracts.';
         Text007: Label '%1 cannot be later than %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         FieldUpdateConfirmQst: Label 'You have changed %1 on the service item, but it has not been changed on the associated service orders/quotes.\You must update them manually.', Comment = '%1 = field name';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text017: Label 'Service ledger entries exist for this %1\\ Do you want to change the %2?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ChgCustomerErr: Label 'You cannot change the %1 in the service item because of the following outstanding service order line:\\ Order %2, line %3, service item number %4, serial number %5, customer %6, ship-to code %7.', Comment = '%1 - Field Caption; %2 - Service Order No.;%3 - Serice Line No.;%4 - Service Item No.;%5 - Serial No.;%6 - Customer No.;%7 - Ship to Code.';
         ChangeItemQst: Label 'Changing the %1 will delete the existing %2 on the %2 list.\\Do you want to change the %1?', Comment = '%1 - Field Caption, %2 - Field Caption';
 
@@ -1316,7 +1357,7 @@ table 5940 "Service Item"
                 exit(
                   StrSubstNo(Text002, TableCaption(), "No."));
 
-        exit(MoveEntries.CheckIfServiceItemCanBeDeleted(ServiceLedgerEntry, "No."));
+        exit(ServMoveEntries.CheckIfServiceItemCanBeDeleted(ServiceLedgerEntry, "No."));
     end;
 
     procedure OmitAssignResSkills(IsSetOmitted: Boolean)

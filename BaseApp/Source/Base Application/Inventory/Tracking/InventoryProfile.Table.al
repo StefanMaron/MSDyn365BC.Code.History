@@ -1,21 +1,15 @@
 ﻿namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Forecast;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Purchases.Document;
 using Microsoft.Sales.Customer;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Structure;
 
@@ -213,7 +207,6 @@ table 99000853 "Inventory Profile"
         }
         field(54; "Drop Shipment"; Boolean)
         {
-            AccessByPermission = TableData "Drop Shpt. Post. Buffer" = R;
             Caption = 'Drop Shipment';
         }
         field(55; "Special Order"; Boolean)
@@ -274,12 +267,10 @@ table 99000853 "Inventory Profile"
             Caption = 'Expiration Date';
             Editable = false;
         }
-        field(68; "Ref. Order Type"; Option)
+        field(68; "Ref. Order Type"; Enum "Requisition Ref. Order Type")
         {
             Caption = 'Ref. Order Type';
             Editable = false;
-            OptionCaption = ' ,Purchase,Prod. Order,Transfer,Assembly';
-            OptionMembers = " ",Purchase,"Prod. Order",Transfer,Assembly;
         }
         field(69; "Disallow Cancellation"; Boolean)
         {
@@ -320,7 +311,9 @@ table 99000853 "Inventory Profile"
     var
         UnitofMeasureManagement: Codeunit "Unit of Measure Management";
 
+#pragma warning disable AA0470
         IncorrectSourceTypeErr: Label 'Tab99000853, TransferToTrackingEntry: Illegal Source Type: %1.';
+#pragma warning restore AA0470
 
     procedure TransferFromItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; var TrackingReservationEntry: Record "Reservation Entry")
     var
@@ -353,172 +346,37 @@ table 99000853 "Inventory Profile"
         OnAfterTransferFromItemLedgerEntry(Rec, ItemLedgerEntry);
     end;
 
-    procedure TransferFromSalesLine(var SalesLine: Record "Sales Line"; var TrackingReservationEntry: Record "Reservation Entry")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferInventoryProfileFromSalesLine in codeunit Sales Line-Reserve', '25.0')]
+    procedure TransferFromSalesLine(var SalesLine: Record Microsoft.Sales.Document."Sales Line"; var TrackingReservationEntry: Record "Reservation Entry")
     var
-        ReservationEntry: Record "Reservation Entry";
-        AutoReservedQty: Decimal;
+        SalesLineInvtProfile: Codeunit Microsoft.Sales.Document."Sales Line Invt. Profile";
     begin
-        SalesLine.TestField(Type, SalesLine.Type::Item);
-        SetSource(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", '', 0);
-        "Item No." := SalesLine."No.";
-        "Variant Code" := SalesLine."Variant Code";
-        "Location Code" := SalesLine."Location Code";
-        "Bin Code" := SalesLine."Bin Code";
-        SalesLine.CalcFields("Reserved Qty. (Base)");
-        SalesLine.SetReservationFilters(ReservationEntry);
-        AutoReservedQty := -TransferBindings(ReservationEntry, TrackingReservationEntry);
-        if SalesLine."Document Type" = SalesLine."Document Type"::"Return Order" then begin
-            SalesLine."Reserved Qty. (Base)" := -SalesLine."Reserved Qty. (Base)";
-            AutoReservedQty := -AutoReservedQty;
-        end;
-        "Untracked Quantity" := SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)" + AutoReservedQty;
-        Quantity := SalesLine.Quantity;
-        "Remaining Quantity" := SalesLine."Outstanding Quantity";
-        "Finished Quantity" := SalesLine."Quantity Shipped";
-        "Quantity (Base)" := SalesLine."Quantity (Base)";
-        "Remaining Quantity (Base)" := SalesLine."Outstanding Qty. (Base)";
-        "Unit of Measure Code" := SalesLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
-        if SalesLine."Document Type" = SalesLine."Document Type"::"Return Order" then
-            ChangeSign();
-        IsSupply := "Untracked Quantity" < 0;
-        "Due Date" := SalesLine."Shipment Date";
-        "Planning Flexibility" := "Planning Flexibility"::None;
-        if SalesLine."Blanket Order No." <> '' then begin
-            "Sell-to Customer No." := SalesLine."Sell-to Customer No.";
-            "Derived from Blanket Order" := true;
-            "Ref. Blanket Order No." := SalesLine."Blanket Order No.";
-        end;
-        "Drop Shipment" := SalesLine."Drop Shipment";
-        "Special Order" := SalesLine."Special Order";
-
-        OnAfterTransferFromSalesLine(Rec, SalesLine);
+        SalesLineInvtProfile.TransferInventoryProfileFromSalesLine(Rec, SalesLine, TrackingReservationEntry);
     end;
+#endif
 
-    procedure TransferFromComponent(var ProdOrderComponent: Record "Prod. Order Component"; var TrackingReservationEntry: Record "Reservation Entry")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferInventoryProfileFromProdOrderComp in codeunit Prod. Order Comp.-Reserve', '25.0')]
+    procedure TransferFromComponent(var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var TrackingReservationEntry: Record "Reservation Entry")
     var
-        ReservationEntry: Record "Reservation Entry";
-        AutoReservedQty: Decimal;
+        ProdOrderCompInvtProfile: Codeunit Microsoft.Manufacturing.Document."Prod. Order Comp. Invt.Profile";
     begin
-        SetSource(
-          Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.",
-          ProdOrderComponent."Line No.", '', ProdOrderComponent."Prod. Order Line No.");
-        "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
-        "Ref. Order No." := ProdOrderComponent."Prod. Order No.";
-        "Ref. Line No." := ProdOrderComponent."Prod. Order Line No.";
-        "Item No." := ProdOrderComponent."Item No.";
-        "Variant Code" := ProdOrderComponent."Variant Code";
-        "Location Code" := ProdOrderComponent."Location Code";
-        "Bin Code" := ProdOrderComponent."Bin Code";
-        "Due Date" := ProdOrderComponent."Due Date";
-        "Due Time" := ProdOrderComponent."Due Time";
-        "Planning Flexibility" := "Planning Flexibility"::None;
-        "Planning Level Code" := ProdOrderComponent."Planning Level Code";
-        ProdOrderComponent.CalcFields("Reserved Qty. (Base)");
-        if ProdOrderComponent.Status in [ProdOrderComponent.Status::Released, ProdOrderComponent.Status::Finished] then
-            ProdOrderComponent.CalcFields("Act. Consumption (Qty)");
-        ProdOrderComponent.SetReservationFilters(ReservationEntry);
-        AutoReservedQty := -TransferBindings(ReservationEntry, TrackingReservationEntry);
-        "Untracked Quantity" := ProdOrderComponent."Remaining Qty. (Base)" - ProdOrderComponent."Reserved Qty. (Base)" + AutoReservedQty;
-        Quantity := ProdOrderComponent."Expected Quantity";
-        "Remaining Quantity" := ProdOrderComponent."Remaining Quantity";
-        "Finished Quantity" := ProdOrderComponent."Act. Consumption (Qty)";
-        "Quantity (Base)" := ProdOrderComponent."Expected Qty. (Base)";
-        "Remaining Quantity (Base)" := ProdOrderComponent."Remaining Qty. (Base)";
-        "Unit of Measure Code" := ProdOrderComponent."Unit of Measure Code";
-        "Qty. per Unit of Measure" := ProdOrderComponent."Qty. per Unit of Measure";
-        IsSupply := "Untracked Quantity" < 0;
-
-        OnAfterTransferFromComponent(Rec, ProdOrderComponent);
+        ProdOrderCompInvtProfile.TransferInventoryProfileFromProdOrderComponent(Rec, ProdOrderComponent, TrackingReservationEntry);
     end;
+#endif
 
-    procedure TransferFromPlanComponent(var PlanningComponent: Record "Planning Component"; var TrackingReservationEntry: Record "Reservation Entry")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferInventoryProfileFromPlanComponent in codeunit Plng. Component-Reserve', '25.0')]
+    procedure TransferFromPlanComponent(var PlanningComponent: Record Microsoft.Inventory.Planning."Planning Component"; var TrackingReservationEntry: Record "Reservation Entry")
     var
-        ProdOrderComponent: Record "Prod. Order Component";
-        AssemblyLine: Record "Assembly Line";
-        ReservationEntry: Record "Reservation Entry";
-        ReservedQty: Decimal;
-        AutoReservedQty: Decimal;
+        PlngComponentInvtProfile: Codeunit Microsoft.Inventory.Planning."Plng. Component Invt. Profile";
     begin
-        SetSource(
-          Database::"Planning Component", 0, PlanningComponent."Worksheet Template Name", PlanningComponent."Line No.",
-          PlanningComponent."Worksheet Batch Name", PlanningComponent."Worksheet Line No.");
-        "Ref. Order Type" := PlanningComponent."Ref. Order Type";
-        "Ref. Order No." := PlanningComponent."Ref. Order No.";
-        "Ref. Line No." := PlanningComponent."Ref. Order Line No.";
-        "Item No." := PlanningComponent."Item No.";
-        "Variant Code" := PlanningComponent."Variant Code";
-        "Location Code" := PlanningComponent."Location Code";
-        "Bin Code" := PlanningComponent."Bin Code";
-        "Due Date" := PlanningComponent."Due Date";
-        "Due Time" := PlanningComponent."Due Time";
-        "Planning Flexibility" := "Planning Flexibility"::None;
-        "Planning Level Code" := PlanningComponent."Planning Level Code";
-        PlanningComponent.SetReservationFilters(ReservationEntry);
-        AutoReservedQty := -TransferBindings(ReservationEntry, TrackingReservationEntry);
-        PlanningComponent.CalcFields("Reserved Qty. (Base)");
-        "Untracked Quantity" :=
-          PlanningComponent."Expected Quantity (Base)" - PlanningComponent."Reserved Qty. (Base)" + AutoReservedQty;
-        case PlanningComponent."Ref. Order Type" of
-            PlanningComponent."Ref. Order Type"::"Prod. Order":
-                if ProdOrderComponent.Get(
-                     PlanningComponent."Ref. Order Status",
-                     PlanningComponent."Ref. Order No.",
-                     PlanningComponent."Ref. Order Line No.",
-                     PlanningComponent."Line No.")
-                then begin
-                    "Original Quantity" := ProdOrderComponent."Expected Quantity";
-                    ProdOrderComponent.CalcFields("Reserved Qty. (Base)");
-                    if ProdOrderComponent."Reserved Qty. (Base)" > 0 then begin
-                        ReservedQty := ProdOrderComponent."Reserved Qty. (Base)";
-                        ProdOrderComponent.SetReservationFilters(ReservationEntry);
-                        CalcReservedQty(ReservationEntry, ReservedQty);
-                        if ReservedQty > "Untracked Quantity" then
-                            "Untracked Quantity" := 0
-                        else
-                            "Untracked Quantity" := "Untracked Quantity" - ReservedQty;
-                    end;
-                end else begin
-                    "Primary Order Type" := Database::"Planning Component";
-                    "Primary Order Status" := PlanningComponent."Ref. Order Status".AsInteger();
-                    "Primary Order No." := PlanningComponent."Ref. Order No.";
-                end;
-            PlanningComponent."Ref. Order Type"::Assembly:
-                if AssemblyLine.Get(
-                     PlanningComponent."Ref. Order Status",
-                     PlanningComponent."Ref. Order No.",
-                     PlanningComponent."Ref. Order Line No.")
-                then begin
-                    "Original Quantity" := AssemblyLine.Quantity;
-                    AssemblyLine.CalcFields("Reserved Qty. (Base)");
-                    if AssemblyLine."Reserved Qty. (Base)" > 0 then begin
-                        ReservedQty := AssemblyLine."Reserved Qty. (Base)";
-                        AssemblyLine.SetReservationFilters(ReservationEntry);
-                        CalcReservedQty(ReservationEntry, ReservedQty);
-                        if ReservedQty > "Untracked Quantity" then
-                            "Untracked Quantity" := 0
-                        else
-                            "Untracked Quantity" := "Untracked Quantity" - ReservedQty;
-                    end;
-                end else begin
-                    "Primary Order Type" := Database::"Planning Component";
-                    "Primary Order Status" := PlanningComponent."Ref. Order Status".AsInteger();
-                    "Primary Order No." := PlanningComponent."Ref. Order No.";
-                end;
-        end;
-        Quantity := PlanningComponent."Expected Quantity";
-        "Remaining Quantity" := PlanningComponent."Expected Quantity";
-        "Finished Quantity" := 0;
-        "Quantity (Base)" := PlanningComponent."Expected Quantity (Base)";
-        "Remaining Quantity (Base)" := PlanningComponent."Expected Quantity (Base)";
-        "Unit of Measure Code" := PlanningComponent."Unit of Measure Code";
-        "Qty. per Unit of Measure" := PlanningComponent."Qty. per Unit of Measure";
-        IsSupply := "Untracked Quantity" < 0;
-
-        OnAfterTransferFromPlanComponent(Rec, PlanningComponent);
+        PlngComponentInvtProfile.TransferInventoryProfileFromPlanComponent(Rec, PlanningComponent, TrackingReservationEntry);
     end;
+#endif
 
-    local procedure CalcReservedQty(var ReservationEntry: Record "Reservation Entry"; var ReservedQty: Decimal)
+    procedure CalcReservedQty(var ReservationEntry: Record "Reservation Entry"; var ReservedQty: Decimal)
     var
         OppositeReservationEntry: Record "Reservation Entry";
     begin
@@ -548,169 +406,55 @@ table 99000853 "Inventory Profile"
         end;
     end;
 
-    procedure TransferFromPurchaseLine(var PurchaseLine: Record "Purchase Line"; var TrackingReservationEntry: Record "Reservation Entry")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferInventoryProfileFromPurchaseLine in codeunit Purch. Line-Reserve', '25.0')]
+    procedure TransferFromPurchaseLine(var PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line"; var TrackingReservationEntry: Record "Reservation Entry")
     var
-        ReservationEntry: Record "Reservation Entry";
-        AutoReservedQty: Decimal;
+        PurchaseLineInvtProfile: Codeunit Microsoft.Purchases.Document."Purchase Line Invt. Profile";
     begin
-        PurchaseLine.TestField(Type, PurchaseLine.Type::Item);
-        SetSource(Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", '', 0);
-        "Item No." := PurchaseLine."No.";
-        "Variant Code" := PurchaseLine."Variant Code";
-        "Location Code" := PurchaseLine."Location Code";
-        "Bin Code" := PurchaseLine."Bin Code";
-        PurchaseLine.SetReservationFilters(ReservationEntry);
-        AutoReservedQty := TransferBindings(ReservationEntry, TrackingReservationEntry);
-        PurchaseLine.CalcFields("Reserved Qty. (Base)");
-        if PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Return Order" then begin
-            AutoReservedQty := -AutoReservedQty;
-            PurchaseLine."Reserved Qty. (Base)" := -PurchaseLine."Reserved Qty. (Base)";
-        end;
-        "Untracked Quantity" := PurchaseLine."Outstanding Qty. (Base)" - PurchaseLine."Reserved Qty. (Base)" + AutoReservedQty;
-        "Min. Quantity" := PurchaseLine."Reserved Qty. (Base)" - AutoReservedQty;
-        Quantity := PurchaseLine.Quantity;
-        "Remaining Quantity" := PurchaseLine."Outstanding Quantity";
-        "Finished Quantity" := PurchaseLine."Quantity Received";
-        "Quantity (Base)" := PurchaseLine."Quantity (Base)";
-        "Remaining Quantity (Base)" := PurchaseLine."Outstanding Qty. (Base)";
-        "Unit of Measure Code" := PurchaseLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := PurchaseLine."Qty. per Unit of Measure";
-        if PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Return Order" then begin
-            ChangeSign();
-            "Planning Flexibility" := "Planning Flexibility"::None;
-        end else
-            "Planning Flexibility" := PurchaseLine."Planning Flexibility";
-        IsSupply := "Untracked Quantity" >= 0;
-        "Due Date" := PurchaseLine."Expected Receipt Date";
-        "Drop Shipment" := PurchaseLine."Drop Shipment";
-        "Special Order" := PurchaseLine."Special Order";
-
-        OnAfterTransferFromPurchaseLine(Rec, PurchaseLine);
+        PurchaseLineInvtProfile.TransferInventoryProfileFromPurchaseLine(Rec, PurchaseLine, TrackingReservationEntry);
     end;
+#endif
 
-    procedure TransferFromProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var TrackingReservationEntry: Record "Reservation Entry")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferInventoryProfileFromProdOrderLine in codeunit Prod. Order Line Reserve', '25.0')]
+    procedure TransferFromProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var TrackingReservationEntry: Record "Reservation Entry")
     var
-        ReservationEntry: Record "Reservation Entry";
-        AutoReservedQty: Decimal;
+        ProdOrderLineReserve: Codeunit Microsoft.Manufacturing.Document."Prod. Order Line-Reserve";
     begin
-        SetSource(Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, '', ProdOrderLine."Line No.");
-        "Item No." := ProdOrderLine."Item No.";
-        "Variant Code" := ProdOrderLine."Variant Code";
-        "Location Code" := ProdOrderLine."Location Code";
-        "Bin Code" := ProdOrderLine."Bin Code";
-        "Due Date" := ProdOrderLine."Due Date";
-        "Starting Date" := ProdOrderLine."Starting Date";
-        "Planning Flexibility" := ProdOrderLine."Planning Flexibility";
-        "Planning Level Code" := ProdOrderLine."Planning Level Code";
-        ProdOrderLine.CalcFields("Reserved Qty. (Base)");
-        ProdOrderLine.SetReservationFilters(ReservationEntry);
-        AutoReservedQty := TransferBindings(ReservationEntry, TrackingReservationEntry);
-        "Untracked Quantity" := ProdOrderLine."Remaining Qty. (Base)" - ProdOrderLine."Reserved Qty. (Base)" + AutoReservedQty;
-        "Min. Quantity" := ProdOrderLine."Reserved Qty. (Base)" - AutoReservedQty;
-        Quantity := ProdOrderLine.Quantity;
-        "Remaining Quantity" := ProdOrderLine."Remaining Quantity";
-        "Finished Quantity" := ProdOrderLine."Finished Quantity";
-        "Quantity (Base)" := ProdOrderLine."Quantity (Base)";
-        "Remaining Quantity (Base)" := ProdOrderLine."Remaining Qty. (Base)";
-        "Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := ProdOrderLine."Qty. per Unit of Measure";
-        IsSupply := "Untracked Quantity" >= 0;
-
-        OnAfterTransferFromProdOrderLine(Rec, ProdOrderLine);
+        ProdOrderLineReserve.TransferInventoryProfileFromProdOrderLine(Rec, ProdOrderLine, TrackingReservationEntry);
     end;
+#endif
 
-    procedure TransferFromAsmLine(var AssemblyLine: Record "Assembly Line"; var TrackingReservationEntry: Record "Reservation Entry")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferInventoryProfileFromAssemblyLine in codeunit Assembly Line Reserve', '25.0')]
+    procedure TransferFromAsmLine(var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; var TrackingReservationEntry: Record "Reservation Entry")
     var
-        ReservationEntry: Record "Reservation Entry";
-        AutoReservedQty: Decimal;
+        AssemblyLineInvtProfile: Codeunit Microsoft.Assembly.Document."Assembly Line Invt. Profile";
     begin
-        AssemblyLine.TestField(Type, AssemblyLine.Type::Item);
-        SetSource(Database::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", '', 0);
-        "Ref. Order Type" := "Ref. Order Type"::Assembly;
-        "Ref. Order No." := AssemblyLine."Document No.";
-        "Ref. Line No." := AssemblyLine."Line No.";
-        "Item No." := AssemblyLine."No.";
-        "Variant Code" := AssemblyLine."Variant Code";
-        "Location Code" := AssemblyLine."Location Code";
-        "Bin Code" := AssemblyLine."Bin Code";
-        AssemblyLine.CalcFields("Reserved Qty. (Base)");
-        AssemblyLine.SetReservationFilters(ReservationEntry);
-        AutoReservedQty := -TransferBindings(ReservationEntry, TrackingReservationEntry);
-        "Untracked Quantity" := AssemblyLine."Remaining Quantity (Base)" - AssemblyLine."Reserved Qty. (Base)" + AutoReservedQty;
-        Quantity := AssemblyLine.Quantity;
-        "Remaining Quantity" := AssemblyLine."Remaining Quantity";
-        "Finished Quantity" := AssemblyLine."Consumed Quantity";
-        "Quantity (Base)" := AssemblyLine."Quantity (Base)";
-        "Remaining Quantity (Base)" := AssemblyLine."Remaining Quantity (Base)";
-        "Unit of Measure Code" := AssemblyLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := AssemblyLine."Qty. per Unit of Measure";
-        IsSupply := "Untracked Quantity" < 0;
-        "Due Date" := AssemblyLine."Due Date";
-        "Planning Flexibility" := "Planning Flexibility"::None;
-
-        OnAfterTransferFromAsmLine(Rec, AssemblyLine);
+        AssemblyLineInvtProfile.TransferInventoryProfileFromAsmLine(Rec, AssemblyLine, TrackingReservationEntry);
     end;
+#endif
 
-    procedure TransferFromAsmHeader(var AssemblyHeader: Record "Assembly Header"; var TrackingReservationEntry: Record "Reservation Entry")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferInventoryProfileFromAssemblyHeader in codeunit Assembly Header Reserve', '25.0')]
+    procedure TransferFromAsmHeader(var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var TrackingReservationEntry: Record "Reservation Entry")
     var
-        ReservationEntry: Record "Reservation Entry";
-        AutoReservedQty: Decimal;
+        AssemblyHeaderInvtProfile: Codeunit Microsoft.Assembly.Document."Assembly Header Invt. Profile";
     begin
-        SetSource(Database::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", 0, '', 0);
-        "Item No." := AssemblyHeader."Item No.";
-        "Variant Code" := AssemblyHeader."Variant Code";
-        "Location Code" := AssemblyHeader."Location Code";
-        "Bin Code" := AssemblyHeader."Bin Code";
-        AssemblyHeader.SetReservationFilters(ReservationEntry);
-        AutoReservedQty := TransferBindings(ReservationEntry, TrackingReservationEntry);
-        AssemblyHeader.CalcFields("Reserved Qty. (Base)");
-        "Untracked Quantity" := AssemblyHeader."Remaining Quantity (Base)" - AssemblyHeader."Reserved Qty. (Base)" + AutoReservedQty;
-        "Min. Quantity" := AssemblyHeader."Reserved Qty. (Base)" - AutoReservedQty;
-        Quantity := AssemblyHeader.Quantity;
-        "Remaining Quantity" := AssemblyHeader."Remaining Quantity";
-        "Finished Quantity" := AssemblyHeader."Assembled Quantity";
-        "Quantity (Base)" := AssemblyHeader."Quantity (Base)";
-        "Remaining Quantity (Base)" := AssemblyHeader."Remaining Quantity (Base)";
-        "Unit of Measure Code" := AssemblyHeader."Unit of Measure Code";
-        "Qty. per Unit of Measure" := AssemblyHeader."Qty. per Unit of Measure";
-        "Planning Flexibility" := AssemblyHeader."Planning Flexibility";
-        IsSupply := "Untracked Quantity" >= 0;
-        "Due Date" := AssemblyHeader."Due Date";
-
-        OnAfterTransferFromAsmHeader(Rec, AssemblyHeader);
+        AssemblyHeaderInvtProfile.TransferInventoryProfileFromAssemblyHeader(Rec, AssemblyHeader, TrackingReservationEntry);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferInventoryProfileFromRequisitionLine in codeunit Req. Line-Reserve', '25.0')]
     procedure TransferFromRequisitionLine(var RequisitionLine: Record "Requisition Line"; var TrackingReservationEntry: Record "Reservation Entry")
     var
-        ReservationEntry: Record "Reservation Entry";
-        AutoReservedQty: Decimal;
+        ReqLineReserve: Codeunit "Req. Line-Reserve";
     begin
-        RequisitionLine.TestField(Type, RequisitionLine.Type::Item);
-        SetSource(
-          Database::"Requisition Line", 0, RequisitionLine."Worksheet Template Name", RequisitionLine."Line No.",
-          RequisitionLine."Journal Batch Name", 0);
-        "Item No." := RequisitionLine."No.";
-        "Variant Code" := RequisitionLine."Variant Code";
-        "Location Code" := RequisitionLine."Location Code";
-        "Bin Code" := RequisitionLine."Bin Code";
-        RequisitionLine.CalcFields("Reserved Qty. (Base)");
-        RequisitionLine.SetReservationFilters(ReservationEntry);
-        AutoReservedQty := TransferBindings(ReservationEntry, TrackingReservationEntry);
-        "Untracked Quantity" := RequisitionLine."Quantity (Base)" - RequisitionLine."Reserved Qty. (Base)" + AutoReservedQty;
-        "Min. Quantity" := RequisitionLine."Reserved Qty. (Base)" - AutoReservedQty;
-        Quantity := RequisitionLine.Quantity;
-        "Finished Quantity" := 0;
-        "Remaining Quantity" := RequisitionLine.Quantity;
-        "Quantity (Base)" := RequisitionLine."Quantity (Base)";
-        "Remaining Quantity (Base)" := RequisitionLine."Quantity (Base)";
-        "Unit of Measure Code" := RequisitionLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := RequisitionLine."Qty. per Unit of Measure";
-        IsSupply := "Untracked Quantity" >= 0;
-        "Due Date" := RequisitionLine."Due Date";
-        "Planning Flexibility" := RequisitionLine."Planning Flexibility";
-
-        OnAfterTransferFromRequisitionLine(Rec, RequisitionLine);
+        ReqLineReserve.TransferInventoryProfileFromRequisitionLine(Rec, RequisitionLine, TrackingReservationEntry);
     end;
+#endif
 
     procedure TransferFromOutboundTransfPlan(var RequisitionLine: Record "Requisition Line"; var TrackingReservationEntry: Record "Reservation Entry")
     var
@@ -836,63 +580,25 @@ table 99000853 "Inventory Profile"
         OnAfterTransferFromInboundTransfer(Rec, TransferLine);
     end;
 
-    procedure TransferFromServLine(var ServiceLine: Record "Service Line"; var TrackingReservationEntry: Record "Reservation Entry")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferInventoryProfileFromServLine in codeunit Service Line Reserve', '25.0')]
+    procedure TransferFromServLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var TrackingReservationEntry: Record "Reservation Entry")
     var
-        ReservationEntry: Record "Reservation Entry";
-        AutoReservedQty: Decimal;
+        ServiceLineInvtProfile: Codeunit Microsoft.Service.Document."Service Line Invt. Profile";
     begin
-        ServiceLine.TestField(Type, ServiceLine.Type::Item);
-        SetSource(Database::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", '', 0);
-        "Item No." := ServiceLine."No.";
-        "Variant Code" := ServiceLine."Variant Code";
-        "Location Code" := ServiceLine."Location Code";
-        ServiceLine.CalcFields("Reserved Qty. (Base)");
-        ServiceLine.SetReservationFilters(ReservationEntry);
-        AutoReservedQty := -TransferBindings(ReservationEntry, TrackingReservationEntry);
-        "Untracked Quantity" := ServiceLine."Outstanding Qty. (Base)" - ServiceLine."Reserved Qty. (Base)" + AutoReservedQty;
-        Quantity := ServiceLine.Quantity;
-        "Remaining Quantity" := ServiceLine."Outstanding Quantity";
-        "Finished Quantity" := ServiceLine."Quantity Shipped";
-        "Quantity (Base)" := ServiceLine."Quantity (Base)";
-        "Remaining Quantity (Base)" := ServiceLine."Outstanding Qty. (Base)";
-        "Unit of Measure Code" := ServiceLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := ServiceLine."Qty. per Unit of Measure";
-        IsSupply := "Untracked Quantity" < 0;
-        "Due Date" := ServiceLine."Needed by Date";
-        "Planning Flexibility" := "Planning Flexibility"::None;
-
-        OnAfterTransferFromServLine(Rec, ServiceLine);
+        ServiceLineInvtProfile.TransferInventoryProfileFromServLine(Rec, ServiceLine, TrackingReservationEntry);
     end;
+#endif
 
-    procedure TransferFromJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; var TrackingReservationEntry: Record "Reservation Entry")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure TransferInventoryProfileFromJobPlanningLine in codeunit Job Planning Line Reserve', '25.0')]
+    procedure TransferFromJobPlanningLine(var JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line"; var TrackingReservationEntry: Record "Reservation Entry")
     var
-        ReservationEntry: Record "Reservation Entry";
-        AutoReservedQty: Decimal;
+        JobPlanningInvtProfile: Codeunit Microsoft.Projects.Project.Planning."Job Planning Invt. Profile";
     begin
-        JobPlanningLine.TestField(Type, JobPlanningLine.Type::Item);
-        SetSource(
-            Database::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.",
-            JobPlanningLine."Job Contract Entry No.", '', 0);
-        "Item No." := JobPlanningLine."No.";
-        "Variant Code" := JobPlanningLine."Variant Code";
-        "Location Code" := JobPlanningLine."Location Code";
-        JobPlanningLine.CalcFields("Reserved Qty. (Base)");
-        JobPlanningLine.SetReservationFilters(ReservationEntry);
-        AutoReservedQty := -TransferBindings(ReservationEntry, TrackingReservationEntry);
-        "Untracked Quantity" := JobPlanningLine."Remaining Qty. (Base)" - JobPlanningLine."Reserved Qty. (Base)" + AutoReservedQty;
-        Quantity := JobPlanningLine.Quantity;
-        "Remaining Quantity" := JobPlanningLine."Remaining Qty.";
-        "Finished Quantity" := JobPlanningLine."Qty. Posted";
-        "Quantity (Base)" := JobPlanningLine."Quantity (Base)";
-        "Remaining Quantity (Base)" := JobPlanningLine."Remaining Qty. (Base)";
-        "Unit of Measure Code" := JobPlanningLine."Unit of Measure Code";
-        "Qty. per Unit of Measure" := JobPlanningLine."Qty. per Unit of Measure";
-        IsSupply := "Untracked Quantity" < 0;
-        "Due Date" := JobPlanningLine."Planning Date";
-        "Planning Flexibility" := "Planning Flexibility"::None;
-
-        OnAfterTransferFromJobPlanningLine(Rec, JobPlanningLine);
+        JobPlanningInvtProfile.TransferInventoryProfileFromJobPlanningLine(Rec, JobPlanningLine, TrackingReservationEntry);
     end;
+#endif
 
     procedure TransferBindings(var ReservationEntry: Record "Reservation Entry"; var TrackingReservationEntry: Record "Reservation Entry"): Decimal
     var
@@ -995,7 +701,6 @@ table 99000853 "Inventory Profile"
 
     procedure TransferToTrackingEntry(var TrackingReservationEntry: Record "Reservation Entry"; UseSecondaryFields: Boolean)
     var
-        RequisitionLine: Record "Requisition Line";
         IsHandled: Boolean;
     begin
         case "Source Type" of
@@ -1013,64 +718,14 @@ table 99000853 "Inventory Profile"
                     TrackingReservationEntry.SetSource(Database::"Production Forecast Entry", 0, "Source ID", 0, '', 0);
                     TrackingReservationEntry."Suppressed Action Msg." := true;
                 end;
-            Database::"Sales Line":
-                begin
-                    if "Source Order Status" = 4 then begin
-                        // Blanket Order will be marked as Surplus
-                        TrackingReservationEntry."Reservation Status" := TrackingReservationEntry."Reservation Status"::Surplus;
-                        TrackingReservationEntry."Suppressed Action Msg." := true;
-                    end;
-                    TrackingReservationEntry.SetSource(Database::"Sales Line", "Source Order Status", "Source ID", "Source Ref. No.", '', 0);
-                end;
-            Database::"Requisition Line":
-                TrackingReservationEntry.SetSource(
-                  Database::"Requisition Line", "Source Order Status", "Source ID", "Source Ref. No.", "Source Batch Name", 0);
-            Database::"Purchase Line":
-                TrackingReservationEntry.SetSource(
-                  Database::"Purchase Line", "Source Order Status", "Source ID", "Source Ref. No.", '', 0);
             Database::"Item Ledger Entry":
                 TrackingReservationEntry.SetSource(
                   Database::"Item Ledger Entry", 0, '', "Source Ref. No.", '', 0);
-            Database::"Prod. Order Line":
-                TrackingReservationEntry.SetSource(
-                  Database::"Prod. Order Line", "Source Order Status", "Source ID", 0, '', "Source Prod. Order Line");
-            Database::"Prod. Order Component":
-                TrackingReservationEntry.SetSource(
-                  Database::"Prod. Order Component", "Source Order Status", "Source ID", "Source Ref. No.", '', "Source Prod. Order Line");
-            Database::"Planning Component":
-                if UseSecondaryFields then begin
-                    RequisitionLine.Get("Source ID", "Source Batch Name", "Source Prod. Order Line");
-                    case RequisitionLine."Ref. Order Type" of
-                        RequisitionLine."Ref. Order Type"::"Prod. Order":
-                            TrackingReservationEntry.SetSource(
-                              Database::"Prod. Order Component", RequisitionLine."Ref. Order Status", "Ref. Order No.", "Source Ref. No.", '', "Ref. Line No.");
-                        RequisitionLine."Ref. Order Type"::Assembly:
-                            TrackingReservationEntry.SetSource(
-                              Database::"Assembly Line", "Source Order Status", "Ref. Order No.", "Source Ref. No.", '', "Ref. Line No.");
-                    end;
-                end else
-                    TrackingReservationEntry.SetSource(
-                      Database::"Planning Component", 0, "Source ID", "Source Ref. No.", "Source Batch Name", "Source Prod. Order Line");
-            Database::"Assembly Line":
-                begin
-                    if "Source Order Status" = 4 then begin
-                        // Blanket Order will be marked as Surplus
-                        TrackingReservationEntry."Reservation Status" := TrackingReservationEntry."Reservation Status"::Surplus;
-                        TrackingReservationEntry."Suppressed Action Msg." := true;
-                    end;
-                    TrackingReservationEntry.SetSource(Database::"Assembly Line", "Source Order Status", "Source ID", "Source Ref. No.", '', 0);
-                end;
-            Database::"Assembly Header":
-                TrackingReservationEntry.SetSource(Database::"Assembly Header", "Source Order Status", "Source ID", "Source Ref. No.", '', 0);
             Database::"Transfer Line":
                 if IsSupply then
                     TrackingReservationEntry.SetSource(Database::"Transfer Line", 1, "Source ID", "Source Ref. No.", '', "Source Prod. Order Line")
                 else
                     TrackingReservationEntry.SetSource(Database::"Transfer Line", 0, "Source ID", "Source Ref. No.", '', 0);
-            Database::"Service Line":
-                TrackingReservationEntry.SetSource(Database::"Service Line", "Source Order Status", "Source ID", "Source Ref. No.", '', 0);
-            Database::"Job Planning Line":
-                TrackingReservationEntry.SetSource(Database::"Job Planning Line", "Source Order Status", "Source ID", "Source Ref. No.", '', 0);
             else begin
                 IsHandled := false;
                 OnTransferToTrackingEntrySourceTypeElseCase(Rec, TrackingReservationEntry, UseSecondaryFields, IsHandled);
@@ -1159,6 +814,19 @@ table 99000853 "Inventory Profile"
         SetRange("Source Prod. Order Line", SourceProdOrderLine);
     end;
 
+    procedure SetSourceTypeFilter(SourceType: Integer)
+    var
+        SourceTypeFilter: Text;
+    begin
+        SourceTypeFilter := Rec.GetFilter("Source Type");
+        if SourceTypeFilter = '' then
+            SetFilter("Source Type", '%1', SourceType)
+        else begin
+            SourceTypeFilter += StrSubstNo('|%1', SourceType);
+            SetFilter("Source Type", SourceTypeFilter);
+        end;
+    end;
+
     procedure CopyTrackingFromItemLedgEntry(ItemLedgerEntry: Record "Item Ledger Entry")
     begin
         "Serial No." := ItemLedgerEntry."Serial No.";
@@ -1212,6 +880,20 @@ table 99000853 "Inventory Profile"
         OnAfterTrackingExists(Rec, IsTrackingExists);
     end;
 
+    procedure InsertSupplyInvtProfile(ToDate: Date)
+    begin
+        if Rec.IsSupply then begin
+            if Rec."Due Date" > ToDate then
+                Rec."Planning Flexibility" := Rec."Planning Flexibility"::None;
+            Rec.Insert();
+        end else
+            if Rec."Due Date" <= ToDate then begin
+                Rec.ChangeSign();
+                Rec."Planning Flexibility" := Rec."Planning Flexibility"::None;
+                Rec.Insert();
+            end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemLedgEntry(var InventoryProfile: Record "Inventory Profile"; ItemLedgEntry: Record "Item Ledger Entry")
     begin
@@ -1232,45 +914,109 @@ table 99000853 "Inventory Profile"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromSalesLine(var InventoryProfile: Record "Inventory Profile"; SalesLine: Record "Sales Line")
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromSalesLine(var InventoryProfile: Record "Inventory Profile"; SalesLine: Record Microsoft.Sales.Document."Sales Line")
     begin
+        OnAfterTransferFromSalesLine(InventoryProfile, SalesLine);
     end;
 
+    [Obsolete('Replaced by event OnAfterTransferInventoryProfileFromSalesLine in codeunit Sales Line-Reserve', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromComponent(var InventoryProfile: Record "Inventory Profile"; ProdOrderComp: Record "Prod. Order Component")
+    local procedure OnAfterTransferFromSalesLine(var InventoryProfile: Record "Inventory Profile"; SalesLine: Record Microsoft.Sales.Document."Sales Line")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromPlanComponent(var InventoryProfile: Record "Inventory Profile"; PlanningComponent: Record "Planning Component")
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromComponent(var InventoryProfile: Record "Inventory Profile"; ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
+        OnAfterTransferFromComponent(InventoryProfile, ProdOrderComp);
     end;
 
+    [Obsolete('Replaced by event OnAfterTransferInventoryProfileFromProdOrderComponent in codeunit Prod. Order Comp.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromPurchaseLine(var InventoryProfile: Record "Inventory Profile"; PurchaseLine: Record "Purchase Line")
+    local procedure OnAfterTransferFromComponent(var InventoryProfile: Record "Inventory Profile"; ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromProdOrderLine(var InventoryProfile: Record "Inventory Profile"; ProdOrderLine: Record "Prod. Order Line")
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromPlanComponent(var InventoryProfile: Record "Inventory Profile"; PlanningComponent: Record Microsoft.Inventory.Planning."Planning Component")
     begin
+        OnAfterTransferFromPlanComponent(InventoryProfile, PlanningComponent);
     end;
 
+    [Obsolete('Replaced by event OnAfterTransferInventoryProfileFromPlnanningComponent in codeunit Plng. Component-Reserve', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromAsmLine(var InventoryProfile: Record "Inventory Profile"; AssemblyLine: Record "Assembly Line")
+    local procedure OnAfterTransferFromPlanComponent(var InventoryProfile: Record "Inventory Profile"; PlanningComponent: Record Microsoft.Inventory.Planning."Planning Component")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromAsmHeader(var InventoryProfile: Record "Inventory Profile"; AssemblyHeader: Record "Assembly Header")
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromPurchaseLine(var InventoryProfile: Record "Inventory Profile"; PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line")
     begin
+        OnAfterTransferFromPurchaseLine(InventoryProfile, PurchaseLine);
     end;
 
+    [Obsolete('Replaced by event OnAfterTransferInventoryProfileFromProdOrderLine in codeunit Purch. Line-Reserve', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromPurchaseLine(var InventoryProfile: Record "Inventory Profile"; PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromProdOrderLine(var InventoryProfile: Record "Inventory Profile"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+        OnAfterTransferFromProdOrderLine(InventoryProfile, ProdOrderLine);
+    end;
+
+    [Obsolete('Replaced by event OnAfterTransferInventoryProfileFromProdOrderLine in codeunit Prod. Order Line-Reserve', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromProdOrderLine(var InventoryProfile: Record "Inventory Profile"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromAsmLine(var InventoryProfile: Record "Inventory Profile"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+        OnAfterTransferFromAsmLine(InventoryProfile, AssemblyLine);
+    end;
+
+    [Obsolete('Replaced by event OnAfterTransferInventoryProfileFromAssemblyLine  in codeunit Assembly Line-Reserve', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromAsmLine(var InventoryProfile: Record "Inventory Profile"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromAsmHeader(var InventoryProfile: Record "Inventory Profile"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
+    begin
+        OnAfterTransferFromAsmHeader(InventoryProfile, AssemblyHeader);
+    end;
+
+    [Obsolete('Replaced by event OnAfterTransferInventoryProfileFromAssemblyHeader in codeunit Assembly Header-Reserve', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromAsmHeader(var InventoryProfile: Record "Inventory Profile"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromRequisitionLine(var InventoryProfile: Record "Inventory Profile"; RequisitionLine: Record "Requisition Line")
+    begin
+        OnAfterTransferFromRequisitionLine(InventoryProfile, RequisitionLine);
+    end;
+
+    [Obsolete('Replaced by event OnAfterTransferInventoryProfileFromRequisitionLine in codeunit Req. Line-Reserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromRequisitionLine(var InventoryProfile: Record "Inventory Profile"; RequisitionLine: Record "Requisition Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromInboundTransfer(var InventoryProfile: Record "Inventory Profile"; TransLine: Record "Transfer Line")
@@ -1287,15 +1033,31 @@ table 99000853 "Inventory Profile"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromServLine(var InventoryProfile: Record "Inventory Profile"; ServiceLine: Record "Service Line")
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromServLine(var InventoryProfile: Record "Inventory Profile"; ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
+        OnAfterTransferFromServLine(InventoryProfile, ServiceLine);
     end;
 
+    [Obsolete('Replaced by event OnAfterTransferInventoryProfileFromServiceLine', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromJobPlanningLine(var InventoryProfile: Record "Inventory Profile"; JobPlanningLine: Record "Job Planning Line")
+    local procedure OnAfterTransferFromServLine(var InventoryProfile: Record "Inventory Profile"; ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterTransferFromJobPlanningLine(var InventoryProfile: Record "Inventory Profile"; JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
+    begin
+        OnAfterTransferFromJobPlanningLine(InventoryProfile, JobPlanningLine);
+    end;
+
+    [Obsolete('Replaced by event OnAfterTransferInventoryProfileFromServiceLine in codeunit Job Planning Line-Reserve', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromJobPlanningLine(var InventoryProfile: Record "Inventory Profile"; JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferToTrackingEntry(var ReservationEntry: Record "Reservation Entry"; InventoryProfile: Record "Inventory Profile"; UseSecondaryFields: Boolean)

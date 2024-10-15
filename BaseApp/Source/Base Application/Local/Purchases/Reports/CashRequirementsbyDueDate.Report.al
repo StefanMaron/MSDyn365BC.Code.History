@@ -205,7 +205,7 @@ report 10088 "Cash Requirements by Due Date"
                 CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
                 if BeginProjectionDate > "Pmt. Discount Date" then
                     PaymentDiscToPrint := 0
-                else begin
+                else
                     if "Currency Code" = '' then
                         PaymentDiscToPrint := "Original Pmt. Disc. Possible"
                     else
@@ -213,7 +213,6 @@ report 10088 "Cash Requirements by Due Date"
                             PaymentDiscToPrint := "Original Pmt. Disc. Possible" * "Remaining Amt. (LCY)" / "Remaining Amount"
                         else
                             PaymentDiscToPrint := 0;   // should never happen, since trx is open anyway
-                end;
 
                 if not Vendor.Get("Vendor No.") then
                     Clear(Vendor);

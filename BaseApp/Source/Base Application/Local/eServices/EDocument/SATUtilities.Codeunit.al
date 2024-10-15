@@ -12,7 +12,6 @@ using Microsoft.Foundation.Address;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
-using Microsoft.Sales.Document;
 using System.Environment;
 using System.IO;
 using System.Utilities;
@@ -68,16 +67,13 @@ codeunit 27030 "SAT Utilities"
         PaymentMethod: Record "Payment Method";
         SATPaymentMethod: Record "SAT Payment Method";
     begin
-        if PaymentMethod.Get(PaymentMeth) then begin
+        if PaymentMethod.Get(PaymentMeth) then
             if SATPaymentMethod.Get(PaymentMethod."SAT Method of Payment") then
                 exit(SATPaymentMethod.Description);
-        end;
         exit(PaymentMeth);
     end;
 
-#if not CLEAN25
     [Scope('OnPrem')]
-    [Obsolete('Replaced with GetSATClassification with Enum parameter', '25.0')]
     procedure GetSATItemClassification(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; ItemNumber: Code[20]): Code[10]
     var
         Item: Record Item;
@@ -103,40 +99,6 @@ codeunit 27030 "SAT Utilities"
         end;
         exit('');
     end;
-#endif
-
-    procedure GetSATClassification(LineType: Enum "Sales Line Type"; ReferenceCode: Code[20]): Code[10]
-    var
-        Item: Record Item;
-        GLAccount: Record "G/L Account";
-        FixedAsset: Record "Fixed Asset";
-        ItemCharge: Record "Item Charge";
-        SATClassification: Code[10];
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeGetSATClassification(LineType, ReferenceCode, SATClassification, IsHandled);
-        if IsHandled then
-            exit(SATClassification);
-
-        case LineType of
-            LineType::Item:
-                if Item.Get(ReferenceCode) then
-                    exit(Item."SAT Item Classification");
-            LineType::"G/L Account":
-                if GLAccount.Get(ReferenceCode) then
-                    exit(GLAccount."SAT Classification Code");
-            LineType::"Fixed Asset":
-                if FixedAsset.Get(ReferenceCode) then
-                    exit(FixedAsset."SAT Classification Code");
-            LineType::"Charge (Item)":
-                if ItemCharge.Get(ReferenceCode) then
-                    exit(ItemCharge."SAT Classification Code");
-            LineType::Resource:
-                exit('01010101'); // Does not exist in the catalog
-        end;
-        exit('');
-    end;
 
     [Scope('OnPrem')]
     procedure GetSATPaymentTerm(PaymentTerm: Code[10]): Code[10]
@@ -154,10 +116,9 @@ codeunit 27030 "SAT Utilities"
         PaymentTerms: Record "Payment Terms";
         SATPaymentTerm: Record "SAT Payment Term";
     begin
-        if PaymentTerms.Get(PaymentTerm) then begin
+        if PaymentTerms.Get(PaymentTerm) then
             if SATPaymentTerm.Get(PaymentTerms."SAT Payment Term") then
                 exit(SATPaymentTerm.Description);
-        end;
         exit(PaymentTerm);
     end;
 
@@ -772,11 +733,6 @@ codeunit 27030 "SAT Utilities"
         TempBlob.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPORT::"SAT Use Code", OutStr, SATUseCode);
         FileManagement.BLOBExport(TempBlob, 'SATUse_Codes.xml', true);
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetSATClassification(LineType: Enum "Sales Line Type"; ReferenceCode: Code[20]; var SATClassification: Code[10]; var IsHandled: Boolean)
-    begin
     end;
 }
 

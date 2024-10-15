@@ -9,16 +9,22 @@ codeunit 99000772 "Prod. Order Route Management"
 
     var
         CannotCalculateRoutingNumberErr: Label 'Cannot calculate routing number %3 %4 in %1 production order %2, because sequence number %5 is higher than the maximum sequence number, %6.', Comment = '%1: Status Text; %2: Field(Prod. Order No.); %3: Field(Routing No.); %4: Direction Text; %5: Field(Actual Sequence); %6: Field (Max. Sequences)';
+#pragma warning disable AA0074
         Text001: Label 'Back';
         Text002: Label 'back';
+#pragma warning disable AA0470
         Text003: Label 'Actual number of termination processes in prod. order %1 route %2  is %3. They should be 1. Check %4.';
         Text004: Label 'Actual Number of start processes in prod. order %1 route %2 is %3. They should be 1. Check %4.';
         Text005: Label 'Not all routing lines are sequenced backwards on routing %1. Check %2.';
         Text006: Label 'Not all routing lines are sequenced forward on routing %1. Check %2.';
         Text007: Label 'Previous operations for %1 cannot be found.';
         Text008: Label 'Next operations for %1 cannot be found.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ErrList: Text[50];
+#pragma warning disable AA0074
         Text009: Label 'This change may have caused bin codes on some production order component lines to be different from those on the production order routing line. Do you want to automatically align all of these unmatched bin codes?';
+#pragma warning restore AA0074
 
     procedure NeedsCalculation(ProductionOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingRefNo: Integer; RoutingNo: Code[20]): Boolean
     var

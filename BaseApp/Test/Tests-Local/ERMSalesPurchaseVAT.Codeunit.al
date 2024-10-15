@@ -724,25 +724,21 @@ codeunit 144051 "ERM Sales/Purchase VAT"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", "Document Type"::Payment);
-            SetRange("Document No.", DocumentNo);
-            SetFilter(Base, '<>0');
-            FindFirst();
-            exit(Amount);
-        end;
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetFilter(Base, '<>0');
+        VATEntry.FindFirst();
+        exit(VATEntry.Amount);
     end;
 
     local procedure GetGLEntryAmount(DocumentNo: Code[20]; SalesVATUnrealAccount: Code[20]): Decimal
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", SalesVATUnrealAccount);
-            FindFirst();
-            exit(Amount);
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", SalesVATUnrealAccount);
+        GLEntry.FindFirst();
+        exit(GLEntry.Amount);
     end;
 
     local procedure GetACYAmount(Amount: Decimal; CurrencyCode: Code[10]): Decimal

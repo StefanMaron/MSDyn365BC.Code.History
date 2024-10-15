@@ -396,9 +396,9 @@ report 10411 "Check (Stub/Check/Stub)"
                         PrintCheckHelper.PrintSettledLoopHelper(CustLedgEntry, VendLedgEntry, GenJnlLine, BalancingType.AsInteger(), BalancingNo,
                           FoundLast, TestPrint, FirstPage, FoundNegative, ApplyMethod);
 
-                        if PreprintedStub then begin
-                            TotalText := '';
-                        end else begin
+                        if PreprintedStub then
+                            TotalText := ''
+                        else begin
                             TotalText := Text019;
                             Stub2DocNoHeader := USText011;
                             Stub2DocDateHeader := USText012;
@@ -981,19 +981,17 @@ report 10411 "Check (Stub/Check/Stub)"
                         CheckAmountText := CheckAmountText + DollarSignBefore + DollarSignAfter;
                         Index := 0;
                         if CheckAmountText = Text024 then begin
-                            if StrLen(CheckAmountText) < (ControlLen - 12) then begin
+                            if StrLen(CheckAmountText) < (ControlLen - 12) then
                                 repeat
                                     Index := Index + 1;
                                     CheckAmountText := InsStr(CheckAmountText, '*', StrLen(CheckAmountText) + 1);
-                                until (Index = ControlLen) or (StrLen(CheckAmountText) >= (ControlLen - 12))
-                            end;
+                                until (Index = ControlLen) or (StrLen(CheckAmountText) >= (ControlLen - 12));
                         end else
-                            if StrLen(CheckAmountText) < (ControlLen - 11) then begin
+                            if StrLen(CheckAmountText) < (ControlLen - 11) then
                                 repeat
                                     Index := Index + 1;
                                     CheckAmountText := InsStr(CheckAmountText, '*', StrLen(CheckAmountText) + 1);
-                                until (Index = ControlLen) or (StrLen(CheckAmountText) >= (ControlLen - 11))
-                            end;
+                                until (Index = ControlLen) or (StrLen(CheckAmountText) >= (ControlLen - 11));
                         CheckAmountText :=
                           DelStr(CheckAmountText, StartingLen + 1, StrLen(DollarSignBefore + DollarSignAfter));
                         NewLen := StrLen(CheckAmountText);

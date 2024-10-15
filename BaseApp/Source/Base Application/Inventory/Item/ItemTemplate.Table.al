@@ -5,7 +5,6 @@ using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Setup;
-using Microsoft.Service.Item;
 using Microsoft.Warehouse.Setup;
 
 table 1301 "Item Template"
@@ -125,7 +124,6 @@ table 1301 "Item Template"
         field(5900; "Service Item Group"; Code[10])
         {
             Caption = 'Service Item Group';
-            TableRelation = "Service Item Group".Code;
         }
         field(7300; "Warehouse Class Code"; Code[10])
         {

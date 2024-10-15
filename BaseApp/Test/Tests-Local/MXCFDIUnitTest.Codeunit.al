@@ -2096,9 +2096,7 @@
         LibrarySales.CreateSalesLine(
           SalesLineRetention, SalesHeader, SalesLineRetention.Type::Item, LibraryInventory.CreateItemNo(), 1);
         asserterror SalesLineRetention.Validate("Retention Attached to Line No.", SalesLine."Line No.");
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(
-          StrSubstNo('%1 must be equal to ''0''', SalesLineRetention.FieldCaption("Retention Attached to Line No.")));
+        Assert.ExpectedTestFieldError(SalesLineRetention.FieldCaption("Retention Attached to Line No."), Format(0));
     end;
 
     [Test]
@@ -2266,16 +2264,15 @@
     procedure FixedAssetGetSATClassification()
     var
         FixedAsset: Record "Fixed Asset";
-        SalesLine: Record "Sales Line";
         SATUtilities: Codeunit "SAT Utilities";
     begin
-        // [SCENARIO 433795] SATUtilities.GetSATClassification returns a value from Fixed Asset Card
+        // [SCENARIO 433795] SATUtilities.GetSATItemClassification returns a value from Fixed Asset Card
         FixedAsset.Init();
         FixedAsset."No." := LibraryUtility.GenerateGUID();
         FixedAsset."SAT Classification Code" := LibraryUtility.GenerateGUID();
         FixedAsset.Insert();
         Assert.AreEqual(
-          FixedAsset."SAT Classification Code", SATUtilities.GetSATClassification(SalesLine.Type::"Fixed Asset", FixedAsset."No."), ExpectedError);
+          FixedAsset."SAT Classification Code", SATUtilities.GetSATItemClassification(4, FixedAsset."No."), ExpectedError);
     end;
 
     [Test]
@@ -2313,16 +2310,15 @@
     procedure GLAccountGetSATClassification()
     var
         GLAccount: Record "G/L Account";
-        SalesLine: Record "Sales Line";
         SATUtilities: Codeunit "SAT Utilities";
     begin
-        // [SCENARIO 491617] SATUtilities.GetSATClassification returns a value for G/L Account
+        // [SCENARIO 491617] SATUtilities.GetSATItemClassification returns a value for G/L Account
         GLAccount.Init();
         GLAccount."No." := LibraryUtility.GenerateGUID();
         GLAccount."SAT Classification Code" := LibraryUtility.GenerateGUID();
         GLAccount.Insert();
         Assert.AreEqual(
-          GLAccount."SAT Classification Code", SATUtilities.GetSATClassification(SalesLine.Type::"G/L Account", GLAccount."No."), ExpectedError);
+          GLAccount."SAT Classification Code", SATUtilities.GetSATItemClassification(1, GLAccount."No."), ExpectedError);
     end;
 
     [Test]
@@ -2857,17 +2853,15 @@
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Name := LibraryUtility.GenerateGUID();
-            "RFC Number" := LibraryUtility.GenerateGUID();
-            Address := LibraryUtility.GenerateGUID();
-            City := LibraryUtility.GenerateGUID();
-            "Post Code" := LibraryUtility.GenerateGUID();
-            "E-Mail" := LibraryUtility.GenerateGUID();
-            "Tax Scheme" := LibraryUtility.GenerateGUID();
-            Modify();
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Name := LibraryUtility.GenerateGUID();
+        CompanyInformation."RFC Number" := LibraryUtility.GenerateGUID();
+        CompanyInformation.Address := LibraryUtility.GenerateGUID();
+        CompanyInformation.City := LibraryUtility.GenerateGUID();
+        CompanyInformation."Post Code" := LibraryUtility.GenerateGUID();
+        CompanyInformation."E-Mail" := LibraryUtility.GenerateGUID();
+        CompanyInformation."Tax Scheme" := LibraryUtility.GenerateGUID();
+        CompanyInformation.Modify();
     end;
 
     local procedure UpdateGLSetupPACCode(var GeneralLedgerSetup: Record "General Ledger Setup"; PACCode: Code[10]; ModifyRec: Boolean)

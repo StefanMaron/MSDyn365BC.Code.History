@@ -61,6 +61,8 @@ codeunit 5611 "Calculate Normal Depreciation"
         TempDeprAmount: Decimal;
         Year365Days: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Force No. of Days must only be specified if %1 %2 = %3.';
         Text001: Label '%2 must not be 100 for %1.';
         Text002: Label '%2 must be %3 if %4 %5 = %6 for %1.';
@@ -70,6 +72,8 @@ codeunit 5611 "Calculate Normal Depreciation"
         Text006: Label '%1 must be %2 or later for %3.';
         Text007: Label '%1 must not be used together with %2 for %3.';
         Text008: Label '%1 must not be used together with %2 = %3 for %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure Calculate(var DeprAmount: Decimal; var NumberOfDays4: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer)
     var
