@@ -25,6 +25,7 @@ codeunit 137019 "SCM Correct Invoice"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJob: Codeunit "Library - Job";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         ItemTrackingMode: Option "Assign Lot","Verify Lot";
         IsInitialized: Boolean;
         CancelledDocExistsErr: Label 'Cancelled document exists.';
@@ -952,6 +953,101 @@ codeunit 137019 "SCM Correct Invoice"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure CancelSalesInvoiceCreatedViaGetShipmentLinesWithLocationRequireWhseShipment()
+    var
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Whse Shipment] [Get Shipment Lines] [Cancel Posted Sales Invoice]
+        // [SCENARIO 464072] Post again sales order when the invoice is created via "Get Shipment Lines" and then canceled when Whse. Shipment is mandatory for location.
+        Initialize();
+
+        // [GIVEN] Item, available on location with "Require Shipment"
+        ItemNo := LibraryInventory.CreateItemNo();
+        CreateLocationWithRequireShip(LocationCode);
+        PostItemJournalPositiveAdj(ItemNo, LocationCode, LibraryRandom.RandDec(10, 0));
+
+        // [GIVEN] Sales order.        
+        LibrarySales.CreateSalesOrderWithLocation(SalesHeader, LibrarySales.CreateCustomerNo(), LocationCode);
+
+        // [GIVEN] Add sales line, quantity = 1        
+        LibrarySales.CreateSalesLineWithUnitPrice(SalesLine, SalesHeader, ItemNo, LibraryRandom.RandDec(10, 2), 1);
+
+        // [GIVEN] Release sales order        
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create WhseShipment and post (ship only)
+        CreateAndPostWhseShipment(SalesHeader, false);
+
+        // [GIVEN] Create sales invoice using "Get Shipment Lines" and post it
+        CreateInvoiceWithGetShipmentLineAndPostIt(SalesHeader, SalesInvoiceHeader);
+
+        // [WHEN] Cancel the posted invoice.
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // [THEN] The sales order can be posted again.
+        VerifySalesOrderCouldBeProcessedAgain(SalesHeader, SalesLine);
+    end;
+
+    local procedure CreateLocationWithRequireShip(var LocationCode: Code[10])
+    var
+        Location: Record Location;
+    begin
+        LocationCode := LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Require Shipment", true);
+        Location.Modify(true);
+    end;
+
+    local procedure PostItemJournalPositiveAdj(ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJnlLine(
+          ItemJournalLine, "Item Ledger Entry Type"::"Positive Adjmt.", Today, ItemNo, Quantity, LocationCode);
+        LibraryInventory.PostItemJnlLineWithCheck(ItemJournalLine);
+    end;
+
+    local procedure CreateAndPostWhseShipment(var SalesHeader: Record "Sales Header"; DoInvoice: Boolean)
+    var
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+            LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+                DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, DoInvoice);
+    end;
+
+    local procedure CreateInvoiceWithGetShipmentLineAndPostIt(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+    begin
+        SalesShipmentHeader.SetCurrentKey("Order No.");
+        SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
+        SalesShipmentHeader.FindLast();
+        SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, "Sales Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+        SalesGetShipment.SetSalesHeader(SalesHeaderInvoice);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true));
+    end;
+
+    local procedure VerifySalesOrderCouldBeProcessedAgain(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        SalesHeader.Find();
+        SalesLine.Find();
+        SalesLine.TestField("Qty. to Ship", 0);  //as whse shipment reqired
+        CreateAndPostWhseShipment(SalesHeader, false);
     end;
 
     [Test]

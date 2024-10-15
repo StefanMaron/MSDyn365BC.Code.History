@@ -378,6 +378,24 @@ report 1308 "Standard Sales - Shipment"
             column(ExternalDocumentNo_Lbl; FieldCaption("External Document No."))
             {
             }
+            column(QuantityCaption; QuantityCaptionLbl)
+            {
+            }
+            column(SerialNoCaption; SerialNoCaptionLbl)
+            {
+            }
+            column(LotNoCaption; LotNoCaptionLbl)
+            {
+            }
+            column(DescriptionCaption; DescriptionCaptionLbl)
+            {
+            }
+            column(NoCaption; NoCaptionLbl)
+            {
+            }
+            column(ShowLotSN;ShowLotSN)
+            {
+            }
             dataitem(Line; "Sales Shipment Line")
             {
                 DataItemLink = "Document No." = FIELD("No.");
@@ -597,21 +615,6 @@ report 1308 "Standard Sales - Shipment"
                 {
                 }
                 column(TrackingSpecBufferQty; TempTrackingSpecBuffer."Quantity (Base)")
-                {
-                }
-                column(QuantityCaption; QuantityCaptionLbl)
-                {
-                }
-                column(SerialNoCaption; SerialNoCaptionLbl)
-                {
-                }
-                column(LotNoCaption; LotNoCaptionLbl)
-                {
-                }
-                column(DescriptionCaption; DescriptionCaptionLbl)
-                {
-                }
-                column(NoCaption; NoCaptionLbl)
                 {
                 }
 

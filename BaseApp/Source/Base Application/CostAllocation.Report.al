@@ -62,6 +62,9 @@ report 1131 "Cost Allocation"
 
                 trigger OnPostDataItem()
                 begin
+                    if AllocateBudget then
+                        CurrReport.Break();
+
                     if CostRegister.FindLast() then;
                     ModifyAll("Allocated with Journal No.", CostRegister."No." + 1);
                     ModifyAll(Allocated, true);
@@ -99,6 +102,9 @@ report 1131 "Cost Allocation"
 
                 trigger OnPostDataItem()
                 begin
+                    if not AllocateBudget then
+                        CurrReport.Break();
+
                     if CostBudgetRegister.FindLast() then;
                     ModifyAll("Allocated with Journal No.", CostBudgetRegister."No." + 1);
                     ModifyAll(Allocated, true);

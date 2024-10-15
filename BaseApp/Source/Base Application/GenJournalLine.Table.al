@@ -5398,6 +5398,7 @@
                             OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToDocNo(Rec, VendLedgEntry);
                             "Exported to Payment File" := VendLedgEntry."Exported to Payment File";
                             "Applies-to Ext. Doc. No." := VendLedgEntry."External Document No.";
+                            "Remit-to Code" := VendLedgEntry."Remit-to Code";
                         end;
             AccType::Employee:
                 if "Applies-to ID" <> '' then begin
