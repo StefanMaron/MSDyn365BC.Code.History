@@ -1,4 +1,4 @@
-codeunit 1233 "SEPA DD-Check Line"
+﻿codeunit 1233 "SEPA DD-Check Line"
 {
     TableNo = "Direct Debit Collection Entry";
 
@@ -31,7 +31,13 @@ codeunit 1233 "SEPA DD-Check Line"
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
         CHMgt: Codeunit CHMgt;
         SwissExport: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCollectionEntry(DirectDebitCollectionEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         SwissExport := CHMgt.IsSwissSEPADDExport(DirectDebitCollectionEntry."Direct Debit Collection No.");
         GLSetup.Get();
         with DirectDebitCollectionEntry do begin
@@ -105,6 +111,11 @@ codeunit 1233 "SEPA DD-Check Line"
         else
             ErrorText := StrSubstNo(FieldKeyBlankErr, FieldCaption, TableCaption, KeyValue);
         DirectDebitCollectionEntry.InsertPaymentFileError(ErrorText);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCollectionEntry(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

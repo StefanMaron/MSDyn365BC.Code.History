@@ -398,6 +398,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
     local procedure CreateNote(SalesHeader: Record "Sales Header"; CRMAnnotation: Record "CRM Annotation")
     var
         RecordLink: Record "Record Link";
+        CRMAnnotationCoupling: Record "CRM Annotation Coupling";
         RecordLinkManagement: Codeunit "Record Link Management";
         InStream: InStream;
         AnnotationText: Text;
@@ -410,7 +411,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CRMAnnotation.NoteText.CreateInStream(InStream, TEXTENCODING::UTF16);
         InStream.Read(AnnotationText);
 
-        RecordLinkManagement.WriteNote(RecordLink, AnnotationText);
+        RecordLinkManagement.WriteNote(RecordLink, CRMAnnotationCoupling.ExtractNoteText(AnnotationText));
         RecordLink.Created := CRMAnnotation.CreatedOn;
         RecordLink.Company := CompanyName;
         RecordLink.Insert(true);

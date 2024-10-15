@@ -151,7 +151,7 @@ table 1301 "Item Template"
 
     trigger OnInsert()
     var
-        FieldRefArray: array[17] of FieldRef;
+        FieldRefArray: array[30] of FieldRef;
         RecRef: RecordRef;
     begin
         TestField("Template Name");
@@ -163,7 +163,7 @@ table 1301 "Item Template"
 
     trigger OnModify()
     var
-        FieldRefArray: array[17] of FieldRef;
+        FieldRefArray: array[30] of FieldRef;
         RecRef: RecordRef;
     begin
         TestField(Code);
@@ -238,7 +238,7 @@ table 1301 "Item Template"
         DimensionsTemplate: Record "Dimensions Template";
         ConfigTemplateHeader: Record "Config. Template Header";
         RecRef: RecordRef;
-        FieldRefArray: array[17] of FieldRef;
+        FieldRefArray: array[30] of FieldRef;
         NewTemplateCode: Code[10];
     begin
         RecRef.GetTable(Item);
@@ -264,7 +264,7 @@ table 1301 "Item Template"
 
     local procedure InsertConfigurationTemplateHeaderAndLines()
     var
-        FieldRefArray: array[17] of FieldRef;
+        FieldRefArray: array[30] of FieldRef;
         RecRef: RecordRef;
     begin
         RecRef.GetTable(Rec);

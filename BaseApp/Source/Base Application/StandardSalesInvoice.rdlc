@@ -7758,6 +7758,12 @@ End Function
         <Field Name="PaymentInstructions_Txt">
           <DataField>PaymentInstructions_Txt</DataField>
         </Field>
+        <Field Name="ExternalDocumentNo">
+          <DataField>ExternalDocumentNo</DataField>
+        </Field>
+        <Field Name="ExternalDocumentNo_Lbl">
+          <DataField>ExternalDocumentNo_Lbl</DataField>
+        </Field>
         <Field Name="LineNo_Line">
           <DataField>LineNo_Line</DataField>
         </Field>

@@ -292,6 +292,63 @@ codeunit 144000 "VAT Rounding"
         Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, SalesLine."Amount Including VAT" - SalesLine.Amount, '');
     end;
 
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderRoundingAfterOpenedStatisticForSeveralLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        Quantity: Integer;
+        UnitPrice: Decimal;
+        AmountInclVAT: Decimal;
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 359157] Run Statistic page for Sales Order with 2 lines with rounding in Totals
+        Initialize();
+
+        // [GIVEN] Setup the rounding rule and "Apply Inv. Round. Amt. To VAT" to true
+        UpdateGLSetup(LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 2), 0);
+        LibraryERM.SetMaxVATDifferenceAllowed(LibraryRandom.RandDecInDecimalRange(0.1, 0.9, 2));
+        UpdateSalesSetup(true);
+
+        // [GIVEN] Create Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        Quantity := LibraryRandom.RandInt(10);
+        ItemNo := CreateItem();
+        UnitPrice := LibraryRandom.RandDecInDecimalRange(5, 10, 2);
+
+        // [GIVEN] Create Sales Line 1
+        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine1.Type::Item, ItemNo, Quantity);
+
+        // [GIVEN] Calculate "VAT %" for need a rounding for "Amount Including VAT" for Sales Line 1
+        AmountInclVAT := Round(Quantity * UnitPrice * (1 + LibraryRandom.RandDecInDecimalRange(5, 10, 2) / 100), 1);
+        AmountInclVAT += LibraryRandom.RandDecInDecimalRange(0.01, 0.04, 2);
+        SalesLine1.Validate("Unit Price", UnitPrice);
+        SalesLine1.Validate("VAT %", (AmountInclVAT / (UnitPrice * Quantity) - 1) * 100);
+        SalesLine1.Validate("Amount Including VAT", AmountInclVAT);
+        SalesLine1.Modify(true);
+
+        // [GIVEN] Create Sales Line 2
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, ItemNo, Quantity);
+
+        // [GIVEN] Calculate "VAT %" for need a rounding for "Amount Including VAT" for Sales Line 2
+        AmountInclVAT := Round(Quantity * UnitPrice * (1 + LibraryRandom.RandDecInDecimalRange(5, 10, 2) / 100), 1);
+        AmountInclVAT += LibraryRandom.RandDecInDecimalRange(0.01, 0.04, 2);
+        SalesLine2.Validate("Unit Price", UnitPrice);
+        SalesLine2.Validate("VAT %", (AmountInclVAT / (UnitPrice * Quantity) - 1) * 100);
+        SalesLine2.Validate("Amount Including VAT", AmountInclVAT);
+        SalesLine2.Modify(true);
+
+        // [WHEN] Open Statistic Page
+        SalesHeader.OpenSalesOrderStatistics();
+
+        // [THEN] Amount and "VAT amount" in Statistic page are equal to amount and "VAT amount" for Sales Order
+        Assert.AreEqual(GetAmountTotal(SalesHeader), LibraryVariableStorage.DequeueDecimal, '');
+        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, GetAmountTotalIncVAT(SalesHeader) - GetAmountTotal(SalesHeader), '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -495,6 +552,26 @@ codeunit 144000 "VAT Rounding"
             TestField("VAT Amount", ExpectedVATAmount);
             TestField("Amount Including VAT", ExpectedAmtInclVAT);
         end;
+    end;
+
+    local procedure GetAmountTotalIncVAT(var SalesHeader: Record "Sales Header"): Decimal
+    var
+        TotalSalesLine: Record "Sales Line";
+    begin
+        TotalSalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        TotalSalesLine.SetRange("Document No.", SalesHeader."No.");
+        TotalSalesLine.CalcSums("Line Amount", Amount, "Amount Including VAT", "Inv. Discount Amount");
+        exit(TotalSalesLine."Amount Including VAT");
+    end;
+
+    local procedure GetAmountTotal(var SalesHeader: Record "Sales Header"): Decimal
+    var
+        TotalSalesLine: Record "Sales Line";
+    begin
+        TotalSalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        TotalSalesLine.SetRange("Document No.", SalesHeader."No.");
+        TotalSalesLine.CalcSums("Line Amount", Amount, "Amount Including VAT", "Inv. Discount Amount");
+        exit(TotalSalesLine.Amount);
     end;
 
     [ModalPageHandler]

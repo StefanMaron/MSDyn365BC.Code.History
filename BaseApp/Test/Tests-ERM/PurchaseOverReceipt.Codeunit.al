@@ -17,11 +17,13 @@ codeunit 134851 "Purchase Over Receipt"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         OverReceiptFeatureIsEnabled: Boolean;
         IsInitialized: Boolean;
         QuantityAfterOverReceiptErr: Label 'Quantity is wrong after over receipt.';
         OverReceiptNotificationTxt: Label 'An over-receipt quantity is recorded on purchase order %1.';
         QtyToReceiveOverReceiptErr: Label 'Validation error for Field: Qty. to Receive,  Message = ''You cannot enter more than 10 in the Over-Receipt Quantity field.''';
+        WarehouseRcvRequiredErr: Label 'Warehouse Receive is required for this line. The entered information may be disregarded by warehouse activities.';
 
     [Test]
     [Scope('OnPrem')]
@@ -69,9 +71,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure PurchaseOrderOverReceiptQuantityIncreaseValue()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
@@ -91,9 +93,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure PurchaseOrderOverReceiptQuantityIncreaseValueTwoTimes()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
@@ -115,9 +117,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure PurchaseOrderOverReceiptQuantityIncreaseValueDecreaseValue()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
@@ -139,9 +141,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure PurchaseOrderOverReceiptQuantityDecreaseValue()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
@@ -161,9 +163,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure PurchaseOrderOverReceiptQuantityDecreaseValueTwoTimes()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
@@ -185,9 +187,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure PurchaseOrderOverReceiptQuantityDecreaseValueIncreaseValue()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
@@ -209,9 +211,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure PurchaseOrderOverReceiptQuantitySameValue()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
@@ -233,9 +235,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure PurchaseOrderOverReceiptQuantityZeroValue()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
@@ -257,10 +259,10 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure PostPurchaseOrderWithOverReceipt()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PstdRcptDocNo: Code[20];
     begin
         Initialize();
@@ -281,7 +283,9 @@ codeunit 134851 "Purchase Over Receipt"
         PurchRcptLine.FindFirst();
         Assert.IsTrue(PurchRcptLine.Quantity = PurchaseLine.Quantity, 'Quantity is wrong in purchase receipt line.');
         Assert.IsTrue(PurchRcptLine."Over-Receipt Quantity" = PurchaseLine."Over-Receipt Quantity", 'Over Receipt Quantity is wrong in purchase receipt line.');
-        Assert.IsTrue(PurchRcptLine."Over-Receipt Code" = PurchaseLine."Over-Receipt Code", 'Over Receipt Code is wrong in purchase receipt line.');
+        Assert.IsTrue(PurchRcptLine."Over-Receipt Code 2" = PurchaseLine."Over-Receipt Code", 'Over Receipt Code is wrong in purchase receipt line.');
+        Assert.IsTrue(PurchRcptLine."Over-Receipt Code 2" <> '', 'Over Receipt Code should not be empty in purchase receipt line.');
+        Assert.IsTrue(PurchRcptLine."Over-Receipt Code" = '', 'Over Receipt Code should be empty in purchase receipt line.');
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -425,7 +429,7 @@ codeunit 134851 "Purchase Over Receipt"
     var
         OverReceiptCode: Record "Over-Receipt Code";
         OverReceiptCodes: TestPage "Over-Receipt Codes";
-        OverReceiptCodeTxt: Code[10];
+        OverReceiptCodeTxt: Code[20];
     begin
         Initialize();
         // [GIVEN] Three over-receipt codes
@@ -467,10 +471,10 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure PurchaseOrderOverReceiptQuantityUndoReceipt()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         DocNo: Code[20];
     begin
         Initialize();
@@ -550,8 +554,53 @@ codeunit 134851 "Purchase Over Receipt"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    [HandlerFunctions('OverReceiptNotificationHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure OverReceiptQuantityFieldWarnRequireReceipt()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record "Location";
+        WarehouseEmployee: Record "Warehouse Employee";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+        PurchaseOrder: TestPage "Purchase Order";
+        MessageText: Text;
+    begin
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Location "L" with Require Receipt = true
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Released Purchase Order with Item I, Quantity = X, Location Code = L
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Purchase Order for release Purchaser Order opened
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.PurchLines.First();
+
+        // [WHEN] Set Over-Receipt Quantity = 1
+        PurchaseOrder.PurchLines."Over-Receipt Quantity".SetValue(1);
+
+        // [THEN] Message 'Warehouse Receive is required for this line. The entered information may be disregarded by warehouse activities.' appears  
+        MessageText := LibraryVariableStorage.DequeueText();
+        Assert.ExpectedMessage(WarehouseRcvRequiredErr, MessageText);
+        PurchaseOrder.Close();
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Purchase Over Receipt");
         LibraryVariableStorage.Clear();
 
         if IsInitialized then
@@ -565,12 +614,12 @@ codeunit 134851 "Purchase Over Receipt"
         OverReceiptFeatureIsEnabled := Enabled;
     end;
 
-    local procedure CreateOverReceiptCode(): Code[10]
+    local procedure CreateOverReceiptCode(): Code[20]
     var
         OverReceiptCode: Record "Over-Receipt Code";
     begin
         OverReceiptCode.Init();
-        OverReceiptCode.Code := LibraryUtility.GenerateGUID();
+        OverReceiptCode.Code := LibraryUtility.GenerateRandomCode20(OverReceiptCode.FieldNo(Code), Database::"Over-Receipt Code");
         OverReceiptCode.Description := OverReceiptCode.Code;
         OverReceiptCode."Over-Receipt Tolerance %" := 100;
         OverReceiptCode.Insert();
@@ -578,7 +627,7 @@ codeunit 134851 "Purchase Over Receipt"
         exit(OverReceiptCode.Code);
     end;
 
-    local procedure CreateOverReceiptCode(DeleteExisting: Boolean): Code[10]
+    local procedure CreateOverReceiptCode(DeleteExisting: Boolean): Code[20]
     var
         OverReceiptCode: Record "Over-Receipt Code";
     begin
@@ -656,7 +705,7 @@ codeunit 134851 "Purchase Over Receipt"
         WarehouseReceiptLine.FindFirst();
     end;
 
-    local procedure VerifyDefaultOverReceiptCode(OverReceiptCodeTxt: Code[10])
+    local procedure VerifyDefaultOverReceiptCode(OverReceiptCodeTxt: Code[20])
     var
         OverReceiptCode: Record "Over-Receipt Code";
     begin
@@ -683,5 +732,12 @@ codeunit 134851 "Purchase Over Receipt"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Message);
     end;
 }

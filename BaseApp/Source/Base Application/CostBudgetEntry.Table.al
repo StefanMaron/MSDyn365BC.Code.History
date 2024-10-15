@@ -168,7 +168,13 @@ table 1109 "Cost Budget Entry"
         NoProcessed: Integer;
         QtyPerGrp: Integer;
         NoCompressed: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCompressBudgetEntries(BudName, IsHandled);
+        if IsHandled then
+            exit;
+
         if BudName = '' then
             Error(Text000);
 
@@ -224,7 +230,14 @@ table 1109 "Cost Budget Entry"
     end;
 
     procedure CheckEntries()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckEntries(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField(Date);
         TestField("Budget Name");
         TestField("Cost Type No.");
@@ -314,6 +327,16 @@ table 1109 "Cost Budget Entry"
         if CostObject.FindFirst then
             exit(CostObject.Code);
         exit('')
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCompressBudgetEntries(BudName: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEntries(CostBudgetEntry: Record "Cost Budget Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

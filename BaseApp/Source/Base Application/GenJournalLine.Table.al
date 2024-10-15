@@ -1,4 +1,4 @@
-table 81 "Gen. Journal Line"
+﻿table 81 "Gen. Journal Line"
 {
     Caption = 'Gen. Journal Line';
     Permissions = TableData "Sales Invoice Header" = r,
@@ -91,6 +91,8 @@ table 81 "Gen. Journal Line"
             IF ("Account Type" = CONST(Employee)) Employee;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if "Account No." <> xRec."Account No." then begin
                     ClearAppliedAutomatically;
@@ -141,6 +143,12 @@ table 81 "Gen. Journal Line"
                 Validate("VAT Prod. Posting Group");
                 UpdateLineBalance;
                 UpdateSource;
+
+                IsHandled := false;
+                OnAccountNoOnValidateOnBeforeCreateDim(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CreateDim(
                   DimMgt.TypeToTableID1("Account Type"), "Account No.",
                   DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
@@ -708,6 +716,7 @@ table 81 "Gen. Journal Line"
                                     CustLedgEntry.SetRange("Document Type", xRec."Applies-to Doc. Type");
                                 CustLedgEntry.SetRange("Customer No.", TempGenJnlLine."Account No.");
                                 CustLedgEntry.SetRange(Open, true);
+                                OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(Rec, CustLedgEntry);
                                 if CustLedgEntry.FindFirst then begin
                                     if CustLedgEntry."Amount to Apply" <> 0 then begin
                                         CustLedgEntry."Amount to Apply" := 0;
@@ -725,6 +734,7 @@ table 81 "Gen. Journal Line"
                                     VendLedgEntry.SetRange("Document Type", xRec."Applies-to Doc. Type");
                                 VendLedgEntry.SetRange("Vendor No.", TempGenJnlLine."Account No.");
                                 VendLedgEntry.SetRange(Open, true);
+                                OnAppliesToDocNoOnValidateOnAfterVendLedgEntrySetFilters(Rec, VendLedgEntry);
                                 if VendLedgEntry.FindFirst then begin
                                     if VendLedgEntry."Amount to Apply" <> 0 then begin
                                         VendLedgEntry."Amount to Apply" := 0;
@@ -4780,6 +4790,7 @@ table 81 "Gen. Journal Line"
         CustLedgEntry.SetRange("Customer No.", AccNo);
         CustLedgEntry.SetRange("Applies-to ID", AppliesToID);
         CustLedgEntry.SetRange(Open, true);
+        OnFindFirstCustLedgEntryWithAppliesToIDOnAfterSetFilters(Rec, CustLedgEntry);
         exit(CustLedgEntry.FindFirst)
     end;
 
@@ -4801,6 +4812,7 @@ table 81 "Gen. Journal Line"
         VendLedgEntry.SetRange("Vendor No.", AccNo);
         VendLedgEntry.SetRange("Applies-to ID", AppliesToID);
         VendLedgEntry.SetRange(Open, true);
+        OnFindFirstVendLedgEntryWithAppliesToIDOnAfterSetFilters(Rec, VendLedgEntry);
         exit(VendLedgEntry.FindFirst)
     end;
 
@@ -6455,6 +6467,11 @@ table 81 "Gen. Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAccountNoOnValidateOnBeforeCreateDim(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplate: Record "Gen. Journal Template"; GenJournalBatch: Record "Gen. Journal Batch"; LastGenJournalLine: Record "Gen. Journal Line"; Balance: Decimal; BottomLine: Boolean)
     begin
     end;
@@ -6636,6 +6653,16 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateTempJobJnlLine(var JobJournalLine: Record "Job Journal Line"; GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAppliesToDocNoOnValidateOnAfterVendLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
@@ -6856,6 +6883,16 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindFirstCustLedgEntryWithAppliesToIDOnAfterSetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindFirstVendLedgEntryWithAppliesToIDOnAfterSetFilters(var GenJournalLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
