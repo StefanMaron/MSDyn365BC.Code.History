@@ -512,7 +512,8 @@ codeunit 333 "Req. Wksh.-Make Order"
             PurchOrderLine."Prod. Order Line No." := "Prod. Order Line No.";
             InitPurchOrderLineUpdateQuantity(RequisitionLine);
 
-            Validate("Order Date", PurchOrderHeader."Order Date");
+            if PurchOrderLine.CountPrice(true) > 0 then
+                Validate("Order Date", PurchOrderHeader."Order Date");
             if PurchOrderHeader."Prices Including VAT" then
                 PurchOrderLine.Validate("Direct Unit Cost", "Direct Unit Cost" * (1 + PurchOrderLine."VAT %" / 100))
             else
@@ -609,6 +610,8 @@ codeunit 333 "Req. Wksh.-Make Order"
                     PurchOrderLine."Special Order" := true;
                     PurchOrderLine.UpdateUnitCost;
                 end;
+
+            UpdateJobLink(PurchOrderLine, ReqLine2);
 
             ReqLineReserve.TransferReqLineToPurchLine(ReqLine2, PurchOrderLine, "Quantity (Base)", false);
 
@@ -1310,6 +1313,22 @@ codeunit 333 "Req. Wksh.-Make Order"
               Text002 +
               Text003 +
               Text005);
+    end;
+
+    local procedure UpdateJobLink(var PurchaseLine: Record "Purchase Line"; RequisitionLine: Record "Requisition Line")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if (RequisitionLine."Planning Line Origin" = RequisitionLine."Planning Line Origin"::"Order Planning") and
+           (RequisitionLine."Demand Type" = DATABASE::"Job Planning Line")
+        then begin
+            JobPlanningLine.SetRange("Job Contract Entry No.", RequisitionLine."Demand Line No.");
+            JobPlanningLine.FindFirst();
+
+            PurchaseLine.Validate("Job No.", JobPlanningLine."Job No.");
+            PurchaseLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+            PurchaseLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        end;
     end;
 
     [IntegrationEvent(false, false)]
