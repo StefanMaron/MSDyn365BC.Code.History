@@ -2278,6 +2278,40 @@ codeunit 408 DimensionManagement
             until TempDimSetEntry.Next() = 0;
     end;
 
+    internal procedure ChunkDimSetFilters(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary): List of [Text]
+    var
+        DimSetFilters: List of [Text];
+        CurrentDimSetFilter: Text;
+        Parameters, MaxParameters : Integer;
+        MaxStrLen: Integer;
+    begin
+        MaxParameters := 1000;
+        MaxStrLen := 4000;
+        if not TempDimensionSetEntry.FindSet() then
+            exit(DimSetFilters);
+        CurrentDimSetFilter := '';
+        repeat
+            if CurrentDimSetFilter <> '' then
+                CurrentDimSetFilter += '|';
+            CurrentDimSetFilter += Format(TempDimensionSetEntry."Dimension Set ID");
+            Parameters += 1;
+            if (Parameters > MaxParameters) or (StrLen(CurrentDimSetFilter) > MaxStrLen) then begin
+                DimSetFilters.Add(CurrentDimSetFilter);
+                CurrentDimSetFilter := '';
+                Parameters := 0;
+            end;
+        until TempDimensionSetEntry.Next() = 0;
+        if CurrentDimSetFilter <> '' then
+            DimSetFilters.Add(CurrentDimSetFilter);
+        exit(DimSetFilters);
+    end;
+
+    procedure GetDimSetFilters(): List of [Text]
+    begin
+        TempDimSetEntryBuffer.SetFilter("Dimension Value ID", '%1', DimSetFilterCtr);
+        exit(ChunkDimSetFilters(TempDimSetEntryBuffer));
+    end;
+
     procedure GetDimSetFilter() DimSetFilter: Text
     var
         Counter: integer;

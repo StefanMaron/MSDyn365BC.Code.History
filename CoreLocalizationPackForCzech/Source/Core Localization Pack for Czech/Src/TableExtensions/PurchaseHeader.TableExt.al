@@ -46,7 +46,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
                 GeneralLedgerSetup.UpdateOriginalDocumentVATDateCZL(Rec."VAT Reporting Date", Enum::"Default Orig.Doc. VAT Date CZL"::"VAT Date", Rec."Original Doc. VAT Date CZL");
                 Rec.Validate("Original Doc. VAT Date CZL");
 
-                NeedUpdateVATCurrencyFactor := "Currency Code" <> '';
+                NeedUpdateVATCurrencyFactor := ("Currency Code" <> '') and ("VAT Reporting Date" <> xRec."VAT Reporting Date");
                 OnValidateVATDateOnBeforeCheckNeedUpdateVATCurrencyFactorCZL(Rec, IsConfirmedCZL, NeedUpdateVATCurrencyFactor, xRec);
                 if NeedUpdateVATCurrencyFactor then begin
                     UpdateVATCurrencyFactorCZL();

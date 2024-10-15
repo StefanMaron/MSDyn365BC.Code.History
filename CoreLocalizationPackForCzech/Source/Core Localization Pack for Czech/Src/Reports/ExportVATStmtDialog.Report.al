@@ -49,6 +49,7 @@ report 31003 "Export VAT Stmt. Dialog CZL"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Starting Date';
+                        TableRelation = "VAT Period CZL";
                         ToolTip = 'Specifies the first date in the period for which VAT statement were exported.';
 
                         trigger OnValidate()
@@ -307,7 +308,13 @@ report 31003 "Export VAT Stmt. Dialog CZL"
     end;
 
     local procedure StartDateOnAfterValidate()
+    var
+        VATPeriodCZL: Record "VAT Period CZL";
     begin
+        VATPeriodCZL.SetFilter("Starting Date", '%1..', StartDate);
+        VATPeriodCZL.FindSet();
+        if VATPeriodCZL.Next() > 0 then
+            EndDate := CalcDate('<-1D>', VATPeriodCZL."Starting Date");
         UpdateDateParameters();
     end;
 }

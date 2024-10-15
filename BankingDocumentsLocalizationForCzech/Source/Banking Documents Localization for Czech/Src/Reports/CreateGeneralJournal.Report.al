@@ -162,6 +162,7 @@ report 31287 "Create General Journal CZB"
             BankAccount.TestField("Payment Jnl. Batch Name CZB");
             BankAccount.TestField("Non Assoc. Payment Account CZB");
         end;
+        OnAfterGetBankAccount(IssBankStatementHeaderCZB, BankAccount);
     end;
 
     local procedure GetLastLineNo(): Integer;
@@ -234,6 +235,9 @@ report 31287 "Create General Journal CZB"
                         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
                 end;
         end;
+
+        OnCreateGeneralJournalLineOnAfterValidateAccountType(IssBankStatementHeaderCZB, IssBankStatementLineCZB, GenJournalLine);
+
         if IssBankStatementLineCZB."No." <> '' then
             GenJournalLine.Validate("Account No.", IssBankStatementLineCZB."No.")
         else
@@ -378,6 +382,16 @@ report 31287 "Create General Journal CZB"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteGeneralJournalLinesOnAfterSetGenJournalLineFilters(var GenJournalLine: Record "Gen. Journal Line"; IssBankStatementHeaderCZB: Record "Iss. Bank Statement Header CZB"; BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateGeneralJournalLineOnAfterValidateAccountType(IssBankStatementHeaderCZB: Record "Iss. Bank Statement Header CZB"; IssBankStatementLineCZB: Record "Iss. Bank Statement Line CZB"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetBankAccount(IssBankStatementHeaderCZB: Record "Iss. Bank Statement Header CZB"; var BankAccount: Record "Bank Account")
     begin
     end;
 }

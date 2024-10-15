@@ -1567,6 +1567,9 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                 GenJnlPostLine.RunWithCheck(GenJournalLine);
 
             InitGenJnlLineFromAdvance(SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, DocumentNo, SourceCode, PostDescription, GenJournalLine);
+            GenJournalLine."Shortcut Dimension 1 Code" := SalesAdvLetterHeaderCZZ."Shortcut Dimension 1 Code";
+            GenJournalLine."Shortcut Dimension 2 Code" := SalesAdvLetterHeaderCZZ."Shortcut Dimension 2 Code";
+            GenJournalLine."Dimension Set ID" := SalesAdvLetterHeaderCZZ."Dimension Set ID";
             GenJournalLine.Correction := true;
             GenJournalLine.Validate("Posting Date", PostingDate);
 #if not CLEAN22
@@ -1671,7 +1674,9 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
             CustLedgerEntry."Global Dimension 1 Code", CustLedgerEntry."Global Dimension 2 Code",
             CustLedgerEntry."Dimension Set ID", CustLedgerEntry."Reason Code");
         GenJournalLine."System-Created Entry" := true;
-        GenJournalLine.CopyDocumentFields(GenJournalDocumentType, CustLedgerEntry."Document No.", '', CustLedgerEntry."Source Code", '');
+        GenJournalLine.CopyDocumentFields(
+            GenJournalDocumentType, CustLedgerEntry."Document No.",
+            CustLedgerEntry."External Document No.", CustLedgerEntry."Source Code", '');
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
         GenJournalLine."Account No." := CustLedgerEntry."Customer No.";
         GenJournalLine."Source Currency Code" := CustLedgerEntry."Currency Code";
@@ -2664,6 +2669,9 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
 
         if VATAmount <> 0 then begin
             InitGenJnlLineFromAdvance(SalesAdvLetterHeaderCZZ, SalesAdvLetterEntryCZZ, DocumentNo, SourceCodeSetup."Exchange Rate Adjmt.", PostDescription, GenJournalLine);
+            GenJournalLine."Shortcut Dimension 1 Code" := SalesAdvLetterHeaderCZZ."Shortcut Dimension 1 Code";
+            GenJournalLine."Shortcut Dimension 2 Code" := SalesAdvLetterHeaderCZZ."Shortcut Dimension 2 Code";
+            GenJournalLine."Dimension Set ID" := SalesAdvLetterHeaderCZZ."Dimension Set ID";
             GenJournalLine.Validate("Posting Date", PostingDate);
 #if not CLEAN22
 #pragma warning disable AL0432

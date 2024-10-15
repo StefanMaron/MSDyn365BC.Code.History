@@ -2223,5 +2223,4 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     begin
     end;
 }
-
 #endif

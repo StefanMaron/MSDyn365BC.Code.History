@@ -87,21 +87,22 @@ report 743 "VAT Reconciliation Report"
                     CurrReport.Skip();
 
                 VATEntry.SetCurrentKey("Transaction No.");
-                VATEntry.SetLoadFields(Amount, "VAT Calculation Type", Base, "Transaction No.");
+                VATEntry.SetLoadFields(
+                    Amount, "VAT Calculation Type", Base, "Transaction No.", "Non-Deductible VAT Base", "Non-Deductible VAT Amount");
                 VATEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
-                VATEntry.SetRange(Amount, GLEntry."VAT Amount");
+                VATEntry.SetRange(Amount, GLEntry."VAT Amount" - GLEntry."Non-Deductible VAT Amount");
 
                 if VATEntry.FindFirst() then
                     if VATEntry."VAT Calculation Type" = Enum::"Tax Calculation Type"::"Reverse Charge VAT" then begin
-                        BaseAmountRevCharges := VATEntry.Base;
-                        SalesVATRevCharges := VATEntry.Amount;
+                        BaseAmountRevCharges := VATEntry.Base + VATEntry."Non-Deductible VAT Base";
+                        SalesVATRevCharges := VATEntry.Amount + VATEntry."Non-Deductible VAT Amount";
                     end else
                         if GLEntry."Gen. Posting Type" = Enum::"General Posting Type"::Sale then begin
                             BaseAmountSalesVAT := -VATEntry.Base;
                             SalesVAT := -VATEntry.Amount;
                         end else begin
-                            BaseAmountPurchVAT := VATEntry.Base;
-                            PurchVAT := VATEntry.Amount;
+                            BaseAmountPurchVAT := VATEntry.Base + VATEntry."Non-Deductible VAT Base";
+                            PurchVAT := VATEntry.Amount + VATEntry."Non-Deductible VAT Amount";
                         end;
 
                 GLAccount.Get("G/L Account No.");
