@@ -545,9 +545,10 @@ table 273 "Bank Acc. Reconciliation"
     begin
         CODEUNIT.Run(CODEUNIT::"Match Bank Pmt. Appl.", BankAccReconciliation);
 
-        if ConfidenceLevelPermitToPost(BankAccReconciliation) then
+        if ConfidenceLevelPermitToPost(BankAccReconciliation) then begin
+            Commit();
             CODEUNIT.Run(CODEUNIT::"Bank Acc. Reconciliation Post", BankAccReconciliation)
-        else
+        end else
             OpenWorksheetFromProcessStatement(BankAccReconciliation);
     end;
 

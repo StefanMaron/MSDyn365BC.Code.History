@@ -105,6 +105,7 @@ codeunit 64 "Sales-Get Shipment"
 
         if TransferLine then begin
             SalesShptLine := SalesShptLine2;
+            CheckSalesShptLineVATBusPostingGroup(SalesShptLine, SalesHeader);
             SalesShptLine.InsertInvLineFromShptLine(SalesLine);
             CalcUpdatePrepmtAmtToDeductRounding(SalesShptLine, SalesLine, PrepmtAmtToDeductRounding);
         end;
@@ -293,6 +294,18 @@ codeunit 64 "Sales-Get Shipment"
         end;
     end;
 
+    local procedure CheckSalesShptLineVATBusPostingGroup(SalesShptLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestSalesShptLineVATBusPostingGroup(SalesShptLine, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesShptLine.TestField("VAT Bus. Posting Group", SalesHeader."VAT Bus. Posting Group");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcInvoiceDiscount(var SalesLine: Record "Sales Line")
     begin
@@ -345,6 +358,11 @@ codeunit 64 "Sales-Get Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunAfterFilterSalesShpLine(var SalesShptLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestSalesShptLineVATBusPostingGroup(SalesShptLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }
