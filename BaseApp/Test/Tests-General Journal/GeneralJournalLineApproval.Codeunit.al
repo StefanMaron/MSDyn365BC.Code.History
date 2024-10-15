@@ -37,6 +37,7 @@ codeunit 134322 "General Journal Line Approval"
         JournalLineNotApprovedCheckErr: Label 'You cannot use Gen. Journal Line: %1,%2,%3 for this action.\\The restriction was imposed because the line requires approval.';
         JournalBatchNotApprovedCheckErr: Label 'You cannot use Gen. Journal Line: %1,%2,%3 for this action.\\The restriction was imposed because the journal batch requires approval.';
         PreventDeleteRecordWithOpenApprovalEntryForSenderMsg: Label 'You can''t delete a record that has open approval entries. To delete a record, you need to Cancel approval request first.';
+        ImposedRestrictionLbl: Label 'Imposed restriction';
 
     [Test]
     [Scope('OnPrem')]
@@ -1583,6 +1584,44 @@ codeunit 134322 "General Journal Line Approval"
         Assert.AreEqual(ApprovalEntry.Status, ApprovalEntry.Status::Open, '');
     end;
 
+    [Test]
+    procedure ShowImposedRestrictionLineApprovalStatusIfUserModifyGenJournalLineForApprovedApprovalRequest()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Workflow: Record Workflow;
+        ApprovalUserSetup: Record "User Setup";
+        GeneralJournal: TestPage "General Journal";
+        ApprovalStatus: Enum "Approval Status";
+    begin
+        // [SCENARIO 498314] Show imposed restriction line status if user modifies Gen. Journal Line for approved approval request 
+        Initialize();
+        GenJournalTemplate.DeleteAll();
+
+        // [GIVEN] Enable Gen. Journal Batch Approval Workflow
+        LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
+        CreateDirectApprovalEnabledWorkflow(Workflow);
+
+        // [GIVEN] Create Gen. Journal Line
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+          GenJournalLine."Document Type"::" ", LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Create Approval Entry for Gen. Journal Line with a status Approved
+        GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
+        CreateApprovalEntryForCurrentUser(GenJournalLine.RecordId, ApprovalStatus::Approved);
+
+        // [WHEN] Modify a Gen. Journal Line
+        GenJournalLine.Validate(Amount, LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Modify(true);
+
+        // [THEN] Verify result
+        GeneralJournal.OpenView();
+        GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        Assert.AreEqual(ImposedRestrictionLbl, GeneralJournal.GenJnlLineApprovalStatus.Value, 'Imposed restriction is not shown');
+    end;
+
     local procedure Initialize()
     var
         Workflow: Record Workflow;
@@ -2042,6 +2081,31 @@ codeunit 134322 "General Journal Line Approval"
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
         WorkflowStep.FindFirst();
         WorkflowStepArgument.Get(WorkflowStep.Argument);
+    end;
+
+    local procedure CreateApprovalEntryForCurrentUser(RecordID: RecordID; ApprovalStatus: Enum "Approval Status")
+    var
+        ApprovalEntry: Record "Approval Entry";
+    begin
+        ApprovalEntry.Init();
+        ApprovalEntry."Document Type" := ApprovalEntry."Document Type"::" ";
+        ApprovalEntry."Document No." := '';
+        ApprovalEntry."Table ID" := RecordID.TableNo;
+        ApprovalEntry."Record ID to Approve" := RecordID;
+        ApprovalEntry."Approver ID" := UserId;
+        ApprovalEntry.Status := ApprovalStatus;
+        ApprovalEntry."Sequence No." := 1;
+        ApprovalEntry.Insert();
+    end;
+
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
     end;
 
     [PageHandler]

@@ -909,15 +909,15 @@ codeunit 6201 "Non-Ded. VAT Impl."
         BaseAmount := PurchaseLine.Amount;
         GeneralLedgerSetup.Get();
         AdjustVATAmountsWithNonDeductibleVATPct(VATAmount, BaseAmount, NonDeductibleVATAmount, NonDeductibleBaseAmount, PurchaseLine."Non-Deductible VAT %", GeneralLedgerSetup."Amount Rounding Precision", NDVATAmountRounding, NDVATBaseRounding);
-        NonDeductibleVATAmtPerUnit := NonDeductibleVATAmount / PurchaseLine.Quantity;
+        NonDeductibleVATAmtPerUnitLCY := NonDeductibleVATAmount / PurchaseLine.Quantity;
         if PurchaseLine."Currency Code" = '' then
-            NonDeductibleVATAmtPerUnitLCY := NonDeductibleVATAmtPerUnit
+            NonDeductibleVATAmtPerUnit := NonDeductibleVATAmtPerUnitLCY
         else
-            NonDeductibleVATAmtPerUnitLCY :=
-                CurrencyExchangeRate.ExchangeAmtFCYToLCY(
+            NonDeductibleVATAmtPerUnit :=
+                CurrencyExchangeRate.ExchangeAmtLCYToFCY(
                     PurchaseHeader."Posting Date",
                     PurchaseLine."Currency Code",
-                    NonDeductibleVATAmtPerUnit,
+                    NonDeductibleVATAmtPerUnitLCY,
                     PurchaseHeader."Currency Factor");
     end;
 

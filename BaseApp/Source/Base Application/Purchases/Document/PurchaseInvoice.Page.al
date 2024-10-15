@@ -2004,7 +2004,7 @@ page 51 "Purchase Invoice"
         if IsHandled then
             exit;
 
-        if PostingCodeunitID <> CODEUNIT::"Purch.-Post (Yes/No)" then
+                if PostingCodeunitID <> CODEUNIT::"Purch.-Post (Yes/No)" then
             exit;
 
         case Navigate of
@@ -2145,10 +2145,9 @@ page 51 "Purchase Invoice"
     begin
         if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
             PurchInvHeader.SetRange("No.", Rec."Last Posting No.")
-        else begin
+        else
             PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-            PurchInvHeader.SetRange("Order No.", '');
-        end;
+
         if PurchInvHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchaseInvQst, PurchInvHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())
