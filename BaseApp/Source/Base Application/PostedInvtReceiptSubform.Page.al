@@ -177,6 +177,11 @@ page 6568 "Posted Invt. Receipt Subform"
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
+    end;
+
     trigger OnOpenPage()
     begin
         SetDimensionsVisibility();
