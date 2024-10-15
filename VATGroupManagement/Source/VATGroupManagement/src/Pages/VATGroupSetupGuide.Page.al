@@ -117,6 +117,49 @@ page 4705 "VAT Group Setup Guide"
                         VATReportSetup.CalcFields("Approved Members");
                     end;
                 }
+                field(GroupSettlementAccount; GroupSettlementAccount)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Group Settlement Account';
+                    ToolTip = 'Specifies the settlement account for the VAT group member amounts.';
+                    TableRelation = "G/L Account";
+                    trigger OnValidate()
+                    begin
+                        NextEnabled := IsNextEnabledRepresentativeStep();
+                    end;
+                }
+                field(VATSettlementAccount; VATSettlementAccount)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'VAT Settlement Account';
+                    ToolTip = 'Specifies the normal VAT settlement account.';
+                    TableRelation = "G/L Account";
+                    trigger OnValidate()
+                    begin
+                        NextEnabled := IsNextEnabledRepresentativeStep();
+                    end;
+                }
+                field(VATDueBoxNo; VATDueBoxNo)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'VAT Due Box No.';
+                    ToolTip = 'Specifies the box that represents the total due VAT amount from a VAT Group Submission.';
+                    trigger OnValidate()
+                    begin
+                        NextEnabled := IsNextEnabledRepresentativeStep();
+                    end;
+                }
+                field(GroupSettlementGenJnlTempl; GroupSettleGenJnlTempl)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Group Settlement Document Nos.';
+                    ToolTip = 'Specifies the number series used for the document to post the Group VAT to the settlement account.';
+                    TableRelation = "Gen. Journal Template".Name;
+                    trigger OnValidate()
+                    begin
+                        NextEnabled := IsNextEnabledRepresentativeStep();
+                    end;
+                }
             }
             group(MemberSetup)
             {
@@ -138,14 +181,20 @@ page 4705 "VAT Group Setup Guide"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Group Member Id';
-                    ToolTip = 'The group member identifier.';
+                    ToolTip = 'Specifies the group member identifier.';
                     Editable = false;
+                }
+                field(GroupRepresentativeBCVersion; GroupRepresentativeBCVersion)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Group Representative Product Version';
+                    ToolTip = 'Specifies the product version that the group representative uses.';
                 }
                 field(APIURL; APIURL)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'API URL';
-                    ToolTip = 'The API URL of the representative company''s Business Central.';
+                    ToolTip = 'Specifies the API URL of the representative company''s Business Central or Dynamics NAV.';
                     ExtendedDatatype = URL;
                     trigger OnValidate()
                     begin
@@ -156,7 +205,7 @@ page 4705 "VAT Group Setup Guide"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Group Representative Company';
-                    ToolTip = 'The name of the company in the representative''s Business Central that will receive your VAT returns.';
+                    ToolTip = 'Specifies the name of the company in the representative''s Business Central or Dynamics NAV that will receive your VAT returns.';
                     trigger OnValidate()
                     begin
                         NextEnabled := (APIURL <> '') and (GroupRepresentativeCompany <> '');
@@ -459,6 +508,11 @@ page 4705 "VAT Group Setup Guide"
         ResourceURL: Text[250];
         [NonDebuggable]
         GroupRepresentativeCompany: Text[30];
+        VATDueBoxNo: Text[30];
+        GroupSettlementAccount: Code[20];
+        VATSettlementAccount: Code[20];
+        GroupSettleGenJnlTempl: Code[10];
+        GroupRepresentativeBCVersion: Enum "VAT Group BC Version";
         NotSetUpQst: Label 'The setup for the VAT Group is not finished.\\Are you sure you want to exit?';
         NoVATReportSetupErr: Label 'The VAT report setup was not found. You can create one on the VAT Report Setup page.';
         CouldNotModifyVATReportSetupMsg: Label 'Could not save changes to the %1 table.', Comment = '%1 is the name of a table.';
@@ -467,17 +521,19 @@ page 4705 "VAT Group Setup Guide"
 
     trigger OnOpenPage()
     var
-        EnvironmentInfo: Codeunit "Environment Information";
+        EnvironmentInformation: Codeunit "Environment Information";
+        VATGroupHelperFunctions: Codeunit "VAT Group Helper Functions";
     begin
         if not VATReportSetup.Get() then
             Error(NoVATReportSetupErr);
 
         VATReportSetup.CalcFields("Approved Members");
+        GroupRepresentativeBCVersion := VATGroupHelperFunctions.GetVATGroupDefaultBCVersion();
         LoadTopBanners();
         ResetControls();
         MemberIdentifier := CreateGuid();
 
-        IsSaaS := EnvironmentInfo.IsSaaS();
+        IsSaaS := EnvironmentInformation.IsSaaS();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -562,6 +618,9 @@ page 4705 "VAT Group Setup Guide"
             UpdateVATPeriodsReportVersion();
         end;
 
+        if VATGroupRole = VATGroupRole::Representative then
+            SaveRepresentativeValues();
+
         if not VATReportSetup.Modify() then begin
             Message(CouldNotModifyVATReportSetupMsg, VATReportSetup.TableCaption());
             exit;
@@ -637,7 +696,7 @@ page 4705 "VAT Group Setup Guide"
 
     local procedure ShowSetupRepresentativeStep()
     begin
-        NextEnabled := true;
+        NextEnabled := IsNextEnabledRepresentativeStep();
         Clear(VATGroupAuthenticationType);
     end;
 
@@ -682,6 +741,7 @@ page 4705 "VAT Group Setup Guide"
     local procedure SaveMemberValues()
     begin
         VATReportSetup."Group Representative Company" := GroupRepresentativeCompany;
+        VATReportSetup."VAT Group BC Version" := GroupRepresentativeBCVersion;
         VATReportSetup."Group Representative API URL" := APIURL;
         VATReportSetup."Group Member ID" := MemberIdentifier;
         VATReportSetup."Authentication Type" := VATGroupAuthenticationType;
@@ -692,6 +752,14 @@ page 4705 "VAT Group Setup Guide"
         VATReportSetup."Authority URL" := OAuthAuthorityUrl;
         VATReportSetup."Resource URL" := ResourceURL;
         VATReportSetup."Redirect URL" := RedirectURL;
+    end;
+
+    local procedure SaveRepresentativeValues()
+    begin
+        VATReportSetup."VAT Settlement Account" := VATSettlementAccount;
+        VATReportSetup."Group Settlement Account" := GroupSettlementAccount;
+        VATReportSetup."VAT Due Box No." := VATDueBoxNo;
+        VATReportSetup."Group Settle. Gen. Jnl. Templ." := GroupSettleGenJnlTempl;
     end;
 
     local procedure CreateVATReportConfiguration()
@@ -721,4 +789,8 @@ page 4705 "VAT Group Setup Guide"
             exit((APIURL <> '') and (GroupRepresentativeCompany <> '') and (ClientId <> '') and (ClientSecret <> '') and (RedirectURL <> '') and (ResourceURL <> '') and (OAuthAuthorityUrl <> ''));
     end;
 
+    local procedure IsNextEnabledRepresentativeStep(): Boolean
+    begin
+        exit((VATSettlementAccount <> '') and (GroupSettlementAccount <> '') and (GroupSettleGenJnlTempl <> '') and (VATDueBoxNo <> ''));
+    end;
 }

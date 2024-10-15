@@ -98,16 +98,23 @@ table 322 "Tax Detail"
         TaxArea: Record "Tax Area";
         TaxAreaLine: Record "Tax Area Line";
         TaxGroup: Record "Tax Group";
+        TaxSetup: Record "Tax Setup";
     begin
         TaxArea.Get(TaxAreaCode);
         TaxGroup.Get(TaxGroupCode);
+        TaxSetup.Get();
         TaxAreaLine.SetRange("Tax Area", TaxArea.Code);
         if TaxAreaLine.FindSet then
             repeat
-                ApplyCommonFilters(TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode, "Tax Type"::"Sales Tax", EffectiveDate);
-                if not FindFirst then
+                if TaxGroupCode <> TaxSetup."Non-Taxable Tax Group Code" then begin
+                    ApplyCommonFilters(TaxAreaLine."Tax Jurisdiction Code", '', "Tax Type"::"Sales Tax", EffectiveDate);
+                    if not FindFirst() then
+                        ApplyCommonFilters(TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode, "Tax Type"::"Sales Tax", EffectiveDate);
+                end else
+                    ApplyCommonFilters(TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode, "Tax Type"::"Sales Tax", EffectiveDate);
+                if not FindFirst() then
                     SetNewTaxRate(TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode, "Tax Type"::"Sales Tax", EffectiveDate, 0);
-            until TaxAreaLine.Next = 0;
+            until TaxAreaLine.Next() = 0;
     end;
 
     procedure GetSalesTaxRate(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; EffectiveDate: Date; TaxLiable: Boolean): Decimal

@@ -62,6 +62,7 @@ table 4703 "VAT Group Submission Line"
     }
     trigger OnInsert()
     begin
+        TestField("VAT Group Submission ID");
         Rec.ID := CreateGuid();
     end;
 }
