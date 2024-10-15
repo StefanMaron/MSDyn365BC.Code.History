@@ -300,7 +300,7 @@ codeunit 423 "Change Log Management"
         if not IsLogActive(RecRef.Number, 0, 1) then
             exit;
 
-        xRecRef.Open(RecRef.Number);
+        xRecRef.Open(RecRef.Number, false, RecRef.CurrentCompany());
         xRecRef."SecurityFiltering" := SECURITYFILTER::Filtered;
         if xRecRef.ReadPermission then begin
             IsReadable := true;
