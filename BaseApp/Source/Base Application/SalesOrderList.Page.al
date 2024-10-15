@@ -281,12 +281,12 @@ page 9305 "Sales Order List"
                 field(Amount; Amount)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the sum of amounts in the Line Amount field on the sales order lines.';
+                    ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the total of the amounts, including VAT, on all the lines on the document.';
+                    ToolTip = 'Specifies the sum of amounts, including VAT, on all the lines in the document. This will include invoice discounts.';
                 }
                 field("Posting Description"; "Posting Description")
                 {

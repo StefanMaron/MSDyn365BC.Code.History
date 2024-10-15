@@ -27,7 +27,7 @@ codeunit 1336 "Item Templ. Mgt."
         InitItemNo(Item, ItemTempl);
         Item.Insert(true);
 
-        ApplyItemTemplate(Item, ItemTempl);
+        ApplyItemTemplate(Item, ItemTempl, true);
 
         exit(true);
     end;
@@ -60,7 +60,9 @@ codeunit 1336 "Item Templ. Mgt."
         EmptyItemTemplFldRef: FieldRef;
         i: Integer;
         FieldExclusionList: List of [Integer];
+        FieldValidationList: List of [Integer];
     begin
+        CheckItemTemplRoundingPrecision(ItemTempl);
         ItemRecRef.GetTable(Item);
         InventorySetup.Get();
         TempItem.Init();
@@ -78,10 +80,19 @@ codeunit 1336 "Item Templ. Mgt."
                 ItemFldRef := ItemRecRef.Field(ItemTemplFldRef.Number);
                 EmptyItemFldRef := EmptyItemRecRef.Field(ItemTemplFldRef.Number);
                 EmptyItemTemplFldRef := EmptyItemTemplRecRef.Field(ItemTemplFldRef.Number);
-                if (ItemFldRef.Value = EmptyItemFldRef.Value) and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value) or UpdateExistingValues then
+                if UpdateExistingValues or (not UpdateExistingValues and (ItemFldRef.Value = EmptyItemFldRef.Value) and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value)) then begin
                     ItemFldRef.Value := ItemTemplFldRef.Value;
+                    FieldValidationList.Add(ItemTemplFldRef.Number);
+                end;
             end;
         end;
+
+        for i := 1 to FieldValidationList.Count do begin
+            ItemTemplFldRef := ItemTemplRecRef.Field(FieldValidationList.Get(i));
+            ItemFldRef := ItemRecRef.Field(ItemTemplFldRef.Number);
+            ItemFldRef.Validate(ItemTemplFldRef.Value);
+        end;
+
         ItemRecRef.SetTable(Item);
         if ItemTempl."Base Unit of Measure" <> '' then
             Item.Validate("Base Unit of Measure", ItemTempl."Base Unit of Measure")
@@ -380,6 +391,22 @@ codeunit 1336 "Item Templ. Mgt."
         OnBeforeGetUpdateExistingValuesParam(Result, IsHandled);
         if not IsHandled then
             Result := ConfirmManagement.GetResponseOrDefault(UpdateExistingValuesQst, false);
+    end;
+
+    local procedure CheckItemTemplRoundingPrecision(var ItemTempl: Record "Item Templ.")
+    var
+        ModifyTemplate: Boolean;
+    begin
+        if ItemTempl."Rounding Precision" = 0 then begin
+            ItemTempl."Rounding Precision" := 1;
+            ModifyTemplate := true;
+        end;
+        if (ItemTempl.Type = ItemTempl.Type::Service) and (ItemTempl.Reserve <> ItemTempl.Reserve::Never) then begin
+            ItemTempl.Reserve := ItemTempl.Reserve::Never;
+            ModifyTemplate := true;
+        end;
+        if ModifyTemplate then
+            ItemTempl.Modify();
     end;
 
     [IntegrationEvent(false, false)]

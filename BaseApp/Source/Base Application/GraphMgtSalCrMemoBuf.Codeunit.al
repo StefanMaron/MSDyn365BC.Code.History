@@ -967,14 +967,14 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         CompletelyShipped: Boolean;
     begin
-        SearchSalesLine.Copy(SalesLine);
+        SearchSalesLine.CopyFilters(SalesLine);
         SearchSalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SearchSalesLine.SetRange("Document No.", SalesLine."Document No.");
         SearchSalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
         SearchSalesLine.SetRange("Location Code", SalesLine."Location Code");
         SearchSalesLine.SetRange("Completely Shipped", false);
 
-        CompletelyShipped := not SearchSalesLine.FindFirst;
+        CompletelyShipped := SearchSalesLine.IsEmpty();
 
         if not SalesCrMemoEntityBuffer.Get(SalesLine."Document No.") then
             exit;
