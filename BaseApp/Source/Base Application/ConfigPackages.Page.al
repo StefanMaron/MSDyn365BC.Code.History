@@ -327,9 +327,12 @@ page 8615 "Config. Packages"
     var
         ConfigurationPackageFile: Record "Configuration Package File";
         ConfigPackage: Record "Config. Package";
+        ConfigPackageMgt: Codeunit "Config. Package Management";
     begin
         ImportPredefinedPackageVisible := not ConfigurationPackageFile.IsEmpty;
         AditionalOptionsEnabled := ConfigPackage.WritePermission;
+        ConfigPackageMgt.ShowRapidStartNotification();
+        ConfigPackageMgt.ShowDateTimeEvaluationChangeNotification();
     end;
 
     var

@@ -927,25 +927,27 @@ codeunit 136610 "ERM RS Package Base Operations"
     procedure VerifyGetRelationTablesIDConfigPackageFieldMultiRelation()
     var
         ConfigPackageField: Record "Config. Package Field";
-        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
         ActualResult: Text;
     begin
         // [FEATURE] [UT]
         // [SCENARIO 217835] If field of table has 2 or more related tables then "Config. Package Field"."GetRelationTablesID" for that field return a list of related tables
         Initialize;
 
-        // [GIVEN] Field with multi related tables (Table 27 (Item), Field 5425 (Sales Unit of Measure))
-        // [GIVEN] Related tables Unit of Measure (204) and Item Unit of Measure (5404)
+        // [GIVEN] Field with multi related tables (Table "Item Journal Line", Field "Source No.")
+        // [GIVEN] Related tables: Customer, Vendor, Item.
 
-        // [GIVEN] Config. Package Field for field "Sales Unit of Measure"
-        ConfigPackageField."Table ID" := DATABASE::Item;
-        ConfigPackageField."Field ID" := Item.FieldNo("Sales Unit of Measure");
+        // [GIVEN] Config. Package Field for field "Source No."
+        ConfigPackageField."Table ID" := DATABASE::"Item Journal Line";
+        ConfigPackageField."Field ID" := ItemJournalLine.FieldNo("Source No.");
 
         // [WHEN] Invoke "Config. Package Field"."GetRelationTablesID"
         ActualResult := ConfigPackageField.GetRelationTablesID;
 
-        // [THEN] Result = '5404|204'
-        Assert.AreEqual('5404|204', ActualResult, 'Wrong list of related tables.');
+        // [THEN] Result = '18|23|27'.
+        Assert.IsTrue(
+          StrPos(ActualResult, StrSubstNo('%1|%2|%3', DATABASE::Customer, DATABASE::Vendor, DATABASE::Item)) > 0,
+          'Wrong list of related tables.');
     end;
 
     [Test]
@@ -954,19 +956,27 @@ codeunit 136610 "ERM RS Package Base Operations"
     var
         ConfigPackageField: Record "Config. Package Field";
         Item: Record Item;
-        ActualResult: Text;
     begin
         // [FEATURE] [UT]
         // [SCENARIO 217835] If field of table has 1 related tables then "Config. Package Field"."GetRelationTablesID" for that field return a ID of related table
         Initialize;
 
         ConfigPackageField."Table ID" := DATABASE::Item;
+
+        // [THEN] Table relation for Item."Base Unit of Measure" field is "Unit of Measure" table.
         ConfigPackageField."Field ID" := Item.FieldNo("Base Unit of Measure");
+        Assert.AreEqual(
+          Format(DATABASE::"Unit of Measure"), ConfigPackageField.GetRelationTablesID(), 'Wrong list of related tables.');
 
-        ActualResult := ConfigPackageField.GetRelationTablesID;
+        // [THEN] Table relation for Item."Sales Unit of Measure" field is "Item Unit of Measure" table.
+        ConfigPackageField."Field ID" := Item.FieldNo("Sales Unit of Measure");
+        Assert.AreEqual(
+          Format(DATABASE::"Item Unit of Measure"), ConfigPackageField.GetRelationTablesID(), 'Wrong list of related tables.');
 
-        // [THEN] Result = '204'
-        Assert.AreEqual('204', ActualResult, 'Wrong list of related tables.');
+        // [THEN] Table relation for Item."Purch. Unit of Measure" field is "Item Unit of Measure" table.
+        ConfigPackageField."Field ID" := Item.FieldNo("Purch. Unit of Measure");
+        Assert.AreEqual(
+          Format(DATABASE::"Item Unit of Measure"), ConfigPackageField.GetRelationTablesID(), 'Wrong list of related tables.');
     end;
 
     [Test]

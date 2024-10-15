@@ -3014,7 +3014,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SupplyInvtProfile.Copy(xSupply2);
     end;
 
-    local procedure PostInvChgReminder(var TempReminderInvtProfile: Record "Inventory Profile" temporary; InvProfile: Record "Inventory Profile"; PostOnlyMinimum: Boolean)
+    local procedure PostInvChgReminder(var TempReminderInvtProfile: Record "Inventory Profile" temporary; var InvProfile: Record "Inventory Profile"; PostOnlyMinimum: Boolean)
     begin
         // Update information on changes in the Projected Inventory over time
         // Only the quantity that is known for sure should be posted
