@@ -1840,6 +1840,48 @@ codeunit 134994 "ERM Account Schedule II"
         // check that request page has correct data
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanRunFinancialReportEditRowDefinition_WithoutFinancialReportingSetupInGeneralLedgerSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        FinancialReports: TestPage "Financial Reports";
+        AccountSchedule: TestPage "Account Schedule";
+    begin
+        // [FEATURE] [Financial Report]
+        // [SCENARIO 452575] Financial Report Edit Row Definition should run without General Ledger Setup Financial Reporting definition
+        Initialize();
+
+        // [GIVEN] Clear "General Ledger Setup" of Financial Reporting Codes definition
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Fin. Rep. for Balance Sheet", '');
+        GeneralLedgerSetup.Validate("Fin. Rep. for Income Stmt.", '');
+        GeneralLedgerSetup.Validate("Fin. Rep. for Cash Flow Stmt", '');
+        GeneralLedgerSetup.Validate("Fin. Rep. for Retained Earn.", '');
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Create "Account Schedule" with at least one line in definition
+        // CreateAccScheduleName first creates "Account Schedule" and then creates "Financial Report" with "Account Schedule" as Row Definition ("Financial Report Row Group").
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+
+        // [GIVEN] Open "Financial Reports" page
+        FinancialReports.OpenView();
+
+        // [GIVEN] Position to created "Financial Report"        
+        FinancialReports.GoToKey(AccScheduleName.Name);
+
+        // [WHEN] Run "Edit Row Definition" action
+        AccountSchedule.Trap();
+        FinancialReports.EditRowGroup.Invoke();
+
+        // [THEN] "Account Schedule" page for "Financial Report Row Group" is opened
+        AccountSchedule.CurrentSchedName.AssertEquals(FinancialReports."Financial Report Row Group".Value());
+        AccountSchedule.Close();
+    end;
+
     local procedure Initialize()
     var
         FinancialReportMgt: Codeunit "Financial Report Mgt.";

@@ -82,11 +82,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     end;
 
     procedure FindTrackingRecords(var ItemFilters: Record Item)
+    var
+        FiltersAreEmpty: Boolean;
     begin
-        if (ItemFilters.GetFilter("Serial No. Filter") = '') and
-           (ItemFilters.GetFilter("Lot No. Filter") = '') and
-           (ItemFilters.GetFilter("Package No. Filter") = '')
-        then
+        FiltersAreEmpty := (ItemFilters.GetFilter("Serial No. Filter") = '') and (ItemFilters.GetFilter("Lot No. Filter") = '') and (ItemFilters.GetFilter("Package No. Filter") = '');
+        OnFindTrackingRecordsOnAfterCalcFiltersAreEmpty(ItemFilters, FiltersAreEmpty);
+        if FiltersAreEmpty then
             exit;
 
         FindItemLedgerEntry(ItemFilters);
@@ -1277,8 +1278,11 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         KeyFldRef: FieldRef;
         KeyRef1: KeyRef;
         i: Integer;
+        SkipProcedure: Boolean;
     begin
-        if not ItemTrackingSetup.TrackingExists() then
+        SkipProcedure := not ItemTrackingSetup.TrackingExists();
+        OnInsertBufferRecOnAfterCalcSkipProcedure(VariantCode, SkipProcedure);
+        if SkipProcedure then
             exit;
 
         TempRecordBuffer.SetRange("Record Identifier", RecRef.RecordId);
@@ -1430,6 +1434,11 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFindTrackingRecordsOnAfterCalcFiltersAreEmpty(var ItemFilters: Record Item; var FiltersAreEmpty: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFindTrackingRecordsForItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -1446,6 +1455,11 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
     [IntegrationEvent(true, false)]
     local procedure OnFindReservEntryOnBeforeCaseDocumentType(var ReservationEntry: Record "Reservation Entry"; RecRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertBufferRecOnAfterCalcSkipProcedure(VariantCode: Code[10]; var SkipProcedure: Boolean)
     begin
     end;
 }

@@ -158,7 +158,7 @@ report 10617 "Vendor - Open Entries"
                         VendorEntryDueDate := "Due Date";
 
                     if UseExternalDocNo then
-                        "Document No." := "External Document No."
+                        "Document No." := CopyStr("External Document No.", 1, MaxStrLen("Document No."));
                 end;
 
                 trigger OnPreDataItem()

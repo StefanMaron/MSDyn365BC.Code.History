@@ -723,6 +723,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         if IsInvtMovement then
             JobPlanningLine.SetFilter("Bin Code", '<>%1', '');
         JobPlanningLine.SetFilter("Remaining Qty.", '>0');
+        OnSetFilterJobPlanningLineOnBeforeJobPlanningLineFind(JobPlanningLine, Job, WhseActivHeader);
         exit(JobPlanningLine.Find('-'));
     end;
 
@@ -2255,6 +2256,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetFilterInternalMomementOnAfterSetFilters(var InternalMovementLine: Record "Internal Movement Line"; InternalMovementHeader: Record "Internal Movement Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFilterJobPlanningLineOnBeforeJobPlanningLineFind(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; var WhseActivHeader: Record "Warehouse Activity Header")
     begin
     end;
 

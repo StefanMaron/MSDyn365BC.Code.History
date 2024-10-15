@@ -266,7 +266,7 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -285,21 +285,29 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
-        if Find(Which) then begin
+        IsHandled := false;
+        OnFindRecordOnBeforeFind(Rec, Which, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if Rec.Find(Which) then begin
             SalesCrMemoLine := Rec;
             while true do begin
                 ShowRec := IsShowRec(Rec);
                 if ShowRec then
                     exit(true);
-                if Next(1) = 0 then begin
+                if Rec.Next(1) = 0 then begin
                     Rec := SalesCrMemoLine;
-                    if Find(Which) then
+                    if Rec.Find(Which) then
                         while true do begin
                             ShowRec := IsShowRec(Rec);
                             if ShowRec then
                                 exit(true);
-                            if Next(-1) = 0 then
+                            if Rec.Next(-1) = 0 then
                                 exit(false);
                         end;
                 end;
@@ -415,6 +423,11 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsShowRec(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var SalesCrMemoLine2: Record "Sales Cr.Memo Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordOnBeforeFind(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var Which: Text; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

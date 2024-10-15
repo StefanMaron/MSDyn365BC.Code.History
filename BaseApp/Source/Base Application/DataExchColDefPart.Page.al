@@ -102,6 +102,11 @@ page 1216 "Data Exch Col Def Part"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the element is epmty if equal to 0.';
                 }
+                field("Export If Not Blank"; Rec."Export If Not Blank")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the value of this column must be exported only if it is not blank.';
+                }
             }
         }
     }

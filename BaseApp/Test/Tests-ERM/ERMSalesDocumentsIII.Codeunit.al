@@ -65,8 +65,9 @@ codeunit 134387 "ERM Sales Documents III"
         WrongReportInvokedErr: Label 'Wrong report invoked.';
         ConfirmSendPostedShipmentQst: Label 'You can take the same actions for the related Sales - Shipment document.\\Do you want to do that now?';
         LinesNotUpdatedMsg: Label 'You have changed Language Code on the sales header, but it has not been changed on the existing sales lines.';
-        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.';
+        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the sales header, which might affect the prices and discounts on the sales lines.';
         UpdateManuallyMsg: Label 'You must update the existing sales lines manually.';
+        ReviewLinesManuallyMsg: Label ' You should review the lines and manually update prices and discounts if needed.';
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the sales lines.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         TaxAreaCodeInvalidErr: Label 'The Tax Area does not exist. Identification fields and values: Code=''%1''';
@@ -4038,6 +4039,7 @@ codeunit 134387 "ERM Sales Documents III"
     procedure WarningMessageWhenPostingDateIsUpdatedWithoutCurrency()
     var
         SalesHeader: Record "Sales Header";
+        MessageText: Text;
     begin
         // [FEATURE] [UT] [Message] [FCY]
         // [SCENARIO 282342] Warning message that Sales Lines were not updated do not unclude currency related text when currency is not used
@@ -4046,10 +4048,11 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesInvoice(SalesHeader);
         SalesHeader.Validate("Posting Date", WorkDate + 1);
 
+        MessageText := StrSubstNo(LinesNotUpdatedDateMsg, SalesHeader.FieldCaption("Posting Date"));
+        MessageText := MessageText + ReviewLinesManuallyMsg;
+
         // A message is captured by MessageCaptureHandler
-        Assert.ExpectedMessage(
-          StrSubstNo(LinesNotUpdatedDateMsg, SalesHeader.FieldCaption("Posting Date")),
-          LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(MessageText, LibraryVariableStorage.DequeueText);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -4076,6 +4079,7 @@ codeunit 134387 "ERM Sales Documents III"
 
         // A message is captured by MessageCaptureHandler
         MessageText := StrSubstNo(LinesNotUpdatedDateMsg, SalesHeader.FieldCaption("Posting Date"));
+        MessageText := MessageText + ReviewLinesManuallyMsg;
         MessageText := StrSubstNo(SplitMessageTxt, MessageText, AffectExchangeRateMsg);
         Assert.ExpectedMessage(MessageText, LibraryVariableStorage.DequeueText);
 

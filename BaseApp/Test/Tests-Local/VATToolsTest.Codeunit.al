@@ -1376,6 +1376,7 @@ codeunit 144001 "VAT Tools Test"
         with VATEntry do begin
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FIELDNO("Entry No."));
             "Posting Date" := PostingDate;
+            "VAT Reporting Date" := PostingDate;
             Closed := FALSE;
             "VAT Code" := VATCode;
             Amount := LibraryRandom.RandDec(1000, 2);

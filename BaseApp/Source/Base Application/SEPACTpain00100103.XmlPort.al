@@ -442,7 +442,14 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                             }
 
                             trigger OnBeforePassVariable()
+                            var
+                                IsHandled: Boolean;
                             begin
+                                IsHandled := false;
+                                OnBeforePassVariableRmtInf(PaymentExportData, RemittanceText1, IsHandled);
+                                if IsHandled then
+                                    exit;
+
                                 RemittanceText1 := '';
                                 RemittanceText2 := '';
                                 TempPaymentExportRemittanceText.SetRange("Pmt. Export Data Entry No.", PaymentExportData."Entry No.");
@@ -558,6 +565,11 @@ xmlport 1000 "SEPA CT pain.001.001.03"
           CopyStr(
             StrSubstNo('%1/%2', PaymentExportData."Message ID", PaymentGroupNo),
             1, MaxStrLen(PaymentExportDataGroup."Payment Information ID"));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePassVariableRmtInf(PaymentExportData: Record "Payment Export Data"; var RemittanceText: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

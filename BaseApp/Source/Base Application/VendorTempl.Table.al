@@ -125,7 +125,7 @@ table 1383 "Vendor Templ."
         field(29; "Purchaser Code"; Code[20])
         {
             Caption = 'Purchaser Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
         }
         field(30; "Shipment Method Code"; Code[10])
         {

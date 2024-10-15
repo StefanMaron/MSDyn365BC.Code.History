@@ -455,7 +455,7 @@ report 1001 "Inventory Valuation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetRecordItemOnBeforeSkipEmptyLine(var Item: Record Item; StartingInvoicedQty: Decimal; IncreaseInvoicedQty: Decimal; DecreaseInvoicedQty: Decimal; var IsHandled: Boolean; var IsEmptyLine: Boolean)
+    local procedure OnAfterGetRecordItemOnBeforeSkipEmptyLine(var Item: Record Item; var StartingInvoicedQty: Decimal; var IncreaseInvoicedQty: Decimal; var DecreaseInvoicedQty: Decimal; var IsHandled: Boolean; var IsEmptyLine: Boolean)
     begin
     end;
 
