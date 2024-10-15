@@ -1166,6 +1166,86 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         Assert.AreEqual(BankAccReconciliation."Statement Date", ResultDate, '');
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DontAcceptRandomDigitsOrderAsMatchDocNo()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        PostingDate: Date;
+        BankAccountNo: Code[20];
+        StatementNo: Code[20];
+        DocumentNo: Code[20];
+        Description: Text[50];
+        DocumentNoAsInt: Integer;
+        GibberishText: Text;
+        Amount: Decimal;
+        BankAccReconciliationLineNo: Integer;
+    begin
+        //[SCENARIO 458926] Bank Acc Reconciliation Auto-match doesn't consider partial substrings of lower length in random orders as matching DocNo -> Desc
+        Initialize();
+
+        // [GIVEN] Prepare data for Amount, Description and DocumentNo
+        CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
+        GenerateNonMatchingNumberAndText(DocumentNoAsInt, GibberishText);
+
+        // [GIVEN] Bank Acc Ledger Enrty exists with DocumentNo = "123456"
+        DocumentNo := Format(DocumentNoAsInt);
+        CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, '');
+
+        // [GIVEN] Bank Account Reconcilition for this bank is created
+        CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
+
+        // [GIVEN] Create a Bank Acc Reconciliation Line with Description = "xx56yy34zz12", Amount not matching
+        BankAccReconciliationLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, GibberishText, '', 2 * Amount);
+
+        // [WHEN] Executing automatch for Bank Acc Reconciliation
+        BankAccReconciliation.MatchSingle(0);
+
+        // [THEN] No match is produced
+        VerifyNoMatch(BankAccReconciliation, BankAccReconciliationLineNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DontAcceptRandomDigitsOrderAsMatchDesc()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        PostingDate: Date;
+        BankAccountNo: Code[20];
+        StatementNo: Code[20];
+        DocumentNo: Code[20];
+        Description: Text[50];
+        DocumentNoAsInt: Integer;
+        GibberishText: Text;
+        Amount: Decimal;
+        BankAccReconciliationLineNo: Integer;
+    begin
+        //[SCENARIO 458926] Bank Acc Reconciliation Auto-match doesn't consider partial substrings of lower length in random orders as matching Desc -> Desc
+        Initialize();
+
+        // [GIVEN] Prepare data for Amount, Description and DocumentNo
+        CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
+        GenerateNonMatchingNumberAndText(DocumentNoAsInt, GibberishText);
+
+        // [GIVEN] Bank Acc Ledger Enrty exists with Desc = "123456"
+        DocumentNo := Format(DocumentNoAsInt);
+        CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, DocumentNo);
+
+        // [GIVEN] Bank Account Reconcilition for this bank is created
+        CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
+
+        // [GIVEN] Create a Bank Acc Reconciliation Line with Description = "xx56yy34zz12", Amount not matching
+        BankAccReconciliationLineNo := CreateBankAccRecLine(BankAccReconciliation, PostingDate, GibberishText, '', 2 * Amount);
+
+        // [WHEN] Executing automatch for Bank Acc Reconciliation
+        BankAccReconciliation.MatchSingle(0);
+
+        // [THEN] No match is produced
+        VerifyNoMatch(BankAccReconciliation, BankAccReconciliationLineNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -1300,6 +1380,35 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         BankAccountLedgerEntry.Insert();
 
         exit(BankAccountLedgerEntry."Entry No.");
+    end;
+
+    local procedure GenerateNonMatchingNumberAndText(var Number: Integer; var GeneratedText: Text)
+    var
+        SmallNumber: Integer;
+        i: Integer;
+        Multiplier: Integer;
+    begin
+        // This will generate a random number that looks like 12345678 and 'matching' text that looks like 'bb78cc56dd34ee12'
+        Multiplier := 1;
+        for i := 1 to 4 do begin
+            SmallNumber := LibraryRandom.RandIntInRange(10, 99);
+            Number := Number + Multiplier * SmallNumber;
+            GeneratedText := GeneratedText + LibraryUtility.GenerateRandomAlphabeticText(2, 0) + Format(SmallNumber);
+            Multiplier := Multiplier * 100;
+        end;
+    end;
+
+    local procedure VerifyNoMatch(BankAccReconciliation: Record "Bank Acc. Reconciliation"; ExpRecLineNo: Integer)
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        BankAccReconciliationLine.Get(
+          BankAccReconciliation."Statement Type",
+          BankAccReconciliation."Bank Account No.",
+          BankAccReconciliation."Statement No.",
+          ExpRecLineNo);
+
+        BankAccReconciliationLine.TestField("Applied Entries", 0);
     end;
 
     local procedure VerifyOneToOneMatch(BankAccReconciliation: Record "Bank Acc. Reconciliation"; ExpRecLineNo: Integer; ExpBankEntryNo: Integer; ExpAmount: Decimal)

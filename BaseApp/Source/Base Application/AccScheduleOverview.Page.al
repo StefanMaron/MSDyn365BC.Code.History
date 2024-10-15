@@ -12,6 +12,8 @@ page 490 "Acc. Schedule Overview"
     SourceTable = "Acc. Schedule Line";
     AboutTitle = 'About financial report';
     AboutText = 'On this page, you can build financial reports based on your choice of column and row definitions';
+    RefreshOnActivate = true;
+
     layout
     {
         area(content)
@@ -760,13 +762,60 @@ page 490 "Acc. Schedule Overview"
                 Caption = 'Restore to default filters';
                 Image = Restore;
                 ToolTip = 'Restore the user defined filters to the default filters stored on the financial report';
+                Visible = ViewOnlyMode;
 
                 trigger OnAction()
                 begin
-                    if ViewOnlyMode then
-                        RestoreFinancialReportUserFilters()
-                    else
-                        LoadPageState();
+                    RestoreFinancialReportUserFilters();
+                end;
+            }
+            action(EditDefinition)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Edit financial report';
+                Image = Edit;
+                ToolTip = 'Edit the definition for all users';
+                Enabled = ViewOnlyMode;
+
+                trigger OnAction()
+                var
+                    AccScheduleOverview: Page "Acc. Schedule Overview";
+                begin
+                    CurrPage.Close();
+                    AccScheduleOverview.SetViewOnlyMode(false);
+                    AccScheduleOverview.SetFinancialReportName(TempFinancialReport.Name);
+                    AccScheduleOverview.Run();
+                end;
+            }
+            action(EditRowDefinition)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Row definition';
+                Image = Edit;
+                ToolTip = 'Edit the row definition of this financial report.';
+
+                trigger OnAction()
+                var
+                    AccSchedule: Page "Account Schedule";
+                begin
+                    AccSchedule.SetAccSchedName(TempFinancialReport."Financial Report Row Group");
+                    AccSchedule.Run();
+                end;
+            }
+
+            action(EditColumnDefinition)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Column definition';
+                Image = SetupColumns;
+                ToolTip = 'Create or edit the column definition of this financial report.';
+
+                trigger OnAction()
+                var
+                    ColumnLayout: Page "Column Layout";
+                begin
+                    ColumnLayout.SetColumnLayoutName(TempFinancialReport."Financial Report Column Group");
+                    ColumnLayout.Run();
                 end;
             }
 
@@ -824,6 +873,20 @@ page 490 "Acc. Schedule Overview"
                 actionref(Print_Promoted; Print)
                 {
                 }
+                actionref(EditDefinition_Promoted; EditDefinition)
+                {
+                }
+            }
+            group(Category_Definitions)
+            {
+                Caption = 'Definitions';
+
+                actionref(EditRowDefinition_Promoted; EditRowDefinition)
+                {
+                }
+                actionref(EditColumnDefinition_Promoted; EditColumnDefinition)
+                {
+                }
             }
             group(Category_Category4)
             {
@@ -874,8 +937,6 @@ page 490 "Acc. Schedule Overview"
         if not ViewOnlyMode then begin
             if not StateHasUserChanges() then
                 exit;
-            if not Confirm(WouldYouLikeToSaveChangesMsg) then
-                exit;
             SaveStateToFinancialReport();
             RemoveUserFilters();
             exit;
@@ -920,10 +981,14 @@ page 490 "Acc. Schedule Overview"
     end;
 
     trigger OnOpenPage()
+    var
+        EditModeNotification: Notification;
     begin
-        if not ViewOnlyModeSet then
-            ViewOnlyMode := true;
-        LoadPageState();
+        EditModeNotification.Message := EditModeMessage;
+        EditModeNotification.Scope := NotificationScope::LocalScope;
+        ReloadPage();
+        if not ViewOnlyMode then
+            EditModeNotification.Send();
     end;
 
     var
@@ -956,7 +1021,7 @@ page 490 "Acc. Schedule Overview"
         // Constants
         Text000Tok: Label 'DEFAULT', MaxLength = 10;
         Text005Tok: Label '1,6,,Dimension %1 Filter';
-        WouldYouLikeToSaveChangesMsg: Label 'You have changed the filters used in this financial report. Do you wish to save the changes?';
+        EditModeMessage: Label 'All changes made to this page are permanent and visible to all users immediately';
         // Other page state
         [InDataSet]
         Dim1FilterEnable: Boolean;
@@ -1029,6 +1094,13 @@ page 490 "Acc. Schedule Overview"
     begin
         ViewOnlyMode := NewViewOnlyMode;
         ViewOnlyModeSet := true;
+    end;
+
+    local procedure ReloadPage()
+    begin
+        if not ViewOnlyModeSet then
+            ViewOnlyMode := true;
+        LoadPageState();
     end;
 
     local procedure LoadPageState()
@@ -1654,10 +1726,10 @@ page 490 "Acc. Schedule Overview"
     begin
         GLSetup.Get();
         AddCurrency := TempFinancialReport.UseAmountsInAddCurrency and (GLSetup."Additional Reporting Currency" <> '');
-        Result := (MatrixMgt.FormatRoundingFactor(ColumnLayoutArr[ColumnNo]."Rounding Factor", UseAmtsInAddCurr));
         OnAfterFormatStr(ColumnLayoutArr, UseAmtsInAddCurr, ColumnNo, Result, IsHandled);
         if IsHandled then
             exit(Result);
+        exit(MatrixMgt.FormatRoundingFactor(ColumnLayoutArr[ColumnNo]."Rounding Factor", UseAmtsInAddCurr));
     end;
 
 #if not CLEAN19

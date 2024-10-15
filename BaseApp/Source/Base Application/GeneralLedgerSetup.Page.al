@@ -45,7 +45,6 @@
                     begin
                         if Rec."VAT Reporting Date Usage" = Rec."VAT Reporting Date Usage"::Disabled then
                             Rec."VAT Reporting Date" := Rec."VAT Reporting Date"::"Posting Date";
-                        CurrPage.Update(false);
                     end;
                 }
                 group(VATReportingDateGroup) 

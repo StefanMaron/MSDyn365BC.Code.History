@@ -632,6 +632,8 @@
 
             CheckWHTApplication(SalesHeader);
 
+            GenJnlCheckLine.CheckVATDateAllowed("VAT Reporting Date");
+
             if LogErrorMode then
                 SetLogErrorModePostingFlags(SalesHeader)
             else
@@ -918,7 +920,7 @@
                         end;
                         IsHandled := false;
                         OnBeforeSalesCrMemoLineInsert(
-                            SalesCrMemoLine, SalesCrMemoHeader, xSalesLine, SuppressCommit, IsHandled, SalesHeader, SalesShptHeader, ReturnRcptHeader);
+                            SalesCrMemoLine, SalesCrMemoHeader, xSalesLine, SuppressCommit, IsHandled, SalesHeader, SalesShptHeader, ReturnRcptHeader, SalesLine);
                         if IsHandled then
                             exit;
                         if not IsNullGuid(xSalesLine.SystemId) then begin
@@ -1588,7 +1590,7 @@
                     PostWhseJnlLine := true;
                 end;
 
-            OnPostItemJnlLineOnBeforeTransferReservToItemJnlLine(SalesLine, ItemJnlLine, CheckApplFromItemEntry, TrackingSpecification);
+            OnPostItemJnlLineOnBeforeTransferReservToItemJnlLine(SalesLine, ItemJnlLine, CheckApplFromItemEntry, TrackingSpecification, QtyToBeShippedBase);
 
             if QtyToBeShippedBase <> 0 then begin
                 if SalesLine.IsCreditDocType() then
@@ -1602,7 +1604,7 @@
             end;
         end;
 
-        OnAfterPostItemJnlLineBeforePost(ItemJnlLine, SalesLine, QtyToBeShippedBase, ItemJnlPostLine);
+        OnAfterPostItemJnlLineBeforePost(ItemJnlLine, SalesLine, QtyToBeShippedBase, ItemJnlPostLine, CheckApplFromItemEntry, TrackingSpecification);
     end;
 
     procedure ShouldPostWhseJnlLine(SalesLine: Record "Sales Line") Result: Boolean
@@ -2648,6 +2650,7 @@
             if (Type = Type::Item) or (Type = Type::"G/L Account") or (Type = Type::" ") then
                 if "Job Contract Entry No." > 0 then
                     PostJobContractLine(SalesHeader, SalesLine);
+            OnUpdateSalesLineBeforePostOnAfterPostJobContractLine(SalesInvHeader, SalesCrMemoHeader, SalesHeader, SalesLine);
             if Type = Type::Resource then
                 JobTaskSalesLine := SalesLine;
 
@@ -2759,6 +2762,7 @@
                     OnDeleteAfterPostingOnAfterDeleteLinks(TempSalesLine);
                 until TempSalesLine.Next() = 0;
 
+            SalesLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
             SalesLine.SetRange("Document Type", "Document Type");
             SalesLine.SetRange("Document No.", "No.");
             OnBeforeSalesLineDeleteAll(SalesLine, SuppressCommit, SalesHeader);
@@ -2775,6 +2779,7 @@
 
     local procedure FinalizePosting(var SalesHeader: Record "Sales Header"; EverythingInvoiced: Boolean; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         TempSalesLine: Record "Sales Line" temporary;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
@@ -2831,7 +2836,7 @@
                             until TempSalesLine.Next() = 0;
                         if ("Document Type" = "Document Type"::Order) and SalesSetup."Archive Orders" then begin
                             PostUpdateOrderLine(SalesHeader);
-                            if not OrderArchived then begin
+                            if (not OrderArchived) or (OrderArchived and CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled()) then begin
                                 ArchiveManagement.AutoArchiveSalesDocument(SalesHeader);
                                 OrderArchived := true;
                             end;
@@ -3597,8 +3602,10 @@
                     end;
                     if InsertSalesLine then begin
                         NewSalesLine := SalesLine;
-                        OnSumSalesLines2OnBeforeNewSalesLineInsert(NewSalesLine);
-                        NewSalesLine.Insert();
+                        IsHandled := false;
+                        OnSumSalesLines2OnBeforeNewSalesLineInsert(NewSalesLine, IsHandled);
+                        if not IsHandled then
+                            NewSalesLine.Insert();
                     end;
                     if RoundingLineInserted then
                         LastLineRetrieved := true
@@ -8005,12 +8012,13 @@
                           TempDropShptPostBuffer."Order No.", TempDropShptPostBuffer."Order Line No.");
                         InsertPurchRcptLine(PurchRcptHeader, PurchOrderLine, TempDropShptPostBuffer);
                         PurchPost.UpdateBlanketOrderLine(PurchOrderLine, true, false, false);
-                        OnPostDropOrderShipmentOnAfterUpdateBlanketOrderLine(PurchOrderHeader, PurchOrderLine, TempDropShptPostBuffer, SalesShptHeader);
+                        OnPostDropOrderShipmentOnAfterUpdateBlanketOrderLine(PurchOrderHeader, PurchOrderLine, TempDropShptPostBuffer, SalesShptHeader, SalesHeader, PurchRcptHeader, TempTrackingSpecification);
                     until TempDropShptPostBuffer.Next() = 0;
                     TempDropShptPostBuffer.SetRange("Order No.");
                     OnAfterInsertDropOrderPurchRcptHeader(PurchRcptHeader);
                 until TempDropShptPostBuffer.Next() = 0;
             end;
+        OnAfterPostDropOrderShipment(TempDropShptPostBuffer);
     end;
 
 #if not CLEAN20
@@ -9354,6 +9362,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostDropOrderShipment(var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20]; CommitIsSuppressed: Boolean; InvtPickPutaway: Boolean; var CustLedgerEntry: Record "Cust. Ledger Entry"; WhseShip: Boolean; WhseReceiv: Boolean; PreviewMode: Boolean)
     begin
     end;
@@ -9707,7 +9720,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesCrMemoLineInsert(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; var SalesHeader: Record "Sales Header"; var SalesShptHeader: Record "Sales Shipment Header"; var ReturnRcptHeader: Record "Return Receipt Header")
+    local procedure OnBeforeSalesCrMemoLineInsert(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; var SalesHeader: Record "Sales Header"; var SalesShptHeader: Record "Sales Shipment Header"; var ReturnRcptHeader: Record "Return Receipt Header"; var PostingSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -9805,7 +9818,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostItemJnlLineBeforePost(var ItemJournalLine: Record "Item Journal Line"; SalesLine: Record "Sales Line"; QtyToBeShippedBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
+    local procedure OnAfterPostItemJnlLineBeforePost(var ItemJournalLine: Record "Item Journal Line"; SalesLine: Record "Sales Line"; QtyToBeShippedBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var CheckApplFromItemEntry: Boolean; var TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -10961,7 +10974,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSumSalesLines2OnBeforeNewSalesLineInsert(var NewSalesLine: Record "Sales Line")
+    local procedure OnSumSalesLines2OnBeforeNewSalesLineInsert(var NewSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -11226,7 +11239,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDropOrderShipmentOnAfterUpdateBlanketOrderLine(PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line"; TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; SalesShptHeader: Record "Sales Shipment Header")
+    local procedure OnPostDropOrderShipmentOnAfterUpdateBlanketOrderLine(PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line"; TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; SalesShptHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header"; PurchRcptHeader: Record "Purch. Rcpt. Header"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 
@@ -11266,7 +11279,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnBeforeTransferReservToItemJnlLine(SalesLine: Record "Sales Line"; ItemJnlLine: Record "Item Journal Line"; var CheckApplFromItemEntry: Boolean; var TrackingSpecification: Record "Tracking Specification")
+    local procedure OnPostItemJnlLineOnBeforeTransferReservToItemJnlLine(SalesLine: Record "Sales Line"; ItemJnlLine: Record "Item Journal Line"; var CheckApplFromItemEntry: Boolean; var TrackingSpecification: Record "Tracking Specification"; QtyToBeShippedBase: Decimal)
     begin
     end;
 
@@ -11438,7 +11451,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnPostSalesLineOnAfterPostItemTrackingLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; WhseShip: Boolean; WhseReceive: Boolean; InvtPickPutaway: Boolean; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; var TempPostedATOLink: Record "Posted Assemble-to-Order Link" temporary)
     begin
     end;
@@ -11635,6 +11648,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestGenPostingGroups(var SalesLine: record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesLineBeforePostOnAfterPostJobContractLine(SalesInvoiceHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
 

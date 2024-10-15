@@ -36,7 +36,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         RoundingEntryErr: Label 'Rounding Entry must exist for Sales Document No.: %1.', Comment = '.';
         TooManyValuableSalesEntriesErr: Label 'Too many valuable Sales Lines found.', Comment = '.';
         TooManyValuablePurchaseEntriesErr: Label 'Too many valuable Purchase Lines found.', Comment = '.';
-        VATDateNotChangedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
+        VATReturnPeriodClosedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
 
     [Test]
     [Scope('OnPrem')]
@@ -3598,7 +3598,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
         VATEntryPage.First();
         asserterror VATEntryPage."VAT Reporting Date".SetValue(NewVATDate);
-        Assert.ExpectedError(VATDateNotChangedErr);
+        Assert.ExpectedError(VATReturnPeriodClosedErr);
 
         Assert.AreEqual(WorkDate(), VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);        
     end;
@@ -3702,6 +3702,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [FEATURE] [VAT]
         // [SCENARIO 448198] Restricting VAT Date change
         Initialize();
+        CleanVATReturnPeriod();
 
         // [WHEN] Posting sales invoice
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
@@ -3726,6 +3727,97 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerFalse')]
+    procedure PostWithVATDateInReleasedVATReturnPeriodFailure()
+    var
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 455404] Using data range limitation for posting documents
+        Initialize();
+
+        // [WHEN] Adding VAT Return period that is Open with VAT Return Status Released
+        CleanVATReturnPeriod();        
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Released, WorkDate(), WorkDate() + 1);
+        // [WHEN] Posting sales invoice a warning is promted to user
+        // [THEN] If we do not confirm, no sales invoice is posted
+        asserterror CreateAndPostSalesDoc(WorkDate(), Enum::"Gen. Journal Document Type"::Invoice);
+
+        // [WHEN] Adding VAT Return period that is Open with VAT Return Status Released
+        CleanVATReturnPeriod();
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Released, WorkDate(), WorkDate() + 1);
+        // [WHEN] Posting credit memo a warning is promted to user
+        // [THEN] If we do not confirm, no sales invoice is posted
+        asserterror CreateAndPostSalesDoc(WorkDate(), Enum::"Gen. Journal Document Type"::"Credit Memo");
+        
+        // [WHEN] Adding VAT Return period that is Open with VAT Return Status Released
+        CleanVATReturnPeriod();
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Released, WorkDate(), WorkDate() + 1);
+        // [WHEN] Posting purchase invoice a warning is promted to user
+        // [THEN] If we do not confirm, no sales invoice is posted
+        asserterror CreateAndPostPurchDoc(WorkDate(), Enum::"Gen. Journal Document Type"::Invoice);
+        
+        // [WHEN] Adding VAT Return period that is Open with VAT Return Status Released
+        CleanVATReturnPeriod();
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Released, WorkDate(), WorkDate() + 1);
+        // [WHEN] Posting purchase credit memo a warning is promted to user
+        // [THEN] If we do not confirm, no sales invoice is posted
+        asserterror CreateAndPostPurchDoc(WorkDate(), Enum::"Gen. Journal Document Type"::"Credit Memo");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure PostWithVATDateInReleasedVATReturnPeriodSuccess()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 455404] Using data range limitation for posting documents
+        Initialize();
+        CleanVATReturnPeriod();
+        
+        // [WHEN] Adding VAT Return period that is Open with VAT Return Status Released
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Released, WorkDate(), WorkDate() + 1);
+
+        // [WHEN] Posting sales invoice a warning is promted to user
+        // [THEN] If we do confirm, sales invoice is posted
+        DocNo := CreateAndPostSalesDoc(WorkDate(), Enum::"Gen. Journal Document Type"::Invoice);
+        SalesInvHeader.Get(DocNo);
+        DocNo := CreateAndPostPurchDoc(WorkDate(), Enum::"Gen. Journal Document Type"::Invoice);
+        PurchInvHeader.Get(DocNo);
+    end;
+
+    [Test]
+    procedure PostWithVATDateInClosedVATReturnPeriodSuccess()
+    var
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 455404] Using data range limitation for posting documents
+        Initialize();
+        
+        // [WHEN] Adding VAT Return period that is Open with VAT Return Status Released
+        CleanVATReturnPeriod();
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Closed, VATReportHeader.Status::Closed, WorkDate(), WorkDate() + 1);
+        // [WHEN] Posting sales invoice a warning is promted to user
+        // [THEN] If we do confirm, sales invoice is posted
+        asserterror CreateAndPostSalesDoc(WorkDate(), Enum::"Gen. Journal Document Type"::Invoice);
+        
+        // [WHEN] Adding VAT Return period that is Open with VAT Return Status Released
+        CleanVATReturnPeriod();
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Closed, VATReportHeader.Status::Closed, WorkDate(), WorkDate() + 1);
+        // [WHEN] Posting sales invoice a warning is promted to user
+        // [THEN] If we do confirm, sales invoice is posted
+        asserterror CreateAndPostPurchDoc(WorkDate(), Enum::"Gen. Journal Document Type"::Invoice);
+    end;
+
+    [Test]
     procedure VATPostingDateChangeMultiPeriodSuccessful()
     var
         SalesInvHeader: Record "Sales Invoice Header";
@@ -3741,6 +3833,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [FEATURE] [VAT]
         // [SCENARIO 448198] Restricting VAT Date change
         Initialize();
+        CleanVATReturnPeriod();
 
         // [WHEN] Posting sales invoice
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
@@ -3782,6 +3875,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [FEATURE] [VAT]
         // [SCENARIO 448198] Restricting VAT Date change
         Initialize();
+        CleanVATReturnPeriod();
 
         // [WHEN] Posting sales invoice
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
@@ -3834,6 +3928,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [FEATURE] [VAT]
         // [SCENARIO 455405] Change VAT when No VAT Date changes" selected
         Initialize();
+        CleanVATReturnPeriod();
         
         GLSetup.Get();
         GLSetup."VAT Reporting Date Usage" := GLSetup."VAT Reporting Date Usage"::"No VAT Date changes";
@@ -3877,6 +3972,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [FEATURE] [VAT]
         // [SCENARIO 455405] Change VAT when No VAT Date changes" selected
         Initialize();
+        CleanVATReturnPeriod();
         
         GLSetup.Get();
         GLSetup."VAT Reporting Date Usage" := GLSetup."VAT Reporting Date Usage"::Disabled;
@@ -4221,6 +4317,15 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchCreditMemoHeader.TestField("Posting Date", PostingDate);
         PurchCreditMemoHeader.TestField("Document Date", WorkDate());
         PurchCreditMemoHeader.TestField("VAT Reporting Date", VATDate);
+    end;
+
+    local procedure CleanVATReturnPeriod()
+    var
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+    begin
+        VATReturnPeriod.DeleteAll();
+        VATReportHeader.DeleteAll();
     end;
 
     local procedure CreateVATReturnPeriod(VATReturnPeriodStatus: Option; VATReportHeaderStatus: Option; StartDate: Date; EndDate: Date) 

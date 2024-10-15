@@ -4,11 +4,13 @@ table 7022 "Price Worksheet Line"
     {
         field(1; "Price List Code"; Code[20])
         {
+            Caption = 'Price List Code';
             DataClassification = CustomerContent;
             TableRelation = "Price List Header";
         }
         field(2; "Line No."; Integer)
         {
+            Caption = 'Line No.';
             DataClassification = CustomerContent;
             AutoIncrement = true;
         }
@@ -172,6 +174,7 @@ table 7022 "Price Worksheet Line"
         }
         field(10; "Currency Code"; Code[10])
         {
+            Caption = 'Currency Code';
             DataClassification = CustomerContent;
             TableRelation = Currency;
 
@@ -184,8 +187,10 @@ table 7022 "Price Worksheet Line"
         }
         field(11; "Work Type Code"; Code[10])
         {
+            Caption = 'Work Type Code';
             DataClassification = CustomerContent;
             TableRelation = "Work Type";
+
             trigger OnValidate()
             begin
                 TestStatusDraft();
@@ -196,7 +201,9 @@ table 7022 "Price Worksheet Line"
         }
         field(12; "Starting Date"; Date)
         {
+            Caption = 'Starting Date';
             DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
                 TestHeadersValue(FieldNo("Starting Date"));
@@ -207,7 +214,9 @@ table 7022 "Price Worksheet Line"
         }
         field(13; "Ending Date"; Date)
         {
+            Caption = 'Ending Date';
             DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
                 TestHeadersValue(FieldNo("Ending Date"));
@@ -218,6 +227,7 @@ table 7022 "Price Worksheet Line"
         }
         field(14; "Minimum Quantity"; Decimal)
         {
+            Caption = 'Minimum Quantity';
             DataClassification = CustomerContent;
             DecimalPlaces = 0 : 5;
             MinValue = 0;
@@ -351,6 +361,7 @@ table 7022 "Price Worksheet Line"
         }
         field(21; "Allow Line Disc."; Boolean)
         {
+            Caption = 'Allow Line Disc.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -361,6 +372,7 @@ table 7022 "Price Worksheet Line"
         }
         field(22; "Allow Invoice Disc."; Boolean)
         {
+            Caption = 'Allow Invoice Disc.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -371,6 +383,7 @@ table 7022 "Price Worksheet Line"
         }
         field(23; "Price Includes VAT"; Boolean)
         {
+            Caption = 'Price Includes VAT';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -380,6 +393,7 @@ table 7022 "Price Worksheet Line"
         }
         field(24; "VAT Bus. Posting Gr. (Price)"; Code[20])
         {
+            Caption = 'VAT Bus. Posting Gr. (Price)';
             DataClassification = CustomerContent;
             TableRelation = "VAT Business Posting Group";
 
@@ -390,6 +404,7 @@ table 7022 "Price Worksheet Line"
         }
         field(25; "VAT Prod. Posting Group"; Code[20])
         {
+            Caption = 'VAT Prod. Posting Group';
             DataClassification = CustomerContent;
             TableRelation = "VAT Product Posting Group";
 
@@ -400,7 +415,9 @@ table 7022 "Price Worksheet Line"
         }
         field(26; "Asset ID"; Guid)
         {
+            Caption = 'Asset ID';
             DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
                 TestStatusDraft();
@@ -420,6 +437,7 @@ table 7022 "Price Worksheet Line"
         }
         field(28; "Price Type"; Enum "Price Type")
         {
+            Caption = 'Price Type';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -429,6 +447,7 @@ table 7022 "Price Worksheet Line"
         }
         field(29; Description; Text[100])
         {
+            Caption = 'Description';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -438,6 +457,7 @@ table 7022 "Price Worksheet Line"
         }
         field(30; Status; Enum "Price Status")
         {
+            Caption = 'Status';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -463,6 +483,7 @@ table 7022 "Price Worksheet Line"
         }
         field(32; "Source Group"; Enum "Price Source Group")
         {
+            Caption = 'Source Group';
             DataClassification = CustomerContent;
         }
         field(33; "Product No."; Code[20])
@@ -489,6 +510,7 @@ table 7022 "Price Worksheet Line"
         }
         field(34; "Assign-to No."; Code[20])
         {
+            Caption = 'Assign-to No.';
             DataClassification = CustomerContent;
             TableRelation = IF ("Source Type" = CONST(Campaign)) Campaign
             ELSE
@@ -514,6 +536,7 @@ table 7022 "Price Worksheet Line"
         }
         field(35; "Assign-to Parent No."; Code[20])
         {
+            Caption = 'Assign-to Parent No.';
             DataClassification = CustomerContent;
             TableRelation = IF ("Source Type" = CONST("Job Task")) Job;
             ValidateTableRelation = false;
@@ -551,6 +574,7 @@ table 7022 "Price Worksheet Line"
         }
         field(100; "Existing Line"; Boolean)
         {
+            Caption = 'Existing Line';
             DataClassification = SystemMetadata;
 
             trigger OnValidate()

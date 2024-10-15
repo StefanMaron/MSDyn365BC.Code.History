@@ -470,7 +470,7 @@ page 7011 "Purchase Price List Lines"
         CurrPage.Update(true);
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnUpdateSourceTypeOnCaseElse(PriceListHeader: Record "Price List Header"; var SourceType: Enum "Purchase Price Source Type"; var IsJobGroup: Boolean)
     begin
     end;

@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 table 5490 "Onboarding Signal"
 {
     Access = Internal;
@@ -6,8 +11,6 @@ table 5490 "Onboarding Signal"
     DataPerCompany = false;
     ReplicateData = false;
     Scope = Cloud;
-    Description = 'Company table is not extensible. We also want to separate the logic in case we want to do the same for User for example.';
-
     fields
     {
         field(1; "No."; Integer)
@@ -18,11 +21,15 @@ table 5490 "Onboarding Signal"
         field(2; "Company Name"; Text[30])
         {
             Caption = 'Company Name';
-            Description = 'Should be unique for now.';
         }
         field(3; "Onboarding Completed"; Boolean)
         {
-            Caption = 'Whether a company has onboarded or not';
+            Caption = 'Onboarding Completed';
+            Description = 'Whether the onboarding criteria has been met for this entry';
+        }
+        field(4; "Onboarding Signal Type"; Enum "Onboarding Signal Type")
+        {
+            Caption = 'Onboarding Signal Type';
         }
     }
 
