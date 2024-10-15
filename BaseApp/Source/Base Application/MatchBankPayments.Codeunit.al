@@ -414,16 +414,16 @@
           BankAccReconciliationLine."Match Confidence"::Accepted, BankAccReconciliationLine."Match Confidence"::High);
 
         if BankAccReconciliationLine.FindSet() then begin
-            BankAccReconciliation.Get(
-              BankAccReconciliationLine."Statement Type", BankAccReconciliationLine."Bank Account No.",
-              BankAccReconciliationLine."Statement No.");
             repeat
                 SetFilterToBankAccReconciliation(AppliedPaymentEntry, BankAccReconciliationLine);
-                if FindTextMappings(BankAccReconciliationLine) then begin
+                if FindTextMappings(BankAccReconciliationLine) then
                     BankAccReconciliationLine.RejectAppliedPayment;
-                    CreateAppliedEntries(BankAccReconciliation);
-                end;
             until BankAccReconciliationLine.Next() = 0;
+
+            BankAccReconciliation.Get(
+                BankAccReconciliationLine."Statement Type", BankAccReconciliationLine."Bank Account No.",
+                BankAccReconciliationLine."Statement No.");
+            CreateAppliedEntries(BankAccReconciliation);
 
             // Update match details for lines matched by text mapper
             BankAccReconciliationLine.SetRange(

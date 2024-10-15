@@ -59,27 +59,27 @@ page 7019 "Sales Job Price Lists"
                 field(SourceGroup; Rec."Source Group")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Applies-to Group';
+                    Caption = 'Assign-to Group';
                     Visible = false;
                     ToolTip = 'Specifies whether the prices come from groups of customers, vendors or jobs.';
                 }
                 field(SourceType; CurrRec."Source Type")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Applies-to Type';
-                    ToolTip = 'Specifies the source type of the price list.';
+                    Caption = 'Assign-to Type';
+                    ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
                 }
                 field(SourceNo; CurrRec."Source No.")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Applies-to No.';
-                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
+                    Caption = 'Assign-to';
+                    ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(ParentSourceNo; CurrRec."Parent Source No.")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Applies-to Job No.';
-                    ToolTip = 'Specifies the job that is the source of the price on the price list line.';
+                    Caption = 'Assign-to Job No.';
+                    ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field("Starting Date"; CurrRec."Starting Date")
                 {
@@ -93,6 +93,19 @@ page 7019 "Sales Job Price Lists"
                     Caption = 'Ending Date';
                     ToolTip = 'Specifies the date when the sales price agreement ends.';
                 }
+            }
+        }
+        area(factboxes)
+        {
+            systempart(Control1900383207; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            systempart(Control1905767507; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = false;
             }
         }
     }

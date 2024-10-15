@@ -1475,6 +1475,17 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLine.TestField("Unit Cost", UnitCost);
     end;
 
+    [Test]
+    procedure PlanningDateOnInitJobPlanningLine()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 413747] Validate Planning Date after iniialize Job Planning Line
+        JobPlanningLine.Init();
+        JobPlanningLine.Validate("Planning Date", WorkDate());
+        JobPlanningLine.TestField("Planning Due Date", WorkDate());
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

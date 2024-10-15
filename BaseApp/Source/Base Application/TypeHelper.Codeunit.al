@@ -108,7 +108,8 @@ codeunit 10 "Type Helper"
         NumberStyles: DotNet NumberStyles;
     begin
         EvaluatedDecimal := 0;
-        if DotNetDecimal.TryParse(DecimalText, NumberStyles.Number, CultureInfo.GetCultureInfo(CultureName), EvaluatedDecimal) then
+        NumberStyles := NumberStyles.Number + NumberStyles.AllowCurrencySymbol + NumberStyles.AllowParentheses;
+        if DotNetDecimal.TryParse(DecimalText, NumberStyles, CultureInfo.GetCultureInfo(CultureName), EvaluatedDecimal) then
             exit(true);
         exit(false)
     end;

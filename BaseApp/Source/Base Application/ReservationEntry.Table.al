@@ -1,4 +1,4 @@
-table 337 "Reservation Entry"
+﻿table 337 "Reservation Entry"
 {
     Caption = 'Reservation Entry';
     DrillDownPageID = "Reservation Entries";
@@ -1030,6 +1030,7 @@ table 337 "Reservation Entry"
                           CreateReservEntry.TransferReservEntry(
                             SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine, SourceRefNo,
                             QtyPerUOM, OldReservEntry, TransferQty);
+                        OnTransferReservationsOnAfterSecondOldReservEntryLoop(OldReservEntry, NewReservEntry);
                     until (OldReservEntry.Next() = 0) or (TransferQty = 0);
             end;
     end;
@@ -1387,6 +1388,11 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnFieldFilterNeededOnItemTrackingTypeElseCase(ReservationEntry: Record "Reservation Entry"; ItemTrackingCode: Record "Item Tracking Code"; ItemTrackingType: Enum "Item Tracking Type"; var FieldValue: Code[50]; var IsSpecificTracking: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReservationsOnAfterSecondOldReservEntryLoop(var OldReservEntry: Record "Reservation Entry"; var NewReservEntry: Record "Reservation Entry")
     begin
     end;
 }

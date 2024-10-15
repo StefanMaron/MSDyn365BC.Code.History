@@ -548,6 +548,7 @@
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
                 ItemTrackingLines: Page "Item Tracking Lines";
+                ShowTrackingExistsError: Boolean;
             begin
                 if "Applies-to Entry" <> 0 then begin
                     ItemLedgEntry.Get("Applies-to Entry");
@@ -570,7 +571,9 @@
                             if Quantity < 0 then
                                 FieldError(Quantity, Text029);
                         end;
-                        if ItemLedgEntry.TrackingExists then
+                        ShowTrackingExistsError := ItemLedgEntry.TrackingExists();
+                        OnValidateAppliesToEntryOnAferCalcShowTrackingExistsError(Rec, xRec, ShowTrackingExistsError);
+                        if ShowTrackingExistsError then
                             Error(Text033, FieldCaption("Applies-to Entry"), ItemTrackingLines.Caption);
 
                         if not ItemLedgEntry.Open then
@@ -1271,7 +1274,14 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate(Quantity, "Quantity (Base)");
             end;
@@ -1800,7 +1810,14 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateOutputQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate("Output Quantity", "Output Quantity (Base)");
             end;
@@ -1811,7 +1828,14 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateScrapQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate("Scrap Quantity", "Scrap Quantity (Base)");
             end;
@@ -2477,7 +2501,7 @@
             if Location."Directed Put-away and Pick" then
                 "Location Code" := '';
 
-        OnAfterSetupNewLine(Rec, LastItemJnlLine, ItemJnlTemplate);
+        OnAfterSetupNewLine(Rec, LastItemJnlLine, ItemJnlTemplate, ItemJnlBatch);
     end;
 
     local procedure SetDefaultPriceCalculationMethod()
@@ -4012,7 +4036,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetupNewLine(var ItemJournalLine: Record "Item Journal Line"; var LastItemJournalLine: Record "Item Journal Line"; ItemJournalTemplate: Record "Item Journal Template")
+    local procedure OnAfterSetupNewLine(var ItemJournalLine: Record "Item Journal Line"; var LastItemJournalLine: Record "Item Journal Line"; ItemJournalTemplate: Record "Item Journal Template"; ItemJnlBatch: Record "Item Journal Batch")
     begin
     end;
 
@@ -4282,6 +4306,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityBase(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateScrapQuantityBase(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateOutputQuantityBase(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyReservedQty(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CalledByFieldNo: Integer)
     begin
     end;
@@ -4389,6 +4428,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeGetUnitAmount(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAppliesToEntryOnAferCalcShowTrackingExistsError(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var ShowTrackingExistsError: Boolean)
     begin
     end;
 

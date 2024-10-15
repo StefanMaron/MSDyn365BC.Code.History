@@ -1,10 +1,6 @@
-#if not CLEAN19
 codeunit 14060 "UPG Data Out Of Geo. Apps"
 {
     Subtype = Upgrade;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'No longer relevant in future releases';
-    ObsoleteTag = '19.0';
 
     trigger OnUpgradePerDatabase()
     begin
@@ -37,4 +33,3 @@ codeunit 14060 "UPG Data Out Of Geo. Apps"
             DataOutOfGeoApp.Add(AppID);
     end;
 }
-#endif

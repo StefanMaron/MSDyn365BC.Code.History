@@ -27,12 +27,12 @@ table 7000 "Price List Header"
         field(3; "Source Group"; Enum "Price Source Group")
         {
             DataClassification = CustomerContent;
-            Caption = 'Applies-to Group';
+            Caption = 'Assign-to Group';
         }
         field(4; "Source Type"; Enum "Price Source Type")
         {
             DataClassification = CustomerContent;
-            Caption = 'Applies-to Type';
+            Caption = 'Assign-to Type';
             trigger OnValidate()
             begin
                 if xRec."Source Type" = "Source Type" then
@@ -48,7 +48,7 @@ table 7000 "Price List Header"
         field(5; "Source No."; Code[20])
         {
             DataClassification = CustomerContent;
-            Caption = 'Applies-to No.';
+            Caption = 'Assign-to';
             trigger OnValidate()
             begin
                 if xRec."Source No." = "Source No." then
@@ -70,7 +70,7 @@ table 7000 "Price List Header"
         field(6; "Parent Source No."; Code[20])
         {
             DataClassification = CustomerContent;
-            Caption = 'Applies-to Parent No.';
+            Caption = 'Assign-to Parent No.';
             trigger OnValidate()
             begin
                 if xRec."Parent Source No." = "Parent Source No." then
@@ -85,7 +85,7 @@ table 7000 "Price List Header"
         field(7; "Source ID"; Guid)
         {
             DataClassification = CustomerContent;
-            Caption = 'Applies-to ID';
+            Caption = 'Assign-to ID';
             trigger OnValidate()
             begin
                 if xRec."Source ID" = "Source ID" then

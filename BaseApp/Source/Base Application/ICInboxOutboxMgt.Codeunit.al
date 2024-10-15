@@ -626,8 +626,9 @@
             DimMgt.CopyJnlLineDimToICJnlDim(
               DATABASE::"IC Outbox Jnl. Line", TransactionNo, "IC Partner Code",
               ICOutboxJnlLine."Transaction Source", ICOutboxJnlLine."Line No.", "Dimension Set ID");
+            OnInsertOutboxJnlLineOnBeforeICOutboxJnlLineInsert(ICOutboxJnlLine, TempGenJnlLine);
             ICOutboxJnlLine.Insert();
-            OnInsertICOutboxJnlLine(ICOutboxJnlLine);
+            OnInsertICOutboxJnlLine(ICOutboxJnlLine, TempGenJnlLine);
         end;
     end;
 
@@ -899,6 +900,8 @@
                     OnCreateSalesLinesOnICPartnerRefTypeCaseElse(SalesLine, SalesHeader, ICInboxSalesLine);
             end;
 
+            OnCreateSalesLinesOnAfterValidateNo(SalesLine, SalesHeader, ICInboxSalesLine);
+
             SalesLine."Currency Code" := SalesHeader."Currency Code";
             SalesLine.Description := Description;
             SalesLine."Description 2" := "Description 2";
@@ -1135,6 +1138,7 @@
                 else
                     OnCreatePurchLinesOnICPartnerRefTypeCaseElse(PurchLine, PurchHeader, ICInboxPurchLine);
             end;
+            OnCreatePurchLinesOnAfterValidateNo(PurchLine, PurchHeader, ICInboxPurchLine);
             PurchLine."Currency Code" := PurchHeader."Currency Code";
             PurchLine.Description := Description;
             PurchLine."Description 2" := "Description 2";
@@ -2712,7 +2716,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertICOutboxJnlLine(var ICOutboxJnlLine: Record "IC Outbox Jnl. Line")
+    local procedure OnInsertICOutboxJnlLine(var ICOutboxJnlLine: Record "IC Outbox Jnl. Line"; TempGenJournalLine: Record "Gen. Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOutboxJnlLineOnBeforeICOutboxJnlLineInsert(var ICOutboxJnlLine: Record "IC Outbox Jnl. Line"; TempGenJournalLine: Record "Gen. Journal Line" temporary)
     begin
     end;
 
@@ -2958,6 +2967,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesDocumentOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; ICInboxSalesHeader: Record "IC Inbox Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLinesOnAfterValidateNo(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ICInboxSalesLine: Record "IC Inbox Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchLinesOnAfterValidateNo(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ICInboxPurchaseLine: Record "IC Inbox Purchase Line")
     begin
     end;
 
