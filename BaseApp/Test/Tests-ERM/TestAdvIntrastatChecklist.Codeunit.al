@@ -439,7 +439,7 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
 #endif
         IntrastatSetup."Report Receipts" := true;
         IntrastatSetup."Report Shipments" := true;
-        IntrastatSetup.Modify;
+        IntrastatSetup.Modify();
     end;
 
     local procedure CreateFieldSetup(ReportId: Integer; FieldNo: Integer; FilterExpression: Text)

@@ -43,7 +43,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 100, "Applied Pmt. Discount" is 5 in "Applied Payment Entry" for Sales Invoice
@@ -51,7 +51,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, CustLedgerEntry."Remaining Amount", ToleranceAmount);
 
         // [THEN] "Accepted Payment Tolerance" = 5 in Customer Ledger Entry for Sales Invoice
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Payment Tolerance", ToleranceAmount);
     end;
 
@@ -78,7 +78,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 95, "Applied Pmt. Discount" is zero in "Applied Payment Entry" for Sales Invoice
@@ -86,7 +86,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, BankAccReconciliationLine."Statement Amount", 0);
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is FALSE in Customer Ledger Entry for Sales Invoice
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Payment Tolerance", 0);
     end;
 
@@ -113,7 +113,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineManually(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 100, "Applied Pmt. Discount" is 5 in "Applied Payment Entry" for Sales Invoice
@@ -121,7 +121,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, CustLedgerEntry."Remaining Amount", ToleranceAmount);
 
         // [THEN] "Accepted Payment Tolerance" = 5 in Customer Ledger Entry for Sales Invoice
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Payment Tolerance", ToleranceAmount);
     end;
 
@@ -148,7 +148,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineManually(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 95, "Applied Pmt. Discount" is zero in "Applied Payment Entry" for Sales Invoice
@@ -156,7 +156,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, BankAccReconciliationLine."Statement Amount", 0);
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is FALSE in Customer Ledger Entry for Sales Invoice
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Payment Tolerance", 0);
     end;
 
@@ -181,7 +181,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 100, "Applied Pmt. Discount" is 5 in "Applied Payment Entry" for Sales Invoice
@@ -189,7 +189,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, CustLedgerEntry."Remaining Amount", CustLedgerEntry."Remaining Pmt. Disc. Possible");
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is TRUE in Customer Ledger Entry for Sales Invoice
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", true);
     end;
 
@@ -214,7 +214,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 95, "Applied Pmt. Discount" is zero in "Applied Payment Entry" for Sales Invoice
@@ -222,7 +222,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, BankAccReconciliationLine."Statement Amount", 0);
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is FALSE in Customer Ledger Entry for Sales Invoice
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", false);
     end;
 
@@ -247,7 +247,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineManually(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 100, "Applied Pmt. Discount" is 5 in "Applied Payment Entry" for Sales Invoice
@@ -255,7 +255,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, CustLedgerEntry."Remaining Amount", CustLedgerEntry."Remaining Pmt. Disc. Possible");
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is TRUE in Customer Ledger Entry for Sales Invoice
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", true);
     end;
 
@@ -280,14 +280,14 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineManually(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 95, "Applied Pmt. Discount" is zero in "Applied Payment Entry" for Sales Invoice
         VerifyAppliedPmtEntry(BankAccReconciliationLine, BankAccReconciliationLine."Statement Amount", 0);
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is FALSE in Customer Ledger Entry for Sales Invoice
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", false);
     end;
 
@@ -606,7 +606,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         BankAccReconciliationLine.Delete(true);
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is FALSE in Customer Ledger Entry for Sales Invoice
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", false);
 
         // [THEN] Amount to Apply = 0 in Customer Ledger Entry for Sales Invoice
@@ -639,7 +639,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         BankAccReconciliationLine.Delete(true);
 
         // [THEN] "Accepted Payment Tolerance" is 0 in Customer Ledger Entry for Sales Invoice
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Payment Tolerance", 0);
 
         // [THEN] Amount to Apply = 0 in Customer Ledger Entry for Sales Invoice
@@ -670,14 +670,14 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 100, "Applied Pmt. Discount" is 5 in "Applied Payment Entry" for Purchase Invoice
         VerifyAppliedPmtEntry(BankAccReconciliationLine, VendLedgerEntry."Remaining Amount", ToleranceAmount);
 
         // [THEN] "Accepted Payment Tolerance" = 5 in Vendor Ledger Entry for Purchase Invoice
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Payment Tolerance", ToleranceAmount);
     end;
 
@@ -704,14 +704,14 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 95, "Applied Pmt. Discount" is zero in "Applied Payment Entry" for Purchase Invoice
         VerifyAppliedPmtEntry(BankAccReconciliationLine, BankAccReconciliationLine."Statement Amount", 0);
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is FALSE in Vendor Ledger Entry for Purchase Invoice
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Payment Tolerance", 0);
     end;
 
@@ -738,14 +738,14 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineManually(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 100, "Applied Pmt. Discount" is 5 in "Applied Payment Entry" for Purchase Invoice
         VerifyAppliedPmtEntry(BankAccReconciliationLine, VendLedgerEntry."Remaining Amount", ToleranceAmount);
 
         // [THEN] "Accepted Payment Tolerance" = 5 in Vendor Ledger Entry for Purchase Invoice
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Payment Tolerance", ToleranceAmount);
     end;
 
@@ -772,14 +772,14 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineManually(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 95, "Applied Pmt. Discount" is zero in "Applied Payment Entry" for Purchase Invoice
         VerifyAppliedPmtEntry(BankAccReconciliationLine, BankAccReconciliationLine."Statement Amount", 0);
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is FALSE in Vendor Ledger Entry for Purchase Invoice
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Payment Tolerance", 0);
     end;
 
@@ -804,7 +804,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 100, "Applied Pmt. Discount" is 5 in "Applied Payment Entry" for Purchase Invoice
@@ -812,7 +812,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, VendLedgerEntry."Remaining Amount", VendLedgerEntry."Remaining Pmt. Disc. Possible");
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is TRUE in Vendor Ledger Entry for Purchase Invoice
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", true);
     end;
 
@@ -837,14 +837,14 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 95, "Applied Pmt. Discount" is zero in "Applied Payment Entry" for Purchase Invoice
         VerifyAppliedPmtEntry(BankAccReconciliationLine, BankAccReconciliationLine."Statement Amount", 0);
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is FALSE in Vendor Ledger Entry for Purchase Invoice
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", false);
     end;
 
@@ -869,7 +869,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineManually(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 100, "Applied Pmt. Discount" is 5 in "Applied Payment Entry" for Purchase Invoice
@@ -877,7 +877,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, VendLedgerEntry."Remaining Amount", VendLedgerEntry."Remaining Pmt. Disc. Possible");
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is TRUE in Vendor Ledger Entry for Purchase Invoice
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", true);
     end;
 
@@ -902,7 +902,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineManually(BankAccReconciliationLine);
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 95, "Applied Pmt. Discount" is zero in "Applied Payment Entry" for Purchase Invoice
@@ -910,7 +910,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, BankAccReconciliationLine."Statement Amount", 0);
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is FALSE in Vendor Ledger Entry for Purchase Invoice
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", false);
     end;
 
@@ -1228,7 +1228,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         BankAccReconciliationLine.Delete(true);
 
         // [THEN] "Accepted Pmt. Disc. Tolerance" is FALSE in Vendor Ledger Entry for Purchase Invoice
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", false);
 
         // [THEN] Amount to Apply = 0 in Vendor Ledger Entry for Purchase Invoice
@@ -1261,7 +1261,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         BankAccReconciliationLine.Delete(true);
 
         // [THEN] "Accepted Payment Tolerance" is 0 in Vendor Ledger Entry for Purchase Invoice
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Payment Tolerance", 0);
 
         // [THEN] Amount to Apply = 0 in Vendor Ledger Entry for Purchase Invoice
@@ -1295,7 +1295,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankPayments.TransferDiffToAccount(BankAccReconciliationLine, GenJournalLine);
 
         // [THEN] "Accepted Tolerance" in Customer Ledger Entry for Posted Invoice is 0
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Payment Tolerance", 0);
     end;
 
@@ -1321,7 +1321,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineManually(BankAccReconciliationLine);
 
         // [GIVEN] Statement Amount in Bank Acc. Recon. Line changed to 100.6
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         IncreaseStatementAmountOnBankAccReconLine(BankAccReconciliationLine, ToleranceAmount);
         DecreasedToleranceAmount := Round(BankAccReconciliationLine.Difference / LibraryRandom.RandIntInRange(3, 10));
         BankAccReconciliationLine.Validate("Statement Amount", BankAccReconciliationLine."Statement Amount" - DecreasedToleranceAmount);
@@ -1333,7 +1333,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankPayments.TransferDiffToAccount(BankAccReconciliationLine, GenJournalLine);
 
         // [THEN] "Accepted Tolerance" in Customer Ledger Entry is 1.5 (102.1 - 100.6)
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Payment Tolerance", -DecreasedToleranceAmount);
     end;
 
@@ -1357,7 +1357,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         PurchPmtToleranceScenario(BankAccReconciliationLine, VendLedgerEntry, ToleranceAmount, true, true, 1);
         MatchBankReconLineManually(BankAccReconciliationLine);
         IncreaseStatementAmountOnBankAccReconLine(BankAccReconciliationLine, ToleranceAmount);
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         LibraryLowerPermissions.SetAccountPayables;
         LibraryLowerPermissions.AddFinancialReporting; // permission for G/L Account
 
@@ -1365,7 +1365,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankPayments.TransferDiffToAccount(BankAccReconciliationLine, GenJournalLine);
 
         // [THEN] "Accepted Tolerance" in Vendor Ledger Entry for Posted Invoice is 0
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Payment Tolerance", 0);
     end;
 
@@ -1391,7 +1391,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineManually(BankAccReconciliationLine);
 
         // [GIVEN] Statement Amount in Bank Acc. Recon. Line changed to 100.6
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         IncreaseStatementAmountOnBankAccReconLine(BankAccReconciliationLine, ToleranceAmount);
         DecreasedToleranceAmount := Round(BankAccReconciliationLine.Difference / LibraryRandom.RandIntInRange(3, 10));
         BankAccReconciliationLine.Validate("Statement Amount", BankAccReconciliationLine."Statement Amount" - DecreasedToleranceAmount);
@@ -1403,7 +1403,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankPayments.TransferDiffToAccount(BankAccReconciliationLine, GenJournalLine);
 
         // [THEN] "Accepted Tolerance" in Vendor Ledger Entry is 1.5 (102.1 - 100.6)
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Payment Tolerance", -DecreasedToleranceAmount);
     end;
 
@@ -1441,7 +1441,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         LibraryLowerPermissions.SetBanking;
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 100, "Applied Pmt. Discount" is 5 in "Applied Payment Entry" for Sales Invoice
@@ -1449,7 +1449,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, CustLedgerEntry."Remaining Amount", ToleranceAmount);
 
         // [THEN] "Accepted Payment Tolerance" = 5 in Customer Ledger Entry for Sales Invoice
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Accepted Payment Tolerance", ToleranceAmount);
     end;
 
@@ -1487,14 +1487,14 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         LibraryLowerPermissions.SetBanking;
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.TestField("Applied Amount", BankAccReconciliationLine."Statement Amount");
 
         // [THEN] "Applied Amount" is 100, "Applied Pmt. Discount" is 5 in "Applied Payment Entry" for Purchase Invoice
         VerifyAppliedPmtEntry(BankAccReconciliationLine, VendLedgerEntry."Remaining Amount", ToleranceAmount);
 
         // [THEN] "Accepted Payment Tolerance" = 5 in Vendor Ledger Entry for Purchase Invoice
-        VendLedgerEntry.Find;
+        VendLedgerEntry.Find();
         VendLedgerEntry.TestField("Accepted Payment Tolerance", ToleranceAmount);
     end;
 
@@ -1585,7 +1585,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         IsInitialized := true;
         Commit();
@@ -1812,7 +1812,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
 
     local procedure IncreaseStatementAmountOnBankAccReconLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; ToleranceAmount: Decimal)
     begin
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         BankAccReconciliationLine.Validate("Statement Amount", BankAccReconciliationLine."Statement Amount" + ToleranceAmount);
         BankAccReconciliationLine.Modify(true);
     end;

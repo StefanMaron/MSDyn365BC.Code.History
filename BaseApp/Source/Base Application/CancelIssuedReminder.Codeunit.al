@@ -124,7 +124,7 @@
         end;
 
         if FeePosted then
-            PostGenJnlLines;
+            PostGenJnlLines();
 
         OnAfterCancelIssuedReminder(IssuedReminderHeader);
     end;
@@ -217,7 +217,7 @@
                     TempGenJnlLine.Validate("Tax Liable", IssuedReminderHeader."Tax Liable");
                     TempGenJnlLine.Validate("Tax Group Code", "Tax Group Code");
                 end;
-                TempGenJnlLine.UpdateLineBalance;
+                TempGenJnlLine.UpdateLineBalance();
                 TotalAmount := TotalAmount - TempGenJnlLine.Amount;
                 TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
                 TempGenJnlLine."Bill-to/Pay-to No." := IssuedReminderHeader."Customer No.";
@@ -228,7 +228,7 @@
     local procedure InitGenJnlLine(IssuedReminderHeader: Record "Issued Reminder Header"; var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; SystemCreatedEntry: Boolean; DocumentNo: Code[20]; PostingDate: Date)
     begin
         with GenJnlLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 1;
             "Document Type" := "Document Type"::" ";
             "Document No." := DocumentNo;
@@ -337,7 +337,7 @@
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         NextLevelReminderNotification: Notification;
     begin
-        NextLevelReminderNotification.Id := GetShowNextLevelReminderNotificationId;
+        NextLevelReminderNotification.Id := GetShowNextLevelReminderNotificationId();
         NextLevelReminderNotification.Message :=
           StrSubstNo(CancelNextLevelReminderTxt, ReminderNo2, ReminderNo1);
         NextLevelReminderNotification.AddAction(
@@ -348,7 +348,7 @@
         NextLevelReminderNotification.SetData('IssuedReminderNo', ReminderNo2);
         IssuedReminderHeader.Get(ReminderNo1);
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
-          NextLevelReminderNotification, IssuedReminderHeader.RecordId, GetShowNextLevelReminderNotificationId);
+          NextLevelReminderNotification, IssuedReminderHeader.RecordId, GetShowNextLevelReminderNotificationId());
     end;
 
     procedure ShowIssuedReminder(Notification: Notification)
@@ -366,7 +366,7 @@
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         AppliedCustomerLedgerNotification: Notification;
     begin
-        AppliedCustomerLedgerNotification.Id := GetAppliedCustomerLedgerEntryNotificationId;
+        AppliedCustomerLedgerNotification.Id := GetAppliedCustomerLedgerEntryNotificationId();
         AppliedCustomerLedgerNotification.Message :=
           StrSubstNo(CancelAppliedEntryErr, EntryNo, IssuedReminderHeader."No.");
         AppliedCustomerLedgerNotification.AddAction(
@@ -376,7 +376,7 @@
         AppliedCustomerLedgerNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         AppliedCustomerLedgerNotification.SetData('EntryNo', Format(EntryNo));
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
-          AppliedCustomerLedgerNotification, IssuedReminderHeader.RecordId, GetAppliedCustomerLedgerEntryNotificationId);
+          AppliedCustomerLedgerNotification, IssuedReminderHeader.RecordId, GetAppliedCustomerLedgerEntryNotificationId());
     end;
 
     procedure ShowCustomerLedgerEntry(Notification: Notification)

@@ -7,7 +7,7 @@ codeunit 2820 "Native - Attachments"
 
     trigger OnRun()
     begin
-        CleanupUnlinkedAttachments;
+        CleanupUnlinkedAttachments();
     end;
 
     var
@@ -48,7 +48,7 @@ codeunit 2820 "Native - Attachments"
         UnlinkedAttachment.SetCurrentKey("Created Date-Time");
         UnlinkedAttachment.SetFilter(
           "Created Date-Time", '..%1',
-          CreateDateTime(CalcDate(StrSubstNo('<-%1D>', AttachmentKeepDays), Today), DT2Time(CurrentDateTime)));
+          CreateDateTime(CalcDate(StrSubstNo('<-%1D>', AttachmentKeepDays()), Today), DT2Time(CurrentDateTime)));
         UnlinkedAttachment.DeleteAll(true);
     end;
 
@@ -58,8 +58,8 @@ codeunit 2820 "Native - Attachments"
         JobStartTime: DateTime;
         CleanupStartTime: DateTime;
     begin
-        CleanupStartTime := CurrentDateTime + AttachmentKeepDays * HoursPerDay * MillisecondsPerHour;
-        JobStartTime := CleanupStartTime + CleanupJobBufferHours * MillisecondsPerHour;
+        CleanupStartTime := CurrentDateTime + AttachmentKeepDays() * HoursPerDay() * MillisecondsPerHour();
+        JobStartTime := CleanupStartTime + CleanupJobBufferHours() * MillisecondsPerHour();
 
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Native - Attachments");
@@ -108,7 +108,7 @@ codeunit 2820 "Native - Attachments"
     begin
         if Rec.IsTemporary then
             exit;
-        ScheduleCleanupJob;
+        ScheduleCleanupJob();
     end;
 }
 #endif

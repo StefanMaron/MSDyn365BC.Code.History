@@ -28,7 +28,7 @@ table 5052 "Contact Alt. Addr. Date Range"
                     Error(Text000, FieldCaption("Starting Date"), FieldCaption("Ending Date"));
                 if ContAltAddrDateRange.Get("Contact No.", "Starting Date") then
                     Error(Text001
-                      , "Starting Date", TableCaption, Cont.TableCaption, "Contact No.");
+                      , "Starting Date", TableCaption(), Cont.TableCaption(), "Contact No.");
             end;
         }
         field(4; "Ending Date"; Date)
@@ -89,9 +89,10 @@ table 5052 "Contact Alt. Addr. Date Range"
     end;
 
     var
+        Cont: Record Contact;
+
         Text000: Label '%1 must be before %2.';
         Text001: Label 'The starting date %1 already exists in a %2 for %3 %4.';
         Text002: Label '%1 must be after %2.';
-        Cont: Record Contact;
 }
 

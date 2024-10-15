@@ -53,7 +53,7 @@ table 487 "Business Chart User Setup"
             PAGE::"Aged Acc. Receivable Chart":
                 "Period Length" := "Period Length"::Week;
         end;
-        Insert;
+        Insert();
     end;
 
     procedure InitSetupCU(CodeunitID: Integer)
@@ -68,7 +68,7 @@ table 487 "Business Chart User Setup"
             CODEUNIT::"Aged Acc. Receivable", CODEUNIT::"Aged Acc. Payable":
                 "Period Length" := "Period Length"::Week;
         end;
-        Insert;
+        Insert();
     end;
 
     procedure SaveSetupPage(BusChartUserSetup: Record "Business Chart User Setup"; PageID: Integer)
@@ -76,7 +76,7 @@ table 487 "Business Chart User Setup"
         if not Get(UserId, "Object Type"::Page, PageID) then
             InitSetupPage(PageID);
         TransferFields(BusChartUserSetup, false);
-        Modify;
+        Modify();
     end;
 
     procedure SaveSetupCU(BusChartUserSetup: Record "Business Chart User Setup"; CodeunitID: Integer)
@@ -84,7 +84,7 @@ table 487 "Business Chart User Setup"
         if not Get(UserId, "Object Type"::Codeunit, CodeunitID) then
             InitSetupCU(CodeunitID);
         TransferFields(BusChartUserSetup, false);
-        Modify;
+        Modify();
     end;
 }
 

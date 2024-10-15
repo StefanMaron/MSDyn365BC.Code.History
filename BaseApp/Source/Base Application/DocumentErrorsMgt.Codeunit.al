@@ -31,6 +31,12 @@ codeunit 9070 "Document Errors Mgt."
         NotificationMsg: Label 'Start validating data in documents and journals while you work. Messages are shown in the Document Check FactBox.';
         DontShowAgainTxt: Label 'Don''t show again';
         EnableThisForMeTxt: Label 'Enable this for me';
+        NothingToPostErr: Label 'There is nothing to post because the document does not contain a quantity or amount.';
+
+    procedure GetNothingToPostErrorMsg(): Text
+    begin
+        exit(NothingToPostErr);
+    end;
 
     procedure GetModifiedSalesLineNo() LineNo: Integer
     begin

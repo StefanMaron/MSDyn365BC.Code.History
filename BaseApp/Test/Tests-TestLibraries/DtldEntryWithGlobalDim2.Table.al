@@ -1,5 +1,6 @@
 table 134486 "Dtld. Entry With Global Dim 2"
 {
+    ReplicateData = false;
 
     fields
     {

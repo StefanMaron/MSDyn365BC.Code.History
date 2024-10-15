@@ -29,8 +29,8 @@ table 65 "Merge Duplicates Line Buffer"
 
             trigger OnValidate()
             begin
-                "Duplicate Value" := CopyStr("Duplicate Value", 1, GetMaxFieldLen);
-                ValidateDuplicateValue;
+                "Duplicate Value" := CopyStr("Duplicate Value", 1, GetMaxFieldLen());
+                ValidateDuplicateValue();
                 Modified := "Duplicate Value" <> "Current Value";
             end;
         }
@@ -120,7 +120,7 @@ table 65 "Merge Duplicates Line Buffer"
     var
         FieldRef: FieldRef;
     begin
-        Init;
+        Init();
         Type := Type::Field;
         "Table ID" := RecordRef[1].Number;
         FieldRef := RecordRef[1].FieldIndex(Index);
@@ -141,7 +141,7 @@ table 65 "Merge Duplicates Line Buffer"
                 "Can Be Renamed" :=
                   ("In Primary Key" = "In Primary Key"::Yes) and ("Duplicate Value" = "Current Value") and
                   ("Data Type" in ['Text', 'Code']) and (ConflictFieldID <> ID);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -149,16 +149,16 @@ table 65 "Merge Duplicates Line Buffer"
     var
         RecordRef: RecordRef;
     begin
-        Init;
+        Init();
         Type := Type::Table;
         "Table ID" := TableNo;
         ID := FieldNo;
         RecordRef.Open("Table ID");
         "In Primary Key" := IsInPrimaryKey(RecordRef, FieldNo);
         CountRecords(MergeDuplicatesBuffer, RecordRef);
-        RecordRef.Close;
+        RecordRef.Close();
         if "Duplicate Count" <> 0 then
-            Insert;
+            Insert();
     end;
 
     local procedure CountRecords(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer"; RecordRef: RecordRef)
@@ -185,7 +185,7 @@ table 65 "Merge Duplicates Line Buffer"
         TableRelationsMetadata.SetRange("Table ID", "Table ID");
         TableRelationsMetadata.SetRange("Field No.", ID);
         TableRelationsMetadata.SetRange("Related Table ID", RelatedTableID);
-        exit(TableRelationsMetadata.FindFirst);
+        exit(TableRelationsMetadata.FindFirst());
     end;
 
     [Scope('OnPrem')]
@@ -208,7 +208,7 @@ table 65 "Merge Duplicates Line Buffer"
                 NewRecordRef.Get(RecordRef.RecordId);
                 NewFieldRef := NewRecordRef.Field(ID);
                 NewFieldRef.Value(NewKey);
-                if NewRecordRef.Find then begin
+                if NewRecordRef.Find() then begin
                     TempMergeDuplicatesConflict.Init();
                     TempMergeDuplicatesConflict.Validate("Table ID", "Table ID");
                     TempMergeDuplicatesConflict.Duplicate := RecordRef.RecordId;
@@ -217,7 +217,7 @@ table 65 "Merge Duplicates Line Buffer"
                     TempMergeDuplicatesConflict.Insert();
                 end;
             until RecordRef.Next() = 0;
-        RecordRef.Close;
+        RecordRef.Close();
 
         Conflicts := TempMergeDuplicatesConflict.Count();
         TempMergeDuplicatesConflict.Reset();
@@ -259,7 +259,7 @@ table 65 "Merge Duplicates Line Buffer"
         TempMergeDuplicatesLineBuffer.Copy(Rec, true);
         TempMergeDuplicatesLineBuffer.SetRange(Type, Type::Field);
         TempMergeDuplicatesLineBuffer.SetRange(Override, true);
-        Result := not TempMergeDuplicatesLineBuffer.IsEmpty;
+        Result := not TempMergeDuplicatesLineBuffer.IsEmpty();
     end;
 
     [Scope('OnPrem')]
@@ -270,7 +270,7 @@ table 65 "Merge Duplicates Line Buffer"
         TempMergeDuplicatesLineBuffer.Copy(Rec, true);
         TempMergeDuplicatesLineBuffer.SetRange(Type, Type::Field);
         TempMergeDuplicatesLineBuffer.SetRange(Modified, true);
-        Result := not TempMergeDuplicatesLineBuffer.IsEmpty;
+        Result := not TempMergeDuplicatesLineBuffer.IsEmpty();
     end;
 
     local procedure GetMaxFieldLen(): Integer
@@ -300,7 +300,7 @@ table 65 "Merge Duplicates Line Buffer"
             FieldRef.Validate("Duplicate Value");
             "Duplicate Value" := Format(FieldRef.Value);
         end;
-        RecRef.Close;
+        RecRef.Close();
     end;
 }
 

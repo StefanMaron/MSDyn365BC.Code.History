@@ -657,8 +657,8 @@ codeunit 137831 "SCM - Warehouse UT"
         NewerLot := LibraryUtility.GenerateGUID();
 
         // Inventory (20 of older, 10 of newer)
-        CreateInventoryForLot(BinContent, OlderLot, 7, CalcDate('<1M>', WorkDate));
-        CreateInventoryForLot(BinContent, NewerLot, 3, CalcDate('<2M>', WorkDate));
+        CreateInventoryForLot(BinContent, OlderLot, 7, CalcDate('<1M>', WorkDate()));
+        CreateInventoryForLot(BinContent, NewerLot, 3, CalcDate('<2M>', WorkDate()));
 
         // Create sales of 20 for older lot. Reserve against it.
         CreateSales(WarehouseRequest, BinContent."Item No.", BinContent."Location Code", 7);
@@ -712,8 +712,8 @@ codeunit 137831 "SCM - Warehouse UT"
         NewerLot := LibraryUtility.GenerateGUID();
 
         // Inventory (20 of older, 10 of newer)
-        CreateInventoryForLot(BinContent, OlderLot, 7, CalcDate('<1M>', WorkDate));
-        CreateInventoryForLot(BinContent, NewerLot, 3, CalcDate('<2M>', WorkDate));
+        CreateInventoryForLot(BinContent, OlderLot, 7, CalcDate('<1M>', WorkDate()));
+        CreateInventoryForLot(BinContent, NewerLot, 3, CalcDate('<2M>', WorkDate()));
 
         // Create sales of 20 for older lot. Reserve against it.
         CreateSales(WarehouseRequest, BinContent."Item No.", BinContent."Location Code", 3);
@@ -769,8 +769,8 @@ codeunit 137831 "SCM - Warehouse UT"
         NewerLot := LibraryUtility.GenerateGUID();
 
         // Inventory (20 of older, 10 of newer)
-        CreateInventoryForLot(BinContent, OlderLot, 7, CalcDate('<1M>', WorkDate));
-        CreateInventoryForLot(BinContent, NewerLot, 3, CalcDate('<2M>', WorkDate));
+        CreateInventoryForLot(BinContent, OlderLot, 7, CalcDate('<1M>', WorkDate()));
+        CreateInventoryForLot(BinContent, NewerLot, 3, CalcDate('<2M>', WorkDate()));
 
         // Create sales of 20 for older lot. Reserve against it.
         CreateSalesShipment(WarehouseShipmentLine, BinContent."Item No.", BinContent."Location Code", 7);
@@ -825,8 +825,8 @@ codeunit 137831 "SCM - Warehouse UT"
         NewerLot := LibraryUtility.GenerateGUID();
 
         // Inventory (20 of older, 10 of newer)
-        CreateInventoryForLot(BinContent, OlderLot, 7, CalcDate('<1M>', WorkDate));
-        CreateInventoryForLot(BinContent, NewerLot, 3, CalcDate('<2M>', WorkDate));
+        CreateInventoryForLot(BinContent, OlderLot, 7, CalcDate('<1M>', WorkDate()));
+        CreateInventoryForLot(BinContent, NewerLot, 3, CalcDate('<2M>', WorkDate()));
 
         // Create sales of 20 for older lot. Reserve against it.
         CreateSalesShipment(WarehouseShipmentLine, BinContent."Item No.", BinContent."Location Code", 3);
@@ -998,7 +998,7 @@ codeunit 137831 "SCM - Warehouse UT"
             DeleteBinContent("Action Type"::Place.AsInteger());
         end;
 
-        BinContent.SetRecFilter;
+        BinContent.SetRecFilter();
         Assert.RecordIsNotEmpty(BinContent);
     end;
 
@@ -1026,7 +1026,7 @@ codeunit 137831 "SCM - Warehouse UT"
             DeleteBinContent("Action Type"::Place.AsInteger());
         end;
 
-        BinContent.SetRecFilter;
+        BinContent.SetRecFilter();
         Assert.RecordIsNotEmpty(BinContent);
     end;
 
@@ -1040,7 +1040,7 @@ codeunit 137831 "SCM - Warehouse UT"
         // [SCENARIO 252129] When you validate Quantity on warehouse receipt line, the program calculates "Qty. (Base)" before it does "Qty. Outstanding (Base)".
 
         with WarehouseReceiptLine do begin
-            Init;
+            Init();
             "Qty. per Unit of Measure" := LibraryRandom.RandIntInRange(2, 5);
             Quantity := LibraryRandom.RandInt(10);
             "Qty. (Base)" := Quantity * "Qty. per Unit of Measure";
@@ -1069,7 +1069,7 @@ codeunit 137831 "SCM - Warehouse UT"
         MockWhseShipmentHeader(WarehouseShipmentHeader);
 
         with WarehouseShipmentLine do begin
-            Init;
+            Init();
             "No." := WarehouseShipmentHeader."No.";
             "Source Type" := DATABASE::"Sales Line";
             "Source Subtype" := SalesLine."Document Type".AsInteger();
@@ -1120,7 +1120,7 @@ codeunit 137831 "SCM - Warehouse UT"
           TransferLine, ItemJournalLine, WarehouseShipmentHeader, LibraryRandom.RandInt(10));
 
         with ReservationEntry do begin
-            Init;
+            Init();
             SetRange("Source Type", DATABASE::"Item Journal Line");
             SetRange("Item No.", Item."No.");
             Assert.RecordIsEmpty(ReservationEntry);
@@ -1347,7 +1347,7 @@ codeunit 137831 "SCM - Warehouse UT"
         BinContents.FILTER.SetFilter("Bin Code", Bin[2].Code);
         Assert.IsTrue(BinContents.First, '');
 
-        BinContents.Close;
+        BinContents.Close();
     end;
 
     [Test]
@@ -1362,7 +1362,7 @@ codeunit 137831 "SCM - Warehouse UT"
 
         // [GIVEN] Warehouse Activity Line 1 had Variant Code = "V1" and Serial No = "S1"
         with WarehouseActivityLine1 do begin
-            Init;
+            Init();
             "Activity Type" := "Activity Type"::Pick;
             "No." := LibraryUtility.GenerateGUID();
             "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine1, FieldNo("Line No."));
@@ -1370,7 +1370,7 @@ codeunit 137831 "SCM - Warehouse UT"
             "Serial No." := LibraryUtility.GenerateGUID();
             "Variant Code" := LibraryUtility.GenerateGUID();
             "Qty. (Base)" := LibraryRandom.RandInt(10);
-            Insert;
+            Insert();
         end;
 
         // [GIVEN] Warehouse Activity Line 2 copied from Line 1 had Variant Code = "V2"
@@ -1378,7 +1378,7 @@ codeunit 137831 "SCM - Warehouse UT"
         with WarehouseActivityLine2 do begin
             "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine2, FieldNo("Line No."));
             "Variant Code" := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
 
         // [WHEN] Validate "Serial No." = "S1" in Warehouse Activity Line 2
@@ -1728,10 +1728,10 @@ codeunit 137831 "SCM - Warehouse UT"
         Zone: Record Zone;
     begin
         with Zone do begin
-            Init;
+            Init();
             "Location Code" := LocationCode;
             Code := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -1798,7 +1798,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ReservationEntry."Quantity (Base)" := -LotQtyToShip;
         ReservationEntry.Quantity := -LotQtyToShip;
         ReservationEntry."Qty. to Handle (Base)" := -LotQtyToShip;
-        ReservationEntry."Shipment Date" := WorkDate;
+        ReservationEntry."Shipment Date" := WorkDate();
         ReservationEntry.UpdateItemTracking();
         ReservationEntry.Insert();
     end;
@@ -2029,40 +2029,40 @@ codeunit 137831 "SCM - Warehouse UT"
     local procedure MockItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; LocationCode: Code[10]; BinCode: Code[20])
     begin
         with ItemJournalLine do begin
-            Init;
+            Init();
             "Location Code" := LocationCode;
             "Bin Code" := BinCode;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockSalesLine(var SalesLine: Record "Sales Line")
     begin
         with SalesLine do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Order;
             "Document No." := LibraryUtility.GenerateGUID();
             "Outstanding Quantity" := LibraryRandom.RandInt(10);
             "Qty. per Unit of Measure" := LibraryRandom.RandIntInRange(2, 5);
             "Outstanding Qty. (Base)" := "Outstanding Quantity" * "Qty. per Unit of Measure";
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockWhseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
         with WarehouseShipmentHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             Status := Status::Open;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockWhseEntry(var WarehouseEntry: Record "Warehouse Entry"; LocationCode: Code[10]; BinCode: Code[20])
     begin
         with WarehouseEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, FieldNo("Entry No."));
             "Entry Type" := "Entry Type"::"Negative Adjmt.";
             "Source Type" := DATABASE::"Sales Line";
@@ -2072,7 +2072,7 @@ codeunit 137831 "SCM - Warehouse UT"
             Quantity := -LibraryRandom.RandInt(10);
             "Qty. per Unit of Measure" := LibraryRandom.RandIntInRange(2, 5);
             "Qty. (Base)" := Quantity * "Qty. per Unit of Measure";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2088,14 +2088,14 @@ codeunit 137831 "SCM - Warehouse UT"
     local procedure MockWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20])
     begin
         with WarehouseActivityLine do begin
-            Init;
+            Init();
             "Activity Type" := ActivityType;
             "No." := LibraryUtility.GenerateGUID();
             "Action Type" := ActionType;
             "Location Code" := LocationCode;
             "Bin Code" := BinCode;
             "Item No." := ItemNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2103,27 +2103,27 @@ codeunit 137831 "SCM - Warehouse UT"
     begin
         with Item do begin
             "No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockTransferLine(var TransferLine: Record "Transfer Line"; ItemNo: Code[20]; Qty: Decimal)
     begin
         with TransferLine do begin
-            Init;
+            Init();
             "Document No." := LibraryUtility.GenerateGUID();
             "Transfer-from Code" := LibraryUtility.GenerateGUID();
             "Item No." := ItemNo;
             "Variant Code" := LibraryUtility.GenerateGUID();
             Quantity := Qty;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal)
     begin
         with ItemJournalLine do begin
-            Init;
+            Init();
             "Entry Type" := EntryType;
             "Item No." := ItemNo;
             "Variant Code" := VariantCode;
@@ -2135,7 +2135,7 @@ codeunit 137831 "SCM - Warehouse UT"
     local procedure MockReservationEntry(var ReservationEntry: Record "Reservation Entry"; SourceType: Integer; SourceID: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal)
     begin
         with ReservationEntry do begin
-            Init;
+            Init();
             "Source Type" := SourceType;
             "Source ID" := SourceID;
             "Item No." := ItemNo;
@@ -2144,7 +2144,7 @@ codeunit 137831 "SCM - Warehouse UT"
             "Quantity (Base)" := Qty;
             "Qty. to Handle (Base)" := Qty;
             "Qty. to Invoice (Base)" := Qty;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2153,14 +2153,14 @@ codeunit 137831 "SCM - Warehouse UT"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         with WarehouseShipmentHeader do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Location Code" := LocationCode;
-            Insert;
+            Insert();
         end;
 
         with WarehouseShipmentLine do begin
-            Init;
+            Init();
             "No." := WarehouseShipmentHeader."No.";
             "Source Type" := SourceType;
             "Source No." := SourceNo;
@@ -2168,7 +2168,7 @@ codeunit 137831 "SCM - Warehouse UT"
             "Variant Code" := VariantCode;
             "Bin Code" := LibraryUtility.GenerateGUID();
             Quantity := Qty;
-            Insert;
+            Insert();
         end;
 
         exit(WarehouseShipmentLine."Bin Code")
@@ -2177,7 +2177,7 @@ codeunit 137831 "SCM - Warehouse UT"
     local procedure MockWarehouseEntry(var WarehouseEntry: Record "Warehouse Entry"; SourceType: Integer; SourceNo: Code[20]; WhseDocType: Enum "Warehouse Journal Document Type"; WhseDocNo: Code[20]; BinCode: Code[20]; Qty: Decimal)
     begin
         with WarehouseEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, FieldNo("Entry No."));
             "Source Type" := SourceType;
             "Source No." := SourceNo;
@@ -2185,7 +2185,7 @@ codeunit 137831 "SCM - Warehouse UT"
             "Whse. Document No." := WhseDocNo;
             "Bin Code" := BinCode;
             "Qty. (Base)" := Qty;
-            Insert;
+            Insert();
         end;
     end;
 }

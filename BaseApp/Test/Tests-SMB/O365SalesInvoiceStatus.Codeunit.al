@@ -164,7 +164,7 @@ codeunit 138010 "O365 Sales Invoice Status"
         LibraryVariableStorage.Enqueue(true); // reply for the confirm handler
         LibraryVariableStorage.Enqueue(LinesPostedMsg); // message for the message handler
         PaymentJournal.Post.Invoke;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
         Commit();
     end;
 
@@ -176,7 +176,7 @@ codeunit 138010 "O365 Sales Invoice Status"
         PostedSalesInvoices.GotoRecord(SalesInvHeader);
         PostedSalesInvoices.Closed.AssertEquals(ExpectedPaymentStatus);
         PostedSalesInvoices."Remaining Amount".AssertEquals(ExpectedRemainingAmount);
-        PostedSalesInvoices.Close;
+        PostedSalesInvoices.Close();
     end;
 
     [ConfirmHandler]

@@ -26,10 +26,11 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
     end;
 
     var
-        ConfirmConvertToOrderQst: Label 'Do you want to convert the quote to an order?';
-        OpenNewInvoiceQst: Label 'The quote has been converted to order %1. Do you want to open the new order?', Comment = '%1 = No. of the new sales order document.';
         SalesHeader2: Record "Sales Header";
         SalesQuoteToOrder: Codeunit "Sales-Quote to Order";
+
+        ConfirmConvertToOrderQst: Label 'Do you want to convert the quote to an order?';
+        OpenNewInvoiceQst: Label 'The quote has been converted to order %1. Do you want to open the new order?', Comment = '%1 = No. of the new sales order document.';
 
     local procedure IsOnRunHandled(var SalesHeader: Record "Sales Header") IsHandled: Boolean
     begin
@@ -51,7 +52,7 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
             exit;
 
         if GuiAllowed() then
-            if OfficeMgt.AttachAvailable then
+            if OfficeMgt.AttachAvailable() then
                 OpenPage := true
             else
                 OpenPage := Confirm(StrSubstNo(OpenNewInvoiceQst, SalesHeader2."No."), true);

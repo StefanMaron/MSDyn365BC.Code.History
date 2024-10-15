@@ -85,13 +85,13 @@ page 9182 "Generic Charts"
                             exit;
 
                         if ChartExists then
-                            if not Confirm(Text001, false, TableCaption, ID) then
+                            if not Confirm(Text001, false, TableCaption(), ID) then
                                 exit;
 
                         RecordRef.GetTable(Rec);
                         TempBlob.ToRecordRef(RecordRef, FieldNo(BLOB));
                         RecordRef.SetTable(Rec);
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("E&xport Chart")
@@ -108,7 +108,7 @@ page 9182 "Generic Charts"
                         FileMgt: Codeunit "File Management";
                     begin
                         CalcFields(BLOB);
-                        if BLOB.HasValue then begin
+                        if BLOB.HasValue() then begin
                             TempBlob.FromRecord(Rec, FieldNo(BLOB));
                             FileMgt.BLOBExport(TempBlob, '*.xml', true);
                         end;
@@ -126,7 +126,7 @@ page 9182 "Generic Charts"
                     var
                         CopyGenericChart: Page "Copy Generic Chart";
                     begin
-                        if BLOB.HasValue then
+                        if BLOB.HasValue() then
                             CalcFields(BLOB);
                         CopyGenericChart.SetSourceChart(Rec);
                         CopyGenericChart.RunModal();
@@ -141,11 +141,11 @@ page 9182 "Generic Charts"
 
                     trigger OnAction()
                     begin
-                        if BLOB.HasValue then
-                            if Confirm(Text002, false, TableCaption, ID) then begin
+                        if BLOB.HasValue() then
+                            if Confirm(Text002, false, TableCaption(), ID) then begin
                                 CalcFields(BLOB);
                                 Clear(BLOB);
-                                CurrPage.SaveRecord;
+                                CurrPage.SaveRecord();
                             end;
                     end;
                 }
@@ -154,8 +154,9 @@ page 9182 "Generic Charts"
     }
 
     var
+        GenericChartMgt: Codeunit "Generic Chart Mgt";
+
         Text001: Label 'Do you want to replace the existing definition for %1 %2?', Comment = 'Do you want to replace the existing definition for Chart 36-06?';
         Text002: Label 'Are you sure that you want to delete the definition for %1 %2?', Comment = 'Are you sure that you want to delete the definition for Chart 36-06?';
-        GenericChartMgt: Codeunit "Generic Chart Mgt";
 }
 

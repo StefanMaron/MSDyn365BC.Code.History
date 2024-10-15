@@ -50,7 +50,7 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
     local procedure SetJobQueueStatus(var GenJrnlLine: Record "Gen. Journal Line"; NewStatus: Option)
     begin
         GenJrnlLine.LockTable();
-        if GenJrnlLine.Find then begin
+        if GenJrnlLine.Find() then begin
             GenJrnlLine.SetRange("Journal Template Name", GenJrnlLine."Journal Template Name");
             GenJrnlLine.SetRange("Journal Batch Name", GenJrnlLine."Journal Batch Name");
             GenJrnlLine.SetRange("Document No.", GenJrnlLine."Document No.");

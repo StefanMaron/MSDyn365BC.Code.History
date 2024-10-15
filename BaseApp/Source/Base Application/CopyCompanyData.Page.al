@@ -26,27 +26,27 @@ page 8639 "Copy Company Data"
                     Company.Name := NewCompanyName;
                     if PAGE.RunModal(PAGE::Companies, Company) = ACTION::LookupOK then begin
                         NewCompanyName := Company.Name;
-                        ValidateCompanyName;
+                        ValidateCompanyName();
                     end;
                     CurrPage.Update(false);
                 end;
 
                 trigger OnValidate()
                 begin
-                    ValidateCompanyName;
+                    ValidateCompanyName();
                     CurrPage.Update(false);
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Package Code"; "Package Code")
+                field("Package Code"; Rec."Package Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = false;
                     ToolTip = 'Specifies the code of the package associated with the configuration. The code is filled in when you use the Assign Package function to select the package for the line type.';
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -59,7 +59,7 @@ page 8639 "Copy Company Data"
                     Editable = false;
                     ToolTip = 'Specifies the name of the line type.';
                 }
-                field(NoOfRecordsSourceTable; GetNoOfRecordsSourceTable)
+                field(NoOfRecordsSourceTable; GetNoOfRecordsSourceTable())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'No. of Records (Source Table)';
@@ -79,15 +79,24 @@ page 8639 "Copy Company Data"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy Data';
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Copy data from the selected company. This is useful, when you want to move from a test environment to a production environment, and want to copy data between the versions of the company.';
 
                 trigger OnAction()
                 begin
-                    GetData;
-                    CurrPage.Close;
+                    GetData();
+                    CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Copy Data_Promoted"; "Copy Data")
+                {
+                }
             }
         }
     }
@@ -113,7 +122,7 @@ page 8639 "Copy Company Data"
             else
                 if not Company.Get(NewCompanyName) then
                     NewCompanyName := '';
-        SetCompanyFilter;
+        SetCompanyFilter();
     end;
 
     var
@@ -127,9 +136,9 @@ page 8639 "Copy Company Data"
             Clear(Company);
             Company.SetFilter(Name, '<>%1', CompanyName);
             Company.Name := NewCompanyName;
-            Company.Find;
+            Company.Find();
         end;
-        SetCompanyFilter;
+        SetCompanyFilter();
     end;
 
     local procedure GetData()

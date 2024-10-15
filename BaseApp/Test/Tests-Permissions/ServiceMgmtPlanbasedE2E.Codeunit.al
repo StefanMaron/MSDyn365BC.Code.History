@@ -19,7 +19,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         Resource: Code[20];
         GLAccountNo: Code[20];
         IsInitialized: Boolean;
-        MissingPermissionsErr: Label 'You do not have the following permissions';
+        MissingPermissionsErr: Label 'Sorry, the current permissions prevented the action.';
         TeamMemberErr: Label 'You are logged in as a Team Member role, so you cannot complete this task.';
 
     [Test]
@@ -172,7 +172,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         CreateAndPostSalesOrder(CustomerNo, ItemNo, true);
         // [THEN] It fails with a permission error
         Assert.ExpectedMessage(MissingPermissionsErr, ErrorMessagesPage.Description.Value);
-        ErrorMessagesPage.Close;
+        ErrorMessagesPage.Close();
 
         LibraryE2EPlanPermissions.SetPremiumUserPlan;
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
@@ -239,7 +239,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         PostSalesOrder(SalesOrderNo, true);
         // [THEN] A permission error is thrown
         Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
-        ErrorMessagesPage.Close;
+        ErrorMessagesPage.Close();
 
         LibraryE2EPlanPermissions.SetPremiumUserPlan;
         PostSalesOrder(SalesOrderNo, false);
@@ -394,7 +394,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         PostSalesOrder(SalesOrderNo, true);
         // [THEN] A permission error is thrown
         Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
-        ErrorMessagesPage.Close;
+        ErrorMessagesPage.Close();
 
         LibraryE2EPlanPermissions.SetPremiumISVEmbUserPlan;
         PostSalesOrder(SalesOrderNo, false);
@@ -587,7 +587,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         CreateAndPostSalesOrder(CustomerNo, ItemNo, true);
         // [THEN] A permission error is thrown
         Assert.ExpectedMessage(MissingPermissionsErr, ErrorMessagesPage.Description.Value);
-        ErrorMessagesPage.Close;
+        ErrorMessagesPage.Close();
 
         LibraryE2EPlanPermissions.SetPremiumUserPlan;
         CreateAndPostSalesOrder(CustomerNo, ItemNo, false);
@@ -888,8 +888,8 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
         ServiceContract: TestPage "Service Contract";
         OldDate: Date;
     begin
-        OldDate := WorkDate;
-        WorkDate := CalcDate('<-1D>', WorkDate);
+        OldDate := WorkDate();
+        WorkDate := CalcDate('<-1D>', WorkDate());
         ServiceContract.OpenNew();
         ServiceContract."Customer No.".Activate;
         ServiceContract."Customer No.".SetValue(CustomerNo);
@@ -1108,7 +1108,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     procedure PostedSalesInvoicePageHandler(var PostedSalesInvoice: TestPage "Posted Sales Invoice")
     begin
         LibraryVariableStorage.Enqueue(PostedSalesInvoice."No.".Value);
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [PageHandler]
@@ -1116,7 +1116,7 @@ codeunit 135413 "Service Mgmt. Plan-based E2E"
     procedure PostedServiceInvoicePageHandler(var PostedServiceInvoice: TestPage "Posted Service Invoice")
     begin
         LibraryVariableStorage.Enqueue(PostedServiceInvoice."No.".Value);
-        PostedServiceInvoice.Close;
+        PostedServiceInvoice.Close();
     end;
 
     [MessageHandler]

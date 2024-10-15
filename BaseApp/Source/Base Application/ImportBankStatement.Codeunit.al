@@ -18,7 +18,7 @@ codeunit 1200 "Import Bank Statement"
 
         ProgressWindow.Open(ProgressMsg);
         Parse(DataExchLineDef, "Entry No.", XmlNode, '', '', LineNo, LineNo);
-        ProgressWindow.Close;
+        ProgressWindow.Close();
     end;
 
     var

@@ -13,7 +13,7 @@ report 703 "Item Register - Quantity"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemRegFilterCopyText; TableCaption + ': ' + ItemRegFilter)
@@ -106,7 +106,7 @@ report 703 "Item Register - Quantity"
 
     trigger OnPreReport()
     begin
-        ItemRegFilter := "Item Register".GetFilters;
+        ItemRegFilter := "Item Register".GetFilters();
     end;
 
     var

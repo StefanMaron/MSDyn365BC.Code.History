@@ -21,7 +21,7 @@ page 1388 "Employee Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the template.';
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to employees.';
@@ -57,12 +57,12 @@ page 1388 "Employee Templ. Card"
                             ToolTip = 'Specifies the county of the employee.';
                         }
                     }
-                    field("Post Code"; "Post Code")
+                    field("Post Code"; Rec."Post Code")
                     {
                         ApplicationArea = BasicHR;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field("Country/Region Code"; "Country/Region Code")
+                    field("Country/Region Code"; Rec."Country/Region Code")
                     {
                         ApplicationArea = BasicHR;
                         ToolTip = 'Specifies the country/region of the address.';
@@ -77,7 +77,7 @@ page 1388 "Employee Templ. Card"
             group(Administration)
             {
                 Caption = 'Administration';
-                field("Statistics Group Code"; "Statistics Group Code")
+                field("Statistics Group Code"; Rec."Statistics Group Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a statistics group code to assign to the employee for statistical purposes.';
@@ -86,13 +86,13 @@ page 1388 "Employee Templ. Card"
             group(Payments)
             {
                 Caption = 'Payments';
-                field("Employee Posting Group"; "Employee Posting Group")
+                field("Employee Posting Group"; Rec."Employee Posting Group")
                 {
                     ApplicationArea = BasicHR;
                     LookupPageID = "Employee Posting Groups";
                     ToolTip = 'Specifies the employee''s type to link business transactions made for the employee with the appropriate account in the general ledger.';
                 }
-                field("Application Method"; "Application Method")
+                field("Application Method"; Rec."Application Method")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies how to apply payments to entries for this employee.';
@@ -110,8 +110,6 @@ page 1388 "Employee Templ. Card"
                 ApplicationArea = Dimensions;
                 Caption = 'Dimensions';
                 Image = Dimensions;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Default Dimensions";
                 RunPageLink = "Table ID" = const(1384),
                               "No." = field(Code);
@@ -122,8 +120,6 @@ page 1388 "Employee Templ. Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy Template';
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Copies all information to the current template from the selected one.';
 
                 trigger OnAction()
@@ -140,6 +136,20 @@ page 1388 "Employee Templ. Card"
                         CopyFromTemplate(EmployeeTempl);
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(CopyTemplate_Promoted; CopyTemplate)
+                {
+                }
             }
         }
     }

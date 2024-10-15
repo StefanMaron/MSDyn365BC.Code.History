@@ -1,4 +1,4 @@
-﻿codeunit 2582 "Dimension Correction Undo"
+codeunit 2582 "Dimension Correction Undo"
 {
     TableNo = "Job Queue Entry";
     Permissions = tabledata "G/L Entry" = rimd;

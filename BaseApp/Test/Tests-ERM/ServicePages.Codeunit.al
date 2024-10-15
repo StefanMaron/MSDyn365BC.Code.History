@@ -130,7 +130,7 @@ codeunit 136150 "Service Pages"
         SetCurrencyCodeOnOrderAndVerify(ServiceOrder, '');
         LibraryVariableStorage.AssertEmpty;
 
-        ServiceOrder.Close;
+        ServiceOrder.Close();
     end;
 
     [Test]

@@ -25,6 +25,10 @@ codeunit 1003 "Job Task-Indent"
     end;
 
     var
+        JobTask: Record "Job Task";
+        Window: Dialog;
+        i: Integer;
+
         Text000: Label 'This function updates the indentation of all the Job Tasks.';
         Text001: Label 'All Job Tasks between a Begin-Total and the matching End-Total are indented one level. ';
         Text002: Label 'The Totaling for each End-total is also updated.';
@@ -32,9 +36,6 @@ codeunit 1003 "Job Task-Indent"
         Text004: Label 'Indenting the Job Tasks #1##########.';
         Text005: Label 'End-Total %1 is missing a matching Begin-Total.';
         ArrayExceededErr: Label 'You can only indent %1 levels for job tasks of the type Begin-Total.', Comment = '%1 = A number bigger than 1';
-        JobTask: Record "Job Task";
-        Window: Dialog;
-        i: Integer;
 
     procedure Indent(JobNo: Code[20])
     var
@@ -60,7 +61,7 @@ codeunit 1003 "Job Task-Indent"
 
                     Indentation := i;
                     OnBeforeJobTaskModify(JobTask, JobNo);
-                    Modify;
+                    Modify();
 
                     if "Job Task Type" = "Job Task Type"::"Begin-Total" then begin
                         i := i + 1;
@@ -70,7 +71,7 @@ codeunit 1003 "Job Task-Indent"
                     end;
                 until Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 
     [IntegrationEvent(false, false)]

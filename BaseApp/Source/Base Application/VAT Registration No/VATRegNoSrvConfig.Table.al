@@ -50,7 +50,7 @@ table 248 "VAT Reg. No. Srv Config"
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
     begin
         VATRegNoSrvConfig.SetRange(Enabled, true);
-        exit(VATRegNoSrvConfig.FindFirst and VATRegNoSrvConfig.Enabled);
+        exit(VATRegNoSrvConfig.FindFirst() and VATRegNoSrvConfig.Enabled);
     end;
 
     procedure GetVATRegNoURL(): Text

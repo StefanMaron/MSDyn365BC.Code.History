@@ -103,10 +103,9 @@ report 310 "Vendor - Labels"
                     for i := ColumnNo + 1 to NoOfColumns do
                         Clear(VendAddr[i]);
                     ColumnNo := 0;
-                end else begin
+                end else
                     if ColumnNo = NoOfColumns then
                         ColumnNo := 0;
-                end;
 
                 if Counter = BlocksPerPage * NoOfColumns then begin
                     GroupNo := GroupNo + 1;
@@ -171,7 +170,6 @@ report 310 "Vendor - Labels"
     var
         FormatAddr: Codeunit "Format Address";
         LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)";
-        VendAddr: array[3, 8] of Text[100];
         NoOfRecords: Integer;
         RecordNo: Integer;
         NoOfColumns: Integer;
@@ -181,6 +179,9 @@ report 310 "Vendor - Labels"
         GroupNo: Integer;
         Counter: Integer;
         BlocksPerPage: Integer;
+
+    protected var
+        VendAddr: array[3, 8] of Text[100];
 
     procedure InitializeRequest(NewLabelFormat: Option)
     begin

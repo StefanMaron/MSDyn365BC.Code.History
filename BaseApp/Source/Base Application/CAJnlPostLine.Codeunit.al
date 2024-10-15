@@ -31,7 +31,7 @@ codeunit 1102 "CA Jnl.-Post Line"
     procedure RunWithCheck(var CostJnlLine2: Record "Cost Journal Line")
     begin
         CostJnlLine.Copy(CostJnlLine2);
-        Code;
+        Code();
         CostJnlLine2 := CostJnlLine;
 
         OnAfterRunWithCheck(CostJnlLine2);
@@ -47,7 +47,7 @@ codeunit 1102 "CA Jnl.-Post Line"
             exit;
 
         with CostJnlLine do begin
-            if EmptyLine then
+            if EmptyLine() then
                 exit;
 
             CAJnlCheckLine.RunCheck(CostJnlLine);
@@ -65,7 +65,7 @@ codeunit 1102 "CA Jnl.-Post Line"
                     NextCostEntryNo := CostEntry.GetLastEntryNo() + 1;
                 end;
         end;
-        PostLine;
+        PostLine();
     end;
 
     local procedure PostLine()
@@ -93,7 +93,7 @@ codeunit 1102 "CA Jnl.-Post Line"
         SourceCodeSetup.Get();
         if CostRegister."No." = 0 then begin
             CostRegister.LockTable();
-            if (not CostRegister.FindLast) or (CostRegister."To Cost Entry No." <> 0) then
+            if (not CostRegister.FindLast()) or (CostRegister."To Cost Entry No." <> 0) then
                 with CostJnlLine do begin
                     CostRegister.Init();
                     CostRegister."Journal Batch Name" := "Journal Batch Name";
@@ -143,7 +143,7 @@ codeunit 1102 "CA Jnl.-Post Line"
     begin
         if CostBudgetRegister."No." = 0 then begin
             CostBudgetRegister.LockTable();
-            if (not CostBudgetRegister.FindLast) or (CostBudgetRegister."To Cost Budget Entry No." <> 0) then
+            if (not CostBudgetRegister.FindLast()) or (CostBudgetRegister."To Cost Budget Entry No." <> 0) then
                 with CostJnlLine do begin
                     CostBudgetRegister.Init();
                     CostBudgetRegister."Journal Batch Name" := "Journal Batch Name";
@@ -226,7 +226,7 @@ codeunit 1102 "CA Jnl.-Post Line"
         end;
         TotalCredit := TotalCredit + CostEntry."Credit Amount";
         TotalDebit := TotalDebit + CostEntry."Debit Amount";
-        CreateCostRegister;
+        CreateCostRegister();
         NextCostEntryNo := NextCostEntryNo + 1;
     end;
 
@@ -246,14 +246,14 @@ codeunit 1102 "CA Jnl.-Post Line"
             CostBudgetEntry."Source Code" := "Source Code";
             CostBudgetEntry."System-Created Entry" := "System-Created Entry";
             CostBudgetEntry.Allocated := Allocated;
-            CostBudgetEntry."Last Modified By User" := UserId;
+            CostBudgetEntry."Last Modified By User" := UserId();
             CostBudgetEntry."Allocation Description" := "Allocation Description";
             CostBudgetEntry."Allocation ID" := "Allocation ID";
             OnBeforeCostBudgetEntryInsert(CostBudgetEntry, CostJnlLine);
             CostBudgetEntry.Insert();
             OnAfterCostBudgetEntryInsert(CostBudgetEntry, CostJnlLine);
         end;
-        CreateCostBudgetRegister;
+        CreateCostBudgetRegister();
         NextCostBudgetEntryNo := NextCostBudgetEntryNo + 1;
 
         TotalBudgetAmount := TotalBudgetAmount + Amt

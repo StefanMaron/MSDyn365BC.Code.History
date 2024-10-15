@@ -67,7 +67,7 @@ page 5169 "Profile Questn. Line Subform"
     procedure SetProfileQnLine(var FromProfileQuestionnaireLine: Record "Profile Questionnaire Line")
     begin
         with FromProfileQuestionnaireLine do begin
-            ClearSettings;
+            ClearSettings();
             if Find('-') then
                 repeat
                     TempProfileQuestionnaireLine := FromProfileQuestionnaireLine;

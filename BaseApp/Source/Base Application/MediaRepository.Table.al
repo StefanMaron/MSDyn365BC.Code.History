@@ -40,6 +40,23 @@ table 9400 "Media Repository"
         FileManagement: Codeunit "File Management";
         FileDoesNotExistErr: Label 'The file %1 does not exist. Import failed.', Comment = '%1 = File Path';
 
+    [TryFunction]
+    procedure GetForCurrentClientType(FileName: Text[250])
+    var
+        ClientTypeManagement: Codeunit "Client Type Management";
+        TargetClientType: ClientType;
+    begin
+        TargetClientType := ClientTypeManagement.GetCurrentClientType();
+
+        if TargetClientType = ClientType::Teams then begin
+            if Rec.Get(FileName, Format(TargetClientType)) then
+                exit;
+            TargetClientType := ClientType::Web;
+        end;
+
+        Rec.Get(FileName, Format(TargetClientType));
+    end;
+
     [Scope('OnPrem')]
     procedure ImportMedia(FilePath: Text; DisplayTarget: Code[50])
     var
@@ -50,7 +67,7 @@ table 9400 "Media Repository"
         if FileManagement.ServerFileExists(FilePath) then begin
             FileName := CopyStr(FileManagement.GetFileName(FilePath), 1, MaxStrLen(FileName));
             if not Get(FileName, DisplayTarget) then begin
-                Init;
+                Init();
                 "File Name" := FileName;
                 "Display Target" := DisplayTarget;
                 Insert(true);

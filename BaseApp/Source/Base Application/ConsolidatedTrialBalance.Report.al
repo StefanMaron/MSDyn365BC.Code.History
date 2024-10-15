@@ -15,7 +15,7 @@ report 17 "Consolidated Trial Balance"
             column(PeriodText; StrSubstNo(Text002, PeriodText))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GLAccountGLFilter; TableCaption + ': ' + GLFilter)
@@ -237,7 +237,7 @@ report 17 "Consolidated Trial Balance"
             Error(Text000);
         if ConsolidEndDate = 0D then
             Error(Text001);
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
         "G/L Account".SetRange("Date Filter", ConsolidStartDate, ConsolidEndDate);
         PeriodText := "G/L Account".GetFilter("Date Filter");
     end;
@@ -249,7 +249,6 @@ report 17 "Consolidated Trial Balance"
         InThousands: Boolean;
         ConsolidStartDate: Date;
         ConsolidEndDate: Date;
-        GLFilter: Text;
         GLAccNetChange: Decimal;
         GLBalance: Decimal;
         EliminationAmount: Decimal;
@@ -266,5 +265,8 @@ report 17 "Consolidated Trial Balance"
         BalanceCaptionLbl: Label 'Balance';
         EliminationsCaptionLbl: Label 'Eliminations';
         GLAccountTypePosting: Boolean;
+
+    protected var
+        GLFilter: Text;
 }
 

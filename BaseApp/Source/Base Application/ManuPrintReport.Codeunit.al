@@ -19,7 +19,7 @@ codeunit 99000817 "Manu. Print Report"
             exit;
 
         ProductionOrder := NewProductionOrder;
-        ProductionOrder.SetRecFilter;
+        ProductionOrder.SetRecFilter();
 
         ReportSelection.PrintWithCheckForCust(ConvertUsage(Usage), ProductionOrder, 0);
     end;

@@ -53,14 +53,22 @@ page 8 "Standard Text Codes"
                     ApplicationArea = Suite;
                     Caption = 'E&xtended Texts';
                     Image = Text;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     RunObject = Page "Extended Text List";
                     RunPageLink = "Table Name" = CONST("Standard Text"),
                                   "No." = FIELD(Code);
                     RunPageView = SORTING("Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date");
                     ToolTip = 'Select or set up additional text. Extended text can be inserted under the Description field on document lines for the item.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("E&xtended Texts_Promoted"; "E&xtended Texts")
+                {
                 }
             }
         }

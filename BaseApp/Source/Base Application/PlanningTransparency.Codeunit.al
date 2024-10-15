@@ -105,7 +105,7 @@ codeunit 99000856 "Planning Transparency"
             TempInvProfileTrack.Priority := Priority;
             TempInvProfileTrack."Line No." := SupplyLineNo;
             TempInvProfileTrack."Demand Line No." := DemandLineNo;
-            TempInvProfileTrack."Sequence No." := GetSequenceNo;
+            TempInvProfileTrack."Sequence No." := GetSequenceNo();
             TempInvProfileTrack."Surplus Type" := SurplusType;
             TempInvProfileTrack."Source Type" := SourceType;
             TempInvProfileTrack."Source ID" := SourceID;
@@ -306,7 +306,7 @@ codeunit 99000856 "Planning Transparency"
                 repeat
                     QtyTracked1 += "Quantity (Base)";
                 until Next() = 0;
-            Reset;
+            Reset();
             if ReqLine."Action Message".AsInteger() > ReqLine."Action Message"::New.AsInteger() then begin
                 case ReqLine."Ref. Order Type" of
                     ReqLine."Ref. Order Type"::Purchase:
@@ -337,7 +337,7 @@ codeunit 99000856 "Planning Transparency"
                     repeat
                         QtyTracked2 += "Quantity (Base)";
                     until Next() = 0;
-                Reset;
+                Reset();
             end;
         end;
         ReservEntry.Copy(CrntReservEntry);
@@ -441,17 +441,17 @@ codeunit 99000856 "Planning Transparency"
             end
         else
             with TempInvProfileTrack do begin
-                Init;
+                Init();
                 "Line No." := SupplyLineNo;
                 Priority := 10;
-                "Sequence No." := GetSequenceNo;
+                "Sequence No." := GetSequenceNo();
                 "Demand Line No." := 0;
                 "Surplus Type" := 0;
                 "Source Type" := 0;
                 "Source ID" := '';
                 "Quantity Tracked" := 0;
                 "Warning Level" := WarningLevel;
-                Insert;
+                Insert();
                 TempPlanningWarning.Init();
                 TempPlanningWarning."Worksheet Template Name" := '';
                 TempPlanningWarning."Worksheet Batch Name" := '';

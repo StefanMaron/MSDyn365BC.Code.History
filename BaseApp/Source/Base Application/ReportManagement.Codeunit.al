@@ -196,6 +196,7 @@ codeunit 44 ReportManagement
         DesignTimeReportSelection: Codeunit "Design-time Report Selection";
         AppLayoutType: Enum "Custom Report Layout Type";
         SelectedLayoutName: Text[250];
+        SelectedAppID: Guid;
         PlatformRenderingInPlatformTxt: Label 'RenderWordReportsInPlatform', Locked = true;
     begin
         OnSelectReportLayoutCode(ObjectId, LayoutCode, LayoutType, Success);
@@ -204,6 +205,7 @@ codeunit 44 ReportManagement
 
         LayoutType := LayoutType::None; // Unknown layout type
         SelectedLayoutName := DesignTimeReportSelection.GetSelectedLayout();
+        SelectedAppID := DesignTimeReportSelection.GetSelectedAppID();
 
         // Temporarily selected layout for Design-time report execution or for looping in batch report scenarios?
         if SelectedLayoutName = '' then
@@ -213,30 +215,37 @@ codeunit 44 ReportManagement
             then
                 SelectedLayoutName := ReportLayoutSelection."Custom Report Layout Code";
 
-        if SelectedLayoutName <> '' then begin
+        if (SelectedLayoutName <> '') and (StrLen(SelectedLayoutName) <= MaxStrLen(CustomReportLayout."Code")) then
             // The code field in Custom Report Layout table can have a maximum size of 20 characters.
-            if (StrLen(SelectedLayoutName) <= MaxStrLen(CustomReportLayout."Code")) then
-                if CustomReportLayout.Get(SelectedLayoutName.ToUpper()) then begin
-                    LayoutCode := CustomReportLayout.Code;
-                    AppLayoutType := CustomReportLayout.Type;
-                    case AppLayoutType of
-                        AppLayoutType::RDLC:
-                            LayoutType := LayoutType::RDLC;
-                        AppLayoutType::Word:
-                            LayoutType := LayoutType::Word;
+            if CustomReportLayout.Get(SelectedLayoutName.ToUpper()) then begin
+                LayoutCode := CustomReportLayout.Code;
+                AppLayoutType := CustomReportLayout.Type;
+                case AppLayoutType of
+                    AppLayoutType::RDLC:
+                        LayoutType := LayoutType::RDLC;
+                    AppLayoutType::Word:
+                        LayoutType := LayoutType::Word;
+                    else
+                        // Layout Type extensions
+                        if (FeatureKey.Get(PlatformRenderingInPlatformTxt) and (FeatureKey.Enabled = FeatureKey.Enabled::"All Users")) then
+                            // Platform rendering - The OnCustomDocumentMerger event will handle the rendering logic
+                            LayoutType := LayoutType::Custom
                         else
-                            // Layout Type extensions
-                            if (FeatureKey.Get(PlatformRenderingInPlatformTxt) and (FeatureKey.Enabled = FeatureKey.Enabled::"All Users")) then
-                                // Platform rendering - The OnCustomDocumentMerger event will handle the rendering logic
-                                LayoutType := LayoutType::Custom
-                            else
-                                // App rendering - The type will be treated like a word file and rendered by the app.
-                                LayoutType := LayoutType::Word;
-                    end;
+                            // App rendering - The type will be treated like a word file and rendered by the app.
+                            LayoutType := LayoutType::Word;
                 end;
+                Success := true;
+                exit;
+            end;
+
+        if SelectedLayoutName <> '' then begin
             // A layout code is defined, but not found in application table. The layout type is not known and it's expected that the code refers to a layout in the platform. 
             // Return the layout code to platform for further processing.
-            LayoutCode := SelectedLayoutName;
+            if IsNullGuid(SelectedAppID) then
+                LayoutCode := SelectedLayoutName
+            else
+                LayoutCode := SelectedLayoutName + '::' + Format(SelectedAppID);
+
             Success := true;
         end;
     end;
@@ -283,6 +292,27 @@ codeunit 44 ReportManagement
             exit;
         IsHandled := false;
         OnWordDocumentMergerAppMode(ObjectId, LayoutCode, InApplication, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'SelectReportLayoutUI', '', false, false)]
+    local procedure SelectReportLayoutUI(ObjectID: Integer; var LayoutName: Text; var LayoutAppID: Guid; var Success: Boolean)
+    var
+        ReportLayoutList: Record "Report Layout List";
+        IsSelectionHandled: Boolean;
+    begin
+        ReportLayoutList.SetRange(ReportLayoutList."Report ID", ObjectID);
+        OnSelectReportLayout(ReportLayoutList, IsSelectionHandled);
+
+        if IsSelectionHandled and (ReportLayoutList."Report ID" = ObjectID) then begin
+            LayoutName := ReportLayoutList."Name";
+            LayoutAppID := ReportLayoutList."Application ID";
+            Success := true;
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSelectReportLayout(var ReportLayoutList: Record "Report Layout List"; var Handled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -83,8 +83,8 @@ codeunit 134135 "ERM Reverse Fixed Assets"
 
         // Verify: Verify Reverse Error for Fixed Asset on Disposed.
         Assert.ExpectedError(
-          StrSubstNo(FAReverseErr, FixedAsset.TableCaption, FixedAsset.FieldCaption("No."), GenJournalLine."Account No.",
-            DepreciationBook.TableCaption, DepreciationBook.FieldCaption(Code), GenJournalLine."Depreciation Book Code"));
+          StrSubstNo(FAReverseErr, FixedAsset.TableCaption(), FixedAsset.FieldCaption("No."), GenJournalLine."Account No.",
+            DepreciationBook.TableCaption(), DepreciationBook.FieldCaption(Code), GenJournalLine."Depreciation Book Code"));
     end;
 
     [Test]
@@ -815,7 +815,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
 
         ReverseEntries.First;
         ReverseEntries.Description.SetValue(NewDescription);
-        while ReverseEntries.Next do
+        while ReverseEntries.Next() do
             ReverseEntries.Description.SetValue(NewDescription);
         ReverseEntries.Reverse.Invoke;
     end;

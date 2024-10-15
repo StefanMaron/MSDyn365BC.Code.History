@@ -56,7 +56,7 @@ report 507 "XBRL Copy Setup"
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -164,7 +164,7 @@ report 507 "XBRL Copy Setup"
         if XBRLTaxonomy.Find('=<>') then;
         XBRLTaxonomies.SetRecord(XBRLTaxonomy);
         XBRLTaxonomies.LookupMode := true;
-        if XBRLTaxonomies.RunModal = ACTION::LookupOK then begin
+        if XBRLTaxonomies.RunModal() = ACTION::LookupOK then begin
             XBRLTaxonomies.GetRecord(XBRLTaxonomy);
             Text := XBRLTaxonomy.Name;
             exit(true);

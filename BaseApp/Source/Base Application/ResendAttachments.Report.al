@@ -27,18 +27,17 @@ report 5183 "Resend Attachments"
                     TestField("Correspondence Type");
 
                 if UpdateMergeFields then begin
-                    if DeliveryBufferTemp.Get("Entry No.") then
+                    if TempDeliverySorter.Get("Entry No.") then
                         CurrReport.Skip();
                     InteractionLogEntryNew.TransferFields("Interaction Log Entry", false);
-                    InteractionLogEntryNew.Validate(Date, WorkDate);
+                    InteractionLogEntryNew.Validate(Date, WorkDate());
                     InteractionLogEntryNew.Validate("Time of Interaction", Time);
-                    if StrPos(Description, Text003) <> 1 then begin
+                    if StrPos(Description, Text003) <> 1 then
                         if StrLen(Description) + StrLen(Text003) <= MaxStrLen(InteractionLogEntryNew.Description) then
                             InteractionLogEntryNew.Validate(Description, Text003 + Description)
                         else
                             InteractionLogEntryNew.Validate(Description, CopyStr(
-                                Text003 + Description, 1, MaxStrLen(InteractionLogEntryNew.Description)))
-                    end;
+                                Text003 + Description, 1, MaxStrLen(InteractionLogEntryNew.Description)));
                     if CorrespondenceType <> CorrespondenceType::"Same as Entry" then
                         InteractionLogEntryNew."Correspondence Type" := AttachmentManagement.ConvertCorrespondenceType(CorrespondenceType);
                     SegLine.CopyFromInteractLogEntry(InteractionLogEntryNew);
@@ -57,32 +56,32 @@ report 5183 "Resend Attachments"
                         "Correspondence Type" := AttachmentManagement.ConvertCorrespondenceType(CorrespondenceType);
                     "Delivery Status" := "Delivery Status"::"In Progress";
                     "E-Mail Logged" := false;
-                    Modify;
+                    Modify();
                 end;
 
-                DeliveryBufferTemp.Init();
+                TempDeliverySorter.Init();
                 if UpdateMergeFields then begin
-                    DeliveryBufferTemp."No." := NewEntryNo;
-                    DeliveryBufferTemp."Attachment No." := InteractionLogEntryNew."Attachment No.";
-                    DeliveryBufferTemp."Correspondence Type" := InteractionLogEntryNew."Correspondence Type"
+                    TempDeliverySorter."No." := NewEntryNo;
+                    TempDeliverySorter."Attachment No." := InteractionLogEntryNew."Attachment No.";
+                    TempDeliverySorter."Correspondence Type" := InteractionLogEntryNew."Correspondence Type"
                 end else begin
-                    DeliveryBufferTemp."No." := "Entry No.";
-                    DeliveryBufferTemp."Attachment No." := "Attachment No.";
-                    DeliveryBufferTemp."Correspondence Type" := "Correspondence Type"
+                    TempDeliverySorter."No." := "Entry No.";
+                    TempDeliverySorter."Attachment No." := "Attachment No.";
+                    TempDeliverySorter."Correspondence Type" := "Correspondence Type"
                 end;
-                DeliveryBufferTemp.Subject := Subject;
-                DeliveryBufferTemp."Send Word Docs. as Attmt." := "Send Word Docs. as Attmt.";
-                DeliveryBufferTemp."Language Code" := "Interaction Language Code";
-                DeliveryBufferTemp.Insert();
+                TempDeliverySorter.Subject := Subject;
+                TempDeliverySorter."Send Word Docs. as Attmt." := "Send Word Docs. as Attmt.";
+                TempDeliverySorter."Language Code" := "Interaction Language Code";
+                TempDeliverySorter.Insert();
             end;
 
             trigger OnPostDataItem()
             begin
-                if DeliveryBufferTemp.Count = 0 then
+                if TempDeliverySorter.Count = 0 then
                     Error(Text002);
 
                 Commit();
-                AttachmentManagement.Send(DeliveryBufferTemp);
+                AttachmentManagement.Send(TempDeliverySorter);
             end;
         }
     }
@@ -134,18 +133,19 @@ report 5183 "Resend Attachments"
             LoggedSeg.SetFilter("Entry No.", "Interaction Log Entry".GetFilter("Logged Segment Entry No."));
             if LoggedSeg.Count <> 1 then
                 Error(
-                  Text001, LoggedSeg.TableCaption);
+                  Text001, LoggedSeg.TableCaption());
         end;
     end;
 
     var
-        Text000: Label '%1 must be specified.';
-        Text001: Label 'The interaction log entries must always be from the same %1.';
-        Text002: Label 'There is nothing to send.\\Only Microsoft Word documents can be resent.';
-        DeliveryBufferTemp: Record "Delivery Sorter" temporary;
+        TempDeliverySorter: Record "Delivery Sorter" temporary;
         AttachmentManagement: Codeunit AttachmentManagement;
         CorrespondenceType: Option "Same as Entry","Hard Copy",Email,Fax;
         UpdateMergeFields: Boolean;
         Text003: Label 'Resend:';
+
+        Text000: Label '%1 must be specified.';
+        Text001: Label 'The interaction log entries must always be from the same %1.';
+        Text002: Label 'There is nothing to send.\\Only Microsoft Word documents can be resent.';
 }
 

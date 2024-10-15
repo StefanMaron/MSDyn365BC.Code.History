@@ -6,6 +6,8 @@ codeunit 1520 "Workflow Event Handling"
     end;
 
     var
+        WorkflowManagement: Codeunit "Workflow Management";
+
         IncDocReleasedEventDescTxt: Label 'An incoming document is released.';
         CreateDocFromIncDocSuccessfulEventDescTxt: Label 'Creating a document from an incoming document is successful.';
         CreateDocFromIncDocFailsEventDescTxt: Label 'Creating a document from an incoming document fails.';
@@ -37,7 +39,6 @@ codeunit 1520 "Workflow Event Handling"
         CustomerApprovalRequestCancelEventDescTxt: Label 'An approval request for a customer is canceled.';
         VendorApprovalRequestCancelEventDescTxt: Label 'An approval request for a vendor is canceled.';
         ItemApprovalRequestCancelEventDescTxt: Label 'An approval request for an item is canceled.';
-        WorkflowManagement: Codeunit "Workflow Management";
         GeneralJournalBatchSendForApprovalEventDescTxt: Label 'Approval of a general journal batch is requested.';
         GeneralJournalBatchApprovalRequestCancelEventDescTxt: Label 'An approval request for a general journal batch is canceled.';
         GeneralJournalLineSendForApprovalEventDescTxt: Label 'Approval of a general journal line is requested.';
@@ -54,186 +55,186 @@ codeunit 1520 "Workflow Event Handling"
     procedure CreateEventsLibrary()
     begin
         AddEventToLibrary(
-          RunWorkflowOnAfterInsertIncomingDocumentCode, DATABASE::"Incoming Document", IncDocCreatedEventDescTxt, 0, false);
+          RunWorkflowOnAfterInsertIncomingDocumentCode(), DATABASE::"Incoming Document", IncDocCreatedEventDescTxt, 0, false);
         AddEventToLibrary(
-          RunWorkflowOnAfterReleaseIncomingDocCode, DATABASE::"Incoming Document", IncDocReleasedEventDescTxt, 0, false);
+          RunWorkflowOnAfterReleaseIncomingDocCode(), DATABASE::"Incoming Document", IncDocReleasedEventDescTxt, 0, false);
         AddEventToLibrary(
-          RunWorkflowOnAfterCreateDocFromIncomingDocSuccessCode,
+          RunWorkflowOnAfterCreateDocFromIncomingDocSuccessCode(),
           DATABASE::"Incoming Document", CreateDocFromIncDocSuccessfulEventDescTxt, 0, false);
         AddEventToLibrary(
-          RunWorkflowOnAfterCreateDocFromIncomingDocFailCode, DATABASE::"Incoming Document", CreateDocFromIncDocFailsEventDescTxt, 0, false);
+          RunWorkflowOnAfterCreateDocFromIncomingDocFailCode(), DATABASE::"Incoming Document", CreateDocFromIncDocFailsEventDescTxt, 0, false);
         AddEventToLibrary(
-          RunWorkflowOnAfterReadyForOCRIncomingDocCode, DATABASE::"Incoming Document", IncDocIsReadyForOCREventDescTxt, 0, false);
+          RunWorkflowOnAfterReadyForOCRIncomingDocCode(), DATABASE::"Incoming Document", IncDocIsReadyForOCREventDescTxt, 0, false);
         AddEventToLibrary(
-          RunWorkflowOnAfterSendToOCRIncomingDocCode, DATABASE::"Incoming Document", IncDocIsSentForOCREventDescTxt, 0, false);
+          RunWorkflowOnAfterSendToOCRIncomingDocCode(), DATABASE::"Incoming Document", IncDocIsSentForOCREventDescTxt, 0, false);
         AddEventToLibrary(
-          RunWorkflowOnAfterReceiveFromOCRIncomingDocCode, DATABASE::"Incoming Document", IncDocIsReceivedFromOCREventDescTxt, 0, false);
+          RunWorkflowOnAfterReceiveFromOCRIncomingDocCode(), DATABASE::"Incoming Document", IncDocIsReceivedFromOCREventDescTxt, 0, false);
         AddEventToLibrary(
-          RunWorkflowOnAfterReceiveFromDocExchIncomingDocCode,
+          RunWorkflowOnAfterReceiveFromDocExchIncomingDocCode(),
           DATABASE::"Incoming Document", IncDocIsReceivedFromDocExchEventDescTxt, 0, false);
 
         AddEventToLibrary(
-          RunWorkflowOnSendPurchaseDocForApprovalCode, DATABASE::"Purchase Header", PurchDocSendForApprovalEventDescTxt, 0, false);
+          RunWorkflowOnSendPurchaseDocForApprovalCode(), DATABASE::"Purchase Header", PurchDocSendForApprovalEventDescTxt, 0, false);
         AddEventToLibrary(
-          RunWorkflowOnSendIncomingDocForApprovalCode, DATABASE::"Incoming Document", IncDocSendForApprovalEventDescTxt, 0, false);
+          RunWorkflowOnSendIncomingDocForApprovalCode(), DATABASE::"Incoming Document", IncDocSendForApprovalEventDescTxt, 0, false);
         AddEventToLibrary(
-          RunWorkflowOnCancelIncomingDocApprovalRequestCode, DATABASE::"Incoming Document", IncDocApprReqCancelledEventDescTxt, 0, false);
+          RunWorkflowOnCancelIncomingDocApprovalRequestCode(), DATABASE::"Incoming Document", IncDocApprReqCancelledEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnCancelPurchaseApprovalRequestCode, DATABASE::"Purchase Header",
+        AddEventToLibrary(RunWorkflowOnCancelPurchaseApprovalRequestCode(), DATABASE::"Purchase Header",
           PurchDocApprReqCancelledEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnAfterReleasePurchaseDocCode, DATABASE::"Purchase Header",
+        AddEventToLibrary(RunWorkflowOnAfterReleasePurchaseDocCode(), DATABASE::"Purchase Header",
           PurchDocReleasedEventDescTxt, 0, false);
-        AddEventToLibrary(RunWorkflowOnAfterPostPurchaseDocCode, DATABASE::"Purch. Inv. Header",
+        AddEventToLibrary(RunWorkflowOnAfterPostPurchaseDocCode(), DATABASE::"Purch. Inv. Header",
           PurchInvPostEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnSendSalesDocForApprovalCode, DATABASE::"Sales Header",
+        AddEventToLibrary(RunWorkflowOnSendSalesDocForApprovalCode(), DATABASE::"Sales Header",
           SalesDocSendForApprovalEventDescTxt, 0, false);
-        AddEventToLibrary(RunWorkflowOnCancelSalesApprovalRequestCode, DATABASE::"Sales Header",
+        AddEventToLibrary(RunWorkflowOnCancelSalesApprovalRequestCode(), DATABASE::"Sales Header",
           SalesDocApprReqCancelledEventDescTxt, 0, false);
-        AddEventToLibrary(RunWorkflowOnAfterReleaseSalesDocCode, DATABASE::"Sales Header",
+        AddEventToLibrary(RunWorkflowOnAfterReleaseSalesDocCode(), DATABASE::"Sales Header",
           SalesDocReleasedEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnAfterInsertGeneralJournalLineCode, DATABASE::"Gen. Journal Line",
+        AddEventToLibrary(RunWorkflowOnAfterInsertGeneralJournalLineCode(), DATABASE::"Gen. Journal Line",
           PurchInvPmtCreatedEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnApproveApprovalRequestCode, DATABASE::"Approval Entry", ApprReqApprovedEventDescTxt, 0, false);
-        AddEventToLibrary(RunWorkflowOnRejectApprovalRequestCode, DATABASE::"Approval Entry", ApprReqRejectedEventDescTxt, 0, false);
-        AddEventToLibrary(RunWorkflowOnDelegateApprovalRequestCode, DATABASE::"Approval Entry", ApprReqDelegatedEventDescTxt, 0, false);
+        AddEventToLibrary(RunWorkflowOnApproveApprovalRequestCode(), DATABASE::"Approval Entry", ApprReqApprovedEventDescTxt, 0, false);
+        AddEventToLibrary(RunWorkflowOnRejectApprovalRequestCode(), DATABASE::"Approval Entry", ApprReqRejectedEventDescTxt, 0, false);
+        AddEventToLibrary(RunWorkflowOnDelegateApprovalRequestCode(), DATABASE::"Approval Entry", ApprReqDelegatedEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnSendOverdueNotificationsCode, DATABASE::"Approval Entry", SendOverdueNotifTxt, 0, false);
+        AddEventToLibrary(RunWorkflowOnSendOverdueNotificationsCode(), DATABASE::"Approval Entry", SendOverdueNotifTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnCustomerCreditLimitExceededCode, DATABASE::"Sales Header",
+        AddEventToLibrary(RunWorkflowOnCustomerCreditLimitExceededCode(), DATABASE::"Sales Header",
           CustomerCreditLimitExceededTxt, 0, false);
-        AddEventToLibrary(RunWorkflowOnCustomerCreditLimitNotExceededCode, DATABASE::"Sales Header",
+        AddEventToLibrary(RunWorkflowOnCustomerCreditLimitNotExceededCode(), DATABASE::"Sales Header",
           CustomerCreditLimitNotExceededTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnSendCustomerForApprovalCode, DATABASE::Customer,
+        AddEventToLibrary(RunWorkflowOnSendCustomerForApprovalCode(), DATABASE::Customer,
           CustomerSendForApprovalEventDescTxt, 0, false);
-        AddEventToLibrary(RunWorkflowOnCancelCustomerApprovalRequestCode, DATABASE::Customer,
+        AddEventToLibrary(RunWorkflowOnCancelCustomerApprovalRequestCode(), DATABASE::Customer,
           CustomerApprovalRequestCancelEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnSendVendorForApprovalCode, DATABASE::Vendor,
+        AddEventToLibrary(RunWorkflowOnSendVendorForApprovalCode(), DATABASE::Vendor,
           VendorSendForApprovalEventDescTxt, 0, false);
-        AddEventToLibrary(RunWorkflowOnCancelVendorApprovalRequestCode, DATABASE::Vendor,
+        AddEventToLibrary(RunWorkflowOnCancelVendorApprovalRequestCode(), DATABASE::Vendor,
           VendorApprovalRequestCancelEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnSendItemForApprovalCode, DATABASE::Item,
+        AddEventToLibrary(RunWorkflowOnSendItemForApprovalCode(), DATABASE::Item,
           ItemSendForApprovalEventDescTxt, 0, false);
-        AddEventToLibrary(RunWorkflowOnCancelItemApprovalRequestCode, DATABASE::Item,
+        AddEventToLibrary(RunWorkflowOnCancelItemApprovalRequestCode(), DATABASE::Item,
           ItemApprovalRequestCancelEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnSendGeneralJournalBatchForApprovalCode, DATABASE::"Gen. Journal Batch",
+        AddEventToLibrary(RunWorkflowOnSendGeneralJournalBatchForApprovalCode(), DATABASE::"Gen. Journal Batch",
           GeneralJournalBatchSendForApprovalEventDescTxt, 0, false);
-        AddEventToLibrary(RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode, DATABASE::"Gen. Journal Batch",
+        AddEventToLibrary(RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode(), DATABASE::"Gen. Journal Batch",
           GeneralJournalBatchApprovalRequestCancelEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnSendGeneralJournalLineForApprovalCode, DATABASE::"Gen. Journal Line",
+        AddEventToLibrary(RunWorkflowOnSendGeneralJournalLineForApprovalCode(), DATABASE::"Gen. Journal Line",
           GeneralJournalLineSendForApprovalEventDescTxt, 0, false);
-        AddEventToLibrary(RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode, DATABASE::"Gen. Journal Line",
+        AddEventToLibrary(RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode(), DATABASE::"Gen. Journal Line",
           GeneralJournalLineApprovalRequestCancelEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnGeneralJournalBatchBalancedCode, DATABASE::"Gen. Journal Batch",
+        AddEventToLibrary(RunWorkflowOnGeneralJournalBatchBalancedCode(), DATABASE::"Gen. Journal Batch",
           GeneralJournalBatchBalancedEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnGeneralJournalBatchNotBalancedCode, DATABASE::"Gen. Journal Batch",
+        AddEventToLibrary(RunWorkflowOnGeneralJournalBatchNotBalancedCode(), DATABASE::"Gen. Journal Batch",
           GeneralJournalBatchNotBalancedEventDescTxt, 0, false);
 
         AddEventToLibrary(
-          RunWorkflowOnBinaryFileAttachedCode,
+          RunWorkflowOnBinaryFileAttachedCode(),
           DATABASE::"Incoming Document Attachment", ImageOrPDFIsAttachedToAnIncomingDocEventDescTxt, 0, false);
 
-        AddEventToLibrary(RunWorkflowOnCustomerChangedCode, DATABASE::Customer, CustChangedTxt, 0, true);
-        AddEventToLibrary(RunWorkflowOnVendorChangedCode, DATABASE::Vendor, VendChangedTxt, 0, true);
-        AddEventToLibrary(RunWorkflowOnItemChangedCode, DATABASE::Item, ItemChangedTxt, 0, true);
+        AddEventToLibrary(RunWorkflowOnCustomerChangedCode(), DATABASE::Customer, CustChangedTxt, 0, true);
+        AddEventToLibrary(RunWorkflowOnVendorChangedCode(), DATABASE::Vendor, VendChangedTxt, 0, true);
+        AddEventToLibrary(RunWorkflowOnItemChangedCode(), DATABASE::Item, ItemChangedTxt, 0, true);
 
         AddEventToLibrary(
-          RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocSuccessCode, DATABASE::"Incoming Document",
+          RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocSuccessCode(), DATABASE::"Incoming Document",
           CreateGenJnlLineFromIncDocSuccessfulEventDescTxt, 0, false);
         AddEventToLibrary(
-          RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFailCode, DATABASE::"Incoming Document",
+          RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFailCode(), DATABASE::"Incoming Document",
           CreateGenJnlLineFromIncDocFailsEventDescTxt, 0, false);
 
-        OnAddWorkflowEventsToLibrary;
-        OnAddWorkflowTableRelationsToLibrary;
+        OnAddWorkflowEventsToLibrary();
+        OnAddWorkflowTableRelationsToLibrary();
     end;
 
     local procedure AddEventPredecessors(EventFunctionName: Code[128])
     begin
         case EventFunctionName of
-            RunWorkflowOnAfterPostPurchaseDocCode:
-                AddEventPredecessor(RunWorkflowOnAfterPostPurchaseDocCode, RunWorkflowOnAfterReleasePurchaseDocCode);
-            RunWorkflowOnCancelIncomingDocApprovalRequestCode:
-                AddEventPredecessor(RunWorkflowOnCancelIncomingDocApprovalRequestCode, RunWorkflowOnSendIncomingDocForApprovalCode);
-            RunWorkflowOnCancelPurchaseApprovalRequestCode:
-                AddEventPredecessor(RunWorkflowOnCancelPurchaseApprovalRequestCode, RunWorkflowOnSendPurchaseDocForApprovalCode);
-            RunWorkflowOnCancelSalesApprovalRequestCode:
-                AddEventPredecessor(RunWorkflowOnCancelSalesApprovalRequestCode, RunWorkflowOnSendSalesDocForApprovalCode);
-            RunWorkflowOnCancelCustomerApprovalRequestCode:
-                AddEventPredecessor(RunWorkflowOnCancelCustomerApprovalRequestCode, RunWorkflowOnSendCustomerForApprovalCode);
-            RunWorkflowOnCancelVendorApprovalRequestCode:
-                AddEventPredecessor(RunWorkflowOnCancelVendorApprovalRequestCode, RunWorkflowOnSendVendorForApprovalCode);
-            RunWorkflowOnCancelItemApprovalRequestCode:
-                AddEventPredecessor(RunWorkflowOnCancelItemApprovalRequestCode, RunWorkflowOnSendItemForApprovalCode);
-            RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode:
-                AddEventPredecessor(RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode,
-                  RunWorkflowOnSendGeneralJournalBatchForApprovalCode);
-            RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode:
-                AddEventPredecessor(RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode,
-                  RunWorkflowOnSendGeneralJournalLineForApprovalCode);
-            RunWorkflowOnCustomerCreditLimitExceededCode:
-                AddEventPredecessor(RunWorkflowOnCustomerCreditLimitExceededCode, RunWorkflowOnSendSalesDocForApprovalCode);
-            RunWorkflowOnCustomerCreditLimitNotExceededCode:
-                AddEventPredecessor(RunWorkflowOnCustomerCreditLimitNotExceededCode, RunWorkflowOnSendSalesDocForApprovalCode);
-            RunWorkflowOnApproveApprovalRequestCode:
+            RunWorkflowOnAfterPostPurchaseDocCode():
+                AddEventPredecessor(RunWorkflowOnAfterPostPurchaseDocCode(), RunWorkflowOnAfterReleasePurchaseDocCode());
+            RunWorkflowOnCancelIncomingDocApprovalRequestCode():
+                AddEventPredecessor(RunWorkflowOnCancelIncomingDocApprovalRequestCode(), RunWorkflowOnSendIncomingDocForApprovalCode());
+            RunWorkflowOnCancelPurchaseApprovalRequestCode():
+                AddEventPredecessor(RunWorkflowOnCancelPurchaseApprovalRequestCode(), RunWorkflowOnSendPurchaseDocForApprovalCode());
+            RunWorkflowOnCancelSalesApprovalRequestCode():
+                AddEventPredecessor(RunWorkflowOnCancelSalesApprovalRequestCode(), RunWorkflowOnSendSalesDocForApprovalCode());
+            RunWorkflowOnCancelCustomerApprovalRequestCode():
+                AddEventPredecessor(RunWorkflowOnCancelCustomerApprovalRequestCode(), RunWorkflowOnSendCustomerForApprovalCode());
+            RunWorkflowOnCancelVendorApprovalRequestCode():
+                AddEventPredecessor(RunWorkflowOnCancelVendorApprovalRequestCode(), RunWorkflowOnSendVendorForApprovalCode());
+            RunWorkflowOnCancelItemApprovalRequestCode():
+                AddEventPredecessor(RunWorkflowOnCancelItemApprovalRequestCode(), RunWorkflowOnSendItemForApprovalCode());
+            RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode():
+                AddEventPredecessor(RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode(),
+                  RunWorkflowOnSendGeneralJournalBatchForApprovalCode());
+            RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode():
+                AddEventPredecessor(RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode(),
+                  RunWorkflowOnSendGeneralJournalLineForApprovalCode());
+            RunWorkflowOnCustomerCreditLimitExceededCode():
+                AddEventPredecessor(RunWorkflowOnCustomerCreditLimitExceededCode(), RunWorkflowOnSendSalesDocForApprovalCode());
+            RunWorkflowOnCustomerCreditLimitNotExceededCode():
+                AddEventPredecessor(RunWorkflowOnCustomerCreditLimitNotExceededCode(), RunWorkflowOnSendSalesDocForApprovalCode());
+            RunWorkflowOnApproveApprovalRequestCode():
                 begin
-                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode, RunWorkflowOnSendIncomingDocForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode, RunWorkflowOnSendPurchaseDocForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode, RunWorkflowOnSendSalesDocForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode, RunWorkflowOnSendCustomerForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode, RunWorkflowOnSendVendorForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode, RunWorkflowOnSendItemForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode, RunWorkflowOnSendGeneralJournalBatchForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode, RunWorkflowOnGeneralJournalBatchBalancedCode);
-                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode, RunWorkflowOnSendGeneralJournalLineForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode, RunWorkflowOnCustomerChangedCode);
-                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode, RunWorkflowOnVendorChangedCode);
-                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode, RunWorkflowOnItemChangedCode);
+                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode(), RunWorkflowOnSendIncomingDocForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode(), RunWorkflowOnSendPurchaseDocForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode(), RunWorkflowOnSendSalesDocForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode(), RunWorkflowOnSendCustomerForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode(), RunWorkflowOnSendVendorForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode(), RunWorkflowOnSendItemForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode(), RunWorkflowOnSendGeneralJournalBatchForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode(), RunWorkflowOnGeneralJournalBatchBalancedCode());
+                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode(), RunWorkflowOnSendGeneralJournalLineForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode(), RunWorkflowOnCustomerChangedCode());
+                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode(), RunWorkflowOnVendorChangedCode());
+                    AddEventPredecessor(RunWorkflowOnApproveApprovalRequestCode(), RunWorkflowOnItemChangedCode());
                 end;
-            RunWorkflowOnRejectApprovalRequestCode:
+            RunWorkflowOnRejectApprovalRequestCode():
                 begin
-                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode, RunWorkflowOnSendIncomingDocForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode, RunWorkflowOnSendPurchaseDocForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode, RunWorkflowOnSendSalesDocForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode, RunWorkflowOnSendCustomerForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode, RunWorkflowOnSendVendorForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode, RunWorkflowOnSendItemForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode, RunWorkflowOnSendGeneralJournalBatchForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode, RunWorkflowOnGeneralJournalBatchBalancedCode);
-                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode, RunWorkflowOnSendGeneralJournalLineForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode, RunWorkflowOnCustomerChangedCode);
-                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode, RunWorkflowOnVendorChangedCode);
-                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode, RunWorkflowOnItemChangedCode);
+                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode(), RunWorkflowOnSendIncomingDocForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode(), RunWorkflowOnSendPurchaseDocForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode(), RunWorkflowOnSendSalesDocForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode(), RunWorkflowOnSendCustomerForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode(), RunWorkflowOnSendVendorForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode(), RunWorkflowOnSendItemForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode(), RunWorkflowOnSendGeneralJournalBatchForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode(), RunWorkflowOnGeneralJournalBatchBalancedCode());
+                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode(), RunWorkflowOnSendGeneralJournalLineForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode(), RunWorkflowOnCustomerChangedCode());
+                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode(), RunWorkflowOnVendorChangedCode());
+                    AddEventPredecessor(RunWorkflowOnRejectApprovalRequestCode(), RunWorkflowOnItemChangedCode());
                 end;
-            RunWorkflowOnDelegateApprovalRequestCode:
+            RunWorkflowOnDelegateApprovalRequestCode():
                 begin
-                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode, RunWorkflowOnSendIncomingDocForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode, RunWorkflowOnSendPurchaseDocForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode, RunWorkflowOnSendSalesDocForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode, RunWorkflowOnSendCustomerForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode, RunWorkflowOnSendVendorForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode, RunWorkflowOnSendItemForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode, RunWorkflowOnSendGeneralJournalBatchForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode, RunWorkflowOnGeneralJournalBatchBalancedCode);
-                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode, RunWorkflowOnSendGeneralJournalLineForApprovalCode);
-                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode, RunWorkflowOnCustomerChangedCode);
-                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode, RunWorkflowOnVendorChangedCode);
-                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode, RunWorkflowOnItemChangedCode);
+                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode(), RunWorkflowOnSendIncomingDocForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode(), RunWorkflowOnSendPurchaseDocForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode(), RunWorkflowOnSendSalesDocForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode(), RunWorkflowOnSendCustomerForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode(), RunWorkflowOnSendVendorForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode(), RunWorkflowOnSendItemForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode(), RunWorkflowOnSendGeneralJournalBatchForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode(), RunWorkflowOnGeneralJournalBatchBalancedCode());
+                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode(), RunWorkflowOnSendGeneralJournalLineForApprovalCode());
+                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode(), RunWorkflowOnCustomerChangedCode());
+                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode(), RunWorkflowOnVendorChangedCode());
+                    AddEventPredecessor(RunWorkflowOnDelegateApprovalRequestCode(), RunWorkflowOnItemChangedCode());
                 end;
-            RunWorkflowOnGeneralJournalBatchBalancedCode:
-                AddEventPredecessor(RunWorkflowOnGeneralJournalBatchBalancedCode, RunWorkflowOnSendGeneralJournalBatchForApprovalCode);
-            RunWorkflowOnGeneralJournalBatchNotBalancedCode:
-                AddEventPredecessor(RunWorkflowOnGeneralJournalBatchNotBalancedCode, RunWorkflowOnSendGeneralJournalBatchForApprovalCode);
+            RunWorkflowOnGeneralJournalBatchBalancedCode():
+                AddEventPredecessor(RunWorkflowOnGeneralJournalBatchBalancedCode(), RunWorkflowOnSendGeneralJournalBatchForApprovalCode());
+            RunWorkflowOnGeneralJournalBatchNotBalancedCode():
+                AddEventPredecessor(RunWorkflowOnGeneralJournalBatchNotBalancedCode(), RunWorkflowOnSendGeneralJournalBatchForApprovalCode());
         end;
 
         OnAddWorkflowEventPredecessorsToLibrary(EventFunctionName);
@@ -251,7 +252,7 @@ codeunit 1520 "Workflow Event Handling"
 
         WorkflowEvent.SetRange(Description, Description);
         if not WorkflowEvent.IsEmpty() then begin
-            if SystemInitialization.IsInProgress or (GetExecutionContext() <> ExecutionContext::Normal) then
+            if SystemInitialization.IsInProgress() or (GetExecutionContext() <> ExecutionContext::Normal) then
                 exit;
             Error(EventAlreadyExistErr, Description);
         end;
@@ -510,101 +511,101 @@ codeunit 1520 "Workflow Event Handling"
         if Rec.IsTemporary() then
             exit;
 
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterInsertIncomingDocumentCode, Rec);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterInsertIncomingDocumentCode(), Rec);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendPurchaseDocForApproval', '', false, false)]
     procedure RunWorkflowOnSendPurchaseDocForApproval(var PurchaseHeader: Record "Purchase Header")
     begin
         OnBeforeRunWorkflowOnSendPurchaseDocForApproval(PurchaseHeader);
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendPurchaseDocForApprovalCode, PurchaseHeader);
+        WorkflowManagement.HandleEvent(RunWorkflowOnSendPurchaseDocForApprovalCode(), PurchaseHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelPurchaseApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelPurchaseApprovalRequest(var PurchaseHeader: Record "Purchase Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelPurchaseApprovalRequestCode, PurchaseHeader);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCancelPurchaseApprovalRequestCode(), PurchaseHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendIncomingDocForApproval', '', false, false)]
     procedure RunWorkflowOnSendIncomingDocForApproval(var IncomingDocument: Record "Incoming Document")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendIncomingDocForApprovalCode, IncomingDocument);
+        WorkflowManagement.HandleEvent(RunWorkflowOnSendIncomingDocForApprovalCode(), IncomingDocument);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelIncomingDocApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelIncomingDocApprovalRequest(var IncomingDocument: Record "Incoming Document")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelIncomingDocApprovalRequestCode, IncomingDocument);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCancelIncomingDocApprovalRequestCode(), IncomingDocument);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Purchase Document", 'OnAfterReleasePurchaseDoc', '', false, false)]
     procedure RunWorkflowOnAfterReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean)
     begin
         if not PreviewMode then
-            WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleasePurchaseDocCode, PurchaseHeader);
+            WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleasePurchaseDocCode(), PurchaseHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendSalesDocForApproval', '', false, false)]
     procedure RunWorkflowOnSendSalesDocForApproval(var SalesHeader: Record "Sales Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendSalesDocForApprovalCode, SalesHeader);
+        WorkflowManagement.HandleEvent(RunWorkflowOnSendSalesDocForApprovalCode(), SalesHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelSalesApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelSalesApprovalRequest(var SalesHeader: Record "Sales Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelSalesApprovalRequestCode, SalesHeader);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCancelSalesApprovalRequestCode(), SalesHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnAfterReleaseSalesDoc', '', false, false)]
     procedure RunWorkflowOnAfterReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
     begin
         if not PreviewMode then
-            WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseSalesDocCode, SalesHeader);
+            WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseSalesDocCode(), SalesHeader);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Incoming Document", 'OnAfterReleaseIncomingDoc', '', false, false)]
     procedure RunWorkflowOnAfterReleaseIncomingDoc(var IncomingDocument: Record "Incoming Document")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseIncomingDocCode, IncomingDocument);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseIncomingDocCode(), IncomingDocument);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Incoming Document", 'OnAfterCreateDocFromIncomingDocSuccess', '', false, false)]
     procedure RunWorkflowOnAfterCreateDocFromIncomingDocSuccess(var IncomingDocument: Record "Incoming Document")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateDocFromIncomingDocSuccessCode, IncomingDocument);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateDocFromIncomingDocSuccessCode(), IncomingDocument);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Incoming Document", 'OnAfterCreateDocFromIncomingDocFail', '', false, false)]
     procedure RunWorkflowOnAfterCreateDocFromIncomingDocFail(var IncomingDocument: Record "Incoming Document")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateDocFromIncomingDocFailCode, IncomingDocument);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateDocFromIncomingDocFailCode(), IncomingDocument);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Send Incoming Document to OCR", 'OnAfterIncomingDocReadyForOCR', '', false, false)]
     procedure RunWorkflowOnAfterIncomingDocReadyForOCR(var IncomingDocument: Record "Incoming Document")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReadyForOCRIncomingDocCode, IncomingDocument);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReadyForOCRIncomingDocCode(), IncomingDocument);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Send Incoming Document to OCR", 'OnAfterIncomingDocSentToOCR', '', false, false)]
     procedure RunWorkflowOnAfterIncomingDocSentToOCR(var IncomingDocument: Record "Incoming Document")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterSendToOCRIncomingDocCode, IncomingDocument);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterSendToOCRIncomingDocCode(), IncomingDocument);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Send Incoming Document to OCR", 'OnAfterIncomingDocReceivedFromOCR', '', false, false)]
     procedure RunWorkflowOnAfterIncomingDocReceivedFromOCR(var IncomingDocument: Record "Incoming Document")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReceiveFromOCRIncomingDocCode, IncomingDocument);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReceiveFromOCRIncomingDocCode(), IncomingDocument);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Doc. Exch. Service Mgt.", 'OnAfterIncomingDocReceivedFromDocExch', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnAfterIncomingDocReceivedFromDocExch(var IncomingDocument: Record "Incoming Document")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReceiveFromDocExchIncomingDocCode, IncomingDocument);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReceiveFromDocExchIncomingDocCode(), IncomingDocument);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterPostPurchaseDoc', '', false, false)]
@@ -614,10 +615,8 @@ codeunit 1520 "Workflow Event Handling"
     begin
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::Order, PurchaseHeader."Document Type"::Invoice:
-                begin
-                    if PurchInvHeader.Get(PurchInvHdrNo) then
-                        WorkflowManagement.HandleEvent(RunWorkflowOnAfterPostPurchaseDocCode, PurchInvHeader);
-                end;
+                if PurchInvHeader.Get(PurchInvHdrNo) then
+                    WorkflowManagement.HandleEvent(RunWorkflowOnAfterPostPurchaseDocCode(), PurchInvHeader);
         end;
     end;
 
@@ -627,7 +626,7 @@ codeunit 1520 "Workflow Event Handling"
         if Rec.IsTemporary() then
             exit;
 
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterInsertGeneralJournalLineCode, Rec);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterInsertGeneralJournalLineCode(), Rec);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnApproveApprovalRequest', '', false, false)]
@@ -635,21 +634,21 @@ codeunit 1520 "Workflow Event Handling"
     begin
         OnBeforeRunWorkflowOnApproveApprovalRequest(ApprovalEntry);
 
-        WorkflowManagement.HandleEventOnKnownWorkflowInstance(RunWorkflowOnApproveApprovalRequestCode,
+        WorkflowManagement.HandleEventOnKnownWorkflowInstance(RunWorkflowOnApproveApprovalRequestCode(),
           ApprovalEntry, ApprovalEntry."Workflow Step Instance ID");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnDelegateApprovalRequest', '', false, false)]
     procedure RunWorkflowOnDelegateApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     begin
-        WorkflowManagement.HandleEventOnKnownWorkflowInstance(RunWorkflowOnDelegateApprovalRequestCode,
+        WorkflowManagement.HandleEventOnKnownWorkflowInstance(RunWorkflowOnDelegateApprovalRequestCode(),
           ApprovalEntry, ApprovalEntry."Workflow Step Instance ID");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnRejectApprovalRequest', '', false, false)]
     procedure RunWorkflowOnRejectApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     begin
-        WorkflowManagement.HandleEventOnKnownWorkflowInstance(RunWorkflowOnRejectApprovalRequestCode,
+        WorkflowManagement.HandleEventOnKnownWorkflowInstance(RunWorkflowOnRejectApprovalRequestCode(),
           ApprovalEntry, ApprovalEntry."Workflow Step Instance ID");
     end;
 
@@ -659,98 +658,98 @@ codeunit 1520 "Workflow Event Handling"
         ApprovalEntry: Record "Approval Entry";
     begin
         ApprovalEntry.Init();
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendOverdueNotificationsCode, ApprovalEntry);
+        WorkflowManagement.HandleEvent(RunWorkflowOnSendOverdueNotificationsCode(), ApprovalEntry);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnCustomerCreditLimitExceeded', '', false, false)]
     procedure RunWorkflowOnCustomerCreditLimitExceeded(var Sender: Record "Sales Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCustomerCreditLimitExceededCode, Sender);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCustomerCreditLimitExceededCode(), Sender);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnCustomerCreditLimitNotExceeded', '', false, false)]
     procedure RunWorkflowOnCustomerCreditLimitNotExceeded(var Sender: Record "Sales Header")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCustomerCreditLimitNotExceededCode, Sender);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCustomerCreditLimitNotExceededCode(), Sender);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendCustomerForApproval', '', false, false)]
     procedure RunWorkflowOnSendCustomerForApproval(Customer: Record Customer)
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendCustomerForApprovalCode, Customer);
+        WorkflowManagement.HandleEvent(RunWorkflowOnSendCustomerForApprovalCode(), Customer);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendVendorForApproval', '', false, false)]
     procedure RunWorkflowOnSendVendorForApproval(Vendor: Record Vendor)
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendVendorForApprovalCode, Vendor);
+        WorkflowManagement.HandleEvent(RunWorkflowOnSendVendorForApprovalCode(), Vendor);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendItemForApproval', '', false, false)]
     procedure RunWorkflowOnSendItemForApproval(Item: Record Item)
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendItemForApprovalCode, Item);
+        WorkflowManagement.HandleEvent(RunWorkflowOnSendItemForApprovalCode(), Item);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelCustomerApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelCustomerApprovalRequest(Customer: Record Customer)
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelCustomerApprovalRequestCode, Customer);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCancelCustomerApprovalRequestCode(), Customer);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelVendorApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelVendorApprovalRequest(Vendor: Record Vendor)
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelVendorApprovalRequestCode, Vendor);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCancelVendorApprovalRequestCode(), Vendor);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelItemApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelItemApprovalRequest(Item: Record Item)
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelItemApprovalRequestCode, Item);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCancelItemApprovalRequestCode(), Item);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendGeneralJournalBatchForApproval', '', false, false)]
     procedure RunWorkflowOnSendGeneralJournalBatchForApproval(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendGeneralJournalBatchForApprovalCode, GenJournalBatch);
+        WorkflowManagement.HandleEvent(RunWorkflowOnSendGeneralJournalBatchForApprovalCode(), GenJournalBatch);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelGeneralJournalBatchApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelGeneralJournalBatchApprovalRequest(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode, GenJournalBatch);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode(), GenJournalBatch);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendGeneralJournalLineForApproval', '', false, false)]
     procedure RunWorkflowOnSendGeneralJournalLineForApproval(var GenJournalLine: Record "Gen. Journal Line")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendGeneralJournalLineForApprovalCode, GenJournalLine);
+        WorkflowManagement.HandleEvent(RunWorkflowOnSendGeneralJournalLineForApprovalCode(), GenJournalLine);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelGeneralJournalLineApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelGeneralJournalLineApprovalRequest(var GenJournalLine: Record "Gen. Journal Line")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode, GenJournalLine);
+        WorkflowManagement.HandleEvent(RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode(), GenJournalLine);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Batch", 'OnGeneralJournalBatchBalanced', '', false, false)]
     procedure RunWorkflowOnGeneralJournalBatchBalanced(var Sender: Record "Gen. Journal Batch")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnGeneralJournalBatchBalancedCode, Sender);
+        WorkflowManagement.HandleEvent(RunWorkflowOnGeneralJournalBatchBalancedCode(), Sender);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Batch", 'OnGeneralJournalBatchNotBalanced', '', false, false)]
     procedure RunWorkflowOnGeneralJournalBatchNotBalanced(var Sender: Record "Gen. Journal Batch")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnGeneralJournalBatchNotBalancedCode, Sender);
+        WorkflowManagement.HandleEvent(RunWorkflowOnGeneralJournalBatchNotBalancedCode(), Sender);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Incoming Document Attachment", 'OnAttachBinaryFile', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnBinaryFileAttached(var Sender: Record "Incoming Document Attachment")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnBinaryFileAttachedCode, Sender);
+        WorkflowManagement.HandleEvent(RunWorkflowOnBinaryFileAttachedCode(), Sender);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterModifyEvent', '', false, false)]
@@ -760,7 +759,7 @@ codeunit 1520 "Workflow Event Handling"
             exit;
 
         if Format(xRec) <> Format(Rec) then
-            WorkflowManagement.HandleEventWithxRec(RunWorkflowOnCustomerChangedCode, Rec, xRec);
+            WorkflowManagement.HandleEventWithxRec(RunWorkflowOnCustomerChangedCode(), Rec, xRec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterRenameEvent', '', false, false)]
@@ -780,7 +779,7 @@ codeunit 1520 "Workflow Event Handling"
             exit;
 
         if Format(xRec) <> Format(Rec) then
-            WorkflowManagement.HandleEventWithxRec(RunWorkflowOnVendorChangedCode, Rec, xRec);
+            WorkflowManagement.HandleEventWithxRec(RunWorkflowOnVendorChangedCode(), Rec, xRec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterRenameEvent', '', false, false)]
@@ -801,11 +800,11 @@ codeunit 1520 "Workflow Event Handling"
         if Rec.IsTemporary() then
             exit;
 
-        if GenJnlPostPreview.IsActive then
+        if GenJnlPostPreview.IsActive() then
             exit;
 
         if Format(xRec) <> Format(Rec) then
-            WorkflowManagement.HandleEventWithxRec(RunWorkflowOnItemChangedCode, Rec, xRec);
+            WorkflowManagement.HandleEventWithxRec(RunWorkflowOnItemChangedCode(), Rec, xRec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Item", 'OnAfterRenameEvent', '', false, false)]
@@ -826,13 +825,13 @@ codeunit 1520 "Workflow Event Handling"
     [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnAfterCreateGenJnlLineFromIncomingDocSuccess', '', false, false)]
     procedure RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocSuccess(var IncomingDocument: Record "Incoming Document")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocSuccessCode, IncomingDocument);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocSuccessCode(), IncomingDocument);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnAfterCreateGenJnlLineFromIncomingDocFail', '', false, false)]
     procedure RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFail(var IncomingDocument: Record "Incoming Document")
     begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFailCode, IncomingDocument);
+        WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFailCode(), IncomingDocument);
     end;
 
     [IntegrationEvent(false, false)]

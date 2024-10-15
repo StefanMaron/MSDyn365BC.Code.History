@@ -535,7 +535,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     begin
         // Setup: Modify General Ledger Setup and Post Gen. Journal Lines for Invoice and Payment with Random Amount and
         // attached currency and Post them.
-        CreateDocumentLine(GenJournalLine, GenJnlDocumentType, CreateVendor, Amount, CurrencyCode, WorkDate);
+        CreateDocumentLine(GenJournalLine, GenJnlDocumentType, CreateVendor, Amount, CurrencyCode, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -997,7 +997,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         PaymentTerms: Record "Payment Terms";
     begin
         PaymentTerms.Get(GetPaymentTerms);
-        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
     end;
 
     local procedure FillListWithDecimalValues(var DecimalsList: List of [Decimal]; var TotalValue: Decimal; Value1: Decimal; Value2: Decimal; Value3: Decimal; Value4: Decimal)
@@ -1057,7 +1057,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         GLAccount.FindSet();
         VendorPostingGroup.Validate("Payment Disc. Debit Acc.", GLAccount."No.");
         VendorPostingGroup.Validate("Payment Disc. Credit Acc.", GLAccount."No.");
-        GLAccount.Next;
+        GLAccount.Next();
         VendorPostingGroup.Validate("Payment Tolerance Debit Acc.", GLAccount."No.");
         VendorPostingGroup.Validate("Payment Tolerance Credit Acc.", GLAccount."No.");
         VendorPostingGroup.Modify(true);
@@ -1100,7 +1100,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         Assert.AreNearlyEqual(
           ToleranceDiscount, VendorLedgerEntry."Original Pmt. Disc. Possible", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption("Original Pmt. Disc. Possible"),
-            ToleranceDiscount, VendorLedgerEntry.TableCaption));
+            ToleranceDiscount, VendorLedgerEntry.TableCaption()));
     end;
 
     [Normal]
@@ -1117,7 +1117,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         Assert.AreNearlyEqual(
           ToleranceDiscount, DetailedVendorLedgEntry."Amount (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, DetailedVendorLedgEntry.FieldCaption("Amount (LCY)"),
-            ToleranceDiscount, DetailedVendorLedgEntry.TableCaption));
+            ToleranceDiscount, DetailedVendorLedgEntry.TableCaption()));
     end;
 
     local procedure VerifyPmtToleranceOnClosedVendorLedgerEntry(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedPmtTolerances: List of [Decimal])

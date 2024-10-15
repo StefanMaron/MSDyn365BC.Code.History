@@ -54,7 +54,7 @@ codeunit 137046 "SCM Order Planning - I"
         UpdateItemInventory(BOMQuantity, ChildItem."No.");
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", '', LibraryRandom.RandDec(5, 2) + 1,
-          CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate()));
         CreateAndPostConsumWithQty(ProductionOrder."No.", BOMQuantity);
 
         // Exercise : Run Order Planning.
@@ -87,7 +87,7 @@ codeunit 137046 "SCM Order Planning - I"
         UpdateItemInventory(BOMQuantity, ChildItem."No.");
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", '', LibraryRandom.RandDec(5, 2) + 1,
-          CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate()));
         CreateAndPostConsumWithQty(ProductionOrder."No.", BOMQuantity);
         LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
 
@@ -120,7 +120,7 @@ codeunit 137046 "SCM Order Planning - I"
         UpdateItemInventory(BOMQuantity, ChildItem."No.");
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", '', 1,
-          CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate));  // Value Needed.
+          CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate()));  // Value Needed.
 
         CreateAndPostConsumWithQty(ProductionOrder."No.", BOMQuantity);
 
@@ -188,7 +188,7 @@ codeunit 137046 "SCM Order Planning - I"
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateManufacturingSetup(ParentItem, ChildItem, LibraryRandom.RandDec(10, 2), false);
         CreateAndRefreshProdOrder(
-          ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", '', LibraryRandom.RandDec(10, 2) + 10, WorkDate);
+          ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", '', LibraryRandom.RandDec(10, 2) + 10, WorkDate());
         LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
 
         // Exercise : Run Make order from Order Planning Worksheet.
@@ -413,7 +413,7 @@ codeunit 137046 "SCM Order Planning - I"
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateManufacturingSetup(ParentItem, ChildItem, LibraryRandom.RandDec(10, 2), true);
         CreateAndRefreshProdOrder(
-          ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", '', LibraryRandom.RandDec(10, 2) + 10, WorkDate);
+          ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", '', LibraryRandom.RandDec(10, 2) + 10, WorkDate());
         LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
 
         // Exercise : Change Replenishment System on Requisition Line and calculate plan for sales.
@@ -429,7 +429,7 @@ codeunit 137046 "SCM Order Planning - I"
         Assert.AreEqual(
           RequisitionLine."Replenishment System"::Purchase, RequisitionLine."Replenishment System",
           StrSubstNo(ValidationError, RequisitionLine.FieldCaption("Replenishment System"),
-            RequisitionLine."Replenishment System"::Purchase, RequisitionLine.TableCaption));
+            RequisitionLine."Replenishment System"::Purchase, RequisitionLine.TableCaption()));
 
         // Tear Down.
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
@@ -455,7 +455,7 @@ codeunit 137046 "SCM Order Planning - I"
         CreateManufacturingSetup(ParentItem, ChildItem, LibraryRandom.RandDec(10, 2), true);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationBlue.Code, LibraryRandom.RandDec(10, 2) +
-          10, WorkDate);
+          10, WorkDate());
         LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
         ChangeReplenishmentSystem(
           RequisitionLine, RequisitionLine."Replenishment System"::"Prod. Order", RequisitionLine."Replenishment System"::Purchase,
@@ -472,7 +472,7 @@ codeunit 137046 "SCM Order Planning - I"
         PurchaseLine.FindFirst();
         Assert.AreEqual(
           RequisitionLine.Quantity, PurchaseLine.Quantity,
-          StrSubstNo(ValidationError, RequisitionLine.FieldCaption(Quantity), PurchaseLine.Quantity, RequisitionLine.TableCaption));
+          StrSubstNo(ValidationError, RequisitionLine.FieldCaption(Quantity), PurchaseLine.Quantity, RequisitionLine.TableCaption()));
 
         // Tear Down.
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
@@ -497,7 +497,7 @@ codeunit 137046 "SCM Order Planning - I"
         CreateManufacturingSetup(ParentItem, ChildItem, LibraryRandom.RandDec(10, 2), true);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationBlue.Code, LibraryRandom.RandDec(10, 2) +
-          10, WorkDate);
+          10, WorkDate());
         LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
         ChangeReplenishmentSystem(
           RequisitionLine, RequisitionLine."Replenishment System"::"Prod. Order", RequisitionLine."Replenishment System"::Purchase,
@@ -537,7 +537,7 @@ codeunit 137046 "SCM Order Planning - I"
         CreateManufacturingSetup(ParentItem, ChildItem, LibraryRandom.RandDec(10, 2), true);
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationBlue.Code, LibraryRandom.RandDec(10, 2) +
-          10, WorkDate);
+          10, WorkDate());
         LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
         ChangeReplenishmentSystem(
           RequisitionLine, RequisitionLine."Replenishment System"::"Prod. Order", RequisitionLine."Replenishment System"::Purchase,
@@ -568,7 +568,7 @@ codeunit 137046 "SCM Order Planning - I"
         PurchaseLine.FindFirst();
         Assert.AreEqual(
           RequisitionLine.Quantity, PurchaseLine.Quantity,
-          StrSubstNo(ValidationError, RequisitionLine.FieldCaption(Quantity), PurchaseLine.Quantity, RequisitionLine.TableCaption));
+          StrSubstNo(ValidationError, RequisitionLine.FieldCaption(Quantity), PurchaseLine.Quantity, RequisitionLine.TableCaption()));
 
         // Tear Down.
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
@@ -641,13 +641,13 @@ codeunit 137046 "SCM Order Planning - I"
         CreateItemWithProductionBOM(ParentItem, ChildItem, ItemVariant.Code, LibraryRandom.RandDec(10, 2));
         CreateAndRefreshProdOrder(
           ProductionOrder, Status, ParentItem."No.", LocationBlue.Code, LibraryRandom.RandDec(10, 2),
-          CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate()));
         CreateAndRefreshProdOrder(
           ProductionOrder2, Status, ParentItem."No.", LocationRed.Code, LibraryRandom.RandDec(10, 2),
-          CalcDate('<' + Format(LibraryRandom.RandInt(10) + 10) + 'D>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(10) + 10) + 'D>', WorkDate()));
         CreateAndRefreshProdOrder(
           ProductionOrder3, Status, ParentItem."No.", LocationBlue2.Code, LibraryRandom.RandDec(10, 2),
-          CalcDate('<' + Format(LibraryRandom.RandInt(10) + 10) + 'D>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(10) + 10) + 'D>', WorkDate()));
 
         // Exercise: Run Calculate order planning.
         LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
@@ -680,8 +680,8 @@ codeunit 137046 "SCM Order Planning - I"
     begin
         // Check That One Purchase Order Created for Two Sales Line Item with different Shipment Date.
         OnePurchOfTwoSalesLineWithDate(
-          CalcDate('<' + Format(LibraryRandom.RandInt(2) + 3) + 'D>', WorkDate),
-          CalcDate('<' + Format(LibraryRandom.RandInt(2) + 20) + 'D>', WorkDate));
+          CalcDate('<' + Format(LibraryRandom.RandInt(2) + 3) + 'D>', WorkDate()),
+          CalcDate('<' + Format(LibraryRandom.RandInt(2) + 20) + 'D>', WorkDate()));
     end;
 
     [Test]
@@ -690,7 +690,7 @@ codeunit 137046 "SCM Order Planning - I"
     procedure OnePurchOfTwoSalesLineSameDate()
     begin
         // Check That One Purchase Order Created for Two Sales Line Item with Same Shipment Date.
-        OnePurchOfTwoSalesLineWithDate(WorkDate, WorkDate);
+        OnePurchOfTwoSalesLineWithDate(WorkDate(), WorkDate());
     end;
 
     local procedure OnePurchOfTwoSalesLineWithDate(ShipmentDate: Date; ShipmentDate2: Date)
@@ -723,7 +723,7 @@ codeunit 137046 "SCM Order Planning - I"
         // Verify: Check that Expected Receipt Date is equal Shipment Date and Purchase Quantity is equal to Quantity.
         FindPurchaseLine(PurchaseLine, PurchaseOrderNo);
         VerifyPurchaseLine(PurchaseLine, Item."No.", Quantity, ShipmentDate);
-        PurchaseLine.Next;
+        PurchaseLine.Next();
         VerifyPurchaseLine(PurchaseLine, Item2."No.", Quantity, ShipmentDate2);
 
         // Tear Down.
@@ -757,7 +757,7 @@ codeunit 137046 "SCM Order Planning - I"
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         Quantity := LibraryRandom.RandDec(10, 2);
-        ShipmentDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);
+        ShipmentDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());
         CreateSalesLine(SalesHeader, Item."No.", LocationRed.Code, ShipmentDate, Quantity, Quantity);
         ShipmentDate2 := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', ShipmentDate);
         CreateSalesLine(SalesHeader, Item2."No.", LocationBlue.Code, ShipmentDate2, Quantity, Quantity);
@@ -797,7 +797,7 @@ codeunit 137046 "SCM Order Planning - I"
         // Setup: Create Work Center, Routing, Item, Create different Production Order with different Due Date.
         CreateManufacturingSetup(ParentItem, ChildItem, LibraryRandom.RandDec(10, 2), false);
 
-        DueDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);
+        DueDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate());
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::Simulated, ParentItem."No.", '', LibraryRandom.RandDec(10, 2), DueDate);
         DueDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', DueDate);
@@ -897,7 +897,7 @@ codeunit 137046 "SCM Order Planning - I"
         Item.Delete(true);
 
         // [THEN] "Cost Is Adjusted" in Inventory Adjmt. Entry (Order) is TRUE
-        InvtAdjmtEntryOrder.Find;
+        InvtAdjmtEntryOrder.Find();
         Assert.IsTrue(InvtAdjmtEntryOrder."Cost is Adjusted", CostIsAdjustedErr);
     end;
 
@@ -948,7 +948,7 @@ codeunit 137046 "SCM Order Planning - I"
         CreateItemWithVendorNo(Item);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         LibraryPurchase.CreateSpecialOrderPurchasingCode(Purchasing);
         SalesLine.Validate("Purchasing Code", Purchasing.Code);
@@ -958,7 +958,7 @@ codeunit 137046 "SCM Order Planning - I"
         GetSpecialOrder(RequisitionLine, Item."No.");
 
         // [WHEN] Carry Out Action Message
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
 
         // [THEN] Purchase Order is created and its "Sell-to Customer No." field is blank
         FindPurchaseHeaderByItemNo(PurchaseHeader, Item."No.");
@@ -984,7 +984,7 @@ codeunit 137046 "SCM Order Planning - I"
         CreateItemWithVendorNo(Item);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         LibraryPurchase.CreateDropShipmentPurchasingCode(Purchasing);
         SalesLine.Validate("Purchasing Code", Purchasing.Code);
@@ -994,7 +994,7 @@ codeunit 137046 "SCM Order Planning - I"
         GetDropShipment(RequisitionLine, SalesLine);
 
         // [WHEN] Run "Carry Out Action Message" in the requisition worksheet
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
 
         // [THEN] Purchase Order is created and its "Sell-to Customer No." field is populated with "SO"."Sell-to Customer No."
         FindPurchaseHeaderByItemNo(PurchaseHeader, Item."No.");
@@ -1171,7 +1171,7 @@ codeunit 137046 "SCM Order Planning - I"
             "No." := LibraryUtility.GenerateGUID();
             "Indirect Cost %" := LibraryRandom.RandDec(10, 2);
             "Overhead Rate" := LibraryRandom.RandDec(10, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1182,7 +1182,7 @@ codeunit 137046 "SCM Order Planning - I"
             "Item No." := ItemNo;
             "Indirect Cost %" := LibraryRandom.RandDec(10, 2);
             "Overhead Rate" := LibraryRandom.RandDec(10, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1320,15 +1320,15 @@ codeunit 137046 "SCM Order Planning - I"
         QuantityToShip := LibraryRandom.RandDec(10, 2);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        CreateSalesLine(SalesHeader, ItemNo, LocationCode, WorkDate, Quantity, QuantityToShip);
-        CreateSalesLine(SalesHeader, ItemNo2, LocationCode, WorkDate, Quantity, QuantityToShip);
-        CreateSalesLine(SalesHeader, ItemNo, LocationCode2, WorkDate, Quantity, QuantityToShip);
+        CreateSalesLine(SalesHeader, ItemNo, LocationCode, WorkDate(), Quantity, QuantityToShip);
+        CreateSalesLine(SalesHeader, ItemNo2, LocationCode, WorkDate(), Quantity, QuantityToShip);
+        CreateSalesLine(SalesHeader, ItemNo, LocationCode2, WorkDate(), Quantity, QuantityToShip);
 
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::Order, SalesHeader."Sell-to Customer No.");
-        CreateSalesLine(SalesHeader2, ItemNo, LocationCode, WorkDate, Quantity, QuantityToShip);
+        CreateSalesLine(SalesHeader2, ItemNo, LocationCode, WorkDate(), Quantity, QuantityToShip);
 
         LibrarySales.CreateSalesHeader(SalesHeader3, SalesHeader3."Document Type"::Order, SalesHeader."Sell-to Customer No.");
-        CreateSalesLine(SalesHeader3, ItemNo2, LocationCode2, WorkDate, Quantity, QuantityToShip);
+        CreateSalesLine(SalesHeader3, ItemNo2, LocationCode2, WorkDate(), Quantity, QuantityToShip);
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
@@ -1350,7 +1350,7 @@ codeunit 137046 "SCM Order Planning - I"
         CreateManufacturingSetup(ParentItem, ChildItem, Qty, false);
         UpdateItemInventory(Qty, ChildItem."No.");
         CreateAndRefreshProdOrder(
-          ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", '', LibraryRandom.RandDec(5, 2), WorkDate);
+          ProductionOrder, ProductionOrder.Status::Released, ParentItem."No.", '', LibraryRandom.RandDec(5, 2), WorkDate());
     end;
 
     local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[10]; ShipmentDate: Date; Quantity: Decimal; QuantityToShip: Decimal)
@@ -1372,7 +1372,7 @@ codeunit 137046 "SCM Order Planning - I"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Modify(true);
-        CreateSalesLine(SalesHeader, ItemNo, LocationCode, WorkDate, Quantity, QtyToShip);
+        CreateSalesLine(SalesHeader, ItemNo, LocationCode, WorkDate(), Quantity, QtyToShip);
     end;
 
     local procedure CreateLocation(var Location: Record Location; UseAsInTransit: Boolean)
@@ -1460,7 +1460,7 @@ codeunit 137046 "SCM Order Planning - I"
             "Order Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Order Line No."));
             "Item No." := ItemNo;
             "Cost is Adjusted" := false;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1531,7 +1531,7 @@ codeunit 137046 "SCM Order Planning - I"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         PurchasesPayablesSetup.Get();
-        exit(NoSeriesManagement.GetNextNo(PurchasesPayablesSetup."Order Nos.", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(PurchasesPayablesSetup."Order Nos.", WorkDate(), false));
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
@@ -1656,7 +1656,7 @@ codeunit 137046 "SCM Order Planning - I"
         repeat
             ItemJournalLine.Validate(Quantity, Quantity);
             ItemJournalLine.Modify(true);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure UpdateTransReplenishmentOnSKU(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item; Location: Record Location; ReplenishmentSystem: Enum "Replenishment System"; TransferFromCode: Code[10])
@@ -1717,7 +1717,7 @@ codeunit 137046 "SCM Order Planning - I"
                         RequisitionLine.TestField(Status, SalesHeader.Status);
                         RequisitionLine.TestField("Location Code", SalesLine."Location Code");
                         RequisitionLine.TestField("Due Date", SalesLine."Shipment Date");
-                    until SalesLine.Next = 0;
+                    until SalesLine.Next() = 0;
                 end;
             DemandTypeGlobal::Production:
                 begin
@@ -1730,7 +1730,7 @@ codeunit 137046 "SCM Order Planning - I"
                         RequisitionLine.TestField("Demand Quantity", ProdOrderComponent."Remaining Quantity");
                         RequisitionLine.TestField("Location Code", ProdOrderComponent."Location Code");
                         RequisitionLine.TestField("Due Date", ProdOrderComponent."Due Date");
-                    until ProdOrderComponent.Next = 0;
+                    until ProdOrderComponent.Next() = 0;
                 end;
         end;
     end;
@@ -1764,7 +1764,7 @@ codeunit 137046 "SCM Order Planning - I"
                         ProductionOrder.TestField("Location Code", ProdOrderComponent."Location Code");
                     end;
             end;
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure VerifyPurchaseLine(PurchaseLine: Record "Purchase Line"; No: Code[20]; Quantity: Decimal; ExpectedReceiptDate: Date)
@@ -1863,7 +1863,7 @@ codeunit 137046 "SCM Order Planning - I"
                             end;
                     end;
             end;
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure VerifyRequisitionWorksheet(var RequisitionLine: Record "Requisition Line"; No: Code[20]; ShipmentDate: Date; LocationCode: Code[10]; Quantity: Decimal)

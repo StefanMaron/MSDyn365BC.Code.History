@@ -16,13 +16,13 @@ page 9190 "Profile Customization List"
             repeater(Repeater1)
             {
                 ShowCaption = false;
-                field("Profile ID"; "Profile ID")
+                field("Profile ID"; Rec."Profile ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Profile ID';
                     ToolTip = 'Specifies the profile that the customization has been created for.';
                 }
-                field("App ID"; "App ID")
+                field("App ID"; Rec."App ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Profile App ID';
@@ -84,10 +84,6 @@ page 9190 "Profile Customization List"
             {
                 Caption = 'Troubleshoot';
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Image = Troubleshoot;
                 ToolTip = 'Runs a series of diagnostic tests on the list of customizations.';
 
@@ -103,10 +99,6 @@ page 9190 "Profile Customization List"
             {
                 Caption = 'Show only errors';
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Visible = ShowProfileDiagnosticsListPart and (not ShowingOnlyErrors);
                 Image = Filter;
                 ToolTip = 'Filter on only page customizations with errors.';
@@ -117,15 +109,15 @@ page 9190 "Profile Customization List"
                     OperationId: Guid;
                 begin
                     ShowingOnlyErrors := true;
-                    DesignerDiagnostics.Reset();
-                    DesignerDiagnostics.SetRange(Severity, Severity::Error);
+                    TempDesignerDiagnostics.Reset();
+                    TempDesignerDiagnostics.SetRange(Severity, Severity::Error);
 
                     TenantProfilePageMetadata.CopyFilters(Rec);
                     if TenantProfilePageMetadata.FindSet() then
                         repeat
                             if SystemIdToOperationId.Get(TenantProfilePageMetadata.SystemId, OperationId) then begin
-                                DesignerDiagnostics.SetRange("Operation ID", OperationId);
-                                if not DesignerDiagnostics.IsEmpty() then
+                                TempDesignerDiagnostics.SetRange("Operation ID", OperationId);
+                                if not TempDesignerDiagnostics.IsEmpty() then
                                     TenantProfilePageMetadata.Mark(true);
                             end;
                         until TenantProfilePageMetadata.Next() = 0;
@@ -140,10 +132,6 @@ page 9190 "Profile Customization List"
             {
                 Caption = 'Show all';
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Visible = ShowingOnlyErrors;
                 Image = Filter;
                 ToolTip = 'Show all page customizations within filter.';
@@ -158,15 +146,32 @@ page 9190 "Profile Customization List"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(TroubleshootProblems_Promoted; TroubleshootProblems)
+                {
+                }
+                actionref(ShowErrorsAction_Promoted; ShowErrorsAction)
+                {
+                }
+                actionref(ShowAllPagesAction_Promoted; ShowAllPagesAction)
+                {
+                }
+            }
+        }
     }
 
     local procedure ShowScanCompleteMessage()
     var
         Errors: Integer;
     begin
-        DesignerDiagnostics.Reset();
-        DesignerDiagnostics.SetRange(Severity, Severity::Error);
-        Errors := DesignerDiagnostics.Count();
+        TempDesignerDiagnostics.Reset();
+        TempDesignerDiagnostics.SetRange(Severity, Severity::Error);
+        Errors := TempDesignerDiagnostics.Count();
 
         if Errors > 0 then
             Message(ScanCompletedWithErrorsMsg, Errors)
@@ -207,8 +212,8 @@ page 9190 "Profile Customization List"
         TenantProfilePageMetadata.SetRange(Owner, Owner::Tenant); // We can only scan user created page customizations
         TotalProfiles := CountNumberOfProfilesWithinFilter(TenantProfilePageMetadata);
 
-        DesignerDiagnostics.Reset();
-        DesignerDiagnostics.DeleteAll();
+        TempDesignerDiagnostics.Reset();
+        TempDesignerDiagnostics.DeleteAll();
 
         if TenantProfilePageMetadata.FindSet() then
             repeat
@@ -235,12 +240,12 @@ page 9190 "Profile Customization List"
         NavDesignerCompilationResult := NavDesignerPageCustomizationValidationBase.ValidatePageCustomization(TenantProfilePageMetadata."Page ID");
 
         OperationId := CreateGuid();
-        DesignerDiagnostics."Operation ID" := OperationId;
+        TempDesignerDiagnostics."Operation ID" := OperationId;
         foreach NavDesignerDiagnostic in NavDesignerCompilationResult.Diagnostics() do begin
-            DesignerDiagnostics."Diagnostics ID" += 1;
-            DesignerDiagnostics.Severity := DesignerDiagnostics.ConvertNavDesignerDiagnosticSeverityToEnum(NavDesignerDiagnostic.Severity());
-            DesignerDiagnostics.Message := CopyStr(NavDesignerDiagnostic.Message(), 1, MaxStrLen(DesignerDiagnostics.Message));
-            DesignerDiagnostics.Insert();
+            TempDesignerDiagnostics."Diagnostics ID" += 1;
+            TempDesignerDiagnostics.Severity := TempDesignerDiagnostics.ConvertNavDesignerDiagnosticSeverityToEnum(NavDesignerDiagnostic.Severity());
+            TempDesignerDiagnostics.Message := CopyStr(NavDesignerDiagnostic.Message(), 1, MaxStrLen(TempDesignerDiagnostics.Message));
+            TempDesignerDiagnostics.Insert();
         end;
 
         // Add mapping to page diagnostics
@@ -258,22 +263,22 @@ page 9190 "Profile Customization List"
         if not SystemIdToOperationId.Get(SystemId, OperationId) then
             exit;
 
-        DesignerDiagnostics.Reset();
-        DesignerDiagnostics.SetRange("Operation ID", OperationId);
-        DesignerDiagnostics.SetRange(Severity, Severity::Error);
-        if DesignerDiagnostics.Count() > 0 then begin
+        TempDesignerDiagnostics.Reset();
+        TempDesignerDiagnostics.SetRange("Operation ID", OperationId);
+        TempDesignerDiagnostics.SetRange(Severity, Severity::Error);
+        if TempDesignerDiagnostics.Count() > 0 then begin
             HealthStatusStyleExpr := 'Unfavorable';
-            exit(StrSubstNo(PageValidationFailedWithErrorsTxt, DesignerDiagnostics.Count()));
+            exit(StrSubstNo(PageValidationFailedWithErrorsTxt, TempDesignerDiagnostics.Count()));
         end;
-        DesignerDiagnostics.SetRange(Severity, Severity::Warning);
-        if DesignerDiagnostics.Count() > 0 then begin
+        TempDesignerDiagnostics.SetRange(Severity, Severity::Warning);
+        if TempDesignerDiagnostics.Count() > 0 then begin
             HealthStatusStyleExpr := 'Ambiguous';
-            exit(StrSubstNo(PageSuccessfullyValidatedWithWarningsTxt, DesignerDiagnostics.Count()));
+            exit(StrSubstNo(PageSuccessfullyValidatedWithWarningsTxt, TempDesignerDiagnostics.Count()));
         end;
-        DesignerDiagnostics.SetRange(Severity, Severity::Information);
-        if DesignerDiagnostics.Count() > 0 then begin
+        TempDesignerDiagnostics.SetRange(Severity, Severity::Information);
+        if TempDesignerDiagnostics.Count() > 0 then begin
             HealthStatusStyleExpr := 'Favorable';
-            exit(StrSubstNo(PageSuccessfullyValidatedWithInformationalMessagesTxt, DesignerDiagnostics.Count()));
+            exit(StrSubstNo(PageSuccessfullyValidatedWithInformationalMessagesTxt, TempDesignerDiagnostics.Count()));
         end;
         exit(PageSuccessfullyValidatedTxt)
     end;
@@ -300,9 +305,9 @@ page 9190 "Profile Customization List"
         OperationId: Guid;
     begin
         if SystemIdToOperationId.Get(SystemId, OperationId) then;
-        DesignerDiagnostics.Reset();
-        DesignerDiagnostics.SetRange("Operation ID", OperationId);
-        CurrPage.ProfileDiagnosticsListPart.Page.SetRecords(DesignerDiagnostics);
+        TempDesignerDiagnostics.Reset();
+        TempDesignerDiagnostics.SetRange("Operation ID", OperationId);
+        CurrPage.ProfileDiagnosticsListPart.Page.SetRecords(TempDesignerDiagnostics);
         CurrPage.ProfileDiagnosticsListPart.Page.Update(false);
     end;
 
@@ -313,7 +318,7 @@ page 9190 "Profile Customization List"
     end;
 
     var
-        DesignerDiagnostics: Record "Designer Diagnostic" temporary;
+        TempDesignerDiagnostics: Record "Designer Diagnostic" temporary;
         ExtensionManagement: Codeunit "Extension Management";
         CannotDeleteExtensionProfileErr: Label 'You cannot delete this profile customization because it comes from an extension.';
         PageCaption: Text;

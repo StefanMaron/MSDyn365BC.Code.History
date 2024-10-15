@@ -164,7 +164,7 @@ table 172 "Standard Customer Sales Code"
         OnBeforeStdCustSalesCodesSetTableView(StdCustSalesCode, SalesHeader);
         StdCustSalesCodes.SetTableView(StdCustSalesCode);
         StdCustSalesCodes.LookupMode(true);
-        if StdCustSalesCodes.RunModal = ACTION::LookupOK then begin
+        if StdCustSalesCodes.RunModal() = ACTION::LookupOK then begin
             StdCustSalesCodes.GetSelected(StdCustSalesCode);
             if StdCustSalesCode.FindSet() then
                 repeat
@@ -212,7 +212,7 @@ table 172 "Standard Customer Sales Code"
                     SalesLine.Description := StdSalesLine.Description;
                     SalesLine."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
                 end else
-                    if not StdSalesLine.EmptyLine then begin
+                    if not StdSalesLine.EmptyLine() then begin
                         StdSalesLine.TestField("No.");
                         SalesLine.Validate("No.", StdSalesLine."No.");
                         if StdSalesLine."Variant Code" <> '' then
@@ -236,7 +236,7 @@ table 172 "Standard Customer Sales Code"
 
                 CombineDimensions(SalesLine, StdSalesLine);
                 OnBeforeApplyStdCodesToSalesLines(SalesLine, StdSalesLine);
-                if StdSalesLine.InsertLine then begin
+                if StdSalesLine.InsertLine() then begin
                     SalesLine."Line No." := GetNextLineNo(SalesLine);
                     SalesLine.Insert(true);
                     OnAfterSalesLineInsert(StdSalesLine, SalesLine);

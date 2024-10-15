@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138947 "BC O365 No. Series Tests"
 {
     Subtype = Test;
@@ -40,7 +41,7 @@ codeunit 138947 "BC O365 No. Series Tests"
 
         // [THEN] The new invoice number is reflected in setting
         Assert.AreEqual(BCO365NoSeriesSettings.NextInvoiceNo.Value, NextInvoiceNumber, 'Wrong invoice number displayed in settings');
-        BCO365NoSeriesSettings.Close;
+        BCO365NoSeriesSettings.Close();
 
         // [WHEN] Invoice is sent
         PostedInvoiceNo := LibraryInvoicingApp.SendInvoice(LibraryInvoicingApp.CreateInvoice);
@@ -84,7 +85,7 @@ codeunit 138947 "BC O365 No. Series Tests"
 
         // [THEN] The new estimate number is reflected in setting
         Assert.AreEqual(BCO365NoSeriesSettings.NextEstimateNo.Value, NextEstimateNumber, 'Wrong estimate number displayed in settings');
-        BCO365NoSeriesSettings.Close;
+        BCO365NoSeriesSettings.Close();
 
         // [WHEN] Estimate is created
         EstimateNo := LibraryInvoicingApp.CreateEstimate;
@@ -160,7 +161,7 @@ codeunit 138947 "BC O365 No. Series Tests"
 
         // [THEN] A message informs the user that the number is not valid
         BCO365NoSeriesSettings.NextEstimateNo.AssistEdit;
-        BCO365NoSeriesSettings.Close;
+        BCO365NoSeriesSettings.Close();
 
         // [THEN] The numbers shown in settings are unchanged
         BCO365NoSeriesSettings.OpenView;
@@ -174,7 +175,7 @@ codeunit 138947 "BC O365 No. Series Tests"
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
         LibraryWorkflow: Codeunit "Library - Workflow";
     begin
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         LibraryWorkflow.SetUpEmailAccount();
 
 
@@ -184,7 +185,7 @@ codeunit 138947 "BC O365 No. Series Tests"
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -253,4 +254,4 @@ codeunit 138947 "BC O365 No. Series Tests"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

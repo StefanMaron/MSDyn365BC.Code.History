@@ -12,36 +12,36 @@ page 7360 "Whse. Internal Pick Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location of the internal pick line.';
                     Visible = false;
                 }
-                field("To Zone Code"; "To Zone Code")
+                field("To Zone Code"; Rec."To Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the To Zone Code of the zone where items should be placed once they are picked.';
                     Visible = false;
                 }
-                field("To Bin Code"; "To Bin Code")
+                field("To Bin Code"; Rec."To Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the bin into which the items should be placed when they are picked.';
                     Visible = false;
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shelf number of the item for informational use.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item that should be picked.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -51,7 +51,7 @@ page 7360 "Whse. Internal Pick Lines"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the item in the line.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a second description of the item on the line.';
@@ -62,40 +62,40 @@ page 7360 "Whse. Internal Pick Lines"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that should be picked.';
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that should be picked, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Outstanding"; "Qty. Outstanding")
+                field("Qty. Outstanding"; Rec."Qty. Outstanding")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled.';
                 }
-                field("Qty. Outstanding (Base)"; "Qty. Outstanding (Base)")
+                field("Qty. Outstanding (Base)"; Rec."Qty. Outstanding (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Picked"; "Qty. Picked")
+                field("Qty. Picked"; Rec."Qty. Picked")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the line that is registered as picked.';
                 }
-                field("Qty. Picked (Base)"; "Qty. Picked (Base)")
+                field("Qty. Picked (Base)"; Rec."Qty. Picked (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the line that is registered as picked, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of base units of measure, that are in the unit of measure, specified for the item on the line.';
@@ -105,17 +105,17 @@ page 7360 "Whse. Internal Pick Lines"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if the status is Blank, Partially Picked, or Completely Picked.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the warehouse activity must be completed.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the line.';

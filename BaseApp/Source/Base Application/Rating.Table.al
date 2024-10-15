@@ -88,11 +88,11 @@ table 5111 Rating
         ProfileQuestionnaireLine.Get(NextRating."Rating Profile Quest. Code", NextRating."Rating Profile Quest. Line No.");
 
         Rating2.SetRange("Profile Questionnaire Code", NextRating."Rating Profile Quest. Code");
-        Rating2.SetRange("Profile Questionnaire Line No.", ProfileQuestionnaireLine.FindQuestionLine);
+        Rating2.SetRange("Profile Questionnaire Line No.", ProfileQuestionnaireLine.FindQuestionLine());
         if Rating2.Find('-') then
             repeat
                 ProfileQuestionnaireLine.Get(Rating2."Rating Profile Quest. Code", Rating2."Rating Profile Quest. Line No.");
-                ProfileQuestionnaireLine.Get(Rating2."Rating Profile Quest. Code", ProfileQuestionnaireLine.FindQuestionLine);
+                ProfileQuestionnaireLine.Get(Rating2."Rating Profile Quest. Code", ProfileQuestionnaireLine.FindQuestionLine());
                 if (TargetProfileQuestnLine."Profile Questionnaire Code" = ProfileQuestionnaireLine."Profile Questionnaire Code") and
                    (TargetProfileQuestnLine."Line No." = ProfileQuestionnaireLine."Line No.")
                 then

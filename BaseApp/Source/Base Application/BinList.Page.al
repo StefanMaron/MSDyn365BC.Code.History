@@ -13,13 +13,13 @@ page 7303 "Bin List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location from which you opened the Bins window.';
                     Visible = false;
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the zone in which the bin is located.';
@@ -45,43 +45,43 @@ page 7303 "Bin List"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if the bin is the default bin for an item.';
                 }
-                field("Bin Type Code"; "Bin Type Code")
+                field("Bin Type Code"; Rec."Bin Type Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the bin type that applies to the bin.';
                     Visible = false;
                 }
-                field("Warehouse Class Code"; "Warehouse Class Code")
+                field("Warehouse Class Code"; Rec."Warehouse Class Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the warehouse class that applies to the bin.';
                     Visible = false;
                 }
-                field("Block Movement"; "Block Movement")
+                field("Block Movement"; Rec."Block Movement")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how the movement of an item, or bin content, into or out of this bin, is blocked.';
                     Visible = false;
                 }
-                field("Special Equipment Code"; "Special Equipment Code")
+                field("Special Equipment Code"; Rec."Special Equipment Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the equipment needed when working in the bin.';
                     Visible = false;
                 }
-                field("Bin Ranking"; "Bin Ranking")
+                field("Bin Ranking"; Rec."Bin Ranking")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ranking of the bin. Items in the highest-ranking bins (with the highest number in the field) will be picked first.';
                     Visible = false;
                 }
-                field("Maximum Cubage"; "Maximum Cubage")
+                field("Maximum Cubage"; Rec."Maximum Cubage")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the maximum cubage (volume) that the bin can hold.';
                     Visible = false;
                 }
-                field("Maximum Weight"; "Maximum Weight")
+                field("Maximum Weight"; Rec."Maximum Weight")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the maximum weight that this bin can hold.';

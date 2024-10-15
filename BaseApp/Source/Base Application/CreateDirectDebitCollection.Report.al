@@ -43,7 +43,7 @@
 
             trigger OnPreDataItem()
             begin
-                DirectDebitCollection.CreateRecord(BankAccount.GetDirectDebitMessageNo, BankAccount."No.", PartnerType);
+                DirectDebitCollection.CreateRecord(BankAccount.GetDirectDebitMessageNo(), BankAccount."No.", PartnerType);
                 SetRange("Partner Type", PartnerType);
             end;
         }
@@ -150,16 +150,19 @@
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
         GLSetup: Record "General Ledger Setup";
+        NoOfEntries: Integer;
+
+        WrongDateErr: Label 'To Date must be equal to or greater than From Date.';
+        NoEntriesCreatedErr: Label 'No entries have been created.', Comment = '%1=Field;%2=Table;%3=Field;Table';
+        EntriesCreatedMsg: Label '%1 entries have been created.', Comment = '%1 = an integer number, e.g. 7.';
+        DirectDebitMsgNosErr: Label 'The bank account %1 is not set up for direct debit collections. It needs a number series for direct debit files. You specify the number series on the card for the bank account.', Comment = '%1=Code, the No. of Bank Account';
+
+    protected var
         FromDate: Date;
         ToDate: Date;
         OnlyCustomersWithMandate: Boolean;
-        WrongDateErr: Label 'To Date must be equal to or greater than From Date.';
         OnlyInvoicesWithMandate: Boolean;
-        NoOfEntries: Integer;
-        NoEntriesCreatedErr: Label 'No entries have been created.', Comment = '%1=Field;%2=Table;%3=Field;Table';
-        EntriesCreatedMsg: Label '%1 entries have been created.', Comment = '%1 = an integer number, e.g. 7.';
         PartnerType: Enum "Partner Type";
-        DirectDebitMsgNosErr: Label 'The bank account %1 is not set up for direct debit collections. It needs a number series for direct debit files. You specify the number series on the card for the bank account.', Comment = '%1=Code, the No. of Bank Account';
 
     local procedure EntryFullyCollected(EntryNo: Integer): Boolean
     var

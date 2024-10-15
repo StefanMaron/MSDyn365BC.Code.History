@@ -20,6 +20,7 @@ codeunit 7325 "Whse.-Output Prod. Release"
             exit;
 
         OnBeforeRelease(ProdHeader);
+        LocationCode2 := '';
         with ProdHeader do begin
             ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.");
             ProdOrderLine.SetRange(Status, Status);
@@ -100,17 +101,17 @@ codeunit 7325 "Whse.-Output Prod. Release"
 
     local procedure DeleteWhseRqst(ProdOrderLine: Record "Prod. Order Line"; DeleteAllWhseRqst: Boolean)
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
         with ProdOrderLine do begin
-            WhseRqst.SetRange(Type, WhseRqst.Type::Inbound);
-            WhseRqst.SetRange("Source Type", DATABASE::"Prod. Order Line");
-            WhseRqst.SetRange("Source No.", "Prod. Order No.");
+            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
+            WarehouseRequest.SetRange("Source Type", DATABASE::"Prod. Order Line");
+            WarehouseRequest.SetRange("Source No.", "Prod. Order No.");
             if not DeleteAllWhseRqst then begin
-                WhseRqst.SetRange("Source Subtype", Status);
-                WhseRqst.SetRange("Location Code", "Location Code");
+                WarehouseRequest.SetRange("Source Subtype", Status);
+                WarehouseRequest.SetRange("Location Code", "Location Code");
             end;
-            WhseRqst.DeleteAll(true);
+            WarehouseRequest.DeleteAll(true);
         end;
     end;
 
@@ -127,23 +128,22 @@ codeunit 7325 "Whse.-Output Prod. Release"
 
     local procedure ProdOrderCompletelyHandled(ProdOrder: Record "Production Order"; LocationCode: Code[10]): Boolean
     var
-        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderLine2: Record "Prod. Order Line";
     begin
-        ProdOrderLine.SetRange(Status, ProdOrder.Status);
-        ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
-        ProdOrderLine.SetRange("Location Code", LocationCode);
-        ProdOrderLine.SetFilter("Remaining Quantity", '<>0');
-        exit(ProdOrderLine.IsEmpty);
+        ProdOrderLine2.SetRange(Status, ProdOrder.Status);
+        ProdOrderLine2.SetRange("Prod. Order No.", ProdOrder."No.");
+        ProdOrderLine2.SetRange("Location Code", LocationCode);
+        ProdOrderLine2.SetFilter("Remaining Quantity", '<>0');
+        exit(ProdOrderLine2.IsEmpty());
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
     begin
-        if LocationCode <> Location.Code then begin
+        if LocationCode <> Location.Code then
             if LocationCode = '' then
                 Location.GetLocationSetup(LocationCode, Location)
             else
                 Location.Get(LocationCode);
-        end;
     end;
 
     procedure CheckWhseRqst(ProdHeader: Record "Production Order"): Boolean
@@ -160,7 +160,7 @@ codeunit 7325 "Whse.-Output Prod. Release"
                     GetLocation(ProdOrderLine2."Location Code");
                     if not Location."Require Put-away" or Location."Directed Put-away and Pick" then
                         WhseRqstCreated := false;
-                    if Location."Require Put-away" then begin
+                    if Location."Require Put-away" then
                         if not WhseRqst.Get(
                              WhseRqst.Type::Inbound,
                              ProdOrderLine2."Location Code",
@@ -169,7 +169,6 @@ codeunit 7325 "Whse.-Output Prod. Release"
                              ProdOrderLine2."Prod. Order No.")
                         then
                             WhseRqstCreated := false;
-                    end;
                     OnAfterCheckWhseRqstProdOrderLine(ProdOrderLine2, WhseRqst, WhseRqstCreated);
                 until (ProdOrderLine2.Next() = 0) or not WhseRqstCreated;
         end;

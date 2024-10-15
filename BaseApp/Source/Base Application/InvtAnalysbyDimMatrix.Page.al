@@ -489,7 +489,7 @@ page 9209 "Invt. Analys by Dim. Matrix"
             MATRIX_OnAfterGetRecord(MATRIX_CurrentColumnOrdinal);
         end;
 
-        FormatLine;
+        FormatLine();
         QuantityOnFormat(Format(+Quantity));
         AmountOnFormat(Format(+Amount));
     end;

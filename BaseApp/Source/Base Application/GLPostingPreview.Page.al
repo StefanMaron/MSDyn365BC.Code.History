@@ -13,19 +13,19 @@ page 115 "G/L Posting Preview"
             repeater(Control16)
             {
                 ShowCaption = false;
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                     Visible = false;
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID. This field is intended only for internal use.';
                     Visible = false;
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Related Entries';
@@ -36,7 +36,7 @@ page 115 "G/L Posting Preview"
                         PostingPreviewEventHandler.ShowEntries(Rec."Table ID");
                     end;
                 }
-                field("No. of Records"; "No. of Records")
+                field("No. of Records"; Rec."No. of Records")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'No. of Entries';
@@ -64,15 +64,23 @@ page 115 "G/L Posting Preview"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Show Related Entries';
                     Image = ViewDocumentLine;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'View details about other entries that are related to the general ledger posting.';
 
                     trigger OnAction()
                     begin
                         PostingPreviewEventHandler.ShowEntries("Table ID");
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Show_Promoted; Show)
+                {
                 }
             }
         }
@@ -87,7 +95,7 @@ page 115 "G/L Posting Preview"
         if TempDocumentEntry.FindSet() then
             repeat
                 Rec := TempDocumentEntry;
-                Insert;
+                Insert();
             until TempDocumentEntry.Next() = 0;
     end;
 }

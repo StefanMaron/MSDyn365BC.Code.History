@@ -21,6 +21,7 @@ codeunit 136140 "Service Order Release"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -40,7 +41,6 @@ codeunit 136140 "Service Order Release"
         ShippedNotInvoicedErr: Label 'Qty. Shipped Not Invoiced must be equal to ''%1''  in Service Shipment Line: Document No.=%2, Line No.=%3. Current value is ''%4''.';
         NoWarehouseRequestErrorMsg: Label 'No Warehouse Request was found. The warehouse shipment could not be created.';
         YellowLocationCode: Code[10];
-        NothingToPostErr: Label 'There is nothing to post.';
         BinMandatoryErrorTxt: Label 'Bin Code must have a value in Service Line: Document Type=';
         QuantityInsufficientErrorTxt: Label 'Quantity (Base) is not sufficient to complete this action. The quantity in the bin is';
         NonPickableBinErrorTxt: Label 'Pick must be equal to ''Yes''  in Bin Type: Code=';
@@ -1728,7 +1728,7 @@ codeunit 136140 "Service Order Release"
         WarehouseShipment.Trap;
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeader.Get(WarehouseShipment."No.");
-        WarehouseShipment.Close;
+        WarehouseShipment.Close();
 
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         RegisterWarehouseActivity(ServiceHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -1745,7 +1745,7 @@ codeunit 136140 "Service Order Release"
         WarehouseShipment.Trap;
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeader.Get(WarehouseShipment."No.");
-        WarehouseShipment.Close;
+        WarehouseShipment.Close();
 
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         RegisterWarehouseActivity(ServiceHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -2049,7 +2049,7 @@ codeunit 136140 "Service Order Release"
 
             Evaluate(ShippingTime, ExpectedServiceLineShippingTimeOffset);
             Assert.AreEqual(Format(ShippingTime), Format(ServiceLine."Shipping Time"), 'Service Line Shipping Time matches');
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure CheckQuantityAvailabilityCalculationsWithMixedOrders(LocationCode: Code[10]; IsYellowLocation: Boolean)
@@ -2365,7 +2365,7 @@ codeunit 136140 "Service Order Release"
         CreateItemAndSupplyForYellowLocation(Item, LocationCode, LineQuantity);
         AddItemServiceLinesToOrder(ServiceHeader, ServiceItemLineNo, Item."No.", LineQuantity + Delta, LocationCode);
 
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWareHouseShipmentHeader(WarehouseShipmentHeader, LocationCode);
         AddWarehouseShipmentLineUsingGetSourceDocument(WarehouseShipmentHeader, ServiceHeader."No.", ServiceOrderInGridTxt);
@@ -2463,7 +2463,7 @@ codeunit 136140 "Service Order Release"
         // VERIFY: Posting service order throws an error.
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
         Assert.AreEqual(
-          Format(NothingToPostErr),
+          Format(DocumentErrorsMgt.GetNothingToPostErrorMsg()),
           GetLastErrorText, 'Verify that error message is displayed when Posting without releasing');
     end;
 
@@ -3051,7 +3051,7 @@ codeunit 136140 "Service Order Release"
         LibraryService.ReopenServiceDocument(ServiceHeader);
 
         // [THEN] Service Line Amount Including VAT remains
-        ServiceLine.Find;
+        ServiceLine.Find();
         ServiceLine.TestField("Amount Including VAT", AmountIncludingVAT);
     end;
 
@@ -3224,7 +3224,7 @@ codeunit 136140 "Service Order Release"
         with ServiceLine do begin
             Validate("Service Item Line No.", ServiceItemLineNo);
             Validate(Description, LineDescription);
-            Modify;
+            Modify();
         end;
         exit(ServiceLine."Line No.");
     end;
@@ -3739,7 +3739,7 @@ codeunit 136140 "Service Order Release"
         CreateItemAndSupply(Item, LocationCode, LineQuantity);
         AddItemServiceLinesToOrder(ServiceHeader, ServiceItemLineNo, Item."No.", LineQuantity + Delta, LocationCode);
 
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWareHouseShipmentHeader(WarehouseShipmentHeader, LocationCode);
         AddWarehouseShipmentLineUsingGetSourceDocument(WarehouseShipmentHeader, ServiceHeader."No.", ServiceOrderInGridTxt);
@@ -3757,7 +3757,7 @@ codeunit 136140 "Service Order Release"
                 repeat
                     Validate("Zone Code", ZoneCode);
                     Validate("Bin Code", BinCode);
-                    Modify;
+                    Modify();
                 until Next = 0;
         end;
     end;
@@ -3771,7 +3771,7 @@ codeunit 136140 "Service Order Release"
         WarehouseShipment.Trap;
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeaderNo := WarehouseShipment."No.".Value;
-        WarehouseShipment.Close;
+        WarehouseShipment.Close();
         Clear(WarehouseShipment);
         WarehouseShipmentHeader.Get(WarehouseShipmentHeaderNo);
     end;
@@ -3784,7 +3784,7 @@ codeunit 136140 "Service Order Release"
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure SetLocationCodeOnServiceLines(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; LocationCode: Code[10]; ServiceItemLineNo: Integer)
@@ -3980,12 +3980,12 @@ codeunit 136140 "Service Order Release"
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.SalesLines.Reserve.Invoke;
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure CreateAndReleaseSalesOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; Reserve: Boolean)
     begin
-        CreateSalesOrder(SalesHeader, LocationCode, ItemNo, Quantity, WorkDate);
+        CreateSalesOrder(SalesHeader, LocationCode, ItemNo, Quantity, WorkDate());
         if Reserve then
             ReserveFromSalesOrder(SalesHeader."No.");
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -4037,7 +4037,7 @@ codeunit 136140 "Service Order Release"
               ServiceLine."Location Code", WarehouseShipmentLine."Location Code", 'Whse shpmt location code matches service line');
             Assert.AreEqual(
               ServiceLine."Document No.", WarehouseShipmentLine."Source No.", 'Whse shpmt Source No matches service document no');
-        until (ServiceLine.Next = 0);
+        until (ServiceLine.Next() = 0);
     end;
 
     local procedure VerifyServiceHeaderReleaseStatus(ServiceHeader: Record "Service Header"; ReleaseStatus: Option; ServiceHeaderStatus: Enum "Service Document Status")
@@ -4059,7 +4059,7 @@ codeunit 136140 "Service Order Release"
               TempServiceLineBeforePosting."Line No.");
             ServiceLine.TestField("Quantity Shipped", TempServiceLineBeforePosting."Quantity Shipped");
             ServiceLine.TestField("Qty. to Ship", 0);
-        until TempServiceLineBeforePosting.Next = 0;
+        until TempServiceLineBeforePosting.Next() = 0;
     end;
 
     local procedure VerifyQtyOnServiceShipmentLine(var TempServiceLineBeforePosting: Record "Service Line" temporary; QuantityShipped: Decimal)
@@ -4075,7 +4075,7 @@ codeunit 136140 "Service Order Release"
             ServiceShipmentLine.FindLast();  // Find the Shipment Line for the second shipment.
             ServiceShipmentLine.TestField("Qty. Shipped Not Invoiced", TempServiceLineBeforePosting."Qty. to Ship");
             ServiceShipmentLine.TestField(Quantity, -QuantityShipped);
-        until TempServiceLineBeforePosting.Next = 0;
+        until TempServiceLineBeforePosting.Next() = 0;
     end;
 
     local procedure VerifyQtyOnItemLedgerEntry(var TempServiceLineBeforePosting: Record "Service Line" temporary; QuantityShipped: Decimal)
@@ -4096,7 +4096,7 @@ codeunit 136140 "Service Order Release"
             ItemLedgerEntry.SetRange("Document Line No.", TempServiceLineBeforePosting."Line No.");
             ItemLedgerEntry.FindLast();  // Find the Item Ledger Entry for the second action.
             ItemLedgerEntry.TestField(Quantity, -QuantityShipped);
-        until TempServiceLineBeforePosting.Next = 0;
+        until TempServiceLineBeforePosting.Next() = 0;
     end;
 
     local procedure VerifyValueEntry(var TempServiceLineBeforePosting: Record "Service Line" temporary; QuantityShipped: Decimal)
@@ -4115,7 +4115,7 @@ codeunit 136140 "Service Order Release"
             ValueEntry.SetRange("Document Line No.", TempServiceLineBeforePosting."Line No.");
             ValueEntry.FindLast();
             ValueEntry.TestField("Valued Quantity", -QuantityShipped);
-        until TempServiceLineBeforePosting.Next = 0;
+        until TempServiceLineBeforePosting.Next() = 0;
     end;
 
     local procedure VerifyServiceLedgerEntry(var TempServiceLineBeforePosting: Record "Service Line" temporary; QuantityShipped: Decimal)
@@ -4138,7 +4138,7 @@ codeunit 136140 "Service Order Release"
             ServiceLedgerEntry.TestField("Bill-to Customer No.", TempServiceLineBeforePosting."Bill-to Customer No.");
             ServiceLedgerEntry.TestField(Quantity, -QuantityShipped);
             ServiceLedgerEntry.TestField("Charged Qty.", -QuantityShipped);
-        until TempServiceLineBeforePosting.Next = 0;
+        until TempServiceLineBeforePosting.Next() = 0;
     end;
 
     local procedure VerifyWarehouseEntry(var ServiceLine: Record "Service Line"; var WarehouseEntry: Record "Warehouse Entry"; EntryType: Option; QuantityPosted: Decimal)

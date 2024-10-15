@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2180 "O365 Import from Excel Wizard"
 {
     Caption = 'Import from Excel Wizard';
@@ -6,6 +7,9 @@ page 2180 "O365 Import from Excel Wizard"
     PageType = NavigatePage;
     SourceTable = "O365 Field Excel Mapping";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -20,19 +24,19 @@ page 2180 "O365 Import from Excel Wizard"
                     Caption = 'Specify the Excel file name';
                     field(FileName; FileName)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Excel File Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the Excel file that contains the data to import.';
 
                         trigger OnAssistEdit()
                         begin
-                            OpenExcelFile;
+                            OpenExcelFile();
                         end;
                     }
                     field(SheetName; SheetName)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Excel Sheet Name';
                         Editable = false;
                         ToolTip = 'Specifies the Excel sheet name to be imported from.';
@@ -42,12 +46,12 @@ page 2180 "O365 Import from Excel Wizard"
                             if FileName = '' then
                                 exit;
 
-                            SelectAndReadSheet;
+                            SelectAndReadSheet();
                         end;
                     }
                     field(DataHasHeaders; DataHasHeaders)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Data has headers';
                         ToolTip = 'Specifies whether the Excel sheet contains column headers as the first row.';
                     }
@@ -62,7 +66,7 @@ page 2180 "O365 Import from Excel Wizard"
                     Caption = 'Enter the Excel row number to start import from';
                     field(StartRowNo; StartRowNo)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Start Row Number';
                         MinValue = 0;
                         ToolTip = 'Specifies the first Excel row number with data to be imported.';
@@ -74,7 +78,7 @@ page 2180 "O365 Import from Excel Wizard"
                     }
                     part(ExcelSheetDataSubPage; "O365 Excel Sheet Data SubPage")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Excel Sheet Data';
                     }
                 }
@@ -89,37 +93,37 @@ page 2180 "O365 Import from Excel Wizard"
                     repeater(Control16)
                     {
                         ShowCaption = false;
-                        field("Field Name"; "Field Name")
+                        field("Field Name"; Rec."Field Name")
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             Editable = false;
                             StyleExpr = Style;
                             ToolTip = 'Specifies the field name that the Excel column maps to.';
                         }
-                        field("Excel Column No."; "Excel Column No.")
+                        field("Excel Column No."; Rec."Excel Column No.")
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             MinValue = 0;
                             ToolTip = 'Specifies the Excel column number that the field name maps to.';
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
-                                LookupColumn;
-                                CurrPage.SaveRecord;
-                                NextEnabled := DoesMappingExist;
+                                LookupColumn();
+                                CurrPage.SaveRecord();
+                                NextEnabled := DoesMappingExist();
                             end;
 
                             trigger OnValidate()
                             begin
-                                CheckMaxAllowedExcelColumnNo;
-                                CurrPage.SaveRecord;
-                                NextEnabled := DoesMappingExist;
+                                CheckMaxAllowedExcelColumnNo();
+                                CurrPage.SaveRecord();
+                                NextEnabled := DoesMappingExist();
                             end;
                         }
                     }
                     part(ExcelSheetDataSubPage2; "O365 Excel Sheet Data SubPage")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Excel Sheet Data';
                     }
                 }
@@ -133,7 +137,7 @@ page 2180 "O365 Import from Excel Wizard"
                     Caption = 'Preview';
                     part(ExcelSheetDataSubPage3; "O365 Excel Sheet Data SubPage")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Excel Sheet Data';
                     }
                 }
@@ -147,7 +151,7 @@ page 2180 "O365 Import from Excel Wizard"
         {
             action(ActionBack)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Back';
                 Enabled = BackEnabled;
                 Image = PreviousRecord;
@@ -160,7 +164,7 @@ page 2180 "O365 Import from Excel Wizard"
             }
             action(ActionNext)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Next';
                 Enabled = NextEnabled;
                 Image = NextRecord;
@@ -173,7 +177,7 @@ page 2180 "O365 Import from Excel Wizard"
             }
             action(ActionFinish)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Finish';
                 Enabled = FinishEnabled;
                 Image = Approve;
@@ -181,7 +185,7 @@ page 2180 "O365 Import from Excel Wizard"
 
                 trigger OnAction()
                 begin
-                    OnActionFinish;
+                    OnActionFinish();
                 end;
             }
         }
@@ -189,14 +193,14 @@ page 2180 "O365 Import from Excel Wizard"
 
     trigger OnAfterGetRecord()
     begin
-        Style := SetStyle;
+        Style := SetStyle();
     end;
 
     trigger OnOpenPage()
     begin
-        ResetWizardControls;
-        ShowFirstStep;
-        SetSubpagesUseEmphasizing;
+        ResetWizardControls();
+        ShowFirstStep();
+        SetSubpagesUseEmphasizing();
         DataHasHeaders := true;
     end;
 
@@ -231,7 +235,7 @@ page 2180 "O365 Import from Excel Wizard"
 
     local procedure NextStep(Backwards: Boolean)
     begin
-        ResetWizardControls;
+        ResetWizardControls();
 
         if Backwards then
             Step := Step - 1
@@ -240,13 +244,13 @@ page 2180 "O365 Import from Excel Wizard"
 
         case Step of
             Step::"Step 1":
-                ShowFirstStep;
+                ShowFirstStep();
             Step::"Step 2":
-                ShowSecondStep;
+                ShowSecondStep();
             Step::"Step 3":
-                ShowThirdStep;
+                ShowThirdStep();
             Step::"Step 4":
-                ShowFinalStep;
+                ShowFinalStep();
         end;
 
         CurrPage.Update(false);
@@ -292,10 +296,10 @@ page 2180 "O365 Import from Excel Wizard"
 
     local procedure ShowThirdStep()
     begin
-        FillStartRowCellBuffer;
+        FillStartRowCellBuffer();
         Step3Visible := true;
         BackEnabled := true;
-        NextEnabled := DoesMappingExist;
+        NextEnabled := DoesMappingExist();
         FinishEnabled := false;
     end;
 
@@ -306,8 +310,8 @@ page 2180 "O365 Import from Excel Wizard"
         TempO365FieldExcelMapping := Rec;
         CurrPage.ExcelSheetDataSubPage3.PAGE.SetColumnMapping(Rec);
         Rec := TempO365FieldExcelMapping;
-        CurrPage.ExcelSheetDataSubPage3.PAGE.SetColumnVisibility;
-        CurrPage.ExcelSheetDataSubPage3.PAGE.SetRowNoFilter;
+        CurrPage.ExcelSheetDataSubPage3.PAGE.SetColumnVisibility();
+        CurrPage.ExcelSheetDataSubPage3.PAGE.SetRowNoFilter();
         Step4Visible := true;
         NextEnabled := false;
         FinishEnabled := true;
@@ -325,13 +329,13 @@ page 2180 "O365 Import from Excel Wizard"
             exit;
         end;
 
-        SelectAndReadSheet;
+        SelectAndReadSheet();
     end;
 
     local procedure ReadSheet()
     begin
         TempExcelBuffer.OpenBook(ServerFileName, SheetName);
-        TempExcelBuffer.ReadSheet;
+        TempExcelBuffer.ReadSheet();
     end;
 
     local procedure ClearTempExcelBuffer()
@@ -352,9 +356,9 @@ page 2180 "O365 Import from Excel Wizard"
             exit;
         end;
         FileName := FileMgt.GetFileName(ServerFileName);
-        ClearTempExcelBuffer;
-        ReadSheet;
-        SendExcelBufferToSubpages;
+        ClearTempExcelBuffer();
+        ReadSheet();
+        SendExcelBufferToSubpages();
         NextEnabled := true;
     end;
 
@@ -414,8 +418,8 @@ page 2180 "O365 Import from Excel Wizard"
     begin
         TempO365FieldExcelMapping := Rec;
         SetFilter("Excel Column No.", '<>%1', 0);
-        MappingExists := not IsEmpty;
-        Reset;
+        MappingExists := not IsEmpty();
+        Reset();
         Rec := TempO365FieldExcelMapping;
         CurrPage.Update(false);
     end;
@@ -426,10 +430,10 @@ page 2180 "O365 Import from Excel Wizard"
     begin
         O365ExcelColumns.SetStartRowCellBuffer(TempStartRowCellNameValueBuffer);
         O365ExcelColumns.LookupMode(true);
-        if O365ExcelColumns.RunModal = ACTION::LookupOK then begin
+        if O365ExcelColumns.RunModal() = ACTION::LookupOK then begin
             O365ExcelColumns.GetRecord(TempStartRowCellNameValueBuffer);
             Validate("Excel Column No.", TempStartRowCellNameValueBuffer.ID);
-            CheckMaxAllowedExcelColumnNo;
+            CheckMaxAllowedExcelColumnNo();
         end;
     end;
 
@@ -439,7 +443,7 @@ page 2180 "O365 Import from Excel Wizard"
         ImportedRecordsQty: Integer;
     begin
         ImportedRecordsQty := O365ExcelImportManagement.ImportData(TempExcelBuffer, Rec, StartRowNo, ObjType);
-        CurrPage.Close;
+        CurrPage.Close();
         if ImportedRecordsQty > 0 then
             Message(ImportResultMsg, ImportedRecordsQty);
     end;
@@ -465,30 +469,30 @@ page 2180 "O365 Import from Excel Wizard"
 
         SheetName := NewExcelSheetName;
 
-        SendExcelBufferToSubpages;
+        SendExcelBufferToSubpages();
     end;
 
     local procedure ValidateStartRowNo(NewStartRowNo: Integer)
     begin
         StartRowNo := NewStartRowNo;
-        CheckMaxAllowedStartRowNo;
-        FillStartRowCellBuffer;
-        SendStartRowNoToSubpages;
+        CheckMaxAllowedStartRowNo();
+        FillStartRowCellBuffer();
+        SendStartRowNoToSubpages();
         CurrPage.Update(false);
         NextEnabled := StartRowNo <> 0;
     end;
 
     local procedure SetSubpagesUseEmphasizing()
     begin
-        CurrPage.ExcelSheetDataSubPage.PAGE.SetUseEmphasizing;
-        CurrPage.ExcelSheetDataSubPage2.PAGE.SetUseEmphasizing;
+        CurrPage.ExcelSheetDataSubPage.PAGE.SetUseEmphasizing();
+        CurrPage.ExcelSheetDataSubPage2.PAGE.SetUseEmphasizing();
     end;
 
     local procedure CheckMaxAllowedStartRowNo()
     var
         MaxExcelRowNo: Integer;
     begin
-        MaxExcelRowNo := GetMaxExcelRowNo;
+        MaxExcelRowNo := GetMaxExcelRowNo();
         if StartRowNo > MaxExcelRowNo then
             Error(StartRowNoOverLimitErr, MaxExcelRowNo);
     end;
@@ -497,7 +501,7 @@ page 2180 "O365 Import from Excel Wizard"
     var
         MaxColumnNo: Integer;
     begin
-        MaxColumnNo := GetMaxExcelExcelColumnNo;
+        MaxColumnNo := GetMaxExcelExcelColumnNo();
         if "Excel Column No." > MaxColumnNo then
             Error(ColumnNoOverLimitErr, MaxColumnNo);
     end;
@@ -516,4 +520,4 @@ page 2180 "O365 Import from Excel Wizard"
         exit(TempExcelBuffer."Column No.");
     end;
 }
-
+#endif

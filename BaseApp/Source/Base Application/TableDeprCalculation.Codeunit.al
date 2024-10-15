@@ -6,15 +6,10 @@ codeunit 5618 "Table Depr. Calculation"
     end;
 
     var
-        Text000: Label 'There are no lines defined for %1 %2 = %3.';
-        Text001: Label '%1 = %2 and %3 %4 = %5 must not be different.';
-        Text002: Label 'must be an unbroken sequence';
-        Text003: Label 'Period must be specified in %1.';
-        Text004: Label 'The number of days in an accounting period must not be less than 5.';
         AccountingPeriod: Record "Accounting Period";
         DeprBook: Record "Depreciation Book";
         DeprTableHeader: Record "Depreciation Table Header";
-        DeprTableBufferTmp: Record "Depreciation Table Buffer" temporary;
+        TempDeprTableBuffer: Record "Depreciation Table Buffer" temporary;
         DeprTableLine: Record "Depreciation Table Line";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         DaysInFiscalYear: Integer;
@@ -25,13 +20,19 @@ codeunit 5618 "Table Depr. Calculation"
         NumberOfDays: Integer;
         Percentage: Decimal;
         Year365Days: Boolean;
+
+        Text000: Label 'There are no lines defined for %1 %2 = %3.';
+        Text001: Label '%1 = %2 and %3 %4 = %5 must not be different.';
+        Text002: Label 'must be an unbroken sequence';
+        Text003: Label 'Period must be specified in %1.';
+        Text004: Label 'The number of days in an accounting period must not be less than 5.';
         Text005: Label 'cannot be %1 when %2 is %3 in %4 %5';
 
     procedure GetTablePercent(DeprBookCode: Code[10]; DeprTableCode: Code[10]; FirstUserDefinedDeprDate: Date; StartingDate: Date; EndingDate: Date): Decimal
     var
         IsHandled: Boolean;
     begin
-        ClearAll;
+        ClearAll();
         if (StartingDate = 0D) or (EndingDate = 0D) then
             exit(0);
         if (StartingDate > EndingDate) or (FirstUserDefinedDeprDate > StartingDate) then
@@ -56,46 +57,45 @@ codeunit 5618 "Table Depr. Calculation"
                         DeprTableHeader."Period Length",
                         DeprBook.FieldCaption("Fiscal Year 365 Days"),
                         DeprBook."Fiscal Year 365 Days",
-                        DeprBook.TableCaption, DeprBook.Code));
+                        DeprBook.TableCaption(), DeprBook.Code));
                 DaysInFiscalYear := 365;
             end;
         StartingLimit := DepreciationCalc.DeprDays(FirstUserDefinedDeprDate, StartingDate, Year365Days);
         EndingLimit := DepreciationCalc.DeprDays(FirstUserDefinedDeprDate, EndingDate, Year365Days);
         OnGetTablePercentOnAfterSetLimits(DeprBookCode, DeprTableCode, FirstUserDefinedDeprDate, StartingDate, EndingDate, StartingLimit, EndingLimit);
 
-        if not Year365Days then begin
+        if not Year365Days then
             if Date2DMY(StartingDate, 2) = 2 then
                 if Date2DMY(StartingDate + 1, 1) = 1 then
                     StartingLimit := StartingLimit - (30 - Date2DMY(StartingDate, 1));
-        end;
         CreateTableBuffer(FirstUserDefinedDeprDate);
-        exit(CalculatePercent);
+        exit(CalculatePercent());
     end;
 
     local procedure CalculatePercent(): Decimal
     begin
-        DeprTableBufferTmp.Find('-');
+        TempDeprTableBuffer.Find('-');
         LastPointer := 0;
         Percentage := 0;
 
         repeat
             FirstPointer := LastPointer + 1;
-            LastPointer := FirstPointer + DeprTableBufferTmp."No. of Days in Period" - 1;
+            LastPointer := FirstPointer + TempDeprTableBuffer."No. of Days in Period" - 1;
             NumberOfDays := 0;
             if not ((StartingLimit > LastPointer) or (EndingLimit < FirstPointer)) then begin
                 if (StartingLimit < FirstPointer) and (EndingLimit <= LastPointer) then
                     NumberOfDays := EndingLimit - FirstPointer + 1;
                 if (StartingLimit < FirstPointer) and (EndingLimit > LastPointer) then
-                    NumberOfDays := DeprTableBufferTmp."No. of Days in Period";
+                    NumberOfDays := TempDeprTableBuffer."No. of Days in Period";
                 if (StartingLimit >= FirstPointer) and (EndingLimit <= LastPointer) then
                     NumberOfDays := EndingLimit - StartingLimit + 1;
                 if (StartingLimit >= FirstPointer) and (EndingLimit > LastPointer) then
                     NumberOfDays := LastPointer - StartingLimit + 1;
                 Percentage :=
-                  Percentage + DeprTableBufferTmp."Period Depreciation %" * NumberOfDays /
-                  DeprTableBufferTmp."No. of Days in Period";
+                  Percentage + TempDeprTableBuffer."Period Depreciation %" * NumberOfDays /
+                  TempDeprTableBuffer."No. of Days in Period";
             end;
-        until DeprTableBufferTmp.Next() = 0;
+        until TempDeprTableBuffer.Next() = 0;
         exit(Percentage / 100);
     end;
 
@@ -112,7 +112,7 @@ codeunit 5618 "Table Depr. Calculation"
         if not DeprTableLine.Find('-') then
             Error(
               Text000,
-              DeprTableHeader.TableCaption, DeprTableHeader.FieldCaption(Code), DeprTableHeader.Code);
+              DeprTableHeader.TableCaption(), DeprTableHeader.FieldCaption(Code), DeprTableHeader.Code);
 
         if DeprTableHeader."Period Length" = DeprTableHeader."Period Length"::Period then
             if AccountingPeriod.IsEmpty() then
@@ -124,7 +124,7 @@ codeunit 5618 "Table Depr. Calculation"
                     Error(
                       Text001,
                       FADeprBook.FieldCaption("First User-Defined Depr. Date"), FirstUserDefinedDeprDate,
-                      AccountingPeriod.TableCaption, AccountingPeriod.FieldCaption("Starting Date"),
+                      AccountingPeriod.TableCaption(), AccountingPeriod.FieldCaption("Starting Date"),
                       AccountingPeriod."Starting Date");
             end;
         case DeprTableHeader."Period Length" of
@@ -143,7 +143,7 @@ codeunit 5618 "Table Depr. Calculation"
                 DeprTableLine.FieldError("Period No.", Text002);
             if DeprTableHeader."Period Length" = DeprTableHeader."Period Length"::Period then begin
                 FirstUserDefinedDeprDate := AccountingPeriod."Starting Date";
-                if AccountingPeriod.Next <> 0 then begin
+                if AccountingPeriod.Next() <> 0 then begin
                     DaysInPeriod :=
                       DepreciationCalc.DeprDays(
                         FirstUserDefinedDeprDate,
@@ -152,7 +152,7 @@ codeunit 5618 "Table Depr. Calculation"
                     OnCreateTableBufferOnAfterCalculateDaysInPeriod(DeprBook, AccountingPeriod, FirstUserDefinedDeprDate, Year365Days, DaysInPeriod);
                 end;
                 if DaysInPeriod = 0 then
-                    Error(Text003, AccountingPeriod.TableCaption);
+                    Error(Text003, AccountingPeriod.TableCaption());
                 if DaysInPeriod <= 5 then
                     Error(
                       Text004);
@@ -161,8 +161,8 @@ codeunit 5618 "Table Depr. Calculation"
         until (DeprTableLine.Next() = 0) or (TotalNoOfDays > EndingLimit);
 
         while TotalNoOfDays < EndingLimit do begin
-            DeprTableBufferTmp."Entry No." := DeprTableBufferTmp."Entry No." + 1;
-            DeprTableBufferTmp.Insert();
+            TempDeprTableBuffer."Entry No." := TempDeprTableBuffer."Entry No." + 1;
+            TempDeprTableBuffer.Insert();
             TotalNoOfDays := TotalNoOfDays + DaysInPeriod;
         end;
     end;
@@ -170,14 +170,14 @@ codeunit 5618 "Table Depr. Calculation"
     local procedure InsertTableBuffer(var DeprTableLine: Record "Depreciation Table Line"; var TotalNoOfDays: Integer; DaysInPeriod: Integer; PeriodNo: Integer)
     begin
         TotalNoOfDays := TotalNoOfDays + DaysInPeriod;
-        DeprTableBufferTmp."Entry No." := PeriodNo;
-        DeprTableBufferTmp."No. of Days in Period" := DaysInPeriod;
+        TempDeprTableBuffer."Entry No." := PeriodNo;
+        TempDeprTableBuffer."No. of Days in Period" := DaysInPeriod;
         if DeprTableHeader."Total No. of Units" > 0 then
-            DeprTableBufferTmp."Period Depreciation %" :=
+            TempDeprTableBuffer."Period Depreciation %" :=
               DeprTableLine."No. of Units in Period" * 100 / DeprTableHeader."Total No. of Units"
         else
-            DeprTableBufferTmp."Period Depreciation %" := DeprTableLine."Period Depreciation %";
-        DeprTableBufferTmp.Insert();
+            TempDeprTableBuffer."Period Depreciation %" := DeprTableLine."Period Depreciation %";
+        TempDeprTableBuffer.Insert();
     end;
 
     [IntegrationEvent(false, false)]

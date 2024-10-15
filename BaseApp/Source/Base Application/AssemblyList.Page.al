@@ -14,12 +14,12 @@ page 904 "Assembly List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the type of assembly document the record represents in assemble-to-order scenarios.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -29,22 +29,22 @@ page 904 "Assembly List"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the description of the assembly item.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembled item is due to be available for use.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly order is expected to start.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly order is expected to finish.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item that is being assembled with the assembly order.';
@@ -54,27 +54,27 @@ page 904 "Assembly List"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the assembly item that you expect to assemble with the assembly order.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location to which you want to post output of the assembly item.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin the assembly item is posted to as output and from where it is taken to storage or shipped if it is assembled to a sales order.';
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the assembly item remain to be posted as assembled output.';
@@ -105,9 +105,6 @@ page 904 "Assembly List"
                 ApplicationArea = Assembly;
                 Caption = '&Show Document';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Shift+F7';
                 ToolTip = 'Open the document that the information on the line comes from.';
 
@@ -129,9 +126,6 @@ page 904 "Assembly List"
                 ApplicationArea = Reservation;
                 Caption = '&Reservation Entries';
                 Image = ReservationLedger;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View all reservations that are made for the item, either manually or automatically.';
 
                 trigger OnAction()
@@ -144,9 +138,6 @@ page 904 "Assembly List"
                 ApplicationArea = ItemTracking;
                 Caption = 'Item &Tracking Lines';
                 Image = ItemTrackingLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Ctrl+Alt+I'; 
                 ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
@@ -154,6 +145,23 @@ page 904 "Assembly List"
                 begin
                     OpenItemTrackingLines();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Show Document_Promoted"; "Show Document")
+                {
+                }
+                actionref("Reservation Entries_Promoted"; "Reservation Entries")
+                {
+                }
+                actionref("Item Tracking Lines_Promoted"; "Item Tracking Lines")
+                {
+                }
             }
         }
     }

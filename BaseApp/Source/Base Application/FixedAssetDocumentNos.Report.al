@@ -13,7 +13,7 @@ report 5636 "Fixed Asset Document Nos."
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text004_FALedgEntryFilter_; StrSubstNo(Text004, FALedgEntryFilter))
@@ -183,15 +183,10 @@ report 5636 "Fixed Asset Document Nos."
 
     trigger OnPreReport()
     begin
-        FALedgEntryFilter := "FA Ledger Entry".GetFilters;
+        FALedgEntryFilter := "FA Ledger Entry".GetFilters();
     end;
 
     var
-        Text000: Label 'No number series has been used for the following entries:';
-        Text001: Label 'The number series %1 %2 has been used for the following entries:';
-        Text002: Label 'There is a gap in the number series.';
-        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
-        Text004: Label 'Fixed Asset Entry: %1';
         FA: Record "Fixed Asset";
         NoSeries: Record "No. Series";
         SourceCode: Record "Source Code";
@@ -205,6 +200,12 @@ report 5636 "Fixed Asset Document Nos."
         ErrorText: array[10] of Text[250];
         ErrorCounter: Integer;
         GoupNo: Integer;
+
+        Text000: Label 'No number series has been used for the following entries:';
+        Text001: Label 'The number series %1 %2 has been used for the following entries:';
+        Text002: Label 'There is a gap in the number series.';
+        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
+        Text004: Label 'Fixed Asset Entry: %1';
         Fixed_Asset_Document_Nos_CaptionLbl: Label 'Fixed Asset Document Nos.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         FA_DescriptionCaptionLbl: Label 'FA Description';

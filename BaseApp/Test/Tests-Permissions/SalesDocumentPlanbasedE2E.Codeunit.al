@@ -18,7 +18,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        NoPermissionOnCountryRegionInsertErr: Label 'You do not have the following permissions on TableData 9: Insert';
+        NoPermissionOnCountryRegionInsertErr: Label 'Sorry, the current permissions prevented the action. (TableData';
         IsInitialized: Boolean;
 
     [Scope('OnPrem')]
@@ -456,7 +456,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         repeat
             PurchaseOrder.PurchLines."No.".AssertEquals(SalesOrder.SalesLines."No.".Value);
             PurchaseOrder.PurchLines.Quantity.AssertEquals(SalesOrder.SalesLines.Quantity.Value);
-        until not SalesOrder.SalesLines.Next and not PurchaseOrder.PurchLines.Next;
+        until not SalesOrder.SalesLines.Next() and not PurchaseOrder.PurchLines.Next();
 
         PurchaseOrder.OK.Invoke;
         SalesOrder.OK.Invoke;

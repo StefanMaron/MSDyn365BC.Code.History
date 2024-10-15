@@ -45,7 +45,7 @@ codeunit 134032 "ERM Customer Date Compression"
 
         // Verify: Verify No. of Entries after Date Compression by Week.
         Assert.AreEqual(
-          NoOfEntries, GetCustomerLedgerEntries(CustomerNo), StrSubstNo(CountError, NoOfEntries, CustLedgerEntry.TableCaption));
+          NoOfEntries, GetCustomerLedgerEntries(CustomerNo), StrSubstNo(CountError, NoOfEntries, CustLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -95,7 +95,7 @@ codeunit 134032 "ERM Customer Date Compression"
 
         // Verify: Verify No. of Entries after Date Compression for Month/Year selected.
         Assert.AreEqual(
-          NoOfEntries, GetCustomerLedgerEntries(CustomerNo), StrSubstNo(CountError, NoOfEntries, CustLedgerEntry.TableCaption));
+          NoOfEntries, GetCustomerLedgerEntries(CustomerNo), StrSubstNo(CountError, NoOfEntries, CustLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -126,7 +126,7 @@ codeunit 134032 "ERM Customer Date Compression"
 
         // Verify: Verify error when Unapplying Customer Ledger Entry.
         Assert.AreEqual(
-          StrSubstNo(UnapplyDateCompressError, CustLedgerEntry.TableCaption), GetLastErrorText, ErrorMessageDoNotMatch);
+          StrSubstNo(UnapplyDateCompressError, CustLedgerEntry.TableCaption()), GetLastErrorText, ErrorMessageDoNotMatch);
     end;
 
     local procedure Initialize()
@@ -278,10 +278,10 @@ codeunit 134032 "ERM Customer Date Compression"
         repeat
             CustLedgerEntry.CalcFields(Amount);
             CustLedgEntryAmt += CustLedgerEntry.Amount;
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
         Assert.AreEqual(
           JnlLinePaymentAmt, CustLedgEntryAmt, StrSubstNo(AmountError, CustLedgerEntry.FieldCaption(Amount), JnlLinePaymentAmt,
-            CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
+            CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
     end;
 }
 

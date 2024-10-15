@@ -1851,6 +1851,7 @@ codeunit 139198 "CDS Uncoupling"
         LibraryCRMIntegration.ConfigureCRM();
         CRMConnectionSetup.Get();
         CRMConnectionSetup."Is Enabled" := false;
+        CRMConnectionSetup."Unit Group Mapping Enabled" := false;
         CRMConnectionSetup.Modify();
         InitializeCDSConnectionSetup();
         CRMConnectionSetup."Is Enabled" := true;

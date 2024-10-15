@@ -11,18 +11,18 @@ page 5874 "BOM Warning Log"
         {
             repeater(Group)
             {
-                field("Warning Description"; "Warning Description")
+                field("Warning Description"; Rec."Warning Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the warning associated with the entry.';
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the table ID associated with the entry.';
                     Visible = false;
                 }
-                field("Table Position"; "Table Position")
+                field("Table Position"; Rec."Table Position")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the table position associated with the entry.';
@@ -41,14 +41,23 @@ page 5874 "BOM Warning Log"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Show';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View the log details.';
 
                 trigger OnAction()
                 begin
-                    ShowWarning;
+                    ShowWarning();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Show_Promoted"; "&Show")
+                {
+                }
             }
         }
     }

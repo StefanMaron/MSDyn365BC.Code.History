@@ -39,7 +39,7 @@ table 1113 "Cost Object"
         field(5; "Net Change"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Cost Entry".Amount WHERE("Cost Object Code" = FIELD(Code),
+            CalcFormula = Sum("Cost Entry".Amount WHERE("Cost Object Code" = FIELD(Code),
                                                          "Cost Object Code" = FIELD(FILTER(Totaling)),
                                                          "Cost Type No." = FIELD("Cost Type Filter"),
                                                          "Posting Date" = FIELD("Date Filter")));
@@ -50,7 +50,7 @@ table 1113 "Cost Object"
         field(6; "Balance at Date"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Cost Entry".Amount WHERE("Cost Object Code" = FIELD(Code),
+            CalcFormula = Sum("Cost Entry".Amount WHERE("Cost Object Code" = FIELD(Code),
                                                          "Cost Object Code" = FIELD(FILTER(Totaling)),
                                                          "Cost Type No." = FIELD("Cost Type Filter"),
                                                          "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
@@ -82,9 +82,9 @@ table 1113 "Cost Object"
                 then
                     ConfirmModifyIfEntriesExist(Rec);
 
-                if "Line Type" <> "Line Type"::"Cost Object" then begin
-                    Blocked := true;
-                end else
+                if "Line Type" <> "Line Type"::"Cost Object" then
+                    Blocked := true
+                else
                     Totaling := '';
             end;
         }
@@ -149,7 +149,7 @@ table 1113 "Cost Object"
 
     trigger OnDelete()
     begin
-        SetRecFilter;
+        SetRecFilter();
         ConfirmDeleteIfEntriesExist(Rec, true);
         SetRange(Code);
     end;
@@ -176,23 +176,23 @@ table 1113 "Cost Object"
         if CostObject.FindSet() then
             repeat
                 DimensionMgt.GetDimSetIDsForFilter(CostAccSetup."Cost Center Dimension", CostObject.Code);
-                DimFilter := DimensionMgt.GetDimSetFilter;
+                DimFilter := DimensionMgt.GetDimSetFilter();
                 if DimFilter <> '' then begin
                     GLEntry.SetFilter("Dimension Set ID", DimFilter);
-                    if GLEntry.FindFirst() then
+                    if not GLEntry.IsEmpty() then
                         EntriesFound := true;
                 end;
 
                 if not EntriesFound then begin
                     CostBudgetEntry.SetCurrentKey("Budget Name", "Cost Object Code");
                     CostBudgetEntry.SetRange("Cost Center Code", CostObject.Code);
-                    EntriesFound := not CostBudgetEntry.IsEmpty;
+                    EntriesFound := not CostBudgetEntry.IsEmpty();
                 end;
 
                 if not EntriesFound then begin
                     CostEntry.SetCurrentKey("Cost Object Code");
                     CostEntry.SetRange("Cost Object Code", CostObject.Code);
-                    EntriesFound := not CostEntry.IsEmpty;
+                    EntriesFound := not CostEntry.IsEmpty();
                 end;
             until (CostObject.Next() = 0) or EntriesFound;
     end;
@@ -211,7 +211,7 @@ table 1113 "Cost Object"
         CostObject2: Record "Cost Object";
     begin
         CostObject2 := CostObject;
-        CostObject2.SetRecFilter;
+        CostObject2.SetRecFilter();
         if EntriesExist(CostObject2) then
             if not Confirm(Text002, true) then
                 Error('');
@@ -222,8 +222,8 @@ table 1113 "Cost Object"
         ChartOfCostObjects: Page "Chart of Cost Objects";
     begin
         ChartOfCostObjects.LookupMode(true);
-        if ChartOfCostObjects.RunModal = ACTION::LookupOK then begin
-            Text := ChartOfCostObjects.GetSelectionFilter;
+        if ChartOfCostObjects.RunModal() = ACTION::LookupOK then begin
+            Text := ChartOfCostObjects.GetSelectionFilter();
             exit(true);
         end;
         exit(false)

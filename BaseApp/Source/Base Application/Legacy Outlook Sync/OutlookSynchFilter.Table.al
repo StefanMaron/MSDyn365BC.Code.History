@@ -114,7 +114,7 @@ table 5303 "Outlook Synch. Filter"
 
             trigger OnValidate()
             begin
-                ValidateFieldValuePair;
+                ValidateFieldValuePair();
             end;
 #endif
         }
@@ -162,13 +162,13 @@ table 5303 "Outlook Synch. Filter"
     begin
         TestField("Field No.");
         Validate(Value);
-        UpdateFilterExpression;
+        UpdateFilterExpression();
     end;
 
     trigger OnModify()
     begin
         Validate(Value);
-        UpdateFilterExpression;
+        UpdateFilterExpression();
     end;
 
     var
@@ -242,7 +242,7 @@ table 5303 "Outlook Synch. Filter"
                 begin
                     NameString := Value;
                     if not OSynchSetupMgt.ValidateFieldName(NameString, "Master Table No.") then begin
-                        RecRef.Close;
+                        RecRef.Close();
                         RecRef.Open("Master Table No.", true);
                         Error(Text005, RecRef.Caption);
                     end;
@@ -250,7 +250,7 @@ table 5303 "Outlook Synch. Filter"
                     Value := NameString;
                 end;
         end;
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     procedure RecomposeFilterExpression() FilterExpression: Text[250]
@@ -285,7 +285,7 @@ table 5303 "Outlook Synch. Filter"
             if "Table No." <> 0 then begin
                 TempRecordRef.Open("Table No.");
 
-                ViewExpression := GetFieldCaption + StrSubstNo('=FILTER(%1)', Value);
+                ViewExpression := GetFieldCaption() + StrSubstNo('=FILTER(%1)', Value);
 
                 ViewExpression := StrSubstNo('WHERE(%1)', ViewExpression);
                 TempRecordRef.SetView(ViewExpression);

@@ -96,12 +96,12 @@ codeunit 138400 "RS Pack Content - Evaluation"
         Initialize();
 
         with SalesHeader do begin
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             SetFilter("Shipping Agent Code", '<>%1', '');
             Assert.RecordCount(SalesHeader, 2);
 
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Order);
             SetFilter("Shipping Agent Code", '<>%1', '');
             Assert.RecordCount(SalesHeader, 4);
@@ -167,7 +167,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
               StrSubstNo('Item %1 does not have %2 periods',
                 TempXMLBuffer.GetAttributeValue('item'),
                 Format(Periods)));
-        until TempXMLBuffer.Next = 0;
+        until TempXMLBuffer.Next() = 0;
     end;
 
     [Test]
@@ -198,7 +198,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
         with SalesHeader do begin
             // [WHEN] Post all Invoices
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             FindSet();
             repeat
@@ -278,7 +278,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
             repeat
                 PurchaseHeader.CalcFields("Amount Including VAT");
                 Total := Total + PurchaseHeader."Amount Including VAT";
-            until PurchaseHeader.Next = 0;
+            until PurchaseHeader.Next() = 0;
             Assert.IsTrue(Total >= 15000, 'There are less purchases than expected');
             Assert.IsTrue(Total <= 400000, 'There are more purchases than expected');
             PeriodStart := CalcDate('<+1M>', PeriodStart);
@@ -300,7 +300,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
         with PurchHeader do begin
             // [WHEN] Post all Invoices
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             FindSet();
             repeat
@@ -327,7 +327,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
         with PurchHeader do begin
             // [WHEN] Post all Orders
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Order);
             FindSet();
             repeat
@@ -358,18 +358,18 @@ codeunit 138400 "RS Pack Content - Evaluation"
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
                 VerifyContactPerson(CompanyNo);
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
 
         if Vendor.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.");
                 VerifyContactPerson(CompanyNo);
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
 
         if BankAccount.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::"Bank Account", BankAccount."No.");
-            until BankAccount.Next = 0;
+            until BankAccount.Next() = 0;
     end;
 
     [Test]
@@ -719,7 +719,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         Item.FindSet();
         repeat
             Assert.AreNotEqual(0, Item.Picture.Count, StrSubstNo('Expected at least one image for item %1', Item."No."));
-        until Item.Next = 0;
+        until Item.Next() = 0;
     end;
 
     [Test]
@@ -732,7 +732,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         Initialize();
 
         with PurchSetup do begin
-            Get;
+            Get();
             TestField("Vendor Nos.");
             ValidateNoSeriesExists("Vendor Nos.");
             TestField("Quote Nos.");

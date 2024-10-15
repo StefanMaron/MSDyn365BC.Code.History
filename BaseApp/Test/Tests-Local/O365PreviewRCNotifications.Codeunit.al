@@ -87,7 +87,7 @@ codeunit 138075 "O365 Preview RC Notifications"
     begin
         Initialize();
         SetLicenseState(TenantLicenseState.State::Evaluation, GetUtcNow);
-        RoleCenterNotificationMgt.ShowEvaluationNotification;
+        RoleCenterNotificationMgt.ShowEvaluationNotification();
     end;
 
     [Test]
@@ -194,7 +194,7 @@ codeunit 138075 "O365 Preview RC Notifications"
         Initialize();
         EnableSandbox;
         SetLicenseState(TenantLicenseState.State::Evaluation, GetUtcNow);
-        RoleCenterNotificationMgt.ShowEvaluationNotification;
+        RoleCenterNotificationMgt.ShowEvaluationNotification();
         DisableSandbox;
     end;
 
@@ -234,7 +234,7 @@ codeunit 138075 "O365 Preview RC Notifications"
             // [WHEN] Click on "Don't show this again." on the notification
             Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, 'Notification should be called once.');
             // [THEN] Sandbox notification is disabled.
-            Assert.IsFalse(MyNotifications.IsEnabled(GetSandboxNotificationId), 'Notification should be disabled');
+            Assert.IsFalse(MyNotifications.IsEnabled(GetSandboxNotificationId()), 'Notification should be disabled');
 
             // [WHEN] Open role center again
             LibraryVariableStorage.Enqueue(0); // to count calls of DontShowSandboxNotificationHandler

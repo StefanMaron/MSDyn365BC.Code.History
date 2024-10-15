@@ -4,7 +4,6 @@ page 61 "Applied Customer Entries"
     DataCaptionExpression = Heading;
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Line,Entry';
     SourceTable = "Cust. Ledger Entry";
 
     layout
@@ -14,17 +13,17 @@ page 61 "Applied Customer Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer entry''s posting date.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document type that the customer entry belongs to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s document number.';
@@ -34,30 +33,30 @@ page 61 "Applied Customer Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the customer entry.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = DimVisible1;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = DimVisible2;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the salesperson whom the entry is linked to.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code for the amount on the line.';
                 }
-                field("Original Amount"; "Original Amount")
+                field("Original Amount"; Rec."Original Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the original entry.';
@@ -68,30 +67,30 @@ page 61 "Applied Customer Entries"
                     ToolTip = 'Specifies the amount of the entry.';
                     Visible = AmountVisible;
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = DebitCreditVisible;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = DebitCreditVisible;
                 }
-                field("Closed by Amount"; "Closed by Amount")
+                field("Closed by Amount"; Rec."Closed by Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that the entry was finally applied to (closed) with.';
                 }
-                field("Closed by Currency Code"; "Closed by Currency Code")
+                field("Closed by Currency Code"; Rec."Closed by Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the currency of the entry that was applied to (and closed) this customer ledger entry.';
                     Visible = false;
                 }
-                field("Closed by Currency Amount"; "Closed by Currency Amount")
+                field("Closed by Currency Amount"; Rec."Closed by Currency Amount")
                 {
                     ApplicationArea = Suite;
                     AutoFormatExpression = "Closed by Currency Code";
@@ -99,7 +98,7 @@ page 61 "Applied Customer Entries"
                     ToolTip = 'Specifies the amount that was finally applied to (and closed) this customer ledger entry.';
                     Visible = false;
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -112,19 +111,19 @@ page 61 "Applied Customer Entries"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -159,8 +158,6 @@ page 61 "Applied Customer Entries"
                     ApplicationArea = Suite;
                     Caption = 'Reminder/Fin. Charge Entries';
                     Image = Reminder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Reminder/Fin. Charge Entries";
                     RunPageLink = "Customer Entry No." = FIELD("Entry No.");
                     RunPageView = SORTING("Customer Entry No.");
@@ -172,8 +169,6 @@ page 61 "Applied Customer Entries"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -187,8 +182,6 @@ page 61 "Applied Customer Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Detailed &Ledger Entries';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Detailed Cust. Ledg. Entries";
                     RunPageLink = "Cust. Ledger Entry No." = FIELD("Entry No."),
                                   "Customer No." = FIELD("Customer No.");
@@ -205,8 +198,6 @@ page 61 "Applied Customer Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Category5;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -221,14 +212,11 @@ page 61 "Applied Customer Entries"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show Posted Document';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Show details for the posted payment, invoice, or credit memo.';
 
                 trigger OnAction()
                 begin
-                    ShowDoc
+                    ShowDoc();
                 end;
             }
             action(ShowDocumentAttachment)
@@ -237,22 +225,54 @@ page 61 "Applied Customer Entries"
                 Caption = 'Show Document Attachment';
                 Enabled = HasDocumentAttachment;
                 Image = Attach;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'View documents or images that are attached to the posted invoice or credit memo.';
 
                 trigger OnAction()
                 begin
-                    ShowPostedDocAttachment;
+                    ShowPostedDocAttachment();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Show Posted Document_Promoted"; "Show Posted Document")
+                {
+                }
+                actionref(ShowDocumentAttachment_Promoted; ShowDocumentAttachment)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Entry', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref("Reminder/Fin. Charge Entries_Promoted"; "Reminder/Fin. Charge Entries")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Detailed &Ledger Entries_Promoted"; "Detailed &Ledger Entries")
+                {
+                }
             }
         }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        HasDocumentAttachment := HasPostedDocAttachment;
+        HasDocumentAttachment := HasPostedDocAttachment();
     end;
 
     trigger OnInit()
@@ -262,8 +282,8 @@ page 61 "Applied Customer Entries"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        SetControlVisibility;
+        Reset();
+        SetControlVisibility();
 
         if "Entry No." <> 0 then begin
             CreateCustLedgEntry := Rec;
@@ -273,7 +293,7 @@ page 61 "Applied Customer Entries"
                 Heading := Format(CreateCustLedgEntry."Document Type");
             Heading := Heading + ' ' + CreateCustLedgEntry."Document No.";
 
-            FindApplnEntriesDtldtLedgEntry;
+            FindApplnEntriesDtldtLedgEntry();
             SetCurrentKey("Entry No.");
             SetRange("Entry No.");
 
@@ -297,7 +317,6 @@ page 61 "Applied Customer Entries"
     end;
 
     var
-        Text000: Label 'Document';
         CreateCustLedgEntry: Record "Cust. Ledger Entry";
         Navigate: Page Navigate;
         Heading: Text[50];
@@ -306,6 +325,8 @@ page 61 "Applied Customer Entries"
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         HasDocumentAttachment: Boolean;
+
+        Text000: Label 'Document';
 
     local procedure FindApplnEntriesDtldtLedgEntry()
     var

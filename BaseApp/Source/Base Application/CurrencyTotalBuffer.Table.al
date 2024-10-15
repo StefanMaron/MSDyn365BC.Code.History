@@ -47,13 +47,13 @@ table 332 "Currency Total Buffer"
         if Get(CurrencyCode) then begin
             "Total Amount" := "Total Amount" + Amount;
             "Total Amount (LCY)" := "Total Amount (LCY)" + AmountLCY;
-            Modify;
+            Modify();
         end else begin
             "Currency Code" := CurrencyCode;
             "Total Amount" := Amount;
             "Total Amount (LCY)" := AmountLCY;
             Counter := Counter + 1;
-            Insert;
+            Insert();
         end;
     end;
 }

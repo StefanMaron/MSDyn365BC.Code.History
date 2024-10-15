@@ -29,7 +29,7 @@ report 502 "Intrastat - Checklist"
                 column(IntrastatJnlBatStatPeriod; StrSubstNo(Text001, "Intrastat Jnl. Batch"."Statistics Period"))
                 {
                 }
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(CompanyInfoVATRegNo; CompanyInfo."VAT Registration No.")
@@ -162,17 +162,17 @@ report 502 "Intrastat - Checklist"
 #endif
 
                     if Country.Get("Country/Region Code") then;
-                    IntrastatJnlLineTemp.Reset();
-                    IntrastatJnlLineTemp.SetRange(Type, Type);
-                    IntrastatJnlLineTemp.SetRange("Tariff No.", "Tariff No.");
-                    IntrastatJnlLineTemp.SetRange("Country/Region Code", "Country/Region Code");
-                    IntrastatJnlLineTemp.SetRange("Transaction Type", "Transaction Type");
-                    IntrastatJnlLineTemp.SetRange("Transport Method", "Transport Method");
-                    IntrastatJnlLineTemp.SetRange("Country/Region of Origin Code", "Country/Region of Origin Code");
-                    IntrastatJnlLineTemp.SetRange("Partner VAT ID", "Partner VAT ID");
-                    if not IntrastatJnlLineTemp.FindFirst() then begin
-                        IntrastatJnlLineTemp := "Intrastat Jnl. Line";
-                        IntrastatJnlLineTemp.Insert();
+                    TempIntrastatJnlLine.Reset();
+                    TempIntrastatJnlLine.SetRange(Type, Type);
+                    TempIntrastatJnlLine.SetRange("Tariff No.", "Tariff No.");
+                    TempIntrastatJnlLine.SetRange("Country/Region Code", "Country/Region Code");
+                    TempIntrastatJnlLine.SetRange("Transaction Type", "Transaction Type");
+                    TempIntrastatJnlLine.SetRange("Transport Method", "Transport Method");
+                    TempIntrastatJnlLine.SetRange("Country/Region of Origin Code", "Country/Region of Origin Code");
+                    TempIntrastatJnlLine.SetRange("Partner VAT ID", "Partner VAT ID");
+                    if not TempIntrastatJnlLine.FindFirst() then begin
+                        TempIntrastatJnlLine := "Intrastat Jnl. Line";
+                        TempIntrastatJnlLine.Insert();
                         NoOfRecordsRTC += 1;
                     end;
                     if (PrevIntrastatJnlLine.Type <> Type) or
@@ -203,13 +203,13 @@ report 502 "Intrastat - Checklist"
 
                 trigger OnPreDataItem()
                 begin
-                    IntrastatJnlLineTemp.DeleteAll();
+                    TempIntrastatJnlLine.DeleteAll();
                     NoOfRecordsRTC := 0;
 
                     if GetFilter(Type) <> '' then
                         exit;
 
-                    if not IntrastatSetup.Get then
+                    if not IntrastatSetup.Get() then
                         exit;
 
                     if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
@@ -288,13 +288,10 @@ report 502 "Intrastat - Checklist"
     end;
 
     var
-        Text000: Label 'WwWw';
-        Text001: Label 'Statistics Period: %1';
-        Text002: Label 'All amounts are in %1.';
         CompanyInfo: Record "Company Information";
         Country: Record "Country/Region";
         GLSetup: Record "General Ledger Setup";
-        IntrastatJnlLineTemp: Record "Intrastat Jnl. Line" temporary;
+        TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
         PrevIntrastatJnlLine: Record "Intrastat Jnl. Line";
         IntrastatSetup: Record "Intrastat Setup";
         IntraJnlManagement: Codeunit IntraJnlManagement;
@@ -305,6 +302,10 @@ report 502 "Intrastat - Checklist"
         HeaderLine: Text;
         SubTotalWeight: Decimal;
         TotalWeight: Decimal;
+
+        Text000: Label 'WwWw';
+        Text001: Label 'Statistics Period: %1';
+        Text002: Label 'All amounts are in %1.';
         IntrastatChecklistCaptionLbl: Label 'Intrastat - Checklist';
         PageNoCaptionLbl: Label 'Page';
         VATRegNoCaptionLbl: Label 'VAT Registration No.';

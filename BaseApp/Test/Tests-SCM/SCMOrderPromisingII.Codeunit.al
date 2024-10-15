@@ -77,12 +77,12 @@ codeunit 137157 "SCM Order Promising II"
         CreateAndReleaseTransferOrder(TransferHeader, TransferLine, LocationBlue.Code, LocationRed.Code, Item."No.", Quantity);
 
         // Verify.
-        TransferLine.TestField("Receipt Date", CalcDate(LocationRed."Inbound Whse. Handling Time", WorkDate));
+        TransferLine.TestField("Receipt Date", CalcDate(LocationRed."Inbound Whse. Handling Time", WorkDate()));
 
         if AvailableToPromise then begin
             // Exercise.
             LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);  // Post as Ship.
-            CreateSalesOrder(SalesHeader, SalesLine, WorkDate, TransferLine."Receipt Date", Item."No.", LocationRed.Code, Quantity);
+            CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), TransferLine."Receipt Date", Item."No.", LocationRed.Code, Quantity);
             RunOrderPromisingFromSalesLine(SalesLine, OrderPromising::AvailableToPromise, true);  // Use True for Accept.
 
             // Verify: Verify Planned Delivery Date, Planned Shipment Date and Shipment Date on Sales Line.
@@ -107,7 +107,7 @@ codeunit 137157 "SCM Order Promising II"
         // Setup: Create Sales Order. Run Capable To Promise from Sales Order. Find Currency.
         Initialize();
         LibraryInventory.CreateItem(Item);
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, 0D, Item."No.", LocationBlue.Code, LibraryRandom.RandDec(100, 2));  // Use 0D for Requested Delivery Date.
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), 0D, Item."No.", LocationBlue.Code, LibraryRandom.RandDec(100, 2));  // Use 0D for Requested Delivery Date.
         RunOrderPromisingFromSalesLine(SalesLine, OrderPromising::CapableToPromise, true);  // Use True for Accept.
         LibraryERM.FindCurrency(Currency);
 
@@ -118,7 +118,7 @@ codeunit 137157 "SCM Order Promising II"
         Assert.IsTrue(
           StrPos(
             GetLastErrorText,
-            StrSubstNo(ReservedQuantityMustBeZeroOnSalesLine, SalesLine.FieldCaption("Reserved Qty. (Base)"), SalesLine.TableCaption)) >
+            StrSubstNo(ReservedQuantityMustBeZeroOnSalesLine, SalesLine.FieldCaption("Reserved Qty. (Base)"), SalesLine.TableCaption())) >
           0, GetLastErrorText);
     end;
 
@@ -144,7 +144,7 @@ codeunit 137157 "SCM Order Promising II"
         RunOrderPromisingFromSalesLine(SalesLine, OrderPromising::CapableToPromise, true);  // Use True for Accept.
 
         // Verify.
-        VerifyOrderPromisingLine(GetEarliestDeliveryDate(Item, '', false), WorkDate, SalesLine.Quantity);
+        VerifyOrderPromisingLine(GetEarliestDeliveryDate(Item, '', false), WorkDate(), SalesLine.Quantity);
     end;
 
     [Test]
@@ -194,10 +194,10 @@ codeunit 137157 "SCM Order Promising II"
         Quantity := LibraryRandom.RandDec(100, 2);
         CreatePurchaseOrder(
           PurchaseHeader,
-          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
+          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
           Item."No.", LocationRed.Code, Quantity);  // Value required for test.
         CreateSalesOrder(
-          SalesHeader, SalesLine, WorkDate,
+          SalesHeader, SalesLine, WorkDate(),
           CalcDate(LocationRed."Outbound Whse. Handling Time", PurchaseHeader."Expected Receipt Date"),
           Item."No.", LocationRed.Code, Quantity);  // Value required for test.
 
@@ -244,13 +244,13 @@ codeunit 137157 "SCM Order Promising II"
         CreateAndPostPurchaseOrderAsReceiveAfterUpdateBothWarehouseHandlingTimeOnLocation(LocationRed, Item."No.", Quantity);
 
         // Exercise.
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, 0D, Item."No.", LocationRed.Code, Quantity);  // Use 0D for Requested Delivery Date.
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), 0D, Item."No.", LocationRed.Code, Quantity);  // Use 0D for Requested Delivery Date.
 
         // Verify: Verify Planned Delivery Date, Planned Shipment Date and Shipment Date on Sales Line.
         VerifySalesLine(
           SalesLine,
-          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
-          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
+          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
+          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
           WorkDate);  // Value required for test.
 
         if AvailableToPromise then begin
@@ -260,8 +260,8 @@ codeunit 137157 "SCM Order Promising II"
             // Verify: Verify Planned Delivery Date, Planned Shipment Date and Shipment Date on Sales Line.
             VerifySalesLine(
               SalesLine,
-              CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
-              CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
+              CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
+              CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
               WorkDate);  // Value required for test.
         end;
     end;
@@ -298,13 +298,13 @@ codeunit 137157 "SCM Order Promising II"
         CreateAndPostPurchaseOrderAsReceiveAfterUpdateBothWarehouseHandlingTimeOnLocation(LocationRed, Item."No.", Quantity);
 
         // Exercise.
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, 0D, Item."No.", LocationRed.Code, Quantity + LibraryRandom.RandDec(100, 2));  // Quantity must be greater than Available Quantity. Use 0D for Requested Delivery Date.
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), 0D, Item."No.", LocationRed.Code, Quantity + LibraryRandom.RandDec(100, 2));  // Quantity must be greater than Available Quantity. Use 0D for Requested Delivery Date.
 
         // Verify: Verify Planned Delivery Date, Planned Shipment Date and Shipment Date on Sales Line.
         VerifySalesLine(
           SalesLine,
-          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
-          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
+          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
+          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
           WorkDate);  // Value required for test.
 
         if AvailableToPromise then begin
@@ -314,8 +314,8 @@ codeunit 137157 "SCM Order Promising II"
             // Verify: Verify Planned Delivery Date, Planned Shipment Date and Shipment Date on Sales Line.
             VerifySalesLine(
               SalesLine,
-              CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
-              CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
+              CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
+              CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
               WorkDate);  // Value required for test.
         end;
     end;
@@ -352,13 +352,13 @@ codeunit 137157 "SCM Order Promising II"
         CreateAndPostPurchaseOrderAsReceiveAfterUpdateBothWarehouseHandlingTimeOnLocation(LocationRed, Item."No.", Quantity);
 
         // Exercise.
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, 0D, Item."No.", LocationRed.Code, Quantity);  // Use 0D for Requested Delivery Date.
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), 0D, Item."No.", LocationRed.Code, Quantity);  // Use 0D for Requested Delivery Date.
 
         // Verify: Verify Planned Delivery Date, Planned Shipment Date and Shipment Date on Sales Line.
         VerifySalesLine(
           SalesLine,
-          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
-          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
+          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
+          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
           WorkDate);  // Value required for test.
 
         if CapableToPromise then begin
@@ -368,8 +368,8 @@ codeunit 137157 "SCM Order Promising II"
             // Verify: Verify Planned Delivery Date, Planned Shipment Date and Shipment Date on Sales Line.
             VerifySalesLine(
               SalesLine,
-              CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
-              CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
+              CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
+              CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
               WorkDate);  // Value required for test.
         end;
     end;
@@ -407,13 +407,13 @@ codeunit 137157 "SCM Order Promising II"
         CreateAndPostPurchaseOrderAsReceiveAfterUpdateBothWarehouseHandlingTimeOnLocation(LocationRed, Item."No.", Quantity);
 
         // Exercise.
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, 0D, Item."No.", LocationRed.Code, Quantity + LibraryRandom.RandDec(100, 2));  // Quantity must be greater than Available Quantity. Use 0D for Requested Delivery Date.
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), 0D, Item."No.", LocationRed.Code, Quantity + LibraryRandom.RandDec(100, 2));  // Quantity must be greater than Available Quantity. Use 0D for Requested Delivery Date.
 
         // Verify: Verify Planned Delivery Date, Planned Shipment Date and Shipment Date on Sales Line.
         VerifySalesLine(
           SalesLine,
-          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
-          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate),
+          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
+          CalcDate(LocationRed."Outbound Whse. Handling Time", WorkDate()),
           WorkDate);  // Value required for test.
 
         if CapableToPromise then begin
@@ -426,7 +426,7 @@ codeunit 137157 "SCM Order Promising II"
                 '<' + GetDefaultSafetyLeadTime + '>',
                 CalcDate(
                   '<' + GetOffsetTime + '>',
-                  CalcDate(LocationRed."Inbound Whse. Handling Time", WorkDate)));
+                  CalcDate(LocationRed."Inbound Whse. Handling Time", WorkDate())));
 
             VerifySalesLine(
               SalesLine,
@@ -439,7 +439,7 @@ codeunit 137157 "SCM Order Promising II"
               Item."No.", LocationRed.Code, SalesLine.Quantity - Quantity,
               CalcDate(
                 '<' + GetDefaultSafetyLeadTime + '>',
-                CalcDate('<' + GetOffsetTime + '>', CalcDate(LocationRed."Inbound Whse. Handling Time", WorkDate))));
+                CalcDate('<' + GetOffsetTime + '>', CalcDate(LocationRed."Inbound Whse. Handling Time", WorkDate()))));
         end;
     end;
 
@@ -449,7 +449,7 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // Setup.
         Initialize();
-        SalesOrderUsingShippingAgentAndBaseCalendar(WorkDate, 0, LibraryRandom.RandInt(5), '');  // Use 0 for Warehouse Outbound Handling Time and blank for Location.
+        SalesOrderUsingShippingAgentAndBaseCalendar(WorkDate(), 0, LibraryRandom.RandInt(5), '');  // Use 0 for Warehouse Outbound Handling Time and blank for Location.
     end;
 
     [Test]
@@ -458,7 +458,7 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // Setup.
         Initialize();
-        SalesOrderUsingShippingAgentAndBaseCalendar(WorkDate, LibraryRandom.RandInt(5), 0, '');  // Use 0 for Shipping Time and blank for Location.
+        SalesOrderUsingShippingAgentAndBaseCalendar(WorkDate(), LibraryRandom.RandInt(5), 0, '');  // Use 0 for Shipping Time and blank for Location.
     end;
 
     [Test]
@@ -476,7 +476,7 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // Setup.
         Initialize();
-        SalesOrderUsingShippingAgentAndBaseCalendar(WorkDate, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5), '');  // Use blank for Location.
+        SalesOrderUsingShippingAgentAndBaseCalendar(WorkDate(), LibraryRandom.RandInt(5), LibraryRandom.RandInt(5), '');  // Use blank for Location.
     end;
 
     [Test]
@@ -551,13 +551,13 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // Create Item with Lead Time Calculation. Create Sales Order.
         CreateItemWithLeadTimeCalculation(Item);
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, 0D, Item."No.", '', LibraryRandom.RandDec(100, 2));  // Use 0D for Requested Delivery Date and Blank for Location.
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), 0D, Item."No.", '', LibraryRandom.RandDec(100, 2));  // Use 0D for Requested Delivery Date and Blank for Location.
 
         // Exercise.
         RunOrderPromisingFromSalesLine(SalesLine, OrderPromising::CapableToPromise, false);  // Use False for Accept.
 
         // Verify.
-        VerifyOrderPromisingLine(GetEarliestDeliveryDate(Item, '', false), WorkDate, SalesLine.Quantity);
+        VerifyOrderPromisingLine(GetEarliestDeliveryDate(Item, '', false), WorkDate(), SalesLine.Quantity);
 
         if CompanyBaseCalendar then begin
             // Exercise.
@@ -566,7 +566,7 @@ codeunit 137157 "SCM Order Promising II"
             RunOrderPromisingFromSalesLine(SalesLine, OrderPromising::CapableToPromise, false);  // Use False for Accept.
 
             // Verify.
-            VerifyOrderPromisingLine(GetEarliestDeliveryDate(Item, '', true), WorkDate, SalesLine.Quantity);
+            VerifyOrderPromisingLine(GetEarliestDeliveryDate(Item, '', true), WorkDate(), SalesLine.Quantity);
         end;
 
         // Tear down.
@@ -621,15 +621,15 @@ codeunit 137157 "SCM Order Promising II"
         LibrarySales.CreateCustomer(Customer);
 
         // Exercise.
-        CreateSalesOrderWithShipmentDate(SalesHeader, SalesLine, WorkDate, 0, ShippingTime, Customer."No.", Item."No.", '');  // Use 0 for Outbound Warehouse Handling Time and Blank for Location.
+        CreateSalesOrderWithShipmentDate(SalesHeader, SalesLine, WorkDate(), 0, ShippingTime, Customer."No.", Item."No.", '');  // Use 0 for Outbound Warehouse Handling Time and Blank for Location.
 
         // Verify.
-        VerifySalesLine(SalesLine, CalcDate(SalesHeader."Shipping Time", WorkDate), WorkDate, WorkDate);
+        VerifySalesLine(SalesLine, CalcDate(SalesHeader."Shipping Time", WorkDate()), WorkDate(), WorkDate());
 
         if UpdateRequestedDeliveryDate then begin
             // Exercise.
             UpdateRequestedDeliveryDateOnSalesOrder(
-              SalesHeader, CalcDate('<' + GetDefaultSafetyLeadTime + '>', CalcDate(SalesHeader."Shipping Time", WorkDate)));
+              SalesHeader, CalcDate('<' + GetDefaultSafetyLeadTime + '>', CalcDate(SalesHeader."Shipping Time", WorkDate())));
 
             // Verify.
             VerifySalesLine(
@@ -675,14 +675,14 @@ codeunit 137157 "SCM Order Promising II"
         CreateCustomerWithShippingAgentAndBaseCalendar(Customer, ShippingAgentServices, BaseCalendar.Code);
 
         // Exercise.
-        CreateSalesOrderWithShipmentDate(SalesHeader, SalesLine, WorkDate, 0, LibraryRandom.RandInt(5), Customer."No.", Item."No.", '');  // Use 0 for Outbound Warehouse Handling Time and Blank for Location.
+        CreateSalesOrderWithShipmentDate(SalesHeader, SalesLine, WorkDate(), 0, LibraryRandom.RandInt(5), Customer."No.", Item."No.", '');  // Use 0 for Outbound Warehouse Handling Time and Blank for Location.
 
         // Verify.
-        PlannedShipmentDate := CalculateDateWithNonWorkingDaysUsingBaseCalendar(WorkDate, WorkDate, 1);
+        PlannedShipmentDate := CalculateDateWithNonWorkingDaysUsingBaseCalendar(WorkDate(), WorkDate(), 1);
         PlannedDate :=
           CalculateDateWithNonWorkingDaysUsingBaseCalendar(
             PlannedShipmentDate, CalcDate(SalesHeader."Shipping Time", PlannedShipmentDate), 1);  // Use 1 for Forward Planning.
-        VerifySalesLine(SalesLine, PlannedDate, PlannedShipmentDate, WorkDate);
+        VerifySalesLine(SalesLine, PlannedDate, PlannedShipmentDate, WorkDate());
 
         if UpdateRequestedDeliveryDate then begin
             // Exercise.
@@ -714,8 +714,8 @@ codeunit 137157 "SCM Order Promising II"
         // [GIVEN] Purchase Item = X of Quantity = Y
         // [GIVEN] Create Sales Order with two lines both with same Item = X and Quantity = Y
         // [GIVEN] Set Shipment Dates in ascending order
-        ShipmentDate[1] := WorkDate;
-        ShipmentDate[2] := CalcDate('<1M>', WorkDate);
+        ShipmentDate[1] := WorkDate();
+        ShipmentDate[2] := CalcDate('<1M>', WorkDate());
         CreateSalesOrderWithTwoShipmentDates(SalesHeader, ItemNo, Quantity, ShipmentDate);
 
         // [WHEN] Calculate Available-To-Promise on the earlier line (don't Accept)
@@ -748,8 +748,8 @@ codeunit 137157 "SCM Order Promising II"
         // [GIVEN] Purchase Item = X of Quantity = Y
         // [GIVEN] Create Sales Order with two lines both with same Item = X and Quantity = Y
         // [GIVEN] Set Shipment Dates in descending order
-        ShipmentDate[1] := CalcDate('<1M>', WorkDate);
-        ShipmentDate[2] := WorkDate;
+        ShipmentDate[1] := CalcDate('<1M>', WorkDate());
+        ShipmentDate[2] := WorkDate();
         CreateSalesOrderWithTwoShipmentDates(SalesHeader, ItemNo, Quantity, ShipmentDate);
 
         // [WHEN] Calculate Available-To-Promise on the earlier line (don't Accept)
@@ -782,8 +782,8 @@ codeunit 137157 "SCM Order Promising II"
         // [GIVEN] Purchase Item = X of Quantity = Y
         // [GIVEN] Create Sales Order with two lines both with same Item = X and Quantity = Y
         // [GIVEN] Set Shipment Dates in ascending order
-        ShipmentDate[1] := WorkDate;
-        ShipmentDate[2] := CalcDate('<1M>', WorkDate);
+        ShipmentDate[1] := WorkDate();
+        ShipmentDate[2] := CalcDate('<1M>', WorkDate());
         CreateSalesOrderWithTwoShipmentDates(SalesHeader, ItemNo, Quantity, ShipmentDate);
         // [GIVEN] Make reservation on the later line
         FindSalesLineByShipmentDate(SalesLine, SalesHeader, ShipmentDate[2]);
@@ -816,8 +816,8 @@ codeunit 137157 "SCM Order Promising II"
     begin
         // Verify Planned Delivery Date when Item with SKUs by locations and inter-location transfer
         Initialize();
-        LocationBlue.Find;
-        LocationRed.Find;
+        LocationBlue.Find();
+        LocationRed.Find();
 
         // Create Critical Item, SKU by Location: RED, BLUE
         CreateItemCritical(Item);
@@ -830,11 +830,11 @@ codeunit 137157 "SCM Order Promising II"
         UpdateSKUReplenishmentSystemWithTransfer(SKURed, LocationBlue.Code);
 
         // Create Sales Order on RED
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, 0D, Item."No.", LocationRed.Code, LibraryRandom.RandDec(100, 2));
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), 0D, Item."No.", LocationRed.Code, LibraryRandom.RandDec(100, 2));
         RunOrderPromisingFromSalesLine(SalesLine, OrderPromising::CapableToPromise, false);
 
         // Verify that Planned Delivery Date considering BLUE outbound time transfer
-        VerifyOrderPromisingLine(GetEarliestDeliveryDate(Item, LocationBlue.Code, false), WorkDate, SalesLine.Quantity);
+        VerifyOrderPromisingLine(GetEarliestDeliveryDate(Item, LocationBlue.Code, false), WorkDate(), SalesLine.Quantity);
     end;
 
     [Test]
@@ -850,7 +850,7 @@ codeunit 137157 "SCM Order Promising II"
         Initialize();
 
         // [GIVEN] Sales Order.
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, WorkDate, LibraryInventory.CreateItemNo, '', 10);
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), WorkDate, LibraryInventory.CreateItemNo, '', 10);
 
         // [WHEN] Run "Order Promising" from the Sales Line.
         RunOrderPromisingFromSalesLine(SalesLine, OrderPromising::CapableToPromise, true);
@@ -883,7 +883,7 @@ codeunit 137157 "SCM Order Promising II"
         UpdatePlannedOrderNosOnMfgSetup(NoSeries.Code);
 
         // [GIVEN] Sales Order "SO".
-        CreateSalesHeader(SalesHeader, WorkDate, WorkDate);
+        CreateSalesHeader(SalesHeader, WorkDate(), WorkDate());
 
         // [GIVEN] Several lines for "SO" with manufacturing items.
         for i := 1 to ArrayLen(ItemNo) do begin
@@ -914,7 +914,7 @@ codeunit 137157 "SCM Order Promising II"
         // [GIVEN] Sales line set up for drop shipment.
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo,
-          LibraryRandom.RandInt(10), '', WorkDate);
+          LibraryRandom.RandInt(10), '', WorkDate());
         SalesLine.Validate("Drop Shipment", true);
         SalesLine.Modify(true);
 
@@ -926,7 +926,7 @@ codeunit 137157 "SCM Order Promising II"
         RequisitionLine.FindFirst();
 
         // [THEN] The sales line is not reserved from requisition line.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField(Reserve, SalesLine.Reserve::Never);
         SalesLine.TestField("Reserved Quantity", 0);
@@ -953,7 +953,7 @@ codeunit 137157 "SCM Order Promising II"
 
         // [GIVEN] Sales order for "X" pcs of item "I", shipment date = 23.01.2020
         LibraryInventory.CreateItem(Item);
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, WorkDate, Item."No.", '', LibraryRandom.RandInt(100));
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), WorkDate, Item."No.", '', LibraryRandom.RandInt(100));
 
         // [GIVEN] Purchase order for "X" pcs of item "I", expected receipt date = 02.02.2020
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -988,7 +988,7 @@ codeunit 137157 "SCM Order Promising II"
 
         // [GIVEN] Sales order for "X" pcs of item "I", shipment date = 23.01.2020
         LibraryInventory.CreateItem(Item);
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, WorkDate, Item."No.", '', LibraryRandom.RandInt(100));
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), WorkDate, Item."No.", '', LibraryRandom.RandInt(100));
 
         // [GIVEN] Purchase order for "X" pcs of item "I", expected receipt date = 02.02.2020
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -1026,12 +1026,12 @@ codeunit 137157 "SCM Order Promising II"
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, Item."No.", LibraryRandom.RandInt(100), '', WorkDate);
+          LibraryPurchase.CreateVendorNo, Item."No.", LibraryRandom.RandInt(100), '', WorkDate());
 
         // [GIVEN] Sales order for "X" pcs of item "I" on 02.02.2020
         ShipmentDate := GetDateOutsideOfAvailabilityTimeBucket(PurchaseLine."Expected Receipt Date");
         CreateSalesOrder(
-          SalesHeader, SalesLine, WorkDate, ShipmentDate, Item."No.", '', LibraryRandom.RandInt(20));
+          SalesHeader, SalesLine, WorkDate(), ShipmentDate, Item."No.", '', LibraryRandom.RandInt(20));
         SalesLine.Validate("Shipment Date", ShipmentDate);
         SalesLine.Modify(true);
 
@@ -1063,13 +1063,13 @@ codeunit 137157 "SCM Order Promising II"
         BaseQty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Purchase Order with Expected Receipt Date = 31/1/2021 and 25 PCS of Item
-        CreatePurchaseOrder(PurchaseHeader, CalcDate('<2D>', WorkDate), ItemNo, LocationCode, BaseQty * 5);
+        CreatePurchaseOrder(PurchaseHeader, CalcDate('<2D>', WorkDate()), ItemNo, LocationCode, BaseQty * 5);
 
         // [GIVEN] Sales Order with Requested Delivery Date = 5/2/2021 and 5 PCS of the Item (Planned Shipment Date was 4/2/2021)
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, CalcDate('<1W>', WorkDate), ItemNo, LocationCode, BaseQty);
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), CalcDate('<1W>', WorkDate()), ItemNo, LocationCode, BaseQty);
 
         // [GIVEN] Sales Order with same Requested Delivery Date and 10 PCS of the Item (Planned Shipment Date was the same)
-        CreateSalesOrder(SalesHeader, SalesLine, WorkDate, CalcDate('<1W>', WorkDate), ItemNo, LocationCode, BaseQty * 2);
+        CreateSalesOrder(SalesHeader, SalesLine, WorkDate(), CalcDate('<1W>', WorkDate()), ItemNo, LocationCode, BaseQty * 2);
         AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
 
         // [WHEN] Calculate Available to Promise for the 2nd Sales Order
@@ -1101,13 +1101,13 @@ codeunit 137157 "SCM Order Promising II"
         BaseQty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Purchase Order with Expected Receipt Date = 31/1/2021 and 25 PCS of Item
-        CreatePurchaseOrder(PurchaseHeader, CalcDate('<2D>', WorkDate), ItemNo, LocationCode, BaseQty * 5);
+        CreatePurchaseOrder(PurchaseHeader, CalcDate('<2D>', WorkDate()), ItemNo, LocationCode, BaseQty * 5);
 
         // [GIVEN] Service Line with Requested Delivery Date = 5/2/2021 and 5 PCS of the Item (Needed by Date was 4/2/2021)
-        CreateServiceOrder(ServiceHeader, ServiceLine, CalcDate('<1W>', WorkDate), ItemNo, LocationCode, BaseQty);
+        CreateServiceOrder(ServiceHeader, ServiceLine, CalcDate('<1W>', WorkDate()), ItemNo, LocationCode, BaseQty);
 
         // [GIVEN] Service Line with same Requested Delivery Date and 10 PCS of the Item (Needed by Date was the same)
-        CreateServiceOrder(ServiceHeader, ServiceLine, CalcDate('<1W>', WorkDate), ItemNo, LocationCode, BaseQty * 2);
+        CreateServiceOrder(ServiceHeader, ServiceLine, CalcDate('<1W>', WorkDate()), ItemNo, LocationCode, BaseQty * 2);
         AvailabilityManagement.SetServHeader(OrderPromisingLine, ServiceHeader);
 
         // [WHEN] Calculate Available to Promise for the 2nd Service Line
@@ -1139,13 +1139,13 @@ codeunit 137157 "SCM Order Promising II"
         BaseQty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Purchase Order with Expected Receipt Date = 31/1/2021 and 25 PCS of Item
-        CreatePurchaseOrder(PurchaseHeader, CalcDate('<2D>', WorkDate), ItemNo, LocationCode, BaseQty * 5);
+        CreatePurchaseOrder(PurchaseHeader, CalcDate('<2D>', WorkDate()), ItemNo, LocationCode, BaseQty * 5);
 
         // [GIVEN] Job Planning Line with Requested Delivery Date = 5/2/2021 and 5 PCS of the Item (Needed by Date was 4/2/2021)
-        CreateJobWithJobPlanningLine(Job, JobPlanningLine, CalcDate('<1W>', WorkDate), ItemNo, LocationCode, BaseQty);
+        CreateJobWithJobPlanningLine(Job, JobPlanningLine, CalcDate('<1W>', WorkDate()), ItemNo, LocationCode, BaseQty);
 
         // [GIVEN] Job Planning Line with same Requested Delivery Date and 10 PCS of the Item (Needed by Date was the same)
-        CreateJobWithJobPlanningLine(Job, JobPlanningLine, CalcDate('<1W>', WorkDate), ItemNo, LocationCode, BaseQty * 2);
+        CreateJobWithJobPlanningLine(Job, JobPlanningLine, CalcDate('<1W>', WorkDate()), ItemNo, LocationCode, BaseQty * 2);
         AvailabilityManagement.SetJob(OrderPromisingLine, Job);
 
         // [WHEN] Calculate Available to Promise for the 2nd Job Planning Line
@@ -1174,13 +1174,13 @@ codeunit 137157 "SCM Order Promising II"
 
         // [GIVEN] Special Order Sales Order with <blank> Requested Delivery Date
         CreateSpecialOrderSalesOrder(
-          SalesHeader, SalesLine, WorkDate, 0D, LibraryInventory.CreateItemNo, CreateLocationCode, LibraryRandom.RandInt(10));
+          SalesHeader, SalesLine, WorkDate(), 0D, LibraryInventory.CreateItemNo, CreateLocationCode, LibraryRandom.RandInt(10));
 
         // [GIVEN] Special Order Purchase Order for the Sales Order with Expected Receipt Date = 10/1/2021
-        CreateSpecialOrderPurchaseOrderForSalesOrder(PurchaseLine, SalesHeader."Sell-to Customer No.", CalcDate('<1W>', WorkDate));
+        CreateSpecialOrderPurchaseOrderForSalesOrder(PurchaseLine, SalesHeader."Sell-to Customer No.", CalcDate('<1W>', WorkDate()));
 
         // [GIVEN] Purchase Order with similar Purchase Line and with Expected Receipt Date = 1/1/2021
-        CreatePurchaseOrder(PurchaseHeader, WorkDate, PurchaseLine."No.", PurchaseLine."Location Code", PurchaseLine.Quantity);
+        CreatePurchaseOrder(PurchaseHeader, WorkDate(), PurchaseLine."No.", PurchaseLine."Location Code", PurchaseLine.Quantity);
         AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
 
         // [WHEN] Calculate Available to Promise for the Sales Line
@@ -1207,11 +1207,11 @@ codeunit 137157 "SCM Order Promising II"
 
         // [GIVEN] Special Order Sales Order with Requested Delivery Date = 20/1/2021
         CreateSpecialOrderSalesOrder(
-          SalesHeader, SalesLine, WorkDate, CalcDate('<2W>', WorkDate), LibraryInventory.CreateItemNo, CreateLocationCode,
+          SalesHeader, SalesLine, WorkDate(), CalcDate('<2W>', WorkDate()), LibraryInventory.CreateItemNo, CreateLocationCode,
           LibraryRandom.RandInt(10));
 
         // [GIVEN] Special Order Purchase Order for the Sales Order with Expected Receipt Date = 10/1/2021
-        CreateSpecialOrderPurchaseOrderForSalesOrder(PurchaseLine, SalesHeader."Sell-to Customer No.", CalcDate('<1W>', WorkDate));
+        CreateSpecialOrderPurchaseOrderForSalesOrder(PurchaseLine, SalesHeader."Sell-to Customer No.", CalcDate('<1W>', WorkDate()));
         AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
 
         // [WHEN] Calculate Available to Promise for the Sales Line
@@ -1237,11 +1237,11 @@ codeunit 137157 "SCM Order Promising II"
 
         // [GIVEN] Special Order Sales Order
         CreateSpecialOrderSalesOrder(
-          SalesHeader, SalesLine, WorkDate, CalcDate('<2W>', WorkDate), LibraryInventory.CreateItemNo, CreateLocationCode,
+          SalesHeader, SalesLine, WorkDate(), CalcDate('<2W>', WorkDate()), LibraryInventory.CreateItemNo, CreateLocationCode,
           LibraryRandom.RandInt(10));
 
         // [GIVEN] Purchase Order with same Item, Location, Qunatity and with Expected Receipt Date = 1/1/2021
-        CreatePurchaseOrder(PurchaseHeader, WorkDate, SalesLine."No.", SalesLine."Location Code", SalesLine.Quantity);
+        CreatePurchaseOrder(PurchaseHeader, WorkDate(), SalesLine."No.", SalesLine."Location Code", SalesLine.Quantity);
         AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
 
         // [WHEN] Calculate Available to Promise for the Sales Line
@@ -1858,7 +1858,7 @@ codeunit 137157 "SCM Order Promising II"
     var
         Location: Record Location;
     begin
-        Result := CalcDate('<' + Format(Item."Lead Time Calculation") + '>', WorkDate);
+        Result := CalcDate('<' + Format(Item."Lead Time Calculation") + '>', WorkDate());
         Result := CalcDate('<' + Format(GetDefaultSafetyLeadTime) + '>', Result);
         Result := CalcDate('<' + Format(GetOffsetTime) + '>', Result);
 
@@ -1879,7 +1879,7 @@ codeunit 137157 "SCM Order Promising II"
         BaseCalendarChange: Record "Base Calendar Change";
         Date: Record Date;
     begin
-        Date.SetFilter("Period Start", '>=%1', WorkDate);
+        Date.SetFilter("Period Start", '>=%1', WorkDate());
         Date.SetRange("Period Name", Format(BaseCalendarChange.Day::Sunday));
         Date.FindFirst();
         exit(Date."Period Start");
@@ -1990,7 +1990,7 @@ codeunit 137157 "SCM Order Promising II"
         with SKU do begin
             Validate("Replenishment System", "Replenishment System"::Transfer);
             Validate("Transfer-from Code", TransferFromCode);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2063,7 +2063,7 @@ codeunit 137157 "SCM Order Promising II"
 
     local procedure VerifySalesLine(SalesLine: Record "Sales Line"; PlannedDeliveryDate: Date; PlannedShipmentDate: Date; ShipmentDate: Date)
     begin
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Shipment Date", ShipmentDate);
         SalesLine.TestField("Planned Shipment Date", PlannedShipmentDate);
         SalesLine.TestField("Planned Delivery Date", PlannedDeliveryDate);
@@ -2074,7 +2074,7 @@ codeunit 137157 "SCM Order Promising II"
         SalesOrder.Control1906127307.ItemNo.AssertEquals(ItemNo);
         SalesOrder.Control1906127307."Item Availability".AssertEquals(Availability);
         SalesOrder.Control1906127307."Available Inventory".AssertEquals(AvailableInventory);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure VerifyEarliestShipmentDate(EarliestShipmentDate: Date)

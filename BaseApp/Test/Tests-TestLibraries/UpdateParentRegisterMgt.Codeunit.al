@@ -44,7 +44,7 @@ codeunit 139141 "Update Parent Register Mgt"
             "Page Id" := LinePageId;
             Method := LineMethod;
             Operation := LineOperation;
-            Insert;
+            Insert();
         end;
         RunSequence := RunSequence + 1;
     end;
@@ -96,7 +96,7 @@ codeunit 139141 "Update Parent Register Mgt"
         Assert.AreEqual(LinePageId, TempUpdateParentRegisterLine."Page Id", Format(CurrentLineNo) + ': The page Id is not correct');
         Assert.AreEqual(LineMethod, TempUpdateParentRegisterLine.Method, Format(CurrentLineNo) + ': The method is not correct');
         Assert.AreEqual(LineOperation, TempUpdateParentRegisterLine.Operation, Format(CurrentLineNo) + ': The operation is not correct');
-        CurrEnumeratorDone := TempUpdateParentRegisterLine.Next = 0;
+        CurrEnumeratorDone := TempUpdateParentRegisterLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]

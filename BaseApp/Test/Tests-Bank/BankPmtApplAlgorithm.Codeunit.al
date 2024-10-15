@@ -1760,7 +1760,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(
           CustLedgerEntry."Entry No.", TempBankStmtMultipleMatchLine."Entry No.",
           'Entry no. was not set correctly on TempBankStmtMultipleMatchLine');
-        TempBankStmtMultipleMatchLine.Next;
+        TempBankStmtMultipleMatchLine.Next();
         Assert.AreEqual(
           CustLedgerEntry2."Entry No.", TempBankStmtMultipleMatchLine."Entry No.",
           'Entry no. was not set correctly on TempBankStmtMultipleMatchLine');
@@ -1830,7 +1830,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         VerifyOneToOneBankStatementMatchingBufferLine(TempBankStatementMatchingBuffer, CustLedgerEntry2."Entry No.");
         VerifyOneToManyTempBankStatementMatchingBufferLine(
           TempBankStmtMultipleMatchLine, OneToManyTempBankStatementMatchingBuffer, 1, CustLedgerEntry2."Remaining Amount");
-        TempBankStmtMultipleMatchLine.Next;
+        TempBankStmtMultipleMatchLine.Next();
         Assert.AreEqual(
           CustLedgerEntry2."Entry No.", TempBankStmtMultipleMatchLine."Entry No.",
           'Entry no. was not set correctly on TempBankStmtMultipleMatchLine');
@@ -1896,7 +1896,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount2, CustLedgerEntry2."Entry No.");
     end;
 
@@ -1962,7 +1962,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount2, CustLedgerEntry2."Entry No.");
     end;
 
@@ -2026,7 +2026,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(
           AppliedPaymentEntry, Quality, Amount2 - Round(Amount2 / 2, LibraryERM.GetAmountRoundingPrecision), CustLedgerEntry2."Entry No.");
     end;
@@ -2187,7 +2187,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
         Amount3 := LibraryRandom.RandDecInRange(1, 1000, 2);
 
-        DueDate := WorkDate;
+        DueDate := WorkDate();
         DueDate2 := CalcDate('<-3D>', DueDate);
         DueDate3 := CalcDate('<1D>', DueDate2);
 
@@ -2227,7 +2227,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount2, CustLedgerEntry2."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, AppliedAmount - Amount2, CustLedgerEntry3."Entry No.");
     end;
 
@@ -2336,7 +2336,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry2."Entry No.");
     end;
 
@@ -2571,7 +2571,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry2."Entry No.");
 
         // Verify Applied Payment Entries Line 2
@@ -2581,7 +2581,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         VerifyMultipleApplicationsAppliedEntries(
           AppliedPaymentEntry, Quality2, CustLedgerEntry3."Remaining Amount", CustLedgerEntry3."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(
           AppliedPaymentEntry, Quality2, CustLedgerEntry4."Remaining Amount", CustLedgerEntry4."Entry No.");
     end;
@@ -2654,7 +2654,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount, CustLedgerEntry."Entry No.");
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, Amount2, CustLedgerEntry2."Entry No.");
     end;
 
@@ -4417,7 +4417,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(
           VendorLedgerEntry."Entry No.", TempBankStmtMultipleMatchLine."Entry No.",
           'Entry no. was not set correctly on TempBankStmtMultipleMatchLine');
-        TempBankStmtMultipleMatchLine.Next;
+        TempBankStmtMultipleMatchLine.Next();
         Assert.AreEqual(
           VendorLedgerEntry2."Entry No.", TempBankStmtMultipleMatchLine."Entry No.",
           'Entry no. was not set correctly on TempBankStmtMultipleMatchLine');
@@ -4486,7 +4486,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         VerifyOneToOneBankStatementMatchingBufferLine(TempBankStatementMatchingBuffer, VendorLedgerEntry2."Entry No.");
         VerifyOneToManyTempBankStatementMatchingBufferLine(
           TempBankStmtMultipleMatchLine, OneToManyTempBankStatementMatchingBuffer, 1, VendorLedgerEntry2."Remaining Amount");
-        TempBankStmtMultipleMatchLine.Next;
+        TempBankStmtMultipleMatchLine.Next();
         Assert.AreEqual(
           VendorLedgerEntry2."Entry No.", TempBankStmtMultipleMatchLine."Entry No.",
           'Entry no. was not set correctly on TempBankStmtMultipleMatchLine');
@@ -4552,7 +4552,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount2, VendorLedgerEntry2."Entry No.");
     end;
 
@@ -4618,7 +4618,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount2, VendorLedgerEntry2."Entry No.");
     end;
 
@@ -4682,7 +4682,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(
           AppliedPaymentEntry, Quality, -Amount2 + Round(Amount2 / 2, LibraryERM.GetAmountRoundingPrecision),
           VendorLedgerEntry2."Entry No.");
@@ -4844,7 +4844,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Amount2 := LibraryRandom.RandDecInRange(1, 1000, 2);
         Amount3 := LibraryRandom.RandDecInRange(1, 1000, 2);
 
-        DueDate := WorkDate;
+        DueDate := WorkDate();
         DueDate2 := CalcDate('<-3D>', DueDate);
         DueDate3 := CalcDate('<1D>', DueDate2);
 
@@ -4884,7 +4884,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount2, VendorLedgerEntry2."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, AppliedAmount + Amount2, VendorLedgerEntry3."Entry No.");
     end;
 
@@ -4993,7 +4993,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         GetAppliedPaymentEntries(AppliedPaymentEntry, BankAccReconciliationLine);
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry2."Entry No.");
     end;
 
@@ -5270,7 +5270,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry2."Entry No.");
 
         // Verify Applied Payment Entries Line 2
@@ -5280,7 +5280,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         VerifyMultipleApplicationsAppliedEntries(
           AppliedPaymentEntry, Quality2, VendorLedgerEntry3."Remaining Amount", VendorLedgerEntry3."Entry No.");
 
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(
           AppliedPaymentEntry, Quality2, VendorLedgerEntry4."Remaining Amount", VendorLedgerEntry4."Entry No.");
     end;
@@ -5353,7 +5353,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(AppliedPaymentEntry.Count, ExpectedNoOfEntries, 'Wrong number of Applied Payment Entries Found');
         AppliedPaymentEntry.FindFirst();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount, VendorLedgerEntry."Entry No.");
-        AppliedPaymentEntry.Next;
+        AppliedPaymentEntry.Next();
         VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry, Quality, -Amount2, VendorLedgerEntry2."Entry No.");
     end;
 
@@ -5759,7 +5759,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         AppliedPaymentEntry.Delete(true);
 
         // [THEN] "Applies-to ID" in Customer Ledger Entry is blank
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Applies-to ID", '');
 
         // Tear-down
@@ -5796,7 +5796,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         AppliedPaymentEntry.Delete(true);
 
         // [THEN] "Applies-to ID" in Vendor Ledger Entry is blank
-        VendorLedgerEntry.Find;
+        VendorLedgerEntry.Find();
         VendorLedgerEntry.TestField("Applies-to ID", '');
 
         // Tear-down
@@ -5889,7 +5889,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Customer.ModifyAll(Name, ShortNameToExcludFromMatching);
         Vendor.ModifyAll(Name, ShortNameToExcludFromMatching);
 
-        TextToAccountMapping.DeleteAll;
+        TextToAccountMapping.DeleteAll();
     end;
 
     local procedure ClearGlobals()
@@ -6057,9 +6057,8 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
         BankAccReconciliationLine.Validate("Transaction Text", TransactionText);
         BankAccReconciliationLine.Validate("Additional Transaction Info", AdditionalTransactionInfo);
-        BankAccReconciliationLine.Validate("Transaction Date", WorkDate);
+        BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
         BankAccReconciliationLine.Validate("Statement Amount", Amount);
-        BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Bank Account Ledger Entry");
         BankAccReconciliationLine.Modify(true);
     end;
 
@@ -6377,7 +6376,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         PaymentReconciliationJournal.First;
         PaymentReconciliationJournal.ApplyEntries.Invoke;
 
-        PaymentReconciliationJournal.Close;
+        PaymentReconciliationJournal.Close();
     end;
 
     local procedure VerifyNoOfCustomerLedgerEntriesOnMatchDetailsLookup(PaymentApplication: TestPage "Payment Application"; Tolerance: Decimal; ToleranceType: Option; Amount: Decimal)
@@ -6392,8 +6391,8 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
                 Evaluate(EntryRemainingAmount, CustomerLedgerEntries."Remaining Amount".Value);
                 Assert.IsTrue(IsEntryAmountWithinToleranceRange(EntryRemainingAmount, Amount, Tolerance, ToleranceType),
                   'Entry is not within tolerance range');
-            until not CustomerLedgerEntries.Next;
-        CustomerLedgerEntries.Close;
+            until not CustomerLedgerEntries.Next();
+        CustomerLedgerEntries.Close();
 
         CustomerLedgerEntries.Trap;
         PaymentApplication.Control2.NoOfLedgerEntriesOutsideAmount.DrillDown;
@@ -6402,8 +6401,8 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
                 Evaluate(EntryRemainingAmount, CustomerLedgerEntries."Remaining Amount".Value);
                 Assert.IsFalse(IsEntryAmountWithinToleranceRange(EntryRemainingAmount, Amount, Tolerance, ToleranceType),
                   'Entry is within tolerance range');
-            until not CustomerLedgerEntries.Next;
-        CustomerLedgerEntries.Close;
+            until not CustomerLedgerEntries.Next();
+        CustomerLedgerEntries.Close();
     end;
 
     local procedure VerifyNoOfVendorLedgerEntriesOnMatchDetailsLookup(PaymentApplication: TestPage "Payment Application"; Tolerance: Decimal; ToleranceType: Option; Amount: Decimal)
@@ -6418,9 +6417,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
                 Evaluate(EntryRemainingAmount, VendorLedgerEntries."Remaining Amount".Value);
                 Assert.IsTrue(IsEntryAmountWithinToleranceRange(EntryRemainingAmount, Amount, Tolerance, ToleranceType),
                   'Entry is not within tolerance range');
-            until not VendorLedgerEntries.Next;
+            until not VendorLedgerEntries.Next();
 
-        VendorLedgerEntries.Close;
+        VendorLedgerEntries.Close();
         VendorLedgerEntries.Trap;
         PaymentApplication.Control2.NoOfLedgerEntriesOutsideAmount.DrillDown;
         if VendorLedgerEntries.First then
@@ -6428,8 +6427,8 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
                 Evaluate(EntryRemainingAmount, VendorLedgerEntries."Remaining Amount".Value);
                 Assert.IsFalse(IsEntryAmountWithinToleranceRange(EntryRemainingAmount, Amount, Tolerance, ToleranceType),
                   'Entry is within tolerance range');
-            until not VendorLedgerEntries.Next;
-        VendorLedgerEntries.Close;
+            until not VendorLedgerEntries.Next();
+        VendorLedgerEntries.Close();
     end;
 
     local procedure VerifyNoOfBankAccountLedgerEntriesOnMatchDetailsLookup(PaymentApplication: TestPage "Payment Application"; Tolerance: Decimal; ToleranceType: Option; Amount: Decimal)
@@ -6444,9 +6443,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
                 EntryRemainingAmount := LibraryERMCountryData.AmountOnBankAccountLedgerEntriesPage(BankAccountLedgerEntries);
                 Assert.IsTrue(IsEntryAmountWithinToleranceRange(EntryRemainingAmount, Amount, Tolerance, ToleranceType),
                   'Entry is not within tolerance range');
-            until not BankAccountLedgerEntries.Next;
+            until not BankAccountLedgerEntries.Next();
 
-        BankAccountLedgerEntries.Close;
+        BankAccountLedgerEntries.Close();
         BankAccountLedgerEntries.Trap;
         PaymentApplication.Control2.NoOfLedgerEntriesOutsideAmount.DrillDown;
         if BankAccountLedgerEntries.First then
@@ -6454,8 +6453,8 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
                 EntryRemainingAmount := LibraryERMCountryData.AmountOnBankAccountLedgerEntriesPage(BankAccountLedgerEntries);
                 Assert.IsFalse(IsEntryAmountWithinToleranceRange(EntryRemainingAmount, Amount, Tolerance, ToleranceType),
                   'Entry is within tolerance range');
-            until not BankAccountLedgerEntries.Next;
-        BankAccountLedgerEntries.Close;
+            until not BankAccountLedgerEntries.Next();
+        BankAccountLedgerEntries.Close();
     end;
 
     local procedure IsEntryAmountWithinToleranceRange(EntryRemainingAmount: Decimal; Amount: Decimal; Tolerance: Decimal; ToleranceType: Option): Boolean

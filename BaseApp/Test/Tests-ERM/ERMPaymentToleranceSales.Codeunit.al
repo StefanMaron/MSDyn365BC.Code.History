@@ -347,7 +347,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         GeneralLedgerSetup.Get();
         FindCustomerLedgerEntry(CustLedgerEntry, DocumentNo);
         Assert.AreNearlyEqual(-Amount, CustLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountErrorMessage, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption,
+          StrSubstNo(AmountErrorMessage, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption(),
             CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
     end;
 
@@ -360,7 +360,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         FindCustomerLedgerEntry(CustLedgerEntry, DocumentNo);
         Assert.AreNearlyEqual(ExpectedPmtTolAmount, CustLedgerEntry."Max. Payment Tolerance",
           GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountErrorMessage, CustLedgerEntry.FieldCaption(Amount),
-            ExpectedPmtTolAmount, CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
+            ExpectedPmtTolAmount, CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
     end;
 
     local procedure VerifyMaxPaymentTolCreditMemo(DocumentNo: Code[20]; ExpectedPmtTolAmount: Decimal)
@@ -372,7 +372,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         FindCustomerLedgerEntry(CustLedgerEntry, DocumentNo);
         Assert.AreNearlyEqual(-ExpectedPmtTolAmount, CustLedgerEntry."Max. Payment Tolerance",
           GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountErrorMessage, CustLedgerEntry.FieldCaption(Amount),
-            ExpectedPmtTolAmount, CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
+            ExpectedPmtTolAmount, CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
     end;
 
     local procedure ExecuteUIHandler()

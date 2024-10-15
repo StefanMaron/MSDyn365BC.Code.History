@@ -1,7 +1,7 @@
 page 7119 "Inventory Analysis Report"
 {
     Caption = 'Inventory Analysis Report';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -47,9 +47,9 @@ page 7119 "Inventory Analysis Report"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         AnalysisReportMgt.LookupAnalysisLineTemplName(CurrentLineTemplate, Rec);
-                        ValidateAnalysisTemplateName;
+                        ValidateAnalysisTemplateName();
                         CurrPage.Update(false);
                     end;
 
@@ -132,7 +132,7 @@ page 7119 "Inventory Analysis Report"
                         FindPeriod('');
                     end;
                 }
-                field(ColumnsSet; GetColumnsRangeFilter)
+                field(ColumnsSet; GetColumnsRangeFilter())
                 {
                     ApplicationArea = InventoryAnalysis;
                     Caption = 'Column Set';
@@ -262,22 +262,18 @@ page 7119 "Inventory Analysis Report"
                 ApplicationArea = InventoryAnalysis;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'View the actual analysis report according to the selected filters and options.';
 
                 trigger OnAction()
                 begin
-                    SetFilters;
+                    SetFilters();
 
                     Clear(MatrixColumnCaptions);
 
-                    FillMatrixColumns;
+                    FillMatrixColumns();
 
                     Clear(InvtAnalysisMatrix);
-                    InvtAnalysisMatrix.Load(AnalysisColumn, MatrixColumnCaptions, FirstLineNo, LastLineNo);
+                    InvtAnalysisMatrix.Load(TempAnalysisColumn, MatrixColumnCaptions, FirstLineNo, LastLineNo);
                     InvtAnalysisMatrix.SetTableView(AnalysisLine);
                     InvtAnalysisMatrix.Run();
                 end;
@@ -287,16 +283,12 @@ page 7119 "Inventory Analysis Report"
                 ApplicationArea = InventoryAnalysis;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
                 begin
                     Direction := Direction::Backward;
-                    SetPointsAnalysisColumn;
+                    SetPointsAnalysisColumn();
                 end;
             }
             action("Next Set")
@@ -304,17 +296,30 @@ page 7119 "Inventory Analysis Report"
                 ApplicationArea = InventoryAnalysis;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     Direction := Direction::Forward;
-                    SetPointsAnalysisColumn;
+                    SetPointsAnalysisColumn();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }
@@ -326,15 +331,15 @@ page 7119 "Inventory Analysis Report"
         if (NewCurrentReportName <> '') and (NewCurrentReportName <> CurrentReportName) then begin
             CurrentReportName := NewCurrentReportName;
             AnalysisReportMgt.CheckReportName(CurrentReportName, Rec);
-            ValidateReportName;
+            ValidateReportName();
             AnalysisReportMgt.SetAnalysisLineTemplName(CurrentLineTemplate, Rec);
-            ValidateAnalysisTemplateName;
+            ValidateAnalysisTemplateName();
         end;
 
         AnalysisReportMgt.OpenAnalysisLines(CurrentLineTemplate, Rec);
-        AnalysisReportMgt.OpenColumns(CurrentColumnTemplate, Rec, AnalysisColumn);
+        AnalysisReportMgt.OpenColumns(CurrentColumnTemplate, Rec, TempAnalysisColumn);
 
-        AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, AnalysisColumn);
+        AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, TempAnalysisColumn);
         AnalysisReportMgt.SetSourceType(Rec, CurrentSourceTypeFilter.AsInteger());
         AnalysisReportMgt.SetSourceNo(Rec, CurrentSourceTypeNoFilter);
 
@@ -351,23 +356,20 @@ page 7119 "Inventory Analysis Report"
 
         FindPeriod('');
 
-        NoOfColumns := InvtAnalysisMatrix.GetMatrixDimension;
+        NoOfColumns := InvtAnalysisMatrix.GetMatrixDimension();
         Direction := Direction::Forward;
 
-        ClearPoints;
-        SetPointsAnalysisColumn;
+        ClearPoints();
+        SetPointsAnalysisColumn();
     end;
 
     var
         GLSetup: Record "General Ledger Setup";
-        AnalysisColumn: Record "Analysis Column" temporary;
+        TempAnalysisColumn: Record "Analysis Column" temporary;
         ItemAnalysisView: Record "Item Analysis View";
         AnalysisLine: Record "Analysis Line";
         AnalysisReportMgt: Codeunit "Analysis Report Management";
         InvtAnalysisMatrix: Page "Inventory Analysis Matrix";
-        CurrentReportName: Code[10];
-        CurrentLineTemplate: Code[10];
-        CurrentColumnTemplate: Code[10];
         NewCurrentReportName: Code[10];
         CurrentAreaType: Enum "Analysis Area Type";
         CurrentSourceTypeNoFilter: Text;
@@ -380,6 +382,11 @@ page 7119 "Inventory Analysis Report"
         FirstColumn: Text[1024];
         LastColumn: Text[1024];
         MatrixColumnCaptions: array[32] of Text[1024];
+
+    protected var
+        CurrentReportName: Code[10];
+        CurrentColumnTemplate: Code[10];
+        CurrentLineTemplate: Code[10];
 
     local procedure FindPeriod(SearchText: Code[3])
     var
@@ -401,8 +408,8 @@ page 7119 "Inventory Analysis Report"
                (CurrentColumnTemplate <> AnalysisLineTemplate."Default Column Template Name")
             then begin
                 CurrentColumnTemplate := AnalysisLineTemplate."Default Column Template Name";
-                AnalysisReportMgt.OpenColumns(CurrentColumnTemplate, Rec, AnalysisColumn);
-                AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, AnalysisColumn);
+                AnalysisReportMgt.OpenColumns(CurrentColumnTemplate, Rec, TempAnalysisColumn);
+                AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, TempAnalysisColumn);
             end;
 
         if AnalysisLineTemplate."Item Analysis View Code" <> ItemAnalysisView.Code then begin
@@ -446,9 +453,9 @@ page 7119 "Inventory Analysis Report"
 
     procedure SetFilters()
     begin
-        AnalysisColumn.Reset();
-        AnalysisColumn.SetRange("Analysis Area", "Analysis Area"::Inventory);
-        AnalysisColumn.SetRange("Analysis Column Template", CurrentColumnTemplate);
+        TempAnalysisColumn.Reset();
+        TempAnalysisColumn.SetRange("Analysis Area", "Analysis Area"::Inventory);
+        TempAnalysisColumn.SetRange("Analysis Column Template", CurrentColumnTemplate);
 
         AnalysisLine.Copy(Rec);
         AnalysisLine.SetRange("Analysis Area", "Analysis Area"::Inventory);
@@ -545,30 +552,30 @@ page 7119 "Inventory Analysis Report"
 
     local procedure CurrentReportNameOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        ValidateReportName;
+        CurrPage.SaveRecord();
+        ValidateReportName();
         AnalysisReportMgt.SetAnalysisLineTemplName(CurrentLineTemplate, Rec);
-        ValidateAnalysisTemplateName;
-        AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, AnalysisColumn);
+        ValidateAnalysisTemplateName();
+        AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, TempAnalysisColumn);
         CurrPage.Update(false);
-        ClearPoints;
-        SetPointsAnalysisColumn;
+        ClearPoints();
+        SetPointsAnalysisColumn();
     end;
 
     local procedure CurrentLineTemplateOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         AnalysisReportMgt.SetAnalysisLineTemplName(CurrentLineTemplate, Rec);
-        ValidateAnalysisTemplateName;
+        ValidateAnalysisTemplateName();
         CurrPage.Update(false);
     end;
 
     local procedure CurrentColumnTemplateOnAfterValidate()
     begin
-        AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, AnalysisColumn);
+        AnalysisReportMgt.CopyColumnsToTemp(Rec, CurrentColumnTemplate, TempAnalysisColumn);
         CurrPage.Update(false);
-        ClearPoints;
-        SetPointsAnalysisColumn;
+        ClearPoints();
+        SetPointsAnalysisColumn();
     end;
 
     local procedure CurrentSourceTypeNoFilterOnAfterValidate()

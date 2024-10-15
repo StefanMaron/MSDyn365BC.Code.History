@@ -59,7 +59,7 @@ table 298 "Issued Reminder Line"
 
             trigger OnLookup()
             begin
-                LookupDocNo;
+                LookupDocNo();
             end;
         }
         field(12; Description; Text[100])
@@ -68,14 +68,14 @@ table 298 "Issued Reminder Line"
         }
         field(13; "Original Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Original Amount';
         }
         field(14; "Remaining Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Remaining Amount';
@@ -91,7 +91,7 @@ table 298 "Issued Reminder Line"
         }
         field(16; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Amount';
@@ -118,7 +118,7 @@ table 298 "Issued Reminder Line"
         }
         field(21; "VAT Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 1;
             Caption = 'VAT Amount';
         }

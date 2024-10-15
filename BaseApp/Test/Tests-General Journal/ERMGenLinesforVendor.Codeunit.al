@@ -248,7 +248,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         CreateVendorJournalLines.UseRequestPage(false);
         Vendor.SetRange("No.", Vendor."No.");
         CreateVendorJournalLines.SetTableView(Vendor);
-        CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice.AsInteger(), WorkDate, WorkDate);
+        CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice.AsInteger(), WorkDate(), WorkDate());
         CreateVendorJournalLines.InitializeRequestTemplate(
           GenJournalBatch."Journal Template Name", GenJournalBatch.Name, StandardGeneralJournal.Code);
         CreateVendorJournalLines.Run();
@@ -703,7 +703,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryERM.CreateGLAccount(GLAccount);
         with GLAccount do begin
             Validate("Gen. Posting Type", "Gen. Posting Type"::Sale);
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -715,7 +715,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryERM.CreateGLAccount(GLAccount);
         with GLAccount do begin
             Validate("Gen. Posting Type", "Gen. Posting Type"::Purchase);
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -789,7 +789,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         Commit();  // COMMIT is required for Write Transaction Error.
         Clear(CreateVendorJournalLines);
         CreateVendorJournalLines.UseRequestPage(false);
-        CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice.AsInteger(), WorkDate, WorkDate);
+        CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice.AsInteger(), WorkDate(), WorkDate());
         CreateVendorJournalLines.InitializeRequestTemplate(JournalTemplate, BatchName, TemplateCode);
         CreateVendorJournalLines.Run();
     end;
@@ -799,7 +799,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         Assert.AreEqual(
           StrSubstNo(
             AmountToApplyLargerError, VendorLedgerEntry.FieldCaption("Amount to Apply"),
-            VendorLedgerEntry.FieldCaption("Remaining Amount"), VendorLedgerEntry.TableCaption,
+            VendorLedgerEntry.FieldCaption("Remaining Amount"), VendorLedgerEntry.TableCaption(),
             VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."), StrSubstNo(GetLastErrorText), ValidationError);
     end;
 
@@ -810,7 +810,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
         Assert.AreEqual(
           AmountToApply, VendorLedgerEntry."Amount to Apply",
-          StrSubstNo(AmountEqualError, VendorLedgerEntry.FieldCaption("Amount to Apply"), AmountToApply, VendorLedgerEntry.TableCaption));
+          StrSubstNo(AmountEqualError, VendorLedgerEntry.FieldCaption("Amount to Apply"), AmountToApply, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyVendorJournalLines(GenJournalBatch: Record "Gen. Journal Batch"; StandardJournalCode: Code[10]; AccountNo: Code[20])
@@ -829,8 +829,8 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
             GenJournalLine.TestField("Account Type", GenJournalLine."Account Type"::Vendor);
             GenJournalLine.TestField("Account No.", AccountNo);
             GenJournalLine.TestField(Amount, StandardGeneralJournalLine.Amount);
-            GenJournalLine.Next;
-        until StandardGeneralJournalLine.Next = 0;
+            GenJournalLine.Next();
+        until StandardGeneralJournalLine.Next() = 0;
     end;
 
     local procedure VerifyLedgerEntryForCorrection(GenJournalLine: Record "Gen. Journal Line")

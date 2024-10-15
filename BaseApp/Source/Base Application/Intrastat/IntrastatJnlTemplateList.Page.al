@@ -23,14 +23,14 @@ page 326 "Intrastat Jnl. Template List"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a description of the Intrastat journal template.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = BasicEU;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the number of the page that is used to show the journal or worksheet that uses the template.';
                     Visible = false;
                 }
-                field("Checklist Report ID"; "Checklist Report ID")
+                field("Checklist Report ID"; Rec."Checklist Report ID")
                 {
                     ApplicationArea = BasicEU;
                     LookupPageID = Objects;

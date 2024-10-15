@@ -1,9 +1,8 @@
 page 103 "Account Schedule Names"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Account Schedules';
+    Caption = 'Rows';
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Print/Send';
     SourceTable = "Acc. Schedule Name";
     UsageCategory = Lists;
 
@@ -17,22 +16,28 @@ page 103 "Account Schedule Names"
                 field(Name; Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the account schedule.';
+                    ToolTip = 'Specifies the name of the row definition.';
                 }
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the account schedule.';
+                    ToolTip = 'Specifies a description for the row definition.';
                 }
-                field("Default Column Layout"; "Default Column Layout")
+#if not CLEAN21
+                field("Default Column Layout"; Rec."Default Column Layout")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a column layout name that you want to use as a default for this account schedule.';
+                    ObsoleteReason = 'This relation is now stored in the field Financial Report Column Group of the table Financial Reports';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '21.0';
+                    Visible = false;
                 }
-                field("Analysis View Name"; "Analysis View Name")
+#endif
+                field("Analysis View Name"; Rec."Analysis View Name")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the name of the analysis view you want the account schedule to be based on.';
+                    ToolTip = 'Specifies the name of the analysis view you want the row definitions to be based on.';
                 }
             }
         }
@@ -58,13 +63,10 @@ page 103 "Account Schedule Names"
             action(EditAccountSchedule)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Edit Account Schedule';
+                Caption = 'Edit Row Definition';
                 Image = Edit;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ShortCutKey = 'Return';
-                ToolTip = 'Change the account schedule based on the current account schedule name.';
+                ToolTip = 'Change the row definition based on the current row definition.';
 
                 trigger OnAction()
                 var
@@ -74,15 +76,17 @@ page 103 "Account Schedule Names"
                     AccSchedule.Run();
                 end;
             }
+#if not CLEAN21
             action(EditColumnLayoutSetup)
             {
+                ObsoleteReason = 'This relation is now stored in the field Financial Report Column Group from the table Financial Report';
+                ObsoleteState = Pending;
+                ObsoleteTag = '21.0';
+                Visible = false;
                 ApplicationArea = Basic, Suite;
-                Caption = 'Edit Column Layout Setup';
+                Caption = 'Edit Column Definition';
                 Ellipsis = true;
                 Image = SetupColumns;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Create or change the column layout for the current account schedule name.';
 
                 trigger OnAction()
@@ -93,16 +97,14 @@ page 103 "Account Schedule Names"
                     ColumnLayout.Run();
                 end;
             }
+#endif
             action(CopyAccountSchedule)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Copy Account Schedule';
+                Caption = 'Copy Row Definition';
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Scope = Repeater;
-                ToolTip = 'Create a copy of the current account schedule.';
+                ToolTip = 'Create a copy of the current row definition.';
 
                 trigger OnAction()
                 var
@@ -115,14 +117,10 @@ page 103 "Account Schedule Names"
             action(ImportAccountSchedule)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Import Account Schedule';
+                Caption = 'Import Row Definition';
                 Image = Import;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = false;
-                PromotedOnly = true;
                 Scope = Repeater;
-                ToolTip = 'Import a RapidStart configuration package that contains settings for an account schedule. Importing account schedules lets you share them, for example, with another business unit. This requires that the account schedule has been exported.';
+                ToolTip = 'Import a RapidStart configuration package that contains settings for a set of row definitions. Importing row definitions lets you share them, for example, with another business unit. This requires that the row definition has been exported.';
 
                 trigger OnAction()
                 begin
@@ -132,14 +130,10 @@ page 103 "Account Schedule Names"
             action(ExportAccountSchedule)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Export Account Schedule';
+                Caption = 'Export Row Definition';
                 Image = Export;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = false;
-                PromotedOnly = true;
                 Scope = Repeater;
-                ToolTip = 'Export settings for the selected account schedule to a RapidStart configuration package. Exporting an account schedule lets you share it with another business unit.';
+                ToolTip = 'Export settings for the selected rows definition to a RapidStart configuration package. Exporting a rows definitions lets you share it with another business unit.';
 
                 trigger OnAction()
                 begin
@@ -147,20 +141,23 @@ page 103 "Account Schedule Names"
                 end;
             }
         }
+#if not CLEAN21
         area(navigation)
         {
+            ObsoleteReason = 'AccScheduleOverview is now opened from FinancialReports page. Extend that page instead.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
             action(Overview)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Overview';
+                Caption = 'View Report';
                 Ellipsis = true;
                 Image = ViewDetails;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'See an overview of the current account schedule based on the current account schedule name and column layout.';
-
+                Visible = false;
+                ObsoleteReason = 'This page is now opened from Financial Reports Page intead (Overview action).';
+                ObsoleteState = Pending;
+                ObsoleteTag = '21.0';
                 trigger OnAction()
                 var
                     AccSchedOverview: Page "Acc. Schedule Overview";
@@ -172,22 +169,79 @@ page 103 "Account Schedule Names"
         }
         area(reporting)
         {
+            ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
             action(Print)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 Scope = Repeater;
+                Visible = false;
+                ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '21.0';
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
-
                 trigger OnAction()
                 begin
-                    Print;
+                    Print();
                 end;
+            }
+        }
+#endif
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+#if not CLEAN21
+                actionref(Overview_Promoted; Overview)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This page is now opened from Financial Reports Page intead (Overview action).';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref(EditAccountSchedule_Promoted; EditAccountSchedule)
+                {
+                }
+#if not CLEAN21
+                actionref(EditColumnLayoutSetup_Promoted; EditColumnLayoutSetup)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This relation is now stored in the field Financial Report Column Group from the table Financial Report';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref(CopyAccountSchedule_Promoted; CopyAccountSchedule)
+                {
+                }
+                actionref(ExportAccountSchedule_Promoted; ExportAccountSchedule)
+                {
+                }
+                actionref(ImportAccountSchedule_Promoted; ImportAccountSchedule)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+#if not CLEAN21
+                actionref(Print_Promoted; Print)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

@@ -564,9 +564,9 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         AccountBalanceDelta := GetAccountBalance(AccountNo);
 
-        PurchaseInvoiceNos[1] := CreatePurchaseInvoice(VendorNo, ItemNo, 20, 90, CalcDate('<-4W>', WorkDate));
-        PurchaseInvoiceNos[2] := CreatePurchaseInvoice(VendorNo, ItemNo, 10, 60, CalcDate('<-3W>', WorkDate));
-        PurchaseInvoiceNos[3] := CreatePurchaseInvoice(VendorNo, ItemNo, 10, 80, CalcDate('<-2W>', WorkDate));
+        PurchaseInvoiceNos[1] := CreatePurchaseInvoice(VendorNo, ItemNo, 20, 90, CalcDate('<-4W>', WorkDate()));
+        PurchaseInvoiceNos[2] := CreatePurchaseInvoice(VendorNo, ItemNo, 10, 60, CalcDate('<-3W>', WorkDate()));
+        PurchaseInvoiceNos[3] := CreatePurchaseInvoice(VendorNo, ItemNo, 10, 80, CalcDate('<-2W>', WorkDate()));
 
         for I := 1 to 3 do
             PostPurchaseInvoice(PurchaseInvoiceNos[I]);
@@ -604,14 +604,14 @@ codeunit 135409 "Item Costing Plan-based E2E"
         repeat
             InventoryPostingSetup.Validate("Inventory Account", InventoryAccount);
             InventoryPostingSetup.Modify(true);
-        until InventoryPostingSetup.Next = 0;
+        until InventoryPostingSetup.Next() = 0;
 
         GeneralPostingSetup.FindSet();
         repeat
             GeneralPostingSetup.Validate("Purchase Variance Account", VarianceAccount);
             GeneralPostingSetup.Validate("COGS Account", COGSAccount);
             GeneralPostingSetup.Modify(true);
-        until GeneralPostingSetup.Next = 0;
+        until GeneralPostingSetup.Next() = 0;
     end;
 
     local procedure CreatePurchaseInvoice(VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Integer; DirectUnitCost: Decimal; Date: Date) PurchaseInvoiceNo: Code[20]
@@ -691,14 +691,14 @@ codeunit 135409 "Item Costing Plan-based E2E"
     [Scope('OnPrem')]
     procedure PostedPurchaseInvoicePageHandler(var PostedPurchaseInvoice: TestPage "Posted Purchase Invoice")
     begin
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesInvoicePageHandler(var PostedSalesInvoice: TestPage "Posted Sales Invoice")
     begin
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     local procedure CreateVendor(TempVendorDetails: Record Vendor temporary) VendorNo: Code[20]

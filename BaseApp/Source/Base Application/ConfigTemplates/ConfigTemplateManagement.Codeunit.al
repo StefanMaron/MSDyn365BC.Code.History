@@ -99,8 +99,8 @@ codeunit 8612 "Config. Template Management"
         TempFieldsAssigned.Reset();
         SkipFields := TempFieldsAssigned.FindSet();
 
-        BackupRecRef := OriginalRecRef.Duplicate;
-        TemplateAppliedRecRef := OriginalRecRef.Duplicate;
+        BackupRecRef := OriginalRecRef.Duplicate();
+        TemplateAppliedRecRef := OriginalRecRef.Duplicate();
 
         UpdateRecordWithSkipFields(ConfigTemplateHeader, TemplateAppliedRecRef, SkipFields, TempFieldsAssigned);
 
@@ -131,8 +131,8 @@ codeunit 8612 "Config. Template Management"
 
     local procedure TestKeyFields(var RecRef: RecordRef): Boolean
     var
-        KeyRef: KeyRef;
         FieldRef: FieldRef;
+        KeyRef: KeyRef;
         KeyFieldCount: Integer;
     begin
         KeyRef := RecRef.KeyIndex(1);
@@ -177,7 +177,7 @@ codeunit 8612 "Config. Template Management"
                         CurrConfigTemplateLine := ConfigTemplateLine;
                     if Type = Type::Field then begin
                         ConfigTemplateLineBuf := CurrConfigTemplateLine;
-                        if not ConfigTemplateLineBuf.Find then
+                        if not ConfigTemplateLineBuf.Find() then
                             ConfigTemplateLineBuf.Insert();
                     end else begin
                         SubConfigTemplateLine.Init();
@@ -193,8 +193,8 @@ codeunit 8612 "Config. Template Management"
         ConfigTemplateLine: Record "Config. Template Line";
         ConfigValidateMgt: Codeunit "Config. Validate Management";
         RecRef1: RecordRef;
-        KeyRef: KeyRef;
         FieldRef: FieldRef;
+        KeyRef: KeyRef;
         KeyFieldCount: Integer;
         MessageString: Text[250];
     begin
@@ -213,7 +213,7 @@ codeunit 8612 "Config. Template Management"
                     Error(KeyFieldValueErr, FieldRef.Name);
         end;
 
-        RecRef1 := RecRef.Duplicate;
+        RecRef1 := RecRef.Duplicate();
 
         if RecRef1.Find('=') then begin
             if UpdatingRelatedTable then
@@ -441,8 +441,8 @@ codeunit 8612 "Config. Template Management"
     procedure LookupFieldValueFromConfigTemplateLine(ConfigTemplateLine: Record "Config. Template Line"; var FieldValue: Text): Boolean
     var
         RecRef: RecordRef;
-        RecVar: Variant;
         FieldRef: FieldRef;
+        RecVar: Variant;
         LookupTableId: Integer;
         LookupPageId: Integer;
         LookupFieldId: Integer;
@@ -500,7 +500,7 @@ codeunit 8612 "Config. Template Management"
     begin
         ConfigTemplateLine.SetRange("Data Template Code", SourceConfigTemplateLine."Data Template Code");
         ConfigTemplateLine.SetFilter("Field ID", '<>%1', SourceConfigTemplateLine."Field ID");
-        if ConfigTemplateLine.FindSet() then begin
+        if ConfigTemplateLine.FindSet() then
             repeat
                 FieldRef := RecRef.Field(ConfigTemplateLine."Field ID");
                 Field.Get(ConfigTemplateLine."Table ID", ConfigTemplateLine."Field ID");
@@ -510,7 +510,6 @@ codeunit 8612 "Config. Template Management"
                     FieldRef.Value(
                       TypeHelper.GetOptionNo(ConfigTemplateLine."Default Value", FieldRef.OptionMembers));
             until ConfigTemplateLine.Next() = 0;
-        end;
     end;
 
     local procedure UpdateConfigTemplateLines(Code: Code[10]; FieldRef: FieldRef; TableID: Integer)

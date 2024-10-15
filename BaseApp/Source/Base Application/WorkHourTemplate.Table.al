@@ -24,7 +24,7 @@ table 5954 "Work-Hour Template"
 
             trigger OnValidate()
             begin
-                CalculateWeekTotal;
+                CalculateWeekTotal();
             end;
         }
         field(4; Tuesday; Decimal)
@@ -36,7 +36,7 @@ table 5954 "Work-Hour Template"
 
             trigger OnValidate()
             begin
-                CalculateWeekTotal;
+                CalculateWeekTotal();
             end;
         }
         field(5; Wednesday; Decimal)
@@ -48,7 +48,7 @@ table 5954 "Work-Hour Template"
 
             trigger OnValidate()
             begin
-                CalculateWeekTotal;
+                CalculateWeekTotal();
             end;
         }
         field(6; Thursday; Decimal)
@@ -60,7 +60,7 @@ table 5954 "Work-Hour Template"
 
             trigger OnValidate()
             begin
-                CalculateWeekTotal;
+                CalculateWeekTotal();
             end;
         }
         field(7; Friday; Decimal)
@@ -72,7 +72,7 @@ table 5954 "Work-Hour Template"
 
             trigger OnValidate()
             begin
-                CalculateWeekTotal;
+                CalculateWeekTotal();
             end;
         }
         field(8; Saturday; Decimal)
@@ -84,7 +84,7 @@ table 5954 "Work-Hour Template"
 
             trigger OnValidate()
             begin
-                CalculateWeekTotal;
+                CalculateWeekTotal();
             end;
         }
         field(9; Sunday; Decimal)
@@ -96,7 +96,7 @@ table 5954 "Work-Hour Template"
 
             trigger OnValidate()
             begin
-                CalculateWeekTotal;
+                CalculateWeekTotal();
             end;
         }
         field(10; "Total per Week"; Decimal)

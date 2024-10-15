@@ -16,7 +16,7 @@ report 99000788 "Prod. Order - Shortage List"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Status_ProdOrder; Status)

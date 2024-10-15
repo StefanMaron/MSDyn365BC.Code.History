@@ -1,4 +1,4 @@
-﻿codeunit 7313 "Create Put-away"
+codeunit 7313 "Create Put-away"
 {
     TableNo = "Posted Whse. Receipt Line";
 
@@ -12,7 +12,7 @@
             exit;
 
         PostedWhseRcptLine.Copy(Rec);
-        Code;
+        Code();
         Copy(PostedWhseRcptLine);
 
         OnAfterRun(Rec);
@@ -21,7 +21,7 @@
     var
         CrossDockBinContent: Record "Bin Content";
         PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
-        xPostedWhseRcptLine: Record "Posted Whse. Receipt Line" temporary;
+        TempPostedWhseRcptLine: Record "Posted Whse. Receipt Line" temporary;
         WhseActivHeader: Record "Warehouse Activity Header";
         WhseActivLine: Record "Warehouse Activity Line";
         TempWhseActivHeader: Record "Warehouse Activity Header" temporary;
@@ -81,24 +81,24 @@
 
             GetLocation("Location Code");
             if not Location."Bin Mandatory" then begin
-                MakeCrossDockPutAway;
+                MakeCrossDockPutAway();
                 CalcQtyToPutAway(true, false);
                 exit;
             end;
 
             if Location."Directed Put-away and Pick" then begin
                 GetItemAndSKU("Item No.", "Location Code", "Variant Code");
-                GetPutAwayUOM;
-                GetPutAwayTemplate;
+                GetPutAwayUOM();
+                GetPutAwayTemplate();
                 if PutAwayTemplHeader.Code = '' then begin
-                    MessageText := StrSubstNo(Text001, PutAwayTemplHeader.TableCaption);
+                    MessageText := StrSubstNo(Text001, PutAwayTemplHeader.TableCaption());
                     exit;
                 end;
 
                 PutAwayTemplLine.Reset();
                 PutAwayTemplLine.SetRange("Put-away Template Code", PutAwayTemplHeader.Code);
                 if not PutAwayTemplLine.Find('-') then begin
-                    MessageText := StrSubstNo(Text001, PutAwayTemplLine.TableCaption);
+                    MessageText := StrSubstNo(Text001, PutAwayTemplLine.TableCaption());
                     exit;
                 end;
                 RemQtyToPutAwayBase := "Qty. (Base)";
@@ -110,7 +110,7 @@
             end else
                 RemQtyToPutAwayBase := "Qty. (Base)";
 
-            MakeCrossDockPutAway;
+            MakeCrossDockPutAway();
 
             LineNo := LineNo + 10000;
             if Location."Directed Put-away and Pick" then begin
@@ -154,8 +154,8 @@
                                                 CalcQtyToPutAway(false, false);
                                             end;
                                         end;
-                                until not NextBinContent;
-                        end else begin
+                                until not NextBinContent();
+                        end else
                             // Calc Availability per Bin
                             if FindBin("Location Code", WarehouseClassCode) then
                                 repeat
@@ -177,7 +177,7 @@
                                                     QtyToPutAwayBase := RemQtyToPutAwayBase;
                                             end;
                                             CalcQtyToPutAway(false, false);
-                                            BinContentQtyBase := BinContent.CalcQtyBase;
+                                            BinContentQtyBase := BinContent.CalcQtyBase();
                                             if BinContent."Max. Qty." <> 0 then begin
                                                 QtyToPutAwayBase :=
                                                   Max(BinContent."Max. Qty." * BinContent."Qty. per Unit of Measure" - BinContentQtyBase, 0);
@@ -187,8 +187,7 @@
                                         end else
                                             CalcQtyToPutAway(false, true);
                                     end;
-                                until not NextBin;
-                        end;
+                                until not NextBin();
                 until (PutAwayTemplLine.Next() = 0) or EverythingHandled;
             end else begin
                 Clear(Bin);
@@ -205,7 +204,7 @@
             end;
 
             if QtyToPickBase > 0 then begin
-                if InsertBreakPackageLines then begin
+                if InsertBreakPackageLines() then begin
                     TakeLineNo := OldLineNo + 30000;
                     Breakbulk := true;
                 end else begin
@@ -320,11 +319,9 @@
                         WhseActivLine."Zone Code" := "Zone Code";
                     end;
                 ActionType::Place:
-                    begin
-                        if not EmptyZoneBin then
-                            AssignPlaceBinZone(WhseActivLine, PostedWhseRcptLine, Location, Bin);
-                    end;
-                else begin
+                    if not EmptyZoneBin then
+                        AssignPlaceBinZone(WhseActivLine, PostedWhseRcptLine, Location, Bin)
+                    else begin
                         WhseActivLine."Bin Code" := '';
                         WhseActivLine."Zone Code" := '';
                     end
@@ -434,7 +431,7 @@
         IsHandled: Boolean;
     begin
         with BinContent do begin
-            Reset;
+            Reset();
             SetCurrentKey("Location Code", "Warehouse Class Code", Fixed, "Bin Ranking");
             SetRange("Location Code", LocationCode);
             SetRange("Warehouse Class Code", WarehouseClassCode);
@@ -469,7 +466,7 @@
         IsHandled: Boolean;
     begin
         with Bin do begin
-            Reset;
+            Reset();
             SetCurrentKey("Location Code", "Warehouse Class Code", "Bin Ranking");
             SetRange("Location Code", LocationCode);
             SetRange("Warehouse Class Code", WarehouseClassCode);
@@ -494,10 +491,10 @@
                         WhseActivLine.SetRange("Location Code", LocationCode);
                         WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Place);
                         if WhseActivLine.IsEmpty() then
-                            if not PutAwayTemplLine."Find Floating Bin" or IsFloatingBin then
+                            if not PutAwayTemplLine."Find Floating Bin" or IsFloatingBin() then
                                 exit(true);
                     end else
-                        if IsFloatingBin then
+                        if IsFloatingBin() then
                             exit(true);
                 until Next(-1) = 0;
             end;
@@ -505,14 +502,14 @@
         exit(false)
     end;
 
-    local procedure CalcQtyToPutAway(EmptyZoneBin: Boolean; NewBinContent: Boolean)
+    procedure CalcQtyToPutAway(EmptyZoneBin: Boolean; NewBinContent: Boolean)
     var
         ActionType: Enum "Warehouse Action Type";
     begin
         if Location."Bin Mandatory" then begin
             ActionType := ActionType::Place;
             if not EmptyZoneBin and Location."Directed Put-away and Pick" then
-                CalcAvailCubageAndWeight;
+                CalcAvailCubageAndWeight();
             AssignQtyToPutAwayForBinMandatory();
         end else
             QtyToPutAwayBase := PostedWhseRcptLine."Qty. (Base)";
@@ -552,7 +549,7 @@
         if IsHandled then
             exit;
 
-        with Bin do begin
+        with Bin do
             if ("Maximum Cubage" <> 0) or ("Maximum Weight" <> 0) then begin
                 if (PutAwayItemUOM.Cubage <> 0) or (PutAwayItemUOM.Weight <> 0) then begin
                     IsHandled := false;
@@ -573,9 +570,8 @@
                         AvailPerWeightBase := 0;
                     if AvailPerWeightBase < QtyToPutAwayBase then
                         QtyToPutAwayBase := AvailPerWeightBase;
-                end
-            end
-        end
+                end;
+            end;
     end;
 
     local procedure CreateBinContent(PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
@@ -650,15 +646,14 @@
     begin
         if Item."No." <> ItemNo then begin
             Item.Get(ItemNo);
-            GetWarehouseClassCode;
+            GetWarehouseClassCode();
         end;
         if (ItemNo <> SKU."Item No.") or
            (LocationCode <> SKU."Location Code") or
            (VariantCode <> SKU."Variant Code")
-        then begin
+        then
             if not SKU.Get(Location.Code, Item."No.", PostedWhseRcptLine."Variant Code") then
-                Clear(SKU)
-        end;
+                Clear(SKU);
 
         OnAfterGetItemAndSKU(Location, Item, SKU);
     end;
@@ -780,7 +775,7 @@
             WhseActivHeader := TempWhseActivHeader;
             WhseActivLine.SetRange("Activity Type", WhseActivHeader.Type);
             WhseActivLine.SetRange("No.", WhseActivHeader."No.");
-            Found := WhseActivLine.FindFirst();
+            Found := not WhseActivLine.IsEmpty();
         end;
         exit(Found);
     end;
@@ -791,12 +786,12 @@
         Found: Boolean;
     begin
         OnBeforeGetNextPutAwayDocument(TempWhseActivHeader);
-        Found := TempWhseActivHeader.Next <> 0;
+        Found := TempWhseActivHeader.Next() <> 0;
         if Found then begin
             WhseActivHeader := TempWhseActivHeader;
             WhseActivLine.SetRange("Activity Type", WhseActivHeader.Type);
             WhseActivLine.SetRange("No.", WhseActivHeader."No.");
-            Found := WhseActivLine.FindFirst();
+            Found := not WhseActivLine.IsEmpty();
         end;
         exit(Found);
     end;
@@ -860,7 +855,7 @@
                     else
                         Bin.Get("Location Code", "Cross-Dock Bin Code");
                     LineNo := LineNo + 10000;
-                    xPostedWhseRcptLine := PostedWhseRcptLine;
+                    TempPostedWhseRcptLine := PostedWhseRcptLine;
                     if Location."Directed Put-away and Pick" then
                         Quantity := "Qty. Cross-Docked (Base)" / PutAwayItemUOM."Qty. per Unit of Measure"
                     else
@@ -883,7 +878,7 @@
                     CrossDockInfo := 1;
                     CalcQtyToPutAway(false, NewCrossDockBinContent);
                     CrossDockInfo := 2;
-                    PostedWhseRcptLine := xPostedWhseRcptLine;
+                    PostedWhseRcptLine := TempPostedWhseRcptLine;
                     QtyToPutAwayBase := "Qty. (Base)" - "Qty. Cross-Docked (Base)";
                     RemQtyToPutAwayBase := "Qty. (Base)" - "Qty. Cross-Docked (Base)";
                     if Location."Directed Put-away and Pick" then
@@ -921,7 +916,7 @@
         if Bin.Dedicated = true then
             exit(false);
         with BinContent do begin
-            Reset;
+            Reset();
             SetRange("Location Code", Bin."Location Code");
             SetRange("Zone Code", Bin."Zone Code");
             SetRange("Bin Code", Bin.Code);

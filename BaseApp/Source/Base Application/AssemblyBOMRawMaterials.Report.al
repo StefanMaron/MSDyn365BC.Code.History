@@ -13,7 +13,7 @@ report 810 "Assembly BOM - Raw Materials"
         {
             DataItemTableView = WHERE("Assembly BOM" = CONST(false));
             RequestFilterFields = "No.", "Base Unit of Measure", "Shelf No.";
-            column(CompanyName_Item; COMPANYPROPERTY.DisplayName)
+            column(CompanyName_Item; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTableCaptionItemFilter; TableCaption + ': ' + ItemFilter)
@@ -70,7 +70,7 @@ report 810 "Assembly BOM - Raw Materials"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
     end;
 
     var

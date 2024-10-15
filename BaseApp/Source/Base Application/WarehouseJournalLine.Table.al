@@ -77,7 +77,7 @@ table 7311 "Warehouse Journal Line"
 
             trigger OnLookup()
             begin
-                LookupFromBinCode;
+                LookupFromBinCode();
             end;
 
             trigger OnValidate()
@@ -100,7 +100,7 @@ table 7311 "Warehouse Journal Line"
                     "From Zone Code" := Bin."Zone Code";
 
                 if "Entry Type" = "Entry Type"::"Negative Adjmt." then
-                    SetUpAdjustmentBin;
+                    SetUpAdjustmentBin();
             end;
         }
         field(8; Description; Text[100])
@@ -153,7 +153,7 @@ table 7311 "Warehouse Journal Line"
                 if (xRec.Quantity < 0) and (Quantity >= 0) or
                    (xRec.Quantity >= 0) and (Quantity < 0)
                 then
-                    ExchangeFromToBin;
+                    ExchangeFromToBin();
 
                 if Quantity > 0 then
                     WMSMgt.CalcCubageAndWeight(
@@ -222,7 +222,7 @@ table 7311 "Warehouse Journal Line"
             var
                 NewValue: Decimal;
             begin
-                NewValue := Round("Qty. (Absolute, Base)", UOMMgt.QtyRndPrecision);
+                NewValue := Round("Qty. (Absolute, Base)", UOMMgt.QtyRndPrecision());
                 Validate(Quantity, CalcQty("Qty. (Absolute, Base)") * Quantity / Abs(Quantity));
                 // Take care of rounding issues
                 "Qty. (Absolute, Base)" := NewValue;
@@ -258,7 +258,7 @@ table 7311 "Warehouse Journal Line"
 
             trigger OnLookup()
             begin
-                LookupBinCode;
+                LookupBinCode();
             end;
 
             trigger OnValidate()
@@ -366,7 +366,7 @@ table 7311 "Warehouse Journal Line"
                     "To Zone Code" := Bin."Zone Code";
 
                 if "Entry Type" = "Entry Type"::"Positive Adjmt." then
-                    SetUpAdjustmentBin;
+                    SetUpAdjustmentBin();
             end;
         }
         field(29; "Reason Code"; Code[10])
@@ -437,7 +437,7 @@ table 7311 "Warehouse Journal Line"
                 if "Qty. (Phys. Inventory)" = "Qty. (Calculated)" then
                     Validate("Qty. (Phys. Inventory) (Base)", "Qty. (Calculated) (Base)")
                 else
-                    Validate("Qty. (Phys. Inventory) (Base)", Round("Qty. (Phys. Inventory)" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+                    Validate("Qty. (Phys. Inventory) (Base)", Round("Qty. (Phys. Inventory)" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
                 PhysInvtEntered := false;
             end;
         }
@@ -452,11 +452,9 @@ table 7311 "Warehouse Journal Line"
             Caption = 'Phys. Inventory';
             Editable = false;
         }
-        field(60; "Reference Document"; Option)
+        field(60; "Reference Document"; Enum "Whse. Reference Document Type")
         {
             Caption = 'Reference Document';
-            OptionCaption = ' ,Posted Rcpt.,Posted P. Inv.,Posted Rtrn. Rcpt.,Posted P. Cr. Memo,Posted Shipment,Posted S. Inv.,Posted Rtrn. Shipment,Posted S. Cr. Memo,Posted T. Receipt,Posted T. Shipment,Item Journal,Prod.,Put-away,Pick,Movement,BOM Journal,Job Journal,Assembly';
-            OptionMembers = " ","Posted Rcpt.","Posted P. Inv.","Posted Rtrn. Rcpt.","Posted P. Cr. Memo","Posted Shipment","Posted S. Inv.","Posted Rtrn. Shipment","Posted S. Cr. Memo","Posted T. Receipt","Posted T. Shipment","Item Journal","Prod.","Put-away",Pick,Movement,"BOM Journal","Job Journal",Assembly;
         }
         field(61; "Reference No."; Code[20])
         {
@@ -537,7 +535,7 @@ table 7311 "Warehouse Journal Line"
 
                 if "Item No." <> '' then begin
                     TestField("Unit of Measure Code");
-                    GetItemUnitOfMeasure;
+                    GetItemUnitOfMeasure();
                     "Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
                     "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
                     "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
@@ -770,7 +768,7 @@ table 7311 "Warehouse Journal Line"
             "Entry Type" := LastWhseJnlLine."Entry Type";
             "Location Code" := LastWhseJnlLine."Location Code";
         end else begin
-            "Registering Date" := WorkDate;
+            "Registering Date" := WorkDate();
             GetWhseJnlBatch();
             if WhseJnlBatch."No. Series" <> '' then begin
                 Clear(NoSeriesMgt);
@@ -790,7 +788,7 @@ table 7311 "Warehouse Journal Line"
                 "Entry Type" := "Entry Type"::"Positive Adjmt."
             else
                 "Entry Type" := "Entry Type"::"Negative Adjmt.";
-            SetUpAdjustmentBin;
+            SetUpAdjustmentBin();
         end else
             "Entry Type" := "Entry Type"::Movement;
 
@@ -837,7 +835,7 @@ table 7311 "Warehouse Journal Line"
     local procedure CalcQty(QtyBase: Decimal): Decimal
     begin
         TestField("Qty. per Unit of Measure");
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
@@ -885,7 +883,7 @@ table 7311 "Warehouse Journal Line"
         if "Item No." <> '' then begin
             if "Item No." <> xRec."Item No." then
                 "Variant Code" := '';
-            GetItemUnitOfMeasure;
+            GetItemUnitOfMeasure();
             Description := Item.Description;
             Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
         end else begin
@@ -928,7 +926,7 @@ table 7311 "Warehouse Journal Line"
                 "Entry Type" := "Entry Type"::"Positive Adjmt."
             else
                 "Entry Type" := "Entry Type"::"Negative Adjmt.";
-            SetUpAdjustmentBin;
+            SetUpAdjustmentBin();
         end;
     end;
 
@@ -1106,7 +1104,7 @@ table 7311 "Warehouse Journal Line"
     begin
         OnBeforeOpenJnl(WhseJnlLine, CurrentJnlBatchName, CurrentLocationCode);
 
-        WMSMgt.CheckUserIsWhseEmployee;
+        WMSMgt.CheckUserIsWhseEmployee();
         CheckTemplateName(
           WhseJnlLine.GetRangeMax("Journal Template Name"), CurrentLocationCode, CurrentJnlBatchName);
         WhseJnlLine.FilterGroup := 2;
@@ -1133,7 +1131,7 @@ table 7311 "Warehouse Journal Line"
 
         WhseJnlBatch.Init();
         WhseJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
-        WhseJnlBatch.SetupNewBatch;
+        WhseJnlBatch.SetupNewBatch();
         WhseJnlBatch."Location Code" := CurrentLocationCode;
         WhseJnlBatch.Name := Text002;
         WhseJnlBatch.Description := Text003;
@@ -1248,7 +1246,7 @@ table 7311 "Warehouse Journal Line"
         if not IsReclass(TemplateName) then
             exit(false);
 
-        with WhseItemTrkgLine do begin
+        with WhseItemTrkgLine do
             if ItemTrackingMgt.WhseItemTrackingLineExists(TemplateName, BatchName, LocationCode, LineNo, WhseItemTrkgLine) then begin
                 FindSet();
                 repeat
@@ -1256,7 +1254,6 @@ table 7311 "Warehouse Journal Line"
                         exit(true);
                 until Next() = 0;
             end;
-        end;
 
         exit(false);
     end;
@@ -1363,7 +1360,7 @@ table 7311 "Warehouse Journal Line"
         end;
 
         WhseJnlBatch.SetRange(Name);
-        CurrentLocationCode := WMSMgt.GetDefaultDirectedPutawayAndPickLocation;
+        CurrentLocationCode := WMSMgt.GetDefaultDirectedPutawayAndPickLocation();
         WhseJnlBatch.SetRange("Location Code", CurrentLocationCode);
 
         if WhseJnlBatch.FindFirst() then begin
@@ -1373,7 +1370,7 @@ table 7311 "Warehouse Journal Line"
 
         WhseJnlBatch.SetRange("Location Code");
 
-        if WhseJnlBatch.FindSet() then begin
+        if WhseJnlBatch.FindSet() then
             repeat
                 if IsWarehouseEmployeeLocationDirectPutAwayAndPick(WhseJnlBatch."Location Code") then begin
                     CurrentLocationCode := WhseJnlBatch."Location Code";
@@ -1381,7 +1378,6 @@ table 7311 "Warehouse Journal Line"
                     exit(true);
                 end;
             until WhseJnlBatch.Next() = 0;
-        end;
 
         exit(false);
     end;

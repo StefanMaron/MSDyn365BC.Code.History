@@ -23,7 +23,7 @@ page 5651 "Insurance Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     InsuranceJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     CurrPage.Update(false);
                 end;
@@ -31,29 +31,29 @@ page 5651 "Insurance Journal"
                 trigger OnValidate()
                 begin
                     InsuranceJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the date to use as the posting date on the insurance coverage ledger entry.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the appropriate document type for the amount you want to post.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a document number for the journal line.';
                     ShowMandatory = true;
                 }
-                field("Insurance No."; "Insurance No.")
+                field("Insurance No."; Rec."Insurance No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the insurance number to post an insurance coverage entry to.';
@@ -64,7 +64,7 @@ page 5651 "Insurance Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("FA No."; "FA No.")
+                field("FA No."; Rec."FA No.")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of the related fixed asset. ';
@@ -75,7 +75,7 @@ page 5651 "Insurance Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field("FA Description"; "FA Description")
+                field("FA Description"; Rec."FA Description")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a description of the fixed asset.';
@@ -91,25 +91,25 @@ page 5651 "Insurance Journal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total amount the journal line consists of. Credit amounts must be entered with a minus sign.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
-                field("Index Entry"; "Index Entry")
+                field("Index Entry"; Rec."Index Entry")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies whether to post an indexation (that is, to index the total value insured).';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -284,7 +284,7 @@ page 5651 "Insurance Journal"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -339,9 +339,6 @@ page 5651 "Insurance Journal"
                     ApplicationArea = FixedAssets;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -357,9 +354,6 @@ page 5651 "Insurance Journal"
                     ApplicationArea = FixedAssets;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -369,6 +363,20 @@ page 5651 "Insurance Journal"
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("P&ost_Promoted"; "P&ost")
+                {
+                }
+                actionref("Post and &Print_Promoted"; "Post and &Print")
+                {
                 }
             }
         }
@@ -395,9 +403,9 @@ page 5651 "Insurance Journal"
         InsuranceJnlManagement: Codeunit InsuranceJnlManagement;
         JnlSelected: Boolean;
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
 
-        if IsOpenedFromBatch then begin
+        if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             InsuranceJnlManagement.OpenJournal(CurrentJnlBatchName, Rec);
             exit;
@@ -428,7 +436,7 @@ page 5651 "Insurance Journal"
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         InsuranceJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
     end;

@@ -36,8 +36,8 @@ page 6000 "Dispatch Board"
 
                     trigger OnValidate()
                     begin
-                        SetResourceFilter;
-                        ResourceFilterOnAfterValidate;
+                        SetResourceFilter();
+                        ResourceFilterOnAfterValidate();
                     end;
                 }
                 field(ResourceGroupFilter; ResourceGroupFilter)
@@ -57,8 +57,8 @@ page 6000 "Dispatch Board"
 
                     trigger OnValidate()
                     begin
-                        SetResourceGroupFilter;
-                        ResourceGroupFilterOnAfterVali;
+                        SetResourceGroupFilter();
+                        ResourceGroupFilterOnAfterVali();
                     end;
                 }
                 field(RespDateFilter; RespDateFilter)
@@ -69,8 +69,8 @@ page 6000 "Dispatch Board"
 
                     trigger OnValidate()
                     begin
-                        SetRespDateFilter;
-                        RespDateFilterOnAfterValidate;
+                        SetRespDateFilter();
+                        RespDateFilterOnAfterValidate();
                     end;
                 }
                 field(AllocationFilter; AllocationFilter)
@@ -82,8 +82,8 @@ page 6000 "Dispatch Board"
 
                     trigger OnValidate()
                     begin
-                        SetAllocFilter;
-                        AllocationFilterOnAfterValidat;
+                        SetAllocFilter();
+                        AllocationFilterOnAfterValidat();
                     end;
                 }
                 field(DocFilter; DocFilter)
@@ -95,8 +95,8 @@ page 6000 "Dispatch Board"
 
                     trigger OnValidate()
                     begin
-                        SetDocFilter;
-                        DocFilterOnAfterValidate;
+                        SetDocFilter();
+                        DocFilterOnAfterValidate();
                     end;
                 }
                 field(ServOrderFilter; ServOrderFilter)
@@ -117,8 +117,8 @@ page 6000 "Dispatch Board"
 
                     trigger OnValidate()
                     begin
-                        SetServOrderFilter;
-                        ServOrderFilterOnAfterValidate;
+                        SetServOrderFilter();
+                        ServOrderFilterOnAfterValidate();
                     end;
                 }
                 field(StatusFilter; StatusFilter)
@@ -130,8 +130,8 @@ page 6000 "Dispatch Board"
 
                     trigger OnValidate()
                     begin
-                        SetStatusFilter;
-                        StatusFilterOnAfterValidate;
+                        SetStatusFilter();
+                        StatusFilterOnAfterValidate();
                     end;
                 }
                 field(CustomFilter; CustomFilter)
@@ -151,8 +151,8 @@ page 6000 "Dispatch Board"
 
                     trigger OnValidate()
                     begin
-                        SetCustFilter;
-                        CustomFilterOnAfterValidate;
+                        SetCustFilter();
+                        CustomFilterOnAfterValidate();
                     end;
                 }
                 field(ContractFilter; ContractFilter)
@@ -173,8 +173,8 @@ page 6000 "Dispatch Board"
 
                     trigger OnValidate()
                     begin
-                        SetContractFilter;
-                        ContractFilterOnAfterValidate;
+                        SetContractFilter();
+                        ContractFilterOnAfterValidate();
                     end;
                 }
                 field(ZoneFilter; ZoneFilter)
@@ -194,8 +194,8 @@ page 6000 "Dispatch Board"
 
                     trigger OnValidate()
                     begin
-                        SetZoneFilter;
-                        ZoneFilterOnAfterValidate;
+                        SetZoneFilter();
+                        ZoneFilterOnAfterValidate();
                     end;
                 }
             }
@@ -203,12 +203,12 @@ page 6000 "Dispatch Board"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Response Date"; "Response Date")
+                field("Response Date"; Rec."Response Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated date when work on the order should start, that is, when the service order status changes from Pending, to In Process.';
                 }
-                field("Response Time"; "Response Time")
+                field("Response Time"; Rec."Response Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated time when work on the order starts, that is, when the service order status changes from Pending, to In Process.';
@@ -218,12 +218,12 @@ page 6000 "Dispatch Board"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the priority of the service order.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of the service document on the line.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -239,7 +239,7 @@ page 6000 "Dispatch Board"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service order status, which reflects the repair or maintenance status of all service items on the service order.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the customer who owns the items in the service document.';
@@ -249,33 +249,33 @@ page 6000 "Dispatch Board"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the contract associated with the order.';
                 }
-                field("Service Zone Code"; "Service Zone Code")
+                field("Service Zone Code"; Rec."Service Zone Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service zone code of the customer''s ship-to address in the service order.';
                 }
-                field("No. of Allocations"; "No. of Allocations")
+                field("No. of Allocations"; Rec."No. of Allocations")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of resource allocations to service items in this order.';
                 }
-                field("Order Date"; "Order Date")
+                field("Order Date"; Rec."Order Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related order was created.';
                 }
-                field("Order Time"; "Order Time")
+                field("Order Time"; Rec."Order Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the time when the service order was created.';
                 }
-                field("Reallocation Needed"; "Reallocation Needed")
+                field("Reallocation Needed"; Rec."Reallocation Needed")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that you must reallocate resources to at least one service item in this service order.';
@@ -321,10 +321,6 @@ page 6000 "Dispatch Board"
                     ApplicationArea = Service;
                     Caption = '&Show Document';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Open the document that the information on the line comes from.';
 
@@ -345,10 +341,6 @@ page 6000 "Dispatch Board"
                     ApplicationArea = Service;
                     Caption = 'Resource &Allocations';
                     Image = ResourcePlanning;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     RunObject = Page "Resource Allocations";
                     RunPageLink = "Document Type" = FIELD("Document Type"),
                                   "Document No." = FIELD("No.");
@@ -361,9 +353,6 @@ page 6000 "Dispatch Board"
                     ApplicationArea = Service;
                     Caption = 'Demand Overview';
                     Image = Forecast;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'Get an overview of demand for your items when planning sales, production, jobs, or service management and when they will be available.';
 
                     trigger OnAction()
@@ -414,6 +403,23 @@ page 6000 "Dispatch Board"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Show Document_Promoted"; "&Show Document")
+                {
+                }
+                actionref("Resource &Allocations_Promoted"; "Resource &Allocations")
+                {
+                }
+                actionref("Demand Overview_Promoted"; "Demand Overview")
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
@@ -447,16 +453,16 @@ page 6000 "Dispatch Board"
 
     procedure SetAllFilters()
     begin
-        SetDocFilter;
-        SetStatusFilter;
-        SetRespDateFilter;
-        SetServOrderFilter;
-        SetCustFilter;
-        SetZoneFilter;
-        SetContractFilter;
-        SetResourceFilter;
-        SetResourceGroupFilter;
-        SetAllocFilter;
+        SetDocFilter();
+        SetStatusFilter();
+        SetRespDateFilter();
+        SetServOrderFilter();
+        SetCustFilter();
+        SetZoneFilter();
+        SetContractFilter();
+        SetResourceFilter();
+        SetResourceGroupFilter();
+        SetAllocFilter();
     end;
 
     procedure SetDocFilter()

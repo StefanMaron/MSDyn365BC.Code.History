@@ -4,7 +4,8 @@ table 13600 "OIOUBL Profile"
     ObsoleteReason = 'Moved to OIOUBL extension, new table OIOUBL-Profile.';
     ObsoleteState = Removed;
     ObsoleteTag = '15.0';
-
+    ReplicateData = false;
+    
     fields
     {
         field(1; "Code"; Code[10])

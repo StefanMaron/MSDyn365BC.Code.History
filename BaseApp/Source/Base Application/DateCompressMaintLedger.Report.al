@@ -50,7 +50,7 @@ report 5698 "Date Compress Maint. Ledger"
                       0, false, DimEntryNo);
                     ComprDimEntryNo := DimEntryNo;
                     SummarizeEntry(NewMaintenanceLedgEntry, MaintenanceLedgEntry2);
-                    while Next <> 0 do begin
+                    while Next() <> 0 do begin
                         DimBufMgt.CollectDimEntryNo(
                           TempSelectedDim, "Dimension Set ID", "Entry No.",
                           ComprDimEntryNo, true, DimEntryNo);
@@ -60,7 +60,7 @@ report 5698 "Date Compress Maint. Ledger"
 
                     InsertNewEntry(NewMaintenanceLedgEntry, ComprDimEntryNo);
 
-                    ComprCollectedEntries;
+                    ComprCollectedEntries();
                 end;
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
@@ -112,7 +112,7 @@ report 5698 "Date Compress Maint. Ledger"
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("FA Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
-                InitRegisters;
+                InitRegisters();
 
                 if UseDataArchive then
                     DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress Maint. Ledger"));
@@ -274,15 +274,6 @@ report 5698 "Date Compress Maint. Ledger"
     end;
 
     var
-        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
-        Text003: Label '%1 must be specified.';
-        Text004: Label 'Date compressing maintenance ledger entries...\\';
-        Text005: Label 'FA No.               #1##########\';
-        Text006: Label 'Date                 #2######\\';
-        Text007: Label 'No. of new entries   #3######\';
-        Text008: Label 'No. of entries del.  #4######';
-        Text009: Label 'Date Compressed';
-        Text010: Label 'Retain Dimensions';
         SourceCodeSetup: Record "Source Code Setup";
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
@@ -314,6 +305,16 @@ report 5698 "Date Compress Maint. Ledger"
         UseDataArchive: Boolean;
         [InDataSet]
         DataArchiveProviderExists: Boolean;
+
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+        Text003: Label '%1 must be specified.';
+        Text004: Label 'Date compressing maintenance ledger entries...\\';
+        Text005: Label 'FA No.               #1##########\';
+        Text006: Label 'Date                 #2######\\';
+        Text007: Label 'No. of new entries   #3######\';
+        Text008: Label 'No. of entries del.  #4######';
+        Text009: Label 'Date Compressed';
+        Text010: Label 'Retain Dimensions';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -377,7 +378,7 @@ report 5698 "Date Compress Maint. Ledger"
         CurrLastEntryNo := MaintenanceLedgEntry2.GetLastEntryNo();
         if (LastEntryNo <> CurrLastEntryNo) or (FAReg."No." <> FAReg2.GetLastEntryNo()) then begin
             LastEntryNo := CurrLastEntryNo;
-            InitRegisters;
+            InitRegisters();
         end;
     end;
 
@@ -405,7 +406,7 @@ report 5698 "Date Compress Maint. Ledger"
         with MaintenanceLedgEntry do begin
             NewMaintenanceLedgEntry.Quantity := NewMaintenanceLedgEntry.Quantity + Quantity;
             NewMaintenanceLedgEntry.Amount := NewMaintenanceLedgEntry.Amount + Amount;
-            Delete;
+            Delete();
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
         end;
@@ -436,7 +437,7 @@ report 5698 "Date Compress Maint. Ledger"
                 OldDimEntryNo := DimEntryNo;
             until not Found;
         end;
-        DimBufMgt.DeleteAllDimEntryNo;
+        DimBufMgt.DeleteAllDimEntryNo();
     end;
 
     procedure InitNewEntry(var NewMaintenanceLedgEntry: Record "Maintenance Ledger Entry")

@@ -1,7 +1,11 @@
+#if not CLEAN21
 page 2349 "BC O365 Mobile App"
 {
     Caption = ' ';
     PageType = CardPart;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -14,7 +18,7 @@ page 2349 "BC O365 Mobile App"
             }
             field("Learn more"; LearnMoreLbl)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Editable = false;
                 ShowCaption = false;
 
@@ -37,4 +41,4 @@ page 2349 "BC O365 Mobile App"
         InvoicingMobileAppSettingsCategoryLbl: Label 'AL Invoicing Mobile App Settings', Locked = true;
         LearnMoreTelemetryTxt: Label 'Learn more link has been clicked.', Locked = true;
 }
-
+#endif

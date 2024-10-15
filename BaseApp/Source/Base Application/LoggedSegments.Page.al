@@ -19,17 +19,17 @@ page 5139 "Logged Segments"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the interaction has been canceled.';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the date on which the segment was logged.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the ID of the user who created or logged the interaction and segment. The program automatically fills in this field when the segment is logged.';
@@ -41,7 +41,7 @@ page 5139 "Logged Segments"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Segment No."; "Segment No.")
+                field("Segment No."; Rec."Segment No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the segment to which the logged segment is linked. The program fills in this field by copying the contents of the No. field in the Segment window.';
@@ -51,12 +51,12 @@ page 5139 "Logged Segments"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the interaction.';
                 }
-                field("No. of Interactions"; "No. of Interactions")
+                field("No. of Interactions"; Rec."No. of Interactions")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of interactions recorded for the logged segment. To see a list of the created interactions, click the field.';
                 }
-                field("No. of Campaign Entries"; "No. of Campaign Entries")
+                field("No. of Campaign Entries"; Rec."No. of Campaign Entries")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of campaign entries that were recorded when you logged the segment. To see a list of the recorded campaign entries, click the field.';
@@ -125,7 +125,7 @@ page 5139 "Logged Segments"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(LoggedSegment);
-                        LoggedSegment.ToggleCanceledCheckmark;
+                        LoggedSegment.ToggleCanceledCheckmark();
                     end;
                 }
                 action(Resend)

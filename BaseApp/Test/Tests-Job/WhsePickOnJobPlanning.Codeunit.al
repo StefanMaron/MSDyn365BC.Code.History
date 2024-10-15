@@ -31,7 +31,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         QtyRemainsToBePickedErr: Label 'quantity of %1 remains to be picked', Comment = '%1 = 100';
         WhseCompletelyPickedErr: Label 'All of the items on the job planning lines are completely picked.';
         WhseNoItemsToPickErr: Label 'There are no items to pick on the job planning lines.';
-        NothingToHandleErr: Label 'Nothing to handle';
         FieldMustNotBeChangedErr: Label 'must not be changed when a %1 for this %2 exists: ';
         DeletionNotPossibleErr: Label 'The %1 cannot be deleted when a related %2 exists.';
         OneWhsePickHeaderCreatedErr: Label 'Only one warehouse activity header created.';
@@ -1034,12 +1033,10 @@ codeunit 136318 "Whse. Pick On Job Planning"
     var
         NonInventoryItem: Record Item;
         ServiceItem: Record Item;
-        SNWhseTrackedItem: Record Item;
         JobPlanningLine1: Record "Job Planning Line";
         JobPlanningLine2: Record "Job Planning Line";
         JobPlanningLine3: Record "Job Planning Line";
         JobPlanningLine4: Record "Job Planning Line";
-        JobPlanningLine5: Record "Job Planning Line";
         JobTask: Record "Job Task";
         JobJournalLine: Record "Job Journal Line";
         WhseWorksheetLine: Record "Whse. Worksheet Line";
@@ -1048,7 +1045,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         GLAccountNo: Code[20];
     begin
         // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
-        // [SCENARIO] Cannot create warehouse picks for job planning lines with non-inventory items, Resource and GL Account without having to create picks. Also including items with warehouse tracking is enabled.
+        // [SCENARIO] Cannot create warehouse picks for job planning lines with non-inventory items, Resource and GL Account without having to create picks.
         // [GIVEN] Location with 'Require pick' = Yes and 'Bin mandatory' = Yes
         Initialize();
 
@@ -1064,9 +1061,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         // [GIVEN] G/L account
         GLAccountNo := CreateGLAccount();
 
-        // [GIVEN] Whse specific tracked item
-        CreateSerialTrackedItem(SNWhseTrackedItem, true);
-
         // [GIVEN] A job with a task
         CreateJobWithJobTask(JobTask);
 
@@ -1078,8 +1072,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         CreateJobPlanningLineWithData(JobPlanningLine3, JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine3.Type::Resource, ResourceNo, LocationWithWhsePick.Code, '', LibraryRandom.RandInt(10));
 
         CreateJobPlanningLineWithData(JobPlanningLine4, JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine4.Type::"G/L Account", GLAccountNo, LocationWithWhsePick.Code, '', LibraryRandom.RandInt(10));
-
-        CreateJobPlanningLineWithData(JobPlanningLine5, JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine5.Type::Item, SNWhseTrackedItem."No.", LocationWithWhsePick.Code, '', LibraryRandom.RandInt(10));
 
         // [WHEN] Pick Worksheet is used to get the source documents
         PickWorksheetPage.OpenEdit();
@@ -1229,19 +1221,17 @@ codeunit 136318 "Whse. Pick On Job Planning"
     var
         NonInventoryItem: Record Item;
         ServiceItem: Record Item;
-        SNWhseTrackedItem: Record Item;
         JobPlanningLine1: Record "Job Planning Line";
         JobPlanningLine2: Record "Job Planning Line";
         JobPlanningLine3: Record "Job Planning Line";
         JobPlanningLine4: Record "Job Planning Line";
-        JobPlanningLine5: Record "Job Planning Line";
         JobTask: Record "Job Task";
         JobJournalLine: Record "Job Journal Line";
         ResourceNo: Code[20];
         GLAccountNo: Code[20];
     begin
         // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
-        // [SCENARIO] Create job journal lines from job planning lines with non-inventory items, Resource and GL Account without having to create picks. Also including items with warehouse tracking is enabled.
+        // [SCENARIO] Create job journal lines from job planning lines with non-inventory items, Resource and GL Account without having to create picks.
         // [GIVEN] Location with 'Require pick' = Yes and 'Bin mandatory' = Yes
         Initialize();
 
@@ -1257,13 +1247,10 @@ codeunit 136318 "Whse. Pick On Job Planning"
         // [GIVEN] G/L account
         GLAccountNo := CreateGLAccount();
 
-        // [GIVEN] Whse specific tracked item
-        CreateSerialTrackedItem(SNWhseTrackedItem, true);
-
         // [GIVEN] A job with a task
         CreateJobWithJobTask(JobTask);
 
-        // [WHEN] Create a job planning line for the non-inventory, service item, resource, GL account and item with whs tracking enabled.
+        // [WHEN] Create a job planning line for the non-inventory, service item, resource and GL account.
         CreateJobPlanningLineWithData(JobPlanningLine1, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine1.Type::Item, NonInventoryItem."No.", LocationWithWhsePick.Code, '', LibraryRandom.RandInt(10));
 
         CreateJobPlanningLineWithData(JobPlanningLine2, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine2.Type::Item, ServiceItem."No.", LocationWithWhsePick.Code, '', LibraryRandom.RandInt(10));
@@ -1272,18 +1259,15 @@ codeunit 136318 "Whse. Pick On Job Planning"
 
         CreateJobPlanningLineWithData(JobPlanningLine4, JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine4.Type::"G/L Account", GLAccountNo, LocationWithWhsePick.Code, '', LibraryRandom.RandInt(10));
 
-        CreateJobPlanningLineWithData(JobPlanningLine5, JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine5.Type::Item, SNWhseTrackedItem."No.", LocationWithWhsePick.Code, '', LibraryRandom.RandInt(10));
-
         // [WHEN] Transfer job planning lines to job journal
         TransferToJobJournalFromJobPlanningLine(JobPlanningLine1);
         TransferToJobJournalFromJobPlanningLine(JobPlanningLine2);
         TransferToJobJournalFromJobPlanningLine(JobPlanningLine3);
         TransferToJobJournalFromJobPlanningLine(JobPlanningLine4);
-        TransferToJobJournalFromJobPlanningLine(JobPlanningLine5);
 
-        // [THEN] No error is thrown and the job journal lines are created.
+        // [THEN] No error is thrown and 4 job journal lines are created.
         JobJournalLine.SetRange("Job No.", JobTask."Job No.");
-        Assert.RecordCount(JobJournalLine, 5);
+        Assert.RecordCount(JobJournalLine, 4);
     end;
 
     [Test]
@@ -1347,9 +1331,9 @@ codeunit 136318 "Whse. Pick On Job Planning"
     end;
 
     [Test]
-    [HandlerFunctions('WhseSrcCreateDocReqHandler,ItemTrackingLinesAssignPageHandler,AssignSerialNoEnterQtyPageHandler')]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,ItemTrackingLinesAssignPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler')]
     [Scope('OnPrem')]
-    procedure WhsePicksNotCreatedForJobWithItemTrackingWithoutBin()
+    procedure WhsePicksCreatedForJobWithItemTrackingWithoutBin()
     var
         Item: Record Item;
         LocationWMS: Record Location;
@@ -1361,7 +1345,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         QtyToUse: Integer;
     begin
         // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
-        // [SCENARIO] Warehouse picks can be created for items with SN tracking without Bin. //not supported in 20.0
+        // [SCENARIO] Warehouse picks can be created for items with SN tracking without Bin.
         // [GIVEN] An item with SN tracking and enough inventory on location with 'Require pick' = Yes and 'Bin mandatory' = No
         Initialize();
         CreateSerialTrackedItem(Item, true);
@@ -1384,16 +1368,15 @@ codeunit 136318 "Whse. Pick On Job Planning"
 
         // [WHEN] 'Create Warehouse Pick' action is invoked from the job card
         Job.Get(JobPlanningLine."Job No.");
-        asserterror OpenJobAndCreateWarehousePick(Job);
+        OpenJobAndCreateWarehousePick(Job);
 
-        // [THEN] Warehouse pick lines are not created as there is nothing to handle.
-        Assert.ExpectedError(NothingToHandleErr);
+        // [THEN] Warehouse pick lines are created and nothing to handle error is not thrown.
     end;
 
     [Test]
-    [HandlerFunctions('WhseSrcCreateDocReqHandler,ItemTrackingLinesAssignPageHandler,AssignSerialNoEnterQtyPageHandler')]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,ItemTrackingLinesAssignPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler')]
     [Scope('OnPrem')]
-    procedure WhsePicksNotCreatedForJobWithItemTrackingWithBin()
+    procedure WhsePicksCreatedForJobWithItemTrackingWithBin()
     var
         Item: Record Item;
         JobPlanningLine: Record "Job Planning Line";
@@ -1404,7 +1387,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         QtyToUse: Integer;
     begin
         // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
-        // [SCENARIO] Warehouse picks can be created for items with SN tracking with bin. //not supported in 20.0
+        // [SCENARIO] Warehouse picks can be created for items with SN tracking with bin.
         // [GIVEN] An item with SN tracking and enough inventory on location with 'Require pick' = Yes and 'Bin mandatory' = Yes
         Initialize();
         CreateSerialTrackedItem(Item, true);
@@ -1421,10 +1404,63 @@ codeunit 136318 "Whse. Pick On Job Planning"
 
         // [WHEN] 'Create Warehouse Pick' action is invoked from the job card
         Job.Get(JobPlanningLine."Job No.");
-        asserterror OpenJobAndCreateWarehousePick(Job);
+        OpenJobAndCreateWarehousePick(Job);
 
-        // [THEN] Warehouse pick lines are not created as there is nothing to handle.
-        Assert.ExpectedError(NothingToHandleErr);
+        // [THEN] Warehouse pick lines are created and there is nothing to handle error is not thrown.
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,WhseSrcCreateDocReqHandler,ConfirmHandlerTrue,AutoFillAndRegisterPickModalPageHandler,ItemTrackingLinesAssignPageHandler,AssignSerialNoEnterQtyPageHandler')]
+    [Scope('OnPrem')]
+    procedure WhsePicksCanBeRegisteredForJobWithItemTrackingWithBin()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        Job: Record Job;
+        WarehouseActivityLinesPage: TestPage "Warehouse Activity Lines";
+        QtyInventory: Integer;
+        QtyToUse: Integer;
+    begin
+        // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
+        // [SCENARIO] Warehouse picks can be created for items with SN tracking with bin.
+        // [GIVEN] An item with SN tracking and enough inventory on location with 'Require pick' = Yes and 'Bin mandatory' = Yes
+        Initialize();
+        CreateSerialTrackedItem(Item, true);
+
+        QtyInventory := 5;
+        CreateAndPostInvtAdjustmentWithSNTracking(Item."No.", LocationWithWhsePick.Code, SourceBin.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] A job with a task
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Create a job planning line with the SN tracked item
+        QtyToUse := 5;
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithWhsePick.Code, DestinationBin.Code, QtyToUse);
+
+        // [WHEN] 'Create Warehouse Pick' action is invoked from the job card
+        Job.Get(JobPlanningLine."Job No.");
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] Warehouse pick lines are created
+        VerifyWarehousePickActivityLineWithSN(JobPlanningLine);
+
+        // [WHEN] Assign Serial Numbers on Warehouse Pick Lines
+        AssignSNWhsePickLines(JobPlanningLine);
+
+        // [WHEN] Open Related Warehouse Pick Lines
+        WarehouseActivityLinesPage.Trap();
+        OpenRelatedWarehousePicksForJob(Job);
+
+        // [WHEN] Open related Warehouse Pick Card, Autofill quantity and Register pick.
+        WarehouseActivityLinesPage.Card.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
+        WarehouseActivityLinesPage.Close();
+
+        // [THEN] Warehouse entry is created
+        VerifyWhseEntriesAfterRegisterPick(Job, JobTask, true);
+
+        // [THEN] Reservation Entries are created.
+        VerifyWhsePickReservationEntry(JobPlanningLine);
     end;
 
     [Test]
@@ -1634,6 +1670,77 @@ codeunit 136318 "Whse. Pick On Job Planning"
             DeletionNotPossibleErr, JobPlanningLine.TableCaption(), WarehouseActivityLinePick.TableCaption()
         );
         Assert.ExpectedError(ExpectedErrorMessage);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,PickSelectionModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CannotChangeStatusOrDeleteJobWhenWhseWorksheetLinesExist()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PickWorksheetPage: TestPage "Pick Worksheet";
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
+        // [SCENARIO] Create pick from warehouse worksheet should fail if job is deleted or completed.
+        // [GIVEN] Warehouse pick relevant Location, resource R and item I with sufficient quantity in the inventory for a Bin Code.
+        // [GIVEN] A Job.
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := 1000;
+        CreateAndPostInvtAdjustmentWithUnitCost(
+            Item."No.",
+            LocationWithWhsePick.Code,
+            SourceBin.Code,
+            QtyInventory,
+            LibraryRandom.RandDec(10, 2)
+        );
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create 1 Job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] 1 Job Planning Lines
+        CreateJobPlanningLineWithData(
+            JobPlanningLine,
+            JobTask,
+            "Job Planning Line Line Type"::Budget,
+            JobPlanningLine.Type::Item,
+            Item."No.",
+            LocationWithWhsePick.Code,
+            DestinationBin.Code,
+            LibraryRandom.RandInt(100)
+        );
+
+        // [WHEN] Pick Worksheet is used to get the source documents
+        PickWorksheetPage.OpenEdit();
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Job No.");
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Location Code");
+        PickWorksheetPage."Get Warehouse Documents".Invoke(); //Handled in PickSelectionModalPageHandler
+        PickWorksheetPage.Close();
+
+        // [WHEN] Job status is changed to complete.
+        Job.Get(JobPlanningLine."Job No.");
+        asserterror Job.Validate(Status, Job.Status::Completed);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError('Status must not be changed when a Whse. Worksheet');
+
+        // [WHEN] Pick Worksheet is used to get the source documents
+        PickWorksheetPage.OpenEdit();
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Job No.");
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Location Code");
+        PickWorksheetPage."Get Warehouse Documents".Invoke(); //Handled in PickSelectionModalPageHandler
+        PickWorksheetPage.Close();
+
+        // [WHEN] Job is deleted.
+        asserterror Job.Delete(true);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError('The Job Planning Line cannot be deleted when a related Whse. Worksheet');
     end;
 
     [Test]
@@ -1912,8 +2019,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         ReservationEntry: Record "Reservation Entry";
     begin
         ReservationEntry.SetRange("Item No.", JobPlanningLine."No.");
-        ReservationEntry.SetRange("Source Type", DATABASE::Job);
-        ReservationEntry.SetRange("Source Subtype", 0);
+        ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
         ReservationEntry.SetRange("Source ID", JobPlanningLine."Job No.");
         ReservationEntry.SetRange("Source Ref. No.", JobPlanningLine."Job Contract Entry No.");
         Assert.RecordCount(ReservationEntry, JobPlanningLine.Quantity);

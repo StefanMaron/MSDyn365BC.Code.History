@@ -45,7 +45,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Usage = "C.Statement", Sequence = 1, Report ID = "Statement" (RDLC)
         // [GIVEN] Customer with entries
         // [WHEN] Run "Statement" (SaveAs PDF) report
-        OneCustomer_OneSelection(CreateCustomerWithEntry(Customer), REPORT::Statement, WorkDate, WorkDate);
+        OneCustomer_OneSelection(CreateCustomerWithEntry(Customer), REPORT::Statement, WorkDate(), WorkDate());
 
         // [THEN] "Statement" PDF file has been created
         VerifyReportOutputFileExists(Customer.Name, GetStatementReportName);
@@ -72,7 +72,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer without entries
         // [WHEN] Run "Statement" (SaveAs PDF) report
         ErrorMessages.Trap;
-        asserterror OneCustomer_OneSelection(CreateCustomer(Customer), REPORT::Statement, WorkDate, WorkDate);
+        asserterror OneCustomer_OneSelection(CreateCustomer(Customer), REPORT::Statement, WorkDate(), WorkDate());
 
         // [THEN] Error "No data exists for the specified report filters." is returned
         // [THEN] "Statement" PDF file has not been created
@@ -101,7 +101,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer without entries
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "Start Date")
         ErrorMessages.Trap;
-        asserterror OneCustomer_OneSelection(CreateCustomer(Customer), REPORT::Statement, 0D, WorkDate);
+        asserterror OneCustomer_OneSelection(CreateCustomer(Customer), REPORT::Statement, 0D, WorkDate());
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Statement" PDF file has not been created
@@ -131,7 +131,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer with entries
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "Start Date")
         ErrorMessages.Trap;
-        asserterror OneCustomer_OneSelection(CreateCustomerWithEntry(Customer), REPORT::Statement, 0D, WorkDate);
+        asserterror OneCustomer_OneSelection(CreateCustomerWithEntry(Customer), REPORT::Statement, 0D, WorkDate());
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Statement" PDF file has not been created
@@ -159,7 +159,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Usage = "C.Statement", Sequence = 1, Report ID = "Standard Statement" (WORD)
         // [GIVEN] Customer with entries
         // [WHEN] Run "Statement" (SaveAs PDF) report
-        OneCustomer_OneSelection(CreateCustomerWithEntry(Customer), REPORT::"Standard Statement", WorkDate, WorkDate);
+        OneCustomer_OneSelection(CreateCustomerWithEntry(Customer), REPORT::"Standard Statement", WorkDate(), WorkDate());
 
         // [THEN] "Standard Statement" PDF file has been created
         VerifyReportOutputFileExists(Customer.Name, GetStandardStatementReportName);
@@ -185,7 +185,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer without entries
         // [WHEN] Run "Statement" (SaveAs PDF) report
         ErrorMessages.Trap;
-        asserterror OneCustomer_OneSelection(CreateCustomer(Customer), REPORT::"Standard Statement", WorkDate, WorkDate);
+        asserterror OneCustomer_OneSelection(CreateCustomer(Customer), REPORT::"Standard Statement", WorkDate(), WorkDate());
 
         // [THEN] Error "No data exists for the specified report filters." is returned
         // [THEN] "Standard Statement" PDF file has not been created
@@ -216,7 +216,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer without entries
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "Start Date")
         ErrorMessages.Trap;
-        asserterror OneCustomer_OneSelection(CreateCustomer(Customer), REPORT::"Standard Statement", 0D, WorkDate);
+        asserterror OneCustomer_OneSelection(CreateCustomer(Customer), REPORT::"Standard Statement", 0D, WorkDate());
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created
@@ -246,7 +246,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer with entries
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "Start Date")
         ErrorMessages.Trap;
-        asserterror OneCustomer_OneSelection(CreateCustomerWithEntry(Customer), REPORT::"Standard Statement", 0D, WorkDate);
+        asserterror OneCustomer_OneSelection(CreateCustomerWithEntry(Customer), REPORT::"Standard Statement", 0D, WorkDate());
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created
@@ -277,7 +277,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer with entries
         // [WHEN] Run "Statement" (SaveAs PDF) report
         OneCustomer_TwoSelections(
-          CreateCustomerWithEntry(Customer), REPORT::Statement, REPORT::"Standard Statement", WorkDate, WorkDate, WorkDate, WorkDate);
+          CreateCustomerWithEntry(Customer), REPORT::Statement, REPORT::"Standard Statement", WorkDate(), WorkDate, WorkDate(), WorkDate());
 
         // [THEN] "Statement" PDF file has been created
         // [THEN] "Standard Statement" PDF file has been created
@@ -308,7 +308,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "End Date" for "Standard Statement")
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-          CreateCustomerWithEntry(Customer), REPORT::Statement, REPORT::"Standard Statement", WorkDate, WorkDate, WorkDate, 0D);
+          CreateCustomerWithEntry(Customer), REPORT::Statement, REPORT::"Standard Statement", WorkDate(), WorkDate, WorkDate(), 0D);
 
         AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankEndDateErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
@@ -340,7 +340,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "End Date" for "Standard Statement")
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-            CreateCustomer(Customer), REPORT::Statement, REPORT::"Standard Statement", WorkDate, WorkDate, WorkDate, 0D);
+            CreateCustomer(Customer), REPORT::Statement, REPORT::"Standard Statement", WorkDate(), WorkDate, WorkDate(), 0D);
 
         // [THEN] Error on blanked "End Date" is returned
         // [THEN] "Statement" PDF file has not been created
@@ -374,7 +374,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" (SaveAs PDF) report
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-            CreateCustomer(Customer), REPORT::Statement, REPORT::"Standard Statement", WorkDate, WorkDate, WorkDate, WorkDate);
+            CreateCustomer(Customer), REPORT::Statement, REPORT::"Standard Statement", WorkDate(), WorkDate, WorkDate(), WorkDate());
 
         // [THEN] Error "No data exists for the specified report filters." is returned
         // [THEN] "Statement" PDF file has not been created
@@ -409,7 +409,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "Start Date" for "Statement")
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-          CreateCustomerWithEntry(Customer), REPORT::Statement, REPORT::"Standard Statement", 0D, WorkDate, WorkDate, WorkDate);
+          CreateCustomerWithEntry(Customer), REPORT::Statement, REPORT::"Standard Statement", 0D, WorkDate(), WorkDate, WorkDate());
 
         AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
@@ -442,7 +442,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "Start Date" for "Statement")
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-            CreateCustomer(Customer), REPORT::Statement, REPORT::"Standard Statement", 0D, WorkDate, WorkDate, WorkDate);
+            CreateCustomer(Customer), REPORT::Statement, REPORT::"Standard Statement", 0D, WorkDate(), WorkDate, WorkDate());
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Statement" PDF file has not been created
@@ -478,7 +478,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "Start Date" for "Statement", blanked "End Date" for "Standard Statement")
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-            CreateCustomer(Customer), REPORT::Statement, REPORT::"Standard Statement", 0D, WorkDate, WorkDate, 0D);
+            CreateCustomer(Customer), REPORT::Statement, REPORT::"Standard Statement", 0D, WorkDate(), WorkDate, 0D);
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Statement" PDF file has not been created
@@ -512,7 +512,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer with entries
         // [WHEN] Run "Statement" (SaveAs PDF) report
         OneCustomer_TwoSelections(
-          CreateCustomerWithEntry(Customer), REPORT::"Standard Statement", REPORT::Statement, WorkDate, WorkDate, WorkDate, WorkDate);
+          CreateCustomerWithEntry(Customer), REPORT::"Standard Statement", REPORT::Statement, WorkDate(), WorkDate, WorkDate(), WorkDate());
 
         // [THEN] "Standard Statement" PDF file has been created
         // [THEN] "Statement" PDF file has been created
@@ -543,7 +543,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "End Date" for "Statement")
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-          CreateCustomerWithEntry(Customer), REPORT::"Standard Statement", REPORT::Statement, WorkDate, WorkDate, WorkDate, 0D);
+          CreateCustomerWithEntry(Customer), REPORT::"Standard Statement", REPORT::Statement, WorkDate(), WorkDate, WorkDate(), 0D);
 
         AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankEndDateErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
@@ -575,7 +575,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "End Date" for "Statement")
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-            CreateCustomer(Customer), REPORT::"Standard Statement", REPORT::Statement, WorkDate, WorkDate, WorkDate, 0D);
+            CreateCustomer(Customer), REPORT::"Standard Statement", REPORT::Statement, WorkDate(), WorkDate, WorkDate(), 0D);
 
         // [THEN] Error on blanked "End Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created
@@ -611,7 +611,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" (SaveAs PDF) report
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-            CreateCustomer(Customer), REPORT::"Standard Statement", REPORT::Statement, WorkDate, WorkDate, WorkDate, WorkDate);
+            CreateCustomer(Customer), REPORT::"Standard Statement", REPORT::Statement, WorkDate(), WorkDate, WorkDate(), WorkDate());
 
         // [THEN] Error "No data exists for the specified report filters." is returned
         // [THEN] "Standard Statement" PDF file has not been created
@@ -646,7 +646,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "Start Date" for "Standard Statement")
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-          CreateCustomerWithEntry(Customer), REPORT::"Standard Statement", REPORT::Statement, 0D, WorkDate, WorkDate, WorkDate);
+          CreateCustomerWithEntry(Customer), REPORT::"Standard Statement", REPORT::Statement, 0D, WorkDate(), WorkDate, WorkDate());
 
         AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
@@ -679,7 +679,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "Start Date" for "Standard Statement")
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-            CreateCustomer(Customer), REPORT::"Standard Statement", REPORT::Statement, 0D, WorkDate, WorkDate, WorkDate);
+            CreateCustomer(Customer), REPORT::"Standard Statement", REPORT::Statement, 0D, WorkDate(), WorkDate, WorkDate());
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created
@@ -713,7 +713,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer without entries
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-            CreateCustomer(Customer), REPORT::"Standard Statement", REPORT::Statement, 0D, WorkDate, WorkDate, 0D);
+            CreateCustomer(Customer), REPORT::"Standard Statement", REPORT::Statement, 0D, WorkDate(), WorkDate, 0D);
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created
@@ -745,7 +745,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer "C1" with entries, customer "C2" with entries
         // [WHEN] Run "Statement" report (SaveAs PDF) with filter for both customers
         TwoCustomers_OneSelection(
-          CreateCustomerWithEntry(Customer[1]), CreateCustomerWithEntry(Customer[2]), REPORT::Statement, WorkDate, WorkDate);
+          CreateCustomerWithEntry(Customer[1]), CreateCustomerWithEntry(Customer[2]), REPORT::Statement, WorkDate(), WorkDate());
 
         // [THEN] "Standard Statement" PDF file has been created for "C1"
         // [THEN] "Standard Statement" PDF file has been created for "C2"
@@ -772,7 +772,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer "C1" without entries, customer "C2" with entries
         // [WHEN] Run "Statement" report (SaveAs PDF) with filter for both customers
         TwoCustomers_OneSelection(
-          CreateCustomer(Customer[1]), CreateCustomerWithEntry(Customer[2]), REPORT::Statement, WorkDate, WorkDate);
+          CreateCustomer(Customer[1]), CreateCustomerWithEntry(Customer[2]), REPORT::Statement, WorkDate(), WorkDate());
 
         // [THEN] "Standard Statement" PDF file has not been created for "C1"
         // [THEN] "Standard Statement" PDF file has been created for "C2"
@@ -799,7 +799,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer "C1" with entries, customer "C2" without entries
         // [WHEN] Run "Statement" report (SaveAs PDF) with filter for both customers
         TwoCustomers_OneSelection(
-          CreateCustomerWithEntry(Customer[1]), CreateCustomer(Customer[2]), REPORT::Statement, WorkDate, WorkDate);
+          CreateCustomerWithEntry(Customer[1]), CreateCustomer(Customer[2]), REPORT::Statement, WorkDate(), WorkDate());
 
         // [THEN] "Standard Statement" PDF file has been created for "C1"
         // [THEN] "Standard Statement" PDF file has not been created for "C2"
@@ -828,7 +828,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" report (SaveAs PDF) with filter for both customers
         ErrorMessages.Trap;
         asserterror TwoCustomers_OneSelection(
-            CreateCustomer(Customer[1]), CreateCustomer(Customer[2]), REPORT::Statement, WorkDate, WorkDate);
+            CreateCustomer(Customer[1]), CreateCustomer(Customer[2]), REPORT::Statement, WorkDate(), WorkDate());
 
         // [THEN] Error "No data exists for the specified report filters." is returned
         // [THEN] "Standard Statement" PDF file has not been created for "C1"
@@ -860,7 +860,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" report (SaveAs PDF) with filter for both customers (use blanked "Start Date" for "Standard Statement")
         ErrorMessages.Trap;
         asserterror TwoCustomers_OneSelection(
-            CreateCustomer(Customer[1]), CreateCustomer(Customer[2]), REPORT::Statement, 0D, WorkDate);
+            CreateCustomer(Customer[1]), CreateCustomer(Customer[2]), REPORT::Statement, 0D, WorkDate());
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created for "C1"
@@ -892,7 +892,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [GIVEN] Customer "C1" with entries, customer "C2" with entries
         // [WHEN] Run "Statement" report (SaveAs PDF) with filter for both customers
         TwoCustomers_OneSelection(
-          CreateCustomerWithEntry(Customer[1]), CreateCustomerWithEntry(Customer[2]), REPORT::"Standard Statement", WorkDate, WorkDate);
+          CreateCustomerWithEntry(Customer[1]), CreateCustomerWithEntry(Customer[2]), REPORT::"Standard Statement", WorkDate(), WorkDate());
 
         // [THEN] "Standard Statement" PDF file has been created for "C1"
         // [THEN] "Standard Statement" PDF file has been created for "C2"
@@ -922,7 +922,7 @@ codeunit 134775 "Word & RDLC Report Selections"
 
         ErrorMessages.Trap;
         asserterror TwoCustomers_OneSelection(
-          CreateCustomer(Customer[1]), CreateCustomerWithEntry(Customer[2]), REPORT::"Standard Statement", WorkDate, WorkDate);
+          CreateCustomer(Customer[1]), CreateCustomerWithEntry(Customer[2]), REPORT::"Standard Statement", WorkDate(), WorkDate());
 
         // [THEN] "Standard Statement" PDF file has not been created for "C1"
         // [THEN] "Standard Statement" PDF file has been created for "C2"
@@ -951,7 +951,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" report (SaveAs PDF) with filter for both customers
         ErrorMessages.Trap;
         asserterror TwoCustomers_OneSelection(
-          CreateCustomerWithEntry(Customer[1]), CreateCustomer(Customer[2]), REPORT::"Standard Statement", WorkDate, WorkDate);
+          CreateCustomerWithEntry(Customer[1]), CreateCustomer(Customer[2]), REPORT::"Standard Statement", WorkDate(), WorkDate());
 
         // [THEN] "Standard Statement" PDF file has been created for "C1"
         // [THEN] "Standard Statement" PDF file has not been created for "C2"
@@ -980,7 +980,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" report (SaveAs PDF) with filter for both customers
         ErrorMessages.Trap;
         asserterror TwoCustomers_OneSelection(
-            CreateCustomer(Customer[1]), CreateCustomer(Customer[2]), REPORT::"Standard Statement", WorkDate, WorkDate);
+            CreateCustomer(Customer[1]), CreateCustomer(Customer[2]), REPORT::"Standard Statement", WorkDate(), WorkDate());
 
         // [THEN] Error "No data exists for the specified report filters." is returned
         // [THEN] "Standard Statement" PDF file has not been created for "C1"
@@ -1012,7 +1012,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" report (SaveAs PDF) with filter for both customers (use blanked "Start Date" for "Standard Statement")
         ErrorMessages.Trap;
         asserterror TwoCustomers_OneSelection(
-            CreateCustomer(Customer[1]), CreateCustomer(Customer[2]), REPORT::"Standard Statement", 0D, WorkDate);
+            CreateCustomer(Customer[1]), CreateCustomer(Customer[2]), REPORT::"Standard Statement", 0D, WorkDate());
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created for "C1"
@@ -1047,7 +1047,7 @@ codeunit 134775 "Word & RDLC Report Selections"
 
         // [GIVEN] Run "Statement" with 'PDF' report output from date before workdate till workdate
         LibraryVariableStorage.Enqueue(HandlerOptionRef::Update);
-        OneCustomer_OneSelection(Customer."No.", REPORT::"Standard Statement", WorkDate - 1, WorkDate);
+        OneCustomer_OneSelection(Customer."No.", REPORT::"Standard Statement", WorkDate() - 1, WorkDate());
 
         // [GIVEN] Object options with report parameters created for "Standard Statement" report
         Assert.IsTrue(
@@ -1056,7 +1056,7 @@ codeunit 134775 "Word & RDLC Report Selections"
 
         // [WHEN] Run "Statement" (SaveAs PDF) report second time
         LibraryVariableStorage.Enqueue(HandlerOptionRef::Verify);
-        RunStatementReport_OneCust_OneSelection(Customer."No.", WorkDate - 1, WorkDate);
+        RunStatementReport_OneCust_OneSelection(Customer."No.", WorkDate() - 1, WorkDate());
 
         // [THEN] "Standard Statement" PDF file has been created
         // [THEN] Request page uses saved Start Date as date before workdate and End Date as workdate
@@ -1110,11 +1110,11 @@ codeunit 134775 "Word & RDLC Report Selections"
         ReportSelections: Record "Report Selections";
     begin
         with ReportSelections do begin
-            Init;
+            Init();
             Usage := ReportSelectionsUsage;
             Sequence := SequenceCode;
             "Report ID" := ReportId;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1136,15 +1136,15 @@ codeunit 134775 "Word & RDLC Report Selections"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             "Customer No." := CustomerNo;
             "Document Type" := "Document Type"::Invoice;
             "Document No." := LibraryUtility.GenerateGUID();
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
             Open := true;
-            Insert;
+            Insert();
             MockDetailedCustLedgerEntry("Entry No.", "Customer No.", "Document No.", Amount, "Posting Date");
         end;
     end;
@@ -1154,7 +1154,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         with DetailedCustLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
             "Customer No." := CustomerNo;
             "Document Type" := "Document Type"::Invoice;
@@ -1163,7 +1163,7 @@ codeunit 134775 "Word & RDLC Report Selections"
             Amount := EntryAmount;
             "Amount (LCY)" := EntryAmount;
             "Posting Date" := PostingDate;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1176,7 +1176,7 @@ codeunit 134775 "Word & RDLC Report Selections"
 
     local procedure GetReportOutputFileName(CustomerName: Text; ReportName: Text): Text
     begin
-        exit(StrSubstNo('%1 for %2 as of %3.pdf', ReportName, CustomerName, Format(WorkDate, 0, 9)));
+        exit(StrSubstNo('%1 for %2 as of %3.pdf', ReportName, CustomerName, Format(WorkDate(), 0, 9)));
     end;
 
     local procedure GetStandardStatementReportName(): Text
@@ -1234,7 +1234,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         CustomerRecordRef: RecordRef;
     begin
         CustomerRecordRef.GetTable(Customer);
-        CustomerRecordRef.SetView(Customer.GetView);
+        CustomerRecordRef.SetView(Customer.GetView());
         CustomLayoutReporting.SetOutputSupression(false);
         CustomLayoutReporting.SetSavePath(TemporaryPath);
         Commit();
@@ -1287,7 +1287,7 @@ codeunit 134775 "Word & RDLC Report Selections"
 
     local procedure AssertNoMoreErrorMessageOnPage(var ErrorMessages: TestPage "Error Messages")
     begin
-        if ErrorMessages.Next then
+        if ErrorMessages.Next() then
             Assert.Fail(StrSubstNo('Unexpected error: %1', ErrorMessages.Description.Value));
     end;
 

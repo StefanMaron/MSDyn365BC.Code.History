@@ -96,7 +96,7 @@ codeunit 1262 "Pre & Post Process XML Import"
         Handled: Boolean;
         CheckedResult: Boolean;
     begin
-        if BankAccount.GetBankAccountNo = '' then begin
+        if BankAccount.GetBankAccountNo() = '' then begin
             if not Confirm(StrSubstNo(MissingBankAccNoQst, BankAccount."No.")) then
                 Error('');
             exit;
@@ -141,7 +141,7 @@ codeunit 1262 "Pre & Post Process XML Import"
     begin
         if HasDataExchFieldValue(DataExchFieldDetails, DataExch."Entry No.", StatementIdPathFilter) then begin
             StmtCount := 1;
-            while DataExchFieldDetails.Read do
+            while DataExchFieldDetails.Read() do
                 StmtCount += 1;
         end;
 
@@ -153,8 +153,8 @@ codeunit 1262 "Pre & Post Process XML Import"
     begin
         DataExchFieldDetails.SetRange(Data_Exch_No, DataExchEntryNo);
         DataExchFieldDetails.SetFilter(Path, PathFilter);
-        DataExchFieldDetails.Open;
-        exit(DataExchFieldDetails.Read);
+        DataExchFieldDetails.Open();
+        exit(DataExchFieldDetails.Read());
     end;
 
     procedure SetValueFromDataExchField(var DataExchFieldDetails: Query "Data Exch. Field Details"; DataExch: Record "Data Exch."; PathFilter: Text; NotFoundMessage: Text; RecRef: RecordRef; FieldNo: Integer): Boolean

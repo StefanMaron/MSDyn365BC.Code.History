@@ -21,7 +21,7 @@ codeunit 6061 "Hybrid Deployment Handler"
     var
         HybridDeploymentSetup: Record "Hybrid Deployment Setup";
     begin
-        if not HybridDeploymentSetup.Get then begin
+        if not HybridDeploymentSetup.Get() then begin
             HybridDeploymentSetup.Init();
             HybridDeploymentSetup.Insert();
         end;
@@ -32,7 +32,7 @@ codeunit 6061 "Hybrid Deployment Handler"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnCreateIntegrationRuntime', '', false, false)]
     local procedure HandleCreateIntegrationRuntime(var InstanceId: Text)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         Session.LogMessage('0000EUS', StartingCreateIntegrationRuntimeMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CloudMigrationTok);
@@ -42,7 +42,7 @@ codeunit 6061 "Hybrid Deployment Handler"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnDisableReplication', '', false, false)]
     local procedure HandleDisableReplication(var InstanceId: Text)
     begin
-        if not CanHandle then
+        if not CanHandle() then
             exit;
 
         Session.LogMessage('0000EUT', StartingDisableReplicationMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CloudMigrationTok);
@@ -136,10 +136,10 @@ codeunit 6061 "Hybrid Deployment Handler"
         if not CanHandle() then
             exit;
 
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             exit;
 
-        DotNet_HybridDeployment.PrepareTablesForReplication;
+        DotNet_HybridDeployment.PrepareTablesForReplication();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnRegenerateIntegrationRuntimeKeys', '', false, false)]
@@ -179,6 +179,15 @@ codeunit 6061 "Hybrid Deployment Handler"
             exit;
 
         InstanceId := DotNet_HybridDeployment.SetReplicationSchedule(SourceProduct, ReplicationFrequency, DaysToRun, TimeToRun, Activate);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Deployment", 'OnStartDataUpgrade', '', false, false)]
+    local procedure HandleStartDataUpgrade()
+    begin
+        if not CanHandle() then
+            exit;
+
+        DotNet_HybridDeployment.StartDataUpgrade();
     end;
 }
 

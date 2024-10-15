@@ -11,17 +11,17 @@ page 5748 "Transfer Route Specification"
             group(General)
             {
                 Caption = 'General';
-                field("In-Transit Code"; "In-Transit Code")
+                field("In-Transit Code"; Rec."In-Transit Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the in-transit code for the transfer order, such as a shipping agent.';
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
@@ -59,7 +59,7 @@ page 5748 "Transfer Route Specification"
                    ("Shipping Agent Service Code" = '') and
                    ("In-Transit Code" = '')
                 then
-                    Delete;
+                    Delete();
     end;
 
     trigger OnInit()

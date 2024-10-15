@@ -12,9 +12,9 @@ codeunit 7710 "Miniform Move Activity List"
           CurrentCode, StackCode, WhseEmpId, LocationFilter);
 
         if Code <> CurrentCode then
-            PrepareData
+            PrepareData()
         else
-            ProcessSelection;
+            ProcessSelection();
 
         Clear(DOMxmlin);
     end;
@@ -110,7 +110,7 @@ codeunit 7710 "Miniform Move Activity List"
         WhseActivityHeader: Record "Warehouse Activity Header";
     begin
         with WhseActivityHeader do begin
-            Reset;
+            Reset();
             SetRange(Type, Type::Movement);
             if WhseEmpId <> '' then begin
                 SetRange("Assigned User ID", WhseEmpId);

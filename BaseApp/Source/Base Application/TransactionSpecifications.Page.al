@@ -1,6 +1,6 @@
 page 406 "Transaction Specifications"
 {
-    ApplicationArea = BasicEU;
+    ApplicationArea = BasicEU, BasicNO;
     Caption = 'Transaction Specifications';
     PageType = List;
     SourceTable = "Transaction Specification";
@@ -15,12 +15,12 @@ page 406 "Transaction Specifications"
                 ShowCaption = false;
                 field("Code"; Code)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a code for the transaction specification.';
                 }
                 field(Text; Text)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a description of the transaction specification.';
                 }
             }
@@ -44,4 +44,3 @@ page 406 "Transaction Specifications"
     {
     }
 }
-

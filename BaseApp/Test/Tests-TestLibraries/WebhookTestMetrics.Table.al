@@ -1,5 +1,6 @@
 table 130641 "Webhook Test Metrics"
 {
+    ReplicateData = false;
 
     fields
     {

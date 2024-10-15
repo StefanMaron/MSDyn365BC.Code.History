@@ -50,7 +50,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, SalesOrder.SalesLines.ShortcutDimCode6.Visible);
         AssertVisibility(7, SalesOrder.SalesLines.ShortcutDimCode7.Visible);
         AssertVisibility(8, SalesOrder.SalesLines.ShortcutDimCode8.Visible);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -77,7 +77,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, SalesQuote.SalesLines.ShortcutDimCode6.Visible);
         AssertVisibility(7, SalesQuote.SalesLines.ShortcutDimCode7.Visible);
         AssertVisibility(8, SalesQuote.SalesLines.ShortcutDimCode8.Visible);
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -104,7 +104,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, SalesInvoice.SalesLines.ShortcutDimCode6.Visible);
         AssertVisibility(7, SalesInvoice.SalesLines.ShortcutDimCode7.Visible);
         AssertVisibility(8, SalesInvoice.SalesLines.ShortcutDimCode8.Visible);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -131,7 +131,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, SalesCreditMemo.SalesLines.ShortcutDimCode6.Visible);
         AssertVisibility(7, SalesCreditMemo.SalesLines.ShortcutDimCode7.Visible);
         AssertVisibility(8, SalesCreditMemo.SalesLines.ShortcutDimCode8.Visible);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     [Test]
@@ -158,7 +158,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, SalesReturnOrder.SalesLines.ShortcutDimCode6.Visible);
         AssertVisibility(7, SalesReturnOrder.SalesLines.ShortcutDimCode7.Visible);
         AssertVisibility(8, SalesReturnOrder.SalesLines.ShortcutDimCode8.Visible);
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     [Test]
@@ -185,7 +185,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, PurchOrder.PurchLines.ShortcutDimCode6.Visible);
         AssertVisibility(7, PurchOrder.PurchLines.ShortcutDimCode7.Visible);
         AssertVisibility(8, PurchOrder.PurchLines.ShortcutDimCode8.Visible);
-        PurchOrder.Close;
+        PurchOrder.Close();
     end;
 
     [Test]
@@ -212,7 +212,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, PurchQuote.PurchLines.ShortcutDimCode6.Visible);
         AssertVisibility(7, PurchQuote.PurchLines.ShortcutDimCode7.Visible);
         AssertVisibility(8, PurchQuote.PurchLines.ShortcutDimCode8.Visible);
-        PurchQuote.Close;
+        PurchQuote.Close();
     end;
 
     [Test]
@@ -239,7 +239,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, PurchInvoice.PurchLines.ShortcutDimCode6.Visible);
         AssertVisibility(7, PurchInvoice.PurchLines.ShortcutDimCode7.Visible);
         AssertVisibility(8, PurchInvoice.PurchLines.ShortcutDimCode8.Visible);
-        PurchInvoice.Close;
+        PurchInvoice.Close();
     end;
 
     [Test]
@@ -266,7 +266,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, PurchCreditMemo.PurchLines.ShortcutDimCode6.Visible);
         AssertVisibility(7, PurchCreditMemo.PurchLines.ShortcutDimCode7.Visible);
         AssertVisibility(8, PurchCreditMemo.PurchLines.ShortcutDimCode8.Visible);
-        PurchCreditMemo.Close;
+        PurchCreditMemo.Close();
     end;
 
     [Test]
@@ -293,7 +293,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, PurchReturnOrder.PurchLines.ShortcutDimCode6.Visible);
         AssertVisibility(7, PurchReturnOrder.PurchLines.ShortcutDimCode7.Visible);
         AssertVisibility(8, PurchReturnOrder.PurchLines.ShortcutDimCode8.Visible);
-        PurchReturnOrder.Close;
+        PurchReturnOrder.Close();
     end;
 
     [Test]
@@ -321,7 +321,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode6.Visible, 'Dim Shortcut 6 must be visible');
         Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode7.Visible, 'Dim Shortcut 7 must be visible');
         Assert.IsTrue(SalesOrder.SalesLines.ShortcutDimCode8.Visible, 'Dim Shortcut 8 must be visible');
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -348,7 +348,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode6.Visible, 'Dim Shortcut 6 must not be visible');
         Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode7.Visible, 'Dim Shortcut 7 must not be visible');
         Assert.IsFalse(SalesOrder.SalesLines.ShortcutDimCode8.Visible, 'Dim Shortcut 8 must not be visible');
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -382,7 +382,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode6.Visible, DimShortcuts[4], 'Dim Shortcut 6');
         Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode7.Visible, DimShortcuts[5], 'Dim Shortcut 7');
         Assert.AreEqual(SalesOrder.SalesLines.ShortcutDimCode8.Visible, DimShortcuts[6], 'Dim Shortcut 8');
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -418,7 +418,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode6.Visible);
         AssertVisibility(7, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode7.Visible);
         AssertVisibility(8, SalesQuoteArchive.SalesLinesArchive.ShortcutDimCode8.Visible);
-        SalesQuoteArchive.Close;
+        SalesQuoteArchive.Close();
     end;
 
     [Test]
@@ -454,7 +454,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode6.Visible);
         AssertVisibility(7, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode7.Visible);
         AssertVisibility(8, PurchaseQuoteArchive.PurchLinesArchive.ShortcutDimCode8.Visible);
-        PurchaseQuoteArchive.Close;
+        PurchaseQuoteArchive.Close();
     end;
 
     [Test]
@@ -481,7 +481,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, SalesOrderArchiveSubform.ShortcutDimCode6.Visible);
         AssertVisibility(7, SalesOrderArchiveSubform.ShortcutDimCode7.Visible);
         AssertVisibility(8, SalesOrderArchiveSubform.ShortcutDimCode8.Visible);
-        SalesOrderArchiveSubform.Close;
+        SalesOrderArchiveSubform.Close();
     end;
 
     [Test]
@@ -508,7 +508,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, PurchaseOrderArchiveSubform.ShortcutDimCode6.Visible);
         AssertVisibility(7, PurchaseOrderArchiveSubform.ShortcutDimCode7.Visible);
         AssertVisibility(8, PurchaseOrderArchiveSubform.ShortcutDimCode8.Visible);
-        PurchaseOrderArchiveSubform.Close;
+        PurchaseOrderArchiveSubform.Close();
     end;
 
     [Test]
@@ -535,7 +535,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, SalesQuoteArchiveSubform.ShortcutDimCode6.Visible);
         AssertVisibility(7, SalesQuoteArchiveSubform.ShortcutDimCode7.Visible);
         AssertVisibility(8, SalesQuoteArchiveSubform.ShortcutDimCode8.Visible);
-        SalesQuoteArchiveSubform.Close;
+        SalesQuoteArchiveSubform.Close();
     end;
 
     [Test]
@@ -562,7 +562,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, PurchaseQuoteArchiveSubform.ShortcutDimCode6.Visible);
         AssertVisibility(7, PurchaseQuoteArchiveSubform.ShortcutDimCode7.Visible);
         AssertVisibility(8, PurchaseQuoteArchiveSubform.ShortcutDimCode8.Visible);
-        PurchaseQuoteArchiveSubform.Close;
+        PurchaseQuoteArchiveSubform.Close();
     end;
 
     [Test]
@@ -589,7 +589,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, BlanketSalesOrderArchSub.ShortcutDimCode6.Visible);
         AssertVisibility(7, BlanketSalesOrderArchSub.ShortcutDimCode7.Visible);
         AssertVisibility(8, BlanketSalesOrderArchSub.ShortcutDimCode8.Visible);
-        BlanketSalesOrderArchSub.Close;
+        BlanketSalesOrderArchSub.Close();
     end;
 
     [Test]
@@ -616,7 +616,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, BlanketPurchOrderArchSub.ShortcutDimCode6.Visible);
         AssertVisibility(7, BlanketPurchOrderArchSub.ShortcutDimCode7.Visible);
         AssertVisibility(8, BlanketPurchOrderArchSub.ShortcutDimCode8.Visible);
-        BlanketPurchOrderArchSub.Close;
+        BlanketPurchOrderArchSub.Close();
     end;
 
     [Test]
@@ -643,7 +643,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, SalesReturnOrderArcSubform.ShortcutDimCode6.Visible);
         AssertVisibility(7, SalesReturnOrderArcSubform.ShortcutDimCode7.Visible);
         AssertVisibility(8, SalesReturnOrderArcSubform.ShortcutDimCode8.Visible);
-        SalesReturnOrderArcSubform.Close;
+        SalesReturnOrderArcSubform.Close();
     end;
 
     [Test]
@@ -670,7 +670,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         AssertVisibility(6, PurchReturnOrderArcSubform.ShortcutDimCode6.Visible);
         AssertVisibility(7, PurchReturnOrderArcSubform.ShortcutDimCode7.Visible);
         AssertVisibility(8, PurchReturnOrderArcSubform.ShortcutDimCode8.Visible);
-        PurchReturnOrderArcSubform.Close;
+        PurchReturnOrderArcSubform.Close();
     end;
 
     [Test]
@@ -5914,7 +5914,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchOrder.PurchLines.ShortcutDimCode6.AssertEquals(DimensionValue[4].Code);
         PurchOrder.PurchLines.ShortcutDimCode7.AssertEquals(DimensionValue[5].Code);
         PurchOrder.PurchLines.ShortcutDimCode8.AssertEquals(DimensionValue[6].Code);
-        PurchOrder.Close;
+        PurchOrder.Close();
     end;
 
     [Test]
@@ -5960,7 +5960,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchReturnOrder.PurchLines.ShortcutDimCode6.AssertEquals(DimensionValue[4].Code);
         PurchReturnOrder.PurchLines.ShortcutDimCode7.AssertEquals(DimensionValue[5].Code);
         PurchReturnOrder.PurchLines.ShortcutDimCode8.AssertEquals(DimensionValue[6].Code);
-        PurchReturnOrder.Close;
+        PurchReturnOrder.Close();
     end;
 
     [Test]
@@ -6006,7 +6006,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchaseQuote.PurchLines.ShortcutDimCode6.AssertEquals(DimensionValue[4].Code);
         PurchaseQuote.PurchLines.ShortcutDimCode7.AssertEquals(DimensionValue[5].Code);
         PurchaseQuote.PurchLines.ShortcutDimCode8.AssertEquals(DimensionValue[6].Code);
-        PurchaseQuote.Close;
+        PurchaseQuote.Close();
     end;
 
     local procedure Initialize()

@@ -24,24 +24,24 @@ page 424 "Customer Bank Account List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank where the customer has the bank account.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telephone number of the bank where the customer has the bank account.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the fax number associated with the address.';
@@ -52,13 +52,13 @@ page 424 "Customer Bank Account List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank employee regularly contacted in connection with this bank account.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number used by the bank for the bank account.';
                     Visible = false;
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the bank where the customer has the account.';
@@ -70,13 +70,13 @@ page 424 "Customer Bank Account List"
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the relevant currency code for the bank account.';
                     Visible = false;
                 }
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
@@ -108,13 +108,22 @@ page 424 "Customer Bank Account List"
                 ApplicationArea = Suite;
                 Caption = 'Direct Debit Mandates';
                 Image = MakeAgreement;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "SEPA Direct Debit Mandates";
                 RunPageLink = "Customer No." = FIELD("Customer No."),
                               "Customer Bank Account Code" = FIELD(Code);
                 Scope = Repeater;
                 ToolTip = 'View or edit direct-debit mandates that you set up to reflect agreements with customers to collect invoice payments from their bank account.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Direct Debit Mandates_Promoted"; "Direct Debit Mandates")
+                {
+                }
             }
         }
     }

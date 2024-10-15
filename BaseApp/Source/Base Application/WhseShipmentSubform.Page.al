@@ -16,40 +16,40 @@ page 7336 "Whse. Shipment Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Source Document"; "Source Document")
+                field("Source Document"; Rec."Source Document")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the type of document that the line relates to.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
-                field("Source Line No."; "Source Line No.")
+                field("Source Line No."; Rec."Source Line No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the line number of the source document that the entry originates from.';
                     Visible = false;
                 }
-                field("Destination Type"; "Destination Type")
+                field("Destination Type"; Rec."Destination Type")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the type of destination associated with the warehouse shipment line.';
                     Visible = false;
                 }
-                field("Destination No."; "Destination No.")
+                field("Destination No."; Rec."Destination No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the customer, vendor, or location to which the items should be shipped.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item that should be shipped.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -60,20 +60,20 @@ page 7336 "Whse. Shipment Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the item in the line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the code of the location from which the items on the line are being shipped.';
                     Visible = false;
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the zone where the bin on this shipment line is located.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
@@ -81,10 +81,10 @@ page 7336 "Whse. Shipment Subform"
 
                     trigger OnValidate()
                     begin
-                        BinCodeOnAfterValidate;
+                        BinCodeOnAfterValidate();
                     end;
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shelf number of the item for informational use.';
@@ -100,81 +100,81 @@ page 7336 "Whse. Shipment Subform"
                         QuantityOnAfterValidate();
                     end;
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that should be shipped, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. to Ship"; "Qty. to Ship")
+                field("Qty. to Ship"; Rec."Qty. to Ship")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of items that remain to be shipped.';
                 }
-                field("Qty. Shipped"; "Qty. Shipped")
+                field("Qty. Shipped"; Rec."Qty. Shipped")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item on the line that is posted as shipped.';
                 }
-                field("Qty. to Ship (Base)"; "Qty. to Ship (Base)")
+                field("Qty. to Ship (Base)"; Rec."Qty. to Ship (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity, in base units of measure, that will be shipped when the warehouse shipment is posted.';
                     Visible = false;
                 }
-                field("Qty. Shipped (Base)"; "Qty. Shipped (Base)")
+                field("Qty. Shipped (Base)"; Rec."Qty. Shipped (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that is posted as shipped expressed in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Outstanding"; "Qty. Outstanding")
+                field("Qty. Outstanding"; Rec."Qty. Outstanding")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled.';
                     Visible = true;
                 }
-                field("Qty. Outstanding (Base)"; "Qty. Outstanding (Base)")
+                field("Qty. Outstanding (Base)"; Rec."Qty. Outstanding (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled, expressed in the base unit of measure.';
                     Visible = false;
                 }
-                field("Pick Qty."; "Pick Qty.")
+                field("Pick Qty."; Rec."Pick Qty.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity in pick instructions assigned to be picked for the warehouse shipment line.';
                     Visible = false;
                 }
-                field("Pick Qty. (Base)"; "Pick Qty. (Base)")
+                field("Pick Qty. (Base)"; Rec."Pick Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity, in the base unit of measure, in pick instructions, that is assigned to be picked for the warehouse shipment line.';
                     Visible = false;
                 }
-                field("Qty. Picked"; "Qty. Picked")
+                field("Qty. Picked"; Rec."Qty. Picked")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how many of the total shipment quantity have been registered as picked.';
                     Visible = false;
                 }
-                field("Qty. Picked (Base)"; "Qty. Picked (Base)")
+                field("Qty. Picked (Base)"; Rec."Qty. Picked (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how many of the total shipment quantity in the base unit of measure have been registered as picked.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the related warehouse activity, such as a pick, must be completed to ensure items can be shipped by the shipment date.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of base units of measure that are in the unit of measure specified for the item on the line.';
@@ -248,7 +248,7 @@ page 7336 "Whse. Shipment Subform"
 
                     trigger OnAction()
                     begin
-                        ShowSourceLine;
+                        ShowSourceLine();
                     end;
                 }
                 action("&Bin Contents List")
@@ -261,7 +261,7 @@ page 7336 "Whse. Shipment Subform"
 
                     trigger OnAction()
                     begin
-                        ShowBinContents;
+                        ShowBinContents();
                     end;
                 }
                 action(ItemTrackingLines)
@@ -307,7 +307,7 @@ page 7336 "Whse. Shipment Subform"
           QtyCrossDockedAllUOMBase);
         QtyCrossDockedUOM := 0;
         if "Qty. per Unit of Measure" <> 0 then
-            QtyCrossDockedUOM := Round(QtyCrossDockedUOMBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+            QtyCrossDockedUOM := Round(QtyCrossDockedUOMBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
     end;
 
     var
@@ -329,7 +329,7 @@ page 7336 "Whse. Shipment Subform"
     begin
         WhseShptLine.Copy(Rec);
         CODEUNIT.Run(CODEUNIT::"Whse.-Post Shipment (Yes/No)", WhseShptLine);
-        Reset;
+        Reset();
         SetCurrentKey("No.", "Sorting Sequence No.");
         CurrPage.Update(false);
     end;
@@ -340,7 +340,7 @@ page 7336 "Whse. Shipment Subform"
     begin
         WhseShptLine.Copy(Rec);
         CODEUNIT.Run(CODEUNIT::"Whse.-Post Shipment + Print", WhseShptLine);
-        Reset;
+        Reset();
         SetCurrentKey("No.", "Sorting Sequence No.");
         CurrPage.Update(false);
     end;

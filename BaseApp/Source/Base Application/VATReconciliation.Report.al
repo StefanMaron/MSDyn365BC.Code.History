@@ -12,7 +12,7 @@ report 13620 "VAT Reconciliation"
         {
             DataItemTableView = SORTING("G/L Account No.", "Posting Date");
             RequestFilterFields = "G/L Account No.", "Posting Date";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GLEntryTableFilters; TableCaption + ': ' + GetFilters)

@@ -63,7 +63,7 @@ table 365 "Analysis View Entry"
 
             trigger OnLookup()
             begin
-                DrillDown;
+                DrillDown();
             end;
         }
         field(11; "Debit Amount"; Decimal)
@@ -94,11 +94,9 @@ table 365 "Analysis View Entry"
             AutoFormatType = 1;
             Caption = 'Add.-Curr. Credit Amount';
         }
-        field(16; "Account Source"; Option)
+        field(16; "Account Source"; Enum "Analysis Account Source")
         {
             Caption = 'Account Source';
-            OptionCaption = 'G/L Account,Cash Flow Account';
-            OptionMembers = "G/L Account","Cash Flow Account";
         }
         field(17; "Cash Flow Forecast No."; Code[20])
         {
@@ -124,11 +122,12 @@ table 365 "Analysis View Entry"
     }
 
     var
+        AnalysisView: Record "Analysis View";
+
         Text000: Label '1,5,,Dimension 1 Value Code';
         Text001: Label '1,5,,Dimension 2 Value Code';
         Text002: Label '1,5,,Dimension 3 Value Code';
         Text003: Label '1,5,,Dimension 4 Value Code';
-        AnalysisView: Record "Analysis View";
 
     procedure GetCaptionClass(AnalysisViewDimType: Integer) Result: Text[250]
     var

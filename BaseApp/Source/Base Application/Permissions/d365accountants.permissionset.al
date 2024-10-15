@@ -21,16 +21,15 @@ permissionset 2911 "D365 ACCOUNTANTS"
                   tabledata Customer = RIMD,
                   tabledata "Customer Bank Account" = RD,
                   tabledata "Customer Templ." = RIMD,
-#if not CLEAN18
+#if not CLEAN19
                   tabledata "Customer Template" = RIMD,
-                  tabledata "Item Cross Reference" = RD,
 #endif
                   tabledata "Item Reference" = RD,
                   tabledata "Reminder/Fin. Charge Entry" = Rm,
                   tabledata "Sales Cr.Memo Header" = R,
                   tabledata "Sales Discount Access" = Rimd,
                   tabledata "Sales Invoice Header" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Line Discount" = Rimd,
 #endif
                   tabledata "Sales Prepayment %" = D,

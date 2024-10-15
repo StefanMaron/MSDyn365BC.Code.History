@@ -48,9 +48,6 @@ page 5320 "Exchange Folders"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Get subfolders';
                 Image = Find;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Access the subfolder. Repeat as many times as you need to access the path that you want.';
 
                 trigger OnAction()
@@ -63,9 +60,20 @@ page 5320 "Exchange Folders"
                         HasChildren := ExchangeWebServicesClient.GetPublicFolders(Rec);
                         CurrPage.SetRecord(SelectedExchangeFolder);
                         if HasChildren then
-                            Next;
+                            Next();
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(GetChildren_Promoted; GetChildren)
+                {
+                }
             }
         }
     }

@@ -23,7 +23,7 @@ report 7150 "Item Dimensions - Detail"
             column(DateFilter; DateFilter)
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -334,7 +334,7 @@ report 7150 "Item Dimensions - Detail"
                                 StartDate := AccountingPeriod."Starting Date";
                             AccountingPeriod.SetRange("Starting Date", EndDate, DMY2Date(31, 12, 9999));
                             if AccountingPeriod.Find('-') then
-                                if AccountingPeriod.Next <> 0 then
+                                if AccountingPeriod.Next() <> 0 then
                                     EndDate := ClosingDate(AccountingPeriod."Starting Date" - 1);
                         end;
                 end;
@@ -403,7 +403,7 @@ report 7150 "Item Dimensions - Detail"
                         trigger OnValidate()
                         begin
                             ItemAnalysisViewCode := '';
-                            UpdateColumnDim;
+                            UpdateColumnDim();
                         end;
                     }
                     field(AnalysisViewCode; ItemAnalysisViewCode)
@@ -421,7 +421,7 @@ report 7150 "Item Dimensions - Detail"
                             ItemAnalysisView.FilterGroup := 0;
                             if PAGE.RunModal(0, ItemAnalysisView) = ACTION::LookupOK then begin
                                 Text := ItemAnalysisView.Code;
-                                UpdateColumnDim;
+                                UpdateColumnDim();
                                 exit(true);
                             end;
                         end;
@@ -432,7 +432,7 @@ report 7150 "Item Dimensions - Detail"
                         begin
                             if ItemAnalysisViewCode <> '' then
                                 ItemAnalysisView.Get(AnalysisArea, ItemAnalysisViewCode);
-                            UpdateColumnDim;
+                            UpdateColumnDim();
                         end;
                     }
                     field(IncludeDimensions; ColumnDim)
@@ -480,7 +480,7 @@ report 7150 "Item Dimensions - Detail"
 
         trigger OnOpenPage()
         begin
-            UpdateColumnDim;
+            UpdateColumnDim();
         end;
     }
 
@@ -503,7 +503,7 @@ report 7150 "Item Dimensions - Detail"
 
         TempAnalysisSelectedDim.Reset();
         TempAnalysisSelectedDim.SetFilter("Dimension Value Filter", '<>%1', '');
-        TempAnalysisSelectedDim.SetFilter("Dimension Code", TempItem.TableCaption);
+        TempAnalysisSelectedDim.SetFilter("Dimension Code", TempItem.TableCaption());
         if TempAnalysisSelectedDim.Find('-') then
             Item.SetFilter("No.", TempAnalysisSelectedDim."Dimension Value Filter");
         if Item.Find('-') then
@@ -515,7 +515,7 @@ report 7150 "Item Dimensions - Detail"
 
         TempLocation.Init();
         TempLocation.Insert();
-        TempAnalysisSelectedDim.SetFilter("Dimension Code", Location.TableCaption);
+        TempAnalysisSelectedDim.SetFilter("Dimension Code", Location.TableCaption());
         if TempAnalysisSelectedDim.Find('-') then
             Location.SetFilter(Code, TempAnalysisSelectedDim."Dimension Value Filter");
         if Location.Find('-') then
@@ -554,12 +554,6 @@ report 7150 "Item Dimensions - Detail"
     end;
 
     var
-        Text000: Label 'Enter an analysis view code.';
-        Text001: Label 'Enter a date filter.';
-        Text002: Label 'Include Dimensions';
-        Text003: Label '(no dimension value)';
-        Text004: Label 'Not updated';
-        Text014: Label '(no location code)';
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
         TempAnalysisSelectedDim: Record "Analysis Selected Dimension" temporary;
         Item: Record Item;
@@ -586,6 +580,13 @@ report 7150 "Item Dimensions - Detail"
         CostAmtTotal: array[3] of Decimal;
         QtyTotal: array[3] of Decimal;
         DimFilterText: Text[250];
+
+        Text000: Label 'Enter an analysis view code.';
+        Text001: Label 'Enter a date filter.';
+        Text002: Label 'Include Dimensions';
+        Text003: Label '(no dimension value)';
+        Text004: Label 'Not updated';
+        Text014: Label '(no location code)';
         PeriodCaptionLbl: Label 'Period';
         AnalysisViewCaptionLbl: Label 'Analysis View';
         LastDateUpdatedCaptionLbl: Label 'Last Date Updated';
@@ -626,11 +627,10 @@ report 7150 "Item Dimensions - Detail"
             FindFirstValueEntry[Level] := false;
             TempValueEntry.Reset();
             TempValueEntry.DeleteAll();
-            if ItemAnalysisViewEntry.Find('-') then begin
+            if ItemAnalysisViewEntry.Find('-') then
                 repeat
                     ItemAViewEntryToValueEntries.GetValueEntries(ItemAnalysisViewEntry, TempValueEntry);
                 until ItemAnalysisViewEntry.Next() = 0;
-            end;
             TempValueEntry.SetCurrentKey("Item No.", "Posting Date");
             TempValueEntry.SetFilter("Posting Date", DateFilter);
             if not TempValueEntry.Find('-') then
@@ -703,7 +703,7 @@ report 7150 "Item Dimensions - Detail"
                         SearchResult := TempItem.Find('-')
                     else
                         if TempItem.Get(IterationDimValCode) then
-                            SearchResult := TempItem.Next <> 0;
+                            SearchResult := TempItem.Next() <> 0;
                     if SearchResult then begin
                         IterationDimValCode := TempItem."No.";
                         IterationDimValName := TempItem.Description;
@@ -717,7 +717,7 @@ report 7150 "Item Dimensions - Detail"
                         SearchResult := TempLocation.Find('-')
                     else
                         if TempLocation.Get(IterationDimValCode) then
-                            SearchResult := TempLocation.Next <> 0;
+                            SearchResult := TempLocation.Next() <> 0;
                     if SearchResult then begin
                         IterationDimValCode := TempLocation.Code;
                         if TempLocation.Code <> '' then
@@ -734,7 +734,7 @@ report 7150 "Item Dimensions - Detail"
                         SearchResult := TempDimVal.Find('-')
                     else
                         if TempDimVal.Get(IterationDimCode, IterationDimValCode) then
-                            SearchResult := TempDimVal.Next <> 0;
+                            SearchResult := TempDimVal.Next() <> 0;
                     if SearchResult then begin
                         IterationDimValCode := TempDimVal.Code;
                         IterationDimValName := TempDimVal.Name;

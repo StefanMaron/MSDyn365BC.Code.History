@@ -356,7 +356,7 @@ page 5780 "Whse. Pick Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByEvent);
+                            ItemAvailability(ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -368,7 +368,7 @@ page 5780 "Whse. Pick Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByPeriod);
+                            ItemAvailability(ItemAvailFormsMgt.ByPeriod());
                         end;
                     }
                     action(Variant)
@@ -380,7 +380,7 @@ page 5780 "Whse. Pick Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByVariant);
+                            ItemAvailability(ItemAvailFormsMgt.ByVariant());
                         end;
                     }
                     action(Location)
@@ -393,7 +393,7 @@ page 5780 "Whse. Pick Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByLocation);
+                            ItemAvailability(ItemAvailFormsMgt.ByLocation());
                         end;
                     }
                     action(Lot)

@@ -16,7 +16,7 @@ report 99000765 "Prod. Order - Mat. Requisition"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ProdOrderTableCaptionFilter; TableCaption + ':' + ProdOrderFilter)
@@ -120,7 +120,7 @@ report 99000765 "Prod. Order - Mat. Requisition"
 
             trigger OnPreDataItem()
             begin
-                ProdOrderFilter := GetFilters;
+                ProdOrderFilter := GetFilters();
             end;
         }
     }

@@ -252,6 +252,11 @@ table 297 "Issued Reminder Header"
             Caption = 'Add. Fee per Line';
             FieldClass = FlowField;
         }
+        field(47; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(50; Canceled; Boolean)
         {
             Caption = 'Canceled';
@@ -414,7 +419,7 @@ table 297 "Issued Reminder Header"
             if IssuedReminderHeader.FindSet() then
                 repeat
                     IssuedReminderHeaderToSend.Copy(IssuedReminderHeader);
-                    IssuedReminderHeaderToSend.SetRecFilter;
+                    IssuedReminderHeaderToSend.SetRecFilter();
                     DocumentSendingProfile.TrySendToEMail(
                       DummyReportSelections.Usage::Reminder.AsInteger(), IssuedReminderHeaderToSend, IssuedReminderHeaderToSend.FieldNo("No."),
                       ReportDistributionMgt.GetFullDocumentTypeText(Rec), IssuedReminderHeaderToSend.FieldNo("Customer No."), not HideDialog)
@@ -443,7 +448,7 @@ table 297 "Issued Reminder Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure GetCustomerVATRegistrationNumber(): Text
