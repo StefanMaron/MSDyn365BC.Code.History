@@ -262,24 +262,30 @@ codeunit 378 "Transfer Extended Text"
     var
         ToSalesLine: Record "Sales Line";
         IsHandled: Boolean;
+        CompatibilityMode: Boolean;
     begin
         OnBeforeInsertSalesExtText(SalesLine, TempExtTextLine, IsHandled, MakeUpdateRequired, LastInsertedSalesLine);
         if IsHandled then
             exit;
+
+        LineSpacing := 10; // New fixed Line Spacing method
 
         ToSalesLine.Reset();
         ToSalesLine.SetRange("Document Type", SalesLine."Document Type");
         ToSalesLine.SetRange("Document No.", SalesLine."Document No.");
         ToSalesLine := SalesLine;
         OnInsertSalesExtTextRetLastOnBeforeToSalesLineFind(ToSalesLine);
-        if ToSalesLine.Find('>') then begin
-            LineSpacing :=
-              (ToSalesLine."Line No." - SalesLine."Line No.") div
-              (1 + TempExtTextLine.Count);
-            if LineSpacing = 0 then
-                Error(Text000);
-        end else
-            LineSpacing := 10000;
+        CompatibilityMode := false; // Disable previous LineSpacing assignment
+        OnInsertSalesExtTextRetLastOnBeforeSetCompatibilityMode(CompatibilityMode);
+        If CompatibilityMode then
+            if ToSalesLine.Find('>') then begin
+                LineSpacing :=
+                    (ToSalesLine."Line No." - SalesLine."Line No.") div
+                    (1 + TempExtTextLine.Count);
+                if LineSpacing = 0 then
+                    Error(Text000);
+            end else
+                LineSpacing := 10000;
 
         NextLineNo := SalesLine."Line No." + LineSpacing;
 
@@ -878,6 +884,11 @@ codeunit 378 "Transfer Extended Text"
 
     [IntegrationEvent(false, false)]
     local procedure OnFinChrgMemoCheckIfAnyExtTextOnBeforeSetFilters(var FinChrgMemoLine: Record "Finance Charge Memo Line"; var AutoText: Boolean; Unconditionally: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertSalesExtTextRetLastOnBeforeSetCompatibilityMode(var CompatibilityMode: Boolean)
     begin
     end;
 }

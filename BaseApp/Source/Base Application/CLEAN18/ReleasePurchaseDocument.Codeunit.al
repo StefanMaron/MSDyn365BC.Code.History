@@ -8,7 +8,8 @@ codeunit 415 "Release Purchase Document"
     trigger OnRun()
     begin
         PurchaseHeader.Copy(Rec);
-        Code;
+        PurchaseHeader.SetHideValidationDialog(Rec.GetHideValidationDialog());
+        Code();
         Rec := PurchaseHeader;
     end;
 

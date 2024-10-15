@@ -5650,6 +5650,39 @@ codeunit 134902 "ERM Account Schedule"
         ResultDimValue.Reset();
         ResultDimValue.DeleteAll();
     end;
+ 
+    [Test]
+    [HandlerFunctions('AccountScheduleSetStartEndDatesRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportSetsCloseEndate()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        // [SCENARIO 445234] Closing Date should be considered in the Account Schedule Print report.
+        Initialize();
+
+        // [WHEN] Run Account Schedule report with february end date and where start date has blank value (AccountScheduleSetStartEndDatesRequestHandler).
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        Commit();
+
+        // [GIVEN] Assign value to Start Date and End date as close date.
+        StartDate := DMY2Date(1, 1, DATE2DMY(WorkDate(), 3) - 1);
+        EndDate := ClosingDate(DMY2Date(31, 12, DATE2DMY(WorkDate(), 3) - 1));
+        LibraryVariableStorage.Enqueue(StartDate);
+        LibraryVariableStorage.Enqueue(EndDate);
+        AccScheduleName.SetRecFilter;
+
+        // [THEN] Run Account Schedule report.
+        REPORT.Run(REPORT::"Account Schedule", true, false, AccScheduleName);
+
+        // [VERIFY] PeriodText field consists of first day of the last Year of work date and end date as last day of the year work date itself.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists(
+          'PeriodText',
+          PeriodTextCaptionLbl + Format(StartDate) + '..' + Format(EndDate));
+    end;
 
     local procedure Initialize()
     var
