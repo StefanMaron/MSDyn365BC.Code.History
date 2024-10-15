@@ -560,7 +560,7 @@
                 MfgItem.TestField("Gen. Prod. Posting Group");
 
                 if Subcontracting then
-                    MfgUnitCost := ProdOrderLine."Unit Cost"
+                    MfgUnitCost := ProdOrderLine."Unit Cost" / ProdOrderLine."Qty. per Unit of Measure"
                 else
                     if MfgSKU.Get(ProdOrderLine."Location Code", ProdOrderLine."Item No.", ProdOrderLine."Variant Code") then
                         MfgUnitCost := MfgSKU."Unit Cost"
