@@ -129,7 +129,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         // Purpose of the test is to validate Action - Checklist on Intrastat Journal Page.
-        if IntrastatJnlTemplate.FindSet then
+        if IntrastatJnlTemplate.FindSet() then
             repeat
                 TempIntrastatJnlTemplate := IntrastatJnlTemplate;
                 TempIntrastatJnlTemplate.Insert();
@@ -151,7 +151,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         IntrastatJournal.Close;
 
         IntrastatJnlTemplate.DeleteAll();
-        if TempIntrastatJnlTemplate.FindSet then
+        if TempIntrastatJnlTemplate.FindSet() then
             repeat
                 IntrastatJnlTemplate := TempIntrastatJnlTemplate;
                 IntrastatJnlTemplate.Insert();

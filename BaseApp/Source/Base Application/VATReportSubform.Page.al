@@ -68,7 +68,7 @@ page 741 "VAT Report Subform"
         VATReportLineRelation.SetRange("VAT Report No.", VATReportNo);
         VATReportLineRelation.SetRange("VAT Report Line No.", VATReportLineNo);
         VATReportLineRelation.SetRange("Table No.", DATABASE::"VAT Entry");
-        if VATReportLineRelation.FindSet then begin
+        if VATReportLineRelation.FindSet() then begin
             repeat
                 VATEntry.Get(VATReportLineRelation."Entry No.");
                 VATEntryTmp.TransferFields(VATEntry, true);

@@ -1,4 +1,4 @@
-﻿codeunit 311 "Item-Check Avail."
+codeunit 311 "Item-Check Avail."
 {
     Permissions = TableData "My Notifications" = rimd;
 
@@ -172,7 +172,7 @@
         if OldSalesLine.Find then begin // Find previous quantity within Check-Avail. Period
             CompanyInfo.Get();
             LookAheadDate :=
-              AvailableToPromise.GetLookAheadPeriodEndDate(
+              AvailableToPromise.GetForwardPeriodEndDate(
                 CompanyInfo."Check-Avail. Period Calc.", CompanyInfo."Check-Avail. Time Bucket", SalesLine."Shipment Date");
             if (OldSalesLine."Document Type" = OldSalesLine."Document Type"::Order) and
                (OldSalesLine."No." = SalesLine."No.") and
@@ -292,7 +292,7 @@
         if IsHandled then
             exit;
 
-        AvailableToPromise.QtyAvailabletoPromise(
+        AvailableToPromise.CalcQtyAvailabletoPromise(
           Item, GrossReq, SchedRcpt, Item.GetRangeMax("Date Filter"),
           CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
         InventoryQty := ConvertQty(AvailableToPromise.CalcAvailableInventory(Item));
@@ -311,7 +311,7 @@
         NewItemNetChangeBase := ConvertQtyToBaseQty(NewItemNetChange);
         OldItemNetChangeBase := ConvertQtyToBaseQty(OldItemNetChange);
         exit(
-          AvailableToPromise.EarliestAvailabilityDate(
+          AvailableToPromise.CalcEarliestAvailabilityDate(
             Item, -NewItemNetChangeBase, Item.GetRangeMax("Date Filter"), -OldItemNetChangeBase, OldItemShipmentDate, AvailableQty,
             CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc."));
     end;
@@ -600,7 +600,7 @@
     begin
         ItemAvailabilityCheck.InitializeFromNotification(AvailabilityCheckNotification);
         ItemAvailabilityCheck.SetHeading(AvailabilityCheckNotification.Message);
-        ItemAvailabilityCheck.RunModal;
+        ItemAvailabilityCheck.RunModal();
     end;
 
     local procedure CreateAndSendNotification(UnitOfMeasureCode: Code[20]; InventoryQty: Decimal; GrossReq: Decimal; ReservedReq: Decimal; SchedRcpt: Decimal; ReservedRcpt: Decimal; CurrentQuantity: Decimal; CurrentReservedQty: Decimal; TotalQuantity: Decimal; EarliestAvailDate: Date; RecordId: RecordID; LocationCode: Code[10]) Rollback: Boolean

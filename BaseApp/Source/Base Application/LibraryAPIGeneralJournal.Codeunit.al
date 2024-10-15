@@ -63,7 +63,7 @@ codeunit 5469 "Library API - General Journal"
             CopyValuesFromGenJnlLine.Reset();
             CopyValuesFromGenJnlLine.CopyFilters(GenJournalLine);
             CopyValuesFromGenJnlLine.SetFilter("Line No.", '>%1', GenJournalLine."Line No.");
-            if CopyValuesFromGenJnlLine.FindFirst then begin
+            if CopyValuesFromGenJnlLine.FindFirst() then begin
                 CopyValuesFromGenJnlLineSpecified := true;
                 BottomLine := false;
                 exit;
@@ -73,7 +73,7 @@ codeunit 5469 "Library API - General Journal"
         if not CopyValuesFromGenJnlLineSpecified then begin
             CopyValuesFromGenJnlLine.Reset();
             CopyValuesFromGenJnlLine.CopyFilters(GenJournalLine);
-            if CopyValuesFromGenJnlLine.FindLast then
+            if CopyValuesFromGenJnlLine.FindLast() then
                 CopyValuesFromGenJnlLineSpecified := true;
         end;
     end;

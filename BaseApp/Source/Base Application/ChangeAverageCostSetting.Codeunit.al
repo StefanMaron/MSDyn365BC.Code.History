@@ -7,7 +7,7 @@ codeunit 5810 "Change Average Cost Setting"
         WindowUpdateDateTime := CurrentDateTime;
         WindowIsOpen := false;
 
-        AvgCostAdjmtEntryPoint.LockTable();
+        AvgCostEntryPointHandler.LockBuffer();
         LockTable();
         AccPeriod.LockTable();
 
@@ -43,7 +43,7 @@ codeunit 5810 "Change Average Cost Setting"
         ValueEntry: Record "Value Entry";
         Item: Record Item;
         InvtSetup: Record "Inventory Setup";
-        AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
+        AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
         Window: Dialog;
         StartingValuationDate: Date;
         WindowIsOpen: Boolean;
@@ -85,10 +85,8 @@ codeunit 5810 "Change Average Cost Setting"
     local procedure ProcessItemAvgCostPoint(var Item: Record Item; StartingValuationDate: Date)
     begin
         InvtSetup.Get();
-        AvgCostAdjmtEntryPoint.Reset();
-        AvgCostAdjmtEntryPoint.SetRange("Item No.", Item."No.");
-        AvgCostAdjmtEntryPoint.SetFilter("Valuation Date", '>=%1', StartingValuationDate);
-        AvgCostAdjmtEntryPoint.DeleteAll();
+
+        AvgCostEntryPointHandler.DeleteBuffer(Item."No.", StartingValuationDate);
 
         with ValueEntry do begin
             Reset;
@@ -100,7 +98,7 @@ codeunit 5810 "Change Average Cost Setting"
                 repeat
                     UpDateWindow("Item No.", "Valuation Date");
 
-                    AvgCostAdjmtEntryPoint.UpdateValuationDate(ValueEntry);
+                    AvgCostEntryPointHandler.UpdateValuationDate(ValueEntry);
 
                     SetRange("Valuation Date", "Valuation Date");
                     if InvtSetup."Average Cost Calc. Type" =

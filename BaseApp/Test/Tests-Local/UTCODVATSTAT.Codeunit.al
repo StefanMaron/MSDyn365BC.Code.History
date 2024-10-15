@@ -152,7 +152,7 @@ codeunit 142067 "UT COD VATSTAT"
         VATStatementLine: Record "VAT Statement Line";
     begin
         VATStatementLine.SetRange("Statement Template Name", StatementTemplateName);
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         VATStatementLine.TestField(Type);
     end;
 

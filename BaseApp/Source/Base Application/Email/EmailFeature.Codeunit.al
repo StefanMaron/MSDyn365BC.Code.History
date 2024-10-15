@@ -7,22 +7,24 @@
 /// </summary>
 codeunit 8895 "Email Feature"
 {
+#if not CLEAN20
     Access = Public;
-
-    var
-        EmailFeatureKeyTxt: Label 'EmailHandlingImprovements', Locked = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'No longer relevant as the email enhancements are always enabled.';
+    ObsoleteTag = '20.0';
 
     /// <summary>
     /// Checks if the feature has been enabled for all users. 
     /// </summary>
-    // <returns>True if the feature has been enabled; otherwise - false.</returns>
+    // <returns>True</returns>
+    [Obsolete('The email enhancements are permenantly enabled.', '20.0')]
     procedure IsEnabled(): Boolean
-    var
-        FeatureKey: Record "Feature Key";
     begin
-        if FeatureKey.Get(EmailFeatureKeyTxt) then
-            exit(FeatureKey.Enabled = FeatureKey.Enabled::"All Users");
+        exit(true);
     end;
+#else
+    Access = Internal;
+#endif
 
     [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     local procedure AddEmailAccountsToServiceConnections(var ServiceConnection: Record "Service Connection")
@@ -32,9 +34,6 @@ codeunit 8895 "Email Feature"
         EmailAccountsPage: Page "Email Accounts";
         RecRef: RecordRef;
     begin
-        if not IsEnabled() then
-            exit;
-
         RecRef.GetTable(EmailAccounts); // So that it's not empty RecordId
 
         ServiceConnection.Status := ServiceConnection.Status::Enabled;
@@ -45,90 +44,12 @@ codeunit 8895 "Email Feature"
             ServiceConnection, RecRef.RecordId, EmailAccountsPage.Caption(), '', Page::"Email Accounts");
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Email Accounts", 'OnOpenPageEvent', '', false, false)]
-    local procedure ShowWarningOnOpenEmailAccounts()
-    begin
-        ShowWarningNotification();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Email Account Wizard", 'OnOpenPageEvent', '', false, false)]
-    local procedure ShowWarningOnOpenEmailAccountWizard()
-    begin
-        ShowWarningNotification();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Email Outbox", 'OnOpenPageEvent', '', false, false)]
-    local procedure ShowWarningOnOpenEmailOutbox()
-    begin
-        ShowWarningNotification();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Sent Emails", 'OnOpenPageEvent', '', false, false)]
-    local procedure ShowWarningOnOpenSentEmails()
-    begin
-        ShowWarningNotification();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Email Scenario Setup", 'OnOpenPageEvent', '', false, false)]
-    local procedure ShowWarningOnOpenEmailScenarios()
-    begin
-        ShowWarningNotification();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Email Editor", 'OnOpenPageEvent', '', false, false)]
-    local procedure ShowWarningOnOpenEmailEditor()
-    begin
-        ShowWarningNotification();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Email Viewer", 'OnOpenPageEvent', '', false, false)]
-    local procedure ShowWarningOnOpenEmailViewer()
-    begin
-        ShowWarningNotification();
-    end;
-
+#if not CLEAN20
+    [Obsolete('Warning is never shown as the email enhancement is permenantly enabled.', '20.0')]
     procedure ShowWarningNotification()
-    var
-        FeatureKey: Record "Feature Key";
-        FeatureManagement: Page "Feature Management";
-        Notification: Notification;
     begin
-        if IsEnabled() then
-            exit; // The email feature is enabled, no need to show anything.
-
-        Notification.Id := GetWarningNotificationId();
-        Notification.Message := StrSubstNo(EmailFeatureNotEnabledTxt, FeatureManagement.Caption());
-
-        Notification.AddAction(LearnMoreTxt, Codeunit::"Email Feature", 'OpenLearnMore');
-
-        if FeatureKey.WritePermission() then
-            Notification.AddAction(StrSubstNo(OpenPageTxt, FeatureManagement.Caption()), Codeunit::"Email Feature", 'OpenFeatureManagement');
-
-        Notification.Scope := NotificationScope::LocalScope;
-        Notification.Send();
+        exit; // The email feature is enabled, no need to show anything.
     end;
+#endif
 
-    internal procedure OpenFeatureManagement(Notification: Notification)
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        if FeatureKey.Get(EmailFeatureKeyTxt) then;
-        Page.Run(Page::"Feature Management", FeatureKey);
-    end;
-
-    internal procedure OpenLearnMore(Notification: Notification)
-    begin
-        Hyperlink(LearnMoreUrlTxt);
-    end;
-
-    local procedure GetWarningNotificationId(): Guid
-    begin
-        exit('5e4c111a-30fa-4adf-9abb-87eb10754728');
-    end;
-
-    var
-        OpenPageTxt: Label 'Open %1 page', Comment = '%1 = page caption';
-        LearnMoreTxt: Label 'Learn more';
-        EmailFeatureNotEnabledTxt: Label 'Welcome to the updated email capabilities in Business Central. Before you can get started, your administrator must go to the %1 page and turn on the new capabilities.', Comment = '%1 = page caption';
-        LearnMoreUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2135107', Locked = true;
 }

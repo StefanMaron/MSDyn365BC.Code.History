@@ -13,7 +13,7 @@ codeunit 5778 "Whse. Create Pick"
 
         WkshPickLine.Copy(Rec);
         WhseCreatePick.SetWkshPickLine(WkshPickLine);
-        WhseCreatePick.RunModal;
+        WhseCreatePick.RunModal();
         if WhseCreatePick.GetResultMessage then
             AutofillQtyToHandle(Rec);
         Clear(WhseCreatePick);

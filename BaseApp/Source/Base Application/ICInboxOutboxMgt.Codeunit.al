@@ -31,7 +31,7 @@
             exit(0);
 
         GLSetup.LockTable();
-        GetGLSetup;
+        GetGLSetup();
         if GLSetup."Last IC Transaction No." < 0 then
             GLSetup."Last IC Transaction No." := 0;
         ICTransactionNo := GLSetup."Last IC Transaction No." + 1;
@@ -140,7 +140,7 @@
             exit;
 
         GLSetup.LockTable();
-        GetGLSetup;
+        GetGLSetup();
         TransactionNo := GLSetup."Last IC Transaction No." + 1;
         GLSetup."Last IC Transaction No." := TransactionNo;
         GLSetup.Modify();
@@ -258,7 +258,7 @@
             exit;
 
         GLSetup.LockTable();
-        GetGLSetup;
+        GetGLSetup();
         TransactionNo := GLSetup."Last IC Transaction No." + 1;
         GLSetup."Last IC Transaction No." := TransactionNo;
         GLSetup.Modify();
@@ -296,7 +296,7 @@
             SalesInvLine.SetRange("Document No.", SalesInvHdr."No.");
             if RoundingLineNo <> 0 then
                 SalesInvLine.SetRange("Line No.", 0, RoundingLineNo - 1);
-            if SalesInvLine.FindSet then
+            if SalesInvLine.FindSet() then
                 repeat
                     IsCommentType := (SalesInvLine.Type = SalesInvLine.Type::" ");
                     if IsCommentType or ((SalesInvLine."No." <> '') and (SalesInvLine.Quantity <> 0)) then begin
@@ -374,7 +374,7 @@
             exit;
 
         GLSetup.LockTable();
-        GetGLSetup;
+        GetGLSetup();
         TransactionNo := GLSetup."Last IC Transaction No." + 1;
         GLSetup."Last IC Transaction No." := TransactionNo;
         GLSetup.Modify();
@@ -412,7 +412,7 @@
             SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHdr."No.");
             if RoundingLineNo <> 0 then
                 SalesCrMemoLine.SetRange("Line No.", 0, RoundingLineNo - 1);
-            if SalesCrMemoLine.FindSet then
+            if SalesCrMemoLine.FindSet() then
                 repeat
                     IsCommentType := (SalesCrMemoLine.Type = SalesCrMemoLine.Type::" ");
                     if IsCommentType or ((SalesCrMemoLine."No." <> '') and (SalesCrMemoLine.Quantity <> 0)) then begin
@@ -453,7 +453,7 @@
         OnBeforeCreateOutboxPurchDocTrans(PurchHeader, Rejection, Post);
 
         GLSetup.LockTable();
-        GetGLSetup;
+        GetGLSetup();
         TransactionNo := GLSetup."Last IC Transaction No." + 1;
         GLSetup."Last IC Transaction No." := TransactionNo;
         GLSetup.Modify();
@@ -546,7 +546,7 @@
 
     procedure CreateOutboxJnlLine(TransactionNo: Integer; TransactionSource: Option "Rejected by Current Company"," Created by Current Company"; TempGenJnlLine: Record "Gen. Journal Line" temporary)
     begin
-        GetGLSetup;
+        GetGLSetup();
         with TempGenJnlLine do begin
             if (("Bal. Account Type" in
                  ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::"IC Partner"]) and
@@ -576,7 +576,7 @@
         ICOutboxJnlLine: Record "IC Outbox Jnl. Line";
         DimMgt: Codeunit DimensionManagement;
     begin
-        GetGLSetup;
+        GetGLSetup();
         with TempGenJnlLine do begin
             ICOutboxJnlLine.Init();
             ICOutboxJnlLine."Transaction No." := TransactionNo;
@@ -650,7 +650,7 @@
         HandledInboxJnlLine: Record "Handled IC Inbox Jnl. Line";
         DimMgt: Codeunit DimensionManagement;
     begin
-        GetGLSetup;
+        GetGLSetup();
         with GenJnlLine2 do
             if InboxTransaction."Transaction Source" = InboxTransaction."Transaction Source"::"Created by Partner" then begin
                 Init;
@@ -1691,7 +1691,7 @@
 
     procedure GetCurrency(var CurrencyCode: Code[20])
     begin
-        GetGLSetup;
+        GetGLSetup();
         if CurrencyCode = GLSetup."LCY Code" then
             CurrencyCode := '';
     end;
@@ -1702,39 +1702,10 @@
     begin
         Item.SetCurrentKey("Common Item No.");
         Item.SetRange("Common Item No.", CommonItemNo);
-        if not Item.FindFirst then
+        if not Item.FindFirst() then
             Error(NoItemForCommonItemErr, CommonItemNo);
         exit(Item."No.");
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by GetItemFromItemRef().', '17.0')]
-    procedure GetItemFromRef("Code": Code[20]; CrossRefType: Option; CrossRefTypeNo: Code[20]): Code[20]
-    var
-        Item: Record Item;
-        CrossRef: Record "Item Cross Reference";
-        ItemVendor: Record "Item Vendor";
-    begin
-        if Item.Get(Code) then
-            exit(Item."No.");
-
-        CrossRef.SetCurrentKey("Cross-Reference No.", "Cross-Reference Type", "Cross-Reference Type No.");
-        CrossRef.SetRange("Cross-Reference Type", CrossRefType);
-        CrossRef.SetRange("Cross-Reference Type No.", CrossRefTypeNo);
-        CrossRef.SetRange("Cross-Reference No.", Code);
-        if CrossRef.FindFirst() then
-            exit(CrossRef."Item No.");
-
-        if CrossRefType = CrossRef."Cross-Reference Type"::Vendor then begin
-            ItemVendor.SetCurrentKey("Vendor No.", "Vendor Item No.");
-            ItemVendor.SetRange("Vendor No.", CrossRefTypeNo);
-            ItemVendor.SetRange("Vendor Item No.", Code);
-            if ItemVendor.FindFirst() then
-                exit(ItemVendor."Item No.")
-        end;
-        exit('');
-    end;
-#endif
 
     procedure GetItemFromItemRef(RefNo: Code[50]; RefType: Enum "Item Reference Type"; RefTypeNo: Code[20]): Code[20]
     var
@@ -1801,6 +1772,7 @@
         PartnerICInboxTransaction: Record "IC Inbox Transaction";
         PartnerHandledICInboxTrans: Record "Handled IC Inbox Trans.";
         ICPartner: Record "IC Partner";
+        ICSetup: Record "IC Setup";
     begin
         ICInboxTrans."Transaction No." := ICOutboxTrans."Transaction No.";
         ICInboxTrans."IC Partner Code" := FromICPartnerCode;
@@ -1823,7 +1795,8 @@
         ICInboxTrans."Source Line No." := ICOutboxTrans."Source Line No.";
 
         GetCompanyInfo;
-        if CompanyInfo."IC Partner Code" = ICInboxTrans."IC Partner Code" then
+        ICSetup.Get();
+        if ICSetup."IC Partner Code" = ICInboxTrans."IC Partner Code" then
             ICPartner.Get(ICOutboxTrans."IC Partner Code")
         else
             ICPartner.Get(ICInboxTrans."IC Partner Code");
@@ -1855,22 +1828,23 @@
 
     procedure OutboxJnlLineToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxJnlLine: Record "IC Outbox Jnl. Line"; var ICInboxJnlLine: Record "IC Inbox Jnl. Line")
     var
+        ICSetup: Record "IC Setup";
         LocalICPartner: Record "IC Partner";
         PartnerICPartner: Record "IC Partner";
     begin
-        GetGLSetup;
-        GetCompanyInfo;
+        GetGLSetup();
+        ICSetup.Get();
         ICInboxJnlLine."Transaction No." := ICInboxTrans."Transaction No.";
         ICInboxJnlLine."IC Partner Code" := ICInboxTrans."IC Partner Code";
         ICInboxJnlLine."Transaction Source" := ICInboxTrans."Transaction Source";
         ICInboxJnlLine."Line No." := ICOutboxJnlLine."Line No.";
 
-        if ICOutboxJnlLine."IC Partner Code" = CompanyInfo."IC Partner Code" then
+        if ICOutboxJnlLine."IC Partner Code" = ICSetup."IC Partner Code" then
             LocalICPartner.Get(ICInboxTrans."IC Partner Code")
         else
             LocalICPartner.Get(ICOutboxJnlLine."IC Partner Code");
 
-        if ICOutboxJnlLine."IC Partner Code" = CompanyInfo."IC Partner Code" then
+        if ICOutboxJnlLine."IC Partner Code" = ICSetup."IC Partner Code" then
             PartnerICPartner.Get(ICInboxTrans."IC Partner Code")
         else begin
             LocalICPartner.TestField("Inbox Type", LocalICPartner."Inbox Type"::Database);
@@ -1920,6 +1894,7 @@
 
     procedure OutboxSalesHdrToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; var ICInboxPurchHeader: Record "IC Inbox Purchase Header")
     var
+        ICSetup: Record "IC Setup";
         ICPartner: Record "IC Partner";
         Vendor: Record Vendor;
         IsHandled: Boolean;
@@ -1929,8 +1904,8 @@
         if IsHandled then
             exit;
 
-        GetCompanyInfo;
-        if ICOutboxSalesHeader."IC Partner Code" = CompanyInfo."IC Partner Code" then
+        ICSetup.Get();
+        if ICOutboxSalesHeader."IC Partner Code" = ICSetup."IC Partner Code" then
             ICPartner.Get(ICInboxTrans."IC Partner Code")
         else begin
             ICPartner.Get(ICOutboxSalesHeader."IC Partner Code");
@@ -2016,15 +1991,22 @@
 
     procedure OutboxPurchHdrToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxPurchHeader: Record "IC Outbox Purchase Header"; var ICInboxSalesHeader: Record "IC Inbox Sales Header")
     var
+        ICSetup: Record "IC Setup";
         ICPartner: Record "IC Partner";
         Customer: Record Customer;
         IsHandled: Boolean;
     begin
-        GetCompanyInfo;
+#if not CLEAN20
+        GetCompanyInfo();
+#endif
+        ICSetup.Get();
         IsHandled := false;
+#if not CLEAN20
         OnBeforeOutboxPurchHdrToInbox(ICInboxTrans, ICOutboxPurchHeader, ICInboxSalesHeader, CompanyInfo, IsHandled, ICPartner);
+#endif
+        OnBeforeOutboxPurchHdrToInboxProcedure(ICInboxTrans, ICOutboxPurchHeader, ICInboxSalesHeader, ICSetup, IsHandled, ICPartner);
         if not IsHandled then
-            if ICOutboxPurchHeader."IC Partner Code" = CompanyInfo."IC Partner Code" then
+            if ICOutboxPurchHeader."IC Partner Code" = ICSetup."IC Partner Code" then
                 ICPartner.Get(ICInboxTrans."IC Partner Code")
             else begin
                 ICPartner.Get(ICOutboxPurchHeader."IC Partner Code");
@@ -2294,7 +2276,7 @@
     begin
         DimSetEntry.Reset();
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
                 ICDocDim."Table ID" := TableNo;
                 ICDocDim."Dimension Code" := DimMgt.ConvertDimtoICDim(DimSetEntry."Dimension Code");
@@ -2320,7 +2302,7 @@
             SetRange(Type, PurchaseLineSource.Type);
             SetRange("No.", PurchaseLineSource."No.");
             SetFilter("Qty. Rcd. Not Invoiced", '<>%1', 0);
-            if FindSet then
+            if FindSet() then
                 repeat
                     PurchaseLine.SetCurrentKey("Document Type", "Receipt No.");
                     PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
@@ -2351,7 +2333,7 @@
             SetRange(Type, PurchaseLineSource.Type);
             SetRange("No.", PurchaseLineSource."No.");
             SetFilter("Return Qty. Shipped Not Invd.", '<>%1', 0);
-            if FindSet then
+            if FindSet() then
                 repeat
                     PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
                     PurchaseLine.SetRange("Return Shipment No.", "Document No.");
@@ -2372,7 +2354,7 @@
     begin
         with SalesInvoiceLine do begin
             SetRange("Document No.", DocumentNo);
-            if FindLast then
+            if FindLast() then
                 if Type = Type::"G/L Account" then
                     if "No." <> '' then
                         if "No." = GetCustInvRndgAccNo("Bill-to Customer No.") then
@@ -2387,7 +2369,7 @@
     begin
         with SalesCrMemoLine do begin
             SetRange("Document No.", DocumentNo);
-            if FindLast then
+            if FindLast() then
                 if Type = Type::"G/L Account" then
                     if "No." <> '' then
                         if "No." = GetCustInvRndgAccNo("Bill-to Customer No.") then
@@ -2560,7 +2542,7 @@
         if CurrencyCode = '' then begin
             ICPartner.Get(ICPartnerCode);
             if ICPartner."Inbox Type" = ICPartner."Inbox Type"::Database then begin
-                GetGLSetup;
+                GetGLSetup();
                 AnotherCompGLSetup.ChangeCompany(ICPartner."Inbox Details");
                 AnotherCompGLSetup.Get();
                 if GLSetup."LCY Code" <> AnotherCompGLSetup."LCY Code" then
@@ -3038,8 +3020,16 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnBeforeOutboxPurchHdrToInbox() event.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOutboxPurchHdrToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxPurchHeader: Record "IC Outbox Purchase Header"; var ICInboxSalesHeader: Record "IC Inbox Sales Header"; CompanyInfo: Record "Company Information"; var IsHandled: Boolean; var ICPartner: Record "IC Partner")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOutboxPurchHdrToInboxProcedure(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxPurchHeader: Record "IC Outbox Purchase Header"; var ICInboxSalesHeader: Record "IC Inbox Sales Header"; ICSetup: Record "IC Setup"; var IsHandled: Boolean; var ICPartner: Record "IC Partner")
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 5005271 "Create Delivery Reminder"
+﻿codeunit 5005271 "Create Delivery Reminder"
 {
 
     trigger OnRun()
@@ -45,7 +45,7 @@ codeunit 5005271 "Create Delivery Reminder"
         DelivReminLedgerEntries.SetRange("Order No.", PurchLine."Document No.");
         DelivReminLedgerEntries.SetRange("Order Line No.", PurchLine."Line No.");
         OnRemindOnAfterDelivReminLedgerEntriesSetFilters(DelivReminLedgerEntries);
-        if DelivReminLedgerEntries.FindLast then begin
+        if DelivReminLedgerEntries.FindLast() then begin
             RemindingDate := DelivReminLedgerEntries."Document Date";
             LineLevel := DelivReminLedgerEntries."Reminder Level" + 1
         end else
@@ -92,7 +92,7 @@ codeunit 5005271 "Create Delivery Reminder"
 
         DeliveryReminderLine.Reset();
         DeliveryReminderLine.SetRange("Document No.", DeliveryReminderHeader."No.");
-        if DeliveryReminderLine.FindLast then
+        if DeliveryReminderLine.FindLast() then
             NextLineNo := DeliveryReminderLine."Line No." + 10000
         else
             NextLineNo := 10000;
@@ -186,7 +186,6 @@ codeunit 5005271 "Create Delivery Reminder"
         InsertEndTexts(DeliveryReminderHeader);
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateLines(DeliveryReminder: Record "Delivery Reminder Header")
     begin
         DeliveryReminderLine.Reset();
@@ -220,7 +219,7 @@ codeunit 5005271 "Create Delivery Reminder"
     begin
         DeliveryReminderLevel.SetRange("Reminder Terms Code", DeliveryReminder."Reminder Terms Code");
         DeliveryReminderLevel.SetRange("No.", 1, DeliveryReminder."Reminder Level");
-        if DeliveryReminderLevel.FindLast then begin
+        if DeliveryReminderLevel.FindLast() then begin
             DeliveryReminderText.Reset();
             DeliveryReminderText.SetRange("Reminder Terms Code", DeliveryReminder."Reminder Terms Code");
             DeliveryReminderText.SetRange("Reminder Level", DeliveryReminderLevel."No.");
@@ -244,7 +243,7 @@ codeunit 5005271 "Create Delivery Reminder"
     begin
         DeliveryReminderLevel.SetRange("Reminder Terms Code", DeliveryReminder."Reminder Terms Code");
         DeliveryReminderLevel.SetRange("No.", 1, DeliveryReminder."Reminder Level");
-        if DeliveryReminderLevel.FindLast then begin
+        if DeliveryReminderLevel.FindLast() then begin
             DeliveryReminderText.SetRange("Reminder Terms Code", DeliveryReminder."Reminder Terms Code");
             DeliveryReminderText.SetRange("Reminder Level", DeliveryReminderLevel."No.");
             DeliveryReminderText.SetRange(Position, DeliveryReminderText.Position::Ending);

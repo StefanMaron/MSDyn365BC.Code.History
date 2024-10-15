@@ -21,6 +21,43 @@ page 2111 "O365 Sales Invoice Line Subp."
                     LookupPageID = "O365 Sales Item Lookup";
                     ShowCaption = false;
                     ToolTip = 'Specifies a description of the item or service on the line.';
+
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        GLAccount: record "G/L Account";
+                        Item: record Item;
+                        Resource: record Resource;
+                        FixedAsset: record "Fixed Asset";
+                        ItemCharge: record "Item Charge";
+                    begin
+                        case Rec.Type of
+                            Rec.Type::Item:
+                                begin
+                                    Selected.SetTable(Item);
+                                    Validate("No.", Item."No.");
+                                end;
+                            Rec.Type::"G/L Account":
+                                begin
+                                    Selected.SetTable(GLAccount);
+                                    Validate("No.", GLAccount."No.");
+                                end;
+                            Rec.Type::Resource:
+                                begin
+                                    Selected.SetTable(Resource);
+                                    Validate("No.", Resource."No.");
+                                end;
+                            Rec.Type::"Fixed Asset":
+                                begin
+                                    Selected.SetTable(FixedAsset);
+                                    Validate("No.", FixedAsset."No.");
+                                end;
+                            Rec.Type::"Charge (Item)":
+                                begin
+                                    Selected.SetTable(ItemCharge);
+                                    Validate("No.", ItemCharge."No.");
+                                end;
+                        end;
+                    end;
                 }
                 field("Line Amount"; "Line Amount")
                 {
@@ -155,7 +192,7 @@ page 2111 "O365 Sales Invoice Line Subp."
         O365ItemBasketPart: Page "O365 Item Basket Part";
     begin
         O365ItemBasketPart.SetSalesLines(Rec);
-        O365ItemBasketPart.Run;
+        O365ItemBasketPart.Run();
     end;
 }
 

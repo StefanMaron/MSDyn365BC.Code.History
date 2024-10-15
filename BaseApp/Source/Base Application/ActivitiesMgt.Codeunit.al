@@ -233,7 +233,7 @@ codeunit 1311 "Activities Mgt."
         CountInvoices: Integer;
     begin
         GetPaidSalesInvoices(CustLedgerEntry);
-        if CustLedgerEntry.FindSet then begin
+        if CustLedgerEntry.FindSet() then begin
             repeat
                 SumCollectionDays += (CustLedgerEntry."Closed at Date" - CustLedgerEntry."Posting Date");
                 CountInvoices += 1;

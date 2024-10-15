@@ -80,7 +80,7 @@ codeunit 144050 "ERM Finance Reports"
         // Verify error for blank Posting Date on VAT-Vies Declaration Tax - DE Report.
 
         // Setup.
-        Initialize;
+        Initialize();
         Commit();
 
         // Exercise.
@@ -98,7 +98,7 @@ codeunit 144050 "ERM Finance Reports"
         // Verify Vendor Detailed Aging Report without any Vendor No. filter.
 
         // Setup.
-        Initialize;
+        Initialize();
         Commit();
 
         // Exercise and Verify.
@@ -115,7 +115,7 @@ codeunit 144050 "ERM Finance Reports"
         // Verify Vendor Detailed Aging Report with one Vendor No. as filter.
 
         // Setup: Create and post Purchase Invoice.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseInvoice(PurchaseHeader);
 
         // Exercise and Verify.
@@ -134,7 +134,7 @@ codeunit 144050 "ERM Finance Reports"
         // Verify Vendor Detailed Aging Report with Vendor No. range as filter.
 
         // Setup: Create and post Purchase Invoice for different Vendors.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseInvoice(PurchaseHeader);
         CreateAndPostPurchaseInvoice(PurchaseHeader2);
 
@@ -154,7 +154,7 @@ codeunit 144050 "ERM Finance Reports"
         // Verify error for blank Date Filter on  G/L Total Balance Report.
 
         // Setup: Enqueue values for GLTotalBalanceRequestPageHandler.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(0D);
         LibraryVariableStorage.Enqueue('');
         Commit();
@@ -177,7 +177,7 @@ codeunit 144050 "ERM Finance Reports"
         // Verify G/L Total Balance Report.
 
         // Setup: Create and post Gen.Journal Line for G/L Account.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         CreateAndPostGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
 
@@ -199,7 +199,7 @@ codeunit 144050 "ERM Finance Reports"
         // Verify error for blank Date Filter on Customer Total Balance Report.
 
         // Setup: Enqueue values for CustomerTotalBalanceRequestPageHandler.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(0D);
         LibraryVariableStorage.Enqueue('');
         Commit();
@@ -222,7 +222,7 @@ codeunit 144050 "ERM Finance Reports"
         // Verify Customer Total Balance Report.
 
         // Setup: Create and post Gen.Journal Line for Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateAndPostGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, Customer."No.");
 
@@ -244,7 +244,7 @@ codeunit 144050 "ERM Finance Reports"
         // Verify error for blank Date Filter on Vendor Total Balance Report.
 
         // Setup: Enqueue values for VendorTotalBalanceRequestPageHandler.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(0D);
         LibraryVariableStorage.Enqueue('');
         Commit();
@@ -267,7 +267,7 @@ codeunit 144050 "ERM Finance Reports"
         // Verify Vendor Total Balance Report.
 
         // Setup: Create and post Gen.Journal Line for Vendor.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostGenJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, Vendor."No.");
 
@@ -308,7 +308,7 @@ codeunit 144050 "ERM Finance Reports"
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create and post Sales Invoice, Apply the Payment over Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateAndUpdateDACHReportSelection;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -351,7 +351,7 @@ codeunit 144050 "ERM Finance Reports"
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create and post Sales Invoice with multiple lines, Apply the Payment over Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateAndUpdateDACHReportSelection;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -371,9 +371,9 @@ codeunit 144050 "ERM Finance Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Finance Reports");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportDataset);
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
     end;
 
     local procedure CalculateAmount(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20])
@@ -391,7 +391,7 @@ codeunit 144050 "ERM Finance Reports"
         VendorLedgerEntry.SetFilter("Vendor No.", VendorNoFilter);
         VendorLedgerEntry.SetFilter("Due Date", '%1..%2', 0D, DueDate);
         VendorLedgerEntry.SetRange("Currency Code", '');
-        if VendorLedgerEntry.FindSet then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 VendorLedgerEntry.CalcFields("Remaining Amount");
                 RemAmount += VendorLedgerEntry."Remaining Amount";
@@ -416,7 +416,7 @@ codeunit 144050 "ERM Finance Reports"
         DACHReportSelections: Record "DACH Report Selections";
     begin
         DACHReportSelections.SetRange(Usage, DACHReportSelections.Usage::"Sales VAT Acc. Proof");
-        if not DACHReportSelections.FindFirst then begin
+        if not DACHReportSelections.FindFirst() then begin
             DACHReportSelections.Init();
             DACHReportSelections.Validate(Usage, DACHReportSelections.Usage::"Sales VAT Acc. Proof");
             DACHReportSelections.Validate(Sequence, Format(LibraryRandom.RandInt(10)));

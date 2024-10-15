@@ -91,7 +91,7 @@ codeunit 144001 "VAT Report"
         PeriodNo: Integer;
         PeriodType: Option ,Month,Quarter,Year,"Bi-Monthly";
     begin
-        Initialize;
+        Initialize();
         PeriodNo := LibraryRandom.RandInt(12);
         SetVATReportPeriodTypeVerifyDate(PeriodType::Month, PeriodNo);
     end;
@@ -103,7 +103,7 @@ codeunit 144001 "VAT Report"
         PeriodNo: Integer;
         PeriodType: Option ,Month,Quarter,Year,"Bi-Monthly";
     begin
-        Initialize;
+        Initialize();
         PeriodNo := LibraryRandom.RandInt(4);
         SetVATReportPeriodTypeVerifyDate(PeriodType::Quarter, PeriodNo);
     end;
@@ -114,7 +114,7 @@ codeunit 144001 "VAT Report"
     var
         PeriodType: Option ,Month,Quarter,Year,"Bi-Monthly";
     begin
-        Initialize;
+        Initialize();
         SetVATReportPeriodTypeVerifyDate(PeriodType::Year, 1);
     end;
 
@@ -125,7 +125,7 @@ codeunit 144001 "VAT Report"
         PeriodNo: Integer;
         PeriodType: Option ,Month,Quarter,Year,"Bi-Monthly";
     begin
-        Initialize;
+        Initialize();
         PeriodNo := LibraryRandom.RandInt(4);
         SetVATReportPeriodTypeVerifyDate(PeriodType::"Bi-Monthly", PeriodNo);
     end;
@@ -138,7 +138,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, VATReportHeader.FieldNo("Start Date"), 0D);
     end;
 
@@ -150,7 +150,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, VATReportHeader.FieldNo("End Date"), 0D);
     end;
 
@@ -162,7 +162,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, VATReportHeader.FieldNo("Processing Date"), 0D);
     end;
 
@@ -174,7 +174,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         with VATReportHeader do
             SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, FieldNo("Report Period Type"), "Report Period Type"::" ");
     end;
@@ -187,7 +187,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, VATReportHeader.FieldNo("Report Period No."), 0);
     end;
 
@@ -199,7 +199,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, VATReportHeader.FieldNo("Report Year"), 0);
     end;
 
@@ -211,7 +211,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, VATReportHeader.FieldNo("Company Name"), '');
     end;
 
@@ -223,7 +223,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, VATReportHeader.FieldNo("Company Address"), '');
     end;
 
@@ -235,7 +235,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, VATReportHeader.FieldNo("Post Code"), '');
     end;
 
@@ -247,7 +247,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, VATReportHeader.FieldNo(City), '');
     end;
 
@@ -259,7 +259,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, VATReportHeader.FieldNo("VAT Registration No."), '');
     end;
 
@@ -271,7 +271,7 @@ codeunit 144001 "VAT Report"
         VATReportLine: Record "VAT Report Line";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         SetIncorrectFieldValue_ValidateReport(VATReportPart::Line, VATReportLine.FieldNo("VAT Registration No."), '');
     end;
 
@@ -284,7 +284,7 @@ codeunit 144001 "VAT Report"
         TestPeriodEnd: Date;
     begin
         // [SCENARIO 105793] User can't change the report type when lines exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] A VAT Report is created
         // [GIVEN] Lines have been suggested
@@ -309,7 +309,7 @@ codeunit 144001 "VAT Report"
         TestPeriodEnd: Date;
     begin
         // [SCENARIO 105793] User can't change the Original Report No. in the header when VAT Report lines is present
-        Initialize;
+        Initialize();
 
         // [GIVEN] A standard report have been submitted for period A
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
@@ -353,11 +353,11 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         SetupCompanyInformationVATRegNo(CompanyInformation);
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
 
         VerifyReportFieldValue(
           VATReportBuf,
@@ -377,7 +377,7 @@ codeunit 144001 "VAT Report"
         VATReportLine: Record "VAT Report Line";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         SetIncorrectFieldValue_ValidateReport(VATReportPart::Line, VATReportLine.FieldNo("Country/Region Code"), '');
     end;
 
@@ -390,7 +390,7 @@ codeunit 144001 "VAT Report"
         VATReportErrorLog: Record "VAT Report Error Log";
         VATReportPart: Option Header,Line;
     begin
-        Initialize;
+        Initialize();
         VATReportHeader.Get(CreateMockVATReport_SetFieldValue(VATReportPart::Line, VATReportLine.FieldNo(Base), 0));
         CODEUNIT.Run(CODEUNIT::"VAT Report Validate", VATReportHeader);
         Assert.IsTrue(VATReportErrorLog.IsEmpty, ErrorLogMustBeEmptyErr);
@@ -404,7 +404,7 @@ codeunit 144001 "VAT Report"
         VATReportLine: Record "VAT Report Line";
         VATReportNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateStandardMonthReport(VATReportHeader);
         VATReportNo := VATReportHeader."No.";
         VATReportHeader.Delete(true);
@@ -421,7 +421,7 @@ codeunit 144001 "VAT Report"
         VATReportLine: Record "VAT Report Line";
         VATReportLineRelation: Record "VAT Report Line Relation";
     begin
-        Initialize;
+        Initialize();
         CreateStandardMonthReport(VATReportHeader);
 
         with VATReportLine do begin
@@ -445,7 +445,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         SetupVATReportScenario(VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
@@ -462,7 +462,7 @@ codeunit 144001 "VAT Report"
     var
         VATReportLine: Record "VAT Report Line";
     begin
-        Initialize;
+        Initialize();
         SuggestLines_StandardReport_VerifyFieldGrouping(VATReportLine.FieldNo("Country/Region Code"));
     end;
 
@@ -472,7 +472,7 @@ codeunit 144001 "VAT Report"
     var
         VATReportLine: Record "VAT Report Line";
     begin
-        Initialize;
+        Initialize();
         SuggestLines_StandardReport_VerifyFieldGrouping(VATReportLine.FieldNo("VAT Registration No."));
     end;
 
@@ -482,7 +482,7 @@ codeunit 144001 "VAT Report"
     var
         VATReportLine: Record "VAT Report Line";
     begin
-        Initialize;
+        Initialize();
         SuggestLines_StandardReport_VerifyFieldGrouping(VATReportLine.FieldNo("EU 3-Party Trade"));
     end;
 
@@ -496,9 +496,9 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CountryCode := CreateCountryRegion;
-        VATRegNo := LibraryUtility.GenerateGUID;
+        VATRegNo := LibraryUtility.GenerateGUID();
 
         FindFirstMonthWithoutVATEntries(TestPeriodStart, TestPeriodEnd);
         CreateVATEntries(5, TestPeriodStart, TestPeriodEnd, CountryCode, VATRegNo, false);
@@ -525,7 +525,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         // Creating non-EU country
         LibraryERM.CreateCountryRegion(CountryRegion);
 
@@ -554,7 +554,7 @@ codeunit 144001 "VAT Report"
         NoOfDigits: Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         NoOfDigits := LibraryRandom.RandIntInRange(3, 7);
         AmtText := FormatRandomAmountForExport(NoOfDigits, true);
 
@@ -569,7 +569,7 @@ codeunit 144001 "VAT Report"
         AmtText: Text[20];
         NoOfDigits: Integer;
     begin
-        Initialize;
+        Initialize();
         NoOfDigits := LibraryRandom.RandIntInRange(3, 7);
         AmtText := FormatRandomAmountForExport(NoOfDigits, true);
         Assert.AreEqual(NoOfDigits, StrLen(DelChr(AmtText, '<', '0')), IncorrectAmountForExportErr);
@@ -581,7 +581,7 @@ codeunit 144001 "VAT Report"
     var
         AmtText: Text[20];
     begin
-        Initialize;
+        Initialize();
         AmtText := FormatRandomAmountForExport(LibraryRandom.RandIntInRange(3, 7), false);
         Assert.AreEqual('-', Format(AmtText[StrLen(AmtText)]), IncorrectAmountForExportErr);
     end;
@@ -596,7 +596,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         VerifyMandatoryFieldsInVATReport(VATReportBuf);
@@ -614,7 +614,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         Assert.AreEqual(1, CountReportBufferLines(VATReportBuf, '0'), IncorrectNoOfReportLinesErr);
@@ -632,7 +632,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         Assert.AreEqual(1, CountReportBufferLines(VATReportBuf, '2'), IncorrectNoOfReportLinesErr);
@@ -650,7 +650,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         // Verify Export Buffer for absence of non-correction VAT report lines with 0 Base
         CreateVATReportAndSaveIntoBufferZeroBase(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
@@ -670,7 +670,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         VATReportSetup.Get();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VerifyReportFieldValue(VATReportBuf, 0, 2, VATReportSetup."Registration ID", RegistrationIDLbl);
@@ -688,7 +688,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VerifyReportFieldValue(VATReportBuf, 0, 3, Format(VATReportHeader."Processing Date", 0, '<Year4><Month,2><Day,2>'), CreationDateLbl);
 
@@ -705,7 +705,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VerifyReportFieldValue(VATReportBuf, 0, 4, VATReportHeader."Company Name", NameLbl);
 
@@ -722,7 +722,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VerifyReportFieldValue(VATReportBuf, 0, 5, VATReportHeader."Company Address", CompanyAddressLbl);
 
@@ -739,7 +739,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VerifyReportFieldValue(VATReportBuf, 0, 6, VATReportHeader."Post Code", PostCodeLbl);
 
@@ -756,7 +756,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VerifyReportFieldValue(VATReportBuf, 0, 7, VATReportHeader.City, LocationLbl);
 
@@ -773,7 +773,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VerifyReportFieldValue(VATReportBuf, 1, 2, VATReportHeader."VAT Registration No.", VATRegNoLbl);
 
@@ -792,10 +792,10 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
         VerifyReportFieldValue(VATReportBuf, 1, 3, ExportVIESReport.GetReportType(VATReportLine, VATReportHeader), TypeOfStatementLbl);
 
         Cleanup(VATReportHeader."No.", TestPeriodStart, TestPeriodEnd);
@@ -813,13 +813,13 @@ codeunit 144001 "VAT Report"
         TestPeriodEnd: Date;
     begin
         // [SCENARIO 301437] Export VIES Report when VAT Registration No does not have Country/Region prefix
-        Initialize;
+        Initialize();
 
         // [GIVEN] EU Country/Region Code = 'BE', VAT Registration No = '123456789'
         // [WHEN] Run Export VIES Report
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
 
         // [THEN] VAT Registration No. exported as 'BE123456789'
         VerifyReportFieldValue(
@@ -846,7 +846,7 @@ codeunit 144001 "VAT Report"
         TestPeriodEnd: Date;
     begin
         // [SCENARIO 301437] Export VIES Report when VAT Registration No has Country/Region prefix
-        Initialize;
+        Initialize();
 
         // [GIVEN] EU Country/Region Code = 'BE', VAT Registration No = 'BE123456789'
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -860,7 +860,7 @@ codeunit 144001 "VAT Report"
         ExportVATReportIntoBuffer(VATReportHeader, TempDataExportBuffer);
 
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
 
         // [THEN] VAT Registration No. exported as 'BE123456789'
         VerifyReportFieldValue(
@@ -884,10 +884,10 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
 
         VerifyReportFieldValue(VATReportBuf, 1, 6, ExportVIESReport.FormatAmountForExport(VATReportLine.Base, 12), AssessmentBasisLbl);
 
@@ -906,10 +906,10 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
 
         VerifyReportFieldValue(VATReportBuf, 1, 7, ExportVIESReport.GetTurnoverType(VATReportLine), TypeOfTurnoverLbl);
 
@@ -928,10 +928,10 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
 
         VerifyReportFieldValue(VATReportBuf, 1, 8, ExportVIESReport.GetNotice(VATReportHeader), NoticeLbl);
 
@@ -950,10 +950,10 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
 
         VerifyReportFieldValue(VATReportBuf, 1, 9, ExportVIESReport.GetRevocation(VATReportHeader), RevocationLbl);
 
@@ -971,7 +971,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
         VATReportLine.CalcSums(Base);
@@ -997,7 +997,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
 
@@ -1022,7 +1022,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         VerifyReportFieldValue(VATReportBuf, 2, 3, ExportVIESReport.GetReportPeriod(VATReportHeader), ReportPeriodLbl);
@@ -1040,7 +1040,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVATReportAndSaveIntoBuffer(VATReportBuf, VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         Assert.AreEqual(
@@ -1063,7 +1063,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
         CreateCorrectiveReport(VATReportHeader, CorrVATReportHeader);
         SubmitVATReport(CorrVATReportHeader);
@@ -1088,7 +1088,7 @@ codeunit 144001 "VAT Report"
     begin
         // Verify Export Buffer for report lines' types and total report count
         // when Export Cancellation Lines is Off
-        Initialize;
+        Initialize();
         ExportCorrectiveVATReportVerifyReportLineTypesAndCount(false, 2);
     end;
 
@@ -1099,7 +1099,7 @@ codeunit 144001 "VAT Report"
     begin
         // Verify Export Buffer for report lines' types and total report count.
         // when Export Cancellation Lines is On
-        Initialize;
+        Initialize();
         ExportCorrectiveVATReportVerifyReportLineTypesAndCount(true, 3);
     end;
 
@@ -1109,7 +1109,7 @@ codeunit 144001 "VAT Report"
     var
         VATReportHeader: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         UpdateCompanyInformation(InvalidCompanyNameTok, InvalidCompanyAddressTok, InvalidCompanyCityTok);
         UpdateVATReportSetup(ValidCompanyNameTok, ValidCompanyAddressTok, ValidCompanyCityTok);
 
@@ -1128,7 +1128,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
         CreateStandardMonthReport(VATReportHeader);
         VATReportHeader.Validate("Test Export", false);
         FileName := ExportVIESReport.MakeFileName(VATReportHeader);
@@ -1145,7 +1145,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
         CreateStandardMonthReport(VATReportHeader);
         VATReportHeader.Validate("Test Export", true);
         FileName := ExportVIESReport.MakeFileName(VATReportHeader);
@@ -1161,7 +1161,7 @@ codeunit 144001 "VAT Report"
     var
         VATReportHeader: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         CreateStandardMonthReport(VATReportHeader);
 
         asserterror VATReportMediator.Submit(VATReportHeader);
@@ -1174,7 +1174,7 @@ codeunit 144001 "VAT Report"
     var
         VATReportHeader: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         CreateStandardMonthReport(VATReportHeader);
         VATReportMediator.Release(VATReportHeader);
 
@@ -1188,7 +1188,7 @@ codeunit 144001 "VAT Report"
     var
         VATReportHeader: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         CreateStandardMonthReport(VATReportHeader);
         MockVATReportExport(VATReportHeader);
 
@@ -1209,11 +1209,11 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VariableStorage.Enqueue(VATReportHeader."No.");
 
-        VATReportPage.OpenNew;
+        VATReportPage.OpenNew();
         VATReportPage."VAT Report Type".SetValue(VATReportHeader."VAT Report Type"::Corrective);
         VATReportPage."Original Report No.".Lookup;
 
@@ -1233,7 +1233,7 @@ codeunit 144001 "VAT Report"
         TestPeriodEnd: Date;
         LineType: Option New,Cancellation,Correction;
     begin
-        Initialize;
+        Initialize();
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
         CreateCorrectiveVATReportHeader(VATReportHeader, CorrVATReportHeader);
 
@@ -1260,7 +1260,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         CreateCorrectiveReport(VATReportHeader, CorrVATReportHeader);
@@ -1284,11 +1284,11 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        VATReportLine.FindLast;
+        VATReportLine.FindLast();
         OriginalAmount := VATReportLine.Amount;
         VATReportLine.Reset();
 
@@ -1312,7 +1312,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         CreateCorrectiveReport(VATReportHeader, CorrVATReportHeader);
@@ -1337,7 +1337,7 @@ codeunit 144001 "VAT Report"
         TestPeriodEnd: Date;
         NewLineAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         CreateCorrectiveReport(VATReportHeader, CorrVATReportHeader);
@@ -1369,7 +1369,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         // Create original report
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
@@ -1408,7 +1408,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
         CreateCorrectiveReport(VATReportHeader, CorrVATReportHeader);
 
@@ -1428,7 +1428,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
         CreateCorrectiveReport(VATReportHeader, CorrVATReportHeader);
 
@@ -1452,7 +1452,7 @@ codeunit 144001 "VAT Report"
     begin
         // [SCENARIO TFS=105793,106104] Suggest lines on a correction report does not add entries for VAT entries that have already been reported.
         // No new entries for customer between the two reports.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard report have been reported for the first VAT entry
@@ -1486,7 +1486,7 @@ codeunit 144001 "VAT Report"
         AmountY: Decimal;
     begin
         // [SCENARIO 105793] Correction report: A new VAT entry for a customer that have already been submitted data for, suggest lines creates a cancellation and correction line
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard report have been reported for the first VAT entry
@@ -1499,7 +1499,7 @@ codeunit 144001 "VAT Report"
 
         // [GIVEN] A new document with VAT is posted for the customer in the same period with amount Y
         CreateVATEntries(1, TestPeriodStart, TestPeriodEnd, VATReportLine."Country/Region Code", VATReportLine."VAT Registration No.", true);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         AmountY := -VATEntry.Base;
 
         // [GIVEN] A correction report for the same period
@@ -1536,14 +1536,14 @@ codeunit 144001 "VAT Report"
         AmountX: Decimal;
     begin
         // [SCENARIO 105793] Correction report: A new VAT entry for a customer that have not already been submitted data for, suggest lines creates a new line
-        Initialize;
+        Initialize();
 
         // [GIVEN] A standard report have been reported for period A
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         // [GIVEN] A customer in EU is created and a VAT entry is posted in period A for it with base amount X
         CreateVATEntries(1, TestPeriodStart, TestPeriodEnd, '', VATReportLine."VAT Registration No.", true);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         AmountX := -VATEntry.Base;
 
         // [GIVEN] A correction report for period A
@@ -1575,7 +1575,7 @@ codeunit 144001 "VAT Report"
         NoOfAddEntries: Integer;
     begin
         // [SCENARIO 105793] Correction report: Two new VAT entries for a customer that have already been submitted data for, suggest lines creates a cancellation and correction line
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with two VAT entries related to it with sum amount X
         // [GIVEN] A standard report have been reported for the first VAT entry
@@ -1584,7 +1584,7 @@ codeunit 144001 "VAT Report"
         AmountX := VATReportLine.Base;
 
         // [GIVEN] Two new documents with VAT are posted for the customer in the same period with sum amount Y
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         NoOfAddEntries := LibraryRandom.RandIntInRange(2, 5);
         CreateVATEntries(
           NoOfAddEntries, TestPeriodStart, TestPeriodEnd, VATReportLine."Country/Region Code", VATReportLine."VAT Registration No.", true);
@@ -1635,7 +1635,7 @@ codeunit 144001 "VAT Report"
     begin
         // [SCENARIO 105793] 2nd correction report: A new VAT entry for a customer that have already been submitted data for, and corrected with a manual inputted base.
         // Suggest lines creates a cancellation and correction line
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard report have been reported for the first VAT entry
@@ -1654,7 +1654,7 @@ codeunit 144001 "VAT Report"
 
         // [GIVEN] A new document with VAT is posted for the customer in the same period with amount Z
         CreateVATEntries(1, TestPeriodStart, TestPeriodEnd, VATReportLine."Country/Region Code", VATReportLine."VAT Registration No.", true);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         AmountZ := -VATEntry.Base;
 
         // [GIVEN] A 2nd correction report for the same period
@@ -1691,7 +1691,7 @@ codeunit 144001 "VAT Report"
     begin
         // [SCENARIO 105793] 2nd correction report: A correction report have been made with a manual base amount change. No new VAT entries.
         // Suggest lines does not suggest any lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard report have been reported for the first VAT entry
@@ -1736,7 +1736,7 @@ codeunit 144001 "VAT Report"
     begin
         // [SCENARIO 105793] 2nd correction report: A correction report have been made with a manual base amount change. No new VAT entries.
         // Suggest lines does not suggest any lines even after correct lines have been invoked.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard report have been reported for the first VAT entry
@@ -1782,7 +1782,7 @@ codeunit 144001 "VAT Report"
         TestPeriodEnd: Date;
     begin
         // [SCENARIO TFS=105793,106104] Correction report: Suggest lines prompts an error if a correction line already exists for a key and suggest lines is about to suggest another correction
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard report have been reported for the first VAT entry
@@ -1824,7 +1824,7 @@ codeunit 144001 "VAT Report"
         TestPeriodEnd: Date;
     begin
         // [SCENARIO 105793] Correction report: Suggest lines does not prompts an error if a correction line already exists for a key and no new VAT entries is posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard report have been reported for the first VAT entry
@@ -1868,7 +1868,7 @@ codeunit 144001 "VAT Report"
     begin
         // [SCENARIO 105793] Correction report: User can manually correct a VAT report line which has been previously reported.
         // The base amount displayed in correction and cancellation would be plus and minus the actual value reported before.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry A related to it with amount X
         // [GIVEN] A standard report have been reported for the first VAT entry A
@@ -1908,7 +1908,7 @@ codeunit 144001 "VAT Report"
         TestPeriodEnd: Date;
     begin
         // [SCENARIO 105793] Correction report: After correct lines was invoked for a line in the previous report, it correct line cannot be invoked again for the same line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry A related to it with amount X
         // [GIVEN] A standard report have been reported for the first VAT entry A
@@ -1946,7 +1946,7 @@ codeunit 144001 "VAT Report"
         AmountX: Decimal;
     begin
         // [SCENARIO 105793] Correction report: User can manually correct a VAT report line which has been previously corrected or reported before.
-        Initialize;
+        Initialize();
         FindFirstMonthWithoutVATEntries(TestPeriodStart, TestPeriodEnd);
 
         // [GIVEN] Customer A in EU with a VAT entry related to it with amount X
@@ -2012,7 +2012,7 @@ codeunit 144001 "VAT Report"
         OriginalVATEntryCount: Integer;
     begin
         // [SCENARIO 105793] Correct line suggests the amount of the previous report even when new VAT entries have been posted in between
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard report have been reported for the first VAT entry
@@ -2066,7 +2066,7 @@ codeunit 144001 "VAT Report"
         AmountZ: Decimal;
     begin
         // [SCENARIO 105793] Correction report: Trade type is different from the Standard report. The now excluded VAT entries are removed
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard sales report have been reported for the first VAT entry
@@ -2084,7 +2084,7 @@ codeunit 144001 "VAT Report"
           '',
           LibraryUtility.GenerateGUID,
           true, true); // Purchase entry
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         AmountZ := -Round(VATEntry.Base, 1);
 
         // [GIVEN] A correction report for the same period
@@ -2127,7 +2127,7 @@ codeunit 144001 "VAT Report"
         AmountZ: Decimal;
     begin
         // [SCENARIO 105793] Two corrections reports, where the corr. reports have different trade type than the standard
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard sales report have been reported for the first VAT entry
@@ -2161,7 +2161,7 @@ codeunit 144001 "VAT Report"
           '',
           LibraryUtility.GenerateGUID,
           true, true); // Purchase entry
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         AmountZ := -Round(VATEntry.Base, 1);
 
         // [GIVEN] A second purchase correction report is created for same period
@@ -2201,7 +2201,7 @@ codeunit 144001 "VAT Report"
         AmountZ: Decimal;
     begin
         // [SCENARIO 105793] Standard report and 2nd correction report have same trade type, 1st correction report does not. Suggest lines is used. 2nd correction report should be equal the standard.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard sales report have been reported for the first VAT entry
@@ -2211,7 +2211,7 @@ codeunit 144001 "VAT Report"
 
         // [GIVEN] A new sales document with VAT is posted for the customer in the same period with amount Y. This is only suppose to be picked up in the 2nd corr. report
         CreateVATEntries(1, TestPeriodStart, TestPeriodEnd, VATReportLine."Country/Region Code", VATReportLine."VAT Registration No.", true);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         AmountY := -Round(VATEntry.Base, 1);
 
         // [GIVEN] A purchase document is posted for the same period with amount Z
@@ -2221,7 +2221,7 @@ codeunit 144001 "VAT Report"
           '',
           LibraryUtility.GenerateGUID,
           true, true); // Purchase entry
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         AmountZ := -Round(VATEntry.Base, 1);
 
         // [GIVEN] A correction report for the same period
@@ -2279,7 +2279,7 @@ codeunit 144001 "VAT Report"
         TestPeriodEnd: Date;
     begin
         // [SCENARIO 105793] Suggest lines is invoked twice on a correction report where a filter change results in removing some entries from the standard report. No error should be thrown.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard sales report have been reported for the first VAT entry
@@ -2323,7 +2323,7 @@ codeunit 144001 "VAT Report"
         TestPeriodEnd: Date;
     begin
         // [SCENARIO 105793] Suggest lines is invoked twice on a correction report where new VAT entries have been posted since the standard report. No error is thrown
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer in EU with a VAT entry related to it with amount X
         // [GIVEN] A standard sales report have been reported for the first VAT entry
@@ -2364,7 +2364,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         SetupVATReportScenario(VATReportHeader, TestPeriodStart, TestPeriodEnd);
         VATReportPage.OpenView;
         VATReportPage.GotoRecord(VATReportHeader);
@@ -2384,11 +2384,11 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         SetupVATReportScenario(VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
 
         asserterror VATReportLine.Validate(Amount, LibraryRandom.RandInt(10000));
         Assert.ExpectedError(StrSubstNo(WrongExpectedReportStatusErr, VATReportHeader.Status::Open));
@@ -2401,7 +2401,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader: Record "VAT Report Header";
         VATReportLineRelation: Record "VAT Report Line Relation";
     begin
-        Initialize;
+        Initialize();
         CreateMockVATReportWithLines(
           VATReportHeader,
           VATReportHeader."VAT Report Type"::Standard,
@@ -2428,7 +2428,7 @@ codeunit 144001 "VAT Report"
         TestPeriodStart: Date;
         TestPeriodEnd: Date;
     begin
-        Initialize;
+        Initialize();
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
 
         CreateCorrectiveReport(VATReportHeader, CorrVATReportHeader);
@@ -2450,7 +2450,7 @@ codeunit 144001 "VAT Report"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 166131] VAT Report exports country specific symbols with correct encoding
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information address contains country specific symbols
         SetCompanyInformationAddress('ÄäÜüöÖß');
@@ -2476,9 +2476,9 @@ codeunit 144001 "VAT Report"
     begin
         // [FEATURE] [UI] [UT] [ECSL Report]
         // [SCENARIO 320449] EC Sales List Report card accepts "Report Period Type"= Month
-        Initialize;
+        Initialize();
 
-        ECSLReport.OpenNew;
+        ECSLReport.OpenNew();
         ECSLReport."Report Period No.".SetValue(1);
         ECSLReport.ReportPeriodType.SetValue(Format(VATReportHeader."Report Period Type"::Month));
         VATReportNo := ECSLReport."No.".Value;
@@ -2498,9 +2498,9 @@ codeunit 144001 "VAT Report"
     begin
         // [FEATURE] [UI] [UT] [ECSL Report]
         // [SCENARIO 320449] EC Sales List Report card accepts "Report Period Type"= Quarter
-        Initialize;
+        Initialize();
 
-        ECSLReport.OpenNew;
+        ECSLReport.OpenNew();
         ECSLReport."Report Period No.".SetValue(1);
         ECSLReport.ReportPeriodType.SetValue(Format(VATReportHeader."Report Period Type"::Quarter));
         VATReportNo := ECSLReport."No.".Value;
@@ -2519,9 +2519,9 @@ codeunit 144001 "VAT Report"
     begin
         // [FEATURE] [UI] [UT] [ECSL Report]
         // [SCENARIO 320449] EC Sales List Report card does not accept "Report Period Type"= Year
-        Initialize;
+        Initialize();
 
-        ECSLReport.OpenNew;
+        ECSLReport.OpenNew();
         ECSLReport."Report Period No.".SetValue(1);
         asserterror ECSLReport.ReportPeriodType.SetValue(Format(VATReportHeader."Report Period Type"::Year));
         Assert.ExpectedErrorCode('TestValidation');
@@ -2541,9 +2541,9 @@ codeunit 144001 "VAT Report"
     begin
         // [FEATURE] [UI] [UT] [ECSL Report]
         // [SCENARIO 320449] EC Sales List Report card accepts "Report Period Type"= Bi-Monthly
-        Initialize;
+        Initialize();
 
-        ECSLReport.OpenNew;
+        ECSLReport.OpenNew();
         ECSLReport."Report Period No.".SetValue(1);
         ECSLReport.ReportPeriodType.SetValue(Format(VATReportHeader."Report Period Type"::"Bi-Monthly"));
         VATReportNo := ECSLReport."No.".Value;
@@ -2555,7 +2555,7 @@ codeunit 144001 "VAT Report"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -2712,7 +2712,7 @@ codeunit 144001 "VAT Report"
               VATReportHeader);
 
             SetRange("No.", "No.");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2722,7 +2722,7 @@ codeunit 144001 "VAT Report"
 
         CreateMockVATEntriesForSalesDocument(
           LibraryRandom.RandIntInRange(5, 10), TestPeriodStart, TestPeriodEnd,
-          0, LibraryUtility.GenerateGUID);
+          0, LibraryUtility.GenerateGUID());
 
         CreateAndReleaseVATReport(VATReportHeader, TestPeriodStart);
     end;
@@ -2735,7 +2735,7 @@ codeunit 144001 "VAT Report"
     begin
         FindFirstMonthWithoutVATEntries(TestPeriodStart, TestPeriodEnd);
 
-        VATRegNo := LibraryUtility.GenerateGUID;
+        VATRegNo := LibraryUtility.GenerateGUID();
         CreateVATEntries(LibraryRandom.RandIntInRange(2, 5), TestPeriodStart, TestPeriodEnd, CreateCountryRegion, VATRegNo, true);
         CreateVATEntries(LibraryRandom.RandIntInRange(2, 5), TestPeriodStart, TestPeriodEnd, CreateCountryRegion, VATRegNo, false);
 
@@ -2776,7 +2776,7 @@ codeunit 144001 "VAT Report"
             VATReportMediator.Release(VATReportHeader);
 
             SetRange("No.", "No.");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2834,7 +2834,7 @@ codeunit 144001 "VAT Report"
     var
         VATEntry: Record "VAT Entry";
     begin
-        if VATEntry.FindLast then
+        if VATEntry.FindLast() then
             exit(VATEntry."Entry No." + 1);
 
         exit(1);
@@ -2977,7 +2977,7 @@ codeunit 144001 "VAT Report"
         VATReportLineRelation: Record "VAT Report Line Relation";
     begin
         VATReportLine.SetRange("VAT Report No.", VATReportNo);
-        if VATReportLine.FindSet then
+        if VATReportLine.FindSet() then
             repeat
                 with VATReportLineRelation do begin
                     Init;
@@ -3032,7 +3032,7 @@ codeunit 144001 "VAT Report"
             VATReportPart::Line:
                 begin
                     VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-                    VATReportLine.FindFirst;
+                    VATReportLine.FindFirst();
                     RecRef.GetTable(VATReportLine);
                 end;
         end;
@@ -3102,7 +3102,7 @@ codeunit 144001 "VAT Report"
             SetRange("VAT Report No.", VATReportNo);
             Assert.AreEqual(NoOfLinesExpected, Count, IncorrectNoOfReportLinesErr);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     Assert.AreEqual(
                       Base,
@@ -3134,7 +3134,7 @@ codeunit 144001 "VAT Report"
     begin
         with ReportBuf do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Format("Field Value"[1]) = Format(RecordType) then
                         exit(ExtractFieldValueFromReportLine("Field Value", FldNo));
@@ -3307,11 +3307,11 @@ codeunit 144001 "VAT Report"
         DateRec: Record Date;
     begin
         // Taking a month outside of accounting periods, as it for sure doesn't have posted entries
-        AccPeriod.FindFirst;
+        AccPeriod.FindFirst();
         with DateRec do begin
             SetRange("Period Type", "Period Type"::Month);
             SetFilter("Period Start", '<%1', AccPeriod."Starting Date");
-            FindLast;
+            FindLast();
 
             TestPeriodStart := "Period Start";
             TestPeriodEnd := NormalDate("Period End");
@@ -3353,7 +3353,7 @@ codeunit 144001 "VAT Report"
         VATReportHeader.SetRange("No.", VATReportHeader."No.");
         ExportVIESReport.SetTestExportMode(FileName);
         ExportVIESReport.SetTableView(VATReportHeader);
-        ExportVIESReport.RunModal;
+        ExportVIESReport.RunModal();
     end;
 
     local procedure ExportVATReportIntoBuffer(var VATReportHeader: Record "VAT Report Header"; var ReportBuf: Record "Data Export Buffer" temporary)
@@ -3364,7 +3364,7 @@ codeunit 144001 "VAT Report"
         Commit();
         VATReportHeader.SetRange("No.", VATReportHeader."No.");
         ExportVIESReport.SetTableView(VATReportHeader);
-        ExportVIESReport.RunModal;
+        ExportVIESReport.RunModal();
         ExportVIESReport.GetBuffer(ReportBuf);
     end;
 
@@ -3384,7 +3384,7 @@ codeunit 144001 "VAT Report"
         with VATReportLine do begin
             SetRange("VAT Report No.", VATReportNo);
             SetRange("Line Type", LineType);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3393,7 +3393,7 @@ codeunit 144001 "VAT Report"
         with VATReportLine do begin
             SetRange("VAT Report No.", VATReportNo);
             SetRange("Line Type", LineType);
-            FindLast;
+            FindLast();
         end;
     end;
 

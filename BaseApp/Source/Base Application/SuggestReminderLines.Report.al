@@ -40,7 +40,7 @@ report 189 "Suggest Reminder Lines"
                 Commit();
                 Window.Close;
                 MarkedOnly := true;
-                if FindFirst then
+                if FindFirst() then
                     if ConfirmManagement.GetResponse(Text002, true) then
                         PAGE.RunModal(0, "Reminder Header");
             end;

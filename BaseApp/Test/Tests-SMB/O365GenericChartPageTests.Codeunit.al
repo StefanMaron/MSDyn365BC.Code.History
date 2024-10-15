@@ -61,7 +61,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         CustPostingGroup: Record "Customer Posting Group";
         ChartMgt: Codeunit "Chart Management";
     begin
-        Initialize;
+        Initialize();
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
 
         ChartDefinition.Get(CODEUNIT::"Top Ten Customers Chart Mgt.", TopTenCustomerChartNameTxt);
@@ -87,7 +87,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
           'Chart Setup is not initialized');
         Assert.AreEqual(
           BusChartUserSetup."Period Length"::Week, BusChartUserSetup."Period Length", 'Wrong default period length');
-        if CustPostingGroup.FindFirst then
+        if CustPostingGroup.FindFirst() then
             CustPostingGroup.TestField(Code, BusinessChartBuffer.GetMeasureName(0));
 
         ChartDefinition.Get(CODEUNIT::"Aged Acc. Payable", AgedAccPayableNameTxt);
@@ -112,7 +112,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         ChartMgt: Codeunit "Chart Management";
         PeriodLength: Option;
     begin
-        Initialize;
+        Initialize();
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
 
         ChartDefinition.Get(CODEUNIT::"Acc. Sched. Chart Management", XIncomeAndExpenseChartNameTxt);
@@ -140,7 +140,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         BusinessChartBuffer: Record "Business Chart Buffer";
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
     begin
-        Initialize;
+        Initialize();
         // Look back
         AccountSchedulesChartSetup.Get('', XIncomeAndExpenseChartNameTxt);
         if AccountSchedulesChartSetup."Look Ahead" then begin
@@ -175,7 +175,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         StatusText: Text;
         StartDate: Text;
     begin
-        Initialize;
+        Initialize();
         // Acc Schedule Chart. X-Axis Period - status text = chart name + view by
         ChartDefinition.Get(CODEUNIT::"Acc. Sched. Chart Management", XIncomeAndExpenseChartNameTxt);
         ChartMgt.UpdateStatusText(ChartDefinition, BusinessChartBuffer, StatusText);
@@ -215,7 +215,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         ChartMgt: Codeunit "Chart Management";
         XCaptionPriorToSelectingDisabledChart: Text;
     begin
-        Initialize;
+        Initialize();
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
         XCaptionPriorToSelectingDisabledChart := BusinessChartBuffer.GetXCaption;
 
@@ -235,7 +235,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         ChartMgt: Codeunit "Chart Management";
         XCaptionAfterChange: Text;
     begin
-        Initialize;
+        Initialize();
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
 
         // Verify that when you reopen the Generic Chart page, you get the chart that was used last time
@@ -252,7 +252,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         BusinessChartBuffer: Record "Business Chart Buffer";
         ChartMgt: Codeunit "Chart Management";
     begin
-        Initialize;
+        Initialize();
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
 
         // disable the last used chart
@@ -275,7 +275,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         ChartMgt: Codeunit "Chart Management";
         CustomerCard: TestPage "Customer Card";
     begin
-        Initialize;
+        Initialize();
         CreateCustomer;
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
         CustomerCard.Trap;
@@ -294,7 +294,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         ChartMgt: Codeunit "Chart Management";
         CustomerCard: TestPage "Customer Card";
     begin
-        Initialize;
+        Initialize();
         CreateCustomer;
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
         CustomerCard.Trap;
@@ -313,7 +313,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         ChartMgt: Codeunit "Chart Management";
         CustLedgEntries: TestPage "Customer Ledger Entries";
     begin
-        Initialize;
+        Initialize();
         CreateCustLedgEntry;
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
         CustLedgEntries.Trap;
@@ -334,7 +334,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         ChartMgt: Codeunit "Chart Management";
         VendLedgEntries: TestPage "Vendor Ledger Entries";
     begin
-        Initialize;
+        Initialize();
         CreateVendLedgEntry;
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
         VendLedgEntries.Trap;
@@ -354,7 +354,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         BusinessChartBuffer: Record "Business Chart Buffer";
         ChartMgt: Codeunit "Chart Management";
     begin
-        Initialize;
+        Initialize();
         CreateCustomer;
         ChartMgt.AddinReady(ChartDefinition, BusinessChartBuffer);
         DatapointClicked(
@@ -376,7 +376,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         // [FEATURE] [UI] [Business Manager] [Role Center]
         // [SCENARIO] System must restore selected chart when chart is reopened / reinitialized by the same user
 
-        Initialize;
+        Initialize();
         LibraryVariableStorage.AssertEmpty;
 
         if LastUsedChart.Get(UserId) then begin
@@ -417,8 +417,8 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Generic Chart Page Tests");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if ChartDefinition.FindSet(true) then
             repeat
@@ -437,7 +437,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Generic Chart Page Tests");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
         isInitialized := true;
         Commit();
@@ -468,7 +468,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         EntryNo: Integer;
     begin
         EntryNo := 1;
-        if CustLedgEntry.FindLast then
+        if CustLedgEntry.FindLast() then
             EntryNo := CustLedgEntry."Entry No." + 1;
 
         CustLedgEntry.Init();
@@ -476,7 +476,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         CustLedgEntry."Due Date" := WorkDate;
         CustLedgEntry."Amount (LCY)" := 100;
         CustLedgEntry.Open := true;
-        if CustPostingGroup.FindFirst then
+        if CustPostingGroup.FindFirst() then
             CustLedgEntry."Customer Posting Group" := CustPostingGroup.Code;
         CustLedgEntry.Insert();
     end;
@@ -487,7 +487,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
         EntryNo: Integer;
     begin
         EntryNo := 1;
-        if VendLedgEntry.FindLast then
+        if VendLedgEntry.FindLast() then
             EntryNo := VendLedgEntry."Entry No." + 1;
 
         VendLedgEntry.Init();

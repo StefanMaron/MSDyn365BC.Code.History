@@ -10,9 +10,6 @@ codeunit 1510 "Notification Management"
 
     var
         OverdueEntriesMsg: Label 'Overdue approval entries have been created.';
-        SalesTxt: Label 'Sales';
-        PurchaseTxt: Label 'Purchase';
-        ServiceTxt: Label 'Service';
         SalesInvoiceTxt: Label 'Sales Invoice';
         PurchaseInvoiceTxt: Label 'Purchase Invoice';
         ServiceInvoiceTxt: Label 'Service Invoice';
@@ -34,13 +31,13 @@ codeunit 1510 "Notification Management"
         OverdueApprovalEntry: Record "Overdue Approval Entry";
         NotificationEntry: Record "Notification Entry";
     begin
-        if UserSetup.FindSet then
+        if UserSetup.FindSet() then
             repeat
                 ApprovalEntry.Reset();
                 ApprovalEntry.SetRange("Approver ID", UserSetup."User ID");
                 ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
                 ApprovalEntry.SetFilter("Due Date", '<=%1', Today);
-                if ApprovalEntry.FindSet then
+                if ApprovalEntry.FindSet() then
                     repeat
                         InsertOverdueEntry(ApprovalEntry, OverdueApprovalEntry);
                         NotificationEntry.CreateNotificationEntry(NotificationEntry.Type::Overdue,
@@ -63,7 +60,7 @@ codeunit 1510 "Notification Management"
             Init;
             "Approver ID" := ApprovalEntry."Approver ID";
             User.SetRange("User Name", ApprovalEntry."Approver ID");
-            if User.FindFirst then begin
+            if User.FindFirst() then begin
                 "Sent to Name" := CopyStr(User."Full Name", 1, MaxStrLen("Sent to Name"));
                 UserSetup.Get(User."User Name");
             end;
@@ -84,14 +81,6 @@ codeunit 1510 "Notification Management"
             Insert;
         end;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by CreateDefaultNotificationTypeSetup().', '17.0')]
-    procedure CreateDefaultNotificationSetup(NotificationType: Option)
-    begin
-        CreateDefaultNotificationTypeSetup("Notification Entry Type".FromInteger(NotificationType));
-    end;
-#endif
 
     procedure CreateDefaultNotificationTypeSetup(NotificationType: Enum "Notification Entry Type")
     var
@@ -121,7 +110,7 @@ codeunit 1510 "Notification Management"
         InitialSentNotificationEntry: Record "Sent Notification Entry";
     begin
         if AggregatedNotifications then begin
-            if NotificationEntry.FindSet then begin
+            if NotificationEntry.FindSet() then begin
                 InitialSentNotificationEntry.NewRecord(NotificationEntry, NotificationBody, NotificationMethod);
                 while NotificationEntry.Next <> 0 do begin
                     SentNotificationEntry.NewRecord(NotificationEntry, NotificationBody, NotificationMethod);

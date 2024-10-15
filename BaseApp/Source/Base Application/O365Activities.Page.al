@@ -66,7 +66,7 @@ page 1310 "O365 Activities"
             {
                 CueGroupLayout = Wide;
                 ShowCaption = false;
-                field("Sales This Month"; "Sales This Month")
+                field("Sales This Month"; Rec."Sales This Month")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Sales Invoice List";
@@ -77,7 +77,7 @@ page 1310 "O365 Activities"
                         ActivitiesMgt.DrillDownSalesThisMonth;
                     end;
                 }
-                field("Overdue Sales Invoice Amount"; "Overdue Sales Invoice Amount")
+                field("Overdue Sales Invoice Amount"; Rec."Overdue Sales Invoice Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of overdue payments from customers.';
@@ -87,14 +87,14 @@ page 1310 "O365 Activities"
                         ActivitiesMgt.DrillDownCalcOverdueSalesInvoiceAmount;
                     end;
                 }
-                field("Overdue Purch. Invoice Amount"; "Overdue Purch. Invoice Amount")
+                field("Overdue Purch. Invoice Amount"; Rec."Overdue Purch. Invoice Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of your overdue payments to vendors.';
 
                     trigger OnDrillDown()
                     begin
-                        ActivitiesMgt.DrillDownOverduePurchaseInvoiceAmount;
+                        ActivitiesMgt.DrillDownOverduePurchaseInvoiceAmount();
                     end;
                 }
             }
@@ -122,21 +122,21 @@ page 1310 "O365 Activities"
             cuegroup("Ongoing Sales")
             {
                 Caption = 'Ongoing Sales';
-                field("Ongoing Sales Quotes"; "Ongoing Sales Quotes")
+                field("Ongoing Sales Quotes"; Rec."Ongoing Sales Quotes")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Quotes';
                     DrillDownPageID = "Sales Quotes";
                     ToolTip = 'Specifies sales quotes that have not yet been converted to invoices or orders.';
                 }
-                field("Ongoing Sales Orders"; "Ongoing Sales Orders")
+                field("Ongoing Sales Orders"; Rec."Ongoing Sales Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Orders';
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies sales orders that are not yet posted or only partially posted.';
                 }
-                field("Ongoing Sales Invoices"; "Ongoing Sales Invoices")
+                field("Ongoing Sales Invoices"; Rec."Ongoing Sales Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Invoices';
@@ -148,14 +148,14 @@ page 1310 "O365 Activities"
             {
                 Caption = 'Document Exchange Service';
                 Visible = ShowDocumentsPendingDocExchService;
-                field("Sales Inv. - Pending Doc.Exch."; "Sales Inv. - Pending Doc.Exch.")
+                field("Sales Inv. - Pending Doc.Exch."; Rec."Sales Inv. - Pending Doc.Exch.")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Posted Sales Invoices";
                     ToolTip = 'Specifies sales invoices that await sending to the customer through the document exchange service.';
                     Visible = ShowDocumentsPendingDocExchService;
                 }
-                field("Sales CrM. - Pending Doc.Exch."; "Sales CrM. - Pending Doc.Exch.")
+                field("Sales CrM. - Pending Doc.Exch."; Rec."Sales CrM. - Pending Doc.Exch.")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Posted Sales Credit Memos";
@@ -166,65 +166,47 @@ page 1310 "O365 Activities"
             cuegroup("Ongoing Purchases")
             {
                 Caption = 'Ongoing Purchases';
-                field("Purchase Orders"; "Purchase Orders")
+                field("Purchase Orders"; Rec."Purchase Orders")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Purchase Order List";
                     ToolTip = 'Specifies purchases orders that are not posted or only partially posted.';
                 }
-                field("Ongoing Purchase Invoices"; "Ongoing Purchase Invoices")
+                field("Ongoing Purchase Invoices"; Rec."Ongoing Purchase Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Purchase Invoices";
                     ToolTip = 'Specifies purchases invoices that are not posted or only partially posted.';
                 }
-                field("Purch. Invoices Due Next Week"; "Purch. Invoices Due Next Week")
+                field("Purch. Invoices Due Next Week"; Rec."Purch. Invoices Due Next Week")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of payments to vendors that are due next week.';
-                }
-            }
-            cuegroup(Approvals)
-            {
-                Caption = 'Approvals';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with Approvals Activities part';
-                Visible = false;
-                ObsoleteTag = '17.0';
-                field("Requests to Approve"; "Requests to Approve")
-                {
-                    ApplicationArea = Suite;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with Approvals Activities part';
-                    Visible = false;
-                    DrillDownPageID = "Requests to Approve";
-                    ToolTip = 'Specifies the number of approval requests that require your approval.';
-                    ObsoleteTag = '17.0';
                 }
             }
             cuegroup(Intercompany)
             {
                 Caption = 'Intercompany';
                 Visible = ShowIntercompanyActivities;
-                field("IC Inbox Transactions"; "IC Inbox Transactions")
+                field("IC Inbox Transactions"; Rec."IC Inbox Transactions")
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Pending Inbox Transactions';
                     DrillDownPageID = "IC Inbox Transactions";
-                    Visible = "IC Inbox Transactions" <> 0;
+                    Visible = Rec."IC Inbox Transactions" <> 0;
                 }
-                field("IC Outbox Transactions"; "IC Outbox Transactions")
+                field("IC Outbox Transactions"; Rec."IC Outbox Transactions")
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Pending Outbox Transactions';
                     DrillDownPageID = "IC Outbox Transactions";
-                    Visible = "IC Outbox Transactions" <> 0;
+                    Visible = Rec."IC Outbox Transactions" <> 0;
                 }
             }
             cuegroup(Payments)
             {
                 Caption = 'Payments';
-                field("Non-Applied Payments"; "Non-Applied Payments")
+                field("Non-Applied Payments"; Rec."Non-Applied Payments")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Unprocessed Payments';
@@ -236,12 +218,12 @@ page 1310 "O365 Activities"
                         CODEUNIT.Run(CODEUNIT::"Pmt. Rec. Journals Launcher");
                     end;
                 }
-                field("Average Collection Days"; "Average Collection Days")
+                field("Average Collection Days"; Rec."Average Collection Days")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how long customers took to pay invoices in the last three months. This is the average number of days from when invoices are issued to when customers pay the invoices.';
                 }
-                field("Outstanding Vendor Invoices"; "Outstanding Vendor Invoices")
+                field("Outstanding Vendor Invoices"; Rec."Outstanding Vendor Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of invoices from your vendors that have not been paid yet.';
@@ -279,12 +261,12 @@ page 1310 "O365 Activities"
             cuegroup("Incoming Documents")
             {
                 Caption = 'Incoming Documents';
-                field("My Incoming Documents"; "My Incoming Documents")
+                field("My Incoming Documents"; Rec."My Incoming Documents")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies incoming documents that are assigned to you.';
                 }
-                field("Awaiting Verfication"; "Inc. Doc. Awaiting Verfication")
+                field("Awaiting Verfication"; Rec."Inc. Doc. Awaiting Verfication")
                 {
                     ApplicationArea = Suite;
                     DrillDown = true;
@@ -305,7 +287,7 @@ page 1310 "O365 Activities"
             {
                 Caption = 'Data Integration';
                 Visible = ShowDataIntegrationCues;
-                field("CDS Integration Errors"; "CDS Integration Errors")
+                field("CDS Integration Errors"; Rec."CDS Integration Errors")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Integration Errors';
@@ -313,40 +295,13 @@ page 1310 "O365 Activities"
                     ToolTip = 'Specifies the number of errors related to data integration.';
                     Visible = ShowIntegrationErrorsCue;
                 }
-                field("Coupled Data Synch Errors"; "Coupled Data Synch Errors")
+                field("Coupled Data Synch Errors"; Rec."Coupled Data Synch Errors")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Coupled Data Synchronization Errors';
                     DrillDownPageID = "CRM Skipped Records";
                     ToolTip = 'Specifies the number of errors that occurred in the latest synchronization of coupled data between Business Central and Dynamics 365 Sales.';
                     Visible = ShowD365SIntegrationCues;
-                }
-            }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
                 }
             }
 #if not CLEAN19
@@ -451,8 +406,8 @@ page 1310 "O365 Activities"
 
                 trigger OnAction()
                 begin
-                    "Last Date/Time Modified" := 0DT;
-                    Modify;
+                    Rec."Last Date/Time Modified" := 0DT;
+                    Rec.Modify();
 
                     CODEUNIT.Run(CODEUNIT::"Activities Mgt.");
                     CurrPage.Update(false);
@@ -487,7 +442,7 @@ page 1310 "O365 Activities"
 
     trigger OnAfterGetRecord()
     begin
-        SetActivityGroupVisibility;
+        SetActivityGroupVisibility();
     end;
 
     trigger OnInit()
@@ -506,22 +461,21 @@ page 1310 "O365 Activities"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         NewRecord: Boolean;
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
             Commit();
             NewRecord := true;
         end;
 
-        SetRange("User ID Filter", UserId);
-        SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', WorkDate()), CalcDate('<1W>', WorkDate()));
+        Rec.SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', WorkDate()), CalcDate('<1W>', WorkDate()));
 
         HasCamera := Camera.IsAvailable();
 
-        PrepareOnLoadDialog;
+        PrepareOnLoadDialog();
 
-        ShowAwaitingIncomingDoc := OCRServiceMgt.OcrServiceIsEnable;
+        ShowAwaitingIncomingDoc := OCRServiceMgt.OcrServiceIsEnable();
         ShowIntercompanyActivities := false;
         ShowDocumentsPendingDocExchService := false;
         ShowProductVideosActivities := ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Phone;
@@ -529,10 +483,10 @@ page 1310 "O365 Activities"
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
         ShowD365SIntegrationCues := CRMIntegrationManagement.IsIntegrationEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
         ShowIntegrationErrorsCue := ShowDataIntegrationCues and (not ShowD365SIntegrationCues);
-        RoleCenterNotificationMgt.ShowNotifications;
-        ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent;
+        RoleCenterNotificationMgt.ShowNotifications();
+        ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent();
 
-        CalculateCueFieldValues;
+        CalculateCueFieldValues();
     end;
 
     var
@@ -541,7 +495,6 @@ page 1310 "O365 Activities"
         O365GettingStartedMgt: Codeunit "O365 Getting Started Mgt.";
         ClientTypeManagement: Codeunit "Client Type Management";
         EnvironmentInfo: Codeunit "Environment Information";
-        UserTaskManagement: Codeunit "User Task Management";
         Camera: Codeunit Camera;
         [RunOnClient]
         [WithEvents]
@@ -571,8 +524,6 @@ page 1310 "O365 Activities"
         PBTTelemetryMsgTxt: Label 'PBT errored with code %1 and text %2. The call stack is as follows %3.', Locked = true;
 
     procedure CalculateCueFieldValues()
-    var
-        params: Dictionary of [Text, Text];
     begin
         if (TaskIdCalculateCue <> 0) then
             CurrPage.CancelBackgroundTask(TaskIdCalculateCue);
@@ -586,8 +537,8 @@ page 1310 "O365 Activities"
         if (TaskId <> TaskIdCalculateCue) then
             exit;
 
-        if ActivitiesMgt.IsCueDataStale then
-            if not TASKSCHEDULER.CanCreateTask then
+        if ActivitiesMgt.IsCueDataStale() then
+            if not TASKSCHEDULER.CanCreateTask() then
                 CODEUNIT.Run(CODEUNIT::"Activities Mgt.")
             else
                 TASKSCHEDULER.CreateTask(CODEUNIT::"Activities Mgt.", 0, true, CompanyName, CurrentDateTime);
@@ -600,25 +551,25 @@ page 1310 "O365 Activities"
         O365ActivitiesDictionary: Codeunit "O365 Activities Dictionary";
     begin
         if (TaskId = TaskIdCalculateCue) THEN BEGIN
-            LockTable(true);
-            Get();
+            Rec.LockTable(true);
+            Rec.Get();
             O365ActivitiesDictionary.FillActivitiesCue(Results, Rec);
-            "Last Date/Time Modified" := CurrentDateTime;
-            Modify(true);
+            Rec."Last Date/Time Modified" := CurrentDateTime;
+            Rec.Modify(true);
         END
     end;
 
     local procedure SetActivityGroupVisibility()
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
     begin
         if DocExchServiceSetup.Get then
             ShowDocumentsPendingDocExchService := DocExchServiceSetup.Enabled;
 
-        if CompanyInformation.Get then
+        if ICSetup.Get() then
             ShowIntercompanyActivities :=
-              (CompanyInformation."IC Partner Code" <> '') and (("IC Inbox Transactions" <> 0) or ("IC Outbox Transactions" <> 0));
+              (ICSetup."IC Partner Code" <> '') and ((Rec."IC Inbox Transactions" <> 0) or (Rec."IC Outbox Transactions" <> 0));
     end;
 
     local procedure StartWhatIsNewTour(hasTourCompleted: Boolean): Boolean
@@ -626,7 +577,7 @@ page 1310 "O365 Activities"
         O365UserTours: Record "User Tours";
         TourID: Integer;
     begin
-        TourID := O365GettingStartedMgt.GetWhatIsNewTourID;
+        TourID := O365GettingStartedMgt.GetWhatIsNewTourID();
 
         if O365UserTours.AlreadyCompleted(TourID) then
             exit(false);
@@ -646,13 +597,13 @@ page 1310 "O365 Activities"
 
     local procedure PrepareOnLoadDialog()
     begin
-        HideWizardForDevices := PrepareUserTours;
-        PreparePageNotifier;
+        HideWizardForDevices := PrepareUserTours();
+        PreparePageNotifier();
     end;
 
     local procedure PreparePageNotifier()
     begin
-        if not PageNotifier.IsAvailable then
+        if not PageNotifier.IsAvailable() then
             exit;
         PageNotifier := PageNotifier.Create;
         PageNotifier.NotifyPageReady;

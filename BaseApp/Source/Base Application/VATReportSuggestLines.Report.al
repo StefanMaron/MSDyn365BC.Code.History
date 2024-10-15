@@ -153,7 +153,7 @@ report 741 "VAT Report Suggest Lines"
         TempVATReportLine.SetRange("Trade Role Type", VATReportLine."Trade Role Type");
         TempVATReportLine.SetRange("EU 3-Party Trade", VATReportLine."EU 3-Party Trade");
         TempVATReportLine.SetRange("EU Service", VATReportLine."EU Service");
-        if TempVATReportLine.FindFirst then begin
+        if TempVATReportLine.FindFirst() then begin
             TempVATReportLine.Base += VATReportLine.Base;
             TempVATReportLine.Amount += VATReportLine.Amount;
             UpdateNumberOfSupplies(TempVATReportLine, VATEntry."Transaction No.");
@@ -181,7 +181,7 @@ report 741 "VAT Report Suggest Lines"
         VATReportLineRelation: Record "VAT Report Line Relation";
     begin
         TempVATReportLine.Reset();
-        if TempVATReportLine.FindSet then
+        if TempVATReportLine.FindSet() then
             repeat
                 VATReportLine := TempVATReportLine;
                 VATReportLine.Amount := Round(TempVATReportLine.Amount, 1);
@@ -190,7 +190,7 @@ report 741 "VAT Report Suggest Lines"
                 VATReportLine.Insert(true);
                 TempVATReportLineRelation.SetRange("VAT Report No.", TempVATReportLine."VAT Report No.");
                 TempVATReportLineRelation.SetRange("VAT Report Line No.", TempVATReportLine."Line No.");
-                if TempVATReportLineRelation.FindSet then
+                if TempVATReportLineRelation.FindSet() then
                     repeat
                         VATReportLineRelation := TempVATReportLineRelation;
                         VATReportLineRelation."VAT Report Line No." := VATReportLine."Line No.";
@@ -210,7 +210,7 @@ report 741 "VAT Report Suggest Lines"
         CancelOutOfScopeLines;
 
         TempVATReportLine.Reset();
-        if TempVATReportLine.FindSet then
+        if TempVATReportLine.FindSet() then
             repeat
                 SkipLine := false;
                 if GetKeyInReport(TempVATReportLine, ExistingVATReportLine, VATReportHeader."No.", false) then
@@ -229,7 +229,7 @@ report 741 "VAT Report Suggest Lines"
 
                         TempVATReportLineRelation.SetRange("VAT Report No.", TempVATReportLine."VAT Report No.");
                         TempVATReportLineRelation.SetRange("VAT Report Line No.", TempVATReportLine."Line No.");
-                        if TempVATReportLineRelation.FindSet then
+                        if TempVATReportLineRelation.FindSet() then
                             repeat
                                 VATReportLineRelation := TempVATReportLineRelation;
                                 VATReportLineRelation."VAT Report Line No." := VATReportLine."Line No.";
@@ -255,7 +255,7 @@ report 741 "VAT Report Suggest Lines"
         ExistingVATReportLine.Reset();
         ExistingVATReportLine.SetRange("VAT Report to Correct", VATReportHeader."Original Report No.");
         ExistingVATReportLine.SetRange("Able to Correct Line", true);
-        if ExistingVATReportLine.FindSet then begin
+        if ExistingVATReportLine.FindSet() then begin
             repeat
                 if ExistingVATReportLine.Base <> 0 then begin
                     if not GetKeyInReport(ExistingVATReportLine, TempVATReportLine, VATReportHeader."No.", false) then begin
@@ -397,7 +397,7 @@ report 741 "VAT Report Suggest Lines"
         if VATReportLineRelation.Count <> TempVATReportLineRelation.Count then
             exit(true);
 
-        if VATReportLineRelation.FindSet and TempVATReportLineRelation.FindSet then
+        if VATReportLineRelation.FindSet and TempVATReportLineRelation.FindSet() then
             repeat
                 if VATReportLineRelation."Entry No." <> TempVATReportLineRelation."Entry No." then
                     exit(true);
@@ -422,7 +422,7 @@ report 741 "VAT Report Suggest Lines"
         end else
             ExistingVATReportLine.SetRange("VAT Report No.", VATReportNo);
 
-        if ExistingVATReportLine.FindLast then
+        if ExistingVATReportLine.FindLast() then
             exit(true);
         exit(false);
     end;

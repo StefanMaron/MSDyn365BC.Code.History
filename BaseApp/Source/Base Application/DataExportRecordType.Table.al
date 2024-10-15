@@ -36,7 +36,7 @@ table 11007 "Data Export Record Type"
         DataExportRecordDefinition: Record "Data Export Record Definition";
     begin
         DataExportRecordDefinition.SetRange("Data Exp. Rec. Type Code", Code);
-        if DataExportRecordDefinition.FindFirst then
+        if DataExportRecordDefinition.FindFirst() then
             Error(MustNotDeleteErr, Code);
     end;
 

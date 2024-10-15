@@ -1,8 +1,12 @@
+#if not CLEAN20
 page 581 "XBRL Line Constants Part"
 {
     Caption = 'XBRL Line Constants Part';
     PageType = ListPart;
     SourceTable = "XBRL Line Constant";
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -30,3 +34,5 @@ page 581 "XBRL Line Constants Part"
     }
 }
 
+
+#endif

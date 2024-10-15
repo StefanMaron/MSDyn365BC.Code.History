@@ -14,12 +14,15 @@ report 296 "Batch Post Sales Orders"
             trigger OnPreDataItem()
             var
                 SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
+                IsHandled: Boolean;
             begin
-                OnBeforeSalesBatchPostMgt("Sales Header", ShipReq, InvReq);
-
-                SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
-                SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, ShipReq, InvReq);
-
+                IsHandled := false;
+                OnBeforeSalesBatchPostMgt("Sales Header", ShipReq, InvReq, SalesBatchPostMgt, IsHandled);
+                if not IsHandled then begin
+                    SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
+                    SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, ShipReq, InvReq);
+                end;
+                OnAfterSalesBatchPostMgt("Sales Header", SalesBatchPostMgt);
                 CurrReport.Break();
             end;
         }
@@ -135,15 +138,17 @@ report 296 "Batch Post Sales Orders"
 
     var
         Text003: Label 'The exchange rate associated with the new posting date on the sales header will not apply to the sales lines.';
+        PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
+
+    protected var
         ShipReq: Boolean;
         InvReq: Boolean;
         PostingDateReq: Date;
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
-        PrintDoc: Boolean;
-        [InDataSet]
-        PrintDocVisible: Boolean;
 
     procedure InitializeRequest(ShipParam: Boolean; InvoiceParam: Boolean; PostingDateParam: Date; ReplacePostingDateParam: Boolean; ReplaceDocumentDateParam: Boolean; CalcInvDiscParam: Boolean)
     begin
@@ -161,7 +166,12 @@ report 296 "Batch Post Sales Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesBatchPostMgt(var SalesHeader: Record "Sales Header"; var ShipReq: Boolean; var InvReq: Boolean)
+    local procedure OnBeforeSalesBatchPostMgt(var SalesHeader: Record "Sales Header"; var ShipReq: Boolean; var InvReq: Boolean; var SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesBatchPostMgt(var SalesHeader: Record "Sales Header"; var SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.")
     begin
     end;
 }

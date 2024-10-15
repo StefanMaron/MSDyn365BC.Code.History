@@ -326,7 +326,7 @@ table 5005270 "Delivery Reminder Header"
     local procedure Undo(): Boolean
     begin
         DeliveryReminderLine.SetRange("Document No.", "No.");
-        if DeliveryReminderLine.FindFirst then begin
+        if DeliveryReminderLine.FindFirst() then begin
             Commit();
             if not
                Confirm(

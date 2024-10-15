@@ -162,7 +162,7 @@ report 502 "Intrastat - Checklist"
                     IntrastatJnlLineTemp.SetRange("Country/Region Code", "Country/Region Code");
                     IntrastatJnlLineTemp.SetRange("Transaction Type", "Transaction Type");
                     IntrastatJnlLineTemp.SetRange("Transport Method", "Transport Method");
-                    if not IntrastatJnlLineTemp.FindFirst then begin
+                    if not IntrastatJnlLineTemp.FindFirst() then begin
                         IntrastatJnlLineTemp := "Intrastat Jnl. Line";
                         IntrastatJnlLineTemp.Insert();
                         NoOfRecordsRTC += 1;
@@ -180,7 +180,7 @@ report 502 "Intrastat - Checklist"
                         PrevIntrastatJnlLine.SetRange("Tariff No.", "Tariff No.");
                         PrevIntrastatJnlLine.SetRange("Transaction Type", "Transaction Type");
                         PrevIntrastatJnlLine.SetRange("Transport Method", "Transport Method");
-                        PrevIntrastatJnlLine.FindFirst;
+                        PrevIntrastatJnlLine.FindFirst();
                     end;
 
                     SubTotalWeight := SubTotalWeight + Round("Total Weight", 1);

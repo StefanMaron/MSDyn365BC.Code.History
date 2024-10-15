@@ -46,7 +46,7 @@ codeunit 134205 "WF Demo Customer Approval"
         // [THEN] The Approval flow gets started.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
 
@@ -83,7 +83,7 @@ codeunit 134205 "WF Demo Customer Approval"
         // [THEN] The Approval flow is canceled.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
 
@@ -124,7 +124,7 @@ codeunit 134205 "WF Demo Customer Approval"
         // [THEN] The approval entries are renamed to point to the same record.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
 
@@ -174,7 +174,7 @@ codeunit 134205 "WF Demo Customer Approval"
         // [THEN] The customer approval requests are canceled and then the customer is deleted.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
 
@@ -214,7 +214,7 @@ codeunit 134205 "WF Demo Customer Approval"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] Customer approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] Customer card is opened.
         LibrarySales.CreateCustomer(Customer);
@@ -288,7 +288,7 @@ codeunit 134205 "WF Demo Customer Approval"
     begin
         // [SCENARIO 4] Approval action availability.
         // [GIVEN] Customer approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] Customer card is opened.
         LibrarySales.CreateCustomer(Customer);
@@ -347,7 +347,7 @@ codeunit 134205 "WF Demo Customer Approval"
         // [GIVEN] A Customer Approval.
         // [WHEN] The user approves a request for customer approval.
         // [THEN] The Customer gets approved.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -390,7 +390,7 @@ codeunit 134205 "WF Demo Customer Approval"
         // [GIVEN] A Customer Approval.
         // [WHEN] The user rejects a request for customer approval.
         // [THEN] The Customer gets rejected.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
@@ -434,7 +434,7 @@ codeunit 134205 "WF Demo Customer Approval"
         // [GIVEN] A Customer Approval.
         // [WHEN] The user delegates a request for customer approval.
         // [THEN] The Customer gets assigned to the substitute.
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
@@ -484,7 +484,7 @@ codeunit 134205 "WF Demo Customer Approval"
         // [THEN] Any sales document using the customer cannot be posted.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
         LibrarySales.CreateCustomer(Customer);
@@ -524,7 +524,7 @@ codeunit 134205 "WF Demo Customer Approval"
         // [THEN] Any sales document using the customer can be posted.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
 
@@ -565,7 +565,7 @@ codeunit 134205 "WF Demo Customer Approval"
         // [THEN] Any sales document using the customer can be posted.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
 
@@ -607,7 +607,7 @@ codeunit 134205 "WF Demo Customer Approval"
     begin
         // [FEATURE] [Workflow] [Workflow User Group]
         // [SCENARIO 264151] Run standard Customer Approval Workflow for ApproverType = Workflow User Group with incremental Sequence.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUS".
         LibrarySales.CreateCustomer(Customer);
@@ -674,7 +674,7 @@ codeunit 134205 "WF Demo Customer Approval"
     begin
         // [FEATURE] [Workflow] [Workflow User Group]
         // [SCENARIO 318374] Approval Entry has Status::Open when there is approval entry with lower sequence no. approved.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer
         LibrarySales.CreateCustomer(Customer);
@@ -717,7 +717,7 @@ codeunit 134205 "WF Demo Customer Approval"
     begin
         // [FEATURE] [Workflow] [Workflow User Group]
         // [SCENARIO 264151] When the Customer Approval Workflow has 'On Approve Approval request' event, then it must be triggered when Approval Entry is created and approved by the same user for ApproverType = Workflow Group.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUS"
         LibrarySales.CreateCustomer(Customer);
@@ -754,8 +754,8 @@ codeunit 134205 "WF Demo Customer Approval"
         WorkflowUserGroupMember: Record "Workflow User Group Member";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Customer Approval");
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         UserSetup.DeleteAll();
         WorkflowUserGroup.DeleteAll();
@@ -815,7 +815,7 @@ codeunit 134205 "WF Demo Customer Approval"
         ApprovalEntry.SetRange("Approval Code", WorkflowCode);
         ApprovalEntry.SetRange("Approver ID", ApproverID);
         ApprovalEntry.SetRange(Status, Status);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
     end;
 
     local procedure AddApprovalComment(ApprovalEntry: Record "Approval Entry")

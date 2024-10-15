@@ -252,7 +252,7 @@ table 11004 "Data Export Record Source"
             DataExportTableRelation.SetRange("Data Export Code", "Data Export Code");
             DataExportTableRelation.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
             DataExportTableRelation.SetRange("To Table No.", "Table No.");
-            if DataExportTableRelation.FindSet then
+            if DataExportTableRelation.FindSet() then
                 repeat
                     if not DoesExistDuplicateSourceLine then
                         DataExportTableRelation.Delete();
@@ -315,7 +315,7 @@ table 11004 "Data Export Record Source"
     begin
         "Export Table Name" := DataExportManagement.FormatForIndexXML("Export Table Name");
         ApplyDataExportRecordSourceFilter(DataExportRecordSource, FieldNo("Export Table Name"));
-        if not DataExportRecordSource.FindSet then
+        if not DataExportRecordSource.FindSet() then
             exit("Export Table Name");
         DataExportRecordSource.SetFilter("Export Table Name", "Export Table Name" + '*');
         DataExportRecordSource.FindSet();
@@ -336,7 +336,7 @@ table 11004 "Data Export Record Source"
         LargestPostfix: Integer;
     begin
         ApplyDataExportRecordSourceFilter(DataExportRecordSource, FieldNo("Export File Name"));
-        if not DataExportRecordSource.FindSet then
+        if not DataExportRecordSource.FindSet() then
             exit("Export File Name");
         "Export File Name" := DelStr("Export File Name", StrPos("Export File Name", '.'));
         DataExportRecordSource.SetFilter("Export File Name", "Export File Name" + '*');
@@ -405,7 +405,7 @@ table 11004 "Data Export Record Source"
         Field.SetRange(Class, Field.Class::FlowFilter);
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
         if Field.Count = 1 then begin
-            Field.FindFirst;
+            Field.FindFirst();
             "Date Filter Field No." := Field."No.";
         end;
     end;

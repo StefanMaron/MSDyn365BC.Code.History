@@ -47,7 +47,9 @@
         ItemTrackingMode: Option " ","Assign Lot No.","Select Entries";
         QuantityNotCorrectErr: Label 'Quantity is not correct in Planning Worksheet';
         Direction: Option Outbound,Inbound;
+#if not CLEAN20
         MustSetLocationErr: Label 'You must set a location filter.';
+#endif
         VersionsWillBeClosedMsg: Label 'All versions attached to the BOM will be closed. Close BOM?';
 
     [Test]
@@ -58,7 +60,7 @@
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanForBlockedItem(Item."Replenishment System"::Purchase);
     end;
 
@@ -69,7 +71,7 @@
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanForBlockedItem(Item."Replenishment System"::"Prod. Order");
     end;
 
@@ -103,7 +105,7 @@
         DocNoIsProdOrderNo: Boolean;
     begin
         // Setup: Update Manufacturing Setup. Create Parent and Child Item hierarchy with Reorder policy - Fixed Reorder Qty. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         DocNoIsProdOrderNo := UpdateManufacturingSetup(false);
         CreateFRQItemSetup(ChildItem, Item);
 
@@ -130,7 +132,7 @@
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         RegenPlanNotAffectedByDeleteAndRecalculate(Item."Replenishment System"::Purchase);
     end;
 
@@ -141,7 +143,7 @@
         Item: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         RegenPlanNotAffectedByDeleteAndRecalculate(Item."Replenishment System"::"Prod. Order");
     end;
 
@@ -174,7 +176,7 @@
     procedure CalcRegenPlanForItemWithNegativeRoundingPrecision()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CalcRegenPlanForItemWithRoundingPrecision(-LibraryRandom.RandInt(10));  // Negative Rounding Precision Value.
     end;
 
@@ -183,7 +185,7 @@
     procedure CalcRegenPlanForItemWithZeroRoundingPrecision()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CalcRegenPlanForItemWithRoundingPrecision(0);  // Zero Rounding Precision Value.
     end;
 
@@ -212,7 +214,7 @@
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup. Post Positive Adjustment for FRQ item and Calculate Plan for Requisition Worksheet. Verify Requisition Worksheet Lines.
-        Initialize;
+        Initialize();
         CalculatePlanReqWorksheetForAdjustment(ItemJournalLine."Entry Type"::"Positive Adjmt.");
     end;
 
@@ -223,7 +225,7 @@
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup. Post Negative Adjustment for FRQ item and Calculate Plan for Requisition Worksheet. Verify Requisition Worksheet Lines.
-        Initialize;
+        Initialize();
         CalculatePlanReqWorksheetForAdjustment(ItemJournalLine."Entry Type"::"Negative Adjmt.");
     end;
 
@@ -265,7 +267,7 @@
         SalesQty: Decimal;
     begin
         // Setup: Create Fixed Reorder Quantity Item with planning parameters - Reorder Qty, Reorder Point and Safety Stock.
-        Initialize;
+        Initialize();
         SalesQty := LibraryRandom.RandDec(10, 2);
         CreateFRQItem(Item, Item."Replenishment System"::Purchase, SalesQty + 100, SalesQty + 10, SalesQty);  // Quantity proportion required for test.
 
@@ -288,7 +290,7 @@
         PurchaseQty: Decimal;
     begin
         // Setup: Create Fixed Reorder Quantity Item with planning parameters - Reorder Qty, Reorder Point and Safety Stock.
-        Initialize;
+        Initialize();
         PurchaseQty := LibraryRandom.RandDec(10, 2);
         CreateFRQItem(Item, Item."Replenishment System"::Purchase, PurchaseQty + 100, PurchaseQty + 10, PurchaseQty);  // Quantity proportion required for test.
 
@@ -311,7 +313,7 @@
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup: Create Maximum Quantity Item with planning parameters - Max. Inventory. Post Positive Adjustment for Item.
-        Initialize;
+        Initialize();
         CreateMQItem(Item, LibraryRandom.RandDec(5, 2) + 100, 0, 0);  // Reorder Point and Order Multiple not required.
         CreateAndPostItemJournalLine(Item."No.", ItemJournalLine."Entry Type"::"Positive Adjmt.");
 
@@ -331,7 +333,7 @@
         SalesQty: Decimal;
     begin
         // Setup: Create Maximum Quantity Item with planning parameters - Max. Inventory. Create Sales Order.
-        Initialize;
+        Initialize();
         CreateMQItem(Item, LibraryRandom.RandDec(5, 2) + 100, 0, 0);  // Reorder Point and Order Multiple not required.
         SalesQty := LibraryRandom.RandDec(10, 2);
         CreateSalesOrder(SalesHeader, Item."No.", SalesQty);
@@ -353,7 +355,7 @@
         SalesQty: Decimal;
     begin
         // Setup: Create Fixed Reorder Quantity Item with planning parameters - Reorder Qty, Reorder Point and Safety Stock.
-        Initialize;
+        Initialize();
         SalesQty := LibraryRandom.RandDec(10, 2);
         CreateFRQItem(Item, Item."Replenishment System"::Purchase, SalesQty + 100, SalesQty + 10, SalesQty);  // Quantity proportion required for test.
 
@@ -382,7 +384,7 @@
         NewPurchOrderDate: Date;
     begin
         // Setup: Update Manufacturing Setup. Create Order Items setup.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetupCombinedMPSAndMRP(true);  // Combined MPS,MRP Calculation of Manufacturing Setup - TRUE.
         ProdBOMQtyPer := CreateOrderItemSetup(ChildItem, Item);
 
@@ -418,7 +420,7 @@
         NewPurchOrderDate: Date;
     begin
         // Setup: Update Manufacturing Setup. Create Order Items setup.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetupCombinedMPSAndMRP(true);  // Combined MPS,MRP Calculation of Manufacturing Setup - TRUE.
         ProdBOMQtyPer := CreateOrderItemSetup(ChildItem, Item);
 
@@ -456,7 +458,7 @@
         NewPurchOrderDate: Date;
     begin
         // Setup: Create Maximum Quantity Item with planning parameters - Max. Inventory.
-        Initialize;
+        Initialize();
         CreateMQItem(Item, LibraryRandom.RandDec(5, 2) + 100, 0, 0);  // Reorder Point and Order Multiple not required.
 
         // Create Sales Order with two lines. Create second Sales Line with same Sales Qty but with Different Shipment date.
@@ -487,7 +489,7 @@
         PurchaseQty: Decimal;
     begin
         // Setup: Create Maximum Quantity Item with planning parameters.
-        Initialize;
+        Initialize();
         PurchaseQty := LibraryRandom.RandDec(5, 2);
         CreateMQItem(Item, PurchaseQty + 100, PurchaseQty, PurchaseQty + 10);  // Maximum Inventory, Reorder Point and Order Multiple.
 
@@ -515,7 +517,7 @@
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create Lot for Lot Item. Update SN specific Tracking and Serial No on Item.
-        Initialize;
+        Initialize();
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeSNSpecific, true, false);  // SN Specific Tracking - TRUE.
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10));
         UpdateItemSerialNoTracking(Item, ItemTrackingCodeSNSpecific.Code);
@@ -546,7 +548,7 @@
         ForecastQty: Decimal;
     begin
         // Setup: Create Order Item. Update Lot specific Tracking and Lot No on Item.
-        Initialize;
+        Initialize();
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeLotSpecific, false, true);  // SN Specific Tracking - FALSE.
         CreateItem(Item, Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
         UpdateItemLotNoTracking(Item, ItemTrackingCodeLotSpecific.Code);
@@ -583,7 +585,7 @@
         ForecastQty: Decimal;
     begin
         // Setup: Create Maximum Quantity Item. Update Lot specific Tracking and Lot No on Item.
-        Initialize;
+        Initialize();
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeLotSpecific, false, true);  // SN Specific Tracking - FALSE.
         CreateMQItem(Item, LibraryRandom.RandDec(50, 2) + 50, 0, 0);  // Large Random quantity for Maximum Inventory.
         UpdateItemLotNoTracking(Item, ItemTrackingCodeLotSpecific.Code);
@@ -617,7 +619,7 @@
         EndDate: Date;
     begin
         // Setup: Create FRQ Item. Create Transfer Order.
-        Initialize;
+        Initialize();
         TransferQty := LibraryRandom.RandInt(10) + 10;  // Random Quantity.
         CreateFRQItem(Item, Item."Replenishment System"::Purchase, TransferQty + 100, TransferQty + 10, TransferQty);  // Quantity proportion required for test.
 
@@ -651,7 +653,7 @@
         EndDate: Date;
     begin
         // Setup: Create Maximum Quantity Item.
-        Initialize;
+        Initialize();
         CreateMQItem(Item, LibraryRandom.RandDec(5, 2) + 100, 0, 0);  // Reorder Point and Order Multiple not required.
         TransferQty := LibraryRandom.RandInt(10) + 10;  // Random Quantity.
 
@@ -681,7 +683,7 @@
         EndDate: Date;
     begin
         // Setup: Create Item without Reordering policy.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // Create Transfer Order for required locations.
@@ -707,7 +709,7 @@
         EndDate: Date;
     begin
         // Setup: Create Lot for Lot Item with Replenishment - Purchase.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10));
 
         // Create Sales Order with new Order Date.
@@ -734,7 +736,7 @@
         AdjustmentQuantity: Decimal;
     begin
         // Setup: Create Order Item with Replenishment - Purchase and Post positive adjustment. Create Sales Order.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
         AdjustmentQuantity := CreateAndPostItemJournalLine(Item."No.", ItemJournalLine."Entry Type"::"Positive Adjmt.");
         CreateSalesOrder(SalesHeader, Item."No.", AdjustmentQuantity);
@@ -751,7 +753,7 @@
     procedure CalcPlanPlanWkshWithSKUAndSalesOnLocationMQItem()
     begin
         // Setup: Calculate Plan from Planning Worksheet and verify no lines generated at Location.
-        Initialize;
+        Initialize();
         CalcPlanWithSKUAndSalesOnLocationMQItem(true);  // Boolean - TRUE for Calculate Regenerative Plan.
     end;
 
@@ -760,7 +762,7 @@
     procedure CalcPlanReqWkshWithSKUAndSalesOnLocationMQItem()
     begin
         // Setup: Calculate Plan from Requisition Worksheet and verify no lines generated at Location.
-        Initialize;
+        Initialize();
         CalcPlanWithSKUAndSalesOnLocationMQItem(false);  // Boolean - FALSE for Calculate Plan from Requisition Worksheet.
     end;
 
@@ -791,7 +793,7 @@
     procedure CalcPlanPlanWkshWithSKUAndSalesOnLocationOrderItem()
     begin
         // Setup: Calculate Plan from Planning Worksheet and verify worksheet lines generated at required Location.
-        Initialize;
+        Initialize();
         CalcPlanWithSKUAndSalesOnLocationOrderItem(true);  // Boolean - TRUE for Calculate Regenerative Plan.
     end;
 
@@ -800,7 +802,7 @@
     procedure CalcPlanReqWkshWithSKUAndSalesOnLocationOrderItem()
     begin
         // Setup: Calculate Plan from Requisition Worksheet and verify worksheet lines generated at required Location.
-        Initialize;
+        Initialize();
         CalcPlanWithSKUAndSalesOnLocationOrderItem(false);  // Boolean - FALSE for Calculate Plan from Requisition Worksheet.
     end;
 
@@ -837,7 +839,7 @@
         ReservationEntry: Record "Reservation Entry";
     begin
         // Setup: Create Lot for Lot Item with Stockkeeping Unit. Update Lot specific Tracking and Lot No.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10));
         UpdateItemLotTrackingAndSKU(Item, LocationYellow.Code);
 
@@ -861,7 +863,7 @@
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup: Create Lot for Lot Item with Stockkeeping Unit. Update Lot specific Tracking and Lot No.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::"Prod. Order", LibraryRandom.RandInt(10));
         UpdateItemLotTrackingAndSKU(Item, LocationYellow.Code);
 
@@ -885,7 +887,7 @@
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Item setup with Lot Tracking and SKU and Verify no reservation takes place for Released Production Order.
-        Initialize;
+        Initialize();
         ProdOrderWithSKUOnReservationEntryLFLItem(ProductionOrder.Status::Released);
     end;
 
@@ -896,7 +898,7 @@
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Create Production Item setup with Lot Tracking and SKU and Verify no reservation takes place for Firm Planned Production Order.
-        Initialize;
+        Initialize();
         ProdOrderWithSKUOnReservationEntryLFLItem(ProductionOrder.Status::"Firm Planned");
     end;
 
@@ -925,7 +927,7 @@
         TransferLine: Record "Transfer Line";
     begin
         // Setup: Create Lot for Lot Item with Stockkeeping Unit. Update Lot specific Tracking and Lot No. Create Transfer Order.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10));
         UpdateItemLotTrackingAndSKU(Item, LocationYellow.Code);
         CreateTransferOrderWithTransferRoute(
@@ -950,7 +952,7 @@
     procedure ItemLedgerEntryForPostedTransferOrderAsShipWithLotTrackingSKUAndLFLItem()
     begin
         // Setup: Create Item setup with Lot Tracking, SKU and Transfer Order setup with tracking. Verify Item Ledger Entry after posting as Ship.
-        Initialize;
+        Initialize();
         ItemLedgerEntryForPostedTransferOrderWithLotTrackingSKUAndLFLItem(false);  // Receive - FALSE.
     end;
 
@@ -960,7 +962,7 @@
     procedure ItemLedgerEntryForPostedTransferOrderAsReceiveWithLotTrackingSKUAndLFLItem()
     begin
         // Setup: Create Item setup with Lot Tracking, SKU and Transfer Order setup with tracking. Verify Item Ledger Entry after posting as Receive.
-        Initialize;
+        Initialize();
         ItemLedgerEntryForPostedTransferOrderWithLotTrackingSKUAndLFLItem(true);  // Receive - TRUE.
     end;
 
@@ -1002,7 +1004,7 @@
     procedure ReservationEntryWithCalcRegenPlanAndLotTrackingLFLItem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReservationEntryWithCalcRegenPlanAndLotTracking(true);  // Boolean TRUE for LFL Item
     end;
 
@@ -1012,7 +1014,7 @@
     procedure ReservationEntryWithCalcRegenPlanAndLotTrackingFRQItem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReservationEntryWithCalcRegenPlanAndLotTracking(false);  // Boolean FALSE for FRQ Item.
     end;
 
@@ -1062,7 +1064,7 @@
         QuantityPer: Integer;
     begin
         // Setup: Create Item,Item Tracking Code,ProductionBOM. Update Item Tracking Code and Production BOM NO.
-        Initialize;
+        Initialize();
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeSNSpecific, true, false);
         CreateItem(Item, Item."Reordering Policy"::Order, Item."Replenishment System"::"Prod. Order");
         CreateItem(ChildItem, Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
@@ -1092,7 +1094,7 @@
 
         // Verify: Verify Quantity on Planning Worksheet(Requisition Line) for Action Message with Reschedule & New.
         FilterReservationEntry(ReservationEntry, Item."No.", '');
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
 
         SelectRequisitionLineForActionMessage(RequisitionLine, Item."No.", RequisitionLine."Action Message"::Reschedule);
         VerifyRequisitionLine(RequisitionLine, Abs(ReservationEntry."Quantity (Base)"), 0,
@@ -1114,7 +1116,7 @@
     begin
         // Check quantity of "Gross Requirement" and "Scheduled Receipts" in BOM Tree
         // in case of Sales Order and Planning Worksheet's Regenerative Plan
-        Initialize;
+        Initialize();
         CreateOrderItemSetup(ChildItem, Item);
 
         CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandInt(10));
@@ -1137,7 +1139,7 @@
     begin
         // [SCENARIO] Calculate Regenerative Plan for Maximum Qty of Item with SKU while "Location Mandatory" is false should create requisition line
         // [GIVEN] Create Item with SKU and Maximum Qty. Reordering Policy.
-        Initialize;
+        Initialize();
         OrderMultiple := LibraryRandom.RandInt(10);
         CreateMQItem(Item, LibraryRandom.RandInt(10) * OrderMultiple, 0, OrderMultiple); // Reorder Point must be 0 to repro the bug.
 
@@ -1157,7 +1159,7 @@
     begin
         // Calculate Regenerative Plan for Fixed Reorder Qty Item with SKU. Verify requisition line will be generated.
         // Setup: Create Item with Fixed Reorder Qty. Reordering Policy.
-        Initialize;
+        Initialize();
         CreateFRQItem(Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10), 0, 0); // Reorder Point and Safety Stock Quantity must be 0 to repro the bug.
 
         // Exercise: Create SKU for Item and calculate Regenerative Plan on Planning Worksheet.
@@ -1180,7 +1182,7 @@
         // Verify no Requisition Line generated when Forecast Entry was removed
 
         // Setup: Create a new item and Producation Forecast.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
         ForecastQty := CreateProductionForecastSetup(Item."No.", false, ProductionForecastName); // FALSE for single Forecast Entry.
 
@@ -1207,7 +1209,7 @@
         // Calculate Regenerative Plan for excess replenishment with item tracking. Verify Cancel requisition line will be generated.
 
         // Setup: Create Lot for Lot Item with Stockkeeping Unit. Update Lot specific Tracking and Lot No.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase, 0);
         UpdateItemLotTrackingAndSKU(Item, LocationYellow.Code);
 
@@ -1242,7 +1244,7 @@
         // [SCENARIO 109058] Calculate Regenerative Plan for Item with "Maximum Order Quantity" and two supply ILEs, each having Quantity greater than "Maximum Order Quantity".
 
         // [GIVEN] Item With Lot-for-lot reordering policy, 'Maximum Order Quantity' = 'X'
-        Initialize;
+        Initialize();
         Delta := LibraryRandom.RandDecInDecimalRange(1, 10, 2);
         MOQ := LibraryRandom.RandDecInDecimalRange(20, 100, 2);
         CreateMOQItem(Item, MOQ);
@@ -1259,7 +1261,7 @@
         // [THEN] No Requisition Line is created
         VerifyEmptyRequisitionLine(Item."No.");
     end;
-
+#if not CLEAN20
     [Test]
     [Scope('OnPrem')]
     procedure SetBlankLocationFilterOnProductionForecastPageForUnrevertedForecast()
@@ -1272,7 +1274,7 @@
     begin
         // [FEATURE] [Production Forecast]
         // [SCENARIO 201868] User must revert Production Forecast Entry with Location Code if he wants to use blank Location Code for forecast for the Item and the Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I", Location "L", Production Forecast "F", Quantity "Q", Date "D".
         LibraryInventory.CreateItem(Item);
@@ -1307,7 +1309,7 @@
     begin
         // [FEATURE] [Production Forecast]
         // [SCENARIO 201868] Revert Production Forecast Entry with Location Code, set blank Location Code for forecast for the Item and the Date and calculate regenerative plan.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I", Location "L", Production Forecast "F", Quantity "Q", Date "D".
         CreateItem(Item, Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
@@ -1335,7 +1337,61 @@
         // [THEN]  Single Requisition Line is created, quantity is "Q", planning Location Code is blank.
         SelectRequisitionLine(RequisitionLine, Item."No.");
         Assert.RecordCount(RequisitionLine, 1);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Location Code", '');
+        RequisitionLine.TestField(Quantity, Qty);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateLocationFilterOnProductionForecastPageAndCalcRegenPlan()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ProductionForecastName: Record "Production Forecast Name";
+        RequisitionLine: Record "Requisition Line";
+        DemandForecastCard: TestPage "Demand Forecast Card";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Production Forecast]
+        // [SCENARIO] Calculate regenerative plan from Demand Forecast Page after updating quantity to 0 and changing Location Code to blank.
+        Initialize();
+
+        // [GIVEN] Item "I", Location "L", Production Forecast "F", Quantity "Q", Date "D".
+        CreateItem(Item, Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
+
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        DemandForecastCard.OpenEdit();
+        DemandForecastCard.GoToRecord(ProductionForecastName);
+        DemandForecastCard."Forecast By Locations".SetValue(true);
+
+        // [GIVEN] On Demand Forecast Page for Forecast "F" set Location Filter "L" and for Item "I" set Quantity "Q" for Date "D".
+        DemandForecastCard."Location Filter".SetValue(Location.Code);
+        UpdateDemandForecastVariantMatrixField(DemandForecastCard, Item, Qty);
+
+        // [GIVEN] Revert previously created entry - on Production Forecast Page for Forecast "F" set Location Filter "L" and for Item "I" set Quantity 0 for Date "D".
+        UpdateDemandForecastVariantMatrixField(DemandForecastCard, Item, 0);
+        DemandForecastCard.Close();
+
+        // [GIVEN] On Production Forecast Page for Forecast "F" disable forecast by locations and for Item "I" set Quantity "Q" for Date "D".
+        DemandForecastCard.OpenEdit();
+        DemandForecastCard.GoToRecord(ProductionForecastName);
+        DemandForecastCard."Forecast By Locations".SetValue(false);
+        UpdateDemandForecastVariantMatrixField(DemandForecastCard, Item, Qty);
+
+        // [WHEN]  Calculate regenerative plan for the "I" using "F"
+        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name);
+        CalcRegenPlanForPlanWkshPage(Item."No.", Item."No.");
+
+        // [THEN]  Single Requisition Line is created, quantity is "Q", planning Location Code is blank.
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+        Assert.RecordCount(RequisitionLine, 1);
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField("Location Code", '');
         RequisitionLine.TestField(Quantity, Qty);
     end;
@@ -1385,7 +1441,7 @@
     begin
         // [FEATURE] [Planning Worksheet] [Stockkeeping Unit]
         // [SCENARIO 375977] Calculate Regenerative Plan should consider Components at Location if SKU exists for another Location
-        Initialize;
+        Initialize();
 
         // [GIVEN] Manufacturing Setup with Components at Location "X"
         UpdateManufacturingSetupComponentsAtLocation(LocationBlue.Code);
@@ -1402,7 +1458,7 @@
         // [THEN] Requisition Line for Item "I" is created with "Reorder Quantity" = "Q" at Location "X"
         FilterOnRequisitionLine(RequisitionLine, Item."No.");
         RequisitionLine.SetRange("Location Code", LocationBlue.Code);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         Assert.AreEqual(Qty + 100, RequisitionLine.Quantity, QuantityNotCorrectErr);
     end;
 
@@ -1416,7 +1472,7 @@
     begin
         // [FEATURE] [Planning Worksheet] [Stockkeeping Unit]
         // [SCENARIO] Calculate Regenerative Plan should not create Requisituion line if SKU does not exist while "Location Mandatory" is true
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory Setup with Location Mandatory = TRUE
         UpdateLocationMandatory(true);
@@ -1444,7 +1500,7 @@
     begin
         // [FEATURE] [Planning Worksheet] [Stockkeeping Unit]
         // [SCENARIO] Calculate Regenerative Plan should create Requisituion line if SKU does not exist while "Location Mandatory" is false
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory Setup with Location Mandatory = FALSE
         UpdateLocationMandatory(false);
@@ -1460,7 +1516,7 @@
         // [THEN] Requisition Line for Item "I" is created with "Reorder Quantity" = "Q" at Location ""
         FilterOnRequisitionLine(RequisitionLine, Item."No.");
         RequisitionLine.SetRange("Location Code", '');
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         Assert.AreEqual(Qty + 100, RequisitionLine.Quantity, QuantityNotCorrectErr);
     end;
 
@@ -1548,7 +1604,7 @@
     begin
         // [FEATURE] [Planning Worksheet] [Blanket Sales Order]
         // [SCENARIO 202519] Supply planning for Blanket Sales Order with 3 lines and a Sales Order created out of its 2-nd and 3-rd line, is performed with a consideration of this Sales Order - the demands are not duplicated.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
 
         // [GIVEN] Item "I" with reordering policy = "Order".
@@ -1578,7 +1634,7 @@
     begin
         // [FEATURE] [Planning Worksheet] [Blanket Sales Order]
         // [SCENARIO 202519] Supply planning for Blanket Sales Order with 3 lines and a Sales Order created out of its 1-st line, is performed with a consideration of this Sales Order - the demands are not duplicated.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
 
         // [GIVEN] Item "I" with reordering policy = "Order".
@@ -1608,7 +1664,7 @@
     begin
         // [FEATURE] [Planning Worksheet] [Blanket Sales Order]
         // [SCENARIO 202519] Supply planning for Blanket Sales Order with 3 lines and a Sales Order created out of its 1-st and 3-rd line, is performed with a consideration of this Sales Order - the demands are not duplicated.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
 
         // [GIVEN] Item "I" with reordering policy = "Order".
@@ -1645,7 +1701,7 @@
         // [FEATURE] [Production Forecast] [Calendar]
         // [SCENARIO 382413] When "Forecast Date" is equal to "Starting Date" in regenerative plan calculating and this date is non working result "Requisition Line"."Due Date" is moved back to previous working date.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Starting Date" "SD" for regenerative plan calculating.
         StartingDate := CalcDate('<CM + 1M +1D>', WorkDate);
@@ -1687,7 +1743,7 @@
         // [FEATURE] [Production Order] [Reservation] [Regenerative Plan]
         // [SCENARIO 205633] Having Sales Order as demand and Production Order as Supply after moving Production Order Due Date backward and rescheduling the multi-level reservation of production order components must be saved
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item with 3-level structure: top-level, level-1, level-2 - corresponding Items: "I0", "I1", "I2";
         // [GIVEN] "I0", "I1", "I2" have "Replenishment System" = "Prod. Order" and "Manufacturing Policy" = "Make-to-Order"
@@ -1727,7 +1783,7 @@
         // [FEATURE] [Production Order] [Reservation] [Regenerative Plan]
         // [SCENARIO 205633] Having Sales Order as demand and Production Order as Supply after moving Production Order Due Date forward and rescheduling the multi-level reservation of production order components must be saved
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item with 3-level structure: top-level, level-1, level-2 - corresponding Items: "I0", "I1", "I2";
         // [GIVEN] "I0", "I1", "I2" have "Replenishment System" = "Prod. Order" and "Manufacturing Policy" = "Make-to-Order"
@@ -1766,7 +1822,7 @@
         // [FEATURE] [Production Order] [Reservation] [Regenerative Plan]
         // [SCENARIO 205633] Having Sales Order as demand and Production Order as Supply after moving Sales Order Shipment Date backward and rescheduling the multi-level reservation of production order components must be saved
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item with 3-level structure: top-level, level-1, level-2 - corresponding Items: "I0", "I1", "I2";
         // [GIVEN] "I0", "I1", "I2" have "Replenishment System" = "Prod. Order" and "Manufacturing Policy" = "Make-to-Order"
@@ -1805,7 +1861,7 @@
         // [FEATURE] [Production Order] [Reservation] [Regenerative Plan]
         // [SCENARIO 205633] Having Sales Order as demand and Production Order as Supply after moving Sales Order Shipment Date forward and rescheduling the multi-level reservation of production order components must be saved
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item with 3-level structure: top-level, level-1, level-2 - corresponding Items: "I0", "I1", "I2";
         // [GIVEN] "I0", "I1", "I2" have "Replenishment System" = "Prod. Order" and "Manufacturing Policy" = "Make-to-Order"
@@ -1842,7 +1898,7 @@
     begin
         // [FEATURE] [Lot Accumulation Period]
         // [SCENARIO 208102] For component with "Lot Accumulation Period" no accumulation occurs when demand due dates intervals exceed period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Lot-for-Lot Item "PI" with Component "CI" which has Lot Accumulation Period equal to one month, "Quantity per" = 1;
         CreateProdItemWithComponentWithMonthPlanningPeriods(ParentItem, ChildItem);
@@ -1875,7 +1931,7 @@
     begin
         // [FEATURE] [Lot Accumulation Period]
         // [SCENARIO 208102] For component with "Lot Accumulation Period" supply is totally accumulated in single order when all demand due dates belong to single accumulation period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Lot-for-Lot Item "PI" with Component "CI" which has Lot Accumulation Period equal to one month, "Quantity per" = 1;
         CreateProdItemWithComponentWithMonthPlanningPeriods(ParentItem, ChildItem);
@@ -1905,7 +1961,7 @@
     begin
         // [FEATURE] [Lot Accumulation Period]
         // [SCENARIO 208102] For component with "Lot Accumulation Period" two supplies are created when demand due dates belong to two different periods according to accumulation period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Lot-for-Lot Item "PI" with Component "CI" which has Lot Accumulation Period equal to one month, "Quantity per" = 1;
         CreateProdItemWithComponentWithMonthPlanningPeriods(ParentItem, ChildItem);
@@ -1939,7 +1995,7 @@
     begin
         // [FEATURE] [Lot Accumulation Period]
         // [SCENARIO 208102] For component with "Lot Accumulation Period" three supplies are created when demand due dates belong  to three different periods according to accumulation period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Lot-for-Lot Item "PI" with Component "CI" which has Lot Accumulation Period equal to one month, "Quantity per" = 1;
         CreateProdItemWithComponentWithMonthPlanningPeriods(ParentItem, ChildItem);
@@ -1975,7 +2031,7 @@
     begin
         // [FEATURE] [Planning] [Version]
         // [SCENARIO 222065] Regenerative plan calculating is successful when Production BOM is Closed but its Production BOM Version has Status = Certified and specified "Starting Date"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production BOM "PB" and its Production BOM Version "PBV" with specified "Starting Date"
         LibraryInventory.CreateItem(ChildItem);
@@ -2004,7 +2060,7 @@
 
         // [THEN] "Requisition Line" "R" with "I" exists and has the same Quantity "Q"
         RequisitionLine.SetRange("No.", ParentItem."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(Quantity, SalesLine.Quantity);
     end;
 
@@ -2021,7 +2077,7 @@
     begin
         // [FEATURE] [Planning Component]
         // [SCENARIO 266645] Negative planning component is handled as a supply by the planning engine.
-        Initialize;
+        Initialize();
 
         Qty := LibraryRandom.RandIntInRange(100, 200);
 
@@ -2042,7 +2098,7 @@
 
         // [GIVEN] Set up item "B" as a planning component for item "A" with a negative "Quantity per" = -1.
         RequisitionLine.SetRange("No.", Item[1]."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
         PlanningComponent.Validate("Item No.", Item[2]."No.");
         PlanningComponent.Validate("Quantity per", -1);
@@ -2079,7 +2135,7 @@
         // [FEATURE] [Regenerative Plan]
         // [SCENARIO 262519] MPS item (if at least one sales line is found) should be planned with all existing demands.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Items for BOM and for Component
         CreateItem(BOMItem, BOMItem."Reordering Policy"::"Fixed Reorder Qty.", BOMItem."Replenishment System"::"Prod. Order");
@@ -2111,12 +2167,12 @@
         ChildItem.SetRange("No.", ChildItem."No.");
         CalculatePlanPlanWksh.SetTableView(ChildItem);
         Commit();
-        CalculatePlanPlanWksh.Run;
+        CalculatePlanPlanWksh.Run();
 
         // [THEN] Requisition Line with BOM Component Item is created
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", ChildItem."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(Quantity, Quantity * QuantityPer);
     end;
 
@@ -2138,7 +2194,7 @@
     begin
         // [FEATURE] [Lot Accumulation Period] [Maximum Order Quantity]
         // [SCENARIO 264387] Planning with "Maximum Order Quantity" respects "Lot Accumulation Period".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with "Lot Accumulation Period" = 2W and "Maximum Order Quantity" = 2000
         // [GIVEN] Sales Orders "S1", "S2", "S3" with shipment dates "D1", "D2", "D3" of "I"
@@ -2190,7 +2246,7 @@
     begin
         // [FEATURE] [Production Order]
         // [SCENARIO 277381] When Released Prod. Order (Order Type is 'Item Order') is created from Sales Order, Gen. Bus. Posting group mustn't be inherited from Sales Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item with Manufacturing Policy = "Make-to-Order" & Reordering Policy = Order
         LibraryInventory.CreateItem(Item);
@@ -2207,7 +2263,7 @@
             SalesHeader, "Production Order Status"::Released, "Create Production Order Type"::ItemOrder);
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
         ProductionOrder.SetRange("Source No.", Item."No.");
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
 
         // [THEN] Check out if Gen. Bus. Posting Group field is empty
         ProductionOrder.TestField("Gen. Bus. Posting Group", '');
@@ -2225,7 +2281,7 @@
     begin
         // [FEATURE] [Production Order]
         // [SCENARIO 304538] When Released Prod. Order (Order Type is 'Project Order') is created from Sales Order, Gen. Bus. Posting group is blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item with Manufacturing Policy = "Make-to-Order" & Reordering Policy = Order
         LibraryInventory.CreateItem(Item);
@@ -2242,7 +2298,7 @@
             SalesHeader, "Production Order Status"::Released, "Create Production Order Type"::ProjectOrder);
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::"Sales Header");
         ProductionOrder.SetRange("Source No.", SalesHeader."No.");
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
 
         // [THEN] Check out if Gen. Bus. Posting Group field is blank
         ProductionOrder.TestField("Gen. Bus. Posting Group", '');
@@ -2259,7 +2315,7 @@
     begin
         // [FEATURE] [Production Order] [UT]
         // [SCENARIO 304538] Gen. Bus. Posting group in Production order is empty after setting source to sales header and then to Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item with Manufacturing Policy = "Make-to-Order" & Reordering Policy = Order
         LibraryInventory.CreateItem(Item);
@@ -2299,7 +2355,7 @@
     begin
         // [FEATURE] [Production Order] [UT]
         // [SCENARIO 304538] Gen. Bus. Posting group in Production order is empty after setting source to sales header
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item
         LibraryInventory.CreateItem(Item);
@@ -2332,7 +2388,7 @@
     begin
         // [FEATURE] [Production Order] [UT]
         // [SCENARIO 304538] Gen. Bus. Posting group in Production order is empty after setting source to sales header and then to Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item with Manufacturing Policy = "Make-to-Order" & Reordering Policy = Order
         LibraryInventory.CreateItem(Item);
@@ -2362,7 +2418,7 @@
     begin
         // [FEATURE] [UT] [Production Order]
         // [SCENARIO 277381] Codeunit 99000813 InsertProdOrder() on Reqisition Line with "Gen. Business Posting Group" <> '' doesn't fill "Gen. Business Posting Group" in Production Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Requisition Line
         CreateReqLine(RequisitionLine);
@@ -2374,7 +2430,7 @@
         // [THEN] "Gen. Bus. Posting Group" = blank in created Production order
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Planned);
         ProductionOrder.SetRange("Source No.", RequisitionLine."No.");
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         ProductionOrder.TestField("Gen. Bus. Posting Group", '');
     end;
 
@@ -2388,7 +2444,7 @@
     begin
         // [FEATURE] [Production Order] [Item Variant]
         // [SCENARIO 388994] Codeunit 99000813 InsertProdOrder() on Reqisition Line with Variant Code fill "Variant Code" in Production Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock Requisition Line
         CreateReqLine(RequisitionLine);
@@ -2890,8 +2946,8 @@
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Supply Planning -III");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         UntrackedPlanningElement.DeleteAll();
         RequisitionLine.DeleteAll();
         ReservationEntry.DeleteAll();
@@ -2903,9 +2959,9 @@
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Supply Planning -III");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
         ItemJournalSetup;
         OutputJournalSetup;
         CreateLocationSetup;
@@ -3336,7 +3392,7 @@
         ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
         ProductionOrder.SetRange("Source No.", ItemNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
     end;
 
     local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo: Code[20]) QtyPer: Integer
@@ -3404,21 +3460,21 @@
     begin
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure SelectPurchaseOrderLine(var PurchaseLine: Record "Purchase Line"; No: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure SelectProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::"Firm Planned");
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure CreateAndPostOutputJournal(ProductionOrderNo: Code[20])
@@ -3469,7 +3525,7 @@
         RequisitionLine.SetRange("Ref. Order Type", RequisitionLine."Ref. Order Type"::"Prod. Order");
         RequisitionLine.SetRange("Action Message", ActionMessage);
         RequisitionLine.ModifyAll("Accept Action Message", true, true);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
     end;
 
@@ -3588,12 +3644,12 @@
         Purchasing.Modify(true);
     end;
 
-    local procedure CreateRequisitionLine(var RequisitionLine: Record "Requisition Line"; TemplateType: Option)
+    local procedure CreateRequisitionLine(var RequisitionLine: Record "Requisition Line"; TemplateType: Enum "Req. Worksheet Template Type")
     var
         RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
         RequisitionWkshName.SetRange("Template Type", TemplateType);
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         RequisitionLine.Init();
         RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
@@ -3645,7 +3701,7 @@
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindSalesLines(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20])
@@ -3704,11 +3760,11 @@
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
     end;
 
-    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Option)
+    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Enum "Req. Worksheet Template Type")
     begin
         ReqWkshTemplate.SetRange(Type, Type);
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
     end;
 
     local procedure UpdateShipmentDateOnSalesLine(DocumentNo: Code[20]; ShipmentDate: Date)
@@ -3758,7 +3814,7 @@
     begin
         FilterOnRequisitionLine(RequisitionLine, ItemNo);
         RequisitionLine.SetRange("Action Message", ActionMessage);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure UpdateItemSerialNoTracking(var Item: Record Item; ItemTrackingCode: Code[10])
@@ -3988,11 +4044,20 @@
         ReservationEntry.SetFilter("Source Type", SourceTypeFilter);
     end;
 
+#if not CLEAN20
     local procedure UpdateProductionForecastMatrixField(var ProductionForecast: TestPage "Demand Forecast"; Item: Record Item; Qty: Integer; LocationCode: Code[10])
     begin
         ProductionForecast.LocationFilter.SetValue(LocationCode);
         ProductionForecast.Matrix.GotoRecord(Item);
         ProductionForecast.Matrix.Field1.SetValue(Qty);
+    end;
+#endif
+
+    local procedure UpdateDemandForecastVariantMatrixField(var DemandForecastCard: TestPage "Demand Forecast Card"; Item: Record Item; Qty: Integer)
+    begin
+        DemandForecastCard.Matrix.Filter.SetFilter("No.", Item."No.");
+        DemandForecastCard.Matrix.First();
+        DemandForecastCard.Matrix.Field1.SetValue(Qty);
     end;
 
     local procedure UpdateProductionBOMOnItem(var Item: Record Item; ProductionBOMNo: Code[20])
@@ -4161,7 +4226,7 @@
         RequisitionLine.SetRange("No.", ItemNo);
         RequisitionLine.SetRange("Due Date", DueDate);
         Assert.RecordCount(RequisitionLine, 1);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(Quantity, Quantity);
     end;
 
@@ -4199,7 +4264,7 @@
         FilterOnRequisitionLine(RequisitionLine, ItemNo);
         RefOrderType := SelectReferenceOrderType(ItemNo);
         RequisitionLine.SetRange("Due Date", DueDate);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         VerifyRequisitionLine(RequisitionLine, Quantity, 0, RefOrderType);  // Original Qty - Zero.
     end;
 
@@ -4213,7 +4278,7 @@
             SetRange("Ref. Order Type", RefOrderType);
             SetRange("Action Message", ActionMessage);
             SetRange("Due Date", DueDate);
-            FindFirst;
+            FindFirst();
         end;
         VerifyRequisitionLine(RequisitionLine, Quantity, OriginalQuantity, RefOrderType);  // Original Qty - Zero.
     end;
@@ -4297,14 +4362,14 @@
         RequisitionLine: Record "Requisition Line";
     begin
         FilterOnRequisitionLine(RequisitionLine, ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField("Location Code", LocationCode);
     end;
 
     local procedure VerifyReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         FilterReservationEntry(ReservationEntry, ItemNo, LocationCode);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField(Quantity, Quantity);
     end;
 
@@ -4321,7 +4386,7 @@
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Location Code", LocationCode);
         ItemLedgerEntry.TestField("Entry Type", EntryType);
         ItemLedgerEntry.TestField(Quantity, Quantity);
@@ -4332,7 +4397,7 @@
     begin
         with BOMBuffer do begin
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ScheduledReceiptsQty, "Scheduled Receipts", '');
             Assert.AreEqual(GrossRequirementQty, "Gross Requirement", '');
         end;

@@ -23,6 +23,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
         DoYouWantToPostQst: Label 'Do you want to post the %1?';
+        ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
@@ -35,7 +36,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Cassie can post selected invoice from Purchase Invoices page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoices "X", "Y" and "Z" for with Amount = 100 each
         // [GIVEN] Cassie selects invoice "Y" on Purchase Invoices page and calls "Post Selected" action
@@ -71,7 +72,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Cassie can post selected credit memo from Purchase Credit Memos page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Credit Memos "X", "Y" and "Z" for with Amount = 100 each
         // [GIVEN] Cassie selects credit memo "Y" on Purchase Credit Memos page and calls "Post Selected" action
@@ -109,7 +110,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Cassie can post selected order from Purchase Order List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Orders "X", "Y" and "Z" for with Amount = 100 each
         // [GIVEN] Cassie selects order "Y" on Purchase Order List page and calls "Post Selected" action
@@ -147,7 +148,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Cassie can post selected return order from Purchase Reutrn Order List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Return orders "X", "Y" and "Z" with Amount = 100 each
         // [GIVEN] Cassie selects return order "Y" on Purchase Return Order List page and calls "Post Selected" action
@@ -184,7 +185,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         ErrorCount: Integer;
     begin
         // [SCENARIO] Cassie can't post selected invoices with 0 amounts and gets error message pages with wrong documents
-        Initialize;
+        Initialize();
         LibraryPurchase.SetPostWithJobQueue(false);
 
         // [GIVEN] Invoices "X", "Y" and "Z" for with Amount = 0 each
@@ -224,7 +225,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         // [SCENARIO] Cassie can post selected only invoices in background
-        Initialize;
+        Initialize();
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -264,7 +265,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Cassie can see posting errors after batch posting from Purchase Invoices page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoices "X", "Y" and "Z" for with Amount = 0 each
         // [GIVEN] Cassie selects invoice "Y" on Purchase Invoices page and call "Post Selected" action
@@ -276,6 +277,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         PurchaseInvoices.Trap;
         PAGE.Run(PAGE::"Purchase Invoices", PurchaseHeaderUI);
 
+        LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(
           StrSubstNo(DoYouWantToPostQst, Format(PurchaseHeader[1]."Document Type")));
         ErrorMessagesPage.Trap;
@@ -299,7 +301,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Cassie can see posting errors after batch posting from Purchase Credit Memos page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Credit Memos "X", "Y" and "Z" for with Amount = 0 each
         // [GIVEN] Cassie selects credit memo "Y" on Purchase Credit Memos page and call "Post Selected" action
@@ -311,6 +313,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         PurchaseCreditMemos.Trap;
         PAGE.Run(PAGE::"Purchase Credit Memos", PurchaseHeaderUI);
 
+        LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(
           StrSubstNo(DoYouWantToPostQst, Format(PurchaseHeader[1]."Document Type")));
         ErrorMessagesPage.Trap;
@@ -323,7 +326,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     end;
 
     [Test]
-    [HandlerFunctions('PostStrMenuHandler')]
+    [HandlerFunctions('PostStrMenuHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure ErrorOnPostSelectedOrder()
     var
@@ -334,7 +337,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Cassie can see posting errors after batch posting from Purchase Order List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Orders "X", "Y" and "Z" for with Amount = 0 each
         // [GIVEN] Cassie selects order "Y" on Purchase Order List page and call "Post Selected" action
@@ -346,6 +349,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         PurchaseOrderList.Trap;
         PAGE.Run(PAGE::"Purchase Order List", PurchaseHeaderUI);
 
+        LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(3); // Receive and Invoice menu choice
         ErrorMessagesPage.Trap;
         InvokePostSelectedOrders(PurchaseOrderList, PurchaseHeader[2]);
@@ -368,7 +372,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Cassie can see posting errors after batch posting from Purchase Return Order List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Return orders "X", "Y" and "Z" for with Amount = 0 each
         // [GIVEN] Cassie selects order "Y" on Purchase Return Order List page and call "Post Selected" action
@@ -393,7 +397,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Purch. Batch Document Posting");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -481,7 +485,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     local procedure VerifyTwoOfThreeDocumentsUnposted(var PurchaseHeaderUI: Record "Purchase Header"; var PurchaseHeader: array[3] of Record "Purchase Header")
     begin
         Assert.RecordCount(PurchaseHeaderUI, ArrayLen(PurchaseHeader) - 1);
-        PurchaseHeaderUI.FindFirst;
+        PurchaseHeaderUI.FindFirst();
         PurchaseHeaderUI.TestField("No.", PurchaseHeader[1]."No.");
         PurchaseHeaderUI.Next;
         PurchaseHeaderUI.TestField("No.", PurchaseHeader[3]."No.");

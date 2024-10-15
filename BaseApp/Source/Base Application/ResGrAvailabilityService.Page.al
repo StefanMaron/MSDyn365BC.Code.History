@@ -74,7 +74,7 @@ page 6010 "Res.Gr. Availability (Service)"
                       CurrentDocumentType, CurrentDocumentNo, CurrentEntryNo,
                       MatrixColumnCaptions, MatrixRecords, PeriodType);
                     MatrixForm.SetTableView(Rec);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

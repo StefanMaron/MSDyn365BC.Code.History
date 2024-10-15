@@ -49,7 +49,7 @@ report 7390 "Whse. Calculate Inventory"
                         WhseJnlLine.SetRange("Journal Template Name", WhseJnlLine."Journal Template Name");
                         WhseJnlLine.SetRange("Journal Batch Name", WhseJnlLine."Journal Batch Name");
                         WhseJnlLine.SetRange("Location Code", WhseJnlLine."Location Code");
-                        if not WhseJnlLine.FindFirst then
+                        if not WhseJnlLine.FindFirst() then
                             NextDocNo :=
                               NoSeriesMgt.GetNextNo(WhseJnlBatch."No. Series", RegisteringDate, false);
                         WhseJnlLine.Init();
@@ -252,7 +252,7 @@ report 7390 "Whse. Calculate Inventory"
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");
                 SetRange("Location Code", "Location Code");
-                if FindLast then
+                if FindLast() then
                     NextLineNo := "Line No.";
 
                 SourceCodeSetup.Get();

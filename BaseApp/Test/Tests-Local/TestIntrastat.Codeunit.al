@@ -119,7 +119,7 @@ codeunit 134153 "Test Intrastat"
 
         // Verify
         IntrastatJnlLine.SetFilter("Tariff No.", Item."Tariff No.");
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField("Transaction Type");
         IntrastatJnlLine.TestField("Transport Method");
         LibraryReportDataset.LoadDataSetFile;
@@ -402,7 +402,7 @@ codeunit 134153 "Test Intrastat"
     begin
         IntrastatMakeDiskTaxAuth.InitializeRequest(Filename);
         IntrastatMakeDiskTaxAuth.UseRequestPage(false);
-        IntrastatMakeDiskTaxAuth.RunModal;
+        IntrastatMakeDiskTaxAuth.RunModal();
     end;
 
     local procedure RunIntrastatJournalForm(Type: Option)
@@ -456,7 +456,7 @@ codeunit 134153 "Test Intrastat"
         with CountryRegion do begin
             SetFilter(Code, '<>%1', CompanyInfo."Country/Region Code");
             SetFilter("Intrastat Code", '<>%1', '');
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -492,7 +492,7 @@ codeunit 134153 "Test Intrastat"
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         Item.SetRange("Tariff No.", '');
         if not Item.IsEmpty() then
             Item.ModifyAll("Tariff No.", TariffNumber."No.");
@@ -506,7 +506,7 @@ codeunit 134153 "Test Intrastat"
             SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
             SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
         end;

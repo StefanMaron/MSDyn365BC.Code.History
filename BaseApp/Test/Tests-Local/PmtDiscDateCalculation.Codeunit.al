@@ -32,7 +32,7 @@ codeunit 144002 "Pmt. Disc. Date Calculation"
     begin
         // [SCENARIO 360325] Combine Shipments with "Only Std. Payment Terms" option and zero payment discount.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Ship sales order with Payment Terms with zero pmt. discount percent.
         CreateSalesOrderWithZeroDiscPmtTerms(SalesHeader);
@@ -56,7 +56,7 @@ codeunit 144002 "Pmt. Disc. Date Calculation"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Pmt. Disc. Date Calculation");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -138,7 +138,7 @@ codeunit 144002 "Pmt. Disc. Date Calculation"
           SalesHeader."Posting Date", SalesHeader."Posting Date", false, false, true, false);
         CombineShipments.SetTableView(SalesHeader);
         CombineShipments.UseRequestPage(false);
-        CombineShipments.Run;
+        CombineShipments.Run();
     end;
 
     local procedure VerifySalesLineForShipment(DocNo: Code[20])

@@ -76,7 +76,7 @@ page 8634 "Config. Package Table FactBox"
                     ConfigTemplateList: Page "Config. Template List";
                 begin
                     Clear(ConfigTemplateList);
-                    ConfigTemplateList.RunModal;
+                    ConfigTemplateList.RunModal();
                 end;
             }
             field("Processing Order"; "Processing Order")

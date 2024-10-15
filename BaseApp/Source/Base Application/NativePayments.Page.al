@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2831 "Native - Payments"
 {
     ObsoleteState = Pending;
@@ -109,7 +110,7 @@ page 2831 "Native - Payments"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        if not TempNativePayment.FindLast then
+        if not TempNativePayment.FindLast() then
             exit(false);
 
         if RecordId <> TempNativePayment.RecordId then
@@ -133,7 +134,7 @@ page 2831 "Native - Payments"
             Copy(TempNativePayment, true);
 
             SetView(FilterView);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
             PaymentsLoaded := true;
         end;
@@ -157,7 +158,7 @@ page 2831 "Native - Payments"
         NativePayments.PostJournal(GenJournalLine);
 
         NativePayments.LoadPayments(Rec, "Applies-to Invoice Id");
-        FindLast;
+        FindLast();
 
         exit(false);
     end;
@@ -197,7 +198,7 @@ page 2831 "Native - Payments"
         PmtDiscountDate: Date;
     begin
         CustLedgerEntry.SetRange("Document No.", InvoiceNumber);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amount");
         OriginalRemainingAmount := CustLedgerEntry."Remaining Amount";
         RemAmountAfterDiscount := OriginalRemainingAmount - CustLedgerEntry."Remaining Pmt. Disc. Possible";
@@ -222,4 +223,4 @@ page 2831 "Native - Payments"
             Error(PaymentDateBeforeInvoicePostingDateErr);
     end;
 }
-
+#endif

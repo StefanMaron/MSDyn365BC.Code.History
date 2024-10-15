@@ -428,7 +428,7 @@ codeunit 139182 "CRM Coupling Test"
         // [THEN] "My Notifications" part does not get new records
         Assert.TableIsEmpty(DATABASE::"Record Link");
         // [THEN] Job Queue Log Entry, where Status is "Success".
-        JobQueueLogEntry.FindLast;
+        JobQueueLogEntry.FindLast();
         JobQueueLogEntry.TestField(Status, JobQueueLogEntry.Status::Success);
     end;
 
@@ -527,7 +527,7 @@ codeunit 139182 "CRM Coupling Test"
         // [THEN] a Price list line related to the Item, where Amount = 'X'
         CRMProductpricelevel.SetRange(ProductId, CRMId);
         CRMProductpricelevel.SetRange(PriceLevelId, CRMProduct.PriceLevelId);
-        CRMProductpricelevel.FindFirst;
+        CRMProductpricelevel.FindFirst();
         CRMProductpricelevel.TestField(Amount, CRMProduct.Price);
 
         // [THEN] Notification "Syncronization has been scheduled." is shown.
@@ -616,7 +616,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMProduct.Get(CRMID);
         CRMProductpricelevel.SetRange(PriceLevelId, CRMProduct.PriceLevelId);
         CRMProductpricelevel.SetRange(ProductId, CRMProduct.ProductId);
-        CRMProductpricelevel.FindFirst;
+        CRMProductpricelevel.FindFirst();
         CRMProductpricelevel.TestField(Amount, Item."Unit Price");
 
         // [THEN] Notification "Syncronization has been scheduled." is shown.
@@ -1557,7 +1557,7 @@ codeunit 139182 "CRM Coupling Test"
           'The Opportunity must be coupled');
 
         // [THEN] Owner Id is empty
-        CRMOpportunity.FindFirst;
+        CRMOpportunity.FindFirst();
         CRMOpportunity.TestField(OwnerId, NULLGUID);
     end;
 
@@ -1742,7 +1742,7 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Product", CRMProduct.GetView, IntegrationTableMapping);
 
         // [THEN] "Item"."Base Unit of Measure" = "CRMUOM"
-        Item.FindFirst;
+        Item.FindFirst();
         Assert.AreEqual(UnitOfMeasure.Code, Item."Base Unit of Measure", UoMErr);
     end;
 
@@ -1790,7 +1790,7 @@ codeunit 139182 "CRM Coupling Test"
 
         // [THEN] "Item"."Base Unit of Measure" = "CRMUOM"
         Assert.AreEqual(1, Item.Count(), 'Only one Item should have been created. The CRM Product of type Services should not have been picked up.');
-        Item.FindFirst;
+        Item.FindFirst();
         Assert.AreEqual(UnitOfMeasure.Code, Item."Base Unit of Measure", UoMErr);
     end;
 
@@ -2423,8 +2423,8 @@ codeunit 139182 "CRM Coupling Test"
         if EnableUnitGroupMapping then
             LibraryCRMIntegration.EnableUnitGroupMapping();
 
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
         LibraryTemplates.EnableTemplatesFeature();
 
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
@@ -2492,7 +2492,7 @@ codeunit 139182 "CRM Coupling Test"
         CompanyContact.CreateCustomerFromTemplate('');
         ContactBusinessRelation.SetRange("Contact No.", CompanyContact."No.");
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         Customer.Get(ContactBusinessRelation."No.");
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId, CRMAccount.AccountId);
@@ -2616,13 +2616,13 @@ codeunit 139182 "CRM Coupling Test"
     local procedure FindCRMCustomerContactLinkJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
     begin
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Customer-Contact Link");
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
     end;
 #endif
     local procedure FindIntegrationSynchJobEntry(var IntegrationSynchJob: Record "Integration Synch. Job")
     begin
         IntegrationSynchJob.SetRange(Message, CustomerContactLinkTxt);
-        IntegrationSynchJob.FindFirst;
+        IntegrationSynchJob.FindFirst();
     end;
 
     local procedure FindCustomerByAccountId(AccountId: Guid; var Customer: Record Customer): Boolean
@@ -2685,7 +2685,7 @@ codeunit 139182 "CRM Coupling Test"
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
     begin
         IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", IntegrationSynchJobID);
-        IntegrationSynchJobErrors.FindFirst;
+        IntegrationSynchJobErrors.FindFirst();
         Assert.ExpectedMessage(ExpectedErrorMessage, IntegrationSynchJobErrors.Message);
     end;
 

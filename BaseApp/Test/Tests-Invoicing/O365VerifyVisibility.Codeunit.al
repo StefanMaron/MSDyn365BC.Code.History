@@ -37,7 +37,7 @@ codeunit 138913 "O365 Verify Visibility"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The sales invoice card is opened
-        O365SalesInvoice.OpenNew;
+        O365SalesInvoice.OpenNew();
         O365SalesInvoice."Sell-to Customer Name".Value(CreateCustomer);
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
@@ -60,7 +60,7 @@ codeunit 138913 "O365 Verify Visibility"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The sales invoice card is opened
-        O365SalesInvoice.OpenNew;
+        O365SalesInvoice.OpenNew();
         O365SalesInvoice."Sell-to Customer Name".Value(CreateCustomer);
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
@@ -80,7 +80,7 @@ codeunit 138913 "O365 Verify Visibility"
         InitializeSalesTax;
         LibraryLowerPermissions.SetInvoiceApp;
 
-        O365SalesInvoiceLineCard.OpenNew;
+        O365SalesInvoiceLineCard.OpenNew();
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
         Assert.IsFalse(
@@ -101,7 +101,7 @@ codeunit 138913 "O365 Verify Visibility"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The sales invoice card is opened
-        O365SalesInvoiceLineCard.OpenNew;
+        O365SalesInvoiceLineCard.OpenNew();
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
         Assert.IsFalse(O365SalesInvoiceLineCard."Tax Group Code".Visible, '"Tax Group Code" should NOT be visible when VAT is used');
@@ -121,7 +121,7 @@ codeunit 138913 "O365 Verify Visibility"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The sales invoice card is opened
-        O365PostedSalesInvoice.OpenNew;
+        O365PostedSalesInvoice.OpenNew();
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
         Assert.IsTrue(O365PostedSalesInvoice.TaxAreaDescription.Visible, '"Tax Area Code" should be visible when sales tax is used');
@@ -142,7 +142,7 @@ codeunit 138913 "O365 Verify Visibility"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The sales invoice card is opened
-        O365PostedSalesInvoice.OpenNew;
+        O365PostedSalesInvoice.OpenNew();
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
         Assert.IsFalse(O365PostedSalesInvoice.TaxAreaDescription.Visible, '"Tax Area Code" should NOT be visible when sales tax is used');
@@ -163,7 +163,7 @@ codeunit 138913 "O365 Verify Visibility"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The sales invoice card is opened
-        O365PostedSalesInvoice.OpenNew;
+        O365PostedSalesInvoice.OpenNew();
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
         Assert.IsTrue(O365PostedSalesInvoice.Lines."Tax Group Code".Visible, '"Tax Group Code" should be visible when sales tax is used');
@@ -186,7 +186,7 @@ codeunit 138913 "O365 Verify Visibility"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The sales invoice card is opened
-        O365PostedSalesInvoice.OpenNew;
+        O365PostedSalesInvoice.OpenNew();
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
         Assert.IsFalse(O365PostedSalesInvoice.Lines."Tax Group Code".Visible, '"Tax Group Code" should NOT be visible when VAT is used');
@@ -209,7 +209,7 @@ codeunit 138913 "O365 Verify Visibility"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The Item card is opened
-        O365ItemCard.OpenNew;
+        O365ItemCard.OpenNew();
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
         Assert.IsTrue(O365ItemCard."Tax Group Code".Visible, 'Tax group code should be visible when sales tax is used');
@@ -230,7 +230,7 @@ codeunit 138913 "O365 Verify Visibility"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] The Item card is opened
-        O365ItemCard.OpenNew;
+        O365ItemCard.OpenNew();
 
         // [THEN] Visibility of Tax and VAT fields are set accordingly
         Assert.IsFalse(O365ItemCard."Tax Group Code".Visible, 'Tax group code should NOT be visible when sales tax is used');
@@ -329,27 +329,6 @@ codeunit 138913 "O365 Verify Visibility"
     [Test]
     [HandlerFunctions('VerifyNoNotificationsAreSent')]
     [Scope('OnPrem')]
-    procedure TestInvoicingSMTPUserSpecifiedAddressPage()
-    var
-        SMTPUserSpecifiedAddress: TestPage "SMTP User-Specified Address";
-    begin
-        // [FEATURE] [SMTP]
-        // [SCENARIO 197381] Email Address field visible on SMTP User-Specified Address page
-        LibraryLowerPermissions.SetInvoiceApp;
-        LibraryApplicationArea.DisableApplicationAreaSetup;
-
-        // [WHEN] SMTP User-Specified Address page is being opened
-        SMTPUserSpecifiedAddress.OpenEdit;
-
-        // [THEN] Email Address is visible
-        Assert.IsTrue(
-          SMTPUserSpecifiedAddress.EmailAddressField.Visible,
-          StrSubstNo(FieldShouldBeVisibleMsg, SMTPUserSpecifiedAddress.EmailAddressField.Caption));
-    end;
-
-    [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSent')]
-    [Scope('OnPrem')]
     procedure InvoicingAppAreaSunshineSalesScenario()
     var
         O365SalesInvoice: TestPage "O365 Sales Invoice";
@@ -406,7 +385,7 @@ codeunit 138913 "O365 Verify Visibility"
         // [FEATURE] [Location] [Physical Inventory]
         // [SCENARIO] Field "Location Code" in the page 7380 "Phys. Invt. Item Selection" should be visible when the #Location application area is enabled
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetItemView;
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryApplicationArea.EnableLocationsSetup;
@@ -426,10 +405,10 @@ codeunit 138913 "O365 Verify Visibility"
         // [FEATURE] [Physical Inventory]
         // [SCENARIO] Fields relating to basic item setup in the page 7380 "Phys. Invt. Item Selection" should be visible when the #Basic application area is enabled
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetItemView;
         LibraryApplicationArea.DisableApplicationAreaSetup;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         PhysInvtItemSelection.OpenView;
 
         Assert.IsTrue(
@@ -460,10 +439,10 @@ codeunit 138913 "O365 Verify Visibility"
         // [FEATURE] [Physical Inventory]
         // [SCENARIO] Fields relating to basic item setup in the page 7381 "Phys. Invt. Counting Periods" should be visible when the #Basic application area is enabled
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
         LibraryApplicationArea.DisableApplicationAreaSetup;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         PhysInvtCountingPeriods.OpenView;
         Assert.IsTrue(PhysInvtCountingPeriods.Code.Visible, StrSubstNo(FieldShouldBeVisibleMsg, PhysInvtCountingPeriods.Code.Caption));
@@ -489,7 +468,7 @@ codeunit 138913 "O365 Verify Visibility"
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        Initialize;
+        Initialize();
 
         O365SalesInitialSetup.Get();
         O365SalesInitialSetup."Tax Type" := O365SalesInitialSetup."Tax Type"::"Sales Tax";
@@ -500,7 +479,7 @@ codeunit 138913 "O365 Verify Visibility"
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        Initialize;
+        Initialize();
 
         O365SalesInitialSetup.Get();
         O365SalesInitialSetup."Tax Type" := O365SalesInitialSetup."Tax Type"::VAT;
@@ -511,8 +490,8 @@ codeunit 138913 "O365 Verify Visibility"
     var
         O365SalesCustomerCard: TestPage "O365 Sales Customer Card";
     begin
-        O365SalesCustomerCard.OpenNew;
-        CustomerName := LibraryUtility.GenerateGUID;
+        O365SalesCustomerCard.OpenNew();
+        CustomerName := LibraryUtility.GenerateGUID();
         O365SalesCustomerCard.Name.Value(CustomerName);
         O365SalesCustomerCard.Close;
     end;
@@ -522,7 +501,7 @@ codeunit 138913 "O365 Verify Visibility"
         Item: Record Item;
         BCO365ItemCard: TestPage "BC O365 Item Card";
     begin
-        BCO365ItemCard.OpenNew;
+        BCO365ItemCard.OpenNew();
         BCO365ItemCard.Description.Value :=
           LibraryUtility.GenerateRandomCode(
             Item.FieldNo(Description),
@@ -531,7 +510,7 @@ codeunit 138913 "O365 Verify Visibility"
         Item.SetRange(Description, BCO365ItemCard.Description.Value);
         BCO365ItemCard.OK.Invoke;
 
-        Item.FindLast;
+        Item.FindLast();
 
         ItemNo := Item."No.";
     end;
@@ -541,14 +520,14 @@ codeunit 138913 "O365 Verify Visibility"
         Customer: Record Customer;
         O365SalesCustomerCard: TestPage "O365 Sales Customer Card";
     begin
-        O365SalesCustomerCard.OpenNew;
+        O365SalesCustomerCard.OpenNew();
         O365SalesCustomerCard.Name.Value :=
           LibraryUtility.GenerateRandomCode(
             Customer.FieldNo("No."),
             DATABASE::Customer);
         Customer.SetRange(Name, O365SalesCustomerCard.Name.Value);
         O365SalesCustomerCard.OK.Invoke;
-        Customer.FindFirst;
+        Customer.FindFirst();
         exit(Customer.Name);
     end;
 
@@ -557,9 +536,9 @@ codeunit 138913 "O365 Verify Visibility"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        O365SalesInvoice.OpenNew;
+        O365SalesInvoice.OpenNew();
         O365SalesInvoice."Sell-to Customer Name".Value(CreateCustomerWithPage);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
         LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
         SalesLine.Modify();
     end;

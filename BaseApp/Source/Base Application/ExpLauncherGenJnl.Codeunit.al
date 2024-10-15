@@ -15,7 +15,7 @@ codeunit 1270 "Exp. Launcher Gen. Jnl."
         PaymentExportMgt: Codeunit "Payment Export Mgt";
     begin
         GenJnlLine.CopyFilters(Rec);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         BankAccount.Get(GenJnlLine."Bal. Account No.");
         BankAccount.GetDataExchDefPaymentExport(DataExchDef);
@@ -35,7 +35,7 @@ codeunit 1270 "Exp. Launcher Gen. Jnl."
 
         DataExchMapping.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExchMapping.SetRange("Table ID", DATABASE::"Payment Export Data");
-        DataExchMapping.FindFirst;
+        DataExchMapping.FindFirst();
 
         DataExch.ExportFromDataExch(DataExchMapping);
     end;

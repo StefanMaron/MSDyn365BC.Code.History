@@ -597,7 +597,7 @@ codeunit 134119 "Price Asset UT"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Price Asset UT");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;

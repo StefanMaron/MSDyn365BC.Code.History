@@ -70,7 +70,7 @@ codeunit 741 "VAT Report Release/Reopen"
         if VATReportHeader."Original Report No." <> '' then begin
             CorrVATReportLine.SetRange("VAT Report No.", VATReportNo);
             CorrVATReportLine.SetRange("Line Type", CorrVATReportLine."Line Type"::Correction);
-            if CorrVATReportLine.FindSet then
+            if CorrVATReportLine.FindSet() then
                 repeat
                     VATReportLine.Reset();
                     VATReportLine.SetRange("VAT Report to Correct", VATReportHeader."Original Report No.");

@@ -32,7 +32,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as a Business Manager
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A user with Business Manager Plan
@@ -62,7 +62,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as a Business Manager
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A user with External Accountant Plan
@@ -93,7 +93,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as a Business Manager
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A customer with a Prepayment Setup
@@ -140,7 +140,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as an Essential ISV Emb User
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A user with Essential ISV Plan
@@ -171,7 +171,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as a Team Member ISV Emb
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A customer with a Prepayment Setup
@@ -219,7 +219,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Sales Order containing Prepayments as an Device ISV Emb User
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A user with Device ISV Plan
@@ -249,7 +249,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as a Business Manager
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A user with Business Manager Plan
@@ -279,7 +279,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as a Business Manager
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A user with External Accountant Plan
@@ -310,7 +310,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as a Business Manager
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A vendor with a Prepayment Setup
@@ -355,7 +355,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as Essential ISV Emb
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A user with Essential ISV Emb Plan
@@ -386,7 +386,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as a Team Member ISV Emb
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A vendor with a Prepayment Setup
@@ -433,7 +433,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         // [E2E] Scenario going through the process of posting a Purchase Order containing Prepayments as Device ISV Emb
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItem;
         // [GIVEN] A user with Device ISV Emb Plan
@@ -461,7 +461,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Prepayments Plan-based E2E");
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
@@ -473,9 +473,9 @@ codeunit 135407 "Prepayments Plan-based E2E"
         LibraryTemplates.EnableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         CreateSalesPrepmtInvNosInSetup;
         SetupNewSalesPrepaymentAccount;
@@ -494,7 +494,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(CustomerNo);
         SalesOrder.SalesLines.New;
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
@@ -510,9 +510,9 @@ codeunit 135407 "Prepayments Plan-based E2E"
         PurchaseLine: Record "Purchase Line";
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         PurchaseOrder."Buy-from Vendor Name".SetValue(VendorNo);
-        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID);
+        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID());
         PurchaseOrder.PurchLines.New;
         PurchaseOrder.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::Item));
         PurchaseOrder.PurchLines."No.".SetValue(ItemNo);
@@ -563,7 +563,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
     begin
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoKey(PurchaseHeader."Document Type"::Order, PurchaseOrderNo);
-        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID);
+        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID());
         PurchaseOrder.Post.Invoke;
         if not ExpectFailure then
             PostedPurchaseOrderNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(PostedPurchaseOrderNo));
@@ -574,7 +574,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
@@ -587,7 +587,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         VendorCard: TestPage "Vendor Card";
     begin
         PrepaymentPercentage := LibraryRandom.RandDecInRange(1, 100, 2);
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         VendorCard."Prepayment %".SetValue(PrepaymentPercentage);
         VendorNo := VendorCard."No.".Value;
@@ -601,7 +601,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         CustomerCard: TestPage "Customer Card";
     begin
         PrepaymentPercentage := LibraryRandom.RandDecInRange(1, 100, 2);
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
         CustomerCard."Prepayment %".SetValue(PrepaymentPercentage);
         CustomerNo := CustomerCard."No.".Value;

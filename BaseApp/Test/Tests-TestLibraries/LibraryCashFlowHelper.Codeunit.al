@@ -427,7 +427,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             VATPostingSetup.SetRange("VAT Bus. Posting Group", SalesHeader."VAT Bus. Posting Group");
             VATPostingSetup.SetFilter("VAT Calculation Type", '<>%1', VATPostingSetup."VAT Calculation Type"::"Full VAT");
             VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
-            VATPostingSetup.FindFirst;
+            VATPostingSetup.FindFirst();
             GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase);
         end;
         LibrarySales.CreateSalesLine(
@@ -585,7 +585,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         JobTask: Record "Job Task";
     begin
         JobTask.SetRange("Job No.", Job."No.");
-        JobTask.FindFirst;
+        JobTask.FindFirst();
         CreateDefaultJobPlanningLine(JobTask, LineType, JobPlanningLine);
     end;
 
@@ -625,7 +625,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         CFWorksheetLine.SetRange("Cash Flow Forecast No.", CashFlowNo);
         CFWorksheetLine.SetRange("Source Type", SourceType);
         CFWorksheetLine.SetRange("Document No.", DocumentNo);
-        if CFWorksheetLine.FindFirst then;
+        if CFWorksheetLine.FindFirst() then;
         exit(CFWorksheetLine.Count);
     end;
 
@@ -643,13 +643,13 @@ codeunit 131332 "Library - Cash Flow Helper"
     begin
         CFAccount.SetFilter("G/L Integration", '%1|%2', GLIntegration, CFAccount."G/L Integration"::Both);
         CFAccount.SetFilter("G/L Account Filter", '<>%1', '');
-        CFAccount.FindFirst;
+        CFAccount.FindFirst();
     end;
 
     procedure FindFirstGLAccFromCFAcc(var GLAccount: Record "G/L Account"; CFAccount: Record "Cash Flow Account")
     begin
         GLAccount.SetFilter("No.", CFAccount."G/L Account Filter");
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
     end;
 
     procedure FindFirstCustLEFromSO(var CustLedgerEntry: Record "Cust. Ledger Entry"; SalesOrderNo: Code[20])
@@ -657,9 +657,9 @@ codeunit 131332 "Library - Cash Flow Helper"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Order No.", SalesOrderNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     procedure FindFirstVendorLEFromPO(var VendorLedgerEntry: Record "Vendor Ledger Entry"; PurchaseOrderNo: Code[20])
@@ -667,9 +667,9 @@ codeunit 131332 "Library - Cash Flow Helper"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Order No.", PurchaseOrderNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         VendorLedgerEntry.SetRange("Document No.", PurchInvHeader."No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
     end;
 
     procedure FindCustomerCFPaymentTerms(var PaymentTerms: Record "Payment Terms"; CustomerNo: Code[20])
@@ -809,7 +809,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalDiscountAmount := 0;
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        if SalesLine.FindSet then begin
+        if SalesLine.FindSet() then begin
             repeat
                 LineAmount := SalesLine."Outstanding Amount (LCY)";
                 TotalAmount += LineAmount;
@@ -834,7 +834,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalDiscountAmount := 0;
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        if PurchaseLine.FindSet then begin
+        if PurchaseLine.FindSet() then begin
             repeat
                 LineAmount := PurchaseLine."Outstanding Amount (LCY)";
                 TotalAmount += LineAmount;
@@ -859,7 +859,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalDiscountAmount := 0;
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
-        if ServiceLine.FindSet then begin
+        if ServiceLine.FindSet() then begin
             repeat
                 LineAmount := ServiceLine."Outstanding Amount (LCY)";
                 TotalAmount += LineAmount;
@@ -880,7 +880,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalAmount := 0;
         TotalInvoicedAmount := 0;
         JobTask.SetRange("Job No.", Job."No.");
-        JobTask.FindFirst;
+        JobTask.FindFirst();
         JobPlanningLine.SetRange("Job No.", Job."No.");
         JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
         JobPlanningLine.SetFilter(
@@ -914,7 +914,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             DATABASE::"Purchase Header":
                 begin
                     PurchaseHeader.SetFilter("Document Date", StrSubstNo('%1..%2', StartDate, EndDate));
-                    if PurchaseHeader.FindSet then
+                    if PurchaseHeader.FindSet() then
                         repeat
                             PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
                             PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
@@ -925,7 +925,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             DATABASE::"Sales Header":
                 begin
                     SalesHeader.SetFilter("Document Date", StrSubstNo('%1..%2', StartDate, EndDate));
-                    if SalesHeader.FindSet then
+                    if SalesHeader.FindSet() then
                         repeat
                             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
                             SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -965,7 +965,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         EntryNo: Integer;
     begin
         with CFForecastEntry do begin
-            if FindLast then
+            if FindLast() then
                 EntryNo := "Entry No.";
 
             Init;
@@ -1154,7 +1154,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             CFWorksheetLine.SetRange("Document No.");
             CFWorksheetLine.SetRange("Source No.", DocumentNo);
             CFWorksheetLine.SetRange("Document Date", DocumentDate);
-            if CFWorksheetLine.FindFirst then;
+            if CFWorksheetLine.FindFirst() then;
         end;
         CFWorksheetLine.CalcSums("Amount (LCY)");
         VerifyExpectedCFAmtNearlyEqual(ExpectedCFAmount, CFWorksheetLine."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision);

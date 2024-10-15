@@ -778,7 +778,7 @@ codeunit 7313 "Create Put-away"
             WhseActivHeader := TempWhseActivHeader;
             WhseActivLine.SetRange("Activity Type", WhseActivHeader.Type);
             WhseActivLine.SetRange("No.", WhseActivHeader."No.");
-            Found := WhseActivLine.FindFirst;
+            Found := WhseActivLine.FindFirst();
         end;
         exit(Found);
     end;
@@ -794,7 +794,7 @@ codeunit 7313 "Create Put-away"
             WhseActivHeader := TempWhseActivHeader;
             WhseActivLine.SetRange("Activity Type", WhseActivHeader.Type);
             WhseActivLine.SetRange("No.", WhseActivHeader."No.");
-            Found := WhseActivLine.FindFirst;
+            Found := WhseActivLine.FindFirst();
         end;
         exit(Found);
     end;
@@ -904,7 +904,7 @@ codeunit 7313 "Create Put-away"
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
-        if WarehouseActivityLine.FindSet then
+        if WarehouseActivityLine.FindSet() then
             repeat
                 WarehouseActivityLine.DeleteBinContent(WarehouseActivityLine."Action Type"::Place.AsInteger());
             until WarehouseActivityLine.Next() = 0;
@@ -919,7 +919,7 @@ codeunit 7313 "Create Put-away"
             SetRange("Location Code", Bin."Location Code");
             SetRange("Zone Code", Bin."Zone Code");
             SetRange("Bin Code", Bin.Code);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Fixed or Default then
                         exit(false);

@@ -153,7 +153,7 @@ table 426 "IC Outbox Sales Header"
         ICOutboxSalesLine.SetRange("IC Partner Code", "IC Partner Code");
         ICOutboxSalesLine.SetRange("IC Transaction No.", "IC Transaction No.");
         ICOutboxSalesLine.SetRange("Transaction Source", "Transaction Source");
-        if ICOutboxSalesLine.FindFirst then
+        if ICOutboxSalesLine.FindFirst() then
             ICOutboxSalesLine.DeleteAll(true);
         DimMgt.DeleteICDocDim(
           DATABASE::"IC Outbox Sales Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);

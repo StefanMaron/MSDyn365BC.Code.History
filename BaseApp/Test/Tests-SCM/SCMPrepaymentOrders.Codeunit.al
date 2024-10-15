@@ -41,7 +41,7 @@ codeunit 137160 "SCM Prepayment Orders"
     procedure CreateAndRegisterPutAwayFromPurchaseOrderWithPostPrepaymentInvoice()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseShipmentAfterRegisterPutAwayWithPostPrepaymentInvoice(false, false, false);  // WarehouseShipment, PartialWarehouseShipment and RemainingWarehouseShipment as FALSE.
     end;
 
@@ -50,7 +50,7 @@ codeunit 137160 "SCM Prepayment Orders"
     procedure CreateWarehouseShipmentFromSalesOrderWithPostPrepaymentInvoice()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseShipmentAfterRegisterPutAwayWithPostPrepaymentInvoice(true, false, false);  // WarehouseShipment as TRUE. PartialWarehouseShipment and RemainingWarehouseShipment as FALSE.
     end;
 
@@ -59,7 +59,7 @@ codeunit 137160 "SCM Prepayment Orders"
     procedure RegisterPickAndPostWarehouseShipmentForPartialQuantityWithPostPrepaymentInvoice()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseShipmentAfterRegisterPutAwayWithPostPrepaymentInvoice(true, true, false);  // WarehouseShipment and PartialWarehouseShipment as TRUE. RemainingWarehouseShipment as FALSE.
     end;
 
@@ -68,7 +68,7 @@ codeunit 137160 "SCM Prepayment Orders"
     procedure RegisterPickAndPostWarehouseShipmentForRemainingQuantityWithPostPrepaymentInvoice()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostWarehouseShipmentAfterRegisterPutAwayWithPostPrepaymentInvoice(true, true, true);  // WarehouseShipment, PartialWarehouseShipment and RemainingWarehouseShipment as TRUE.
     end;
 
@@ -169,7 +169,7 @@ codeunit 137160 "SCM Prepayment Orders"
         CurrencyFactor: Decimal;
         ExternalDoNo: Code[35];
     begin
-        Initialize;
+        Initialize();
         CreateItemWithVATProdPostingGroup(Item, VATPostingSetup);
         CreateCustomerWithFCYAndPaymentMethod(Customer, PaymentMethod, CurrencyFactor, VATPostingSetup."VAT Bus. Posting Group");
 
@@ -199,7 +199,7 @@ codeunit 137160 "SCM Prepayment Orders"
         CurrencyFactor: Decimal;
         VendorInvoiceNo: Code[35];
     begin
-        Initialize;
+        Initialize();
         CreateItemWithVATProdPostingGroup(Item, VATPostingSetup);
         CreateVendorWithFCYAndPaymentMethod(Vendor, PaymentMethod, CurrencyFactor, VATPostingSetup."VAT Bus. Posting Group");
 
@@ -218,22 +218,22 @@ codeunit 137160 "SCM Prepayment Orders"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Prepayment Orders");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Prepayment Orders");
-        LibraryERMCountryData.CreateVATData;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        NoSeriesSetup();
         ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch, ItemJournalTemplate.Type::Item);
         ItemJournalSetup(ReclassItemJournalTemplate, ReclassItemJournalBatch, ReclassItemJournalTemplate.Type::Transfer);
-        LocationSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LocationSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         isInitialized := true;
         Commit();
@@ -446,7 +446,7 @@ codeunit 137160 "SCM Prepayment Orders"
     begin
         PaymentMethod.SetRange("Bal. Account Type", PaymentMethod."Bal. Account Type"::"G/L Account");
         PaymentMethod.SetFilter("Bal. Account No.", '<>''''');
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
     end;
 
     local procedure FindPostedSalesInvoice(CustomerNo: Code[20]; OrderNo: Code[20]; ExternalDocumentNo: Code[35]): Code[20]
@@ -456,7 +456,7 @@ codeunit 137160 "SCM Prepayment Orders"
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
         SalesInvoiceHeader.SetRange("Order No.", OrderNo);
         SalesInvoiceHeader.SetRange("External Document No.", ExternalDocumentNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         exit(SalesInvoiceHeader."No.");
     end;
 
@@ -468,7 +468,7 @@ codeunit 137160 "SCM Prepayment Orders"
             SetRange("Buy-from Vendor No.", VendorNo);
             SetRange("Order No.", OrderNo);
             SetRange("Vendor Invoice No.", VendorInvoiceNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -488,14 +488,14 @@ codeunit 137160 "SCM Prepayment Orders"
         Zone.SetRange("Location Code", LocationCode);
         Zone.SetRange("Bin Type Code", LibraryWarehouse.SelectBinType(false, false, true, true));  // TRUE for Put-away and Pick.
         Zone.SetRange("Cross-Dock Bin Zone", false);
-        Zone.FindFirst;
+        Zone.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
@@ -503,7 +503,7 @@ codeunit 137160 "SCM Prepayment Orders"
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20]; ItemNo: Code[20])
@@ -511,14 +511,14 @@ codeunit 137160 "SCM Prepayment Orders"
         WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
         WarehouseReceiptLine.SetRange("Item No.", ItemNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure GetWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
@@ -615,7 +615,7 @@ codeunit 137160 "SCM Prepayment Orders"
     local procedure UpdateExternalDocumentNoOnWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
         WarehouseShipmentHeader.Find;
-        WarehouseShipmentHeader.Validate("External Document No.", LibraryUtility.GenerateGUID);
+        WarehouseShipmentHeader.Validate("External Document No.", LibraryUtility.GenerateGUID());
         WarehouseShipmentHeader.Modify(true);
     end;
 
@@ -666,7 +666,7 @@ codeunit 137160 "SCM Prepayment Orders"
 
     local procedure UpdateVendorInvoiceNoOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -680,7 +680,7 @@ codeunit 137160 "SCM Prepayment Orders"
             GLEntry.SetFilter(Amount, '<0');
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualErr);
     end;
 }

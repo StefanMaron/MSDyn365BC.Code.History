@@ -114,10 +114,10 @@ report 210 "Blanket Sales Order"
                     column(CompanyInfo__Giro_No__; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfo__Bank_Name_; CompanyInfo."Bank Name")
+                    column(CompanyInfo__Bank_Name_; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfo__Bank_Account_No__; CompanyInfo."Bank Account No.")
+                    column(CompanyInfo__Bank_Account_No__; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(Sales_Header___Bill_to_Customer_No__; "Sales Header"."Bill-to Customer No.")
@@ -227,7 +227,7 @@ report 210 "Blanket Sales Order"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -918,6 +918,9 @@ report 210 "Blanket Sales Order"
                 if SellToContact.Get("Sell-to Contact No.") then;
                 if BillToContact.Get("Bill-to Contact No.") then;
 
+                if not CompanyBankAccount.Get("Sales Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
                 if not IsReportInPreviewMode then
@@ -1005,7 +1008,7 @@ report 210 "Blanket Sales Order"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Sales Header".FindSet then
+            if "Sales Header".FindSet() then
                 repeat
                     "Sales Header".CalcFields("No. of Archived Versions");
                     if "Sales Header"."Bill-to Contact No." <> '' then
@@ -1041,6 +1044,7 @@ report 210 "Blanket Sales Order"
         CompanyInfo2: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         SalesSetup: Record "Sales & Receivables Setup";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         VATAmountLine: Record "VAT Amount Line" temporary;
         SalesLine: Record "Sales Line" temporary;

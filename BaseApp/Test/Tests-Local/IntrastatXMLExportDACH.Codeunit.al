@@ -31,7 +31,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".Initialize() checks for a Company Information mandatory fields
-        Initialize;
+        Initialize();
         with CompanyInformation do begin
             Init;
             Modify;
@@ -57,7 +57,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".Initialize() checks for a Intrastat Contact Type mandatory field
-        Initialize;
+        Initialize();
         with IntrastatSetup do begin
             Get;
             Validate("Intrastat Contact Type", "Intrastat Contact Type"::" ");
@@ -95,7 +95,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".Initialize() checks for a Intrastat Contact mandatory fields
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Name := '';
         Contact.Modify();
@@ -121,7 +121,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".Initialize() checks for a Intrastat Vendor mandatory fields
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Name := '';
         Vendor.Modify();
@@ -154,7 +154,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLHeader() in case of "Test Submission" = FALSE
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         PrepareXMLExport(IntrastatExportMgtDACH, StartDate, CreationDate, CreationTime, MessageID, VATIDNo, false);
 
@@ -182,7 +182,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLHeader() in case of "Test Submission" = TRUE
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         PrepareXMLExport(IntrastatExportMgtDACH, StartDate, CreationDate, CreationTime, MessageID, VATIDNo, true);
 
@@ -209,7 +209,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLHeader() in case of "Intrastat Contact Type" = "Contact"
-        Initialize;
+        Initialize();
         PrepareXMLExport(IntrastatExportMgtDACH, StartDate, CreationDate, CreationTime, MessageID, VATIDNo, false);
 
         IntrastatExportMgtDACH.WriteXMLHeader(XMLDocument, XMLNode, false, StartDate);
@@ -234,7 +234,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLHeader() in case of "Intrastat Contact Type" = "Vendor"
-        Initialize;
+        Initialize();
         with IntrastatSetup do
             LibraryERM.SetIntrastatContact(
               "Intrastat Contact Type"::Vendor,
@@ -264,9 +264,9 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLDeclaration() in case of Receipt
-        Initialize;
+        Initialize();
         PrepareXMLExport(IntrastatExportMgtDACH, StartDate, CreationDate, CreationTime, MessageID, VATIDNo, false);
-        Currencycode := LibraryUtility.GenerateGUID;
+        Currencycode := LibraryUtility.GenerateGUID();
 
         IntrastatExportMgtDACH.WriteXMLHeader(XMLDocument, RootXMLNode, false, StartDate);
         IntrastatExportMgtDACH.WriteXMLDeclaration(RootXMLNode, XMLNode, ExportTypeGlb::Receipt, Currencycode);
@@ -293,9 +293,9 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLDeclaration() in case of Shipment
-        Initialize;
+        Initialize();
         PrepareXMLExport(IntrastatExportMgtDACH, StartDate, CreationDate, CreationTime, MessageID, VATIDNo, false);
-        Currencycode := LibraryUtility.GenerateGUID;
+        Currencycode := LibraryUtility.GenerateGUID();
 
         IntrastatExportMgtDACH.WriteXMLHeader(XMLDocument, RootXMLNode, false, StartDate);
         IntrastatExportMgtDACH.WriteXMLDeclaration(RootXMLNode, XMLNode, ExportTypeGlb::Shipment, Currencycode);
@@ -322,10 +322,10 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLDeclaration() in case of Receipt and Shipment
-        Initialize;
+        Initialize();
         PrepareXMLExport(IntrastatExportMgtDACH, StartDate, CreationDate, CreationTime, MessageID, VATIDNo, false);
-        Currencycode[1] := LibraryUtility.GenerateGUID;
-        Currencycode[2] := LibraryUtility.GenerateGUID;
+        Currencycode[1] := LibraryUtility.GenerateGUID();
+        Currencycode[2] := LibraryUtility.GenerateGUID();
 
         IntrastatExportMgtDACH.WriteXMLHeader(XMLDocument, RootXMLNode, false, StartDate);
         IntrastatExportMgtDACH.WriteXMLDeclaration(RootXMLNode, XMLNode, ExportTypeGlb::Receipt, Currencycode[1]);
@@ -355,7 +355,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLDeclarationTotals()
-        Initialize;
+        Initialize();
         PrepareXMLExport(IntrastatExportMgtDACH, StartDate, CreationDate, CreationTime, MessageID, VATIDNo, false);
         MockIntrastatJnlLine(IntrastatJnlLine, ExportTypeGlb::Receipt, false);
 
@@ -384,7 +384,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLItem() in case of Receipt with a single item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line with "Type" = "Receipt", "Supplementary Units" = FALSE, Quantity = 1, "Country/Region of Origin Code" = "DE" (with "Intrastat Code" = "X")
         PrepareXMLExport(IntrastatExportMgtDACH, StartDate, CreationDate, CreationTime, MessageID, VATIDNo, false);
@@ -420,7 +420,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         // [FEATURE] [UT]
         // [SCENARIO 258143] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLItem() in case of Receipt with a single item
         // [SCENARIO 258143] and blanked origin country's "Intrastat Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line with "Type" = "Receipt", "Supplementary Units" = FALSE, Quantity = 1, "Country/Region of Origin Code" = "DE" (with "Intrastat Code" = "")
         // [GIVEN] "Partner VAT ID" is not filled in
@@ -461,7 +461,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLItem() in case of Shipment with a single item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line with "Type" = "Shipment", "Supplementary Units" = TRUE, Quantity = 1
         PrepareXMLExport(IntrastatExportMgtDACH, StartDate, CreationDate, CreationTime, MessageID, VATIDNo, false);
@@ -498,7 +498,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLItem() in case of Receipt with a several items
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line1 with "Type" = "Receipt", "Supplementary Units" = FALSE, Quantity = 1, "Country/Region of Origin Code" = "DE" (with "Intrastat Code" = "X")
         // [GIVEN] Intrastat Journal Line2 with "Type" = "Receipt", "Supplementary Units" = TRUE, Quantity = 2, "Country/Region of Origin Code" = "AT" (with "Intrastat Code" = "Y")
@@ -539,7 +539,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLItem() in case of Shipment with a several items
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line1 with "Type" = "Shipment", "Supplementary Units" = FALSE, Quantity = 1
         // [GIVEN] Intrastat Journal Line2 with "Type" = "Shipment", "Supplementary Units" = TRUE, Quantity = 2
@@ -586,7 +586,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 255730] COD 11002 "Intrastat - Export Mgt. DACH".WriteXMLItem() in case of Receipt and Shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line1 with "Type" = "Receipt", "Supplementary Units" = FALSE, Quantity = 1, "Country/Region of Origin Code" = "DE" (with "Intrastat Code" = "X")
         // [GIVEN] Intrastat Journal Line2 with "Type" = "Shipment", "Supplementary Units" = TRUE, Quantity = 2
@@ -658,7 +658,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 255730] "Intrastat Journal Batch"."Reported" = TRUE after run REP 11014 "Intrastat - Disk Tax Auth DE" in case of "Format Type" = "XML", "Test Submission" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] A new Intrastat Journal Batch "X"
         CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
@@ -680,7 +680,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 255730] "Intrastat Journal Batch"."Reported" = TRUE after run REP 11014 "Intrastat - Disk Tax Auth DE" in case of "Format Type" = "XML", "Test Submission" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] A new Intrastat Journal Batch "X"
         CreateReceiptAndShipmentIntrastatJnlLines(IntrastatJnlBatch);
@@ -707,7 +707,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 255730] REP 11014 "Intrastat - Disk Tax Auth DE" in case of "Format Type" = "XML", "Test Submission" = FALSE, several item specifications with Receipts, Shipments
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         VATIDNo := GetVATIDNo;
 
@@ -746,7 +746,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 331036] REP 11014 "Intrastat - Disk Tax Auth DE" in case of "Format Type" = "XML", Amount = 0, Statistical Value entered manually
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line with no item, Amount = 0, Statistical Value = 100
         MockIntrastatJnlLine(IntrastatJnlLine, 0, false);
@@ -783,7 +783,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         ItemDescription: List of [Text[100]];
     begin
         // [SCENARIO 333492] Run report "Intrastat - Disk Tax Auth DE" on Receipt and Shipment lines with XML format in case "Report Receipts"/"Report Shipments" are set.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Intrastat Journal Lines with Type Receipt and Shipment.
         // [GIVEN] "Report Receipts" and "Report Shipments" of Intrastat Setup are set.
@@ -818,7 +818,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         ZipFileTempBlob: Codeunit "Temp Blob";
     begin
         // [SCENARIO 333492] Run report "Intrastat - Disk Tax Auth DE" on Receipt and Shipment lines with XML format in case "Report Receipts" is set, "Report Shipments" is not set.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Intrastat Journal Lines with Type Receipt and Shipment.
         // [GIVEN] "Report Receipts" is set, "Report Shipments" is not set in Intrastat Setup.
@@ -849,7 +849,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         ZipFileTempBlob: Codeunit "Temp Blob";
     begin
         // [SCENARIO 333492] Run report "Intrastat - Disk Tax Auth DE" on Receipt and Shipment lines with XML format in case "Report Receipts" is not set, "Report Shipments" is set.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Intrastat Journal Lines with Type Receipt and Shipment.
         // [GIVEN] "Report Receipts" is not set, "Report Shipments" is set in Intrastat Setup.
@@ -1001,7 +1001,7 @@ codeunit 142086 "Intrastat XML Export DACH"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1034,7 +1034,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         with CountryRegion do begin
-            Validate(Name, LibraryUtility.GenerateGUID);
+            Validate(Name, LibraryUtility.GenerateGUID());
             Validate("Intrastat Code", CopyStr(LibraryUtility.GenerateRandomXMLText(3), 1, 3));
             Modify(true);
             exit(Code);
@@ -1044,7 +1044,7 @@ codeunit 142086 "Intrastat XML Export DACH"
     local procedure CreateIntrastatJnlBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
     begin
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, LibraryRandom.RandDate(100));
-        IntrastatJnlBatch."Currency Identifier" := LibraryUtility.GenerateGUID;
+        IntrastatJnlBatch."Currency Identifier" := LibraryUtility.GenerateGUID();
         IntrastatJnlBatch.Modify();
     end;
 
@@ -1084,16 +1084,16 @@ codeunit 142086 "Intrastat XML Export DACH"
             Init;
             "Internal Ref. No." := CopyStr(InternalRefNo, 1, MaxStrLen("Internal Ref. No."));
             Type := NewType;
-            "Item Description" := LibraryUtility.GenerateGUID;
+            "Item Description" := LibraryUtility.GenerateGUID();
             "Country/Region Code" := CreateCountryRegionCode;
             "Tariff No." := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Tariff No.")), 1, 8);
             "Transaction Type" := Format(LibraryRandom.RandIntInRange(10, 99));
-            "Transport Method" := LibraryUtility.GenerateGUID;
-            Area := LibraryUtility.GenerateGUID;
-            "Transaction Specification" := LibraryUtility.GenerateGUID;
+            "Transport Method" := LibraryUtility.GenerateGUID();
+            Area := LibraryUtility.GenerateGUID();
+            "Transaction Specification" := LibraryUtility.GenerateGUID();
             "Country/Region of Origin Code" := CreateCountryRegionCode;
             "Supplementary Units" := SU;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Partner VAT ID" := LibraryUtility.GenerateGUID();
             Date := WorkDate();
         end;
@@ -1105,9 +1105,9 @@ codeunit 142086 "Intrastat XML Export DACH"
         IntrastatJnlLineSpec: Record "Intrastat Jnl. Line";
     begin
         CreateIntrastatJnlBatch(IntrastatJnlBatch);
-        CreateItemSpecification(IntrastatJnlLineSpec, IntrastatJnlLineSpec.Type::Receipt, false, LibraryUtility.GenerateGUID);
+        CreateItemSpecification(IntrastatJnlLineSpec, IntrastatJnlLineSpec.Type::Receipt, false, LibraryUtility.GenerateGUID());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec, IntrastatJnlBatch);
-        CreateItemSpecification(IntrastatJnlLineSpec, IntrastatJnlLineSpec.Type::Shipment, false, LibraryUtility.GenerateGUID);
+        CreateItemSpecification(IntrastatJnlLineSpec, IntrastatJnlLineSpec.Type::Shipment, false, LibraryUtility.GenerateGUID());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec, IntrastatJnlBatch);
     end;
 
@@ -1218,9 +1218,9 @@ codeunit 142086 "Intrastat XML Export DACH"
         IntrastatJnlLineSpec: Record "Intrastat Jnl. Line";
     begin
         CreateIntrastatJnlBatch(IntrastatJnlBatch);
-        CreateItemSpecification(IntrastatJnlLineSpec, LineType, SU, LibraryUtility.GenerateGUID);
+        CreateItemSpecification(IntrastatJnlLineSpec, LineType, SU, LibraryUtility.GenerateGUID());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlLineSpec, IntrastatJnlBatch);
-        IntrastatJnlLine."Internal Ref. No." := LibraryUtility.GenerateGUID;
+        IntrastatJnlLine."Internal Ref. No." := LibraryUtility.GenerateGUID();
         IntrastatJnlLine.Modify();
     end;
 
@@ -1288,7 +1288,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         IntrastatDiskTaxAuthDE.InitializeRequest(ZipFileOutStream);
         IntrastatDiskTaxAuthDE.SetTableView(IntrastatJnlLine);
         IntrastatDiskTaxAuthDE.UseRequestPage(true);
-        IntrastatDiskTaxAuthDE.RunModal;
+        IntrastatDiskTaxAuthDE.RunModal();
     end;
 
     local procedure RunChecklistReport(IntrastatJnlLine: Record "Intrastat Jnl. Line");
@@ -1327,14 +1327,14 @@ codeunit 142086 "Intrastat XML Export DACH"
               CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Sales Authorized No.")), 1, MaxStrLen("Sales Authorized No."));
             "Purch. Authorized No." :=
               CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Purch. Authorized No.")), 1, MaxStrLen("Purch. Authorized No."));
-            "Company No." := LibraryUtility.GenerateGUID;
-            Address := LibraryUtility.GenerateGUID;
-            "Post Code" := LibraryUtility.GenerateGUID;
-            City := LibraryUtility.GenerateGUID;
+            "Company No." := LibraryUtility.GenerateGUID();
+            Address := LibraryUtility.GenerateGUID();
+            "Post Code" := LibraryUtility.GenerateGUID();
+            City := LibraryUtility.GenerateGUID();
             "Country/Region Code" := CreateCountryRegionCode;
-            "Phone No." := LibraryUtility.GenerateGUID;
-            "Fax No." := LibraryUtility.GenerateGUID;
-            "E-Mail" := LibraryUtility.GenerateGUID;
+            "Phone No." := LibraryUtility.GenerateGUID();
+            "Fax No." := LibraryUtility.GenerateGUID();
+            "E-Mail" := LibraryUtility.GenerateGUID();
             Modify;
         end;
         with IntrastatSetup do

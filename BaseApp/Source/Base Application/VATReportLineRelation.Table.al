@@ -43,7 +43,7 @@ table 744 "VAT Report Line Relation"
         // One VAT Report line can have relations only to one table
         VATReportLineRelation.SetRange("VAT Report No.", "VAT Report No.");
         VATReportLineRelation.SetRange("VAT Report Line No.", "VAT Report Line No.");
-        if VATReportLineRelation.FindFirst then
+        if VATReportLineRelation.FindFirst() then
             TestField("Table No.", VATReportLineRelation."Table No.");
     end;
 }

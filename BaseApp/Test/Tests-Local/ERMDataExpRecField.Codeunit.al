@@ -70,7 +70,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     [Scope('OnPrem')]
     procedure MoveUpFirstRecord()
     begin
-        Initialize;
+        Initialize();
         InitializeTestData;
 
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 1000);
@@ -87,7 +87,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     [Scope('OnPrem')]
     procedure MoveUpLastRecord()
     begin
-        Initialize;
+        Initialize();
         InitializeTestData;
 
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 2000);
@@ -109,7 +109,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     [Scope('OnPrem')]
     procedure MoveDownLastRecord()
     begin
-        Initialize;
+        Initialize();
 
         InitializeTestData;
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 2000);
@@ -132,7 +132,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     [Scope('OnPrem')]
     procedure MoveDownFirstRecord()
     begin
-        Initialize;
+        Initialize();
         InitializeTestData;
 
         DataExportRecordField.Get(ExportCode, RecordCode, SourceLineNo, TableNo, 1000);
@@ -154,7 +154,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     var
         "Fields": Record "Field";
     begin
-        Initialize;
+        Initialize();
         InitializeTestData;
 
         Fields.SetRange(TableNo, TableNo);
@@ -184,7 +184,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     var
         "Fields": Record "Field";
     begin
-        Initialize;
+        Initialize();
         InitializeTestData;
 
         Fields.SetRange(TableNo, TableNo);
@@ -214,7 +214,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     var
         "Fields": Record "Field";
     begin
-        Initialize;
+        Initialize();
         InitializeTestData;
 
         Fields.SetRange(TableNo, TableNo);
@@ -230,7 +230,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     var
         "Fields": Record "Field";
     begin
-        Initialize;
+        Initialize();
         InitializeTestData;
 
         Fields.SetRange(TableNo, TableNo);
@@ -261,7 +261,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     var
         "Fields": Record "Field";
     begin
-        Initialize;
+        Initialize();
         InitializeTestData;
 
         DeleteTestData;
@@ -286,7 +286,7 @@ codeunit 142005 "ERM Data Exp. Rec. Field"
     var
         "Fields": Record "Field";
     begin
-        Initialize;
+        Initialize();
         InitializeTestData;
 
         InsertTestRecord(-9999, 3);

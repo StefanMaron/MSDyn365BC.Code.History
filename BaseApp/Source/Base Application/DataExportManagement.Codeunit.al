@@ -28,7 +28,7 @@ codeunit 11000 "Data Export Management"
             FilterGroup(0);
             Clear(DataExportTableRelationPage);
             DataExportTableRelationPage.SetTableView(DataExportRecordSource);
-            DataExportTableRelationPage.RunModal;
+            DataExportTableRelationPage.RunModal();
         end;
     end;
 
@@ -183,7 +183,7 @@ codeunit 11000 "Data Export Management"
           ConvertString(CompanyInfo.Address) + ' ' + ConvertString(CompanyInfo."Address 2") + ' ' +
           ConvertString(CompanyInfo."Post Code") + ' ' + ConvertString(CompanyInfo.City));
         XMLDOMManagement.AddLastNode(XMLCurrNode, 'Comment', ConvertString(Description));
-        if TempDataExportRecordSource.FindSet then begin
+        if TempDataExportRecordSource.FindSet() then begin
             XMLDOMManagement.AddGroupNode(XMLCurrNode, 'Media');
             XMLMediaNode := XMLCurrNode;
             XMLDOMManagement.AddNode(XMLCurrNode, 'Name', ConvertString(TempDataExportRecordSource."Data Exp. Rec. Type Code"));
@@ -251,7 +251,7 @@ codeunit 11000 "Data Export Management"
         TempPKDataExportRecordField.DeleteAll();
         TempNonPKDataExportRecordField.DeleteAll();
         with DataExportRecField do
-            if FindSet then begin
+            if FindSet() then begin
                 RecRef.Open("Table No.");
                 KeyRef := RecRef.KeyIndex(1);
                 repeat
@@ -300,9 +300,9 @@ codeunit 11000 "Data Export Management"
         FieldRef: FieldRef;
     begin
         DataExportRecordField2.CopyFilters(DataExportRecordField);
-        if DataExportRecordField2.FindFirst then;
+        if DataExportRecordField2.FindFirst() then;
         RecRef.Open(DataExportRecordField2."Table No.");
-        if TempDataExportRecordField.FindSet then
+        if TempDataExportRecordField.FindSet() then
             repeat
                 FieldRef := RecRef.Field(TempDataExportRecordField."Field No.");
 
@@ -311,7 +311,7 @@ codeunit 11000 "Data Export Management"
 
                 DataExportRecordField2.SetRange("Field No.", TempDataExportRecordField."Field No.");
                 DataExportRecordField2.SetRange("Line No.", TempDataExportRecordField."Line No.");
-                DataExportRecordField2.FindFirst;
+                DataExportRecordField2.FindFirst();
                 XMLDOMManagement.AddNode(XMLCurrNode, 'Name', ConvertString(DataExportRecordField2."Export Field Name"));
                 DataExportRecordField2.CalcFields("Field Name");
                 XMLDOMManagement.AddNode(XMLCurrNode, 'Description', ConvertString(DataExportRecordField2."Field Name"));

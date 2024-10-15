@@ -24,7 +24,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
     begin
         // Check that correct VAT Amount calculated in GL Entries after posting entry with positive Amount and Reversing them.
         // Take Random Amount greater than 1000 to make sure that VAT Difference Amount updated correctly in General Journal Lines.
-        Initialize;
+        Initialize();
         VATAmountOnGeneralJournalLine(1000 + LibraryRandom.RandDec(50, 2));
     end;
 
@@ -35,7 +35,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
     begin
         // Check that correct VAT Amount calculated in GL Entries after posting entry with negative Amount and Reversing them.
         // Take Random Amount greater than 1000 to make sure that VAT Difference Amount will update correctly in General Journal Lines.
-        Initialize;
+        Initialize();
         VATAmountOnGeneralJournalLine(-(1000 + LibraryRandom.RandDec(50, 2)));
     end;
 
@@ -68,7 +68,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
         VATAmount := Round(Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %")) + MaxVATDiffAmount;
 
         // Exercise: Reverse the entries posted from General Journal Lines.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
 
@@ -87,7 +87,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Verify VAT Amount on G/L Entry and VAT Entry with Allow VAT Difference and Gen. Posting Type as Purchase.
-        Initialize;
+        Initialize();
         VATDifferenceWithDocument(GenJournalLine."Gen. Posting Type"::Purchase, LibraryERM.CreateGLAccountWithPurchSetup);
     end;
 
@@ -98,7 +98,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Verify VAT Amount on G/L Entry and VAT Entry with Allow VAT Difference and Gen. Posting Type as Sale.
-        Initialize;
+        Initialize();
         VATDifferenceWithDocument(GenJournalLine."Gen. Posting Type"::Sale, LibraryERM.CreateGLAccountWithSalesSetup);
     end;
 
@@ -143,9 +143,9 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reversal Change VAT Amount");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reversal Change VAT Amount");
@@ -193,11 +193,11 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
         GLRegister: Record "G/L Register";
         GLEntry: Record "G/L Entry";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.SetRange("G/L Account No.", GenJournalLine."Account No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           VATAmount, GLEntry."VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY,
           StrSubstNo(AmountError, GLEntry.FieldCaption("VAT Amount"),
@@ -211,7 +211,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
         with GLEntry do begin
             SetRange("Document No.", GenJournalLine."Document No.");
             SetRange("G/L Account No.", GenJournalLine."Account No.");
-            FindFirst;
+            FindFirst();
             Assert.AreNearlyEqual(
               GenJournalLine."VAT Amount", "VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY,
               StrSubstNo(
@@ -225,7 +225,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
     begin
         with VATEntry do begin
             SetRange("Document No.", GenJournalLine."Document No.");
-            FindFirst;
+            FindFirst();
             Assert.AreNearlyEqual(
               GenJournalLine."VAT Amount", Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
               StrSubstNo(

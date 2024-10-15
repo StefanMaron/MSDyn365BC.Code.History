@@ -233,14 +233,14 @@ report 11004 "Vendor Total-Balance"
                     DetailedVendorLedgEntry.SetRange("Posting Date", StartDate, EndDate);
                     DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::"Realized Loss",
                       DetailedVendorLedgEntry."Entry Type"::"Realized Gain");
-                    if DetailedVendorLedgEntry.FindSet then
+                    if DetailedVendorLedgEntry.FindSet() then
                         repeat
                             DetailedVendorLedgEntry2.Reset();
                             DetailedVendorLedgEntry2.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
                             DetailedVendorLedgEntry2.SetRange("Vendor Ledger Entry No.", DetailedVendorLedgEntry."Vendor Ledger Entry No.");
                             DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::"Initial Entry");
                             DetailedVendorLedgEntry2.SetRange("Document Type", DetailedVendorLedgEntry2."Document Type"::Payment);
-                            if DetailedVendorLedgEntry2.FindSet then begin
+                            if DetailedVendorLedgEntry2.FindSet() then begin
                                 repeat
                                     if ((DetailedVendorLedgEntry."Debit Amount (LCY)" <> 0) and (DetailedVendorLedgEntry2."Credit Amount (LCY)" <> 0)) or
                                        ((DetailedVendorLedgEntry."Credit Amount (LCY)" <> 0) and (DetailedVendorLedgEntry2."Debit Amount (LCY)" <> 0))
@@ -260,7 +260,7 @@ report 11004 "Vendor Total-Balance"
                                     VendorLedgEntry2.SetCurrentKey("Closed by Entry No.");
                                     VendorLedgEntry2.SetRange("Closed by Entry No.", VendorLedgEntry."Entry No.");
                                     VendorLedgEntry2.SetRange("Document Type", VendorLedgEntry2."Document Type"::Payment);
-                                    if VendorLedgEntry2.FindSet then
+                                    if VendorLedgEntry2.FindSet() then
                                         repeat
                                             AdjPeriodAmount := AdjPeriodAmount + GetAdjAmount(VendorLedgEntry2."Entry No.");
                                         until VendorLedgEntry2.Next() = 0;
@@ -296,14 +296,14 @@ report 11004 "Vendor Total-Balance"
                     DetailedVendorLedgEntry.SetRange("Posting Date", YearStartDate, EndDate);
                     DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::"Realized Loss",
                       DetailedVendorLedgEntry."Entry Type"::"Realized Gain");
-                    if DetailedVendorLedgEntry.FindSet then
+                    if DetailedVendorLedgEntry.FindSet() then
                         repeat
                             DetailedVendorLedgEntry2.Reset();
                             DetailedVendorLedgEntry2.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
                             DetailedVendorLedgEntry2.SetRange("Vendor Ledger Entry No.", DetailedVendorLedgEntry."Vendor Ledger Entry No.");
                             DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::"Initial Entry");
                             DetailedVendorLedgEntry2.SetRange("Document Type", DetailedVendorLedgEntry2."Document Type"::Payment);
-                            if DetailedVendorLedgEntry2.FindSet then begin
+                            if DetailedVendorLedgEntry2.FindSet() then begin
                                 repeat
                                     if ((DetailedVendorLedgEntry."Debit Amount (LCY)" <> 0) and (DetailedVendorLedgEntry2."Credit Amount (LCY)" <> 0)) or
                                        ((DetailedVendorLedgEntry."Credit Amount (LCY)" <> 0) and (DetailedVendorLedgEntry2."Debit Amount (LCY)" <> 0))
@@ -323,7 +323,7 @@ report 11004 "Vendor Total-Balance"
                                     VendorLedgEntry2.SetCurrentKey("Closed by Entry No.");
                                     VendorLedgEntry2.SetRange("Closed by Entry No.", VendorLedgEntry."Entry No.");
                                     VendorLedgEntry2.SetRange("Document Type", VendorLedgEntry2."Document Type"::Payment);
-                                    if VendorLedgEntry2.FindSet then
+                                    if VendorLedgEntry2.FindSet() then
                                         repeat
                                             AdjYearAmount := AdjYearAmount + GetAdjAmount(VendorLedgEntry2."Entry No.");
                                         until VendorLedgEntry2.Next() = 0;
@@ -481,7 +481,7 @@ report 11004 "Vendor Total-Balance"
         DetailedVendorLedgEntry2.SetRange("Vendor Ledger Entry No.", VendorLedgEntryEntryNo);
         DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::"Initial Entry");
         DetailedVendorLedgEntry2.SetRange("Document Type", DetailedVendorLedgEntry2."Document Type"::Payment);
-        if DetailedVendorLedgEntry2.FindSet then
+        if DetailedVendorLedgEntry2.FindSet() then
             repeat
                 if ((DetailedVendorLedgEntry."Debit Amount (LCY)" <> 0) and (DetailedVendorLedgEntry2."Credit Amount (LCY)" <> 0)) or
                    ((DetailedVendorLedgEntry."Credit Amount (LCY)" <> 0) and (DetailedVendorLedgEntry2."Debit Amount (LCY)" <> 0))

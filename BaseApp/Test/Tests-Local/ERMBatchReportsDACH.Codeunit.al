@@ -102,7 +102,7 @@ codeunit 142061 "ERM Batch Reports DACH"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Batch Reports DACH");
         IsInitialized := true;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Batch Reports DACH");
     end;
@@ -181,7 +181,7 @@ codeunit 142061 "ERM Batch Reports DACH"
     begin
         with FADepreciationBook do begin
             SetRange("FA No.", FANo);
-            FindFirst;
+            FindFirst();
             exit("Depreciation Book Code");
         end;
     end;
@@ -193,7 +193,7 @@ codeunit 142061 "ERM Batch Reports DACH"
             SetRange("Document No.", DocumentNo);
             SetRange("Gen. Posting Type", GenPostingType);
             SetRange("G/L Account No.", GLAccountNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 

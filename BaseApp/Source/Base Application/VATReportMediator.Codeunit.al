@@ -60,8 +60,8 @@ codeunit 740 "VAT Report Mediator"
             VATReportHeader.Status::Open:
                 PrintOpen(VATReportHeader);
             VATReportHeader.Status::Released,
-          VATReportHeader.Status::Exported,
-          VATReportHeader.Status::Submitted:
+            VATReportHeader.Status::Exported,
+            VATReportHeader.Status::Submitted:
                 PrintReleased(VATReportHeader);
         end;
     end;
@@ -86,6 +86,18 @@ codeunit 740 "VAT Report Mediator"
     procedure Submit(VATReportHeader: Record "VAT Report Header")
     begin
         VATReportReleaseReopen.Submit(VATReportHeader);
+    end;
+
+    procedure GetVATReportConfiguration(var VATReportsConfiguration: Record "VAT Reports Configuration"; VATReportHeader: Record "VAT Report Header")
+    begin
+        VATReportsConfiguration.SetRange("VAT Report Type", VATReportHeader."VAT Report Config. Code");
+        OnGetVATReportConfigurationOnAfterVATReportsConfigurationSetFilters(VATReportsConfiguration, VATReportHeader);
+        VATReportsConfiguration.FindFirst();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVATReportConfigurationOnAfterVATReportsConfigurationSetFilters(var VATReportsConfiguration: Record "VAT Reports Configuration"; VATReportHeader: Record "VAT Report Header")
+    begin
     end;
 }
 

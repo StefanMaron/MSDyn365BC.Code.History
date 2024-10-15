@@ -121,7 +121,7 @@ table 5338 "Integration Synch. Job"
         IntegrationSynchJob.DeleteAll();
 
         IntegrationSynchJob.SetRange(Failed);
-        if IntegrationSynchJob.FindSet then
+        if IntegrationSynchJob.FindSet() then
             repeat
                 if IntegrationSynchJob.CanBeRemoved then
                     IntegrationSynchJob.Delete(true);

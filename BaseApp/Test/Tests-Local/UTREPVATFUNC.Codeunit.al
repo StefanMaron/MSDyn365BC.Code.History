@@ -26,7 +26,7 @@ codeunit 142057 "UT REP VATFUNC"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 11005 - VAT Statement Germany.
         // Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(EntrySelection::Closed);  // Enqueue value for Selection Type - Closed used in VATStmtGermanySelectionRequestPageHandler.
 
         // Exercise: Run the VAT Statement Germany report. Opens handler - VATStmtGermanySelectionRequestPageHandler.
@@ -45,7 +45,7 @@ codeunit 142057 "UT REP VATFUNC"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 11005 - VAT Statement Germany.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Run Report with Period Selection Type Before and Within Period set in Handler - VATStmtGermanyPeriodSelectionRequestPageHandler.
         REPORT.Run(REPORT::"VAT Statement Germany");
@@ -66,7 +66,7 @@ codeunit 142057 "UT REP VATFUNC"
         // Purpose of the test is to validate OnPreDataItem Trigger of VAT Statement Line on Report 11005 - VAT Statement Germany.
 
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := LibraryUTUtility.GetNewCode10;
         GeneralLedgerSetup.Modify();
@@ -93,12 +93,12 @@ codeunit 142057 "UT REP VATFUNC"
         // Purpose of the test is to validate InitializeRequest function of Report 11005 - VAT Statement Germany.
 
         // Setup: Initialize parameters of InitializeRequest function of Report VAT Statement Germany.
-        Initialize;
+        Initialize();
         VATStatementLine.SetRange("Date Filter", 0D, WorkDate);
         VATStatementGermany.InitializeRequest(VATStatementName, VATStatementLine, "VAT Statement Report Selection"::Closed, PeriodSelection::"Within Period", false, false);  // Boolean False for PrintInIntegers and Additional Currency.
 
         // Exercise And Verify: Run Report and verify initialized values in the handler - VATStmtGermanyInitializeRequestPageHandler.
-        VATStatementGermany.Run;
+        VATStatementGermany.Run();
     end;
 
     [Test]
@@ -118,7 +118,7 @@ codeunit 142057 "UT REP VATFUNC"
         // Purpose of the test is to validate CalcLineTotal function of Report 11005 - VAT Statement Germany.
 
         // Setup: Create General Ledger Account. Create VAT Statement Line.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateVATStatementLine(VATStatementLine, GLAccount."No.", VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type");
 
@@ -139,7 +139,7 @@ codeunit 142057 "UT REP VATFUNC"
     begin
         // Purpose of the test is to validate CalcLineTotal function for Amount Type - Amount of Report 11005 - VAT Statement Germany.
         // Setup.
-        Initialize;
+        Initialize();
         CalcLineTotalAmtTypeVATStatementGermany(VATStatementLine."Amount Type"::Amount);
     end;
 
@@ -152,7 +152,7 @@ codeunit 142057 "UT REP VATFUNC"
     begin
         // Purpose of the test is to validate CalcLineTotal function for Amount Type - Base of Report 11005 - VAT Statement Germany.
         // Setup.
-        Initialize;
+        Initialize();
         CalcLineTotalAmtTypeVATStatementGermany(VATStatementLine."Amount Type"::Base);
     end;
 
@@ -165,7 +165,7 @@ codeunit 142057 "UT REP VATFUNC"
     begin
         // Purpose of the test is to validate CalcLineTotal function for Amount Type - Unrealized Amount of Report 11005 - VAT Statement Germany.
         // Setup.
-        Initialize;
+        Initialize();
         CalcLineTotalAmtTypeVATStatementGermany(VATStatementLine."Amount Type"::"Unrealized Amount");
     end;
 
@@ -178,7 +178,7 @@ codeunit 142057 "UT REP VATFUNC"
     begin
         // Purpose of the test is to validate CalcLineTotal function for Amount Type - Unrealized Base of Report 11005 - VAT Statement Germany.
         // Setup.
-        Initialize;
+        Initialize();
         CalcLineTotalAmtTypeVATStatementGermany(VATStatementLine."Amount Type"::"Unrealized Base");
     end;
 
@@ -219,7 +219,7 @@ codeunit 142057 "UT REP VATFUNC"
         // Purpose of the test is to validate CalcLineTotal function of Report 11005 - VAT Statement Germany.
 
         // Setup: Create and update VAT Statement Line.
-        Initialize;
+        Initialize();
         CreateVATStatementLine(VATStatementLine, '', VATStatementLine.Type::"Row Totaling", VATStatementLine."Amount Type");
         VATStatementLine."Row No." := Format(LibraryRandom.RandInt(10));
         VATStatementLine."Row Totaling" := VATStatementLine."Row No.";
@@ -245,7 +245,7 @@ codeunit 142057 "UT REP VATFUNC"
         // Purpose of the test is to validate OnAfterGetRecord Trigger of VATStatementLine of Report 11005 - VAT Statement Germany.
 
         // Setup: Create General Ledger Account. Create VAT Statement Line.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateVATStatementLine(VATStatementLine, GLAccount."No.", VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type");
         CreateVATStatementName(VATStatementName, VATStatementLine."Statement Template Name", VATStatementLine."Statement Name");
@@ -268,7 +268,7 @@ codeunit 142057 "UT REP VATFUNC"
     begin
         // Purpose of the test is to validate ReportingPeriodText function of Report 11007 - VAT-Vies Declaration Tax - DE.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise and Verify: Verify returned value of function ReportingPeriodText of Report - VAT-Vies Declaration Tax - DE.
         Assert.AreEqual('Februar', VATViesDeclarationTaxDE.ReportingPeriodText(1), ValueMustBeEqualMsg);  // Use 1 for  Option ReportingPeriod Februar.
@@ -283,7 +283,7 @@ codeunit 142057 "UT REP VATFUNC"
     begin
         // Purpose of the test is to validate GetIndicatorCode function of Report 11007 - VAT-Vies Declaration Tax - DE.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise and Verify: Verify returned value of function GetIndicatorCode of Report - VAT-Vies Declaration Tax - DE.
         Assert.AreEqual(2, VATViesDeclarationTaxDE.GetIndicatorCode(true, false), ValueMustBeEqualMsg);  // Value 2 is returned by function GetIndicatorCode for TRUE value of EU 3-Party Trade and FALSE for EU Service field of VAT Entry.
@@ -297,7 +297,7 @@ codeunit 142057 "UT REP VATFUNC"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 333888] Report "VAT-Vies Declaration Tax - DE" can be printed without RDLC rendering errors
-        Initialize;
+        Initialize();
 
         // [WHEN] Report "VAT-Vies Declaration Tax - DE" is being printed to PDF
         Report.Run(Report::"VAT-Vies Declaration Tax - DE");
@@ -306,7 +306,7 @@ codeunit 142057 "UT REP VATFUNC"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
@@ -318,7 +318,7 @@ codeunit 142057 "UT REP VATFUNC"
         GLAccount.Insert();
 
         // G/L Entry record required for Net Change of G/L Account.
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry.Amount := LibraryRandom.RandDec(10, 2);
         GLEntry."G/L Account No." := GLAccount."No.";
@@ -333,7 +333,7 @@ codeunit 142057 "UT REP VATFUNC"
         VATStatementLine."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
         VATStatementLine.Modify();
 
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry."VAT Bus. Posting Group" := VATStatementLine."VAT Bus. Posting Group";
         case VATStatementLine."Amount Type" of

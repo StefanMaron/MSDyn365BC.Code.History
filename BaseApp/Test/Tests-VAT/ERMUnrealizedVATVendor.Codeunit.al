@@ -1,4 +1,4 @@
-codeunit 134026 "ERM Unrealized VAT Vendor"
+﻿codeunit 134026 "ERM Unrealized VAT Vendor"
 {
     Permissions = TableData "Vendor Ledger Entry" = rimd;
     Subtype = Test;
@@ -66,7 +66,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 357562] Purchase Unrealized VAT with VAT% = 0 is realized - G/L and VAT Entries are posted
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         LibraryERM.CreateVATPostingSetupWithAccounts(ZeroVATPostingSetup, ZeroVATPostingSetup."VAT Calculation Type"::"Normal VAT", 1);
         UpdateVATPostingSetup(ZeroVATPostingSetup, ZeroVATPostingSetup."Unrealized VAT Type"::Percentage);
@@ -78,7 +78,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [GIVEN] Post Purchase Invoice1. Transaction No = 100.
         CreatePurchaseInvoice(PurchaseHeader, ZeroVATPostingSetup);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // [GIVEN] Post Payment where Amount is the full Invoice Amount. Transaction No = 101.
         FindPurchaseInvoiceLine(PurchInvLine, PurchaseHeader."No.");
@@ -449,7 +449,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [FEATURE] [Currency]
         // [SCENARIO 261852] Post purchase credit memo applied to partially paid invoice (credit memo = invoice, payment < 1/2 invoice)
         // [SCENARIO 261852] in case of unrealized VAT, FCY, custom amounts, Exchange:Relational ratio < 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup with "Unrealized VAT Type" = Percentage, "VAT %" = 18
         // [GIVEN] Currency with Exchange:Relational ratio = 1/100:1
@@ -478,7 +478,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [FEATURE] [Currency]
         // [SCENARIO 261852] Post purchase credit memo applied to partially paid invoice (credit memo = invoice, payment > 1/2 invoice)
         // [SCENARIO 261852] in case of unrealized VAT, FCY, custom amounts, Exchange:Relational ratio < 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup with "Unrealized VAT Type" = Percentage, "VAT %" = 18
         // [GIVEN] Currency with Exchange:Relational ratio = 1/100:1
@@ -507,7 +507,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [FEATURE] [Currency]
         // [SCENARIO 261852] Post purchase credit memo applied to partially paid invoice (credit memo = invoice, payment < 1/2 invoice)
         // [SCENARIO 261852] in case of unrealized VAT, FCY, custom amounts, Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup with "Unrealized VAT Type" = Percentage, "VAT %" = 18
         // [GIVEN] Currency with Exchange:Relational ratio = 100
@@ -536,7 +536,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [FEATURE] [Currency]
         // [SCENARIO 261852] Post purchase credit memo applied to partially paid invoice (credit memo = invoice, payment > 1/2 invoice)
         // [SCENARIO 261852] in case of unrealized VAT, FCY, custom amounts, Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup with "Unrealized VAT Type" = Percentage, "VAT %" = 18
         // [GIVEN] Currency with Exchange:Relational ratio = 100
@@ -565,7 +565,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [FEATURE] [Currency]
         // [SCENARIO 261852] Post purchase credit memo applied to partially paid invoice (credit memo > invoice, payment < 1/2 invoice)
         // [SCENARIO 261852] in case of unrealized VAT, FCY, custom amounts, Exchange:Relational ratio < 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup with "Unrealized VAT Type" = Percentage, "VAT %" = 18
         // [GIVEN] Currency with Exchange:Relational ratio = 1/100:1
@@ -594,7 +594,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [FEATURE] [Currency]
         // [SCENARIO 261852] Post purchase credit memo applied to partially paid invoice (credit memo > invoice, payment > 1/2 invoice)
         // [SCENARIO 261852] in case of unrealized VAT, FCY, custom amounts, Exchange:Relational ratio < 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup with "Unrealized VAT Type" = Percentage, "VAT %" = 18
         // [GIVEN] Currency with Exchange:Relational ratio = 1/100:1
@@ -623,7 +623,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [FEATURE] [Currency]
         // [SCENARIO 261852] Post purchase credit memo applied to partially paid invoice (credit memo > invoice, payment < 1/2 invoice)
         // [SCENARIO 261852] in case of unrealized VAT, FCY, custom amounts, Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup with "Unrealized VAT Type" = Percentage, "VAT %" = 18
         // [GIVEN] Currency with Exchange:Relational ratio = 100
@@ -652,7 +652,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [FEATURE] [Currency]
         // [SCENARIO 261852] Post purchase credit memo applied to partially paid invoice (credit memo > invoice, payment > 1/2 invoice)
         // [SCENARIO 261852] in case of unrealized VAT, FCY, custom amounts, Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup with "Unrealized VAT Type" = Percentage, "VAT %" = 18
         // [GIVEN] Currency with Exchange:Relational ratio = 100
@@ -681,7 +681,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [FEATURE] [Currency]
         // [SCENARIO 261852] Post purchase credit memo applied to partially paid invoice (credit memo < invoice, payment < 1/2 invoice)
         // [SCENARIO 261852] in case of unrealized VAT, FCY, custom amounts, Exchange:Relational ratio < 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup with "Unrealized VAT Type" = Percentage, "VAT %" = 18
         // [GIVEN] Currency with Exchange:Relational ratio = 1/100:1
@@ -710,7 +710,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [FEATURE] [Currency]
         // [SCENARIO 261852] Post purchase credit memo applied to partially paid invoice (credit memo < invoice, payment > 1/2 invoice)
         // [SCENARIO 261852] in case of unrealized VAT, FCY, custom amounts, Exchange:Relational ratio < 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup with "Unrealized VAT Type" = Percentage, "VAT %" = 18
         // [GIVEN] Currency with Exchange:Relational ratio = 1/100:1
@@ -739,7 +739,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [FEATURE] [Currency]
         // [SCENARIO 261852] Post purchase credit memo applied to partially paid invoice (credit memo < invoice, payment < 1/2 invoice)
         // [SCENARIO 261852] in case of unrealized VAT, FCY, custom amounts, Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup with "Unrealized VAT Type" = Percentage, "VAT %" = 18
         // [GIVEN] Currency with Exchange:Relational ratio = 100
@@ -768,7 +768,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [FEATURE] [Currency]
         // [SCENARIO 261852] Post purchase credit memo applied to partially paid invoice (credit memo < invoice, payment > 1/2 invoice)
         // [SCENARIO 261852] in case of unrealized VAT, FCY, custom amounts, Exchange:Relational ratio > 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup with "Unrealized VAT Type" = Percentage, "VAT %" = 18
         // [GIVEN] Currency with Exchange:Relational ratio = 100
@@ -786,10 +786,11 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         VerifyInvAndCrMemoVATEntries(InvoiceNo, CrMemoNo, 8, 1.44, 4.99, 0.9);
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('MessageHandler,RunAdjustExchRateReqPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
-    procedure FCYInvoiceAppliedWithSameExchRateAfterAdjustment()
+    procedure FCYInvoiceAppliedWithSameExchRateAfterAdjustExchRate()
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -837,7 +838,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [THEN] Remaining Unrealized Base and Remaining Unrealized Amount = 0
         VATEntry.SetRange("Bill-to/Pay-to No.", VendorNo);
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VerifyRealizedVATEntryAmounts(VATEntry, 0, 0);
         VerifyUnrealizedVATEntryAmounts(VATEntry, Amount, AmountInclVAT - Amount, 0, 0);
 
@@ -845,7 +846,75 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // [THEN] Unrealized Base = 0, Unrealized Amount = 0
         // [THEN] Remaining Unrealized Base and Remaining Unrealized Amount = 0
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
+        VerifyRealizedVATEntryAmounts(VATEntry, Amount, AmountInclVAT - Amount);
+        VerifyUnrealizedVATEntryAmounts(VATEntry, 0, 0, 0, 0);
+
+        // [THEN] Unrealized Losses posted with amount 55 for adjustment and amount = -55 after payment is applied
+        VerifyUnrealizedGainLossesGLEntries(CurrencyCode, PaymentNo, AdjustedAmtInclVAT - AmountInclVAT);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure FCYInvoiceAppliedWithSameExchRateAfterExchRateAdjustment()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        VendorNo: Code[20];
+        CurrencyCode: Code[10];
+        InvoiceNo: Code[20];
+        PaymentNo: Code[20];
+        ExchangeRate: Decimal;
+        Amount: Decimal;
+        AmountInclVAT: Decimal;
+        AdjustedAmtInclVAT: Decimal;
+    begin
+        // [SCENARIO 293111] Unrealized VAT when payment applied with exch. rate of the invoice after exchange rate adjustment
+
+        // [GIVEN] VAT Posting Setup with "Unrealized VAT Type" = Percentage and VAT% = 10
+        EnableUnrealizedSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage);
+
+        // [GIVEN] Currency with exch. rate 100/60 and adjustment exch. rate 100/65
+        ExchangeRate := LibraryRandom.RandIntInRange(2, 5);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate + 1, ExchangeRate);
+
+        // [GIVEN] Posted Purchase Invoice with Amount = 600, VAT Amount = 60 in LCY, 1000 and 100 in FCY respectively
+        VendorNo := CreateVendorWithCurrency(VATPostingSetup."VAT Bus. Posting Group", CurrencyCode);
+        InvoiceNo :=
+          CreatePostSalesInvoiceForGivenCustomer(
+            VendorNo, LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "),
+            CurrencyCode, LibraryRandom.RandDecInRange(100, 200, 2));
+
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+        VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
+        AmountInclVAT := -VendorLedgerEntry."Amount (LCY)";
+        Amount := Round(AmountInclVAT / (1 + VATPostingSetup."VAT %" / 100));
+
+        // [GIVEN] Adjusted exchange rate changed total invoice amount = 715 (1100 * 65 / 100), adjustment amount = 55 (715 - 660)
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
+        VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
+        AdjustedAmtInclVAT := -VendorLedgerEntry."Amount (LCY)";
+
+        // [WHEN] Payment is applied with same exch. rate 100/65
+        PaymentNo := CreateApplyAndPostPayment(VendorNo, InvoiceNo, -VendorLedgerEntry.Amount);
+
+        // [THEN] Invoice VAT Entry has Base = 0, Amount = 0
+        // [THEN] Unrealized Base = 600, Unrealized Amount = 60
+        // [THEN] Remaining Unrealized Base and Remaining Unrealized Amount = 0
+        VATEntry.SetRange("Bill-to/Pay-to No.", VendorNo);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.FindFirst();
+        VerifyRealizedVATEntryAmounts(VATEntry, 0, 0);
+        VerifyUnrealizedVATEntryAmounts(VATEntry, Amount, AmountInclVAT - Amount, 0, 0);
+
+        // [THEN] Payment VAT Entry has Base = 600, Amount = 60
+        // [THEN] Unrealized Base = 0, Unrealized Amount = 0
+        // [THEN] Remaining Unrealized Base and Remaining Unrealized Amount = 0
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.FindFirst();
         VerifyRealizedVATEntryAmounts(VATEntry, Amount, AmountInclVAT - Amount);
         VerifyUnrealizedVATEntryAmounts(VATEntry, 0, 0, 0, 0);
 
@@ -856,20 +925,23 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Unrealized VAT Vendor");
-        LibrarySetupStorage.Restore;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if isInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Unrealized VAT Vendor");
         LibraryPurchase.SetInvoiceRounding(false);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         isInitialized := true;
         Commit();
@@ -887,7 +959,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
 
     local procedure EnableUnrealVATSetupWithGivenPct(var VATPostingSetup: Record "VAT Posting Setup"; UnrealizedVATType: Option; VATRate: Decimal)
     begin
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATRate);
@@ -929,7 +1001,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // Set Applies ID.
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.SetRange(Open, true);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
 
         // Post Application Entries.
@@ -1218,7 +1290,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         exit(PurchInvHeader."No.");
     end;
 
@@ -1227,26 +1299,26 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         PurchCrMemoHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
         exit(PurchCrMemoHdr."No.");
     end;
 
     local procedure FindPurchaseInvoiceLine(var PurchInvLine: Record "Purch. Inv. Line"; PreAssignedNo: Code[20])
     begin
         PurchInvLine.SetRange("Document No.", FindPostedInvoiceNo(PreAssignedNo));
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
     end;
 
     local procedure FindPositiveVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         FilterVATEntry(VATEntry, DocumentType, DocumentNo, '>0');
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure FindNegativeVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         FilterVATEntry(VATEntry, DocumentType, DocumentNo, '<0');
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure FindUnrealVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -1254,7 +1326,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         with VATEntry do begin
             FilterVATEntry(VATEntry, DocumentType, DocumentNo, '=0');
             SetRange("Unrealized VAT Entry No.", 0);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1263,7 +1335,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         with VATEntry do begin
             FilterVATEntry(VATEntry, DocumentType, DocumentNo, '>0');
             SetFilter("Unrealized VAT Entry No.", '<>%1', 0);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1272,14 +1344,14 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         with VATEntry do begin
             FilterVATEntry(VATEntry, DocumentType, DocumentNo, '<0');
             SetFilter("Unrealized VAT Entry No.", '<>%1', 0);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
     local procedure FindLastVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
     end;
 
     local procedure ModifyItemNoSeries()
@@ -1299,7 +1371,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
         CopyPurchaseDocument.SetParameters("Purchase Document Type From"::"Posted Invoice", DocumentNo, true, false);
         CopyPurchaseDocument.UseRequestPage(false);
-        CopyPurchaseDocument.Run;
+        CopyPurchaseDocument.Run();
     end;
 
     local procedure RemoveAppliestoDocument(DocumentType: Enum "Purchase Document Type"; No: Code[20])
@@ -1322,7 +1394,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         AdjustExchangeRates.InitializeRequest2(
           0D, EndDate, LibraryUtility.GenerateGUID, PostingDate, LibraryUtility.GenerateGUID, true, false);
         Commit();
-        AdjustExchangeRates.Run;
+        AdjustExchangeRates.Run();
     end;
 
     local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; UnrealizedVATType: Option)
@@ -1346,7 +1418,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     begin
         PurchCrMemoHdr.SetRange("No.", DocumentNo);
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", BuyfromVendorNo);
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
     end;
 
     local procedure VerifyUnrealizedVATEntry(GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup")
@@ -1357,7 +1429,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         // Verify General Ledger Register for Unrealized VAT Entry.
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.SetRange("Bal. Account No.", VATPostingSetup."Purch. VAT Unreal. Account");
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         UnrealizedVATAmount :=
           LibraryERM.VATAmountRounding(
             GenJournalLine."Amount (LCY)" * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"), GenJournalLine."Currency Code");
@@ -1386,7 +1458,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, -Amount);
     end;
 
@@ -1396,7 +1468,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document Type", DocumentType);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntry.FieldCaption(Amount));
     end;
@@ -1420,7 +1492,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         with VendorLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount, "Remaining Amount");
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
             Assert.AreEqual(ExpectedRemAmount, "Remaining Amount", FieldCaption("Remaining Amount"));
@@ -1557,10 +1629,10 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     begin
         Currency.Get(CurrencyCode);
         GLEntry.SetRange("G/L Account No.", Currency."Unrealized Losses Acc.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, GainLossAmt);
         GLEntry.SetRange("Document No.", PaymentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, -GainLossAmt);
     end;
 

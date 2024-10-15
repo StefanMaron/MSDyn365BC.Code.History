@@ -79,7 +79,7 @@ codeunit 142066 "UT PAG VATSTAT"
     begin
         // Purpose of the test is to validate Print Action of Page 317 - VAT Statement.
         // Setup.
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         VATStatement.OpenEdit;
         VATStatement.CurrentStmtName.SetValue(VATStatementName.Name);
 
@@ -127,7 +127,7 @@ codeunit 142066 "UT PAG VATSTAT"
     begin
         // Open VAT Statement Page.
         CreateDACHReportSelections(DACHReportSelections, Usage, ReportID);
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         VATStatement.OpenEdit;
         VATStatement.CurrentStmtName.SetValue(VATStatementName.Name);
 

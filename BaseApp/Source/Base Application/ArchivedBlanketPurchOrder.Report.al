@@ -190,7 +190,7 @@ report 5174 "Archived Blanket Purch. Order"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry.FindSet then
+                                if not DimSetEntry.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -436,7 +436,7 @@ report 5174 "Archived Blanket Purch. Order"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry.FindSet then
+                                    if not DimSetEntry.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -905,7 +905,7 @@ report 5174 "Archived Blanket Purch. Order"
                     PurchLineArchive.SetRange("Document Type", "Purchase Header Archive"."Document Type");
                     PurchLineArchive.SetRange("Document No.", "Purchase Header Archive"."No.");
                     PurchLineArchive.SetRange("Version No.", "Purchase Header Archive"."Version No.");
-                    if PurchLineArchive.FindSet then
+                    if PurchLineArchive.FindSet() then
                         repeat
                             TempPurchLineArchive := PurchLineArchive;
                             TempPurchLineArchive.Insert();

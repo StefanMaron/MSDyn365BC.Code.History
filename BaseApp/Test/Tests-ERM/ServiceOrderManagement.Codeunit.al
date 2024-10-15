@@ -57,14 +57,14 @@ codeunit 136135 "Service Order Management"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Order Management");
 
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryTemplates.EnableTemplatesFeature();
 
         LibraryERMCountryData.UpdateAccountInServiceCosts;
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Management");
@@ -81,7 +81,7 @@ codeunit 136135 "Service Order Management"
         // Test Item Ledger Entry after Posting Item Journal with Serial No.
 
         // 1. Setup: Create Item with Item Tracking code and create Item Journal Line for the Item.
-        Initialize;
+        Initialize();
         CreateItemJournalLine(ItemJournalLine, CreateItemWithItemTrackingCode);
 
         // 2. Exercise: Assign Serial No. on Item Journal Line and post it.
@@ -106,7 +106,7 @@ codeunit 136135 "Service Order Management"
         // Test Customer Creation from Service Order.
 
         // 1. Setup: Create Service Order with Name, Address, City and Post Code.
-        Initialize;
+        Initialize();
         ServiceOrderNo := CreateHeaderWithNameAndAddress;
 
         // 2. Exercise: Create Customer from Service Order.
@@ -133,7 +133,7 @@ codeunit 136135 "Service Order Management"
         // Test Service Item Creation from Service Order.
 
         // 1. Setup: Create Service Header.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage;
 
@@ -161,7 +161,7 @@ codeunit 136135 "Service Order Management"
 
         // 1. Setup: Create Service Cost, update Service Order Starting Fee on Service Management Setup, Customer, Service Item,
         // Service Header and Service Item Line.
-        Initialize;
+        Initialize();
         CreateServiceCost(ServiceCost, '');
         ServiceOrderStartingFee := UpdateServiceOrderStartingFee(ServiceCost.Code);
         LibrarySales.CreateCustomer(Customer);
@@ -195,7 +195,7 @@ codeunit 136135 "Service Order Management"
 
         // 1. Setup: Create Service Zone, Service Cost, update Service Order Starting Fee on Service Management Setup, Customer,
         // Service Item, Service Header and Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceZone(ServiceZone);
         CreateServiceCost(ServiceCost, ServiceZone.Code);
         ServiceOrderStartingFee := UpdateServiceOrderStartingFee(ServiceCost.Code);
@@ -228,7 +228,7 @@ codeunit 136135 "Service Order Management"
         // Test Service Line after running Insert Extended Text function on Service Item Worksheet.
 
         // 1. Setup: Create Item with Extended Text, Service Item, Service Header and Service Item Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateExtendedTextForItem(ExtendedTextHeader, Item."No.");
         ExtendedText := CreateExtendedTextLine(ExtendedTextHeader);
@@ -284,7 +284,7 @@ codeunit 136135 "Service Order Management"
     begin
         // 1. Setup: Update Stockout Warning to False on Sales & Receivables Setup, create Item, Service Header, Service Item Line
         // with Item, create Service Item from it and Service Item Component.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryInventory.CreateItem(Item);
@@ -335,7 +335,7 @@ codeunit 136135 "Service Order Management"
 
         // 1. Setup: Update Stockout Warning to False on Sales & Receivables Setup, create Item, BOM Component, Service Header, Service
         // Item Line with Item, create Service Item from it and Service Item Component.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryInventory.CreateItem(Item);
@@ -382,14 +382,14 @@ codeunit 136135 "Service Order Management"
         // Test Service Item Line on Service Order after deletion of Service Item Line.
 
         // 1. Setup: Create Service Item, Service Header and Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
         ServiceOrderNo := CreateServiceOrder(ServiceItem);
 
         // 2. Exercise: Delete Service Item Line.
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type"::Order);
         ServiceItemLine.SetRange("Document No.", ServiceOrderNo);
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         ServiceItemLine.Delete(true);
 
         // 3. Verify: Verify Service Item Line deleted from Service Order.
@@ -414,7 +414,7 @@ codeunit 136135 "Service Order Management"
 
         // 1. Setup: Update Stockout Warning to False on Sales & Receivables Setup, create Service Item, Service Header and Service Item
         // Line.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
@@ -447,7 +447,7 @@ codeunit 136135 "Service Order Management"
 
         // 1. Setup: Update Stockout Warning to False on Sales & Receivables Setup, create Service Item, Service Header and Service Item
         // Line.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
@@ -476,7 +476,7 @@ codeunit 136135 "Service Order Management"
         // Check that Dates have no effect on the Order Promising page.
 
         // 1. Setup: Create Item, Service Order with Service Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateServiceLine(ServiceLine, Item."No.", '', LibraryRandom.RandInt(100));  // Blank value taken for Location Code.
 
@@ -498,7 +498,7 @@ codeunit 136135 "Service Order Management"
         // Check that Dates on Order Promising page.
 
         // 1. Setup: Create Item, Service Order with Service Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateServiceLine(ServiceLine, Item."No.", '', LibraryRandom.RandInt(100));  // Blank value taken for Location Code.
         ExpectedDate := ServiceLine."Planned Delivery Date";  // Assign in global variable.
@@ -520,7 +520,7 @@ codeunit 136135 "Service Order Management"
         // Check that Dates are same on the Order Promising page as in Service Line's Needed by Date.
 
         // 1. Setup: Create Item, Service Order with Service Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateServiceLine(ServiceLine, Item."No.", '', LibraryRandom.RandInt(100));  // Blank value taken for Location Code.
 
@@ -544,9 +544,9 @@ codeunit 136135 "Service Order Management"
         // Check that Dates on the Order Promising page for Available To Promise with lesser Quantity on Job Service Line than Purchase Order.
 
         // 1. Setup: Create Item, Service Order with Service Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
-        Location.FindFirst;
+        Location.FindFirst();
         CreatePurchaseOrder(PurchaseLine, Item."No.", Location.Code);
         CreateServiceLine(
           ServiceLine, Item."No.", Location.Code, LibraryRandom.RandInt(100));
@@ -571,9 +571,9 @@ codeunit 136135 "Service Order Management"
         // Check that Dates on the Order Promising page for Accept with lesser Quantity on Service Line than Purchase Order.
 
         // 1. Setup: Create Item, Service Order with Service Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
-        Location.FindFirst;
+        Location.FindFirst();
         CreatePurchaseOrder(PurchaseLine, Item."No.", Location.Code);
         CreateServiceLine(ServiceLine, Item."No.", Location.Code, LibraryRandom.RandInt(100));
 
@@ -597,9 +597,9 @@ codeunit 136135 "Service Order Management"
         // Check that Dates on the Order Promising page for Available To Promise with greater Quantity on Service Line than Purchase Order.
 
         // 1. Setup: Create Item, Service Order with Service Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
-        Location.FindFirst;
+        Location.FindFirst();
         CreatePurchaseOrder(PurchaseLine, Item."No.", Location.Code);
         PurchaseLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Quantity validated here because Purchase Line need lesser Quantity than Service Line.
         PurchaseLine.Modify(true);
@@ -625,9 +625,9 @@ codeunit 136135 "Service Order Management"
         // Check that Dates on the Order Promising page for Accept with greater Quantity on Service Line than Purchase Order.
 
         // 1. Setup: Create Item, Service Order with Service Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
-        Location.FindFirst;
+        Location.FindFirst();
         CreatePurchaseOrder(PurchaseLine, Item."No.", Location.Code);
         PurchaseLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Quantity validated here because Purchase Line need lesser Quantity than Service Line.
         PurchaseLine.Modify(true);
@@ -653,7 +653,7 @@ codeunit 136135 "Service Order Management"
         // Verify that there should not be Order Tracking Line with error.
 
         // Setup: Create and Receive Purchase Order, Create and Ship Service Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::"Tracking & Action Msg."),
           LibraryRandom.RandInt(10));  // Using Random value for Quantity.
@@ -680,7 +680,7 @@ codeunit 136135 "Service Order Management"
         // Verify Reservation using Item with Order Tracking Policy as Tracking Only.
 
         // Setup: Create and Receive Purchase Order, CreateService Order.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, CreateItem(Item."Costing Method"::FIFO, Item."Order Tracking Policy"::"Tracking Only"), LibraryRandom.RandInt(10));  // Using Random value for Quantity.
         CreateServiceLine(ServiceLine, PurchaseLine."No.", '', PurchaseLine.Quantity);
@@ -705,7 +705,7 @@ codeunit 136135 "Service Order Management"
     begin
         // [FEATURE] [Item Tracking] [Location]
         // [SCENARIO 380644] Location code should be updated in service line when selecting a serial no of an item stored on location different than the location of service line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" tracked by serial no with a linked service item "S"
         // [GIVEN] Item "I" is in stock on two locations. Item with serial no. "SN1" - on location "L1", "SN2" - on location "L2"
@@ -737,7 +737,7 @@ codeunit 136135 "Service Order Management"
     begin
         // [FEATURE] [Item Tracking] [Location]
         // [SCENARIO 380644] Location code should not be updated in service line when selecting a serial no of an item stored on the same location as the location of service line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" tracked by serial no with a linked service item "S"
         // [GIVEN] Item "I" is in stock on two locations. Item with serial no. "SN1" - on location "L1", "SN2" - on location "L2"
@@ -765,7 +765,7 @@ codeunit 136135 "Service Order Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 266214] ServiceItem."Sales/Serv. Shpt. Document No." has table relation to SalesShipmentLine."Document No."
-        Initialize;
+        Initialize();
 
         CreateSalesShipmentLine(SalesShipmentLine);
 
@@ -784,11 +784,11 @@ codeunit 136135 "Service Order Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 266214] Error appears when validate value ServiceItem."Sales/Serv. Shpt. Document No." not found in Sales Shipment Line
-        Initialize;
+        Initialize();
 
         ServiceItem.Init();
         ServiceItem.Validate("Shipment Type", ServiceItem."Shipment Type"::Sales);
-        DocNo := LibraryUtility.GenerateGUID;
+        DocNo := LibraryUtility.GenerateGUID();
         asserterror ServiceItem.Validate("Sales/Serv. Shpt. Document No.", DocNo);
         Assert.ExpectedError(StrSubstNo(NotExistingSalesDocNoValueErr, DocNo));
     end;
@@ -802,7 +802,7 @@ codeunit 136135 "Service Order Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 266214] ServiceItem."Sales/Serv. Shpt. Document No." has table relation to ServiceShipmentLine."Document No."
-        Initialize;
+        Initialize();
 
         CreateServiceShipmentLine(ServiceShipmentLine);
 
@@ -821,11 +821,11 @@ codeunit 136135 "Service Order Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 266214] Error appears when validate value ServiceItem."Sales/Serv. Shpt. Document No." not found in Service Shipment Line
-        Initialize;
+        Initialize();
 
         ServiceItem.Init();
         ServiceItem.Validate("Shipment Type", ServiceItem."Shipment Type"::Service);
-        DocNo := LibraryUtility.GenerateGUID;
+        DocNo := LibraryUtility.GenerateGUID();
         asserterror ServiceItem.Validate("Sales/Serv. Shpt. Document No.", DocNo);
         Assert.ExpectedError(StrSubstNo(NotExistingServDocNoValueErr, DocNo));
     end;
@@ -839,7 +839,7 @@ codeunit 136135 "Service Order Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 266214] ServiceItem."Sales/Serv. Shpt. Line No." has table relation to SalesShipmentLine."Line No."
-        Initialize;
+        Initialize();
 
         CreateSalesShipmentLine(SalesShipmentLine);
 
@@ -859,7 +859,7 @@ codeunit 136135 "Service Order Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 266214] Error appears when validate value ServiceItem."Sales/Serv. Shpt. Line No." not found in Sales Shipment Line
-        Initialize;
+        Initialize();
 
         ServiceItem.Init();
         ServiceItem.Validate("Shipment Type", ServiceItem."Shipment Type"::Sales);
@@ -877,7 +877,7 @@ codeunit 136135 "Service Order Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 266214] ServiceItem."Sales/Serv. Shpt. Line No." has table relation to ServiceShipmentLine."Line No."
-        Initialize;
+        Initialize();
 
         CreateServiceShipmentLine(ServiceShipmentLine);
 
@@ -897,7 +897,7 @@ codeunit 136135 "Service Order Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 266214] Error appears when validate value ServiceItem."Sales/Serv. Shpt. Line No." not found in Service Shipment Line
-        Initialize;
+        Initialize();
 
         ServiceItem.Init();
         ServiceItem.Validate("Shipment Type", ServiceItem."Shipment Type"::Service);
@@ -955,7 +955,7 @@ codeunit 136135 "Service Order Management"
         ServiceOrder: TestPage "Service Order";
     begin
         LibraryERM.CreatePostCode(PostCode);
-        ServiceOrder.OpenNew;
+        ServiceOrder.OpenNew();
         ServiceOrder.Name.Activate;
         ServiceOrder.Name.SetValue(ServiceOrder."No.".Value);
         ServiceOrder.Address.SetValue(ServiceOrder."No.".Value + PostCode.City);
@@ -1164,7 +1164,7 @@ codeunit 136135 "Service Order Management"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         SalesShipmentHeader.Init();
-        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID();
         SalesShipmentHeader.Insert();
 
         SalesShipmentLine.Init();
@@ -1178,7 +1178,7 @@ codeunit 136135 "Service Order Management"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.Init();
-        ServiceShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        ServiceShipmentHeader."No." := LibraryUtility.GenerateGUID();
         ServiceShipmentHeader.Insert();
 
         ServiceShipmentLine.Init();
@@ -1194,7 +1194,7 @@ codeunit 136135 "Service Order Management"
         ItemTrackingCode.SetRange("SN Specific Tracking", true);
         ItemTrackingCode.SetRange("SN Sales Inbound Tracking", true);
         ItemTrackingCode.SetRange("SN Sales Outbound Tracking", true);
-        ItemTrackingCode.FindFirst;
+        ItemTrackingCode.FindFirst();
         exit(ItemTrackingCode.Code);
     end;
 
@@ -1202,7 +1202,7 @@ codeunit 136135 "Service Order Management"
     begin
         ServiceItem.SetRange("Shipment Type", ServiceItem."Shipment Type"::Service);
         ServiceItem.SetRange("Sales/Serv. Shpt. Document No.", FindServiceShipmentHeader(OrderNo));
-        ServiceItem.FindFirst;
+        ServiceItem.FindFirst();
     end;
 
     local procedure FindServiceShipmentHeader(OrderNo: Code[20]): Code[20]
@@ -1210,7 +1210,7 @@ codeunit 136135 "Service Order Management"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         exit(ServiceShipmentHeader."No.");
     end;
 
@@ -1220,7 +1220,7 @@ codeunit 136135 "Service Order Management"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Location Code", LocationCode);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         exit(ItemLedgerEntry."Serial No.");
     end;
@@ -1357,7 +1357,7 @@ codeunit 136135 "Service Order Management"
         ServiceItemComponent: Record "Service Item Component";
     begin
         ServiceItemComponent.SetRange("Parent Service Item No.", ParentServiceItemNo);
-        ServiceItemComponent.FindFirst;
+        ServiceItemComponent.FindFirst();
         ServiceItemComponent.TestField(Type, Type);
         ServiceItemComponent.TestField("No.", No);
     end;

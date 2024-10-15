@@ -21,7 +21,7 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         ChangeGlobalDimLogMgt: Codeunit "Change Global Dim. Log Mgt.";
     begin
         // [SCENARIO] ClearBuffer() makes ChangeGlobalDimLogMgt clear
-        Initialize;
+        Initialize();
 
         MockChangeGlobalDimLogEntry;
         ChangeGlobalDimLogMgt.FillBuffer;
@@ -39,7 +39,7 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         ChangeGlobalDimLogMgt: Codeunit "Change Global Dim. Log Mgt.";
     begin
         // [SCENARIO] FillBuffer returns FALSE if table 483 is empty
-        Initialize;
+        Initialize();
 
         Assert.IsFalse(ChangeGlobalDimLogMgt.FillBuffer, 'FillBuffer');
         Assert.IsTrue(ChangeGlobalDimLogMgt.IsBufferClear, 'IsBufferClear');
@@ -53,7 +53,7 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         ChangeGlobalDimLogMgt: Codeunit "Change Global Dim. Log Mgt.";
     begin
         // [SCENARIO] FillBuffer returns TRUE if table 483 is not empty
-        Initialize;
+        Initialize();
         MockChangeGlobalDimLogEntry;
         Assert.IsTrue(ChangeGlobalDimLogMgt.FillBuffer, 'FillBuffer');
         Assert.IsFalse(ChangeGlobalDimLogMgt.IsBufferClear, 'IsBufferClear');
@@ -69,7 +69,7 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         TableID: Integer;
     begin
         // [SCENARIO] ExcludeTable removed table from the temp list
-        Initialize;
+        Initialize();
         // [GIVEN] LogEntry for table "Customer"
         TableID := MockChangeGlobalDimLogEntry;
         Assert.IsTrue(ChangeGlobalDimLogMgt.FillBuffer, 'FillBuffer');
@@ -90,7 +90,7 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         TableID: Integer;
     begin
         // [SCENARIO] ChangeGlobalDimLogEntry.DELETE(TRUE) removes table from the temp list
-        Initialize;
+        Initialize();
         // [GIVEN] LogEntry for table "Customer"
         TableID := MockChangeGlobalDimLogEntry;
         Assert.IsTrue(ChangeGlobalDimLogMgt.FillBuffer, 'FillBuffer');
@@ -114,7 +114,7 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         TableTrigger: array[4] of Boolean;
     begin
         // [FEATURE] [Integration]
-        Initialize;
+        Initialize();
         InsertODataEdmTypeEntry;
 
         // [GIVEN] Integration is enabled
@@ -148,7 +148,7 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         TableTrigger: array[4] of Boolean;
     begin
         // [FEATURE] [Integration]
-        Initialize;
+        Initialize();
         InsertODataEdmTypeEntry;
 
         // [GIVEN] Integration is disabled
@@ -184,7 +184,7 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         ODataEdmType: Record "OData Edm Type";
     begin
         ODataEdmType.Init();
-        ODataEdmType.Key := LibraryUtility.GenerateGUID;
+        ODataEdmType.Key := LibraryUtility.GenerateGUID();
         ODataEdmType.Insert();
     end;
 

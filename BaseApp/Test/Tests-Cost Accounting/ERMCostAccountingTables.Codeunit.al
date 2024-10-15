@@ -78,7 +78,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         PrevLastAllocID: Code[10];
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CostAccSetup.Get();
         PrevLastAllocID := CostAccSetup."Last Allocation ID";
         CostAccSetup.Validate("Last Allocation ID", '');
@@ -100,7 +100,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         AllocationID: Code[10];
     begin
         // Setup & Exercise:
-        Initialize;
+        Initialize();
         AllocationID := CreateAllocationSource(true);
 
         // Verify:
@@ -116,7 +116,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         AllocationID: Code[10];
     begin
         // Setup & Exercise:
-        Initialize;
+        Initialize();
         AllocationID := CreateAllocationSource(false);
 
         CostAccSetup.Get();
@@ -133,7 +133,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         PrevLastAllocID: Code[10];
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CostAccSetup.Get();
         PrevLastAllocID := CostAccSetup."Last Allocation ID";
         CostAccSetup.Validate("Last Allocation ID", '');
@@ -161,7 +161,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         I: Integer;
     begin
         // Setup:
-        Initialize;
+        Initialize();
         AllocationID := CreateAllocationSource(true);
         for I := 1 to LibraryRandom.RandInt(10) do
             CreateAllocationTarget(CostAllocationTarget, AllocationID);
@@ -183,7 +183,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         AllocationID: Code[10];
     begin
         // Setup:
-        Initialize;
+        Initialize();
         AllocationID := CreateAllocationSource(true);
 
         // Exercise:
@@ -204,7 +204,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationSource: Record "Cost Allocation Source";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CostAllocationSource.Get(CreateAllocationSource(true));
         CostAllocationSource.Validate("Cost Object Code", CreateCostObject);
         CostAllocationSource.Modify(true);
@@ -220,7 +220,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationSource: Record "Cost Allocation Source";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CostAllocationSource.Get(CreateAllocationSource(true));
         CostAllocationSource.Validate("Cost Center Code", CreateCostCenter);
         CostAllocationSource.Modify(true);
@@ -239,7 +239,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         I: Integer;
     begin
         // Setup:
-        Initialize;
+        Initialize();
         AllocationID := CreateAllocationSource(true);
         for I := 1 to LibraryRandom.RandInt(10) do begin
             CreateAllocationTarget(CostAllocationTarget, AllocationID);
@@ -262,7 +262,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         I: Integer;
     begin
         // Setup:
-        Initialize;
+        Initialize();
         AllocationID := CreateAllocationSource(true);
         for I := 1 to LibraryRandom.RandInt(10) do
             CreateAllocationTarget(CostAllocationTarget, AllocationID);
@@ -290,8 +290,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocTargetListPage: TestPage "Cost Allocation Target List";
     begin
         // Setup:
-        Initialize;
-        CostCenter.FindFirst;
+        Initialize();
+        CostCenter.FindFirst();
         CostCenterFilter := SelectionFilterManagement.AddQuotes(CostCenter.Code);
         CostAllocTargetListPage.OpenEdit;
 
@@ -311,8 +311,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocTargetListPage: TestPage "Cost Allocation Target List";
     begin
         // Setup:
-        Initialize;
-        CostObject.FindFirst;
+        Initialize();
+        CostObject.FindFirst();
         CostObjectFilter := SelectionFilterManagement.AddQuotes(CostObject.Code);
         CostAllocTargetListPage.OpenEdit;
 
@@ -331,8 +331,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocTarget: Record "Cost Allocation Target";
         CostBudgetName: Record "Cost Budget Name";
     begin
-        Initialize;
-        CostBudgetName.FindFirst;
+        Initialize();
+        CostBudgetName.FindFirst();
         CostBudgetNameFilter := SelectionFilterManagement.AddQuotes(CostBudgetName.Name);
 
         LookupGroupFilter(CostAllocTarget.Base::"Cost Budget Entries", CostBudgetNameFilter)
@@ -346,8 +346,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocTarget: Record "Cost Allocation Target";
         GLBudgetName: Record "G/L Budget Name";
     begin
-        Initialize;
-        GLBudgetName.FindFirst;
+        Initialize();
+        GLBudgetName.FindFirst();
         GLBudgetNameFilter := SelectionFilterManagement.AddQuotes(GLBudgetName.Name);
 
         LookupGroupFilter(CostAllocTarget.Base::"G/L Budget Entries", GLBudgetNameFilter)
@@ -361,8 +361,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocTarget: Record "Cost Allocation Target";
         InvtPostingGroup: Record "Inventory Posting Group";
     begin
-        Initialize;
-        InvtPostingGroup.FindFirst;
+        Initialize();
+        InvtPostingGroup.FindFirst();
         InvtPostingGroupFilter := SelectionFilterManagement.AddQuotes(InvtPostingGroup.Code);
 
         LookupGroupFilter(CostAllocTarget.Base::"Items Purchased (Amount)", InvtPostingGroupFilter)
@@ -376,8 +376,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocTarget: Record "Cost Allocation Target";
         InvtPostingGroup: Record "Inventory Posting Group";
     begin
-        Initialize;
-        InvtPostingGroup.FindFirst;
+        Initialize();
+        InvtPostingGroup.FindFirst();
         InvtPostingGroupFilter := SelectionFilterManagement.AddQuotes(InvtPostingGroup.Code);
 
         LookupGroupFilter(CostAllocTarget.Base::"Items Purchased (Qty.)", CopyStr(InvtPostingGroupFilter, 1, 30))
@@ -391,8 +391,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocTarget: Record "Cost Allocation Target";
         InvtPostingGroup: Record "Inventory Posting Group";
     begin
-        Initialize;
-        InvtPostingGroup.FindFirst;
+        Initialize();
+        InvtPostingGroup.FindFirst();
         InvtPostingGroupFilter := SelectionFilterManagement.AddQuotes(InvtPostingGroup.Code);
 
         LookupGroupFilter(CostAllocTarget.Base::"Items Sold (Amount)", InvtPostingGroupFilter)
@@ -406,8 +406,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocTarget: Record "Cost Allocation Target";
         InvtPostingGroup: Record "Inventory Posting Group";
     begin
-        Initialize;
-        InvtPostingGroup.FindFirst;
+        Initialize();
+        InvtPostingGroup.FindFirst();
         InvtPostingGroupFilter := SelectionFilterManagement.AddQuotes(InvtPostingGroup.Code);
 
         LookupGroupFilter(CostAllocTarget.Base::"Items Sold (Qty.)", CopyStr(InvtPostingGroupFilter, 1, 30))
@@ -421,8 +421,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocTarget: Record "Cost Allocation Target";
         CostType: Record "Cost Type";
     begin
-        Initialize;
-        CostType.FindFirst;
+        Initialize();
+        CostType.FindFirst();
         CostTypeFilter := SelectionFilterManagement.AddQuotes(CostType."No.");
 
         LookupNoFilter(CostAllocTarget.Base::"Cost Budget Entries", CostTypeFilter)
@@ -436,8 +436,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocTarget: Record "Cost Allocation Target";
         CostType: Record "Cost Type";
     begin
-        Initialize;
-        CostType.FindFirst;
+        Initialize();
+        CostType.FindFirst();
         CostTypeFilter := SelectionFilterManagement.AddQuotes(CostType."No.");
 
         LookupNoFilter(CostAllocTarget.Base::"Cost Type Entries", CostTypeFilter)
@@ -451,9 +451,9 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocTarget: Record "Cost Allocation Target";
         GLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
         // Setup:
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         GLAccFilter := SelectionFilterManagement.AddQuotes(GLAccount."No.");
 
         // Exercise & Verify:
@@ -469,8 +469,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         GLAccount: Record "G/L Account";
     begin
         // Setup:
-        Initialize;
-        GLAccount.FindFirst;
+        Initialize();
+        GLAccount.FindFirst();
         GLAccFilter := SelectionFilterManagement.AddQuotes(GLAccount."No.");
 
         // Exercise & Verify:
@@ -484,7 +484,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostAllocTarget: Record "Cost Allocation Target";
     begin
-        Initialize;
+        Initialize();
         ItemFilter := SelectionFilterManagement.AddQuotes(LibraryInventory.CreateItemNo);
 
         LookupNoFilter(CostAllocTarget.Base::"Items Purchased (Amount)", ItemFilter)
@@ -497,7 +497,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostAllocTarget: Record "Cost Allocation Target";
     begin
-        Initialize;
+        Initialize();
         ItemFilter := SelectionFilterManagement.AddQuotes(LibraryInventory.CreateItemNo);
 
         LookupNoFilter(CostAllocTarget.Base::"Items Purchased (Qty.)", CopyStr(ItemFilter, 1, 30))
@@ -510,7 +510,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostAllocTarget: Record "Cost Allocation Target";
     begin
-        Initialize;
+        Initialize();
         ItemFilter := SelectionFilterManagement.AddQuotes(LibraryInventory.CreateItemNo);
 
         LookupNoFilter(CostAllocTarget.Base::"Items Sold (Amount)", ItemFilter)
@@ -523,7 +523,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostAllocTarget: Record "Cost Allocation Target";
     begin
-        Initialize;
+        Initialize();
         ItemFilter := SelectionFilterManagement.AddQuotes(LibraryInventory.CreateItemNo);
 
         LookupNoFilter(CostAllocTarget.Base::"Items Sold (Qty.)", CopyStr(ItemFilter, 1, 30))
@@ -536,7 +536,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CreateAllocationTarget(CostAllocationTarget, CreateAllocationSource(true));
 
         // Exercise:
@@ -556,7 +556,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         // Setup & Exercise:
-        Initialize;
+        Initialize();
         CostAllocationTarget."Percent per Share" := LibraryRandom.RandInt(10);
         CostAllocationTarget.Validate("Amount per Share", LibraryRandom.RandInt(10));
         CostAllocationTarget.Insert();
@@ -576,7 +576,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         // Setup & Exercise:
-        Initialize;
+        Initialize();
         CostAllocationTarget."Amount per Share" := LibraryRandom.RandInt(10);
         CostAllocationTarget.Validate("Amount per Share", 0);
         CostAllocationTarget.Insert();
@@ -595,7 +595,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CreateAllocationTarget(CostAllocationTarget, CreateAllocationSource(true));
         CostAllocationTarget.Validate("Target Cost Object", CreateCostObject);
         CostAllocationTarget.Modify(true);
@@ -611,7 +611,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CreateAllocationTarget(CostAllocationTarget, CreateAllocationSource(true));
         CostAllocationTarget.Validate("Target Cost Center", CreateCostCenter);
         CostAllocationTarget.Modify(true);
@@ -627,7 +627,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         // Setup & Exercise:
-        Initialize;
+        Initialize();
         CostAllocationTarget.Validate("Percent per Share", LibraryRandom.RandInt(10));
         CostAllocationTarget.Insert();
 
@@ -646,7 +646,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         // Setup & Exercise:
-        Initialize;
+        Initialize();
         CostAllocationTarget.Validate("Percent per Share", 0);
         CostAllocationTarget.Insert();
 
@@ -664,7 +664,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CostAllocationTarget.Base := CostAllocationTarget.Base::"G/L Entries";
         CostAllocationTarget.Insert();
 
@@ -679,7 +679,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CostAllocationTarget.Base := CostAllocationTarget.Base::"G/L Entries";
         CostAllocationTarget.Insert();
 
@@ -697,7 +697,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CostAllocationTarget.Base := CostAllocationTarget.Base::"G/L Entries";
         CostAllocationTarget.Insert();
 
@@ -712,7 +712,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CostAllocationTarget.Base := CostAllocationTarget.Base::"G/L Entries";
         CostAllocationTarget.Insert();
 
@@ -730,7 +730,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocationTarget: Record "Cost Allocation Target";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CostAllocationTarget.Base := CostAllocationTarget.Base::Static;
         CostAllocationTarget.Insert();
 
@@ -754,7 +754,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         GLEntryNo: Integer;
     begin
         // Setup:
-        Initialize;
+        Initialize();
         GLEntryNo := CreateGLEntryWithCostCenterDim;
 
         // Exercise:
@@ -774,7 +774,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         GLEntryNo: Integer;
     begin
         // Setup:
-        Initialize;
+        Initialize();
         GLEntryNo := CreateGLEntryWithCostCenterDim;
 
         // Exercise:
@@ -794,7 +794,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         TransferGLEntriesToCA: Codeunit "Transfer GL Entries to CA";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CreateGLEntryWithCostCenterDim;
         TransferGLEntriesToCA.TransferGLtoCA;
 
@@ -814,7 +814,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         NewStartingDate: Date;
     begin
         // Setup: delete existing cost register corresponding to prev transfers
-        Initialize;
+        Initialize();
         CostRegister.SetRange(Source, CostRegister.Source::"Transfer from G/L");
         CostRegister.DeleteAll();
 
@@ -845,7 +845,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         NewStartingDate: Date;
     begin
         // Setup: delete existing cost register corresponding to prev transfers
-        Initialize;
+        Initialize();
         CostRegister.SetRange(Source, CostRegister.Source::"Transfer from G/L");
         CostRegister.DeleteAll();
 
@@ -868,7 +868,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostEntry: Record "Cost Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         Assert.AreEqual(GeneralLedgerSetup."Additional Reporting Currency", CostEntry.GetCurrencyCode, IncorrectAddReportingCurrency);
     end;
@@ -882,7 +882,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         Index: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CostRegister.DeleteAll();
 
         // Exercise
@@ -906,18 +906,18 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         Index: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CostRegister.DeleteAll();
 
         for Index := 1 to 2 do
             CreateCostRegister(CostRegister, Index);
 
         // Exercise
-        CostRegister.FindLast;
+        CostRegister.FindLast();
         UpdateCostRegisterClosed(CostRegister, true);
 
         // Verify
-        CostRegister.FindFirst;
+        CostRegister.FindFirst();
         repeat
             CostRegister.TestField(Closed, true);
         until CostRegister.Next = 0;
@@ -931,7 +931,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostRegister: Record "Cost Register";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CostRegister.DeleteAll();
         CreateCostRegister(CostRegister, 1);
 
@@ -952,7 +952,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostTypeNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         CostTypeInsert(CostTypeNo, false);
         CostEntryInsert(CostEntry, CostTypeNo, LibraryRandom.RandInt(1000));
 
@@ -973,7 +973,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostTypeNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         CostTypeInsert(CostTypeNo, false);
         CostEntryInsert(CostEntry, CostTypeNo, 0);
 
@@ -994,7 +994,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostTypeNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         CostTypeInsert(CostTypeNo, false);
         CostEntryInsert(CostEntry, CostTypeNo, 0);
         CostEntry.Validate("Posting Date", CalcDate('<+1D>', LibraryFiscalYear.IdentifyOpenAccountingPeriod));
@@ -1017,7 +1017,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostTypeNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         CostTypeInsert(CostTypeNo, false);
         CostEntryInsert(CostEntry, CostTypeNo, 0);
         CostEntry.Validate("Posting Date", CalcDate('<-1D>', LibraryFiscalYear.IdentifyOpenAccountingPeriod));
@@ -1040,7 +1040,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostTypeNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         CostTypeInsert(CostTypeNo, false);
         CostType.Get(CostTypeNo);
         CostType.Validate(Type, CostType.Type::Heading);
@@ -1062,7 +1062,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostTypeNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryFiscalYear.CloseAccountingPeriod;
         CostTypeInsert(CostTypeNo, false);
         CostEntryInsert(CostEntry, CostTypeNo, 0);
@@ -1079,7 +1079,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     [Scope('OnPrem')]
     procedure CostTypeInsertNoValidation()
     begin
-        Initialize;
+        Initialize();
         ValidateCostTypeInsert(false);
     end;
 
@@ -1087,7 +1087,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     [Scope('OnPrem')]
     procedure CostTypeInsertWithValidation()
     begin
-        Initialize;
+        Initialize();
         ValidateCostTypeInsert(true);
     end;
 
@@ -1095,7 +1095,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     [Scope('OnPrem')]
     procedure CostTypeModifyNoValidation()
     begin
-        Initialize;
+        Initialize();
         ValidateCostTypeModify(false);
     end;
 
@@ -1103,7 +1103,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     [Scope('OnPrem')]
     procedure CostTypeModifyWithValidation()
     begin
-        Initialize;
+        Initialize();
         ValidateCostTypeModify(true);
     end;
 
@@ -1113,7 +1113,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        Initialize;
+        Initialize();
         CreateCostBudgetEntry(CostBudgetEntry, 0,
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Budget Name"), DATABASE::"Cost Budget Entry"), 1,
@@ -1137,7 +1137,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        Initialize;
+        Initialize();
         CreateCostBudgetEntry(CostBudgetEntry, 0, '',
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Cost Type No."), DATABASE::"Cost Budget Entry"), 1,
@@ -1155,7 +1155,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        Initialize;
+        Initialize();
         CreateCostBudgetEntry(
           CostBudgetEntry, 0,
           CopyStr(
@@ -1175,7 +1175,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        Initialize;
+        Initialize();
         CreateCostBudgetEntry(
           CostBudgetEntry, 0,
           CopyStr(
@@ -1195,7 +1195,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        Initialize;
+        Initialize();
         CreateCostBudgetEntry(
           CostBudgetEntry, 0,
           CopyStr(
@@ -1217,7 +1217,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        Initialize;
+        Initialize();
         CreateCostBudgetEntry(CostBudgetEntry, 0,
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Budget Name"), DATABASE::"Cost Budget Entry"), 1,
@@ -1242,7 +1242,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        Initialize;
+        Initialize();
         CreateCostBudgetEntry(CostBudgetEntry, 0,
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Budget Name"), DATABASE::"Cost Budget Entry"), 1,
@@ -1273,7 +1273,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         TotalAmount: Decimal;
         j: Integer;
     begin
-        Initialize;
+        Initialize();
         // create budget entries
         InsertCostBudgetEntriesToCompress(CostBudgetEntry, FromEntryNo, ToEntryNo, true, TotalAmount);
         // compress budget entries
@@ -1299,7 +1299,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         TotalAmount: Decimal;
         j: Integer;
     begin
-        Initialize;
+        Initialize();
         // create budget entries
         InsertCostBudgetEntriesToCompress(CostBudgetEntry, FromEntryNo, ToEntryNo, false, TotalAmount);
         // compress budget entries
@@ -1327,7 +1327,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         TotalAmount: Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         InsertCostBudgetEntriesToCompress(CostBudgetEntry, FromEntryNo, ToEntryNo, false, TotalAmount);
         BudgetName := CostBudgetEntry."Budget Name";
         FirstEntryNo := CostBudgetEntry."Entry No.";
@@ -1354,7 +1354,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        Initialize;
+        Initialize();
         asserterror CostBudgetEntry.CompressBudgetEntries(
             CopyStr(
               LibraryUtility.GenerateRandomCode(CostBudgetEntry.FieldNo("Budget Name"), DATABASE::"Cost Budget Entry"), 1,
@@ -1368,7 +1368,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        Initialize;
+        Initialize();
         asserterror CostBudgetEntry.CompressBudgetEntries('');
         Assert.IsTrue(Text005 = GetLastErrorText, UnexpectedErr);
     end;
@@ -1383,7 +1383,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         Amounts: array[2] of Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateRandomCostBudgetEntryWithCostCenter(CostBudgetEntry, false);
         EntryNos[1] := CostBudgetEntry."Entry No.";
         Amounts[1] := CostBudgetEntry.Amount;
@@ -1418,7 +1418,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         Amounts: array[2] of Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateRandomCostBudgetEntryWithCostObject(CostBudgetEntry, false);
         EntryNos[1] := CostBudgetEntry."Entry No.";
         Amounts[1] := CostBudgetEntry.Amount;
@@ -1452,7 +1452,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         Amounts: array[2] of Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateRandomCostBudgetEntryWithCostCenter(CostBudgetEntry, false);
         EntryNos[1] := CostBudgetEntry."Entry No.";
         Amounts[1] := CostBudgetEntry.Amount;
@@ -1487,7 +1487,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         Amounts: array[2] of Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateRandomCostBudgetEntryWithCostCenter(CostBudgetEntry, false);
         EntryNos[1] := CostBudgetEntry."Entry No.";
         Amounts[1] := CostBudgetEntry.Amount;
@@ -1516,7 +1516,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostCenter: Record "Cost Center";
         CostCenter2: Record "Cost Center";
     begin
-        Initialize;
+        Initialize();
         LibraryCostAccounting.CreateCostCenter(CostCenter);
         LibraryCostAccounting.CreateCostCenter(CostCenter2);
         CostCenter.TestField(Code, CostBudgetEntry.GetFirstCostCenter(CostCenter.Code + '|' + CostCenter2.Code));
@@ -1529,7 +1529,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostBudgetEntry: Record "Cost Budget Entry";
         CostCenter: Record "Cost Center";
     begin
-        Initialize;
+        Initialize();
         Assert.AreEqual(
           '', CostBudgetEntry.GetFirstCostCenter(LibraryUtility.GenerateRandomCode(CostCenter.FieldNo(Code), DATABASE::"Cost Center")),
           StrSubstNo(ExpectedValueIsDifferentError, CostCenter.FieldName(Code)));
@@ -1543,7 +1543,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostObject: Record "Cost Object";
         CostObject2: Record "Cost Object";
     begin
-        Initialize;
+        Initialize();
         LibraryCostAccounting.CreateCostObject(CostObject);
         LibraryCostAccounting.CreateCostObject(CostObject2);
         CostObject.TestField(Code, CostBudgetEntry.GetFirstCostObject(CostObject.Code + '|' + CostObject2.Code));
@@ -1556,7 +1556,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostBudgetEntry: Record "Cost Budget Entry";
         CostObject: Record "Cost Object";
     begin
-        Initialize;
+        Initialize();
         Assert.AreEqual(
           '', CostBudgetEntry.GetFirstCostObject(LibraryUtility.GenerateRandomCode(CostObject.FieldNo(Code), DATABASE::"Cost Object")),
           StrSubstNo(ExpectedValueIsDifferentError, CostObject.FieldName(Code)));
@@ -1572,7 +1572,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostType2: Record "Cost Type";
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        Initialize;
+        Initialize();
         LibraryCostAccounting.CreateCostType(CostType);
         LibraryCostAccounting.CreateCostType(CostType2);
         CostType.TestField("No.", CostBudgetEntry.GetFirstCostType(CostType."No." + '|' + CostType2."No."));
@@ -1589,7 +1589,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostBudgetEntry: Record "Cost Budget Entry";
         CostType: Record "Cost Type";
     begin
-        Initialize;
+        Initialize();
         Assert.AreEqual(
           '', CostBudgetEntry.GetFirstCostType(LibraryUtility.GenerateRandomCode(CostType.FieldNo("No."), DATABASE::"Cost Type")),
           StrSubstNo(ExpectedValueIsDifferentError, CostType.FieldName("No.")));
@@ -1606,7 +1606,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         RandomDate3: Date;
         DateFormulaMonth: DateFormula;
     begin
-        Initialize;
+        Initialize();
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
         LibraryCostAccounting.CreateCostBudgetEntry(CostBudgetEntry, CostBudgetName.Name);
 
@@ -1630,7 +1630,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         RandomDate: Date;
         DateFormulaYear: DateFormula;
     begin
-        Initialize;
+        Initialize();
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
         LibraryCostAccounting.CreateCostBudgetEntry(CostBudgetEntry, CostBudgetName.Name);
         Evaluate(DateFormulaYear, '<1Y>');
@@ -1646,7 +1646,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        Initialize;
+        Initialize();
         Assert.AreEqual(
           WorkDate, CostBudgetEntry.GetFirstDate(''), StrSubstNo(ExpectedValueIsDifferentError, CostBudgetEntry.FieldName(Date)));
     end;
@@ -1658,10 +1658,10 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostBudgetEntry: Record "Cost Budget Entry";
         CostBudgetRegister: Record "Cost Budget Register";
     begin
-        Initialize;
+        Initialize();
         CostBudgetEntry.SetCostBudgetRegNo(0);
         CreateRandomCostBudgetEntryWithCostCenter(CostBudgetEntry, true);
-        CostBudgetRegister.FindLast;
+        CostBudgetRegister.FindLast();
 
         Assert.AreEqual(CostBudgetRegister."No.", CostBudgetEntry.GetCostBudgetRegNo, StrSubstNo(Text001, CostBudgetRegister.TableCaption))
     end;
@@ -1674,16 +1674,16 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostBudgetRegister: Record "Cost Budget Register";
         OldBudgetRegisterNo: Integer;
     begin
-        Initialize;
+        Initialize();
         // set the current RegNo and set "To Budget Entry No." to a newer entry so a new register entry will be created
-        if CostBudgetEntry.FindLast then;
-        if CostBudgetRegister.FindLast then;
+        if CostBudgetEntry.FindLast() then;
+        if CostBudgetRegister.FindLast() then;
         CostBudgetRegister."To Cost Budget Entry No." := CostBudgetEntry."Entry No." + 1 + LibraryRandom.RandInt(100);
         CostBudgetRegister.Modify();
         OldBudgetRegisterNo := CostBudgetRegister."No.";
         CostBudgetEntry.SetCostBudgetRegNo(OldBudgetRegisterNo);
         CreateRandomCostBudgetEntryWithCostCenter(CostBudgetEntry, true);
-        CostBudgetRegister.FindLast;
+        CostBudgetRegister.FindLast();
 
         Assert.AreEqual(CostBudgetRegister."No.", CostBudgetEntry.GetCostBudgetRegNo, StrSubstNo(Text001, CostBudgetRegister.TableCaption));
         Assert.AreNotEqual(OldBudgetRegisterNo, CostBudgetEntry.GetCostBudgetRegNo, StrSubstNo(Text001, CostBudgetRegister.TableCaption))
@@ -1696,7 +1696,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostBudgetEntry: Record "Cost Budget Entry";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         CostBudgetEntry.DeleteAll();
         for i := 1 to 1 + LibraryRandom.RandInt(9) do begin
             FillRandomCostBudgetEntryWithCostCenter(CostBudgetEntry);
@@ -1713,7 +1713,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        Initialize;
+        Initialize();
         CreateRandomCostBudgetEntryWithCostCenter(CostBudgetEntry, false);
         CostBudgetEntry."Last Modified By User" := '';
         CostBudgetEntry."Last Date Modified" := 0D;
@@ -1734,7 +1734,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         PrevBudgetRegisterTotal: Decimal;
         NewEntryAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateRandomCostBudgetEntryWithCostCenter(CostBudgetEntry, true);
         CostBudgetRegister.Get(CostBudgetEntry.GetCostBudgetRegNo);
         PrevBudgetRegisterTotal := CostBudgetRegister.Amount;
@@ -1759,7 +1759,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         PrevBudgetRegisterTotal: Decimal;
         NewEntryAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateRandomCostBudgetEntryWithCostCenter(CostBudgetEntry, true);
         CostBudgetRegister.Get(CostBudgetEntry.GetCostBudgetRegNo);
         PrevBudgetRegisterTotal := CostBudgetRegister.Amount;
@@ -1782,7 +1782,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostBudgetEntry: Record "Cost Budget Entry";
         BudgetRegNo: Integer;
     begin
-        Initialize;
+        Initialize();
         BudgetRegNo := LibraryRandom.RandInt(100);
         CostBudgetEntry.SetCostBudgetRegNo(BudgetRegNo);
         Assert.AreEqual(BudgetRegNo, CostBudgetEntry.GetCostBudgetRegNo, Text003)
@@ -1796,7 +1796,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostBudgetRegister: Record "Cost Budget Register";
         CostBudgetName: Record "Cost Budget Name";
     begin
-        Initialize;
+        Initialize();
         CostBudgetName.Name :=
           CopyStr(
             LibraryUtility.GenerateRandomCode(CostBudgetName.FieldNo(Name), DATABASE::"Cost Budget Name"), 1,
@@ -1828,7 +1828,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostBudgetRegister: Record "Cost Budget Register";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         // create at least 3 registers. Close the last one -2 and verify all preceding ones are now closed.
         if CostBudgetRegister.Find('+') then;
         for i := 1 to 3 + LibraryRandom.RandInt(7) do begin
@@ -1850,8 +1850,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetRegister: Record "Cost Budget Register";
     begin
-        Initialize;
-        if CostBudgetRegister.FindLast then;
+        Initialize();
+        if CostBudgetRegister.FindLast() then;
         CostBudgetRegister.Closed := false;
         asserterror CostBudgetRegister.Validate(Closed, true);
         Assert.AreEqual('', GetLastErrorText, UnexpectedErr);
@@ -1863,8 +1863,8 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetRegister: Record "Cost Budget Register";
     begin
-        Initialize;
-        if CostBudgetRegister.FindLast then;
+        Initialize();
+        if CostBudgetRegister.FindLast() then;
         CostBudgetRegister.Closed := true;
         asserterror CostBudgetRegister.Validate(Closed, false);
         Assert.IsTrue(Text014 = GetLastErrorText, UnexpectedErr)
@@ -2627,7 +2627,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostCenterDimGLEntryNo: Integer;
         CostObjectDimGLEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
         // Validate GL entries are inserted to CA in case of combined entry's dimensions
         CostObjectDimGLEntryNo := CreateGLEntryWithCostObjectDim;
         CostCenterDimGLEntryNo := CreateGLEntryWithCostCenterDim;
@@ -2647,7 +2647,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         // [SCENARIO 263359] User cannot create Cost Journal Template with blank Name.
 
         CostJournalTemplate.Init();
-        CostJournalTemplate.Description := LibraryUtility.GenerateGUID;
+        CostJournalTemplate.Description := LibraryUtility.GenerateGUID();
 
         asserterror CostJournalTemplate.Insert(true);
 
@@ -2664,7 +2664,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         // [SCENARIO 263359] User cannot create Cost Journal Batch with blank Name.
 
         CostJournalBatch.Init();
-        CostJournalBatch.Description := LibraryUtility.GenerateGUID;
+        CostJournalBatch.Description := LibraryUtility.GenerateGUID();
 
         asserterror CostJournalBatch.Insert(true);
 
@@ -2681,7 +2681,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         // [SCENARIO 263359] User cannot create Cost Type with blank No.
 
         CostType.Init();
-        CostType.Name := LibraryUtility.GenerateGUID;
+        CostType.Name := LibraryUtility.GenerateGUID();
 
         asserterror CostType.Insert(true);
 
@@ -2698,7 +2698,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         // [SCENARIO 263359] User cannot create Cost Budget Name with blank Name.
 
         CostBudgetName.Init();
-        CostBudgetName.Description := LibraryUtility.GenerateGUID;
+        CostBudgetName.Description := LibraryUtility.GenerateGUID();
 
         asserterror CostBudgetName.Insert(true);
 
@@ -2715,7 +2715,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         // [SCENARIO 263359] User cannot create Cost Center with blank Code.
 
         CostCenter.Init();
-        CostCenter.Name := LibraryUtility.GenerateGUID;
+        CostCenter.Name := LibraryUtility.GenerateGUID();
 
         asserterror CostCenter.Insert(true);
 
@@ -2806,7 +2806,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     var
         CostBudgetEntry2: Record "Cost Budget Entry";
     begin
-        if CostBudgetEntry2.FindLast then;
+        if CostBudgetEntry2.FindLast() then;
         CostBudgetEntry."Entry No." := CostBudgetEntry2."Entry No." + 1;
         CostBudgetEntry.Insert();
     end;
@@ -2919,7 +2919,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     begin
         LibraryCostAccounting.FindGLAccLinkedToCostType(GLAccount);
         with GLEntry do begin
-            if FindLast then
+            if FindLast() then
                 Init;
             "Entry No." += 1;
             "G/L Account No." := GLAccount."No.";
@@ -2948,7 +2948,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
     begin
         with CostBudgetEntry do begin
             if EntryNo = 0 then begin
-                if FindLast then
+                if FindLast() then
                     Init;
                 "Entry No." += 1;
             end;
@@ -3051,7 +3051,7 @@ codeunit 134819 "ERM Cost Accounting - Tables"
         CostAllocTarget: Record "Cost Allocation Target";
     begin
         CostAllocTarget.SetFilter(ID, AllocSourceID);
-        if CostAllocTarget.FindLast then
+        if CostAllocTarget.FindLast() then
             exit(CostAllocTarget."Line No." + 1);
 
         exit(0);

@@ -276,7 +276,13 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        Evaluate(EntryRemainingAmount, BankAccountLedgerEntries.Amount.Value);
+        if BankAccountLedgerEntries.Amount.Visible() then
+            EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
+        else
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+                EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
+            else
+                EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
         exit(EntryRemainingAmount);
     end;
 
@@ -292,7 +298,7 @@ codeunit 131305 "Library - ERM Country Data"
         // Copy of LinkCostTypesToGLAccounts function from COD1100.
         CostType.SetRange(Type, CostType.Type::"Cost Type");
         CostType.SetFilter(CostType."G/L Account Range", '');
-        if CostType.FindSet then
+        if CostType.FindSet() then
             repeat
                 if FindGLAccount(GLAccount, CostType."No.") then begin
                     CostType."G/L Account Range" := CostType."No.";
@@ -307,7 +313,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        if GeneralPostingSetup.FindSet then
+        if GeneralPostingSetup.FindSet() then
             repeat
                 // Use assignment to avoid error
                 if GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc." = '' then
@@ -338,7 +344,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        if CustomerPostingGroup.FindSet then
+        if CustomerPostingGroup.FindSet() then
             repeat
                 if CustomerPostingGroup."Payment Disc. Debit Acc." = '' then begin
                     CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount);
@@ -364,7 +370,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        if VendorPostingGroup.FindSet then
+        if VendorPostingGroup.FindSet() then
             repeat
                 if VendorPostingGroup."Payment Disc. Debit Acc." = '' then begin
                     VendorPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount);

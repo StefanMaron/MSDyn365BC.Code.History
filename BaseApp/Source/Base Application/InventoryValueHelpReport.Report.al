@@ -73,7 +73,7 @@ report 11517 "Inventory Value (Help Report)"
                 if ItemLedgEntry.IsEmpty() then
                     CurrReport.Skip();
 
-                if ItemLedgEntry.FindSet then
+                if ItemLedgEntry.FindSet() then
                     repeat
                         CalcInventoryValue(ItemLedgEntry);
                     until ItemLedgEntry.Next() = 0;
@@ -110,7 +110,7 @@ report 11517 "Inventory Value (Help Report)"
             trigger OnPreDataItem()
             begin
                 FirstLoop := true;
-                if not TempItemStatisticsBuffer.FindSet then
+                if not TempItemStatisticsBuffer.FindSet() then
                     CurrReport.Break();
             end;
         }
@@ -192,7 +192,7 @@ report 11517 "Inventory Value (Help Report)"
             SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
             SetRange("Posting Date", 0D, StatusDate);
 
-            if FindLast then begin
+            if FindLast() then begin
                 CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)", "Invoiced Quantity", "Cost Posted to G/L");
 
                 BufferRecExists := TempItemStatisticsBuffer.Get("Inventory Posting Group");

@@ -16,14 +16,6 @@ page 9031 "O365 Invoicing RC"
             {
                 ApplicationArea = Invoicing;
             }
-            part(Control19; "Product Video Topics")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with Assisted Setup.';
-                Visible = false;
-                ApplicationArea = All;
-                ObsoleteTag = '17.0';
-            }
         }
     }
 

@@ -47,7 +47,7 @@ codeunit 134057 "ERM VAT Report Line Relation"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 295559] PAG 317 "VAT Statement" field "Box No." is visible
-        if VATStatementName.FindFirst then begin
+        if VATStatementName.FindFirst() then begin
             VATStatementLine."Statement Name" := VATStatementName.Name;
             VATStatementLine."Statement Template Name" := '';
             VATStatementLine.SetRange("Statement Template Name", VATStatementName."Statement Template Name");

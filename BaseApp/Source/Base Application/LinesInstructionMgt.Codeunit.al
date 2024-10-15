@@ -6,12 +6,12 @@ codeunit 1320 "Lines Instruction Mgt."
     end;
 
     var
-        LinesMissingQuantityErr: Label 'One or more document lines with a value in the No. field do not have a quantity specified.';
         LinesMissingQuantityConfirmQst: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
 
     procedure SalesCheckAllLinesHaveQuantityAssigned(SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
+        MyNotifications: Record "My Notifications";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -26,20 +26,18 @@ codeunit 1320 "Lines Instruction Mgt."
         SalesLine.SetRange(Quantity, 0);
         OnAfterSetSalesLineFilters(SalesLine, SalesHeader);
 
-        if not SalesLine.IsEmpty() then
-            if (SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo") then
+        if not SalesLine.IsEmpty() AND GuiAllowed() then
+            if MyNotifications.IsEnabled(SalesHeader.GetWarnWhenZeroQuantitySalesLinePosting()) then
                 if Confirm(LinesMissingQuantityConfirmQst, false) then
                     exit
                 else
-                    Error(LinesMissingQuantityErr)
-            else
-                Error(LinesMissingQuantityErr);
-
+                    Error('');
     end;
 
     procedure PurchaseCheckAllLinesHaveQuantityAssigned(PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
+        MyNotifications: Record "My Notifications";
     begin
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
@@ -48,8 +46,12 @@ codeunit 1320 "Lines Instruction Mgt."
         PurchaseLine.SetRange(Quantity, 0);
         OnAfterSetPurchaseLineFilters(PurchaseLine, PurchaseHeader);
 
-        if not PurchaseLine.IsEmpty() then
-            Error(LinesMissingQuantityErr);
+        if not PurchaseLine.IsEmpty() AND GuiAllowed() then
+            if MyNotifications.IsEnabled(PurchaseHeader.GetWarnWhenZeroQuantityPurchaseLinePosting()) then
+                if Confirm(LinesMissingQuantityConfirmQst, false) then
+                    exit
+                else
+                    Error('');
     end;
 
     [IntegrationEvent(false, false)]

@@ -54,7 +54,7 @@ table 1303 "Mini Vendor Template"
                         0:
                             exit;
                         1:
-                            PostCodeRec.FindFirst;
+                            PostCodeRec.FindFirst();
                         else
                             if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
                                 exit;
@@ -153,7 +153,7 @@ table 1303 "Mini Vendor Template"
                         0:
                             exit;
                         1:
-                            PostCodeRec.FindFirst;
+                            PostCodeRec.FindFirst();
                         else
                             if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
                                 exit;
@@ -339,7 +339,7 @@ table 1303 "Mini Vendor Template"
         ConfigTemplateHeader.SetRange(Enabled, true);
 
         if ConfigTemplateHeader.Count = 1 then begin
-            ConfigTemplateHeader.FindFirst;
+            ConfigTemplateHeader.FindFirst();
             InsertVendorFromTemplate(ConfigTemplateHeader, Vendor);
             exit(true);
         end;
@@ -417,7 +417,7 @@ table 1303 "Mini Vendor Template"
             if ConfigTemplates.RunModal = ACTION::LookupOK then begin
                 ConfigTemplates.GetRecord(ConfigTemplateHeader);
                 VendorRecRef.GetTable(Vendor);
-                if VendorRecRef.FindSet then
+                if VendorRecRef.FindSet() then
                     repeat
                         ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, VendorRecRef);
                         FldRef := VendorRecRef.Field(1);

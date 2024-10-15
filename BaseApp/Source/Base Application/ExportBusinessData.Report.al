@@ -184,7 +184,7 @@ report 11015 "Export Business Data"
             if Count > MaxNumOfStreams then
                 Error(ExceedNoOfStreamsErr, MaxNumOfStreams, PRODUCTNAME.Full);
             LastStreamNo := 0;
-            if FindSet then
+            if FindSet() then
                 repeat
                     TestField("Export File Name");
                     Validate("Table Filter");
@@ -277,7 +277,7 @@ report 11015 "Export Business Data"
         WriteLineToOutStream(FileWriteStream, Format(Today));
         with TempDataExportRecordSource do begin
             Reset;
-            if FindSet then begin
+            if FindSet() then begin
                 NoOfDefinedTables := 0;
                 NoOfEmptyTables := 0;
                 WriteLineToOutStream(FileWriteStream, "Data Export Code" + ';' + "Data Exp. Rec. Type Code");
@@ -308,7 +308,7 @@ report 11015 "Export Business Data"
             SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
             SetRange("Data Exp. Rec. Type Code", DataExportRecordDefinition."Data Exp. Rec. Type Code");
             SetRange("Relation To Line No.", 0);
-            if FindSet then
+            if FindSet() then
                 repeat
                     CurrTempDataExportRecordSource.Copy(TempDataExportRecordSource);
                     RecRef.Open("Table No.");
@@ -325,7 +325,7 @@ report 11015 "Export Business Data"
         RecRefToExport: RecordRef;
     begin
         with DataExportRecordSource do
-            if RecRef.FindSet then begin
+            if RecRef.FindSet() then begin
                 NoOfRecordsArr[Indentation] += RecRef.Count();
                 if GuiAllowed then
                     Window.Update(1, RecRef.Caption);
@@ -378,14 +378,14 @@ report 11015 "Export Business Data"
             SetRange("Data Export Code", ParentDataExportRecordSource."Data Export Code");
             SetRange("Data Exp. Rec. Type Code", ParentDataExportRecordSource."Data Exp. Rec. Type Code");
             SetRange("Relation To Line No.", ParentDataExportRecordSource."Line No.");
-            if FindSet then begin
+            if FindSet() then begin
                 DataExportTableRelation.Reset();
                 DataExportTableRelation.SetRange("Data Export Code", "Data Export Code");
                 DataExportTableRelation.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
                 DataExportTableRelation.SetRange("From Table No.", ParentDataExportRecordSource."Table No.");
                 repeat
                     DataExportTableRelation.SetRange("To Table No.", "Table No.");
-                    if DataExportTableRelation.FindSet then begin
+                    if DataExportTableRelation.FindSet() then begin
                         RelatedRecRef.Open("Table No.");
                         ApplyTableFilter(TempDataExportRecordSource, RelatedRecRef);
                         repeat
@@ -485,7 +485,7 @@ report 11015 "Export Business Data"
         DataExportRecordSource.Reset();
         DataExportRecordSource.SetRange("Data Export Code", ExportCode);
         DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", RecordCode);
-        if DataExportRecordSource.FindSet then
+        if DataExportRecordSource.FindSet() then
             repeat
                 RecRef.Open(DataExportRecordSource."Table No.");
                 i := 0;
@@ -565,7 +565,7 @@ report 11015 "Export Business Data"
             Field.SetRange(Class, Field.Class::FlowFilter);
             Field.SetRange(Enabled, true);
             Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
-            if Field.FindSet then
+            if Field.FindSet() then
                 repeat
                     SetFlowFilter(Field."No.", DataExportRecordField."Date Filter Handling", RecRef)
                 until Field.Next() = 0;

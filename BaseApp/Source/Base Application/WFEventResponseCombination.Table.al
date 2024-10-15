@@ -52,7 +52,7 @@ table 1509 "WF Event/Response Combination"
         IsDependentOnAllEvents: Boolean;
     begin
         IsDependentOnAllEvents := true;
-        if WorkflowEvent.FindSet then
+        if WorkflowEvent.FindSet() then
             repeat
                 if not WFEventResponseCombination.Get(Type, FunctionName,
                      WFEventResponseCombination.Type::"Event", WorkflowEvent."Function Name")

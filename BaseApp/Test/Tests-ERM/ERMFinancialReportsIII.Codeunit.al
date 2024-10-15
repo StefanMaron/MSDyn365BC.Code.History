@@ -60,12 +60,12 @@ codeunit 134987 "ERM Financial Reports III"
         // Check Balance Compare Previous Year Report without any option selected.
 
         // Setup.
-        Initialize;
+        Initialize();
         Clear(BalanceCompPrevYear);
 
         // Exercise.
         Commit();
-        asserterror BalanceCompPrevYear.Run;
+        asserterror BalanceCompPrevYear.Run();
 
         // Verify: Verify Error Raised during Save Report.
         Assert.AreEqual(StrSubstNo(ReportSaveErr), GetLastErrorText, ValidateErr);
@@ -77,7 +77,7 @@ codeunit 134987 "ERM Financial Reports III"
     procedure BalCompPrevYearNoneRounding()
     begin
         // Check Balance Compare Previous Year Report with None Rounding Factor. Take 1 for Devinding Amount.
-        Initialize;
+        Initialize();
         SetupAndVerifyBalCompPrevYear(RoundingFactor::None, 1, GetGLDecimals);
     end;
 
@@ -87,7 +87,7 @@ codeunit 134987 "ERM Financial Reports III"
     procedure BalCompPrevYear1Rounding()
     begin
         // Check Balance Compare Previous Year Report with 1 Rounding Factor. Take 1 for Deviding Amount.
-        Initialize;
+        Initialize();
         SetupAndVerifyBalCompPrevYear(RoundingFactor::"1", 1, '0');
     end;
 
@@ -97,7 +97,7 @@ codeunit 134987 "ERM Financial Reports III"
     procedure BalCompPrevYear1000Rounding()
     begin
         // Check Balance Compare Previous Year Report with 1000 Rounding Factor. Take 1000 for Deviding Amount.
-        Initialize;
+        Initialize();
         SetupAndVerifyBalCompPrevYear(RoundingFactor::"1000", 1000, '1');
     end;
 
@@ -107,7 +107,7 @@ codeunit 134987 "ERM Financial Reports III"
     procedure BalCompPrevYear1000000Rounding()
     begin
         // Check Balance Compare Previous Year Report with 1000000 Rounding Factor. Take 1000000 for Deviding Amount.
-        Initialize;
+        Initialize();
         SetupAndVerifyBalCompPrevYear(RoundingFactor::"1000000", 1000000, '1');
     end;
 
@@ -130,7 +130,7 @@ codeunit 134987 "ERM Financial Reports III"
         BalanceCompPrevYear.SetTableView(GLAccount);
         BalanceCompPrevYear.InitializeRequest(WorkDate, 0D, 0D, 0D, RoundingFactor2, Indent); // Take OD for all fields as workdate will flow.
         Commit();
-        BalanceCompPrevYear.Run;
+        BalanceCompPrevYear.Run();
 
         // Verify: Verify Saved Report with Different Fields value.
         FindGLAccount(GLAccount, GenJournalLine."Account No.", WorkDate, WorkDate);
@@ -183,12 +183,12 @@ codeunit 134987 "ERM Financial Reports III"
         // Check Trial Balance By Period without any option Selected.
 
         // Setup.
-        Initialize;
+        Initialize();
         Clear(TrialBalanceByPeriod);
 
         // Exercise.
         Commit();
-        asserterror TrialBalanceByPeriod.Run;
+        asserterror TrialBalanceByPeriod.Run();
 
         // Verify: Verify Error Raised during Save Report.
         Assert.AreEqual(StrSubstNo(ReportSaveErr), GetLastErrorText, ValidateErr);
@@ -200,7 +200,7 @@ codeunit 134987 "ERM Financial Reports III"
     procedure TrialBalByPeriodNoneOption()
     begin
         // Check Trial Balance By Period with None Rounding Factor. Take 1 for Deviding Amount.
-        Initialize;
+        Initialize();
         SetupAndVerifyTrialBalByPeriod(RoundingFactor::None, 1, GetGLDecimals);
     end;
 
@@ -210,7 +210,7 @@ codeunit 134987 "ERM Financial Reports III"
     procedure TrialBalByPeriod1Rounding()
     begin
         // Check Trial Balance By Period with 1 Rounding Factor. Take 1 for Deviding Amount.
-        Initialize;
+        Initialize();
         SetupAndVerifyTrialBalByPeriod(RoundingFactor::"1", 1, '0');
     end;
 
@@ -220,7 +220,7 @@ codeunit 134987 "ERM Financial Reports III"
     procedure TrialBalByPeriod1000Rounding()
     begin
         // Check Trial Balance By Period with 1000 Rounding Factor. Take 1000 for Deviding Amount.
-        Initialize;
+        Initialize();
         SetupAndVerifyTrialBalByPeriod(RoundingFactor::"1000", 1000, '1');
     end;
 
@@ -230,7 +230,7 @@ codeunit 134987 "ERM Financial Reports III"
     procedure TrialBalByPeriod100000Rounding()
     begin
         // Check Trial Balance By Period with 1000000 Rounding Factor. Take 1000000 for Deviding Amount.
-        Initialize;
+        Initialize();
         SetupAndVerifyTrialBalByPeriod(RoundingFactor::"1000000", 1000000, '1');
     end;
 
@@ -254,7 +254,7 @@ codeunit 134987 "ERM Financial Reports III"
         TrialBalanceByPeriod.SetTableView(GLAccount);
         TrialBalanceByPeriod.InitializeRequest(CalcDate('<-1M>', StartingDate), RoundingFactor2, Indent);
         Commit();
-        TrialBalanceByPeriod.Run;
+        TrialBalanceByPeriod.Run();
 
         // Verify: Verify Saved Report with Different Fields value.
         FindGLAccount(GLAccount, GenJournalLine."Account No.", GenJournalLine."Posting Date", GenJournalLine."Posting Date");
@@ -288,7 +288,7 @@ codeunit 134987 "ERM Financial Reports III"
         // Verify Balance in G/L Account after Posting General Journal Line.
 
         // 1. Setup: Create Currency and Post the General Journal Line with Foreign Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         BankAccountNo := CreateBankAccountWithCurrency(CurrencyCode);
         LibraryERM.CreateGLAccount(GLAccount);
@@ -308,7 +308,7 @@ codeunit 134987 "ERM Financial Reports III"
         Currency.SetRange(Code, CurrencyCode);
         ForeignCurrencyBalance.SetTableView(Currency);
         Commit();
-        ForeignCurrencyBalance.Run;
+        ForeignCurrencyBalance.Run();
 
         // Verify: Verify Saved Report with Field value.
         GLAccount.CalcFields(Balance);
@@ -340,7 +340,7 @@ codeunit 134987 "ERM Financial Reports III"
         // Verify Statement Amount in Bank Account Statement Report.
 
         // Setup: Post a General Journal Line for payment with Manual Check and Bank AccReconciliation.
-        Initialize;
+        Initialize();
         DocumentNo := PostJournalGeneralLineForManualCheck(BankAccount);
         CreateSuggestedBankReconciliation(BankAccReconciliation, BankAccount."No.");
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
@@ -350,10 +350,10 @@ codeunit 134987 "ERM Financial Reports III"
         BankAccountStatementLine.SetRange("Document No.", DocumentNo);
         BankAccountStatementReport.SetTableView(BankAccountStatementLine);
         Commit();
-        BankAccountStatementReport.Run;
+        BankAccountStatementReport.Run();
 
         // Verify: Verify Bank Account Statement Report.
-        BankAccountStatementLine.FindFirst;
+        BankAccountStatementLine.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('TrnsctnDte_BnkAcStmtLin', Format(BankAccountStatementLine."Transaction Date"));
         if not LibraryReportDataset.GetNextRow then
@@ -378,7 +378,7 @@ codeunit 134987 "ERM Financial Reports III"
         // Check Amount Text on Check Preview Page after Calculating Payment discount on Payment Journal.
 
         // Setup: Create General Journal Line with Invoice and Payment.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms);
         VendorNo := CreateVendorWithPaymentTerms(PaymentTerms.Code);
 
@@ -441,7 +441,7 @@ codeunit 134987 "ERM Financial Reports III"
         VendorNo: Code[20];
     begin
         // Setup: Create vendor payment General Journal Line with Bank Account No. with Currency Code as Balancing Account.
-        Initialize;
+        Initialize();
         LibraryERM.FindPaymentTerms(PaymentTerms);
         VendorNo := CreateVendorWithPaymentTerms(PaymentTerms.Code);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
@@ -464,7 +464,7 @@ codeunit 134987 "ERM Financial Reports III"
         VerifyDocumentEntries(CheckLedgerEntry.TableCaption, CheckLedgerEntry.Count);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VerifyDocumentEntries(VendorLedgerEntry.TableCaption, VendorLedgerEntry.Count);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Amount (LCY)", Amount);
         LibraryReportDataset.SetRange(PostingDateLbl, Format(VendorLedgerEntry."Posting Date"));
         LibraryReportDataset.GetNextRow;
@@ -488,9 +488,9 @@ codeunit 134987 "ERM Financial Reports III"
         // Check Amount Text on Check Preview Page after Suggest Vendor Payment on Payment Journal.
 
         // Setup: Create and Post General Journal Line with Invoice and Suggest Vendor Payment.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
           VendorNo, -LibraryRandom.RandDec(100, 2), GenJournalLine."Bank Payment Type"::"Computer Check");
@@ -530,7 +530,7 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // [FEATURE] [Payment Journal] [Check] [Vendor]
         // [SCEANRIO 317529] Check with correct amounts printed when GenJournalLine amount is less than applied Credit Memo amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor and G/L Account
         LibraryPurchase.CreateVendor(Vendor);
@@ -639,9 +639,9 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Customer]
         // [SCENARIO 359950.1] Payment Journal - Pre-Check Report shows payment discount correctly when printing invoice and credit memo.
-        Initialize;
+        Initialize();
 
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         AppliesToID := LibraryUTUtility.GetNewCode;
         // [GIVEN] Invoice with amount X and payment discount P less then X
         CreateCustLedgerEntryWithSpecificAmountAndAppliesToID(
@@ -680,9 +680,9 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Vendor]
         // [SCENARIO 359950.2]  Test to verify the Payment Journal - Pre-Check Report shows payment discount correctly when printing invoice and credit memo.
-        Initialize;
+        Initialize();
 
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         AppliesToID := LibraryUTUtility.GetNewCode;
         // [GIVEN] Invoice with amount X and payment discount P less then X
         CreateVendLedgerEntryWithSpecificAmountAndAppliesToID(
@@ -717,7 +717,7 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Customer]
         // [SCENARIO] Gen. Journal Line - OnAfterGetRecord trigger of the Report ID: 10087, Payment Journal - Pre-Check Report for Amount and Description for Gen. Journal Line Account Type Customer.
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         CreateCustLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, Customer."No.");
@@ -745,7 +745,7 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Vendor]
         // [SCENARIO] Gen. Journal Line - OnAfterGetRecord trigger of the Report ID: 10087, Payment Journal - Pre-Check Report for Amount and Description for Gen. Journal Line Account Type Vendor.
-        Initialize;
+        Initialize();
 
         CreateVendor(Vendor);
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", '');  // Blank Purchaser Code.
@@ -772,9 +772,9 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Customer]
         // [SCENARIO] Gen. Journal Line - OnAfterGetRecord trigger of the Report ID: 10087, Payment Journal - Pre-Check Report for Accepted Payment Tolerance of Account Type Customer.
-        Initialize;
+        Initialize();
 
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreateCustLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, CustomerNo);
         UpdateCustLedgEntryWithPmtDisc(CustLedgerEntry, LibraryRandom.RandDec(10, 2));
         CreateGenJournalLineWithAppliesToDocType(
@@ -801,9 +801,9 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Vendor]
         // [SCENARIO] Gen. Journal Line - OnAfterGetRecord trigger of the Report ID: 10087, Payment Journal - Pre-Check Report for Accepted Payment Tolerance of Account Type Vendor.
-        Initialize;
+        Initialize();
 
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         CreateVendorLedgerEntry(VendorLedgerEntry, VendorNo, '');  // Blank Purchaser Code.
         CreateGenJournalLineWithAppliesToDocType(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Document Type"::Invoice);
@@ -835,7 +835,7 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Vendor]
         // [SCENARIO 252025] REP 317 "Vendor Pre-Payment Journal" prints both "Payment Discount Tolerance" and "Payment Tolerance" amounts in case of vendor payment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled payment discount tolerance setup with Grace Period = 3D, Tolerance % = 10
         // [GIVEN] Payment terms with Discount Date Calculation = 8D, Discount % = 2
@@ -843,7 +843,7 @@ codeunit 134987 "ERM Financial Reports III"
 
         // [GIVEN] Posted purchase invoice on "Posting Date" = 01-01-2018 with Amount = 1000
         // [GIVEN] Invoice discount due date = 09-01-2018, discount possible amount = 20, tolerance date = 12-01-2018, possible tolerance amount = 100
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         InvoiceNo := CreatePostGenJnlInvoiceWithPmtTerms(GenJournalLine."Account Type"::Vendor, VendorNo, PaymentTermsCode, -InvoiceAmt);
 
         // [GIVEN] Payment applied to the posted invoice on "Posting Date" = 12-01-2018 with Amount = 880 (accept "Post as Payment Discount Tolerance", "Post the Balance as Payment Tolerance")
@@ -880,7 +880,7 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Customer]
         // [SCENARIO 252025] REP 317 "Vendor Pre-Payment Journal" prints both "Payment Discount Tolerance" and "Payment Tolerance" amounts in case of customer payment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled payment discount tolerance setup with Grace Period = 3D, Tolerance % = 10
         // [GIVEN] Payment terms with Discount Date Calculation = 8D, Discount % = 2
@@ -888,7 +888,7 @@ codeunit 134987 "ERM Financial Reports III"
 
         // [GIVEN] Posted sales invoice on "Posting Date" = 01-01-2018 with Amount = 1000
         // [GIVEN] Invoice discount due date = 09-01-2018, discount possible amount = 20, tolerance date = 12-01-2018, possible tolerance amount = 100
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         InvoiceNo := CreatePostGenJnlInvoiceWithPmtTerms(GenJournalLine."Account Type"::Customer, CustomerNo, PaymentTermsCode, InvoiceAmt);
 
         // [GIVEN] Payment applied to the posted invoice on "Posting Date" = 12-01-2018 with Amount = 880 (accept "Post as Payment Discount Tolerance", "Post the Balance as Payment Tolerance")
@@ -924,7 +924,7 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // [FEATURE] [Report] [Check] [Vendor]
         // [SCENARIO 294940] Vendor Check total is equal to Payment Amount, when Payment Amount is larger than sum of 30 Purchases
-        Initialize;
+        Initialize();
 
         // [GIVEN] "External Document No Mandatory" set to false
         LibraryPurchase.SetExtDocNo(false);
@@ -982,7 +982,7 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // [FEATURE] [Report] [Check] [Customer]
         // [SCENARIO 294940] Customer Check total is equal to Payment Amount, when Payment Amount is larger than sum of 30 Purchases
-        Initialize;
+        Initialize();
 
         // [GIVEN] "External Document No Mandatory" set to false
         LibraryPurchase.SetExtDocNo(false);
@@ -1036,7 +1036,7 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // [FEATURE] [Report] [Vendor Pre-Payment Journal] [Vendor]
         // [SCENARIO] "Vendor Pre-Payment Journal" report print separately 2 Gen. Journal lines for different vendors, but with one "Document No".
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Document No." was generated
         DocumentNo := CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(DocumentNo));
@@ -1074,20 +1074,20 @@ codeunit 134987 "ERM Financial Reports III"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Financial Reports III");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Financial Reports III");
 
-        LibraryERMCountryData.DisableActivateChequeNoOnGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGenJournalTemplate;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.DisableActivateChequeNoOnGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGenJournalTemplate();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         UpdateIntrastatCountryCode; // Required for Intrastat.
-        LibraryERMCountryData.UpdateLocalPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateLocalPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         IsInitialized := true;
 
@@ -1131,7 +1131,7 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // Create Bank Account with Random Last Statement No.
         LibraryERM.CreateBankAccount(BankAccount);
-        BankAccountPostingGroup.FindFirst;
+        BankAccountPostingGroup.FindFirst();
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
         BankAccount.Validate("Last Statement No.", Format(LibraryRandom.RandInt(10)));
         BankAccount.Validate("Last Check No.", Format(LibraryRandom.RandInt(10)));
@@ -1261,14 +1261,14 @@ codeunit 134987 "ERM Financial Reports III"
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate(Name, LibraryUtility.GenerateGUID);
+        Customer.Validate(Name, LibraryUtility.GenerateGUID());
         Customer.Modify(true);
     end;
 
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate(Name, LibraryUtility.GenerateGUID);
+        Vendor.Validate(Name, LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
     end;
 
@@ -1436,7 +1436,7 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryVariableStorage.Enqueue(BalAccountNo);
         LibraryVariableStorage.Enqueue(SummarizePerVend);
         Commit();  // Commit required to run report.
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
     end;
 
     local procedure FindGLAccountNo(): Code[20]
@@ -1535,7 +1535,7 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         GLAccount.SetRange("No.", No);
         GLAccount.SetRange("Date Filter", DateFilter, DateFilter2);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
     end;
 
     local procedure FindUpdateGenJnlLine(AccountNo: Code[20]; AppToDocType: Enum "Gen. Journal Account Type"; NewAmount: Decimal)
@@ -1545,7 +1545,7 @@ codeunit 134987 "ERM Financial Reports III"
         with GenJournalLine do begin
             SetRange("Account No.", AccountNo);
             SetRange("Applies-to Doc. Type", AppToDocType);
-            FindFirst;
+            FindFirst();
             Validate(Amount, NewAmount);
             Modify(true);
         end;
@@ -1588,7 +1588,7 @@ codeunit 134987 "ERM Financial Reports III"
         SuggestBankAccReconLines.SetTableView(BankAccount);
         SuggestBankAccReconLines.InitializeRequest(WorkDate, WorkDate, false);
         SuggestBankAccReconLines.UseRequestPage(false);
-        SuggestBankAccReconLines.Run;
+        SuggestBankAccReconLines.Run();
     end;
 
     local procedure UpdateIntrastatCountryCode()
@@ -1704,7 +1704,7 @@ codeunit 134987 "ERM Financial Reports III"
         GenJournalBatch.SetRange(Name, GenJournalLine."Journal Batch Name");
         Clear(VendorPrePaymentJournal);
         VendorPrePaymentJournal.SetTableView(GenJournalBatch);
-        VendorPrePaymentJournal.Run;  // Invokes VendorPrePaymentJournalHandler.
+        VendorPrePaymentJournal.Run();  // Invokes VendorPrePaymentJournalHandler.
     end;
 
     local procedure PrintVendCheckForUpdatedAmount(AppToDocTypeToUpd: Option; Precision: Integer)
@@ -1716,7 +1716,7 @@ codeunit 134987 "ERM Financial Reports III"
         CrMemoAmount: Decimal;
     begin
         // Setup: create and post invoice and credit memo, suggest vendor payment, decrease amount
-        Initialize;
+        Initialize();
 
         LibraryERM.SetAmountRoundingPrecision(0.01);
         CreatePostVendorInvCrMemoSuggestPayments(VendorNo, InvoiceAmount, CrMemoAmount, BankAccount, BatchName, Precision);

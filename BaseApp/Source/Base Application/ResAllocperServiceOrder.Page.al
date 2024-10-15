@@ -88,7 +88,7 @@ page 6008 "Res. Alloc. per Service Order"
                     HorizontalRecord.SetRange("Resource No.", ResourceFilter);
                     ServiceHeader.SetFilter("Resource Filter", ResourceFilter);
                     ResPerServiceOrderMatrix.Load(ServiceHeader, HorizontalRecord, MatrixColumnCaptions, MatrixRecords, CurrSetLength);
-                    ResPerServiceOrderMatrix.RunModal;
+                    ResPerServiceOrderMatrix.RunModal();
                 end;
             }
             action("Previous Set")

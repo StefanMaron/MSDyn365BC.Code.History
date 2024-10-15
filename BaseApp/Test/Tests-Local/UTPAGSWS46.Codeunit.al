@@ -178,7 +178,7 @@ codeunit 142072 "UT PAG SWS46"
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO 364296] Calclulate Payment and Remaining After Payment amounts in "Cash Receipt Journal FactBox" when Customer as Account
         // [GIVEN] Posted Invoice "I" with Amount "X" for Customer "C"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Customer, CustomerNo, LibraryRandom.RandDec(100, 2));
         FindCustomerLedgerEntry(InvoiceNo, CustomerNo, CustLedgerEntry);
 
@@ -208,7 +208,7 @@ codeunit 142072 "UT PAG SWS46"
         // [FEATURE] [Payment Journal]
         // [SCENARIO 364296] Calclulate Payment and Remaining After Payment amounts in "Payment Journal FactBox" when Vendor as Account
         // [GIVEN] Posted Invoice "I" with Amount "X" for Vendor "V"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(100, 2));
         FindVendorLedgerEntry(InvoiceNo, VendorNo, VendorLedgerEntry);
 
@@ -238,7 +238,7 @@ codeunit 142072 "UT PAG SWS46"
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO 364296] Calclulate Payment and Remaining After Payment amounts in "Cash Receipt Journal FactBox" when Customer as Balance Account
         // [GIVEN] Posted Invoice "I" with Amount "X" for Customer "C"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Customer, CustomerNo, LibraryRandom.RandDec(100, 2));
         FindCustomerLedgerEntry(InvoiceNo, CustomerNo, CustLedgerEntry);
 
@@ -268,7 +268,7 @@ codeunit 142072 "UT PAG SWS46"
         // [FEATURE] [Payment Journal]
         // [SCENARIO 364296] Calclulate Payment and Remaining After Payment amounts in "Payment Journal FactBox" when Vendor as Balance Account
         // [GIVEN] Posted Invoice "I" with Amount "X" for Vendor "V"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(100, 2));
         FindVendorLedgerEntry(InvoiceNo, VendorNo, VendorLedgerEntry);
         // [GIVEN] Payment Journal "J" with "V" in "Bal. Account No."
@@ -308,7 +308,7 @@ codeunit 142072 "UT PAG SWS46"
         BalanceLCYRefund := LibraryRandom.RandDec(10, 2);
 
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Vendor;
-        GenJournalLine."Account No." := LibraryPurchase.CreateVendorNo;
+        GenJournalLine."Account No." := LibraryPurchase.CreateVendorNo();
         CreatePaymentAndRefund(
           GenJournalLine, PaymentAmount, RefundAmount, BalanceLCYPmt, BalanceLCYRefund, GenJournalTemplate.Type::Payments);
 
@@ -346,7 +346,7 @@ codeunit 142072 "UT PAG SWS46"
         BalanceLCYRefund := LibraryRandom.RandDec(10, 2);
 
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
-        GenJournalLine."Account No." := LibrarySales.CreateCustomerNo;
+        GenJournalLine."Account No." := LibrarySales.CreateCustomerNo();
         CreatePaymentAndRefund(
           GenJournalLine, PaymentAmount, RefundAmount, BalanceLCYPmt, BalanceLCYRefund, GenJournalTemplate.Type::"Cash Receipts");
 
@@ -385,7 +385,7 @@ codeunit 142072 "UT PAG SWS46"
 
         // [GIVEN] Vendor as Balance Account in Payment Journal
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::Vendor;
-        GenJournalLine."Bal. Account No." := LibraryPurchase.CreateVendorNo;
+        GenJournalLine."Bal. Account No." := LibraryPurchase.CreateVendorNo();
         CreatePaymentAndRefundOnBalAccount(
           GenJournalLine, PaymentAmount, RefundAmount, BalanceLCYPmt, BalanceLCYRefund, GenJournalTemplate.Type::Payments);
 
@@ -424,7 +424,7 @@ codeunit 142072 "UT PAG SWS46"
 
         // [GIVEN] Customer as Balance Account in Cash Receipt Journal
         GenJournalLine."Bal. Account Type" := GenJournalLine."Account Type"::Customer;
-        GenJournalLine."Bal. Account No." := LibrarySales.CreateCustomerNo;
+        GenJournalLine."Bal. Account No." := LibrarySales.CreateCustomerNo();
         CreatePaymentAndRefundOnBalAccount(
           GenJournalLine, PaymentAmount, RefundAmount, BalanceLCYPmt, BalanceLCYRefund, GenJournalTemplate.Type::"Cash Receipts");
 
@@ -454,7 +454,7 @@ codeunit 142072 "UT PAG SWS46"
         // [GIVEN] Cleared the Gen. Journal Template
         ResetGenJnlTemplate;
         // [GIVEN] Posted Invoice "I" with Amount "X" for Customer "C"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Customer, CustomerNo, LibraryRandom.RandDec(100, 2));
         FindCustomerLedgerEntry(InvoiceNo, CustomerNo, CustLedgerEntry);
 
@@ -490,7 +490,7 @@ codeunit 142072 "UT PAG SWS46"
         // [GIVEN] Cleared the Gen. Journal Template
         ResetGenJnlTemplate;
         // [GIVEN] Posted Invoice "I" with Amount "X" for Vendor "V"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(100, 2));
         FindVendorLedgerEntry(InvoiceNo, VendorNo, VendorLedgerEntry);
 
@@ -527,7 +527,7 @@ codeunit 142072 "UT PAG SWS46"
         ResetGenJnlTemplate;
 
         // [GIVEN] Posted Invoice "I" with Amount "X" for Customer "C"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Customer, CustomerNo, LibraryRandom.RandDec(100, 2));
         FindCustomerLedgerEntry(InvoiceNo, CustomerNo, CustLedgerEntry);
 
@@ -564,7 +564,7 @@ codeunit 142072 "UT PAG SWS46"
         ResetGenJnlTemplate;
 
         // [GIVEN] Posted Invoice "I" with Amount "X" for Vendor "V"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(100, 2));
         FindVendorLedgerEntry(InvoiceNo, VendorNo, VendorLedgerEntry);
         // [GIVEN] Payment Journal "J" with "V" in "Bal. Account No."
@@ -588,7 +588,7 @@ codeunit 142072 "UT PAG SWS46"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Type, Type);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
 
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
@@ -613,7 +613,7 @@ codeunit 142072 "UT PAG SWS46"
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Payment;
@@ -632,7 +632,7 @@ codeunit 142072 "UT PAG SWS46"
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Payment;
@@ -688,14 +688,14 @@ codeunit 142072 "UT PAG SWS46"
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure FindVendorLedgerEntry(DocumentNo: Code[20]; VendorNo: Code[20]; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure OpenCashReceiptJournal(var CashReceiptJournal: TestPage "Cash Receipt Journal"; JournalBatchName: Code[10])

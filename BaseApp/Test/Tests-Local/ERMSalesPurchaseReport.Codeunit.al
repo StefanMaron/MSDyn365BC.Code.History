@@ -332,7 +332,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryVariableStorage.Enqueue(OptionString::VendCrMemoNo);
         LibraryVariableStorage.Enqueue(PurchaseHeader."Vendor Cr. Memo No.");  // Enqueue value for PurchaseCreditMemoRequestPageHandler.
         PurchCrMemoLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchCrMemoLine.FindFirst;
+        PurchCrMemoLine.FindFirst();
 
         // Exercise and Verification: Run Purchase Credit Memo Report. Verify Quantity on Purchase Credit Memo Report.
         RunCreditMemoReportAndVerify(QuantityCaption, PurchCrMemoLine.Quantity);
@@ -672,7 +672,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         SalesHeader.SetRange("No.", SalesHeader."No.");
         BlanketSalesOrderReport.SetTableView(SalesHeader);
         Commit();
-        BlanketSalesOrderReport.Run;
+        BlanketSalesOrderReport.Run();
         // Handled by BlanketSalesOrderRequestPageHandler
 
         // [THEN] Company Information is filled
@@ -777,7 +777,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         VendorLedgerEntry.SetFilter("Vendor No.", VendorNo);
         VendorLedgerEntry.SetFilter("Due Date", '0D..%1', DueDate);
         VendorLedgerEntry.SetRange("Currency Code", '');
-        if VendorLedgerEntry.FindSet then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 VendorLedgerEntry.CalcFields("Remaining Amount");
                 RemAmount += VendorLedgerEntry."Remaining Amount";
@@ -842,7 +842,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(100, 2));  // Random value for Quantity.
@@ -877,7 +877,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Registration No.", LibraryUtility.GenerateGUID);
+        Vendor.Validate("Registration No.", LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
         FindDimensionValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, Vendor."No.", DimensionValue."Dimension Code", DimensionValue.Code);
@@ -889,7 +889,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         with VendorLedgerEntry do begin
             Init;
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Vendor No." := LibraryPurchase.CreateVendorNo;
+            "Vendor No." := LibraryPurchase.CreateVendorNo();
             "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
             "Posting Date" := WorkDate;
             Open := true;
@@ -933,14 +933,14 @@ codeunit 142060 "ERM Sales/Purchase Report"
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindSalesShipmentHeader(var SalesShipmentHeader: Record "Sales Shipment Header"; OrderNo: Code[20])
@@ -1077,7 +1077,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         VerifyElementWithValue(VATRegNoName, CompanyInformation."VAT Registration No.");
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
         DimensionSetEntry.SetRange("Dimension Value Code", DimensionValueCode);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimCodeValue := DimensionSetEntry."Dimension Code" + ' ' + DimensionSetEntry."Dimension Value Code";  // Add Space between Dimension Code and Dimension Value Code.
         LibraryReportDataset.AssertElementWithValueExists(ElementName, DimCodeValue);
     end;
@@ -1104,10 +1104,10 @@ codeunit 142060 "ERM Sales/Purchase Report"
     begin
         // Verify Sales Shipment Line and Sales Invoice Line.
         SalesShipmentLine.SetRange("Order No.", OrderNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         SalesShipmentLine.TestField("Sell-to Customer No.", SellToCustomerNo);
         SalesInvoiceLine.SetRange("Order No.", OrderNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("Sell-to Customer No.", SellToCustomerNo);
     end;
 
@@ -1123,7 +1123,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         PurchaseHeaderArchive: Record "Purchase Header Archive";
     begin
         PurchaseHeaderArchive.SetRange("No.", PurchaseHeader."No.");
-        PurchaseHeaderArchive.FindFirst;
+        PurchaseHeaderArchive.FindFirst();
         PurchaseHeaderArchive.TestField("Registration No.", PurchaseHeader."Registration No.");
     end;
 

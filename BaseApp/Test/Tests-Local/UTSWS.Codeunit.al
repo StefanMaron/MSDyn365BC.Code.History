@@ -27,7 +27,7 @@ codeunit 142075 "UT SWS"
     begin
         // Purpose of the test is to validate the Item Ledger Entry - OnPreDataItem trigger of the Report ID: 790, Calculate Inventory without Zero Quantity for SWS27.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemCalculateInventory(false, false, ItemJournalLine."Entry Type"::Sale);  // Zero Quantity - FALSE.
     end;
 
@@ -41,7 +41,7 @@ codeunit 142075 "UT SWS"
     begin
         // Purpose of the test is to validate the Item Ledger Entry - OnPreDataItem trigger of the Report ID: 790, Calculate Inventory with Zero Quantity for SWS27.
         // Setup.
-        Initialize;
+        Initialize();
         OnPreDataItemCalculateInventory(true, true, ItemJournalLine."Entry Type"::"Positive Adjmt.");  // Zero Quantity - TRUE.
     end;
 
@@ -69,7 +69,7 @@ codeunit 142075 "UT SWS"
     begin
         // Purpose of the test is to validate the Item Ledger Entry - OnPostDataItem trigger of the Report ID: 790, Calculate Inventory for Item with Positive Phys. Inventory for SWS27.
         // Setup.
-        Initialize;
+        Initialize();
         OnPostDataItemCalculatePhysInventory(LibraryRandom.RandDec(10, 2));  // Positive Quantity.
     end;
 
@@ -81,7 +81,7 @@ codeunit 142075 "UT SWS"
     begin
         // Purpose of the test is to validate the Item Ledger Entry - OnPostDataItem trigger of the Report ID: 790, Calculate Inventory for Item with Negative Quantity for SWS27.
         // Setup.
-        Initialize;
+        Initialize();
         OnPostDataItemCalculatePhysInventory(-LibraryRandom.RandDec(10, 2));  // Negative Quantity.
     end;
 
@@ -112,7 +112,7 @@ codeunit 142075 "UT SWS"
     begin
         // Purpose of the test is to validate the Applies-to Doc. No. - OnValidate trigger of the Table ID: 81, Gen Journal Line for Invoice Error.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGenJournalLine(GenJournalLine);
 
         // Exercise.
@@ -132,7 +132,7 @@ codeunit 142075 "UT SWS"
         // Purpose of the test is to validate GetCustLedgerEntry function of Table ID - 81 General Journal Line for SWS22.
 
         // Setup: Create General Journal Line with Applies to Doc No.
-        Initialize;
+        Initialize();
         CreateGenJournalLine(GenJournalLine);
         ApplyPaymentToGenJournalLine(GenJournalLine);
 
@@ -155,7 +155,7 @@ codeunit 142075 "UT SWS"
         // Purpose of the test is to validate GetCustLedgerEntry function of Table ID - 81 General Journal Line for SWS22.
 
         // Setup: Create General Journal Line with Applies to Doc No. and Cusomer Ledger Entry with different Currency than General Journal Line.
-        Initialize;
+        Initialize();
         CreateGenJournalLine(GenJournalLine);
         ApplyPaymentToGenJournalLine(GenJournalLine);
         CreateCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Applies-to Doc. No.");
@@ -177,7 +177,7 @@ codeunit 142075 "UT SWS"
     begin
         // Purpose of the test is to validate Posting Date - OnValidate trigger of Table ID - 81 General Journal Line for SWS25.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGenJournalLineWithApplyEntries(GenJournalLine);
         CreateVendorLedgerEntry(GenJournalLine."Document No.", GenJournalLine."Applies-to Doc. No.");
 
@@ -196,7 +196,7 @@ codeunit 142075 "UT SWS"
         Item: Record Item;
     begin
         // [SCENARIO 361239.1] "Copy Item" with empty target Item's "No." sets "Created from Nonstock Item" to "No"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X", created from Nonstock Item
         CreateNonStockItem(Item);
@@ -207,7 +207,7 @@ codeunit 142075 "UT SWS"
         // [THEN] Created Item "Y", where field "Created from Nonstock Item" is FALSE
         Item.Get(GetTargetItemNo);
         Assert.AreEqual(Item."Created From Nonstock Item", false, CopyItemErr);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -220,7 +220,7 @@ codeunit 142075 "UT SWS"
         TargetItemNo: Code[20];
     begin
         // [SCENARIO 361239.2] "Copy Item" with the specified target Item's "No." sets "Created from Nonstock Item" to "No"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X", created from Nonstock Item
         CreateNonStockItem(Item);
@@ -232,12 +232,12 @@ codeunit 142075 "UT SWS"
         // [THEN] Created Item "Y", where field "Created from Nonstock Item" is FALSE
         Item.Get(TargetItemNo);
         Assert.AreEqual(Item."Created From Nonstock Item", false, CopyItemErr);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateItem(var Item: Record Item)
@@ -256,7 +256,7 @@ codeunit 142075 "UT SWS"
         Location.Code := LibraryUTUtility.GetNewCode10;
         Location.Insert();
 
-        ItemLedgerEntry2.FindLast;
+        ItemLedgerEntry2.FindLast();
         ItemLedgerEntry."Entry No." := ItemLedgerEntry2."Entry No." + 1;
         ItemLedgerEntry."Item No." := ItemNo;
         ItemLedgerEntry.Quantity := Quantity;
@@ -306,7 +306,7 @@ codeunit 142075 "UT SWS"
         CalculateInventory.SetItemJnlLine(ItemJournalLine);
         Item.SetRange("No.", No);
         CalculateInventory.SetTableView(Item);
-        CalculateInventory.Run;  // Invokes CalculateInventoryRequestPageHandler.
+        CalculateInventory.Run();  // Invokes CalculateInventoryRequestPageHandler.
     end;
 
     local procedure CopyItem(No: Code[20])
@@ -369,7 +369,7 @@ codeunit 142075 "UT SWS"
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Document No." := DocumentNo;
@@ -383,7 +383,7 @@ codeunit 142075 "UT SWS"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Document No." := DocumentNo;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Applies-to Doc. Type"::Payment;
@@ -403,7 +403,7 @@ codeunit 142075 "UT SWS"
         InventorySetup.Get();
         NoSeries.Get(InventorySetup."Item Nos.");
         NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, InventorySetup."Item Nos.", 0D);
-        if NoSeriesLine.FindFirst then
+        if NoSeriesLine.FindFirst() then
             exit(NoSeriesLine."Last No. Used");
     end;
 
@@ -440,7 +440,7 @@ codeunit 142075 "UT SWS"
     begin
         ItemJournalLine.SetRange("Item No.", ItemNo);
         ItemJournalLine.SetRange("Entry Type", EntryType);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Qty. (Calculated)", QtyCalculated);
         ItemJournalLine.TestField("Qty. (Phys. Inventory)", QtyCalculated);
         ItemJournalLine.TestField("Phys. Inventory", PhysInventory);

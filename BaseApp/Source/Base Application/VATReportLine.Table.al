@@ -342,7 +342,7 @@ table 741 "VAT Report Line"
         VATReportLine2: Record "VAT Report Line";
     begin
         VATReportLine2.SetRange("VAT Report No.", VATReportNo);
-        if VATReportLine2.FindLast then
+        if VATReportLine2.FindLast() then
             exit(VATReportLine2."Line No." + 10000);
 
         exit(10000);
@@ -417,7 +417,7 @@ table 741 "VAT Report Line"
 
             TempVATReportLineRelation.SetRange("VAT Report No.", "VAT Report No.");
             TempVATReportLineRelation.SetRange("VAT Report Line No.", CorrectionVATReportLine."Line No.");
-            if TempVATReportLineRelation.FindSet then
+            if TempVATReportLineRelation.FindSet() then
                 repeat
                     VATReportLineRelation := TempVATReportLineRelation;
                     VATReportLineRelation."VAT Report Line No." := "Line No.";
@@ -441,7 +441,7 @@ table 741 "VAT Report Line"
             SetRange("Trade Role Type", VATReportLine."Trade Role Type");
             SetRange("EU 3-Party Trade", VATReportLine."EU 3-Party Trade");
             SetRange("EU Service", VATReportLine."EU Service");
-            if FindFirst then
+            if FindFirst() then
                 Error(CorrectionEntryExistsErr, VATReportHeader."No.");
         end;
     end;

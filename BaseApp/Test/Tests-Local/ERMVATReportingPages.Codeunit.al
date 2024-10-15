@@ -26,7 +26,7 @@ codeunit 134059 "ERM VAT Reporting - Pages"
     begin
         // Check VAT Entries Page is running successfully and displaying the correct VAT Entries when click OnAssitEdit for Amount field.
 
-        Initialize;
+        Initialize();
         CreateVATReportSetup;
 
         // 1. Setup: Create VAT Report Header, VAT Report Line and VAT Report Line Mapping.
@@ -49,11 +49,11 @@ codeunit 134059 "ERM VAT Reporting - Pages"
     var
         VATReportPage: TestPage "VAT Report";
     begin
-        Initialize;
+        Initialize();
         CreateVATReportSetup;
 
         // Open VAT Report Page.
-        VATReportPage.OpenNew;
+        VATReportPage.OpenNew();
         VATReportPage."No.".AssistEdit;
         Assert.AreNotEqual(VATReportPage."No.".Value, '', ValueNotAssignedError);
     end;
@@ -66,7 +66,7 @@ codeunit 134059 "ERM VAT Reporting - Pages"
         VATReportPage: TestPage "VAT Report";
         VATReportListPage: TestPage "VAT Report List";
     begin
-        Initialize;
+        Initialize();
         CreateVATReportSetup;
 
         // Open VAT Report List.
@@ -89,7 +89,7 @@ codeunit 134059 "ERM VAT Reporting - Pages"
         VATReportSetup: Record "VAT Report Setup";
         VATReportSetupPage: TestPage "VAT Report Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Delete VAT Report Setup.
         VATReportSetup.DeleteAll();
@@ -104,7 +104,7 @@ codeunit 134059 "ERM VAT Reporting - Pages"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateVATReportSetup()
@@ -139,7 +139,7 @@ codeunit 134059 "ERM VAT Reporting - Pages"
         VATReportLineRelation: Record "VAT Report Line Relation";
         VATEntry: Record "VAT Entry";
     begin
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATReportLineRelation.Init();
         VATReportLineRelation."VAT Report No." := VATReportHeaderNo;
         VATReportLineRelation."VAT Report Line No." := 1;

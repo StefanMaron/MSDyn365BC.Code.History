@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2802 "Native - Item Entity"
 {
     Caption = 'invoicingItems', Locked = true;
@@ -90,7 +91,7 @@ page 2802 "Native - Item Entity"
                         end;
 
                         ValidateUnitOfMeasure.SetRange("International Standard Code", BaseUnitOfMeasureInternationalStandardCode);
-                        if not ValidateUnitOfMeasure.FindFirst then
+                        if not ValidateUnitOfMeasure.FindFirst() then
                             Error(BaseUnitOfMeasureIntStdCodeDoesNotMatchAUnitOfMeasureErr);
                         if ValidateUnitOfMeasure.Count > 1 then
                             Error(BaseUnitOfMeasureIntStdCodeMatchesManyUnitsOfMeasureErr);
@@ -399,4 +400,4 @@ page 2802 "Native - Item Entity"
         TempFieldSet.Insert(true);
     end;
 }
-
+#endif

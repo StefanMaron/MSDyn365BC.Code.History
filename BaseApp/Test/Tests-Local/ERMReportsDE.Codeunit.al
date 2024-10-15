@@ -65,7 +65,7 @@ codeunit 144051 "ERM Reports DE"
         // Setup: Create two Items with different Costing Method. Create and post Purchase Order as Receive and Invoice.
         // Create and post Second Purchase Order as only Receive. Create and post Sales Order as Ship.
         // Post Second Purchase Order as Invoice with Updated Direct Unit Cost. Calculated values required for test.
-        Initialize;
+        Initialize();
         CreateItemsWithCostingMethodAndInvtPostingGroup(Item, Item2);
         DirectUnitCost := LibraryRandom.RandDec(100, 2);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -98,7 +98,7 @@ codeunit 144051 "ERM Reports DE"
         // Setup: Create two Items with different Costing Method. Create and post Purchase Order as Receive and Invoice.
         // Create and post Second Purchase Order as only Receive. Create and post Sales Order as Ship.
         // Post Second Purchase Order as Invoice with Updated Direct Unit Cost. Adjust Cost Item Entries. Calculated values required for test.
-        Initialize;
+        Initialize();
         CreateItemsWithCostingMethodAndInvtPostingGroup(Item, Item2);
         DirectUnitCost := LibraryRandom.RandDec(100, 2);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -134,7 +134,7 @@ codeunit 144051 "ERM Reports DE"
         // Setup: Create two Items with different Costing Method. Create and post Purchase Order as Receive and Invoice.
         // Create and post Second Purchase Order as only Receive. Create and post Sales Order as Ship.
         // Partial Post Second Purchase Order as Invoice with Updated Direct Unit Cost. Calculated values required for test.
-        Initialize;
+        Initialize();
         CreateItemsWithCostingMethodAndInvtPostingGroup(Item, Item2);
         DirectUnitCost := LibraryRandom.RandDec(100, 2);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -168,7 +168,7 @@ codeunit 144051 "ERM Reports DE"
         // Setup: Create two Items with different Costing Method. Create and post Purchase Order as Receive and Invoice.
         // Create and post Second Purchase Order as only Receive. Create and post Sales Order as Ship.
         // Partial Post Second Purchase Order as Invoice with Updated Direct Unit Cost. Adjust Cost Item Entries. Calculated values required for test.
-        Initialize;
+        Initialize();
         CreateItemsWithCostingMethodAndInvtPostingGroup(Item, Item2);
         DirectUnitCost := LibraryRandom.RandDec(100, 2);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -199,7 +199,7 @@ codeunit 144051 "ERM Reports DE"
         // Verify that Report Intrastat - Form DE print correct caption.
 
         // Setup: Create DACH Report Selections and IntrastatJnl. Line
-        Initialize;
+        Initialize();
         CreateDACHReportSelections(DACHReportSelections.Usage::"Intrastat Form", 11012);
         CreateIntrastatJnlLine(IntrastatJnlLine);
         FillFieldsMandatoryForReportIntrastatFormDE(IntrastatJnlLine);
@@ -227,7 +227,7 @@ codeunit 144051 "ERM Reports DE"
         // [SCENARIO 381790] The "VAT - VIES Declaration Disk" report failed when "File Version" is not defined on Request Page
 
         // [GIVEN] Posted Sales Invoice with VAT Entry "X"
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesDocument;
         FindVATEntry(VATEntry, DocumentNo);
         // [GIVEN] Set value for "File Version" and blank for "File version 2 (Elster online)" for VATVIESDeclarationDiskRequestPageHandler
@@ -256,7 +256,7 @@ codeunit 144051 "ERM Reports DE"
         // [SCENARIO 381790] The "VAT - VIES Declaration Disk" report failed when "File version 2 (Elster online)" is not defined on Request Page
 
         // [GIVEN] Posted Sales Invoice with VAT Entry "X"
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesDocument;
         FindVATEntry(VATEntry, DocumentNo);
         // [GIVEN] Set blank for "File Version" and value for "File version 2 (Elster online)" for VATVIESDeclarationDiskRequestPageHandler
@@ -283,14 +283,14 @@ codeunit 144051 "ERM Reports DE"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 266624] The fields "Show Amounts in Add. Reporting Currency", "File version (Elster online)" and "File version 2 (Elster online)" of "VAT- VIES Declaration Disk" have to aviable in SAAS
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable Basic setup
         LibraryApplicationArea.EnableBasicSetup;
         Commit();
 
         // [WHEN] Run "VAT- VIES Declaration Disk"
-        VATVIESDeclarationDisk.Run;
+        VATVIESDeclarationDisk.Run();
 
         // [THEN] Fields "Show Amounts in Add. Reporting Currency", "File version (Elster online)" and "File version 2 (Elster online)" are aviable on Request page
         // Verifying in VATVIESDeclarationDiskReqPageHandler
@@ -307,7 +307,7 @@ codeunit 144051 "ERM Reports DE"
         FileName: Text;
     begin
         // [SCENARIO 279504] The "VAT - VIES Declaration Disk" report doesn't fail without Customer's Country Code if SkipCustomerDataCheck option is enabled
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // [GIVEN] A customer with Country Code blank, but a non-empty VAT Registration No.
@@ -347,7 +347,7 @@ codeunit 144051 "ERM Reports DE"
         FileName: Text;
     begin
         // [SCENARIO 283151] The "VAT - VIES Declaration Disk" report doesn't fail without Customer's VAT Registration No. if SkipCustomerDataCheck option is enabled
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // [GIVEN] A Customer with VAT Registration No. blank, but a non-empty Country Code
@@ -385,7 +385,7 @@ codeunit 144051 "ERM Reports DE"
         Customer: Record Customer;
     begin
         // [SCENARIO 279504] The "VAT - VIES Declaration Disk" report fails without Customer's Country Code if SkipCustomerDataCheck option is disabled
-        Initialize;
+        Initialize();
         LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
 
         // [GIVEN] A customer with Country Code blank
@@ -424,7 +424,7 @@ codeunit 144051 "ERM Reports DE"
         Customer: Record Customer;
     begin
         // [SCENARIO 283151] The "VAT - VIES Declaration Disk" report fails without Customer's VAT Registration No. if SkipCustomerDataCheck option is disabled
-        Initialize;
+        Initialize();
         LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
 
         // [GIVEN] A Customer with Country Code filled, but VAT Registration No. blank
@@ -457,11 +457,11 @@ codeunit 144051 "ERM Reports DE"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Reports DE");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reports DE");
-        NoSeriesSetup;
+        NoSeriesSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reports DE");
@@ -557,7 +557,7 @@ codeunit 144051 "ERM Reports DE"
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Validate("Intrastat Code", CountryRegion.Code);
         CountryRegion.Validate("EU Country/Region Code", CountryRegion.Code);
-        CountryRegion.Validate("VAT Scheme", LibraryUtility.GenerateGUID);
+        CountryRegion.Validate("VAT Scheme", LibraryUtility.GenerateGUID());
         CountryRegion.Modify(true);
         exit(CountryRegion.Code);
     end;
@@ -653,7 +653,7 @@ codeunit 144051 "ERM Reports DE"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Posting Date", WorkDate);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure EnqueueValuesForVATVIESRequestPage(FileVersion: Text; FileVersion2: Text; SkipCustDataCheck: Boolean)
@@ -684,7 +684,7 @@ codeunit 144051 "ERM Reports DE"
     begin
         VATVIESDeclarationDisk.SetTableView(VATEntry);
         VATVIESDeclarationDisk.InitializeRequest(true);
-        VATVIESDeclarationDisk.RunModal;
+        VATVIESDeclarationDisk.RunModal();
         exit(VATVIESDeclarationDisk.GetFileName);
     end;
 
@@ -695,7 +695,7 @@ codeunit 144051 "ERM Reports DE"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         if PartialInvoice then
             PurchaseLine.Validate("Qty. to Invoice", PurchaseLine."Qty. to Invoice" / 2);  // Use Partial Quantity to Invoice.
@@ -741,7 +741,7 @@ codeunit 144051 "ERM Reports DE"
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
         InventoryPostingGroup.SetFilter(Code, '<>%1', InventoryPostingGroupCode);
-        InventoryPostingGroup.FindFirst;
+        InventoryPostingGroup.FindFirst();
         Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
         Item.Modify(true);
     end;
@@ -803,7 +803,7 @@ codeunit 144051 "ERM Reports DE"
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange(Adjustment, Adjustment);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreNearlyEqual(
           CostAmountExpected, ValueEntry."Cost Amount (Expected)", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(ValueMustBeEqual, ValueEntry.FieldCaption("Cost Amount (Expected)"), CostAmountExpected));

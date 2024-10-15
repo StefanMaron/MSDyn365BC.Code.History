@@ -22,7 +22,7 @@ codeunit 1812 "Data Migration Del G/L Account"
         GLAccount: Record "G/L Account";
     begin
         GLAccount.Reset();
-        if GLAccount.FindFirst then
+        if GLAccount.FindFirst() then
             GLAccount.DeleteAll();
         Commit();
     end;
@@ -33,7 +33,7 @@ codeunit 1812 "Data Migration Del G/L Account"
         CustomerCode: Code[20];
     begin
         CustomerPostingGroup.Reset();
-        if CustomerPostingGroup.FindSet then
+        if CustomerPostingGroup.FindSet() then
             repeat
                 CustomerCode := CustomerPostingGroup.Code;
                 CustomerPostingGroup.Delete();
@@ -50,7 +50,7 @@ codeunit 1812 "Data Migration Del G/L Account"
         VendorCode: Code[20];
     begin
         VendorPostingGroup.Reset();
-        if VendorPostingGroup.FindSet then
+        if VendorPostingGroup.FindSet() then
             repeat
                 VendorCode := VendorPostingGroup.Code;
                 VendorPostingGroup.Delete();
@@ -67,7 +67,7 @@ codeunit 1812 "Data Migration Del G/L Account"
         BankAccountCode: Code[20];
     begin
         BankAccountPostingGroup.Reset();
-        if BankAccountPostingGroup.FindSet then
+        if BankAccountPostingGroup.FindSet() then
             repeat
                 BankAccountCode := BankAccountPostingGroup.Code;
                 BankAccountPostingGroup.Delete();
@@ -83,7 +83,7 @@ codeunit 1812 "Data Migration Del G/L Account"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalBatch.Reset();
-        if GenJournalBatch.FindSet then
+        if GenJournalBatch.FindSet() then
             repeat
                 GenJournalBatch."Bal. Account No." := '';
                 GenJournalBatch.Modify();
@@ -98,7 +98,7 @@ codeunit 1812 "Data Migration Del G/L Account"
         GenProdPostingGroup: Code[20];
     begin
         GenPostingSetup.Reset();
-        if GenPostingSetup.FindSet then
+        if GenPostingSetup.FindSet() then
             repeat
                 GenBusPostingGroup := GenPostingSetup."Gen. Bus. Posting Group";
                 GenProdPostingGroup := GenPostingSetup."Gen. Prod. Posting Group";
@@ -116,7 +116,7 @@ codeunit 1812 "Data Migration Del G/L Account"
         PaymentMethod: Record "Payment Method";
     begin
         PaymentMethod.Reset();
-        if PaymentMethod.FindSet then
+        if PaymentMethod.FindSet() then
             repeat
                 PaymentMethod."Bal. Account No." := '';
                 PaymentMethod.Modify();
@@ -131,7 +131,7 @@ codeunit 1812 "Data Migration Del G/L Account"
         InvPostingGroupCode: Code[20];
     begin
         InventoryPostingSetup.Reset();
-        if InventoryPostingSetup.FindSet then
+        if InventoryPostingSetup.FindSet() then
             repeat
                 LocationCode := InventoryPostingSetup."Location Code";
                 InvPostingGroupCode := InventoryPostingSetup."Invt. Posting Group Code";
@@ -149,7 +149,7 @@ codeunit 1812 "Data Migration Del G/L Account"
         TaxSetup: Record "Tax Setup";
     begin
         TaxSetup.Reset();
-        if TaxSetup.FindSet then
+        if TaxSetup.FindSet() then
             repeat
                 TaxSetup."Tax Account (Sales)" := '';
                 TaxSetup."Tax Account (Purchases)" := '';
@@ -167,7 +167,7 @@ codeunit 1812 "Data Migration Del G/L Account"
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
         AccScheduleLine.Reset();
-        if AccScheduleLine.FindSet then
+        if AccScheduleLine.FindSet() then
             repeat
                 if AccScheduleLine."Totaling Type" = AccScheduleLine."Totaling Type"::"Posting Accounts" then begin
                     AccScheduleLine.Totaling := '';
@@ -183,7 +183,7 @@ codeunit 1812 "Data Migration Del G/L Account"
         Currency: Record Currency;
     begin
         Currency.Reset();
-        if Currency.FindSet then
+        if Currency.FindSet() then
             repeat
                 Currency."Unrealized Gains Acc." := '';
                 Currency."Realized Gains Acc." := '';

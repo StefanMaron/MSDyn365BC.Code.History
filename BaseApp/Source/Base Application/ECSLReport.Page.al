@@ -295,7 +295,7 @@ page 321 "ECSL Report"
 
     local procedure UpdateSubForm()
     begin
-        // VATStatementName.FINDFIRST;
+        // VATStatementName.FindFirst();
         // VATStatementName.SETFILTER("Date Filter",DateFilter);
         // CurrPage.VATReportLines.PAGE.UpdateForm(VATStatementName,Selection,PeriodSelection,UseAmtsInAddCurr);
 

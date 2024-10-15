@@ -1,4 +1,4 @@
-﻿codeunit 7307 "Whse.-Activity-Register"
+codeunit 7307 "Whse.-Activity-Register"
 {
     Permissions = TableData "Registered Whse. Activity Hdr." = i,
                   TableData "Registered Whse. Activity Line" = i,
@@ -39,8 +39,10 @@
         WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
         ProdCompLine: Record "Prod. Order Component";
         AssemblyLine: Record "Assembly Line";
+        JobPlanningLine: Record "Job Planning Line";
         ProdOrder: Record "Production Order";
         AssemblyHeader: Record "Assembly Header";
+        Job: Record "Job";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         TempBinContentBuffer: Record "Bin Content Buffer" temporary;
         SourceCodeSetup: Record "Source Code Setup";
@@ -111,7 +113,7 @@
 
             OnCodeOnBeforeTempWhseActivityLineGroupedLoop(GlobalWhseActivHeader, GlobalWhseActivLine, RegisteredWhseActivHeader);
             TempWhseActivityLineGrouped.Reset();
-            if TempWhseActivityLineGrouped.FindSet then
+            if TempWhseActivityLineGrouped.FindSet() then
                 repeat
                     if Type <> Type::Movement then
                         UpdateWhseSourceDocLine(TempWhseActivityLineGrouped);
@@ -184,7 +186,7 @@
         OnBeforeRegisterWhseActivityLines(WarehouseActivityLine);
 
         with WarehouseActivityLine do begin
-            if not FindSet then
+            if not FindSet() then
                 exit;
 
             repeat
@@ -471,6 +473,9 @@
                 "Whse. Document Type"::"Internal Put-away":
                     if "Action Type" <> "Action Type"::Take then
                         UpdateWhseIntPutAwayLine(WhseActivLineGrouped);
+                "Whse. Document Type"::Job:
+                    if ("Action Type" <> "Action Type"::Take) and ("Breakbulk No." = 0) then
+                        UpdateJobPlanningLine(WhseActivLineGrouped);
             end;
 
             if "Activity Type" = "Activity Type"::"Invt. Movement" then
@@ -505,7 +510,7 @@
                         PostedWhseRcptHeader.Get("Whse. Document No.");
                         PostedWhseRcptLine.Reset();
                         PostedWhseRcptLine.SetRange("No.", PostedWhseRcptHeader."No.");
-                        if PostedWhseRcptLine.FindFirst then begin
+                        if PostedWhseRcptLine.FindFirst() then begin
                             PostedWhseRcptHeader."Document Status" := PostedWhseRcptHeader.GetHeaderStatus(0);
                             PostedWhseRcptHeader.Modify();
                         end;
@@ -524,7 +529,7 @@
                         WhseInternalPickHeader.Get("Whse. Document No.");
                         WhseInternalPickLine.Reset();
                         WhseInternalPickLine.SetRange("No.", "Whse. Document No.");
-                        if WhseInternalPickLine.FindFirst then begin
+                        if WhseInternalPickLine.FindFirst() then begin
                             WhseInternalPickHeader."Document Status" :=
                               WhseInternalPickHeader.GetDocumentStatus(0);
                             WhseInternalPickHeader.Modify();
@@ -544,7 +549,7 @@
                         WhseInternalPutAwayHeader.Get("Whse. Document No.");
                         WhseInternalPutAwayLine.Reset();
                         WhseInternalPutAwayLine.SetRange("No.", "Whse. Document No.");
-                        if WhseInternalPutAwayLine.FindFirst then begin
+                        if WhseInternalPutAwayLine.FindFirst() then begin
                             WhseInternalPutAwayHeader."Document Status" :=
                               WhseInternalPutAwayHeader.GetDocumentStatus(0);
                             WhseInternalPutAwayHeader.Modify();
@@ -582,14 +587,29 @@
                               DATABASE::"Assembly Line", "Source Subtype", "Source No.", '', 0, 0, '', false);
                         end;
                     end;
+                "Whse. Document Type"::Job:
+                    if "Action Type" <> "Action Type"::Take then begin
+                        Job.Get("Source No.");
+                        Job.CalcFields("Completely Picked");
+                        if Job."Completely Picked" then begin
+                            WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Job);
+                            WhsePickRqst.SetRange("Document No.", Job."No.");
+                            WhsePickRqst.ModifyAll("Completely Picked", true);
+                            ItemTrackingMgt.DeleteWhseItemTrkgLines(
+                              DATABASE::"Job Planning Line", "Source Subtype", "Source No.", '', 0, 0, '', false);
+                        end;
+                    end;
             end;
         OnAfterUpdateWhseDocHeader(WhseActivLine);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by UpdateWhseShipmentLine with parameter WhseActivityLine', '20.0')]
     procedure UpdateWhseShptLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer; QtyToHandle: Decimal; QtyToHandleBase: Decimal; QtyPerUOM: Decimal)
     begin
         UpdateWhseShipmentLine(GlobalWhseActivLine, WhseDocNo, WhseDocLineNo, QtyToHandle, QtyToHandleBase, QtyPerUOM);
     end;
+#endif
 
     procedure UpdateWhseShipmentLine(WhseActivityLineGrouped: Record "Warehouse Activity Line"; WhseDocNo: Code[20]; WhseDocLineNo: Integer; QtyToHandle: Decimal; QtyToHandleBase: Decimal; QtyPerUOM: Decimal)
     var
@@ -737,6 +757,21 @@
             AssemblyLine.Modify();
             OnAfterAssemblyLineModify(AssemblyLine);
         end;
+    end;
+
+    local procedure UpdateJobPlanningLine(WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+        JobPlanningLine.SetRange("Job Contract Entry No.", WhseActivityLine."Source Line No.");
+        if JobPlanningLine.FindFirst() then begin
+            JobPlanningLine."Qty. Picked (Base)" := JobPlanningLine."Qty. Picked (Base)" + WhseActivityLine."Qty. to Handle (Base)";
+            if WhseActivityLine."Qty. per Unit of Measure" = JobPlanningLine."Qty. per Unit of Measure" then
+                JobPlanningLine."Qty. Picked" := JobPlanningLine."Qty. Picked" + WhseActivityLine."Qty. to Handle"
+            else
+                JobPlanningLine."Qty. Picked" := Round(JobPlanningLine."Qty. Picked" + WhseActivityLine."Qty. to Handle (Base)" / WhseActivityLine."Qty. per Unit of Measure");
+
+            JobPlanningLine."Completely Picked" := JobPlanningLine."Qty. Picked" = JobPlanningLine.Quantity;
+            JobPlanningLine.Modify();
+        end
     end;
 
     procedure LocationGet(LocationCode: Code[10])
@@ -1021,6 +1056,7 @@
     var
         ProdOrderComp: Record "Prod. Order Component";
         AssemblyLine: Record "Assembly Line";
+        JobPlanningLineRec: Record "Job Planning Line";
         WhseShptLine: Record "Warehouse Shipment Line";
         QtyToRegisterBase: Decimal;
         DueDate: Date;
@@ -1031,14 +1067,14 @@
         with WhseActivLine2 do begin
             if (("Whse. Document Type" in
                  ["Whse. Document Type"::Shipment, "Whse. Document Type"::"Internal Pick",
-                  "Whse. Document Type"::Production, "Whse. Document Type"::Assembly, "Whse. Document Type"::"Internal Put-away"]) and
+                  "Whse. Document Type"::Production, "Whse. Document Type"::Assembly, "Whse. Document Type"::"Internal Put-away", "Whse. Document Type"::Job]) and
                 ("Action Type" <> "Action Type"::Take) and ("Breakbulk No." = 0)) or
                (("Whse. Document Type" = "Whse. Document Type"::Receipt) and ("Action Type" <> "Action Type"::Place))
             then
                 NeedRegisterWhseItemTrkgLine := true;
 
             if ("Activity Type" = "Activity Type"::"Invt. Movement") and ("Action Type" <> "Action Type"::Take) and
-               ("Source Document" in ["Source Document"::"Prod. Consumption", "Source Document"::"Assembly Consumption"])
+               ("Source Document" in ["Source Document"::"Prod. Consumption", "Source Document"::"Assembly Consumption", "Source Document"::"Job Usage"])
             then
                 NeedRegisterWhseItemTrkgLine := true;
 
@@ -1062,7 +1098,8 @@
             if (WhseActivLine2."Whse. Document Type" in
                 [WhseActivLine2."Whse. Document Type"::Shipment,
                  WhseActivLine2."Whse. Document Type"::Production,
-                 WhseActivLine2."Whse. Document Type"::Assembly]) or
+                 WhseActivLine2."Whse. Document Type"::Assembly,
+                 WhseActivLine2."Whse. Document Type"::Job]) or
                ((WhseActivLine2."Activity Type" = WhseActivLine2."Activity Type"::"Invt. Movement") and
                 (WhseActivLine2."Source Type" > 0))
             then begin
@@ -1091,6 +1128,13 @@
                             AssemblyLine.Get(WhseActivLine2."Source Subtype", WhseActivLine2."Source No.",
                               WhseActivLine2."Source Line No.");
                             DueDate := AssemblyLine."Due Date";
+                        end;
+                    WhseActivLine2."Whse. Document Type"::Job:
+                        begin
+                            JobPlanningLineRec.SetRange("Job Contract Entry No.", WhseActivLine2."Source Line No.");
+                            JobPlanningLineRec.SetLoadFields("Planning Due Date");
+                            if JobPlanningLineRec.FindFirst() then
+                                DueDate := JobPlanningLineRec."Planning Due Date";
                         end;
                 end;
 
@@ -1158,7 +1202,7 @@
 
         with WhseItemTrkgLine do begin
             SetTrackingFilterFromWhseActivityLine(WhseActivLine2);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Quantity (Base)" > "Qty. Registered (Base)" then begin
                         if QtyToRegisterBase > ("Quantity (Base)" - "Qty. Registered (Base)") then begin
@@ -1173,7 +1217,7 @@
                         if not UpdateTempTracking(WhseActivLine2, QtyToHandleBase, TempTrackingSpecification) then begin
                             TempTrackingSpecification.SetTrackingKey();
                             TempTrackingSpecification.SetTrackingFilterFromWhseActivityLine(WhseActivLine2);
-                            if TempTrackingSpecification.FindFirst then begin
+                            if TempTrackingSpecification.FindFirst() then begin
                                 TempTrackingSpecification."Qty. to Handle (Base)" += QtyToHandleBase;
                                 OnInitTempTrackingSpecificationOnBeforeTempTrackingSpecificationModify(WhseItemTrkgLine, WhseActivLine2, TempTrackingSpecification);
                                 TempTrackingSpecification.Modify();
@@ -1205,6 +1249,7 @@
         WhseIntPickLine: Record "Whse. Internal Pick Line";
         ProdOrderComponent: Record "Prod. Order Component";
         AssemblyLine: Record "Assembly Line";
+        JobPlanningLineRec: Record "Job Planning Line";
         WhseMovementWksh: Record "Whse. Worksheet Line";
         WhseActivLine2: Record "Warehouse Activity Line";
         QtyBase: Decimal;
@@ -1256,6 +1301,13 @@
                      WhseActivLine."Source Line No.")
                 then
                     exit(AssemblyLine."Quantity (Base)");
+            WhseActivLine."Whse. Document Type"::Job:
+                begin
+                    JobPlanningLineRec.SetRange("Job Contract Entry No.", WhseActivLine."Source Line No.");
+                    JobPlanningLineRec.SetLoadFields("Quantity (Base)");
+                    if JobPlanningLineRec.FindFirst() then
+                        exit(JobPlanningLineRec."Quantity (Base)");
+                end;
             WhseActivLine."Whse. Document Type"::"Movement Worksheet":
                 if WhseMovementWksh.Get(
                      WhseActivLine."Whse. Document No.", WhseActivLine."Source No.",
@@ -1375,6 +1427,9 @@
                 "Whse. Document Type"::Assembly:
                     WhseItemTrkgLine.SetSource(
                       DATABASE::"Assembly Line", "Source Subtype", "Source No.", "Source Line No.", '', 0);
+                "Whse. Document Type"::Job:
+                    WhseItemTrkgLine.SetSource(
+                      DATABASE::Job, 0, "Source No.", "Source Line No.", '', 0);
                 "Whse. Document Type"::"Movement Worksheet":
                     WhseItemTrkgLine.SetSource(
                       DATABASE::"Whse. Worksheet Line", 0, "Source No.", "Whse. Document Line No.",
@@ -1885,7 +1940,7 @@
         if IsHandled then
             exit;
 
-        if TempWhseActivLineToReserve.FindSet then
+        if TempWhseActivLineToReserve.FindSet() then
             repeat
                 SalesLine.Get(
                   SalesLine."Document Type"::Order, TempWhseActivLineToReserve."Source No.", TempWhseActivLineToReserve."Source Line No.");
@@ -1992,7 +2047,7 @@
             SetRange("Action Type", WarehouseActivityLine."Action Type");
             SetRange("Original Breakbulk", WarehouseActivityLine."Original Breakbulk");
             SetRange("Breakbulk No.", WarehouseActivityLine."Breakbulk No.");
-            if FindFirst then begin
+            if FindFirst() then begin
                 "Qty. to Handle" += WarehouseActivityLine."Qty. to Handle";
                 "Qty. to Handle (Base)" += WarehouseActivityLine."Qty. to Handle (Base)";
                 OnGroupWhseActivLinesByWhseDocAndSourceOnBeforeTempWarehouseActivityLineModify(TempWarehouseActivityLine, WarehouseActivityLine);

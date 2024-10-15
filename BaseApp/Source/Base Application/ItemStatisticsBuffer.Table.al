@@ -73,13 +73,13 @@ table 5821 "Item Statistics Buffer"
             FieldClass = FlowFilter;
             TableRelation = "Item Charge";
         }
-        field(13; "Source Type Filter"; Option)
+#pragma warning disable
+        field(13; "Source Type Filter"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type Filter';
             FieldClass = FlowFilter;
-            OptionCaption = ' ,Customer,Vendor,Salesperson/Purchaser,Item';
-            OptionMembers = " ",Customer,Vendor,"Salesperson/Purchaser",Item;
         }
+#pragma warning restore
         field(14; "Source No. Filter"; Code[20])
         {
             Caption = 'Source No. Filter';

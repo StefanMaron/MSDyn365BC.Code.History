@@ -1,5 +1,6 @@
 codeunit 1800 "Assisted Company Setup"
 {
+    Permissions = tabledata "Assisted Company Setup Status" = r;
 
     trigger OnRun()
     begin
@@ -97,7 +98,7 @@ codeunit 1800 "Assisted Company Setup"
         CreateFiscalYear.InitializeRequest(12, DateFormulaVariable, StartDate);
         CreateFiscalYear.UseRequestPage(false);
         CreateFiscalYear.HideConfirmationDialog(true);
-        CreateFiscalYear.RunModal;
+        CreateFiscalYear.RunModal();
     end;
 
     local procedure SetupCompanyBankAccount(var BankAccount: Record "Bank Account")
@@ -279,6 +280,11 @@ codeunit 1800 "Assisted Company Setup"
     end;
 
     procedure SetUpNewCompany(NewCompanyName: Text[30]; NewCompanyData: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data")
+    begin
+        SetUpNewCompany(NewCompanyName, NewCompanyData, false);
+    end;
+
+    procedure SetUpNewCompany(NewCompanyName: Text[30]; NewCompanyData: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data"; InstallAdditionalDemoData: Boolean)
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
         Enabled: Boolean;
@@ -289,6 +295,8 @@ codeunit 1800 "Assisted Company Setup"
             Enabled := true;
 
         AssistedCompanySetupStatus.SetEnabled(NewCompanyName, Enabled, false);
+
+        OnAfterAssistedCompanySetupStatusEnabled(NewCompanyName, InstallAdditionalDemoData);
 
         if not (NewCompanyData in [NewCompanyData::None, NewCompanyData::"Full No Data"]) then
             FillCompanyData(NewCompanyName, NewCompanyData)
@@ -412,7 +420,7 @@ codeunit 1800 "Assisted Company Setup"
         EnableAssistedCompanySetup(SetupCompanyName, AssistedSetupEnabled);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterCompanyOpen', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
     local procedure OnAfterCompanyOpenRunAssistedCompanySetup()
     begin
         RunAssistedCompanySetup();
@@ -493,6 +501,11 @@ codeunit 1800 "Assisted Company Setup"
             exit;
         if FindJobQueueLogEntries(Name, JobQueueLogEntry) then
             PAGE.RunModal(PAGE::"Job Queue Log Entries", JobQueueLogEntry);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssistedCompanySetupStatusEnabled(NewCompanyName: Text[30]; InstallAdditionalDemoData: Boolean)
+    begin
     end;
 }
 

@@ -154,7 +154,7 @@ page 36 "Assembly BOM"
                 begin
                     Item.Get("Parent Item No.");
                     BOMStructure.InitItem(Item);
-                    BOMStructure.Run;
+                    BOMStructure.Run();
                 end;
             }
             action("E&xplode BOM")
@@ -220,7 +220,7 @@ page 36 "Assembly BOM"
                 begin
                     Item.Get("Parent Item No.");
                     BOMCostShares.InitItem(Item);
-                    BOMCostShares.Run;
+                    BOMCostShares.Run();
                 end;
             }
             action("Where-Used")

@@ -35,7 +35,7 @@ codeunit 350 IntraJnlManagement
                     Commit();
                 end;
             1:
-                IntraJnlTemplate.FindFirst;
+                IntraJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, IntraJnlTemplate) = ACTION::LookupOK;
         end;
@@ -95,9 +95,9 @@ codeunit 350 IntraJnlManagement
         IntrastatJnlBatch.FilterGroup(0);
 
         if not IntrastatJnlBatch.Find('-') then begin
-            if not IntraJnlTemplate.FindFirst then
+            if not IntraJnlTemplate.FindFirst() then
                 TemplateSelection(0, IntrastatJnlLine, JnlSelected);
-            if IntraJnlTemplate.FindFirst then
+            if IntraJnlTemplate.FindFirst() then
                 CheckTemplateName(IntraJnlTemplate.Name, IntrastatJnlBatch.Name);
         end;
         IntrastatJnlBatch.Find('-');
@@ -106,7 +106,7 @@ codeunit 350 IntraJnlManagement
             IntraJnlTemplate.SetRange(Name, IntrastatJnlBatch.GetFilter("Journal Template Name"));
         case IntraJnlTemplate.Count of
             1:
-                IntraJnlTemplate.FindFirst;
+                IntraJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, IntraJnlTemplate) = ACTION::LookupOK;
         end;
@@ -131,7 +131,7 @@ codeunit 350 IntraJnlManagement
 
         IntrastatJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not IntrastatJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
-            if not IntrastatJnlBatch.FindFirst then begin
+            if not IntrastatJnlBatch.FindFirst() then begin
                 IntraJnlTemplate.Get(CurrentJnlTemplateName);
                 IntrastatJnlBatch.Init();
                 IntrastatJnlBatch."Journal Template Name" := IntraJnlTemplate.Name;

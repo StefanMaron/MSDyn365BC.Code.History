@@ -258,7 +258,7 @@ table 11005 "Data Export Record Field"
     begin
         LockTable();
         NewLineNo := SelectedLineNo;
-        if SelectedField.FindSet then begin
+        if SelectedField.FindSet() then begin
             TableNo := SelectedField.TableNo;
             repeat
                 NewLineNo := InsertLine(DataExportCode, DataExpRecTypeCode, SourceLineNo, NewLineNo, TableNo, SelectedField."No.");
@@ -300,7 +300,7 @@ table 11005 "Data Export Record Field"
         DataExportRecordField: Record "Data Export Record Field";
     begin
         SetFiltersForKeyWithoutLineNo(DataExportRecordField, ExportCode, RecordCode, SourceLineNo);
-        if DataExportRecordField.FindLast then
+        if DataExportRecordField.FindLast() then
             NewLine := DataExportRecordField."Line No." + GetLineNoStep
         else
             NewLine := GetFirstLineNo;

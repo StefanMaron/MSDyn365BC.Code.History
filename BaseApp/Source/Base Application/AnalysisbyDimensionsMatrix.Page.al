@@ -29,7 +29,7 @@ page 9249 "Analysis by Dimensions Matrix"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookUpCode(AnalysisByDimParameters."Line Dim Option", LineDimCode, Code);
+                        LookupDimCode(AnalysisByDimParameters."Line Dim Option", LineDimCode, Code);
                     end;
                 }
                 field(Name; Name)
@@ -618,6 +618,7 @@ page 9249 "Analysis by Dimensions Matrix"
                     Image = ExportToExcel;
                     Promoted = true;
                     PromotedCategory = Process;
+                    Visible = Not IsSaaS;
                     ToolTip = 'Export the information in the analysis report to Excel.';
 
                     trigger OnAction()
@@ -704,20 +705,23 @@ page 9249 "Analysis by Dimensions Matrix"
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRec(AnalysisByDimParameters."Line Dim Option", Rec, Steps));
+        exit(NextRecord(AnalysisByDimParameters."Line Dim Option", Rec, Steps));
     end;
 
     trigger OnOpenPage()
     var
         CashFlowForecast: Record "Cash Flow Forecast";
         GLAcc: Record "G/L Account";
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
         MATRIX_NoOfMatrixColumns := ArrayLen(MATRIX_CellData);
 
         ValidateAnalysisViewCode;
 
-        InitRec(Rec, AnalysisByDimParameters."Line Dim Option");
-        InitRec(MatrixRecord, AnalysisByDimParameters."Column Dim Option");
+        IsSaaS := EnvironmentInfo.IsSaaS;
+
+        InitRecord(Rec, AnalysisByDimParameters."Line Dim Option");
+        InitRecord(MatrixRecord, AnalysisByDimParameters."Column Dim Option");
 
         if (LineDimCode = '') and (ColumnDimCode = '') then begin
             if GLAccountSource then
@@ -824,13 +828,14 @@ page 9249 "Analysis by Dimensions Matrix"
         Field31Visible: Boolean;
         [InDataSet]
         Field32Visible: Boolean;
+        IsSaaS: Boolean;
         Text003: Label 'Unsupported Account Source %1.';
         Emphasize: Boolean;
 
     protected var
         AnalysisByDimParameters: Record "Analysis by Dim. Parameters" temporary;
 
-    local procedure InitRec(var DimCodeBuf: Record "Dimension Code Buffer"; DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast")
+    local procedure InitRecord(var DimCodeBuf: Record "Dimension Code Buffer"; DimOption: Enum "Analysis Dimension Option")
     var
         GLAccount: Record "G/L Account";
         CashFlowAccount: Record "Cash Flow Account";
@@ -842,7 +847,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 begin
                     if AnalysisByDimParameters."Account Filter" <> '' then
                         GLAccount.SetFilter("No.", AnalysisByDimParameters."Account Filter");
-                    if GLAccount.FindSet then
+                    if GLAccount.FindSet() then
                         repeat
                             CopyGLAccToBuf(GLAccount, DimCodeBuf);
                         until GLAccount.Next() = 0;
@@ -851,7 +856,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 begin
                     if AnalysisByDimParameters."Account Filter" <> '' then
                         CashFlowAccount.SetFilter("No.", AnalysisByDimParameters."Account Filter");
-                    if CashFlowAccount.FindSet then
+                    if CashFlowAccount.FindSet() then
                         repeat
                             CopyCFAccToBuf(CashFlowAccount, DimCodeBuf);
                         until CashFlowAccount.Next() = 0;
@@ -869,7 +874,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 begin
                     if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
                         BusinessUnit.SetFilter(Code, AnalysisByDimParameters."Bus. Unit Filter");
-                    if BusinessUnit.FindSet then
+                    if BusinessUnit.FindSet() then
                         repeat
                             CopyBusUnitToBuf(BusinessUnit, DimCodeBuf);
                         until BusinessUnit.Next() = 0;
@@ -878,7 +883,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 begin
                     if AnalysisByDimParameters."Cash Flow Forecast Filter" <> '' then
                         CashFlowForecast.SetFilter("No.", AnalysisByDimParameters."Cash Flow Forecast Filter");
-                    if CashFlowForecast.FindSet then
+                    if CashFlowForecast.FindSet() then
                         repeat
                             CopyCashFlowToBuf(CashFlowForecast, DimCodeBuf);
                         until CashFlowForecast.Next() = 0;
@@ -896,43 +901,55 @@ page 9249 "Analysis by Dimensions Matrix"
                 InitDimValue(
                   DimCodeBuf, AnalysisView."Dimension 4 Code", AnalysisByDimParameters."Dimension 4 Filter");
             else
-                OnInitRecOnCaseElse(DimOption, DimCodeBuf, AnalysisView);
+                RunOnInitRecordOnCaseElse(DimOption, DimCodeBuf, AnalysisView);
         end;
-        if FindFirst then;
+        if FindFirst() then;
     end;
 
-    local procedure FindRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]): Boolean
+    local procedure RunOnInitRecordOnCaseElse(DimOption: Enum "Analysis Dimension Option"; var DimCodeBuf: Record "Dimension Code Buffer"; var AnalysisView: Record "Analysis View")
+    begin
+#if not CLEAN20
+        OnInitRecOnCaseElse("Analysis Dimension Option".FromInteger(DimOption), DimCodeBuf, AnalysisView);
+#endif
+        OnInitRecordOnCaseElse(DimOption, DimCodeBuf, AnalysisView);
+    end;
+
+    local procedure FindRec(DimOption: Enum "Analysis Dimension Option"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]) Result: Boolean
     begin
         case DimOption of
             DimOption::"G/L Account",
-          DimOption::"Cash Flow Account",
-          DimOption::"Business Unit",
-          DimOption::"Cash Flow Forecast",
-          DimOption::"Dimension 1",
-          DimOption::"Dimension 2",
-          DimOption::"Dimension 3",
-          DimOption::"Dimension 4":
+            DimOption::"Cash Flow Account",
+            DimOption::"Business Unit",
+            DimOption::"Cash Flow Forecast",
+            DimOption::"Dimension 1",
+            DimOption::"Dimension 2",
+            DimOption::"Dimension 3",
+            DimOption::"Dimension 4":
                 exit(DimCodeBuf.Find(Which));
             DimOption::Period:
                 // Make specifial length of Which parameter in order to find PeriodPageMgt.FindDate procedure
                 exit(FindPeriod(DimCodeBuf, CopyStr(Which, 1, 3)));
+            else
+                OnFindRecOnCaseElse(DimOption, Which, DimCodeBuf, Result);
         end;
     end;
 
-    local procedure NextRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer): Integer
+    local procedure NextRecord(DimOption: Enum "Analysis Dimension Option"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer) Result: Integer
     begin
         case DimOption of
             DimOption::"G/L Account",
-          DimOption::"Cash Flow Account",
-          DimOption::"Business Unit",
-          DimOption::"Cash Flow Forecast",
-          DimOption::"Dimension 1",
-          DimOption::"Dimension 2",
-          DimOption::"Dimension 3",
-          DimOption::"Dimension 4":
+            DimOption::"Cash Flow Account",
+            DimOption::"Business Unit",
+            DimOption::"Cash Flow Forecast",
+            DimOption::"Dimension 1",
+            DimOption::"Dimension 2",
+            DimOption::"Dimension 3",
+            DimOption::"Dimension 4":
                 exit(DimCodeBuf.Next(Steps));
             DimOption::Period:
                 exit(NextPeriod(DimCodeBuf, Steps));
+            else
+                OnNextRecOnCaseElse(DimOption, Steps, DimCodeBuf, Result);
         end;
     end;
 
@@ -1042,7 +1059,7 @@ page 9249 "Analysis by Dimensions Matrix"
         end;
     end;
 
-    local procedure LookUpCode(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast"; DimCode: Text[30]; "Code": Text[30])
+    local procedure LookupDimCode(DimOption: Enum "Analysis Dimension Option"; DimCode: Text[30]; "Code": Text[30])
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
@@ -1082,8 +1099,16 @@ page 9249 "Analysis by Dimensions Matrix"
                     PAGE.RunModal(PAGE::"Dimension Value List", DimVal);
                 end;
             else
-                OnLookUpCodeOnCaseElse(DimOption, Code);
+                RunOnLookupDimCodeOnCaseElse(DimOption, Code);
         end;
+    end;
+
+    local procedure RunOnLookupDimCodeOnCaseElse(DimOption: Enum "Analysis Dimension Option"; var "Code": Text[30])
+    begin
+#if not CLEAN20
+        OnLookUpCodeOnCaseElse(DimOption, Code);
+#endif
+        OnLookupDimCodeOnCaseElse(DimOption, Code);
     end;
 
     local procedure SetCommonFilters(var TheAnalysisViewEntry: Record "Analysis View Entry")
@@ -1133,7 +1158,7 @@ page 9249 "Analysis by Dimensions Matrix"
     local procedure SetDimFilters(var TheAnalysisViewEntry: Record "Analysis View Entry"; LineOrColumn: Option Line,Column)
     var
         DimCodeBuf: Record "Dimension Code Buffer";
-        DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast";
+        DimOption: Enum "Analysis Dimension Option";
     begin
         if LineOrColumn = LineOrColumn::Line then begin
             DimCodeBuf := Rec;
@@ -1187,7 +1212,10 @@ page 9249 "Analysis by Dimensions Matrix"
                     TheAnalysisViewEntry.SetFilter("Dimension 4 Value Code", DimCodeBuf.Totaling);
         end;
 
-        OnAfterSetDimFilters(TheAnalysisViewEntry, AnalysisView, DimOption, DimCodeBuf);
+#if not CLEAN20
+        OnAfterSetDimFilters(TheAnalysisViewEntry, AnalysisView, DimOption.AsInteger(), DimCodeBuf);
+#endif
+        OnAfterSetDimFiltersProcedure(TheAnalysisViewEntry, AnalysisView, DimOption, DimCodeBuf);
     end;
 
     local procedure SetCommonBudgetFilters(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry")
@@ -1219,7 +1247,7 @@ page 9249 "Analysis by Dimensions Matrix"
     local procedure SetDimBudgetFilters(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; LineOrColumn: Option Line,Column)
     var
         DimCodeBuf: Record "Dimension Code Buffer";
-        DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account",CashFlow;
+        DimOption: Enum "Analysis Dimension Option";
     begin
         if LineOrColumn = LineOrColumn::Line then begin
             DimCodeBuf := Rec;
@@ -1264,7 +1292,10 @@ page 9249 "Analysis by Dimensions Matrix"
                     TheAnalysisViewBudgetEntry.SetFilter("Dimension 4 Value Code", DimCodeBuf.Totaling);
         end;
 
-        OnAfterSetDimBudgetFilters(TheAnalysisViewBudgetEntry, AnalysisView, DimOption, DimCodeBuf);
+#if not CLEAN20
+        OnAfterSetDimBudgetFilters(TheAnalysisViewBudgetEntry, AnalysisView, DimOption.AsInteger(), DimCodeBuf);
+#endif
+        OnAfterSetDimBudgetFiltersProcedure(TheAnalysisViewBudgetEntry, AnalysisView, DimOption, DimCodeBuf);
     end;
 
     local procedure DrillDown(SetColFilter: Boolean)
@@ -1448,7 +1479,7 @@ page 9249 "Analysis by Dimensions Matrix"
 
     local procedure MATRIX_OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRec(AnalysisByDimParameters."Column Dim Option", MatrixRecord, Steps));
+        exit(NextRecord(AnalysisByDimParameters."Column Dim Option", MatrixRecord, Steps));
     end;
 
     local procedure MATRIX_OnAfterGetRecord()
@@ -1553,7 +1584,7 @@ page 9249 "Analysis by Dimensions Matrix"
             DimensionValue.SetRange("Dimension Code", DimensionCode);
             if DimensionFilter <> '' then
                 DimensionValue.SetFilter(Code, DimensionFilter);
-            if DimensionValue.FindSet then
+            if DimensionValue.FindSet() then
                 repeat
                     CopyDimValueToBuf(DimensionValue, DimensionCodeBuffer);
                 until DimensionValue.Next() = 0;
@@ -1593,23 +1624,62 @@ page 9249 "Analysis by Dimensions Matrix"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnAfterSetDimFiltersProcedure()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDimFilters(var TheAnalysisViewEntry: Record "Analysis View Entry"; AnalysisView: Record "Analysis View"; DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast",Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
     end;
 
+    [Obsolete('Replaced by OnAfterSetDimBudgetFiltersProcedure()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDimBudgetFilters(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; AnalysisView: Record "Analysis View"; DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account",CashFlow,Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
     end;
+#endif
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDimFiltersProcedure(var TheAnalysisViewEntry: Record "Analysis View Entry"; AnalysisView: Record "Analysis View"; DimOption: Enum "Analysis Dimension Option"; var DimCodeBuf: Record "Dimension Code Buffer")
+    begin
+    end;
 
-    [IntegrationEvent(true, false)]
-    local procedure OnInitRecOnCaseElse(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast",Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var TheDimCodeBuf: Record "Dimension Code Buffer"; var AnalysisView: Record "Analysis View")
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDimBudgetFiltersProcedure(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; AnalysisView: Record "Analysis View"; DimOption: Enum "Analysis Dimension Option"; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnFindRecOnCaseElse(DimOption: Enum "Analysis Dimension Option"; Which: Text[250]; var TheDimCodeBuf: Record "Dimension Code Buffer"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnNextRecOnCaseElse(DimOption: Enum "Analysis Dimension Option"; Steps: Integer; var TheDimCodeBuf: Record "Dimension Code Buffer"; var Result: Integer);
+    begin
+    end;
+
+#if not CLEAN20
+    [Obsolete('Replaced by OnInitRecordOnCaseElse()', '20.0')]
+    [IntegrationEvent(true, false)]
+    local procedure OnInitRecOnCaseElse(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast",Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var TheDimCodeBuf: Record "Dimension Code Buffer"; var AnalysisView: Record "Analysis View")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInitRecordOnCaseElse(DimOption: Enum "Analysis Dimension Option"; var TheDimCodeBuf: Record "Dimension Code Buffer"; var AnalysisView: Record "Analysis View")
+    begin
+    end;
+
+#if not CLEAN20
+    [Obsolete('Replaced by OnLookupDimCodeOnCaseElse()', '20.0')]
+    [IntegrationEvent(true, false)]
     local procedure OnLookUpCodeOnCaseElse(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast",Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var "Code": Text[30])
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnLookupDimCodeOnCaseElse(DimOption: Enum "Analysis Dimension Option"; var "Code": Text[30])
     begin
     end;
 }

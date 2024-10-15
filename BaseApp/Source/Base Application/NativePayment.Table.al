@@ -2,9 +2,14 @@ table 2831 "Native - Payment"
 {
     Caption = 'Native - Payment';
     ReplicateData = false;
+#if not CLEAN20
     ObsoleteState = Pending;
-    ObsoleteReason = 'These objects will be removed';
     ObsoleteTag = '17.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
+    ObsoleteReason = 'These objects will be removed';
 
     fields
     {

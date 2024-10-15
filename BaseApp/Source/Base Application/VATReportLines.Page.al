@@ -71,12 +71,12 @@ page 742 "VAT Report Lines"
         TempVATReportLineRelation: Record "VAT Report Line Relation" temporary;
     begin
         CurrPage.SetSelectionFilter(VATReportLine);
-        if VATReportLine.FindSet then
+        if VATReportLine.FindSet() then
             repeat
                 TempVATReportLineRelation.DeleteAll();
                 VATReportLineRelation.SetRange("VAT Report No.", VATReportLine."VAT Report No.");
                 VATReportLineRelation.SetRange("VAT Report Line No.", VATReportLine."Line No.");
-                if VATReportLineRelation.FindSet then
+                if VATReportLineRelation.FindSet() then
                     repeat
                         TempVATReportLineRelation := VATReportLineRelation;
                         TempVATReportLineRelation."VAT Report No." := VATReportHeader."No.";

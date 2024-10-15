@@ -390,7 +390,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         with CountryRegion do begin
-            "EU Country/Region Code" := LibraryUtility.GenerateGUID;
+            "EU Country/Region Code" := LibraryUtility.GenerateGUID();
             Modify;
             exit(Code);
         end;
@@ -401,7 +401,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         LibrarySales.CreateCustomer(Customer);
         with Customer do begin
             "Country/Region Code" := CreateCountryRegionCode;
-            "VAT Registration No." := LibraryUtility.GenerateGUID;
+            "VAT Registration No." := LibraryUtility.GenerateGUID();
             Modify;
         end;
     end;
@@ -411,7 +411,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         LibraryPurchase.CreateVendor(Vendor);
         with Vendor do begin
             "Country/Region Code" := CreateCountryRegionCode;
-            "VAT Registration No." := LibraryUtility.GenerateGUID;
+            "VAT Registration No." := LibraryUtility.GenerateGUID();
             Modify;
         end;
     end;

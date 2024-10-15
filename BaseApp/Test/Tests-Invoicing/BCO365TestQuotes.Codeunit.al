@@ -28,7 +28,7 @@ codeunit 138941 "BC O365 Test Quotes"
         BCO365SalesQuote: TestPage "BC O365 Sales Quote";
     begin
         // [GIVEN] An existing customer wants a quote from us
-        Initialize;
+        Initialize();
         CreateCustItem(Customer, Item);
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -57,7 +57,7 @@ codeunit 138941 "BC O365 Test Quotes"
         OriginalLineAmount: Decimal;
     begin
         // [GIVEN] An existing customer wants a quote from us, but we want to use a different UOM
-        Initialize;
+        Initialize();
         CreateCustItem(Customer, Item);
         CreateUOM(UnitOfMeasure);
         LibraryLowerPermissions.SetO365BusFull;
@@ -92,7 +92,7 @@ codeunit 138941 "BC O365 Test Quotes"
         BCO365SalesQuote: TestPage "BC O365 Sales Quote";
     begin
         // [GIVEN] An existing customer wants a quote from us, but we want to use a different UOM
-        Initialize;
+        Initialize();
         CreateCustItem(Customer, Item);
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -117,7 +117,7 @@ codeunit 138941 "BC O365 Test Quotes"
         BCO365SalesQuote: TestPage "BC O365 Sales Quote";
     begin
         // [GIVEN] An existing customer wants a quote from us
-        Initialize;
+        Initialize();
         CreateCustItem(Customer, Item);
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -146,7 +146,7 @@ codeunit 138941 "BC O365 Test Quotes"
         BCO365SalesQuote: TestPage "BC O365 Sales Quote";
     begin
         // [GIVEN] An existing customer has accepted a quote and the work is done
-        Initialize;
+        Initialize();
         CreateCustItem(Customer, Item);
         CreateQuote(Customer, Item, BCO365SalesQuote);
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesQuote."Sell-to Customer Name".Value);
@@ -176,11 +176,11 @@ codeunit 138941 "BC O365 Test Quotes"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
         // [GIVEN] An existing customer has accepted a quote
-        Initialize;
+        Initialize();
         CreateCustItem(Customer, Item);
         CreateQuote(Customer, Item, BCO365SalesQuote);
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesQuote."Sell-to Customer Name".Value);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         Assert.AreEqual(1, SalesHeader.Count, '');
         Assert.AreEqual(SalesHeader."Document Type"::Quote, SalesHeader."Document Type", 'Wrong document type');
         LibraryLowerPermissions.SetO365BusFull;
@@ -191,7 +191,7 @@ codeunit 138941 "BC O365 Test Quotes"
         BCO365SalesInvoice.Close;
 
         // [THEN] The quote is deleted and a draft invoice is created.
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         Assert.AreEqual(1, SalesHeader.Count, '');
         Assert.AreEqual(SalesHeader."Document Type"::Invoice, SalesHeader."Document Type", 'Wrong document type');
         CleanUp;
@@ -213,7 +213,7 @@ codeunit 138941 "BC O365 Test Quotes"
     var
         SalesHeader: Record "Sales Header";
     begin
-        BCO365SalesQuote.OpenNew;
+        BCO365SalesQuote.OpenNew();
         BCO365SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
         BCO365SalesQuote.Lines.New;
@@ -231,7 +231,6 @@ codeunit 138941 "BC O365 Test Quotes"
 
     local procedure Initialize()
     var
-        SMTPMailSetup: Record "SMTP Mail Setup";
         ReportSelections: Record "Report Selections";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"BC O365 Test Quotes");
@@ -242,15 +241,6 @@ codeunit 138941 "BC O365 Test Quotes"
         if Initialized then
             exit;
         Initialized := true;
-
-        if SMTPMailSetup.Get then
-            SMTPMailSetup.Delete();
-        SMTPMailSetup.Init();
-        SMTPMailSetup."SMTP Server" := 'smtp.office365.com';
-        SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
-        SMTPMailSetup."User ID" := 'test@ms.com';
-        SMTPMailSetup.SetPassword('pswd1');
-        SMTPMailSetup.Insert();
 
         ReportSelections.SetRange(Usage, 0); // "S.Quote". work-around to avoid RU modification
         ReportSelections.DeleteAll();

@@ -27,9 +27,9 @@ codeunit 142071 "UT REP GERREPORTS - II"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 11003 - Customer Total-Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer;
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
 
         // Enqueue Accounting Period - Starting Date as Date Filter and Adjustment Exchange Rate Differences Boolean as TRUE on Handler - CustomerTotalBalanceRequestPageHandler.
         EnqueueTotalBalanceReports(AccountingPeriod."Starting Date", true);
@@ -49,7 +49,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 11003 - Customer Total-Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer;
         EnqueueTotalBalanceReports(WorkDate, false);  // Enqueue Work Date and Adjustment Exchange Rate Differences Boolean as FALSE on Handler - CustomerTotalBalanceRequestPageHandler.
 
@@ -75,10 +75,10 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Purpose of the test is to validate OnAfterGetRecord of Customer on Report 11003 - Customer Total-Balance.
 
         // Setup: Create two Detailed Customer Ledger Entry with same Customer Ledger Entry No.
-        Initialize;
+        Initialize();
         DebitAmountLCY := LibraryRandom.RandDecInRange(1, 10, 2);  // Generating Debit Amount LCY greater than zero.
         CreditAmountLCY := DebitAmountLCY + LibraryRandom.RandDecInRange(1, 10, 2);  // Credit Amount LCY greater than Debit Amount LCY.
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         CreateDetailedCustLedgEntry(DetailedCustLedgEntry, CreateCustomer, DebitAmountLCY, DebitAmountLCY, 0, DetailedCustLedgEntry."Entry Type"::"Realized Loss", DetailedCustLedgEntry."Document Type", CustLedgerEntry."Entry No.");  // Credit Amount LCY 0.
 
         // Debit Amount LCY - 0.
@@ -102,7 +102,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Purpose of the test is to validate OnAfterGetRecord of Customer on Report 11003 - Customer Total-Balance.
 
         // Setup: Create Customer Ledger Entry with Entry No equal to Closed by Entry No of created Customer Ledger Entry.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCustomerTotalBalance(true);  // ClosedByEntryNo as TRUE for Customer Ledger Entry.
     end;
 
@@ -115,7 +115,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Purpose of the test is to validate OnAfterGetRecord of Customer on Report 11003 - Customer Total-Balance.
 
         // Setup: Create Customer Ledger Entry with Closed by Entry No equal to Customer Ledger Entry No of created Customer Ledger Entry.
-        Initialize;
+        Initialize();
         OnAfterGetRecordCustomerTotalBalance(false);  // ClosedByEntryNo as FALSE for Customer Ledger Entry.
     end;
 
@@ -151,9 +151,9 @@ codeunit 142071 "UT REP GERREPORTS - II"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 11004 - Vendor Total-Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor;
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
 
         // Enqueue Accounting Period  Starting Date as Date Filter and Adjustment Exchange Rate Differences Boolean as TRUE on Handler - VendorTotalBalanceRequestPageHandler.
         EnqueueTotalBalanceReports(AccountingPeriod."Starting Date", true);
@@ -173,7 +173,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report 11004 - Vendor Total-Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor;
         EnqueueTotalBalanceReports(WorkDate, false);  // Enqueue Work Date and Adjustment Exchange Rate Differences Boolean as FALSE on Handler - VendorTotalBalanceRequestPageHandler.
 
@@ -199,10 +199,10 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Purpose of the test is to validate OnAfterGetRecord of Vendor on Report 11004 - Vendor Total-Balance.
 
         // Setup: Create two Detailed Vendor Ledger Entry with same Vendor Ledger Entry No.
-        Initialize;
+        Initialize();
         DebitAmountLCY := LibraryRandom.RandDecInRange(1, 10, 2);  // Generating positive Debit Amount LCY.
         CreditAmountLCY := DebitAmountLCY + LibraryRandom.RandDecInRange(1, 10, 2);  // Credit Amount LCY greater than Debit Amount LCY.
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         CreateDetailedVendorLedgEntry(
           DetailedVendorLedgEntry, CreateVendor, DebitAmountLCY, DebitAmountLCY, 0, DetailedVendorLedgEntry."Entry Type"::"Realized Loss", DetailedVendorLedgEntry."Document Type", VendorLedgerEntry."Entry No.");  // Value 0 for Credit Amount LCY.
 
@@ -227,7 +227,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Purpose of the test is to validate OnAfterGetRecord of Vendor on Report 11004 - Vendor Total-Balance.
 
         // Setup: Create Vendor Ledger Entry with Entry No equal to Closed by Entry No of created Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         OnAfterGetRecordVendorTotalBalance(true);  // ClosedByEntryNo as TRUE for Vendor Ledger Entry.
     end;
 
@@ -240,7 +240,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Purpose of the test is to validate OnAfterGetRecord of Vendor on Report 11004 - Vendor Total-Balance.
 
         // Setup: Create Vendor Ledger Entry with Closed by Entry No equal to Vendor Ledger Entry No of created Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         OnAfterGetRecordVendorTotalBalance(false);  // ClosedByEntryNo as FALSE for Vendor Ledger Entry.
     end;
 
@@ -268,7 +268,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -294,7 +294,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
         // Value 0 for Closed By Entry No.
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         if ClosedByEntryNo then begin
             CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry2."Closed by Entry No." + 1, 0);  // New Entry required.
             CreateLedgerEntriesForCustomerWithRealizedLoss(DetailedCustLedgEntry, CustLedgerEntry2."Entry No." + 1, CustLedgerEntry2."Closed by Entry No." + 1);
@@ -310,7 +310,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
     var
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
-        DetailedCustLedgEntry2.FindLast;
+        DetailedCustLedgEntry2.FindLast();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Customer No." := CustomerNo;
         DetailedCustLedgEntry."Posting Date" := WorkDate;
@@ -357,7 +357,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
         // Value 0 for Closed By Entry No.
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         if ClosedbyEntryNo then begin
             CreateVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Closed by Entry No." + 1, 0);  // New Entry required.
             CreateLedgerEntriesForVendorWithRealizedLoss(DetailedVendorLedgEntry, VendorLedgerEntry."Entry No." + 1, VendorLedgerEntry."Closed by Entry No." + 1);
@@ -373,7 +373,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
     var
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
-        DetailedVendorLedgEntry2.FindLast;
+        DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
         DetailedVendorLedgEntry."Vendor No." := VendorNo;
         DetailedVendorLedgEntry."Posting Date" := WorkDate;

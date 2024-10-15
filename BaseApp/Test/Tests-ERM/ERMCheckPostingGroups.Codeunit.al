@@ -28,7 +28,7 @@ codeunit 134097 "ERM Check Posting Groups"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        Initialize;
+        Initialize();
 
         // Execute
         CreateCustomerPostingGroup(CustomerPostingGroup, false);
@@ -72,7 +72,7 @@ codeunit 134097 "ERM Check Posting Groups"
     var
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        Initialize;
+        Initialize();
 
         // Execute
         CreateVendorPostingGroup(VendorPostingGroup, false);
@@ -110,7 +110,7 @@ codeunit 134097 "ERM Check Posting Groups"
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Execute
         CreateInventoryPostingSetup(InventoryPostingSetup, false);
@@ -143,7 +143,7 @@ codeunit 134097 "ERM Check Posting Groups"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenPostingSetup: Record "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Adjust for Payment Disc." := true;
         GeneralLedgerSetup.Modify();
@@ -212,19 +212,19 @@ codeunit 134097 "ERM Check Posting Groups"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Execute
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         with VATPostingSetup do begin
-            "Sales VAT Account" := LibraryERM.CreateGLAccountNo;
-            "Sales VAT Unreal. Account" := LibraryERM.CreateGLAccountNo;
-            "Purchase VAT Account" := LibraryERM.CreateGLAccountNo;
-            "Purch. VAT Unreal. Account" := LibraryERM.CreateGLAccountNo;
-            "Reverse Chrg. VAT Acc." := LibraryERM.CreateGLAccountNo;
-            "Reverse Chrg. VAT Unreal. Acc." := LibraryERM.CreateGLAccountNo;
+            "Sales VAT Account" := LibraryERM.CreateGLAccountNo();
+            "Sales VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
+            "Purchase VAT Account" := LibraryERM.CreateGLAccountNo();
+            "Purch. VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
+            "Reverse Chrg. VAT Acc." := LibraryERM.CreateGLAccountNo();
+            "Reverse Chrg. VAT Unreal. Acc." := LibraryERM.CreateGLAccountNo();
             Modify;
 
             // Verify
@@ -253,11 +253,11 @@ codeunit 134097 "ERM Check Posting Groups"
         TestInventoryPostingSetup: Record "Inventory Posting Setup";
         RecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // Execute
         LibraryWarehouse.CreateLocation(Location);
-        if not InventoryPostingSetup.FindFirst then
+        if not InventoryPostingSetup.FindFirst() then
             LibraryInventory.CreateInventoryPostingSetup(
               InventoryPostingSetup, Location.Code, InventoryPostingSetup."Invt. Posting Group Code")
         else begin
@@ -310,7 +310,7 @@ codeunit 134097 "ERM Check Posting Groups"
         TestGenPostingSetup: Record "General Posting Setup";
         RecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // Execute
         LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
@@ -430,7 +430,7 @@ codeunit 134097 "ERM Check Posting Groups"
         TestVATPostingSetup: Record "VAT Posting Setup";
         RecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // Execute
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -479,7 +479,7 @@ codeunit 134097 "ERM Check Posting Groups"
         TestCurrency: Record Currency;
         RecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // Execute
         LibraryERM.CreateCurrency(Currency);
@@ -1416,7 +1416,7 @@ codeunit 134097 "ERM Check Posting Groups"
     begin
         // [FEATURE] [G/L Account] [Invoice] [Payment Discount]
         // [SCENARIO 307158] G/L Account Invoice can mistakenly be posted with empty "Gen. Prod. Posting Group".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created a VAT Posting Setup with "Adjust for Payment Discount"=TRUE
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -1458,7 +1458,7 @@ codeunit 134097 "ERM Check Posting Groups"
     begin
         // [FEATURE] [G/L Account] [Invoice] [Payment Discount]
         // [SCENARIO 307158] G/L Account Invoice can mistakenly be posted with empty "Bal. Gen. Prod. Posting Group".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created a VAT Posting Setup with "Adjust for Payment Discount"=TRUE
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -1500,7 +1500,7 @@ codeunit 134097 "ERM Check Posting Groups"
     begin
         // [FEATURE] [G/L Account] [Credit Memo] [Payment Discount]
         // [SCENARIO 320325] G/L Account Credit Memo cannot be posted with an empty "Gen. Prod. Posting Group"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created a VAT Posting Setup with "Adjust for Payment Discount"=TRUE
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -1542,7 +1542,7 @@ codeunit 134097 "ERM Check Posting Groups"
     begin
         // [FEATURE] [G/L Account] [Credit Memo] [Payment Discount]
         // [SCENARIO 320325] G/L Account Credit Memo cannot be posted with an empty "Bal. Gen. Prod. Posting Group".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created a VAT Posting Setup with "Adjust for Payment Discount"=TRUE
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -1575,7 +1575,7 @@ codeunit 134097 "ERM Check Posting Groups"
     local procedure Initialize()
     begin
         // Lazy Setup.
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1705,7 +1705,7 @@ codeunit 134097 "ERM Check Posting Groups"
             UpdateGenProdPostingGroupOnGLAccount(GeneralPostingSetup."Purch. Prepayments Account");
             LibraryERM.SetGeneralPostingSetupMfgAccounts(GeneralPostingSetup);
             LibraryERM.SetGeneralPostingSetupSalesAccounts(GeneralPostingSetup);
-            "Purch. FA Disc. Account" := LibraryERM.CreateGLAccountNo;
+            "Purch. FA Disc. Account" := LibraryERM.CreateGLAccountNo();
             "View All Accounts on Lookup" := ViewAllAccounts;
             Modify;
         end;
@@ -1728,7 +1728,7 @@ codeunit 134097 "ERM Check Posting Groups"
         InventoryPostingGroup: Record "Inventory Posting Group";
     begin
         LibraryWarehouse.CreateLocation(Location);
-        if not InventoryPostingSetup.FindFirst then
+        if not InventoryPostingSetup.FindFirst() then
             LibraryInventory.CreateInventoryPostingSetup(
               InventoryPostingSetup, Location.Code, InventoryPostingSetup."Invt. Posting Group Code")
         else begin
@@ -1736,14 +1736,14 @@ codeunit 134097 "ERM Check Posting Groups"
             LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, InventoryPostingGroup.Code);
         end;
         with InventoryPostingSetup do begin
-            "Inventory Account" := LibraryERM.CreateGLAccountNo;
-            "Inventory Account (Interim)" := LibraryERM.CreateGLAccountNo;
-            "WIP Account" := LibraryERM.CreateGLAccountNo;
-            "Material Variance Account" := LibraryERM.CreateGLAccountNo;
-            "Capacity Variance Account" := LibraryERM.CreateGLAccountNo;
-            "Mfg. Overhead Variance Account" := LibraryERM.CreateGLAccountNo;
-            "Cap. Overhead Variance Account" := LibraryERM.CreateGLAccountNo;
-            "Subcontracted Variance Account" := LibraryERM.CreateGLAccountNo;
+            "Inventory Account" := LibraryERM.CreateGLAccountNo();
+            "Inventory Account (Interim)" := LibraryERM.CreateGLAccountNo();
+            "WIP Account" := LibraryERM.CreateGLAccountNo();
+            "Material Variance Account" := LibraryERM.CreateGLAccountNo();
+            "Capacity Variance Account" := LibraryERM.CreateGLAccountNo();
+            "Mfg. Overhead Variance Account" := LibraryERM.CreateGLAccountNo();
+            "Cap. Overhead Variance Account" := LibraryERM.CreateGLAccountNo();
+            "Subcontracted Variance Account" := LibraryERM.CreateGLAccountNo();
             "View All Accounts on Lookup" := ViewAllAccounts;
             Modify;
         end;
@@ -1755,7 +1755,7 @@ codeunit 134097 "ERM Check Posting Groups"
         CustomerPostingGroupsPage: TestPage "Customer Posting Groups";
         GLAccountList: TestPage "G/L Account List";
     begin
-        Initialize;
+        Initialize();
         CreateCustomerPostingGroup(CustomerPostingGroup, ViewAllAccounts);
 
         CustomerPostingGroupsPage.OpenEdit;
@@ -1799,7 +1799,7 @@ codeunit 134097 "ERM Check Posting Groups"
         VendorPostingGroupsPage: TestPage "Vendor Posting Groups";
         GLAccountList: TestPage "G/L Account List";
     begin
-        Initialize;
+        Initialize();
         CreateVendorPostingGroup(VendorPostingGroup, ViewAllAccounts);
 
         VendorPostingGroupsPage.OpenEdit;
@@ -1837,7 +1837,7 @@ codeunit 134097 "ERM Check Posting Groups"
         InventoryPostingSetupPage: TestPage "Inventory Posting Setup";
         GLAccountList: TestPage "G/L Account List";
     begin
-        Initialize;
+        Initialize();
         CreateInventoryPostingSetup(InventoryPostingSetup, ViewAllAccounts);
 
         InventoryPostingSetupPage.OpenEdit;
@@ -1870,7 +1870,7 @@ codeunit 134097 "ERM Check Posting Groups"
         GeneralPostingSetupPage: TestPage "General Posting Setup";
         GLAccountList: TestPage "G/L Account List";
     begin
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Adjust for Payment Disc." := true;
         GeneralLedgerSetup.Modify();
@@ -1960,7 +1960,7 @@ codeunit 134097 "ERM Check Posting Groups"
 
         TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
-        if TempAccountUseBuffer.FindLast then begin
+        if TempAccountUseBuffer.FindLast() then begin
             RecFieldRef := RecRef.Field(AccountFieldNo);
             RecFieldRef.Value(TempAccountUseBuffer."Account No.");
         end;
@@ -1995,7 +1995,7 @@ codeunit 134097 "ERM Check Posting Groups"
 
         TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
-        if TempAccountUseBuffer.FindLast then begin
+        if TempAccountUseBuffer.FindLast() then begin
             RecFieldRef := RecRef.Field(AccountFieldNo);
             RecFieldRef.Value(TempAccountUseBuffer."Account No.");
         end;

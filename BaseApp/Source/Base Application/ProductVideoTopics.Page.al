@@ -48,7 +48,6 @@ page 3731 "Product Video Topics"
 
     trigger OnOpenPage()
     var
-        VideoCategory: Enum "Video Category";
         i: Integer;
     begin
         foreach i in "Video Category".Ordinals() do

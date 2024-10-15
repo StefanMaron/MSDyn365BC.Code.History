@@ -309,12 +309,12 @@ codeunit 142040 "UT REP DELIVREM"
 
         // Verify: Verify new created Issued Delivery Reminder Header and Line and added Report Handler for Report Issued Delivery Reminder Print.
         IssuedDelivReminderHeader.SetRange("Pre-Assigned No.", DeliveryReminderHeader."No.");
-        IssuedDelivReminderHeader.FindFirst;
+        IssuedDelivReminderHeader.FindFirst();
         IssuedDelivReminderHeader.TestField("Vendor No.", DeliveryReminderHeader."Vendor No.");
 
         IssuedDelivReminderLine.SetRange("Document No.", IssuedDelivReminderHeader."No.");
         IssuedDelivReminderLine.SetRange(Type, IssuedDelivReminderLine.Type::Item);
-        IssuedDelivReminderLine.FindFirst;
+        IssuedDelivReminderLine.FindFirst();
         IssuedDelivReminderLine.TestField("No.", DeliveryReminderLine."No.");
     end;
 

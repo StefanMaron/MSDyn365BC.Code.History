@@ -96,7 +96,7 @@ codeunit 5812 "Calculate Standard Cost"
             exit
         end;
         BOMComponent.SetRange("Parent Item No.", Item."No.");
-        if BOMComponent.FindSet then begin
+        if BOMComponent.FindSet() then begin
             if not Item.IsAssemblyItem then begin
                 NonAssemblyItemWithList := true;
                 exit
@@ -124,7 +124,7 @@ codeunit 5812 "Calculate Standard Cost"
         MaxDepth: Integer;
     begin
         SetProdBOMFilters(ProdBOMLine, PBOMVersionCode, ProductionBOMNo);
-        if ProdBOMLine.FindSet then begin
+        if ProdBOMLine.FindSet() then begin
             Depth += 1;
             BaseDepth := Depth;
             repeat
@@ -277,7 +277,7 @@ codeunit 5812 "Calculate Standard Cost"
 
         BOMComp.SetRange("Parent Item No.", ItemNo);
         BOMComp.SetFilter(Type, '<>%1', BOMComp.Type::" ");
-        if BOMComp.FindSet then begin
+        if BOMComp.FindSet() then begin
             Item."Rolled-up Material Cost" := 0;
             Item."Rolled-up Capacity Cost" := 0;
             Item."Rolled-up Cap. Overhead Cost" := 0;

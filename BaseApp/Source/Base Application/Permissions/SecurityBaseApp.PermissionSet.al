@@ -17,7 +17,9 @@ permissionset 7372 "Security - Baseapp"
                   tabledata "Permission Buffer" = RIMD,
                   tabledata "Permission Set Buffer" = RIMD,
                   tabledata "Permission Set Link" = rimd,
+#if not CLEAN20
                   tabledata "Plan Permission Set" = Rimd,
+#endif
                   tabledata "Profile Designer Diagnostic" = RIMD,
                   tabledata "Profile Import" = RIMD,
                   tabledata "Support Contact Information" = Rimd,

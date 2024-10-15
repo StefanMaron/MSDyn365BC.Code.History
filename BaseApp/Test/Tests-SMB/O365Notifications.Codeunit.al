@@ -30,8 +30,8 @@ codeunit 138030 "O365 Notifications"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Notifications");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
         UserPreference.DeleteAll();
 
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
@@ -44,7 +44,7 @@ codeunit 138030 "O365 Notifications"
 
         ClearTable(DATABASE::Resource);
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         SalesSetup.Get();
         SalesSetup."Stockout Warning" := false;
@@ -60,7 +60,7 @@ codeunit 138030 "O365 Notifications"
     var
         Resource: Record Resource;
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::Resource:
                 Resource.DeleteAll();
@@ -76,7 +76,7 @@ codeunit 138030 "O365 Notifications"
         SalesInvoice: TestPage "Sales Invoice";
         SalesInvoiceList: TestPage "Sales Invoice List";
     begin
-        Initialize;
+        Initialize();
 
         // Test posting on card
         CreateSalesInvoiceForPosting(SalesInvoice, SalesHeader);
@@ -107,7 +107,7 @@ codeunit 138030 "O365 Notifications"
         SalesQuote: TestPage "Sales Quote";
         SalesQuotes: TestPage "Sales Quotes";
     begin
-        Initialize;
+        Initialize();
 
         // Test posting on card
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
@@ -130,7 +130,7 @@ codeunit 138030 "O365 Notifications"
         // Disable application area while opening the sales quote to make sure MakeInvoice is visible.
         LibraryApplicationArea.DisableApplicationAreaSetup;
         SalesQuotes.OpenView;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         SalesQuotes.GotoRecord(SalesHeader);
         asserterror SalesQuotes.MakeInvoice.Invoke;
         Assert.ExpectedError(LinesMissingQuantityErr);
@@ -162,7 +162,7 @@ codeunit 138030 "O365 Notifications"
         SalesCreditMemos: TestPage "Sales Credit Memos";
         ErrorMessagesPage: TestPage "Error Messages";
     begin
-        Initialize;
+        Initialize();
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.DeleteAll();
@@ -180,7 +180,7 @@ codeunit 138030 "O365 Notifications"
         SalesCreditMemos: TestPage "Sales Credit Memos";
         ErrorMessagesPage: TestPage "Error Messages";
     begin
-        Initialize;
+        Initialize();
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.DeleteAll();
@@ -198,7 +198,7 @@ codeunit 138030 "O365 Notifications"
         SalesCreditMemo: TestPage "Sales Credit Memo";
         SalesCreditMemos: TestPage "Sales Credit Memos";
     begin
-        Initialize;
+        Initialize();
 
         // Test posting on card
         CreateSalesCreditMemoForPosting(SalesCreditMemo, SalesHeader);
@@ -237,7 +237,7 @@ codeunit 138030 "O365 Notifications"
         PurchaseInvoice: TestPage "Purchase Invoice";
         PurchaseInvoices: TestPage "Purchase Invoices";
     begin
-        Initialize;
+        Initialize();
 
         // Test posting on card
         CreatePurchaseInvoiceForPosting(PurchaseInvoice, PurchaseHeader);
@@ -262,7 +262,7 @@ codeunit 138030 "O365 Notifications"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
         PurchaseCreditMemos: TestPage "Purchase Credit Memos";
     begin
-        Initialize;
+        Initialize();
 
         // Test posting on card
         CreatePurchaseCreditMemoForPosting(PurchaseCreditMemo, PurchaseHeader);
@@ -301,7 +301,7 @@ codeunit 138030 "O365 Notifications"
         LibrarySmallBusiness.CreateCustomer(Customer);
         LibrarySmallBusiness.CreateItem(Item);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesInvoice.SalesLines.New;
@@ -325,7 +325,7 @@ codeunit 138030 "O365 Notifications"
         LibrarySmallBusiness.CreateCustomer(Customer);
         LibrarySmallBusiness.CreateItem(Item);
 
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesQuote.SalesLines.New;
@@ -349,7 +349,7 @@ codeunit 138030 "O365 Notifications"
         LibrarySmallBusiness.CreateCustomer(Customer);
         LibrarySmallBusiness.CreateItem(Item);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesCreditMemo.SalesLines.New;
@@ -373,7 +373,7 @@ codeunit 138030 "O365 Notifications"
         LibrarySmallBusiness.CreateVendor(Vendor);
         LibrarySmallBusiness.CreateItem(Item);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
 
         LibraryVariableStorage.Enqueue(DontShowAgain);
@@ -400,7 +400,7 @@ codeunit 138030 "O365 Notifications"
         LibrarySmallBusiness.CreateVendor(Vendor);
         LibrarySmallBusiness.CreateItem(Item);
 
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
 
         LibraryVariableStorage.Enqueue(DontShowAgain);
@@ -423,14 +423,14 @@ codeunit 138030 "O365 Notifications"
     begin
         SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
         Assert.AreEqual(SalesHeader.Count, 1, 'Could not find the document or more documents were found');
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure FindPurchaseHeader(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
         Assert.AreEqual(PurchaseHeader.Count, 1, 'Could not find the document or more documents were found');
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 }
 

@@ -20,7 +20,7 @@ codeunit 139322 "Teams User Deployment Tests"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         // [GIVEN] A newly setup company on prem
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         // [WHEN] The Teams Individual Deployment is completed
@@ -45,7 +45,7 @@ codeunit 139322 "Teams User Deployment Tests"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         // [GIVEN] A newly setup company in Saas
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [WHEN] The Teams Individual Deployment is completed

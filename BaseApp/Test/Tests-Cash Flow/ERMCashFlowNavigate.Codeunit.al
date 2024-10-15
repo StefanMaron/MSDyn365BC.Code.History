@@ -52,7 +52,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         CashFlowJournal: TestPage "Cash Flow Worksheet";
     begin
-        Initialize;
+        Initialize();
 
         CFHelper.FindCFLiquidFundAccount(CFAccount);
         CFHelper.FindFirstGLAccFromCFAcc(GLAccount, CFAccount);
@@ -76,7 +76,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         GLAccount: Record "G/L Account";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo('', GLAccount.TableCaption, CFWorksheetLine."Source Type"::"Liquid Funds");
@@ -95,7 +95,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Suggest lines should set source type accordingly
 
         // Setup
-        Initialize;
+        Initialize();
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CashFlowForecast.Validate("G/L Budget From", WorkDate);
         CashFlowForecast.Validate("G/L Budget To", WorkDate);
@@ -124,7 +124,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         GLAccount: Record "G/L Account";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo('', GLAccount.TableCaption, CFWorksheetLine."Source Type"::"G/L Budget");
@@ -171,7 +171,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         CashFlowJournal: TestPage "Cash Flow Worksheet";
     begin
-        Initialize;
+        Initialize();
 
         CustLedgerEntry.FindSet();
         CustLedgerEntry.Next(LibraryRandom.RandInt(CustLedgerEntry.Count));
@@ -194,7 +194,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo(
@@ -210,7 +210,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         CashFlowJournal: TestPage "Cash Flow Worksheet";
     begin
-        Initialize;
+        Initialize();
 
         VendLedgEntry.FindSet();
         VendLedgEntry.Next(LibraryRandom.RandInt(VendLedgEntry.Count));
@@ -234,7 +234,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo(
@@ -251,7 +251,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowJournal: TestPage "Cash Flow Worksheet";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader.Insert(true);
@@ -276,7 +276,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         SalesOrders: Page "Sales Orders";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo('', SalesOrders.Caption, CFWorksheetLine."Source Type"::"Sales Orders");
@@ -292,7 +292,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowJournal: TestPage "Cash Flow Worksheet";
     begin
         // Setup
-        Initialize;
+        Initialize();
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader.Insert(true);
@@ -317,7 +317,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         PurchaseOrders: Page "Purchase Orders";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo('', PurchaseOrders.Caption, CFWorksheetLine."Source Type"::"Purchase Orders");
@@ -333,7 +333,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowJournal: TestPage "Cash Flow Worksheet";
     begin
         // Setup
-        Initialize;
+        Initialize();
         ServiceHeader.Init();
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
         ServiceHeader.Insert(true);
@@ -358,7 +358,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         ServiceOrders: Page "Service Orders";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo('', ServiceOrders.Caption,
@@ -404,7 +404,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowJournal: TestPage "Cash Flow Worksheet";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowForecast.FindCashFlowAccount(CFAccount);
         LibraryCashFlowForecast.CreateManualLineRevenue(CFManualRevenue, CFAccount."No.");
         ExpectedNo := CFManualRevenue.Code;
@@ -429,7 +429,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFManualRevenues: Page "Cash Flow Manual Revenues";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo('', CFManualRevenues.Caption,
@@ -447,7 +447,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowJournal: TestPage "Cash Flow Worksheet";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowForecast.FindCashFlowAccount(CFAccount);
         LibraryCashFlowForecast.CreateManualLinePayment(CFManualExpense, CFAccount."No.");
         ExpectedNo := CFManualExpense.Code;
@@ -472,7 +472,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFManualExpenses: Page "Cash Flow Manual Expenses";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo('', CFManualExpenses.Caption,
@@ -490,7 +490,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowJournal: TestPage "Cash Flow Worksheet";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         ExpectedNo := FixedAsset."No.";
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"Fixed Assets Budget", ExpectedNo);
@@ -513,7 +513,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         FixedAsset: Record "Fixed Asset";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo(FixedAsset.TableCaption, FixedAsset.FieldCaption("No."),
@@ -531,7 +531,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowJournal: TestPage "Cash Flow Worksheet";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         ExpectedNo := FixedAsset."No.";
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"Fixed Assets Disposal", ExpectedNo);
@@ -554,7 +554,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         FixedAsset: Record "Fixed Asset";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         NavigateJournalNonExistingSourceNo(FixedAsset.TableCaption, FixedAsset.FieldCaption("No."),
@@ -571,7 +571,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader.Insert(true);
@@ -596,7 +596,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         SourceType: Enum "Cash Flow Source Type";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         NavigateEntriesNonExistingSourceNo(Format(SourceType::"Sales Orders"), CFForecastEntry."Source Type"::"Sales Orders");
@@ -796,7 +796,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
 
         // [THEN] "Code" is not assigned, "Starting Date" is not changed
         Assert.RecordCount(CashFlowManualRevenue, 1);
-        CashFlowManualRevenue.FindFirst;
+        CashFlowManualRevenue.FindFirst();
         CashFlowManualRevenue.TestField(Code, '');
         CashFlowManualRevenue.TestField("Starting Date", WorkDate - 1);
     end;
@@ -819,7 +819,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
 
         // [THEN] "Code" is not assigned, "Starting Date" is not changed
         Assert.RecordCount(CashFlowManualExpense, 1);
-        CashFlowManualExpense.FindFirst;
+        CashFlowManualExpense.FindFirst();
         CashFlowManualExpense.TestField(Code, '');
         CashFlowManualExpense.TestField("Starting Date", WorkDate - 1);
     end;
@@ -831,7 +831,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
     begin
         // [FEATURE] [UT] [Budget]
         // [SCENARIO 269334] Page Budget use value of G/L Account Filter from function SetGLAccountFilter
-        Initialize;
+        Initialize();
 
         OpenBudgetPageWithGLAccountFilter;
         OpenBudgetPageWithGLAccountFilter;
@@ -864,8 +864,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
     var
         CashFlowManualRevenues: TestPage "Cash Flow Manual Revenues";
     begin
-        CashFlowManualRevenues.OpenNew;
-        CashFlowManualRevenues.Description.SetValue(LibraryUtility.GenerateGUID);
+        CashFlowManualRevenues.OpenNew();
+        CashFlowManualRevenues.Description.SetValue(LibraryUtility.GenerateGUID());
         CashFlowManualRevenues."Starting Date".SetValue(StartingDate);
         CashFlowManualRevenues.Close;
     end;
@@ -874,8 +874,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
     var
         CashFlowManualExpenses: TestPage "Cash Flow Manual Expenses";
     begin
-        CashFlowManualExpenses.OpenNew;
-        CashFlowManualExpenses.Description.SetValue(LibraryUtility.GenerateGUID);
+        CashFlowManualExpenses.OpenNew();
+        CashFlowManualExpenses.Description.SetValue(LibraryUtility.GenerateGUID());
         CashFlowManualExpenses."Starting Date".SetValue(StartingDate);
         CashFlowManualExpenses.Close;
     end;
@@ -923,10 +923,10 @@ codeunit 134559 "ERM Cash Flow Navigate"
         Budget: Page Budget;
         GLAccountNo: Code[20];
     begin
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         LibraryVariableStorage.Enqueue(GLAccountNo);
         Budget.SetGLAccountFilter(GLAccountNo);
-        Budget.Run;
+        Budget.Run();
     end;
 
     [PageHandler]

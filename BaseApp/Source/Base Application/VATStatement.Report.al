@@ -1,4 +1,4 @@
-report 12 "VAT Statement"
+﻿report 12 "VAT Statement"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATStatement.rdlc';

@@ -27,7 +27,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate the VAT Statement Name - OnPreDataItem trigger of GLVATReconciliation Report for LCY Code.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type");
 
         // Exercise.
@@ -49,7 +49,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate the OnPreReport trigger of GLVATReconciliation Report for Period Selection.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type");
 
         // Exercise.
@@ -71,7 +71,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate the OnPreReport trigger of GLVATReconciliation Report for Selection as Open and Closed.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type");
 
         // Exercise.
@@ -92,7 +92,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate the OnPreReport trigger of GLVATReconciliation Report for Selection as Closed.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type");
 
         // Exercise.
@@ -114,7 +114,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate the VAT Statement Name - OnPreDataItem trigger of GLVATReconciliation Report for Additional Reporting Currency.
         // Setup.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup;  // Update Additional Reporting Currency on General Ledger Setup.
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type");
 
@@ -139,7 +139,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate the G/L Account - OnAfterGetRecord trigger of GLVATReconciliation Report for Additional-Currency Net Change.
         // Setup.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup;  // Update Additional Reporting Currency on General Ledger Setup.
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type"::Amount);
 
@@ -164,7 +164,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate the G/L Account - OnAfterGetRecord trigger of GLVATReconciliation Report for Net Change.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type"::Amount);
 
         // Exercise.
@@ -187,7 +187,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate the VAT Statement Line - OnAfterGetRecord trigger of VAT Statement Report.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"VAT Entry Totaling", VATStatementLine."Amount Type");
 
         // Exercise.
@@ -208,7 +208,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate the CalcLineTotal function of VAT Statement Report.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"VAT Entry Totaling", VATStatementLine."Amount Type");
 
         // Exercise.
@@ -229,7 +229,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate the VAT Statement Line - OnAfterGetRecord trigger of VAT Statement Schedule Report for VAT Statement Line Type of Row Totaling.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"Row Totaling", VATStatementLine."Amount Type");
 
         // Exercise.
@@ -250,7 +250,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate the VAT Statement Line - OnAfterGetRecord trigger of VAT Statement Schedule Report for VAT Statement Line Type of Account Totaling.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type");
 
         // Exercise.
@@ -271,7 +271,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate the VAT Statement Line - OnAfterGetRecord trigger of VAT Statement Schedule Report for blank VAT Statement Line Type.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"Row Totaling", VATStatementLine."Amount Type");
         VATStatementLine."Account Totaling" := '';
         VATStatementLine.Modify();
@@ -294,7 +294,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate Integer - OnAfterGetRecord of Update VAT Statement Template Report for blank VAT Statement Template Name.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATStatementTemplate(VATStatementTemplate);
 
         // Exercise.
@@ -313,7 +313,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         // Purpose of the test is to validate Integer - OnAfterGetRecord of Update VAT Statement Template Report for blank VAT Statement Description.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATStatementTemplate(VATStatementTemplate);
         LibraryVariableStorage.Enqueue(VATStatementTemplate.Name);  // Enqueue VAT Statement Template Name for use in UpdateVATStatementTemplateReportHandler.
 
@@ -329,7 +329,7 @@ codeunit 142064 "UT REP VATSTAT"
     var
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
@@ -388,7 +388,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         VATStatementLine.SetRange("Statement Name", VATStatementLine."Statement Name");
         GlVatReconciliation.SetTableView(VATStatementLine);
-        GlVatReconciliation.Run;  // Invokes GLVATReconciliationReportHandler, AddCurrencyVATAdvNotAccProofReportHandler and GLVATReconciliationSelectionReportHandler.
+        GlVatReconciliation.Run();  // Invokes GLVATReconciliationReportHandler, AddCurrencyVATAdvNotAccProofReportHandler and GLVATReconciliationSelectionReportHandler.
     end;
 
     local procedure RunVATStatementScheduleReport(VATStatementLine: Record "VAT Statement Line")
@@ -397,7 +397,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         VATStatementLine.SetRange("Statement Name", VATStatementLine."Statement Name");
         VATStatementSchedule.SetTableView(VATStatementLine);
-        VATStatementSchedule.Run;  // Invokes VATStatementScheduleReportHandler.
+        VATStatementSchedule.Run();  // Invokes VATStatementScheduleReportHandler.
     end;
 
     local procedure RunVATStatementReport(VATStatementLine: Record "VAT Statement Line")
@@ -406,7 +406,7 @@ codeunit 142064 "UT REP VATSTAT"
     begin
         VATStatementLine.SetRange("Statement Name", VATStatementLine."Statement Name");
         VATStatement.SetTableView(VATStatementLine);
-        VATStatement.Run;  // Invokes VATStatementReportHandler.
+        VATStatement.Run();  // Invokes VATStatementReportHandler.
     end;
 
     local procedure UpdateGeneralLedgerSetup()

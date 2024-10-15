@@ -47,10 +47,8 @@ codeunit 1430 "Role Center Notification Mgt."
         SandboxNotificationDescTok: Label 'Show a notification informing the user that they are working in a sandbox environment.';
         ChangeToPremiumExpNotificationMsg: Label 'This Role Center contains functionality that may not be visible because of your experience setting or assigned plan. For more information, see Changing Which Features are Displayed';
         ChangeToPremiumExpURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=873395', Locked = true;
-        ChangeToPremiumExpTxt: Label 'Changing Which Features are Displayed';
         ChangeToPremiumExpNotificationDescTok: Label 'Show a notification suggesting the user to change to Premium experience.';
         ChangeToPremiumExpNotificationNameTok: Label 'Suggest to change the Experience setting.';
-        NoAccessToCompanyErr: Label 'Cannot start trial company %1 because you do not have access to the company.', Comment = '%1 = Company name';
         ContactAPartnerURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2038439', Locked = true;
         BuyThroughPartnerURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=860971', Locked = true;
 
@@ -190,20 +188,6 @@ codeunit 1430 "Role Center Notification Mgt."
         SandboxNotification.Send;
     end;
 
-    local procedure CreateAndSendChangeToPremiumExpNotification()
-    var
-        ChangeToPremiumExpNotification: Notification;
-    begin
-        ChangeToPremiumExpNotification.Id := GetChangeToPremiumExpNotificationId;
-        ChangeToPremiumExpNotification.Message := ChangeToPremiumExpNotificationMsg;
-        ChangeToPremiumExpNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
-        ChangeToPremiumExpNotification.AddAction(
-          ChangeToPremiumExpTxt, CODEUNIT::"Role Center Notification Mgt.", 'ChangeToPremiumExpURL');
-        ChangeToPremiumExpNotification.AddAction(
-          DontShowThisAgainMsg, CODEUNIT::"Role Center Notification Mgt.", 'DisableChangeToPremiumExpNotification');
-        ChangeToPremiumExpNotification.Send;
-    end;
-
     procedure HideEvaluationNotificationAfterStartingTrial()
     var
         TenantLicenseState: Codeunit "Tenant License State";
@@ -336,7 +320,7 @@ codeunit 1430 "Role Center Notification Mgt."
         if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then
             exit(false);
 
-        RoleCenterNotifications.Initialize;
+        RoleCenterNotifications.Initialize();
 
         if RoleCenterNotifications.GetEvaluationNotificationState =
            RoleCenterNotifications."Evaluation Notification State"::Disabled
@@ -594,23 +578,6 @@ codeunit 1430 "Role Center Notification Mgt."
         exit(true);
     end;
 
-    [Obsolete('This function is not being used', '17.0')]
-    procedure ShowChangeToPremiumExpNotification(): Boolean
-    var
-        MyNotifications: Record "My Notifications";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        EnvironmentInfo: Codeunit "Environment Information";
-    begin
-        if ApplicationAreaMgmtFacade.IsPremiumExperienceEnabled or not EnvironmentInfo.IsSaaS then
-            exit(false);
-
-        if not MyNotifications.IsEnabled(GetChangeToPremiumExpNotificationId) then
-            exit(false);
-
-        CreateAndSendChangeToPremiumExpNotification;
-        exit(true);
-    end;
-
     procedure EvaluationNotificationAction(EvaluationNotification: Notification)
     begin
         StartTrial;
@@ -723,7 +690,6 @@ codeunit 1430 "Role Center Notification Mgt."
 
     local procedure StartTrial()
     var
-        AssistedCompanySetup: Codeunit "Assisted Company Setup";
         UserPermissions: Codeunit "User Permissions";
         SessionSetting: SessionSettings;
         CompanyName: Text;

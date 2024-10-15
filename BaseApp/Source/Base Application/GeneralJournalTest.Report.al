@@ -177,7 +177,7 @@ report 2 "General Journal - Test"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry.FindSet then
+                                if not DimSetEntry.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -256,7 +256,7 @@ report 2 "General Journal - Test"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry.FindFirst then
+                                    if not DimSetEntry.FindFirst() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -986,7 +986,7 @@ report 2 "General Journal - Test"
                 GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
                 GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                 GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
-                if not GenJnlAlloc.FindFirst then
+                if not GenJnlAlloc.FindFirst() then
                     AddError(Text061);
             end;
 
@@ -995,12 +995,12 @@ report 2 "General Journal - Test"
             GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
             GenJnlAlloc.SetFilter(Amount, '<>0');
-            if GenJnlAlloc.FindFirst then
+            if GenJnlAlloc.FindFirst() then
                 if not GenJnlTemplate.Recurring then
                     AddError(Text021)
                 else begin
                     GenJnlAlloc.SetRange("Account No.", '');
-                    if GenJnlAlloc.FindFirst then
+                    if GenJnlAlloc.FindFirst() then
                         AddError(
                           StrSubstNo(
                             Text022,
@@ -1336,7 +1336,7 @@ report 2 "General Journal - Test"
                         OldCustLedgEntry.SetCurrentKey("Document No.");
                         OldCustLedgEntry.SetRange("Document Type", "Document Type");
                         OldCustLedgEntry.SetRange("Document No.", "Document No.");
-                        if OldCustLedgEntry.FindFirst then
+                        if OldCustLedgEntry.FindFirst() then
                             AddError(
                               StrSubstNo(
                                 Text039, "Document Type", "Document No."));
@@ -1354,7 +1354,7 @@ report 2 "General Journal - Test"
                             OldCustLedgEntry.SetRange("Document Type", "Document Type");
                             OldCustLedgEntry.SetRange("Customer No.", "Account No.");
                             OldCustLedgEntry.SetRange("External Document No.", "External Document No.");
-                            if OldCustLedgEntry.FindFirst then
+                            if OldCustLedgEntry.FindFirst() then
                                 AddError(
                                   StrSubstNo(
                                     Text039,
@@ -1428,7 +1428,7 @@ report 2 "General Journal - Test"
                         OldVendLedgEntry.SetCurrentKey("Document No.");
                         OldVendLedgEntry.SetRange("Document Type", "Document Type");
                         OldVendLedgEntry.SetRange("Document No.", "Document No.");
-                        if OldVendLedgEntry.FindFirst then
+                        if OldVendLedgEntry.FindFirst() then
                             AddError(
                               StrSubstNo(
                                 Text040,
@@ -1446,7 +1446,7 @@ report 2 "General Journal - Test"
                             OldVendLedgEntry.SetCurrentKey("External Document No.");
                             VendorMgt.SetFilterForExternalDocNo(
                               OldVendLedgEntry, "Document Type", "External Document No.", "Account No.", "Document Date");
-                            if OldVendLedgEntry.FindFirst then
+                            if OldVendLedgEntry.FindFirst() then
                                 AddError(
                                   StrSubstNo(
                                     Text040,
@@ -1909,7 +1909,7 @@ report 2 "General Journal - Test"
                 TempGenJnlLine.SetRange("Bal. Account Type", AccType);
                 TempGenJnlLine.SetRange("Bal. Account No.", AccNo);
             end;
-            if TempGenJnlLine.FindFirst then begin
+            if TempGenJnlLine.FindFirst() then begin
                 ErrorFound := true;
                 AddError(
                   StrSubstNo(
@@ -1937,7 +1937,7 @@ report 2 "General Journal - Test"
                     GenJnlLine4.SetRange("Posting Date", "Posting Date");
                     GenJnlLine4.SetRange("Document No.", "Document No.");
                     GenJnlLine4.SetFilter("IC Partner Code", '<>%1', '');
-                    if GenJnlLine4.FindFirst then
+                    if GenJnlLine4.FindFirst() then
                         CurrentICPartner := GenJnlLine4."IC Partner Code"
                     else
                         CurrentICPartner := '';
@@ -2055,7 +2055,7 @@ report 2 "General Journal - Test"
                 OldFALedgEntry.SetRange("FA Posting Category", OldFALedgEntry."FA Posting Category"::" ");
                 OldFALedgEntry.SetRange("FA Posting Type", FAJnlLine.ConvertToLedgEntry(FAJnlLine));
                 OldFALedgEntry.SetRange("Document No.", "Document No.");
-                if OldFALedgEntry.FindFirst then
+                if OldFALedgEntry.FindFirst() then
                     AddError(
                       StrSubstNo(
                         Text073,
@@ -2066,7 +2066,7 @@ report 2 "General Journal - Test"
                 OldMaintenanceLedgEntry.SetRange("FA No.", FANo);
                 OldMaintenanceLedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
                 OldMaintenanceLedgEntry.SetRange("Document No.", "Document No.");
-                if OldMaintenanceLedgEntry.FindFirst then
+                if OldMaintenanceLedgEntry.FindFirst() then
                     AddError(
                       StrSubstNo(
                         Text073,
@@ -2128,7 +2128,7 @@ report 2 "General Journal - Test"
     begin
         GenJournalLine.CopyFilters(FromGenJournalLine);
         GenJournalLine.SetCurrentKey("Document No.");
-        if GenJournalLine.FindLast then;
+        if GenJournalLine.FindLast() then;
         exit(GenJournalLine."Document No.");
     end;
 

@@ -31,7 +31,7 @@ codeunit 744 "VAT Report Validate"
 
     local procedure InsertErrorLog(ErrorMessage: Text[250])
     begin
-        if TempVATReportErrorLog.FindLast then
+        if TempVATReportErrorLog.FindLast() then
             ErrorID := TempVATReportErrorLog."Entry No." + 1
         else
             ErrorID := 1;
@@ -119,7 +119,7 @@ codeunit 744 "VAT Report Validate"
     begin
         with VATReportLine do begin
             SetRange("VAT Report No.", VATReportHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Country/Region Code" = '' then
                         InsertErrorLog(StrSubstNo(Text001, FieldCaption("Country/Region Code"), TableCaption));
@@ -150,7 +150,7 @@ codeunit 744 "VAT Report Validate"
             VATReportHeader2.SetRange("VAT Report Type", VATReportHeader."VAT Report Type");
             VATReportHeader2.SetRange("Trade Type", VATReportHeader."Trade Type");
             VATReportHeader2.SetFilter("No.", '<>%1', VATReportHeader."No.");
-            if VATReportHeader2.FindFirst then
+            if VATReportHeader2.FindFirst() then
                 Error(Text002,
                   VATReportHeader."Start Date", VATReportHeader."End Date", VATReportHeader2."No.");
         end;

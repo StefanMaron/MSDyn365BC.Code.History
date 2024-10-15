@@ -340,7 +340,7 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure PostInvoice(var InvGenJnlLine: Record "Gen. Journal Line")

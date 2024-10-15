@@ -91,7 +91,7 @@ page 5005275 "Issued Delivery Reminders List"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 }
 

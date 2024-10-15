@@ -42,9 +42,9 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportSetup: Record "VAT Report Setup";
         NoSeries: Record "No. Series";
     begin
-        Initialize;
+        Initialize();
         VATReportSetup.Get();
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         VATReportSetup."No. Series" := NoSeries.Code;
         VATReportSetup.Modify();
 
@@ -60,7 +60,7 @@ codeunit 134056 "ERM VAT Report Header Line"
     var
         VATReportHdr: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         VATReportHdr.Init();
         VATReportHdr."No." := 'Test2';
         VATReportHdr.Insert(true);
@@ -75,7 +75,7 @@ codeunit 134056 "ERM VAT Report Header Line"
     var
         VATReportHdr: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         VATReportHdr.Get('Test');
 
         asserterror VATReportHdr.Modify(true);
@@ -96,7 +96,7 @@ codeunit 134056 "ERM VAT Report Header Line"
     begin
         VATReportSetup.Get();
         NoSeries.SetRange("Manual Nos.", true);
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
 
         VATReportSetup."No. Series" := NoSeries.Code;
         VATReportSetup.Modify();
@@ -112,7 +112,7 @@ codeunit 134056 "ERM VAT Report Header Line"
     var
         VATReportHdr: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         VATReportHdr.Get('Test');
         VATReportHdr.Status := VATReportHdr.Status::Released;
         asserterror VATReportHdr.Validate("VAT Report Config. Code", VATReportHdr."VAT Report Config. Code"::VIES);
@@ -132,7 +132,7 @@ codeunit 134056 "ERM VAT Report Header Line"
     var
         VATReportHdr: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         VATReportHdr.Get('Test');
         VATReportHdr.Status := VATReportHdr.Status::Released;
         asserterror VATReportHdr.CheckEditingAllowed;
@@ -149,7 +149,7 @@ codeunit 134056 "ERM VAT Report Header Line"
     var
         VATReportHdr: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         VATReportHdr.Get('Test');
         VATReportHdr.Status := VATReportHdr.Status::Open;
         VATReportHdr.CheckEditingAllowed;
@@ -162,7 +162,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportHdr: Record "VAT Report Header";
         VATReportSetup: Record "VAT Report Setup";
     begin
-        Initialize;
+        Initialize();
         VATReportSetup.Get();
         VATReportSetup."Modify Submitted Reports" := false;
         VATReportSetup.Modify();
@@ -181,7 +181,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportHdr: Record "VAT Report Header";
         VATReportSetup: Record "VAT Report Setup";
     begin
-        Initialize;
+        Initialize();
         VATReportSetup.Get();
         VATReportSetup."Modify Submitted Reports" := true;
         VATReportSetup.Modify();
@@ -198,7 +198,7 @@ codeunit 134056 "ERM VAT Report Header Line"
     var
         VATReportHdr: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         VATReportHdr.Get('Test');
         VATReportHdr.Status := VATReportHdr.Status::Open;
         VATReportHdr."VAT Report Type" := VATReportHdr."VAT Report Type"::Corrective;
@@ -212,7 +212,7 @@ codeunit 134056 "ERM VAT Report Header Line"
     var
         VATReportHdr: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         VATReportHdr.Get('Test');
         // Test Start date
         VATReportHdr."Start Date" := 0D;
@@ -235,7 +235,7 @@ codeunit 134056 "ERM VAT Report Header Line"
     var
         VATReportHdr: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         VATReportHdr.Get('Test');
         asserterror VATReportHdr.Rename('Test3');
         Assert.ExpectedError(CheckOnRenameError);
@@ -249,9 +249,9 @@ codeunit 134056 "ERM VAT Report Header Line"
         NoSeries: Record "No. Series";
         VATReportHdr: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
         VATReportSetup.Get();
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         VATReportSetup."No. Series" := NoSeries.Code;
         VATReportSetup.Modify();
 
@@ -267,7 +267,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         if IsInitialized then
             exit;
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         IsInitialized := true;
 
         VATReportHdr.Init();

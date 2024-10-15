@@ -120,7 +120,7 @@ page 130405 "CAL Test Results"
                     CALExportTestResult: XMLport "CAL Export Test Result";
                 begin
                     CALExportTestResult.SetTableView(Rec);
-                    CALExportTestResult.Run;
+                    CALExportTestResult.Run();
                 end;
             }
         }

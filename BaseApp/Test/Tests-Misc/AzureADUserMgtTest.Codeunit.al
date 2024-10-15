@@ -36,7 +36,7 @@ codeunit 132907 AzureADUserMgtTest
         AzureADUserMgtTestLibrary: Codeunit "Azure AD User Mgt Test Library";
     begin
         // [SCENARIO] When device user signs in and its the first user on the system, an error is thrown
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryLowerPermissions.AddSecurity();
 
@@ -65,7 +65,7 @@ codeunit 132907 AzureADUserMgtTest
         AzureADUserMgtTestLibrary: Codeunit "Azure AD User Mgt Test Library";
     begin
         // [SCENARIO] When device user signs in, device plan is assigned to the user
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryLowerPermissions.AddSecurity();
 
@@ -97,7 +97,7 @@ codeunit 132907 AzureADUserMgtTest
         AzureADUserMgtTestLibrary: Codeunit "Azure AD User Mgt Test Library";
     begin
         // [SCENARIO] When device user who also happens to have a plan assigned signs in, device plan is not assigned to the user
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryLowerPermissions.AddSecurity();
 
@@ -131,7 +131,7 @@ codeunit 132907 AzureADUserMgtTest
         AzureADUserMgtTestLibrary: Codeunit "Azure AD User Mgt Test Library";
     begin
         // [SCENARIO] When device user who also happens to have a plan assigned signs in, device plan is not assigned to the user
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryLowerPermissions.AddSecurity();
 
@@ -208,7 +208,7 @@ codeunit 132907 AzureADUserMgtTest
         UserGroupPlan: Record "User Group Plan";
     begin
         // [SCENARIO] Creating new users from the Azure Active Directory Graph
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryLowerPermissions.SetSecurity();
 
@@ -238,7 +238,7 @@ codeunit 132907 AzureADUserMgtTest
         i: Integer;
     begin
         // [SCENARIO] Creating new users from the Azure Active Directory Graph
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryLowerPermissions.AddSecurity();
 
@@ -270,7 +270,7 @@ codeunit 132907 AzureADUserMgtTest
         UserAuthenticationID: Text;
     begin
         // [SCENARIO] "Download" new users from the Graph, but have no permissions to create them locally
-        Initialize;
+        Initialize();
 
         // [GIVEN] 1 existing user in the system
         LibraryLowerPermissions.SetOutsideO365Scope();
@@ -306,8 +306,8 @@ codeunit 132907 AzureADUserMgtTest
         // [SCENARIO] Attempting to create new users from the Graph when the graph is not initialized
         // It should result in an error, as the DotNet GraphQuery object cannot be initialized
         // in a non-SaaS environment
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryLowerPermissions.AddSecurity;
 
         // [GIVEN] 1 existing user in the system
@@ -340,8 +340,8 @@ codeunit 132907 AzureADUserMgtTest
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
         // [SCENARIO] When singning in, if the plan is disabled, default rolecenter id returned
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         Plan.Open();
         Plan.Read();
@@ -353,7 +353,7 @@ codeunit 132907 AzureADUserMgtTest
         LibraryLowerPermissions.SetO365Basic;
         Assert.AreEqual(9022, ConfPersonalizationMgt.DefaultRoleCenterID, 'Invalid Role Center Id');
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         TearDown;
     end;
 
@@ -433,7 +433,7 @@ codeunit 132907 AzureADUserMgtTest
         Plan: Query Plan;
     begin
         LibraryPermissions.CreateAzureActiveDirectoryUser(User, UserName);
-        UserGroupPlan.FindFirst;
+        UserGroupPlan.FindFirst();
 
         Plan.SetRange(Plan_ID, UserGroupPlan."Plan ID");
         Plan.Open();
@@ -491,7 +491,7 @@ codeunit 132907 AzureADUserMgtTest
         IsUserTenantAdmin: Boolean;
     begin
         // [GIVEN] A user is created, but not added to the Azure AD Graph
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryLowerPermissions.AddSecurity;
         LibraryPermissions.CreateUser(User, 'username_username', true);
 

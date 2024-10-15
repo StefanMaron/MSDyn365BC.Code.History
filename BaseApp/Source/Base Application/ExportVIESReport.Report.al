@@ -15,7 +15,7 @@ report 11008 "Export VIES Report"
 
                 VATReportLine.SetRange("VAT Report No.", "No.");
                 VATReportLine.SetRange("Line Type", VATReportLine."Line Type"::New);
-                if VATReportLine.FindSet then
+                if VATReportLine.FindSet() then
                     repeat
                         MakeLineRecord("VAT Report Header", VATReportLine);
                     until VATReportLine.Next() = 0;
@@ -25,7 +25,7 @@ report 11008 "Export VIES Report"
                 else
                     VATReportLine.SetRange("Line Type", VATReportLine."Line Type"::Correction);
 
-                if VATReportLine.FindSet then
+                if VATReportLine.FindSet() then
                     repeat
                         MakeLineRecord("VAT Report Header", VATReportLine);
                     until VATReportLine.Next() = 0;
@@ -40,7 +40,7 @@ report 11008 "Export VIES Report"
                 if TestMode then
                     exit;
 
-                if TempDataExportBuffer.FindSet then begin
+                if TempDataExportBuffer.FindSet() then begin
                     ServerFileName := FileMgt.ServerTempFileName(StrSubstNo('eg%1', GetTestExport("Test Export")));
                     ExportFile.Create(ServerFileName, TEXTENCODING::Windows);
                     ExportFile.TextMode(false);
@@ -108,7 +108,7 @@ report 11008 "Export VIES Report"
     begin
         TempDataExportBuffer2.DeleteAll();
         TempDataExportBuffer2.Reset();
-        if TempDataExportBuffer.FindSet then
+        if TempDataExportBuffer.FindSet() then
             repeat
                 TempDataExportBuffer2 := TempDataExportBuffer;
                 TempDataExportBuffer2.Insert();
