@@ -28,17 +28,15 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
     [Scope('OnPrem')]
     procedure Initialize(CreationDateTime: DateTime)
     begin
-        with CompanyInformation do begin
-            Get();
-            TestField("Registration No.");
-            TestField(Area);
-            TestField("Agency No.");
-            TestField("Company No.");
-            TestField(Address);
-            TestField("Post Code");
-            TestField(City);
-            TestField("Country/Region Code");
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.TestField("Registration No.");
+        CompanyInformation.TestField(Area);
+        CompanyInformation.TestField("Agency No.");
+        CompanyInformation.TestField("Company No.");
+        CompanyInformation.TestField(Address);
+        CompanyInformation.TestField("Post Code");
+        CompanyInformation.TestField(City);
+        CompanyInformation.TestField("Country/Region Code");
         IntrastatSetup.Get();
         IntrastatSetup.TestField("Intrastat Contact Type");
         CheckIntrastatContactMandatoryFields();
@@ -104,11 +102,9 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
     var
         XMLNode: DotNet XmlNode;
     begin
-        with IntrastatJnlLine do begin
-            XMLDOMMgt.AddElement(DeclarationXMLNode, 'totalNetMass', FormatDecimal("Total Weight"), '', XMLNode);
-            XMLDOMMgt.AddElement(DeclarationXMLNode, 'totalInvoicedAmount', FormatDecimal(Amount), '', XMLNode);
-            XMLDOMMgt.AddElement(DeclarationXMLNode, 'totalStatisticalValue', FormatDecimal("Statistical Value"), '', XMLNode);
-        end;
+        XMLDOMMgt.AddElement(DeclarationXMLNode, 'totalNetMass', FormatDecimal(IntrastatJnlLine."Total Weight"), '', XMLNode);
+        XMLDOMMgt.AddElement(DeclarationXMLNode, 'totalInvoicedAmount', FormatDecimal(IntrastatJnlLine.Amount), '', XMLNode);
+        XMLDOMMgt.AddElement(DeclarationXMLNode, 'totalStatisticalValue', FormatDecimal(IntrastatJnlLine."Statistical Value"), '', XMLNode);
     end;
 
     [Scope('OnPrem')]
@@ -118,38 +114,35 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         XMLNode3: DotNet XmlNode;
         CountryOfOriginCode: Code[10];
     begin
-        with IntrastatJnlLine do begin
-            XMLDOMMgt.AddElement(XMLNode, 'Item', '', '', XMLNode2);
-            XMLDOMMgt.AddElement(XMLNode2, 'itemNumber', "Internal Ref. No.", '', XMLNode3);
-            WriteXMLCN8(XMLNode2, Format(DelChr("Tariff No."), 8));
-            XMLDOMMgt.AddElement(XMLNode2, 'goodsDescription', "Item Description", '', XMLNode3);
-            XMLDOMMgt.AddElement(XMLNode2, 'MSConsDestCode', GetCountryCode("Country/Region Code"), '', XMLNode3);
+        XMLDOMMgt.AddElement(XMLNode, 'Item', '', '', XMLNode2);
+        XMLDOMMgt.AddElement(XMLNode2, 'itemNumber', IntrastatJnlLine."Internal Ref. No.", '', XMLNode3);
+        WriteXMLCN8(XMLNode2, Format(DelChr(IntrastatJnlLine."Tariff No."), 8));
+        XMLDOMMgt.AddElement(XMLNode2, 'goodsDescription', IntrastatJnlLine."Item Description", '', XMLNode3);
+        XMLDOMMgt.AddElement(XMLNode2, 'MSConsDestCode', GetCountryCode(IntrastatJnlLine."Country/Region Code"), '', XMLNode3);
 
-            if (Type = Type::Receipt) or ("Country/Region of Origin Code" <> '') then
-                CountryOfOriginCode := GetOriginCountryCode("Country/Region of Origin Code");
-            XMLDOMMgt.AddElement(XMLNode2, 'countryOfOriginCode', CountryOfOriginCode, '', XMLNode3);
+        if (IntrastatJnlLine.Type = IntrastatJnlLine.Type::Receipt) or (IntrastatJnlLine."Country/Region of Origin Code" <> '') then
+            CountryOfOriginCode := GetOriginCountryCode(IntrastatJnlLine."Country/Region of Origin Code");
+        XMLDOMMgt.AddElement(XMLNode2, 'countryOfOriginCode', CountryOfOriginCode, '', XMLNode3);
 
-            XMLDOMMgt.AddElement(XMLNode2, 'netMass', FormatDecimal("Total Weight"), '', XMLNode3);
-            if "Supplementary Units" then
-                XMLDOMMgt.AddElement(XMLNode2, 'quantityInSU', FormatDecimal(Quantity), '', XMLNode3);
-            XMLDOMMgt.AddElement(XMLNode2, 'invoicedAmount', FormatDecimal(Amount), '', XMLNode3);
-            XMLDOMMgt.AddElement(XMLNode2, 'statisticalValue', FormatDecimal("Statistical Value"), '', XMLNode3);
-            if "Document No." <> '' then
-                XMLDOMMgt.AddElement(XMLNode2, 'invoiceNumber', "Document No.", '', XMLNode3);
-            if "Partner VAT ID" <> '' then
-                XMLDOMMgt.AddElement(XMLNode2, 'partnerId', "Partner VAT ID", '', XMLNode3);
-            WriteXMLNatureOfTransaction(XMLNode2, "Transaction Type");
-            XMLDOMMgt.AddElement(XMLNode2, 'modeOfTransportCode', "Transport Method", '', XMLNode3);
-            XMLDOMMgt.AddElement(XMLNode2, 'regionCode', Area, '', XMLNode3);
-        end;
+        XMLDOMMgt.AddElement(XMLNode2, 'netMass', FormatDecimal(IntrastatJnlLine."Total Weight"), '', XMLNode3);
+        if IntrastatJnlLine."Supplementary Units" then
+            XMLDOMMgt.AddElement(XMLNode2, 'quantityInSU', FormatDecimal(IntrastatJnlLine.Quantity), '', XMLNode3);
+        XMLDOMMgt.AddElement(XMLNode2, 'invoicedAmount', FormatDecimal(IntrastatJnlLine.Amount), '', XMLNode3);
+        XMLDOMMgt.AddElement(XMLNode2, 'statisticalValue', FormatDecimal(IntrastatJnlLine."Statistical Value"), '', XMLNode3);
+        if IntrastatJnlLine."Document No." <> '' then
+            XMLDOMMgt.AddElement(XMLNode2, 'invoiceNumber', IntrastatJnlLine."Document No.", '', XMLNode3);
+        if IntrastatJnlLine."Partner VAT ID" <> '' then
+            XMLDOMMgt.AddElement(XMLNode2, 'partnerId', IntrastatJnlLine."Partner VAT ID", '', XMLNode3);
+        WriteXMLNatureOfTransaction(XMLNode2, IntrastatJnlLine."Transaction Type");
+        XMLDOMMgt.AddElement(XMLNode2, 'modeOfTransportCode', IntrastatJnlLine."Transport Method", '', XMLNode3);
+        XMLDOMMgt.AddElement(XMLNode2, 'regionCode', IntrastatJnlLine."Area", '', XMLNode3);
     end;
 
     local procedure WriteXMLPartySender(XMLNode: DotNet XmlNode)
     begin
-        with CompanyInformation do
-            WriteXMLParty(
-              XMLNode, 'PSI', 'sender', VATIDNo, Name, GetMaterialNumber(),
-              Address, "Post Code", City, GetCountryName("Country/Region Code"), "Phone No.", "Fax No.", "E-Mail");
+        WriteXMLParty(
+              XMLNode, 'PSI', 'sender', VATIDNo, CompanyInformation.Name, GetMaterialNumber(),
+              CompanyInformation.Address, CompanyInformation."Post Code", CompanyInformation.City, GetCountryName(CompanyInformation."Country/Region Code"), CompanyInformation."Phone No.", CompanyInformation."Fax No.", CompanyInformation."E-Mail");
     end;
 
     local procedure WriteXMLPartyReceiver(XMLNode: DotNet XmlNode)
@@ -161,18 +154,16 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
             IntrastatSetup."Intrastat Contact Type"::Contact:
                 begin
                     Contact.Get(IntrastatSetup."Intrastat Contact No.");
-                    with Contact do
-                        WriteXMLParty(
-                          XMLNode, 'CC', 'receiver', '00', Name, '',
-                          Address, "Post Code", City, GetCountryName("Country/Region Code"), "Phone No.", "Fax No.", "E-Mail");
+                    WriteXMLParty(
+                          XMLNode, 'CC', 'receiver', '00', Contact.Name, '',
+                          Contact.Address, Contact."Post Code", Contact.City, GetCountryName(Contact."Country/Region Code"), Contact."Phone No.", Contact."Fax No.", Contact."E-Mail");
                 end;
             IntrastatSetup."Intrastat Contact Type"::Vendor:
                 begin
                     Vendor.Get(IntrastatSetup."Intrastat Contact No.");
-                    with Vendor do
-                        WriteXMLParty(
-                          XMLNode, 'CC', 'receiver', '00', Name, '',
-                          Address, "Post Code", City, GetCountryName("Country/Region Code"), "Phone No.", "Fax No.", "E-Mail");
+                    WriteXMLParty(
+                          XMLNode, 'CC', 'receiver', '00', Vendor.Name, '',
+                          Vendor.Address, Vendor."Post Code", Vendor.City, GetCountryName(Vendor."Country/Region Code"), Vendor."Phone No.", Vendor."Fax No.", Vendor."E-Mail");
                 end;
         end;
     end;
@@ -253,11 +244,9 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
     var
         CountryRegion: Record "Country/Region";
     begin
-        with CountryRegion do begin
-            Get(CountryRegionCode);
-            TestField("Intrastat Code");
-            exit("Intrastat Code");
-        end;
+        CountryRegion.Get(CountryRegionCode);
+        CountryRegion.TestField("Intrastat Code");
+        exit(CountryRegion."Intrastat Code");
     end;
 
     [Scope('OnPrem')]
@@ -265,12 +254,10 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
     var
         CountryRegion: Record "Country/Region";
     begin
-        with CountryRegion do begin
-            Get(CountryRegionCode);
-            if "Intrastat Code" <> '' then
-                exit("Intrastat Code");
-            exit(CountryRegionCode);
-        end;
+        CountryRegion.Get(CountryRegionCode);
+        if CountryRegion."Intrastat Code" <> '' then
+            exit(CountryRegion."Intrastat Code");
+        exit(CountryRegionCode);
     end;
 
     local procedure GetMaterialNumber(): Text
@@ -293,10 +280,8 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
     var
         CountryRegion: Record "Country/Region";
     begin
-        with CountryRegion do begin
-            Get(CountryRegionCode);
-            exit(Name);
-        end;
+        CountryRegion.Get(CountryRegionCode);
+        exit(CountryRegion.Name);
     end;
 
     local procedure GetFlowCode(ExportType: Option): Text

@@ -8,6 +8,7 @@ table 1512 "Notification Setup"
     DrillDownPageID = "Notification Setup";
     LookupPageID = "Notification Setup";
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -27,7 +28,7 @@ table 1512 "Notification Setup"
         }
         field(5; Schedule; Enum "Notification Schedule Type")
         {
-            CalcFormula = Lookup("Notification Schedule".Recurrence where("User ID" = field("User ID"),
+            CalcFormula = lookup("Notification Schedule".Recurrence where("User ID" = field("User ID"),
                                                                            "Notification Type" = field("Notification Type")));
             Caption = 'Schedule';
             FieldClass = FlowField;

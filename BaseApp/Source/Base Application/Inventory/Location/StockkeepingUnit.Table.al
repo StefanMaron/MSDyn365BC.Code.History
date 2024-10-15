@@ -33,6 +33,7 @@ table 5700 "Stockkeeping Unit"
     Caption = 'Stockkeeping Unit';
     DrillDownPageID = "Stockkeeping Unit List";
     LookupPageID = "Stockkeeping Unit List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -86,14 +87,14 @@ table 5700 "Stockkeeping Unit"
         }
         field(4; Description; Text[100])
         {
-            CalcFormula = Lookup(Item.Description where("No." = field("Item No.")));
+            CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
             Caption = 'Description';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5; "Description 2"; Text[50])
         {
-            CalcFormula = Lookup(Item."Description 2" where("No." = field("Item No.")));
+            CalcFormula = lookup(Item."Description 2" where("No." = field("Item No.")));
             Caption = 'Description 2';
             Editable = false;
             FieldClass = FlowField;
@@ -339,7 +340,7 @@ table 5700 "Stockkeeping Unit"
                                                                                  "Location Code" = field("Location Code"),
                                                                                  "Variant Code" = field("Variant Code"),
                                                                                  "Planning Date" = field("Date Filter")));
-            Caption = 'Qty. on Job Order';
+            Caption = 'Qty. on Project Order';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
@@ -544,6 +545,10 @@ table 5700 "Stockkeeping Unit"
             Caption = 'Overflow Level';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+        }
+        field(5448; "Plan Minimal Supply"; Boolean)
+        {
+            Caption = 'Plan Minimal Supply';
         }
         field(5700; "Transfer-from Code"; Code[10])
         {
@@ -918,9 +923,6 @@ table 5700 "Stockkeeping Unit"
         Text008: Label 'You cannot change %1 because there are one or more ledger entries for this SKU.';
         Text7380: Label 'If you change the %1, the %2 and %3 are calculated.\Do you still want to change the %1?', Comment = 'If you change the Phys Invt Counting Period Code, the Next Counting Start Date and Next Counting End Date are calculated.\Do you still want to change the Phys Invt Counting Period Code?';
         Text7381: Label 'Cancelled.';
-#if not CLEAN21
-        DeprecatedFuncTxt: Label 'This function has been deprecated.';
-#endif
 
     protected var
         HideValidationDialog: Boolean;
@@ -981,13 +983,6 @@ table 5700 "Stockkeeping Unit"
               CurrentFieldName);
     end;
 
-#if not CLEAN21
-    [Obsolete('This procedure is discontinued because the TimelineVisualizer control has been deprecated.', '21.0')]
-    procedure ShowTimeline(SKU: Record "Stockkeeping Unit")
-    begin
-        Message(DeprecatedFuncTxt);
-    end;
-#endif    
     procedure UpdateTempSKUTransferLevels(FromSKU: Record "Stockkeeping Unit"; var TempToSKU: Record "Stockkeeping Unit" temporary; FromLocationCode: Code[10]): Boolean
     var
         SavedPositionSKU: Record "Stockkeeping Unit";

@@ -508,8 +508,11 @@ page 902 "Assembly Orders"
 
     local procedure ShowPreview()
     var
+        SelectedAssemblyHeader: Record "Assembly Header";
         AssemblyPostYesNo: Codeunit "Assembly-Post (Yes/No)";
     begin
+        CurrPage.SetSelectionFilter(SelectedAssemblyHeader);
+        AssemblyPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedAssemblyHeader, Rec."No.");
         AssemblyPostYesNo.Preview(Rec);
     end;
 }

@@ -143,8 +143,8 @@ report 295 "Combine Shipments"
                 if IsHandled then
                     CurrReport.Skip();
 
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 Window.Update(1, "Bill-to Customer No.");
                 Window.Update(2, "No.");
@@ -303,7 +303,7 @@ report 295 "Combine Shipments"
         Cust: Record Customer;
         GLSetup: Record "General Ledger Setup";
         PmtTerms: Record "Payment Terms";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         SalesCalcDisc: Codeunit "Sales-Calc. Discount";
         SalesPost: Codeunit "Sales-Post";
         Window: Dialog;
@@ -350,28 +350,26 @@ report 295 "Combine Shipments"
         if HasError then
             NoOfSalesInvErrors += 1;
 
-        with SalesHeader do begin
-            if (not HasAmount) or HasError then begin
-                OnFinalizeSalesInvHeaderOnBeforeDelete(SalesHeader);
-                Delete(true);
-                OnFinalizeSalesInvHeaderOnAfterDelete(SalesHeader);
-                exit;
-            end;
-            OnFinalizeSalesInvHeader(SalesHeader);
-            if CalcInvDisc then
-                SalesCalcDisc.Run(SalesLine);
-            Find();
-            Commit();
-            Clear(SalesCalcDisc);
+        if (not HasAmount) or HasError then begin
+            OnFinalizeSalesInvHeaderOnBeforeDelete(SalesHeader);
+            SalesHeader.Delete(true);
+            OnFinalizeSalesInvHeaderOnAfterDelete(SalesHeader);
+            exit;
+        end;
+        OnFinalizeSalesInvHeader(SalesHeader);
+        if CalcInvDisc then
+            SalesCalcDisc.Run(SalesLine);
+        SalesHeader.Find();
+        Commit();
+        Clear(SalesCalcDisc);
+        Clear(SalesPost);
+        NoOfSalesInv := NoOfSalesInv + 1;
+        ShouldPostInv := PostInv;
+        OnFinalizeSalesInvHeaderOnAfterCalcShouldPostInv(SalesHeader, NoOfSalesInv, ShouldPostInv);
+        if ShouldPostInv then begin
             Clear(SalesPost);
-            NoOfSalesInv := NoOfSalesInv + 1;
-            ShouldPostInv := PostInv;
-            OnFinalizeSalesInvHeaderOnAfterCalcShouldPostInv(SalesHeader, NoOfSalesInv, ShouldPostInv);
-            if ShouldPostInv then begin
-                Clear(SalesPost);
-                if not SalesPost.Run(SalesHeader) then
-                    NoOfSalesInvErrors := NoOfSalesInvErrors + 1;
-            end;
+            if not SalesPost.Run(SalesHeader) then
+                NoOfSalesInvErrors := NoOfSalesInvErrors + 1;
         end;
     end;
 
@@ -384,29 +382,27 @@ report 295 "Combine Shipments"
         if not IsHandled then begin
             GLSetup.Get();
             Clear(SalesHeader);
-            with SalesHeader do begin
-                Init();
-                "Document Type" := "Document Type"::Invoice;
-                "No." := '';
-                OnBeforeSalesInvHeaderInsert(SalesHeader, SalesOrderHeader);
-                Insert(true);
-                ValidateCustomerNo(SalesHeader, SalesOrderHeader);
-                Validate("Posting Date", PostingDateReq);
-                Validate("Document Date", DocDateReq);
-                Validate("VAT Reporting Date", VATDateReq);
-                Validate("Currency Code", SalesOrderHeader."Currency Code");
-                Validate("EU 3-Party Trade", SalesOrderHeader."EU 3-Party Trade");
-                if GLSetup."Journal Templ. Name Mandatory" then
-                    Validate("Journal Templ. Name", SalesOrderHeader."Journal Templ. Name");
-                "Salesperson Code" := SalesOrderHeader."Salesperson Code";
-                "Shortcut Dimension 1 Code" := SalesOrderHeader."Shortcut Dimension 1 Code";
-                "Shortcut Dimension 2 Code" := SalesOrderHeader."Shortcut Dimension 2 Code";
-                "Dimension Set ID" := SalesOrderHeader."Dimension Set ID";
-                OnBeforeSalesInvHeaderModify(SalesHeader, SalesOrderHeader);
-                Modify();
-                Commit();
-                HasAmount := false;
-            end;
+            SalesHeader.Init();
+            SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+            SalesHeader."No." := '';
+            OnBeforeSalesInvHeaderInsert(SalesHeader, SalesOrderHeader);
+            SalesHeader.Insert(true);
+            ValidateCustomerNo(SalesHeader, SalesOrderHeader);
+            SalesHeader.Validate("Posting Date", PostingDateReq);
+            SalesHeader.Validate("Document Date", DocDateReq);
+            SalesHeader.Validate("VAT Reporting Date", VATDateReq);
+            SalesHeader.Validate("Currency Code", SalesOrderHeader."Currency Code");
+            SalesHeader.Validate("EU 3-Party Trade", SalesOrderHeader."EU 3-Party Trade");
+            if GLSetup."Journal Templ. Name Mandatory" then
+                SalesHeader.Validate("Journal Templ. Name", SalesOrderHeader."Journal Templ. Name");
+            SalesHeader."Salesperson Code" := SalesOrderHeader."Salesperson Code";
+            SalesHeader."Shortcut Dimension 1 Code" := SalesOrderHeader."Shortcut Dimension 1 Code";
+            SalesHeader."Shortcut Dimension 2 Code" := SalesOrderHeader."Shortcut Dimension 2 Code";
+            SalesHeader."Dimension Set ID" := SalesOrderHeader."Dimension Set ID";
+            OnBeforeSalesInvHeaderModify(SalesHeader, SalesOrderHeader);
+            SalesHeader.Modify();
+            Commit();
+            HasAmount := false;
         end;
         OnAfterInsertSalesInvHeader(SalesHeader, "Sales Shipment Header");
     end;

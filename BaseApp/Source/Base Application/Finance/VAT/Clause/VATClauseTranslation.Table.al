@@ -7,6 +7,7 @@ table 561 "VAT Clause Translation"
     Caption = 'VAT Clause Translation';
     DrillDownPageID = "VAT Clause Translations";
     LookupPageID = "VAT Clause Translations";
+    DataClassification = CustomerContent;
 
     fields
     {

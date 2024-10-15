@@ -676,8 +676,8 @@ report 122 "Reminder - Test"
                 UserSetupManagement: Codeunit "User Setup Management";
                 TempErrorText: Text[250];
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 CalcFields("Remaining Amount");
@@ -831,7 +831,7 @@ report 122 "Reminder - Test"
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry: Record "Dimension Set Entry";
         CurrExchRate: Record "Currency Exchange Rate";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         DimMgt: Codeunit DimensionManagement;
         FormatAddr: Codeunit "Format Address";
         CustAddr: array[8] of Text[100];

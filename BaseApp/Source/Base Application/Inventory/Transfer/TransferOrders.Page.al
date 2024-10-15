@@ -73,7 +73,7 @@ page 5742 "Transfer Orders"
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
-                    Visible = NOT IsFoundationEnabled;
+                    Visible = not IsFoundationEnabled;
                 }
                 field("Shipment Date"; Rec."Shipment Date")
                 {
@@ -515,15 +515,6 @@ page 5742 "Transfer Orders"
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
-#if not CLEAN21
-                actionref("Transfer Routes_Promoted"; "Transfer Routes")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
 
                 separator(Navigate_Separator)
                 {
@@ -548,15 +539,6 @@ page 5742 "Transfer Orders"
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
 
-#if not CLEAN21
-                actionref("Inventory - Inbound Transfer_Promoted"; "Inventory - Inbound Transfer")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
         }
     }
@@ -573,8 +555,11 @@ page 5742 "Transfer Orders"
 
     local procedure ShowPreview()
     var
+        SelectedTransferHeader: Record "Transfer Header";
         TransferOrderPostYesNo: Codeunit "TransferOrder-Post (Yes/No)";
     begin
+        CurrPage.SetSelectionFilter(SelectedTransferHeader);
+        TransferOrderPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedTransferHeader, Rec."No.");
         TransferOrderPostYesNo.Preview(Rec);
     end;
 }

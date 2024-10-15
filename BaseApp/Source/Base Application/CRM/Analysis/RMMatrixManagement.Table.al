@@ -9,6 +9,7 @@ using Microsoft.CRM.Team;
 table 5102 "RM Matrix Management"
 {
     Caption = 'RM Matrix Management';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -97,7 +98,7 @@ table 5102 "RM Matrix Management"
         field(8; "Avg. Estimated Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Average("Opportunity Entry"."Estimated Value (LCY)" where(Active = const(true),
+            CalcFormula = average("Opportunity Entry"."Estimated Value (LCY)" where(Active = const(true),
                                                                                      "Salesperson Code" = field("Salesperson Filter"),
                                                                                      "Campaign No." = field("Campaign Filter"),
                                                                                      "Contact No." = field("Contact Filter"),
@@ -119,7 +120,7 @@ table 5102 "RM Matrix Management"
         field(9; "Avg.Calcd. Current Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Average("Opportunity Entry"."Calcd. Current Value (LCY)" where(Active = const(true),
+            CalcFormula = average("Opportunity Entry"."Calcd. Current Value (LCY)" where(Active = const(true),
                                                                                           "Salesperson Code" = field("Salesperson Filter"),
                                                                                           "Campaign No." = field("Campaign Filter"),
                                                                                           "Contact No." = field("Contact Filter"),

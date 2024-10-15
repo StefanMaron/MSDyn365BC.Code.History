@@ -62,6 +62,9 @@ codeunit 5510 "Production Journal Mgt"
         OnBeforeRunProductionJnl(ToTemplateName, ToBatchName, ProdOrder, ActualLineNo, PostingDate, IsHandled);
         if not IsHandled then begin
             repeat
+                // Commit before running Production Journal page
+                Commit();
+
                 LeaveForm := true;
                 Clear(ProductionJnl);
                 ProductionJnl.Setup(ToTemplateName, ToBatchName, ProdOrder, ActualLineNo, PostingDate);
@@ -134,8 +137,6 @@ codeunit 5510 "Production Journal Mgt"
                     InsertOutputItemJnlLine(ProdOrderRtngLine, ProdOrderLine);
                 end;
             until ProdOrderLine.Next() = 0;
-
-        Commit();
     end;
 
     procedure InsertComponents(ProdOrderLine: Record "Prod. Order Line"; CheckRoutingLink: Boolean; Level: Integer)
@@ -179,15 +180,13 @@ codeunit 5510 "Production Journal Mgt"
         if ProdOrderComp."Routing Link Code" = '' then
             exit(false);
 
-        with ProdOrderRtngLine do begin
-            Reset();
-            SetRange(Status, ProdOrderLine.Status);
-            SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-            SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
-            SetRange("Routing No.", ProdOrderLine."Routing No.");
-            SetRange("Routing Link Code", ProdOrderComp."Routing Link Code");
-            exit(FindFirst());
-        end;
+        ProdOrderRtngLine.Reset();
+        ProdOrderRtngLine.SetRange(Status, ProdOrderLine.Status);
+        ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+        ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+        ProdOrderRtngLine.SetRange("Routing Link Code", ProdOrderComp."Routing Link Code");
+        exit(not ProdOrderRtngLine.IsEmpty());
     end;
 
     procedure InsertConsumptionItemJnlLine(ProdOrderComp: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; Level: Integer)
@@ -202,86 +201,81 @@ codeunit 5510 "Production Journal Mgt"
         ShouldAdjustQty: Boolean;
         ItemItemVariantLbl: Label '%1 %2', Comment = '%1 - Item No., %2 - Variant Code';
     begin
-        with ProdOrderComp do begin
-            Item.Get("Item No.");
-            if Item.Blocked then begin
-                Message(BlockedMsg, ProdOrderComp."Item No.", Item.TableCaption());
-                exit;
-            end;
-
-            if ProdOrderComp."Variant Code" <> '' then begin
-                ItemVariant.SetLoadFields(Blocked);
-                ItemVariant.Get(ProdOrderComp."Item No.", ProdOrderComp."Variant Code");
-                if ItemVariant.Blocked then begin
-                    Message(BlockedMsg, StrSubstNo(ItemItemVariantLbl, ProdOrderComp."Item No.", ProdOrderComp."Variant Code"), ItemVariant.TableCaption());
-                    exit;
-                end;
-            end;
-
-            IsHandled := false;
-            OnInsertConsumptionJnlLineOnBeforeCheck(ProdOrderComp, ProdOrderLine, Item, IsHandled);
-            if IsHandled then
-                exit;
-
-            if "Flushing Method" <> "Flushing Method"::Manual then
-                NeededQty := 0
-            else
-                NeededQty := GetNeededQty(CalcBasedOn, true);
-
-            OriginalNeededQty := NeededQty;
-
-            if "Flushing Method" = "Flushing Method"::Manual then begin
-                if "Location Code" <> Location.Code then
-                    if not Location.Get("Location Code") then
-                        Clear(Location);
-
-                if Location.Code = '' then
-                    ShouldAdjustQty := Location."Require Shipment" and Location."Require Pick"
-                else
-                    ShouldAdjustQty := Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
-                OnInsertConsumptionItemJnlLineOnAfterCalcShouldAdjustQty(ProdOrderComp, Location, NeededQty, ShouldAdjustQty);
-                if ShouldAdjustQty then
-                    AdjustQtyToQtyPicked(NeededQty);
-            end;
-
-            ItemJnlLine.Init();
-            OnInsertConsumptionJnlLineOnAfterItemJnlLineInit(ItemJnlLine, ItemJnlTemplate, ItemJnlBatch);
-            ItemJnlLine."Journal Template Name" := ToTemplateName;
-            ItemJnlLine."Journal Batch Name" := ToBatchName;
-            ItemJnlLine."Line No." := NextLineNo;
-            ItemJnlLine.Validate("Posting Date", PostingDate);
-            ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Consumption);
-            ItemJnlLine.Validate("Order Type", ItemJnlLine."Order Type"::Production);
-            ItemJnlLine.Validate("Order No.", "Prod. Order No.");
-            ItemJnlLine.Validate("Source No.", ProdOrderLine."Item No.");
-            ItemJnlLine.Validate("Item No.", "Item No.");
-            ItemJnlLine.Validate("Unit of Measure Code", "Unit of Measure Code");
-            ItemJnlLine.Description := Description;
-            ConsumptionItemJnlLineValidateQuantity(ProdOrderComp, NeededQty, Item, NeededQty < OriginalNeededQty);
-
-            ItemJnlLine.Validate("Location Code", "Location Code");
-            ItemJnlLine.Validate("Dimension Set ID", "Dimension Set ID");
-            if "Bin Code" <> '' then
-                ItemJnlLine."Bin Code" := "Bin Code";
-
-            ItemJnlLine."Variant Code" := "Variant Code";
-            ItemJnlLine.Validate("Order Line No.", "Prod. Order Line No.");
-            ItemJnlLine.Validate("Prod. Order Comp. Line No.", "Line No.");
-
-            ItemJnlLine.Level := Level;
-            ItemJnlLine."Flushing Method" := "Flushing Method";
-            ItemJnlLine."Source Code" := ItemJnlTemplate."Source Code";
-            ItemJnlLine."Reason Code" := ItemJnlBatch."Reason Code";
-            ItemJnlLine."Posting No. Series" := ItemJnlBatch."Posting No. Series";
-
-            OnBeforeInsertConsumptionJnlLine(ItemJnlLine, ProdOrderComp, ProdOrderLine, Level);
-            ItemJnlLine.Insert();
-            OnAfterInsertConsumptionJnlLine(ItemJnlLine);
-
-            if Item."Item Tracking Code" <> '' then
-                ItemTrackingMgt.CopyItemTracking(RowID1(), ItemJnlLine.RowID1(), false);
-            OnInsertConsumptionItemJnlLineOnAfterCopyItemTracking(ItemJnlLine, Item."Item Tracking Code", NextLineNo);
+        Item.Get(ProdOrderComp."Item No.");
+        if Item.Blocked then begin
+            Message(BlockedMsg, ProdOrderComp."Item No.", Item.TableCaption());
+            exit;
         end;
+
+        if ProdOrderComp."Variant Code" <> '' then begin
+            ItemVariant.SetLoadFields(Blocked);
+            ItemVariant.Get(ProdOrderComp."Item No.", ProdOrderComp."Variant Code");
+            if ItemVariant.Blocked then begin
+                Message(BlockedMsg, StrSubstNo(ItemItemVariantLbl, ProdOrderComp."Item No.", ProdOrderComp."Variant Code"), ItemVariant.TableCaption());
+                exit;
+            end;
+        end;
+
+        IsHandled := false;
+        OnInsertConsumptionJnlLineOnBeforeCheck(ProdOrderComp, ProdOrderLine, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ProdOrderComp."Flushing Method" <> ProdOrderComp."Flushing Method"::Manual then
+            NeededQty := 0
+        else
+            NeededQty := ProdOrderComp.GetNeededQty(CalcBasedOn, true);
+
+        OriginalNeededQty := NeededQty;
+
+        if ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::Manual then begin
+            if ProdOrderComp."Location Code" <> Location.Code then
+                if not Location.GetLocationSetup(ProdOrderComp."Location Code", Location) then
+                    Clear(Location);
+
+            ShouldAdjustQty := Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+            OnInsertConsumptionItemJnlLineOnAfterCalcShouldAdjustQty(ProdOrderComp, Location, NeededQty, ShouldAdjustQty);
+            if ShouldAdjustQty then
+                ProdOrderComp.AdjustQtyToQtyPicked(NeededQty);
+        end;
+
+        ItemJnlLine.Init();
+        OnInsertConsumptionJnlLineOnAfterItemJnlLineInit(ItemJnlLine, ItemJnlTemplate, ItemJnlBatch);
+        ItemJnlLine."Journal Template Name" := ToTemplateName;
+        ItemJnlLine."Journal Batch Name" := ToBatchName;
+        ItemJnlLine."Line No." := NextLineNo;
+        ItemJnlLine.Validate("Posting Date", PostingDate);
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Consumption);
+        ItemJnlLine.Validate("Order Type", ItemJnlLine."Order Type"::Production);
+        ItemJnlLine.Validate("Order No.", ProdOrderComp."Prod. Order No.");
+        ItemJnlLine.Validate("Source No.", ProdOrderLine."Item No.");
+        ItemJnlLine.Validate("Item No.", ProdOrderComp."Item No.");
+        ItemJnlLine.Validate("Unit of Measure Code", ProdOrderComp."Unit of Measure Code");
+        ItemJnlLine.Description := ProdOrderComp.Description;
+        ConsumptionItemJnlLineValidateQuantity(ProdOrderComp, NeededQty, Item, NeededQty < OriginalNeededQty);
+
+        ItemJnlLine.Validate("Location Code", ProdOrderComp."Location Code");
+        ItemJnlLine.Validate("Dimension Set ID", ProdOrderComp."Dimension Set ID");
+        if ProdOrderComp."Bin Code" <> '' then
+            ItemJnlLine."Bin Code" := ProdOrderComp."Bin Code";
+
+        ItemJnlLine."Variant Code" := ProdOrderComp."Variant Code";
+        ItemJnlLine.Validate("Order Line No.", ProdOrderComp."Prod. Order Line No.");
+        ItemJnlLine.Validate("Prod. Order Comp. Line No.", ProdOrderComp."Line No.");
+
+        ItemJnlLine.Level := Level;
+        ItemJnlLine."Flushing Method" := ProdOrderComp."Flushing Method";
+        ItemJnlLine."Source Code" := ItemJnlTemplate."Source Code";
+        ItemJnlLine."Reason Code" := ItemJnlBatch."Reason Code";
+        ItemJnlLine."Posting No. Series" := ItemJnlBatch."Posting No. Series";
+
+        OnBeforeInsertConsumptionJnlLine(ItemJnlLine, ProdOrderComp, ProdOrderLine, Level);
+        ItemJnlLine.Insert();
+        OnAfterInsertConsumptionJnlLine(ItemJnlLine);
+
+        if Item."Item Tracking Code" <> '' then
+            ItemTrackingMgt.CopyItemTracking(ProdOrderComp.RowID1(), ItemJnlLine.RowID1(), false);
+        OnInsertConsumptionItemJnlLineOnAfterCopyItemTracking(ItemJnlLine, Item."Item Tracking Code", NextLineNo);
 
         NextLineNo += 10000;
 
@@ -317,105 +311,105 @@ codeunit 5510 "Production Journal Mgt"
         if IsHandled then
             exit;
 
-        with ProdOrderLine do begin
-            if ProdOrderRtngLine."Prod. Order No." <> '' then // Operation exist
-                case ProdOrderRtngLine.Type of
-                    ProdOrderRtngLine.Type::"Work Center":
-                        begin
-                            WorkCenter.Get(ProdOrderRtngLine."No.");
-                            if WorkCenter.Blocked then begin
-                                Message(Text005, WorkCenter.TableCaption(), WorkCenter."No.", ProdOrderRtngLine."Operation No.");
-                                exit;
-                            end;
+        if ProdOrderRtngLine."Prod. Order No." <> '' then
+            // Operation exist
+            case ProdOrderRtngLine.Type of
+                ProdOrderRtngLine.Type::"Work Center":
+                    begin
+                        WorkCenter.Get(ProdOrderRtngLine."No.");
+                        if WorkCenter.Blocked then begin
+                            Message(Text005, WorkCenter.TableCaption(), WorkCenter."No.", ProdOrderRtngLine."Operation No.");
+                            exit;
                         end;
-                    ProdOrderRtngLine.Type::"Machine Center":
-                        begin
-                            MachineCenter.Get(ProdOrderRtngLine."No.");
-                            if MachineCenter.Blocked then begin
-                                Message(Text005, MachineCenter.TableCaption(), MachineCenter."No.", ProdOrderRtngLine."Operation No.");
-                                exit;
-                            end;
-
-                            WorkCenter.Get(ProdOrderRtngLine."Work Center No.");
-                            if WorkCenter.Blocked then begin
-                                Message(Text005, WorkCenter.TableCaption(), WorkCenter."No.", ProdOrderRtngLine."Operation No.");
-                                exit;
-                            end;
+                    end;
+                ProdOrderRtngLine.Type::"Machine Center":
+                    begin
+                        MachineCenter.Get(ProdOrderRtngLine."No.");
+                        if MachineCenter.Blocked then begin
+                            Message(Text005, MachineCenter.TableCaption(), MachineCenter."No.", ProdOrderRtngLine."Operation No.");
+                            exit;
                         end;
-                end;
 
-            if (ProdOrderRtngLine."Flushing Method" <> ProdOrderRtngLine."Flushing Method"::Manual) or
-               (PresetOutputQuantity = PresetOutputQuantity::"Zero on All Operations") or
-               ((PresetOutputQuantity = PresetOutputQuantity::"Zero on Last Operation") and
-                IsLastOperation(ProdOrderRtngLine)) or
-               ((ProdOrderRtngLine."Prod. Order No." = '') and
-                (PresetOutputQuantity <> PresetOutputQuantity::"Expected Quantity")) or
-               (ProdOrderRtngLine."Routing Status" = ProdOrderRtngLine."Routing Status"::Finished)
-            then
-                QtyToPost := 0
-            else
-                if ProdOrderRtngLine."Prod. Order No." <> '' then
-                    CalculateQtyToPostForProdOrder(ProdOrderLine, ProdOrderRtngLine, QtyToPost)
-                else // No Routing Line
-                    QtyToPost := "Remaining Quantity";
-
-            if QtyToPost < 0 then
-                QtyToPost := 0;
-
-            ItemJnlLine.Init();
-            OnInsertOutputItemJnlLineOnAfterItemJnlLineInit(ItemJnlLine, ProdOrderLine, ItemJnlTemplate, ItemJnlBatch);
-            ItemJnlLine."Journal Template Name" := ToTemplateName;
-            ItemJnlLine."Journal Batch Name" := ToBatchName;
-            ItemJnlLine."Line No." := NextLineNo;
-            ItemJnlLine.Validate("Posting Date", PostingDate);
-            ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Output);
-            ItemJnlLine.Validate("Order Type", ItemJnlLine."Order Type"::Production);
-            ItemJnlLine.Validate("Order No.", "Prod. Order No.");
-            ItemJnlLine.Validate("Order Line No.", "Line No.");
-            ItemJnlLine.Validate("Item No.", "Item No.");
-            ItemJnlLine.Validate("Variant Code", "Variant Code");
-            ItemJnlLine.Validate("Location Code", "Location Code");
-            ItemJnlLine.Validate("Dimension Set ID", "Dimension Set ID");
-            if "Bin Code" <> '' then
-                ItemJnlLine.Validate("Bin Code", "Bin Code");
-            ItemJnlLine.Validate("Routing No.", "Routing No.");
-            ItemJnlLine.Validate("Routing Reference No.", "Routing Reference No.");
-            if ProdOrderRtngLine."Prod. Order No." <> '' then
-                ItemJnlLine.Validate("Operation No.", ProdOrderRtngLine."Operation No.");
-            ItemJnlLine.Validate("Unit of Measure Code", "Unit of Measure Code");
-            ItemJnlLine.Validate("Setup Time", 0);
-            ItemJnlLine.Validate("Run Time", 0);
-            OnInsertOutputItemJnlLineOnAfterAssignTimes(ItemJnlLine, ProdOrderLine, ProdOrderRtngLine, QtyToPost);
-            if ("Location Code" <> '') and IsLastOperation(ProdOrderRtngLine) then
-                ItemJnlLine.CheckWhse("Location Code", QtyToPost);
-            OnInsertOutputItemJnlLineOnBeforeSubcontractingWorkCenterUsed(ItemJnlLine, ProdOrderLine);
-            if ItemJnlLine.SubcontractingWorkCenterUsed() then
-                ItemJnlLine.Validate("Output Quantity", 0)
-            else begin
-                if not IsLastOperation(ProdOrderRtngLine) then begin
-                    ItemJnlLine."Qty. Rounding Precision" := 0;
-                    ItemJnlLine."Qty. Rounding Precision (Base)" := 0;
-                end;
-                QtyToPost := UOMMgt.RoundQty(QtyToPost, ItemJnlLine."Qty. Rounding Precision (Base)");
-                ItemJnlLine.Validate("Output Quantity", QtyToPost);
+                        WorkCenter.Get(ProdOrderRtngLine."Work Center No.");
+                        if WorkCenter.Blocked then begin
+                            Message(Text005, WorkCenter.TableCaption(), WorkCenter."No.", ProdOrderRtngLine."Operation No.");
+                            exit;
+                        end;
+                    end;
             end;
 
+        if (ProdOrderRtngLine."Flushing Method" <> ProdOrderRtngLine."Flushing Method"::Manual) or
+           (PresetOutputQuantity = PresetOutputQuantity::"Zero on All Operations") or
+           ((PresetOutputQuantity = PresetOutputQuantity::"Zero on Last Operation") and
+            IsLastOperation(ProdOrderRtngLine)) or
+           ((ProdOrderRtngLine."Prod. Order No." = '') and
+            (PresetOutputQuantity <> PresetOutputQuantity::"Expected Quantity")) or
+           (ProdOrderRtngLine."Routing Status" = ProdOrderRtngLine."Routing Status"::Finished)
+        then
+            QtyToPost := 0
+        else
+            if ProdOrderRtngLine."Prod. Order No." <> '' then
+                CalculateQtyToPostForProdOrder(ProdOrderLine, ProdOrderRtngLine, QtyToPost)
+            else
+                // No Routing Line
+                QtyToPost := ProdOrderLine."Remaining Quantity";
 
-            if ProdOrderRtngLine."Routing Status" = ProdOrderRtngLine."Routing Status"::Finished then
-                ItemJnlLine.Finished := true;
-            ItemJnlLine."Flushing Method" := ProdOrderRtngLine."Flushing Method";
-            ItemJnlLine."Source Code" := ItemJnlTemplate."Source Code";
-            ItemJnlLine."Reason Code" := ItemJnlBatch."Reason Code";
-            ItemJnlLine."Posting No. Series" := ItemJnlBatch."Posting No. Series";
+        if QtyToPost < 0 then
+            QtyToPost := 0;
 
-            OnBeforeInsertOutputJnlLine(ItemJnlLine, ProdOrderRtngLine, ProdOrderLine);
-            ItemJnlLine.Insert();
-            OnAfterInsertOutputJnlLine(ItemJnlLine);
-
-            if IsLastOperation(ProdOrderRtngLine) then
-                ItemTrackingMgt.CopyItemTracking(RowID1(), ItemJnlLine.RowID1(), false);
-            OnInsertOutputItemJnlLineOnAfterCopyItemTracking(ItemJnlLine, ProdOrderRtngLine, NextLineNo);
+        ItemJnlLine.Init();
+        OnInsertOutputItemJnlLineOnAfterItemJnlLineInit(ItemJnlLine, ProdOrderLine, ItemJnlTemplate, ItemJnlBatch);
+        ItemJnlLine."Journal Template Name" := ToTemplateName;
+        ItemJnlLine."Journal Batch Name" := ToBatchName;
+        ItemJnlLine."Line No." := NextLineNo;
+        ItemJnlLine.Validate("Posting Date", PostingDate);
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Output);
+        ItemJnlLine.Validate("Order Type", ItemJnlLine."Order Type"::Production);
+        ItemJnlLine.Validate("Order No.", ProdOrderLine."Prod. Order No.");
+        ItemJnlLine.Validate("Order Line No.", ProdOrderLine."Line No.");
+        ItemJnlLine.Validate("Item No.", ProdOrderLine."Item No.");
+        ItemJnlLine.Validate("Variant Code", ProdOrderLine."Variant Code");
+        ItemJnlLine.Validate("Location Code", ProdOrderLine."Location Code");
+        ItemJnlLine.Validate("Dimension Set ID", ProdOrderLine."Dimension Set ID");
+        if ProdOrderLine."Bin Code" <> '' then
+            ItemJnlLine.Validate("Bin Code", ProdOrderLine."Bin Code");
+        ItemJnlLine.Validate("Routing No.", ProdOrderLine."Routing No.");
+        ItemJnlLine.Validate("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+        if ProdOrderRtngLine."Prod. Order No." <> '' then
+            ItemJnlLine.Validate("Operation No.", ProdOrderRtngLine."Operation No.");
+        ItemJnlLine.Validate("Unit of Measure Code", ProdOrderLine."Unit of Measure Code");
+        ItemJnlLine.Validate("Setup Time", 0);
+        ItemJnlLine.Validate("Run Time", 0);
+        OnInsertOutputItemJnlLineOnAfterAssignTimes(ItemJnlLine, ProdOrderLine, ProdOrderRtngLine, QtyToPost);
+        if (ProdOrderLine."Location Code" <> '') and IsLastOperation(ProdOrderRtngLine) then
+            ItemJnlLine.CheckWhse(ProdOrderLine."Location Code", QtyToPost);
+        OnInsertOutputItemJnlLineOnBeforeSubcontractingWorkCenterUsed(ItemJnlLine, ProdOrderLine);
+        if ItemJnlLine.SubcontractingWorkCenterUsed() then
+            ItemJnlLine.Validate("Output Quantity", 0)
+        else begin
+            if not IsLastOperation(ProdOrderRtngLine) then begin
+                ItemJnlLine."Qty. Rounding Precision" := 0;
+                ItemJnlLine."Qty. Rounding Precision (Base)" := 0;
+            end;
+            QtyToPost := UOMMgt.RoundQty(QtyToPost, ItemJnlLine."Qty. Rounding Precision (Base)");
+            ItemJnlLine.Validate("Output Quantity", QtyToPost);
         end;
+
+
+        if ProdOrderRtngLine."Routing Status" = ProdOrderRtngLine."Routing Status"::Finished then
+            ItemJnlLine.Finished := true;
+        ItemJnlLine."Flushing Method" := ProdOrderRtngLine."Flushing Method";
+        ItemJnlLine."Source Code" := ItemJnlTemplate."Source Code";
+        ItemJnlLine."Reason Code" := ItemJnlBatch."Reason Code";
+        ItemJnlLine."Posting No. Series" := ItemJnlBatch."Posting No. Series";
+
+        OnBeforeInsertOutputJnlLine(ItemJnlLine, ProdOrderRtngLine, ProdOrderLine);
+        ItemJnlLine.Insert();
+        OnAfterInsertOutputJnlLine(ItemJnlLine);
+
+        if IsLastOperation(ProdOrderRtngLine) then
+            ItemTrackingMgt.CopyItemTracking(ProdOrderLine.RowID1(), ItemJnlLine.RowID1(), false);
+        OnInsertOutputItemJnlLineOnAfterCopyItemTracking(ItemJnlLine, ProdOrderRtngLine, NextLineNo);
 
         NextLineNo += 10000;
 
@@ -517,8 +511,12 @@ codeunit 5510 "Production Journal Mgt"
             ItemJnlBatch.Description := Text004;
             ItemJnlBatch.Insert(true);
         end;
+    end;
 
-        Commit();
+    procedure SetJnlTemplateAndBatchName(TemplateName: Code[10]; BatchName: Code[10])
+    begin
+        ToTemplateName := TemplateName;
+        ToBatchName := BatchName;
     end;
 
     procedure DeleteJnlLines(TemplateName: Code[10]; BatchName: Code[10]; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer)
@@ -578,21 +576,19 @@ codeunit 5510 "Production Journal Mgt"
 
     procedure ReservEntryExist(ItemJnlLine2: Record "Item Journal Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
-        with ItemJnlLine2 do begin
-            ReservEntry.Reset();
-            ReservEntry.SetCurrentKey(
-              "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line");
-            ReservEntry.SetRange("Source ID", "Journal Template Name");
-            ReservEntry.SetRange("Source Ref. No.", "Line No.");
-            ReservEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
-            ReservEntry.SetRange("Source Subtype", "Entry Type");
-            ReservEntry.SetRange("Source Batch Name", "Journal Batch Name");
-            ReservEntry.SetRange("Source Prod. Order Line", 0);
-            if not ReservEntry.IsEmpty() then
-                exit(true);
+        ReservEntry.Reset();
+        ReservEntry.SetCurrentKey(
+          "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line");
+        ReservEntry.SetRange("Source ID", ItemJnlLine2."Journal Template Name");
+        ReservEntry.SetRange("Source Ref. No.", ItemJnlLine2."Line No.");
+        ReservEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
+        ReservEntry.SetRange("Source Subtype", ItemJnlLine2."Entry Type");
+        ReservEntry.SetRange("Source Batch Name", ItemJnlLine2."Journal Batch Name");
+        ReservEntry.SetRange("Source Prod. Order Line", 0);
+        if not ReservEntry.IsEmpty() then
+            exit(true);
 
-            exit(false);
-        end;
+        exit(false);
     end;
 
     procedure SetNextLineNo(var ItemJournalLine: Record "Item Journal Line")

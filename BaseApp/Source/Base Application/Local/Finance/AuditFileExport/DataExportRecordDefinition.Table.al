@@ -14,6 +14,7 @@ table 11003 "Data Export Record Definition"
     Caption = 'Data Export Record Definition';
     DataCaptionFields = "Data Export Code", "Data Exp. Rec. Type Code";
     LookupPageID = "Data Export Record Definitions";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -221,13 +222,11 @@ table 11003 "Data Export Record Definition"
             exit;
         while StrPos(FileName, '\') <> 0 do
             FileName := CopyStr(FileName, StrPos(FileName, '\') + 1);
-        with DataExportRecordDefinition do begin
-            "DTD File Name" := CopyStr(FileName, 1, MaxStrLen("DTD File Name"));
-            RecordRef.GetTable(DataExportRecordDefinition);
-            TempBlob.ToRecordRef(RecordRef, FieldNo("DTD File"));
-            RecordRef.SetTable(DataExportRecordDefinition);
-            Modify();
-        end;
+        DataExportRecordDefinition."DTD File Name" := CopyStr(FileName, 1, MaxStrLen(DataExportRecordDefinition."DTD File Name"));
+        RecordRef.GetTable(DataExportRecordDefinition);
+        TempBlob.ToRecordRef(RecordRef, DataExportRecordDefinition.FieldNo("DTD File"));
+        RecordRef.SetTable(DataExportRecordDefinition);
+        DataExportRecordDefinition.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -238,15 +237,13 @@ table 11003 "Data Export Record Definition"
         RecordRef: RecordRef;
         ToFile: Text;
     begin
-        with DataExportRecordDefinition do begin
-            CalcFields("DTD File");
-            if "DTD File".HasValue or not ShowDialog then begin
-                RecordRef.GetTable(DataExportRecordDefinition);
-                TempBlob.ToRecordRef(RecordRef, FieldNo("DTD File"));
-                RecordRef.SetTable(DataExportRecordDefinition);
-                ToFile := FileMgt.BLOBExport(TempBlob, "DTD File Name", ShowDialog);
-                exit(ToFile);
-            end;
+        DataExportRecordDefinition.CalcFields("DTD File");
+        if DataExportRecordDefinition."DTD File".HasValue or not ShowDialog then begin
+            RecordRef.GetTable(DataExportRecordDefinition);
+            TempBlob.ToRecordRef(RecordRef, DataExportRecordDefinition.FieldNo("DTD File"));
+            RecordRef.SetTable(DataExportRecordDefinition);
+            ToFile := FileMgt.BLOBExport(TempBlob, DataExportRecordDefinition."DTD File Name", ShowDialog);
+            exit(ToFile);
         end;
         exit('');
     end;
@@ -275,22 +272,20 @@ table 11003 "Data Export Record Definition"
         DataExportRecordField: Record "Data Export Record Field";
         TableFilterText: Text;
     begin
-        with DataExportRecordSource do begin
-            TableFilterText := Format("Table Filter");
-            if TableFilterText <> '' then begin
-                TableFilterPage.SetSourceTable(TableFilterText, "Table No.", "Table Name");
-                TableFilterPage.GetFilterFieldsList(TempTableFilter);
-                if TempTableFilter.FindSet() then
-                    repeat
-                        DataExportRecordField.SetRange("Data Export Code", "Data Export Code");
-                        DataExportRecordField.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
-                        DataExportRecordField.SetRange("Table No.", "Table No.");
-                        DataExportRecordField.SetRange("Field No.", TempTableFilter."Field Number");
-                        DataExportRecordField.SetRange("Field Class", DataExportRecordField."Field Class"::FlowField);
-                        if DataExportRecordField.FindFirst() then
-                            exit(DataExportRecordField."Date Filter Handling");
-                    until TempTableFilter.Next() = 0;
-            end;
+        TableFilterText := Format(DataExportRecordSource."Table Filter");
+        if TableFilterText <> '' then begin
+            TableFilterPage.SetSourceTable(TableFilterText, DataExportRecordSource."Table No.", DataExportRecordSource."Table Name");
+            TableFilterPage.GetFilterFieldsList(TempTableFilter);
+            if TempTableFilter.FindSet() then
+                repeat
+                    DataExportRecordField.SetRange("Data Export Code", DataExportRecordSource."Data Export Code");
+                    DataExportRecordField.SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
+                    DataExportRecordField.SetRange("Table No.", DataExportRecordSource."Table No.");
+                    DataExportRecordField.SetRange("Field No.", TempTableFilter."Field Number");
+                    DataExportRecordField.SetRange("Field Class", DataExportRecordField."Field Class"::FlowField);
+                    if DataExportRecordField.FindFirst() then
+                        exit(DataExportRecordField."Date Filter Handling");
+                until TempTableFilter.Next() = 0;
         end;
     end;
 
@@ -299,21 +294,19 @@ table 11003 "Data Export Record Definition"
         DataExportRecordField: Record "Data Export Record Field";
         NewDataExportRecordField: Record "Data Export Record Field";
     begin
-        with DataExportRecordField do begin
-            SetRange("Data Export Code", DataExportRecordSource."Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
-            SetRange("Table No.", DataExportRecordSource."Table No.");
-            SetRange("Source Line No.", 0);
-            if FindSet() then begin
-                repeat
-                    NewDataExportRecordField := DataExportRecordField;
-                    NewDataExportRecordField."Source Line No." := DataExportRecordSource."Line No.";
-                    NewDataExportRecordField.Validate("Field No.");
-                    NewDataExportRecordField.Insert();
-                until Next() = 0;
-                DeleteAll();
-                Updated := true;
-            end;
+        DataExportRecordField.SetRange("Data Export Code", DataExportRecordSource."Data Export Code");
+        DataExportRecordField.SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
+        DataExportRecordField.SetRange("Table No.", DataExportRecordSource."Table No.");
+        DataExportRecordField.SetRange("Source Line No.", 0);
+        if DataExportRecordField.FindSet() then begin
+            repeat
+                NewDataExportRecordField := DataExportRecordField;
+                NewDataExportRecordField."Source Line No." := DataExportRecordSource."Line No.";
+                NewDataExportRecordField.Validate("Field No.");
+                NewDataExportRecordField.Insert();
+            until DataExportRecordField.Next() = 0;
+            DataExportRecordField.DeleteAll();
+            Updated := true;
         end;
     end;
 

@@ -114,7 +114,7 @@ page 360 "Document Sending Profile"
                 group(Control17)
                 {
                     ShowCaption = false;
-                    Visible = (Rec.Disk <> Rec.Disk::No) AND (Rec.Disk <> Rec.Disk::PDF);
+                    Visible = (Rec.Disk <> Rec.Disk::No) and (Rec.Disk <> Rec.Disk::PDF);
                     field("Disk Format"; Rec."Disk Format")
                     {
                         ApplicationArea = Basic, Suite;

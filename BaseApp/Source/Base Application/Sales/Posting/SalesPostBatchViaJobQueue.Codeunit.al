@@ -82,7 +82,7 @@ codeunit 85 "Sales Post Batch via Job Queue"
         Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry);
     end;
 
-    local procedure SetJobQueueStatus(var SalesHeader: Record "Sales Header"; NewStatus: Option)
+    local procedure SetJobQueueStatus(var SalesHeader: Record "Sales Header"; NewStatus: Enum "Document Job Queue Status")
     begin
         SalesHeader.LockTable();
         if SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.") then begin

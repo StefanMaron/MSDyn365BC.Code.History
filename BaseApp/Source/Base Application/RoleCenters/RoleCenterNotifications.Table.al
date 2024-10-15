@@ -9,6 +9,7 @@ table 1430 "Role Center Notifications"
     Caption = 'Role Center Notifications';
     DataPerCompany = false;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -36,9 +36,9 @@ codeunit 136144 "Service Order Warehouse Pick"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
         WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
-        DeleteExistingWhsWorksheetPickLines;
+        DeleteExistingWhsWorksheetPickLines();
         CreatePickWorksheet(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 1);
-        ReceiveItemStockInWarehouse(ServiceLine, GetWhiteLocation);
+        ReceiveItemStockInWarehouse(ServiceLine, GetWhiteLocation());
         Commit();
         GetLatestWhseWorksheetLines(WarehouseShipmentHeader, WhseWorksheetLine);
         repeat
@@ -60,7 +60,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         CreatePickWorksheet(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 3);
-        asserterror InvokeGetWarehouseDocument;
+        asserterror InvokeGetWarehouseDocument();
         ErrorMessage := ERR_NoWorksheetLinesCreated;
         Assert.AreEqual(ErrorMessage, GetLastErrorText, ERR_Unexpected);
     end;
@@ -95,7 +95,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         CreatePickWorksheet(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 4);
         // reopen service order, add new lines and release again
         LibraryService.ReopenServiceDocument(ServiceHeader);
-        CreateServiceItem(ServiceItem, ServiceHeader."Customer No.", LibraryInventory.CreateItemNo);
+        CreateServiceItem(ServiceItem, ServiceHeader."Customer No.", LibraryInventory.CreateItemNo());
         Clear(ServiceItemLine);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         CreateServiceLine(ServiceLine, ServiceHeader, ServiceItem);
@@ -107,7 +107,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
         WarehouseShipmentLine.FindFirst();
         WhseShptRelease.Release(WarehouseShipmentHeader);
-        InvokeGetWarehouseDocument;
+        InvokeGetWarehouseDocument();
         // Validate result
         ValidateWorksheetLinesWithShipmentLines(WarehouseShipmentHeader, WarehouseShipmentLine);
     end;
@@ -124,7 +124,7 @@ codeunit 136144 "Service Order Warehouse Pick"
     begin
         CreateAndReleaseWhseShipment(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 3);
         with WhsePickRequest do
-            Get("Document Type"::Shipment, "Document Subtype"::"0", WarehouseShipmentHeader."No.", GetWhiteLocation);
+            Get("Document Type"::Shipment, "Document Subtype"::"0", WarehouseShipmentHeader."No.", GetWhiteLocation());
     end;
 
     [Normal]
@@ -147,7 +147,7 @@ codeunit 136144 "Service Order Warehouse Pick"
     begin
         // release warehouse shipment and create pick worksheet again
         CreateAndReleaseWhseShipment(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, NumberOfServLines);
-        InvokeGetWarehouseDocument;
+        InvokeGetWarehouseDocument();
     end;
 
     [Normal]
@@ -160,7 +160,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         if NumberOfServLines <= 0 then
             exit;
         LibraryInventory.CreateItem(Item);
-        CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo, Item."No.");
+        CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo(), Item."No.");
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         CreateServiceLine(ServiceLine, ServiceHeader, ServiceItem);
@@ -224,7 +224,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
         ServiceLine.Validate("Service Item No.", ServiceItem."No.");
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random For Quantity and Quantity to Consume.
-        ServiceLine.Validate("Location Code", GetWhiteLocation);
+        ServiceLine.Validate("Location Code", GetWhiteLocation());
         ServiceLine.Modify(true);
     end;
 
@@ -277,15 +277,15 @@ codeunit 136144 "Service Order Warehouse Pick"
     [Scope('OnPrem')]
     procedure HandlePickSelectionPage(var PickSelectionTestPage: TestPage "Pick Selection")
     begin
-        PickSelectionTestPage.Last;
-        PickSelectionTestPage.OK.Invoke;
+        PickSelectionTestPage.Last();
+        PickSelectionTestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure HandleRequestPageCreatePick(var CreatePickTestPage: TestRequestPage "Create Pick")
     begin
-        CreatePickTestPage.OK.Invoke;
+        CreatePickTestPage.OK().Invoke();
     end;
 
     local procedure Initialize()
@@ -302,7 +302,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         LibraryService.SetupServiceMgtNoSeries();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, GetWhiteLocation, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, GetWhiteLocation(), true);
         Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Warehouse Pick");
@@ -313,9 +313,9 @@ codeunit 136144 "Service Order Warehouse Pick"
     var
         PickWorksheetTestPage: TestPage "Pick Worksheet";
     begin
-        PickWorksheetTestPage.Trap;
-        PickWorksheetTestPage.OpenEdit;
-        PickWorksheetTestPage."Get Warehouse Documents".Invoke;
+        PickWorksheetTestPage.Trap();
+        PickWorksheetTestPage.OpenEdit();
+        PickWorksheetTestPage."Get Warehouse Documents".Invoke();
         PickWorksheetTestPage.Close();
     end;
 
@@ -338,12 +338,12 @@ codeunit 136144 "Service Order Warehouse Pick"
                     PurchaseLine.Validate("Location Code", LocationCode);
                     PurchaseLine.Modify(true);
                 end;
-            until Next <= 0;
+            until Next() <= 0;
 
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        WarehouseReceipt.Trap;
+        WarehouseReceipt.Trap();
         GetSourceDocInbound.CreateFromPurchOrder(PurchaseHeader);
-        WarehouseReceipt."Post Receipt".Invoke;
+        WarehouseReceipt."Post Receipt".Invoke();
         with WhseActivityLine do begin
             SetRange("Activity Type", "Activity Type"::"Put-away");
             FindLast();

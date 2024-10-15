@@ -25,7 +25,7 @@ codeunit 142079 "UT Format Address"
         CountryRegion.Get('CH');
         CountryRegion."Address Format" := CountryRegion."Address Format"::"Post Code+City";
         CountryRegion.Modify();
-        VerifyFormatPostCodeCityCountyText(CountryRegion, GetRandomCounty, '');
+        VerifyFormatPostCodeCityCountyText(CountryRegion, GetRandomCounty(), '');
     end;
 
     [Test]
@@ -38,7 +38,7 @@ codeunit 142079 "UT Format Address"
         CountryRegion.Get('AT');
         CountryRegion."Address Format" := CountryRegion."Address Format"::"Post Code+City";
         CountryRegion.Modify();
-        VerifyFormatPostCodeCityCountyText(CountryRegion, GetRandomCounty, '');
+        VerifyFormatPostCodeCityCountyText(CountryRegion, GetRandomCounty(), '');
     end;
 
     [Test]
@@ -51,7 +51,7 @@ codeunit 142079 "UT Format Address"
         CountryRegion.Get('DE');
         CountryRegion."Address Format" := CountryRegion."Address Format"::"Post Code+City";
         CountryRegion.Modify();
-        VerifyFormatPostCodeCityCountyText(CountryRegion, GetRandomCounty, '');
+        VerifyFormatPostCodeCityCountyText(CountryRegion, GetRandomCounty(), '');
     end;
 
     [Test]
@@ -66,7 +66,7 @@ codeunit 142079 "UT Format Address"
         GLSetup."Local Address Format" := GLSetup."Local Address Format"::"Post Code+City";
         GLSetup.Modify();
         CountryRegion.Init();
-        VerifyFormatPostCodeCityCountyText(CountryRegion, GetRandomCounty, '');
+        VerifyFormatPostCodeCityCountyText(CountryRegion, GetRandomCounty(), '');
     end;
 
     [Test]
@@ -80,7 +80,7 @@ codeunit 142079 "UT Format Address"
         CountryRegion.Get('ES');
         CountryRegion."Address Format" := CountryRegion."Address Format"::"Post Code+City";
         CountryRegion.Modify();
-        County := GetRandomCounty;
+        County := GetRandomCounty();
         VerifyFormatPostCodeCityCountyText(CountryRegion, County, County);
     end;
 

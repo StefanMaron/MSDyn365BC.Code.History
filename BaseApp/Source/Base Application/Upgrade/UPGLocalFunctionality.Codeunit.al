@@ -13,11 +13,14 @@ codeunit 104100 "Upg Local Functionality"
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
 
+#if not CLEAN24
         UpdatePhysInventoryOrders();
         CleanupPhysOrders();
+#endif
         UpdateVendorRegistrationNo();
     end;
 
+#if not CLEAN24
     local procedure UpdatePhysInventoryOrders()
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -150,7 +153,6 @@ codeunit 104100 "Upg Local Functionality"
                 ExpPhysInvtTracking.TRANSFERFIELDS(UPGExpectPhysInvTrackLine);
                 ExpPhysInvtTracking.Insert();
             UNTIL UPGExpectPhysInvTrackLine.Next() = 0;
-
         IF UPGPostExpPhInTrackLine.FindSet() then
             REPEAT
                 PstdExpPhysInvtTrack.Init();
@@ -207,7 +209,7 @@ codeunit 104100 "Upg Local Functionality"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCleanupPhysOrders());
     end;
-
+#endif
     procedure SetReportSelectionForGLVATReconciliation()
     var
         DACHReportSelections: Record "DACH Report Selections";

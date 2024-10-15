@@ -9,6 +9,7 @@ table 1511 "Notification Entry"
 {
     Caption = 'Notification Entry';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

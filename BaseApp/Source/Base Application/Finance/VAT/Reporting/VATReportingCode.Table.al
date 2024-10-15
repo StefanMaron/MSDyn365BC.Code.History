@@ -8,6 +8,7 @@ table 344 "VAT Reporting Code"
 {
     Caption = 'VAT Reporting Code';
     LookupPageID = "VAT Reporting Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

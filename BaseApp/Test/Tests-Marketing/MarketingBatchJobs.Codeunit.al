@@ -36,7 +36,7 @@ codeunit 136207 "Marketing Batch Jobs"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Batch Jobs");
 
         BindSubscription(LibraryJobQueue);
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibraryTemplates.EnableTemplatesFeature();
 
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
@@ -150,11 +150,11 @@ codeunit 136207 "Marketing Batch Jobs"
         DeleteCampaignEntries.RunModal();
 
         // 3. Verify: Verify Campaign Entries and Interaction Log Entry are successfully Deleted.
-        Assert.IsFalse(CampaignEntry.FindFirst, StrSubstNo(ExistError, CampaignEntry.TableCaption(), SegmentHeader."Campaign No."));
+        Assert.IsFalse(CampaignEntry.FindFirst(), StrSubstNo(ExistError, CampaignEntry.TableCaption(), SegmentHeader."Campaign No."));
 
         InteractionLogEntry.SetRange("Campaign No.", SegmentHeader."Campaign No.");
         Assert.IsFalse(
-          InteractionLogEntry.FindFirst, StrSubstNo(ExistError, InteractionLogEntry.TableCaption(), InteractionLogEntry."Campaign No."));
+          InteractionLogEntry.FindFirst(), StrSubstNo(ExistError, InteractionLogEntry.TableCaption(), InteractionLogEntry."Campaign No."));
     end;
 
     [Test]
@@ -188,7 +188,7 @@ codeunit 136207 "Marketing Batch Jobs"
         DeleteLoggedSegments.RunModal();
 
         // 3. Verify: Verify Logged Segment deleted.
-        Assert.IsFalse(LoggedSegment.FindFirst, StrSubstNo(ExistError, LoggedSegment.TableCaption(), SegmentHeader."No."));
+        Assert.IsFalse(LoggedSegment.FindFirst(), StrSubstNo(ExistError, LoggedSegment.TableCaption(), SegmentHeader."No."));
     end;
 
     [Test]
@@ -210,7 +210,7 @@ codeunit 136207 "Marketing Batch Jobs"
         // 2. Exercise: Close the Created Opportunity.
         Opportunity.SetRange("Contact No.", ContactNo);
         Opportunity.FindFirst();
-        Opportunity.CloseOpportunity;
+        Opportunity.CloseOpportunity();
 
         // 3. Verify: Verify Opportunity successfully closed and Opportunity Entry created.
         Opportunity.FindFirst();
@@ -245,7 +245,7 @@ codeunit 136207 "Marketing Batch Jobs"
         CreateOpportunityWithContact(DefaultSalesCycleCode, ContactNo);
         Opportunity.SetRange("Contact No.", ContactNo);
         Opportunity.FindFirst();
-        Opportunity.CloseOpportunity;
+        Opportunity.CloseOpportunity();
 
         // 2. Exercise: Run Delete Opportunity Batch Job.
         DeleteOpportunities.SetTableView(Opportunity);
@@ -253,10 +253,10 @@ codeunit 136207 "Marketing Batch Jobs"
         DeleteOpportunities.RunModal();
 
         // 3. Verify: Verify Opportunity and Opportunity Entry are deleted.
-        Assert.IsFalse(Opportunity.FindFirst, StrSubstNo(ExistError, Opportunity.TableCaption(), ContactNo));
+        Assert.IsFalse(Opportunity.FindFirst(), StrSubstNo(ExistError, Opportunity.TableCaption(), ContactNo));
 
         OpportunityEntry.SetRange("Opportunity No.", Opportunity."No.");
-        Assert.IsFalse(OpportunityEntry.FindFirst, StrSubstNo(ExistError, OpportunityEntry.TableCaption(), Opportunity."No."));
+        Assert.IsFalse(OpportunityEntry.FindFirst(), StrSubstNo(ExistError, OpportunityEntry.TableCaption(), Opportunity."No."));
 
         // 4. Teardown: Rollback Default Sale Cycle Code on Marketing Setup.
         UpdateDefaultSalesCycleCode(DefaultSalesCycleCode);
@@ -277,7 +277,7 @@ codeunit 136207 "Marketing Batch Jobs"
 
         // [GIVEN] Customer with Service Order with Email.
         LibrarySales.CreateCustomer(Customer);
-        Customer."E-Mail" := LibraryUtility.GenerateGUID + '@microsoft.com';
+        Customer."E-Mail" := LibraryUtility.GenerateGUID() + '@microsoft.com';
         Customer.Modify(true);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
 
@@ -323,7 +323,7 @@ codeunit 136207 "Marketing Batch Jobs"
         DeleteServiceEmailQueue.RunModal();
 
         // 3. Verify: Verify Service E-Mail Queue deleted.
-        Assert.IsFalse(ServiceEmailQueue.FindFirst, StrSubstNo(ExistError, ServiceEmailQueue.TableCaption(), ServiceHeader."No."));
+        Assert.IsFalse(ServiceEmailQueue.FindFirst(), StrSubstNo(ExistError, ServiceEmailQueue.TableCaption(), ServiceHeader."No."));
     end;
 
     [Test]
@@ -387,7 +387,7 @@ codeunit 136207 "Marketing Batch Jobs"
         DeleteTasks.RunModal();
 
         // 3. Verify: Verify To-Do deleted.
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(ExistError, Task.TableCaption(), Team.Code));
+        Assert.IsFalse(Task.FindFirst(), StrSubstNo(ExistError, Task.TableCaption(), Team.Code));
     end;
 
     [Test]
@@ -428,7 +428,7 @@ codeunit 136207 "Marketing Batch Jobs"
         ContDuplicateSearchString.DeleteAll();
 
         // 2. Exercise.
-        RunGenerateDuplSearchStringReport;
+        RunGenerateDuplSearchStringReport();
 
         // 3. Verify: Verify that data exists in Contact Duplicate Search String Table.
         Assert.IsFalse(
@@ -553,8 +553,8 @@ codeunit 136207 "Marketing Batch Jobs"
 
         TempOpportunityEntry.Validate("Close Opportunity Code", CloseOpportunityCode.Code);
         TempOpportunityEntry.Validate("Calcd. Current Value (LCY)", Random(10));  // Use Randon because value is not important.
-        TempOpportunityEntry.CheckStatus;
-        TempOpportunityEntry.FinishWizard;
+        TempOpportunityEntry.CheckStatus();
+        TempOpportunityEntry.FinishWizard();
     end;
 
     [ModalPageHandler]
@@ -570,7 +570,7 @@ codeunit 136207 "Marketing Batch Jobs"
         TempTask.Validate(Description, DescriptionForPage);
         TempTask.Validate(Date, WorkDate());
 
-        TempTask.CheckStatus;
+        TempTask.CheckStatus();
         TempTask.FinishWizard(false);
     end;
 
@@ -585,15 +585,15 @@ codeunit 136207 "Marketing Batch Jobs"
         TempOpportunity.Insert();  // For inserting in Temporary Table.
         TempOpportunity.Validate(Description, DescriptionForPage);
 
-        TempOpportunity.CheckStatus;
-        TempOpportunity.FinishWizard;
+        TempOpportunity.CheckStatus();
+        TempOpportunity.FinishWizard();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GenerateDuplSearchStringRequestPageHandler(var GenerateDuplSearchString: TestRequestPage "Generate Dupl. Search String")
     begin
-        GenerateDuplSearchString.OK.Invoke;
+        GenerateDuplSearchString.OK().Invoke();
     end;
 }
 

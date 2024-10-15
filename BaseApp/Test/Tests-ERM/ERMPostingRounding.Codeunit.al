@@ -14,7 +14,6 @@ codeunit 134157 "ERM Posting Rounding"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
 
@@ -111,7 +110,7 @@ codeunit 134157 "ERM Posting Rounding"
         VerifyGLEntry(DocumentNo, GetCustomerReceivablesAccountNo(SalesHeader."Customer Posting Group"), 35148.68);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure NOVATFCYSalesInvoiceWithPositiveAndNegativeLineAmounts2()
@@ -162,15 +161,15 @@ codeunit 134157 "ERM Posting Rounding"
         TempInvoicePostBuffer.Update(TempInvoicePostBuffer2, InvDefLineNo, DeferralLineNo);
         VerifyInvoicePostBufferAmounts(TempInvoicePostBuffer, 0, 0, 0, 0, 0, 0);
 
-        TempInvoicePostBuffer2.DELETE;
+        TempInvoicePostBuffer2.Delete();
         MockTempInvoicePostBuffer(TempInvoicePostBuffer2, 1, 1, 1, 1, 1, 1);
         TempInvoicePostBuffer.Update(TempInvoicePostBuffer2, InvDefLineNo, DeferralLineNo);
         VerifyInvoicePostBufferAmounts(TempInvoicePostBuffer, 1, 1, 1, 1, 1, 1);
 
-        TempInvoicePostBuffer.ApplyRoundingForFinalPosting;
+        TempInvoicePostBuffer.ApplyRoundingForFinalPosting();
         VerifyInvoicePostBufferAmounts(TempInvoicePostBuffer, 2, 1, 2, 1, 2, 1);
 
-        TempInvoicePostBuffer.ApplyRoundingForFinalPosting;
+        TempInvoicePostBuffer.ApplyRoundingForFinalPosting();
         VerifyInvoicePostBufferAmounts(TempInvoicePostBuffer, 2, 1, 2, 1, 2, 1);
     end;
 #endif

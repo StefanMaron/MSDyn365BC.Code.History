@@ -28,14 +28,14 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         Initialize();
 
         // [GIVEN] An OnPrem environment
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [WHEN] Opening a new Sales Quote
         SalesQuote.OpenNew();
 
         // [THEN] The Type field is visible and the Subtype field is not
-        Assert.IsTrue(SalesQuote.SalesLines.Type.Visible, 'Regular type field should be visible for OnPrem');
-        Assert.IsFalse(SalesQuote.SalesLines.FilteredTypeField.Visible, 'Subtype field should not be visible for OnPrem');
+        Assert.IsTrue(SalesQuote.SalesLines.Type.Visible(), 'Regular type field should be visible for OnPrem');
+        Assert.IsFalse(SalesQuote.SalesLines.FilteredTypeField.Visible(), 'Subtype field should not be visible for OnPrem');
     end;
 
     [Test]
@@ -51,9 +51,9 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
         SalesQuote.OpenNew();
 
         // [THEN] The Subtype field is visible and the type field is not
-        asserterror SalesQuote.SalesLines.Type.Activate;
+        asserterror SalesQuote.SalesLines.Type.Activate();
         Assert.ExpectedError('not found on the page');
-        Assert.IsTrue(SalesQuote.SalesLines.FilteredTypeField.Visible, 'Subtype field should be visible for OnPrem');
+        Assert.IsTrue(SalesQuote.SalesLines.FilteredTypeField.Visible(), 'Subtype field should be visible for OnPrem');
     end;
 
     [Test]
@@ -76,7 +76,7 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
             // [WHEN] Opening the Subtype lookup and selecting service
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Lookup Type");
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Option Caption");
-            SalesQuote.SalesLines.FilteredTypeField.Lookup;
+            SalesQuote.SalesLines.FilteredTypeField.Lookup();
 
             // [THEN] The Subtype is set to service
             SalesQuote.SalesLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
@@ -212,14 +212,15 @@ codeunit 134648 "O365 S. Quote Type Lookup Test"
     var
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
     begin
-        TempOptionLookupBuffer.FillLookupBuffer(LibraryVariableStorage.DequeueInteger);
+        TempOptionLookupBuffer.FillLookupBuffer(
+            "Option Lookup Type".FromInteger(LibraryVariableStorage.DequeueInteger()));
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
         until TempOptionLookupBuffer.Next() = 0;
 
-        OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
-        OptionLookupList.OK.Invoke;
+        OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText());
+        OptionLookupList.OK().Invoke();
     end;
 
     local procedure Initialize()

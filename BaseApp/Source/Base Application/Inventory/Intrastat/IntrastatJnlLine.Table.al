@@ -5,9 +5,9 @@
 namespace Microsoft.Inventory.Intrastat;
 
 using Microsoft.Foundation.Address;
-using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Shipping;
 #if not CLEAN22
+using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Item;
 #endif
 using Microsoft.Inventory.Ledger;
@@ -37,6 +37,7 @@ table 263 "Intrastat Jnl. Line"
     ObsoleteTag = '25.0';
 #endif
     ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -5,31 +5,32 @@ using Microsoft.Projects.Project.Planning;
 
 table 1615 "Office Job Journal"
 {
-    Caption = 'Office Job Journal';
+    Caption = 'Office Project Journal';
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
         }
         field(2; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
         }
         field(3; "Job Planning Line No."; Integer)
         {
-            Caption = 'Job Planning Line No.';
+            Caption = 'Project Planning Line No.';
         }
         field(4; "Job Journal Template Name"; Code[10])
         {
-            Caption = 'Job Journal Template Name';
+            Caption = 'Project Journal Template Name';
             TableRelation = "Job Journal Template".Name where("Page ID" = const(201),
                                                                Recurring = const(false));
         }
         field(5; "Job Journal Batch Name"; Code[10])
         {
-            Caption = 'Job Journal Batch Name';
+            Caption = 'Project Journal Batch Name';
             TableRelation = "Job Journal Batch".Name where("Journal Template Name" = field("Job Journal Template Name"));
         }
     }

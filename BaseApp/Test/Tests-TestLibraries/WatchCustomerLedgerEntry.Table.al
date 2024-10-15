@@ -1,6 +1,7 @@
 table 131311 "Watch Customer Ledger Entry"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

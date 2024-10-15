@@ -53,6 +53,7 @@ codeunit 5906 ServLogManagement
         Text038: Label 'Invoice posted';
         Text039: Label 'Invoice deleted';
         Text040: Label 'Credit memo deleted';
+        BlockedChangedLbl: Label 'Blocked changed';
 
     procedure ServOrderEventDescription(EventNo: Integer): Text[50]
     var
@@ -161,6 +162,8 @@ codeunit 5906 ServLogManagement
                 exit(Text031);
             18:
                 exit(Text032);
+            19:
+                exit(BlockedChangedLbl);
             else begin
                 OnServItemEventDescription(EventNo, Description, Handled);
                 if Handled then
@@ -397,6 +400,21 @@ codeunit 5906 ServLogManagement
         ServItemLog."Service Item No." := ServItem."No.";
         ServItemLog."Event No." := 10;
         ServItemLog.After := NewServItem."No.";
+        ServItemLog.Insert(true);
+    end;
+
+    procedure ServItemBlockedChange(ServItem: Record "Service Item"; OldServItem: Record "Service Item")
+    var
+        ServItemLog: Record "Service Item Log";
+    begin
+        if ServItem."No." = '' then
+            exit;
+
+        ServItemLog.Init();
+        ServItemLog."Service Item No." := ServItem."No.";
+        ServItemLog."Event No." := 19;
+        ServItemLog.Before := Format(OldServItem.Blocked);
+        ServItemLog.After := Format(ServItem.Blocked);
         ServItemLog.Insert(true);
     end;
 

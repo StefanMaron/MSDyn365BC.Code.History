@@ -35,7 +35,7 @@ codeunit 135153 "Data Classs Demo Data Tests"
         Company.Modify();
 
         // [WHEN] The evaluation data are created
-        DataClassificationEvalData.CreateEvaluationData;
+        DataClassificationEvalData.CreateEvaluationData();
 
         // [THEN] All shipped fields should have a classification
         DataSensitivity.SetRange("Data Sensitivity", DataSensitivity."Data Sensitivity"::Unclassified);
@@ -57,7 +57,7 @@ codeunit 135153 "Data Classs Demo Data Tests"
 
         // [THEN] Master Tables contain Personal fields
         // [THEN] Documents and Document Lines Contain Personal Fields
-        VerifySensitivitiesForMasterTablesAndDocuments;
+        VerifySensitivitiesForMasterTablesAndDocuments();
     end;
 
     local procedure VerifySensitivitiesForMasterTablesAndDocuments()
@@ -179,10 +179,7 @@ codeunit 135153 "Data Classs Demo Data Tests"
 
         DataSensitivity.SetRange("Table No", DATABASE::"Sales Order Entity Buffer");
         Assert.RecordIsNotEmpty(DataSensitivity);
-#if not CLEAN21
-        DataSensitivity.SetRange("Table No", DATABASE::"O365 Sales Document");
-        Assert.RecordIsNotEmpty(DataSensitivity);
-#endif
+
         DataSensitivity.SetRange("Table No", DATABASE::"Purch. Inv. Entity Aggregate");
         Assert.RecordIsNotEmpty(DataSensitivity);
 

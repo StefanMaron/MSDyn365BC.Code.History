@@ -7,6 +7,7 @@ namespace Microsoft.Integration.D365Sales;
 table 5387 "CRM Post Buffer"
 {
     Caption = 'CRM Post Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -36,6 +37,11 @@ table 5387 "CRM Post Buffer"
         {
             Caption = 'ChangeDateTime';
             DataClassification = SystemMetadata;
+        }
+        field(6; Message; Text[2048])
+        {
+            Caption = 'Message';
+            DataClassification = CustomerContent;
         }
     }
 

@@ -42,7 +42,7 @@ codeunit 136604 "ERM RS Package Dimensions"
     begin
         Initialize();
         // Test apply of data with dimensions
-        HideDialog;
+        HideDialog();
         CreatePackageAndFields(ConfigPackage, ConfigPackageTable);
 
         // 1. Setup: Create dimension setup
@@ -92,7 +92,7 @@ codeunit 136604 "ERM RS Package Dimensions"
     begin
         Initialize();
         // Test apply of data with dimensions
-        HideDialog;
+        HideDialog();
 
         // 1. Setup: Create dimension setup
         CreatePackageAndFields(ConfigPackage, ConfigPackageTable);
@@ -171,7 +171,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         Initialize();
         // Verify that there is no need to define "Dimension Set ID" field for package without dimensions
 
-        HideDialog;
+        HideDialog();
         LibraryRapidStart.CreatePackage(ConfigPackage);
 
         LineNo := 10000;
@@ -202,7 +202,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         Initialize();
         // Verify that default dimensions are inherited from the G/L Account if "Dimension Set ID" from package is zero.
 
-        HideDialog;
+        HideDialog();
         CreatePackageAndFields(ConfigPackage, ConfigPackageTable);
 
         LineNo := 10000;

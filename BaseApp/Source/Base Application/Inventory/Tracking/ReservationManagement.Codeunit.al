@@ -1754,6 +1754,7 @@ codeunit 99000845 "Reservation Management"
         SurplusEntry.SetRange("Variant Code", ReservEntry."Variant Code");
         SurplusEntry.SetRange("Location Code", ReservEntry."Location Code");
         SurplusEntry.SetRange("Reservation Status", SurplusEntry."Reservation Status"::Surplus);
+        SurplusEntry.SetRange(Positive, SearchForSupply);
         if SkipUntrackedSurplus then
             SurplusEntry.SetRange("Untracked Surplus", false);
         if SearchForSupply then begin
@@ -1795,6 +1796,7 @@ codeunit 99000845 "Reservation Management"
                 end;
             until (SurplusEntry.Next(NextStep) = 0) or (QtyToTrack = 0);
 
+        SurplusEntry.SetRange(Positive);
         exit(QtyToTrack);
     end;
 
@@ -2358,67 +2360,65 @@ codeunit 99000845 "Reservation Management"
         QtyOnSpecialBins: Decimal;
         IsHandled: Boolean;
     begin
-        with CalcReservEntry do begin
-            GetItemSetup(CalcReservEntry);
-            Item.SetRange("Location Filter", "Location Code");
-            IsHandled := false;
-            OnCalcReservedQtyOnPickOnbeforeSetItemVariantCodeFilter(Item, CalcReservEntry, IsHandled);
-            if not IsHandled then
-                Item.SetRange("Variant Filter", "Variant Code");
-            SetTrackingFilterToItemIfRequired(Item);
-            Item.CalcFields(Inventory, "Reserved Qty. on Inventory");
+        GetItemSetup(CalcReservEntry);
+        Item.SetRange("Location Filter", CalcReservEntry."Location Code");
+        IsHandled := false;
+        OnCalcReservedQtyOnPickOnbeforeSetItemVariantCodeFilter(Item, CalcReservEntry, IsHandled);
+        if not IsHandled then
+            Item.SetRange("Variant Filter", CalcReservEntry."Variant Code");
+        CalcReservEntry.SetTrackingFilterToItemIfRequired(Item);
+        Item.CalcFields(Inventory, "Reserved Qty. on Inventory");
 
-            WhseActivLine.SetCurrentKey(
-              "Item No.", "Bin Code", "Location Code", "Action Type", "Variant Code",
-              "Unit of Measure Code", "Breakbulk No.", "Activity Type", "Lot No.", "Serial No.");
+        WhseActivLine.SetCurrentKey(
+          "Item No.", "Bin Code", "Location Code", "Action Type", "Variant Code",
+          "Unit of Measure Code", "Breakbulk No.", "Activity Type", "Lot No.", "Serial No.");
 
-            WhseActivLine.SetRange("Item No.", "Item No.");
-            if Location."Bin Mandatory" then
-                WhseActivLine.SetFilter("Bin Code", '<>%1', '');
-            WhseActivLine.SetRange("Location Code", "Location Code");
-            WhseActivLine.SetFilter(
-              "Action Type", '%1|%2', WhseActivLine."Action Type"::" ", WhseActivLine."Action Type"::Take);
-            IsHandled := false;
-            OnCalcReservedQtyOnPickOnBeforeSetWhseActivLineVariantCodeFilter(WhseActivLine, CalcReservEntry, IsHandled);
-            if not IsHandled then
-                WhseActivLine.SetRange("Variant Code", "Variant Code");
-            WhseActivLine.SetRange("Breakbulk No.", 0);
-            WhseActivLine.SetFilter(
-              "Activity Type", '%1|%2', WhseActivLine."Activity Type"::Pick, WhseActivLine."Activity Type"::"Invt. Pick");
-            WhseActivLine.SetTrackingFilterFromReservEntryIfRequired(CalcReservEntry);
-            WhseActivLine.CalcSums("Qty. Outstanding (Base)");
+        WhseActivLine.SetRange("Item No.", CalcReservEntry."Item No.");
+        if Location."Bin Mandatory" then
+            WhseActivLine.SetFilter("Bin Code", '<>%1', '');
+        WhseActivLine.SetRange("Location Code", CalcReservEntry."Location Code");
+        WhseActivLine.SetFilter(
+          "Action Type", '%1|%2', WhseActivLine."Action Type"::" ", WhseActivLine."Action Type"::Take);
+        IsHandled := false;
+        OnCalcReservedQtyOnPickOnBeforeSetWhseActivLineVariantCodeFilter(WhseActivLine, CalcReservEntry, IsHandled);
+        if not IsHandled then
+            WhseActivLine.SetRange("Variant Code", CalcReservEntry."Variant Code");
+        WhseActivLine.SetRange("Breakbulk No.", 0);
+        WhseActivLine.SetFilter(
+          "Activity Type", '%1|%2', WhseActivLine."Activity Type"::Pick, WhseActivLine."Activity Type"::"Invt. Pick");
+        WhseActivLine.SetTrackingFilterFromReservEntryIfRequired(CalcReservEntry);
+        WhseActivLine.CalcSums("Qty. Outstanding (Base)");
 
-            if Location."Require Pick" then begin
-                WhseItemTrackingSetup.CopyTrackingFromItemTrackingCodeSpecificTracking(ItemTrackingCode);
-                WhseItemTrackingSetup.CopyTrackingFromReservEntry(CalcReservEntry);
+        if Location."Require Pick" then begin
+            WhseItemTrackingSetup.CopyTrackingFromItemTrackingCodeSpecificTracking(ItemTrackingCode);
+            WhseItemTrackingSetup.CopyTrackingFromReservEntry(CalcReservEntry);
 
-                if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" and
-                   WhseItemTrackingSetup.TrackingExists()
-                then begin
-                    WhseAvailMgt.GetOutboundBinsOnBasicWarehouseLocation(
-                      TempBinContentBuffer, "Location Code", "Item No.", "Variant Code", WhseItemTrackingSetup);
-                    TempBinContentBuffer.CalcSums("Qty. Outstanding (Base)");
-                    QtyOnOutboundBins := TempBinContentBuffer."Qty. Outstanding (Base)";
-                end else
-                    QtyOnOutboundBins :=
-                        WhseAvailMgt.CalcQtyOnOutboundBins("Location Code", "Item No.", "Variant Code", WhseItemTrackingSetup, true);
+            if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" and
+               WhseItemTrackingSetup.TrackingExists()
+            then begin
+                WhseAvailMgt.GetOutboundBinsOnBasicWarehouseLocation(
+                  TempBinContentBuffer, CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", WhseItemTrackingSetup);
+                TempBinContentBuffer.CalcSums("Qty. Outstanding (Base)");
+                QtyOnOutboundBins := TempBinContentBuffer."Qty. Outstanding (Base)";
+            end else
+                QtyOnOutboundBins :=
+                    WhseAvailMgt.CalcQtyOnOutboundBins(CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", WhseItemTrackingSetup, true);
 
-                QtyReservedOnPickShip :=
-                  WhseAvailMgt.CalcReservQtyOnPicksShips(
-                    "Location Code", "Item No.", "Variant Code", TempWhseActivLine2);
+            QtyReservedOnPickShip :=
+              WhseAvailMgt.CalcReservQtyOnPicksShips(
+                CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", TempWhseActivLine2);
 
-                QtyOnInvtMovement := CalcQtyOnInvtMovement(WhseActivLine);
+            QtyOnInvtMovement := CalcQtyOnInvtMovement(WhseActivLine);
 
-                QtyOnSpecialBins :=
-                    WhseAvailMgt.CalcQtyOnSpecialBinsOnLocation(
-                      "Location Code", "Item No.", "Variant Code", WhseItemTrackingSetup, TempBinContentBuffer);
-            end;
-
-            CalcAvailAllocQuantities(
-                Item, WhseActivLine, QtyOnOutboundBins, QtyOnInvtMovement, QtyOnSpecialBins, AvailQty, AllocQty);
-
-            OnAfterCalcReservedQtyOnPick(Item, WhseActivLine, CalcReservEntry, AvailQty, AllocQty);
+            QtyOnSpecialBins :=
+                WhseAvailMgt.CalcQtyOnSpecialBinsOnLocation(
+                  CalcReservEntry."Location Code", CalcReservEntry."Item No.", CalcReservEntry."Variant Code", WhseItemTrackingSetup, TempBinContentBuffer);
         end;
+
+        CalcAvailAllocQuantities(
+            Item, WhseActivLine, QtyOnOutboundBins, QtyOnInvtMovement, QtyOnSpecialBins, AvailQty, AllocQty);
+
+        OnAfterCalcReservedQtyOnPick(Item, WhseActivLine, CalcReservEntry, AvailQty, AllocQty);
     end;
 
     local procedure CalcAvailAllocQuantities(
@@ -2559,8 +2559,7 @@ codeunit 99000845 "Reservation Management"
 
     local procedure ProdJnlLineEntry(ReservationEntry: Record "Reservation Entry"): Boolean
     begin
-        with ReservationEntry do
-            exit(("Source Type" = Database::"Item Journal Line") and ("Source Subtype" = 6));
+        exit((ReservationEntry."Source Type" = Database::"Item Journal Line") and (ReservationEntry."Source Subtype" = 6));
     end;
 
     local procedure CalcDownToQtySyncingToAssembly(ReservEntry: Record "Reservation Entry"): Decimal
@@ -2621,19 +2620,17 @@ codeunit 99000845 "Reservation Management"
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         PickQty: Decimal;
     begin
-        with ReservEntry do begin
-            PickQty := WhseAvailMgt.CalcRegisteredAndOutstandingPickQty(ReservationEntry, TempWhseActivLine);
+        PickQty := WhseAvailMgt.CalcRegisteredAndOutstandingPickQty(ReservationEntry, TempWhseActivLine);
 
-            SetSourceFilter(
-              ReservationEntry."Source Type", ReservationEntry."Source Subtype",
-              ReservationEntry."Source ID", ReservationEntry."Source Ref. No.", false);
-            SetRange("Source Prod. Order Line", ReservationEntry."Source Prod. Order Line");
-            SetRange("Reservation Status", "Reservation Status"::Reservation);
-            CalcSums("Quantity (Base)");
-            if -"Quantity (Base)" > PickQty then
-                exit(PickQty);
-            exit(-"Quantity (Base)");
-        end;
+        ReservEntry.SetSourceFilter(
+          ReservationEntry."Source Type", ReservationEntry."Source Subtype",
+          ReservationEntry."Source ID", ReservationEntry."Source Ref. No.", false);
+        ReservEntry.SetRange("Source Prod. Order Line", ReservationEntry."Source Prod. Order Line");
+        ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
+        ReservEntry.CalcSums("Quantity (Base)");
+        if -ReservEntry."Quantity (Base)" > PickQty then
+            exit(PickQty);
+        exit(-ReservEntry."Quantity (Base)");
     end;
 
     local procedure CheckQuantityIsCompletelyReleased(QtyToRelease: Decimal; DeleteAll: Boolean; CurrentItemTrackingSetup: Record "Item Tracking Setup"; ReservEntry: Record "Reservation Entry")
@@ -2749,10 +2746,10 @@ codeunit 99000845 "Reservation Management"
                     RecRef.Open(TableID);
                     FldRef := RecRef.FieldIndex(1);
                     case DocType of
-                        Enum::"Assembly Document Type"::Quote,
-                        Enum::"Assembly Document Type"::"Order":
+                        Enum::"Assembly Document Type"::Quote.AsInteger(),
+                        Enum::"Assembly Document Type"::"Order".AsInteger():
                             exit(StrSubstNo(DeleteDocLineWithItemReservQst, SelectStr(DocType + 1, FldRef.OptionCaption), DocNo));
-                        Enum::"Assembly Document Type"::"Blanket Order":
+                        Enum::"Assembly Document Type"::"Blanket Order".AsInteger():
                             exit(StrSubstNo(DeleteDocLineWithItemReservQst, SelectStr(3, FldRef.OptionCaption), DocNo));
                     end;
                 end;
@@ -2954,7 +2951,7 @@ codeunit 99000845 "Reservation Management"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInitFilter(var CalcReservEntry: Record "Reservation Entry"; EntryID: Integer)
     begin
     end;

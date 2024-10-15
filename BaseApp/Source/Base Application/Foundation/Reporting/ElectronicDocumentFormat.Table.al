@@ -15,6 +15,7 @@ table 61 "Electronic Document Format"
 {
     Caption = 'Electronic Document Format';
     LookupPageID = "Electronic Document Format";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -54,7 +55,7 @@ table 61 "Electronic Document Format"
         }
         field(6; "Codeunit Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
                                                                            "Object ID" = field("Codeunit ID")));
             Caption = 'Codeunit Caption';
             Editable = false;
@@ -68,7 +69,7 @@ table 61 "Electronic Document Format"
         }
         field(8; "Delivery Codeunit Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Codeunit),
                                                                            "Object ID" = field("Delivery Codeunit ID")));
             Caption = 'Delivery Codeunit Caption';
             Editable = false;
@@ -221,6 +222,16 @@ table 61 "Electronic Document Format"
         CODEUNIT.Run(ElectronicDocumentFormat."Codeunit ID", Job);
     end;
 
+    procedure ValidateElectronicJobTasksDocument(JobTask: Record "Job Task"; ElectronicFormat: Code[20])
+    var
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+    begin
+        if not ElectronicDocumentFormat.Get(ElectronicFormat, Usage::"Job Task Quote") then
+            exit; // no validation required
+
+        CODEUNIT.Run(ElectronicDocumentFormat."Codeunit ID", JobTask);
+    end;
+
     procedure GetAttachmentFileName(RecordVariant: Variant; DocumentNo: Code[20]; DocumentType: Text; Extension: Code[3]) FileName: Text[250]
     var
         FileMgt: Codeunit "File Management";
@@ -246,20 +257,22 @@ table 61 "Electronic Document Format"
 
         DocumentRecordRef.GetTable(DocumentVariant);
         case DocumentRecordRef.Number of
-            DATABASE::"Sales Invoice Header":
+            Database::"Sales Invoice Header":
                 DocumentUsage := Usage::"Sales Invoice".AsInteger();
-            DATABASE::"Sales Cr.Memo Header":
+            Database::"Sales Cr.Memo Header":
                 DocumentUsage := Usage::"Sales Credit Memo".AsInteger();
-            DATABASE::"Service Invoice Header":
+            Database::"Service Invoice Header":
                 DocumentUsage := Usage::"Service Invoice".AsInteger();
-            DATABASE::"Service Cr.Memo Header":
+            Database::"Service Cr.Memo Header":
                 DocumentUsage := Usage::"Service Credit Memo".AsInteger();
-            DATABASE::"Sales Header":
+            Database::"Sales Header":
                 GetDocumentUsageForSalesHeader(DocumentUsage, DocumentVariant);
-            DATABASE::"Service Header":
+            Database::"Service Header":
                 GetDocumentUsageForServiceHeader(DocumentUsage, DocumentVariant);
-            DATABASE::Job:
+            Database::Job:
                 DocumentUsage := Usage::"Job Quote".AsInteger();
+            Database::"Job Task":
+                DocumentUsage := Usage::"Job Task Quote".AsInteger();
             else
                 Error(UnSupportedTableTypeErr, DocumentRecordRef.Caption);
         end;

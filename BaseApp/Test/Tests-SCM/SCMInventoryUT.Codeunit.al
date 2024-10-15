@@ -34,7 +34,7 @@ codeunit 137821 "SCM - Inventory UT"
 
         // [GIVEN] Item with Item Tracking Code. "Lot Specific Tracking" := TRUE.
         MockItemTrackingCode(ItemTrackingCode, true);
-        MockItem(Item, LibraryUtility.GenerateGUID, ItemTrackingCode.Code);
+        MockItem(Item, LibraryUtility.GenerateGUID(), ItemTrackingCode.Code);
 
         // [GIVEN] Purchase Line with Item.
         MockPurchaseLine(PurchaseLine, Item."No.");

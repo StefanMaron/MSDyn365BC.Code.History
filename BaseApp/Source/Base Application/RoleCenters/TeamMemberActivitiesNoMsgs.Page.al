@@ -28,7 +28,7 @@ page 9043 "Team Member Activities No Msgs"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Open Current Time Sheet';
                         Image = TileBrickCalendar;
-                        ToolTip = 'Open the time sheet for the current period.';
+                        ToolTip = 'Open the time sheet for the current period. Current period is based on work date set in my settings.';
 #if not CLEAN22
                         Visible = TimeSheetV2Enabled;
 #endif
@@ -49,11 +49,17 @@ page 9043 "Team Member Activities No Msgs"
             cuegroup("Time Sheets")
             {
                 Caption = 'Time Sheets';
+                field("New Time Sheets"; Rec."New Time Sheets")
+                {
+                    ApplicationArea = Basic, Suite;
+                    DrillDownPageID = "Time Sheet List";
+                    ToolTip = 'Specifies the number of time sheets that are currently assigned to you, without lines.';
+                }
                 field("Open Time Sheets"; Rec."Open Time Sheets")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Time Sheet List";
-                    ToolTip = 'Specifies the number of time sheets that are currently assigned to you and not submitted for approval.';
+                    ToolTip = 'Specifies the number of time sheets that are currently assigned to you, have open lines and not submitted for approval.';
                 }
             }
             cuegroup("Pending Time Sheets")

@@ -207,7 +207,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
         GenJournalBatch: Record "Gen. Journal Batch";
         AccountNo: Code[20];
     begin
-        AccountNo := CreateGLAccount;
+        AccountNo := CreateGLAccount();
         CreateGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
@@ -221,7 +221,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         // Used assignment operator to avoid confirmation message.
-        GenJournalTemplate.Get(LibraryERM.SelectGenJnlTemplate);
+        GenJournalTemplate.Get(LibraryERM.SelectGenJnlTemplate());
         GenJournalTemplate."Allow VAT Difference" := true;
         GenJournalTemplate.Modify(true);
 

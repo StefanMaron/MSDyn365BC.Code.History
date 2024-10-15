@@ -5,6 +5,7 @@ codeunit 142068 "UT REP LOWVAL"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not Used.';
     ObsoleteState = Pending;
 #pragma warning disable AS0072
     ObsoleteTag = '20.0';
@@ -21,7 +22,6 @@ codeunit 142068 "UT REP LOWVAL"
         Assert: Codeunit Assert;
         FieldMustEnabledMsg: Label 'Field must be enabled';
         NothingToAdjustTxt: Label 'There is nothing to adjust.';
-        ValuationRefDateTxt: Label 'Valuation Reference Date: %1';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
@@ -54,19 +54,6 @@ codeunit 142068 "UT REP LOWVAL"
         // Setup: Run report Adjust Exchange Rates to verify Error Code, Actual error message: Document No. must be entered.
         Initialize();
         AdjustExchangeRatesReportErrors(WorkDate(), true, false, 'Dialog');  // Posting Date, Post, Adjust G/L Accounts for Add.-Reporting Currency and Expected Error Code.
-    end;
-
-    [Test]
-    [HandlerFunctions('AdjustExchangeRatesRequestPageHandler,ConfirmHandlerFALSE')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnPreReportAdjustExchangeRatesAdjGLAccError()
-    begin
-        // Purpose of the test is to validate OnPreReport trigger of Report ID - 595  Adjust Exchange Rates.
-
-        // Setup: Run report Adjust Exchange Rates to verify Error Code, Actual error message: The adjustment of exchange rates has been canceled.
-        Initialize();
-        AdjustExchangeRatesReportErrors(WorkDate(), false, true, 'Dialog');  // Posting Date, Post, Adjust G/L Accounts for Add.-Reporting Currency and Expected Error Code.
     end;
 
     [Test]
@@ -123,24 +110,6 @@ codeunit 142068 "UT REP LOWVAL"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesValuationMethodRequestPageHandler,NothingToAdjustMessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnPreReportAdjustExchangeRatesTxtReferenceDate()
-    begin
-        // Purpose of the test is to validate OnPreReport trigger of Report ID - 595  Adjust Exchange Rates.
-        // Setup.
-        Initialize();
-
-        // Exercise.
-        REPORT.Run(REPORT::"Adjust Exchange Rates");  // Opens AdjustExchangeRatesValuationMethodRequestPageHandler.
-
-        // Verify: Verify TxtReferenceDate is updated with Valuation Period End Date of Report - Adjust Exchange Rates.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('TxtReferenceDate', StrSubstNo(ValuationRefDateTxt, WorkDate()));
-    end;
-
-    [Test]
     [HandlerFunctions('AdjustExchangeRatesPostingDescRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -150,7 +119,7 @@ codeunit 142068 "UT REP LOWVAL"
 
         // Setup: Run Report to verify Posting Description is updated automatically on Report Adjust Exchange Rates inside AdjustExchangeRatesPostingDescRequestPageHandler.
         Initialize();
-        AdjustExchangeRatesReport;
+        AdjustExchangeRatesReport();
     end;
 
     [Test]
@@ -163,33 +132,7 @@ codeunit 142068 "UT REP LOWVAL"
 
         // Setup: Run Report to verify Valuation Reference Date is automatically updated as last day of the month of Ending Date on Report Adjust Exchange Rates inside AdjustExchangeRatesValPerEndRequestPageHandler.
         Initialize();
-        AdjustExchangeRatesReport;
-    end;
-
-    [Test]
-    [HandlerFunctions('AdjustExchangeRatesValuationMethodRequestPageHandler,NothingToAdjustMessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnValidateValPerEndAdjExchRatesUpdateControls()
-    begin
-        // Purpose of the test is to validate ValPerEnd - OnValidate Trigger of Report ID -  Adjust Exchange Rates.
-
-        // Setup: Run Report to verify DueDateLimit is automatically updated as next year of same date of Valuation Reference Date on Report Adjust Exchange Rates inside AdjustExchangeRatesValuationMethodRequestPageHandler.
-        Initialize();
-        AdjustExchangeRatesReport;
-    end;
-
-    [Test]
-    [HandlerFunctions('AdjustExchangeRatesValuationMethodRequestPageHandler,NothingToAdjustMessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnValidateValnMethodAdjExchRatesUpdateControls()
-    begin
-        // Purpose of the test is to validate ValuationMethod - OnValidate Trigger of Report ID -  Adjust Exchange Rates.
-
-        // Setup: Run Report to verify Valuation Reference Date and Short term liabilities until is enabled when Valuation Method Type is BilMoG (Germany) on Report Adjust Exchange Rates inside AdjustExchangeRatesValuationMethodRequestPageHandler.
-        Initialize();
-        AdjustExchangeRatesReport;
+        AdjustExchangeRatesReport();
     end;
 
     local procedure AdjustExchangeRatesReport()
@@ -212,7 +155,7 @@ codeunit 142068 "UT REP LOWVAL"
         // Purpose of the test is to validate Currency - OnAfterGetRecord Trigger of Report ID -  Adjust Exchange Rates.
         // Setup.
         Initialize();
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
 
         // Exercise.
         REPORT.Run(REPORT::"Adjust Exchange Rates");  // Opens AdjustExchangeRatesCurrencyRequestPageHandler.
@@ -259,7 +202,7 @@ codeunit 142068 "UT REP LOWVAL"
         RunAdjExchRatesForVendorByDateBilMog(CurrencyCode, AdjustmentDate[2]);
 
         // [THEN] Invoice Adjusted amount printed in report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VendLedgEntryAdjAmt', -163.04);
     end;
 
@@ -286,7 +229,7 @@ codeunit 142068 "UT REP LOWVAL"
 
         // [GIVEN] Bank accounts "A" and "B" with "Currency Code" = "C" and "Bank Acc. Posting Group" = "G"
         LibraryERM.CreateBankAccountPostingGroup(BankAccountPostingGroup);
-        BankAccountPostingGroup.Validate("G/L Account No.", LibraryERM.CreateGLAccountNo);
+        BankAccountPostingGroup.Validate("G/L Account No.", LibraryERM.CreateGLAccountNo());
         BankAccountPostingGroup.Modify(true);
 
         CreateBankAccountWithCurrencyAndGroup(BankAccount[1], CurrencyCode, BankAccountPostingGroup.Code);
@@ -332,7 +275,7 @@ codeunit 142068 "UT REP LOWVAL"
         Currency: Record Currency;
     begin
         Currency.Init();
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
 
         CurrencyExchangeRate.Init();
@@ -440,7 +383,7 @@ codeunit 142068 "UT REP LOWVAL"
         AdjustExchangeRates.StartingDate.SetValue(WorkDate());
         AdjustExchangeRates.EndingDate.SetValue(WorkDate());
         AdjustExchangeRates.PostingDate.SetValue(PostingDate);
-        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -450,7 +393,7 @@ codeunit 142068 "UT REP LOWVAL"
         AdjustExchangeRates.Method.SetValue(RefValuationMethod::"BilMoG (Germany)");
         AdjustExchangeRates.ValPerEnd.SetValue(CalcDate('<+CM>', WorkDate()));
         AdjustExchangeRates.DueDateLimit.SetValue(WorkDate());  // Less than ValPerEnd.
-        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -468,7 +411,7 @@ codeunit 142068 "UT REP LOWVAL"
         AdjustExchangeRates.EndingDate.SetValue(WorkDate());
         AdjustExchangeRates.PostingDate.AssertEquals(WorkDate());
         AdjustExchangeRates.ValPerEnd.AssertEquals(CalcDate('<+CM>', WorkDate()));  // ValPerEnd is equal to Last day of month of Posting Date.
-        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -478,9 +421,9 @@ codeunit 142068 "UT REP LOWVAL"
         AdjustExchangeRates.Method.SetValue(RefValuationMethod::"BilMoG (Germany)");
         AdjustExchangeRates.ValPerEnd.SetValue(WorkDate());
         AdjustExchangeRates.DueDateLimit.AssertEquals(CalcDate('<+1Y>', WorkDate()));  // DueDateLimit is equal to same day of next year of ValPerEnd.
-        Assert.IsTrue(AdjustExchangeRates.DueDateLimit.Enabled, FieldMustEnabledMsg);
-        Assert.IsTrue(AdjustExchangeRates.ValPerEnd.Enabled, FieldMustEnabledMsg);
-        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Assert.IsTrue(AdjustExchangeRates.DueDateLimit.Enabled(), FieldMustEnabledMsg);
+        Assert.IsTrue(AdjustExchangeRates.ValPerEnd.Enabled(), FieldMustEnabledMsg);
+        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -496,7 +439,7 @@ codeunit 142068 "UT REP LOWVAL"
         AdjustExchangeRates.EndingDate.SetValue(WorkDate());
         AdjustExchangeRates.PostingDate.SetValue(WorkDate());
         AdjustExchangeRates.Currency.SetFilter(Code, CurrencyCode);
-        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -505,7 +448,7 @@ codeunit 142068 "UT REP LOWVAL"
     var
         PostingDate: Variant;
     begin
-        AdjustExchangeRates.Currency.SetFilter(Code, LibraryVariableStorage.DequeueText);
+        AdjustExchangeRates.Currency.SetFilter(Code, LibraryVariableStorage.DequeueText());
         LibraryVariableStorage.Dequeue(PostingDate);
         AdjustExchangeRates.Post.SetValue(true);
         AdjustExchangeRates.AdjVendors.SetValue(true);
@@ -514,7 +457,7 @@ codeunit 142068 "UT REP LOWVAL"
         AdjustExchangeRates.PostingDate.SetValue(PostingDate);
         AdjustExchangeRates.Method.SetValue(RefValuationMethod::"BilMoG (Germany)");
         AdjustExchangeRates.ValPerEnd.SetValue(PostingDate);
-        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -523,7 +466,7 @@ codeunit 142068 "UT REP LOWVAL"
     var
         PostingDate: Variant;
     begin
-        AdjustExchangeRates.Currency.SetFilter(Code, LibraryVariableStorage.DequeueText);
+        AdjustExchangeRates.Currency.SetFilter(Code, LibraryVariableStorage.DequeueText());
 
         AdjustExchangeRates.Post.SetValue(true);
         AdjustExchangeRates.AdjustBankAccounts.SetValue(true);
@@ -534,7 +477,7 @@ codeunit 142068 "UT REP LOWVAL"
         AdjustExchangeRates.PostingDate.SetValue(PostingDate);
         AdjustExchangeRates.DocumentNo.SetValue(LibraryUtility.GenerateRandomText(10));
         AdjustExchangeRates.Method.SetValue(RefValuationMethod::Standard);
-        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
@@ -562,7 +505,7 @@ codeunit 142068 "UT REP LOWVAL"
     [Scope('OnPrem')]
     procedure AdjustedMessageHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 }
 #endif

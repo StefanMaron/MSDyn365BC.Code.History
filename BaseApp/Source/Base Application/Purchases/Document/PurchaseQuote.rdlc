@@ -3747,6 +3747,12 @@ End Function</Code>
         <Field Name="YourRef_PurchHdr">
           <DataField>YourRef_PurchHdr</DataField>
         </Field>
+        <Field Name="VendAddr7">
+          <DataField>VendAddr7</DataField>
+        </Field>
+        <Field Name="VendAddr8">
+          <DataField>VendAddr8</DataField>
+        </Field>
         <Field Name="CompanyAddr5">
           <DataField>CompanyAddr5</DataField>
         </Field>
@@ -3756,17 +3762,8 @@ End Function</Code>
         <Field Name="CompanyAddr7">
           <DataField>CompanyAddr7</DataField>
         </Field>
-        <Field Name="VendAddr7">
-          <DataField>VendAddr7</DataField>
-        </Field>
         <Field Name="CompanyAddr8">
           <DataField>CompanyAddr8</DataField>
-        </Field>
-        <Field Name="VendAddr8">
-          <DataField>VendAddr8</DataField>
-        </Field>
-        <Field Name="ShipMethodDesc">
-          <DataField>ShipMethodDesc</DataField>
         </Field>
         <Field Name="OutpuNo">
           <DataField>OutpuNo</DataField>

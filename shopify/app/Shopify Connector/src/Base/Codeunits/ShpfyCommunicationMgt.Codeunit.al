@@ -17,7 +17,7 @@ codeunit 30103 "Shpfy Communication Mgt."
         CommunicationEvents: Codeunit "Shpfy Communication Events";
         GraphQLQueries: Codeunit "Shpfy GraphQL Queries";
         NextExecutionTime: DateTime;
-        VersionTok: Label '2023-10', Locked = true;
+        VersionTok: Label '2024-01', Locked = true;
         OutgoingRequestsNotEnabledConfirmLbl: Label 'Importing data to your Shopify shop is not enabled, do you want to go to shop card to enable?';
         OutgoingRequestsNotEnabledErr: Label 'Importing data to your Shopify shop is not enabled, navigate to shop card to enable.';
         IsTestInProgress: Boolean;
@@ -463,8 +463,8 @@ codeunit 30103 "Shpfy Communication Mgt."
 
     local procedure ResponseHasUserError(Response: Text): Boolean;
     begin
-        if Response.Contains('"userErrors":') then
-            if not Response.Contains('"userErrors":[]') then
+        if Response.Contains('"userErrors":') or Response.Contains('"orderCancelUserErrors":') then
+            if not Response.Contains('"userErrors":[]') and not Response.Contains('"orderCancelUserErrors":[]') then
                 exit(true);
     end;
 
@@ -745,6 +745,14 @@ codeunit 30103 "Shpfy Communication Mgt."
 
         PropertyValue := JToken.AsValue().AsText();
         exit(true);
+    end;
+
+    internal procedure ConvertBooleanToText(Value: Boolean): Text
+    begin
+        if Value then
+            exit('true')
+        else
+            exit('false');
     end;
 }
 

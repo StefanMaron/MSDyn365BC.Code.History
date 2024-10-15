@@ -21,7 +21,9 @@ codeunit 136504 "RES Time Sheet"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
         LibraryJob: Codeunit "Library - Job";
+#if not CLEAN22
         RESTimeSheet: Codeunit "RES Time Sheet";
+#endif
         IsInitialized: Boolean;
         PageVerify: Label 'The TestPage is already open.';
         TimeSheetNo: Code[20];
@@ -39,10 +41,10 @@ codeunit 136504 "RES Time Sheet"
 
         // Setup: Open Time Sheet List page.
         Initialize();
-        TimeSheetList.OpenView;
+        TimeSheetList.OpenView();
 
         // Exercise.
-        asserterror TimeSheetList.OpenView;
+        asserterror TimeSheetList.OpenView();
 
         // Verify: Verify error message on Time Sheet List page.
         Assert.ExpectedError(PageVerify);
@@ -59,10 +61,10 @@ codeunit 136504 "RES Time Sheet"
 
         // Setup: Open Manager Time Sheet List page.
         Initialize();
-        ManagerTimeSheetList.OpenView;
+        ManagerTimeSheetList.OpenView();
 
         // Exercise.
-        asserterror ManagerTimeSheetList.OpenView;
+        asserterror ManagerTimeSheetList.OpenView();
 
         // Verify: Verify error message on Manager Time Sheet List page.
         Assert.ExpectedError(PageVerify);
@@ -81,7 +83,7 @@ codeunit 136504 "RES Time Sheet"
         // [SCENARIO] Creation of Time Sheet menu is working and creating timesheet
         Initialize();
         ResourcesSetup.Get();
-        ResourceNo := CreateTimesheetResourceWithUserSetup;
+        ResourceNo := CreateTimesheetResourceWithUserSetup();
 
         // [GIVEN] Open Accounting Period
         LibraryTimeSheet.GetAccountingPeriod(AccountingPeriod);
@@ -114,10 +116,10 @@ codeunit 136504 "RES Time Sheet"
 
         // Setup: Open Time Sheet Archive List page.
         Initialize();
-        TimeSheetArchiveList.OpenView;
+        TimeSheetArchiveList.OpenView();
 
         // Exercise.
-        asserterror TimeSheetArchiveList.OpenView;
+        asserterror TimeSheetArchiveList.OpenView();
 
         // Verify: Verify error message on Time Sheet Archive List page.
         Assert.ExpectedError(PageVerify);
@@ -161,10 +163,10 @@ codeunit 136504 "RES Time Sheet"
 
         // Setup: Open Manager Time Sheet Archive List page.
         Initialize();
-        ManagerTimeSheetArcList.OpenView;
+        ManagerTimeSheetArcList.OpenView();
 
         // Exercise:
-        asserterror ManagerTimeSheetArcList.OpenView;
+        asserterror ManagerTimeSheetArcList.OpenView();
 
         // Verify: Verify error message on Manager Time Sheet Archive List page.
         Assert.ExpectedError(PageVerify);
@@ -206,15 +208,15 @@ codeunit 136504 "RES Time Sheet"
     begin
         // [SCENARIO] Creation of Time Sheet Menu is exists on Resource page
         Initialize();
-        ResourceNo := CreateTimesheetResourceWithUserSetup;
+        ResourceNo := CreateTimesheetResourceWithUserSetup();
         Commit();
 
         // [GIVEN] Resource card
-        ResourceCard.OpenEdit;
+        ResourceCard.OpenEdit();
         ResourceCard.FILTER.SetFilter("No.", ResourceNo);
 
         // [WHEN] Perform "Create Time Sheets" action
-        ResourceCard.CreateTimeSheets.Invoke;
+        ResourceCard.CreateTimeSheets.Invoke();
 
         // [THEN] REP 950 "Create Time Sheets" has been invoked
         // TimeSheetHandler handler
@@ -273,8 +275,8 @@ codeunit 136504 "RES Time Sheet"
         Commit();
 
         // Exercise.
-        ResourceJournal.OpenEdit;
-        ResourceJournal.SuggestLinesFromTimeSheets.Invoke;
+        ResourceJournal.OpenEdit();
+        ResourceJournal.SuggestLinesFromTimeSheets.Invoke();
 
         // Verify: Verification done in ResourceJournalLineHandler handler.
     end;
@@ -296,7 +298,7 @@ codeunit 136504 "RES Time Sheet"
         CreateJobAndJobTask(JobTask);
 
         // Exercise.
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBoth, JobJournalLine.Type::Item, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBoth(), JobJournalLine.Type::Item, JobTask, JobJournalLine);
         JobJournalLine.Validate("Time Sheet No.", TimeSheetLine."Time Sheet No.");
         JobJournalLine.Validate("Time Sheet Line No.", TimeSheetLine."Line No.");
         JobJournalLine.Validate("Time Sheet Date", TimeSheetLine."Time Sheet Starting Date");
@@ -329,8 +331,8 @@ codeunit 136504 "RES Time Sheet"
         Commit();
 
         // Exercise.
-        JobJournal.OpenEdit;
-        JobJournal.SuggestLinesFromTimeSheets.Invoke;
+        JobJournal.OpenEdit();
+        JobJournal.SuggestLinesFromTimeSheets.Invoke();
 
         // Verify: Verification done in JobJournalLineHandler handler.
     end;
@@ -347,7 +349,7 @@ codeunit 136504 "RES Time Sheet"
         // Setup.
         Initialize();
         ResourcesSetup.Get();
-        TimeSheetNos := LibraryUtility.GetGlobalNoSeriesCode;
+        TimeSheetNos := LibraryUtility.GetGlobalNoSeriesCode();
 
         // Exercise.
         ResourcesSetup.Validate("Time Sheet Nos.", TimeSheetNos);
@@ -383,7 +385,7 @@ codeunit 136504 "RES Time Sheet"
         // Exercise: Enter comments for Time Sheet Header and Time Sheet Line.
         OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
         OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.OK.Invoke;
+        TimeSheet.OK().Invoke();
 
         // Verify: Verify comments entered on both Time Sheet Header and Time Sheet Line.
         VerifyCommentsOnTimeSheetHeader(TimeSheetHeader."No.");
@@ -412,21 +414,21 @@ codeunit 136504 "RES Time Sheet"
         ResourceNo := TimeSheetHeader."Resource No.";
         OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
         OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.OK.Invoke;
+        TimeSheet.OK().Invoke();
 
         // Exercise: Delete comments on Line.
-        TimeSheet.OpenView;
+        TimeSheet.OpenView();
         TimeSheet.CurrTimeSheetNo.SetValue(TimeSheetHeader."No.");
-        TimeSheetCommentSheet.Trap;
-        TimeSheet.LineComments.Invoke;
+        TimeSheetCommentSheet.Trap();
+        TimeSheet.LineComments.Invoke();
         TimeSheetCommentSheet.Comment.SetValue('');
-        TimeSheet.OK.Invoke;
+        TimeSheet.OK().Invoke();
 
         // Verify: Verify comments are removed after deletion of Time Sheet Line.
-        TimeSheet.OpenView;
+        TimeSheet.OpenView();
         TimeSheet.CurrTimeSheetNo.SetValue(TimeSheetHeader."No.");
-        TimeSheetCommentSheet.Trap;
-        TimeSheet.LineComments.Invoke;
+        TimeSheetCommentSheet.Trap();
+        TimeSheet.LineComments.Invoke();
         TimeSheetCommentSheet.Comment.AssertEquals('');
 
         // Tear Down: Delete Time Sheet And Resource.
@@ -452,10 +454,10 @@ codeunit 136504 "RES Time Sheet"
         ResourceNo := TimeSheetHeader."Resource No.";
         OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
         OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.OK.Invoke;
+        TimeSheet.OK().Invoke();
 
         // Exercise.
-        ManagerTimeSheetList.OpenView;
+        ManagerTimeSheetList.OpenView();
 
         // Verify: Verify comments on Manager Time Sheet Header And Line.
         VerifyCommentsOnManagerTimeSheetHeader(TimeSheetHeader."No.");
@@ -485,13 +487,13 @@ codeunit 136504 "RES Time Sheet"
         ResourceNo := TimeSheetHeader."Resource No.";
         OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
         OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.Submit.Invoke;
-        TimeSheet.OK.Invoke;
+        TimeSheet.Submit.Invoke();
+        TimeSheet.OK().Invoke();
 
         // Exercise.
-        ManagerTimeSheet.OpenView;
+        ManagerTimeSheet.OpenView();
         ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        ManagerTimeSheet.Reject.Invoke;
+        ManagerTimeSheet.Reject.Invoke();
 
         // Verify: Verify comments Entered on both Time Sheet Header and Time Sheet Line.
         VerifyCommentsOnTimeSheetHeader(TimeSheetHeader."No.");
@@ -521,8 +523,8 @@ codeunit 136504 "RES Time Sheet"
         ResourceNo := TimeSheetHeader."Resource No.";
         OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
         OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.Submit.Invoke;
-        TimeSheet.OK.Invoke;
+        TimeSheet.Submit.Invoke();
+        TimeSheet.OK().Invoke();
 
         // Exercise.
 
@@ -533,12 +535,12 @@ codeunit 136504 "RES Time Sheet"
         VerifyCommentsOnManagerTimeSheetLine(TimeSheetHeader."No.");
 
         // Tear Down: Delete Time Sheet and Resource.
-        ManagerTimeSheet.OpenView;
+        ManagerTimeSheet.OpenView();
         ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        ManagerTimeSheet.Reopen.Invoke;
-        TimeSheet.OpenView;
+        ManagerTimeSheet.Reopen.Invoke();
+        TimeSheet.OpenView();
         TimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        TimeSheet.Reopen.Invoke;
+        TimeSheet.Reopen.Invoke();
         DeleteTimeSheetAndResource(TimeSheetHeader."No.", ResourceNo);
     end;
 #endif
@@ -573,24 +575,24 @@ codeunit 136504 "RES Time Sheet"
         ResourceNo := TimeSheetHeader."Resource No.";
         OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
         OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.Submit.Invoke;
-        TimeSheet.OK.Invoke;
+        TimeSheet.Submit.Invoke();
+        TimeSheet.OK().Invoke();
         ManagerTimeSheetApproval(TimeSheetHeader."No.");
         Commit();
 
         // Exercise: Run Move Time Sheets to Archive Report.
         Clear(MoveTimeSheetsToArchive);
-        ManagerTimeSheet.OpenView;
+        ManagerTimeSheet.OpenView();
         MoveTimeSheetsToArchive.Run();
 
-        TimeSheetArchiveList.OpenView;
+        TimeSheetArchiveList.OpenView();
         TimeSheetArchiveList.FILTER.SetFilter("No.", TimeSheetHeader."No.");
-        TimeSheetArchive.Trap;
-        TimeSheetArchiveList."&View Time Sheet".Invoke;
+        TimeSheetArchive.Trap();
+        TimeSheetArchiveList."&View Time Sheet".Invoke();
         // Verify: Verify comments on Archive Time Sheet.
         TimeSheetArchive.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        TimeSheetArcCommentSheet.Trap;
-        TimeSheetArchive.LineComments.Invoke;
+        TimeSheetArcCommentSheet.Trap();
+        TimeSheetArchive.LineComments.Invoke();
         TimeSheetArcCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
         TimeSheetArcCommentSheet.Close();
 
@@ -646,7 +648,7 @@ codeunit 136504 "RES Time Sheet"
 
         // Verify: Verify that the Time Sheet Line is deleted.
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        Assert.IsFalse(TimeSheetLine.FindFirst, TimeSheetLineExist);
+        Assert.IsFalse(TimeSheetLine.FindFirst(), TimeSheetLineExist);
     end;
 
 #if not CLEAN22
@@ -684,10 +686,10 @@ codeunit 136504 "RES Time Sheet"
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
 
-        TimeSheetList.OpenEdit;
+        TimeSheetList.OpenEdit();
         TimeSheetList.GotoRecord(TimeSheetHeader);
-        TimeSheet.Trap;
-        TimeSheetList.EditTimeSheet.Invoke;
+        TimeSheet.Trap();
+        TimeSheetList.EditTimeSheet.Invoke();
         TimeSheet.GotoRecord(TimeSheetLine);
 
         // [WHEN] Validate day's quantity = 1 (or 1.1 or 1.12)
@@ -820,7 +822,7 @@ codeunit 136504 "RES Time Sheet"
         // [GIVEN] Default Dimension "DD1" where "Source Code" = "SC1", Priority = 1
         // [GIVEN] Default Dimension "DD2" where "Source Code" = "SC2", Priority = 2
         CreateJobTaskResourceAndSourceCode(JobTask, ResourceNo, SourceCodeJob);
-        SourceCodeResource := CreateSourceCode;
+        SourceCodeResource := CreateSourceCode();
 
         // [GIVEN] Job "J" with Default Dimension "DD1"
         PriorityGlobalDimValue := CreateDimensionWithPriority(SourceCodeJob, DATABASE::Job, JobTask."Job No.", 1);
@@ -853,7 +855,7 @@ codeunit 136504 "RES Time Sheet"
         // [GIVEN] Default Dimension "DD1" where "Source Code" = "SC1", Priority = 2
         // [GIVEN] Default Dimension "DD2" where "Source Code" = "SC2", Priority = 1
         CreateJobTaskResourceAndSourceCode(JobTask, ResourceNo, SourceCodeJob);
-        SourceCodeResource := CreateSourceCode;
+        SourceCodeResource := CreateSourceCode();
 
         // [GIVEN] Job "J" with Default Dimension "DD1"
         PriorityGlobalDimValue := CreateDimensionWithPriority(SourceCodeJob, DATABASE::Job, JobTask."Job No.", 2);
@@ -886,7 +888,7 @@ codeunit 136504 "RES Time Sheet"
         // [GIVEN] Default Dimension "DD1" where "Source Code" = "SC1", Priority = 1
         // [GIVEN] Default Dimension "DD2" where "Source Code" = "SC2", Priority = 1
         CreateJobTaskResourceAndSourceCode(JobTask, ResourceNo, SourceCodeJob);
-        SourceCodeResource := CreateSourceCode;
+        SourceCodeResource := CreateSourceCode();
 
         // [GIVEN] Job "J" with Default Dimension "DD1"
         PriorityGlobalDimValue := CreateDimensionWithPriority(SourceCodeJob, DATABASE::Job, JobTask."Job No.", 1);
@@ -919,7 +921,7 @@ codeunit 136504 "RES Time Sheet"
         // [GIVEN] Default Dim. "DD1" where "Source Code" = "SC1", Priority = 1
         // [GIVEN] Default Dim. "DD2" where "Source Code" = "SC2", Priority = 2
         CreateJobTaskResourceAndSourceCode(JobTask, ResourceNo, SourceCodeJob);
-        SourceCodeResource := CreateSourceCode;
+        SourceCodeResource := CreateSourceCode();
 
         // [GIVEN] Job "J" with Default Dimension "DD1"
         CreateDimensionWithPriority(SourceCodeJob, DATABASE::Job, JobTask."Job No.", 1);
@@ -952,7 +954,7 @@ codeunit 136504 "RES Time Sheet"
         // [GIVEN] Default Dim. "DD1" where "Source Code" = "SC1", Priority = 2
         // [GIVEN] Default Dim. "DD2" where "Source Code" = "SC2", Priority = 1
         CreateJobTaskResourceAndSourceCode(JobTask, ResourceNo, SourceCodeJob);
-        SourceCodeResource := CreateSourceCode;
+        SourceCodeResource := CreateSourceCode();
 
         // [GIVEN] Job "J" with Default Dimension "DD1"
         CreateDimensionWithPriority(SourceCodeJob, DATABASE::Job, JobTask."Job No.", 2);
@@ -985,7 +987,7 @@ codeunit 136504 "RES Time Sheet"
         // [GIVEN] Default Dim. "DD1" where "Source Code" = "SC1", Priority = 1
         // [GIVEN] Default Dim. "DD2" where "Source Code" = "SC2", Priority = 1
         CreateJobTaskResourceAndSourceCode(JobTask, ResourceNo, SourceCodeJob);
-        SourceCodeResource := CreateSourceCode;
+        SourceCodeResource := CreateSourceCode();
 
         // [GIVEN] Job "J" with Default Dimension "DD1"
         CreateDimensionWithPriority(SourceCodeJob, DATABASE::Job, JobTask."Job No.", 1);
@@ -1015,9 +1017,9 @@ codeunit 136504 "RES Time Sheet"
         Initialize();
 
         // [GIVEN] Resource with "Use Time Sheet" = TRUE
-        ResourceNo := CreateTimesheetResourceWithUserSetup;
+        ResourceNo := CreateTimesheetResourceWithUserSetup();
         // [GIVEN] One week time sheet for the resource using Start Date = 28-05-2018 (monday)
-        StartingDate := FindWorkingWeekWithMonthChange;
+        StartingDate := FindWorkingWeekWithMonthChange();
         NoOfRemDays := CalcDate('<CM>', StartingDate) - StartingDate + 1;
         LibraryTimeSheet.RunCreateTimeSheetsReport(StartingDate, 1, ResourceNo);
         // [GIVEN] Five time sheet detail lines using Type = "Job", from 28-05-2018 (monday) to 01-06-2018 (friday)
@@ -1224,8 +1226,6 @@ codeunit 136504 "RES Time Sheet"
     var
         Resource: Record Resource;
         TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        TimeSheetHeaderArchive: Record "Time Sheet Header Archive";
         MoveTimeSheetsToArchive: Report "Move Time Sheets to Archive";
         TimeSheet: TestPage "Time Sheet";
         TimeSheetArchive: TestPage "Time Sheet Archive";
@@ -1245,23 +1245,23 @@ codeunit 136504 "RES Time Sheet"
         ResourceNo := TimeSheetHeader."Resource No.";
         OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
         OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.Submit.Invoke;
-        TimeSheet.OK.Invoke;
+        TimeSheet.Submit.Invoke();
+        TimeSheet.OK().Invoke();
         ManagerTimeSheetApproval(TimeSheetHeader."No.");
         Commit();
 
         // [THEN] Exercise: Run Move Time Sheets to Archive Report.
         Clear(MoveTimeSheetsToArchive);
-        ManagerTimeSheet.OpenView;
+        ManagerTimeSheet.OpenView();
         MoveTimeSheetsToArchive.Run();
 
-        TimeSheetArchiveList.OpenView;
+        TimeSheetArchiveList.OpenView();
         TimeSheetArchiveList.FILTER.SetFilter("No.", TimeSheetHeader."No.");
-        TimeSheetArchive.Trap;
-        TimeSheetArchiveList."&View Time Sheet".Invoke;
+        TimeSheetArchive.Trap();
+        TimeSheetArchiveList."&View Time Sheet".Invoke();
         // [VERIFY] Verify comments on Archive Time Sheet.
         TimeSheetArchive.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        TimeSheetArcCommentSheet.Trap;
+        TimeSheetArcCommentSheet.Trap();
         TimeSheetArchive.TimeSheetComments.Invoke();
         TimeSheetArcCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
         TimeSheetArcCommentSheet.Close();
@@ -1359,7 +1359,7 @@ codeunit 136504 "RES Time Sheet"
     local procedure CreateResourceJournalTemplate(var ResJournalTemplate: Record "Res. Journal Template")
     begin
         LibraryResource.CreateResourceJournalTemplate(ResJournalTemplate);
-        ResJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ResJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ResJournalTemplate.Modify(true);
     end;
 
@@ -1434,10 +1434,10 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetList: TestPage "Time Sheet List";
         TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
     begin
-        TimeSheetList.OpenView;
+        TimeSheetList.OpenView();
         TimeSheetList.FILTER.SetFilter("No.", TimeSheetHeaderNo);
-        TimeSheetCommentSheet.Trap;
-        TimeSheetList.Comments.Invoke;
+        TimeSheetCommentSheet.Trap();
+        TimeSheetList.Comments.Invoke();
         TimeSheetCommentSheet.Comment.SetValue(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
         TimeSheetList.Close();
     end;
@@ -1448,10 +1448,10 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetLine: Record "Time Sheet Line";
         TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
     begin
-        TimeSheet.OpenView;
+        TimeSheet.OpenView();
         TimeSheet.CurrTimeSheetNo.SetValue(TimeSheetHeaderNo);
-        TimeSheetCommentSheet.Trap;
-        TimeSheet.LineComments.Invoke;
+        TimeSheetCommentSheet.Trap();
+        TimeSheet.LineComments.Invoke();
         TimeSheetCommentSheet.Comment.SetValue(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
     end;
 #endif
@@ -1481,10 +1481,10 @@ codeunit 136504 "RES Time Sheet"
     var
         ManagerTimeSheet: TestPage "Manager Time Sheet";
     begin
-        ManagerTimeSheet.OpenView;
+        ManagerTimeSheet.OpenView();
         ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeaderNo;
-        ManagerTimeSheet.Approve.Invoke;
-        ManagerTimeSheet.OK.Invoke;
+        ManagerTimeSheet.Approve.Invoke();
+        ManagerTimeSheet.OK().Invoke();
     end;
 
     local procedure CreateJobJournalLine(var JobJournalLine: Record "Job Journal Line"; SourceCode: Code[10])
@@ -1535,7 +1535,7 @@ codeunit 136504 "RES Time Sheet"
 
     local procedure CreateJobTaskResourceAndSourceCode(var JobTask: Record "Job Task"; var ResourceNo: Code[20]; var SourceCodeJob: Code[10])
     begin
-        SourceCodeJob := CreateSourceCode;
+        SourceCodeJob := CreateSourceCode();
         CreateJobAndJobTask(JobTask);
         ResourceNo := CreateJobTimeSheet(JobTask."Job No.", JobTask."Job Task No.");
     end;
@@ -1590,7 +1590,7 @@ codeunit 136504 "RES Time Sheet"
             SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);
             FindSet();
             while Date2DMY("Period Start", 1) < 28 do
-                Next;
+                Next();
             exit("Period Start");
         end;
     end;
@@ -1639,10 +1639,10 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetList: TestPage "Time Sheet List";
         TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
     begin
-        TimeSheetList.OpenView;
+        TimeSheetList.OpenView();
         TimeSheetList.FILTER.SetFilter("No.", TimeSheetHeaderNo);
-        TimeSheetCommentSheet.Trap;
-        TimeSheetList.Comments.Invoke;
+        TimeSheetCommentSheet.Trap();
+        TimeSheetList.Comments.Invoke();
         TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
     end;
 
@@ -1653,10 +1653,10 @@ codeunit 136504 "RES Time Sheet"
         TimeSheet: TestPage "Time Sheet";
         TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
     begin
-        TimeSheet.OpenView;
+        TimeSheet.OpenView();
         TimeSheet.CurrTimeSheetNo.Value := TimeSheetHeaderNo;
-        TimeSheetCommentSheet.Trap;
-        TimeSheet.LineComments.Invoke;
+        TimeSheetCommentSheet.Trap();
+        TimeSheet.LineComments.Invoke();
         TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
     end;
 #endif
@@ -1667,10 +1667,10 @@ codeunit 136504 "RES Time Sheet"
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
         TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
     begin
-        ManagerTimeSheetList.OpenView;
+        ManagerTimeSheetList.OpenView();
         ManagerTimeSheetList.FILTER.SetFilter("No.", TimeSheetHeaderNo);
-        TimeSheetCommentSheet.Trap;
-        ManagerTimeSheetList.Comments.Invoke;
+        TimeSheetCommentSheet.Trap();
+        ManagerTimeSheetList.Comments.Invoke();
         TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
     end;
 
@@ -1680,10 +1680,10 @@ codeunit 136504 "RES Time Sheet"
         ManagerTimeSheet: TestPage "Manager Time Sheet";
         TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
     begin
-        ManagerTimeSheet.OpenView;
+        ManagerTimeSheet.OpenView();
         ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeaderNo;
-        TimeSheetCommentSheet.Trap;
-        ManagerTimeSheet.LineComments.Invoke;
+        TimeSheetCommentSheet.Trap();
+        ManagerTimeSheet.LineComments.Invoke();
         TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
     end;
 
@@ -1723,35 +1723,35 @@ codeunit 136504 "RES Time Sheet"
     [Scope('OnPrem')]
     procedure TimeSheetHandler(var CreateTimeSheets: TestRequestPage "Create Time Sheets")
     begin
-        CreateTimeSheets.OK.Invoke;
+        CreateTimeSheets.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ResourceJournalLineHandler(var SuggestResJnlLines: TestRequestPage "Suggest Res. Jnl. Lines")
     begin
-        SuggestResJnlLines.OK.Invoke;
+        SuggestResJnlLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResourceJournalTemplateListHandler(var ResJournalTemplateList: TestPage "Res. Journal Template List")
     begin
-        ResJournalTemplateList.OK.Invoke;
+        ResJournalTemplateList.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure JobJournalLineHandler(var SuggestJobJnlLines: TestRequestPage "Suggest Job Jnl. Lines")
     begin
-        SuggestJobJnlLines.OK.Invoke;
+        SuggestJobJnlLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure JobJournalTemplateListHandler(var JobJournalTemplateList: TestPage "Job Journal Template List")
     begin
-        JobJournalTemplateList.OK.Invoke;
+        JobJournalTemplateList.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1759,7 +1759,7 @@ codeunit 136504 "RES Time Sheet"
     procedure MoveTimeSheetHandler(var MoveTimeSheetsToArchive: TestRequestPage "Move Time Sheets to Archive")
     begin
         MoveTimeSheetsToArchive."Time Sheet Header".SetFilter("No.", TimeSheetNo);
-        MoveTimeSheetsToArchive.OK.Invoke;
+        MoveTimeSheetsToArchive.OK().Invoke();
     end;
 
     [MessageHandler]

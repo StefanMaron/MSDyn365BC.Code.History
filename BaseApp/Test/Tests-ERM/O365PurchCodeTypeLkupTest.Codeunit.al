@@ -26,14 +26,14 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         Initialize();
 
         // [GIVEN] An OnPrem environment
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [WHEN] Opening a new Standard Purchase Code page
         StandardPurchaseCodeCard.OpenNew();
 
         // [THEN] The Type field is visible and the SaaS type field is not
-        Assert.IsTrue(StandardPurchaseCodeCard.StdPurchaseLines.Type.Visible, 'Regular type field should be visible for OnPrem');
-        Assert.IsFalse(StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.Visible,
+        Assert.IsTrue(StandardPurchaseCodeCard.StdPurchaseLines.Type.Visible(), 'Regular type field should be visible for OnPrem');
+        Assert.IsFalse(StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.Visible(),
           'SaaS type field should not be visible for OnPrem');
     end;
 
@@ -52,9 +52,9 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         StandardPurchaseCodeCard.OpenNew();
 
         // [THEN] The SaaS type field is visible and the type field is not
-        asserterror StandardPurchaseCodeCard.StdPurchaseLines.Type.Activate;
+        asserterror StandardPurchaseCodeCard.StdPurchaseLines.Type.Activate();
         Assert.ExpectedError('not found on the page');
-        Assert.IsTrue(StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.Visible,
+        Assert.IsTrue(StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.Visible(),
           'SaaS type field should be visible for OnPrem');
     end;
 
@@ -72,9 +72,9 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
 
         // [GIVEN] A standard purchase code
         StandardPurchaseCodeCard.OpenNew();
-        StandardPurchaseCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardPurchaseCode.Code));
+        StandardPurchaseCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(StandardPurchaseCode.Code));
         StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID();
-        StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency;
+        StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency();
 
         TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
         TempOptionLookupBuffer.FindSet();
@@ -82,7 +82,7 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
             // [WHEN] Opening the SaaS type lookup and selecting service
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Lookup Type");
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Option Caption");
-            StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.Lookup;
+            StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.Lookup();
 
             // [THEN] The SaaS type is set to service
             StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
@@ -102,9 +102,9 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
 
         // [GIVEN] A standard purchase code
         StandardPurchaseCodeCard.OpenNew();
-        StandardPurchaseCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardPurchaseCode.Code));
+        StandardPurchaseCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(StandardPurchaseCode.Code));
         StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID();
-        StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency;
+        StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency();
 
         // [WHEN] Setting the saas type on the standard Purchase Line to ac
         StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.SetValue(
@@ -118,7 +118,7 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.AssertEquals(Format(StandardPurchaseLine.Type::Item));
 
         // [WHEN] Setting the saas type on the standard Purchase Line to co
-        StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.SetValue(CopyStr(StandardPurchaseLine.FormatType, 1, 2));
+        StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.SetValue(CopyStr(StandardPurchaseLine.FormatType(), 1, 2));
         // [THEN] The SaaS type is set to Comment
         StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.AssertEquals(StandardPurchaseLine.FormatType());
     end;
@@ -136,9 +136,9 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
 
         // [GIVEN] A standard purchase code
         StandardPurchaseCodeCard.OpenNew();
-        StandardPurchaseCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardPurchaseCode.Code));
+        StandardPurchaseCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(StandardPurchaseCode.Code));
         StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID();
-        StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency;
+        StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency();
 
         // [WHEN] Setting the saas type on the standard Purchase Line to ' '
         StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.SetValue(' ');
@@ -164,9 +164,9 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
 
         // [GIVEN] A standard purchase code
         StandardPurchaseCodeCard.OpenNew();
-        StandardPurchaseCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardPurchaseCode.Code));
+        StandardPurchaseCodeCard.Code.Value := CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(StandardPurchaseCode.Code));
         StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID();
-        StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency;
+        StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency();
 
         // [WHEN] Setting the saas type to Fixed Asset on the standard Purchase Line
         StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.SetValue(Format(StandardPurchaseLine.Type::"Fixed Asset"));
@@ -194,7 +194,7 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         // Called by LibraryApplicationArea.EnableFoundationSetup();
         Initialize();
 
-        StandardPurchaseCodeValue := CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(StandardPurchaseLine."Standard Purchase Code"));
+        StandardPurchaseCodeValue := CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(StandardPurchaseLine."Standard Purchase Code"));
 
         // [GIVEN] Open "Standard Purchase Code" card and assign "X" to Code
         StandardPurchaseCodeCard.OpenNew();
@@ -202,7 +202,7 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
 
         // [WHEN] Validate Type with "G/L Account" and "No." with new "G/L Account" = "Y"
         StandardPurchaseCodeCard.StdPurchaseLines.FilteredTypeField.SetValue(Format(StandardPurchaseLine.Type::"G/L Account"));
-        GLAccNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccNo := LibraryERM.CreateGLAccountWithPurchSetup();
         StandardPurchaseCodeCard.StdPurchaseLines."No.".SetValue(GLAccNo);
         StandardPurchaseCodeCard.Close();
 
@@ -237,14 +237,15 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
     var
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
     begin
-        TempOptionLookupBuffer.FillLookupBuffer(LibraryVariableStorage.DequeueInteger);
+        TempOptionLookupBuffer.FillLookupBuffer(
+            "Option Lookup Type".FromInteger(LibraryVariableStorage.DequeueInteger()));
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
         until TempOptionLookupBuffer.Next() = 0;
 
-        OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
-        OptionLookupList.OK.Invoke;
+        OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText());
+        OptionLookupList.OK().Invoke();
     end;
 }
 

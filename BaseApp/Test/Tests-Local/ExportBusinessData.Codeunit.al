@@ -167,7 +167,7 @@ codeunit 142006 "Export Business Data"
         SetupParentChildTablesForExport(DataExportRecord, ExpectedFileNames);
         // [GIVEN] Child Table has 1 record, but out of reporting period
         InsertChildEntries(1);
-        ShiftPostingDateInFirstChildEntry;
+        ShiftPostingDateInFirstChildEntry();
 
         // [WHEN] Export data
         FolderName := ExportBusinessData(DataExportRecord);
@@ -191,7 +191,7 @@ codeunit 142006 "Export Business Data"
     begin
         SetupParentChildTablesForExport(DataExportRecord, ExpectedFileNames);
         InsertChildEntries(LibraryRandom.RandIntInRange(2, 5));
-        ShiftPostingDateInFirstChildEntry;
+        ShiftPostingDateInFirstChildEntry();
         FindChildEntriesToExport(DtldCVLedgEntryBuffer, TempEntryNo);
 
         FolderName := ExportBusinessData(DataExportRecord);
@@ -298,7 +298,7 @@ codeunit 142006 "Export Business Data"
         FolderName: Text;
     begin
         FolderName := ExportDtldMinBusinessData(DataExportRecord, DataExportRecordSource);
-        GetExportFieldName(DataExportRecordSource, GetPKFieldIndex, ExpectedName);
+        GetExportFieldName(DataExportRecordSource, GetPKFieldIndex(), ExpectedName);
 
         VerifyElementValueInIndexXML(FolderName, 'Name', 'VariablePrimaryKey', ExpectedName[2]);
         VerifyElementValueInIndexXML(FolderName, 'Description', 'VariablePrimaryKey', ExpectedName[1]);
@@ -314,7 +314,7 @@ codeunit 142006 "Export Business Data"
         FolderName: Text;
     begin
         FolderName := ExportDtldMinBusinessData(DataExportRecord, DataExportRecordSource);
-        GetExportFieldName(DataExportRecordSource, GetFirstNonPKFieldIndex, ExpectedName);
+        GetExportFieldName(DataExportRecordSource, GetFirstNonPKFieldIndex(), ExpectedName);
 
         VerifyElementValueInIndexXML(FolderName, 'Name', 'VariableColumn', ExpectedName[2]);
         VerifyElementValueInIndexXML(FolderName, 'Description', 'VariableColumn', ExpectedName[1]);
@@ -371,7 +371,7 @@ codeunit 142006 "Export Business Data"
         // [GIVEN] Vendor table exists in Data Source Export, with Name field set to export.
         LibraryPurchase.CreateVendor(Vendor);
         AddRecordSourceWithFilters(
-          DataExportRecord, VendorTableNo,
+          DataExportRecord, VendorTableNo(),
           Vendor.TableName + ':' + Vendor.FieldName("No.") + '=' + Vendor."No.", DataExportRecordSource);
         ExportFileName := DataExportRecordSource."Export File Name";
 
@@ -398,10 +398,10 @@ codeunit 142006 "Export Business Data"
         FolderName: Text;
     begin
         SetupParentChildTablesForExport(DataExportRecord, ExpectedFileNames);
-        SetKeyNoAsNotPK(DataExportRecord, ChildTableNo);
+        SetKeyNoAsNotPK(DataExportRecord, ChildTableNo());
 
         InsertChildEntries(2);
-        SetNonEmptyCustNoInFirstChildEntry;
+        SetNonEmptyCustNoInFirstChildEntry();
         FolderName := ExportBusinessData(DataExportRecord);
 
         FindChildEntriesToExport(DtldCVLedgEntryBuffer, TempEntryNo);
@@ -422,11 +422,11 @@ codeunit 142006 "Export Business Data"
         FolderName: Text;
     begin
         SetupParentChildTablesForExport(DataExportRecord, ExpectedFileNames);
-        SetTableFilter(DataExportRecord, ChildTableNo, 'Detailed CV Ledg. Entry Buffer: Entry Type=Application');
+        SetTableFilter(DataExportRecord, ChildTableNo(), 'Detailed CV Ledg. Entry Buffer: Entry Type=Application');
 
         InsertChildEntries(2);
-        ShiftDocTypeInFirstChildEntry;
-        DuplicateParentChildEntries;
+        ShiftDocTypeInFirstChildEntry();
+        DuplicateParentChildEntries();
 
         FolderName := ExportBusinessData(DataExportRecord);
 
@@ -448,7 +448,7 @@ codeunit 142006 "Export Business Data"
         // [GIVEN] 'Posting Date' is aet as 'Period Field No.'
         SetupParentChildTablesForExport(DataExportRecord, ExpectedFileNames);
         // [WHEN] User adds a filter on 'Posting Date' to 'Table Filter'
-        asserterror SetTableFilter(DataExportRecord, ChildTableNo, 'Detailed CV Ledg. Entry Buffer: Posting Date=' + Format(WorkDate + 1));
+        asserterror SetTableFilter(DataExportRecord, ChildTableNo(), 'Detailed CV Ledg. Entry Buffer: Posting Date=' + Format(WorkDate() + 1));
         // [THEN] Error message: You cannot use the period field 'Posting Date' in 'Table Filter'
         Assert.ExpectedError(PeriodFieldFilterErr);
     end;
@@ -485,10 +485,10 @@ codeunit 142006 "Export Business Data"
         // [FEATURE] Digital Audit
         // [SCENARIO 090] Independent calculation of FlowFields on table and record level
         // [GIVEN] Create customers with zero and positive balance.
-        // [GIVEN] Two of the customers have non-zero balance at workdate, two at later dates
+        // [GIVEN] Two of the customers have non-zero balance at WorkDate(), two at later dates
         // [GIVEN] 'Date Filter Handling' on the field is 'Period'
         InitializeFlowFieldScenario(DataExportRecord, DataExportRecordSource, Customer, DateFilterHandling::Period);
-        SetTableFilter(DataExportRecord, CustomerTableNo, FormatCustTableFilter(Customer.GetFilter("No.")));
+        SetTableFilter(DataExportRecord, CustomerTableNo(), FormatCustTableFilter(Customer.GetFilter("No.")));
         // [GIVEN] 'Date Filter Handling' on the table is 'End Date Only'
         DataExportRecordSource.Find();
         DataExportRecordSource."Date Filter Handling" := DataExportRecordSource."Date Filter Handling"::"End Date Only";
@@ -513,11 +513,11 @@ codeunit 142006 "Export Business Data"
         FolderName: Text;
     begin
         // Setup: Create customers with zero and positive balance.
-        // Two of the customers have non-zero balance at workdate, two at later dates
+        // Two of the customers have non-zero balance at WorkDate(), two at later dates
         InitializeFlowFieldScenario(DataExportRecord, DataExportRecordSource, Customer, DateFilterHandling::Period);
 
         // Applying flowfilter
-        SetTableFilter(DataExportRecord, CustomerTableNo, FormatCustTableFilter(Customer.GetFilter("No.")));
+        SetTableFilter(DataExportRecord, CustomerTableNo(), FormatCustTableFilter(Customer.GetFilter("No.")));
 
         // Exercise: Export record with a flow filter
         FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate()), WorkDate());
@@ -541,7 +541,7 @@ codeunit 142006 "Export Business Data"
         InitializeFlowFieldScenario(DataExportRecord, DataExportRecordSource, Customer, DateFilterHandling::"End Date Only");
 
         // Applying flowfilter
-        SetTableFilter(DataExportRecord, CustomerTableNo, FormatCustTableFilter(Customer.GetFilter("No.")));
+        SetTableFilter(DataExportRecord, CustomerTableNo(), FormatCustTableFilter(Customer.GetFilter("No.")));
 
         // Exercise: Export record with a flow filter
         FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate()), WorkDate());
@@ -561,11 +561,11 @@ codeunit 142006 "Export Business Data"
         FolderName: Text;
     begin
         // Setup: Create customers with zero and positive balance.
-        // Two of the customers have non-zero balance at workdate, two at later dates
+        // Two of the customers have non-zero balance at WorkDate(), two at later dates
         InitializeFlowFieldScenario(DataExportRecord, DataExportRecordSource, Customer, DateFilterHandling::"Start Date Only");
 
         // Applying flowfilter
-        SetTableFilter(DataExportRecord, CustomerTableNo, FormatCustTableFilter(Customer.GetFilter("No.")));
+        SetTableFilter(DataExportRecord, CustomerTableNo(), FormatCustTableFilter(Customer.GetFilter("No.")));
 
         // Exercise: Export record with a flow filter
         FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate()), WorkDate());
@@ -627,7 +627,7 @@ codeunit 142006 "Export Business Data"
         InitializeFlowFieldScenario(DataExportRecord, DataExportRecordSource, Customer, DateFilterHandling::Period);
 
         ParentDataExportRecordSource := DataExportRecordSource;
-        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo, DataExportRecordSource);
+        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo(), DataExportRecordSource);
         DataExportRecordSource."Date Filter Handling" := DateFilterHandling::Period;
         DataExportRecordSource.Modify();
         Indent(DataExportRecordSource, ParentDataExportRecordSource);
@@ -635,7 +635,7 @@ codeunit 142006 "Export Business Data"
           DataExportRecordSource, CustLedgerEntry.FieldNo("Customer No."),
           ParentDataExportRecordSource, Customer.FieldNo("No."));
 
-        SetTableFilter(DataExportRecord, CustomerTableNo, FormatCustTableFilter(Customer.GetFilter("No.")));
+        SetTableFilter(DataExportRecord, CustomerTableNo(), FormatCustTableFilter(Customer.GetFilter("No.")));
 
         FolderName :=
           ExportBusinessDataSetPeriod(DataExportRecord, Customer.GetRangeMin("Date Filter"), Customer.GetRangeMax("Date Filter"));
@@ -663,7 +663,7 @@ codeunit 142006 "Export Business Data"
 
         CreateRecDefinition(DataExportRecord);
         AddRecordSourceWithFilters(
-          DataExportRecord, CustomerTableNo,
+          DataExportRecord, CustomerTableNo(),
           Customer.TableName + ':' + Customer.FieldName("No.") + '=' + CustomerNoFIlter, DataExportRecordSource);
 
         // [WHEN] Export data
@@ -708,12 +708,12 @@ codeunit 142006 "Export Business Data"
         LibrarySales.CreateCustomer(Customer);
 
         AddRecordSourceWithFilters(
-          DataExportRecord, CustomerTableNo,
+          DataExportRecord, CustomerTableNo(),
           Customer.TableName + ':' + Customer.FieldName("No.") + '=' + Customer."No.", DataExportRecordSource);
 
         LibraryPurchase.CreateVendor(Vendor);
         AddRecordSourceWithFilters(
-          DataExportRecord, VendorTableNo,
+          DataExportRecord, VendorTableNo(),
           Vendor.TableName + ':' + Vendor.FieldName("No.") + '=' + Vendor."No.", DataExportRecordSource);
 
         FolderName := ExportBusinessData(DataExportRecord);
@@ -748,10 +748,10 @@ codeunit 142006 "Export Business Data"
         CreateRecDefinition(DataExportRecord);
 
         // [GIVEN] There is one data export source line for table X.
-        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo, DataExportRecordSource);
+        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo(), DataExportRecordSource);
 
         // [WHEN] User modifies 'Table No.' to Y
-        asserterror DataExportRecordSource.Validate("Table No.", VendLedgEntryTableNo);
+        asserterror DataExportRecordSource.Validate("Table No.", VendLedgEntryTableNo());
         // [THEN] Error message: 'You cannot modify Table No.'
         Assert.ExpectedError(CannotModifyTableNoErr);
     end;
@@ -765,7 +765,7 @@ codeunit 142006 "Export Business Data"
     begin
         // Verify validation error if no fields are defined for a Record Source.
         CreateRecDefinition(DataExportRecord);
-        AddRecordSource(DataExportRecord, CustomerTableNo, DataExportRecordSource);
+        AddRecordSource(DataExportRecord, CustomerTableNo(), DataExportRecordSource);
 
         asserterror ExportBusinessData(DataExportRecord);
         Assert.ExpectedError(StrSubstNo(NoFieldsDefinedErr, DataExportRecord."Data Export Code"));
@@ -780,10 +780,10 @@ codeunit 142006 "Export Business Data"
     begin
         // Test table setup deletion: verify that all related Fields are deleted as well.
         CreateRecDefinition(DataExportRecord);
-        AddRecordSource(DataExportRecord, CustomerTableNo, DataExportRecordSource);
+        AddRecordSource(DataExportRecord, CustomerTableNo(), DataExportRecordSource);
 
         DeleteRecordSource(DataExportRecordSource);
-        VerifyRecFieldsDeleted(DataExportRecord, CustomerTableNo);
+        VerifyRecFieldsDeleted(DataExportRecord, CustomerTableNo());
     end;
 
     [Test]
@@ -798,10 +798,10 @@ codeunit 142006 "Export Business Data"
     begin
         // Test table setup deletion: verify that all related Tables are deleted as well.
         CreateRecDefinition(DataExportRecord);
-        AddRecordSource(DataExportRecord, CustomerTableNo, DataExportRecordSource);
+        AddRecordSource(DataExportRecord, CustomerTableNo(), DataExportRecordSource);
         ParentDataExportRecordSource := DataExportRecordSource;
 
-        AddRecordSource(DataExportRecord, CustLedgEntryTableNo, DataExportRecordSource);
+        AddRecordSource(DataExportRecord, CustLedgEntryTableNo(), DataExportRecordSource);
         Indent(DataExportRecordSource, ParentDataExportRecordSource);
         MakeRelation(
           DataExportRecordSource, CustLedgerEntry.FieldNo("Customer No."),
@@ -823,14 +823,14 @@ codeunit 142006 "Export Business Data"
     begin
         // Verify that flow fields are calculated according to applied filters while exporting Data.
         CreateRecDefinition(DataExportRecord);
-        AddRecordSourceWithFields(DataExportRecord, CustomerTableNo, DataExportRecordSource);
+        AddRecordSourceWithFields(DataExportRecord, CustomerTableNo(), DataExportRecordSource);
 
-        Customer.SetFilter("Date Filter", FindAccountingPeriodRange);
+        Customer.SetFilter("Date Filter", FindAccountingPeriodRange());
 
         TableFilterText :=
           Customer.TableName + ': ' + Customer.FieldName("Net Change") + '=<>0,' +
-          Customer.FieldName("Global Dimension 1 Filter") + '=' + Format(CreateCustWithGlobalDimCode);
-        SetTableFilter(DataExportRecord, CustomerTableNo, TableFilterText);
+          Customer.FieldName("Global Dimension 1 Filter") + '=' + Format(CreateCustWithGlobalDimCode());
+        SetTableFilter(DataExportRecord, CustomerTableNo(), TableFilterText);
 
         FolderName :=
           ExportBusinessDataSetPeriod(DataExportRecord, Customer.GetRangeMin("Date Filter"), Customer.GetRangeMax("Date Filter"));
@@ -853,7 +853,7 @@ codeunit 142006 "Export Business Data"
         AddCustRecordSourceWithSameFields(DataExportRecord, DataExportRecordSource);
 
         TableFilterText := StrSubstNo('%1: %2=<>0', Customer.TableName, Customer.FieldName("Net Change"));
-        SetTableFilter(DataExportRecord, CustomerTableNo, TableFilterText);
+        SetTableFilter(DataExportRecord, CustomerTableNo(), TableFilterText);
 
         FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-6M>', WorkDate()), WorkDate());
 
@@ -872,7 +872,7 @@ codeunit 142006 "Export Business Data"
     begin
         // Verify that Table No. validation fills the date filter field no.
         CreateRecDefinition(DataExportRecord);
-        AddRecordSource(DataExportRecord, CustomerTableNo, DataExportRecordSource);
+        AddRecordSource(DataExportRecord, CustomerTableNo(), DataExportRecordSource);
 
         // Exercise: Validate table no.
         DataExportRecordSource.Validate("Table No.");
@@ -900,7 +900,7 @@ codeunit 142006 "Export Business Data"
         DataExportRecordSource.Validate("Table No.");
         DataExportRecordSource.Modify(true);
 
-        SetTableFilter(DataExportRecord, CustomerTableNo, FormatCustTableFilter(Customer.GetFilter("No.")));
+        SetTableFilter(DataExportRecord, CustomerTableNo(), FormatCustTableFilter(Customer.GetFilter("No.")));
 
         // Exercise: Export record with the date filter field no.
         FolderName := ExportBusinessDataSetPeriod(DataExportRecord, CalcDate('<-1M>', WorkDate()), WorkDate());
@@ -924,7 +924,7 @@ codeunit 142006 "Export Business Data"
         CompanyInformation.Get();
         CreateRecDefinition(DataExportRecord);
         AddRecordSourceWithFilters(
-          DataExportRecord, CompanyInfoTableNo,
+          DataExportRecord, CompanyInfoTableNo(),
           CompanyInformation.TableName + ':' + CompanyInformation.FieldName("Primary Key") + '=' + CompanyInformation."Primary Key",
           DataExportRecordSource);
 
@@ -952,10 +952,10 @@ codeunit 142006 "Export Business Data"
         CreateRecDefinition(DataExportRecord);
 
         // [GIVEN] There is one data export source line for table x. Export file name is A.
-        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo, DataExportRecordSource);
+        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo(), DataExportRecordSource);
         ExpectedFileNames[1] := DataExportRecordSource."Export File Name";
         // [GIVEN] There is another data export source line for table x. Export file name is B.
-        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo, DataExportRecordSource);
+        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo(), DataExportRecordSource);
         ExpectedFileNames[2] := DataExportRecordSource."Export File Name";
 
         ExpectedFileNames[3] := LogFileTxt;
@@ -983,12 +983,12 @@ codeunit 142006 "Export Business Data"
         CreateRecDefinition(DataExportRecord);
 
         // [GIVEN] There is one data export source line with export file name: xyz.txt
-        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo, DataExportRecordSource);
+        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo(), DataExportRecordSource);
         FileName[1] := DataExportRecordSource."Export File Name";
         TableName[1] := DataExportRecordSource."Export Table Name";
 
         // [WHEN] Creating and inserting another data export line for the same Table No.
-        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo, DataExportRecordSource);
+        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo(), DataExportRecordSource);
         FileName[2] := DataExportRecordSource."Export File Name";
         TableName[2] := DataExportRecordSource."Export Table Name";
 
@@ -1013,12 +1013,12 @@ codeunit 142006 "Export Business Data"
         CreateRecDefinition(DataExportRecord);
 
         // [GIVEN] There is one data export source line with export file name: xyz.txt
-        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo, DataExportRecordSource);
+        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo(), DataExportRecordSource);
         FileName[1] := DataExportRecordSource."Export File Name";
         TableName[1] := DataExportRecordSource."Export Table Name";
 
         // [GIVEN] There is another data export source line with export file name: xyz1.txt
-        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo, DataExportRecordSource);
+        AddRecordSourceWithFields(DataExportRecord, CustLedgEntryTableNo(), DataExportRecordSource);
         // [GIVEN] 'Export Table Name' is modified to duplicate 'xyz'
         DataExportRecordSource.Validate("Export Table Name", TableName[1]);
         DataExportRecordSource.Modify();
@@ -1052,12 +1052,12 @@ codeunit 142006 "Export Business Data"
         CreateRecDefinition(DataExportRecord);
 
         // [GIVEN] There is one data export source line for table x with exported field y. Export file name is A.
-        AddRecordSource(DataExportRecord, CompanyInfoTableNo, DataExportRecordSource);
+        AddRecordSource(DataExportRecord, CompanyInfoTableNo(), DataExportRecordSource);
         LinkFieldToSourceRecord(DataExportRecordSource, CompanyInfo.FieldNo(Name));
         ExportFileName1 := DataExportRecordSource."Export File Name";
 
         // [GIVEN] There is another data export source line for table x with exported field z. Export file name is B.
-        AddRecordSource(DataExportRecord, CompanyInfoTableNo, DataExportRecordSource);
+        AddRecordSource(DataExportRecord, CompanyInfoTableNo(), DataExportRecordSource);
         LinkFieldToSourceRecord(DataExportRecordSource, CompanyInfo.FieldNo(Address));
         ExportFileName2 := DataExportRecordSource."Export File Name";
 
@@ -1173,7 +1173,7 @@ codeunit 142006 "Export Business Data"
         CreateRecDefinition(DataExportRecordDefinition);
 
         // [GIVEN] There is one Data Export Record Source X available.
-        AddRecordSource(DataExportRecordDefinition, GLAccTableNo, DataExportRecordSource);
+        AddRecordSource(DataExportRecordDefinition, GLAccTableNo(), DataExportRecordSource);
 
         // [WHEN] Indent on X record.
         DataExportRecordSource.Validate(Indentation, 1);
@@ -1195,8 +1195,8 @@ codeunit 142006 "Export Business Data"
         // [SCENARIO 101] Indentation - Able to indent records under a parent.
         DataExportRecordSource.DeleteAll(true);
         CreateRecDefinition(DataExportRecordDefinition);
-        TableNoArr[1] := GLAccTableNo;
-        TableNoArr[2] := GLEntryTableNo;
+        TableNoArr[1] := GLAccTableNo();
+        TableNoArr[2] := GLEntryTableNo();
         NoOfRecords := 2;
 
         // [GIVEN] There is Data Export Record Source X and Data Export Record Source Y.
@@ -1222,9 +1222,9 @@ codeunit 142006 "Export Business Data"
         // [SCENARIO 102] Indentation - Indentation level 3, indented with level 2.
         DataExportRecordSource.DeleteAll(true);
         CreateRecDefinition(DataExportRecordDefinition);
-        TableNoArr[1] := GLAccTableNo;
-        TableNoArr[2] := GLEntryTableNo;
-        TableNoArr[3] := VATEntryTableNo;
+        TableNoArr[1] := GLAccTableNo();
+        TableNoArr[2] := GLEntryTableNo();
+        TableNoArr[3] := VATEntryTableNo();
         NoOfRecords := 3;
 
         // [GIVEN] There is un-indented Data Export Record Source X and an un-indented Data Export Record Source Y.
@@ -1239,7 +1239,7 @@ codeunit 142006 "Export Business Data"
         DataExportRecordSource.Validate(Indentation, 1);
 
         // [THEN] Record Y and record Z are both indented. Y.Indentation is 1, Z.Indentation is 2.
-        DataExportRecordSource.SetRange("Table No.", VATEntryTableNo);
+        DataExportRecordSource.SetRange("Table No.", VATEntryTableNo());
         DataExportRecordSource.FindFirst();
         Assert.AreEqual(NoOfRecords - 1, DataExportRecordSource.Indentation, WrongIndentErr);
     end;
@@ -1257,8 +1257,8 @@ codeunit 142006 "Export Business Data"
         // [SCENARIO 103] Indentation - Unindent record level 2.
         DataExportRecordSource.DeleteAll(true);
         CreateRecDefinition(DataExportRecordDefinition);
-        TableNoArr[1] := GLAccTableNo;
-        TableNoArr[2] := GLEntryTableNo;
+        TableNoArr[1] := GLAccTableNo();
+        TableNoArr[2] := GLEntryTableNo();
         NoOfRecords := 2;
 
         // [GIVEN] There is un-indented Data Export Record Source X and there is indented Data Export Record Source Y.
@@ -1285,9 +1285,9 @@ codeunit 142006 "Export Business Data"
         // [SCENARIO 104] Indentation - Unindent Record level 2 which has an indented level 3 record.
         DataExportRecordSource.DeleteAll(true);
         CreateRecDefinition(DataExportRecordDefinition);
-        TableNoArr[1] := GLAccTableNo;
-        TableNoArr[2] := GLEntryTableNo;
-        TableNoArr[3] := VATEntryTableNo;
+        TableNoArr[1] := GLAccTableNo();
+        TableNoArr[2] := GLEntryTableNo();
+        TableNoArr[3] := VATEntryTableNo();
         NoOfRecords := 3;
 
         // [GIVEN] There is un-indented Data Export Record Source X. and there is an indented Data Export Record Source Y.
@@ -1303,7 +1303,7 @@ codeunit 142006 "Export Business Data"
         DataExportRecordSource.Validate(Indentation, DataExportRecordSource.Indentation - 1);
 
         // [THEN] Both record Y and Z are un-indented: Y.Indentation is 0, Z.Indentationis 1.
-        DataExportRecordSource.SetRange("Table No.", VATEntryTableNo);
+        DataExportRecordSource.SetRange("Table No.", VATEntryTableNo());
         DataExportRecordSource.FindFirst();
         Assert.AreEqual(1, DataExportRecordSource.Indentation, WrongIndentErr);
     end;
@@ -1325,11 +1325,11 @@ codeunit 142006 "Export Business Data"
         CreateRecDefinition(DataExportRecordDefinition);
 
         // [GIVEN] There is un-indented Data Export Record Source X.
-        AddRecordSource(DataExportRecordDefinition, GLAccTableNo, DataExportRecordSourceParent);
+        AddRecordSource(DataExportRecordDefinition, GLAccTableNo(), DataExportRecordSourceParent);
 
         // [GIVEN]  There is an indented Data Export Record Source Y with a relation to record X defined.
         DataExportRecordSourceChild."Line No." := DataExportRecordSourceParent."Line No.";
-        AddRecordSource(DataExportRecordDefinition, GLEntryTableNo, DataExportRecordSourceChild);
+        AddRecordSource(DataExportRecordDefinition, GLEntryTableNo(), DataExportRecordSourceChild);
         DataExportRecordSourceChild.Validate(Indentation, 1);
         MakeRelation(
           DataExportRecordSourceChild, GLEntry.FieldNo("G/L Account No."),
@@ -1352,11 +1352,11 @@ codeunit 142006 "Export Business Data"
         // [FEATURE] [Digital Audit]
 
         // [SCENARIO 363468] Export two tables indented on the same level.
-        ClearParentChildTables;
+        ClearParentChildTables();
         // [GIVEN] Parent Table ("Vendor" - "V")
         // [GIVEN] 2 Child Tables linked to "V" with Indent = 1 ("CV Ledg. Entry Buffer" and "Dtld. CV Ledg. Entry Buffer")
         // [GIVEN] Second child table contains multiple records, where "X" of them for "V"
-        PrepareObjectsForExport;
+        PrepareObjectsForExport();
         PrepareDataExportRecordDefinition(DataExportRecordDefinition);
 
         // [WHEN] Exporting data
@@ -1388,7 +1388,7 @@ codeunit 142006 "Export Business Data"
         Vendor.Name := GermanicUmlautTxt;
         Vendor.Modify(true);
         AddRecordSourceWithFilters(
-          DataExportRecordDefinition, VendorTableNo,
+          DataExportRecordDefinition, VendorTableNo(),
           Vendor.TableName + ':' + Vendor.FieldName("No.") + '=' + Vendor."No.", DataExportRecordSource);
         ExportFileName := DataExportRecordSource."Export File Name";
 
@@ -1408,7 +1408,7 @@ codeunit 142006 "Export Business Data"
         CompanyInformation: Record "Company Information";
         ExportFileName: Text;
         OptionValue: Integer;
-        OldCheckAvail: Integer;
+        OldCheckAvail: Enum "Analysis Period Type";
         FolderName: Text;
     begin
         // [FEATURE] [Digital Audit]
@@ -1440,7 +1440,7 @@ codeunit 142006 "Export Business Data"
         CompanyInformation: Record "Company Information";
         ExportFileName: Text;
         OptionValue: Integer;
-        OldCheckAvail: Integer;
+        OldCheckAvail: Enum "Analysis Period Type";
         FolderName: Text;
     begin
         // [FEATURE] [Digital Audit]
@@ -1947,7 +1947,7 @@ codeunit 142006 "Export Business Data"
 
     local procedure GetFirstNonPKFieldIndex(): Integer
     begin
-        exit(GetPKFieldIndex + 1);
+        exit(GetPKFieldIndex() + 1);
     end;
 
     local procedure FindRecordSource(DataExportRecord: Record "Data Export Record Definition"; TableID: Integer; var DataExportRecordSource: Record "Data Export Record Source")
@@ -1966,7 +1966,7 @@ codeunit 142006 "Export Business Data"
     begin
         with DataExportRecordSource do begin
             FindRecordSource(DataExportRecord, TableID, DataExportRecordSource);
-            Validate("Key No.", FirstKeyWithCustNo);
+            Validate("Key No.", FirstKeyWithCustNo());
             Modify();
         end;
     end;
@@ -2003,7 +2003,7 @@ codeunit 142006 "Export Business Data"
 
     local procedure SetupParentTableForExport(var DataExportRecord: Record "Data Export Record Definition"; var DataExportRecordSource: Record "Data Export Record Source")
     begin
-        ClearParentChildTables;
+        ClearParentChildTables();
 
         CreateRecDefinition(DataExportRecord);
         AddRecordSourceWithFields(DataExportRecord, DATABASE::"CV Ledger Entry Buffer", DataExportRecordSource);
@@ -2061,8 +2061,8 @@ codeunit 142006 "Export Business Data"
     local procedure CreateRecDefinition(var DataExportRecord: Record "Data Export Record Definition")
     begin
         with DataExportRecord do begin
-            "Data Export Code" := GetDataExportCode;
-            "Data Exp. Rec. Type Code" := GetExpRecTypeCode;
+            "Data Export Code" := GetDataExportCode();
+            "Data Exp. Rec. Type Code" := GetExpRecTypeCode();
             Description := "Data Export Code" + "Data Exp. Rec. Type Code";
             Insert();
             CreateDummyDTDFileBlob(DataExportRecord);
@@ -2101,7 +2101,7 @@ codeunit 142006 "Export Business Data"
 
     local procedure AddCustRecordSourceWithSameFields(DataExportRecord: Record "Data Export Record Definition"; var DataExportRecordSource: Record "Data Export Record Source")
     begin
-        AddRecordSource(DataExportRecord, CustomerTableNo, DataExportRecordSource);
+        AddRecordSource(DataExportRecord, CustomerTableNo(), DataExportRecordSource);
         AddCustSameFields(DataExportRecordSource);
     end;
 
@@ -2166,13 +2166,13 @@ codeunit 142006 "Export Business Data"
         CreateRecDefinition(DataExportRecordDefinition);
         AddRecordSourceWithDateFilterHandling(
           DataExportRecordDefinition,
-          GLAccTableNo,
+          GLAccTableNo(),
           GLAccount.FieldNo("Balance at Date"),
           DateFilterHandling,
           DataExportRecordSource);
         SetTableFilter(
           DataExportRecordDefinition,
-          GLAccTableNo,
+          GLAccTableNo(),
           GLAccount.TableName + ': ' + GLAccount.FieldName("No.") + '=' + GLAccount."No.");
     end;
 
@@ -2214,27 +2214,27 @@ codeunit 142006 "Export Business Data"
             "Source Line No." := DataExportRecordSource."Line No.";
 
             case "Table No." of
-                ParentTableNo:
+                ParentTableNo():
                     InsertCVLedgEntryBufFields(DataExportRecField);
-                ChildTableNo:
+                ChildTableNo():
                     InsertDtldCVLedgEntryBufFields(DataExportRecField);
-                CustomerTableNo:
+                CustomerTableNo():
                     InsertCustFields(DataExportRecField);
-                VendorTableNo:
+                VendorTableNo():
                     InsertVendFields(DataExportRecField);
-                ItemTableNo:
+                ItemTableNo():
                     InsertItemFields(DataExportRecField);
-                GLAccTableNo:
+                GLAccTableNo():
                     InsertGLAccFields(DataExportRecField);
-                CustLedgEntryTableNo:
+                CustLedgEntryTableNo():
                     InsertCustLedgEntryFields(DataExportRecField);
-                VendLedgEntryTableNo:
+                VendLedgEntryTableNo():
                     InsertVendLedgEntryFields(DataExportRecField);
-                ItemLedgEntryTableNo:
+                ItemLedgEntryTableNo():
                     InsertItemLedgEntryFields(DataExportRecField);
-                GLEntryTableNo:
+                GLEntryTableNo():
                     InsertGLEntryFields(DataExportRecField);
-                CompanyInfoTableNo:
+                CompanyInfoTableNo():
                     InsertCompanyInformationFields(DataExportRecField)
             end;
         end;
@@ -2377,7 +2377,7 @@ codeunit 142006 "Export Business Data"
     begin
         GLAmount := LibraryRandom.RandDec(100, 2);
         MockGLEntry(AccountNo, PostingDate, GLAmount * Sign);
-        MockGLEntry(LibraryUtility.GenerateGUID, PostingDate, -GLAmount * Sign);
+        MockGLEntry(LibraryUtility.GenerateGUID(), PostingDate, -GLAmount * Sign);
         exit(GLAmount);
     end;
 
@@ -2399,7 +2399,7 @@ codeunit 142006 "Export Business Data"
 
     local procedure PrepareObjectsForExport()
     begin
-        MockCVLedgEntryBufAndDtldCVLedgEntryBuf(MockVendor);
+        MockCVLedgEntryBufAndDtldCVLedgEntryBuf(MockVendor());
     end;
 
     local procedure MockVendor(): Code[20]
@@ -2431,7 +2431,7 @@ codeunit 142006 "Export Business Data"
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "CV Ledger Entry No." := CVLedgEntryBuffer."Entry No.";
             "Posting Date" := WorkDate();
-            "Entry Type" += 1;
+            "Entry Type" := "Detailed CV Ledger Entry Type".FromInteger("Entry Type".AsInteger() + 1);
             "CV No." := VendorNo;
             Insert();
         end;
@@ -2590,7 +2590,7 @@ codeunit 142006 "Export Business Data"
         DummyEntryFound: Boolean;
         i: Integer;
     begin
-        ParentEntryNo := InsertParentEntry;
+        ParentEntryNo := InsertParentEntry();
 
         DummyEntryFound := DtldCVLedgEntryBuffer.FindLast();
         LastEntryNo := DtldCVLedgEntryBuffer."Entry No.";
@@ -2599,7 +2599,7 @@ codeunit 142006 "Export Business Data"
                 "Entry No." := LastEntryNo + i;
                 "CV Ledger Entry No." := ParentEntryNo;
                 "Posting Date" := WorkDate();
-                "Entry Type" := i;
+                "Entry Type" := "Detailed CV Ledger Entry Type".FromInteger(i);
                 Insert();
             end;
 
@@ -2668,7 +2668,7 @@ codeunit 142006 "Export Business Data"
                 repeat
                     TempEntryNo.Number := "Entry No.";
                     TempEntryNo.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -2936,7 +2936,7 @@ codeunit 142006 "Export Business Data"
                     Name[1] := "Field Name";
                     Name[2] := "Export Field Name";
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -2947,8 +2947,8 @@ codeunit 142006 "Export Business Data"
     begin
         CreateRecDefinition(DataExportRecord);
         AddRecordSourceWithFilters(
-          DataExportRecord, CustomerTableNo,
-          Customer.TableName + ': ' + Customer.FieldName("No.") + '=' + LibraryUtility.GenerateGUID, DataExportRecordSource);
+          DataExportRecord, CustomerTableNo(),
+          Customer.TableName + ': ' + Customer.FieldName("No.") + '=' + LibraryUtility.GenerateGUID(), DataExportRecordSource);
     end;
 
     local procedure ExportMinBusinessData(var DataExportRecord: Record "Data Export Record Definition"): Text
@@ -2961,7 +2961,7 @@ codeunit 142006 "Export Business Data"
     local procedure ExportDtldMinBusinessData(var DataExportRecord: Record "Data Export Record Definition"; var DataExportRecordSource: Record "Data Export Record Source"): Text
     begin
         SetupParentTableForExport(DataExportRecord, DataExportRecordSource);
-        InsertParentEntry;
+        InsertParentEntry();
         exit(ExportBusinessData(DataExportRecord));
     end;
 
@@ -3057,7 +3057,7 @@ codeunit 142006 "Export Business Data"
         CreateRecDefinition(DataExportRecord);
         AddRecordSourceWithDateFilterHandling(
           DataExportRecord,
-          CustomerTableNo,
+          CustomerTableNo(),
           Customer.FieldNo("Net Change"),
           DateFilterHandling,
           DataExportRecordSource);
@@ -3293,10 +3293,10 @@ codeunit 142006 "Export Business Data"
         ReadCustomersWithTwoDecFieldsFromDateFile(ZipFilePath, FileName, TempCustBuffer);
 
         Cust.SetFilter("Date Filter", Format(DateFrom) + '..' + Format(DateTo));
-        CheckBuffValues(Cust, TempCustBuffTableNo, 2);
+        CheckBuffValues(Cust, TempCustBuffTableNo(), 2);
 
         Cust.SetFilter("Date Filter", '..' + Format(DateTo));
-        CheckBuffValues(Cust, TempCustBuffTableNo, 3);
+        CheckBuffValues(Cust, TempCustBuffTableNo(), 3);
     end;
 
     local procedure Sign(Num: Decimal): Integer
@@ -3554,7 +3554,7 @@ codeunit 142006 "Export Business Data"
         DataExportRecordSource: Record "Data Export Record Source";
     begin
         CreateRecDefinition(DataExportRecordDefinition);
-        AddRecordSourceWithFields(DataExportRecordDefinition, CompanyInfoTableNo, DataExportRecordSource);
+        AddRecordSourceWithFields(DataExportRecordDefinition, CompanyInfoTableNo(), DataExportRecordSource);
         exit(DataExportRecordSource."Export File Name");
     end;
 
@@ -3642,7 +3642,7 @@ codeunit 142006 "Export Business Data"
         Assert.AreEqual(ExpectedNoOfRecords, ActualNoOfLines, WrongNoOfLinesExportedErr)
     end;
 
-    local procedure SetCompanyInformationCheckAvailTimeBucketValue(var NewValue: Integer; OverMaxValue: Integer) OldValue: Integer
+    local procedure SetCompanyInformationCheckAvailTimeBucketValue(var NewValue: Integer; OverMaxValue: Integer) OldValue: Enum "Analysis Period Type"
     var
         CompanyInformation: Record "Company Information";
     begin
@@ -3650,8 +3650,8 @@ codeunit 142006 "Export Business Data"
         OldValue := CompanyInformation."Check-Avail. Time Bucket";
         NewValue :=
           LibraryUtility.GetMaxFieldOptionIndex(
-            CompanyInfoTableNo, CompanyInformation.FieldNo("Check-Avail. Time Bucket")) + OverMaxValue;
-        CompanyInformation."Check-Avail. Time Bucket" := NewValue;
+            CompanyInfoTableNo(), CompanyInformation.FieldNo("Check-Avail. Time Bucket")) + OverMaxValue;
+        CompanyInformation."Check-Avail. Time Bucket" := "Analysis Period Type".FromInteger(NewValue);
         CompanyInformation.Modify();
     end;
 

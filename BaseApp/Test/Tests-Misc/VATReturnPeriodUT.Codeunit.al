@@ -54,8 +54,8 @@ codeunit 134281 "VAT Return Period UT"
 
         VATReportMgt.GetVATReturnPeriods();
 
-        Assert.ExpectedMessage(TestCodeunitRunMsg, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(TestCodeunitRunMsg, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -90,8 +90,8 @@ codeunit 134281 "VAT Return Period UT"
 
         VATReportMgt.GetSubmittedVATReturns(VATReturnPeriod);
 
-        Assert.ExpectedMessage(TestCodeunitRunMsg, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(TestCodeunitRunMsg, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -304,17 +304,17 @@ codeunit 134281 "VAT Return Period UT"
         VATReportSetup.Get();
         VATReportSetup.TestField("Manual Receive Period CU ID", 0);
 
-        VATReturnPeriodList.OpenEdit;
-        VATReturnPeriodList.New;
-        VATReturnPeriodList."Start Date".SetValue(WorkDate + 1);
-        VATReturnPeriodList."End Date".SetValue(WorkDate + 2);
-        VATReturnPeriodList."Due Date".SetValue(WorkDate + 3);
+        VATReturnPeriodList.OpenEdit();
+        VATReturnPeriodList.New();
+        VATReturnPeriodList."Start Date".SetValue(WorkDate() + 1);
+        VATReturnPeriodList."End Date".SetValue(WorkDate() + 2);
+        VATReturnPeriodList."Due Date".SetValue(WorkDate() + 3);
         VATReturnPeriodList.Close();
 
         VATReturnPeriod.FindFirst();
-        VATReturnPeriod.TestField("Start Date", WorkDate + 1);
-        VATReturnPeriod.TestField("End Date", WorkDate + 2);
-        VATReturnPeriod.TestField("Due Date", WorkDate + 3);
+        VATReturnPeriod.TestField("Start Date", WorkDate() + 1);
+        VATReturnPeriod.TestField("End Date", WorkDate() + 2);
+        VATReturnPeriod.TestField("Due Date", WorkDate() + 3);
     end;
 
     [Test]
@@ -330,11 +330,11 @@ codeunit 134281 "VAT Return Period UT"
         Initialize();
         SetManualReceivePeriodCUID(CODEUNIT::TestCodeunitRunMessage);
 
-        VATReturnPeriodList.OpenEdit;
-        VATReturnPeriodList.New;
-        VATReturnPeriodList."Start Date".SetValue(WorkDate + 1);
-        VATReturnPeriodList."End Date".SetValue(WorkDate + 2);
-        VATReturnPeriodList."Due Date".SetValue(WorkDate + 3);
+        VATReturnPeriodList.OpenEdit();
+        VATReturnPeriodList.New();
+        VATReturnPeriodList."Start Date".SetValue(WorkDate() + 1);
+        VATReturnPeriodList."End Date".SetValue(WorkDate() + 2);
+        VATReturnPeriodList."Due Date".SetValue(WorkDate() + 3);
         VATReturnPeriodList.Close();
 
         Assert.RecordIsEmpty(VATReturnPeriod);
@@ -354,11 +354,11 @@ codeunit 134281 "VAT Return Period UT"
         EnableManualInsertNotification(true);
         SetManualReceivePeriodCUID(CODEUNIT::TestCodeunitRunMessage);
 
-        VATReturnPeriodList.OpenEdit;
+        VATReturnPeriodList.OpenEdit();
         VATReturnPeriodList.Close();
 
-        Assert.ExpectedMessage(ManualInsertNotificationMsg, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(ManualInsertNotificationMsg, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -373,10 +373,10 @@ codeunit 134281 "VAT Return Period UT"
         Initialize();
         SetManualReceivePeriodCUID(CODEUNIT::TestCodeunitRunMessage);
 
-        VATReturnPeriodList.OpenEdit;
+        VATReturnPeriodList.OpenEdit();
         VATReturnPeriodList.Close();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -393,15 +393,15 @@ codeunit 134281 "VAT Return Period UT"
         VATReportSetup.Get();
         VATReportSetup.TestField("Manual Receive Period CU ID", 0);
 
-        VATReturnPeriodList.OpenEdit;
-        Assert.IsFalse(VATReturnPeriodList."Get VAT Return Periods".Visible, '');
-        Assert.IsTrue(VATReturnPeriodList."Start Date".Editable, '');
-        Assert.IsTrue(VATReturnPeriodList."End Date".Editable, '');
-        Assert.IsTrue(VATReturnPeriodList."Due Date".Editable, '');
-        Assert.IsTrue(VATReturnPeriodList.Status.Editable, '');
-        Assert.IsTrue(VATReturnPeriodList."Received Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodList."VAT Return No.".Editable, '');
-        Assert.IsFalse(VATReturnPeriodList.VATReturnStatus.Editable, '');
+        VATReturnPeriodList.OpenEdit();
+        Assert.IsFalse(VATReturnPeriodList."Get VAT Return Periods".Visible(), '');
+        Assert.IsTrue(VATReturnPeriodList."Start Date".Editable(), '');
+        Assert.IsTrue(VATReturnPeriodList."End Date".Editable(), '');
+        Assert.IsTrue(VATReturnPeriodList."Due Date".Editable(), '');
+        Assert.IsTrue(VATReturnPeriodList.Status.Editable(), '');
+        Assert.IsTrue(VATReturnPeriodList."Received Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodList."VAT Return No.".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodList.VATReturnStatus.Editable(), '');
         VATReturnPeriodList.Close();
     end;
 
@@ -417,15 +417,15 @@ codeunit 134281 "VAT Return Period UT"
         Initialize();
         SetManualReceivePeriodCUID(CODEUNIT::TestCodeunitRunMessage);
 
-        VATReturnPeriodList.OpenEdit;
-        Assert.IsTrue(VATReturnPeriodList."Get VAT Return Periods".Visible, '');
-        Assert.IsFalse(VATReturnPeriodList."Start Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodList."End Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodList."Due Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodList.Status.Editable, '');
-        Assert.IsFalse(VATReturnPeriodList."Received Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodList."VAT Return No.".Editable, '');
-        Assert.IsFalse(VATReturnPeriodList.VATReturnStatus.Editable, '');
+        VATReturnPeriodList.OpenEdit();
+        Assert.IsTrue(VATReturnPeriodList."Get VAT Return Periods".Visible(), '');
+        Assert.IsFalse(VATReturnPeriodList."Start Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodList."End Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodList."Due Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodList.Status.Editable(), '');
+        Assert.IsFalse(VATReturnPeriodList."Received Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodList."VAT Return No.".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodList.VATReturnStatus.Editable(), '');
         VATReturnPeriodList.Close();
     end;
 
@@ -443,15 +443,15 @@ codeunit 134281 "VAT Return Period UT"
         VATReportSetup.Get();
         VATReportSetup.TestField("Receive Submitted Return CU ID", 0);
 
-        VATReturnPeriodCard.OpenEdit;
-        Assert.IsFalse(VATReturnPeriodCard."Receive Submitted VAT Returns".Visible, '');
-        Assert.IsFalse(VATReturnPeriodCard."Start Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodCard."End Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodCard."Due Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodCard.Status.Editable, '');
-        Assert.IsFalse(VATReturnPeriodCard."Received Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodCard."VAT Return No.".Editable, '');
-        Assert.IsFalse(VATReturnPeriodCard.VATReturnStatus.Editable, '');
+        VATReturnPeriodCard.OpenEdit();
+        Assert.IsFalse(VATReturnPeriodCard."Receive Submitted VAT Returns".Visible(), '');
+        Assert.IsFalse(VATReturnPeriodCard."Start Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodCard."End Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodCard."Due Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodCard.Status.Editable(), '');
+        Assert.IsFalse(VATReturnPeriodCard."Received Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodCard."VAT Return No.".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodCard.VATReturnStatus.Editable(), '');
         VATReturnPeriodCard.Close();
     end;
 
@@ -467,15 +467,15 @@ codeunit 134281 "VAT Return Period UT"
         Initialize();
         SetReceiveSubmittedReturnCUID(CODEUNIT::TestCodeunitRunMessage);
 
-        VATReturnPeriodCard.OpenEdit;
-        Assert.IsTrue(VATReturnPeriodCard."Receive Submitted VAT Returns".Visible, '');
-        Assert.IsFalse(VATReturnPeriodCard."Start Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodCard."End Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodCard."Due Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodCard.Status.Editable, '');
-        Assert.IsFalse(VATReturnPeriodCard."Received Date".Editable, '');
-        Assert.IsFalse(VATReturnPeriodCard."VAT Return No.".Editable, '');
-        Assert.IsFalse(VATReturnPeriodCard.VATReturnStatus.Editable, '');
+        VATReturnPeriodCard.OpenEdit();
+        Assert.IsTrue(VATReturnPeriodCard."Receive Submitted VAT Returns".Visible(), '');
+        Assert.IsFalse(VATReturnPeriodCard."Start Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodCard."End Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodCard."Due Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodCard.Status.Editable(), '');
+        Assert.IsFalse(VATReturnPeriodCard."Received Date".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodCard."VAT Return No.".Editable(), '');
+        Assert.IsFalse(VATReturnPeriodCard.VATReturnStatus.Editable(), '');
         VATReturnPeriodCard.Close();
     end;
 
@@ -494,13 +494,13 @@ codeunit 134281 "VAT Return Period UT"
         MockOpenVATReturnPeriod(VATReturnPeriod, WorkDate());
 
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
-        Assert.IsTrue(VATReturnPeriodList."Create VAT Return".Enabled, '');
-        Assert.IsTrue(VATReturnPeriodList."Open VAT Return Card".Enabled, '');
+        Assert.IsTrue(VATReturnPeriodList."Create VAT Return".Enabled(), '');
+        Assert.IsTrue(VATReturnPeriodList."Open VAT Return Card".Enabled(), '');
         VATReturnPeriodList.Close();
 
         OpenVATReturnPeriodCard(VATReturnPeriodCard, VATReturnPeriod);
-        Assert.IsTrue(VATReturnPeriodCard."Create VAT Return".Enabled, '');
-        Assert.IsTrue(VATReturnPeriodCard."Open VAT Return Card".Enabled, '');
+        Assert.IsTrue(VATReturnPeriodCard."Create VAT Return".Enabled(), '');
+        Assert.IsTrue(VATReturnPeriodCard."Open VAT Return Card".Enabled(), '');
         VATReturnPeriodCard.Close();
     end;
 
@@ -519,13 +519,13 @@ codeunit 134281 "VAT Return Period UT"
         MockClosedVATReturnPeriod(VATReturnPeriod, WorkDate());
 
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
-        Assert.IsFalse(VATReturnPeriodList."Create VAT Return".Enabled, '');
-        Assert.IsFalse(VATReturnPeriodList."Open VAT Return Card".Enabled, '');
+        Assert.IsFalse(VATReturnPeriodList."Create VAT Return".Enabled(), '');
+        Assert.IsFalse(VATReturnPeriodList."Open VAT Return Card".Enabled(), '');
         VATReturnPeriodList.Close();
 
         OpenVATReturnPeriodCard(VATReturnPeriodCard, VATReturnPeriod);
-        Assert.IsFalse(VATReturnPeriodCard."Create VAT Return".Enabled, '');
-        Assert.IsFalse(VATReturnPeriodCard."Open VAT Return Card".Enabled, '');
+        Assert.IsFalse(VATReturnPeriodCard."Create VAT Return".Enabled(), '');
+        Assert.IsFalse(VATReturnPeriodCard."Open VAT Return Card".Enabled(), '');
         VATReturnPeriodCard.Close();
     end;
 
@@ -546,13 +546,13 @@ codeunit 134281 "VAT Return Period UT"
         MockLinkedVATReturn(VATReportHeader, VATReturnPeriod);
 
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
-        Assert.IsFalse(VATReturnPeriodList."Create VAT Return".Enabled, '');
-        Assert.IsTrue(VATReturnPeriodList."Open VAT Return Card".Enabled, '');
+        Assert.IsFalse(VATReturnPeriodList."Create VAT Return".Enabled(), '');
+        Assert.IsTrue(VATReturnPeriodList."Open VAT Return Card".Enabled(), '');
         VATReturnPeriodList.Close();
 
         OpenVATReturnPeriodCard(VATReturnPeriodCard, VATReturnPeriod);
-        Assert.IsFalse(VATReturnPeriodCard."Create VAT Return".Enabled, '');
-        Assert.IsTrue(VATReturnPeriodCard."Open VAT Return Card".Enabled, '');
+        Assert.IsFalse(VATReturnPeriodCard."Create VAT Return".Enabled(), '');
+        Assert.IsTrue(VATReturnPeriodCard."Open VAT Return Card".Enabled(), '');
         VATReturnPeriodCard.Close();
     end;
 
@@ -573,13 +573,13 @@ codeunit 134281 "VAT Return Period UT"
         MockLinkedVATReturn(VATReportHeader, VATReturnPeriod);
 
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
-        Assert.IsFalse(VATReturnPeriodList."Create VAT Return".Enabled, '');
-        Assert.IsTrue(VATReturnPeriodList."Open VAT Return Card".Enabled, '');
+        Assert.IsFalse(VATReturnPeriodList."Create VAT Return".Enabled(), '');
+        Assert.IsTrue(VATReturnPeriodList."Open VAT Return Card".Enabled(), '');
         VATReturnPeriodList.Close();
 
         OpenVATReturnPeriodCard(VATReturnPeriodCard, VATReturnPeriod);
-        Assert.IsFalse(VATReturnPeriodCard."Create VAT Return".Enabled, '');
-        Assert.IsTrue(VATReturnPeriodCard."Open VAT Return Card".Enabled, '');
+        Assert.IsFalse(VATReturnPeriodCard."Create VAT Return".Enabled(), '');
+        Assert.IsTrue(VATReturnPeriodCard."Open VAT Return Card".Enabled(), '');
         VATReturnPeriodCard.Close();
     end;
 
@@ -599,14 +599,14 @@ codeunit 134281 "VAT Return Period UT"
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
 
         LibraryVariableStorage.Enqueue(false); // Deny open a new VAT Return Card
-        VATReturnPeriodList."Create VAT Return".Invoke;
+        VATReturnPeriodList."Create VAT Return".Invoke();
         VATReportHeader.FindFirst();
         VATReturnPeriodList."VAT Return No.".AssertEquals(VATReportHeader."No.");
         VATReturnPeriodList.VATReturnStatus.AssertEquals('Open');
         VATReturnPeriodList.Close();
 
-        Assert.ExpectedMessage(StrSubstNo(CreateVATReturnQst, VATReportHeader."No."), LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(StrSubstNo(CreateVATReturnQst, VATReportHeader."No."), LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -625,15 +625,15 @@ codeunit 134281 "VAT Return Period UT"
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
 
         LibraryVariableStorage.Enqueue(true); // Accept open a new VAT Return Card
-        VATReturnPeriodList."Create VAT Return".Invoke;
+        VATReturnPeriodList."Create VAT Return".Invoke();
         VATReportHeader.FindFirst();
         VATReturnPeriodList."VAT Return No.".AssertEquals(VATReportHeader."No.");
         VATReturnPeriodList.VATReturnStatus.AssertEquals('Open');
         VATReturnPeriodList.Close();
 
-        Assert.ExpectedMessage(StrSubstNo(CreateVATReturnQst, VATReportHeader."No."), LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(StrSubstNo(CreateVATReturnQst, VATReportHeader."No."), LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -652,14 +652,14 @@ codeunit 134281 "VAT Return Period UT"
         OpenVATReturnPeriodCard(VATReturnPeriodCard, VATReturnPeriod);
 
         LibraryVariableStorage.Enqueue(false); // Deny open a new VAT Return Card
-        VATReturnPeriodCard."Create VAT Return".Invoke;
+        VATReturnPeriodCard."Create VAT Return".Invoke();
         VATReportHeader.FindFirst();
         VATReturnPeriodCard."VAT Return No.".AssertEquals(VATReportHeader."No.");
         VATReturnPeriodCard.VATReturnStatus.AssertEquals('Open');
         VATReturnPeriodCard.Close();
 
-        Assert.ExpectedMessage(StrSubstNo(CreateVATReturnQst, VATReportHeader."No."), LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(StrSubstNo(CreateVATReturnQst, VATReportHeader."No."), LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -678,15 +678,15 @@ codeunit 134281 "VAT Return Period UT"
         OpenVATReturnPeriodCard(VATReturnPeriodCard, VATReturnPeriod);
 
         LibraryVariableStorage.Enqueue(true); // Accept open a new VAT Return Card
-        VATReturnPeriodCard."Create VAT Return".Invoke;
+        VATReturnPeriodCard."Create VAT Return".Invoke();
         VATReportHeader.FindFirst();
         VATReturnPeriodCard."VAT Return No.".AssertEquals(VATReportHeader."No.");
         VATReturnPeriodCard.VATReturnStatus.AssertEquals('Open');
         VATReturnPeriodCard.Close();
 
-        Assert.ExpectedMessage(StrSubstNo(CreateVATReturnQst, VATReportHeader."No."), LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(StrSubstNo(CreateVATReturnQst, VATReportHeader."No."), LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -707,11 +707,11 @@ codeunit 134281 "VAT Return Period UT"
 
         VATReturnPeriodList."VAT Return No.".AssertEquals(VATReportHeader."No.");
         VATReturnPeriodList.VATReturnStatus.AssertEquals('Open');
-        VATReturnPeriodList."Open VAT Return Card".Invoke;
+        VATReturnPeriodList."Open VAT Return Card".Invoke();
         VATReturnPeriodList.Close();
 
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -729,13 +729,13 @@ codeunit 134281 "VAT Return Period UT"
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
 
         LibraryVariableStorage.Enqueue(false); // Deny create a new VAT Return Card
-        VATReturnPeriodList."Open VAT Return Card".Invoke;
+        VATReturnPeriodList."Open VAT Return Card".Invoke();
         VATReturnPeriodList."VAT Return No.".AssertEquals('');
         VATReturnPeriodList.VATReturnStatus.AssertEquals(' ');
         VATReturnPeriodList.Close();
 
-        Assert.ExpectedMessage(NoVATReturnQst, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(NoVATReturnQst, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -754,15 +754,15 @@ codeunit 134281 "VAT Return Period UT"
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
 
         LibraryVariableStorage.Enqueue(true); // Accept create a new VAT Return Card
-        VATReturnPeriodList."Open VAT Return Card".Invoke;
+        VATReturnPeriodList."Open VAT Return Card".Invoke();
         VATReportHeader.FindFirst();
         VATReturnPeriodList."VAT Return No.".AssertEquals(VATReportHeader."No.");
         VATReturnPeriodList.VATReturnStatus.AssertEquals('Open');
         VATReturnPeriodList.Close();
 
-        Assert.ExpectedMessage(NoVATReturnQst, LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(NoVATReturnQst, LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -783,11 +783,11 @@ codeunit 134281 "VAT Return Period UT"
 
         VATReturnPeriodCard."VAT Return No.".AssertEquals(VATReportHeader."No.");
         VATReturnPeriodCard.VATReturnStatus.AssertEquals('Open');
-        VATReturnPeriodCard."Open VAT Return Card".Invoke;
+        VATReturnPeriodCard."Open VAT Return Card".Invoke();
         VATReturnPeriodCard.Close();
 
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -805,13 +805,13 @@ codeunit 134281 "VAT Return Period UT"
         OpenVATReturnPeriodCard(VATReturnPeriodCard, VATReturnPeriod);
 
         LibraryVariableStorage.Enqueue(false); // Deny create a new VAT Return Card
-        VATReturnPeriodCard."Open VAT Return Card".Invoke;
+        VATReturnPeriodCard."Open VAT Return Card".Invoke();
         VATReturnPeriodCard."VAT Return No.".AssertEquals('');
         VATReturnPeriodCard.VATReturnStatus.AssertEquals(' ');
         VATReturnPeriodCard.Close();
 
-        Assert.ExpectedMessage(NoVATReturnQst, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(NoVATReturnQst, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -830,15 +830,15 @@ codeunit 134281 "VAT Return Period UT"
         OpenVATReturnPeriodCard(VATReturnPeriodCard, VATReturnPeriod);
 
         LibraryVariableStorage.Enqueue(true); // Accept create a new VAT Return Card
-        VATReturnPeriodCard."Open VAT Return Card".Invoke;
+        VATReturnPeriodCard."Open VAT Return Card".Invoke();
         VATReportHeader.FindFirst();
         VATReturnPeriodCard."VAT Return No.".AssertEquals(VATReportHeader."No.");
         VATReturnPeriodCard.VATReturnStatus.AssertEquals('Open');
         VATReturnPeriodCard.Close();
 
-        Assert.ExpectedMessage(NoVATReturnQst, LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(NoVATReturnQst, LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -853,12 +853,12 @@ codeunit 134281 "VAT Return Period UT"
         Initialize();
         SetManualReceivePeriodCUID(CODEUNIT::TestCodeunitRunMessage);
 
-        VATReturnPeriodList.OpenEdit;
-        VATReturnPeriodList."Get VAT Return Periods".Invoke;
+        VATReturnPeriodList.OpenEdit();
+        VATReturnPeriodList."Get VAT Return Periods".Invoke();
         VATReturnPeriodList.Close();
 
-        Assert.ExpectedMessage(TestCodeunitRunMsg, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(TestCodeunitRunMsg, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -873,12 +873,12 @@ codeunit 134281 "VAT Return Period UT"
         Initialize();
         SetReceiveSubmittedReturnCUID(CODEUNIT::TestCodeunitRunMessage);
 
-        VATReturnPeriodCard.OpenEdit;
-        VATReturnPeriodCard."Receive Submitted VAT Returns".Invoke;
+        VATReturnPeriodCard.OpenEdit();
+        VATReturnPeriodCard."Receive Submitted VAT Returns".Invoke();
         VATReturnPeriodCard.Close();
 
-        Assert.ExpectedMessage(TestCodeunitRunMsg, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(TestCodeunitRunMsg, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -897,11 +897,11 @@ codeunit 134281 "VAT Return Period UT"
         MockLinkedVATReturn(VATReportHeader, VATReturnPeriod);
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
 
-        VATReturnPeriodList."VAT Return No.".Lookup;
+        VATReturnPeriodList."VAT Return No.".Lookup();
         VATReturnPeriodList.Close();
 
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -920,11 +920,11 @@ codeunit 134281 "VAT Return Period UT"
         MockLinkedVATReturn(VATReportHeader, VATReturnPeriod);
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
 
-        VATReturnPeriodList.VATReturnStatus.DrillDown;
+        VATReturnPeriodList.VATReturnStatus.DrillDown();
         VATReturnPeriodList.Close();
 
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -943,11 +943,11 @@ codeunit 134281 "VAT Return Period UT"
         MockLinkedVATReturn(VATReportHeader, VATReturnPeriod);
         OpenVATReturnPeriodCard(VATReturnPeriodCard, VATReturnPeriod);
 
-        VATReturnPeriodCard."VAT Return No.".Lookup;
+        VATReturnPeriodCard."VAT Return No.".Lookup();
         VATReturnPeriodCard.Close();
 
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -966,11 +966,11 @@ codeunit 134281 "VAT Return Period UT"
         MockLinkedVATReturn(VATReportHeader, VATReturnPeriod);
         OpenVATReturnPeriodCard(VATReturnPeriodCard, VATReturnPeriod);
 
-        VATReturnPeriodCard.VATReturnStatus.DrillDown;
+        VATReturnPeriodCard.VATReturnStatus.DrillDown();
         VATReturnPeriodCard.Close();
 
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -989,7 +989,7 @@ codeunit 134281 "VAT Return Period UT"
         VATReportSetup.Get();
 
         DaysCount := LibraryRandom.RandIntInRange(10, 20);
-        DueDate := WorkDate - DaysCount;
+        DueDate := WorkDate() - DaysCount;
         MockOpenVATReturnPeriod(VATReturnPeriod, DueDate);
 
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
@@ -1014,7 +1014,7 @@ codeunit 134281 "VAT Return Period UT"
         VATReportSetup.Get();
 
         DaysCount := LibraryRandom.RandIntInRange(10, 20);
-        DueDate := WorkDate - DaysCount;
+        DueDate := WorkDate() - DaysCount;
         MockClosedVATReturnPeriod(VATReturnPeriod, DueDate);
 
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
@@ -1110,14 +1110,14 @@ codeunit 134281 "VAT Return Period UT"
         VATReportSetup.Get();
 
         OverdueDaysCount := LibraryRandom.RandIntInRange(10, 20);
-        OverdueDueDate := WorkDate - OverdueDaysCount;
+        OverdueDueDate := WorkDate() - OverdueDaysCount;
         MockOpenVATReturnPeriod(VATReturnPeriod, OverdueDueDate);
 
         UpcomingDueDate := CalcDate(VATReportSetup."Period Reminder Calculation", WorkDate());
         MockOpenVATReturnPeriod(VATReturnPeriod, UpcomingDueDate);
 
         OpenVATReturnPeriodList(VATReturnPeriodList, VATReturnPeriod);
-        VATReturnPeriodList.First;
+        VATReturnPeriodList.First();
         VATReturnPeriodList.Control9.WarningText.AssertEquals(
           StrSubstNo('Your VAT return is overdue since %1 (%2 days)', OverdueDueDate, OverdueDaysCount));
 
@@ -1142,9 +1142,9 @@ codeunit 134281 "VAT Return Period UT"
         MockLinkedVATReturn(VATReportHeader, VATReturnPeriod);
 
         OpenVATReportList(VATReportListPage, VATReportHeader);
-        Assert.IsTrue(VATReportListPage."Create From VAT Return Period".Visible, '');
-        Assert.IsTrue(VATReportListPage.Card.Visible, '');
-        Assert.IsTrue(VATReportListPage."Open VAT Return Period Card".Visible, '');
+        Assert.IsTrue(VATReportListPage."Create From VAT Return Period".Visible(), '');
+        Assert.IsTrue(VATReportListPage.Card.Visible(), '');
+        Assert.IsTrue(VATReportListPage."Open VAT Return Period Card".Visible(), '');
         VATReportListPage.Close();
     end;
 
@@ -1161,9 +1161,9 @@ codeunit 134281 "VAT Return Period UT"
         MockVATReturn(VATReportHeader);
 
         OpenVATReportList(VATReportListPage, VATReportHeader);
-        Assert.IsTrue(VATReportListPage."Create From VAT Return Period".Visible, '');
-        Assert.IsTrue(VATReportListPage.Card.Visible, '');
-        Assert.IsFalse(VATReportListPage."Open VAT Return Period Card".Visible, '');
+        Assert.IsTrue(VATReportListPage."Create From VAT Return Period".Visible(), '');
+        Assert.IsTrue(VATReportListPage.Card.Visible(), '');
+        Assert.IsFalse(VATReportListPage."Open VAT Return Period Card".Visible(), '');
         VATReportListPage.Close();
     end;
 
@@ -1183,11 +1183,11 @@ codeunit 134281 "VAT Return Period UT"
         MockLinkedVATReturn(VATReportHeader, VATReturnPeriod);
 
         OpenVATReportList(VATReportListPage, VATReportHeader);
-        VATReportListPage."Open VAT Return Period Card".Invoke;
+        VATReportListPage."Open VAT Return Period Card".Invoke();
         VATReportListPage.Close();
 
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1205,8 +1205,8 @@ codeunit 134281 "VAT Return Period UT"
         MockLinkedVATReturn(VATReportHeader, VATReturnPeriod);
 
         OpenVATReportCard(VATReportCardPage, VATReportHeader);
-        Assert.IsTrue(VATReportCardPage."Open VAT Return Period Card".Visible, '');
-        Assert.IsFalse(VATReportCardPage."VAT Report Version".Editable, '');
+        Assert.IsTrue(VATReportCardPage."Open VAT Return Period Card".Visible(), '');
+        Assert.IsFalse(VATReportCardPage."VAT Report Version".Editable(), '');
         VATReportCardPage.Close();
     end;
 
@@ -1223,8 +1223,8 @@ codeunit 134281 "VAT Return Period UT"
         MockVATReturn(VATReportHeader);
 
         OpenVATReportCard(VATReportCardPage, VATReportHeader);
-        Assert.IsFalse(VATReportCardPage."Open VAT Return Period Card".Visible, '');
-        Assert.IsTrue(VATReportCardPage."VAT Report Version".Editable, '');
+        Assert.IsFalse(VATReportCardPage."Open VAT Return Period Card".Visible(), '');
+        Assert.IsTrue(VATReportCardPage."VAT Report Version".Editable(), '');
         VATReportCardPage.Close();
     end;
 
@@ -1244,11 +1244,11 @@ codeunit 134281 "VAT Return Period UT"
         MockLinkedVATReturn(VATReportHeader, VATReturnPeriod);
 
         OpenVATReportCard(VATReportCardPage, VATReportHeader);
-        VATReportCardPage."Open VAT Return Period Card".Invoke;
+        VATReportCardPage."Open VAT Return Period Card".Invoke();
         VATReportCardPage.Close();
 
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1270,11 +1270,11 @@ codeunit 134281 "VAT Return Period UT"
 
         VATReportCardPage."VAT Report Version".SetValue(VATReportSetup."Report Version");
 
-        Assert.IsTrue(VATReportCardPage."VAT Report Version".Editable, '');
+        Assert.IsTrue(VATReportCardPage."VAT Report Version".Editable(), '');
         Assert.AreEqual(VATReportSetup."Report Version", VATReportCardPage."VAT Report Version".Value, '');
         VATReportCardPage.Close();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1298,13 +1298,13 @@ codeunit 134281 "VAT Return Period UT"
 
         VATReportCardPage."VAT Report Version".SetValue(VATReportSetup."Report Version");
 
-        Assert.IsFalse(VATReportCardPage."VAT Report Version".Editable, '');
+        Assert.IsFalse(VATReportCardPage."VAT Report Version".Editable(), '');
         Assert.AreEqual(VATReportSetup."Report Version", VATReportCardPage."VAT Report Version".Value, '');
         VATReportCardPage.ReturnPeriodStatus.AssertEquals(VATReturnPeriod.Status);
         VATReportCardPage.ReturnPeriodDueDate.AssertEquals(VATReturnPeriod."Due Date");
         VATReportCardPage.Close();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1321,8 +1321,8 @@ codeunit 134281 "VAT Return Period UT"
         Initialize();
         MockOpenVATReturnPeriod(VATReturnPeriod, WorkDate());
 
-        VATReportListPage.OpenEdit;
-        VATReportListPage."Create From VAT Return Period".Invoke; // Cancel reply
+        VATReportListPage.OpenEdit();
+        VATReportListPage."Create From VAT Return Period".Invoke(); // Cancel reply
         VATReportListPage.Close();
 
         Assert.RecordIsEmpty(VATReportHeader);
@@ -1342,14 +1342,14 @@ codeunit 134281 "VAT Return Period UT"
         Initialize();
         MockOpenVATReturnPeriod(VATReturnPeriod, WorkDate());
 
-        VATReportListPage.OpenEdit;
+        VATReportListPage.OpenEdit();
         LibraryVariableStorage.Enqueue(false); // deny open a new VAT Return
-        VATReportListPage."Create From VAT Return Period".Invoke; // Ok reply
+        VATReportListPage."Create From VAT Return Period".Invoke(); // Ok reply
         VATReportListPage.Close();
 
         VATReportHeader.FindFirst();
-        Assert.ExpectedMessage(StrSubstNo(CreateVATReturnQst, VATReportHeader."No."), LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(StrSubstNo(CreateVATReturnQst, VATReportHeader."No."), LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1366,15 +1366,15 @@ codeunit 134281 "VAT Return Period UT"
         Initialize();
         MockOpenVATReturnPeriod(VATReturnPeriod, WorkDate());
 
-        VATReportListPage.OpenEdit;
+        VATReportListPage.OpenEdit();
         LibraryVariableStorage.Enqueue(true); // accept open a new VAT Return
-        VATReportListPage."Create From VAT Return Period".Invoke; // Ok reply
+        VATReportListPage."Create From VAT Return Period".Invoke(); // Ok reply
         VATReportListPage.Close();
 
         VATReportHeader.FindFirst();
-        Assert.ExpectedMessage(StrSubstNo(CreateVATReturnQst, VATReportHeader."No."), LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(StrSubstNo(CreateVATReturnQst, VATReportHeader."No."), LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(VATReportHeader."No.", LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1412,11 +1412,11 @@ codeunit 134281 "VAT Return Period UT"
         JobDateTime := CreateDateTime(LibraryRandom.RandDate(10), Time);
         MockFailedJobLogEntry(JobDateTime);
 
-        VATReturnPeriodList.OpenEdit;
+        VATReturnPeriodList.OpenEdit();
         VATReturnPeriodList.Close();
 
-        Assert.ExpectedMessage(StrSubstNo(FailedJobNotificationMsg, JobDateTime), LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(StrSubstNo(FailedJobNotificationMsg, JobDateTime), LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [HandlerFunctions('NotificationHandler')]
@@ -1437,12 +1437,12 @@ codeunit 134281 "VAT Return Period UT"
         JobDateTime := CreateDateTime(LibraryRandom.RandDate(10), Time);
         MockFailedJobLogEntry(JobDateTime);
 
-        VATReturnPeriodList.OpenEdit;
+        VATReturnPeriodList.OpenEdit();
         VATReturnPeriodList.Close();
 
-        Assert.ExpectedMessage(ManualInsertNotificationMsg, LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(StrSubstNo(FailedJobNotificationMsg, JobDateTime), LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(ManualInsertNotificationMsg, LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(StrSubstNo(FailedJobNotificationMsg, JobDateTime), LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1463,8 +1463,8 @@ codeunit 134281 "VAT Return Period UT"
         MockJobQueueEntry(JobQueueEntry, CODEUNIT::TestCodeunitRunMessage);
         VATReportMgt.OpenVATReturnPeriodJobCard(DummyNotification);
 
-        Assert.AreEqual(CODEUNIT::TestCodeunitRunMessage, LibraryVariableStorage.DequeueInteger, '');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(CODEUNIT::TestCodeunitRunMessage, LibraryVariableStorage.DequeueInteger(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1479,10 +1479,10 @@ codeunit 134281 "VAT Return Period UT"
 
         VATReportSetup.Get();
         VATReportSetup.TestField("Period Reminder Calculation");
-        Assert.IsTrue(VATReportSetup.IsPeriodReminderCalculation, 'VATReportSetup.IsPeriodReminderCalculation()');
+        Assert.IsTrue(VATReportSetup.IsPeriodReminderCalculation(), 'VATReportSetup.IsPeriodReminderCalculation()');
 
         VATReportSetup."Period Reminder Calculation" := DummyDateFormula;
-        Assert.IsFalse(VATReportSetup.IsPeriodReminderCalculation, 'VATReportSetup.IsPeriodReminderCalculation()');
+        Assert.IsFalse(VATReportSetup.IsPeriodReminderCalculation(), 'VATReportSetup.IsPeriodReminderCalculation()');
     end;
 
     [Test]
@@ -1557,7 +1557,7 @@ codeunit 134281 "VAT Return Period UT"
             exit;
         IsInitialized := true;
 
-        InitVATReportSetup;
+        InitVATReportSetup();
         Commit();
     end;
 
@@ -1636,25 +1636,25 @@ codeunit 134281 "VAT Return Period UT"
 
     local procedure OpenVATReturnPeriodList(var VATReturnPeriodList: TestPage "VAT Return Period List"; VATReturnPeriod: Record "VAT Return Period")
     begin
-        VATReturnPeriodList.Trap;
+        VATReturnPeriodList.Trap();
         PAGE.Run(PAGE::"VAT Return Period List", VATReturnPeriod);
     end;
 
     local procedure OpenVATReturnPeriodCard(var VATReturnPeriodCard: TestPage "VAT Return Period Card"; VATReturnPeriod: Record "VAT Return Period")
     begin
-        VATReturnPeriodCard.Trap;
+        VATReturnPeriodCard.Trap();
         PAGE.Run(PAGE::"VAT Return Period Card", VATReturnPeriod);
     end;
 
     local procedure OpenVATReportList(var VATReportList: TestPage "VAT Report List"; VATReportHeader: Record "VAT Report Header")
     begin
-        VATReportList.Trap;
+        VATReportList.Trap();
         PAGE.Run(PAGE::"VAT Report List", VATReportHeader);
     end;
 
     local procedure OpenVATReportCard(var VATReport: TestPage "VAT Report"; VATReportHeader: Record "VAT Report Header")
     begin
-        VATReport.Trap;
+        VATReport.Trap();
         PAGE.Run(PAGE::"VAT Report", VATReportHeader);
     end;
 
@@ -1664,8 +1664,8 @@ codeunit 134281 "VAT Return Period UT"
     begin
         with VATReportSetup do begin
             Get();
-            "VAT Return No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
-            "VAT Return Period No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
+            "VAT Return No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
+            "VAT Return Period No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
             Evaluate("Period Reminder Calculation", StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(10, 20)));
             "Report Version" := LibraryVATReport.CreateVATReportConfigurationNo();
             "Update Period Job Frequency" := "Update Period Job Frequency"::Never;
@@ -1759,7 +1759,7 @@ codeunit 134281 "VAT Return Period UT"
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
         LibraryVariableStorage.Enqueue(Question);
     end;
 
@@ -1781,14 +1781,14 @@ codeunit 134281 "VAT Return Period UT"
     [Scope('OnPrem')]
     procedure VATReturnPeriodList_Cancel_MPH(var VATReturnPeriodList: TestPage "VAT Return Period List")
     begin
-        VATReturnPeriodList.Cancel.Invoke;
+        VATReturnPeriodList.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VATReturnPeriodList_Ok_MPH(var VATReturnPeriodList: TestPage "VAT Return Period List")
     begin
-        VATReturnPeriodList.OK.Invoke;
+        VATReturnPeriodList.OK().Invoke();
     end;
 
     [ModalPageHandler]

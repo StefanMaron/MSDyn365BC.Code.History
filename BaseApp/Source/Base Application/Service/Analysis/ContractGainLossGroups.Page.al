@@ -40,7 +40,7 @@ page 6066 "Contract Gain/Loss (Groups)"
                 {
                     ApplicationArea = Service;
                     Caption = 'Contract Group Filter';
-                    ToolTip = 'Specifies billable prices for the job task that are related to items, expressed in the local currency.';
+                    ToolTip = 'Specifies billable prices for the project task that are related to items, expressed in the local currency.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin

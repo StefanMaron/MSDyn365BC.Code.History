@@ -3,6 +3,7 @@ namespace Microsoft.Finance.Dimension;
 table 351 "Dimension Value Combination"
 {
     Caption = 'Dimension Value Combination';
+    DataClassification = CustomerContent;
 
     fields
     {

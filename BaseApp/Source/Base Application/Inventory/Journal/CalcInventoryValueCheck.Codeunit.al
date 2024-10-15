@@ -18,7 +18,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
         InvtSetup: Record "Inventory Setup";
         TempErrorBuf: Record "Error Buffer" temporary;
         PostingDate: Date;
-        CalculatePer: Option "Item Ledger Entry",Item;
+        CalculatePer: Enum "Inventory Value Calc. Per";
         ByLocation: Boolean;
         ByVariant: Boolean;
         ShowDialog: Boolean;
@@ -35,7 +35,25 @@ codeunit 5899 "Calc. Inventory Value-Check"
         Text018: Label 'The Item %1 cannot be revalued because there is at least one open outbound item ledger entry.';
         Text020: Label 'Open Outbound Entry %1 found.';
 
+#if not CLEAN24
+    [Obsolete('Reolaced by procedure SetParameters()', '24.0')]
     procedure SetProperties(NewPostingDate: Date; NewCalculatePer: Option; NewByLocation: Boolean; NewByVariant: Boolean; NewShowDialog: Boolean; NewTestMode: Boolean)
+    begin
+        TempErrorBuf.DeleteAll();
+        ClearAll();
+
+        PostingDate := NewPostingDate;
+        CalculatePer := "Inventory Value Calc. Per".FromInteger(NewCalculatePer);
+        ByLocation := NewByLocation;
+        ByVariant := NewByVariant;
+        ShowDialog := NewShowDialog;
+        TestMode := NewTestMode;
+
+        InvtSetup.Get();
+    end;
+#endif
+
+    procedure SetParameters(NewPostingDate: Date; NewCalculatePer: Enum "Inventory Value Calc. Per"; NewByLocation: Boolean; NewByVariant: Boolean; NewShowDialog: Boolean; NewTestMode: Boolean)
     begin
         TempErrorBuf.DeleteAll();
         ClearAll();
@@ -56,32 +74,30 @@ codeunit 5899 "Calc. Inventory Value-Check"
         Window: Dialog;
         IsHandled: Boolean;
     begin
-        with Item2 do begin
-            Copy(Item);
+        Item2.Copy(Item);
 
-            CheckCalculatePer(Item2);
+        CheckCalculatePer(Item2);
 
-            if FindSet() then begin
+        if Item2.FindSet() then begin
+            if ShowDialog then
+                Window.Open(Text004, Item2."No.");
+            repeat
                 if ShowDialog then
-                    Window.Open(Text004, "No.");
-                repeat
-                    if ShowDialog then
-                        Window.Update(1, "No.");
+                    Window.Update(1, Item2."No.");
 
-                    IsHandled := false;
-                    OnBeforeFindOpenOutboundEntry(Item2, PostingDate, TestMode, TempErrorBuf, ErrorCounter, IsHandled);
-                    if not IsHandled then begin
-                        if FindOpenOutboundEntry(Item2) then
-                            if not TestMode then
-                                Error(Text018, "No.");
-                        if not CheckAdjusted(Item2) then
-                            AddError(
-                              StrSubstNo(Text007, "No."), DATABASE::Item, "No.", 0);
-                    end;
-                until Next() = 0;
-                if ShowDialog then
-                    Window.Close();
-            end;
+                IsHandled := false;
+                OnBeforeFindOpenOutboundEntry(Item2, PostingDate, TestMode, TempErrorBuf, ErrorCounter, IsHandled);
+                if not IsHandled then begin
+                    if FindOpenOutboundEntry(Item2) then
+                        if not TestMode then
+                            Error(Text018, Item2."No.");
+                    if not CheckAdjusted(Item2) then
+                        AddError(
+                          StrSubstNo(Text007, Item2."No."), DATABASE::Item, Item2."No.", 0);
+                end;
+            until Item2.Next() = 0;
+            if ShowDialog then
+                Window.Close();
         end;
 
         TempErrorBuf.Reset();
@@ -113,46 +129,44 @@ codeunit 5899 "Calc. Inventory Value-Check"
     var
         Item2: Record Item;
     begin
-        with Item2 do begin
-            CopyFilters(Item);
+        Item2.CopyFilters(Item);
 
-            FilterGroup(2);
-            SetRange("Costing Method", "Costing Method"::Average);
-            FilterGroup(0);
+        Item2.FilterGroup(2);
+        Item2.SetRange("Costing Method", Item2."Costing Method"::Average);
+        Item2.FilterGroup(0);
 
-            OnCheckCalculatePerOnAfterSetFilters(Item2, Item, PostingDate);
+        OnCheckCalculatePerOnAfterSetFilters(Item2, Item, PostingDate);
 
-            if FindFirst() then
-                case CalculatePer of
-                    CalculatePer::"Item Ledger Entry":
-                        AddError(
-                          StrSubstNo(Text009, "Costing Method"), DATABASE::Item, "No.", 0);
-                    CalculatePer::Item:
-                        if InvtSetup."Average Cost Calc. Type" = InvtSetup."Average Cost Calc. Type"::Item then begin
-                            if GetFilter("Location Filter") <> '' then
-                                AddError(
-                                    StrSubstNo(
-                                    Text011,
-                                    FieldCaption("Location Filter"), "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
-                            if GetFilter("Variant Filter") <> '' then
-                                AddError(
-                                    StrSubstNo(
-                                    Text011,
-                                    FieldCaption("Variant Filter"), "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
-                            if ByLocation then
-                                AddError(
-                                    StrSubstNo(
-                                    Text012,
-                                    "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
-                            if ByVariant then
-                                AddError(
-                                    StrSubstNo(
-                                    Text014,
-                                    "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
-                        end else
-                            CheckItemLocationVariantFilters(Item2);
-                end;
-        end;
+        if Item2.FindFirst() then
+            case CalculatePer of
+                CalculatePer::"Item Ledger Entry":
+                    AddError(
+                      StrSubstNo(Text009, Item2."Costing Method"), DATABASE::Item, Item2."No.", 0);
+                CalculatePer::Item:
+                    if InvtSetup."Average Cost Calc. Type" = InvtSetup."Average Cost Calc. Type"::Item then begin
+                        if Item2.GetFilter("Location Filter") <> '' then
+                            AddError(
+                                StrSubstNo(
+                                Text011,
+                                Item2.FieldCaption("Location Filter"), Item2."Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, Item2."No.", 0);
+                        if Item2.GetFilter("Variant Filter") <> '' then
+                            AddError(
+                                StrSubstNo(
+                                Text011,
+                                Item2.FieldCaption("Variant Filter"), Item2."Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, Item2."No.", 0);
+                        if ByLocation then
+                            AddError(
+                                StrSubstNo(
+                                Text012,
+                                Item2."Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, Item2."No.", 0);
+                        if ByVariant then
+                            AddError(
+                                StrSubstNo(
+                                Text014,
+                                Item2."Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, Item2."No.", 0);
+                    end else
+                        CheckItemLocationVariantFilters(Item2);
+            end;
 
         OnAfterCheckCalculatePer(Item);
     end;

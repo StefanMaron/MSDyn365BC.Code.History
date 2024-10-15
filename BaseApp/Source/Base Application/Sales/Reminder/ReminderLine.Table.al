@@ -16,6 +16,7 @@ using Microsoft.Utilities;
 table 296 "Reminder Line"
 {
     Caption = 'Reminder Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -420,6 +421,7 @@ table 296 "Reminder Line"
 
             trigger OnValidate()
             var
+                ReminderCommunication: Codeunit "Reminder Communication";
                 NextLineFeeLevel: Integer;
             begin
                 TestField(Type, Type::"Line Fee");
@@ -430,11 +432,11 @@ table 296 "Reminder Line"
                         CustLedgEntry.SetRange("Document Type", "Applies-to Document Type");
                     CustLedgEntry.SetRange("Document No.", "Applies-to Document No.");
                     if not CustLedgEntry.FindFirst() then
-                        Error(NoOpenEntriesErr, CustLedgEntry.TableName, FieldCaption("Document No."), "Applies-to Document No.");
+                        Error(NoOpenEntriesErr, CustLedgEntry.TableCaption, FieldCaption("Document No."), "Applies-to Document No.");
                     "Applies-to Document Type" := CustLedgEntry."Document Type";
 
                     if CustLedgEntry."Due Date" >= ReminderHeader."Document Date" then
-                        Error(EntryNotOverdueErr, CustLedgEntry.FieldCaption("Document No."), "Applies-to Document No.", CustLedgEntry.TableName);
+                        Error(EntryNotOverdueErr, CustLedgEntry.FieldCaption("Document No."), "Applies-to Document No.", CustLedgEntry.TableCaption);
 
                     if "No. of Reminders" <> 0 then
                         NextLineFeeLevel := "No. of Reminders"
@@ -465,17 +467,22 @@ table 296 "Reminder Line"
                         ReminderHeader."Posting Date"));
 
                     Description := '';
-                    if (Amount <> 0) and (ReminderLevel."Add. Fee per Line Description" <> '') then
-                        Description := StrSubstNo(ReminderLevel."Add. Fee per Line Description",
-                            "Reminder No.",
-                            "No. of Reminders",
-                            "Document Date",
-                            "Posting Date",
-                            "No.",
-                            Amount,
-                            "Applies-to Document Type",
-                            "Applies-to Document No.",
-                            ReminderLevel."No.")
+                    if (Amount <> 0) then
+                        if ReminderCommunication.NewReminderCommunicationEnabled() then
+                            Description := ReminderCommunication.FindDescriptionForLineFee(ReminderLevel, CustLedgEntry, Rec, GLAcc)
+                        else begin
+                            if (ReminderLevel."Add. Fee per Line Description" <> '') then
+                                Description := StrSubstNo(ReminderLevel."Add. Fee per Line Description",
+                                    "Reminder No.",
+                                    "No. of Reminders",
+                                    "Document Date",
+                                    "Posting Date",
+                                    "No.",
+                                    Amount,
+                                    "Applies-to Document Type",
+                                    "Applies-to Document No.",
+                                    ReminderLevel."No.");
+                        end
                     else
                         if GLAcc.Get("No.") then
                             Description := GLAcc.Name;
@@ -542,8 +549,6 @@ table 296 "Reminder Line"
     end;
 
     var
-        MustBeSameErr: Label 'The %1 on the %2 and the %3 must be the same.';
-        MustBeErr: Label '%1 must be %2 or %3.';
         FinChrgTerms: Record "Finance Charge Terms";
         ReminderTerms: Record "Reminder Terms";
         ReminderLevel: Record "Reminder Level";
@@ -561,11 +566,13 @@ table 296 "Reminder Line"
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         InterestCalcDate: Date;
         CalcInterest: Boolean;
+        NrOfLinesToInsert: Integer;
+        MustBeSameErr: Label 'The %1 on the %2 and the %3 must be the same.', Comment = '%1 = Field name, %2 = Table name, %3 = Table name';
+        MustBeErr: Label '%1 must be %2 or %3.', Comment = '%1 = Field name, %2 = Reminder line type value 1, %3 = Reminder line type value 2';
         NoOpenEntriesErr: Label 'There is no open %1 with %2 %3.', Comment = '%1 = Table name, %2 = Document Type, %3 = Document No.';
         EntryNotOverdueErr: Label '%1 %2 in %3 is not overdue.', Comment = '%1 = Document Type, %2 = Document No., %3 = Table name';
         LineFeeAlreadyIssuedErr: Label 'The line fee for %1 %2 on reminder level %3 has already been issued.', Comment = '%1 = Document TYpe, %2 = Document No, %3 = Level number';
-        MustBePositiveErr: Label '%1 must be positive.';
-        NrOfLinesToInsert: Integer;
+        MustBePositiveErr: Label '%1 must be positive.', Comment = '%1 = Field name';
         NotEnoughSpaceToInsertErr: Label 'There is not enough space to insert lines with additional interest rates.';
         InvalidInterestRateDateErr: Label 'Create interest rate with start date prior to %1.', Comment = '%1 - date';
 

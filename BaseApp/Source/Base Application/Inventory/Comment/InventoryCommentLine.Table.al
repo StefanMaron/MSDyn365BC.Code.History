@@ -4,6 +4,7 @@ table 5748 "Inventory Comment Line"
 {
     Caption = 'Inventory Comment Line';
     LookupPageID = "Inventory Comment List";
+    DataClassification = CustomerContent;
 
     fields
     {

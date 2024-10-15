@@ -47,15 +47,13 @@ codeunit 131343 "Library - VAT Report"
 
     local procedure CreateVATReportConfiguration(var VATReportsConfiguration: Record "VAT Reports Configuration"; SuggestLinesCodeunitID: Integer; ContentCodeunitID: Integer; ValidateCodeunitID: Integer; SubmissionCodeunitID: Integer; ResponseHandlerCodeunitID: Integer)
     begin
-        with VATReportsConfiguration do begin
-            "VAT Report Type" := "VAT Report Type"::"VAT Return";
-            "VAT Report Version" := LibraryUtility.GenerateGUID();
-            "Suggest Lines Codeunit ID" := SuggestLinesCodeunitID;
-            "Content Codeunit ID" := ContentCodeunitID;
-            "Validate Codeunit ID" := ValidateCodeunitID;
-            "Submission Codeunit ID" := SubmissionCodeunitID;
-            "Response Handler Codeunit ID" := ResponseHandlerCodeunitID;
-            Insert();
-        end;
+        VATReportsConfiguration."VAT Report Type" := VATReportsConfiguration."VAT Report Type"::"VAT Return";
+        VATReportsConfiguration."VAT Report Version" := LibraryUtility.GenerateGUID();
+        VATReportsConfiguration."Suggest Lines Codeunit ID" := SuggestLinesCodeunitID;
+        VATReportsConfiguration."Content Codeunit ID" := ContentCodeunitID;
+        VATReportsConfiguration."Validate Codeunit ID" := ValidateCodeunitID;
+        VATReportsConfiguration."Submission Codeunit ID" := SubmissionCodeunitID;
+        VATReportsConfiguration."Response Handler Codeunit ID" := ResponseHandlerCodeunitID;
+        VATReportsConfiguration.Insert();
     end;
 }

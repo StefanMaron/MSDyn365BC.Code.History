@@ -15,10 +15,10 @@ codeunit 138401 "RS Pack Evaluation Api Setup"
     [Scope('OnPrem')]
     procedure EntityTablesAreNotEmpty()
     begin
-        VerifySalesQuoteEntityTable;
-        VerifySalesInvoiceEntityTable;
-        VerifySalesOrderEntityTable;
-        VerifyPurchaseInvoiceEntityTable;
+        VerifySalesQuoteEntityTable();
+        VerifySalesInvoiceEntityTable();
+        VerifySalesOrderEntityTable();
+        VerifyPurchaseInvoiceEntityTable();
     end;
 
     local procedure VerifySalesQuoteEntityTable()

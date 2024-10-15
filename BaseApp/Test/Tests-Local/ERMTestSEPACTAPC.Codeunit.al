@@ -153,7 +153,7 @@ codeunit 144060 "ERM Test SEPA CT APC"
         OutStr: OutStream;
     begin
         TempBlob.CreateOutStream(OutStr);
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJnlLine);
         SEPA_CT_APCExportFile.PostProcessXMLDocument(TempBlob);
     end;
 
@@ -184,7 +184,7 @@ codeunit 144060 "ERM Test SEPA CT APC"
         VendorBankAccount.Modify(true);
 
         NoSeries.FindFirst();
-        CreateBankExpSetup;
+        CreateBankExpSetup();
         BankAccount."Bank Account No." := '1234 12345678';
         BankAccount.IBAN := 'AT61 1904 3002 3457 3201';
         BankAccount."Credit Transfer Msg. Nos." := NoSeries.Code;

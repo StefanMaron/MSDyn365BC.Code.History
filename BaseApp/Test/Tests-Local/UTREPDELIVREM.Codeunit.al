@@ -15,7 +15,6 @@ codeunit 142040 "UT REP DELIVREM"
         ReminderNo: Code[20];
         ValueSpecifiedWarning: Label '%1 must be specified.';
         AllowedRangeWarning: Label '%1 is not within your allowed range of posting dates.';
-        ValueNotExist: Label 'Value not exist.';
 
     [Test]
     [HandlerFunctions('DeliveryReminderTestRequestPageHandler')]
@@ -34,7 +33,7 @@ codeunit 142040 "UT REP DELIVREM"
         REPORT.Run(REPORT::"Delivery Reminder - Test");
 
         // Verify: Verify Warning for Vendor No, Posting Date, Document Date Warning on Report Delivery Reminder - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_', StrSubstNo(ValueSpecifiedWarning, DeliveryReminderHeader.FieldCaption("Vendor No.")));
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_', StrSubstNo(ValueSpecifiedWarning, DeliveryReminderHeader.FieldCaption("Posting Date")));
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_', StrSubstNo(ValueSpecifiedWarning, DeliveryReminderHeader.FieldCaption("Document Date")));
@@ -52,7 +51,7 @@ codeunit 142040 "UT REP DELIVREM"
         // Purpose of the test is to validate Function OnAfterGetRecord for Dataset DeliveryReminderHeader - Report 5005272 - Delivery Reminder - Test.
         // Setup:  Create Delivery Reminder Header with Vendor No without creating Vendor.
         CreateDeliveryReminderHeader(DeliveryReminderHeader);
-        DeliveryReminderHeader."Vendor No." := LibraryUTUtility.GetNewCode;
+        DeliveryReminderHeader."Vendor No." := LibraryUTUtility.GetNewCode();
         DeliveryReminderHeader.Modify();
         ReminderNo := DeliveryReminderHeader."No.";  // Assign Global variable for Request Page Handler.
 
@@ -60,7 +59,7 @@ codeunit 142040 "UT REP DELIVREM"
         REPORT.Run(REPORT::"Delivery Reminder - Test");
 
         // Verify: Verify Warning for Vendor No does not exist on Report Delivery Reminder - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_',
           StrSubstNo('%1 %2 does not exist.', Vendor.TableCaption(), DeliveryReminderHeader."Vendor No."));
     end;
@@ -76,7 +75,7 @@ codeunit 142040 "UT REP DELIVREM"
     begin
         // Purpose of the test is to validate Function OnAfterGetRecord for Dataset DeliveryReminderHeader - Report 5005272 - Delivery Reminder - Test.
         // Setup:  Create Vendor, Delivery Reminder Header with Vendor No and Currency Code.
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
 
         CreateDeliveryReminderHeader(DeliveryReminderHeader);
@@ -89,7 +88,7 @@ codeunit 142040 "UT REP DELIVREM"
         REPORT.Run(REPORT::"Delivery Reminder - Test");
 
         // Verify: Verify Warning for Currency Code on Report Delivery Reminder - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_',
           StrSubstNo('%1 must be %2.', DeliveryReminderHeader.FieldCaption("Currency Code"), Vendor."Currency Code"));
     end;
@@ -119,7 +118,7 @@ codeunit 142040 "UT REP DELIVREM"
         REPORT.Run(REPORT::"Delivery Reminder - Test");
 
         // Verify: Verify Warning for Posting Date range on Report Delivery Reminder - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_',
           StrSubstNo(AllowedRangeWarning, DeliveryReminderHeader.FieldCaption("Posting Date")));
     end;
@@ -149,7 +148,7 @@ codeunit 142040 "UT REP DELIVREM"
         REPORT.Run(REPORT::"Delivery Reminder - Test");
 
         // Verify: Verify Warning for Posting Date range on Report Delivery Reminder - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_',
           StrSubstNo(AllowedRangeWarning, DeliveryReminderHeader.FieldCaption("Posting Date")));
     end;
@@ -182,7 +181,7 @@ codeunit 142040 "UT REP DELIVREM"
         REPORT.Run(REPORT::"Delivery Reminder - Test");
 
         // Verify: Verify Warning for Quantity on Report Delivery Reminder - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control97',
           StrSubstNo('%1 has to be 0.', DeliveryReminderLine.FieldCaption(Quantity)));
     end;
@@ -201,9 +200,9 @@ codeunit 142040 "UT REP DELIVREM"
         CreateDeliveryReminderHeader(DeliveryReminderHeader);
         CreateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderHeader."No.", 1);
         DeliveryReminderLine.Type := DeliveryReminderLine.Type::Item;
-        DeliveryReminderLine."Order No." := LibraryUTUtility.GetNewCode;
+        DeliveryReminderLine."Order No." := LibraryUTUtility.GetNewCode();
         DeliveryReminderLine."Order Line No." := 1;
-        DeliveryReminderLine."No." := LibraryUTUtility.GetNewCode;
+        DeliveryReminderLine."No." := LibraryUTUtility.GetNewCode();
         DeliveryReminderLine.Description := 'Description';
         DeliveryReminderLine.Modify();
         ReminderNo := DeliveryReminderHeader."No.";  // Assign Global variable for Request Page Handler.
@@ -212,7 +211,7 @@ codeunit 142040 "UT REP DELIVREM"
         REPORT.Run(REPORT::"Delivery Reminder - Test");
 
         // Verify: Verify Warning for Purchase Order on Report Delivery Reminder - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Delivery_Reminder_Header_No_', DeliveryReminderHeader."No.");
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control97', 'Delivery Remainder Line has no valid Purch. Order Line');
     end;
@@ -237,7 +236,7 @@ codeunit 142040 "UT REP DELIVREM"
 
         CreateIssuedDelivReminderLine(IssuedDelivReminderLine2, IssuedDelivReminderHeader."No.", 2);
         IssuedDelivReminderLine2.Type := IssuedDelivReminderLine.Type::Item;
-        IssuedDelivReminderLine2."No." := LibraryUTUtility.GetNewCode;
+        IssuedDelivReminderLine2."No." := LibraryUTUtility.GetNewCode();
         IssuedDelivReminderLine2.Description := 'ReminderLine2Description';
         IssuedDelivReminderLine2.Modify();
 
@@ -248,7 +247,7 @@ codeunit 142040 "UT REP DELIVREM"
         REPORT.Run(REPORT::"Issued Delivery Reminder");
 
         // Verify: Verify Issued Delivery Header and Line Information on Report Issued Delivery Reminder.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Issued_Deliv__Reminder_Header_No_', IssuedDelivReminderHeader."No.");
         LibraryReportDataset.AssertElementWithValueExists('Issued_Deliv__Reminder_Line_Description', IssuedDelivReminderLine.Description);
         LibraryReportDataset.AssertElementWithValueExists('Issued_Deliv__Reminder_Line__No__', IssuedDelivReminderLine2."No.");
@@ -288,17 +287,17 @@ codeunit 142040 "UT REP DELIVREM"
         // Purpose of the test is to validate Request page Print as True - Report 5005341 - Issue Delivery Reminder.
         // Setup: Create Delivery Reminder Header and Delivery Reminder Line.
         CreateDeliveryReminderHeader(DeliveryReminderHeader);
-        DeliveryReminderHeader."Vendor No." := LibraryUTUtility.GetNewCode;
+        DeliveryReminderHeader."Vendor No." := LibraryUTUtility.GetNewCode();
         DeliveryReminderHeader."Posting Date" := WorkDate();
         DeliveryReminderHeader."Document Date" := WorkDate();
         DeliveryReminderHeader.Modify();
         ReminderNo := DeliveryReminderHeader."No.";  // Assign Global variable for Request Page Handler.
 
         CreateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderHeader."No.", 1);
-        DeliveryReminderLine."Order No." := LibraryUTUtility.GetNewCode;
+        DeliveryReminderLine."Order No." := LibraryUTUtility.GetNewCode();
         DeliveryReminderLine."Order Line No." := 1;
         DeliveryReminderLine.Type := DeliveryReminderLine.Type::Item;
-        DeliveryReminderLine."No." := LibraryUTUtility.GetNewCode;
+        DeliveryReminderLine."No." := LibraryUTUtility.GetNewCode();
         DeliveryReminderLine.Quantity := 1;
         DeliveryReminderLine.Modify();
 
@@ -320,7 +319,7 @@ codeunit 142040 "UT REP DELIVREM"
 
     local procedure CreateIssuedDelivReminderHeader(var IssuedDelivReminderHeader: Record "Issued Deliv. Reminder Header")
     begin
-        IssuedDelivReminderHeader."No." := LibraryUTUtility.GetNewCode;
+        IssuedDelivReminderHeader."No." := LibraryUTUtility.GetNewCode();
         IssuedDelivReminderHeader.Insert();
     end;
 
@@ -333,7 +332,7 @@ codeunit 142040 "UT REP DELIVREM"
 
     local procedure CreateDeliveryReminderHeader(var DeliveryReminderHeader: Record "Delivery Reminder Header")
     begin
-        DeliveryReminderHeader."No." := LibraryUTUtility.GetNewCode;
+        DeliveryReminderHeader."No." := LibraryUTUtility.GetNewCode();
         DeliveryReminderHeader.Insert();
     end;
 
@@ -349,7 +348,7 @@ codeunit 142040 "UT REP DELIVREM"
     procedure IssuedDeliveryReminderRequestPageHandler(var IssuedDeliveryReminder: TestRequestPage "Issued Delivery Reminder")
     begin
         IssuedDeliveryReminder."Issued Deliv. Reminder Header".SetFilter("No.", ReminderNo);
-        IssuedDeliveryReminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IssuedDeliveryReminder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -357,7 +356,7 @@ codeunit 142040 "UT REP DELIVREM"
     procedure DeliveryReminderTestRequestPageHandler(var DeliveryReminderTest: TestRequestPage "Delivery Reminder - Test")
     begin
         DeliveryReminderTest."Delivery Reminder Header".SetFilter("No.", ReminderNo);
-        DeliveryReminderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DeliveryReminderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -366,7 +365,7 @@ codeunit 142040 "UT REP DELIVREM"
     begin
         IssueDeliveryReminder."Delivery Reminder Header".SetFilter("No.", ReminderNo);
         IssueDeliveryReminder.ReplacePostingDate.SetValue(true);
-        IssueDeliveryReminder.OK.Invoke;
+        IssueDeliveryReminder.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -375,7 +374,7 @@ codeunit 142040 "UT REP DELIVREM"
     begin
         IssueDeliveryReminder."Delivery Reminder Header".SetFilter("No.", ReminderNo);
         IssueDeliveryReminder.PrintDoc.SetValue(true);
-        IssueDeliveryReminder.OK.Invoke;
+        IssueDeliveryReminder.OK().Invoke();
     end;
 
     [ReportHandler]

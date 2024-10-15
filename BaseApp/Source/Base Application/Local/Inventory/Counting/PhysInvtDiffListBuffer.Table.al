@@ -7,6 +7,15 @@ namespace Microsoft.Inventory.Counting;
 table 5005363 "Phys. Invt. Diff. List Buffer"
 {
     Caption = 'Phys. Invt. Diff. List Buffer';
+    ObsoleteReason = 'Merged to W1';
+#if CLEAN24
+    ObsoleteState = Removed;
+    ObsoleteTag = '27.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '24.0';
+#endif
+    DataClassification = CustomerContent;
 
     fields
     {

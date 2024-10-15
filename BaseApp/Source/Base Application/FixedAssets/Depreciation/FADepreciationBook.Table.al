@@ -11,6 +11,7 @@ table 5612 "FA Depreciation Book"
     LookupPageID = "FA Depreciation Books";
     Permissions = TableData "FA Ledger Entry" = r,
                   TableData "Maintenance Ledger Entry" = r;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -7,6 +7,7 @@ table 333 "Column Layout Name"
     Caption = 'Column Layout Name';
     DataCaptionFields = Name, Description;
     LookupPageID = "Column Layout Names";
+    DataClassification = CustomerContent;
 
     fields
     {

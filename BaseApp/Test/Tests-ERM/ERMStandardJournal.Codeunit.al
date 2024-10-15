@@ -246,7 +246,7 @@ codeunit 134921 "ERM Standard Journal"
         // [GIVEN] General Journal Line with "Posting Date" = "D1", "Currency Code" = "C"
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNoWithDirectPosting, '', CurrencyCode);
+          LibraryERM.CreateGLAccountNoWithDirectPosting(), '', CurrencyCode);
 
         // [GIVEN] Save current General Journal as Standard Journal
         CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
@@ -277,7 +277,7 @@ codeunit 134921 "ERM Standard Journal"
 
         // [GIVEN] Create general journal batch with No. Series
         CreateGeneralJournalBatch(GenJournalBatch);
-        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode();
         GenJournalBatch.Modify();
 
         // [GIVEN] Create standard journal "STDJ"
@@ -335,7 +335,7 @@ codeunit 134921 "ERM Standard Journal"
 
         // [GIVEN] Gen. jnl. line with "External Document No." = "ED"
         CreateGeneralJournalBatch(GenJournalBatch);
-        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting, '', '');
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), '', '');
         GenJournalLine."External Document No." := LibraryUtility.GenerateGUID();
         GenJournalLine.Modify(true);
 
@@ -363,7 +363,7 @@ codeunit 134921 "ERM Standard Journal"
 
         // [GIVEN] Standard gen. jnl. line with "External Document No." = "ED"
         CreateGeneralJournalBatch(GenJournalBatch);
-        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting, '', '');
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), '', '');
         GenJournalLine."External Document No." := LibraryUtility.GenerateGUID();
         GenJournalLine.Modify(true);
         CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
@@ -490,12 +490,12 @@ codeunit 134921 "ERM Standard Journal"
         // [GIVEN] Standard Journal line 
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch,
-            GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting, '', '');
+            GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), '', '');
 
         CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
         GenJournalLine.Delete();
 
-        // [GIVEN] General Journal page opened in simplified mode with Posting Date = Workdate + 1 and empty Document No.
+        // [GIVEN] General Journal page opened in simplified mode with Posting Date = WorkDate() + 1 and empty Document No.
         GenJournalPage.OpenEdit();
         GenJournalPage.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GenJournalSimplePage.Trap();
@@ -506,14 +506,14 @@ codeunit 134921 "ERM Standard Journal"
         GenJournalSimplePage.GetStandardJournals.Invoke();
         GenJournalSimplePage.Close();
 
-        // [THEN] Gen. Journal Line is created with Posting Date = Workdate + 1
+        // [THEN] Gen. Journal Line is created with Posting Date = WorkDate() + 1
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.FindFirst();
         GenJournalLine.TestField("Posting Date", CalcDate('<+1D>', WorkDate()));
 
         GenJournalLine.Delete();
 
-        // [GIVEN] General Journal page opened in simplified mode with Posting Date = Workdate + 2 and filled Document No.
+        // [GIVEN] General Journal page opened in simplified mode with Posting Date = WorkDate() + 2 and filled Document No.
         GenJournalSimplePage.OpenEdit();
         GenJournalSimplePage.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GenJournalSimplePage."<Document No. Simple Page>".SetValue(
@@ -525,7 +525,7 @@ codeunit 134921 "ERM Standard Journal"
         GenJournalSimplePage.GetStandardJournals.Invoke();
         GenJournalSimplePage.Close();
 
-        // [THEN] Gen. Journal Line is created with Posting Date = Workdate + 2
+        // [THEN] Gen. Journal Line is created with Posting Date = WorkDate() + 2
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.FindFirst();
         GenJournalLine.TestField("Posting Date", CalcDate('<+2D>', WorkDate()));
@@ -656,11 +656,11 @@ codeunit 134921 "ERM Standard Journal"
         // Using the random number of lines.
         for Counter := 1 to 1 + LibraryRandom.RandInt(5) do begin
             CreateGeneralJournalLine(GenJournalLine, GenJournalBatch,
-              GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting, '', '');
+              GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), '', '');
             CreateGeneralJournalLine(GenJournalLine, GenJournalBatch,
-              GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, '', '');
+              GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), '', '');
             CreateGeneralJournalLine(GenJournalLine, GenJournalBatch,
-              GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, '', '');
+              GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), '', '');
         end;
     end;
 
@@ -696,7 +696,7 @@ codeunit 134921 "ERM Standard Journal"
         for i := 1 to NumberOfLines do
             CreateStandardGeneralJournalLine(
               StandardGeneralJournal, StandardGeneralJournalLine,
-              StandardGeneralJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
+              StandardGeneralJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
     end;
 
     local procedure CreateCurrencyWithTwoExchRates(var CurrencyFactor: array[2] of Decimal; var NewPostingDate: Date) CurrencyCode: Code[10]
@@ -704,7 +704,7 @@ codeunit 134921 "ERM Standard Journal"
         CurrencyFactor[1] := LibraryRandom.RandDecInRange(100, 200, 2);
         CurrencyFactor[2] := CurrencyFactor[1] + LibraryRandom.RandDecInRange(100, 200, 2);
         NewPostingDate := LibraryRandom.RandDate(LibraryRandom.RandIntInRange(10, 20));
-        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup;
+        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup();
         LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), CurrencyFactor[1], CurrencyFactor[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, NewPostingDate, CurrencyFactor[2], CurrencyFactor[2]);
     end;
@@ -850,7 +850,7 @@ codeunit 134921 "ERM Standard Journal"
             DocumentNo := "Document No.";
             repeat
                 TestField("Document No.", DocumentNo);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -864,7 +864,7 @@ codeunit 134921 "ERM Standard Journal"
             FindSet();
             repeat
                 TestField("Document No.", '');
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -886,7 +886,7 @@ codeunit 134921 "ERM Standard Journal"
     procedure StandardGeneralJournalsHandler(var StandardGeneralJournals: TestPage "Standard General Journals")
     begin
         StandardGeneralJournals.First();
-        StandardGeneralJournals.OK.Invoke();
+        StandardGeneralJournals.OK().Invoke();
     end;
 }
 

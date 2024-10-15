@@ -429,7 +429,7 @@ codeunit 132590 "Type Helper Unit Tests"
         // [SCENARIO] TypeHelper.Format() correctly converts DateTime to utc date time formatting
 
         // [GIVEN] DateTime is current date and time
-        DateTime := RoundDateTime(TypeHelper.GetCurrUTCDateTime);
+        DateTime := RoundDateTime(TypeHelper.GetCurrUTCDateTime());
 
         // [WHEN] Format DateTime with DotNet to get utc time
         FormattingResult := TypeHelper.FormatUtcDateTime(DateTime, 's', 'en-US');
@@ -511,7 +511,7 @@ codeunit 132590 "Type Helper Unit Tests"
     begin
         // [WHEN] NewLine is called
         // [THEN] A new line is returned
-        Assert.AreEqual(TypeHelper.CRLFSeparator, TypeHelper.NewLine(), 'Function did not return new line');
+        Assert.AreEqual(TypeHelper.CRLFSeparator(), TypeHelper.NewLine(), 'Function did not return new line');
     end;
 
     [Test]

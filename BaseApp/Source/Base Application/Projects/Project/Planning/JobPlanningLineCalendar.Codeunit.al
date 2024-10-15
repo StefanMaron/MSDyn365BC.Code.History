@@ -43,11 +43,11 @@ codeunit 1034 "Job Planning Line - Calendar"
         Resource: Record Resource;
 
         AdditionalResourcesTxt: Label 'Additional Resources';
-        SetPlanningLineErr: Label 'You must specify a job planning line before you can send the appointment.';
+        SetPlanningLineErr: Label 'You must specify a project planning line before you can send the appointment.';
         DateTimeFormatTxt: Label '<Year4><Month,2><Day,2>T<Hours24,2><Minutes,2><Seconds,2>', Locked = true;
         ProdIDTxt: Label '//Microsoft Corporation//Dynamics 365//EN', Locked = true;
         NoPlanningLinesMsg: Label 'There are no applicable planning lines for this action.';
-        SendToCalendarTelemetryTxt: Label 'Sending job planning line to calendar.', Locked = true;
+        SendToCalendarTelemetryTxt: Label 'Sending project planning line to calendar.', Locked = true;
 
     procedure SetPlanningLine(NewJobPlanningLine: Record "Job Planning Line")
     begin
@@ -155,25 +155,23 @@ codeunit 1034 "Job Planning Line - Calendar"
         Description := GetDescription();
 
         StringBuilder := StringBuilder.StringBuilder();
-        with StringBuilder do begin
-            AppendLine('BEGIN:VCALENDAR');
-            AppendLine('VERSION:2.0');
-            AppendLine('PRODID:-' + ProdIDTxt);
-            AppendLine('METHOD:' + Method);
-            AppendLine('BEGIN:VEVENT');
-            AppendLine('UID:' + DelChr(JobPlanningLineCalendar.UID, '<>', '{}'));
-            AppendLine('ORGANIZER:' + GetOrganizer());
-            AppendLine('LOCATION:' + Location);
-            AppendLine('DTSTART:' + GetStartDate());
-            AppendLine('DTEND:' + GetEndDate());
-            AppendLine('SUMMARY:' + Summary);
-            AppendLine('DESCRIPTION:' + Description);
-            AppendLine('X-ALT-DESC;FMTTYPE=' + GetHtmlDescription(Description));
-            AppendLine('SEQUENCE:' + Format(JobPlanningLineCalendar.Sequence));
-            AppendLine('STATUS:' + Status);
-            AppendLine('END:VEVENT');
-            AppendLine('END:VCALENDAR');
-        end;
+        StringBuilder.AppendLine('BEGIN:VCALENDAR');
+        StringBuilder.AppendLine('VERSION:2.0');
+        StringBuilder.AppendLine('PRODID:-' + ProdIDTxt);
+        StringBuilder.AppendLine('METHOD:' + Method);
+        StringBuilder.AppendLine('BEGIN:VEVENT');
+        StringBuilder.AppendLine('UID:' + DelChr(JobPlanningLineCalendar.UID, '<>', '{}'));
+        StringBuilder.AppendLine('ORGANIZER:' + GetOrganizer());
+        StringBuilder.AppendLine('LOCATION:' + Location);
+        StringBuilder.AppendLine('DTSTART:' + GetStartDate());
+        StringBuilder.AppendLine('DTEND:' + GetEndDate());
+        StringBuilder.AppendLine('SUMMARY:' + Summary);
+        StringBuilder.AppendLine('DESCRIPTION:' + Description);
+        StringBuilder.AppendLine('X-ALT-DESC;FMTTYPE=' + GetHtmlDescription(Description));
+        StringBuilder.AppendLine('SEQUENCE:' + Format(JobPlanningLineCalendar.Sequence));
+        StringBuilder.AppendLine('STATUS:' + Status);
+        StringBuilder.AppendLine('END:VEVENT');
+        StringBuilder.AppendLine('END:VCALENDAR');
 
         ICS := StringBuilder.ToString();
     end;
@@ -184,20 +182,18 @@ codeunit 1034 "Job Planning Line - Calendar"
         LocalResource: Record Resource;
     begin
         // Get all resources for the same job task.
-        with LocalJobPlanningLine do begin
-            SetRange("Job No.", JobPlanningLine."Job No.");
-            SetRange("Job Task No.", JobPlanningLine."Job Task No.");
-            SetRange(Type, Type::Resource);
-            SetFilter("Line Type", '%1|%2', "Line Type"::Budget, "Line Type"::"Both Budget and Billable");
-            SetFilter("No.", '<>%1&<>''''', Resource."No.");
-            if FindSet() then begin
-                AdditionalResources += '\n\n' + AdditionalResourcesTxt + ':';
-                repeat
-                    LocalResource.Get("No.");
-                    AdditionalResources += StrSubstNo('\n    (%1) %2 - %3',
-                        "Line Type", LocalResource.Name, Description);
-                until Next() = 0;
-            end;
+        LocalJobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        LocalJobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        LocalJobPlanningLine.SetRange(Type, LocalJobPlanningLine.Type::Resource);
+        LocalJobPlanningLine.SetFilter("Line Type", '%1|%2', LocalJobPlanningLine."Line Type"::Budget, LocalJobPlanningLine."Line Type"::"Both Budget and Billable");
+        LocalJobPlanningLine.SetFilter("No.", '<>%1&<>''''', Resource."No.");
+        if LocalJobPlanningLine.FindSet() then begin
+            AdditionalResources += '\n\n' + AdditionalResourcesTxt + ':';
+            repeat
+                LocalResource.Get(LocalJobPlanningLine."No.");
+                AdditionalResources +=
+                    StrSubstNo('\n    (%1) %2 - %3', LocalJobPlanningLine."Line Type", LocalResource.Name, LocalJobPlanningLine.Description);
+            until LocalJobPlanningLine.Next() = 0;
         end;
     end;
 

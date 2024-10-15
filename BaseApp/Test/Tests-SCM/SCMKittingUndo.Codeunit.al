@@ -69,7 +69,7 @@ codeunit 137097 "SCM Kitting - Undo"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
-        GlobalSetup;
+        GlobalSetup();
 
         isInitialized := true;
         Commit();
@@ -80,9 +80,9 @@ codeunit 137097 "SCM Kitting - Undo"
     var
         WarehouseEmployee: Record "Warehouse Employee";
     begin
-        SetupAssembly;
-        SetupItemJournal;
-        SetupManufacturingSetup;
+        SetupAssembly();
+        SetupItemJournal();
+        SetupManufacturingSetup();
         WarehouseEmployee.Reset();
         WarehouseEmployee.DeleteAll(true);
         LibraryAssembly.SetupPostingToGL(GenProdPostingGr, AsmInvtPostingGr, CompInvtPostingGr, '');
@@ -102,14 +102,14 @@ codeunit 137097 "SCM Kitting - Undo"
         ManufacturingSetupRec: Record "Manufacturing Setup";
     begin
         InventorySetup.Get();
-        InventorySetup.Validate("Transfer Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Transfer Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         InventorySetup.Modify(true);
 
         AssemblySetup.Get();
-        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        AssemblySetup.Validate("Assembly Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        AssemblySetup.Validate("Blanket Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblySetup.Validate("Assembly Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblySetup.Validate("Blanket Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         AssemblySetup.Validate("Default Location for Orders", '');
         AssemblySetup.Validate("Copy Component Dimensions from", AssemblySetup."Copy Component Dimensions from"::"Order Header");
         AssemblySetup.Validate("Copy Comments when Posting", true);
@@ -117,25 +117,25 @@ codeunit 137097 "SCM Kitting - Undo"
         AssemblySetup.Modify(true);
 
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Validate("Stockout Warning", false);
         SalesSetup.Validate("Credit Warnings", SalesSetup."Credit Warnings"::"No Warning");
         SalesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
 
         ManufacturingSetupRec.Get();
-        ManufacturingSetupRec.Validate("Planned Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        ManufacturingSetupRec.Validate("Firm Planned Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        ManufacturingSetupRec.Validate("Released Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        ManufacturingSetupRec.Validate("Planned Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        ManufacturingSetupRec.Validate("Firm Planned Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        ManufacturingSetupRec.Validate("Released Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         ManufacturingSetupRec.Modify(true);
     end;
 
@@ -145,13 +145,13 @@ codeunit 137097 "SCM Kitting - Undo"
         Clear(ItemJournalTemplate);
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
         ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -663,7 +663,7 @@ codeunit 137097 "SCM Kitting - Undo"
             repeat
                 Validate("Qty. to Handle", Qty);
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
 
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
@@ -732,9 +732,9 @@ codeunit 137097 "SCM Kitting - Undo"
                     Reply := true;
                 end;
             else begin
-                    Assert.Fail(PadStr('Actual' + Format(ConfirmUndoCount) + ':' + Question + ';Expected:', 1024));
-                    Reply := false;
-                end;
+                Assert.Fail(PadStr('Actual' + Format(ConfirmUndoCount) + ':' + Question + ';Expected:', 1024));
+                Reply := false;
+            end;
         end;
     end;
 
@@ -2026,7 +2026,7 @@ codeunit 137097 "SCM Kitting - Undo"
         LibraryItemTracking.CreateAssemblyLineItemTracking(ReservationEntry, AssemblyLine, '', LotNo, AssemblyLine.Quantity);
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
-        // [GIVEN] Change expiration date for remaining inventory of component "C" from "WorkDate" to "WorkDate + 1 day" using reclassification journal.
+        // [GIVEN] Change expiration date for remaining inventory of component "C" from "WorkDate" to "WorkDate() + 1 day" using reclassification journal.
         Clear(ItemJournalLine);
         CreateItemReclassificationJournalLine(ItemJournalLine, CompItem."No.", InventoryQty - AssemblyQty);
         LibraryItemTracking.CreateItemReclassJnLineItemTracking(
@@ -2040,7 +2040,7 @@ codeunit 137097 "SCM Kitting - Undo"
         FindPostedAssemblyHeaderNotReversed(PostedAssemblyHeader, AssemblyHeader."No.");
         LibraryAssembly.UndoPostedAssembly(PostedAssemblyHeader, true, '');
 
-        // [THEN] Expiration date on item entry for undone component consumption = "WorkDate + 1 day".
+        // [THEN] Expiration date on item entry for undone component consumption = "WorkDate() + 1 day".
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Assembly Consumption");
         ItemLedgerEntry.SetRange(Positive, true);
         ItemLedgerEntry.SetRange("Item No.", CompItem."No.");

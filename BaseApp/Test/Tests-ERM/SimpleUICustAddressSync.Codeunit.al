@@ -46,14 +46,14 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Pre-verify.
         Customer.Find();
-        Assert.IsTrue(Customer.HasAddress, StrSubstNo(HasAddressErr, Customer.TableCaption()));
+        Assert.IsTrue(Customer.HasAddress(), StrSubstNo(HasAddressErr, Customer.TableCaption()));
 
         // Exercise.
         SalesHeader.Modify(true);
 
         // Verify.
         Customer.Find();
-        Assert.IsTrue(Customer.HasAddress, StrSubstNo(HasAddressErr, Customer.TableCaption()));
+        Assert.IsTrue(Customer.HasAddress(), StrSubstNo(HasAddressErr, Customer.TableCaption()));
     end;
 
     [Test]
@@ -80,14 +80,14 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Pre-verify.
         Customer.Find();
-        Assert.IsTrue(Customer.HasAddress, StrSubstNo(HasAddressErr, Customer.TableCaption()));
+        Assert.IsTrue(Customer.HasAddress(), StrSubstNo(HasAddressErr, Customer.TableCaption()));
 
         // Exercise.
         SalesHeader.Modify(true);
 
         // Verify.
         Customer.Find();
-        Assert.IsTrue(Customer.HasAddress, StrSubstNo(HasAddressErr, Customer.TableCaption()));
+        Assert.IsTrue(Customer.HasAddress(), StrSubstNo(HasAddressErr, Customer.TableCaption()));
     end;
 
     [Test]
@@ -123,12 +123,12 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Verify
         FindSellToCustomerSalesInvoice(SalesHeader, ReplacementCustomer."No.");
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasBillToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasBillToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -162,12 +162,12 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Verify
         FindBillToCustomerSalesInvoice(SalesHeader, ReplacementCustomer."No.");
-        Assert.IsTrue(SalesHeader.HasSellToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasSellToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -203,12 +203,12 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Verify
         FindSellToCustomerSalesInvoice(SalesHeader, ReplacementCustomer."No.");
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -251,7 +251,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         VerifyBillToAddressSyncedFromCustomer(SalesHeader, ReplacementCustomer);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -269,7 +269,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         Customer.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Customer.HasAddress, StrSubstNo(HasAddressErr, Customer.TableCaption()));
+        Assert.IsTrue(Customer.HasAddress(), StrSubstNo(HasAddressErr, Customer.TableCaption()));
     end;
 
     [Test]
@@ -287,7 +287,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         Customer.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Customer.HasAddress, StrSubstNo(HasAddressErr, Customer.TableCaption()));
+        Assert.IsTrue(Customer.HasAddress(), StrSubstNo(HasAddressErr, Customer.TableCaption()));
     end;
 
     [Test]
@@ -305,7 +305,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         Customer.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Customer.HasAddress, StrSubstNo(HasAddressErr, Customer.TableCaption()));
+        Assert.IsTrue(Customer.HasAddress(), StrSubstNo(HasAddressErr, Customer.TableCaption()));
     end;
 
     [Test]
@@ -323,7 +323,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         Customer.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Customer.HasAddress, StrSubstNo(HasAddressErr, Customer.TableCaption()));
+        Assert.IsTrue(Customer.HasAddress(), StrSubstNo(HasAddressErr, Customer.TableCaption()));
     end;
 
     [Test]
@@ -341,7 +341,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         Customer.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Customer.HasAddress, StrSubstNo(HasAddressErr, Customer.TableCaption()));
+        Assert.IsTrue(Customer.HasAddress(), StrSubstNo(HasAddressErr, Customer.TableCaption()));
     end;
 
     [Test]
@@ -359,7 +359,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         Customer.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Customer.HasAddress, StrSubstNo(HasAddressErr, Customer.TableCaption()));
+        Assert.IsTrue(Customer.HasAddress(), StrSubstNo(HasAddressErr, Customer.TableCaption()));
     end;
 
     [Test]
@@ -377,7 +377,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         Customer.Modify(true);
 
         // Verify.
-        Assert.IsTrue(Customer.HasAddress, StrSubstNo(HasAddressErr, Customer.TableCaption()));
+        Assert.IsTrue(Customer.HasAddress(), StrSubstNo(HasAddressErr, Customer.TableCaption()));
     end;
 
     [Test]
@@ -391,16 +391,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Sell-to Address" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Sell-to Address")),
             1, MaxStrLen(SalesHeader."Sell-to Address"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(SalesHeader.HasSellToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasSellToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -414,16 +414,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Sell-to Address 2" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Sell-to Address 2")),
             1, MaxStrLen(SalesHeader."Sell-to Address 2"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(SalesHeader.HasSellToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasSellToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -437,16 +437,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Sell-to City" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Sell-to City")),
             1, MaxStrLen(SalesHeader."Sell-to City"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(SalesHeader.HasSellToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasSellToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -460,16 +460,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Sell-to Country/Region Code" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Sell-to Country/Region Code")),
             1, MaxStrLen(SalesHeader."Sell-to Country/Region Code"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(SalesHeader.HasSellToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasSellToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -483,16 +483,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Sell-to County" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Sell-to County")),
             1, MaxStrLen(SalesHeader."Sell-to County"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(SalesHeader.HasSellToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasSellToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -506,16 +506,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Sell-to Post Code" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Sell-to Post Code")),
             1, MaxStrLen(SalesHeader."Sell-to Post Code"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(SalesHeader.HasSellToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasSellToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -529,16 +529,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Sell-to Contact" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Sell-to Contact")),
             1, MaxStrLen(SalesHeader."Sell-to Contact"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsTrue(SalesHeader.HasSellToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasSellToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -552,16 +552,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Ship-to Address" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Ship-to Address")),
             1, MaxStrLen(SalesHeader."Ship-to Address"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasShipToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -575,16 +575,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Ship-to Address 2" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Ship-to Address 2")),
             1, MaxStrLen(SalesHeader."Ship-to Address 2"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasShipToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -598,16 +598,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Ship-to City" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Ship-to City")),
             1, MaxStrLen(SalesHeader."Ship-to City"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasShipToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -621,16 +621,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Ship-to Country/Region Code" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Ship-to Country/Region Code")),
             1, MaxStrLen(SalesHeader."Ship-to Country/Region Code"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasShipToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -644,16 +644,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Ship-to County" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Ship-to County")),
             1, MaxStrLen(SalesHeader."Ship-to County"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasShipToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -667,16 +667,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Ship-to Post Code" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Ship-to Post Code")),
             1, MaxStrLen(SalesHeader."Ship-to Post Code"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasShipToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -690,16 +690,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Ship-to Contact" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Ship-to Contact")),
             1, MaxStrLen(SalesHeader."Ship-to Contact"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasShipToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasBillToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasShipToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasBillToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -713,16 +713,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Bill-to Address" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Bill-to Address")),
             1, MaxStrLen(SalesHeader."Bill-to Address"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasBillToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasBillToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -736,16 +736,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Bill-to Address 2" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Bill-to Address 2")),
             1, MaxStrLen(SalesHeader."Bill-to Address 2"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasBillToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasBillToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -759,16 +759,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Bill-to City" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Bill-to City")),
             1, MaxStrLen(SalesHeader."Bill-to City"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasBillToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasBillToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -782,16 +782,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Bill-to Country/Region Code" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Bill-to Country/Region Code")),
             1, MaxStrLen(SalesHeader."Bill-to Country/Region Code"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasBillToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasBillToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -805,16 +805,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Bill-to County" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Bill-to County")),
             1, MaxStrLen(SalesHeader."Bill-to County"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasBillToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasBillToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -828,16 +828,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Bill-to Post Code" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Bill-to Post Code")),
             1, MaxStrLen(SalesHeader."Bill-to Post Code"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasBillToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasBillToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -851,16 +851,16 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '', 1, '', 0D);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '', 1, '', 0D);
         SalesHeader."Bill-to Contact" :=
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(SalesHeader."Bill-to Contact")),
             1, MaxStrLen(SalesHeader."Bill-to Contact"));
         SalesHeader.Modify(true);
 
         // Verify.
-        Assert.IsFalse(SalesHeader.HasSellToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsFalse(SalesHeader.HasShipToAddress, StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
-        Assert.IsTrue(SalesHeader.HasBillToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasSellToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsFalse(SalesHeader.HasShipToAddress(), StrSubstNo(DoesNotHaveAddressErr, SalesHeader.TableCaption()));
+        Assert.IsTrue(SalesHeader.HasBillToAddress(), StrSubstNo(HasAddressErr, SalesHeader.TableCaption()));
     end;
 
     [Test]
@@ -947,13 +947,13 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Simple UI: Cust. Address Sync");
         LibraryVariableStorage.Clear();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Simple UI: Cust. Address Sync");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryApplicationArea.EnableFoundationSetup();
@@ -1015,11 +1015,11 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesInvoice.OpenNew();
         SalesInvoice."Posting Date".SetValue(WorkDate());
         SalesInvoice."Sell-to Post Code".SetValue(SellToPostCode.Code);
-        SalesInvoice."Sell-to Address".SetValue(GenerateSellToAddress);
+        SalesInvoice."Sell-to Address".SetValue(GenerateSellToAddress());
         SalesInvoice."Bill-to Post Code".SetValue(BillToPostCode.Code);
-        SalesInvoice."Bill-to Address".SetValue(GenerateBillToAddress);
+        SalesInvoice."Bill-to Address".SetValue(GenerateBillToAddress());
         SalesInvoice."Sell-to Customer Name".SetValue(SellToCustomerName);
-        SalesInvoice.OK.Invoke;
+        SalesInvoice.OK().Invoke();
     end;
 
     local procedure CreateCustomerWithAddress(var Customer: Record Customer)
@@ -1029,8 +1029,8 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         LibraryERM.CreatePostCode(PostCode);
 
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate(Address, GenerateSellToAddress);
-        Customer.Validate("Address 2", CopyStr(GenerateSellToAddress, 1, MaxStrLen(Customer."Address 2")));
+        Customer.Validate(Address, GenerateSellToAddress());
+        Customer.Validate("Address 2", CopyStr(GenerateSellToAddress(), 1, MaxStrLen(Customer."Address 2")));
         Customer.Validate("Post Code", PostCode.Code);
         Customer.Modify(true);
     end;
@@ -1062,10 +1062,10 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
     begin
         FindSellToCustomerSalesInvoice(SalesHeader, OriginalCustomerNo);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice."Sell-to Customer Name".SetValue(ReplacementCustomerName);
-        SalesInvoice.OK.Invoke;
+        SalesInvoice.OK().Invoke();
     end;
 
     local procedure ReplaceSalesInvoiceBillToCustomer(OriginalCustomerNo: Code[20]; ReplacementCustomerName: Text[100])
@@ -1075,10 +1075,10 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
     begin
         FindBillToCustomerSalesInvoice(SalesHeader, OriginalCustomerNo);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice."Bill-to Name".SetValue(ReplacementCustomerName);
-        SalesInvoice.OK.Invoke;
+        SalesInvoice.OK().Invoke();
     end;
 
     local procedure VerifySellToAddressSyncedFromCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
@@ -1132,8 +1132,8 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
     procedure ConfirmHandlerWithMessageValidation(Question: Text[1024]; var Reply: Boolean)
     begin
         // Due to a platform bug in ALConfirm, the placehoders in a CONFIRM question do not get replaced.
-        // Assert.ExpectedMessage(LibraryVariableStorage.DequeueText,Question);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        // Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(),Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ModalPageHandler]

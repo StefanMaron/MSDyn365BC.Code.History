@@ -92,7 +92,7 @@ report 5881 "Make Phys. Invt. Recording"
     begin
         IsHandled := false;
         OnBeforePostReport(PhysInvtRecordHeader, HeaderCount, IsHandled);
-        If not IsHandled then
+        if not IsHandled then
             case HeaderCount of
                 0:
                     Message(NewOrderNotCreatedMsg);
@@ -129,63 +129,57 @@ report 5881 "Make Phys. Invt. Recording"
     var
         PhysInvtRecordLine2: Record "Phys. Invt. Record Line";
     begin
-        with PhysInvtOrderLine do begin
-            if EmptyLine() then
+        if PhysInvtOrderLine.EmptyLine() then
+            exit(false);
+        PhysInvtOrderLine.TestField(PhysInvtOrderLine."Item No.");
+        if OnlyLinesNotInRecordings then begin
+            PhysInvtRecordLine2.SetCurrentKey(
+              "Order No.", "Item No.", "Variant Code", "Location Code", "Bin Code");
+            PhysInvtRecordLine2.SetRange("Order No.", PhysInvtOrderLine."Document No.");
+            PhysInvtRecordLine2.SetRange("Item No.", PhysInvtOrderLine."Item No.");
+            PhysInvtRecordLine2.SetRange("Variant Code", PhysInvtOrderLine."Variant Code");
+            PhysInvtRecordLine2.SetRange("Location Code", PhysInvtOrderLine."Location Code");
+            PhysInvtRecordLine2.SetRange("Bin Code", PhysInvtOrderLine."Bin Code");
+            OnCheckOrderLineOnAfterSetFilters(PhysInvtRecordLine2, PhysInvtOrderLine);
+            if PhysInvtRecordLine2.FindFirst() then
                 exit(false);
-            TestField("Item No.");
-            if OnlyLinesNotInRecordings then begin
-                PhysInvtRecordLine2.SetCurrentKey(
-                  "Order No.", "Item No.", "Variant Code", "Location Code", "Bin Code");
-                PhysInvtRecordLine2.SetRange("Order No.", "Document No.");
-                PhysInvtRecordLine2.SetRange("Item No.", "Item No.");
-                PhysInvtRecordLine2.SetRange("Variant Code", "Variant Code");
-                PhysInvtRecordLine2.SetRange("Location Code", "Location Code");
-                PhysInvtRecordLine2.SetRange("Bin Code", "Bin Code");
-                OnCheckOrderLineOnAfterSetFilters(PhysInvtRecordLine2, PhysInvtOrderLine);
-                if PhysInvtRecordLine2.FindFirst() then
-                    exit(false);
-            end;
         end;
         exit(true);
     end;
 
     procedure InsertRecordingHeader(PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
-        with PhysInvtRecordHeader do begin
-            Init();
-            "Order No." := PhysInvtOrderHeader."No.";
-            "Recording No." := 0;
-            "Person Responsible" := PhysInvtOrderHeader."Person Responsible";
-            "Location Code" := PhysInvtOrderHeader."Location Code";
-            "Bin Code" := PhysInvtOrderHeader."Bin Code";
-            "Allow Recording Without Order" := AllowRecWithoutOrder;
-            OnInsertRecordingHeaderOnBeforeInsert(PhysInvtRecordHeader, PhysInvtOrderHeader);
-            Insert(true);
-        end;
+        PhysInvtRecordHeader.Init();
+        PhysInvtRecordHeader."Order No." := PhysInvtOrderHeader."No.";
+        PhysInvtRecordHeader."Recording No." := 0;
+        PhysInvtRecordHeader."Person Responsible" := PhysInvtOrderHeader."Person Responsible";
+        PhysInvtRecordHeader."Location Code" := PhysInvtOrderHeader."Location Code";
+        PhysInvtRecordHeader."Bin Code" := PhysInvtOrderHeader."Bin Code";
+        PhysInvtRecordHeader."Allow Recording Without Order" := AllowRecWithoutOrder;
+        OnInsertRecordingHeaderOnBeforeInsert(PhysInvtRecordHeader, PhysInvtOrderHeader);
+        PhysInvtRecordHeader.Insert(true);
     end;
 
     procedure InsertRecordingLine(PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
-        with PhysInvtRecordLine do begin
-            Init();
-            "Order No." := PhysInvtRecordHeader."Order No.";
-            "Recording No." := PhysInvtRecordHeader."Recording No.";
-            "Line No." := NextLineNo;
-            Validate("Item No.", PhysInvtOrderLine."Item No.");
-            Validate("Variant Code", PhysInvtOrderLine."Variant Code");
-            Validate("Location Code", PhysInvtOrderLine."Location Code");
-            Validate("Bin Code", PhysInvtOrderLine."Bin Code");
-            Description := PhysInvtOrderLine.Description;
-            "Description 2" := PhysInvtOrderLine."Description 2";
-            "Use Item Tracking" := PhysInvtOrderLine."Use Item Tracking";
-            "Shelf No." := PhysInvtOrderLine."Shelf No.";
-            Validate("Unit of Measure Code", PhysInvtOrderLine."Base Unit of Measure Code");
-            Recorded := false;
-            OnBeforePhysInvtRecordLineInsert(PhysInvtRecordLine, PhysInvtOrderLine);
-            Insert();
-            OnAfterPhysInvtRecordLineInsert(PhysInvtRecordLine, PhysInvtOrderLine);
-            NextLineNo := "Line No." + 10000;
-        end;
+        PhysInvtRecordLine.Init();
+        PhysInvtRecordLine."Order No." := PhysInvtRecordHeader."Order No.";
+        PhysInvtRecordLine."Recording No." := PhysInvtRecordHeader."Recording No.";
+        PhysInvtRecordLine."Line No." := NextLineNo;
+        PhysInvtRecordLine.Validate(PhysInvtRecordLine."Item No.", PhysInvtOrderLine."Item No.");
+        PhysInvtRecordLine.Validate(PhysInvtRecordLine."Variant Code", PhysInvtOrderLine."Variant Code");
+        PhysInvtRecordLine.Validate(PhysInvtRecordLine."Location Code", PhysInvtOrderLine."Location Code");
+        PhysInvtRecordLine.Validate(PhysInvtRecordLine."Bin Code", PhysInvtOrderLine."Bin Code");
+        PhysInvtRecordLine.Description := PhysInvtOrderLine.Description;
+        PhysInvtRecordLine."Description 2" := PhysInvtOrderLine."Description 2";
+        PhysInvtRecordLine."Use Item Tracking" := PhysInvtOrderLine."Use Item Tracking";
+        PhysInvtRecordLine."Shelf No." := PhysInvtOrderLine."Shelf No.";
+        PhysInvtRecordLine.Validate(PhysInvtRecordLine."Unit of Measure Code", PhysInvtOrderLine."Base Unit of Measure Code");
+        PhysInvtRecordLine.Recorded := false;
+        OnBeforePhysInvtRecordLineInsert(PhysInvtRecordLine, PhysInvtOrderLine);
+        PhysInvtRecordLine.Insert();
+        OnAfterPhysInvtRecordLineInsert(PhysInvtRecordLine, PhysInvtOrderLine);
+        NextLineNo := PhysInvtRecordLine."Line No." + 10000;
     end;
 
     [IntegrationEvent(false, false)]

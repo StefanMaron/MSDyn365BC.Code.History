@@ -45,7 +45,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.Close();
 
         // [THEN] The Fixed Asset Can be read again
-        FixedAssetCard.OpenView;
+        FixedAssetCard.OpenView();
         FixedAssetCard.Description.AssertEquals(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
         FixedAssetCard.FAPostingGroup.AssertEquals(FAPostingGroup.Code); // FA Posting Group of FA Depreciation Book
@@ -146,7 +146,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
         FixedAssetCard.FAPostingGroup.SetValue(FAPostingGroup2.Code);
-        FixedAssetCard.Previous;
+        FixedAssetCard.Previous();
 
         // [THEN] Fixed asset is saved as expected
         FixedAssetCard.FAPostingGroup.AssertEquals(FAPostingGroup.Code);
@@ -177,17 +177,17 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.OpenNew();
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
-        FixedAssetCard.AddMoreDeprBooks.DrillDown;
+        FixedAssetCard.AddMoreDeprBooks.DrillDown();
         FASetup.Get();
         FixedAssetCard.DepreciationBook."Depreciation Book Code".AssertEquals(FASetup."Default Depr. Book");
         FixedAssetCard.DepreciationBook."FA Posting Group".AssertEquals(FAPostingGroup.Code);
-        FixedAssetCard.DepreciationBook.New;
+        FixedAssetCard.DepreciationBook.New();
         FixedAssetCard.DepreciationBook."Depreciation Book Code".SetValue(DepreciationBook.Code);
         FixedAssetCard.DepreciationBook."FA Posting Group".SetValue(FAPostingGroup.Code);
         FixedAssetCard.Close();
 
         // [THEN] both books can be viewd in the card
-        FixedAssetCard.OpenView;
+        FixedAssetCard.OpenView();
         FixedAssetCard.DepreciationBook.GotoKey(FixedAssetCard."No.".Value, FASetup."Default Depr. Book");
         FixedAssetCard.DepreciationBook."FA Posting Group".AssertEquals(FAPostingGroup.Code);
         FixedAssetCard.DepreciationBook.GotoKey(FixedAssetCard."No.".Value, DepreciationBook.Code);
@@ -213,13 +213,13 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.Description.SetValue(Description);
 
         // [THEN] AddMoreDeprBooks is not visible until at least one book is created
-        Assert.IsFalse(FixedAssetCard.AddMoreDeprBooks.Visible, 'AddMoreDeprBooks has to be invisible.');
+        Assert.IsFalse(FixedAssetCard.AddMoreDeprBooks.Visible(), 'AddMoreDeprBooks has to be invisible.');
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
-        Assert.IsTrue(FixedAssetCard.AddMoreDeprBooks.Visible, 'AddMoreDeprBooks has to be visible');
+        Assert.IsTrue(FixedAssetCard.AddMoreDeprBooks.Visible(), 'AddMoreDeprBooks has to be visible');
         FixedAssetCard.Close();
 
-        FixedAssetCard.OpenView;
-        Assert.IsTrue(FixedAssetCard.AddMoreDeprBooks.Visible, 'AddMoreDeprBooks has to be visible');
+        FixedAssetCard.OpenView();
+        Assert.IsTrue(FixedAssetCard.AddMoreDeprBooks.Visible(), 'AddMoreDeprBooks has to be visible');
         FixedAssetCard.Close();
     end;
 
@@ -251,7 +251,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         // Validation handler in FASubclassValidationHandler
         // [WHEN] SubClass lookup is invoked
         // [THEN] All but Subclass2 can be found in the lookup
-        FixedAssetCard."FA Subclass Code".Lookup;
+        FixedAssetCard."FA Subclass Code".Lookup();
         FixedAssetCard.Close();
     end;
 
@@ -287,10 +287,10 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.BookValue.AssertEquals(0);
 
         // [WHEN] Drill Down on "Book Value"
-        FALedgerEntriesList.Trap;
-        FixedAssetCard.BookValue.DrillDown;
+        FALedgerEntriesList.Trap();
+        FixedAssetCard.BookValue.DrillDown();
         // [THEN] Page "FA Ledger Entries" showing 1 entries, where total "Amount" is equal to "A"
-        FALedgerEntriesList.First;
+        FALedgerEntriesList.First();
         FALedgerEntriesList.Amount.AssertEquals(BookValue);
         FALedgerEntriesList.Close();
         FixedAssetCard.Close();
@@ -310,10 +310,10 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryPermissions.CreateWindowsUserSecurityID(UserId);
 
         // [WHEN] My Notifications Page is opened
-        MyNotificationsPage.OpenView;
+        MyNotificationsPage.OpenView();
 
         // [THEN] A notification entry is added to MyNotification for the current user
-        MyNotifications.Get(UserId, FixedAsset.GetNotificationID);
+        MyNotifications.Get(UserId, FixedAsset.GetNotificationID());
     end;
 
     [Test]
@@ -335,11 +335,11 @@ codeunit 134456 "ERM Fixed Asset Card"
 
         // [THEN] Picture Factbox is existing on a Fixed Asset Card page.
         Assert.IsTrue(
-          FixedAssetCard.FixedAssetPicture.ImportPicture.Visible,
+          FixedAssetCard.FixedAssetPicture.ImportPicture.Visible(),
           'Picture Factbox with Import Picture button is expected');
 
         Assert.IsTrue(
-          FixedAssetCard.FixedAssetPicture.Image.Visible,
+          FixedAssetCard.FixedAssetPicture.Image.Visible(),
           'Picture Factbox with image area is expected');
     end;
 
@@ -365,11 +365,11 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
 
         // [WHEN] Open FA Depreciation Books Subform
-        FixedAssetCard.AddMoreDeprBooks.DrillDown;
+        FixedAssetCard.AddMoreDeprBooks.DrillDown();
 
         // [THEN] "Declining-Balance %" is visible and editable
-        Assert.IsTrue(FixedAssetCard.DepreciationBook."Declining-Balance %".Visible, 'Declining-Balance % has to be visible');
-        Assert.IsTrue(FixedAssetCard.DepreciationBook."Declining-Balance %".Editable, 'Declining-Balance % has to be editable');
+        Assert.IsTrue(FixedAssetCard.DepreciationBook."Declining-Balance %".Visible(), 'Declining-Balance % has to be visible');
+        Assert.IsTrue(FixedAssetCard.DepreciationBook."Declining-Balance %".Editable(), 'Declining-Balance % has to be editable');
 
         FixedAssetCard.Close();
     end;
@@ -412,10 +412,10 @@ codeunit 134456 "ERM Fixed Asset Card"
         ValidateBookValueSimple(FixedAssetCard, FASetup."Default Depr. Book", BookValue);
 
         // [WHEN] Drill Down on "Book Value"
-        FALedgerEntriesList.Trap;
-        FixedAssetCard.BookValue.DrillDown;
+        FALedgerEntriesList.Trap();
+        FixedAssetCard.BookValue.DrillDown();
         // [THEN] Page "FA Ledger Entries" showing entry, where "Amount" is 500
-        FALedgerEntriesList.First;
+        FALedgerEntriesList.First();
         FALedgerEntriesList.Amount.AssertEquals(BookValue);
         FALedgerEntriesList.Close();
         FixedAssetCard.Close();
@@ -495,7 +495,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
 
         // [WHEN] FA Depreciation Books Subform is opened
-        FixedAssetCard.AddMoreDeprBooks.DrillDown;
+        FixedAssetCard.AddMoreDeprBooks.DrillDown();
 
         // [THEN] Book Value of the Fixed Asset equals 500
         ValidateBookValueMultibook(FixedAssetCard, FASetup."Default Depr. Book", BookValue);
@@ -520,7 +520,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [SCENARIO 283323] User is able to setup Depreciation Table Code on the FA Card page
 
         // [GIVEN] Activate application area #FixedAsset
-        LibraryApplicationArea.EnableFixedAssetsSetup;
+        LibraryApplicationArea.EnableFixedAssetsSetup();
 
         // [GIVEN] FA Setup with Fixed Asset
         FixedAsset.DeleteAll();
@@ -539,7 +539,7 @@ codeunit 134456 "ERM Fixed Asset Card"
 
         // [WHEN] Depreciation Table Code control is being set to "DTC"
         FixedAssetCard.DepreciationTableCode.SetValue(DepreciationTableHeader.Code);
-        FixedAssetCard.OK.Invoke();
+        FixedAssetCard.OK().Invoke();
 
         // [THEN] FADepreciationBook."Depreciation Table Code" = "DTC"
         FADepreciationBook.Find();
@@ -562,7 +562,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [SCENARIO 283323] User is able to setup Use Half-Year Convention on the FA Card page
 
         // [GIVEN] Activate application area #FixedAsset
-        LibraryApplicationArea.EnableFixedAssetsSetup;
+        LibraryApplicationArea.EnableFixedAssetsSetup();
 
         // [GIVEN] FA Setup with Fixed Asset
         FixedAsset.DeleteAll();
@@ -576,7 +576,7 @@ codeunit 134456 "ERM Fixed Asset Card"
 
         // [WHEN] Use Half-Year Convention control is being set to TRUE
         FixedAssetCard.UseHalfYearConvention.SetValue(true);
-        FixedAssetCard.OK.Invoke();
+        FixedAssetCard.OK().Invoke();
 
         // [THEN] FADepreciationBook."Use Half-Year Convention" = TRUE
         FADepreciationBook.Find();
@@ -613,12 +613,12 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [WHEN] Fixed Asset Card is loaded and Drill Down on "Book Value"
         FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
-        FALedgerEntriesList.Trap;
-        FixedAssetCard.BookValue.DrillDown;
+        FALedgerEntriesList.Trap();
+        FixedAssetCard.BookValue.DrillDown();
 
         // [THEN] Page "FA Ledger Entries" has 3 lines.
         // [THEN] First is acquisition Line and there are two more
-        FALedgerEntriesList.First;
+        FALedgerEntriesList.First();
         Assert.AreEqual(FALedgerEntriesList.Amount.Value, Format(BookValue), 'FA doc.');
         Assert.AreEqual(
           Format(FALedgerEntry."FA Posting Type"::"Acquisition Cost"),
@@ -630,9 +630,9 @@ codeunit 134456 "ERM Fixed Asset Card"
           FALedgerEntry.FieldCaption("FA Posting Category"));
 
         // [THEN] There are 3 records total shown
-        Assert.IsTrue(FALedgerEntriesList.Next, 'There must be a second record shown');
-        Assert.IsTrue(FALedgerEntriesList.Next, 'There must be a third record shown');
-        Assert.IsFalse(FALedgerEntriesList.Next, 'No more records must be shown');
+        Assert.IsTrue(FALedgerEntriesList.Next(), 'There must be a second record shown');
+        Assert.IsTrue(FALedgerEntriesList.Next(), 'There must be a third record shown');
+        Assert.IsFalse(FALedgerEntriesList.Next(), 'No more records must be shown');
 
         FALedgerEntriesList.Close();
         FixedAssetCard.Close();
@@ -715,7 +715,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
-        FixedAssetCard.OK.Invoke();
+        FixedAssetCard.OK().Invoke();
 
         // [THEN] The FA Subclass Code was changed, FADepreciationBook."FA Posting Group" is changed
         FixedAsset.Find();
@@ -758,7 +758,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
-        FixedAssetCard.OK.Invoke();
+        FixedAssetCard.OK().Invoke();
 
         // [THEN] The FA Subclass Code was changed, FADepreciationBook."FA Posting Group" is changed
         FixedAsset.Find();
@@ -797,16 +797,16 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [GIVEN] Page FixedAssetStatistics is opened.
         FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
-        FixedAssetStatistics.Trap;
-        FixedAssetCard.Statistics.Invoke;
-        FALedgerEntries.OpenView;
-        FALedgerEntries.Trap;
+        FixedAssetStatistics.Trap();
+        FixedAssetCard.Statistics.Invoke();
+        FALedgerEntries.OpenView();
+        FALedgerEntries.Trap();
 
         // [WHEN] User press DrillDown on the DisposalValue field.
-        FixedAssetStatistics.DisposalValue.DrillDown;
+        FixedAssetStatistics.DisposalValue.DrillDown();
 
         // [THEN] There are no lines in opened page FALedgerEntries.
-        Assert.IsTrue(FALedgerEntries.First, 'FA Ledger Entry does not exist after drilldown DispovalValue');
+        Assert.IsTrue(FALedgerEntries.First(), 'FA Ledger Entry does not exist after drilldown DispovalValue');
 
         // [THEN] Line have next parametrs: Amount = "D", FA Posting Type = "Acquisition Cost", FA Posting Category =' '
         Assert.AreEqual(FALedgerEntries.Amount.Value, Format(DisposalValue), 'FA doc.');
@@ -820,7 +820,7 @@ codeunit 134456 "ERM Fixed Asset Card"
           DummyFALedgerEntry.FieldCaption("FA Posting Category"));
 
         // [THEN] There are no more "FA Ledger Entries" lines.
-        Assert.IsFalse(FALedgerEntries.Next, 'No more records expected');
+        Assert.IsFalse(FALedgerEntries.Next(), 'No more records expected');
 
         FALedgerEntries.Close();
         FixedAssetCard.Close();
@@ -1082,7 +1082,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
-        FixedAssetCard.OK.Invoke();
+        FixedAssetCard.OK().Invoke();
 
         // [THEN] FA Posting Group is not changed message, the FA Subclass Code is changed, FADepreciationBook."FA Posting Group" is not changed.
         ExpectedMessage := StrSubstNo(
@@ -1129,7 +1129,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
-        FixedAssetCard.OK.Invoke();
+        FixedAssetCard.OK().Invoke();
 
         // [THEN] The FA Subclass Code is changed, FADepreciationBook."FA Posting Group" is not changed.
         ExpectedMessage := StrSubstNo(
@@ -1176,7 +1176,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
-        FixedAssetCard.OK.Invoke();
+        FixedAssetCard.OK().Invoke();
 
         // [THEN] The FA Subclass Code is changed, FADepreciationBook."FA Posting Group" is changed.
         ExpectedMessage := StrSubstNo(
@@ -1222,7 +1222,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryVariableStorage.Enqueue(true);
         FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
-        FixedAssetCard.AddMoreDeprBooks.DrillDown;
+        FixedAssetCard.AddMoreDeprBooks.DrillDown();
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
 
         // [THEN] "FA Posting Group" of FA Depreciation Book is updated on subpage.
@@ -1492,13 +1492,13 @@ codeunit 134456 "ERM Fixed Asset Card"
     var
         SubclassCode: Code[10];
     begin
-        SubclassCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(SubclassCode));
+        SubclassCode := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(SubclassCode));
         Assert.IsTrue(FASubclasses.FindFirstField(Code, SubclassCode), SubclassCode + ' should be include in lookup');
 
-        SubclassCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(SubclassCode));
+        SubclassCode := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(SubclassCode));
         Assert.IsTrue(FASubclasses.FindFirstField(Code, SubclassCode), SubclassCode + ' should be include in lookup');
 
-        SubclassCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(SubclassCode));
+        SubclassCode := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(SubclassCode));
         Assert.IsFalse(FASubclasses.FindFirstField(Code, SubclassCode), SubclassCode + ' should not be include in lookup');
     end;
 

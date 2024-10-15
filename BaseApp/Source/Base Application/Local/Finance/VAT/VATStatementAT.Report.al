@@ -4,15 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
-using System.Globalization;
-#if not CLEAN21
-using Microsoft.Foundation.Enums;
-#endif
-using System.IO;
-using System.Utilities;
-using Microsoft.Foundation.Company;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Foundation.Company;
+#if not CLEAN23
+using Microsoft.Foundation.Enums;
+#endif
+using System.Globalization;
+using System.IO;
+using System.Utilities;
 using System.Telemetry;
 
 report 11110 "VAT Statement AT"

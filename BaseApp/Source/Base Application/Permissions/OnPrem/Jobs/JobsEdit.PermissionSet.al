@@ -17,7 +17,7 @@ using Microsoft.Purchases.Archive;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Projects.Resources.Resource;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Sales.History;
@@ -28,7 +28,7 @@ using Microsoft.Service.History;
 using Microsoft.Service.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Projects.Project.Job;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Project.Pricing;
 #endif
 using Microsoft.Projects.Project.Journal;
@@ -41,9 +41,10 @@ permissionset 6719 "Jobs - Edit"
 {
     Access = Public;
     Assignable = false;
-    Caption = 'Edit jobs';
+    Caption = 'Edit projects';
 
     Permissions = tabledata "Comment Line" = RIMD,
+                  tabledata "Comment Line Archive" = RIMD,
                   tabledata Customer = R,
                   tabledata "Customer Bank Account" = R,
                   tabledata "Default Dimension" = RIMD,
@@ -54,7 +55,7 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "General Ledger Setup" = RM,
                   tabledata "VAT Setup" = RM,
                   tabledata Job = RIMD,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Job G/L Account Price" = RIMD,
                   tabledata "Job Item Price" = RIMD,
 #endif
@@ -64,7 +65,7 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Job Planning Line" = RIMD,
                   tabledata "Job Planning Line Invoice" = RIMD,
                   tabledata "Job Posting Group" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Job Resource Price" = RIMD,
 #endif
                   tabledata "Job Task" = RIMD,
@@ -94,7 +95,7 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Res. Ledger Entry" = rm,
                   tabledata Resource = R,
                   tabledata "Resource Group" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Resource Price" = RIMD,
 #endif
                   tabledata "Return Receipt Header" = r,

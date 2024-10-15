@@ -5,6 +5,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 table 1228 "Payment Jnl. Export Error Text"
 {
     Caption = 'Payment Jnl. Export Error Text';
+    DataClassification = CustomerContent;
 
     fields
     {

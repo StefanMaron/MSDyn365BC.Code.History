@@ -133,11 +133,9 @@ page 543 "Default Dimension Priorities"
     local procedure OpenSourceCode(var CurrentSourceCode: Code[20]; var DefaultDimPriority: Record "Default Dimension Priority")
     begin
         CheckSourceCode(CurrentSourceCode);
-        with DefaultDimPriority do begin
-            FilterGroup := 2;
-            SetRange("Source Code", CurrentSourceCode);
-            FilterGroup := 0;
-        end;
+        DefaultDimPriority.FilterGroup := 2;
+        DefaultDimPriority.SetRange("Source Code", CurrentSourceCode);
+        DefaultDimPriority.FilterGroup := 0;
     end;
 
     local procedure CheckSourceCode(var CurrentSourceCode: Code[20])
@@ -153,12 +151,10 @@ page 543 "Default Dimension Priorities"
 
     procedure SetSourceCode(CurrentSourceCode: Code[20]; var DefaultDimPriority: Record "Default Dimension Priority")
     begin
-        with DefaultDimPriority do begin
-            FilterGroup := 2;
-            SetRange("Source Code", CurrentSourceCode);
-            FilterGroup := 0;
-            if Find('-') then;
-        end;
+        DefaultDimPriority.FilterGroup := 2;
+        DefaultDimPriority.SetRange("Source Code", CurrentSourceCode);
+        DefaultDimPriority.FilterGroup := 0;
+        if DefaultDimPriority.Find('-') then;
     end;
 
     local procedure LookupSourceCode(var CurrentSourceCode: Code[20]; var DefaultDimPriority: Record "Default Dimension Priority")

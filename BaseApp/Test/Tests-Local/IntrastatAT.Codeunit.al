@@ -30,7 +30,6 @@ codeunit 144061 "Intrastat AT"
         LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         CannotDisplayWithInvalidLengthErr: Label 'You cannot display %1 in a field of length %2.';
-        FieldMustHaveValueErr: Label '%1 must have a value in %2';
         FileExtenstionTxt: Label '.EDI';
         FileNotCreatedErr: Label 'Intrastat file was not created';
         InternalRefNoErr: Label 'Internal Ref. No. is not correct in Intrastat Jnl. Line.';
@@ -68,7 +67,7 @@ codeunit 144061 "Intrastat AT"
         // Setup: Create Intrastat Journal Template and Batch. Create Customer, Item. Create and Post Sales Order.
         Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
-        CreateCustomerWithCountryRegionCode(Customer, CreateCountryRegionWithIntrastatCode);
+        CreateCustomerWithCountryRegionCode(Customer, CreateCountryRegionWithIntrastatCode());
         LibraryInventory.CreateItemWithTariffNo(Item, CreateTariffNo(false));
         CreateAndPostSalesDoc(SalesHeader."Document Type"::Order, Customer."No.", Item."No.", LibraryRandom.RandDec(10, 2));
 
@@ -129,7 +128,7 @@ codeunit 144061 "Intrastat AT"
 
         // [GIVEN] Intrastat journal line (Supplementary Units = False)
         PrepareIntrastatJnlLine(IntrastatJnlLine);
-        IntrastatJnlLine."Supplementary Units" := False;
+        IntrastatJnlLine."Supplementary Units" := false;
         IntrastatJnlLine.Modify();
 
         // [WHEN] Export Intrastat journal to file using format 2022
@@ -218,9 +217,9 @@ codeunit 144061 "Intrastat AT"
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        SetIntrastatCodeOnCountryRegion;
-        SetTariffNoOnItems;
-        SetCompanyInfoFields;
+        SetIntrastatCodeOnCountryRegion();
+        SetTariffNoOnItems();
+        SetCompanyInfoFields();
 
         IsInitialized := true;
         Commit();
@@ -363,17 +362,15 @@ codeunit 144061 "Intrastat AT"
     var
         InternalRefNo: Code[10];
     begin
-        with IntrastatJnlLine do begin
-            SetCurrentKey("Internal Ref. No.");
-            FindSet();
-            repeat
-                if InternalRefNo <> "Internal Ref. No." then begin
-                    InternalRefNo := "Internal Ref. No.";
-                    LineCount += 1;
-                end;
-            until Next = 0;
-            exit(LineCount);
-        end;
+        IntrastatJnlLine.SetCurrentKey("Internal Ref. No.");
+        IntrastatJnlLine.FindSet();
+        repeat
+            if InternalRefNo <> IntrastatJnlLine."Internal Ref. No." then begin
+                InternalRefNo := IntrastatJnlLine."Internal Ref. No.";
+                LineCount += 1;
+            end;
+        until IntrastatJnlLine.Next() = 0;
+        exit(LineCount);
     end;
 
     local procedure DecimalZeroFormat(DecimalNumber: Decimal; Length: Integer): Text[20]
@@ -383,12 +380,10 @@ codeunit 144061 "Intrastat AT"
 
     local procedure FindIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; CountryRegionCode: Code[10])
     begin
-        with IntrastatJnlLine do begin
-            SetRange("Country/Region Code", CountryRegionCode);
-            SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
-            SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-            FindFirst();
-        end;
+        IntrastatJnlLine.SetRange("Country/Region Code", CountryRegionCode);
+        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
+        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
+        IntrastatJnlLine.FindFirst();
     end;
 
     local procedure FindOrCreateIntrastatTransactionType(): Code[10]
@@ -444,7 +439,7 @@ codeunit 144061 "Intrastat AT"
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
 
         LibraryERM.SetMandatoryFieldsOnIntrastatJnlLines(DummyIntrastatJnlLine, IntrastatJnlBatch,
-          FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType, '',
+          FindOrCreateIntrastatTransportMethod(), FindOrCreateIntrastatTransactionType(), '',
           LibraryRandom.RandDecInRange(1, 10, 2));
         Commit();
     end;
@@ -464,17 +459,17 @@ codeunit 144061 "Intrastat AT"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         RunIntrastatJournal(IntrastatJournal);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate()));
         LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate()));
-        IntrastatJournal.GetEntries.Invoke;
+        IntrastatJournal.GetEntries.Invoke();
         VerifyIntrastatJnlLinesExist(IntrastatJnlBatch);
         IntrastatJournal.Close();
     end;
 
     local procedure RunIntrastatJournal(var IntrastatJournal: TestPage "Intrastat Journal")
     begin
-        IntrastatJournal.OpenEdit;
+        IntrastatJournal.OpenEdit();
     end;
 
     local procedure RunIntrastatJournalCheckList()
@@ -482,7 +477,7 @@ codeunit 144061 "Intrastat AT"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         RunIntrastatJournal(IntrastatJournal);
-        IntrastatJournal.ChecklistReport.Invoke;
+        IntrastatJournal.ChecklistReport.Invoke();
     end;
 
     local procedure RunIntrastatJournalForm(Type: Option)
@@ -490,9 +485,9 @@ codeunit 144061 "Intrastat AT"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         RunIntrastatJournal(IntrastatJournal);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         LibraryVariableStorage.Enqueue(Type);
-        IntrastatJournal.Form.Invoke;
+        IntrastatJournal.Form.Invoke();
     end;
 
     local procedure RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; Path: Text)
@@ -611,12 +606,10 @@ codeunit 144061 "Intrastat AT"
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
-        with IntrastatJnlLine do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
-            SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-            Assert.IsFalse(IsEmpty, NoIntrastatJnlLineErr);
-        end;
+        IntrastatJnlLine.SetRange("Item No.", ItemNo);
+        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
+        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
+        Assert.IsFalse(IntrastatJnlLine.IsEmpty, NoIntrastatJnlLineErr);
     end;
 
     local procedure VerifyIntrastatJnlLineForInternalRefNo(IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; CountryRegionCode: Code[10])
@@ -624,14 +617,13 @@ codeunit 144061 "Intrastat AT"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         InternalRefNo: Text[10];
     begin
-        with IntrastatJnlLine do begin
-            FindIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, CountryRegionCode);
-            repeat
-                InternalRefNo := "Internal Ref. No.";
-                Next;
-                Assert.AreEqual(InternalRefNo, "Internal Ref. No.", InternalRefNoErr); // Verify "Internal Ref. No." are same for Intrastat Jnl. Lines
-            until Next = 0;
-        end;
+        FindIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, CountryRegionCode);
+        repeat
+            InternalRefNo := IntrastatJnlLine."Internal Ref. No.";
+            IntrastatJnlLine.Next();
+            Assert.AreEqual(InternalRefNo, IntrastatJnlLine."Internal Ref. No.", InternalRefNoErr);
+        // Verify "Internal Ref. No." are same for Intrastat Jnl. Lines
+        until IntrastatJnlLine.Next() = 0;
     end;
 
     local procedure VerifyIntrastatMakeDiskFiles(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; FilenameSales: Text; FilenamePurchase: Text)
@@ -705,7 +697,6 @@ codeunit 144061 "Intrastat AT"
 
     local procedure VerifyIntrastatExportedFile2022(var ZipFileTempBlob: Codeunit "Temp Blob"; IntrastatJnlLine: Record "Intrastat Jnl. Line"; QtyText: Text)
     var
-        CountryRegion: Record "Country/Region";
         FileBlob: Codeunit "Temp Blob";
         FileInStream: InStream;
         Line: Text;
@@ -757,16 +748,16 @@ codeunit 144061 "Intrastat AT"
         GetItemLedgerEntriesReqPage.StartingDate.SetValue(StartDate);
         GetItemLedgerEntriesReqPage.EndingDate.SetValue(EndDate);
         GetItemLedgerEntriesReqPage."Cost Regulation %".SetValue(0);
-        GetItemLedgerEntriesReqPage.OK.Invoke;
+        GetItemLedgerEntriesReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IntrastatMakeDiskTaxAuthReqPageHandler(var IntrastatMakeDiskTaxAuthReqPage: TestRequestPage "Intrastat - Disk Tax Auth AT")
     begin
-        IntrastatMakeDiskTaxAuthReqPage."Intrastat Jnl. Batch".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText);
-        IntrastatMakeDiskTaxAuthReqPage."Intrastat Jnl. Batch".SetFilter(Name, LibraryVariableStorage.DequeueText);
-        IntrastatMakeDiskTaxAuthReqPage.OK.Invoke;
+        IntrastatMakeDiskTaxAuthReqPage."Intrastat Jnl. Batch".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText());
+        IntrastatMakeDiskTaxAuthReqPage."Intrastat Jnl. Batch".SetFilter(Name, LibraryVariableStorage.DequeueText());
+        IntrastatMakeDiskTaxAuthReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -777,14 +768,14 @@ codeunit 144061 "Intrastat AT"
     begin
         LibraryVariableStorage.Dequeue(Type);
         IntrastatFormReqPage."Intrastat Jnl. Line".SetFilter(Type, Format(Type));
-        IntrastatFormReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatFormReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IntrastatJnlCheckListReqPageHandler(var IntrastatChecklistReqPage: TestRequestPage "Intrastat - Checklist AT")
     begin
-        IntrastatChecklistReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatChecklistReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 #endif

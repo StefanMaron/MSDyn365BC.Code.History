@@ -3,6 +3,7 @@ namespace Microsoft.Warehouse.ADCS;
 table 7703 "Miniform Function"
 {
     Caption = 'Miniform Function';
+    DataClassification = CustomerContent;
 
     fields
     {

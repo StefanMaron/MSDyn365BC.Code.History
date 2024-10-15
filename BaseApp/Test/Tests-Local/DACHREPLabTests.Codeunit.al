@@ -35,7 +35,7 @@ codeunit 142500 "DACH REP Lab Tests"
         RunGLVATReconciliationReport(VATStatementLine);
 
         // [THEN] Fields in report Type = "Account Totaling" and "Amount Type" = Base
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VATStatementLineAmountTypeTok, Format(VATStatementLine."Amount Type"));
         LibraryReportDataset.AssertElementWithValueExists(VATStatementLineTypeTok, Format(VATStatementLine.Type));
     end;
@@ -83,7 +83,7 @@ codeunit 142500 "DACH REP Lab Tests"
         GLVATReconciliation.UseAmtsInAddCurr.SetValue(UseAmtsInAddCurr);
         GLVATReconciliation.PeriodSelection.SetValue(PeriodSelection);
         GLVATReconciliation.Selection.SetValue(EntrySelection);
-        GLVATReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLVATReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

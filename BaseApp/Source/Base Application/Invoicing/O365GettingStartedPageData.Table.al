@@ -3,6 +3,7 @@ table 1308 "O365 Getting Started Page Data"
     Caption = 'O365 Getting Started Page Data';
     DataPerCompany = false;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

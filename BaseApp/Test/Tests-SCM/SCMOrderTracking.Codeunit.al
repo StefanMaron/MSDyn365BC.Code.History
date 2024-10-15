@@ -662,7 +662,7 @@ codeunit 137066 "SCM Order Tracking"
         // [GIVEN] Sales Order with 10 PCS of the Item and Shipment Date = 28/1/2021
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", Qty,
           Location.Code, WorkDate());
 
         // [GIVEN] Set Special Order Purchasing Code in the Sales Line
@@ -671,7 +671,7 @@ codeunit 137066 "SCM Order Tracking"
 
         // [GIVEN] Purchase Order with 10 PCS of the Item
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, Item."No.", Qty,
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(), Item."No.", Qty,
           Location.Code, WorkDate());
 
         // [WHEN] Validate Expected Receipt Date = 1/1/2021 in the Purchase Line
@@ -714,7 +714,7 @@ codeunit 137066 "SCM Order Tracking"
         // [GIVEN] Sales Order with 10 PCS of the Item and Shipment Date = 28/1/2021
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", Qty,
           Location.Code, WorkDate());
 
         // [GIVEN] Set Drop Shipment Purchasing Code in the Sales Line
@@ -723,7 +723,7 @@ codeunit 137066 "SCM Order Tracking"
 
         // [GIVEN] Purchase Order with 10 PCS of the Item
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, Item."No.", Qty,
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(), Item."No.", Qty,
           Location.Code, WorkDate());
 
         // [WHEN] Validate Expected Receipt Date = 1/1/2021 in the Purchase Line
@@ -766,11 +766,11 @@ codeunit 137066 "SCM Order Tracking"
         // [GIVEN] Sales Order and Purchase Order with 10 PCS of the Item linked as Special Order (Pair of Surplus Entries with 10 PCS)
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", Qty,
           Location.Code, WorkDate());
         SalesLine.Validate("Purchasing Code", CreatePurchasingCode(false, true));
         SalesLine.Modify(true);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         PurchaseHeader.Modify(true);
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
@@ -784,7 +784,7 @@ codeunit 137066 "SCM Order Tracking"
 
         // [GIVEN] 2nd Sales Order with the same Item
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 0,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", 0,
           Location.Code, WorkDate());
 
         // [WHEN] Validate Quantity = 1 in 2nd Sales Order Line
@@ -801,7 +801,7 @@ codeunit 137066 "SCM Order Tracking"
         VerifyReservationEntryStatusQtyShipAndRcptDates(
           DATABASE::"Purchase Line", Item."No.", ReservationEntry."Reservation Status"::Surplus, QtyPurchSurplus, 0D,
           PurchaseLine."Expected Receipt Date");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -832,11 +832,11 @@ codeunit 137066 "SCM Order Tracking"
         // [GIVEN] Sales Order and Purchase Order with 10 PCS of the Item linked as Drop Shipment (Pair of Surplus Entries with 10 PCS)
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", Qty,
           Location.Code, WorkDate());
         SalesLine.Validate("Purchasing Code", CreatePurchasingCode(true, false));
         SalesLine.Modify(true);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         PurchaseHeader.Modify(true);
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
@@ -850,7 +850,7 @@ codeunit 137066 "SCM Order Tracking"
 
         // [GIVEN] 2nd Sales Order with the same Item
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 0,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", 0,
           Location.Code, WorkDate());
 
         // [WHEN] Validate Quantity = 1 in 2nd Sales Order Line
@@ -867,7 +867,7 @@ codeunit 137066 "SCM Order Tracking"
         VerifyReservationEntryStatusQtyShipAndRcptDates(
           DATABASE::"Purchase Line", Item."No.", ReservationEntry."Reservation Status"::Surplus, QtyPurchSurplus, 0D,
           PurchaseLine."Expected Receipt Date");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -883,9 +883,9 @@ codeunit 137066 "SCM Order Tracking"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        CreateLocationSetup;
+        CreateLocationSetup();
         NoSeriesSetup();
-        ItemJournalSetup;
+        ItemJournalSetup();
 
         isInitialized := true;
         Commit();
@@ -897,7 +897,7 @@ codeunit 137066 "SCM Order Tracking"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
     end;
 
@@ -906,13 +906,13 @@ codeunit 137066 "SCM Order Tracking"
         Clear(ItemJournalTemplate);
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
         ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -1020,7 +1020,7 @@ codeunit 137066 "SCM Order Tracking"
     var
         ReleasedProductionOrder: TestPage "Released Production Order";
     begin
-        ReleasedProductionOrder.OpenEdit;
+        ReleasedProductionOrder.OpenEdit();
         ReleasedProductionOrder.FILTER.SetFilter("No.", No);
         ReleasedProductionOrder."Due Date".SetValue(DueDate);
     end;
@@ -1029,7 +1029,7 @@ codeunit 137066 "SCM Order Tracking"
     var
         FirmPlannedProdOrder: TestPage "Firm Planned Prod. Order";
     begin
-        FirmPlannedProdOrder.OpenEdit;
+        FirmPlannedProdOrder.OpenEdit();
         FirmPlannedProdOrder.FILTER.SetFilter("No.", No);
         FirmPlannedProdOrder."Due Date".SetValue(DueDate);
     end;
@@ -1190,7 +1190,7 @@ codeunit 137066 "SCM Order Tracking"
             Validate("Applies-to Entry", AppliedToEntryNo);
             Modify(true);
         end;
-        LibraryManufacturing.PostConsumptionJournal;
+        LibraryManufacturing.PostConsumptionJournal();
     end;
 
     local procedure PostOutput(ProductionOrder: Record "Production Order"; OutputQty: Decimal): Integer
@@ -1208,7 +1208,7 @@ codeunit 137066 "SCM Order Tracking"
             Validate("Output Quantity", OutputQty);
             Modify(true);
         end;
-        LibraryManufacturing.PostOutputJournal;
+        LibraryManufacturing.PostOutputJournal();
 
         with ItemLedgerEntry do begin
             SetRange("Entry Type", "Entry Type"::Output);
@@ -1378,8 +1378,8 @@ codeunit 137066 "SCM Order Tracking"
     [Scope('OnPrem')]
     procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
     begin
-        SalesList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        SalesList.OK.Invoke;
+        SalesList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        SalesList.OK().Invoke();
     end;
 }
 

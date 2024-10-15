@@ -1,4 +1,4 @@
-#if not CLEAN21
+#if not CLEAN23
 namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Projects.Resources.Pricing;
@@ -81,7 +81,7 @@ report 1193 "Implement Res. Price Change"
         Text001: Label 'Type                #1##########\';
         Text002: Label 'Code                #2##########\';
         Text003: Label 'Work Type Code      #3##########\';
-        Text004: Label 'Job No.             #4##########\';
+        Text004: Label 'Project No.             #4##########\';
         Text005: Label 'Currency Code       #5##########\';
         Text006: Label 'The resource prices have now been updated in accordance with the suggested price changes.\\Do you want to delete the suggested price changes?';
 }

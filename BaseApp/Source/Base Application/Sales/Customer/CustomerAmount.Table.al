@@ -7,6 +7,7 @@ namespace Microsoft.Sales.Customer;
 table 266 "Customer Amount"
 {
     Caption = 'Customer Amount';
+    DataClassification = CustomerContent;
 
     fields
     {

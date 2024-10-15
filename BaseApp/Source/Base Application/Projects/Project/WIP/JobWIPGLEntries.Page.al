@@ -5,9 +5,9 @@ using Microsoft.Foundation.Navigate;
 
 page 1009 "Job WIP G/L Entries"
 {
-    AdditionalSearchTerms = 'work in process to general ledger entries,work in progress to general ledger entries';
+    AdditionalSearchTerms = 'work in process to general ledger entries,work in progress to general ledger entries, Job WIP G/L Entries';
     ApplicationArea = Jobs;
-    Caption = 'Job WIP G/L Entries';
+    Caption = 'Project WIP G/L Entries';
     DataCaptionFields = "Job No.";
     Editable = false;
     PageType = List;
@@ -29,32 +29,32 @@ page 1009 "Job WIP G/L Entries"
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the posting date you entered in the Posting Date field, on the Options FastTab, in the Job Post WIP to G/L batch job.';
+                    ToolTip = 'Specifies the posting date you entered in the Posting Date field, on the Options FastTab, in the Project Post WIP to G/L batch job.';
                 }
                 field("WIP Posting Date"; Rec."WIP Posting Date")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the posting date you entered in the Posting Date field, on the Options FastTab, in the Job Calculate WIP batch job.';
+                    ToolTip = 'Specifies the posting date you entered in the Posting Date field, on the Options FastTab, in the Project Calculate WIP batch job.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the document number you entered in the Document No. field on the Options FastTab in the Job Post WIP to G/L batch job.';
+                    ToolTip = 'Specifies the document number you entered in the Document No. field on the Options FastTab in the Project Post WIP to G/L batch job.';
                 }
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                 }
                 field("Job Complete"; Rec."Job Complete")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies whether a job is complete. This check box is selected if the Job WIP G/L Entry was created for a Job with a Completed status.';
+                    ToolTip = 'Specifies whether a project is complete. This check box is selected if the Project WIP G/L Entry was created for a Project with a Completed status.';
                 }
                 field("Job WIP Total Entry No."; Rec."Job WIP Total Entry No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the entry number from the associated job WIP total.';
+                    ToolTip = 'Specifies the entry number from the associated project WIP total.';
                 }
                 field("G/L Account No."; Rec."G/L Account No.")
                 {
@@ -74,12 +74,12 @@ page 1009 "Job WIP G/L Entries"
                 field("WIP Method Used"; Rec."WIP Method Used")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the WIP method that was specified for the job when you ran the Job Calculate WIP batch job.';
+                    ToolTip = 'Specifies the WIP method that was specified for the project when you ran the Project Calculate WIP batch job.';
                 }
                 field("WIP Posting Method Used"; Rec."WIP Posting Method Used")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the WIP posting method used in the context of the general ledger. The information in this field comes from the setting you have specified on the job card.';
+                    ToolTip = 'Specifies the WIP posting method used in the context of the general ledger. The information in this field comes from the setting you have specified on the project card.';
                 }
                 field(Type; Rec.Type)
                 {
@@ -208,7 +208,7 @@ page 1009 "Job WIP G/L Entries"
                     Image = EntriesList;
                     RunObject = Page "Job WIP Totals";
                     RunPageLink = "Entry No." = field("Job WIP Total Entry No.");
-                    ToolTip = 'View the job''s WIP totals.';
+                    ToolTip = 'View the project''s WIP totals.';
                 }
                 action(Dimensions)
                 {

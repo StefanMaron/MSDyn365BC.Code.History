@@ -3,7 +3,6 @@ namespace Microsoft.CRM.Segment;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Setup;
 using System.Utilities;
-using Microsoft.Utilities;
 
 xmlport 5051 "Export Segment Contact"
 {
@@ -636,7 +635,6 @@ xmlport 5051 "Export Segment Contact"
 
     var
         Cont: Record Contact;
-        GM: Codeunit GeneralMgt;
         Text001: Label 'Salutation';
 }
 

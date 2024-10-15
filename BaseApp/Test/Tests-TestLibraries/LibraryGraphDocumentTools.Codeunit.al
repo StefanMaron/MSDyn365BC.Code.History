@@ -13,9 +13,7 @@ codeunit 130619 "Library - Graph Document Tools"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
-        LibraryUtility: Codeunit "Library - Utility";
         LibraryResource: Codeunit "Library - Resource";
-        LibraryMarketing: Codeunit "Library - Marketing";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryPurchase: Codeunit "Library - Purchase";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
@@ -37,7 +35,7 @@ codeunit 130619 "Library - Graph Document Tools"
         LibrarySales.SetStockoutWarning(false);
 
         // Disable warning on closing Order
-        UserPreference."User ID" := UserId;
+        UserPreference."User ID" := CopyStr(UserId(), 1, MaxStrLen(UserPreference."User ID"));
         UserPreference."Instruction Code" := 'QUERYPOSTONCLOSE';
         if not UserPreference.Insert() then
             UserPreference.Modify();
@@ -92,7 +90,6 @@ codeunit 130619 "Library - Graph Document Tools"
     [Scope('OnPrem')]
     procedure GetCustomerAddressJSON(var DocumentJSON: Text; var Customer: Record Customer; AddressType: Text; ShouldBeEmpty: Boolean; ShouldBePartiallyEmpty: Boolean)
     var
-        GraphCollectionMgtContact: Codeunit "Graph Collection Mgt - Contact";
         City: Text;
         State: Text;
         CountryCode: Text;
@@ -181,7 +178,6 @@ codeunit 130619 "Library - Graph Document Tools"
     procedure GetVendorAddressJSON(var DocumentJSON: Text; var Vendor: Record Vendor; AddressType: Text; ShouldBeEmpty: Boolean; ShouldBePartiallyEmpty: Boolean)
     var
         CountryRegion: Record "Country/Region";
-        GraphCollectionMgtContact: Codeunit "Graph Collection Mgt - Contact";
         City: Text;
         State: Text;
         CountryCode: Text;
@@ -399,11 +395,10 @@ codeunit 130619 "Library - Graph Document Tools"
             exit;
         end;
 
-        with Customer do
-            if PartiallyEmptyData then
-                AssertSalesDocumentSellToAddress(SalesHeader, Address, "Address 2", '', '', "Country/Region Code", '')
-            else
-                AssertSalesDocumentSellToAddress(SalesHeader, Address, "Address 2", City, County, "Country/Region Code", "Post Code");
+        if PartiallyEmptyData then
+            AssertSalesDocumentSellToAddress(SalesHeader, Customer.Address, Customer."Address 2", '', '', Customer."Country/Region Code", '')
+        else
+            AssertSalesDocumentSellToAddress(SalesHeader, Customer.Address, Customer."Address 2", Customer.City, Customer.County, Customer."Country/Region Code", Customer."Post Code");
     end;
 
     [Scope('OnPrem')]
@@ -425,15 +420,13 @@ codeunit 130619 "Library - Graph Document Tools"
     [Scope('OnPrem')]
     procedure CheckSalesDocumentSellToAddress(Customer: Record Customer; SalesHeader: Record "Sales Header"; EmptyData: Boolean; PartiallyEmptyData: Boolean)
     begin
-        with Customer do begin
-            if EmptyData then
-                AssertSalesDocumentSellToAddress(SalesHeader, '', '', '', '', '', '')
+        if EmptyData then
+            AssertSalesDocumentSellToAddress(SalesHeader, '', '', '', '', '', '')
+        else
+            if PartiallyEmptyData then
+                AssertSalesDocumentSellToAddress(SalesHeader, Customer.Address, Customer."Address 2", '', '', Customer."Country/Region Code", '')
             else
-                if PartiallyEmptyData then
-                    AssertSalesDocumentSellToAddress(SalesHeader, Address, "Address 2", '', '', "Country/Region Code", '')
-                else
-                    AssertSalesDocumentSellToAddress(SalesHeader, Address, "Address 2", City, County, "Country/Region Code", "Post Code");
-        end;
+                AssertSalesDocumentSellToAddress(SalesHeader, Customer.Address, Customer."Address 2", Customer.City, Customer.County, Customer."Country/Region Code", Customer."Post Code");
     end;
 
     [Scope('OnPrem')]
@@ -455,15 +448,13 @@ codeunit 130619 "Library - Graph Document Tools"
     [Scope('OnPrem')]
     procedure CheckSalesDocumentBillToAddress(Customer: Record Customer; SalesHeader: Record "Sales Header"; EmptyData: Boolean; PartiallyEmptyData: Boolean)
     begin
-        with Customer do begin
-            if EmptyData then
-                AssertSalesDocumentBillToAddress(SalesHeader, '', '', '', '', '', '')
+        if EmptyData then
+            AssertSalesDocumentBillToAddress(SalesHeader, '', '', '', '', '', '')
+        else
+            if PartiallyEmptyData then
+                AssertSalesDocumentBillToAddress(SalesHeader, Customer.Address, Customer."Address 2", '', '', Customer."Country/Region Code", '')
             else
-                if PartiallyEmptyData then
-                    AssertSalesDocumentBillToAddress(SalesHeader, Address, "Address 2", '', '', "Country/Region Code", '')
-                else
-                    AssertSalesDocumentBillToAddress(SalesHeader, Address, "Address 2", City, County, "Country/Region Code", "Post Code");
-        end;
+                AssertSalesDocumentBillToAddress(SalesHeader, Customer.Address, Customer."Address 2", Customer.City, Customer.County, Customer."Country/Region Code", Customer."Post Code");
     end;
 
     [Scope('OnPrem')]
@@ -485,15 +476,13 @@ codeunit 130619 "Library - Graph Document Tools"
     [Scope('OnPrem')]
     procedure CheckSalesDocumentShipToAddress(Customer: Record Customer; SalesHeader: Record "Sales Header"; EmptyData: Boolean; PartiallyEmptyData: Boolean)
     begin
-        with Customer do begin
-            if EmptyData then
-                AssertSalesDocumentShipToAddress(SalesHeader, '', '', '', '', '', '')
+        if EmptyData then
+            AssertSalesDocumentShipToAddress(SalesHeader, '', '', '', '', '', '')
+        else
+            if PartiallyEmptyData then
+                AssertSalesDocumentShipToAddress(SalesHeader, Customer.Address, Customer."Address 2", '', '', Customer."Country/Region Code", '')
             else
-                if PartiallyEmptyData then
-                    AssertSalesDocumentShipToAddress(SalesHeader, Address, "Address 2", '', '', "Country/Region Code", '')
-                else
-                    AssertSalesDocumentShipToAddress(SalesHeader, Address, "Address 2", City, County, "Country/Region Code", "Post Code");
-        end;
+                AssertSalesDocumentShipToAddress(SalesHeader, Customer.Address, Customer."Address 2", Customer.City, Customer.County, Customer."Country/Region Code", Customer."Post Code");
     end;
 
     [Scope('OnPrem')]
@@ -515,15 +504,13 @@ codeunit 130619 "Library - Graph Document Tools"
     [Scope('OnPrem')]
     procedure CheckPurchaseDocumentBuyFromAddress(Vendor: Record Vendor; PurchaseHeader: Record "Purchase Header"; EmptyData: Boolean; PartiallyEmptyData: Boolean)
     begin
-        with Vendor do begin
-            if EmptyData then
-                AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, '', '', '', '', '', '')
+        if EmptyData then
+            AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, '', '', '', '', '', '')
+        else
+            if PartiallyEmptyData then
+                AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, Vendor.Address, Vendor."Address 2", '', '', Vendor."Country/Region Code", '')
             else
-                if PartiallyEmptyData then
-                    AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, Address, "Address 2", '', '', "Country/Region Code", '')
-                else
-                    AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, Address, "Address 2", City, County, "Country/Region Code", "Post Code");
-        end;
+                AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, Vendor.Address, Vendor."Address 2", Vendor.City, Vendor.County, Vendor."Country/Region Code", Vendor."Post Code");
     end;
 
     [Scope('OnPrem')]
@@ -545,15 +532,13 @@ codeunit 130619 "Library - Graph Document Tools"
     [Scope('OnPrem')]
     procedure CheckPurchaseDocumentPayToAddress(Vendor: Record Vendor; PurchaseHeader: Record "Purchase Header"; EmptyData: Boolean; PartiallyEmptyData: Boolean)
     begin
-        with Vendor do begin
-            if EmptyData then
-                AssertPurchaseDocumentPayToAddress(PurchaseHeader, '', '', '', '', '', '')
+        if EmptyData then
+            AssertPurchaseDocumentPayToAddress(PurchaseHeader, '', '', '', '', '', '')
+        else
+            if PartiallyEmptyData then
+                AssertPurchaseDocumentPayToAddress(PurchaseHeader, Vendor.Address, Vendor."Address 2", '', '', Vendor."Country/Region Code", '')
             else
-                if PartiallyEmptyData then
-                    AssertPurchaseDocumentPayToAddress(PurchaseHeader, Address, "Address 2", '', '', "Country/Region Code", '')
-                else
-                    AssertPurchaseDocumentPayToAddress(PurchaseHeader, Address, "Address 2", City, County, "Country/Region Code", "Post Code");
-        end;
+                AssertPurchaseDocumentPayToAddress(PurchaseHeader, Vendor.Address, Vendor."Address 2", Vendor.City, Vendor.County, Vendor."Country/Region Code", Vendor."Post Code");
     end;
 
     [Scope('OnPrem')]
@@ -575,15 +560,13 @@ codeunit 130619 "Library - Graph Document Tools"
     [Scope('OnPrem')]
     procedure CheckPurchaseDocumentShipToAddress(Vendor: Record Vendor; PurchaseHeader: Record "Purchase Header"; EmptyData: Boolean; PartiallyEmptyData: Boolean)
     begin
-        with Vendor do begin
-            if EmptyData then
-                AssertPurchaseDocumentShipToAddress(PurchaseHeader, '', '', '', '', '', '')
+        if EmptyData then
+            AssertPurchaseDocumentShipToAddress(PurchaseHeader, '', '', '', '', '', '')
+        else
+            if PartiallyEmptyData then
+                AssertPurchaseDocumentShipToAddress(PurchaseHeader, Vendor.Address, Vendor."Address 2", '', '', Vendor."Country/Region Code", '')
             else
-                if PartiallyEmptyData then
-                    AssertPurchaseDocumentShipToAddress(PurchaseHeader, Address, "Address 2", '', '', "Country/Region Code", '')
-                else
-                    AssertPurchaseDocumentShipToAddress(PurchaseHeader, Address, "Address 2", City, County, "Country/Region Code", "Post Code");
-        end;
+                AssertPurchaseDocumentShipToAddress(PurchaseHeader, Vendor.Address, Vendor."Address 2", Vendor.City, Vendor.County, Vendor."Country/Region Code", Vendor."Post Code");
     end;
 
     [Scope('OnPrem')]
@@ -620,7 +603,7 @@ codeunit 130619 "Library - Graph Document Tools"
         SalesLineComment.Description := 'Thank you for your business!';
         SalesLineComment.Modify();
 
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         LibrarySales.CreateSalesLine(SalesLineGLAccount, SalesHeader, SalesLineGLAccount.Type::"G/L Account", GLAccount."No.", 1);
     end;
 
@@ -648,8 +631,10 @@ codeunit 130619 "Library - Graph Document Tools"
         PurchaseLineComment.Description := 'Thank you for your business!';
         PurchaseLineComment.Modify();
 
+#pragma warning disable AA0210
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange("Direct Posting", true);
+#pragma warning restore AA0210
         GLAccount.FindFirst();
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLineGLAccount, PurchaseHeader, PurchaseLineGLAccount.Type::"G/L Account", GLAccount."No.", 1);
@@ -680,14 +665,12 @@ codeunit 130619 "Library - Graph Document Tools"
     [Scope('OnPrem')]
     procedure VerifySalesObjectDescription(var SalesLine: Record "Sales Line"; var JObject: DotNet JObject)
     var
-        SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate";
         JSONManagement: Codeunit "JSON Management";
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
-        sequenceTxt: Text;
         objectDetailsTxt: Text;
         No: Code[20];
         Description: Text[50];
-        Name: Text[50];
+        Name: Text[100];
     begin
         JSONManagement.InitializeObjectFromJObject(JObject);
 
@@ -712,7 +695,6 @@ codeunit 130619 "Library - Graph Document Tools"
     var
         SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate";
         JSONManagement: Codeunit "JSON Management";
-        GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
         sequenceTxt: Text;
         objectTypeTxt: Text;
         xmlConvert: DotNet XmlConvert;
@@ -752,14 +734,12 @@ codeunit 130619 "Library - Graph Document Tools"
     [Scope('OnPrem')]
     procedure VerifyPurchaseObjectDescription(var PurchaseLine: Record "Purchase Line"; var JObject: DotNet JObject)
     var
-        PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate";
         JSONManagement: Codeunit "JSON Management";
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
-        sequenceTxt: Text;
         objectDetailsTxt: Text;
         No: Code[20];
         Description: Text[50];
-        Name: Text[50];
+        Name: Text[100];
     begin
         JSONManagement.InitializeObjectFromJObject(JObject);
 

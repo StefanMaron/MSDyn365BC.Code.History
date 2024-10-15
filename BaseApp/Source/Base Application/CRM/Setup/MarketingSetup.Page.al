@@ -34,7 +34,7 @@ page 5094 "Marketing Setup"
             group(General)
             {
                 Caption = 'General';
-                Visible = NOT SoftwareAsAService;
+                Visible = not SoftwareAsAService;
                 field("Attachment Storage Type"; Rec."Attachment Storage Type")
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -785,8 +785,8 @@ page 5094 "Marketing Setup"
         QueueFolderNotAccessibleTxt: Label 'The specified Queue folder does not exist or cannot be accessed.';
         StorageFolderNotAccessibleTxt: Label 'The specified Storage folder does not exist or cannot be accessed.';
         EmptyAutodiscoveryEmailAddressTxt: Label 'A valid email address is needed to find an instance of Exchange Server.';
-        CannotAccessRootPublicFolderTxt: Label 'Could not access the root public folder. User: %1, URL: %2, Token: %3.', Locked = true;
-        CannotInitializeConnectionToExchangeWithTokenTxt: Label 'Could not initialize connection to Exchange. User: %1, URL: %2, Token: %3.', Locked = true;
+        CannotAccessRootPublicFolderTxt: Label 'Could not access the root public folder. User: %1, URL: %2', Locked = true;
+        CannotInitializeConnectionToExchangeWithoutTokenTxt: Label 'Could not initialize connection to Exchange. User: %1, URL: %2', Locked = true;
         ServiceInitializedTxt: Label 'Service has been initalized.', Locked = true;
         ServiceValidatedTxt: Label 'Service has been validated.', Locked = true;
         ExchangeTenantIdNotSpecifiedTxt: Label 'Exchange tenant ID is not specified.', Locked = true;
@@ -855,7 +855,7 @@ page 5094 "Marketing Setup"
         WebCredentials: DotNet WebCredentials;
         OAuthCredentials: DotNet OAuthCredentials;
         TenantId: Text;
-        Token: Text;
+        Token: SecretText;
         Initialized: Boolean;
     begin
         if Rec."Autodiscovery E-Mail Address" = '' then begin
@@ -869,7 +869,7 @@ page 5094 "Marketing Setup"
         if TenantId <> '' then begin
             Session.LogMessage('0000D92', ExchangeTenantIdNotSpecifiedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             SetupEmailLogging.GetClientCredentialsAccessToken(TenantId, Token);
-            OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
+            CreateOAuthCredentials(OAuthCredentials, Token);
             Initialized := ExchangeWebServicesClient.InitializeOnServerWithImpersonation(Rec."Autodiscovery E-Mail Address", Rec."Exchange Service URL", OAuthCredentials);
         end else
             if Rec."Exchange Account User Name" <> '' then begin
@@ -882,7 +882,7 @@ page 5094 "Marketing Setup"
             end;
 
         if not Initialized then begin
-            Session.LogMessage('0000D95', StrSubstNo(CannotInitializeConnectionToExchangeWithTokenTxt, Rec."Autodiscovery E-Mail Address", Rec."Exchange Service URL", Token), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+            Session.LogMessage('0000D95', StrSubstNo(CannotInitializeConnectionToExchangeWithoutTokenTxt, Rec."Autodiscovery E-Mail Address", Rec."Exchange Service URL"), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(CannotInitializeConnectionToExchangeErr);
         end;
 
@@ -890,11 +890,17 @@ page 5094 "Marketing Setup"
 
         ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder);
         if TempExchangeFolder.IsEmpty() then begin
-            Session.LogMessage('0000D97', StrSubstNo(CannotAccessRootPublicFolderTxt, Rec."Autodiscovery E-Mail Address", Rec."Exchange Service URL", Token), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+            Session.LogMessage('0000D97', StrSubstNo(CannotAccessRootPublicFolderTxt, Rec."Autodiscovery E-Mail Address", Rec."Exchange Service URL"), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(CannotAccessRootPublicFolderErr);
         end;
 
         Session.LogMessage('0000D98', ServiceValidatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+    end;
+
+    [NonDebuggable]
+    local procedure CreateOAuthCredentials(var OAuthCredentials: DotNet OAuthCredentials; Token: SecretText)
+    begin
+        OAuthCredentials := OAuthCredentials.OAuthCredentials(Token.Unwrap());
     end;
 
     [NonDebuggable]
@@ -983,23 +989,29 @@ page 5094 "Marketing Setup"
     end;
 
     local procedure ResetBasicAuthFields()
+    var
+        EmptyPassword: Text;
     begin
         if SoftwareAsAService then
             exit;
 
         Rec."Exchange Account User Name" := '';
-        Rec.SetExchangeAccountPassword('');
+        EmptyPassword := '';
+        Rec.SetExchangeAccountPassword(EmptyPassword);
         Commit();
     end;
 
     local procedure ResetOAuth2Fields()
+    var
+        EmptySecret: Text;
     begin
         if SoftwareAsAService then
             exit;
 
         Rec.ResetExchangeTenantId();
         Rec."Exchange Client Id" := '';
-        Rec.SetExchangeClientSecret('');
+        EmptySecret := '';
+        Rec.SetExchangeClientSecret(EmptySecret);
         Commit();
     end;
 

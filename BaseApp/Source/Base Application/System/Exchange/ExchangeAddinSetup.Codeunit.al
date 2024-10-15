@@ -70,9 +70,8 @@ codeunit 5323 "Exchange Add-in Setup"
         end;
 
         ExchangeServiceSetup.Get();
-        with ExchangeServiceSetup do
-            ExchangeWebServicesServer.InitializeWithCertificate("Azure AD App. ID", "Azure AD App. Cert. Thumbprint",
-              "Azure AD Auth. Endpoint", "Exchange Service Endpoint", "Exchange Resource Uri");
+        ExchangeWebServicesServer.InitializeWithCertificate(ExchangeServiceSetup."Azure AD App. ID", ExchangeServiceSetup."Azure AD App. Cert. Thumbprint",
+              ExchangeServiceSetup."Azure AD Auth. Endpoint", ExchangeServiceSetup."Exchange Service Endpoint", ExchangeServiceSetup."Exchange Resource Uri");
 
         ExchangeWebServicesServer.SetImpersonatedIdentity(AuthenticationEmail);
         Initialized := true;

@@ -8,6 +8,7 @@ table 532 "Company Size"
 {
     LookupPageId = "Company Sizes";
     DrillDownPageId = "Company Sizes";
+    DataClassification = CustomerContent;
 
     fields
     {

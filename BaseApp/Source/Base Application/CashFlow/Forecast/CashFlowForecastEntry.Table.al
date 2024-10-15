@@ -21,6 +21,7 @@ table 847 "Cash Flow Forecast Entry"
     Caption = 'Cash Flow Forecast Entry';
     DrillDownPageID = "Cash Flow Forecast Entries";
     LookupPageID = "Cash Flow Forecast Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

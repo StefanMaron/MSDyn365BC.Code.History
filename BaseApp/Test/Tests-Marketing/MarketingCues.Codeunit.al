@@ -28,7 +28,7 @@ codeunit 136216 "Marketing Cues"
 
         // [GIVEN] Number of Contacts "Company" type
         for I := 1 to LibraryRandom.RandInt(5) do
-            MockContactCompany;
+            MockContactCompany();
         // [WHEN] Calculate "Contacts - Companies" flow field for the "Relationship Mgmt. Cue"
         RelationshipMgmtCue.CalcFields("Contacts - Companies");
         // [THEN] "Relationship Mgmt. Cue"."Contacts - Companies" shows number of created contacts
@@ -47,7 +47,7 @@ codeunit 136216 "Marketing Cues"
 
         // [GIVEN] Number of Contacts "Person" type
         for I := 1 to LibraryRandom.RandInt(5) do
-            MockContactPerson;
+            MockContactPerson();
         // [WHEN] Calculate "Contacts - Persons" flow field for the "Relationship Mgmt. Cue"
         RelationshipMgmtCue.CalcFields("Contacts - Persons");
         // [THEN] "Relationship Mgmt. Cue"."Contacts - Persons" shows number of created contacts
@@ -65,9 +65,9 @@ codeunit 136216 "Marketing Cues"
         Initialize();
 
         // [GIVEN] Number of contacts that are duplicates
-        CreateDuplicateSearchStringSetup;
+        CreateDuplicateSearchStringSetup();
         for I := 1 to LibraryRandom.RandInt(5) do
-            MockContactDuplicate;
+            MockContactDuplicate();
         // [WHEN] Calculate "Contacts - Duplicates" flow field for the "Relationship Mgmt. Cue"
         REPORT.Run(REPORT::"Generate Dupl. Search String", false);
         RelationshipMgmtCue.CalcFields("Contacts - Duplicates");
@@ -78,7 +78,7 @@ codeunit 136216 "Marketing Cues"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Cues");
-        ClearRecords;
+        ClearRecords();
 
         if IsInitialized then
             exit;
@@ -142,7 +142,7 @@ codeunit 136216 "Marketing Cues"
         Contact: Record Contact;
         DuplicateContact: Record Contact;
     begin
-        MockContactCompany;
+        MockContactCompany();
         Contact.FindLast();
 
         MockContact(DuplicateContact);

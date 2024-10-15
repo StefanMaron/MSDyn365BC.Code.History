@@ -52,7 +52,7 @@ codeunit 142075 "UT SWS"
     begin
         CreateItem(Item);
         CreateItemJournalLine(ItemJournalLine, Item."No.");
-        EnqueueCalculateInventoryRequestPageValues(WorkDate(), LibraryUTUtility.GetNewCode, ZeroQuantity, IncludeItemWithoutTransactions);  // Posting Date as WORKDATE.
+        EnqueueCalculateInventoryRequestPageValues(WorkDate(), LibraryUTUtility.GetNewCode(), ZeroQuantity, IncludeItemWithoutTransactions);  // Posting Date as WORKDATE.
 
         // Exercise.
         RunCalculateInventoryReport(ItemJournalLine, Item."No.");
@@ -94,7 +94,7 @@ codeunit 142075 "UT SWS"
         CreateItem(Item);
         CreateItemJournalLine(ItemJournalLine, Item."No.");
         CreateItemLedgerEntry(ItemLedgerEntry, Item."No.", Quantity);
-        EnqueueCalculateInventoryRequestPageValues(WorkDate(), LibraryUTUtility.GetNewCode, false, false);  // Posting Date as WORKDATE, Zero Quantity - FALSE.
+        EnqueueCalculateInventoryRequestPageValues(WorkDate(), LibraryUTUtility.GetNewCode(), false, false);  // Posting Date as WorkDate(), Zero Quantity - FALSE.
 
         // Exercise.
         RunCalculateInventoryReport(ItemJournalLine, Item."No.");
@@ -137,7 +137,7 @@ codeunit 142075 "UT SWS"
         ApplyPaymentToGenJournalLine(GenJournalLine);
 
         // Exercise.
-        asserterror GenJournalLine.GetCustLedgerEntry;
+        asserterror GenJournalLine.GetCustLedgerEntry();
 
         // Verify: Verify the Error Code, Actual Error - Invoice doesn't exist or is already closed.
         Assert.ExpectedErrorCode(DialogErr);
@@ -161,7 +161,7 @@ codeunit 142075 "UT SWS"
         CreateCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Applies-to Doc. No.");
 
         // Exercise.
-        asserterror GenJournalLine.GetCustLedgerEntry;
+        asserterror GenJournalLine.GetCustLedgerEntry();
 
         // Verify: Verify the Error Code, Actual Error - The update has been interrupted to respect the warning.
         Assert.ExpectedErrorCode(DialogErr);
@@ -205,7 +205,7 @@ codeunit 142075 "UT SWS"
         CopyItemToTargetItem(Item."No.", '');
 
         // [THEN] Created Item "Y", where field "Created from Nonstock Item" is FALSE
-        Item.Get(GetTargetItemNo);
+        Item.Get(GetTargetItemNo());
         Assert.AreEqual(Item."Created From Nonstock Item", false, CopyItemErr);
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -226,7 +226,7 @@ codeunit 142075 "UT SWS"
         CreateNonStockItem(Item);
 
         // [WHEN] Copy Item "X" to Item "Y" with specified "No."
-        TargetItemNo := LibraryUTUtility.GetNewCode;
+        TargetItemNo := LibraryUTUtility.GetNewCode();
         CopyItemToTargetItem(Item."No.", TargetItemNo);
 
         // [THEN] Created Item "Y", where field "Created from Nonstock Item" is FALSE
@@ -242,8 +242,8 @@ codeunit 142075 "UT SWS"
 
     local procedure CreateItem(var Item: Record Item)
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
-        Item."Inventory Posting Group" := LibraryUTUtility.GetNewCode10;
+        Item."No." := LibraryUTUtility.GetNewCode();
+        Item."Inventory Posting Group" := LibraryUTUtility.GetNewCode10();
         Item.Insert();
     end;
 
@@ -253,7 +253,7 @@ codeunit 142075 "UT SWS"
         Location: Record Location;
     begin
         Location.Init();
-        Location.Code := LibraryUTUtility.GetNewCode10;
+        Location.Code := LibraryUTUtility.GetNewCode10();
         Location.Insert();
 
         ItemLedgerEntry2.FindLast();
@@ -269,9 +269,9 @@ codeunit 142075 "UT SWS"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
     begin
-        ItemJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        ItemJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         ItemJournalTemplate.Insert();
-        ItemJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        ItemJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         ItemJournalBatch."Journal Template Name" := ItemJournalTemplate.Name;
         ItemJournalBatch.Insert();
 
@@ -279,10 +279,10 @@ codeunit 142075 "UT SWS"
         ItemJournalLine."Journal Batch Name" := ItemJournalBatch.Name;
         ItemJournalLine."Line No." := 1;
         ItemJournalLine."Entry Type" := ItemJournalLine."Entry Type"::Sale;
-        ItemJournalLine."Document No." := LibraryUTUtility.GetNewCode;
+        ItemJournalLine."Document No." := LibraryUTUtility.GetNewCode();
         ItemJournalLine."Item No." := ItemNo;
         ItemJournalLine."Posting Date" := WorkDate();
-        ItemJournalLine."Gen. Prod. Posting Group" := LibraryUTUtility.GetNewCode10;
+        ItemJournalLine."Gen. Prod. Posting Group" := LibraryUTUtility.GetNewCode10();
         ItemJournalLine.Quantity := LibraryRandom.RandDec(10, 2);
         ItemJournalLine."Quantity (Base)" := ItemJournalLine.Quantity;
         ItemJournalLine."Value Entry Type" := ItemJournalLine."Value Entry Type"::"Direct Cost";
@@ -313,14 +313,12 @@ codeunit 142075 "UT SWS"
     var
         ItemList: TestPage "Item List";
     begin
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.FILTER.SetFilter("No.", No);
-        ItemList.CopyItem.Invoke;  // Invokes ItemListRequestPageHandler.
+        ItemList.CopyItem.Invoke();  // Invokes ItemListRequestPageHandler.
     end;
 
     local procedure CopyItemToTargetItem(ItemNo: Code[20]; TargetItemNo: Code[20])
-    var
-        ItemList: TestPage "Item List";
     begin
         LibraryVariableStorage.Enqueue(TargetItemNo);
         CopyItem(ItemNo);
@@ -328,7 +326,7 @@ codeunit 142075 "UT SWS"
 
     local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
-        GenJournalLine."Journal Batch Name" := LibraryUTUtility.GetNewCode10;
+        GenJournalLine."Journal Batch Name" := LibraryUTUtility.GetNewCode10();
         GenJournalLine."Line No." := 1;
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
         GenJournalLine.Insert();
@@ -339,11 +337,11 @@ codeunit 142075 "UT SWS"
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate."Page ID" := PAGE::"General Journal";
         GenJournalTemplate.Insert();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch.Insert();
 
         GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
@@ -351,9 +349,9 @@ codeunit 142075 "UT SWS"
         GenJournalLine."Line No." := LibraryRandom.RandInt(10);
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Vendor;
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
-        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
         GenJournalLine."Applies-to Doc. Type" := GenJournalLine."Applies-to Doc. Type"::Payment;
-        GenJournalLine."Applies-to Doc. No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Applies-to Doc. No." := LibraryUTUtility.GetNewCode();
         GenJournalLine.Amount := -LibraryRandom.RandDec(10, 2);
         GenJournalLine.Insert();
     end;
@@ -374,7 +372,7 @@ codeunit 142075 "UT SWS"
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Document No." := DocumentNo;
         CustLedgerEntry.Open := true;
-        CustLedgerEntry."Currency Code" := LibraryUTUtility.GetNewCode10;
+        CustLedgerEntry."Currency Code" := LibraryUTUtility.GetNewCode10();
         CustLedgerEntry.Insert();
     end;
 
@@ -398,12 +396,11 @@ codeunit 142075 "UT SWS"
         InventorySetup: Record "Inventory Setup";
         NoSeriesLine: Record "No. Series Line";
         NoSeries: Record "No. Series";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
         InventorySetup.Get();
         NoSeries.Get(InventorySetup."Item Nos.");
-        NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, InventorySetup."Item Nos.", 0D);
-        if NoSeriesLine.FindFirst() then
+        if NoSeriesCodeunit.GetNoSeriesLine(NoSeriesLine, InventorySetup."Item Nos.", 0D, true) then
             exit(NoSeriesLine."Last No. Used");
     end;
 
@@ -414,23 +411,23 @@ codeunit 142075 "UT SWS"
     begin
         GenJournalBatch.Get(JournalTemplateName, JournalBatchName);
         LibraryVariableStorage.Enqueue(JournalTemplateName);  // Required inside GeneralJournalTemplateListPageHandler.
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal.Amount.SetValue(LibraryRandom.RandDec(10, 2));
         GeneralJournal."Posting Date".SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Posting Date more than WORKDATE.
-        GeneralJournal.OK.Invoke;
+        GeneralJournal.OK().Invoke();
     end;
 
     local procedure UpdateAppliesToDocNoOnGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
-        GenJournalLine.Validate("Applies-to Doc. No.", LibraryUTUtility.GetNewCode);
+        GenJournalLine.Validate("Applies-to Doc. No.", LibraryUTUtility.GetNewCode());
         GenJournalLine.Modify();
     end;
 
     local procedure ApplyPaymentToGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
         GenJournalLine."Applies-to Doc. Type" := GenJournalLine."Applies-to Doc. Type"::Payment;
-        GenJournalLine."Applies-to Doc. No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Applies-to Doc. No." := LibraryUTUtility.GetNewCode();
         GenJournalLine.Modify();
     end;
 
@@ -455,16 +452,16 @@ codeunit 142075 "UT SWS"
         ItemsNotOnInventory: Boolean;
         IncludeItemWithoutTransaction: Boolean;
     begin
-        PostingDate := LibraryVariableStorage.DequeueDate;
-        DocumentNo := LibraryVariableStorage.DequeueText;
-        ItemsNotOnInventory := LibraryVariableStorage.DequeueBoolean;
-        IncludeItemWithoutTransaction := LibraryVariableStorage.DequeueBoolean;
+        PostingDate := LibraryVariableStorage.DequeueDate();
+        DocumentNo := LibraryVariableStorage.DequeueText();
+        ItemsNotOnInventory := LibraryVariableStorage.DequeueBoolean();
+        IncludeItemWithoutTransaction := LibraryVariableStorage.DequeueBoolean();
 
         CalculateInventory.PostingDate.SetValue(PostingDate);
         CalculateInventory.DocumentNo.SetValue(DocumentNo);
         CalculateInventory.ItemsNotOnInventory.SetValue(ItemsNotOnInventory);
         CalculateInventory.IncludeItemWithNoTransaction.SetValue(IncludeItemWithoutTransaction);
-        CalculateInventory.OK.Invoke;
+        CalculateInventory.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -475,7 +472,7 @@ codeunit 142075 "UT SWS"
     begin
         LibraryVariableStorage.Dequeue(Name);
         GeneralJournalTemplateList.FILTER.SetFilter(Name, Name);
-        GeneralJournalTemplateList.OK.Invoke
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -503,7 +500,7 @@ codeunit 142075 "UT SWS"
         with CopyItem do begin
             TargetItemNo.SetValue(ItemNo);
             GeneralItemInformation.SetValue(true);
-            OK.Invoke;
+            OK().Invoke();
         end;
     end;
 }

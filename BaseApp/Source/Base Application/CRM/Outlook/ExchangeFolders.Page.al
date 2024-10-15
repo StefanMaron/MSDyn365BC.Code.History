@@ -12,7 +12,7 @@ page 5320 "Exchange Folders"
     SourceTable = "Exchange Folder";
     SourceTableTemporary = true;
     SourceTableView = sorting(FullPath)
-                      order(Ascending);
+                      order(ascending);
 
     layout
     {

@@ -32,7 +32,7 @@ codeunit 144062 "UT Local Export Files Encoding"
         RunVATStatementAT(FdfFileName);
 
         // [THEN] Created fdf file contains country specific symbols in correct encoding
-        VerifyFDFLineValue(FdfFileName, 'Text05', GetCompanyInformationAddress);
+        VerifyFDFLineValue(FdfFileName, 'Text05', GetCompanyInformationAddress());
     end;
 
     local procedure Initialize()
@@ -108,7 +108,7 @@ codeunit 144062 "UT Local Export Files Encoding"
     begin
         LibraryVariableStorage.Dequeue(Variables);
         VATStatementAT.StartingDate.SetValue(Variables);
-        VATStatementAT.OK.Invoke;
+        VATStatementAT.OK().Invoke();
     end;
 
     [MessageHandler]

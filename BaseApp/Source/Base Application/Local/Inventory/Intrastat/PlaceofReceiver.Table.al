@@ -8,6 +8,7 @@ table 11001 "Place of Receiver"
 {
     Caption = 'Place of Receiver';
     LookupPageID = "Place of Receivers";
+    DataClassification = CustomerContent;
 
     fields
     {

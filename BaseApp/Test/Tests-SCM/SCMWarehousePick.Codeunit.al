@@ -330,7 +330,7 @@ codeunit 137055 "SCM Warehouse Pick"
 
         // [GIVEN] Create inventory pick from transfer
         Commit();
-        TransferHeader.CreateInvtPutAwayPick;
+        TransferHeader.CreateInvtPutAwayPick();
 
         FindWhseActivityLine(
           WhseActivLine, WhseActivLine."Activity Type"::"Invt. Pick", WhseActivLine."Action Type"::" ",
@@ -501,7 +501,7 @@ codeunit 137055 "SCM Warehouse Pick"
 
         // Save to tear down.
         GetSetDirectedBinMandatoryAndPutAwayAndPickOnLocation(
-          SavedBinMandatory, SavedDirectedPutAwayAndPick, WMSManagement.GetDefaultLocation, true, true);
+          SavedBinMandatory, SavedDirectedPutAwayAndPick, WMSManagement.GetDefaultLocation(), true, true);
 
         // [WHEN] Internal Movement Card "IMC" opens
         InternalMovementHeader.Init();
@@ -604,7 +604,7 @@ codeunit 137055 "SCM Warehouse Pick"
         Initialize();
         Quantity := 1;
         QtyPerBaseUoM := 3;
-        QtyToHandle := Round(Quantity / QtyPerBaseUoM, GetQtyRoundingPrecision);
+        QtyToHandle := Round(Quantity / QtyPerBaseUoM, GetQtyRoundingPrecision());
 
         // [GIVEN] Location with Require Pick enabled
         LocationCode := CreateLocationWithRequirePickPutAway(true, false);
@@ -657,7 +657,7 @@ codeunit 137055 "SCM Warehouse Pick"
         Initialize();
         Quantity := 1;
         QtyPerBaseUoM := 3;
-        QtyToHandle := Round(Quantity / QtyPerBaseUoM, GetQtyRoundingPrecision);
+        QtyToHandle := Round(Quantity / QtyPerBaseUoM, GetQtyRoundingPrecision());
 
         // [GIVEN] Location with Require Put-Away enabled
         LocationCode := CreateLocationWithRequirePickPutAway(false, true);
@@ -703,7 +703,7 @@ codeunit 137055 "SCM Warehouse Pick"
         Initialize();
         Quantity := 1;
         QtyPerBaseUoM := 3;
-        QtyToHandle := Round(Quantity / QtyPerBaseUoM, GetQtyRoundingPrecision);
+        QtyToHandle := Round(Quantity / QtyPerBaseUoM, GetQtyRoundingPrecision());
 
         // [GIVEN] Location with Require Put-Away enabled
         LocationCode := CreateLocationWithRequirePickPutAway(false, true);
@@ -750,7 +750,7 @@ codeunit 137055 "SCM Warehouse Pick"
         Initialize();
         Quantity := 1;
         QtyPerBaseUoM := 3;
-        QtyToHandle := Round(Quantity / QtyPerBaseUoM, GetQtyRoundingPrecision);
+        QtyToHandle := Round(Quantity / QtyPerBaseUoM, GetQtyRoundingPrecision());
 
         // [GIVEN] Location with Require Pick enabled
         LocationCode := CreateLocationWithRequirePickPutAway(true, false);
@@ -805,7 +805,7 @@ codeunit 137055 "SCM Warehouse Pick"
         Initialize();
         Quantity := 1;
         QtyPerBaseUoM := 3;
-        QtyToHandle := Round(Quantity / QtyPerBaseUoM, GetQtyRoundingPrecision);
+        QtyToHandle := Round(Quantity / QtyPerBaseUoM, GetQtyRoundingPrecision());
 
         // [GIVEN] Location SILVER with Require Pick enabled
         CreateTransferLocationsWithRequirePickPutAway(FromLocationCode, ToLocationCode, InTransitLocationCode);
@@ -865,7 +865,7 @@ codeunit 137055 "SCM Warehouse Pick"
         Initialize();
         Quantity := 1;
         QtyPerBaseUoM := 3;
-        QtyToHandle := Round(Quantity / QtyPerBaseUoM, GetQtyRoundingPrecision);
+        QtyToHandle := Round(Quantity / QtyPerBaseUoM, GetQtyRoundingPrecision());
 
         // [GIVEN] Location RED with Require Put-Away enabled
         CreateTransferLocationsWithRequirePickPutAway(FromLocationCode, ToLocationCode, InTransitLocationCode);
@@ -1476,7 +1476,6 @@ codeunit 137055 "SCM Warehouse Pick"
         ItemNonInventory: Record Item;
         SalesHeader: Record "Sales Header";
         Customer: Record Customer;
-        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         // [SCENARIO]
@@ -1578,11 +1577,9 @@ codeunit 137055 "SCM Warehouse Pick"
         ProductionOrder: Record "Production Order";
         ProductionBOMHeader: Record "Production BOM Header";
         ParentItem: Record Item;
-        WarehouseEmployee: Record "Warehouse Employee";
         ChildItem: Record Item;
         Quantity: Decimal;
         PickWorksheetPage: TestPage "Pick Worksheet";
-        WhseWorkSheetLine: Record "Whse. Worksheet Line";
     begin
         isInitialized := false;
         Initialize();
@@ -1785,8 +1782,8 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
         NoSeriesSetup();
-        CreateLocationSetup;
-        ItemJournalSetup;
+        CreateLocationSetup();
+        ItemJournalSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse Pick");
@@ -1857,7 +1854,7 @@ codeunit 137055 "SCM Warehouse Pick"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
         SalesLine.Validate("No.", ItemNo);
         SalesLine.Validate("Location Code", LocationCode);
@@ -1870,7 +1867,7 @@ codeunit 137055 "SCM Warehouse Pick"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
         PurchaseLine.Validate("No.", ItemNo);
@@ -1900,13 +1897,13 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -1914,7 +1911,7 @@ codeunit 137055 "SCM Warehouse Pick"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -1974,7 +1971,7 @@ codeunit 137055 "SCM Warehouse Pick"
     var
         Bin: Record Bin;
     begin
-        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID(), '', '');
         exit(Bin.Code);
     end;
 
@@ -2236,9 +2233,9 @@ codeunit 137055 "SCM Warehouse Pick"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.SalesLines.Reserve.Invoke;  // Open Page - Reservation on ReservationPageHandler.
+        SalesOrder.SalesLines.Reserve.Invoke();  // Open Page - Reservation on ReservationPageHandler.
         SalesOrder.Close();
     end;
 
@@ -2249,7 +2246,7 @@ codeunit 137055 "SCM Warehouse Pick"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst();
-        SalesLine.ShowAsmToOrderLines;
+        SalesLine.ShowAsmToOrderLines();
     end;
 
     local procedure FilterWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20])
@@ -2365,7 +2362,7 @@ codeunit 137055 "SCM Warehouse Pick"
 
     local procedure OpenInternalMovementPage(var InternalMovement: TestPage "Internal Movement"; No: Code[20])
     begin
-        InternalMovement.OpenEdit;
+        InternalMovement.OpenEdit();
         InternalMovement.FILTER.SetFilter("No.", No);
     end;
 
@@ -2590,7 +2587,7 @@ codeunit 137055 "SCM Warehouse Pick"
     [Scope('OnPrem')]
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Reserve from Current Line".Invoke; // Reserve Current line.
+        Reservation."Reserve from Current Line".Invoke(); // Reserve Current line.
     end;
 
     [ModalPageHandler]
@@ -2601,7 +2598,7 @@ codeunit 137055 "SCM Warehouse Pick"
     begin
         case LibraryVariableStorage.DequeueInteger() of
             ReservationAction::AutoReserve:
-                Reservation."Reserve from Current Line".Invoke;
+                Reservation."Reserve from Current Line".Invoke();
             ReservationAction::GetQuantities:
                 begin
                     Evaluate(Quantity, Reservation.QtyAllocatedInWarehouse.Value());
@@ -2616,7 +2613,7 @@ codeunit 137055 "SCM Warehouse Pick"
     [Scope('OnPrem')]
     procedure AssembleToOrderLinesPageHandler(var AssembletoOrderLines: TestPage "Assemble-to-Order Lines")
     begin
-        AssembletoOrderLines."&Reserve".Invoke;
+        AssembletoOrderLines."&Reserve".Invoke();
     end;
 
     [ConfirmHandler]
@@ -2637,14 +2634,14 @@ codeunit 137055 "SCM Warehouse Pick"
     procedure PhysInvtItemSelectionPageHandler(var PhysInvtItemSelection: TestPage "Phys. Invt. Item Selection")
     begin
         PhysInvtItemSelection.FILTER.SetFilter("Item No.", GlobalItemNo);
-        PhysInvtItemSelection.OK.Invoke;  // Open Report- Calculate Phys.Invt. Counting on CalculatePhysInvtCountingPageHandler.
+        PhysInvtItemSelection.OK().Invoke();  // Open Report- Calculate Phys.Invt. Counting on CalculatePhysInvtCountingPageHandler.
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalculatePhysInvtCountingPageHandler(var CalculatePhysInvtCounting: TestRequestPage "Calculate Phys. Invt. Counting")
     begin
-        CalculatePhysInvtCounting.OK.Invoke;
+        CalculatePhysInvtCounting.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2652,24 +2649,24 @@ codeunit 137055 "SCM Warehouse Pick"
     procedure CreateWhsePutAwayPickHandler(var CreateWhsePutAwayPick: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
     begin
         CreateWhsePutAwayPick.CInvtPick.SetValue(true);
-        CreateWhsePutAwayPick.OK.Invoke;
+        CreateWhsePutAwayPick.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WhseSourceCreateDocumentOKHandler(var WhseSourceCreateDocument: TestRequestPage "Whse.-Source - Create Document")
     begin
-        WhseSourceCreateDocument.OK.Invoke;
+        WhseSourceCreateDocument.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WhseChangeUnitOfMeasureRequestPageHandler(var WhseChangeUnitofMeasure: TestRequestPage "Whse. Change Unit of Measure")
     begin
-        Assert.IsFalse(WhseChangeUnitofMeasure."Action Type".Editable, ActionTypeMustNotBeEditableErr);
-        Assert.IsFalse(WhseChangeUnitofMeasure."Unit of Measure Code".Editable, UnitOfMeasureCodeMustNotBeEditableErr);
+        Assert.IsFalse(WhseChangeUnitofMeasure."Action Type".Editable(), ActionTypeMustNotBeEditableErr);
+        Assert.IsFalse(WhseChangeUnitofMeasure."Unit of Measure Code".Editable(), UnitOfMeasureCodeMustNotBeEditableErr);
 
-        WhseChangeUnitofMeasure.Cancel.Invoke;
+        WhseChangeUnitofMeasure.Cancel().Invoke();
     end;
 
     [ModalPageHandler]

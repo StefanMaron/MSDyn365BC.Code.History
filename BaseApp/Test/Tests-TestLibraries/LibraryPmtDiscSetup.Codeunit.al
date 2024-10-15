@@ -80,8 +80,8 @@ codeunit 131303 "Library - Pmt Disc Setup"
         SetPmtDiscGracePeriodByText('<5D>');
         GeneralLedgerSetup.Validate("Payment Tolerance %", PaymentTolerancePct);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 5);
-        SetPmtTolerancePostings;
-        SetPmtToleranceWarnings;
+        SetPmtTolerancePostings();
+        SetPmtToleranceWarnings();
         GeneralLedgerSetup.Modify(true);
     end;
 

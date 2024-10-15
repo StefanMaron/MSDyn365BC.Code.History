@@ -42,7 +42,7 @@ page 5097 "Create Task"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Type';
                     ToolTip = 'Specifies the type of the Task.';
-                    Visible = NOT IsSoftwareAsAService;
+                    Visible = not IsSoftwareAsAService;
 
                     trigger OnValidate()
                     begin

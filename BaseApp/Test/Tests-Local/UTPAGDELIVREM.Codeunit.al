@@ -28,10 +28,10 @@ codeunit 142041 "UT PAG DELIVREM"
         // Setup: Create Issued Delivery Reminder Header, Open Navigate and Find.
         CreateIssuedDelivReminderHeader(IssuedDelivReminderHeader);
         OpenNavigatePageAndFindEntry(Navigate, IssuedDelivReminderHeader."No.");
-        IssuedDeliveryRemindersList.Trap;
+        IssuedDeliveryRemindersList.Trap();
 
         // Exercise.
-        Navigate.Show.Invoke;
+        Navigate.Show.Invoke();
 
         // Verify: Verify Reminder No on Page IssuedDeliveryRemindersList.
         IssuedDeliveryRemindersList."No.".AssertEquals(IssuedDelivReminderHeader."No.");
@@ -52,10 +52,10 @@ codeunit 142041 "UT PAG DELIVREM"
         // Setup: Create Delivery Reminder Ledger Entry, Open Navigate and Find.
         CreateDeliveryReminderLedgerEntry(DeliveryReminderLedgerEntry);
         OpenNavigatePageAndFindEntry(Navigate, DeliveryReminderLedgerEntry."Reminder No.");
-        DelivReminderLedgerEntries.Trap;
+        DelivReminderLedgerEntries.Trap();
 
         // Exercise.
-        Navigate.Show.Invoke;
+        Navigate.Show.Invoke();
 
         // Verify: Verify Reminder No on Page DelivReminderLedgerEntries.
         DelivReminderLedgerEntries."Reminder No.".AssertEquals(DeliveryReminderLedgerEntry."Reminder No.");
@@ -78,7 +78,7 @@ codeunit 142041 "UT PAG DELIVREM"
         OpenIssuedDeliveryReminderPage(IssuedDeliveryReminder, IssuedDelivReminderHeader."No.");
 
         // Exercise and Verify: Print from Page Issued Delivery Reminder and add Report handler -IssuedDeliveryReminderReportHandler.
-        IssuedDeliveryReminder.PrintReport.Invoke;
+        IssuedDeliveryReminder.PrintReport.Invoke();
         IssuedDeliveryReminder.Close();
     end;
 
@@ -96,10 +96,10 @@ codeunit 142041 "UT PAG DELIVREM"
         // Setup: Create Issued Delivery Reminder Header and Open Page Issued Delivery Reminder.
         CreateIssuedDelivReminderHeader(IssuedDelivReminderHeader);
         OpenIssuedDeliveryReminderPage(IssuedDeliveryReminder, IssuedDelivReminderHeader."No.");
-        Navigate.Trap;
+        Navigate.Trap();
 
         // Exercise: Navigate from Page Issued Delivery Reminder.
-        IssuedDeliveryReminder.Navigate.Invoke;
+        IssuedDeliveryReminder.Navigate.Invoke();
 
         // Verify: Verify Table Name on Navigate Page.
         Navigate."Table Name".AssertEquals(CopyStr(IssuedDelivReminderHeader.TableCaption(), 1, MaxStrLen(DocumentEntry."Table Name")));
@@ -120,7 +120,7 @@ codeunit 142041 "UT PAG DELIVREM"
         CreateDeliveryReminderLedgerEntry(DeliveryReminderLedgerEntry);
 
         // Exercise: Open Delivery Reminder Ledger Entries Page.
-        DelivReminderLedgerEntries.OpenEdit;
+        DelivReminderLedgerEntries.OpenEdit();
         DelivReminderLedgerEntries.FILTER.SetFilter("Entry No.", Format(DeliveryReminderLedgerEntry."Entry No."));
 
         // Verify: Verify Reminder No on Page Delivery Reminder Ledger Entries.
@@ -143,7 +143,7 @@ codeunit 142041 "UT PAG DELIVREM"
         DeliveryReminderLevel.Insert();
 
         // Exercise: Open Page Delivery Reminder Level.
-        DeliveryReminderLevels.OpenEdit;
+        DeliveryReminderLevels.OpenEdit();
         DeliveryReminderLevels.FILTER.SetFilter("Reminder Terms Code", DeliveryReminderLevel."Reminder Terms Code");
 
         // Verify: Verify No on Page Delivery Reminder Level.
@@ -161,7 +161,7 @@ codeunit 142041 "UT PAG DELIVREM"
     begin
         // Purpose of the test is to validate Function SetUsageFilter for Page 5005391 - Report Selection - Comf. Purch.
         // Setup.
-        ReportSelectionComfPurch.OpenEdit;
+        ReportSelectionComfPurch.OpenEdit();
 
         // Exercise: Use Option Issued Delivery Reminder.
         ReportSelectionComfPurch.ReportUsage2.SetValue(ReportUsage::"Issued Delivery Reminder");
@@ -181,7 +181,7 @@ codeunit 142041 "UT PAG DELIVREM"
     begin
         // Purpose of the test is to validate Function SetUsageFilter for Page 5005391 - Report Selection - Comf. Purch.
         // Setup.
-        ReportSelectionComfPurch.OpenEdit;
+        ReportSelectionComfPurch.OpenEdit();
 
         // Exercise: Use Option Delivery Reminder Test.
         ReportSelectionComfPurch.ReportUsage2.SetValue(ReportUsage::"Delivery Reminder Test");
@@ -212,7 +212,7 @@ codeunit 142041 "UT PAG DELIVREM"
         OpenDeliveryReminderPage(DeliveryReminder, DeliveryReminderHeader."No.");
 
         // Exercise: Invoke Action - InsertExtTexts on Page Delivery Reminder Subform.
-        DeliveryReminder.DeliveryReminderLines.InsertExtTexts.Invoke;
+        DeliveryReminder.DeliveryReminderLines.InsertExtTexts.Invoke();
         DeliveryReminder.Close();
 
         // Verify: Verify Text of Extended Text Line is updated as Description of Delivery Reminder Line.
@@ -259,12 +259,12 @@ codeunit 142041 "UT PAG DELIVREM"
         // [SCENARIO 284485] Page 5005275 "Issued Delivery Reminders List" has a valid Print Action
         // [GIVEN] Page "Issued Delivery Reminders List" open
         LibraryApplicationArea.EnableFoundationSetup();
-        IssuedDeliveryRemindersList.OpenView;
+        IssuedDeliveryRemindersList.OpenView();
         // [WHEN] Invoke Print Action
         // [THEN] Report "Issued Delivery Reminder" is called
-        IssuedDeliveryRemindersList.PrintReport.Invoke;
+        IssuedDeliveryRemindersList.PrintReport.Invoke();
         IssuedDeliveryRemindersList.Close();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -284,10 +284,10 @@ codeunit 142041 "UT PAG DELIVREM"
         CreateIssuedDelivReminderHeaderWithPostingDate(IssuedDelivReminderHeader);
 
         // [WHEN] Invoke Navigate action on "P1".
-        Navigate.Trap;
-        IssuedDeliveryRemindersList.OpenView;
+        Navigate.Trap();
+        IssuedDeliveryRemindersList.OpenView();
         IssuedDeliveryRemindersList.FILTER.SetFilter("No.", IssuedDelivReminderHeader."No.");
-        IssuedDeliveryRemindersList.Navigate.Invoke;
+        IssuedDeliveryRemindersList.Navigate.Invoke();
 
         // [THEN] "P2".DocNoFilter = "R1"."No.".
         Navigate.DocNoFilter.AssertEquals(IssuedDelivReminderHeader."No.");
@@ -305,15 +305,15 @@ codeunit 142041 "UT PAG DELIVREM"
         // [FEATURE] [UI] [Purchases] [Reminder]
         // [SCENARIO 330466] Default Del. Rem. Date Field is accessible and editable on Purchases & Payables Setup page
         LibraryPermissions.SetTestabilitySoftwareAsAService(true);
-        PurchasesPayablesSetup.OpenEdit;
-        Assert.IsTrue(PurchasesPayablesSetup."Default Del. Rem. Date Field".Enabled, '');
-        Assert.IsTrue(PurchasesPayablesSetup."Default Del. Rem. Date Field".Editable, '');
+        PurchasesPayablesSetup.OpenEdit();
+        Assert.IsTrue(PurchasesPayablesSetup."Default Del. Rem. Date Field".Enabled(), '');
+        Assert.IsTrue(PurchasesPayablesSetup."Default Del. Rem. Date Field".Editable(), '');
         LibraryPermissions.SetTestabilitySoftwareAsAService(false);
     end;
 
     local procedure CreateIssuedDelivReminderHeader(var IssuedDelivReminderHeader: Record "Issued Deliv. Reminder Header")
     begin
-        IssuedDelivReminderHeader."No." := LibraryUTUtility.GetNewCode;
+        IssuedDelivReminderHeader."No." := LibraryUTUtility.GetNewCode();
         IssuedDelivReminderHeader.Insert();
     end;
 
@@ -326,8 +326,8 @@ codeunit 142041 "UT PAG DELIVREM"
 
     local procedure CreateDeliveryReminderLedgerEntry(var DeliveryReminderLedgerEntry: Record "Delivery Reminder Ledger Entry")
     begin
-        DeliveryReminderLedgerEntry."Entry No." := SelectDeliveryReminderLedgerEntryNo;
-        DeliveryReminderLedgerEntry."Reminder No." := LibraryUTUtility.GetNewCode;
+        DeliveryReminderLedgerEntry."Entry No." := SelectDeliveryReminderLedgerEntryNo();
+        DeliveryReminderLedgerEntry."Reminder No." := LibraryUTUtility.GetNewCode();
         DeliveryReminderLedgerEntry.Insert();
     end;
 
@@ -342,8 +342,8 @@ codeunit 142041 "UT PAG DELIVREM"
 
     local procedure CreateDeliveryReminderHeader(var DeliveryReminderHeader: Record "Delivery Reminder Header")
     begin
-        DeliveryReminderHeader."No." := LibraryUTUtility.GetNewCode;
-        DeliveryReminderHeader.Name := LibraryUTUtility.GetNewCode;
+        DeliveryReminderHeader."No." := LibraryUTUtility.GetNewCode();
+        DeliveryReminderHeader.Name := LibraryUTUtility.GetNewCode();
         DeliveryReminderHeader."Document Date" := WorkDate();
         DeliveryReminderHeader.Insert();
     end;
@@ -365,33 +365,33 @@ codeunit 142041 "UT PAG DELIVREM"
     local procedure CreateExtendedTextLine(var ExtendedTextLine: Record "Extended Text Line"; No: Code[20])
     begin
         ExtendedTextLine."No." := No;
-        ExtendedTextLine.Text := LibraryUTUtility.GetNewCode;
+        ExtendedTextLine.Text := LibraryUTUtility.GetNewCode();
         ExtendedTextLine.Insert();
     end;
 
     local procedure CreateStandardText(var StandardText: Record "Standard Text")
     begin
-        StandardText.Code := LibraryUTUtility.GetNewCode;
-        StandardText.Description := LibraryUTUtility.GetNewCode;
+        StandardText.Code := LibraryUTUtility.GetNewCode();
+        StandardText.Description := LibraryUTUtility.GetNewCode();
         StandardText.Insert();
     end;
 
     local procedure OpenNavigatePageAndFindEntry(var Navigate: TestPage Navigate; DocNoFilter: Code[250])
     begin
-        Navigate.OpenEdit;
+        Navigate.OpenEdit();
         Navigate.DocNoFilter.SetValue(DocNoFilter);
-        Navigate.Find.Invoke;
+        Navigate.Find.Invoke();
     end;
 
     local procedure OpenIssuedDeliveryReminderPage(var IssuedDeliveryReminder: TestPage "Issued Delivery Reminder"; No: Code[20])
     begin
-        IssuedDeliveryReminder.OpenEdit;
+        IssuedDeliveryReminder.OpenEdit();
         IssuedDeliveryReminder.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenDeliveryReminderPage(var DeliveryReminder: TestPage "Delivery Reminder"; No: Code[20])
     begin
-        DeliveryReminder.OpenEdit;
+        DeliveryReminder.OpenEdit();
         DeliveryReminder.FILTER.SetFilter("No.", No);
     end;
 

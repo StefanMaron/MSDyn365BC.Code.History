@@ -24,7 +24,7 @@ codeunit 144003 FDFFileHelper
         textFile.Open(fileName, TEXTENCODING::Windows);
         textFile.CreateInStream(fileStream);
         regEx := regEx.Regex(fdfFilePatternTxt);
-        hashTable := hashTable.Hashtable;
+        hashTable := hashTable.Hashtable();
         while not fileStream.EOS do begin
             fileStream.ReadText(str);
             regExMatch := regEx.Match(str);

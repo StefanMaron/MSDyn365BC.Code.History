@@ -10,7 +10,6 @@ codeunit 139006 "Test My Settings"
 
     var
         Assert: Codeunit Assert;
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
@@ -357,7 +356,7 @@ codeunit 139006 "Test My Settings"
 
         MyNotificationsPage.OpenView();
 
-        Assert.IsTrue(MyNotifications.IsEnabled(PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId), '');
+        Assert.IsTrue(MyNotifications.IsEnabled(PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId()), '');
     end;
 
     local procedure Initialize()
@@ -367,7 +366,7 @@ codeunit 139006 "Test My Settings"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        UserPersonalization.Get(UserSecurityId);
+        UserPersonalization.Get(UserSecurityId());
         Clear(UserPersonalization."Profile ID");
         Clear(UserPersonalization."App ID");
         Clear(UserPersonalization.Scope);
@@ -440,8 +439,8 @@ codeunit 139006 "Test My Settings"
         FiltersOutStream: OutStream;
     begin
         MyNotifications.InsertDefaultWithTableNum(
-          CustCheckCrLimit.GetCreditLimitNotificationId,
-          LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID,
+          CustCheckCrLimit.GetCreditLimitNotificationId(),
+          LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID(),
           DATABASE::Customer);
         MyNotifications.Enabled := true;
         MyNotifications."Apply to Table Filter".CreateOutStream(FiltersOutStream);
@@ -481,7 +480,7 @@ codeunit 139006 "Test My Settings"
         Customer: Record Customer;
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
     begin
-        MyNotifications.FILTER.SetFilter("Notification Id", CustCheckCrLimit.GetCreditLimitNotificationId);
+        MyNotifications.FILTER.SetFilter("Notification Id", CustCheckCrLimit.GetCreditLimitNotificationId());
 
         // [WHEN] The notification is disabled
         MyNotifications.Enabled.SetValue(false);

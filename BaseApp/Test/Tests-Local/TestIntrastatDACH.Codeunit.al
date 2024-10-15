@@ -116,7 +116,7 @@ codeunit 142081 "Test Intrastat DACH"
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, VendorNo);
         PurchHeader.Validate("Posting Date", PostingDate);
         PurchHeader.Modify(true);
-        ItemNo := CreateItemWithTariffNo;
+        ItemNo := CreateItemWithTariffNo();
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
     end;

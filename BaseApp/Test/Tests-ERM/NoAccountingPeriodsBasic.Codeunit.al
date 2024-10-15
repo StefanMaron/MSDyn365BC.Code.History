@@ -31,7 +31,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         // [SCENARIO 222561] First day of the year is default starting period date when no periods defined
         Initialize();
         Assert.AreEqual(
-          CalcDate('<-CY>', WorkDate()), AccountingPeriodMgt.GetPeriodStartingDate, WrongPeriodStartingDateErr);
+          CalcDate('<-CY>', WorkDate()), AccountingPeriodMgt.GetPeriodStartingDate(), WrongPeriodStartingDateErr);
     end;
 
     [Test]
@@ -42,11 +42,11 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] First posting date is starting period date when accounting periods are defined
-        LibraryFiscalYear.CloseAccountingPeriod;
+        LibraryFiscalYear.CloseAccountingPeriod();
         LibraryFiscalYear.CreateFiscalYear();
         Assert.AreEqual(
           CalcDate('<-CY>', LibraryFiscalYear.GetFirstPostingDate(false)),
-          AccountingPeriodMgt.GetPeriodStartingDate, WrongPeriodStartingDateErr);
+          AccountingPeriodMgt.GetPeriodStartingDate(), WrongPeriodStartingDateErr);
     end;
 
     [Test]
@@ -440,10 +440,10 @@ codeunit 134360 "No Accounting Periods: Basic"
     [Scope('OnPrem')]
     procedure CreateFiscalYearRequestPageHandler(var CreateFiscalYear: TestRequestPage "Create Fiscal Year")
     begin
-        CreateFiscalYear.StartingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        CreateFiscalYear.NoOfPeriods.SetValue(LibraryVariableStorage.DequeueInteger);
-        CreateFiscalYear.PeriodLength.SetValue(LibraryVariableStorage.DequeueText);
-        CreateFiscalYear.OK.Invoke;
+        CreateFiscalYear.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        CreateFiscalYear.NoOfPeriods.SetValue(LibraryVariableStorage.DequeueInteger());
+        CreateFiscalYear.PeriodLength.SetValue(LibraryVariableStorage.DequeueText());
+        CreateFiscalYear.OK().Invoke();
     end;
 
     local procedure GetCurrentAccountingPeriod(var AccountingPeriod: Record "Accounting Period")

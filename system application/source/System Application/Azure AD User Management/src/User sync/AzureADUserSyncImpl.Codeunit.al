@@ -215,7 +215,7 @@ codeunit 9029 "Azure AD User Sync Impl."
     end;
 
     // If the user's plans are any of the following:
-    // - Internal Administrator (Global Administrator or Dynamics 365 Administrator)
+    // - Internal Administrator (Global Administrator or Dynamics 365 Administrator or BC Administrator)
     // - Microsoft 365
     // - Internal Administrator + Microsoft 365
     // and there is no environment security group defined,
@@ -428,7 +428,6 @@ codeunit 9029 "Azure AD User Sync Impl."
         PlanNamesPerUserFromGraph: Dictionary of [Text, List of [Text]];
     begin
         ConsolidatePlansNamesFromGraph(AzureADUserUpdate, PlanNamesPerUserFromGraph);
-        AzureADPlan.CheckMixedPlans(PlanNamesPerUserFromGraph, true);
 
         // The updates are stored in the table as [all the changes for the first user], [all the changes for the next user] etc.
         AzureADUserUpdate.SetCurrentKey("Authentication Object ID", "Update Entity");

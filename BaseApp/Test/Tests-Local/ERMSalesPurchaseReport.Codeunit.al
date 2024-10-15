@@ -87,7 +87,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
     end;
 
     var
-        Assert: Codeunit Assert;
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -99,7 +98,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryRandom: Codeunit "Library - Random";
         BuyFromVendCaption: Label 'BuyfromVendNo_PurchCrMemoHdr';
         CompanyInfoVATRegNo: Label 'CompanyInfoVATRegNo';
-        CompanyInfoVATRegistrationNo: Label 'CompanyInfoVATRegistrationNo';
         CountryRegionCodeCaption: Label 'VATEntryCountry__Country_Region_Code_';
         CurrencyString: Label 'All amounts are in %1.';
         FilterValue: Label 'No.: %1';
@@ -107,7 +105,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
         FilterTextCaption: Label 'FilterText';
         GenProdPostingGroupCaption: Label 'VATEntryGenProdPostingGroup__Gen__Prod__Posting_Group_';
         HeaderTextCaption: Label 'HeaderText';
-        RowMustExist: Label 'Row does not exists with %1 and %2.';
         MultipleFilters: Label 'VAT Entry: Gen. Prod. Posting Group: %1, Posting Date: %2, Country/Region Code: %3';
         OutputNoCaption: Label 'OutputNo';
         PayToVendorCaption: Label 'PaytoVendNo_PurchCrMemoHdr';
@@ -124,7 +121,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
         SalesHdrDimText: Label 'DimText';
         SalesToCustomerCaption: Label 'SalesToCust';
         SalesToCustomerControlCaption: Label 'SalesToCust_Control1160023';
-        ValueNotMatch: Label 'Value must be same.';
         VendFilterCaption: Label 'VendFilter';
         isInitialized: Boolean;
         CurrentSaveValuesId: Integer;
@@ -141,14 +137,14 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
         // Setup: Create Sales Order.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithDimension);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithDimension());
         LibraryVariableStorage.Enqueue(SalesHeader."No.");  // Enqueue value for BatchPostSalesOrdersRequestPageHandler.
-        SalesOrders.OpenEdit;
+        SalesOrders.OpenEdit();
         SalesOrders.FILTER.SetFilter("No.", SalesHeader."No.");
         Commit();  // COMMIT is required for run Sales Posting Batch Job Report.
 
         // Exercise: Run Sales Posting Batch Job Report.
-        SalesOrders."Post &Batch".Invoke;  // Control is using to run Sales Posting Batch Job Report.
+        SalesOrders."Post &Batch".Invoke();  // Control is using to run Sales Posting Batch Job Report.
 
         // Verify: Verify Posted Sales Shipment and posted Sales Invoice.
         VerifyPostedSalesDocument(SalesHeader."No.", SalesHeader."Sell-to Customer No.");
@@ -161,7 +157,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
     begin
         // Setup: Create and post Sales Document.
         Initialize();
-        CreateSalesDocument(SalesHeader, DocumentType, CreateCustomerWithDimension);
+        CreateSalesDocument(SalesHeader, DocumentType, CreateCustomerWithDimension());
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue value for ReportHandler.
 
@@ -184,7 +180,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
         // Setup: Create Purchase Order.
         Initialize();
-        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorWithDimension);
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorWithDimension());
         ArchiveManagement.ArchivePurchDocument(PurchaseHeader);
 
         // Exercise: Post Purchase Order as Ship and Invoice.
@@ -207,7 +203,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
         // Setup: Create and post Purchase Credit Memo.
         Initialize();
-        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendorWithDimension);
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendorWithDimension());
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryVariableStorage.Enqueue(OptionValue::No);
         LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue value for PurchaseCreditMemoRequestPageHandler.
@@ -280,7 +276,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
         // Setup: Create and post Purchase Credit Memo.
         Initialize();
-        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendorWithDimension);
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendorWithDimension());
         UpdatePurchHdrPayToVendorNo(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryVariableStorage.Enqueue(OptionString::BuyFromVendNo);
@@ -461,7 +457,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
         // Setup: Update General Ledger Setup.
         Initialize();
-        CurrencyCode := UpdateGeneralLedgerSetup;
+        CurrencyCode := UpdateGeneralLedgerSetup();
 
         // Exercise.
         PostPurchOrderAndRunCrossBorderServiceReport(PurchaseLine, StatisticOn::"Type of Service");
@@ -502,7 +498,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
     begin
         // Setup: Update General Ledger Setup.
         Initialize();
-        CurrencyCode := UpdateGeneralLedgerSetup;
+        CurrencyCode := UpdateGeneralLedgerSetup();
 
         // Exercise.
         PostPurchOrderAndRunCrossBorderServiceReport(PurchaseLine, StatisticOn);
@@ -660,7 +656,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         CompanyInfo.Get();
 
         // [GIVEN] A Blanket Sales Order with Reponsibility Center blank
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo());
 
         // [WHEN] Report 210 is run
         SalesHeader.SetRange("No.", SalesHeader."No.");
@@ -670,7 +666,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         // Handled by BlanketSalesOrderRequestPageHandler
 
         // [THEN] Company Information is filled
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('CompanyInfo__VAT_Registration_No__', CompanyInfo."VAT Registration No.");
     end;
 
@@ -680,7 +676,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
     begin
         LibraryVariableStorage.Clear();
         Clear(LibraryReportDataset);
-        DeleteObjectOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded();
 
         if isInitialized then
             exit;
@@ -705,7 +701,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
     local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
-        CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateVendorWithDimension);
+        CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateVendorWithDimension());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
@@ -714,8 +710,8 @@ codeunit 142060 "ERM Sales/Purchase Report"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        Currency.Validate("Residual Gains Account", CreateGLAccount);
-        Currency.Validate("Residual Losses Account", CreateGLAccount);
+        Currency.Validate("Residual Gains Account", CreateGLAccount());
+        Currency.Validate("Residual Losses Account", CreateGLAccount());
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         Currency.Modify(true);
         exit(Currency.Code);
@@ -882,7 +878,6 @@ codeunit 142060 "ERM Sales/Purchase Report"
     local procedure PostSalesOrderAndRunCrossBorderServiceReport(var SalesLine: Record "Sales Line"; StatisticOn: Option)
     var
         Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
     begin
         // Setup: Create and modify Customer, create and post Purchase Order.
         Initialize();
@@ -903,7 +898,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         REPORT.Run(REPORT::"Crossborder Services");
 
         // Verify: Verify Filter Text on Crossborder Services report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, ElementValue);
     end;
 
@@ -953,14 +948,14 @@ codeunit 142060 "ERM Sales/Purchase Report"
         GeneralLedgerSetup.Get();
 
         // As there is no need to run Ajdust Add. Reporting Currency Batch Job so we are not validating Additional Reporting Currency field.
-        GeneralLedgerSetup."Additional Reporting Currency" := CreateAndUpdateCurrency;
+        GeneralLedgerSetup."Additional Reporting Currency" := CreateAndUpdateCurrency();
         GeneralLedgerSetup.Modify(true);
         exit(GeneralLedgerSetup."Additional Reporting Currency");
     end;
 
     local procedure UpdatePurchHdrPayToVendorNo(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Pay-to Vendor No.", CreateVendorWithDimension);
+        PurchaseHeader.Validate("Pay-to Vendor No.", CreateVendorWithDimension());
         PurchaseHeader.Modify(true);
     end;
 
@@ -982,16 +977,16 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
     local procedure VerifyCrossBorderServiceReport(CurrencyCode: Text[50]; RowCaption: Text[100]; RowValue: Variant; Columncaption: Text[50]; ColumnValue: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(HeaderTextCaption, StrSubstNo(CurrencyString, CurrencyCode));
         LibraryReportDataset.SetRange(RowCaption, RowValue);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(Columncaption, ColumnValue);
     end;
 
     local procedure VerifyElementWithValue(ElementName: Text[50]; ElementValue: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, ElementValue);
     end;
 
@@ -1012,7 +1007,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
     local procedure VerifyPurchaseCreditMemoRegistrationNo(RegistrationValue: Text[50]; RegistrationNo: Text[50])
     begin
         LibraryReportDataset.SetRange(RegistrationNoCaption, RegistrationValue);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(PurchCrMemoHdrRegNoCaption, RegistrationNo);
     end;
 
@@ -1027,7 +1022,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
     local procedure VerifyVendorDetailedAgingDocumentNo(VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Vend', VendorLedgerEntry."Vendor No.");
         LibraryReportDataset.MoveToRow(1);
         LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo_VendLedgEntry', VendorLedgerEntry."Document No.");
@@ -1045,7 +1040,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         BatchPostSalesOrders.Invoice.SetValue(true);
         BatchPostSalesOrders.PostingDate.SetValue(WorkDate());
         BatchPostSalesOrders."Sales Header".SetFilter("No.", No);
-        BatchPostSalesOrders.OK.Invoke;
+        BatchPostSalesOrders.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1070,7 +1065,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         CrossborderServices.Selection.SetValue(StatisticOn);  // Setting value for control 'Statistic on'.
         CrossborderServices.UseAmtsInAddCurr.SetValue(ShowAmountInAddReportingCurrency);  // Setting value for control 'Show Amount in Additional Reporting Currency'.
         CrossborderServices."VAT Entry".SetFilter("Country/Region Code", CountryRegionCode);
-        CrossborderServices.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CrossborderServices.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1119,7 +1114,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
                     CrossborderServices."VAT Entry".SetFilter("Posting Date", Format(WorkDate()));
                 end;
         end;
-        CrossborderServices.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CrossborderServices.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]
@@ -1173,14 +1168,14 @@ codeunit 142060 "ERM Sales/Purchase Report"
                 end;
         end;
         PurchaseCreditMemo.ShowInternalInfo.SetValue(true);  // Control use for Show Internal Information.
-        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BlanketSalesOrderRequestPageHandler(var BlanketSalesOrder: TestRequestPage "Blanket Sales Order")
     begin
-        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1195,7 +1190,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
         VendorDetailedAging.EndingDate.SetValue(EndingDate);  // Control use for Ending Date.
         VendorDetailedAging.Vendor.SetFilter("No.", No);
-        VendorDetailedAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorDetailedAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1203,7 +1198,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
     procedure PHVendorDetailedAging(var VendorDetailedAging: TestRequestPage "Vendor Detailed Aging")
     begin
         CurrentSaveValuesId := REPORT::"Vendor Detailed Aging";
-        VendorDetailedAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorDetailedAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure DeleteObjectOptionsIfNeeded()

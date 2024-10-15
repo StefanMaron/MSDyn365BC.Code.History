@@ -9,10 +9,12 @@ using Microsoft.Foundation.NoSeries;
 table 11011 "Sales VAT Advance Notification"
 {
     Caption = 'Sales VAT Advance Notification';
+    ReplicateData = false;
     DataCaptionFields = "No.", Description;
     ObsoleteReason = 'Moved to Elster extension, new table Sales VAT Advance Notif.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+    DataClassification = CustomerContent;
 
     fields
     {

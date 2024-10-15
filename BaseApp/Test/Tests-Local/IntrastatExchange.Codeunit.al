@@ -72,8 +72,8 @@ codeunit 144004 "Intrastat Exchange"
         RemoveExtraLinesFromIntrastatJnlBatch(IntrastatJnlBatch.Name, Item."Tariff No.");
 
         SetMandatoryFieldsOnJnlLines(IntrastatJnlLine, IntrastatJnlBatch,
-          FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType,
-          FindOrCreateIntrastatTransactionSpecification, LibraryRandom.RandDecInRange(1, 10, 2));
+          FindOrCreateIntrastatTransportMethod(), FindOrCreateIntrastatTransactionType(),
+          FindOrCreateIntrastatTransactionSpecification(), LibraryRandom.RandDecInRange(1, 10, 2));
         Commit();
         GetIntrastatFilenames(Filepath, FilenameSales, FilenamePurchase, IntrastatJnlBatch);
 
@@ -119,8 +119,8 @@ codeunit 144004 "Intrastat Exchange"
         RemoveExtraLinesFromIntrastatJnlBatch(IntrastatJnlBatch.Name, Item."Tariff No.");
 
         SetMandatoryFieldsOnJnlLines(IntrastatJnlLine, IntrastatJnlBatch,
-          FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType,
-          FindOrCreateIntrastatTransactionSpecification, LibraryRandom.RandDecInRange(1, 10, 2));
+          FindOrCreateIntrastatTransportMethod(), FindOrCreateIntrastatTransactionType(),
+          FindOrCreateIntrastatTransactionSpecification(), LibraryRandom.RandDecInRange(1, 10, 2));
         Commit();
         GetIntrastatFilenames(Filepath, FilenameSales, FilenamePurchase, IntrastatJnlBatch);
 
@@ -160,15 +160,15 @@ codeunit 144004 "Intrastat Exchange"
         // [GIVEN] 10 intrastat purchase orders
         for I := 1 to 10 do
             CreateAndPostPurchDoc(
-              PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, Item."No.", 1);
+              PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(), Item."No.", 1);
         Commit();
 
         // [GIVEN] Intrastat Journal Line containing orders' data
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         RemoveExtraLinesFromIntrastatJnlBatch(IntrastatJnlBatch.Name, Item."Tariff No.");
         SetTransactionInfo(IntrastatJnlLine, IntrastatJnlBatch,
-          FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType,
-          FindOrCreateIntrastatTransactionSpecification);
+          FindOrCreateIntrastatTransportMethod(), FindOrCreateIntrastatTransactionType(),
+          FindOrCreateIntrastatTransactionSpecification());
         Commit();
         RunIntrastatJournalForm(IntrastatJnlLine.Type::Receipt);
         Commit();
@@ -210,15 +210,15 @@ codeunit 144004 "Intrastat Exchange"
         // [GIVEN] 10 intrastat sales orders
         for I := 1 to 10 do
             CreateAndPostSalesDoc(
-              SalesHeader."Document Type"::Order, CreateForeignCustomerNo, Item."No.", 1);
+              SalesHeader."Document Type"::Order, CreateForeignCustomerNo(), Item."No.", 1);
         Commit();
 
         // [GIVEN] Intrastat Journal Line containing orders' data
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         RemoveExtraLinesFromIntrastatJnlBatch(IntrastatJnlBatch.Name, Item."Tariff No.");
         SetTransactionInfo(IntrastatJnlLine, IntrastatJnlBatch,
-          FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType,
-          FindOrCreateIntrastatTransactionSpecification);
+          FindOrCreateIntrastatTransportMethod(), FindOrCreateIntrastatTransactionType(),
+          FindOrCreateIntrastatTransactionSpecification());
         Commit();
         RunIntrastatJournalForm(IntrastatJnlLine.Type::Shipment);
         Commit();
@@ -311,8 +311,8 @@ codeunit 144004 "Intrastat Exchange"
         IntrastatJnlLine.SetRange("Tariff No.");
         SetMandatoryFieldsOnJnlLines(
           IntrastatJnlLine, IntrastatJnlBatch,
-          FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType,
-          FindOrCreateIntrastatTransactionSpecification, LibraryRandom.RandDecInRange(1, 10, 2));
+          FindOrCreateIntrastatTransportMethod(), FindOrCreateIntrastatTransactionType(),
+          FindOrCreateIntrastatTransactionSpecification(), LibraryRandom.RandDecInRange(1, 10, 2));
         Commit();
 
         // [WHEN] Run "Make Diskette" to export intrastat file
@@ -366,8 +366,8 @@ codeunit 144004 "Intrastat Exchange"
         IntrastatJnlLine.SetRange("Tariff No.");
         SetMandatoryFieldsOnJnlLines(
           IntrastatJnlLine, IntrastatJnlBatch,
-          FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType,
-          FindOrCreateIntrastatTransactionSpecification, LibraryRandom.RandDecInRange(1, 10, 2));
+          FindOrCreateIntrastatTransportMethod(), FindOrCreateIntrastatTransactionType(),
+          FindOrCreateIntrastatTransactionSpecification(), LibraryRandom.RandDecInRange(1, 10, 2));
         Commit();
 
         // [WHEN] Run "Make Diskette" to export intrastat file
@@ -400,9 +400,9 @@ codeunit 144004 "Intrastat Exchange"
 
         IsInitialized := true;
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        SetIntrastatCodeOnCountryRegion;
-        SetDACHReportSelection;
-        SetCompanyInfoFields;
+        SetIntrastatCodeOnCountryRegion();
+        SetDACHReportSelection();
+        SetCompanyInfoFields();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Intrastat Exchange");
     end;
 
@@ -445,7 +445,7 @@ codeunit 144004 "Intrastat Exchange"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", FindCountryRegionCode);
+        Customer.Validate("Country/Region Code", FindCountryRegionCode());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -467,7 +467,7 @@ codeunit 144004 "Intrastat Exchange"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateForeignCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateForeignCustomerNo());
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
@@ -475,7 +475,7 @@ codeunit 144004 "Intrastat Exchange"
 
     local procedure RunIntrastatJournal(var IntrastatJournal: TestPage "Intrastat Journal")
     begin
-        IntrastatJournal.OpenEdit;
+        IntrastatJournal.OpenEdit();
     end;
 
     local procedure RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
@@ -483,10 +483,10 @@ codeunit 144004 "Intrastat Exchange"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         RunIntrastatJournal(IntrastatJournal);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate()));
         LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate()));
-        IntrastatJournal.GetEntries.Invoke;
+        IntrastatJournal.GetEntries.Invoke();
         VerifyIntrastatJnlLinesExist(IntrastatJnlBatch);
         IntrastatJournal.Close();
     end;
@@ -506,9 +506,9 @@ codeunit 144004 "Intrastat Exchange"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         RunIntrastatJournal(IntrastatJournal);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         LibraryVariableStorage.Enqueue(Type);
-        IntrastatJournal.Form.Invoke;
+        IntrastatJournal.Form.Invoke();
     end;
 
     local procedure SetMandatoryFieldsOnJnlLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; TransportMethod: Code[10]; TransactionType: Code[10]; TransactionSpecification: Code[10]; NetWeight: Decimal)
@@ -659,7 +659,7 @@ codeunit 144004 "Intrastat Exchange"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
     end;
@@ -702,7 +702,7 @@ codeunit 144004 "Intrastat Exchange"
         GetItemLedgerEntriesReqPage.StartingDate.SetValue(StartDate);
         GetItemLedgerEntriesReqPage.EndingDate.SetValue(EndDate);
         GetItemLedgerEntriesReqPage."Cost Regulation %".SetValue(0);
-        GetItemLedgerEntriesReqPage.OK.Invoke;
+        GetItemLedgerEntriesReqPage.OK().Invoke();
     end;
 
     local procedure SetTransactionInfo(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; TransportMethod: Code[10]; TransactionType: Code[10]; TransactionSpecification: Code[10])
@@ -725,9 +725,9 @@ codeunit 144004 "Intrastat Exchange"
     [Scope('OnPrem')]
     procedure IntrastatMakeDiskTaxAuthReqPageHandler(var IntrastatMakeDiskTaxAuthReqPage: TestRequestPage "Intrastat - Disk Tax Auth AT")
     begin
-        IntrastatMakeDiskTaxAuthReqPage."Intrastat Jnl. Batch".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText);
-        IntrastatMakeDiskTaxAuthReqPage."Intrastat Jnl. Batch".SetFilter(Name, LibraryVariableStorage.DequeueText);
-        IntrastatMakeDiskTaxAuthReqPage.OK.Invoke;
+        IntrastatMakeDiskTaxAuthReqPage."Intrastat Jnl. Batch".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText());
+        IntrastatMakeDiskTaxAuthReqPage."Intrastat Jnl. Batch".SetFilter(Name, LibraryVariableStorage.DequeueText());
+        IntrastatMakeDiskTaxAuthReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -738,7 +738,7 @@ codeunit 144004 "Intrastat Exchange"
     begin
         LibraryVariableStorage.Dequeue(Type);
         IntrastatFormReqPage."Intrastat Jnl. Line".SetFilter(Type, Format(Type));
-        IntrastatFormReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatFormReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 #endif

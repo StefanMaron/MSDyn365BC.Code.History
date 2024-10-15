@@ -95,7 +95,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
     procedure TestInitialization()
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Verify that "Job Planning Line No." is initialized correctly.
         Assert.AreEqual(0, GenJournalLine."Job Planning Line No.", 'Job Planning Line No. is not 0 by default.');
@@ -103,7 +103,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
         // Verify that "Remaining Qty." is initialized correctly.
         Assert.AreEqual(0, GenJournalLine."Job Remaining Qty.", 'Remaining Qty. is not 0 by default.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -111,7 +111,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
     procedure TestFieldLineType()
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Verify that "Line Type" is set to the correct value when a "Job Planning Line No." is set.
         GenJournalLine.Validate("Job Line Type", 0);
@@ -122,7 +122,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
         // Verify that "Line Type" can't be changed if a "Job Planning Line No." is defined.
         asserterror GenJournalLine.Validate("Job Line Type", 0);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -130,7 +130,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
     procedure TestFieldJobPlanningLineNo()
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Verify that "Job Planning Line No." and "Remaining Qty." are blanked when the No. changes.
         GenJournalLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
@@ -139,10 +139,10 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
         Assert.AreEqual(0, GenJournalLine."Job Planning Line No.", 'Job Planning Line No. is not 0 when No. changes.');
         Assert.AreEqual(0, GenJournalLine."Job Remaining Qty.", 'Remaining Qty. is not 0 when No. changes.');
 
-        TearDown;
+        TearDown();
 
         Initialize();
-        SetUp;
+        SetUp();
 
         // Verify that "Job Planning Line No." is blanked when the Job No. changes.
         GenJournalLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
@@ -152,7 +152,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
 
         // Remaining test for this field are found in test function TestFieldRemainingQty.
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -163,15 +163,15 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
         OldRemainingQty: Decimal;
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Verify that "Remaining Qty." can't be set if "Job Planning Line No." isn't set.
         asserterror GenJournalLine.Validate("Job Remaining Qty.", LibraryRandom.RandInt(Round(GenJournalLine."Job Quantity", 1)));
 
-        TearDown;
+        TearDown();
 
         Initialize();
-        SetUp;
+        SetUp();
 
         // Verify that "Remaining Qty." is set correctly when a "Job Planning Line No." is defined.
         GenJournalLine.TestField("Job Planning Line No.", 0);
@@ -187,7 +187,7 @@ codeunit 136359 "UT T Gen Jnl Line Usage Link"
         Assert.AreEqual(OldRemainingQty - QtyDelta, GenJournalLine."Job Remaining Qty.",
           'Remaining Qty. is not updated correctly');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]

@@ -5,6 +5,7 @@ using Microsoft.Inventory.Item;
 table 6506 "Item Tracking Comment"
 {
     Caption = 'Item Tracking Comment';
+    DataClassification = CustomerContent;
 
     fields
     {

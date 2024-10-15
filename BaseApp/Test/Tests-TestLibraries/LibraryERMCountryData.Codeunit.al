@@ -45,7 +45,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure SetupCostAccounting()
     begin
-        SetupCostTypeLinks;
+        SetupCostTypeLinks();
     end;
 
     procedure SetupReportSelections()
@@ -62,12 +62,12 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateAccountInCustomerPostingGroup()
     begin
-        UpdateCustomerPostingGroup;
+        UpdateCustomerPostingGroup();
     end;
 
     procedure UpdateAccountInVendorPostingGroups()
     begin
-        UpdateVendorPostingGroup;
+        UpdateVendorPostingGroup();
     end;
 
     procedure UpdateAccountsInServiceContractAccountGroups()
@@ -87,7 +87,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        UpdateAccountsInGeneralPostingSetup;
+        UpdateAccountsInGeneralPostingSetup();
     end;
 
     procedure UpdateInventoryPostingSetup()
@@ -272,7 +272,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
@@ -326,25 +326,25 @@ codeunit 131305 "Library - ERM Country Data"
             repeat
                 // Use assignment to avoid error
                 if GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc." = '' then
-                    GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc." := CreateGLAccount;
+                    GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc." := CreateGLAccount();
                 if GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." = '' then
-                    GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." := CreateGLAccount;
+                    GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." := CreateGLAccount();
                 if GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc." = '' then
-                    GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc." := CreateGLAccount;
+                    GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc." := CreateGLAccount();
                 if GeneralPostingSetup."Purch. Pmt. Tol. Credit Acc." = '' then
-                    GeneralPostingSetup."Purch. Pmt. Tol. Credit Acc." := CreateGLAccount;
+                    GeneralPostingSetup."Purch. Pmt. Tol. Credit Acc." := CreateGLAccount();
                 if GeneralPostingSetup."Sales Pmt. Tol. Debit Acc." = '' then
-                    GeneralPostingSetup."Sales Pmt. Tol. Debit Acc." := CreateGLAccount;
+                    GeneralPostingSetup."Sales Pmt. Tol. Debit Acc." := CreateGLAccount();
                 if GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." = '' then
-                    GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." := CreateGLAccount;
+                    GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." := CreateGLAccount();
                 if GeneralPostingSetup."Purch. Credit Memo Account" = '' then
-                    GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." := CreateGLAccount;
+                    GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." := CreateGLAccount();
                 if GeneralPostingSetup."Invt. Accrual Acc. (Interim)" = '' then
-                    GeneralPostingSetup."Invt. Accrual Acc. (Interim)" := CreateGLAccount;
+                    GeneralPostingSetup."Invt. Accrual Acc. (Interim)" := CreateGLAccount();
                 if GeneralPostingSetup."COGS Account" = '' then
-                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount());
                 if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
-                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount());
                 GeneralPostingSetup.Modify(true);
             until GeneralPostingSetup.Next() = 0;
     end;
@@ -356,11 +356,11 @@ codeunit 131305 "Library - ERM Country Data"
         if CustomerPostingGroup.FindSet() then
             repeat
                 if CustomerPostingGroup."Payment Disc. Debit Acc." = '' then begin
-                    CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount);
+                    CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount());
                     CustomerPostingGroup.Modify(true);
                 end;
                 if CustomerPostingGroup."Payment Disc. Credit Acc." = '' then begin
-                    CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount);
+                    CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount());
                     CustomerPostingGroup.Modify(true);
                 end;
             until CustomerPostingGroup.Next() = 0;
@@ -382,11 +382,11 @@ codeunit 131305 "Library - ERM Country Data"
         if VendorPostingGroup.FindSet() then
             repeat
                 if VendorPostingGroup."Payment Disc. Debit Acc." = '' then begin
-                    VendorPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount);
+                    VendorPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount());
                     VendorPostingGroup.Modify(true);
                 end;
                 if VendorPostingGroup."Payment Disc. Credit Acc." = '' then begin
-                    VendorPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount);
+                    VendorPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount());
                     VendorPostingGroup.Modify(true);
                 end;
             until VendorPostingGroup.Next() = 0;

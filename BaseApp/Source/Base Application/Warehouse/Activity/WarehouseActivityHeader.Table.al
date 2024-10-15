@@ -20,11 +20,11 @@ using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
 
-
 table 5766 "Warehouse Activity Header"
 {
     Caption = 'Warehouse Activity Header';
     LookupPageID = "Warehouse Activity List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -39,7 +39,7 @@ table 5766 "Warehouse Activity Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode());
+                    NoSeries.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -193,14 +193,12 @@ table 5766 "Warehouse Activity Header"
 
             trigger OnLookup()
             begin
-                with WhseActivHeader do begin
-                    WhseActivHeader := Rec;
-                    WhseSetup.Get();
-                    TestNoSeries();
-                    if NoSeriesMgt.LookupSeries(GetRegisteringNoSeriesCode(), "Registering No. Series") then
-                        Validate("Registering No. Series");
-                    Rec := WhseActivHeader;
-                end;
+                WhseActivHeader := Rec;
+                WhseSetup.Get();
+                TestNoSeries();
+                if NoSeries.LookupRelatedNoSeries(GetRegisteringNoSeriesCode(), WhseActivHeader."Registering No. Series") then
+                    WhseActivHeader.Validate(WhseActivHeader."Registering No. Series");
+                Rec := WhseActivHeader;
             end;
 
             trigger OnValidate()
@@ -208,7 +206,7 @@ table 5766 "Warehouse Activity Header"
                 if "Registering No. Series" <> '' then begin
                     WhseSetup.Get();
                     TestNoSeries();
-                    NoSeriesMgt.TestSeries(GetRegisteringNoSeriesCode(), "Registering No. Series");
+                    NoSeries.TestAreRelated(GetRegisteringNoSeriesCode(), "Registering No. Series");
                 end;
             end;
         }
@@ -344,7 +342,7 @@ table 5766 "Warehouse Activity Header"
                     "Source Document"::"Assembly Consumption":
                         begin
                             "Source Type" := Database::"Assembly Line";
-                            "Source Subtype" := AssemblyLine."Document Type"::Order;
+                            "Source Subtype" := AssemblyLine."Document Type"::Order.AsInteger();
                         end;
                     "Source Document"::"Job Usage":
                         "Source Type" := Database::Job;
@@ -425,6 +423,8 @@ table 5766 "Warehouse Activity Header"
 
     fieldgroups
     {
+        fieldgroup(Brick; "Location Code", "No.", "No. of Lines", "Source Document", "Source No.", "Assigned User ID")
+        { }
     }
 
     trigger OnDelete()
@@ -433,13 +433,37 @@ table 5766 "Warehouse Activity Header"
     end;
 
     trigger OnInsert()
+#if not CLEAN24
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if "No." = '' then begin
             TestNoSeries();
-            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
+            "No. Series" := GetNoSeriesCode();
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "Posting Date", "No.");
+            end;
+#endif
+
         end;
 
+#if CLEAN24
+        if NoSeries.IsAutomatic(GetRegisteringNoSeriesCode()) then
+            "Registering No. Series" := GetRegisteringNoSeriesCode();
+#else
+#pragma warning disable AL0432
         NoSeriesMgt.SetDefaultSeries("Registering No. Series", GetRegisteringNoSeriesCode());
+#pragma warning restore AL0432
+#endif
     end;
 
     trigger OnRename()
@@ -452,7 +476,7 @@ table 5766 "Warehouse Activity Header"
         WhseActivHeader: Record "Warehouse Activity Header";
         WhseSetup: Record "Warehouse Setup";
         InvtSetup: Record "Inventory Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         Text000: Label 'You cannot rename a %1.';
         SetUpWarehouseEmployeeInLocationErr: Label 'You must first set up user %1 as a warehouse employee. %2 %3', Comment = '%1 - user ID, %2 - caption, %3 - location code.';
         Text002: Label 'You cannot change %1 because one or more lines exist.';
@@ -460,15 +484,13 @@ table 5766 "Warehouse Activity Header"
 
     procedure AssistEdit(OldWhseActivHeader: Record "Warehouse Activity Header"): Boolean
     begin
-        with WhseActivHeader do begin
-            WhseActivHeader := Rec;
-            TestNoSeries();
-            if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldWhseActivHeader."No. Series", "No. Series")
-            then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := WhseActivHeader;
-                exit(true);
-            end;
+        WhseActivHeader := Rec;
+        TestNoSeries();
+        if NoSeries.LookupRelatedNoSeries(GetNoSeriesCode(), OldWhseActivHeader."No. Series", WhseActivHeader."No. Series")
+        then begin
+            WhseActivHeader."No." := NoSeries.GetNextNo(WhseActivHeader."No. Series");
+            Rec := WhseActivHeader;
+            exit(true);
         end;
     end;
 
@@ -1013,6 +1035,15 @@ table 5766 "Warehouse Activity Header"
         PostingSelectionManagement: Codeunit "Posting Selection Management";
     begin
         exit(PostingSelectionManagement.IsPostingInvoiceMandatoryPurchase());
+    end;
+
+    internal procedure AssignToCurrentUser()
+    begin
+        if Rec.IsEmpty() then
+            exit;
+
+        Rec.Validate("Assigned User ID", UserId());
+        Rec.Modify()
     end;
 
     [IntegrationEvent(false, false)]

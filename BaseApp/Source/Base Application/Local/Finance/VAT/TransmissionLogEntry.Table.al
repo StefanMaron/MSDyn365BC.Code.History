@@ -7,9 +7,11 @@ namespace Microsoft.Finance.VAT.Reporting;
 table 11012 "Transmission Log Entry"
 {
     Caption = 'Transmission Log Entry';
+    ReplicateData = false;
     ObsoleteReason = 'Moved to Elster extension, new table Elster Transm. Log Entry.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+    DataClassification = CustomerContent;
 
     fields
     {

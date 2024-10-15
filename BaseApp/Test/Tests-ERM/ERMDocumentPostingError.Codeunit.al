@@ -138,7 +138,7 @@ codeunit 134384 "ERM Document Posting Error"
         VATBusPostingGroup := PurchaseHeader."VAT Bus. Posting Group";
 
         // Exercise: Change Pay to Vendor No. on Purchase Header.
-        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Modify(true);
 
         // Verify: Verify VAT Bus.Posting Group.
@@ -281,7 +281,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Setup: Create Sale Order with multiple Lines and Release Sales Order.
         Initialize();
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 0);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 0);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         FindSalesLine(SalesLine, SalesHeader."No.", SalesLine.Type::Item);
 
@@ -306,7 +306,7 @@ codeunit 134384 "ERM Document Posting Error"
         Initialize();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(10));
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
 
@@ -332,7 +332,7 @@ codeunit 134384 "ERM Document Posting Error"
         CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
 
         // Exercise: Add New Item Line in Released Sales Line with Quantity zero.
-        asserterror LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 0);
+        asserterror LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 0);
 
         // Verify: Verify Error message for not possible to add New Item Line in Released Order.
         VerifyReleaseSalesDocument(SalesHeader);
@@ -396,7 +396,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Setup: Create Purchase Order for multiple lines and  Release Purchase Order.
         Initialize();
         CreatePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 0);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 0);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         FindPurchaseLine(PurchaseLine2, PurchaseHeader."No.", PurchaseLine.Type::Item);
 
@@ -452,7 +452,7 @@ codeunit 134384 "ERM Document Posting Error"
 
         // Exercise: Add new Item Line with Random Quantity in Released Purchase Line.
         asserterror LibraryPurchase.CreatePurchaseLine(
-            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
 
         // Verify: Verify not possible to add new Item Purchase Line in Released Order.
         VerifyReleasePurchDocument(PurchaseHeader);
@@ -665,8 +665,8 @@ codeunit 134384 "ERM Document Posting Error"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Document Posting Error");
         // Lazy Setup.
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Document Posting Error");
@@ -702,7 +702,7 @@ codeunit 134384 "ERM Document Posting Error"
         // Direct Unit Cost updating with Negative Random value and Quantity with Random Value.
         CreatePurchHeader(PurchaseHeader, DocumentType);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", -LibraryRandom.RandDec(50, 2));
         PurchaseLine.Modify(true);
     end;

@@ -5,6 +5,7 @@ using System.Reflection;
 table 9180 "Generic Chart Setup"
 {
     Caption = 'Generic Chart Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -74,7 +75,7 @@ table 9180 "Generic Chart Setup"
         }
         field(30; "Y-Axis Fields"; Integer)
         {
-            CalcFormula = Count("Generic Chart Y-Axis" where(ID = field(ID)));
+            CalcFormula = count("Generic Chart Y-Axis" where(ID = field(ID)));
             Caption = 'Y-Axis Fields';
             Editable = false;
             FieldClass = FlowField;
@@ -110,7 +111,7 @@ table 9180 "Generic Chart Setup"
         }
         field(40; "Chart Exists"; Boolean)
         {
-            CalcFormula = Exist(Chart where(ID = field(ID)));
+            CalcFormula = exist(Chart where(ID = field(ID)));
             Caption = 'Chart Exists';
             Editable = false;
             FieldClass = FlowField;

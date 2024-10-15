@@ -532,22 +532,21 @@ report 5199 "Update Contact Classification"
         ProfileQuestnHeader.Get(ProfileQuestionnaireLine."Profile Questionnaire Code");
         if TableID = DATABASE::Contact then
             ContactNo := No
-        else
-            with ContBusRel do begin
-                Reset();
-                SetCurrentKey("Link to Table", "No.");
-                case TableID of
-                    DATABASE::Customer:
-                        SetRange("Link to Table", "Link to Table"::Customer);
-                    DATABASE::Vendor:
-                        SetRange("Link to Table", "Link to Table"::Vendor);
-                end;
-                SetRange("No.", No);
-                if FindFirst() then
-                    ContactNo := "Contact No."
-                else
-                    exit('');
+        else begin
+            ContBusRel.Reset();
+            ContBusRel.SetCurrentKey("Link to Table", "No.");
+            case TableID of
+                DATABASE::Customer:
+                    ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
+                DATABASE::Vendor:
+                    ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
             end;
+            ContBusRel.SetRange("No.", No);
+            if ContBusRel.FindFirst() then
+                ContactNo := ContBusRel."Contact No."
+            else
+                exit('');
+        end;
 
         Cont.Get(ContactNo);
 

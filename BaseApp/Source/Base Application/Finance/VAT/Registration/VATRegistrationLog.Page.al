@@ -16,7 +16,7 @@ page 249 "VAT Registration Log"
     PageType = List;
     SourceTable = "VAT Registration Log";
     SourceTableView = sorting("Entry No.")
-                      order(Descending);
+                      order(descending);
 
     layout
     {

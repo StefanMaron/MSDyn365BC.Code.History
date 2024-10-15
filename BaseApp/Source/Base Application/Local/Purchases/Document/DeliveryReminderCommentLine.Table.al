@@ -9,6 +9,7 @@ table 5005275 "Delivery Reminder Comment Line"
     Caption = 'Delivery Reminder Comment Line';
     DrillDownPageID = "Deliv. Rem. Comment Line List";
     LookupPageID = "Deliv. Rem. Comment Line List";
+    DataClassification = CustomerContent;
 
     fields
     {

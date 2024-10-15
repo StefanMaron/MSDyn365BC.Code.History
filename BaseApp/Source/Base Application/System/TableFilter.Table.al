@@ -5,6 +5,7 @@ using System.Reflection;
 table 9805 "Table Filter"
 {
     Caption = 'Table Filter';
+    DataClassification = CustomerContent;
 
     fields
     {

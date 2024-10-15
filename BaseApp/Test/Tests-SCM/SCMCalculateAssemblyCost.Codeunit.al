@@ -22,6 +22,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         WorkDate2: Date;
         TEXT_PARENT: Label 'Parent';
@@ -30,7 +31,6 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         Initialized: Boolean;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure BUG235189()
     var
@@ -78,12 +78,12 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         AsmHeader.Validate("Variant Code", Variant);
 
         ValidateHeaderCostAmount(AsmHeader, 20);
+        NotificationLifecycleMgt.RecallAllNotifications();
 
         asserterror Error('') // cleanup
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure OrderForAwithA()
     var
@@ -113,11 +113,11 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         AsmHeader.Get(AsmHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ItemA."No.", 1));
         LibraryKitting.AddLine(AsmHeader, "BOM Component Type"::Item, ItemA."No.", ItemA."Base Unit of Measure", 1, 1, '');
         calcAndValidate(AsmHeader, 40, 0, 0, 0);
+        NotificationLifecycleMgt.RecallAllNotifications();
         asserterror Error('') // cleanup
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure OrderForAwithOverhead()
     var
@@ -146,11 +146,11 @@ codeunit 137911 "SCM Calculate Assembly Cost"
 
         AsmHeader.Get(AsmHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ItemA."No.", 1));
         calcAndValidate(AsmHeader, 7, 0, 0, 12);
+        NotificationLifecycleMgt.RecallAllNotifications();
         asserterror Error('') // cleanup
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure BUG206865AwithIndirectCost()
     var
@@ -179,6 +179,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
 
         AsmHeader.Get(AsmHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ItemA."No.", 1));
         calcAndValidate(AsmHeader, 10, 0, 0, 5);
+        NotificationLifecycleMgt.RecallAllNotifications();
         asserterror Error('') // cleanup
     end;
 
@@ -196,7 +197,6 @@ codeunit 137911 "SCM Calculate Assembly Cost"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure OneRegularItem()
     var
@@ -212,6 +212,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
           parentItem, BOMComponent.Type::Item, childItem."No.", 5, childItem."Base Unit of Measure", false);
         AsmHeader.Get(AsmHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", 1));
         calcAndValidate(AsmHeader, 1 * 5 * 3, 0, 0, 0);
+        NotificationLifecycleMgt.RecallAllNotifications();
         asserterror Error('') // cleanup
     end;
 
@@ -254,7 +255,6 @@ codeunit 137911 "SCM Calculate Assembly Cost"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure MultipleLinesRegularItems()
     var
@@ -276,11 +276,11 @@ codeunit 137911 "SCM Calculate Assembly Cost"
           parentItem, BOMComponent.Type::Item, childItem."No.", 2, childItem."Base Unit of Measure", false);
         AsmHeader.Get(AsmHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", 1));
         calcAndValidate(AsmHeader, 1 * (5 * 3 + 7 * 10 + 2 * 200), 0, 0, 0);
+        NotificationLifecycleMgt.RecallAllNotifications();
         asserterror Error('') // cleanup
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure OneAssemblyItem()
     var
@@ -304,11 +304,11 @@ codeunit 137911 "SCM Calculate Assembly Cost"
           parentItem, BOMComponent.Type::Item, BOMcomponentItem."No.", 6, BOMcomponentItem."Base Unit of Measure", false);
         AsmHeader.Get(AsmHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", 11));
         calcAndValidate(AsmHeader, 11 * 6 * 5, 0, 0, 0);// 11*6*245*10,0,11*6*5*17);
+        NotificationLifecycleMgt.RecallAllNotifications();
         asserterror Error('') // cleanup
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure OneNestedAssemblyItem()
     var
@@ -342,6 +342,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
           3, BOMcomponentItem."Base Unit of Measure", false);
         AsmHeader.Get(AsmHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", 150));
         calcAndValidate(AsmHeader, 150 * 3 * 5, 0, 0, 0); // 150*3*(245*10+66*19*73),0,150*3*(5*17+66*1.5*1200));
+        NotificationLifecycleMgt.RecallAllNotifications();
         asserterror Error('') // cleanup
     end;
 
@@ -364,7 +365,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         LibraryKitting.CreateBOMComponentLine(
           parentItem, BOMComponent.Type::Resource, resource."No.", 10, resource."Base Unit of Measure", true);
         AsmHeader.Get(AsmHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parentItem."No.", 1));
-        AsmHeader.UpdateUnitCost;
+        AsmHeader.UpdateUnitCost();
         Assert.AreEqual(100, AsmHeader."Cost Amount",
           StrSubstNo('Order Cost amount is wrong, expected %1 got %2', 100, AsmHeader."Cost Amount"))
     end;
@@ -409,7 +410,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         LibraryInventory.SetAutomaticCostPosting(false);
 
         // [GIVEN] Set additional reporting currency with exchange rate = "X"
-        CurrExchRate := UpdateACYCode;
+        CurrExchRate := UpdateACYCode();
 
         // [GIVEN] Create an assembled item "I" with one component. Standard cost of the component is "C"
         CreateItem(AssemblyItem, AssemblyItem."Costing Method"::Standard, AssemblyItem."Replenishment System"::Assembly, 0);
@@ -574,13 +575,6 @@ codeunit 137911 "SCM Calculate Assembly Cost"
             TestField("Cost Amount (Actual)", ExpectedCostLCY);
             TestField("Cost Amount (Actual) (ACY)", Round(ExpectedCostACY, Currency."Amount Rounding Precision"));
         end;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AvailabilityWindowHandler(var AsmAvailability: Page "Assembly Availability"; var Response: Action)
-    begin
-        Response := ACTION::Yes; // always confirm
     end;
 }
 

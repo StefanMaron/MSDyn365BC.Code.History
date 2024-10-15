@@ -16,6 +16,7 @@ table 5879 "Pstd. Phys. Invt. Order Hdr"
     DataCaptionFields = "No.", Description;
     DrillDownPageID = "Posted Phys. Invt. Order List";
     LookupPageID = "Posted Phys. Invt. Order List";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -46,20 +46,12 @@
         TotalVATBaseLCY: Label 'TotalVATBaseLCY';
         VATPer_VATCounterLCYTok: Label 'VATAmountLineVAT_VatCounterLCY';
         VATIdentifier_VATCounterLCYTok: Label 'VATAmtLineVATIdentifier_VatCounterLCY';
-        PostedAsmLineDescCapTxt: Label 'TempPostedAsmLineDesc';
-        PostedAsmLineDescriptionCapTxt: Label 'PostedAsmLineDescription';
-        Type: Option Invoice,Shipment;
-        CustSummAging_PrintLineLbl: Label 'PrintLine';
-        CustSummAging_CurrencyLbl: Label 'Currency2_Code';
-        CustSummAging_TotalBalanceLbl: Label 'LineTotalCustBalance_Control67';
         ExcelCountWorksheetsErr: Label 'Saved Excel file has incorrect number of worksheets.';
-        SalesInvoiceTxt: Label 'Sales - Invoice %1';
-        SalesPrepmtInvoiceTxt: Label 'Sales - Prepayment Invoice %1';
-        SalesTaxInvoiceTxt: Label 'Sales - Tax Invoice %1';
         InvoiceTxt: Label 'Invoice';
         TaxInvoiceTxt: Label 'Tax Invoice';
         EmptyReportDatasetTxt: Label 'There is nothing to print for the selected filters.';
         WrongDecimalErr: Label 'Wrong count of decimals', Locked = true;
+        DescriptionVATClauseLineLbl: Label 'Description_VATClauseLine';
 
     [Test]
     [HandlerFunctions('CustomerTrialBalanceRequestPageHandler')]
@@ -75,7 +67,7 @@
         Initialize();
 
         // [GIVEN] Post Customer ledger entries with Debit Amount = "X", Credit Amount = "Y"
-        CustomerNo := CreatePostDebitCreditJournalLines(DebitAmount, CreditAmount, CreateCustomer);
+        CustomerNo := CreatePostDebitCreditJournalLines(DebitAmount, CreditAmount, CreateCustomer());
 
         // [WHEN] Run Customer - Trial Balance report
         RunCustomerTrialBalanceReportForCY(CustomerNo, '', '');
@@ -105,7 +97,7 @@
         // [GIVEN] New Dimension Values for Global Dimension: "G1","G2"
         CreateGlobalDimValues(GlobalDim1Value, GlobalDim2Value);
         // [GIVEN] Post Customer ledger entries with Debit Amount = "D" and Credit Amount = "C" without dimensions
-        CustomerNo := CreatePostDebitCreditJournalLines(DebitAmount, CreditAmount, CreateCustomer);
+        CustomerNo := CreatePostDebitCreditJournalLines(DebitAmount, CreditAmount, CreateCustomer());
         // [GIVEN] Post Customer ledger entries with Debit Amount = "D1" and Credit Amount = "C1" and dimensions "G1","G2"
         DebitAmountDim := LibraryRandom.RandDec(1000, 2);
         CreditAmountDim := -LibraryRandom.RandDec(1000, 2);
@@ -136,7 +128,7 @@
 
         // Setup.
         Initialize();
-        CreateSalesOrder(SalesHeader, SalesLine, CreateCurrency, CreateCustomer);
+        CreateSalesOrder(SalesHeader, SalesLine, CreateCurrency(), CreateCustomer());
         LineAmount := Round(LibraryERM.ConvertCurrency(SalesLine."Line Amount", SalesHeader."Currency Code", '', WorkDate()));
 
         // Exercise: Generate the Customer Order Detail Report.
@@ -158,7 +150,7 @@
 
         // Setup.
         Initialize();
-        CreateSalesOrder(SalesHeader, SalesLine, '', CreateCustomer);
+        CreateSalesOrder(SalesHeader, SalesLine, '', CreateCustomer());
 
         // Exercise: Generate the Customer Order Detail Report.
         RunCustomerOrderDetailReport(SalesLine."Sell-to Customer No.", false);
@@ -180,7 +172,7 @@
 
         // Setup.
         Initialize();
-        CreateSalesOrder(SalesHeader, SalesLine, '', CreateCustomer);
+        CreateSalesOrder(SalesHeader, SalesLine, '', CreateCustomer());
 
         // Exercise: Generate the Customer Order Summary Report.
         RunCustOrderSummaryReport(SalesLine."Sell-to Customer No.", true);
@@ -202,7 +194,7 @@
 
         // Setup.
         Initialize();
-        CreateSalesOrder(SalesHeader, SalesLine, CreateCurrency, CreateCustomer);
+        CreateSalesOrder(SalesHeader, SalesLine, CreateCurrency(), CreateCustomer());
 
         // Exercise: Generate the Customer Order Summary Report.
         RunCustOrderSummaryReport(SalesLine."Sell-to Customer No.", false);
@@ -237,9 +229,9 @@
         REPORT.Run(REPORT::"Customer - Summary Aging Simp.");
 
         // Verify: Verify Customer Summary Aging Simp Values.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Customer__No__', Customer."No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No_Customer', Customer."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('CustBalanceDueLCY_5__Control25', InvoiceAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('CustBalanceDueLCY_5__Control37', InvoiceAmount);
@@ -258,7 +250,7 @@
         // Setup: Create Customer, Make and Post Invoice Entry from General Journal Line.
         Initialize();
         LibrarySales.CreateCustomer(Customer);
-        SalesLCY := GetCustomerSalesLCY + LibraryRandom.RandDec(100, 2);
+        SalesLCY := GetCustomerSalesLCY() + LibraryRandom.RandDec(100, 2);
         CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', SalesLCY, WorkDate());
 
         // Exercise: Generate Customer Summary Aging Simp Report as Output file and save as XML.
@@ -267,9 +259,9 @@
         REPORT.Run(REPORT::"Customer - Top 10 List");
 
         // Verify: Verify Customer Top 10 List Report for Sales LCY.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Customer', Customer."No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No_Customer', Customer."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesLCY_Customer', SalesLCY);
     end;
@@ -287,7 +279,7 @@
         // Setup: Create Customer, Make and Post Invoice Entry from General Journal Line.
         Initialize();
         LibrarySales.CreateCustomer(Customer);
-        BalanceLCY := GetCustomerBalanceLCY + LibraryRandom.RandDec(100, 2);
+        BalanceLCY := GetCustomerBalanceLCY() + LibraryRandom.RandDec(100, 2);
         CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', BalanceLCY, WorkDate());
 
         // Exercise: Generate Customer Summary Aging Simp Report as Output file and save as XML.
@@ -296,9 +288,9 @@
         REPORT.Run(REPORT::"Customer - Top 10 List");
 
         // Verify: Verify Customer Top 10 List Report for Balance LCY.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Customer', Customer."No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No_Customer', Customer."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('BalanceLCY_Customer', BalanceLCY);
     end;
@@ -323,9 +315,9 @@
         RunCustomerListReport(Customer);
 
         // [THEN] Value of Credit Limit LCY in Customer List is equal to the value of Credit Limit LCY in corresponding Customer.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Customer__No__', Customer."No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No_Customer', Customer."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Customer__Credit_Limit__LCY__', Customer."Credit Limit (LCY)");
     end;
@@ -342,7 +334,7 @@
         // [FEATURE] [Customer - List]
         // [SCENARIO 376798] "Customer - List" report prints global dimension captions in case of customer dimension filters
         Initialize();
-        UpdateGlobalDims;
+        UpdateGlobalDims();
 
         // [GIVEN] General Ledger Setup with two global dimensions: "Department", "Project".
         // [GIVEN] Customer "C" with two default dimensions: Code = "Department", Value = "ADM"; Code = "Project", Value = "VW".
@@ -360,9 +352,9 @@
             Customer.FieldCaption("Global Dimension 1 Code"), DimValueCode[1],
             Customer.FieldCaption("Global Dimension 2 Code"), DimValueCode[2]);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Customer__No__', Customer."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CustFilter', ExpectedFilterString);
     end;
 
@@ -380,7 +372,7 @@
         // Setup: Create a Customer and Post General Journal Line with Invoice.
         Initialize();
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate());
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer(), '', LibraryRandom.RandDec(100, 2), WorkDate());
 
         // Excercise: Generate the Customer Register report and Verify Data on it without LCY Amount.
         CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
@@ -407,8 +399,8 @@
         Initialize();
         LibraryERM.FindCurrency(Currency);
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, Currency.Code, LibraryRandom.RandDec(100, 2),
-          WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer(), Currency.Code, LibraryRandom.RandDec(100, 2),
+          WorkDate());
         OriginalAmountLCY :=
           Round(LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", '', GenJournalLine."Posting Date"));
 
@@ -433,7 +425,7 @@
         // Setup: Create a Customer and Post General Journal Line with Invoice.
         Initialize();
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate());
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer(), '', LibraryRandom.RandDec(100, 2), WorkDate());
 
         // Exercise: Generate the Customer Detail Trial Balance Report.
         LibraryVariableStorage.Enqueue(false);
@@ -459,8 +451,8 @@
         Initialize();
         LibraryERM.FindCurrency(Currency);
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, Currency.Code, LibraryRandom.RandDec(100, 2),
-          WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer(), Currency.Code, LibraryRandom.RandDec(100, 2),
+          WorkDate());
         AmountLCY :=
           Round(LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", '', GenJournalLine."Posting Date"));
 
@@ -485,7 +477,7 @@
         // Setup: Create a Customer and Post General Journal Line with Invoice.
         Initialize();
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate());
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer(), '', LibraryRandom.RandDec(100, 2), WorkDate());
 
         // Generate the Customer Summary Aging Report and Verify without LCY Amount.
         RunAndVerifyCustSummaryAging(GenJournalLine."Account No.", false, GenJournalLine.Amount);
@@ -507,8 +499,8 @@
         Initialize();
         LibraryERM.FindCurrency(Currency);
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, Currency.Code, LibraryRandom.RandDec(100, 2),
-          WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer(), Currency.Code, LibraryRandom.RandDec(100, 2),
+          WorkDate());
         AmountLCY :=
           Round(LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", '', GenJournalLine."Posting Date"));
 
@@ -532,16 +524,16 @@
         LibrarySales.CreateCustomer(Customer);
         PaymentTerms.Get(Customer."Payment Terms Code");  // Added fix to make test world ready.
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate());
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer(), '', LibraryRandom.RandDec(100, 2), WorkDate());
 
         // Exercise: Generate the Customer Detailed Aging Report.
         RunCustomerDetailedAging(GenJournalLine);
 
         // Verify: Check that the value of Remaining Amount in Customer Detailed Aging is equal to the value of Amount in
         // corresponding General Journal Line.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Cust_Ledger_Entry_Posting_Date_', Format(GenJournalLine."Posting Date"));
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Cust_Ledger_Entry_Posting_Date_', Format(GenJournalLine."Posting Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('Cust_Ledger_Entry_Remaining_Amount_', GenJournalLine.Amount);
     end;
@@ -565,9 +557,9 @@
         // Exercise: Save the Report in XML Format and fetch the Value of Amount Field for Verification.
         LibraryVariableStorage.Enqueue(SalesHeader."Sell-to Customer No.");
         REPORT.Run(REPORT::"Customer/Item Sales");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ValueEntryBuffer__Item_No__', SalesLine."No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'ValueEntryBuffer__Item_No__', SalesLine."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'ValueEntryBuffer__Sales_Amount__Actual___Control44', SalesLine.Amount);
@@ -600,9 +592,9 @@
         REPORT.Run(REPORT::"Customer - Sales List");
 
         // Verify: Verify that Amount Fetched from the Report is matching with Posted Sales Invoice Amount.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Customer__No__', SalesHeader."Sell-to Customer No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Customer__No__', SalesHeader."Sell-to Customer No.");
 
         SalesInvoiceHeader.Get(PostedDocumentNo);
@@ -629,9 +621,9 @@
         // Verify: Verify that Address fetched from Report is matching with Address on Posted Sales Invoice.
         LibraryVariableStorage.Enqueue(SalesHeader."Sell-to Customer No.");
         REPORT.Run(REPORT::"Customer - Sales List");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Customer_Name', SalesHeader."Sell-to Customer No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Customer_Name', SalesHeader."Sell-to Customer No.");
 
         // Verify: Verify that Amount Fetched from the Report is matching with Posted Sales Invoice Amount.
@@ -661,9 +653,9 @@
         CustLedgerEntry.FindLast();
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Customer No.");
         REPORT.Run(REPORT::"Customer Document Nos.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('CustLedgerEntry__Document_No__', PostedDocumentNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'CustLedgerEntry__Document_No__', PostedDocumentNo);
 
         // Verify: Verify that Customer No. fetched from Report is matching with Posted Sales Invoice's Customer.
@@ -685,14 +677,14 @@
         // Setup: Create and post General Journal Line, apply partial Payment over the Invoice with Random Values.
         Initialize();
         Amount := LibraryRandom.RandDec(1000, 2);
-        PostJournalLines(GenJournalLine, CreateCustomer, Amount, -Amount / 2);
+        PostJournalLines(GenJournalLine, CreateCustomer(), Amount, -Amount / 2);
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
 
         // Exercise: Save Statement Report for the Customer Created.
         SaveStatementReport(GenJournalLine."Account No.", WorkDate(), true, false, false, false, PeriodLength);
 
         // Verify Remaining Amount in Statement Report in Overdue Entries.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyOverDueEntry(GenJournalLine."Posting Date", Round(Amount / 2, 0.01, '<'));
     end;
 
@@ -710,7 +702,7 @@
         // Setup: Create and post General Journal Line with Random Values and Reverse the Entry.
         Initialize();
         Amount := LibraryRandom.RandDec(1000, 2);
-        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', Amount, GetPostingDate);
+        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer(), '', Amount, GetPostingDate());
         ReverseTransaction(FindGLEntry(GenJournalLine."Document No."));
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
 
@@ -718,7 +710,7 @@
         SaveStatementReport(GenJournalLine."Account No.", GenJournalLine."Posting Date", false, true, false, false, PeriodLength);
 
         // Verify: Verify Amount in Statement Report after Entries has been Reversed.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyAmountInMultipleRows(GenJournalLine."Document No.", Amount);
     end;
 
@@ -736,7 +728,7 @@
         // Setup: Create and post General Journal Line,apply and Unapply Invoice and Payment with Random Values.
         Initialize();
         Amount := LibraryRandom.RandDec(1000, 2);
-        PostJournalLines(GenJournalLine, CreateCustomer, Amount, -Amount);
+        PostJournalLines(GenJournalLine, CreateCustomer(), Amount, -Amount);
         UnapplyCustLedgerEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
 
@@ -744,7 +736,7 @@
         SaveStatementReport(GenJournalLine."Account No.", WorkDate(), false, false, true, false, PeriodLength);
 
         // Verify: Verify Remaining Amount in Statement Report after Entries has been Unapplied.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyAmountInMultipleRows(GenJournalLine."Document No.", Amount);
     end;
 
@@ -765,13 +757,13 @@
         Amount := LibraryRandom.RandDec(1000, 2);
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
         PostingDate := CalcDate(PeriodLength, WorkDate());
-        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', Amount, PostingDate);
+        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer(), '', Amount, PostingDate);
 
         // Exercise: Save Statement Report for the Customer Created.
         SaveStatementReport(GenJournalLine."Account No.", WorkDate(), false, false, false, true, PeriodLength);
 
         // Verify Remaining Amount in Statement Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyRemainAmtInCustLedgEntry(PostingDate, Amount);
     end;
 
@@ -793,7 +785,7 @@
         Amount := LibraryRandom.RandDec(100, 2);
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
         PostingDate := CalcDate(PeriodLength, WorkDate());
-        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', Amount, PostingDate);
+        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer(), '', Amount, PostingDate);
         ReverseTransaction(FindGLEntry(GenJournalLine."Document No."));
         PostJournalLines(GenJournalLine, GenJournalLine."Account No.", Amount, -Amount);
         UnapplyCustLedgerEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
@@ -802,7 +794,7 @@
         SaveStatementReport(GenJournalLine."Account No.", WorkDate(), true, true, true, true, PeriodLength);
 
         // Verify: Verify Amount in Statement Report in Overdue Entries and Amount after Unapplied Entries.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyOverDueEntry(GenJournalLine."Posting Date", -Amount);
     end;
 
@@ -834,13 +826,13 @@
         LibrarySales.CreateCustomer(Customer);
         Amount := LibraryRandom.RandDec(1000, 2);
         CreateAndPostInvoice(Customer."No.", '', Amount);
-        CreateAndPostInvoice(Customer."No.", CreateCurrency, Amount);
+        CreateAndPostInvoice(Customer."No.", CreateCurrency(), Amount);
 
         // Exercise: Run the Customer Summary Aging Report.
         RunCustomerSummaryAgingReport(Customer."No.", ShowAmountsInLCY);
 
         // Verify: Check that the value of Total(LCY) in Customer Summary Aging Report is equal to Customer."Balance (LCY)".
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyTotalLCYOnCustomerSummaryAgingReport(Customer);
     end;
 
@@ -866,7 +858,7 @@
         RunCustomerOrderSummaryReport(Customer);
 
         // Verify: Verify that Totoal (LCY) shows the correct value in local currency and check that currency code does not exist in the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyTotalLCYOnCustomerOrderSummary(SalesLine."Line Amount" / SalesHeader."Currency Factor");
         asserterror LibraryReportDataset.AssertElementWithValueExists('', SalesHeader."Currency Code");
     end;
@@ -894,7 +886,7 @@
         RunCustomerOrderSummaryReport(Customer);
 
         // Verify: Verify that Totoal (LCY) shows the correct value in local currency and check that Currency Code is showing in the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyTotalLCYOnCustomerOrderSummary(SalesLine."Line Amount" / SalesHeader."Currency Factor");
         LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists('CurrencyCode_SalesLine', SalesHeader."Currency Code");
@@ -924,7 +916,7 @@
         RunCustomerDetailedAging(GenJournalLinePayment);
 
         // Verify: Check that the entries are sorted according to Due Date in Customer Detailed Aging.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCustomerDetailedAging(GenJournalLine."Document No.", GenJournalLine."Due Date");
         VerifyCustomerDetailedAging(GenJournalLinePayment."Document No.", GenJournalLinePayment."Due Date");
     end;
@@ -950,7 +942,7 @@
           2 * -LibraryRandom.RandDec(100, 2), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         RunCustomerDetailedAging(GenJournalLinePayment);
         LibraryReportDataset.SetRange(DocumentNoLbl, '');
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         // Exercise.
         asserterror LibraryReportDataset.AssertCurrentRowValueEquals(RemAmountLbl, GenJournalLine.Amount);
@@ -971,7 +963,7 @@
 
         // Setup: Create a Customer and Post General Journal Line with Random Amount.
         Initialize();
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         CreatePostGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate());
 
@@ -979,7 +971,7 @@
         RunCustomerDetailedAging(GenJournalLine);
 
         // Verify: Verify that the Phone No. displayed correctly in Customer Detailed Aging.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PhoneNoLbl, Customer."Phone No.");
     end;
 
@@ -996,7 +988,7 @@
 
         // Setup: Create Customer, create Sales Order with one Sales Line
         Initialize();
-        CreateSalesOrder(SalesHeader, SalesLine, '', CreateCustomer);
+        CreateSalesOrder(SalesHeader, SalesLine, '', CreateCustomer());
 
         // Create one more Sales Line
         LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine.Type::Item, SalesLine."No.", LibraryRandom.RandDec(100, 2));
@@ -1023,7 +1015,7 @@
         // Setup: Create Customer with currency code, create Sales Order with one Sales Line
         Initialize();
         CreateCustomerWithCurrencyCode(Customer);
-        CreateSalesOrder(SalesHeader, SalesLine, CreateCurrency, Customer."No.");
+        CreateSalesOrder(SalesHeader, SalesLine, CreateCurrency(), Customer."No.");
 
         // Create one more Sales Line
         LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine.Type::Item, SalesLine."No.", LibraryRandom.RandDec(100, 2));
@@ -1146,8 +1138,8 @@
         // [GIVEN] Sales Order with Amount = "X", "Amount (LCY)" = "Y" invoiced in foreign currency
         LibrarySales.CreateFCYSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
-          LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo, 1, '', 0D,
-          LibraryERM.CreateCurrencyWithRandomExchRates);
+          LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo(), 1, '', 0D,
+          LibraryERM.CreateCurrencyWithRandomExchRates());
         Commit();
 
         // [WHEN] Run "Customer - Order Summary" report with "Print in LCY" option
@@ -1174,7 +1166,7 @@
 
         // [WHEN] Export report "Standard Sales - Order Conf." to XML file
         RunStandardSalesOrderConfirmationReport(SalesHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "XXX" is displayed under Tag <ExtDocNo_SalesHeader> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('ExtDocNo_SalesHeader', SalesHeader."External Document No.");
@@ -1200,7 +1192,7 @@
 
         // [WHEN] Export report "Standard Sales - Invoice" to XML file
         RunStandardSalesInvoiceReport(SalesInvoiceHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "ExtDocNo001" is displayed under tag <LeftHeaderValue> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('LeftHeaderValue', SalesInvoiceHeader."External Document No.");
@@ -1226,7 +1218,7 @@
 
         // [WHEN] Export report "Standard Sales - Invoice" to XML file
         RunStandardSalesInvoiceReport(SalesInvoiceHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "External Document No." is not displayed under tag <LeftHeaderName> in export XML file
         LibraryReportDataset.AssertElementTagWithValueNotExist(
@@ -1253,9 +1245,9 @@
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
 
         // [THEN] Report dataset contains "External Doc No.".
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocumentNo', SalesHeader."No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, '');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), '');
         LibraryReportDataset.AssertCurrentRowValueEquals('ExternalDocumentNo', SalesHeader."External Document No.");
     end;
 
@@ -1281,7 +1273,7 @@
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
 
         // [THEN] Saved Excel file contains "External Doc No.".
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(22, 17, SalesHeader."External Document No.");
     end;
 
@@ -1311,9 +1303,9 @@
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] "Quantity_ShipmentLine" xml node exists in exported file
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocumentNo', SalesInvoiceHeader."No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'DocumentNo', SalesInvoiceHeader."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_ShipmentLine', SalesLine.Quantity);
     end;
@@ -1344,9 +1336,9 @@
         REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
 
         // [THEN] "Quantity_ShipmentLine" xml node exists in exported file
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocumentNo', SalesCrMemoHeader."No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'DocumentNo', SalesCrMemoHeader."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_ShipmentLine', SalesLine.Quantity);
     end;
@@ -1364,7 +1356,7 @@
         // [GIVEN] Create and Post General Journal Line with External Document No.
         Initialize();
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate());
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer(), '', LibraryRandom.RandDec(100, 2), WorkDate());
         GenJournalLine.Validate("External Document No.", CopyStr(LibraryUtility.GenerateRandomXMLText(35), 1, 35));
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1377,9 +1369,9 @@
         REPORT.Run(REPORT::"Customer - Detail Trial Bal.");
 
         // [THEN] Verify External Document No. on the Customer Detail Trial Balance Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocNo_CustLedgEntry', GenJournalLine."Document No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ExtDocNo_CustLedgEntry', GenJournalLine."External Document No.");
     end;
 
@@ -1398,7 +1390,7 @@
         SetRDLCReportLayout(REPORT::"Standard Sales - Quote");
 
         // [GIVEN] Create Sales Quote with one line.
-        CreateSalesQuoteWithLine(SalesHeader, SalesLine, CreateCustomer);
+        CreateSalesQuoteWithLine(SalesHeader, SalesLine, CreateCustomer());
 
         // [WHEN] Run report "Standard Sales - Quote".
         Commit();
@@ -1424,7 +1416,7 @@
         SetRDLCReportLayout(REPORT::"Standard Sales - Draft Invoice");
 
         // [GIVEN] Create Sales Invoice with one line.
-        CreateSalesInvoiceWithLine(SalesHeader, SalesLine, CreateCustomer);
+        CreateSalesInvoiceWithLine(SalesHeader, SalesLine, CreateCustomer());
 
         // [WHEN] Run report "Standard Sales - Draft Invoice".
         Commit();
@@ -1451,7 +1443,7 @@
         SetRDLCReportLayout(REPORT::"Standard Sales - Invoice");
 
         // [GIVEN] Create Sales Invoice with one line.
-        CreateSalesInvoiceWithLine(SalesHeader, SalesLine, CreateCustomer);
+        CreateSalesInvoiceWithLine(SalesHeader, SalesLine, CreateCustomer());
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] Run report "Standard Sales - Invoice".
@@ -1460,8 +1452,8 @@
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Saved Excel file has only one sheet.
-        LibraryReportValidation.OpenExcelFile;
-        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets, ExcelCountWorksheetsErr);
+        LibraryReportValidation.OpenExcelFile();
+        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets(), ExcelCountWorksheetsErr);
         // [THEN] Report title is 'Invoice'
         LibraryReportValidation.VerifyCellValue(7, 24, InvoiceTxt);
     end;
@@ -1482,7 +1474,7 @@
         SetRDLCReportLayout(REPORT::"Standard Sales - Credit Memo");
 
         // [GIVEN] Create Sales Quote with one line.
-        CreateSalesCreditMemoWithLine(SalesHeader, SalesLine, CreateCustomer);
+        CreateSalesCreditMemoWithLine(SalesHeader, SalesLine, CreateCustomer());
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] Run report "Standard Sales - Quote".
@@ -1510,7 +1502,7 @@
         SetRDLCReportLayout(REPORT::"Standard Sales - Invoice");
 
         // [GIVEN] Create Sales Invoice with one line.
-        CreateSalesInvoiceWithLine(SalesHeader, SalesLine, CreateCustomer);
+        CreateSalesInvoiceWithLine(SalesHeader, SalesLine, CreateCustomer());
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         // [GIVEN] Redefined report title as 'Sales - Tax Invoice'
         ReportCaptionSubscriber.SetCaption(TaxInvoiceTxt);
@@ -1522,8 +1514,8 @@
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Report title is 'Invoice'
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Cannot find first row.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'Cannot find first row.');
         LibraryReportDataset.AssertCurrentRowValueEquals('DocumentTitle_Lbl', TaxInvoiceTxt);
     end;
 
@@ -1545,7 +1537,6 @@
 
         // [GIVEN] Payment Method Translation with Language Code "DEU" and Description
         PaymentMethodTranslation.Get(PaymentMethod.Code, LibraryERM.CreatePaymentMethodTranslation(PaymentMethod.Code));
-        ModifyLanguageWindowsLanguageID(PaymentMethodTranslation."Language Code", GlobalLanguage);
 
         // [GIVEN] Sales Invoice with Payment Method "CASH" for Customer with Language Code = "DEU"
         CreateSalesDocumentWithPaymentMethod(
@@ -1558,7 +1549,7 @@
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
 
         // [THEN] Report Dataset has Payment Method Translation Description under tag '<PaymentMethodDescription>'
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('PaymentMethodDescription', PaymentMethodTranslation.Description);
     end;
 
@@ -1580,7 +1571,6 @@
 
         // [GIVEN] Payment Method Translation with Language Code "DEU" and Description
         PaymentMethodTranslation.Get(PaymentMethod.Code, LibraryERM.CreatePaymentMethodTranslation(PaymentMethod.Code));
-        ModifyLanguageWindowsLanguageID(PaymentMethodTranslation."Language Code", GlobalLanguage);
 
         // [GIVEN] Sales Quote with Payment Method "CASH" for Customer with Language Code = "DEU"
         CreateSalesDocumentWithPaymentMethod(
@@ -1593,7 +1583,7 @@
         REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
         // [THEN] Report Dataset has Payment Method Translation Description under tag '<PaymentMethodDescription>'
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('PaymentMethodDescription', PaymentMethodTranslation.Description);
     end;
 
@@ -1615,7 +1605,6 @@
 
         // [GIVEN] Payment Method Translation with Language Code "DEU" and Description
         PaymentMethodTranslation.Get(PaymentMethod.Code, LibraryERM.CreatePaymentMethodTranslation(PaymentMethod.Code));
-        ModifyLanguageWindowsLanguageID(PaymentMethodTranslation."Language Code", GlobalLanguage);
 
         // [GIVEN] Sales Order with Payment Method "CASH" for Customer with Language Code = "DEU"
         CreateSalesDocumentWithPaymentMethod(
@@ -1628,7 +1617,7 @@
         REPORT.Run(REPORT::"Standard Sales - Order Conf.", true, false, SalesHeader);
 
         // [THEN] Report Dataset has Payment Method Translation Description under tag '<PaymentMethodDescription>'
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('PaymentMethodDescription', PaymentMethodTranslation.Description);
     end;
 
@@ -1651,7 +1640,6 @@
 
         // [GIVEN] Payment Method Translation with Language Code "DEU" and Description
         PaymentMethodTranslation.Get(PaymentMethod.Code, LibraryERM.CreatePaymentMethodTranslation(PaymentMethod.Code));
-        ModifyLanguageWindowsLanguageID(PaymentMethodTranslation."Language Code", GlobalLanguage);
 
         // [GIVEN] Posted Sales Invoice with Payment Method "CASH" for Customer with Language Code = "DEU"
         CreateSalesDocumentWithPaymentMethod(
@@ -1664,7 +1652,7 @@
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Report DataSet has Payment Method Translation Description under tag '<PaymentMethodDescription>'
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('PaymentMethodDescription', PaymentMethodTranslation.Description);
     end;
 
@@ -1687,7 +1675,6 @@
 
         // [GIVEN] Payment Method Translation with Language Code "DEU" and Description
         PaymentMethodTranslation.Get(PaymentMethod.Code, LibraryERM.CreatePaymentMethodTranslation(PaymentMethod.Code));
-        ModifyLanguageWindowsLanguageID(PaymentMethodTranslation."Language Code", GlobalLanguage);
 
         // [GIVEN] Posted Sales Cr. Memo with Payment Method "CASH" for Customer with Language Code = "DEU"
         CreateSalesDocumentWithPaymentMethod(
@@ -1700,7 +1687,7 @@
         REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
 
         // [THEN] Report DataSet has Payment Method Translation Description under tag '<PaymentMethodDescription>'
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('PaymentMethodDescription', PaymentMethodTranslation.Description);
     end;
 
@@ -1773,7 +1760,7 @@
         RunDtldCustTrialBalanceReportWithDateFilter(GenJournalLine."Account No.");
 
         // [THEN] Verify start balance is zero and customer balance is 133.33
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(27, 5, Format(GenJournalLine."Amount (LCY)", 0, 9));
         LibraryReportValidation.VerifyCellValue(27, 9, Format(GenJournalLine."Amount (LCY)", 0, 9));
     end;
@@ -1824,14 +1811,14 @@
         Initialize();
 
         // [GIVEN] Created Customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // [GIVEN] Currency "CUR01" with Exchange Rate created
         // [GIVEN] Sales Order "SO01" for Customer with Amount = 100 in Currency "CUR01"
         // [GIVEN] Currency "CUR02" with Exchange Rate created
         // [GIVEN] Sales Order "SO02" for Customer with Amount = 200 in Currency "CUR02"
         for I := 1 to ArrayLen(CurrencyCode) do begin
-            CurrencyCode[I] := CreateCurrency;
+            CurrencyCode[I] := CreateCurrency();
             CreateSalesOrder(SalesHeader, SalesLine, CurrencyCode[I], CustomerNo);
             Amount[I] := SalesLine."Line Amount";
         end;
@@ -1872,7 +1859,7 @@
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Report DataSet contains Customer."Phone No."
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('SellToPhoneNo', Customer."Phone No.");
 
         // [THEN] Report DataSet contains Customer."Fax No."
@@ -1904,7 +1891,7 @@
         REPORT.Run(REPORT::"Standard Sales - Order Conf.", true, false, SalesHeader);
 
         // [THEN] Report DataSet contains Customer."Phone No."
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('SellToPhoneNo', Customer."Phone No.");
 
         // [THEN] Report DataSet contains Customer."Fax No."
@@ -1929,7 +1916,7 @@
 
         // [WHEN] Export report "Standard Sales - Order Conf." to XML file
         RunStandardSalesOrderConfirmationReport(SalesHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "XXX" is displayed under Tag <YourReference> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('YourReference', SalesHeader."Your Reference");
@@ -1972,7 +1959,7 @@
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Payment Terms Description "X" is shown in report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('PaymentTermsDescription', PaymentTerms.Description);
     end;
 
@@ -2008,7 +1995,7 @@
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Shipment Method Description "X" is shown in report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('ShipmentMethodDescription', ShipmentMethod.Description);
     end;
 
@@ -2042,7 +2029,7 @@
         REPORT.Run(REPORT::"Customer - Order Summary", true, false, Customer);
 
         // [THEN] Sales Order Amount equal to Sales Line's "Quantity" * "Unit Price".
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('SalesOrderAmount', SalesLine.Quantity * SalesLine."Unit Price");
     end;
 
@@ -2068,7 +2055,7 @@
         CreateItemWithAssemblyComponents(Item, ItemComponentCode);
 
         // [GIVEN] Sales Order with "Item" in the line
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
 
         // [WHEN] Run "Standard Sales - Order Conf." report with "Show Assembly Components" checkbox enabled
@@ -2078,7 +2065,7 @@
         // [THEN] Assembly Components are printed
         VerifyExcelWithItemAssemblyComponents(ItemComponentCode);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2104,7 +2091,7 @@
         CreateItemWithAssemblyComponents(Item, ItemComponentCode);
 
         // [GIVEN] Sales Order with "Item" in the line
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -2115,7 +2102,7 @@
         // [THEN] Assembly Components are printed
         VerifyExcelWithItemAssemblyComponents(ItemComponentCode);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2145,7 +2132,7 @@
 
         // [WHEN] Run "Standard Sales - Invoice" Report
         RunStandardSalesInvoiceReport(SalesInvoiceHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "ITC" is displayed under tag <ItemReferenceNo_Line> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('ItemReferenceNo_Line', ItemReferenceNo);
@@ -2181,10 +2168,10 @@
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
 
         // [WHEN] Run "Standard Sales - Credit Memo" Report
-        Commit;
+        Commit();
         SalesCrMemoHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "ITC" is displayed under tag <ItemReferenceNo_Line> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('ItemReferenceNo_Line', ItemReferenceNo);
@@ -2217,10 +2204,10 @@
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Run report "Standard Sales - Quote".
-        Commit;
+        Commit();
         SalesHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "ITC" is displayed under tag <ItemReferenceNo_Line> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('ItemReferenceNo_Line', ItemReferenceNo);
@@ -2252,10 +2239,10 @@
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Run report "Standard Sales - Draft Invoice".
-        Commit;
+        Commit();
         SalesHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "ITC" is displayed under tag <ItemReferenceNo_Line> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('ItemReferenceNo_Line', ItemReferenceNo);
@@ -2288,7 +2275,7 @@
         // UI handled by CustomerDetailedAgingRequestPageHandler
 
         // [THEN] Resulting dataset has Customer table caption in it
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Customer_TABLECAPTION_CustFilter',
           StrSubstNo('%1: %2: %3', Customer.TableCaption(), Customer.FieldCaption("No."), Customer."No."));
     end;
@@ -2327,7 +2314,7 @@
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Report contains "VAT Amount Specification" section
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagExists('VATAmountSpecification_Lbl');
     end;
 
@@ -2364,7 +2351,7 @@
         REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
 
         // [THEN] Report contains "VAT Amount Specification" section
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagExists('VATAmountSpecification_Lbl');
     end;
 
@@ -2419,7 +2406,7 @@
         REPORT.Run(REPORT::"Customer Detailed Aging");
         // UI handled by CustomerDetailedAgingRequestPageHandler
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         // [THEN] DueMonths for Due Date 1 is 4
         VerifyDueMonthsForDueDate(DueDate[1], 4);
 
@@ -2461,7 +2448,7 @@
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Run "Sales Statistics" report.
-        Commit;
+        Commit();
         Customer.SetRecFilter();
         REPORT.Run(REPORT::"Sales Statistics", true, false, Customer);
 
@@ -2572,7 +2559,6 @@
     procedure ReportTotalsBufferFormatAmountFormatted()
     var
         ReportTotalsBuffer: Record "Report Totals Buffer" temporary;
-        AutoFormat: Codeunit "Auto Format";
         CurrencyCode: Code[10];
     begin
         // [FEATURE] [UT]
@@ -2699,7 +2685,7 @@
 
         // [WHEN] Export report "Standard Sales - Invoice" to XML file
         RunStandardSalesInvoiceReport(SalesInvoiceHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('CurrencyCode', Currency.Code);
@@ -2713,7 +2699,7 @@
 
         // [WHEN] Export report "Standard Sales - Credit Memo" to XML file
         RunStandardSalesCreditMemoReport(SalesCreditMemoHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('CurrencyCode', Currency.Code);
@@ -2726,7 +2712,7 @@
 
         // [WHEN] Export report "Standard Sales - Quote" to XML file
         RunStandardSalesQuoteReport(SalesHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('CurrencyCode', Currency.Code);
@@ -2739,7 +2725,7 @@
 
         // [WHEN] Export report "Standard Sales - Order Conf." to XML file
         RunStandardSalesOrderConfirmationReport(SalesHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists('CurrencyCode', Currency.Code);
@@ -2775,7 +2761,7 @@
 
         // [WHEN] Export report "Standard Sales - Invoice" to XML file
         RunStandardSalesInvoiceReport(SalesInvoiceHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists(
@@ -2791,7 +2777,7 @@
 
         // [WHEN] Export report "Standard Sales - Credit Memo" to XML file
         RunStandardSalesCreditMemoReport(SalesCrMemoHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists(
@@ -2806,7 +2792,7 @@
 
         // [WHEN] Export report "Standard Sales - Quote" to XML file
         RunStandardSalesQuoteReport(SalesHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists(
@@ -2821,7 +2807,7 @@
 
         // [WHEN] Export report "Standard Sales - Order Conf." to XML file
         RunStandardSalesOrderConfirmationReport(SalesHeader."No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
         LibraryReportDataset.AssertElementTagWithValueExists(
@@ -2889,7 +2875,6 @@
     procedure StandardSalesDraftInvoiceShowsTranslatedVATClause()
     var
         SalesHeader: Record "Sales Header";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
         VATClause: Record "VAT Clause";
         VATPostingSetup: Record "VAT Posting Setup";
         VATClauseTranslation: Record "VAT Clause Translation";
@@ -3096,6 +3081,70 @@
         InteractionLogEntry.TestField("Interaction Template Code", InteractionTemplateSetup."Sales Shpt. Note");
     end;
 
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesInvoiceShowsSingleVATClausesForMultipleLineWithSameVATPostingSetup()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        VATClause: Record "VAT Clause";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        // [SCENARIO 477998] The VAT clause should be printed once, having the same VAT Posting Setup and zero VAT when there are two lines. 
+        // The first line has +ve quantity, and the second line has -ve quantity.
+        Initialize();
+
+        // [GIVEN] Create a VAT Clause.
+        LibraryERM.CreateVATClause(VATClause);
+
+        // [GIVEN] Create a VAT Posting Setup with a VAT rate of zero.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        VATPostingSetup.Validate("VAT Clause Code", VATClause.Code);
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Create a VAT Product Posting Setup.
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+
+        // [GIVEN] Create a Customer and update the VAT Bus. Posting Group.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+
+        // [GIVEN] Create an Item and update the VAT Prod. Posting Group.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Sales Invoice.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Create a sales line "A" with +ve quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(300));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create a sales line "B" with -ve quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", -LibraryRandom.RandInt(20));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post a Sales Invoice.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Run the report "Standard Sales—Invoice" for the posted sales invoice.
+        Clear(LibraryReportDataset);
+        Report.Run(Report::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [VERIFY] VAT clause should be printed only once after running the report "Standard Sales—Invoice".
+        VerifyVATClauseShouldBePrintOnlyOnce(VATClause);
+    end;
+
     local procedure Initialize()
     begin
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -3128,13 +3177,6 @@
             "Print VAT specification in LCY" := VATSpecificationInLCY;
             Modify(true);
         end;
-    end;
-
-    local procedure ModifyLanguageWindowsLanguageID(LanguageCode: Code[10]; WindowsLanguageID: Integer)
-    var
-        Language: Record Language;
-    begin
-        Language.Get('ENU');
     end;
 
     local procedure ClearGenJournalLine(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -3180,9 +3222,9 @@
     local procedure CreateAndPostSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"): Code[20]
     begin
         // Create Sales Order with Random Quantity.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -3407,7 +3449,7 @@
     begin
         CreateSalesHeader(SalesHeader, CurrencyCode, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
     end;
@@ -3425,7 +3467,7 @@
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
     end;
@@ -3483,7 +3525,7 @@
 
     local procedure CreateSalesInvoiceWithExternalDocNo(var SalesHeader: Record "Sales Header")
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
         SalesHeader.Validate("External Document No.", CopyStr(LibraryUtility.GenerateRandomXMLText(35), 1, 35));
         SalesHeader.Modify(true);
     end;
@@ -3648,9 +3690,9 @@
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(1, 10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(1, 10));
         LibraryUtility.FillFieldMaxText(SalesHeader, SalesHeader.FieldNo("Your Reference"));
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         PostedCrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -3741,7 +3783,7 @@
                 repeat
                     CalcFields("Balance (LCY)");
                     TotalBalance += "Balance (LCY)";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -3756,7 +3798,7 @@
                 repeat
                     CalcFields("Sales (LCY)");
                     TotalSalesLCY += "Sales (LCY)";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -3867,9 +3909,9 @@
 
     local procedure PostShipReceiveOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type")
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -3908,9 +3950,9 @@
 
         // Verify: Check that the value of Original Amount in Customer Register is equal to the value of Amount in
         // corresponding General Journal Line.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Cust__Ledger_Entry__Document_No__', DocumentNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Cust__Ledger_Entry__Document_No__', DocumentNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('CustAmount', OriginalAmountLCY);
     end;
@@ -3922,9 +3964,9 @@
 
         // Verify: Check that the value of Amount in Customer Detail Trial Balance is equal to the value of Amount in
         // corresponding General Journal Line.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocNo_CustLedgEntry', GenJournalLine."Document No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'DocNo_CustLedgEntry', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('CustLedgerEntryAmtLCY', AmountLCY);
         LibraryReportDataset.AssertCurrentRowValueEquals('CustBalanceLCY', AmountLCY);
@@ -3970,9 +4012,9 @@
 
         // Verify: Check that the value of Balance in Customer Summary Aging is equal to the value of Amount in
         // corresponding General Journal Line.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Customer_No_', CustomerNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Customer_No_', CustomerNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalCustBalanceLCY', BalanceLCY);
         LibraryReportDataset.AssertCurrentRowValueEquals('CustBalanceDueLCY_3_', 0);
@@ -4121,7 +4163,7 @@
     local procedure SetupInvoiceDiscount(var CustInvoiceDisc: Record "Cust. Invoice Disc.")
     begin
         // Required random value for Minimum Amount and Discount Pct fields, value is not important.
-        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CreateCustomer, '', LibraryRandom.RandInt(100));
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CreateCustomer(), '', LibraryRandom.RandInt(100));
         CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandDec(10, 2));
         CustInvoiceDisc.Modify(true);
     end;
@@ -4186,7 +4228,7 @@
     local procedure VerifyAmtInDtldCustLedgEntries(RowCaption: Text; RowValue: Text; Amount: Decimal)
     begin
         LibraryReportDataset.SetRange(RowCaption, RowValue);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, RowCaption, RowValue);
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_DtldCustLedgEntries', Amount);
     end;
@@ -4199,9 +4241,9 @@
 
     local procedure VerifyLineAmtCustomerOrderDetailReport(SalesLineNo: Code[20]; LineAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_SalesLine', SalesLineNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No_SalesLine', SalesLineNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesOrderAmount', LineAmount);
     end;
@@ -4210,7 +4252,7 @@
     begin
         Customer.CalcFields("Balance (LCY)");
         LibraryReportDataset.SetRange('Total_LCY_Caption', TotalCaptionLbl);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'Total_LCY_Caption', TotalCaptionLbl);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalCustBalanceLCY', Customer."Balance (LCY)");
     end;
@@ -4218,7 +4260,7 @@
     local procedure VerifyTotalLCYOnCustomerOrderSummary(ExpectedTotalLCY: Decimal)
     begin
         LibraryReportDataset.SetRange('TotalCaption', ColumnTotalLbl);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'TotalCaption', ColumnTotalLbl);
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesOrderAmountLCY', Round(ExpectedTotalLCY, 0.01));
     end;
@@ -4226,15 +4268,15 @@
     local procedure VerifyCustomerDetailedAging(DocumentNo: Code[20]; DueDate: Date)
     begin
         LibraryReportDataset.SetRange(DocumentNoLbl, DocumentNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(DueDateLbl, Format(DueDate));
     end;
 
     local procedure VerifyCustOrderSummary(SalesLine: Record "Sales Line"; CurrencyFactor: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Cust', SalesLine."Sell-to Customer No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'No_Cust', SalesLine."Sell-to Customer No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesAmtOnOrderLCY1', 0);
         if CurrencyFactor = 0 then
@@ -4251,7 +4293,7 @@
     local procedure VerifyRemainAmtInCustLedgEntry(PostingDate: Date; Amount: Decimal)
     begin
         LibraryReportDataset.SetRange('PostDate_CustLedgEntry2', Format(PostingDate));
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'PostDate_CustLedgEntry2', Format(PostingDate));
         LibraryReportDataset.AssertCurrentRowValueEquals('RemainAmt_CustLedgEntry2', Amount);
     end;
@@ -4260,7 +4302,7 @@
     var
         RowNo: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         RowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(2, CustomerNo);
         LibraryReportValidation.VerifyCellValueByRef('K', RowNo, 1, LibraryReportValidation.FormatDecimalValue(TotalAmount));
     end;
@@ -4269,7 +4311,7 @@
     var
         RowNo: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         RowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(2, CustomerNo);
         LibraryReportValidation.VerifyCellValueByRef('E', RowNo, 1, LibraryReportValidation.FormatDecimalValue(ExpectedAmount));
     end;
@@ -4279,7 +4321,7 @@
         RowNo: Integer;
         I: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         for I := 1 to ArrayLen(CurrencyCode) do begin
             RowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(3, CurrencyCode[I]);
             LibraryReportValidation.VerifyCellValueByRef('E', RowNo, 1, LibraryReportValidation.FormatDecimalValue(ExpectedAmount[I]));
@@ -4288,7 +4330,7 @@
 
     local procedure VerifyTotalOnCustomerOrderDetailReport(CustomerNo: Code[20]; ExpectedTotal: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Customer', CustomerNo);
         LibraryReportDataset.AssertElementWithValueExists('TotalAmt_CurrTotalBuff', ExpectedTotal);
     end;
@@ -4296,12 +4338,12 @@
     local procedure VerifyOutstandingOrdersAndTotalOnCustomerOrderDetailReport(SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ExpectedTotal: Decimal)
     begin
         with LibraryReportDataset do begin
-            LoadDataSetFile;
+            LoadDataSetFile();
             SetRange('No_Customer', CustomerNo);
-            if not GetNextRow then
+            if not GetNextRow() then
                 Error(RowNotFoundErr, 'No_Customer', CustomerNo);
             AssertCurrentRowValueEquals('SalesOrderAmount', SalesLine.Amount);
-            GetNextRow;
+            GetNextRow();
             SalesLine.Next();
             AssertCurrentRowValueEquals('SalesOrderAmount', SalesLine.Amount);
             AssertElementWithValueExists('TotalAmt_CurrTotalBuff', ExpectedTotal);
@@ -4310,19 +4352,19 @@
 
     local procedure VerifyXMLReport(XmlElementCaption: Text; XmlValue: Text)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(XmlElementCaption, XmlValue);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, XmlElementCaption, XmlValue);
         LibraryReportDataset.AssertCurrentRowValueEquals(XmlElementCaption, XmlValue);
     end;
 
     local procedure VerifyCustomerTrialBalanceDCAmounts(CustomerNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Customer', CustomerNo);
         Assert.IsTrue(
-          LibraryReportDataset.GetNextRow,
+          LibraryReportDataset.GetNextRow(),
           StrSubstNo(RowNotFoundErr, 'No_Customer', CustomerNo));
         LibraryReportDataset.AssertCurrentRowValueEquals('PeriodDebitAmt', DebitAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('PeriodCreditAmt', CreditAmount);
@@ -4330,13 +4372,13 @@
 
     local procedure VerifyYourReferenceSalesCrMemo(YourReference: Text[35])
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(35, 12, YourReference);
     end;
 
     local procedure VerifyAmountsSalesInvoiceReport(ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(36, 19, LibraryReportValidation.FormatDecimalValue(ExpectedAmount)); // Total Amount
         LibraryReportValidation.VerifyCellValue(
           37, 19, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT - ExpectedAmount)); // Total VAT
@@ -4350,16 +4392,16 @@
         ExpectedAmount := CurrencyExchangeRate.ExchangeAmtFCYToLCY(
             WorkDate(), SalesLine."Currency Code", SalesLine."Unit Price", SalesHeader."Currency Factor");
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Cust', SalesHeader."Sell-to Customer No.");
 
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, StrSubstNo(RowNotFoundErr, 'No_Cust', SalesHeader."Sell-to Customer No."));
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), StrSubstNo(RowNotFoundErr, 'No_Cust', SalesHeader."Sell-to Customer No."));
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesOrderAmountLCY', ExpectedAmount);
     end;
 
     local procedure VerifySalesInvoiceTotalsWithDiscount(SalesLine: Record "Sales Line"; ColumnName: Text; StartingRowNo: Integer)
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         // Subtotal
         LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo, 1,
           LibraryReportValidation.FormatDecimalValue(SalesLine."Line Amount"));
@@ -4379,14 +4421,25 @@
 
     local procedure VerifyNoOfWorksheetsInExcel(WorksheetsNumber: Integer)
     begin
-        LibraryReportValidation.OpenExcelFile;
-        Assert.AreEqual(WorksheetsNumber, LibraryReportValidation.CountWorksheets, ExcelCountWorksheetsErr);
+        LibraryReportValidation.OpenExcelFile();
+        Assert.AreEqual(WorksheetsNumber, LibraryReportValidation.CountWorksheets(), ExcelCountWorksheetsErr);
     end;
 
     local procedure VerifyDueMonthsForDueDate(DueDate: Date; DueMonths: Integer)
     begin
         LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Cust_Ledger_Entry_Due_Date_', Format(DueDate)) + 1);
         LibraryReportDataset.AssertCurrentRowValueEquals('OverDueMonths', DueMonths);
+    end;
+
+    local procedure VerifyVATClauseShouldBePrintOnlyOnce(VATClause: Record "VAT Clause")
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists(
+            DescriptionVATClauseLineLbl, VATClause.Description + ' ' + VATClause."Description 2");
+
+        LibraryReportDataset.GetNextRow();
+        asserterror LibraryReportDataset.AssertElementTagWithValueExists(
+            DescriptionVATClauseLineLbl, VATClause.Description + ' ' + VATClause."Description 2");
     end;
 
     [ConfirmHandler]
@@ -4425,14 +4478,14 @@
         CustomerDetailedAging."Ending Date".SetValue(EndDate);
         CustomerDetailedAging.ShowOpenEntriesOnly.SetValue(false);  // Setting Show Open Entries Only boolean.
         CustomerDetailedAging.Customer.SetFilter("No.", CustomerNo);
-        CustomerDetailedAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerDetailedAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerListRequestPageHandler(var CustomerList: TestRequestPage "Customer - List")
     begin
-        CustomerList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4446,7 +4499,7 @@
         LibraryVariableStorage.Dequeue(CustomerNo);
         CustomerSummaryAgingSimp.StartingDate.SetValue(WorkingDate);
         CustomerSummaryAgingSimp.Customer.SetFilter("No.", CustomerNo);
-        CustomerSummaryAgingSimp.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSummaryAgingSimp.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4461,7 +4514,7 @@
         CustomerSummaryAgingSimp.StartingDate.SetValue(StartDate);
         CustomerSummaryAgingSimp.Customer.SetFilter("Balance Due", BalanceDue);
         CustomerSummaryAgingSimp.Customer.SetFilter("No.", '');
-        CustomerSummaryAgingSimp.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSummaryAgingSimp.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4475,14 +4528,14 @@
         LibraryVariableStorage.Dequeue(CustomerNo);
         CustomerTop10List.Show.SetValue(ShowType);
         CustomerTop10List.Customer.SetFilter("No.", CustomerNo);
-        CustomerTop10List.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerTop10List.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerTrialBalanceRequestPageHandler(var CustomerTrialBalance: TestRequestPage "Customer - Trial Balance")
     begin
-        CustomerTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4496,7 +4549,7 @@
         LibraryVariableStorage.Dequeue(PrintOnlyPerPage);
         CustomerOrderDetail.ShowAmountsInLCY.SetValue(ShowAmountInLCY);
         CustomerOrderDetail.NewPagePerCustomer.SetValue(PrintOnlyPerPage);
-        CustomerOrderDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerOrderDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4510,7 +4563,7 @@
         LibraryVariableStorage.Dequeue(ShowAmountLCY);
         CustomerOrderSummary.StartingDate.SetValue(StartingDate);
         CustomerOrderSummary.ShwAmtinLCY.SetValue(ShowAmountLCY);
-        CustomerOrderSummary.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerOrderSummary.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4524,7 +4577,7 @@
         LibraryVariableStorage.Dequeue(ShowAmountLCY);
         CustomerOrderSummary.StartingDate.SetValue(StartingDate);
         CustomerOrderSummary.ShwAmtinLCY.SetValue(ShowAmountLCY);
-        CustomerOrderSummary.SaveAsExcel(LibraryReportValidation.GetFileName);
+        CustomerOrderSummary.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4538,7 +4591,7 @@
         LibraryVariableStorage.Dequeue(EntryNo);
         CustomerRegister.ShowAmountsInLCY.SetValue(ShowAmountLCY);
         CustomerRegister."G/L Register".SetFilter("To Entry No.", Format(EntryNo));
-        CustomerRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4558,18 +4611,18 @@
         CustomerDetailTrialBal.NewPageperCustomer.SetValue(SetPrintOnlyOnePerPage);
         CustomerDetailTrialBal.ExcludeCustHaveaBalanceOnly.SetValue(SetExcludeBalanceOnly);
         CustomerDetailTrialBal.Customer.SetFilter("No.", AccountNo);
-        CustomerDetailTrialBal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerDetailTrialBal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerDetailTrialBalanceExcelRequestPageHandler(var CustomerDetailTrialBal: TestRequestPage "Customer - Detail Trial Bal.")
     begin
-        CustomerDetailTrialBal.ShowAmountsInLCY.SetValue(LibraryVariableStorage.DequeueDecimal);
-        CustomerDetailTrialBal.NewPageperCustomer.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CustomerDetailTrialBal.ExcludeCustHaveaBalanceOnly.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CustomerDetailTrialBal.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        CustomerDetailTrialBal.SaveAsExcel(LibraryReportValidation.GetFileName);
+        CustomerDetailTrialBal.ShowAmountsInLCY.SetValue(LibraryVariableStorage.DequeueDecimal());
+        CustomerDetailTrialBal.NewPageperCustomer.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CustomerDetailTrialBal.ExcludeCustHaveaBalanceOnly.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CustomerDetailTrialBal.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        CustomerDetailTrialBal.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4580,7 +4633,7 @@
     begin
         LibraryVariableStorage.Dequeue(SellToCustomerNo);
         CustomerItemSales.Customer.SetFilter("No.", SellToCustomerNo);
-        CustomerItemSales.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerItemSales.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4591,7 +4644,7 @@
     begin
         LibraryVariableStorage.Dequeue(CustomerNo);
         CustomerSalesList.Customer.SetFilter("No.", CustomerNo);
-        CustomerSalesList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSalesList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4602,14 +4655,14 @@
     begin
         LibraryVariableStorage.Dequeue(CustomerNo);
         CustomerDocumentNos."Cust. Ledger Entry".SetFilter("Customer No.", CustomerNo);
-        CustomerDocumentNos.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerDocumentNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerSummaryAgingRequestPageHandler(var CustomerSummaryAging: TestRequestPage "Customer - Summary Aging")
     begin
-        CustomerSummaryAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSummaryAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4624,22 +4677,22 @@
         CustomerSummaryAging.StartingDate.SetValue(StartDate);
         CustomerSummaryAging.Customer.SetFilter("Balance Due", BalanceDue);
         CustomerSummaryAging.Customer.SetFilter("No.", '');
-        CustomerSummaryAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSummaryAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StatementReportRequestPageHandler(var Statement: TestRequestPage Statement)
     begin
-        Statement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        Statement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     local procedure VerifySalesInvoiceVATAmountInLCY(DocumentNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetLastRow();
         VerifySalesReportVATAmount(VATEntry."Document Type"::Invoice, DocumentNo, -1, VALVATAmountLCYTok);
 	end;
 		
@@ -4647,21 +4700,21 @@
     [Scope('OnPrem')]
     procedure DraftSalesInvoiceRequestPageHandler(var StandardSalesDraftInvoice: TestRequestPage "Standard Sales - Draft Invoice")
     begin
-        StandardSalesDraftInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesDraftInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DraftSalesInvoiceExcelRequestPageHandler(var StandardSalesDraftInvoice: TestRequestPage "Standard Sales - Draft Invoice")
     begin
-        StandardSalesDraftInvoice.SaveAsExcel(LibraryReportValidation.GetFileName);
+        StandardSalesDraftInvoice.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardSalesOrderConfRequestPageHandler(var StandardSalesOrderConf: TestRequestPage "Standard Sales - Order Conf.")
     begin
-        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4670,9 +4723,9 @@
     var
         ShowAssemblyComponents: Boolean;
     begin
-        ShowAssemblyComponents := LibraryVariableStorage.DequeueBoolean;
+        ShowAssemblyComponents := LibraryVariableStorage.DequeueBoolean();
         StandardSalesOrderConf.DisplayAsmInformation.SetValue(ShowAssemblyComponents);
-        StandardSalesOrderConf.SaveAsExcel(LibraryReportValidation.GetFileName);
+        StandardSalesOrderConf.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     local procedure VerifySalesCreditMemoVATAmountInLCY(DocumentNo: Code[20])
@@ -4680,8 +4733,8 @@
         VATEntry: Record "VAT Entry";
     begin
         with LibraryReportDataset do begin
-            LoadDataSetFile;
-            MoveToRow(RowCount - 1);
+            LoadDataSetFile();
+            MoveToRow(RowCount() - 1);
         end;
 
         VerifySalesReportVATAmount(VATEntry."Document Type"::"Credit Memo", DocumentNo, 1, 'VALVATAmtLCY');
@@ -4720,7 +4773,7 @@
 
     local procedure VerifySalesInvoiceMultipleVATClausesPrinted(VATPostingSetup: array[3] of Record "VAT Posting Setup"; VATClause: array[2] of Record "VAT Clause")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('VATClauses_Lbl', 'VAT Clause');
         LibraryReportDataset.AssertElementTagWithValueExists('VATIdentifier_Lbl', 'VAT Identifier');
 
@@ -4739,7 +4792,7 @@
         ColNo: Integer;
         Index: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         for Index := 1 to ArrayLen(ItemComponentCode) do begin
             LibraryReportValidation.FindRowNoColumnNoByValueOnWorksheet(ItemComponentCode[Index], 1, RowNo, ColNo);
             Assert.IsTrue(RowNo > 0, 'Expected to find a row with assembly component');
@@ -4752,7 +4805,7 @@
         ElementValue: Variant;
     begin
         with LibraryReportDataset do begin
-            LoadDataSetFile;
+            LoadDataSetFile();
             GetLastRow();
 
             FindCurrentRowValue(TotalVATAmountLCY, ElementValue);
@@ -4766,7 +4819,7 @@
     [Scope('OnPrem')]
     procedure StandardSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
-        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4775,16 +4828,16 @@
     var
         ShowAssemblyComponents: Boolean;
     begin
-        ShowAssemblyComponents := LibraryVariableStorage.DequeueBoolean;
+        ShowAssemblyComponents := LibraryVariableStorage.DequeueBoolean();
         StandardSalesInvoice.DisplayAsmInformation.SetValue(ShowAssemblyComponents);
-        StandardSalesInvoice.SaveAsExcel(LibraryReportValidation.GetFileName);
+        StandardSalesInvoice.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardSalesQuoteRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
-        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -4793,7 +4846,7 @@
     begin
         if StandardSalesInvoice.Editable then;
         StandardSalesInvoice.DisplayShipmentInformation.SetValue(true);
-        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
         Sleep(200);
     end;
 
@@ -4803,7 +4856,7 @@
     begin
         if StandardSalesCreditMemo.Editable then;
         StandardSalesCreditMemo.DisplayShipmentInformation.SetValue(true);
-        StandardSalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
         Sleep(200);
     end;
 
@@ -4811,28 +4864,28 @@
     [Scope('OnPrem')]
     procedure StdSalesQuoteExcelRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
-        StandardSalesQuote.SaveAsExcel(LibraryReportValidation.GetFileName);
+        StandardSalesQuote.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StdSalesDraftInvoiceExcelRequestPageHandler(var StandardSalesDraftInvoice: TestRequestPage "Standard Sales - Draft Invoice")
     begin
-        StandardSalesDraftInvoice.SaveAsExcel(LibraryReportValidation.GetFileName);
+        StandardSalesDraftInvoice.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StdSalesInvoiceExcelRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
-        StandardSalesInvoice.SaveAsExcel(LibraryReportValidation.GetFileName);
+        StandardSalesInvoice.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StdSalesCreditMemoExcelRequestPageHandler(var StandardSalesCreditMemo: TestRequestPage "Standard Sales - Credit Memo")
     begin
-        StandardSalesCreditMemo.SaveAsExcel(LibraryReportValidation.GetFileName);
+        StandardSalesCreditMemo.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]

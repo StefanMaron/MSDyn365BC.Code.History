@@ -4,7 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
+#pragma warning disable AL0659
 enum 13 "VAT Statement Report Period Selection"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

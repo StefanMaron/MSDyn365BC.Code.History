@@ -11,9 +11,8 @@ codeunit 5951 "Service-Disc. (Yes/No)"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         ServiceLine.Copy(Rec);
-        with ServiceLine do
-            if ConfirmManagement.GetResponseOrDefault(Text000, true) then
-                CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServiceLine);
+        if ConfirmManagement.GetResponseOrDefault(Text000, true) then
+            CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServiceLine);
         Rec := ServiceLine;
     end;
 

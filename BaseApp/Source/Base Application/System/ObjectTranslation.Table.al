@@ -11,6 +11,7 @@ table 377 "Object Translation"
     Caption = 'Object Translation';
     DataPerCompany = false;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -40,7 +41,7 @@ table 377 "Object Translation"
         }
         field(4; "Language Name"; Text[80])
         {
-            CalcFormula = Lookup("Windows Language".Name where("Language ID" = field("Language ID")));
+            CalcFormula = lookup("Windows Language".Name where("Language ID" = field("Language ID")));
             Caption = 'Language Name';
             Editable = false;
             FieldClass = FlowField;
@@ -51,7 +52,7 @@ table 377 "Object Translation"
         }
         field(6; "Object Name"; Text[30])
         {
-            CalcFormula = Lookup(Object.Name where(Type = field("Object Type"),
+            CalcFormula = lookup(Object.Name where(Type = field("Object Type"),
                                                     ID = field("Object ID")));
             Caption = 'Object Name';
             Editable = false;

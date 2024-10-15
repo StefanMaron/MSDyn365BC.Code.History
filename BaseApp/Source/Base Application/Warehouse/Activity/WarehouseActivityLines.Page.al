@@ -274,15 +274,6 @@ page 5785 "Warehouse Activity Lines"
                 actionref(Card_Promoted; ShowDocument)
                 {
                 }
-#if not CLEAN21
-                actionref("Show &Whse. Document_Promoted"; "Show &Whse. Document")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
         }
     }

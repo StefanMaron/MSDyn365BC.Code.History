@@ -46,6 +46,10 @@ page 9024 "Security Admin Role Center"
             {
                 ApplicationArea = Basic, Suite;
             }
+            part("Job Queue"; "Job Queue Activities")
+            {
+                ApplicationArea = Basic, Suite;
+            }
             part(ApprovalsActivities; "Approvals Activities")
             {
                 ApplicationArea = Suite;
@@ -99,17 +103,6 @@ page 9024 "Security Admin Role Center"
                 AccessByPermission = TableData "Report Inbox" = R;
                 ApplicationArea = Basic, Suite;
             }
-#if not CLEAN21
-            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
-            {
-                AccessByPermission = TableData "Power BI Context Settings" = I;
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(MyNotes; MyNotes)
             {
                 ApplicationArea = Basic, Suite;
@@ -295,33 +288,6 @@ page 9024 "Security Admin Role Center"
                 }
             }
         }
-#if not CLEAN21
-        area(processing)
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'This area has been moved to the tab dedicated to Power Automate';
-            ObsoleteTag = '21.0';
-            group(Flow)
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This group has been moved to the tab dedicated to Power Automate';
-                ObsoleteTag = '21.0';
-                Caption = 'Power Automate';
-                action("Manage Flows")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Manage flows';
-                    Image = Flow;
-                    Visible = false;
-                    RunObject = Page "Flow Selector";
-                    ToolTip = 'View or edit automated flows created with Power Automate.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-            }
-        }
-#endif
     }
 }
 

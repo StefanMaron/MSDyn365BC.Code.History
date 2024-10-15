@@ -2,13 +2,17 @@
 
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Period;
+#if not CLEAN24
 using System;
+#endif
+using System.Integration;
 using System.Utilities;
 
 table 485 "Business Chart Buffer"
 {
     Caption = 'Business Chart Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -334,15 +338,53 @@ table 485 "Business Chart Buffer"
         exit(MeasureValues.Get("Drill-Down Measure Index" + 1));
     end;
 
+#if not CLEAN24
+    [Obsolete('Replaced with method UpdateChart that takes Business Chart control add-in as parameter.', '24.0')]
     procedure Update(dotNetChartAddIn: DotNet BusinessChartAddIn)
     begin
         BusinessChart.Update(dotNetChartAddIn);
     end;
+#endif
 
+    procedure UpdateChart(BusinessChartAddIn: ControlAddIn BusinessChart)
+    begin
+        BusinessChart.Update(BusinessChartAddIn);
+    end;
+
+#if not CLEAN24
     [Scope('OnPrem')]
+    [Obsolete('Replaced with method that takes JsonObject as parameter.', '24.0')]
     procedure SetDrillDownIndexes(dotNetPoint: DotNet BusinessChartDataPoint)
     begin
         SetDrillDownIndexesByCoordinate(dotNetPoint.Measures.GetValue(0), dotNetPoint.XValueString, dotNetPoint.YValues.GetValue(0));
+    end;
+#endif
+
+    procedure SetDrillDownIndexes(Point: JsonObject)
+    var
+        MeasuresLbl: Label 'Measures';
+        XValueStringLbl: Label 'XValueString';
+        YValuesLbl: Label 'YValues';
+        Token: JsonToken;
+        ValueArray: JsonArray;
+        MeasureName: Text[249];
+        XValueString: Text[249];
+        YValue: Decimal;
+    begin
+        Point.Get(MeasuresLbl, Token);
+        ValueArray := Token.AsArray();
+        ValueArray.Get(0, Token);
+        MeasureName := CopyStr(Token.AsValue().AsText(), 1, 249);
+
+        Point.Get(XValueStringLbl, Token);
+        XValueString := CopyStr(Token.AsValue().AsText(), 1, 249);
+
+        Point.Get(YValuesLbl, Token);
+        ValueArray := Token.AsArray();
+        ValueArray.Get(0, Token);
+        YValue := Token.AsValue().AsDecimal();
+
+        SetDrillDownIndexesByCoordinate(MeasureName, XValueString, YValue);
     end;
 
     local procedure GetDateString(XValueString: Text[249]): Text[249]

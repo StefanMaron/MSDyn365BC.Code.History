@@ -941,13 +941,13 @@ page 344 Navigate
             PostedInvtRcptHeader.Reset();
             PostedInvtRcptHeader.SetFilter("No.", DocNoFilter);
             PostedInvtRcptHeader.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Invt. Receipt Header", 0, PostedInvtRcptHeader.TableCaption(), PostedInvtRcptHeader.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Invt. Receipt Header", PostedInvtRcptHeader.TableCaption(), PostedInvtRcptHeader.Count);
         end;
         if PostedInvtShptHeader.ReadPermission() then begin
             PostedInvtShptHeader.Reset();
             PostedInvtShptHeader.SetFilter("No.", DocNoFilter);
             PostedInvtShptHeader.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Invt. Shipment Header", 0, PostedInvtShptHeader.TableCaption(), PostedInvtShptHeader.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Invt. Shipment Header", PostedInvtShptHeader.TableCaption(), PostedInvtShptHeader.Count);
         end;
 
         OnAfterFindLedgerEntries(Rec, DocNoFilter, PostingDateFilter);
@@ -1234,7 +1234,7 @@ page 344 Navigate
             DelivReminLedgerEntries.SetFilter("Reminder No.", DocNoFilter);
             DelivReminLedgerEntries.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(
-              Rec, DATABASE::"Delivery Reminder Ledger Entry", 0, DelivReminLedgerEntries.TableCaption(), DelivReminLedgerEntries.Count);
+              Rec, DATABASE::"Delivery Reminder Ledger Entry", DelivReminLedgerEntries.TableCaption(), DelivReminLedgerEntries.Count);
         end;
     end;
 
@@ -1594,7 +1594,7 @@ page 344 Navigate
             IssuedDeliveryReminderHeader.SetFilter("No.", DocNoFilter);
             IssuedDeliveryReminderHeader.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(Rec,
-              DATABASE::"Issued Deliv. Reminder Header", 0, IssuedDeliveryReminderHeader.TableCaption(), IssuedDeliveryReminderHeader.Count);
+              DATABASE::"Issued Deliv. Reminder Header", IssuedDeliveryReminderHeader.TableCaption(), IssuedDeliveryReminderHeader.Count);
         end;
     end;
 
@@ -2330,13 +2330,6 @@ page 344 Navigate
         Window.Close();
     end;
 
-    [Obsolete('Replaced by SetTracking with ItemTrackingSetup parameter.', '18.0')]
-    procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50])
-    begin
-        NewItemTrackingSetup."Serial No." := SerialNo;
-        NewItemTrackingSetup."Lot No." := LotNo;
-    end;
-
     procedure SetTracking(ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         NewItemTrackingSetup := ItemTrackingSetup;
@@ -2520,14 +2513,6 @@ page 344 Navigate
     local procedure OnAfterFindPurchRcptHeader(var DocumentEntry: Record "Document Entry"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; DocNoFilter: Text; PostingDateFilter: Text)
     begin
     end;
-
-#if not CLEAN21
-    [Obsolete('No. of documents is not checked anymore', '21.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterGetDocumentCount(var DocCount: Integer)
-    begin
-    end;
-#endif    
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterNavigateFindExtRecords(var DocumentEntry: Record "Document Entry"; ContactType: Enum "Navigate Contact Type"; ContactNo: Code[250]; ExtDocNo: Code[250]; var FoundRecords: Boolean)

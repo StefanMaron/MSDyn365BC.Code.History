@@ -4,19 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Currency;
 
+#if not CLEAN22
 #pragma warning disable AS0109
+#endif
 table 331 "Adjust Exchange Rate Buffer"
-#pragma warning restore AS0109
 {
     Caption = 'Adjust Exchange Rate Buffer';
     ReplicateData = false;
-#if CLEAN21
     TableType = Temporary;
-#else
-    ObsoleteReason = 'This table will be marked as temporary. Make sure you are not using this table to store records.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '21.0';
-#endif
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -15,7 +15,9 @@ using Microsoft.Finance.AuditFileExport;
 using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Purchases.Document;
+#if not CLEAN24
 using Microsoft.Inventory.Counting;
+#endif
 #if not CLEAN22
 using Microsoft;
 #endif
@@ -51,9 +53,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Export Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Export Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Exp. Primary Key Buffer");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales VAT Advance Notification");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Transmission Log Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Electronic VAT Decl. Setup");
 #if not CLEAN22
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::Certificate);
 #endif
@@ -69,6 +68,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Delivery Reminder Term");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Delivery Reminder Level");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Delivery Reminder Text");
+#if not CLEAN24
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Phys. Inventory Order Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Phys. Inventory Order Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Phys. Invt. Recording Header");
@@ -81,6 +81,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Phys. Invt. Track. Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Expect. Phys. Inv. Track. Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Post. Exp. Ph. In. Track. Line");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         OnAfterClassifyCountrySpecificTables();
     end;

@@ -128,7 +128,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
             FromFieldRef := FromRecRef.FieldIndex(I);
             if FromFieldRef.Class = FieldClass::Normal then begin
                 ToFieldRef := ToRecRef.FieldIndex(I);
-                ToFieldRef.Value := FromFieldRef.Value;
+                ToFieldRef.Value := FromFieldRef.Value();
             end;
         end;
         ToRecRef.Insert(false);
@@ -224,8 +224,8 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GenPostingSetup: Record "General Posting Setup";
     begin
         InitGenPostingSetup(GenPostingSetup, GenProdPostingGroup, GenBusPostingGroup);
-        GenPostingSetup.Validate("Sales Prepayments Account", LibraryERM.CreateGLAccountWithSalesSetup);
-        GenPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup);
+        GenPostingSetup.Validate("Sales Prepayments Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        GenPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup());
         GenPostingSetup.Modify(true);
     end;
 
@@ -235,9 +235,9 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GenPostingSetup: Record "General Posting Setup";
     begin
         InitGenPostingSetup(GenPostingSetup, GenProdPostingGroup, GenBusPostingGroup);
-        GenPostingSetup.Validate("Sales Prepayments Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        GenPostingSetup.Validate("Sales Prepayments Account", LibraryERM.CreateGLAccountWithSalesSetup());
         UpdateGLAccWithVATProdPostingGroup(GenPostingSetup."Sales Prepayments Account", VATProdPostingGroup.Code);
-        GenPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup);
+        GenPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup());
         UpdateGLAccWithVATProdPostingGroup(GenPostingSetup."Purch. Prepayments Account", VATProdPostingGroup.Code);
         GenPostingSetup.Modify(true);
     end;
@@ -251,6 +251,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GenPostingSetup.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
         GenPostingSetup.Insert(true);
 
+#pragma warning disable AA0210
         GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
         GLAccount.SetRange(Blocked, false);
         GLAccount.SetRange(Totaling, '');
@@ -258,6 +259,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GLAccount.SetFilter("Gen. Prod. Posting Group", '<>''''');
         GLAccount.SetFilter("VAT Prod. Posting Group", '<>''''');
         GLAccount.FindFirst();
+#pragma warning restore AA0210
 
         GenPostingSetup.Validate("Sales Account", GLAccount."No.");
         GenPostingSetup.Validate("Sales Credit Memo Account", GLAccount."No.");
@@ -316,7 +318,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         CreateItem(Item);
         Item.Validate("Item Tracking Code", FindItemTrackingCode(SalesTracking));
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
     end;
 
@@ -463,7 +465,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     [Scope('OnPrem')]
     procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; LocationCode: Code[10]; LineCount: Integer)
     begin
-        CreatePurchaseHeader(PurchaseHeader, DocumentType, CreateVendor);
+        CreatePurchaseHeader(PurchaseHeader, DocumentType, CreateVendor());
         CreatePurchaseLines(PurchaseHeader, LocationCode, LineCount);
     end;
 
@@ -501,13 +503,13 @@ codeunit 131334 "ERM VAT Tool - Helper"
         CreateInventorySetup(Item."Inventory Posting Group", LocationCode);
 
         for I := 1 to LineCount do
-            CreatePurchaseLine(PurchaseLine, PurchaseHeader, LocationCode, Item."No.", GetQuantity);
+            CreatePurchaseLine(PurchaseLine, PurchaseHeader, LocationCode, Item."No.", GetQuantity());
     end;
 
     [Scope('OnPrem')]
     procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; LocationCode: Code[10]; LineCount: Integer)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         CreateSalesLines(SalesHeader, LocationCode, LineCount);
     end;
 
@@ -540,7 +542,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         CreateInventorySetup(Item."Inventory Posting Group", LocationCode);
 
         for I := 1 to LineCount do begin
-            Qty := GetQuantity;
+            Qty := GetQuantity();
             PostItemPurchase(Item, LocationCode, Qty);
             CreateSalesLine(SalesLine, SalesHeader, LocationCode, Item."No.", Qty);
         end;
@@ -610,7 +612,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         SalesHeader: Record "Sales Header";
         Location: Code[10];
     begin
-        Location := CreateLocation;
+        Location := CreateLocation();
 
         case TableNo of
             DATABASE::"Purchase Line":
@@ -641,7 +643,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATPostingSetup: Record "VAT Posting Setup";
         VATRateChangeConv: Record "VAT Rate Change Conversion";
     begin
-        BlockItems; // For test cases when Items can't be deleted: block Items with posting groups that will be deleted to prevent other test cases from using them.
+        BlockItems(); // For test cases when Items can't be deleted: block Items with posting groups that will be deleted to prevent other test cases from using them.
 
         if VATRateChangeConv.FindSet() then
             repeat
@@ -681,18 +683,16 @@ codeunit 131334 "ERM VAT Tool - Helper"
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
-        with ItemTrackingCode do begin
-            Init();
-            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Item Tracking Code"));
-            Insert(true);
-            Validate("SN Specific Tracking", false);
-            Validate("SN Sales Inbound Tracking", SalesTracking);
-            Validate("SN Sales Outbound Tracking", SalesTracking);
-            Validate("SN Purchase Inbound Tracking", not SalesTracking);
-            Validate("SN Purchase Outbound Tracking", not SalesTracking);
-            Modify(true);
-            exit(Code);
-        end;
+        ItemTrackingCode.Init();
+        ItemTrackingCode.Validate(Code, LibraryUtility.GenerateRandomCode(ItemTrackingCode.FieldNo(Code), DATABASE::"Item Tracking Code"));
+        ItemTrackingCode.Insert(true);
+        ItemTrackingCode.Validate("SN Specific Tracking", false);
+        ItemTrackingCode.Validate("SN Sales Inbound Tracking", SalesTracking);
+        ItemTrackingCode.Validate("SN Sales Outbound Tracking", SalesTracking);
+        ItemTrackingCode.Validate("SN Purchase Inbound Tracking", not SalesTracking);
+        ItemTrackingCode.Validate("SN Purchase Outbound Tracking", not SalesTracking);
+        ItemTrackingCode.Modify(true);
+        exit(ItemTrackingCode.Code);
     end;
 
     [Scope('OnPrem')]
@@ -744,11 +744,9 @@ codeunit 131334 "ERM VAT Tool - Helper"
     var
         GenPostingSetup: Record "General Posting Setup";
     begin
-        with GenPostingSetup do begin
-            SetFilter("Gen. Prod. Posting Group", GenProdPostingGroup);
-            FindLast();
-            exit("Gen. Bus. Posting Group");
-        end;
+        GenPostingSetup.SetFilter("Gen. Prod. Posting Group", GenProdPostingGroup);
+        GenPostingSetup.FindLast();
+        exit(GenPostingSetup."Gen. Bus. Posting Group");
     end;
 
     [Scope('OnPrem')]
@@ -881,35 +879,30 @@ codeunit 131334 "ERM VAT Tool - Helper"
     [Scope('OnPrem')]
     procedure GetReservationEntry(var ReservationEntry: Record "Reservation Entry"; SourceType: Integer; DocumentNo: Code[20]; DocumentType: Option; LineNo: Integer): Boolean
     begin
-        with ReservationEntry do begin
-            Reset();
-            SetRange("Source ID", DocumentNo);
-            SetRange("Source Ref. No.", LineNo);
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", DocumentType);
-            exit(FindSet());
-        end;
+        ReservationEntry.Reset();
+        ReservationEntry.SetRange("Source ID", DocumentNo);
+        ReservationEntry.SetRange("Source Ref. No.", LineNo);
+        ReservationEntry.SetRange("Source Type", SourceType);
+        ReservationEntry.SetRange("Source Subtype", DocumentType);
+        exit(ReservationEntry.FindSet());
     end;
 
     [Scope('OnPrem')]
     procedure GetReservationEntrySales(var ReservationEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line")
     begin
-        with SalesLine do
-            GetReservationEntry(ReservationEntry, DATABASE::"Sales Line", "Document No.", "Document Type".AsInteger(), "Line No.");
+        GetReservationEntry(ReservationEntry, DATABASE::"Sales Line", SalesLine."Document No.", SalesLine."Document Type".AsInteger(), SalesLine."Line No.");
     end;
 
     [Scope('OnPrem')]
     procedure GetReservationEntryPurchase(var ReservationEntry: Record "Reservation Entry"; PurchaseLine: Record "Purchase Line")
     begin
-        with PurchaseLine do
-            GetReservationEntry(ReservationEntry, DATABASE::"Purchase Line", "Document No.", "Document Type".AsInteger(), "Line No.");
+        GetReservationEntry(ReservationEntry, DATABASE::"Purchase Line", PurchaseLine."Document No.", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Line No.");
     end;
 
     [Scope('OnPrem')]
     procedure GetReservationEntryService(var ReservationEntry: Record "Reservation Entry"; ServiceLine: Record "Service Line")
     begin
-        with ServiceLine do
-            GetReservationEntry(ReservationEntry, DATABASE::"Service Line", "Document No.", "Document Type".AsInteger(), "Line No.");
+        GetReservationEntry(ReservationEntry, DATABASE::"Service Line", ServiceLine."Document No.", ServiceLine."Document Type".AsInteger(), ServiceLine."Line No.");
     end;
 
     [Scope('OnPrem')]
@@ -917,11 +910,9 @@ codeunit 131334 "ERM VAT Tool - Helper"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            SetFilter("VAT Prod. Posting Group", VATProdPostingGroup);
-            FindLast();
-            exit("VAT Bus. Posting Group");
-        end;
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATProdPostingGroup);
+        VATPostingSetup.FindLast();
+        exit(VATPostingSetup."VAT Bus. Posting Group");
     end;
 
     [Scope('OnPrem')]
@@ -986,7 +977,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         RecRef.Find();
         FieldRef := RecRef.Field(GetVATChangeSetupUpdateField(TableId));
         // VAT Prod. Posting Group = 1, Gen. Prod. Posting Group = 2, Both = 3, No = 4
-        UpdateOption := FieldRef.Value;
+        UpdateOption := FieldRef.Value();
         exit(UpdateOption);
     end;
 
@@ -1051,7 +1042,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         VATRateChangeConversion.SetRange(Type, VATRateChangeConversion.Type::"VAT Prod. Posting Group");
         VATRateChangeConversion.SetFilter("To Code", ToCode);
-        exit(VATRateChangeConversion.FindFirst())
+        exit(not VATRateChangeConversion.IsEmpty());
     end;
 
     [Scope('OnPrem')]
@@ -1061,7 +1052,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         VATRateChangeConversion.SetRange(Type, VATRateChangeConversion.Type::"Gen. Prod. Posting Group");
         VATRateChangeConversion.SetFilter("To Code", ToCode);
-        exit(VATRateChangeConversion.FindFirst())
+        exit(not VATRateChangeConversion.IsEmpty());
     end;
 
     [Scope('OnPrem')]
@@ -1161,16 +1152,14 @@ codeunit 131334 "ERM VAT Tool - Helper"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
     begin
-        with LibraryInventory do begin
-            SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-            SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-            CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase,
-              Item."No.", Quantity);
-            ItemJournalLine.Validate("Location Code", LocationCode);
-            ItemJournalLine.Validate("Gen. Bus. Posting Group", GetGenBusPostingGroupFromSetup(Item."Gen. Prod. Posting Group"));
-            ItemJournalLine.Modify(true);
-            PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
-        end;
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase,
+          Item."No.", Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Gen. Bus. Posting Group", GetGenBusPostingGroupFromSetup(Item."Gen. Prod. Posting Group"));
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
     [Scope('OnPrem')]
@@ -1231,7 +1220,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATRateChangeConv: Record "VAT Rate Change Conversion";
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
     begin
-        ResetVATRateChangeSetup;
+        ResetVATRateChangeSetup();
         VATRateChangeConv.DeleteAll();
         VATRateChangeLogEntry.DeleteAll();
         Commit();
@@ -1242,39 +1231,37 @@ codeunit 131334 "ERM VAT Tool - Helper"
     var
         VATRateChangeSetup: Record "VAT Rate Change Setup";
     begin
-        with VATRateChangeSetup do begin
-            DeleteAll();
-            Init();
-            Insert();
-            "Update Gen. Prod. Post. Groups" := "Update Gen. Prod. Post. Groups"::No;
-            "Update G/L Accounts" := "Update G/L Accounts"::No;
-            "Update Items" := "Update Items"::No;
-            "Update Item Templates" := "Update Item Templates"::No;
-            "Update Item Charges" := "Update Item Charges"::No;
-            "Update Resources" := "Update Resources"::No;
-            "Update Gen. Journal Lines" := "Update Gen. Journal Lines"::No;
-            "Update Gen. Journal Allocation" := "Update Gen. Journal Allocation"::No;
-            "Update Std. Gen. Jnl. Lines" := "Update Std. Gen. Jnl. Lines"::No;
-            "Update Res. Journal Lines" := "Update Res. Journal Lines"::No;
-            "Update Job Journal Lines" := "Update Job Journal Lines"::No;
-            "Update Requisition Lines" := "Update Requisition Lines"::No;
-            "Update Std. Item Jnl. Lines" := "Update Std. Item Jnl. Lines"::No;
-            "Update Service Docs." := "Update Service Docs."::No;
-            "Update Serv. Price Adj. Detail" := "Update Serv. Price Adj. Detail"::No;
-            "Update Sales Documents" := "Update Sales Documents"::No;
-            "Update Purchase Documents" := "Update Purchase Documents"::No;
-            "Update Production Orders" := "Update Production Orders"::No;
-            "Update Work Centers" := "Update Work Centers"::No;
-            "Update Machine Centers" := "Update Machine Centers"::No;
-            "Update Reminders" := "Update Reminders"::No;
-            "Update Finance Charge Memos" := "Update Finance Charge Memos"::No;
-            "Ignore Status on Sales Docs." := false;
-            "Ignore Status on Purch. Docs." := false;
-            "Update Unit Price For G/L Acc." := false;
-            "Upd. Unit Price For Item Chrg." := false;
-            "Upd. Unit Price For FA" := false;
-            Modify(true);
-        end;
+        VATRateChangeSetup.DeleteAll();
+        VATRateChangeSetup.Init();
+        VATRateChangeSetup.Insert();
+        VATRateChangeSetup."Update Gen. Prod. Post. Groups" := VATRateChangeSetup."Update Gen. Prod. Post. Groups"::No;
+        VATRateChangeSetup."Update G/L Accounts" := VATRateChangeSetup."Update G/L Accounts"::No;
+        VATRateChangeSetup."Update Items" := VATRateChangeSetup."Update Items"::No;
+        VATRateChangeSetup."Update Item Templates" := VATRateChangeSetup."Update Item Templates"::No;
+        VATRateChangeSetup."Update Item Charges" := VATRateChangeSetup."Update Item Charges"::No;
+        VATRateChangeSetup."Update Resources" := VATRateChangeSetup."Update Resources"::No;
+        VATRateChangeSetup."Update Gen. Journal Lines" := VATRateChangeSetup."Update Gen. Journal Lines"::No;
+        VATRateChangeSetup."Update Gen. Journal Allocation" := VATRateChangeSetup."Update Gen. Journal Allocation"::No;
+        VATRateChangeSetup."Update Std. Gen. Jnl. Lines" := VATRateChangeSetup."Update Std. Gen. Jnl. Lines"::No;
+        VATRateChangeSetup."Update Res. Journal Lines" := VATRateChangeSetup."Update Res. Journal Lines"::No;
+        VATRateChangeSetup."Update Job Journal Lines" := VATRateChangeSetup."Update Job Journal Lines"::No;
+        VATRateChangeSetup."Update Requisition Lines" := VATRateChangeSetup."Update Requisition Lines"::No;
+        VATRateChangeSetup."Update Std. Item Jnl. Lines" := VATRateChangeSetup."Update Std. Item Jnl. Lines"::No;
+        VATRateChangeSetup."Update Service Docs." := VATRateChangeSetup."Update Service Docs."::No;
+        VATRateChangeSetup."Update Serv. Price Adj. Detail" := VATRateChangeSetup."Update Serv. Price Adj. Detail"::No;
+        VATRateChangeSetup."Update Sales Documents" := VATRateChangeSetup."Update Sales Documents"::No;
+        VATRateChangeSetup."Update Purchase Documents" := VATRateChangeSetup."Update Purchase Documents"::No;
+        VATRateChangeSetup."Update Production Orders" := VATRateChangeSetup."Update Production Orders"::No;
+        VATRateChangeSetup."Update Work Centers" := VATRateChangeSetup."Update Work Centers"::No;
+        VATRateChangeSetup."Update Machine Centers" := VATRateChangeSetup."Update Machine Centers"::No;
+        VATRateChangeSetup."Update Reminders" := VATRateChangeSetup."Update Reminders"::No;
+        VATRateChangeSetup."Update Finance Charge Memos" := VATRateChangeSetup."Update Finance Charge Memos"::No;
+        VATRateChangeSetup."Ignore Status on Sales Docs." := false;
+        VATRateChangeSetup."Ignore Status on Purch. Docs." := false;
+        VATRateChangeSetup."Update Unit Price For G/L Acc." := false;
+        VATRateChangeSetup."Upd. Unit Price For Item Chrg." := false;
+        VATRateChangeSetup."Upd. Unit Price For FA" := false;
+        VATRateChangeSetup.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -1282,7 +1269,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     var
         VATRateChangeSetup: Record "VAT Rate Change Setup";
     begin
-        Assert.IsTrue(VATRateChangeSetup.Get, NotInitializedError);
+        Assert.IsTrue(VATRateChangeSetup.Get(), NotInitializedError);
         CODEUNIT.Run(CODEUNIT::"VAT Rate Change Conversion");
     end;
 
@@ -1340,7 +1327,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         // Modify Item No. Series in Inventory setup.
         InventorySetup.Get();
-        InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         InventorySetup.Modify(true);
     end;
 
@@ -1351,7 +1338,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         FieldRef: FieldRef;
     begin
         RecRef.Open(DATABASE::"VAT Rate Change Setup");
-        Assert.IsTrue(RecRef.FindFirst, NotInitializedError);
+        Assert.IsTrue(RecRef.FindFirst(), NotInitializedError);
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.Validate(FieldOption);
         RecRef.Modify(true);
@@ -1364,7 +1351,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         FieldRef: FieldRef;
     begin
         RecRef.Open(DATABASE::"VAT Rate Change Setup");
-        Assert.IsTrue(RecRef.FindFirst, NotInitializedError);
+        Assert.IsTrue(RecRef.FindFirst(), NotInitializedError);
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.Validate(FieldValue);
         RecRef.Modify(true);
@@ -1377,7 +1364,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         FieldRef: FieldRef;
     begin
         RecRef.Open(DATABASE::"VAT Rate Change Setup");
-        Assert.IsTrue(RecRef.FindFirst, NotInitializedError);
+        Assert.IsTrue(RecRef.FindFirst(), NotInitializedError);
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.Validate(FieldValue);
         RecRef.Modify(true);
@@ -1388,13 +1375,11 @@ codeunit 131334 "ERM VAT Tool - Helper"
     var
         VATRateChangeConv: Record "VAT Rate Change Conversion";
     begin
-        with VATRateChangeConv do begin
-            Init();
-            Validate(Type, GroupType);
-            Validate("From Code", FromGenProdPostingGroup);
-            Validate("To Code", ToGenProdPostingGroup);
-            Insert(true);
-        end;
+        VATRateChangeConv.Init();
+        VATRateChangeConv.Validate(Type, GroupType);
+        VATRateChangeConv.Validate("From Code", FromGenProdPostingGroup);
+        VATRateChangeConv.Validate("To Code", ToGenProdPostingGroup);
+        VATRateChangeConv.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -1614,8 +1599,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst();
-        with PurchaseLine do
-            UpdateLineQtyToHandle(DATABASE::"Purchase Line", "Document No.", "Document Type".AsInteger(), "Line No.", "Qty. to Receive");
+        UpdateLineQtyToHandle(DATABASE::"Purchase Line", PurchaseLine."Document No.", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Line No.", PurchaseLine."Qty. to Receive");
     end;
 
     [Scope('OnPrem')]
@@ -1626,8 +1610,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst();
-        with SalesLine do
-            UpdateLineQtyToHandle(DATABASE::"Sales Line", "Document No.", "Document Type".AsInteger(), "Line No.", "Qty. to Ship");
+        UpdateLineQtyToHandle(DATABASE::"Sales Line", SalesLine."Document No.", SalesLine."Document Type".AsInteger(), SalesLine."Line No.", SalesLine."Qty. to Ship");
     end;
 
     [Scope('OnPrem')]
@@ -1638,8 +1621,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.FindFirst();
-        with ServiceLine do
-            UpdateLineQtyToHandle(DATABASE::"Service Line", "Document No.", "Document Type".AsInteger(), "Line No.", "Qty. to Ship");
+        UpdateLineQtyToHandle(DATABASE::"Service Line", ServiceLine."Document No.", ServiceLine."Document Type".AsInteger(), ServiceLine."Line No.", ServiceLine."Qty. to Ship");
     end;
 
     [Scope('OnPrem')]
@@ -1740,29 +1722,27 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
         GetGroupsAfter(VATProdPostingGroup2, GenProdPostingGroup2, TableID);
 
-        with VATRateChangeLogEntry do begin
-            if GetVATProdPostingGroupFldId(TableID) > 0 then begin
-                Assert.AreEqual(VATProdPostingGroup, "Old VAT Prod. Posting Group",
-                  StrSubstNo(LogEntryErrorContent, FieldName("Old VAT Prod. Posting Group")));
-                Assert.AreEqual(VATProdPostingGroup2, "New VAT Prod. Posting Group",
-                  StrSubstNo(LogEntryErrorContent, FieldName("New VAT Prod. Posting Group")));
-            end else begin
-                Assert.AreEqual('', "Old VAT Prod. Posting Group",
-                  StrSubstNo(LogEntryErrorContent, FieldName("Old VAT Prod. Posting Group")));
-                Assert.AreEqual('', "New VAT Prod. Posting Group",
-                  StrSubstNo(LogEntryErrorContent, FieldName("New VAT Prod. Posting Group")));
-            end;
-            if GetGenProdPostingGroupFldId(TableID) > 0 then begin
-                Assert.AreEqual(GenProdPostingGroup, "Old Gen. Prod. Posting Group",
-                  StrSubstNo(LogEntryErrorContent, FieldName("Old Gen. Prod. Posting Group")));
-                Assert.AreEqual(GenProdPostingGroup2, "New Gen. Prod. Posting Group",
-                  StrSubstNo(LogEntryErrorContent, FieldName("New Gen. Prod. Posting Group")));
-            end else begin
-                Assert.AreEqual('', "Old Gen. Prod. Posting Group",
-                  StrSubstNo(LogEntryErrorContent, FieldName("Old Gen. Prod. Posting Group")));
-                Assert.AreEqual('', "New Gen. Prod. Posting Group",
-                  StrSubstNo(LogEntryErrorContent, FieldName("New Gen. Prod. Posting Group")));
-            end;
+        if GetVATProdPostingGroupFldId(TableID) > 0 then begin
+            Assert.AreEqual(VATProdPostingGroup, VATRateChangeLogEntry."Old VAT Prod. Posting Group",
+              StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName("Old VAT Prod. Posting Group")));
+            Assert.AreEqual(VATProdPostingGroup2, VATRateChangeLogEntry."New VAT Prod. Posting Group",
+              StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName("New VAT Prod. Posting Group")));
+        end else begin
+            Assert.AreEqual('', VATRateChangeLogEntry."Old VAT Prod. Posting Group",
+              StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName("Old VAT Prod. Posting Group")));
+            Assert.AreEqual('', VATRateChangeLogEntry."New VAT Prod. Posting Group",
+              StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName("New VAT Prod. Posting Group")));
+        end;
+        if GetGenProdPostingGroupFldId(TableID) > 0 then begin
+            Assert.AreEqual(GenProdPostingGroup, VATRateChangeLogEntry."Old Gen. Prod. Posting Group",
+              StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName("Old Gen. Prod. Posting Group")));
+            Assert.AreEqual(GenProdPostingGroup2, VATRateChangeLogEntry."New Gen. Prod. Posting Group",
+              StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName("New Gen. Prod. Posting Group")));
+        end else begin
+            Assert.AreEqual('', VATRateChangeLogEntry."Old Gen. Prod. Posting Group",
+              StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName("Old Gen. Prod. Posting Group")));
+            Assert.AreEqual('', VATRateChangeLogEntry."New Gen. Prod. Posting Group",
+              StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName("New Gen. Prod. Posting Group")));
         end;
     end;
 
@@ -1773,21 +1753,21 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATRateChangeLogEntry.FindSet();
         if TempRecRef.FindSet() then
             repeat
-                with VATRateChangeLogEntry do begin
-                    TestField(Converted, false);
-                    TestField("Converted Date", 0D);
-                    if TempRecRef.Number = "Table ID" then begin // For document lines groups should not be empty
-                        TestField("Old VAT Prod. Posting Group", "New VAT Prod. Posting Group");
-                        TestField("Old Gen. Prod. Posting Group", "New Gen. Prod. Posting Group");
-                    end else begin // For document headers groups should be the same
-                        TestField("Old VAT Prod. Posting Group", '');
-                        TestField("New VAT Prod. Posting Group", '');
-                        TestField("Old Gen. Prod. Posting Group", '');
-                        TestField("New Gen. Prod. Posting Group", '');
-                    end;
-                    Assert.AreNotEqual('', Description, StrSubstNo(LogEntryErrorContent, FieldName(Description)));
-                    Next;
+                VATRateChangeLogEntry.TestField(Converted, false);
+                VATRateChangeLogEntry.TestField("Converted Date", 0D);
+                if TempRecRef.Number = VATRateChangeLogEntry."Table ID" then begin
+                    // For document lines groups should not be empty
+                    VATRateChangeLogEntry.TestField("Old VAT Prod. Posting Group", VATRateChangeLogEntry."New VAT Prod. Posting Group");
+                    VATRateChangeLogEntry.TestField("Old Gen. Prod. Posting Group", VATRateChangeLogEntry."New Gen. Prod. Posting Group");
+                end else begin
+                    // For document headers groups should be the same
+                    VATRateChangeLogEntry.TestField("Old VAT Prod. Posting Group", '');
+                    VATRateChangeLogEntry.TestField("New VAT Prod. Posting Group", '');
+                    VATRateChangeLogEntry.TestField("Old Gen. Prod. Posting Group", '');
+                    VATRateChangeLogEntry.TestField("New Gen. Prod. Posting Group", '');
                 end;
+                Assert.AreNotEqual('', VATRateChangeLogEntry.Description, StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName(Description)));
+                VATRateChangeLogEntry.Next();
             until TempRecRef.Next() = 0;
     end;
 
@@ -1800,26 +1780,24 @@ codeunit 131334 "ERM VAT Tool - Helper"
 
         if TempRecRef.FindSet() then
             repeat
-                with VATRateChangeLogEntry do begin
-                    // Verify log for first line
-                    SetRange("Table ID", TempRecRef.Number);
-                    SetRange("Record ID", TempRecRef.RecordId);
-                    Assert.IsTrue(FindFirst, StrSubstNo(LogEntryErrorNoEntry, TempRecRef.RecordId));
-                    TestField(Converted, true);
-                    TestField("Converted Date", WorkDate());
-                    TestField("Old VAT Prod. Posting Group", "New VAT Prod. Posting Group");
-                    TestField("Old Gen. Prod. Posting Group", "New Gen. Prod. Posting Group");
-                    Assert.AreNotEqual('', Description, StrSubstNo(LogEntryErrorContent, FieldName(Description)));
-                    // Verify log for split line
-                    TempRecRef.Next();
-                    SetRange("Table ID", TempRecRef.Number);
-                    SetRange("Record ID", TempRecRef.RecordId);
-                    Assert.IsTrue(FindFirst, StrSubstNo(LogEntryErrorNoEntry, TempRecRef.RecordId));
-                    Assert.IsTrue(Converted, StrSubstNo(LogEntryErrorContent, FieldName(Converted)));
-                    Assert.AreEqual(WorkDate(), "Converted Date", StrSubstNo(LogEntryErrorContent, FieldName("Converted Date")));
-                    VerifyGroupsInLogEntry(VATRateChangeLogEntry, TempRecRef.Number);
-                    Assert.AreNotEqual('', Description, StrSubstNo(LogEntryErrorContent, FieldName(Description)));
-                end;
+                // Verify log for first line
+                VATRateChangeLogEntry.SetRange("Table ID", TempRecRef.Number);
+                VATRateChangeLogEntry.SetRange("Record ID", TempRecRef.RecordId);
+                Assert.IsTrue(VATRateChangeLogEntry.FindFirst(), StrSubstNo(LogEntryErrorNoEntry, TempRecRef.RecordId));
+                VATRateChangeLogEntry.TestField(Converted, true);
+                VATRateChangeLogEntry.TestField("Converted Date", WorkDate());
+                VATRateChangeLogEntry.TestField("Old VAT Prod. Posting Group", VATRateChangeLogEntry."New VAT Prod. Posting Group");
+                VATRateChangeLogEntry.TestField("Old Gen. Prod. Posting Group", VATRateChangeLogEntry."New Gen. Prod. Posting Group");
+                Assert.AreNotEqual('', VATRateChangeLogEntry.Description, StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName(Description)));
+                // Verify log for split line
+                TempRecRef.Next();
+                VATRateChangeLogEntry.SetRange("Table ID", TempRecRef.Number);
+                VATRateChangeLogEntry.SetRange("Record ID", TempRecRef.RecordId);
+                Assert.IsTrue(VATRateChangeLogEntry.FindFirst(), StrSubstNo(LogEntryErrorNoEntry, TempRecRef.RecordId));
+                Assert.IsTrue(VATRateChangeLogEntry.Converted, StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName(Converted)));
+                Assert.AreEqual(WorkDate(), VATRateChangeLogEntry."Converted Date", StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName("Converted Date")));
+                VerifyGroupsInLogEntry(VATRateChangeLogEntry, TempRecRef.Number);
+                Assert.AreNotEqual('', VATRateChangeLogEntry.Description, StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName(Description)));
             until TempRecRef.Next() = 0;
     end;
 
@@ -1854,17 +1832,15 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VerifyRecordsHandled(TempRecRef);
         if TempRecRef.FindSet() then
             repeat
-                with VATRateChangeLogEntry do begin
-                    SetRange("Table ID", TempRecRef.Number);
-                    // Serv. Price Adjustment Detail has Gen. Prod. Posting Group as a part of primary key
-                    if TempRecRef.Number <> DATABASE::"Serv. Price Adjustment Detail" then
-                        SetRange("Record ID", TempRecRef.RecordId);
-                    Assert.IsTrue(FindFirst, StrSubstNo(LogEntryErrorNoEntry, TempRecRef.RecordId));
-                    TestField(Converted, true);
-                    TestField("Converted Date", WorkDate());
-                    TestField(Description, '');
-                    VerifyGroupsInLogEntry(VATRateChangeLogEntry, TempRecRef.Number);
-                end;
+                VATRateChangeLogEntry.SetRange("Table ID", TempRecRef.Number);
+                // Serv. Price Adjustment Detail has Gen. Prod. Posting Group as a part of primary key
+                if TempRecRef.Number <> DATABASE::"Serv. Price Adjustment Detail" then
+                    VATRateChangeLogEntry.SetRange("Record ID", TempRecRef.RecordId);
+                Assert.IsTrue(VATRateChangeLogEntry.FindFirst(), StrSubstNo(LogEntryErrorNoEntry, TempRecRef.RecordId));
+                VATRateChangeLogEntry.TestField(Converted, true);
+                VATRateChangeLogEntry.TestField("Converted Date", WorkDate());
+                VATRateChangeLogEntry.TestField(Description, '');
+                VerifyGroupsInLogEntry(VATRateChangeLogEntry, TempRecRef.Number);
             until TempRecRef.Next() = 0;
     end;
 
@@ -1908,17 +1884,15 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATRateChangeLogEntry.SetRange("Table ID", TableID);
         Assert.AreEqual(1, VATRateChangeLogEntry.Count, LogEntryErrorCount);
 
-        with VATRateChangeLogEntry do begin
-            Assert.IsTrue(FindFirst, StrSubstNo(LogEntryErrorNoEntry, TableID));
-            TestField(Converted, false);
-            TestField("Converted Date", 0D);
-            Assert.AreNotEqual('', Description, StrSubstNo(LogEntryErrorContent, FieldName(Description)));
-            if ShippedOrReceived then begin
-                TestField("Old VAT Prod. Posting Group", "New VAT Prod. Posting Group");
-                TestField("Old Gen. Prod. Posting Group", "New Gen. Prod. Posting Group");
-            end else
-                VerifyGroupsInLogEntry(VATRateChangeLogEntry, TableID);
-        end;
+        Assert.IsTrue(VATRateChangeLogEntry.FindFirst(), StrSubstNo(LogEntryErrorNoEntry, TableID));
+        VATRateChangeLogEntry.TestField(Converted, false);
+        VATRateChangeLogEntry.TestField("Converted Date", 0D);
+        Assert.AreNotEqual('', VATRateChangeLogEntry.Description, StrSubstNo(LogEntryErrorContent, VATRateChangeLogEntry.FieldName(Description)));
+        if ShippedOrReceived then begin
+            VATRateChangeLogEntry.TestField("Old VAT Prod. Posting Group", VATRateChangeLogEntry."New VAT Prod. Posting Group");
+            VATRateChangeLogEntry.TestField("Old Gen. Prod. Posting Group", VATRateChangeLogEntry."New Gen. Prod. Posting Group");
+        end else
+            VerifyGroupsInLogEntry(VATRateChangeLogEntry, TableID);
     end;
 
     [Scope('OnPrem')]
@@ -1994,14 +1968,14 @@ codeunit 131334 "ERM VAT Tool - Helper"
     var
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
     begin
-        with VATRateChangeLogEntry do begin
-            SetRange("Table ID", TableId);
-            SetRange("Old VAT Prod. Posting Group", VATProdPostingGroup);
-            FindSet();
-            repeat
-                TestField(Description, LogEntryContentErr);
-            until Next = 0;
-        end;
+#pragma warning disable AA0210
+        VATRateChangeLogEntry.SetRange("Table ID", TableId);
+        VATRateChangeLogEntry.SetRange("Old VAT Prod. Posting Group", VATProdPostingGroup);
+#pragma warning restore AA0210
+        VATRateChangeLogEntry.FindSet();
+        repeat
+            VATRateChangeLogEntry.TestField(Description, LogEntryContentErr);
+        until VATRateChangeLogEntry.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

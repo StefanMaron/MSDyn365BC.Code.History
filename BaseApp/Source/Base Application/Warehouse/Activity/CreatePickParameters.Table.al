@@ -4,6 +4,7 @@ table 7390 "Create Pick Parameters"
 {
     Caption = 'Create Pick Parameters';
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {

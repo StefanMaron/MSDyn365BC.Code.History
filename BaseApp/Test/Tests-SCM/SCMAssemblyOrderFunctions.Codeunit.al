@@ -26,6 +26,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPlanning: Codeunit "Library - Planning";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         WorkDate2: Date;
@@ -40,7 +41,6 @@ codeunit 137907 "SCM Assembly Order Functions"
         UpdateDimOnSalesLinesMsg: Label 'You may have changed a dimension.\\Do you want to update the lines?';
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ExplodeBomOneItem()
     var
@@ -58,7 +58,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         LibraryManufacturing.CreateBOMComponent(
           BOMComp, parentItem."No.", BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
 
-        AssemblyHeader.RefreshBOM;
+        AssemblyHeader.RefreshBOM();
         ValidateCount(AssemblyHeader."No.", 1);
         childItem2.Get(LibraryKitting.CreateItemWithNewUOM(500, 700));
         LibraryManufacturing.CreateBOMComponent(
@@ -66,13 +66,13 @@ codeunit 137907 "SCM Assembly Order Functions"
 
         FindAssemblyLine(AssemblyLine, AssemblyHeader);
 
-        AssemblyLine.ExplodeAssemblyList;
+        AssemblyLine.ExplodeAssemblyList();
         ValidateCount(AssemblyHeader."No.", 2);
+        NotificationLifecycleMgt.RecallAllNotifications();
         asserterror Error('') // roll back
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ExplodeBomTwoItem()
     var
@@ -91,7 +91,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         LibraryManufacturing.CreateBOMComponent(
           BOMComp, parentItem."No.", BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
 
-        AssemblyHeader.RefreshBOM;
+        AssemblyHeader.RefreshBOM();
         ValidateCount(AssemblyHeader."No.", 1);
         childItem2.Get(LibraryKitting.CreateItemWithNewUOM(500, 700));
         LibraryManufacturing.CreateBOMComponent(
@@ -102,16 +102,16 @@ codeunit 137907 "SCM Assembly Order Functions"
 
         FindAssemblyLine(AssemblyLine, AssemblyHeader);
 
-        AssemblyLine.ExplodeAssemblyList;
+        AssemblyLine.ExplodeAssemblyList();
         ValidateCount(AssemblyHeader."No.", 3);
         ValidateQuantityonLines(AssemblyHeader."No.", 3);
-        AssemblyHeader.UpdateUnitCost;
+        AssemblyHeader.UpdateUnitCost();
         ValidateOrderUnitCost(AssemblyHeader, 1 * (1 * 500 + 2 * 100));
+        NotificationLifecycleMgt.RecallAllNotifications();
         asserterror Error('') // roll back
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ExplodeBomSkip()
     var
@@ -129,7 +129,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         LibraryManufacturing.CreateBOMComponent(
           BOMComp, parentItem."No.", BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
 
-        AssemblyHeader.RefreshBOM;
+        AssemblyHeader.RefreshBOM();
         ValidateCount(AssemblyHeader."No.", 1);
         childItem2.Get(LibraryKitting.CreateItemWithNewUOM(500, 700));
         LibraryManufacturing.CreateBOMComponent(
@@ -137,13 +137,14 @@ codeunit 137907 "SCM Assembly Order Functions"
 
         FindAssemblyLine(AssemblyLine, AssemblyHeader);
 
-        AssemblyLine.ExplodeAssemblyList;  // Can't be esscaped anymore as dimension is not asked anymore
+        AssemblyLine.ExplodeAssemblyList();  // Can't be esscaped anymore as dimension is not asked anymore
         ValidateCount(AssemblyHeader."No.", 2); // was 1 before we removed the question
+        NotificationLifecycleMgt.RecallAllNotifications();
         asserterror Error('') // roll back
     end;
 
     [Test]
-    [HandlerFunctions('DimensionSetupRefreshConfirmHandler,AvailabilityWindowHandler')]
+    [HandlerFunctions('DimensionSetupRefreshConfirmHandler')]
     [Scope('OnPrem')]
     procedure DimensionSetup()
     var
@@ -264,7 +265,7 @@ codeunit 137907 "SCM Assembly Order Functions"
 
         AssemblyLine.FindFirst();
         AssemblyLine.Validate("Dimension Set ID", DimSetID2);
-        AssemblyHeader.RefreshBOM;
+        AssemblyHeader.RefreshBOM();
         // find children lines and verify dimensions
         LibraryAssembly.SetLinkToLines(AssemblyHeader, AssemblyLine);
         AssemblyLine.FindFirst();
@@ -290,7 +291,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         AsmSetup.Modify();
 
         DimSetID2 := AssemblyLine."Dimension Set ID";
-        AssemblyHeader.RefreshBOM;
+        AssemblyHeader.RefreshBOM();
         LibraryAssembly.SetLinkToLines(AssemblyHeader, AssemblyLine);
         AssemblyLine.FindFirst();
         // VERIFY
@@ -305,11 +306,12 @@ codeunit 137907 "SCM Assembly Order Functions"
         TempDimSetEntryLinePost.FindFirst();
         Assert.AreEqual(TempDimSetEntryLinePost."Dimension Value Code", DimValue2.Code,
           StrSubstNo('Wrong Dimension Value in Line, expected %1, got %2', DimValue2.Code, TempDimSetEntryLinePost."Dimension Value Code"));
+        NotificationLifecycleMgt.RecallAllNotifications();
         asserterror Error('') // roll back
     end;
 
     [Test]
-    [HandlerFunctions('ItemSubstitutionPageHandler,AvailabilityWindowHandler')]
+    [HandlerFunctions('ItemSubstitutionPageHandler')]
     [Scope('OnPrem')]
     procedure Substitude()
     var
@@ -329,23 +331,23 @@ codeunit 137907 "SCM Assembly Order Functions"
         LibraryManufacturing.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
 
-        AssemblyHeader.RefreshBOM;
+        AssemblyHeader.RefreshBOM();
         ValidateCount(AssemblyHeader."No.", 1);
 
         FindAssemblyLine(AssemblyLine, AssemblyHeader);
 
         subst := LibraryKitting.CreateItem(500, 700, childItem."Base Unit of Measure");
         ItemSubstitution.CreateSubstitutionItem2Item(childItem."No.", '', subst, '', false);
-        AssemblyLine.ShowItemSub;
+        AssemblyLine.ShowItemSub();
         ValidateNo(AssemblyLine, subst);
 
         asserterror Error(''); // roll back
 
         LibraryNotificationMgt.RecallNotificationsForRecord(AssemblyLine);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure VSTF295357()
     var
@@ -356,7 +358,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DueDateBeforeWorkDateMsgHandler')]
+    [HandlerFunctions('DueDateBeforeWorkDateMsgHandler')]
     [Scope('OnPrem')]
     procedure VSTF295357DueDateBeforeWorkDate()
     var
@@ -367,7 +369,6 @@ codeunit 137907 "SCM Assembly Order Functions"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure VSTF333588()
     var
@@ -378,7 +379,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DueDateBeforeWorkDateMsgHandler')]
+    [HandlerFunctions('DueDateBeforeWorkDateMsgHandler')]
     [Scope('OnPrem')]
     procedure VSTF333588DueDateBeforeWorkDate()
     var
@@ -481,7 +482,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityYesModalPageHandler,StubMessageHandler')]
+    [HandlerFunctions('StubMessageHandler')]
     [Scope('OnPrem')]
     procedure Description2InAssemblyLineMatching()
     var
@@ -535,10 +536,10 @@ codeunit 137907 "SCM Assembly Order Functions"
             // [THEN] The field "Description 2" of related Assembly Line of Type Item is equal to CI."Description 2".
             Assert.AreEqual(ChildItem."Description 2", "Description 2", Description2AssemblyLineItemDoesntMatchErr);
         end;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ExplodeBOMDiffUnitOfMeasure()
     var
@@ -580,17 +581,17 @@ codeunit 137907 "SCM Assembly Order Functions"
         FindAssemblyLine(AssemblyLine, AssemblyHeader);
 
         // [WHEN] Run "Explode BOM" function on the item "B"
-        AssemblyLine.ExplodeAssemblyList;
+        AssemblyLine.ExplodeAssemblyList();
 
         // [THEN] Quantity of the low-level item "C" in the order line is 2 * 3 = 6
         // [THEN] "Quantity (Base)" of the item "C" in the order line is 2 * 3 * 4 = 24
         ExpectedQty := ItemUnitOfMeasure[1]."Qty. per Unit of Measure" * ItemUnitOfMeasure[2]."Qty. per Unit of Measure";
         ExpectedQtyBase := ExpectedQty * ItemUnitOfMeasure[3]."Qty. per Unit of Measure";
         VerifyAssemblyLineQty(Item[3]."No.", ExpectedQty, ExpectedQtyBase);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ExplodeBOMQuantityPerLine()
     var
@@ -625,14 +626,15 @@ codeunit 137907 "SCM Assembly Order Functions"
         FindAssemblyLine(AssemblyLine, AssemblyHeader);
 
         // [WHEN] Run "Explode BOM" function on the item "B"
-        AssemblyLine.ExplodeAssemblyList;
+        AssemblyLine.ExplodeAssemblyList();
 
         // [THEN] Quantity of the low-level item "C" in the order line is 2 * 3 = 6
         VerifyAssemblyLineQty(Item[3]."No.", QtyPerLine[1] * QtyPerLine[2], QtyPerLine[1] * QtyPerLine[2]);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityYesModalPageHandler,StubMessageHandler')]
+    [HandlerFunctions('StubMessageHandler')]
     [Scope('OnPrem')]
     procedure DescriptionInAssemblyLineMatchingBOMComponent()
     var
@@ -669,7 +671,8 @@ codeunit 137907 "SCM Assembly Order Functions"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.FindFirst();
-        AssemblyLine.TestField(Description, BOMComponent.Description)
+        AssemblyLine.TestField(Description, BOMComponent.Description);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -930,13 +933,13 @@ codeunit 137907 "SCM Assembly Order Functions"
         // EXERCISE
         // Call the explode BOM function
         if ExplodeBOMFromPage then begin
-            AsmOrderTestPage.OpenEdit;
+            AsmOrderTestPage.OpenEdit();
             AsmOrderTestPage.FILTER.SetFilter("Document Type", Format(AsmHeader."Document Type"::Order));
             AsmOrderTestPage.FILTER.SetFilter("No.", AsmHeader."No.");
             AsmOrderTestPage.Lines.FILTER.SetFilter(Type, Format(AsmLine.Type::Item));
             AsmOrderTestPage.Lines.FILTER.SetFilter("No.", ChildItem."No.");
-            AsmOrderTestPage.First;
-            AsmOrderTestPage.Lines.ExplodeBOM.Invoke
+            AsmOrderTestPage.First();
+            AsmOrderTestPage.Lines.ExplodeBOM.Invoke();
         end else begin
             AsmLine.SetRange("Document Type", AsmHeader."Document Type");
             AsmLine.SetRange("Document No.", AsmHeader."No.");
@@ -1000,6 +1003,8 @@ codeunit 137907 "SCM Assembly Order Functions"
           ExpectedNoLines,
           LineCount,
           StrSubstNo(MSGAssertLineCount, AsmHeader."No.", ExpectedNoLines, LineCount));
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure ValidateOrderUnitCost(AssemblyHeader: Record "Assembly Header"; ExpectedCost: Decimal)
@@ -1073,13 +1078,6 @@ codeunit 137907 "SCM Assembly Order Functions"
         end;
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AssemblyAvailabilityYesModalPageHandler(var AssemblyAvailability: TestPage "Assembly Availability")
-    begin
-        AssemblyAvailability.Yes.Invoke;
-    end;
-
     [MessageHandler]
     [Scope('OnPrem')]
     procedure StubMessageHandler(MessageText: Text)
@@ -1091,13 +1089,6 @@ codeunit 137907 "SCM Assembly Order Functions"
     procedure ItemSubstitutionPageHandler(var ItemSubstitutionEntries: Page "Item Substitution Entries"; var Response: Action)
     begin
         Response := ACTION::LookupOK;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AvailabilityWindowHandler(var AsmAvailability: Page "Assembly Availability"; var Response: Action)
-    begin
-        Response := ACTION::Yes; // always confirm
     end;
 
     [MessageHandler]

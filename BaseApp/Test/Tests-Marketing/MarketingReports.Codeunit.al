@@ -92,10 +92,10 @@ codeunit 136901 "Marketing Reports"
         RunOpportunityDetails(Contact."No.");
 
         // 3. Verify: Verify Description and Priority on Opportunity Report is Description of Sales Cycle Stage and Priority of Activity
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Stage_SalesCycleStage', Format(SalesCycleStage.Stage));
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Desc_SalescCycleStage', SalesCycleStage.Description);
         VerifyActivityStepOnReport(Activity.Code);
 
@@ -127,10 +127,10 @@ codeunit 136901 "Marketing Reports"
         ContactCompanySummary.Run();
 
         // 3. Verify: Check that Contact of Type Peson related to another contact, seen properly in Contact Company Summary.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ContactPerson___No__', Contact2."No.");
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ContactPerson__Name', Contact2.Name);
         LibraryReportDataset.AssertCurrentRowValueEquals('Contact__Company_No__', Contact.Name);
     end;
@@ -158,7 +158,7 @@ codeunit 136901 "Marketing Reports"
         Contact.SetFilter("Salesperson Code", '<>%1', '');
         Contact.FindFirst();
         ContactNo2 := Contact."No.";  // Assign Global variable for page handler.
-        Contact.CreateInteraction;
+        Contact.CreateInteraction();
         CampaignEntry.SetRange("Campaign No.", Campaign."No.");
         CampaignEntry.FindFirst();
 
@@ -330,11 +330,11 @@ codeunit 136901 "Marketing Reports"
         QuestionnaireHandouts.Run();
 
         // 3. Verify: Verify Questionnaire details on Questionnaire Handouts Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(
           'Profile_Questionnaire_Header_Code',
           ProfileQuestionnaireLine."Profile Questionnaire Code");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         VerifyQuestionnaireDescription(ProfileQuestionnaireLine);
     end;
 
@@ -387,7 +387,7 @@ codeunit 136901 "Marketing Reports"
 
         ContactNo2 := Contact."No.";  // Assign Global variable for page handler.
         CreateInteractionTemplate(InteractionTemplate);
-        Contact.CreateInteraction;
+        Contact.CreateInteraction();
 
         // 2. Exercise: Run Contact Person Summary Report.
         Commit();
@@ -427,9 +427,9 @@ codeunit 136901 "Marketing Reports"
         ContactCoverSheet.Run();
 
         // 3. Verify: Verify Texts on Contact Cover Sheet Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ContactNo', Contact."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         VerifyTextsOnReport(Text);
     end;
 
@@ -620,9 +620,9 @@ codeunit 136901 "Marketing Reports"
         SegmentCoverSheet.Run();
 
         // 3. Verify: Verify Texts on Segment Cover Sheet Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Contact_No_', Contact."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         VerifyTextsOnReport(Text);
     end;
 
@@ -817,12 +817,12 @@ codeunit 136901 "Marketing Reports"
         // 1. Setup: Create Contact with Salesperson, Interaction Template, Interaction from Contact, Activity, Activity Step,
         // Sales Cycle Stage, Opportunity from Contact, Update Opportunity.
         Initialize();
-        InitGlobalVariables;
+        InitGlobalVariables();
         CreateContactWithSalesperson(Contact);
         CreateInteractionTemplate(InteractionTemplate);
 
         ContactNo2 := Contact."No."; // Assign Global Variable for page handler.
-        Contact.CreateInteraction;
+        Contact.CreateInteraction();
         LibraryMarketing.CreateActivity(Activity);
         LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
         CreateSalesCycleStage(SalesCycleStage, Activity.Code);
@@ -864,12 +864,12 @@ codeunit 136901 "Marketing Reports"
         // 1. Setup: Create Contact with Salesperson, Interaction Template, Interaction from Contact, Activity, Activity Step,
         // Sales Cycle Stage, Opportunity from Contact, Update Opportunity.
         Initialize();
-        InitGlobalVariables;
+        InitGlobalVariables();
         CreateContactWithSalesperson(Contact);
         CreateInteractionTemplate(InteractionTemplate);
 
         ContactNo2 := Contact."No."; // Assign Global Variable for page handler.
-        Contact.CreateInteraction;
+        Contact.CreateInteraction();
         LibraryMarketing.CreateActivity(Activity);
         LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
         CreateSalesCycleStage(SalesCycleStage, Activity.Code);
@@ -951,7 +951,7 @@ codeunit 136901 "Marketing Reports"
         // Opportunity from first Contact, Update Opportunity, Second Contact with Salesperson, Opportunity from Second Contact,
         // Update Opportunity, Second Sales Cycle Stage, Update Opportunity.
         Initialize();
-        InitGlobalVariables;
+        InitGlobalVariables();
         LibraryMarketing.CreateActivity(Activity);
         LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
         LibraryMarketing.CreateSalesCycle(SalesCycle);
@@ -987,7 +987,7 @@ codeunit 136901 "Marketing Reports"
         SalesCycleAnalysis.Run();
 
         // 3. Verify: Verify Values on Sales Cycle Analysis Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesSalesCycleAnalysis(SalesCycle.Code, FirstSalesCycleStage);
         VerifyValuesSalesCycleAnalysis(SalesCycle.Code, SecondSalesCycleStage);
 
@@ -1012,7 +1012,7 @@ codeunit 136901 "Marketing Reports"
         REPORT.Run(REPORT::"Contact - Cover Sheet");
 
         // Verify.
-        Assert.AreEqual(Contact.Count, GetRowCount, StrSubstNo(UnexpectedNumberOfRecordsError, Contact.TableCaption(), Contact.Count));
+        Assert.AreEqual(Contact.Count, GetRowCount(), StrSubstNo(UnexpectedNumberOfRecordsError, Contact.TableCaption(), Contact.Count));
     end;
 
     local procedure CreateCampaignWithStatus(var Campaign: Record Campaign)
@@ -1046,8 +1046,8 @@ codeunit 136901 "Marketing Reports"
     local procedure CreateInteractionTemplate(var InteractionTemplate: Record "Interaction Template")
     begin
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
-        InteractionTemplate.Validate("Unit Cost (LCY)", LibraryUtility.GenerateRandomFraction);
-        InteractionTemplate.Validate("Unit Duration (Min.)", LibraryUtility.GenerateRandomFraction);
+        InteractionTemplate.Validate("Unit Cost (LCY)", LibraryUtility.GenerateRandomFraction());
+        InteractionTemplate.Validate("Unit Duration (Min.)", LibraryUtility.GenerateRandomFraction());
         InteractionTemplate.Modify(true);
         InteractionTemplateCode := InteractionTemplate.Code;  // Set global variable for form handler.
     end;
@@ -1106,7 +1106,7 @@ codeunit 136901 "Marketing Reports"
         LibrarySales: Codeunit "Library - Sales";
     begin
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
         SalespersonPurchaser.Modify(true);
     end;
 
@@ -1128,8 +1128,8 @@ codeunit 136901 "Marketing Reports"
 
     local procedure GetRowCount() RowCount: Integer
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        RowCount := LibraryReportDataset.RowCount;
+        LibraryReportDataset.LoadDataSetFile();
+        RowCount := LibraryReportDataset.RowCount();
     end;
 
     local procedure InitGlobalVariables()
@@ -1161,7 +1161,7 @@ codeunit 136901 "Marketing Reports"
         Opportunity.SetRange("Contact No.", ContactNo);
         OpportunityDetails.SetTableView(Opportunity);
         // LibraryReportValidation.SetFileName(ContactNo);
-        // OpportunityDetails.SAVEASEXCEL(LibraryReportValidation.GetFileName);
+        // OpportunityDetails.SAVEASEXCEL(LibraryReportValidation.GetFileName());
         OpportunityDetails.Run();
     end;
 
@@ -1189,7 +1189,7 @@ codeunit 136901 "Marketing Reports"
     begin
         Opportunity.SetRange("Contact No.", ContactNo);
         Opportunity.FindFirst();
-        Opportunity.UpdateOpportunity;
+        Opportunity.UpdateOpportunity();
     end;
 
     local procedure VerifyActivityStepOnReport(ActivityCode: Code[10])
@@ -1203,10 +1203,10 @@ codeunit 136901 "Marketing Reports"
 
     local procedure VerifyCostAndEstimatedValue(Contact: Record Contact)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Contact', Contact."No.");
 
-        Assert.IsTrue(LibraryReportDataset.GetNextRow,
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(),
           StrSubstNo(FilterNotFoundinXMLErr,
             Contact.FieldCaption("No."),
             Contact."No."));
@@ -1221,12 +1221,12 @@ codeunit 136901 "Marketing Reports"
 
     local procedure VerifyCampaign(Campaign: Record Campaign; SegmentHeader: Record "Segment Header"; CampaignEntry: Record "Campaign Entry")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verify Campaign Table Detail.
         LibraryReportDataset.SetRange('No_Campaign', Campaign."No.");
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Description_Campaign', Campaign.Description);
 
         // Verification for Segment Header Table Details.
@@ -1234,7 +1234,7 @@ codeunit 136901 "Marketing Reports"
 
         // Verification for Campaign Entry.
         LibraryReportDataset.SetRange('EntryNo_CampaignEntry', CampaignEntry."Entry No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Desc_Campaign', CampaignEntry.Description);
         CampaignEntry.CalcFields("Cost (LCY)");
         LibraryReportDataset.AssertCurrentRowValueEquals('CostLCY_CampaignEntry', CampaignEntry."Cost (LCY)");
@@ -1251,7 +1251,7 @@ codeunit 136901 "Marketing Reports"
           'Interaction_Log_Entry___Entry_No__',
           InteractionLogEntry."Entry No.");
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'Interaction_Log_Entry___Contact_No__',
           InteractionLogEntry."Contact No.");
@@ -1270,10 +1270,10 @@ codeunit 136901 "Marketing Reports"
         Opportunity.SetRange("Salesperson Code", SalespersonCode);
         Opportunity.FindFirst();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Opportunity__No__', Opportunity."No.");
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Opportunity__Contact_No__', Opportunity."Contact No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Opportunity_Status', Format(Opportunity.Status));
         Opportunity.CalcFields("Probability %", "Chances of Success %", "Completed %");
@@ -1284,9 +1284,9 @@ codeunit 136901 "Marketing Reports"
 
     local procedure VerifyRemarkOnReport(RemarkPosition: Integer; ElementName: Text; Value: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(ElementName, Value);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals(
           StrSubstNo('MarksTxt_%1_', RemarkPosition),
@@ -1315,10 +1315,10 @@ codeunit 136901 "Marketing Reports"
 
     local procedure VerifyTaskDetails(Task: Record "To-do")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Task__No__', Task."No.");
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Task__Contact_No__', Task."Contact No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Task_Status', Format(Task.Status));
         LibraryReportDataset.AssertCurrentRowValueEquals('Task_Priority', Format(Task.Priority));
@@ -1326,9 +1326,9 @@ codeunit 136901 "Marketing Reports"
 
     local procedure VerifyTaskOnPersonSummary(Task: Record "To-do")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Contact__Company_No__', Task."Contact No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Task__Salesperson_Code_', Task."Salesperson Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('Task_Priority', Format(Task.Priority));
         LibraryReportDataset.AssertCurrentRowValueEquals('Task_Status', Format(Task.Status));
@@ -1343,11 +1343,11 @@ codeunit 136901 "Marketing Reports"
 
     local procedure VerifyQuestionnaireDetails(ProfileQuestionnaireLine: Record "Profile Questionnaire Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(
           'Profile_Questionnaire_Header_Code',
           ProfileQuestionnaireLine."Profile Questionnaire Code");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'Profile_Questionnaire_Line__Line_No__',
@@ -1361,11 +1361,11 @@ codeunit 136901 "Marketing Reports"
 
     local procedure VerifyValuesonContactList(Contact: Record Contact)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Contact.CalcFields("Cost (LCY)", "Estimated Value (LCY)", "Calcd. Current Value (LCY)", "No. of Opportunities");
 
         LibraryReportDataset.SetRange('Contact__No__', Contact."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'Contact__Cost__LCY__',
@@ -1386,10 +1386,10 @@ codeunit 136901 "Marketing Reports"
 
     local procedure VerifyValuesonOpportunityList(Opportunity: Record Opportunity)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Opportunity.CalcFields("Current Sales Cycle Stage", "Probability %", "Completed %");
         LibraryReportDataset.SetRange('Opportunity__No__', Opportunity."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         with Opportunity do begin
             LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -1420,7 +1420,7 @@ codeunit 136901 "Marketing Reports"
         LibraryReportDataset.SetRange('Stage_SalesCycleStage', Format(Stage));
 
         with SalesCycleStage do begin
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'Descriptn_SalesCycleStage',
               Description);
@@ -1457,15 +1457,15 @@ codeunit 136901 "Marketing Reports"
           Description, LibraryUtility.GenerateRandomCode(TempOpportunity.FieldNo(Description), DATABASE::Opportunity));
 
         TempOpportunity.Validate("Sales Cycle Code", LibraryVariableStorage.DequeueText());
-        TempOpportunity.CheckStatus;
-        TempOpportunity.FinishWizard;
+        TempOpportunity.CheckStatus();
+        TempOpportunity.FinishWizard();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ContactCoverSheetRequestPageHandler(var ContactCoverSheet: TestRequestPage "Contact - Cover Sheet")
     begin
-        ContactCoverSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ContactCoverSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -1499,7 +1499,7 @@ codeunit 136901 "Marketing Reports"
         TempTask.Validate("Team To-do", true);
         TempTask.Validate(Date, WorkDate());
         TempTask.Modify();
-        TempTask.CheckStatus;
+        TempTask.CheckStatus();
         TempTask.FinishWizard(false);
     end;
 
@@ -1516,7 +1516,7 @@ codeunit 136901 "Marketing Reports"
         TempTask.Validate("Opportunity No.", OpportunityNo);
         TempTask.Validate(Date, WorkDate());
         TempTask.Modify();
-        TempTask.CheckStatus;
+        TempTask.CheckStatus();
         TempTask.FinishWizard(false);
     end;
 
@@ -1530,7 +1530,7 @@ codeunit 136901 "Marketing Reports"
         TempOpportunityEntry.Init();
         UpdateOpportunity.GetRecord(TempOpportunityEntry);
         TempOpportunityEntry.Insert();
-        TempOpportunityEntry.CreateStageList;
+        TempOpportunityEntry.CreateStageList();
         TempOpportunityEntry.Validate("Action Type", ActionType::First);
         TempOpportunityEntry.Validate("Sales Cycle Stage", CurrentSalesCycleStage);
 
@@ -1540,8 +1540,8 @@ codeunit 136901 "Marketing Reports"
         TempOpportunityEntry.Validate("Estimated Close Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
         TempOpportunityEntry.Modify();
 
-        TempOpportunityEntry.CheckStatus2;
-        TempOpportunityEntry.FinishWizard2;
+        TempOpportunityEntry.CheckStatus2();
+        TempOpportunityEntry.FinishWizard2();
     end;
 
     [ModalPageHandler]
@@ -1553,7 +1553,7 @@ codeunit 136901 "Marketing Reports"
         TempOpportunityEntry.Init();
         UpdateOpportunity.GetRecord(TempOpportunityEntry);
         TempOpportunityEntry.Insert();
-        TempOpportunityEntry.CreateStageList;
+        TempOpportunityEntry.CreateStageList();
         TempOpportunityEntry.Validate("Sales Cycle Stage", CurrentSalesCycleStage);
 
         // Use Random for Estimated Value (LCY) and Chances of Success % because values are not important.
@@ -1562,78 +1562,78 @@ codeunit 136901 "Marketing Reports"
         TempOpportunityEntry.Validate("Estimated Close Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
         TempOpportunityEntry.Modify();
 
-        TempOpportunityEntry.CheckStatus2;
-        TempOpportunityEntry.FinishWizard2;
+        TempOpportunityEntry.CheckStatus2();
+        TempOpportunityEntry.FinishWizard2();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SegmentContactsReportHandler(var SegmentContactsRequestPage: TestRequestPage "Segment - Contacts")
     begin
-        SegmentContactsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SegmentContactsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure OppurtunityDetailsReportHandler(var OpportunityDetailsRequestPage: TestRequestPage "Opportunity - Details")
     begin
-        OpportunityDetailsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OpportunityDetailsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ContactCompanySummaryReportHandler(var ContactCompanySummaryRequestPage: TestRequestPage "Contact - Company Summary")
     begin
-        ContactCompanySummaryRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ContactCompanySummaryRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CampaignDetailsReportHandler(var CampaignDetailsRequestPage: TestRequestPage "Campaign - Details")
     begin
-        CampaignDetailsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CampaignDetailsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalespersonTasksReportHandler(var SalespersonTasks: TestRequestPage "Salesperson - Tasks")
     begin
-        SalespersonTasks.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalespersonTasks.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesOpportunitiesReportHandler(var SalespersonOpportunities: TestRequestPage "Salesperson - Opportunities")
     begin
-        SalespersonOpportunities.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalespersonOpportunities.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure TeamTasksReportHandler(var TeamTasks: TestRequestPage "Team - Tasks")
     begin
-        TeamTasks.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TeamTasks.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure QuestionnaireHandoutsReportHandler(var QuestionnaireHandouts: TestRequestPage "Questionnaire - Handouts")
     begin
-        QuestionnaireHandouts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        QuestionnaireHandouts.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure QuestionnaireTestReportHandler(var QuestionnaireTest: TestRequestPage "Questionnaire - Test")
     begin
-        QuestionnaireTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        QuestionnaireTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ContactPersonSummaryReportHandler(var ContactPersonSummary: TestRequestPage "Contact - Person Summary")
     begin
-        ContactPersonSummary.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ContactPersonSummary.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure RunContactCoverSheetReport(ContactNo: Code[20]; AsAgreedUpon: Boolean; ForYourInformation: Boolean; YourCommentsPlease: Boolean; ForYourApproval: Boolean; PleaseCall: Boolean; ReturnedAfterUse: Boolean)
@@ -1660,7 +1660,7 @@ codeunit 136901 "Marketing Reports"
     [Scope('OnPrem')]
     procedure SegmentCoverSheetRequestPageHandler(var SegmentCoverSheet: TestRequestPage "Segment - Cover Sheet")
     begin
-        SegmentCoverSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SegmentCoverSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure RunSegmentCoverSheetReport(SegmentHeaderNo: Code[20]; AsAgreedUpon: Boolean; ForYourInformation: Boolean; YourCommentsPlease: Boolean; ForYourApproval: Boolean; PleaseCall: Boolean; ReturnedAfterUse: Boolean)
@@ -1687,14 +1687,14 @@ codeunit 136901 "Marketing Reports"
     [Scope('OnPrem')]
     procedure ContactListReportHandler(var ContactList: TestRequestPage "Contact - List")
     begin
-        ContactList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ContactList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure OpportunityListRequestPageHandler(var OpportunityList: TestRequestPage "Opportunity - List")
     begin
-        OpportunityList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OpportunityList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1708,7 +1708,7 @@ codeunit 136901 "Marketing Reports"
     [Scope('OnPrem')]
     procedure SalesCycleAnalysisReportHandler(var SalesCycleAnalysis: TestRequestPage "Sales Cycle - Analysis")
     begin
-        SalesCycleAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesCycleAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

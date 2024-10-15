@@ -10,6 +10,7 @@ table 5005276 "Delivery Reminder Term"
     DataCaptionFields = "Code", Description;
     DrillDownPageID = "Delivery Reminder Terms List";
     LookupPageID = "Delivery Reminder Terms List";
+    DataClassification = CustomerContent;
 
     fields
     {

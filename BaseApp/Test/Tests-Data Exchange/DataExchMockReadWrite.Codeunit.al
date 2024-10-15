@@ -6,7 +6,6 @@ codeunit 132392 "Data Exch Mock Read Write"
     trigger OnRun()
     var
         DataExchDef: Record "Data Exch. Def";
-        DataExchField: Record "Data Exch. Field";
         OutputStream: OutStream;
     begin
         // [FEATURE] [Data Exchange] [Mapping]

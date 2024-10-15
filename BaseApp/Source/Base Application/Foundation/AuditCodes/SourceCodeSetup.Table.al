@@ -7,6 +7,7 @@ namespace Microsoft.Foundation.AuditCodes;
 table 242 "Source Code Setup"
 {
     Caption = 'Source Code Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -428,9 +429,9 @@ table 242 "Source Code Setup"
         {
             Caption = 'Phys. Invt. Order';
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             TableRelation = "Source Code";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '24.0';
         }
     }
 

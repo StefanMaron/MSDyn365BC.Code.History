@@ -5,6 +5,7 @@ using Microsoft.CRM.Contact;
 table 5086 "Cont. Duplicate Search String"
 {
     Caption = 'Cont. Duplicate Search String';
+    DataClassification = CustomerContent;
 
     fields
     {

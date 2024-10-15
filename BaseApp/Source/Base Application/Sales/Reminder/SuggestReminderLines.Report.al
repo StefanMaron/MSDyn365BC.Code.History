@@ -86,7 +86,7 @@ report 189 "Suggest Reminder Lines"
         }
         dataitem(CustLedgEntryLineFeeOn; "Cust. Ledger Entry")
         {
-            DataItemTableView = sorting("Entry No.") order(Ascending);
+            DataItemTableView = sorting("Entry No.") order(ascending);
             RequestFilterFields = "Document Type";
             RequestFilterHeading = 'Apply Fee per Line On';
 

@@ -8,6 +8,7 @@ table 11007 "Data Export Record Type"
 {
     Caption = 'Data Export Record Type';
     LookupPageID = "Data Export Record Types";
+    DataClassification = CustomerContent;
 
     fields
     {

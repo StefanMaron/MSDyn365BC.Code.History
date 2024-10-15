@@ -47,7 +47,9 @@ page 378 "Bank Account Balance Lines"
                         ShowBankAccEntries();
                     end;
                 }
+#pragma warning disable AA0100
                 field("BankAcc.""Net Change (LCY)"""; Rec."Net Change (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;

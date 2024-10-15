@@ -33,18 +33,18 @@ codeunit 132561 "Test Bank Account Tables"
         LibraryERM.CreateBankAccount(BankAccount1);
         BankAccount1."Bank Account No." := LibraryUtility.GenerateRandomCode(BankAccount1.FieldNo("Bank Account No."),
             DATABASE::"Bank Account");
-        BankAccount1.IBAN := LibraryUtility.GenerateMOD97CompliantCode;
+        BankAccount1.IBAN := LibraryUtility.GenerateMOD97CompliantCode();
         BankAccount1.Modify();
 
         LibraryERM.CreateBankAccount(BankAccount2);
         BankAccount2."Bank Account No." := '';
-        BankAccount2.IBAN := LibraryUtility.GenerateMOD97CompliantCode;
+        BankAccount2.IBAN := LibraryUtility.GenerateMOD97CompliantCode();
         BankAccount2.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         // [THEN] The function returns IBAN.
-        Assert.AreEqual(BankAccount1.IBAN, BankAccount1.GetBankAccountNoWithCheck, NotExpectedBankActNoErr);
-        Assert.AreEqual(BankAccount2.IBAN, BankAccount2.GetBankAccountNoWithCheck, NotExpectedBankActNoErr);
+        Assert.AreEqual(BankAccount1.IBAN, BankAccount1.GetBankAccountNoWithCheck(), NotExpectedBankActNoErr);
+        Assert.AreEqual(BankAccount2.IBAN, BankAccount2.GetBankAccountNoWithCheck(), NotExpectedBankActNoErr);
     end;
 
     [Test]
@@ -68,7 +68,7 @@ codeunit 132561 "Test Bank Account Tables"
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         // [THEN] The function returns value on the Bank Account No. field.
-        Assert.IsTrue(StrPos(BankAccount.GetBankAccountNoWithCheck, BankAccount."Bank Account No.") > 0, NotExpectedBankActNoErr);
+        Assert.IsTrue(StrPos(BankAccount.GetBankAccountNoWithCheck(), BankAccount."Bank Account No.") > 0, NotExpectedBankActNoErr);
     end;
 
     [Test]
@@ -88,7 +88,7 @@ codeunit 132561 "Test Bank Account Tables"
         BankAccount.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
-        asserterror BankAccount.GetBankAccountNoWithCheck;
+        asserterror BankAccount.GetBankAccountNoWithCheck();
         // [THEN] The function throws an exception.
         Assert.ExpectedError(StrSubstNo(MissingBankInfoErr, BankAccount.FieldCaption("Bank Account No."),
             BankAccount.FieldCaption(IBAN)));
@@ -111,18 +111,18 @@ codeunit 132561 "Test Bank Account Tables"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount1, Customer."No.");
         CustomerBankAccount1."Bank Account No." := LibraryUtility.GenerateRandomCode(CustomerBankAccount1.FieldNo("Bank Account No."),
             DATABASE::"Customer Bank Account");
-        CustomerBankAccount1.IBAN := LibraryUtility.GenerateMOD97CompliantCode;
+        CustomerBankAccount1.IBAN := LibraryUtility.GenerateMOD97CompliantCode();
         CustomerBankAccount1.Modify();
 
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount2, Customer."No.");
         CustomerBankAccount2."Bank Account No." := '';
-        CustomerBankAccount2.IBAN := LibraryUtility.GenerateMOD97CompliantCode;
+        CustomerBankAccount2.IBAN := LibraryUtility.GenerateMOD97CompliantCode();
         CustomerBankAccount2.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         // [THEN] The function returns IBAN.
-        Assert.AreEqual(CustomerBankAccount1.IBAN, CustomerBankAccount1.GetBankAccountNoWithCheck, NotExpectedBankActNoErr);
-        Assert.AreEqual(CustomerBankAccount2.IBAN, CustomerBankAccount2.GetBankAccountNoWithCheck, NotExpectedBankActNoErr);
+        Assert.AreEqual(CustomerBankAccount1.IBAN, CustomerBankAccount1.GetBankAccountNoWithCheck(), NotExpectedBankActNoErr);
+        Assert.AreEqual(CustomerBankAccount2.IBAN, CustomerBankAccount2.GetBankAccountNoWithCheck(), NotExpectedBankActNoErr);
     end;
 
     [Test]
@@ -148,7 +148,7 @@ codeunit 132561 "Test Bank Account Tables"
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         // [THEN] The function returns value on the Bank Account No. field.
-        Assert.IsTrue(StrPos(CustomerBankAccount.GetBankAccountNoWithCheck, CustomerBankAccount."Bank Account No.") > 0,
+        Assert.IsTrue(StrPos(CustomerBankAccount.GetBankAccountNoWithCheck(), CustomerBankAccount."Bank Account No.") > 0,
           NotExpectedBankActNoErr);
     end;
 
@@ -171,7 +171,7 @@ codeunit 132561 "Test Bank Account Tables"
         CustomerBankAccount.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck funciton is called.
-        asserterror CustomerBankAccount.GetBankAccountNoWithCheck;
+        asserterror CustomerBankAccount.GetBankAccountNoWithCheck();
         // [THEN] The function throws an exception.
         Assert.ExpectedError(
           StrSubstNo(MissingBankInfoErr, CustomerBankAccount.FieldCaption("Bank Account No."), CustomerBankAccount.FieldCaption(IBAN)));
@@ -194,18 +194,18 @@ codeunit 132561 "Test Bank Account Tables"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount1, Vendor."No.");
         VendorBankAccount1."Bank Account No." := LibraryUtility.GenerateRandomCode(VendorBankAccount1.FieldNo("Bank Account No."),
             DATABASE::"Vendor Bank Account");
-        VendorBankAccount1.IBAN := LibraryUtility.GenerateMOD97CompliantCode;
+        VendorBankAccount1.IBAN := LibraryUtility.GenerateMOD97CompliantCode();
         VendorBankAccount1.Modify();
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount2, Vendor."No.");
         VendorBankAccount2."Bank Account No." := '';
-        VendorBankAccount2.IBAN := LibraryUtility.GenerateMOD97CompliantCode;
+        VendorBankAccount2.IBAN := LibraryUtility.GenerateMOD97CompliantCode();
         VendorBankAccount2.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         // [THEN] The function returns IBAN.
-        Assert.AreEqual(VendorBankAccount1.IBAN, VendorBankAccount1.GetBankAccountNoWithCheck, NotExpectedBankActNoErr);
-        Assert.AreEqual(VendorBankAccount2.IBAN, VendorBankAccount2.GetBankAccountNoWithCheck, NotExpectedBankActNoErr);
+        Assert.AreEqual(VendorBankAccount1.IBAN, VendorBankAccount1.GetBankAccountNoWithCheck(), NotExpectedBankActNoErr);
+        Assert.AreEqual(VendorBankAccount2.IBAN, VendorBankAccount2.GetBankAccountNoWithCheck(), NotExpectedBankActNoErr);
     end;
 
     [Test]
@@ -231,7 +231,7 @@ codeunit 132561 "Test Bank Account Tables"
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
         // [THEN] The function returns value on the Bank Account No. field.
-        Assert.IsTrue(StrPos(VendorBankAccount.GetBankAccountNoWithCheck, VendorBankAccount."Bank Account No.") > 0,
+        Assert.IsTrue(StrPos(VendorBankAccount.GetBankAccountNoWithCheck(), VendorBankAccount."Bank Account No.") > 0,
           NotExpectedBankActNoErr);
     end;
 
@@ -254,7 +254,7 @@ codeunit 132561 "Test Bank Account Tables"
         VendorBankAccount.Modify();
 
         // [WHEN] GetBankAccountNoWithCheck function is called.
-        asserterror VendorBankAccount.GetBankAccountNoWithCheck;
+        asserterror VendorBankAccount.GetBankAccountNoWithCheck();
         // [THEN] The function throws an exception.
         Assert.ExpectedError(StrSubstNo(MissingBankInfoErr, VendorBankAccount.FieldCaption("Bank Account No."),
             VendorBankAccount.FieldCaption(IBAN)));
@@ -426,12 +426,12 @@ codeunit 132561 "Test Bank Account Tables"
 
         // [WHEN] There are no statement services
         // [THEN] The bank account linking actions are not visible.
-        BankAccountList.OpenView;
-        Assert.IsFalse(BankAccountList.LinkToOnlineBankAccount.Visible, 'list');
+        BankAccountList.OpenView();
+        Assert.IsFalse(BankAccountList.LinkToOnlineBankAccount.Visible(), 'list');
 
-        BankAccountCard.OpenView;
+        BankAccountCard.OpenView();
         BankAccountCard.GotoRecord(BankAccount);
-        Assert.IsFalse(BankAccountList.LinkToOnlineBankAccount.Visible, 'card');
+        Assert.IsFalse(BankAccountList.LinkToOnlineBankAccount.Visible(), 'card');
     end;
 
     local procedure Initialize()

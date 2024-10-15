@@ -24,7 +24,11 @@ using System.Utilities;
 
 codeunit 5856 "TransferOrder-Post Transfer"
 {
-    Permissions = TableData "Item Entry Relation" = i;
+    Permissions =
+                tabledata "Direct Trans. Header" = i,
+                tabledata "Direct Trans. Line" = i,
+                tabledata "G/L Entry" = r,
+                tabledata "Item Entry Relation" = i;
     TableNo = "Transfer Header";
 
     trigger OnRun()
@@ -58,114 +62,112 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
         OnRunOnAfterTransHeaderSetHideValidationDialog(TransHeader, TransferHeader2, HideValidationDialog);
 
-        with TransHeader do begin
-            CheckBeforeTransferPost();
-            CheckDim();
+        TransHeader.CheckBeforeTransferPost();
+        CheckDim();
 
-            WhseReference := "Posting from Whse. Ref.";
-            "Posting from Whse. Ref." := 0;
+        WhseReference := TransHeader."Posting from Whse. Ref.";
+        TransHeader."Posting from Whse. Ref." := 0;
 
-            WhseShip := TempWhseShptHeader.FindFirst();
-            InvtPickPutaway := WhseReference <> 0;
+        WhseShip := TempWhseShptHeader.FindFirst();
+        InvtPickPutaway := WhseReference <> 0;
 
-            TransLine.Reset();
-            TransLine.SetRange("Document No.", "No.");
-            TransLine.SetRange("Derived From Line No.", 0);
-            TransLine.SetFilter(Quantity, '<>%1', 0);
-            if TransLine.FindSet() then
-                repeat
-                    if not WhseShip then
-                        TransLine.TestField("Qty. to Ship");
-                    TransLine.TestField("Quantity Shipped", 0);
-                    TransLine.TestField("Quantity Received", 0);
-                    TransLine.CheckDirectTransferQtyToShip()
-                until TransLine.Next() = 0
-            else
-                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
+        TransLine.Reset();
+        TransLine.SetRange("Document No.", TransHeader."No.");
+        TransLine.SetRange("Derived From Line No.", 0);
+        TransLine.SetFilter(Quantity, '<>%1', 0);
+        if TransLine.FindSet() then
+            repeat
+                if not WhseShip then
+                    TransLine.TestField("Qty. to Ship");
+                TransLine.TestField("Quantity Shipped", 0);
+                TransLine.TestField("Quantity Received", 0);
+                TransLine.CheckDirectTransferQtyToShip()
+            until TransLine.Next() = 0
+        else
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
-            GetLocation("Transfer-from Code");
-            if Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) then
-                WhsePosting := true;
+        GetLocation(TransHeader."Transfer-from Code");
+        if Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) then
+            WhsePosting := true;
 
-            // Require Receipt is not supported here, only Bin Mandatory
-            GetLocation("Transfer-to Code");
-            Location.TestField("Require Receive", false);
-            if Location."Bin Mandatory" then
-                WhseReceive := true;
+        // Require Receipt is not supported here, only Bin Mandatory
+        GetLocation(TransHeader."Transfer-to Code");
+        Location.TestField("Require Receive", false);
+        if Location."Bin Mandatory" then
+            WhseReceive := true;
 
-            Window.Open('#1#################################\\' + PostingLinesMsg);
+        Window.Open('#1#################################\\' + PostingLinesMsg);
 
-            Window.Update(1, StrSubstNo(PostingDocumentTxt, "No."));
+        Window.Update(1, StrSubstNo(PostingDocumentTxt, TransHeader."No."));
 
-            SourceCodeSetup.Get();
-            SourceCode := SourceCodeSetup.Transfer;
-            InventorySetup.Get();
-            InventorySetup.TestField("Posted Direct Trans. Nos.");
+        SourceCodeSetup.Get();
+        SourceCode := SourceCodeSetup.Transfer;
+        InventorySetup.Get();
+        InventorySetup.TestField("Posted Direct Trans. Nos.");
 
-            if InventorySetup."Automatic Cost Posting" then begin
-                GLEntry.LockTable();
-                if GLEntry.FindLast() then;
-            end;
-
-            InsertDirectTransHeader(TransHeader, DirectTransHeader);
-            if InventorySetup."Copy Comments Order to Shpt." then begin
-                InvtCommentLine.CopyCommentLines(
-                    "Inventory Comment Document Type"::"Transfer Order", "No.",
-                    "Inventory Comment Document Type"::"Posted Direct Transfer", DirectTransHeader."No.");
-                RecordLinkManagement.CopyLinks(TransferHeader2, DirectTransHeader);
-            end;
-
-            if WhseShip then begin
-                WhseShptHeader.Get(TempWhseShptHeader."No.");
-                WhsePostShipment.CreatePostedShptHeader(PostedWhseShptHeader, WhseShptHeader, DirectTransHeader."No.", "Posting Date");
-            end;
-
-            // Insert shipment lines
-            LineCount := 0;
-            if WhseShip then
-                PostedWhseShptLine.LockTable();
-            if InvtPickPutaway then
-                WhseRqst.LockTable();
-            DirectTransLine.LockTable();
-            TransLine.SetRange(Quantity);
-            if TransLine.FindSet() then
-                repeat
-                    LineCount := LineCount + 1;
-                    Window.Update(2, LineCount);
-
-                    if TransLine."Item No." <> '' then begin
-                        Item.Get(TransLine."Item No.");
-                        Item.TestField(Blocked, false);
-
-                        if TransLine."Variant Code" <> '' then begin
-                            ItemVariant.Get(TransLine."Item No.", TransLine."Variant Code");
-                            CheckItemVariantNotBlocked(ItemVariant);
-                        end;
-                    end;
-
-                    InsertDirectTransLine(DirectTransHeader, TransLine);
-                until TransLine.Next() = 0;
-
-            MakeInventoryAdjustment();
-
-            LockTable();
-            if WhseShip then
-                WhseShptLine.LockTable();
-
-            if WhseShip then begin
-                WhsePostShipment.PostUpdateWhseDocuments(WhseShptHeader);
-                TempWhseShptHeader.Delete();
-            end;
-
-            "Last Shipment No." := DirectTransHeader."No.";
-            "Last Receipt No." := DirectTransHeader."No.";
-            Modify();
-
-            TransLine.SetRange(Quantity);
-            if not PreviewMode then
-                DeleteOneTransferOrder(TransHeader, TransLine);
-            Window.Close();
+        if InventorySetup."Automatic Cost Posting" then begin
+            GLEntry.LockTable();
+            if GLEntry.FindLast() then;
         end;
+
+        InsertDirectTransHeader(TransHeader, DirectTransHeader);
+        if InventorySetup."Copy Comments Order to Shpt." then begin
+            InvtCommentLine.CopyCommentLines(
+                "Inventory Comment Document Type"::"Transfer Order", TransHeader."No.",
+                "Inventory Comment Document Type"::"Posted Direct Transfer", DirectTransHeader."No.");
+            RecordLinkManagement.CopyLinks(TransferHeader2, DirectTransHeader);
+        end;
+
+        if WhseShip then begin
+            WhseShptHeader.Get(TempWhseShptHeader."No.");
+            WhsePostShipment.CreatePostedShptHeader(PostedWhseShptHeader, WhseShptHeader, DirectTransHeader."No.", TransHeader."Posting Date");
+        end;
+
+        // Insert shipment lines
+        LineCount := 0;
+        if WhseShip then
+            PostedWhseShptLine.LockTable();
+        if InvtPickPutaway then
+            WhseRqst.LockTable();
+        DirectTransLine.LockTable();
+        TransLine.SetRange(Quantity);
+        if TransLine.FindSet() then
+            repeat
+                LineCount := LineCount + 1;
+                Window.Update(2, LineCount);
+
+                if TransLine."Item No." <> '' then begin
+                    Item.Get(TransLine."Item No.");
+                    Item.TestField(Blocked, false);
+
+                    if TransLine."Variant Code" <> '' then begin
+                        ItemVariant.Get(TransLine."Item No.", TransLine."Variant Code");
+                        CheckItemVariantNotBlocked(ItemVariant);
+                    end;
+                end;
+
+                InsertDirectTransLine(DirectTransHeader, TransLine);
+            until TransLine.Next() = 0;
+
+        MakeInventoryAdjustment();
+
+        TransHeader.LockTable();
+        if WhseShip then
+            WhseShptLine.LockTable();
+
+        if WhseShip then begin
+            WhsePostShipment.PostUpdateWhseDocuments(WhseShptHeader);
+            TempWhseShptHeader.Delete();
+        end;
+
+        TransHeader."Last Shipment No." := DirectTransHeader."No.";
+        TransHeader."Last Receipt No." := DirectTransHeader."No.";
+        TransHeader.Modify();
+
+        TransLine.SetRange(Quantity);
+        if not PreviewMode then
+            TransHeader.DeleteOneTransferOrder(TransHeader, TransLine);
+        Window.Close();
 
         UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);
@@ -195,7 +197,6 @@ codeunit 5856 "TransferOrder-Post Transfer"
         DimMgt: Codeunit DimensionManagement;
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         WhsePostShipment: Codeunit "Whse.-Post Shipment";
         SourceCode: Code[10];
         HideValidationDialog: Boolean;
@@ -236,47 +237,47 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
     local procedure CreateItemJnlLine(TransLine3: Record "Transfer Line"; DirectTransHeader2: Record "Direct Trans. Header"; DirectTransLine2: Record "Direct Trans. Line")
     begin
-        with ItemJnlLine do begin
-            Init();
-            "Posting Date" := DirectTransHeader2."Posting Date";
-            "Document Date" := DirectTransHeader2."Posting Date";
-            "Document No." := DirectTransHeader2."No.";
-            "Document Type" := "Document Type"::"Direct Transfer";
-            "Document Line No." := DirectTransLine2."Line No.";
-            "Order Type" := "Order Type"::Transfer;
-            "Order No." := DirectTransHeader2."Transfer Order No.";
-            "External Document No." := DirectTransHeader2."External Document No.";
-            "Entry Type" := "Entry Type"::Transfer;
-            "Item No." := DirectTransLine2."Item No.";
-            Description := DirectTransLine2.Description;
-            "Shortcut Dimension 1 Code" := DirectTransLine2."Shortcut Dimension 1 Code";
-            "New Shortcut Dimension 1 Code" := DirectTransLine2."Shortcut Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := DirectTransLine2."Shortcut Dimension 2 Code";
-            "New Shortcut Dimension 2 Code" := DirectTransLine2."Shortcut Dimension 2 Code";
-            "Dimension Set ID" := DirectTransLine2."Dimension Set ID";
-            "New Dimension Set ID" := DirectTransLine2."Dimension Set ID";
-            "Location Code" := DirectTransHeader2."Transfer-from Code";
-            "New Location Code" := DirectTransHeader2."Transfer-to Code";
-            Quantity := DirectTransLine2.Quantity;
-            "Invoiced Quantity" := DirectTransLine2.Quantity;
-            "Quantity (Base)" := DirectTransLine2."Quantity (Base)";
-            "Invoiced Qty. (Base)" := DirectTransLine2."Quantity (Base)";
-            "Source Code" := SourceCode;
-            "Gen. Prod. Posting Group" := DirectTransLine2."Gen. Prod. Posting Group";
-            "Inventory Posting Group" := DirectTransLine2."Inventory Posting Group";
-            "Unit of Measure Code" := DirectTransLine2."Unit of Measure Code";
-            "Qty. per Unit of Measure" := DirectTransLine2."Qty. per Unit of Measure";
-            "Variant Code" := DirectTransLine2."Variant Code";
-            "Bin Code" := TransLine3."Transfer-from Bin Code";
-            "New Bin Code" := TransLine3."Transfer-To Bin Code";
-            "Country/Region Code" := DirectTransHeader2."Trsf.-from Country/Region Code";
-            "Item Category Code" := TransLine3."Item Category Code";
-        end;
+        ItemJnlLine.Init();
+        ItemJnlLine."Posting Date" := DirectTransHeader2."Posting Date";
+        ItemJnlLine."Document Date" := DirectTransHeader2."Posting Date";
+        ItemJnlLine."Document No." := DirectTransHeader2."No.";
+        ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Direct Transfer";
+        ItemJnlLine."Document Line No." := DirectTransLine2."Line No.";
+        ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Transfer;
+        ItemJnlLine."Order No." := DirectTransHeader2."Transfer Order No.";
+        ItemJnlLine."External Document No." := DirectTransHeader2."External Document No.";
+        ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Transfer;
+        ItemJnlLine."Item No." := DirectTransLine2."Item No.";
+        ItemJnlLine.Description := DirectTransLine2.Description;
+        ItemJnlLine."Shortcut Dimension 1 Code" := DirectTransLine2."Shortcut Dimension 1 Code";
+        ItemJnlLine."New Shortcut Dimension 1 Code" := DirectTransLine2."Shortcut Dimension 1 Code";
+        ItemJnlLine."Shortcut Dimension 2 Code" := DirectTransLine2."Shortcut Dimension 2 Code";
+        ItemJnlLine."New Shortcut Dimension 2 Code" := DirectTransLine2."Shortcut Dimension 2 Code";
+        ItemJnlLine."Dimension Set ID" := DirectTransLine2."Dimension Set ID";
+        ItemJnlLine."New Dimension Set ID" := DirectTransLine2."Dimension Set ID";
+        ItemJnlLine."Location Code" := DirectTransHeader2."Transfer-from Code";
+        ItemJnlLine."New Location Code" := DirectTransHeader2."Transfer-to Code";
+        ItemJnlLine.Quantity := DirectTransLine2.Quantity;
+        ItemJnlLine."Invoiced Quantity" := DirectTransLine2.Quantity;
+        ItemJnlLine."Quantity (Base)" := DirectTransLine2."Quantity (Base)";
+        ItemJnlLine."Invoiced Qty. (Base)" := DirectTransLine2."Quantity (Base)";
+        ItemJnlLine."Source Code" := SourceCode;
+        ItemJnlLine."Gen. Prod. Posting Group" := DirectTransLine2."Gen. Prod. Posting Group";
+        ItemJnlLine."Inventory Posting Group" := DirectTransLine2."Inventory Posting Group";
+        ItemJnlLine."Unit of Measure Code" := DirectTransLine2."Unit of Measure Code";
+        ItemJnlLine."Qty. per Unit of Measure" := DirectTransLine2."Qty. per Unit of Measure";
+        ItemJnlLine."Variant Code" := DirectTransLine2."Variant Code";
+        ItemJnlLine."Bin Code" := TransLine3."Transfer-from Bin Code";
+        ItemJnlLine."New Bin Code" := TransLine3."Transfer-To Bin Code";
+        ItemJnlLine."Country/Region Code" := DirectTransHeader2."Trsf.-from Country/Region Code";
+        ItemJnlLine."Item Category Code" := TransLine3."Item Category Code";
 
         OnAfterCreateItemJnlLine(ItemJnlLine, TransLine3, DirectTransHeader2, DirectTransLine2);
     end;
 
     local procedure InsertDirectTransHeader(TransferHeader: Record "Transfer Header"; var DirectTransHeader: Record "Direct Trans. Header")
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         DirectTransHeader.LockTable();
         DirectTransHeader.Init();
@@ -310,7 +311,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         DirectTransHeader."No. Series" := InventorySetup."Posted Direct Trans. Nos.";
         OnInsertDirectTransHeaderOnBeforeGetNextNo(DirectTransHeader, TransferHeader);
         DirectTransHeader."No." :=
-            NoSeriesMgt.GetNextNo(DirectTransHeader."No. Series", TransferHeader."Posting Date", true);
+            NoSeries.GetNextNo(DirectTransHeader."No. Series", TransferHeader."Posting Date");
         OnInsertDirectTransHeaderOnBeforeDirectTransHeaderInsert(DirectTransHeader, TransferHeader);
         DirectTransHeader.Insert();
 
@@ -526,29 +527,27 @@ codeunit 5856 "TransferOrder-Post Transfer"
         if IsHandled then
             exit;
 
-        with ItemJnlLine do begin
-            Quantity := OriginalQuantity;
-            "Quantity (Base)" := OriginalQuantityBase;
-            if Direction = 0 then
-                GetLocation("Location Code")
-            else
-                GetLocation("New Location Code");
-            if Location."Bin Mandatory" then
-                if WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 1, WhseJnlLine, Direction = 1) then begin
-                    WMSMgmt.SetTransferLine(TransLine, WhseJnlLine, Direction, DirectTransHeader."No.");
-                    WhseJnlLine."Source No." := DirectTransHeader."No.";
-                    if Direction = 1 then
-                        WhseJnlLine."To Bin Code" := "New Bin Code";
-                    OnPostWhseJnlLineOnBeforeSplitWhseJnlLine(WhseJnlLine, TempWhseJnlLine2);
-                    ItemTrackingMgt.SplitWhseJnlLine(
-                      WhseJnlLine, TempWhseJnlLine2, TempHandlingSpecification, true);
-                    if TempWhseJnlLine2.Find('-') then
-                        repeat
-                            WMSMgmt.CheckWhseJnlLine(TempWhseJnlLine2, 1, 0, Direction = 1);
-                            WhseJnlPostLine.Run(TempWhseJnlLine2);
-                        until TempWhseJnlLine2.Next() = 0;
-                end;
-        end;
+        ItemJnlLine.Quantity := OriginalQuantity;
+        ItemJnlLine."Quantity (Base)" := OriginalQuantityBase;
+        if Direction = 0 then
+            GetLocation(ItemJnlLine."Location Code")
+        else
+            GetLocation(ItemJnlLine."New Location Code");
+        if Location."Bin Mandatory" then
+            if WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 1, WhseJnlLine, Direction = 1) then begin
+                WMSMgmt.SetTransferLine(TransLine, WhseJnlLine, Direction, DirectTransHeader."No.");
+                WhseJnlLine."Source No." := DirectTransHeader."No.";
+                if Direction = 1 then
+                    WhseJnlLine."To Bin Code" := ItemJnlLine."New Bin Code";
+                OnPostWhseJnlLineOnBeforeSplitWhseJnlLine(WhseJnlLine, TempWhseJnlLine2);
+                ItemTrackingMgt.SplitWhseJnlLine(
+                  WhseJnlLine, TempWhseJnlLine2, TempHandlingSpecification, true);
+                if TempWhseJnlLine2.Find('-') then
+                    repeat
+                        WMSMgmt.CheckWhseJnlLine(TempWhseJnlLine2, 1, 0, Direction = 1);
+                        WhseJnlPostLine.Run(TempWhseJnlLine2);
+                    until TempWhseJnlLine2.Next() = 0;
+            end;
     end;
 
     local procedure MakeInventoryAdjustment()
@@ -659,7 +658,6 @@ codeunit 5856 "TransferOrder-Post Transfer"
     local procedure OnBeforeCheckItemVariantNotBlocked(TransLine: Record "Transfer Line"; ItemVariant: Record "Item Variant"; TransHeader: Record "Transfer Header"; Location: Record Location; WhseShip: Boolean; WhseReceive: Boolean; var IsHandled: Boolean)
     begin
     end;
-
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineBeforeItemJnlPostLineRunWithCheck(var ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; DirectTransHeader: Record "Direct Trans. Header"; DirectTransLine: Record "Direct Trans. Line"; CommitIsSuppressed: Boolean)

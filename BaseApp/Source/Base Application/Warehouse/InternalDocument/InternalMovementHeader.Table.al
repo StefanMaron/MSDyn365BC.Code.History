@@ -13,6 +13,7 @@ table 7346 "Internal Movement Header"
 {
     Caption = 'Internal Movement Header';
     LookupPageID = "Internal Movement List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -24,7 +25,7 @@ table 7346 "Internal Movement Header"
             begin
                 InvtSetup.Get();
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(InvtSetup."Internal Movement Nos.");
+                    NoSeries.TestManual(InvtSetup."Internal Movement Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -164,12 +165,27 @@ table 7346 "Internal Movement Header"
     end;
 
     trigger OnInsert()
+#if not CLEAN24
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         InvtSetup.Get();
         if "No." = '' then begin
             InvtSetup.TestField("Internal Movement Nos.");
-            NoSeriesMgt.InitSeries(
-              InvtSetup."Internal Movement Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(InvtSetup."Internal Movement Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := InvtSetup."Internal Movement Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", InvtSetup."Internal Movement Nos.", 0D, "No.");
+            end;
+#endif
         end;
     end;
 
@@ -182,7 +198,7 @@ table 7346 "Internal Movement Header"
         Location: Record Location;
         Bin: Record Bin;
         InvtSetup: Record "Inventory Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         WmsManagement: Codeunit "WMS Management";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         Text002: Label 'You cannot rename a %1.';
@@ -229,9 +245,9 @@ table 7346 "Internal Movement Header"
     begin
         InvtSetup.Get();
         InvtSetup.TestField("Internal Movement Nos.");
-        if NoSeriesMgt.SelectSeries(InvtSetup."Internal Movement Nos.", xRec."No. Series", "No. Series")
+        if NoSeries.LookupRelatedNoSeries(InvtSetup."Internal Movement Nos.", xRec."No. Series", "No. Series")
         then begin
-            NoSeriesMgt.SetSeries("No.");
+            "No." := NoSeries.GetNextNo("No. Series");
             exit(true);
         end;
     end;

@@ -11,7 +11,6 @@ codeunit 142080 "Test ServiceRep"
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
-        IsInitialized: Boolean;
         Selection: Option Countries,"Type of Services",Both;
 
     [Test]
@@ -29,7 +28,7 @@ codeunit 142080 "Test ServiceRep"
         REPORT.Run(REPORT::"Crossborder Services", true, false, VATEntry);
 
         // Verify Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyReport(VATEntry, 0, 0, Selection::Countries);
     end;
 
@@ -48,7 +47,7 @@ codeunit 142080 "Test ServiceRep"
         REPORT.Run(REPORT::"Crossborder Services", true, false, VATEntry);
 
         // Verify Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyReport(VATEntry, 0, 0, Selection::"Type of Services");
     end;
 
@@ -67,7 +66,7 @@ codeunit 142080 "Test ServiceRep"
         REPORT.Run(REPORT::"Crossborder Services", true, false, VATEntry);
 
         // Verify Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyReport(VATEntry, 1, 2, Selection::Both);
     end;
 
@@ -78,7 +77,7 @@ codeunit 142080 "Test ServiceRep"
             VATEntry.SetCurrentKey("Country/Region Code");
             VATEntry.FindSet();
             repeat
-                GetNextRow;
+                GetNextRow();
                 AssertCurrentRowValueEquals('GroupNo', GroupNoSection1);
                 AssertCurrentRowValueEquals('VATEntryCountrySelectionNo', SelectionNo);
                 AssertCurrentRowValueEquals('VATEntryCountry_Entry_No_', VATEntry."Entry No.");
@@ -97,7 +96,7 @@ codeunit 142080 "Test ServiceRep"
             VATEntry.SetCurrentKey("Gen. Prod. Posting Group");
             VATEntry.FindSet();
             repeat
-                GetNextRow;
+                GetNextRow();
                 AssertCurrentRowValueEquals('GroupNo', GroupNoSection2);
                 AssertCurrentRowValueEquals('VATEntryGenProdPostingGroupSelectionNo', SelectionNo);
                 AssertCurrentRowValueEquals('VATEntryGenProdPostingGroup_Entry_No_', VATEntry."Entry No.");
@@ -111,7 +110,7 @@ codeunit 142080 "Test ServiceRep"
                         Assert.Fail('Only Sales and Purchase expected');
                 end;
             until VATEntry.Next() = 0;
-            Assert.IsFalse(GetNextRow, 'No more rows should exist');
+            Assert.IsFalse(GetNextRow(), 'No more rows should exist');
         end;
     end;
 
@@ -130,9 +129,9 @@ codeunit 142080 "Test ServiceRep"
         LibraryVariableStorage.Dequeue(Selection);
 
         RequestPage.Selection.SetValue(Selection);
-        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 }
 

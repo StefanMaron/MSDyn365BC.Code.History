@@ -6,6 +6,7 @@ table 9501 "Email Attachment"
     ObsoleteReason = 'We are reverting the fix that was using this table as it was not possible to solve the problem this way.';
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

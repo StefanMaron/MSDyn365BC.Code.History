@@ -16,6 +16,7 @@ table 8631 "Config. Table Processing Rule"
 {
     Caption = 'Config. Table Processing Rule';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

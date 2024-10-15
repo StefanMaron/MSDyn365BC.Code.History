@@ -6,7 +6,7 @@ namespace Microsoft.Projects.Project.Job;
 
 page 1005 "Job Task Dimensions"
 {
-    Caption = 'Job Task Dimensions';
+    Caption = 'Project Task Dimensions';
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Job Task Dimension";

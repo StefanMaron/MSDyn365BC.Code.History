@@ -34,7 +34,7 @@ codeunit 142064 "UT REP VATSTAT"
         RunGLVATReconciliationReport(VATStatementLine);
 
         // Verify: Verify the LCY Code on G/L - VAT Reconciliation Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GeneralLedgerSetup.Get();
         LibraryReportDataset.AssertElementWithValueExists('HeaderText', StrSubstNo(HeaderTextMsg, GeneralLedgerSetup."LCY Code"));
     end;
@@ -56,7 +56,7 @@ codeunit 142064 "UT REP VATSTAT"
         RunGLVATReconciliationReport(VATStatementLine);
 
         // Verify: Verify the Period Selection and No of Lines on G/L - VAT Reconciliation Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Header', 'VAT entries before and within the period');
         LibraryReportDataset.AssertElementWithValueExists('Number', 1);
     end;
@@ -78,7 +78,7 @@ codeunit 142064 "UT REP VATSTAT"
         RunGLVATReconciliationReport(VATStatementLine);
 
         // Verify: Verify the Selection as Open and Closed on G/L - VAT Reconciliation Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Header2', 'The report includes all VAT entries.');
     end;
 
@@ -99,7 +99,7 @@ codeunit 142064 "UT REP VATSTAT"
         RunGLVATReconciliationReport(VATStatementLine);
 
         // Verify: Verify the Selection as Closed on G/L - VAT Reconciliation Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Header2', 'The report includes only closed VAT entries.');
     end;
 
@@ -115,14 +115,14 @@ codeunit 142064 "UT REP VATSTAT"
         // Purpose of the test is to validate the VAT Statement Name - OnPreDataItem trigger of G/L - VAT Reconciliation Report for Additional Reporting Currency.
         // Setup.
         Initialize();
-        UpdateGeneralLedgerSetup;  // Update Additional Reporting Currency on General Ledger Setup.
+        UpdateGeneralLedgerSetup();  // Update Additional Reporting Currency on General Ledger Setup.
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type");
 
         // Exercise.
         RunGLVATReconciliationReport(VATStatementLine);
 
         // Verify: Verify the Additional Reporting Currency on G/L - VAT Reconciliation Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GeneralLedgerSetup.Get();
         LibraryReportDataset.AssertElementWithValueExists('HeaderText',
           StrSubstNo(HeaderTextMsg, GeneralLedgerSetup."Additional Reporting Currency"));
@@ -140,14 +140,14 @@ codeunit 142064 "UT REP VATSTAT"
         // Purpose of the test is to validate the G/L Account - OnAfterGetRecord trigger of G/L - VAT Reconciliation Report for Additional-Currency Net Change.
         // Setup.
         Initialize();
-        UpdateGeneralLedgerSetup;  // Update Additional Reporting Currency on General Ledger Setup.
+        UpdateGeneralLedgerSetup();  // Update Additional Reporting Currency on General Ledger Setup.
         CreateVATStatementLine(VATStatementLine, VATStatementLine.Type::"Account Totaling", VATStatementLine."Amount Type"::Amount);
 
         // Exercise.
         RunGLVATReconciliationReport(VATStatementLine);
 
         // Verify: Verify the Total Amount on G/L - VAT Reconciliation Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLAccount.Get(VATStatementLine."Account Totaling");
         GLAccount.CalcFields("Additional-Currency Net Change");
         LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GLAccount."Additional-Currency Net Change");
@@ -171,7 +171,7 @@ codeunit 142064 "UT REP VATSTAT"
         RunGLVATReconciliationReport(VATStatementLine);
 
         // Verify: Verify the Total Amount on G/L - VAT Reconciliation Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLAccount.Get(VATStatementLine."Account Totaling");
         GLAccount.CalcFields("Net Change");
         LibraryReportDataset.AssertElementWithValueExists('TotalAmount', GLAccount."Net Change");
@@ -236,7 +236,7 @@ codeunit 142064 "UT REP VATSTAT"
         RunVATStatementScheduleReport(VATStatementLine);
 
         // Verify: Verify the VAT Statement Line Type after running VAT Statement Schedule Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Totaling', VATStatementLine."Row Totaling");
     end;
 
@@ -257,7 +257,7 @@ codeunit 142064 "UT REP VATSTAT"
         RunVATStatementScheduleReport(VATStatementLine);
 
         // Verify: Verify the VAT Statement Line Type after running VAT Statement Schedule Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Totaling', VATStatementLine."Account Totaling");
     end;
 
@@ -280,7 +280,7 @@ codeunit 142064 "UT REP VATSTAT"
         RunVATStatementScheduleReport(VATStatementLine);
 
         // Verify: Verify the VAT Statement Line Type after running VAT Statement Schedule Report. Verify blank Totaling as Account Totaling is blank.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Totaling', '');
     end;
 
@@ -334,7 +334,7 @@ codeunit 142064 "UT REP VATSTAT"
         // Purpose of the test is to validate VAT Statement Name - OnAfterGetRecord trigger of the VAT Statement AT Report for Blank PDF File Name.
         // Setup.
         Initialize();
-        OnAfterGetRecordPeriodTypeVATStatementATError;
+        OnAfterGetRecordPeriodTypeVATStatementATError();
     end;
 
     [Test]
@@ -346,7 +346,7 @@ codeunit 142064 "UT REP VATSTAT"
         // Purpose of the test is to validate CheckPositionNumbers function of the VAT Statement AT Report with PDF File Name and Period Type Quarter.
         // Setup.
         Initialize();
-        OnAfterGetRecordPeriodTypeVATStatementATError;
+        OnAfterGetRecordPeriodTypeVATStatementATError();
     end;
 
     [Test]
@@ -358,7 +358,7 @@ codeunit 142064 "UT REP VATSTAT"
         // Purpose of the test is to validate CheckPositionNumbers function of the VAT Statement AT Report with PDF File Name and Period Type Month.
         // Setup.
         Initialize();
-        OnAfterGetRecordPeriodTypeVATStatementATError;
+        OnAfterGetRecordPeriodTypeVATStatementATError();
     end;
 
     local procedure Initialize()
@@ -373,14 +373,14 @@ codeunit 142064 "UT REP VATSTAT"
     var
         VATStatementName: Record "VAT Statement Name";
     begin
-        VATStatementName."Statement Template Name" := LibraryUTUtility.GetNewCode10;
-        VATStatementName.Name := LibraryUTUtility.GetNewCode10;
+        VATStatementName."Statement Template Name" := LibraryUTUtility.GetNewCode10();
+        VATStatementName.Name := LibraryUTUtility.GetNewCode10();
         VATStatementName.Insert();
 
         VATStatementLine."Statement Template Name" := VATStatementName."Statement Template Name";
         VATStatementLine."Statement Name" := VATStatementName.Name;
         VATStatementLine."Line No." := 1;
-        VATStatementLine."Account Totaling" := CreateGLAccount;
+        VATStatementLine."Account Totaling" := CreateGLAccount();
         VATStatementLine.Type := Type;
         VATStatementLine."Amount Type" := AmountType;
         VATStatementLine.Insert();
@@ -390,7 +390,7 @@ codeunit 142064 "UT REP VATSTAT"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Totaling := '<>''''';  // Non blank Totaling GL Account.
         GLAccount.Insert();
         exit(GLAccount."No.");
@@ -401,7 +401,7 @@ codeunit 142064 "UT REP VATSTAT"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         CurrencyExchangeRate."Currency Code" := Currency.Code;
         CurrencyExchangeRate."Starting Date" := WorkDate();
@@ -413,8 +413,8 @@ codeunit 142064 "UT REP VATSTAT"
 
     local procedure CreateVATStatementTemplate(var VATStatementTemplate: Record "VAT Statement Template")
     begin
-        VATStatementTemplate.Name := LibraryUTUtility.GetNewCode10;
-        VATStatementTemplate.Description := LibraryUTUtility.GetNewCode;
+        VATStatementTemplate.Name := LibraryUTUtility.GetNewCode10();
+        VATStatementTemplate.Description := LibraryUTUtility.GetNewCode();
         VATStatementTemplate.Insert();
     end;
 
@@ -450,7 +450,7 @@ codeunit 142064 "UT REP VATSTAT"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrencyWithExchangeRate;
+        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrencyWithExchangeRate();
         GeneralLedgerSetup.Modify();
     end;
 
@@ -471,7 +471,7 @@ codeunit 142064 "UT REP VATSTAT"
         GLVATReconciliation.UseAmtsInAddCurr.SetValue(UseAmtsInAddCurr);
         GLVATReconciliation.PeriodSelection.SetValue(PeriodSelection);
         GLVATReconciliation.Selection.SetValue(EntrySelection);
-        GLVATReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLVATReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure UpdateVATStatementATReportRequestPage(VATStatementAT: TestRequestPage "VAT Statement AT"; ReportingType: Option)
@@ -479,13 +479,13 @@ codeunit 142064 "UT REP VATSTAT"
         VATStatementAT.StartingDate.SetValue(WorkDate());
         VATStatementAT.CheckPositions.SetValue(true);
         VATStatementAT.ReportingType.SetValue(ReportingType);
-        VATStatementAT.OK.Invoke;
+        VATStatementAT.OK().Invoke();
     end;
 
     local procedure UpdateVATStatementTemplateReportRequestPage(UpdateVATStatementTemplate: TestRequestPage "Update VAT Statement Template"; VATStatementTemplateName: Code[10])
     begin
         UpdateVATStatementTemplate.VATStatementTemplateName.SetValue(VATStatementTemplateName);
-        UpdateVATStatementTemplate.OK.Invoke;
+        UpdateVATStatementTemplate.OK().Invoke();
     end;
 
     local procedure OnAfterGetRecordPeriodTypeVATStatementATError()
@@ -502,14 +502,14 @@ codeunit 142064 "UT REP VATSTAT"
     [Scope('OnPrem')]
     procedure VATStatementScheduleReportHandler(var VATStatementSchedule: TestRequestPage "VAT Statement Schedule")
     begin
-        VATStatementSchedule.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATStatementSchedule.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VATStatementReportHandler(var VATStatement: TestRequestPage "VAT Statement")
     begin
-        VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

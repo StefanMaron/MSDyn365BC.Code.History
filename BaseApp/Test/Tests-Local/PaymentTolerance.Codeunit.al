@@ -37,7 +37,7 @@ codeunit 142076 "Payment Tolerance"
         PaymentTerms.Modify(true);
 
         // [GIVEN] Sales Invoice with "Posting Date" = 01.01
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", SalesHeader."Posting Date");
 
         // [WHEN] Assign Payment Terms "X" to Sales Invoice
@@ -65,7 +65,7 @@ codeunit 142076 "Payment Tolerance"
         PaymentTerms.Modify(true);
 
         // [GIVEN] Purchase Invoice with "Posting Date" = 01.01
-        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", PurchHeader."Posting Date");
 
         // [WHEN] Assign Payment Terms "X" to Purchase Invoice
@@ -109,7 +109,7 @@ codeunit 142076 "Payment Tolerance"
         PmtGenJnlLine.Modify(true);
 
         // [WHEN] Open Payment in "Cash Receipt Journal" page
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         CashReceiptJournal.GotoRecord(PmtGenJnlLine);
 
@@ -162,7 +162,7 @@ codeunit 142076 "Payment Tolerance"
         PmtGenJnlLine.Modify(true);
 
         // [WHEN] Open Payment in "Cash Receipt Journal" page
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         CashReceiptJournal.GotoRecord(PmtGenJnlLine);
 
@@ -204,7 +204,7 @@ codeunit 142076 "Payment Tolerance"
         PmtGenJnlLine.Modify(true);
 
         // [WHEN] Open Payment in "Payment Journal" page
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         PaymentJournal.GotoRecord(PmtGenJnlLine);
 
@@ -257,7 +257,7 @@ codeunit 142076 "Payment Tolerance"
         PmtGenJnlLine.Modify(true);
 
         // [WHEN] Open Payment in "Payment Journal" page
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         PaymentJournal.GotoRecord(PmtGenJnlLine);
 
@@ -281,8 +281,6 @@ codeunit 142076 "Payment Tolerance"
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer; PaymentTermsCode: Code[10])
-    var
-        PaymentTerms: Record "Payment Terms";
     begin
         LibrarySales.CreateCustomer(Customer);
         UpdateCustomerPaymentTermsCode(Customer, PaymentTermsCode);
@@ -304,7 +302,7 @@ codeunit 142076 "Payment Tolerance"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
 
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJournalBatch.Modify(true);
     end;
 
@@ -409,8 +407,8 @@ codeunit 142076 "Payment Tolerance"
     [Scope('OnPrem')]
     procedure GenJnlTemplateModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 }
 

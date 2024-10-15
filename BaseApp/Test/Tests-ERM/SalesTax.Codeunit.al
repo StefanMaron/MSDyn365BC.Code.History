@@ -449,7 +449,7 @@ codeunit 134064 "Sales Tax"
         // [GIVEN] System is set up to create default tax detail lines on jurisdiction creation
         TaxSetup.Get();
         TaxSetup."Auto. Create Tax Details" := true;
-        TaxSetup."Non-Taxable Tax Group Code" := CreateTaxGroup;
+        TaxSetup."Non-Taxable Tax Group Code" := CreateTaxGroup();
         TaxSetup.Modify();
 
         // [WHEN] A Jurisdiction is created
@@ -501,7 +501,7 @@ codeunit 134064 "Sales Tax"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Tax Area Code", CreateTaxArea);
+        Customer.Validate("Tax Area Code", CreateTaxArea());
         Customer.Validate("Tax Liable", TaxLiable);
         Customer.Validate("Prices Including VAT", InclVAT);
         Customer.Modify(true);
@@ -514,7 +514,7 @@ codeunit 134064 "Sales Tax"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-        Item.Validate("Tax Group Code", CreateTaxGroup);
+        Item.Validate("Tax Group Code", CreateTaxGroup());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -622,7 +622,7 @@ codeunit 134064 "Sales Tax"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Tax Area Code", CreateTaxArea);
+        Vendor.Validate("Tax Area Code", CreateTaxArea());
         Vendor.Validate("Tax Liable", TaxLiable);
         Vendor.Validate("Prices Including VAT", InclVAT);
         Vendor.Modify(true);

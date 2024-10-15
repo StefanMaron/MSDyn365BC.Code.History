@@ -196,6 +196,7 @@ page 7200 "CDS Connection Setup"
             {
                 Caption = 'Integration Solution Settings';
                 Visible = Rec."Is Enabled";
+#if not CLEAN24
                 field("CDS Version"; CDSVersion)
                 {
                     ApplicationArea = Suite;
@@ -203,15 +204,12 @@ page 7200 "CDS Connection Setup"
                     Editable = false;
                     StyleExpr = CDSVersionStatusStyleExpr;
                     ToolTip = 'Specifies the version of Dataverse that you are connected to.';
-
-                    trigger OnDrillDown()
-                    begin
-                        if CDSVersionStatus then
-                            Message(FavorableCDSVersionMsg)
-                        else
-                            Message(UnfavorableCDSVersionMsg);
-                    end;
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with field Dataverse Version checked';
+                    ObsoleteTag = '24.0';
                 }
+#endif
                 field("Solution Version"; SolutionVersion)
                 {
                     ApplicationArea = Suite;
@@ -226,6 +224,22 @@ page 7200 "CDS Connection Setup"
                             Message(FavorableSolutionMsg)
                         else
                             Message(UnfavorableSolutionMsg);
+                    end;
+                }
+                field("CDS Version Status"; CDSVersionStatus)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Dataverse Version checked';
+                    Editable = false;
+                    StyleExpr = CDSVersionStatusStyleExpr;
+                    ToolTip = 'Specifies whether the version of Dataverse that you are connected to is valid.';
+
+                    trigger OnDrillDown()
+                    begin
+                        if CDSVersionStatus then
+                            Message(FavorableCDSVersionMsg)
+                        else
+                            Message(UnfavorableCDSVersionMsg);
                     end;
                 }
                 field("User Status"; UserStatus)
@@ -479,7 +493,7 @@ page 7200 "CDS Connection Setup"
                 Caption = 'Run Full Synchronization';
                 Enabled = Rec."Is Enabled";
                 Image = RefreshLines;
-                ToolTip = 'Start all of the default integration jobs for synchronizing Business Central record types and Dataverse tables. Data is synchronized according to the mappings defined on the Integration Table Mappings page.';
+                ToolTip = 'Start all of the default integration projects for synchronizing Business Central record types and Dataverse tables. Data is synchronized according to the mappings defined on the Integration Table Mappings page.';
 
                 trigger OnAction()
                 begin
@@ -765,6 +779,15 @@ page 7200 "CDS Connection Setup"
                     Page.RunModal(Page::"AAD Application Card", AADApplication);
                 end;
             }
+            action("Synthetic Relations")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Synthetic Relations';
+                Image = Relationship;
+                Enabled = BusinessEventsEnabled and Rec."Is Enabled";
+                ToolTip = 'View the synthetic relations available.';
+                RunObject = Page "Synthetic Relations";
+            }
         }
         area(Promoted)
         {
@@ -838,6 +861,9 @@ page 7200 "CDS Connection Setup"
                 actionref("Virtual Tables AAD app_Promoted"; "Virtual Tables AAD app")
                 {
                 }
+                actionref("Synthetic Relations_Promoted"; "Synthetic Relations")
+                {
+                }
             }
             group(Category_Category6)
             {
@@ -895,12 +921,14 @@ page 7200 "CDS Connection Setup"
         SolutionKey := CDSIntegrationImpl.GetBaseSolutionUniqueName();
         SolutionName := CDSIntegrationImpl.GetBaseSolutionDisplayName();
         DefaultBusinessUnitName := CDSIntegrationImpl.GetDefaultBusinessUnitName();
+        RefreshStatuses := true;
         SetVisibilityFlags();
     end;
 
     trigger OnOpenPage()
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        CDSEnvironment: Codeunit "CDS Environment";
     begin
         FeatureTelemetry.LogUptake('0000H7K', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
         FeatureTelemetry.LogUptake('0000IIN', 'Dataverse Base Entities', Enum::"Feature Uptake Status"::Discovered);
@@ -911,6 +939,7 @@ page 7200 "CDS Connection Setup"
             InitializeDefaultOwnershipModel();
             InitializeDefaultBusinessUnit();
             InitializeDefaultRedirectUrl();
+            CDSEnvironment.SetLinkedDataverseEnvironmentUrl(Rec, CDSEnvironment.GetGlobalDiscoverabilityOnBehalfToken());
             Rec.Insert();
             Rec.LoadConnectionStringElementsFromCRMConnectionSetup();
         end else begin
@@ -960,7 +989,7 @@ page 7200 "CDS Connection Setup"
 #if not CLEAN23
         JobQueueCategoryLbl: Label 'BCI INTEG', Locked = true;
 #endif
-        ResetIntegrationTableMappingConfirmQst: Label 'This will restore the default integration table mappings and synchronization jobs for Dataverse. All customizations to mappings and jobs will be deleted. The default mappings and jobs will be used the next time data is synchronized. Do you want to continue?';
+        ResetIntegrationTableMappingConfirmQst: Label 'This will restore the default integration table mappings and synchronization jobs for Dataverse. All customizations to mappings and projects will be deleted. The default mappings and projects will be used the next time data is synchronized. Do you want to continue?';
         EncryptionIsNotActivatedQst: Label 'Data encryption is currently not enabled. We recommend that you encrypt data. \Do you want to open the Data Encryption Management window?';
         EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Dataverse Connection Setup)';
         UnfavorableCDSVersionMsg: Label 'This version of Dataverse might not work correctly with the Dataverse Base Integration solution. We recommend you upgrade to a supported version.';

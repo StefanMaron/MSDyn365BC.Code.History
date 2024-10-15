@@ -7,6 +7,7 @@ table 9170 "Profile Resource Import/Export"
     ObsoleteState = Removed;
     ObsoleteReason = 'Importing and exporting profile resources is no longer supported. AL profiles and customizations should be used instead.';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

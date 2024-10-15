@@ -521,51 +521,49 @@ report 707 "Inventory - Availability Plan"
 
     local procedure CalcNeed(Item: Record Item; LocationFilter: Text[250]; VariantFilter: Text[250])
     begin
-        with Item do begin
-            SetFilter("Location Filter", LocationFilter);
-            SetFilter("Variant Filter", VariantFilter);
-            CalcFields(Inventory);
-            if Inventory <> 0 then
-                Print := true;
+        Item.SetFilter("Location Filter", LocationFilter);
+        Item.SetFilter("Variant Filter", VariantFilter);
+        Item.CalcFields(Inventory);
+        if Item.Inventory <> 0 then
+            Print := true;
 
-            SetRange("Date Filter", PeriodStartDate[i], PeriodStartDate[i + 1] - 1);
+        Item.SetRange("Date Filter", PeriodStartDate[i], PeriodStartDate[i + 1] - 1);
 
-            GrossReq[i] :=
-              AvailToPromise.CalcGrossRequirement(Item);
-            SchedReceipt[i] :=
-              AvailToPromise.CalcScheduledReceipt(Item);
+        GrossReq[i] :=
+          AvailToPromise.CalcGrossRequirement(Item);
+        SchedReceipt[i] :=
+          AvailToPromise.CalcScheduledReceipt(Item);
 
-            CalcFields(
-              "Planning Receipt (Qty.)",
-              "Planning Release (Qty.)",
-              "Planned Order Receipt (Qty.)",
-              "Planned Order Release (Qty.)");
+        Item.CalcFields(
+          "Planning Receipt (Qty.)",
+          "Planning Release (Qty.)",
+          "Planned Order Receipt (Qty.)",
+          "Planned Order Release (Qty.)");
 
-            SchedReceipt[i] := SchedReceipt[i] - "Planned Order Receipt (Qty.)";
+        SchedReceipt[i] := SchedReceipt[i] - Item."Planned Order Receipt (Qty.)";
 
-            PlanReceipt[i] :=
-              "Planning Receipt (Qty.)" +
-              "Planned Order Receipt (Qty.)";
+        PlanReceipt[i] :=
+          Item."Planning Receipt (Qty.)" +
+          Item."Planned Order Receipt (Qty.)";
 
-            PlanRelease[i] :=
-              "Planning Release (Qty.)" +
-              "Planned Order Release (Qty.)";
+        PlanRelease[i] :=
+          Item."Planning Release (Qty.)" +
+          Item."Planned Order Release (Qty.)";
 
-            if i = 1 then
-                ProjAvBalance[1] :=
-                  Inventory - GrossReq[1] + SchedReceipt[1] + PlanReceipt[1]
-            else
-                ProjAvBalance[i] :=
-                  ProjAvBalance[i - 1] -
-                  GrossReq[i] + SchedReceipt[i] + PlanReceipt[i];
+        if i = 1 then
+            ProjAvBalance[1] :=
+              Item.Inventory - GrossReq[1] + SchedReceipt[1] + PlanReceipt[1]
+        else
+            ProjAvBalance[i] :=
+              ProjAvBalance[i - 1] -
+              GrossReq[i] + SchedReceipt[i] + PlanReceipt[i];
 
-            if (GrossReq[i] <> 0) or
-               (PlanReceipt[i] <> 0) or
-               (SchedReceipt[i] <> 0) or
-               (PlanRelease[i] <> 0)
-            then
-                Print := true;
-        end;
+        if (GrossReq[i] <> 0) or
+           (PlanReceipt[i] <> 0) or
+           (SchedReceipt[i] <> 0) or
+           (PlanRelease[i] <> 0)
+        then
+            Print := true;
     end;
 
     procedure InitializeRequest(NewPeriodStartDate: Date; NewPeriodLength: DateFormula; NewUseStockkeepingUnit: Boolean)

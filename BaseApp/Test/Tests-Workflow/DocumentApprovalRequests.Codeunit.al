@@ -298,7 +298,7 @@ codeunit 134204 "Document Approval - Requests"
             until ApprovalEntry.Next() = 0;
 
         // Verify
-        ApprovalEntries.OpenEdit;
+        ApprovalEntries.OpenEdit();
         if ApprovalEntry.FindSet() then
             repeat
                 asserterror ApprovalEntries.GotoRecord(ApprovalEntry); // record is shown on the page.
@@ -308,7 +308,7 @@ codeunit 134204 "Document Approval - Requests"
         if ApprovalEntry.FindSet() then
             repeat
                 ApprovalEntries.GotoRecord(ApprovalEntry);
-                Assert.AreEqual(true, ApprovalEntries."&Delegate".Enabled, 'Delegate action is expected to be enabled');
+                Assert.AreEqual(true, ApprovalEntries."&Delegate".Enabled(), 'Delegate action is expected to be enabled');
             until ApprovalEntry.Next() = 0;
     end;
 
@@ -334,7 +334,7 @@ codeunit 134204 "Document Approval - Requests"
         Vendor.Modify();
 
         LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.", 'INVOICENO');
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo,
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(),
           LibraryRandom.RandDec(100, 2));
         PurchaseLine.Amount := LibraryRandom.RandDec(1000, 2);
         PurchaseLine.Modify();
@@ -342,7 +342,7 @@ codeunit 134204 "Document Approval - Requests"
         CreateApprovalEntryPurchaseInvoice(ApprovalEntry, PurchaseHeader."No.");
 
         // Exercise
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
 
         // Verify
         Assert.AreEqual('Purchase Invoice INVOICENO', RequeststoApprove.ToApprove.Value, 'ToApprove has the wrong value');
@@ -370,7 +370,7 @@ codeunit 134204 "Document Approval - Requests"
         ApprovalEntry.Validate(Amount, LibraryRandom.RandIntInRange(10, 100));
 
         // [THEN] Record can be modifying
-        Assert.IsTrue(ApprovalEntry.Modify, 'Record is not modifying');
+        Assert.IsTrue(ApprovalEntry.Modify(), 'Record is not modifying');
     end;
 
     [Test]

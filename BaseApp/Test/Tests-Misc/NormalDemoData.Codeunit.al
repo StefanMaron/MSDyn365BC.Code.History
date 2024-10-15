@@ -3,6 +3,7 @@ codeunit 138200 "Normal DemoData"
     Subtype = Test;
     TestPermissions = Disabled;
 
+
     trigger OnRun()
     begin
         // [FEATURE] [DEMO] [Extended]
@@ -285,7 +286,6 @@ codeunit 138200 "Normal DemoData"
     [Scope('OnPrem')]
     procedure JobDefaultDimension()
     var
-
         Job: Record Job;
     begin
         // [FEATURE] [Job] [Dimensions]
@@ -345,7 +345,9 @@ codeunit 138200 "Normal DemoData"
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
     [Test]
+    [Obsolete('Not Used.', '22.0')]
     procedure AdvancedIntrastatChecklist()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -360,6 +362,7 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklistField(Report::"Intrastat - Form AT", IntrastatJnlLine.FieldNo("Total Weight"), '');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Disk Tax Auth AT", IntrastatJnlLine.FieldNo("Total Weight"), '');
     end;
+#pragma warning restore AS0072
 #endif
 
     [Test]

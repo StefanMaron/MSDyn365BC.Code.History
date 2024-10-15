@@ -1016,7 +1016,7 @@ codeunit 144001 VATSTAT
 
         // [GIVEN] Set VAT Statement AT request page parameters with "Number of Art. 6 Abs. 1" = 0 and post a sales document
         EnqueRequestPageFields(
-            WorkDate, WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
+            WorkDate(), WorkDate(), "VAT Statement Report Selection"::"Open and Closed", "VAT Statement Report Period Selection"::"Within Period",
             ReportingType::Quarter, true, false, false, false, 0);
         CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, GetExportGroup());
 
@@ -1516,7 +1516,7 @@ codeunit 144001 VATSTAT
         LibraryVariableStorage.Clear();
 
         if TestClassWorkdate <> 0D then begin
-            TestClassWorkdate := CalcDate('<+1D>', TestClassWorkdate);
+            TestClassWorkdate := CalcDate('<+1D>', TestClassWorkDate);
             WorkDate := TestClassWorkdate;
         end;
 
@@ -2031,7 +2031,7 @@ codeunit 144001 VATSTAT
         VATStatementAT.AdditionalInvoicesSentViaMail.SetValue(Variables);
         LibraryVariableStorage.Dequeue(Variables);
         VATStatementAT.NumberPar6Abs1.SetValue(Variables);
-        VATStatementAT.OK.Invoke;
+        VATStatementAT.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -2054,7 +2054,7 @@ codeunit 144001 VATSTAT
     [Scope('OnPrem')]
     procedure UpdateVATStmtTemplateRequestPageHandler(var UpdateVATStatementTemplate: TestRequestPage "Update VAT Statement Template")
     begin
-        UpdateVATStatementTemplate.OK.Invoke;
+        UpdateVATStatementTemplate.OK().Invoke();
     end;
 
     [ConfirmHandler]
