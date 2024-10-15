@@ -215,6 +215,8 @@ report 5706 "Create Stockkeeping Unit"
         StockkeepingUnit."Use Cross-Docking" := Item2."Use Cross-Docking";
         OnBeforeStockkeepingUnitInsert(StockkeepingUnit, Item2);
         StockkeepingUnit.Insert(true);
+
+        OnAfterCreateSKU(StockkeepingUnit, Item2);
     end;
 
     [IntegrationEvent(false, false)]
@@ -229,6 +231,11 @@ report 5706 "Create Stockkeeping Unit"
 
     [IntegrationEvent(false, false)]
     local procedure OnItemOnAfterGetRecordOnAfterSetLocationFilter(var Location: Record Location; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCreateSKU(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
     begin
     end;
 }

@@ -1096,11 +1096,13 @@ page 232 "Apply Customer Entries"
                     OnCheckCustLedgEntryOnAfterEarlierPostingDateTest(TempApplyingCustLedgEntry, Rec, CalcType, OK);
                 end;
 
-                OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrency(CustLedgerEntry, GenJnlLine, TempApplyingCustLedgEntry);
+                OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrency(CustLedgerEntry, GenJnlLine, TempApplyingCustLedgEntry, CalcType);
 
-                if TempApplyingCustLedgEntry."Entry No." <> 0 then
+                if TempApplyingCustLedgEntry."Entry No." <> 0 then begin
+                    OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrencyWhenEntryNoIsNotNull(CustLedgerEntry, GenJnlLine);
                     GenJnlApply.CheckAgainstApplnCurrency(
                         ApplnCurrencyCode, CustLedgerEntry."Currency Code", GenJnlLine."Account Type"::Customer, true);
+                end;
             until CustLedgerEntry.Next() = 0;
     end;
 
@@ -1714,7 +1716,7 @@ page 232 "Apply Customer Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; var TempApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary)
+    local procedure OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; var TempApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary; CalcType: Enum "Customer Apply Calculation Type")
     begin
     end;
 
@@ -1800,6 +1802,11 @@ page 232 "Apply Customer Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnQueryClosePageOnAfterEarlierPostingDateTest(ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; CalcType: Enum "Customer Apply Calculation Type"; var OK: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrencyWhenEntryNoIsNotNull(CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

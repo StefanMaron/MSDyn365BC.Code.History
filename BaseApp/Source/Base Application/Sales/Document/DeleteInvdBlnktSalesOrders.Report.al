@@ -31,7 +31,8 @@ report 291 "Delete Invd Blnkt Sales Orders"
             begin
                 OnSalesHeaderOnBeforeOnAfterGetRecord("Sales Header");
 
-                Window.Update(1, "No.");
+                if GuiAllowed() then
+                    Window.Update(1, "No.");
 
                 SalesLine.Reset();
                 SalesLine.SetRange("Document Type", "Document Type");
@@ -79,7 +80,8 @@ report 291 "Delete Invd Blnkt Sales Orders"
 
             trigger OnPreDataItem()
             begin
-                Window.Open(Text000);
+                if GuiAllowed() then
+                    Window.Open(Text000);
             end;
         }
     }

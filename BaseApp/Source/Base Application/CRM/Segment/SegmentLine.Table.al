@@ -172,8 +172,12 @@ table 5077 "Segment Line"
                 if IsHandled then
                     exit;
 
-                Rec.TestField("Contact No.");
-                ContactGlobal.Get(Rec."Contact No.");
+                IsHandled := false;
+                OnValidateInteractionTemplateCodeOnBeforeGettingContact(Rec, xRec, ContactGlobal, IsHandled);
+                if not IsHandled then begin
+                    Rec.TestField("Contact No.");
+                    ContactGlobal.Get(Rec."Contact No.");
+                end;
                 Rec."Attachment No." := 0;
                 Rec."Language Code" := '';
                 Rec.Subject := '';
@@ -1206,7 +1210,7 @@ table 5077 "Segment Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckStatus(Rec, IsHandled);
+        OnBeforeCheckStatus(Rec, IsHandled, TempAttachment);
         if IsHandled then
             exit;
 
@@ -1254,48 +1258,50 @@ table 5077 "Segment Line"
         ShouldAssignStep: Boolean;
         IsHandled: Boolean;
     begin
-        OnBeforeFinishSegLineWizard(Rec, IsFinish);
+        IsHandled := false;
+        OnBeforeFinishSegLineWizard(Rec, IsFinish, TempAttachment, TempInterLogEntryCommentLine, IsHandled);
+        if not IsHandled then begin
+            Flag := GetFinishInteractionFlag(IsFinish);
 
-        Flag := GetFinishInteractionFlag(IsFinish);
+            if Flag then begin
+                CheckStatus();
 
-        if Flag then begin
-            CheckStatus();
+                ShouldAssignStep := "Opportunity No." = '';
+                OnFinishSegLineWizardOnBeforeAssignEmptyOpportunityStep(Rec, ShouldAssignStep);
+                if ShouldAssignStep then
+                    "Wizard Step" := "Wizard Step"::"6";
 
-            ShouldAssignStep := "Opportunity No." = '';
-            OnFinishSegLineWizardOnBeforeAssignEmptyOpportunityStep(Rec, ShouldAssignStep);
-            if ShouldAssignStep then
-                "Wizard Step" := "Wizard Step"::"6";
-
-            "Attempt Failed" := not "Interaction Successful";
-            Subject := Description;
-            if not HTMLAttachment then
-                ProcessPostponedAttachment();
-            Send := (IsFinish and ("Correspondence Type" <> "Correspondence Type"::" "));
-            OnFinishWizardOnAfterSetSend(Rec, Send);
-            if Send and HTMLAttachment then begin
-                TempAttachment.ReadHTMLCustomLayoutAttachment(HTMLContentBodyText, CustomLayoutCode, ReportLayoutName);
-                AttachmentManagement.GenerateHTMLContent(TempAttachment, Rec);
-            end;
-            IsHandled := false;
-            OnFinishSegLineWizardBeforeLogInteraction(Rec, IsHandled);
-            if not IsHandled then
-                SegManagement.LogInteraction(Rec, TempAttachment, TempInterLogEntryCommentLine, send, not IsFinish);
-            InteractionLogEntry.FindLast();
-            if Send and (InteractionLogEntry."Delivery Status" = InteractionLogEntry."Delivery Status"::Error) then begin
-                if HTMLAttachment then begin
-                    Clear(TempAttachment);
-                    LoadTempAttachment(false);
-                    if CustomLayoutCode <> '' then
-                        TempAttachment.WriteHTMLCustomLayoutAttachment(HTMLContentBodyText, CustomLayoutCode)
-                    else
-                        TempAttachment.WriteHTMLCustomLayoutAttachment(HTMLContentBodyText, ReportLayoutName);
-                    Commit();
+                "Attempt Failed" := not "Interaction Successful";
+                Subject := Description;
+                if not HTMLAttachment then
+                    ProcessPostponedAttachment();
+                Send := (IsFinish and ("Correspondence Type" <> "Correspondence Type"::" "));
+                OnFinishWizardOnAfterSetSend(Rec, Send);
+                if Send and HTMLAttachment then begin
+                    TempAttachment.ReadHTMLCustomLayoutAttachment(HTMLContentBodyText, CustomLayoutCode, ReportLayoutName);
+                    AttachmentManagement.GenerateHTMLContent(TempAttachment, Rec);
                 end;
-                if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone]) then
-                    if Mail.GetErrorDesc() <> '' then
-                        Error(EmailCouldNotbeSentErr, Mail.GetErrorDesc(), PRODUCTNAME.Full());
+                IsHandled := false;
+                OnFinishSegLineWizardBeforeLogInteraction(Rec, IsHandled);
+                if not IsHandled then
+                    SegManagement.LogInteraction(Rec, TempAttachment, TempInterLogEntryCommentLine, send, not IsFinish);
+                InteractionLogEntry.FindLast();
+                if Send and (InteractionLogEntry."Delivery Status" = InteractionLogEntry."Delivery Status"::Error) then begin
+                    if HTMLAttachment then begin
+                        Clear(TempAttachment);
+                        LoadTempAttachment(false);
+                        if CustomLayoutCode <> '' then
+                            TempAttachment.WriteHTMLCustomLayoutAttachment(HTMLContentBodyText, CustomLayoutCode)
+                        else
+                            TempAttachment.WriteHTMLCustomLayoutAttachment(HTMLContentBodyText, ReportLayoutName);
+                        Commit();
+                    end;
+                    if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone]) then
+                        if Mail.GetErrorDesc() <> '' then
+                            Error(EmailCouldNotbeSentErr, Mail.GetErrorDesc(), PRODUCTNAME.Full());
+                end;
+                InteractionLogEntryNo := InteractionLogEntry."Entry No.";
             end;
-            InteractionLogEntryNo := InteractionLogEntry."Entry No.";
         end;
 
         OnAfterFinishWizard(Rec, InteractionLogEntry, IsFinish, Flag);
@@ -1484,6 +1490,7 @@ table 5077 "Segment Line"
         TempAttachment."Read Only" := false;
         if GlobalAttachment.IsHTML() then
             TempAttachment."File Extension" := GlobalAttachment."File Extension";
+        OnLoadTempAttachmentOnBeforeInsertTempAttachment(Rec, TempAttachment);
         TempAttachment.Insert();
     end;
 
@@ -1820,7 +1827,7 @@ table 5077 "Segment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckStatus(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckStatus(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean; var AttachmentTmp: Record Attachment temporary)
     begin
     end;
 
@@ -1830,7 +1837,7 @@ table 5077 "Segment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFinishSegLineWizard(var SegmentLine: Record "Segment Line"; IsFinish: Boolean)
+    local procedure OnBeforeFinishSegLineWizard(var SegmentLine: Record "Segment Line"; IsFinish: Boolean; var TempAttachment: Record Attachment temporary; var TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line" temporary; var IsHandled: Boolean)
     begin
     end;
 
@@ -1956,6 +1963,16 @@ table 5077 "Segment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInteractionMergeDataOnBeforeTempInteractionMergeDataInsert(var TempInteractionMergeData: Record "Interaction Merge Data" temporary; var SegmentLine: Record "Segment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoadTempAttachmentOnBeforeInsertTempAttachment(SegmentLine: Record "Segment Line"; var TempAttachment: Record Attachment temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateInteractionTemplateCodeOnBeforeGettingContact(SegmentLine: Record "Segment Line"; xSegmentLine: Record "Segment Line"; var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 }

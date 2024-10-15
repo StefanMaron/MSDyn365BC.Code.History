@@ -739,8 +739,10 @@ table 6661 "Return Receipt Line"
             exit;
 
         if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Return Order No.") then begin
-            SalesOrderHeader."Get Shipment Used" := true;
-            SalesOrderHeader.Modify();
+            if not SalesOrderHeader."Get Shipment Used" then begin
+                SalesOrderHeader."Get Shipment Used" := true;
+                SalesOrderHeader.Modify();
+            end;
         end;
     end;
 

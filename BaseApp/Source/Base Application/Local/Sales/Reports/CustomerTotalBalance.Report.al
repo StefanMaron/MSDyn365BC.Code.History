@@ -161,6 +161,7 @@ report 11003 "Customer Total-Balance"
             begin
                 SetRange("Date Filter", 0D, ClosingDate(YearStartDate - 1));
                 CalcFields("Net Change (LCY)");
+                OnAfterGetRecordCustomerPeriodOnAfterCalcFieldsNetChangeLCY(Customer);
                 if "Net Change (LCY)" <> 0 then
                     if "Net Change (LCY)" > 0 then
                         StartBalanceType := StartBalanceType::Debit
@@ -172,6 +173,7 @@ report 11003 "Customer Total-Balance"
 
                 SetRange("Date Filter", StartDate, EndDate);
                 CalcFields("Debit Amount (LCY)", "Credit Amount (LCY)");
+                OnAfterGetRecordCustomerPeriodOnAfterCalcFieldsDebitCreditAmountLCY(Customer);
                 PeriodDebitAmount := "Debit Amount (LCY)";
                 PeriodCreditAmount := "Credit Amount (LCY)";
 
@@ -183,6 +185,7 @@ report 11003 "Customer Total-Balance"
                     DetailedCustomerLedgEntry.SetRange("Posting Date", StartDate, EndDate);
                     DetailedCustomerLedgEntry.SetRange("Entry Type", DetailedCustomerLedgEntry."Entry Type"::"Realized Loss",
                       DetailedCustomerLedgEntry."Entry Type"::"Realized Gain");
+                    OnAfterGetRecordCustomerPeriodOnAfterDetailedCustomerLedgEntrySetFilters(DetailedCustomerLedgEntry);
                     if DetailedCustomerLedgEntry.FindSet() then
                         repeat
                             DetailedCustomerLedgEntry2.Reset();
@@ -226,6 +229,7 @@ report 11003 "Customer Total-Balance"
 
                 SetRange("Date Filter", 0D, EndDate);
                 CalcFields("Net Change (LCY)");
+                OnAfterGetRecordCustomerYearOnAfterCalcFieldsNetChangeLCY(Customer);
                 if "Net Change (LCY)" <> 0 then
                     if "Net Change (LCY)" > 0 then
                         PeriodEndBalanceType := PeriodEndBalanceType::Debit
@@ -237,6 +241,7 @@ report 11003 "Customer Total-Balance"
 
                 SetRange("Date Filter", YearStartDate, EndDate);
                 CalcFields("Debit Amount (LCY)", "Credit Amount (LCY)");
+                OnAfterGetRecordCustomerYearOnAfterCalcFieldsDebitCreditAmountLCY(Customer);
                 YearDebitAmount := "Debit Amount (LCY)";
                 YearCreditAmount := "Credit Amount (LCY)";
 
@@ -248,6 +253,7 @@ report 11003 "Customer Total-Balance"
                     DetailedCustomerLedgEntry.SetRange("Posting Date", YearStartDate, EndDate);
                     DetailedCustomerLedgEntry.SetRange("Entry Type", DetailedCustomerLedgEntry."Entry Type"::"Realized Loss",
                       DetailedCustomerLedgEntry."Entry Type"::"Realized Gain");
+                    OnAfterGetRecordCustomerYearOnAfterDetailedCustomerLedgEntrySetFilters(DetailedCustomerLedgEntry);  
                     if DetailedCustomerLedgEntry.FindSet() then
                         repeat
                             DetailedCustomerLedgEntry2.Reset();
@@ -290,6 +296,7 @@ report 11003 "Customer Total-Balance"
 
                 SetRange("Date Filter", 0D, AccountingPeriod."Starting Date" - 1);
                 CalcFields("Net Change (LCY)");
+                OnAfterGetRecordCustomerEndOnAfterCalcFieldsNetChangeLCY(Customer);
                 if "Net Change (LCY)" <> 0 then
                     if "Net Change (LCY)" > 0 then
                         EndBalanceType := EndBalanceType::Debit
@@ -442,5 +449,40 @@ report 11003 "Customer Total-Balance"
             until DetailedCustomerLedgEntry2.Next() = 0;
         exit(AdjAmount);
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordCustomerPeriodOnAfterCalcFieldsNetChangeLCY(var Customer: Record "Customer");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordCustomerPeriodOnAfterCalcFieldsDebitCreditAmountLCY(var Customer: Record "Customer");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordCustomerPeriodOnAfterDetailedCustomerLedgEntrySetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordCustomerYearOnAfterCalcFieldsNetChangeLCY(var Customer: Record "Customer");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordCustomerYearOnAfterCalcFieldsDebitCreditAmountLCY(var Customer: Record "Customer");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordCustomerYearOnAfterDetailedCustomerLedgEntrySetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordCustomerEndOnAfterCalcFieldsNetChangeLCY(var Customer: Record "Customer");
+    begin
+    end;    
 }
 

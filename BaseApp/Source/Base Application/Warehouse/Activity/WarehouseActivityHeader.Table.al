@@ -660,6 +660,7 @@ table 5766 "Warehouse Activity Header"
                             WhseActivLine2.SetRange("Whse. Document Type", TempWhseActivLine."Whse. Document Type");
                             WhseActivLine2.SetRange("Whse. Document No.", TempWhseActivLine."Whse. Document No.");
                             WhseActivLine2.SetRange("Whse. Document Line No.", TempWhseActivLine."Whse. Document Line No.");
+                            OnSortWhseDocByShelfOrBinOnBeforeWhseActivLine2Find(WhseActivLine2, TempWhseActivLine);
                             if WhseActivLine2.Find('-') then
                                 repeat
                                     SortTakeLines(WhseActivLine2, SequenceNo);
@@ -1051,6 +1052,11 @@ table 5766 "Warehouse Activity Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSortWhseDoc(var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSortWhseDocByShelfOrBinOnBeforeWhseActivLine2Find(var WarehouseActivityLine2: Record "Warehouse Activity Line"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary)
     begin
     end;
 }

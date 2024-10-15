@@ -8161,7 +8161,7 @@ codeunit 80 "Sales-Post"
         ReturnReceiptLine.TestField("Gen. Prod. Posting Group", SalesLine."Gen. Prod. Posting Group");
         ReturnReceiptLine.TestField("Job No.", SalesLine."Job No.");
         ReturnReceiptLine.TestField("Unit of Measure Code", SalesLine."Unit of Measure Code");
-        ReturnReceiptLine.TestField("Variant Code", SalesLine."Variant Code");    
+        ReturnReceiptLine.TestField("Variant Code", SalesLine."Variant Code");
     end;
 
     local procedure IsEndLoopForReceivedNotInvoiced(RemQtyToBeInvoiced: Decimal; TrackingSpecificationExists: Boolean; var ReturnReceiptLine: Record "Return Receipt Line"; var TempTrackingSpecification: Record "Tracking Specification"; SalesLine: Record "Sales Line") EndLoop: Boolean
@@ -8373,7 +8373,7 @@ codeunit 80 "Sales-Post"
                     end;
                     if SalesHeader.Receive then begin
                         IsHandled := false;
-                        OnPostUpdateOrderLineOnBeforeGetReturnQtyReceived(TempSalesLine, IsHandled);
+                        OnPostUpdateOrderLineOnBeforeGetReturnQtyReceived(TempSalesLine, IsHandled, SalesHeader);
                         if not IsHandled then begin
                             "Return Qty. Received" += "Return Qty. to Receive";
                             "Return Qty. Received (Base)" += "Return Qty. to Receive (Base)";
@@ -10217,7 +10217,7 @@ codeunit 80 "Sales-Post"
           BatchProcessingMgt.GetBooleanParameter(
             SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Replace Document Date", ReplaceDocumentDate) and
           BatchProcessingMgt.GetDateParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Posting Date", PostingDate);
-        OnValidatePostingAndDocumentDateOnAfterCalcPostingDateExists(PostingDateExists, ReplacePostingDate, ReplaceDocumentDate, PostingDate, SalesHeader);
+        OnValidatePostingAndDocumentDateOnAfterCalcPostingDateExists(PostingDateExists, ReplacePostingDate, ReplaceDocumentDate, PostingDate, SalesHeader, ModifyHeader);
 
         VATDateExists := BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDate);
         BatchProcessingMgt.GetDateParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::"VAT Date", VATDate);
@@ -11759,7 +11759,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidatePostingAndDocumentDateOnAfterCalcPostingDateExists(var PostingDateExists: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PostingDate: Date; var SalesHeader: Record "Sales Header")
+    local procedure OnValidatePostingAndDocumentDateOnAfterCalcPostingDateExists(var PostingDateExists: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PostingDate: Date; var SalesHeader: Record "Sales Header"; var ModifyHeader: Boolean)
     begin
     end;
 
@@ -11959,12 +11959,12 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostUpdateOrderLineOnBeforeGetQuantityShipped(TempSalesLine: Record "Sales Line"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
+    local procedure OnPostUpdateOrderLineOnBeforeGetQuantityShipped(var TempSalesLine: Record "Sales Line"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostUpdateOrderLineOnBeforeGetReturnQtyReceived(TempSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnPostUpdateOrderLineOnBeforeGetReturnQtyReceived(var TempSalesLine: Record "Sales Line"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 

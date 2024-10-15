@@ -156,10 +156,10 @@ report 698 "Get Sales Orders"
 
         ReqLine.Reset();
         ReqLine.SetCurrentKey(Type, "No.");
-        ReqLine.SetRange(Type, "Sales Line".Type);
-        ReqLine.SetRange("No.", "Sales Line"."No.");
-        ReqLine.SetRange("Sales Order No.", "Sales Line"."Document No.");
-        ReqLine.SetRange("Sales Order Line No.", "Sales Line"."Line No.");
+        ReqLine.SetRange(Type, SalesLine.Type);
+        ReqLine.SetRange("No.", SalesLine."No.");
+        ReqLine.SetRange("Sales Order No.", SalesLine."Document No.");
+        ReqLine.SetRange("Sales Order Line No.", SalesLine."Line No.");
         if ReqLine.FindFirst() then
             exit;
 

@@ -4,7 +4,7 @@ page 99000796 "Routing Comment List"
 {
     AutoSplitKey = true;
     Caption = 'Comment List';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     Editable = false;
     LinksAllowed = false;
     PageType = List;

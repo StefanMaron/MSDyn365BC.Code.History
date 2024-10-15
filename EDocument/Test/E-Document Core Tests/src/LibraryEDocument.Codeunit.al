@@ -82,6 +82,7 @@ codeunit 139629 "Library - E-Document"
         EDocService: Record "E-Document Service";
         EDocMappingTestRec: Record "E-Doc. Mapping Test Rec";
         EDocServiceStatus: Record "E-Document Service Status";
+        EDocServiceSupportedType: Record "E-Doc. Service Supported Type";
         EDocMapping: Record "E-Doc. Mapping";
         EDocLogs: Record "E-Document Log";
         EDocMappingLogs: Record "E-Doc. Mapping Log";
@@ -93,6 +94,7 @@ codeunit 139629 "Library - E-Document"
         WorkflowSetup.InitWorkflow();
         DocumentSendingProfile.DeleteAll();
         EDocService.DeleteAll();
+        EDocServiceSupportedType.DeleteAll();
         EDocument.DeleteAll();
         EDocServiceStatus.DeleteAll();
         EDocDataStorage.DeleteAll();
@@ -282,6 +284,9 @@ codeunit 139629 "Library - E-Document"
         EDocService."Document Format" := "E-Document Format"::Mock;
         EDocService."Service Integration" := "E-Document Integration"::Mock;
         EDocService.Insert();
+
+        CreateSupportedDocTypes(EDocService);
+
         exit(EDocService.Code);
     end;
 
@@ -302,6 +307,8 @@ codeunit 139629 "Library - E-Document"
         EDocService."Use Batch Processing" := UseBatching;
         EDocService.Insert();
 
+        CreateSupportedDocTypes(EDocService);
+
         // Lower case mapping
         //TransformationRule.Get(TransformationRule.GetLowercaseCode());
         CreateTransformationMapping(EDocMapping, TransformationRule, EDocService.Code);
@@ -310,6 +317,31 @@ codeunit 139629 "Library - E-Document"
         EDocMapping.Modify();
 
         exit(EDocService.Code);
+    end;
+
+    procedure CreateSupportedDocTypes(EDocService: Record "E-Document Service")
+    var
+        EDocServiceSupportedType: Record "E-Doc. Service Supported Type";
+    begin
+        EDocServiceSupportedType.Init();
+        EDocServiceSupportedType."E-Document Service Code" := EDocService.Code;
+        EDocServiceSupportedType."Source Document Type" := EDocServiceSupportedType."Source Document Type"::"Sales Invoice";
+        EDocServiceSupportedType.Insert();
+
+        EDocServiceSupportedType."Source Document Type" := EDocServiceSupportedType."Source Document Type"::"Sales Credit Memo";
+        EDocServiceSupportedType.Insert();
+
+        EDocServiceSupportedType."Source Document Type" := EDocServiceSupportedType."Source Document Type"::"Service Invoice";
+        EDocServiceSupportedType.Insert();
+
+        EDocServiceSupportedType."Source Document Type" := EDocServiceSupportedType."Source Document Type"::"Service Credit Memo";
+        EDocServiceSupportedType.Insert();
+
+        EDocServiceSupportedType."Source Document Type" := EDocServiceSupportedType."Source Document Type"::"Issued Finance Charge Memo";
+        EDocServiceSupportedType.Insert();
+
+        EDocServiceSupportedType."Source Document Type" := EDocServiceSupportedType."Source Document Type"::"Issued Reminder";
+        EDocServiceSupportedType.Insert();
     end;
 
     procedure CreateTestReceiveServiceForEDoc(var EDocService: Record "E-Document Service")

@@ -7,7 +7,7 @@ namespace Microsoft.Projects.Project.Job;
 page 1024 "Job Task Statistics"
 {
     Caption = 'Job Task Statistics';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     Editable = false;
     LinksAllowed = false;
     PageType = Card;

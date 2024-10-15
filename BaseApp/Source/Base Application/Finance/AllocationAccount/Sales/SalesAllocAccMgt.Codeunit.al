@@ -322,7 +322,7 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         TransferDimensionSetID(SalesLine, AllocationLine, AllocationSalesLine."Alloc. Acc. Modified by User");
         SalesLine."Allocation Account No." := AllocationLine."Allocation Account No.";
         SalesLine."Selected Alloc. Account No." := '';
-        OnBeforeCreateSalesLine(SalesLine, AllocationLine);
+        OnBeforeCreateSalesLine(SalesLine, AllocationLine, AllocationSalesLine);
         SalesLine.Insert(true);
         LastLineNo := SalesLine."Line No.";
     end;
@@ -470,7 +470,7 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSalesLine(var SalesLine: Record "Sales Line"; var AllocationLine: Record "Allocation Line")
+    local procedure OnBeforeCreateSalesLine(var SalesLine: Record "Sales Line"; var AllocationLine: Record "Allocation Line"; var AllocationSalesLine: Record "Sales Line")
     begin
     end;
 
