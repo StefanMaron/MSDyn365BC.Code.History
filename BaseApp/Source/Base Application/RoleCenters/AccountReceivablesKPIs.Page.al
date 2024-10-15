@@ -46,9 +46,10 @@ page 1318 "Account Receivables KPIs"
                         CustomerLedgerEntries.Run();
                     end;
                 }
-                field("A/R Accounts Balance"; Rec."AR Accounts Balance")
+                field("A/R Accounts Balance"; ActivitiesMgt.CalcARAccountsBalances())
                 {
                     ApplicationArea = All;
+                    Caption = 'A/R Accounts Balance';
                     ToolTip = 'Specifies the sum of the accounts that have the account receivables account category. You can configure which account category is considered for Account Receivables in the General Ledger Setup page.';
 
                     trigger OnDrillDown()
@@ -56,7 +57,7 @@ page 1318 "Account Receivables KPIs"
                         ActivitiesMgt.DrillDownCalcARAccountsBalances();
                     end;
                 }
-                field("Average Collection Days"; AverageCollectionDays)
+                field("Average Collection Days"; ActivitiesMgt.CalcAverageCollectionDays())
                 {
                     ApplicationArea = All;
                     Caption = 'Average Collection Days';
@@ -89,7 +90,6 @@ page 1318 "Account Receivables KPIs"
         ActivitiesCue: Record "Activities Cue";
         ActivitiesMgt: Codeunit "Activities Mgt.";
         SalesInvoicesDueNextWeekStyleExpr: Text;
-        AverageCollectionDays: Decimal;
 
     trigger OnOpenPage()
     var
@@ -106,12 +106,10 @@ page 1318 "Account Receivables KPIs"
             ActivitiesCue.Insert();
             Commit();
         end;
+
         ActivitiesCue.SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', Today), CalcDate('<1W>', Today));
         ActivitiesCue.CalcFields("Sales Invoices Due Next Week");
         CuesAndKPIs.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Sales Invoices Due Next Week"), ActivitiesCue."Sales Invoices Due Next Week", SalesInvoicesDueNextWeekStyle);
         SalesInvoicesDueNextWeekStyleExpr := Format(SalesInvoicesDueNextWeekStyle);
-        Rec."AR Accounts Balance" := ActivitiesMgt.CalcARAccountsBalances();
-
-        AverageCollectionDays := ActivitiesMgt.CalcAverageCollectionDays();
     end;
 }

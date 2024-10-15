@@ -387,8 +387,7 @@ page 6327 "Power BI Embed Setup Wizard"
             CurrentStep::LicenseCheck:
                 if PowerBIServiceMgt.CheckForPowerBILicenseInForeground() then begin
                     FeatureTelemetry.LogUptake('0000L06', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
-                    if ParentPageContext <> '' then
-                        PowerBIContextSettings.CreateOrReadForCurrentUser(ParentPageContext);
+                    PowerBIContextSettings.CreateOrReadForCurrentUser(ParentPageContext);
                 end else
                     Error(NoLicenseErr);
             CurrentStep::AutoDeployment:

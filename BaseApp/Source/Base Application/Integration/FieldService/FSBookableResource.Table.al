@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.Integration.FieldService;
 
-using Microsoft.Integration.D365sales;
+using Microsoft.Integration.D365Sales;
 
 table 6410 "FS Bookable Resource"
 {
@@ -8,6 +8,14 @@ table 6410 "FS Bookable Resource"
     TableType = CRM;
     Description = 'Resource that has capacity which can be allocated to work.';
     DataClassification = SystemMetadata;
+    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+#if not CLEAN25
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '28.0';
+#endif
 
     fields
     {

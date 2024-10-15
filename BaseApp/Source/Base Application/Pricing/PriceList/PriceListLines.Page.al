@@ -333,6 +333,7 @@ page 7001 "Price List Lines"
                 Rec."Currency Code" := PriceListHeader."Currency Code";
         end;
         Rec."Amount Type" := ViewAmountType;
+        Rec.SetNewRecord(true);
         Rec.Validate("Asset Type", xRec."Asset Type");
         UpdateSourceType();
     end;

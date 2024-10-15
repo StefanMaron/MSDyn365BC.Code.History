@@ -4527,6 +4527,70 @@ codeunit 134152 "ERM Intercompany II"
         VerifyInvoiceDiscountOnPurchaseLine(ReceivedPurchaseHeader, SalesInvoiceNo, ItemNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATDifferenceOnReceivedSalesDocShouldBeIncludedOnPurchaseDocumentForICCustomer()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SendGLAccount: Record "G/L Account";
+        ReceiveGLAccount: Record "G/L Account";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
+        MaxAllowedVATDifference: Decimal;
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 524493] [All-E] When making intercompany invoices a VAT difference is included in the sales invoice
+        Initialize();
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddO365Setup();
+        LibraryLowerPermissions.AddPurchDocsCreate();
+        LibraryLowerPermissions.AddSalesDocsPost();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddeRead();
+
+        // [GIVEN] "VAT Difference" is allowed in setup
+        MaxAllowedVATDifference := LibraryRandom.RandIntInRange(5, 10);
+        LibraryERM.SetMaxVATDifferenceAllowed(MaxAllowedVATDifference);
+        LibrarySales.SetAllowVATDifference(true);
+
+        // [GIVEN] G/L Account 'X' with Default IC Partner G/L Account Number = 'Y'.
+        // [GIVEN] G/L Account 'Y' with Default IC Partner G/L Account Number = 'X'.
+        CreatePairOfSendReceiveGLAcc(SendGLAccount, ReceiveGLAccount);
+
+        // [GIVEN] IC Vendor.
+        VendorNo := CreateICVendorWithVATBusPostingGroup(SendGLAccount."VAT Bus. Posting Group");
+
+        // [GIVEN] Sales Order for IC Customer.
+        LibrarySales.CreateSalesHeader(
+          SalesHeader,
+          SalesHeader."Document Type"::Order,
+          CreateICCustomerWithVATBusPostingGroup(SendGLAccount."VAT Bus. Posting Group"));
+
+        // [GIVEN] Sales Line with 'X', "Description 2" is 'A'
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", SendGLAccount."No.",
+          LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine."Description 2" := LibraryUtility.GenerateGUID();
+        SalesLine.Validate("VAT Difference", MaxAllowedVATDifference);
+        SalesLine.Modify();
+
+        // [GIVEN] Send Sales Order.
+        SendICSalesDocument(
+          SalesHeader, GetICPartnerFromVendor(VendorNo), ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader);
+
+        // [WHEN] Receive Purchase Order.
+        ReceiveICPurchaseDocument(
+          PurchaseHeader, SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, VendorNo);
+        FindPurchLine(PurchaseLine, PurchaseHeader);
+
+        // [THEN] Verify VAT Difference on Purchase Line is Same as it was set on Sales Line 
+        PurchaseLine.TestField("VAT Difference", SalesLine."VAT Difference");
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";

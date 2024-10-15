@@ -57,6 +57,8 @@ codeunit 99000792 "Create Prod. Order from Sale"
             ProdOrder.Validate("Source No.", SalesLine."No.");
             ProdOrder.Validate("Variant Code", SalesLine."Variant Code");
             ProdOrder.Validate(Description, SalesLine.Description);
+            if SalesLine."Description 2" <> '' then
+                ProdOrder.Validate("Description 2", SalesLine."Description 2");
             SalesLine.CalcFields("Reserved Qty. (Base)");
             ProdOrder.Quantity := SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)";
         end;

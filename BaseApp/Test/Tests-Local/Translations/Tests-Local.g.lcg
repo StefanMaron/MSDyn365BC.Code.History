@@ -221,6 +221,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM - Miscellaneous APAC - NamedType PurchaseLineQuantityCap)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1576777842 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit ERM - Miscellaneous APAC - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2676392714 - NamedType 2278453161" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Purchase_Line__Amt__Rcd__Not_Invoiced_]]></Val>
