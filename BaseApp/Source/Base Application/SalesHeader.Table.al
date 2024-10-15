@@ -472,7 +472,7 @@ table 36 "Sales Header"
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor;
                     UpdatePerformCountryCurrFactor; // NAVCZ
-                    if "Currency Factor" <> xRec."Currency Factor" then
+                    if ("Currency Factor" <> xRec."Currency Factor") and not CalledFromWhseDoc then
                         ConfirmUpdateCurrencyFactor;
                 end;
 
@@ -3389,6 +3389,7 @@ table 36 "Sales Header"
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?', Comment = '%1 - Contact No., %2 - Email';
         FullSalesTypesTxt: Label 'Sales Quote,Sales Order,Sales Invoice,Sales Credit Memo,Sales Blanket Order,Sales Return Order';
         RecreateSalesLinesCancelErr: Label 'You must delete the existing sales lines before you can change %1.', Comment = '%1 - Field Name, Sample: You must delete the existing sales lines before you can change Currency Code.';
+        CalledFromWhseDoc: Boolean;
 
     procedure InitInsert()
     var
@@ -7126,6 +7127,11 @@ table 36 "Sales Header"
                 if ((SalesLine."Qty. to Ship" <> 0) or (SalesLine."Return Qty. to Receive" <> 0)) and SalesLine.IsInventoriableItem() then
                     exit(true);
             until SalesLine.Next() = 0;
+    end;
+
+    procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
+    begin
+        CalledFromWhseDoc := NewCalledFromWhseDoc;
     end;
 
     [IntegrationEvent(false, false)]

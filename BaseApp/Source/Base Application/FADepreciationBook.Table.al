@@ -145,7 +145,8 @@ table 5612 "FA Depreciation Book"
                 DeprBook2: Record "Depreciation Book";
             begin
                 DeprBook2.Get("Depreciation Book Code");
-                DeprBook2.TestField("Fiscal Year 365 Days", false);
+                if DeprBook2."Fiscal Year 365 Days" then
+                    Error(FiscalYear365Err);
 
                 TestField("Depreciation Starting Date");
                 ModifyDeprFields;
@@ -169,7 +170,8 @@ table 5612 "FA Depreciation Book"
                 DeprBook2: Record "Depreciation Book";
             begin
                 DeprBook2.Get("Depreciation Book Code");
-                DeprBook2.TestField("Fiscal Year 365 Days", false);
+                if DeprBook2."Fiscal Year 365 Days" then
+                    Error(FiscalYear365Err);
 
                 TestField("Depreciation Starting Date");
                 ModifyDeprFields;
@@ -917,6 +919,7 @@ table 5612 "FA Depreciation Book"
         Text1220001: Label 'The depreciation group associated with SKP Code %1 doesn''t correspond with depreciation group associated with depreciation group code %2.';
         OnlyOneDefaultDeprBookErr: Label 'Only one fixed asset depreciation book can be marked as the default book';
         FAPostingGroupCanNotBeChangedErr: Label 'FA Posting Group can not be changed if there is at least one FA Entry for Fixed Asset and Deprecation Book.';
+        FiscalYear365Err: Label 'An ending date for depreciation cannot be calculated automatically when the Fiscal Year 365 Days option is chosen. You must manually enter the ending date.';
 
     local procedure AdjustLinearMethod(var Amount1: Decimal; var Amount2: Decimal)
     begin

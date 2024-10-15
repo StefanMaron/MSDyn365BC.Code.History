@@ -150,7 +150,8 @@ codeunit 134361 "No Acc. Periods: Posting"
         // [THEN] Depreciation amount is calculated for one month
         // cod134027.DepreciationAmountWithAppreciationEntry
         VerifyDepreciationAmount(
-          FixedAsset."No.", -1 * Round(FADepreciationBook."Book Value" / (FADepreciationBook."No. of Depreciation Years" * 12), 1));
+          FixedAsset."No.", -1 * Round(FADepreciationBook."Book Value" / (FADepreciationBook."No. of Depreciation Years" * 12), 1, '>'));
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
     end;
 
     [Test]

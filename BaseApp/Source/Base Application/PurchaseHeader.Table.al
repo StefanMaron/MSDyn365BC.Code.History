@@ -475,7 +475,7 @@ table 38 "Purchase Header"
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor;
                     UpdatePerformCountryCurrFactor; // NAVCZ
-                    if "Currency Factor" <> xRec."Currency Factor" then
+                    if ("Currency Factor" <> xRec."Currency Factor") and not CalledFromWhseDoc then
                         SkipJobCurrFactorUpdate := not ConfirmUpdateCurrencyFactor;
                 end;
 
@@ -3042,6 +3042,7 @@ table 38 "Purchase Header"
         StatusCheckSuspended: Boolean;
         FullPurchaseTypesTxt: Label 'Purchase Quote,Purchase Order,Purchase Invoice,Purchase Credit Memo,Purchase Blanket Order,Purchase Return Order';
         RecreatePurchaseLinesCancelErr: Label 'You must delete the existing purchase lines before you can change %1.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
+        CalledFromWhseDoc: Boolean;
 
     procedure InitInsert()
     var
@@ -6038,6 +6039,11 @@ table 38 "Purchase Header"
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsUncertaintyPayerCheckPossible(var PurchaseHeader: Record "Purchase Header"; var CheckPossible: Boolean)
     begin
+    end;
+
+    procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
+    begin
+        CalledFromWhseDoc := NewCalledFromWhseDoc;
     end;
 
     [IntegrationEvent(false, false)]

@@ -150,7 +150,7 @@ codeunit 134763 "Test Sales Post Preview"
         Initialize;
 
         // [WHEN] Run TryPreview() without context
-        COMMIT;
+        Commit();
         Assert.IsFalse(GenJnlPostPreview.Run(), 'Preview.Run returned true');
 
         // [THEN] Preview has failed: 'Invalid Subscriber Type'
@@ -817,7 +817,7 @@ codeunit 134763 "Test Sales Post Preview"
     end;
 
     [Test]
-    procedure SalesInvoiceWithInvAndDiscPreview()
+    procedure PreviewSalesInvoiceWithInvDisc()
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -832,6 +832,43 @@ codeunit 134763 "Test Sales Post Preview"
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
           '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate);
         SalesHeader.Modify(true);
+        Commit();
+
+        GLPostingPreview.Trap();
+
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(SalesLine."Line Amount" / 10);
+        Commit();
+        SalesInvoice.Preview.Invoke();
+
+        GLPostingPreview.Close();
+    end;
+
+    [Test]
+    procedure PreviewSalesInvoiceWithInvDiscAndPriceInclVAT()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [FEATURE] [Invoice] [UI] [Price Including VAT]
+        // [SCENARIO 379797] Stan can preview posting of Sales Invoice when invoice discount is specified for the invoice having "Price Including VAT" = TRUE
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine.Validate("VAT %", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Modify(true);
+
         Commit();
 
         GLPostingPreview.Trap();
@@ -936,14 +973,14 @@ codeunit 134763 "Test Sales Post Preview"
         SalesLine."Unit Price" := ItemCost;
         SalesLine."Line Amount" := Quantity * SalesLine."Unit Price";
         SalesLine."Amount Including VAT" := SalesLine."Line Amount";
-        SalesLine.Modify;
+        SalesLine.Modify();
 
-        RecordExportBuffer.DeleteAll;
-        RecordExportBuffer.Init;
+        RecordExportBuffer.DeleteAll();
+        RecordExportBuffer.Init();
         RecordExportBuffer.RecordID := SalesHeader.RecordId;
-        RecordExportBuffer.Insert;
+        RecordExportBuffer.Insert();
 
-        Commit;
+        Commit();
     end;
 
     local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal)

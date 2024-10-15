@@ -1186,6 +1186,15 @@
         DocumentTotals.RefreshPurchaseLine(Rec);
     end;
 
+    procedure ForceCalculateTotals();
+    begin
+        // NAVCZ
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
+        DocumentTotals.CalculatePurchaseSubPageTotals(
+            TotalPurchaseHeader,TotalPurchaseLine,VATAmount,InvoiceDiscountAmount,InvoiceDiscountPct);
+        DocumentTotals.RefreshPurchaseLine(Rec);
+    end;
+
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
