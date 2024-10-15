@@ -344,6 +344,8 @@
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
                     FeatureTelemetry.LogUptake('0000FAF', IntrastatTok, Enum::"Feature Uptake Status"::Used);
+                    Commit();
+
                     if FindVATReportsConfiguration(VATReportsConfiguration) and
                         (VATReportsConfiguration."Validate Codeunit ID" <> 0) and
                         (VATReportsConfiguration."Content Codeunit ID" <> 0)
@@ -372,14 +374,14 @@
             action(Form)
             {
                 ApplicationArea = BasicEU;
-                Caption = 'Prints Intrastat Journal';
+                Caption = 'Print Intrastat Journal';
                 Ellipsis = true;
                 Image = PrintForm;
                 Promoted = true;
                 PromotedCategory = "Report";
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Print that Form - this is used to print Intrastat journal.';
+                ToolTip = 'Print the intrastat journal.';
 
                 trigger OnAction()
                 begin
@@ -439,7 +441,6 @@
         JnlSelected: Boolean;
     begin
         FeatureTelemetry.LogUptake('0000FAS', IntrastatTok, Enum::"Feature Uptake Status"::Discovered);
-        Commit();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;

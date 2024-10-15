@@ -1251,6 +1251,31 @@ codeunit 136203 "Marketing Task Management"
         CreateTask.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TaskEmptyTypeEndingDateChange()
+    var
+        Todo: Record "To-do";
+        EndingDate: Date;
+    begin
+        // [SCEANRIO 437183] Ending Date for Task with Type = " " should not be changed after setting value
+        Initialize();
+
+        // [GIVEN] Task with type " ", "Ending Date" = D1
+        LibraryMarketing.CreateTask(Todo);
+        Todo.Validate(Type, Todo.Type::" ");
+        Todo.Validate(Date, WorkDate());
+        EndingDate := Todo."Ending Date";
+        Todo.Modify(true);
+
+        // [WHEN] Set "Ending Date" = D1 + 1 day
+        Todo.Validate("Ending Date", EndingDate + 1);
+        Todo.Modify();
+
+        // [THEN] "Ending Date" = D1 + 1 day
+        Todo.TestField("Ending Date", EndingDate + 1);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();

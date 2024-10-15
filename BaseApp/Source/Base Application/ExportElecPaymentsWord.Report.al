@@ -662,16 +662,18 @@
                     Error(UserCancelledErr);
 
             if not UseRequestPage() then
-                if GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
-                    if GenJournalBatch."Bal. Account Type" = GenJournalBatch."Bal. Account Type"::"Bank Account" then
-                        BankAccount."No." := GenJournalBatch."Bal. Account No.";
-        end;
+                if GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then begin
+                    GenJournalBatch.TestField("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+                    GenJournalBatch.TestField(GenJournalBatch."Bal. Account No.");
+                    BankAccount."No." := GenJournalBatch."Bal. Account No.";
+                end;
 
-        with BankAccount do begin
-            Get("No.");
-            TestField(Blocked, false);
-            TestField("Export Format");
-            TestField("Last Remittance Advice No.");
+            with BankAccount do begin
+                Get("No.");
+                TestField(Blocked, false);
+                TestField("Export Format");
+                TestField("Last Remittance Advice No.");
+            end;
         end;
 
         FormatAddress.Company(CompanyAddress, CompanyInformation)

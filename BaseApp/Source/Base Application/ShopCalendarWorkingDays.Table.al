@@ -106,6 +106,7 @@ table 99000752 "Shop Calendar Working Days"
         TempShopCalendar.SetRange(Day, Day);
         TempShopCalendar.SetRange("Starting Time", 0T, "Ending Time" - 1);
         TempShopCalendar.SetRange("Ending Time", "Starting Time" + 1, 235959T);
+        OnCheckRedundancyOnAfterTempShopCalendarSetFilters(Rec, TempShopCalendar);
 
         if TempShopCalendar.FindFirst() then begin
             if (TempShopCalendar."Starting Time" = "Starting Time") and
@@ -123,6 +124,11 @@ table 99000752 "Shop Calendar Working Days"
               TempShopCalendar."Starting Time",
               TempShopCalendar."Ending Time");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckRedundancyOnAfterTempShopCalendarSetFilters(ShopCalendarWorkingDays: Record "Shop Calendar Working Days"; var TempShopCalendarWorkingDays: Record "Shop Calendar Working Days" temporary)
+    begin
     end;
 }
 

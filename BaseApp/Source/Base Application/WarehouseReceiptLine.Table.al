@@ -593,7 +593,13 @@ table 7317 "Warehouse Receipt Line"
         BinContent: Record "Bin Content";
         DeductCubage: Decimal;
         DeductWeight: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBin(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if CalledFromQtytoReceive then begin
             DeductCubage := xRec.Cubage;
             DeductWeight := xRec.Weight;
@@ -806,6 +812,11 @@ table 7317 "Warehouse Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAutoFillQtyToReceiveOnBeforeModify(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBin(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,8 +1,12 @@
+#if not CLEAN20
 codeunit 141008 "UT PAG Bank Deposit"
 {
     Subtype = Test;
     TestPermissions = Disabled;
     EventSubscriberInstance = Manual;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Deposits is deprecated in favor of the Bank Deposits extension. The corresponding tests are now in that extension.';
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     begin
@@ -981,3 +985,4 @@ codeunit 141008 "UT PAG Bank Deposit"
     end;
 }
 
+#endif

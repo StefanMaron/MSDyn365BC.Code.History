@@ -1,6 +1,6 @@
 report 8615 "Copy Package"
 {
-    Caption = 'Copy - VAT Posting Setup';
+    Caption = 'Copy - Configuration Package';
     ProcessingOnly = true;
 
     dataset

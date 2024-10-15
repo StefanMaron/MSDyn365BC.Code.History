@@ -74,6 +74,11 @@ table 5800 "Item Charge"
                 ValidateShortcutDimCode(2, "Global Dimension 2 Code");
             end;
         }
+        field(27000; "SAT Classification Code"; Code[10])
+        {
+            Caption = 'SAT Classification Code';
+            TableRelation = "SAT Classification";
+        }
     }
 
     keys
