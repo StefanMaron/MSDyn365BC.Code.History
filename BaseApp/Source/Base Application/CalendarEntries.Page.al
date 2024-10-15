@@ -56,7 +56,7 @@ page 99000759 "Calendar Entries"
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Time';
                     ToolTip = 'Specifies the starting time of this calendar entry.';
-                    Visible = false;
+                    Visible = DateAndTimeFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -68,7 +68,6 @@ page 99000759 "Calendar Entries"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date and the ending time, which are combined in a format called "ending date-time".';
-                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -80,6 +79,7 @@ page 99000759 "Calendar Entries"
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Time';
                     ToolTip = 'Specifies the ending time of this calendar entry.';
+                    Visible = DateAndTimeFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -133,9 +133,20 @@ page 99000759 "Calendar Entries"
         GetStartingEndingDateAndTime(StartingTime, EndingTime, CurrDate);
     end;
 
+    trigger OnInit()
+    begin
+        DateAndTimeFieldVisible := false;
+    end;
+
+    trigger OnOpenPage()
+    begin
+        DateAndTimeFieldVisible := false;
+    end;
+
     var
         StartingTime: Time;
         EndingTime: Time;
         CurrDate: Date;
+        DateAndTimeFieldVisible: Boolean;
 }
 

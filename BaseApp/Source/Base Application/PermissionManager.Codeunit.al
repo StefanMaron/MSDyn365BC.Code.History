@@ -445,7 +445,7 @@ codeunit 9002 "Permission Manager"
         AccessControl.Insert(true);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::User, 'OnBeforeModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::User, 'OnBeforeModifyEvent', '', true, true)]
     procedure CheckCurrentUserCanModifyUser(var Rec: Record User; var xRec: Record user; RunTrigger: Boolean)
     var
         LoggedInUser: Record User;

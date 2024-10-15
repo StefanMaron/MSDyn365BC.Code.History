@@ -129,7 +129,11 @@ page 28164 "GST Purchase Entries"
     trigger OnAfterGetRecord()
     begin
         GSTTotalAmount := "GST Base" + Amount;
-        GSTPercentage := Amount / "GST Base" * 100;
+        
+        if "GST Base" <> 0 then
+            GSTPercentage := Amount / "GST Base" * 100
+        else
+            GSTPercentage := 0;
     end;
 
     var

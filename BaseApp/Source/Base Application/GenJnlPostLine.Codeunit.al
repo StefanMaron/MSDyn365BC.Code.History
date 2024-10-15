@@ -1816,6 +1816,7 @@
 
     local procedure CalcPmtDiscPossible(GenJnlLine: Record "Gen. Journal Line"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer")
     var
+        PaymentDiscountDateWithGracePeriod: Date;
         IsHandled: Boolean;
     begin
         IsHandled := FALSE;
@@ -1825,8 +1826,13 @@
 
         with GenJnlLine do
             if "Amount (LCY)" <> 0 then begin
-                if (CVLedgEntryBuf."Pmt. Discount Date" >= CVLedgEntryBuf."Posting Date") or
-                   (CVLedgEntryBuf."Pmt. Discount Date" = 0D)
+                PaymentDiscountDateWithGracePeriod := CVLedgEntryBuf."Pmt. Discount Date";
+                GLSetup.GetRecordOnce();
+                if PaymentDiscountDateWithGracePeriod <> 0D then
+                    PaymentDiscountDateWithGracePeriod :=
+                      CalcDate(GLSetup."Payment Discount Grace Period", PaymentDiscountDateWithGracePeriod);
+                if (PaymentDiscountDateWithGracePeriod >= CVLedgEntryBuf."Posting Date") or
+                   (PaymentDiscountDateWithGracePeriod = 0D)
                 then begin
                     if GLSetup."Pmt. Disc. Excl. VAT" then begin
                         if "Sales/Purch. (LCY)" = 0 then
