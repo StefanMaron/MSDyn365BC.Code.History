@@ -44,7 +44,7 @@ page 7316 "Warehouse Movement Subform"
 
                     trigger OnValidate()
                     begin
-                        SerialNoOnAfterValidate;
+                        SerialNoOnAfterValidate();
                     end;
                 }
                 field("Lot No."; "Lot No.")
@@ -55,7 +55,7 @@ page 7316 "Warehouse Movement Subform"
 
                     trigger OnValidate()
                     begin
-                        LotNoOnAfterValidate;
+                        LotNoOnAfterValidate();
                     end;
                 }
                 field("Expiration Date"; "Expiration Date")
@@ -286,7 +286,7 @@ page 7316 "Warehouse Movement Subform"
         BinContent.ShowBinContents("Location Code", "Item No.", "Variant Code", '');
     end;
 
-    local procedure SerialNoOnAfterValidate()
+    protected procedure SerialNoOnAfterValidate()
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpDate: Date;
@@ -300,7 +300,7 @@ page 7316 "Warehouse Movement Subform"
             "Expiration Date" := ExpDate;
     end;
 
-    local procedure LotNoOnAfterValidate()
+    protected procedure LotNoOnAfterValidate()
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpDate: Date;
@@ -314,12 +314,12 @@ page 7316 "Warehouse Movement Subform"
             "Expiration Date" := ExpDate;
     end;
 
-    local procedure BinCodeOnAfterValidate()
+    protected procedure BinCodeOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure QtytoHandleOnAfterValidate()
+    protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.SaveRecord;
     end;

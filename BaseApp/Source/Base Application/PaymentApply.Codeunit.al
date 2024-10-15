@@ -51,7 +51,7 @@ codeunit 10861 "Payment-Apply"
                             CurrencyCode2 := CustLedgEntry."Currency Code";
                             if Amount = 0 then begin
                                 repeat
-                                    CheckAgainstApplnCurrency(CurrencyCode2, CustLedgEntry."Currency Code", AccType::Customer, true);
+                                    CheckAgainstApplnCurrency(CurrencyCode2, CustLedgEntry."Currency Code", "Gen. Journal Account Type"::Customer.AsInteger(), true);
                                     CustLedgEntry.CalcFields("Remaining Amount");
                                     CustLedgEntry."Remaining Amount" :=
                                       CurrExchRate.ExchangeAmount(
@@ -92,9 +92,9 @@ codeunit 10861 "Payment-Apply"
                                 Validate("Amount (LCY)");
                             end else
                                 repeat
-                                    CheckAgainstApplnCurrency(CurrencyCode2, CustLedgEntry."Currency Code", AccType::Customer, true);
+                                    CheckAgainstApplnCurrency(CurrencyCode2, CustLedgEntry."Currency Code", "Gen. Journal Account Type"::Customer.AsInteger(), true);
                                 until CustLedgEntry.Next = 0;
-                            ConfirmAndCheckApplnCurrency(GenJnlLine, Text001 + Text002, CustLedgEntry."Currency Code", AccType::Customer);
+                            ConfirmAndCheckApplnCurrency(GenJnlLine, Text001 + Text002, CustLedgEntry."Currency Code", "Gen. Journal Account Type"::Customer.AsInteger());
                         end else
                             "Applies-to ID" := '';
                         "Due Date" := CustLedgEntry."Due Date";
@@ -127,7 +127,7 @@ codeunit 10861 "Payment-Apply"
                             CurrencyCode2 := VendLedgEntry."Currency Code";
                             if Amount = 0 then begin
                                 repeat
-                                    CheckAgainstApplnCurrency(CurrencyCode2, VendLedgEntry."Currency Code", AccType::Vendor, true);
+                                    CheckAgainstApplnCurrency(CurrencyCode2, VendLedgEntry."Currency Code", "Gen. Journal Account Type"::Vendor.AsInteger(), true);
                                     VendLedgEntry.CalcFields("Remaining Amount");
                                     VendLedgEntry."Remaining Amount" :=
                                       CurrExchRate.ExchangeAmount(
@@ -168,9 +168,9 @@ codeunit 10861 "Payment-Apply"
                                 Validate("Amount (LCY)");
                             end else
                                 repeat
-                                    CheckAgainstApplnCurrency(CurrencyCode2, VendLedgEntry."Currency Code", AccType::Vendor, true);
+                                    CheckAgainstApplnCurrency(CurrencyCode2, VendLedgEntry."Currency Code", "Gen. Journal Account Type"::Vendor.AsInteger(), true);
                                 until VendLedgEntry.Next(-1) = 0;
-                            ConfirmAndCheckApplnCurrency(GenJnlLine, Text001 + Text002, VendLedgEntry."Currency Code", AccType::Vendor);
+                            ConfirmAndCheckApplnCurrency(GenJnlLine, Text001 + Text002, VendLedgEntry."Currency Code", "Gen. Journal Account Type"::Vendor.AsInteger());
                         end else
                             "Applies-to ID" := '';
                         "Due Date" := VendLedgEntry."Due Date";
@@ -215,7 +215,7 @@ codeunit 10861 "Payment-Apply"
         AccNo: Code[20];
         CurrencyCode2: Code[10];
         OK: Boolean;
-        AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
+        AccType: Enum "Gen. Journal Account Type";
 
     [Scope('OnPrem')]
     procedure CheckAgainstApplnCurrency(ApplnCurrencyCode: Code[10]; CompareCurrencyCode: Code[10]; AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset"; Message: Boolean): Boolean

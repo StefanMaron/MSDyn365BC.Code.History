@@ -75,11 +75,9 @@ table 1301 "Item Template"
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
         }
-        field(21; "Costing Method"; Option)
+        field(21; "Costing Method"; Enum "Costing Method")
         {
             Caption = 'Costing Method';
-            OptionCaption = 'FIFO,LIFO,Specific,Average,Standard';
-            OptionMembers = FIFO,LIFO,Specific,"Average",Standard;
         }
         field(28; "Indirect Cost %"; Decimal)
         {

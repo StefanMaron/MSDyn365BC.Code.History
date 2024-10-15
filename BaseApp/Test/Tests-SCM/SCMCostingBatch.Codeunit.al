@@ -562,7 +562,7 @@ codeunit 137402 "SCM Costing Batch"
         SuggestItemPriceOnWorksheet(SalesPriceWorksheet."Sales Type"::"Customer Price Group", CreateCustomerPriceGroup, CreateCurrency);
     end;
 
-    local procedure SuggestItemPriceOnWorksheet(SalesType: Option; SalesCode: Code[20]; CurrencyCode: Code[10])
+    local procedure SuggestItemPriceOnWorksheet(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CurrencyCode: Code[10])
     var
         Item: Record Item;
     begin
@@ -602,7 +602,7 @@ codeunit 137402 "SCM Costing Batch"
         AverageCostCalculation(Item."Costing Method"::Average, 0);  // Use 0 for Standard Cost.
     end;
 
-    local procedure AverageCostCalculation(CostingMethod: Option; StandardCost: Decimal)
+    local procedure AverageCostCalculation(CostingMethod: Enum "Costing Method"; StandardCost: Decimal)
     var
         Item: Record Item;
         PurchaseLine: Record "Purchase Line";
@@ -749,25 +749,21 @@ codeunit 137402 "SCM Costing Batch"
     [Test]
     [Scope('OnPrem')]
     procedure SuggestSalesPriceOnWorksheetWithSalesTypeCustomer()
-    var
-        SalesPrice: Record "Sales Price";
     begin
         // Test functionality of Suggest Sales Price on Worksheet report with Sales Type as Customer.
 
         Initialize;
-        SuggestSalesPriceOnWorksheet(SalesPrice."Sales Type"::Customer, CreateCustomer);
+        SuggestSalesPriceOnWorksheet("Sales Price Type"::Customer, CreateCustomer);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SuggestSalesPriceOnWorksheetWithSalesTypeAllCustomers()
-    var
-        SalesPrice: Record "Sales Price";
     begin
         // Test functionality of Suggest Sales Price on Worksheet report with Sales Type as All Customers.
 
         Initialize;
-        SuggestSalesPriceOnWorksheet(SalesPrice."Sales Type"::"All Customers", '');
+        SuggestSalesPriceOnWorksheet("Sales Price Type"::"All Customers", '');
     end;
 
     [Test]
@@ -779,22 +775,20 @@ codeunit 137402 "SCM Costing Batch"
         // Test functionality of Suggest Sales Price on Worksheet report with Sales Type as Campaign.
 
         Initialize;
-        SuggestSalesPriceOnWorksheet(SalesPrice."Sales Type"::Campaign, CreateCampaign);
+        SuggestSalesPriceOnWorksheet("Sales Price Type"::Campaign, CreateCampaign);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SuggestSalesPriceOnWorksheetWithSalesTypeCustomerPriceGroup()
-    var
-        SalesPrice: Record "Sales Price";
     begin
         // Test functionality of Suggest Sales Price on Worksheet report with Sales Type as Customer Price Group.
 
         Initialize;
-        SuggestSalesPriceOnWorksheet(SalesPrice."Sales Type"::"Customer Price Group", CreateCustomerPriceGroup);
+        SuggestSalesPriceOnWorksheet("Sales Price Type"::"Customer Price Group", CreateCustomerPriceGroup);
     end;
 
-    local procedure SuggestSalesPriceOnWorksheet(SalesType: Option; SalesCode: Code[20])
+    local procedure SuggestSalesPriceOnWorksheet(SalesType: Enum "Sales Price Type"; SalesCode: Code[20])
     var
         Item: Record Item;
     begin
@@ -1045,7 +1039,7 @@ codeunit 137402 "SCM Costing Batch"
         exit(Campaign."No.");
     end;
 
-    local procedure CreateAndModifyItem(var Item: Record Item; CostingMethod: Option; StandardCost: Decimal; UnitCost: Decimal)
+    local procedure CreateAndModifyItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; StandardCost: Decimal; UnitCost: Decimal)
     begin
         CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -1054,7 +1048,7 @@ codeunit 137402 "SCM Costing Batch"
         Item.Modify(true);
     end;
 
-    local procedure CreateAndPostItemJournalLine(ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; UnitAmount: Decimal): Code[20]
+    local procedure CreateAndPostItemJournalLine(ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal; UnitAmount: Decimal): Code[20]
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
@@ -1151,7 +1145,7 @@ codeunit 137402 "SCM Costing Batch"
         LibraryInventory.CreateItem(Item);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateItemJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal)
     begin
         SelectItemJournalBatch(ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
@@ -1219,7 +1213,7 @@ codeunit 137402 "SCM Costing Batch"
         RoutingHeader.Modify(true);
     end;
 
-    local procedure CreateSalesPrice(Item: Record Item; SalesType: Option; SalesCode: Code[20])
+    local procedure CreateSalesPrice(Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20])
     var
         SalesPrice: Record "Sales Price";
     begin
@@ -1492,7 +1486,7 @@ codeunit 137402 "SCM Costing Batch"
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(ValidationError, GLEntry.FieldCaption(Amount), Amount));
     end;
 
-    local procedure VerifyItemLedgerEntry(DocumentNo: Code[20]; EntryType: Option; ItemNo: Code[20]; InvoicedQuantity: Decimal; CostAmountActual: Decimal; SalesAmountActual: Decimal; Open: Boolean)
+    local procedure VerifyItemLedgerEntry(DocumentNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; InvoicedQuantity: Decimal; CostAmountActual: Decimal; SalesAmountActual: Decimal; Open: Boolean)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -1580,7 +1574,7 @@ codeunit 137402 "SCM Costing Batch"
           StrSubstNo(ValidationError, Item.FieldCaption("Sales (LCY)"), SalesLCY));
     end;
 
-    local procedure VerifySalesPriceWorksheet(SalesType: Option; SalesCode: Code[20]; CurrencyCode: Code[10]; ItemNo: Code[20])
+    local procedure VerifySalesPriceWorksheet(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CurrencyCode: Code[10]; ItemNo: Code[20])
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
     begin
@@ -1629,7 +1623,7 @@ codeunit 137402 "SCM Costing Batch"
         ProdOrderLine.TestField("Unit Cost", UnitCost);
     end;
 
-    local procedure VerifyValueEntry(DocumentNo: Code[20]; ItemLedgerEntryType: Option; ItemNo: Code[20]; InvoicedQuantity: Decimal; CostAmountActual: Decimal; SalesAmountActual: Decimal; Adjustment: Boolean)
+    local procedure VerifyValueEntry(DocumentNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; InvoicedQuantity: Decimal; CostAmountActual: Decimal; SalesAmountActual: Decimal; Adjustment: Boolean)
     var
         ValueEntry: Record "Value Entry";
     begin

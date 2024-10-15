@@ -400,7 +400,7 @@ codeunit 144055 "ERM Payment Management II"
         Amount := Round(PaymentLine.Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"));
     end;
 
-    local procedure CreateAndPostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; DueDate: Date; Amount: Decimal)
+    local procedure CreateAndPostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DueDate: Date; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -605,7 +605,7 @@ codeunit 144055 "ERM Payment Management II"
         exit(PaymentStep.Line);
     end;
 
-    local procedure CreatePaymentStepLedger(var PaymentStepLedger: Record "Payment Step Ledger"; PaymentClass: Text[30]; Sign: Option; AccountingType: Option; AccountType: Option; AccountNo: Code[20]; Application: Option; Line: Integer)
+    local procedure CreatePaymentStepLedger(var PaymentStepLedger: Record "Payment Step Ledger"; PaymentClass: Text[30]; Sign: Option; AccountingType: Option; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Application: Option; Line: Integer)
     begin
         LibraryFRLocalization.CreatePaymentStepLedger(PaymentStepLedger, PaymentClass, Sign, Line);
         PaymentStepLedger.Validate(Description, PaymentClass);
@@ -691,7 +691,7 @@ codeunit 144055 "ERM Payment Management II"
           PaymentClassCode, LibraryUtility.GenerateGUID, 0, 0, PaymentStep."Action Type"::Report, false, ReportNo); // FALSE for Realize VAT.
     end;
 
-    local procedure CreatePaymentSlipHeaderAndLine(AccountType: Option; AccountNo: Code[20]; BankAccountNo: Code[20]; LineAmount: Decimal): Code[20]
+    local procedure CreatePaymentSlipHeaderAndLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankAccountNo: Code[20]; LineAmount: Decimal): Code[20]
     var
         PaymentHeader: Record "Payment Header";
         PaymentLine: Record "Payment Line";
@@ -860,7 +860,7 @@ codeunit 144055 "ERM Payment Management II"
         PaymentSlip.FILTER.SetFilter("Payment Class", PaymentClass);
     end;
 
-    local procedure SetupForPaymentOnPaymentSlip(AccountType: Option; AccountNo: Code[20]; AccountNo2: Code[20]; Amount: Decimal; Suggestion: Option; CurrencyCode: Code[10]; DueDate: Date) PaymentClassCode: Text[30]
+    local procedure SetupForPaymentOnPaymentSlip(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AccountNo2: Code[20]; Amount: Decimal; Suggestion: Option; CurrencyCode: Code[10]; DueDate: Date) PaymentClassCode: Text[30]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin

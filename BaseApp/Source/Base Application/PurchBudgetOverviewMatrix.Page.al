@@ -1,4 +1,4 @@
-﻿page 9219 "Purch. Budget Overview Matrix"
+page 9219 "Purch. Budget Overview Matrix"
 {
     Caption = 'Purch. Budget Overview Matrix';
     DeleteAllowed = false;

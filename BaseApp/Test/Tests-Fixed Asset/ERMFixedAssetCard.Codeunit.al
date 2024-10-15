@@ -101,7 +101,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FADepreciationBook.Get(FixedAsset."No.", FASetup."Default Depr. Book");
         FADepreciationBook.TestField("Depreciation Method", FADepreciationBook."Depreciation Method"::"Straight-Line");
 
-        StartingDate := WorkDate - 1;
+        StartingDate := WorkDate() - 1;
         FixedAssetCard.DepreciationStartingDate.SetValue(StartingDate);
         FADepreciationBook.Get(FixedAsset."No.", FASetup."Default Depr. Book");
         FADepreciationBook.TestField("Depreciation Starting Date", StartingDate);
@@ -111,7 +111,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FADepreciationBook.Get(FixedAsset."No.", FASetup."Default Depr. Book");
         FADepreciationBook.TestField("No. of Depreciation Years", NoDepreciationYears);
 
-        EndingDate := WorkDate + 1;
+        EndingDate := WorkDate() + 1;
         FixedAssetCard.DepreciationEndingDate.SetValue(EndingDate);
         FADepreciationBook.Get(FixedAsset."No.", FASetup."Default Depr. Book");
         FADepreciationBook.TestField("Depreciation Ending Date", EndingDate);
@@ -450,15 +450,15 @@ codeunit 134456 "ERM Fixed Asset Card"
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code);
 
         // [GIVEN] Fixed Asset Disposed
-        FADepreciationBook."Disposal Date" := WorkDate;
+        FADepreciationBook."Disposal Date" := WorkDate();
         FADepreciationBook.Modify(true);
 
         // [GIVEN] Fixed Asset Card is loaded
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
 
         // [WHEN] FA Depreciation Books Subform is opened
-        FixedAssetCard.AddMoreDeprBooks.DrillDown;
+        FixedAssetCard.AddMoreDeprBooks.DrillDown();
 
         // [THEN] Book Value of the disposed Fixed Asset equals 0
         FixedAssetCard.DepreciationBook."Depreciation Book Code".AssertEquals(FASetup."Default Depr. Book");
@@ -611,7 +611,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FASetup.Get();
         BookValue := LibraryRandom.RandDecInRange(10, 1000, 2);
         CreateFADepreciationBookWithValue(
-	  FADepreciationBook,FixedAsset."No.",FASetup."Default Depr. Book",FAPostingGroup.Code,BookValue);
+          FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code, BookValue);
         DisposeFADepreciationBook(FADepreciationBook, BookValue);
 
         // [WHEN] Fixed Asset Card is loaded and Drill Down on "Book Value"
@@ -638,8 +638,8 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [THEN] There are no more "FA Ledger Entries" lines.
         Assert.IsFalse(FALedgerEntriesList.Next, 'No more records expected');
 
-        FALedgerEntriesList.Close;
-        FixedAssetCard.Close;
+        FALedgerEntriesList.Close();
+        FixedAssetCard.Close();
     end;
 
     [Test]
@@ -669,20 +669,20 @@ codeunit 134456 "ERM Fixed Asset Card"
         MockFALedgerEntryDisposal(
           FADepreciationBook."FA No.",
           FADepreciationBook."Depreciation Book Code",
-          WorkDate, -DisposalValue,
+          WorkDate(), -DisposalValue,
           DummyFALedgerEntry."FA Posting Type"::"Book Value on Disposal");
 
         // [WHEN] Fixed Asset Statistics."Book Value on Disposal" is calculated. Page FixedAssetStatistics is opened.
         FADepreciationBook.CalcFields("Book Value on Disposal");
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
-        FixedAssetStatistics.Trap;
-        FixedAssetCard.Statistics.Invoke;
+        FixedAssetStatistics.Trap();
+        FixedAssetCard.Statistics.Invoke();
 
         // [THEN] "Book Value after Disposal" = "X" on FA Statistics Page
         FixedAssetStatistics.DisposalValue.AssertEquals(DisposalValue);
-        FixedAssetCard.Close;
-        FixedAssetStatistics.Close;
+        FixedAssetCard.Close();
+        FixedAssetStatistics.Close();
     end;
 
     [Test]
@@ -845,6 +845,46 @@ codeunit 134456 "ERM Fixed Asset Card"
 
     [Test]
     [Scope('OnPrem')]
+    procedure SetFAPostingGroupOnNewFixedAsset()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAPostingGroup: Record "FA Posting Group";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+    begin
+        // [FEATURE] [UI] [Posting Group] [Depreciation]
+        // [SCENARIO 356263] Stan can't set Posting Group on Fixed Asset Card page when FA Depreciation Book is not specified yet.
+
+        // [GIVEN] Fixed Asset without "FA Posting Group" and associated FA Depreciation Book
+        FixedAssetCard.OpenNew();
+        FixedAssetCard.Description.SetValue(LibraryUtility.GenerateGUID());
+        FixedAsset.Get(FixedAssetCard."No.".Value);
+        FixedAssetCard.Close();
+
+        FixedAsset.Find();
+        FixedAsset.TestField("FA Posting Group", '');
+        FADepreciationBook.SetRange("FA No.", FixedAsset."No.");
+        Assert.RecordIsEmpty(FADepreciationBook);
+
+        // [GIVEN]"FA Posting Group" with Code = "FA_TEST"
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+
+        // [WHEN] Stan validates "Posting Group" field with "FA_TEST" on Fixed Asset Card page
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.Filter.SetFilter("No.", FixedAsset."No.");
+        FixedAssetCard.FAPostingGroup.SetValue(FAPostingGroup.Code);
+        FixedAssetCard.Close();
+
+        // [THEN] "FA Posting Group" field of Fixed Asset remains blank as the page relies on Depreciation Book and its "FA Posting Group" field
+        // [THEN] "FA Deprecation Book" is not created for the Fixed Asset.
+        FixedAsset.Find();
+        FixedAsset.TestField("FA Posting Group", '');
+        FADepreciationBook.SetRange("FA No.", FixedAsset."No.");
+        Assert.RecordIsEmpty(FADepreciationBook);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TestFACardFAPostingGroupValidation()
     var
         FixedAsset: Record "Fixed Asset";
@@ -882,6 +922,41 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [THEN] Fixed Asset "FA Posting Group" was assigned from FA Subclass "Default FA Posting Group"
         FixedAsset.FindFirst();
         FixedAsset.TestField("FA Posting Group", FAPostingGroup.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFACardFAPostingGroupValidationWhenChangeFASubclass()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 367323] System reset the FA Posting Group, when the FA Subclass is changed to empty
+
+        // [GIVEN] Created related FA Class, FA Subclass and FA Posting Group
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+        LibraryFixedAsset.CreateFAClass(FAClass);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        FixedAsset.Validate("FA Class Code", FAClass.Code);
+        FixedAsset.Validate("FA Subclass Code", FASubclass.Code);
+
+        // [GIVEN] Created new FA with FA Subclass and FA Posting Group using form
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
+        FixedAssetCard.First();
+
+        // [WHEN] Changed FA Subclass to empty
+        FixedAssetCard."FA Subclass Code".SetValue('');
+        FixedAssetCard.Close();
+
+        // [THEN] FA Posting group reset to ''.
+        FixedAsset.Get(FixedAsset."No.");
+        FixedAsset.TestField("FA Posting Group", '');
     end;
 
     local procedure FixedAssetAndDeprecationBookSetup(var FASubclass: Record "FA Subclass")
@@ -934,14 +1009,14 @@ codeunit 134456 "ERM Fixed Asset Card"
         MockFALedgerEntryDisposal(
           FADepreciationBook."FA No.",
           FADepreciationBook."Depreciation Book Code",
-          WorkDate, BookValue,
+          WorkDate(), BookValue,
           DummyFALedgerEntry."FA Posting Type"::"Acquisition Cost");
         MockFALedgerEntryDisposal(
           FADepreciationBook."FA No.",
           FADepreciationBook."Depreciation Book Code",
-          WorkDate, -BookValue,
+          WorkDate(), -BookValue,
           DummyFALedgerEntry."FA Posting Type"::"Book Value on Disposal");
-        FADepreciationBook."Disposal Date" := WorkDate;
+        FADepreciationBook."Disposal Date" := WorkDate();
         FADepreciationBook.Modify(true);
     end;
 
@@ -950,23 +1025,23 @@ codeunit 134456 "ERM Fixed Asset Card"
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         with FALedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FieldNo("Entry No."));
             "FA No." := FANo;
             "Depreciation Book Code" := DepreciationBookCode;
             "Part of Book Value" := true;
             "FA Posting Date" := FAPostingDate;
             Amount := BookValueAmount;
-            Insert;
+            Insert();
         end;
     end;
 
-    local procedure MockFALedgerEntryDisposal(FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingDate: Date; BookValueAmount: Decimal; FAPostingType: Option)
+    local procedure MockFALedgerEntryDisposal(FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingDate: Date; BookValueAmount: Decimal; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         with FALedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FieldNo("Entry No."));
             "FA No." := FANo;
             "Depreciation Book Code" := DepreciationBookCode;
@@ -974,7 +1049,7 @@ codeunit 134456 "ERM Fixed Asset Card"
             "FA Posting Type" := FAPostingType;
             "FA Posting Date" := FAPostingDate;
             Amount := -BookValueAmount;
-            Insert;
+            Insert();
         end;
     end;
 

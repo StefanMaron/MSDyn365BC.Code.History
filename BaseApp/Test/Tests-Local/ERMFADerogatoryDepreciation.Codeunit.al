@@ -305,7 +305,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         VerifyFAProjectedValueReport(FADepreciationBook."FA No.");
     end;
 
-    local procedure CreateAndPostFAGLJournal(FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Option)
+    local procedure CreateAndPostFAGLJournal(FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -375,7 +375,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure FALedgerEntryAmount(FANo: Code[20]; FAPostingType: Option): Decimal
+    local procedure FALedgerEntryAmount(FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"): Decimal
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin

@@ -103,7 +103,7 @@ codeunit 144057 "UT Remittance"
         // Verify: RecapitulationFormRequestPageHandler opens successfully.  Blank report generate in this case.
     end;
 
-    local procedure CreateGenJournalLineAndRunRecapitulationForm(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; BankAccountCode: Code[20]; CurrencyCode: Code[10]; BalAccountNo: Code[20])
+    local procedure CreateGenJournalLineAndRunRecapitulationForm(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankAccountCode: Code[20]; CurrencyCode: Code[10]; BalAccountNo: Code[20])
     begin
         // Setup.
         CreateGenJournalLine(GenJournalLine, AccountType, AccountNo, BankAccountCode, CurrencyCode, BalAccountNo);
@@ -176,7 +176,7 @@ codeunit 144057 "UT Remittance"
         exit(CustomerBankAccount.Code);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; BankAccountCode: Code[10]; CurrencyCode: Code[10]; BalAccountNo: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankAccountCode: Code[10]; CurrencyCode: Code[10]; BalAccountNo: Code[20])
     begin
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
         GenJournalLine."Account Type" := AccountType;

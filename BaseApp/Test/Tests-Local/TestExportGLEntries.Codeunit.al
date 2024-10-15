@@ -421,7 +421,7 @@ codeunit 144563 "Test Export G/L Entries"
         // [GIVEN] Gen. Journal Line is posted for Vendor
         CreateAndPostVendorGenJnlLine(
           Vendor,
-          GenJournalLine."Account Type"::Vendor,
+          GenJournalLine."Document Type"::Invoice,
           StartingDate);
 
         // [WHEN] Export Tax Audit report
@@ -781,7 +781,7 @@ codeunit 144563 "Test Export G/L Entries"
         // [WHEN] Emulate running report 10885 "Export G/L Entries - Tax Audit"
         ExportGLEntriesTaxAudit.GetLedgerEntryDataForCustVend(
           GLEntry."Transaction No.",
-          GLEntry."Source Type"::Customer,
+          GLEntry."Source Type"::Customer.AsInteger(),
           PartyNo,
           PartyName,
           FCYAmount,
@@ -832,7 +832,7 @@ codeunit 144563 "Test Export G/L Entries"
         // [WHEN] Emulate running report 10885 "Export G/L Entries - Tax Audit"
         ExportGLEntriesTaxAudit.GetLedgerEntryDataForCustVend(
           GLEntry."Transaction No.",
-          GLEntry."Source Type"::Vendor,
+          GLEntry."Source Type"::Vendor.AsInteger(),
           PartyNo,
           PartyName,
           FCYAmount,
@@ -1432,7 +1432,9 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Amount 200 is posted for "GLAcc" on 31.12.2018
         AmountRem := LibraryRandom.RandDecInRange(100, 200, 2);
-        CreateAndPostGenJnlLine(0, GLAccountNo, 0, WorkDate - 1, AmountRem);
+        CreateAndPostGenJnlLine(
+            "Gen. Journal Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Document Type"::" ",
+            WorkDate - 1, AmountRem);
 
         // [GIVEN] An entry for "Cust" on 01.01.2019
         CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate);
@@ -1841,7 +1843,8 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Amount 200 is posted for "GLAcc" on 31.12.2018
         AmountRem := LibraryRandom.RandDecInRange(100, 200, 2);
-        CreateAndPostGenJnlLine(0, GLAccountNo, 0, WorkDate - 1, AmountRem);
+        CreateAndPostGenJnlLine(
+            "Gen. Journal Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Document Type"::" ", WorkDate - 1, AmountRem);
 
         // [GIVEN] An entry for "Vend" on 01.01.2019
         CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate);
@@ -2169,7 +2172,7 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Amount 200 is posted for "GLAcc" on 31.12.2018
         AmountRem := LibraryRandom.RandDecInRange(100, 200, 2);
-        CreateAndPostGenJnlLine(0, GLAccountNo, 0, WorkDate - 1, AmountRem);
+        CreateAndPostGenJnlLine("Gen. Journal Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Document Type"::" ", WorkDate - 1, AmountRem);
 
         // [GIVEN] An entry for "BankAcc" on 01.01.2019
         CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', WorkDate);
@@ -2234,7 +2237,7 @@ codeunit 144563 "Test Export G/L Entries"
         Commit();
     end;
 
-    local procedure ApplyAndPostGenJournalLine(DocNoToApplyTo: Code[20]; DocTypeToApply: Option; DocNoToApply: Code[20])
+    local procedure ApplyAndPostGenJournalLine(DocNoToApplyTo: Code[20]; DocTypeToApply: Enum "Gen. Journal Document Type"; DocNoToApply: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2260,7 +2263,7 @@ codeunit 144563 "Test Export G/L Entries"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateGenJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; PostingDate: Date; Amount: Decimal): Code[20]
+    local procedure CreateGenJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date; Amount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2417,7 +2420,7 @@ codeunit 144563 "Test Export G/L Entries"
         InputFile.CreateInStream(iStream);
     end;
 
-    local procedure CreateAndPostGenJnlLine(AccountType: Integer; AccountNo: Code[20]; DocumentType: Option; PostingDate: Date; Amount: Decimal)
+    local procedure CreateAndPostGenJnlLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         SourceCode: Record "Source Code";
@@ -2430,7 +2433,7 @@ codeunit 144563 "Test Export G/L Entries"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostBankGenJnlLine(var BankAccount: Record "Bank Account"; DocumentType: Option; PostingDate: Date)
+    local procedure CreateAndPostBankGenJnlLine(var BankAccount: Record "Bank Account"; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2443,7 +2446,7 @@ codeunit 144563 "Test Export G/L Entries"
           -LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure CreateAndPostCustomGenJnlLine(var Customer: Record Customer; DocumentType: Option; PostingDate: Date)
+    local procedure CreateAndPostCustomGenJnlLine(var Customer: Record Customer; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2456,7 +2459,7 @@ codeunit 144563 "Test Export G/L Entries"
           -LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure CreateAndPostVendorGenJnlLine(var Vendor: Record Vendor; DocumentType: Option; PostingDate: Date)
+    local procedure CreateAndPostVendorGenJnlLine(var Vendor: Record Vendor; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2484,14 +2487,14 @@ codeunit 144563 "Test Export G/L Entries"
         with GenJournalLine do begin
             LibraryJournals.CreateGenJournalLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, "Account Type"::Customer, Customer."No.", 0, '', -LineAmount);
+              "Document Type"::Payment, "Account Type"::Customer, Customer."No.", "Gen. Journal Account Type"::"G/L Account", '', -LineAmount);
             Validate("Posting Date", PostingDate);
             Modify(true);
             DocumentNo := "Document No.";
 
             LibraryJournals.CreateGenJournalLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, "Account Type"::Vendor, Vendor."No.", 0, '', LineAmount);
+              "Document Type"::Payment, "Account Type"::Vendor, Vendor."No.", "Gen. Journal Account Type"::"G/L Account", '', LineAmount);
             Validate("Document No.", DocumentNo);
             Validate("Posting Date", PostingDate);
             Modify(true);
@@ -2514,14 +2517,14 @@ codeunit 144563 "Test Export G/L Entries"
         with GenJournalLine do begin
             LibraryJournals.CreateGenJournalLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::" ", "Account Type"::Customer, Customer[1]."No.", 0, '', 0);
+              "Document Type"::" ", "Account Type"::Customer, Customer[1]."No.", "Gen. Journal Account Type"::"G/L Account", '', 0);
             Validate("Posting Date", PostingDate);
             Validate("Debit Amount", LineAmount);
             Modify(true);
             DocumentNo := "Document No.";
             LibraryJournals.CreateGenJournalLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::" ", "Account Type"::Customer, Customer[2]."No.", 0, '', 0);
+              "Document Type"::" ", "Account Type"::Customer, Customer[2]."No.", "Gen. Journal Account Type"::"G/L Account", '', 0);
             Validate("Document No.", DocumentNo);
             Validate("Posting Date", PostingDate);
             Validate("Credit Amount", LineAmount);
@@ -2544,14 +2547,14 @@ codeunit 144563 "Test Export G/L Entries"
         with GenJournalLine do begin
             LibraryJournals.CreateGenJournalLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::" ", "Account Type"::Vendor, Vendor[1]."No.", 0, '', 0);
+              "Document Type"::" ", "Account Type"::Vendor, Vendor[1]."No.", "Gen. Journal Account Type"::"G/L Account", '', 0);
             Validate("Posting Date", PostingDate);
             Validate("Debit Amount", LineAmount);
             Modify(true);
             DocumentNo := "Document No.";
             LibraryJournals.CreateGenJournalLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::" ", "Account Type"::Vendor, Vendor[2]."No.", 0, '', 0);
+              "Document Type"::" ", "Account Type"::Vendor, Vendor[2]."No.", "Gen. Journal Account Type"::"G/L Account", '', 0);
             Validate("Document No.", DocumentNo);
             Validate("Posting Date", PostingDate);
             Validate("Credit Amount", LineAmount);
@@ -2593,7 +2596,7 @@ codeunit 144563 "Test Export G/L Entries"
         exit(GenJournalLine."Amount (LCY)");
     end;
 
-    local procedure CreateGenJnlLineWithBalAccOnDate(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; PostingDate: Date; Sign: Integer)
+    local procedure CreateGenJnlLineWithBalAccOnDate(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; PostingDate: Date; Sign: Integer)
     begin
         CreateGenJnlLineOnDate(
           GenJournalLine, DocumentType, AccountType, AccountNo, '', PostingDate, Sign);
@@ -2602,7 +2605,7 @@ codeunit 144563 "Test Export G/L Entries"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGenJnlLineOnDate(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date; Sign: Integer)
+    local procedure CreateGenJnlLineOnDate(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date; Sign: Integer)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, DocumentType,
@@ -2613,7 +2616,7 @@ codeunit 144563 "Test Export G/L Entries"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateAndPostGLGenJnlLine(DocumentType: Option; PostingDate: Date): Code[20]
+    procedure CreateAndPostGLGenJnlLine(DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
@@ -3256,7 +3259,7 @@ codeunit 144563 "Test Export G/L Entries"
         Assert.AreEqual(PartyName, FieldsValueArray[8], GetErrorTextForAssertStmnt(8));
     end;
 
-    local procedure VerifyAppliedEntriesReport(GLRegister: Record "G/L Register"; ReportFile: Text[250]; GLAccountNo: Code[250]; AppliedEntries: Text; DocumentType: Option; AppliedDate: Date)
+    local procedure VerifyAppliedEntriesReport(GLRegister: Record "G/L Register"; ReportFile: Text[250]; GLAccountNo: Code[250]; AppliedEntries: Text; DocumentType: Enum "Gen. Journal Document Type"; AppliedDate: Date)
     var
         GLEntry: Record "G/L Entry";
         iStream: InStream;
@@ -3300,7 +3303,7 @@ codeunit 144563 "Test Export G/L Entries"
         end;
     end;
 
-    local procedure VerifyExportGLEntriesReport2DecimalSymbols(AccountType: Option; AccountNo: Code[20]; AccountName: Text[100]; Sign: Integer)
+    local procedure VerifyExportGLEntriesReport2DecimalSymbols(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AccountName: Text[100]; Sign: Integer)
     var
         GenJnlLine: Record "Gen. Journal Line";
         GLRegister: Record "G/L Register";
@@ -3345,7 +3348,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         ExportGLEntriesTaxAudit.GetLedgerEntryDataForCustVend(
           TransactionNo,
-          DummyGLEntry."Source Type"::Customer,
+          DummyGLEntry."Source Type"::Customer.AsInteger(),
           PartyNo,
           PartyName,
           FCYAmount,
@@ -3374,7 +3377,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         ExportGLEntriesTaxAudit.GetLedgerEntryDataForCustVend(
           TransactionNo,
-          DummyGLEntry."Source Type"::Vendor,
+          DummyGLEntry."Source Type"::Vendor.AsInteger(),
           PartyNo,
           PartyName,
           FCYAmount,

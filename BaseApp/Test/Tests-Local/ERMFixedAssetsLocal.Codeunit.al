@@ -448,12 +448,12 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         // [GIVEN] Derogatory amount is from both acquisitions
-        VerifyNoOfFALedgerEntries(4, NumberFAEntryErr, FANo, false, FALedgerEntry."FA Posting Type"::Derogatory);
+        VerifyNoOfFALedgerEntries(4, NumberFAEntryErr, FANo, false, FALedgerEntry."FA Posting Type"::Derogatory.AsInteger());
         FADepreciationBook.CalcFields(Derogatory);
         Assert.AreNotEqual(FADepreciationBook.Derogatory, ExpectedDerogatory, DerogatoryAmountErr);
 
         // [WHEN] The additional acquisition cost derogatory entry is cancelled
-        CancelLastFALedgerEntry(NormalDeprBookCode, FALedgerEntry."FA Posting Type"::Derogatory);
+        CancelLastFALedgerEntry(NormalDeprBookCode, FALedgerEntry."FA Posting Type"::Derogatory.AsInteger());
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         // [THEN] The derogatory value is only for the first acquisition depreciation
@@ -841,14 +841,14 @@ codeunit 144002 "ERM Fixed Assets - Local"
           FANo, DeprBookCode, -DerogAmount);
     end;
 
-    local procedure CreatePostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; FAPostingDate: Date; FAPostingType: Option; FANo: Code[20]; DeprBookCode: Code[10]; Amount: Decimal)
+    local procedure CreatePostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; FAPostingDate: Date; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; FANo: Code[20]; DeprBookCode: Code[10]; Amount: Decimal)
     begin
         CreateGenJournalLine(
           GenJnlLine, FAPostingDate, FAPostingType, FANo, DeprBookCode, Amount);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
-    local procedure CreateGenJournalLine(var GenJnlLine: Record "Gen. Journal Line"; FAPostingDate: Date; FAPostingType: Option; FANo: Code[20]; DeprBookCode: Code[10]; LineAmount: Decimal)
+    local procedure CreateGenJournalLine(var GenJnlLine: Record "Gen. Journal Line"; FAPostingDate: Date; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; FANo: Code[20]; DeprBookCode: Code[10]; LineAmount: Decimal)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -869,7 +869,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         end;
     end;
 
-    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Option; Amount: Decimal)
+    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Enum "FA Journal Line FA Posting Type"; Amount: Decimal)
     var
         FAJournalTemplate: Record "FA Journal Template";
         FAJournalBatch: Record "FA Journal Batch";

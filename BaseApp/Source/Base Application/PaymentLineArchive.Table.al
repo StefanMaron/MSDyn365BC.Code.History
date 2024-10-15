@@ -294,7 +294,7 @@ table 10868 "Payment Line Archive"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

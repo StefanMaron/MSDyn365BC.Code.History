@@ -243,7 +243,7 @@ codeunit 99000778 OrderTrackingManagement
           SourceBatchName, SourceProdOrderLine, SourceRefNo, 0);
 
         TempItemLedgEntry.SetFilter("Remaining Quantity", '<>%1', 0);
-        if TempItemLedgEntry.FindSet() then;
+        if not TempItemLedgEntry.FindSet() then;
 
         ReservEntry.InitSortingAndFilters(false);
         TempItemLedgEntry.SetReservationFilters(ReservEntry);
@@ -868,11 +868,11 @@ codeunit 99000778 OrderTrackingManagement
                 case FilterPlanningComponent."Ref. Order Type" of
                     FilterPlanningComponent."Ref. Order Type"::"Prod. Order":
                         SetSourceFilter(
-                          DATABASE::"Prod. Order Component", FilterPlanningComponent."Ref. Order Status",
+                          DATABASE::"Prod. Order Component", FilterPlanningComponent."Ref. Order Status".AsInteger(),
                           FilterPlanningComponent."Ref. Order No.", FilterPlanningComponent."Line No.", true);
                     FilterPlanningComponent."Ref. Order Type"::Assembly:
                         SetSourceFilter(
-                          DATABASE::"Assembly Line", FilterPlanningComponent."Ref. Order Status",
+                          DATABASE::"Assembly Line", FilterPlanningComponent."Ref. Order Status".AsInteger(),
                           FilterPlanningComponent."Ref. Order No.", FilterPlanningComponent."Line No.", true);
                 end;
                 SetRange("Source Prod. Order Line", FilterPlanningComponent."Ref. Order Line No.");
@@ -885,7 +885,7 @@ codeunit 99000778 OrderTrackingManagement
                          FromReservEntry.GetRangeMin("Source Batch Name"), FilterReqLine."Line No.")
                     then
                         exit(false);
-                    if FilterReqLine."Action Message" > FilterReqLine."Action Message"::New then
+                    if FilterReqLine."Action Message".AsInteger() > FilterReqLine."Action Message"::New.AsInteger() then
                         case FilterReqLine."Ref. Order Type" of
                             FilterReqLine."Ref. Order Type"::Purchase:
                                 begin

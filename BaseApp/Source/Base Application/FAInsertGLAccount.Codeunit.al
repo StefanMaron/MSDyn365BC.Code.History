@@ -1,4 +1,4 @@
-codeunit 5601 "FA Insert G/L Account"
+﻿codeunit 5601 "FA Insert G/L Account"
 {
     TableNo = "FA Ledger Entry";
 
@@ -97,11 +97,9 @@ codeunit 5601 "FA Insert G/L Account"
         TotalAllocAmount := 0;
         NewAmount := 0;
         TotalPercent := 0;
-        with FAPostingGr do begin
-            Reset;
-            Get(PostingGrCode);
-            GLAccNo := GetGLAccNoFromFAPostingGroup(FAPostingGr, FAPostingType, AllocAmount);
-        end;
+        FAPostingGr.Reset;
+        FAPostingGr.GetPostingGroup(PostingGrCode, DeprBookCode);
+        GLAccNo := GetGLAccNoFromFAPostingGroup(FAPostingGr, FAPostingType, AllocAmount);
 
         DimensionSetIDArr[1] := DimSetID;
 
@@ -186,7 +184,7 @@ codeunit 5601 "FA Insert G/L Account"
         FAPostingType: Option Acquisition,Depr,WriteDown,Appr,Custom1,Custom2,Disposal,Maintenance,Gain,Loss,"Book Value Gain","Book Value Loss",,,,,Derogatory;
     begin
         with FALedgEntry do begin
-            if ("FA Posting Type" >= "FA Posting Type"::"Gain/Loss") and
+            if ("FA Posting Type".AsInteger() >= "FA Posting Type"::"Gain/Loss".AsInteger()) and
                ("FA Posting Type" <> "FA Posting Type"::Derogatory)
             then begin
                 if "FA Posting Type" = "FA Posting Type"::"Gain/Loss" then begin
@@ -229,7 +227,7 @@ codeunit 5601 "FA Insert G/L Account"
             SkipInsert := false;
             OnGetBalAccAfterSaveGenJnlLineFields(TempGenJnlLine, GenJnlLine, SkipInsert);
             if not SkipInsert then begin
-                NonBlankFAPostingType := "FA Posting Type" - 1;
+                NonBlankFAPostingType := "FA Posting Type".AsInteger() - 1;
                 InsertBufferBalAcc(
                   NonBlankFAPostingType, -Amount, "Depreciation Book Code",
                   "Posting Group", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "Dimension Set ID", false, false);

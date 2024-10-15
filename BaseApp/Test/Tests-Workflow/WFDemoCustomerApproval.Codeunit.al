@@ -810,7 +810,7 @@ codeunit 134205 "WF Demo Customer Approval"
         LibraryDocumentApprovals.SetWorkflowApproverType(Workflow, WorkflowStepArgument."Approver Type"::"Workflow User Group");
     end;
 
-    local procedure FindApprovalEntry(var ApprovalEntry: Record "Approval Entry"; WorkflowCode: Code[20]; ApproverID: Code[50]; Status: Option)
+    local procedure FindApprovalEntry(var ApprovalEntry: Record "Approval Entry"; WorkflowCode: Code[20]; ApproverID: Code[50]; Status: Enum "Approval Status")
     begin
         ApprovalEntry.SetRange("Approval Code", WorkflowCode);
         ApprovalEntry.SetRange("Approver ID", ApproverID);
@@ -839,7 +839,7 @@ codeunit 134205 "WF Demo Customer Approval"
         exit(ApprovalCommentLine.FindFirst);
     end;
 
-    local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; Status: Option; Customer: Record Customer)
+    local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; Status: Enum "Approval Status"; Customer: Record Customer)
     begin
         ApprovalEntry.TestField("Document Type", ApprovalEntry."Document Type"::" ");
         ApprovalEntry.TestField("Document No.", '');

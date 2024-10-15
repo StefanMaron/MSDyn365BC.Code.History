@@ -2,6 +2,9 @@ page 410 "SMTP User-Specified Address"
 {
     Caption = 'Enter Email Address';
     PageType = StandardDialog;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with the ''User-Specified Address'' page';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -61,4 +64,3 @@ page 410 "SMTP User-Specified Address"
         EmailAddress := Address;
     end;
 }
-

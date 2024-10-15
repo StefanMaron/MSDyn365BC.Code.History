@@ -2,9 +2,9 @@ page 6408 "Workflow - Customer Entity"
 {
     Caption = 'workflowCustomers', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
-    PageType = List;
     SourceTable = Customer;
+    PageType = List;
+    ODataKeyFields = SystemId;
 
     layout
     {
@@ -12,6 +12,11 @@ page 6408 "Workflow - Customer Entity"
         {
             repeater(Group)
             {
+                field(id; Rec.SystemId)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Id', Locked = true;
+                }
                 field(number; "No.")
                 {
                     ApplicationArea = All;
@@ -756,11 +761,6 @@ page 6408 "Workflow - Customer Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'Validate EU Vat Reg. No.', Locked = true;
-                }
-                field(id; Id)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Id', Locked = true;
                 }
                 field(currencyId; "Currency Id")
                 {

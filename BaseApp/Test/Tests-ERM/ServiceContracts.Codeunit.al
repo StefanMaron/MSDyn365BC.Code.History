@@ -258,6 +258,47 @@ codeunit 136102 "Service Contracts"
     [Test]
     [HandlerFunctions('SignContractConfirmHandler,MsgHandler,ServContrctTemplateListHandler')]
     [Scope('OnPrem')]
+    procedure NoErrorWhenCreatingContractInvoice()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        SignServContractDoc: Codeunit SignServContractDoc;
+        ServicePeriod: DateFormula;
+        MinDate: Date;
+    begin
+        // Covers TFS ID 353488.
+        // [SCENARIO] The Test Case creates invoice for a service header running for a year with a fixed expiry date.
+
+        // 1. Setup: Create and Sign Service Contract.
+        Initialize;
+        CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
+        Evaluate(ServicePeriod, '<1Y>');
+        ServiceContractHeader.Validate("Service Period", ServicePeriod);
+        ServiceContractHeader.Validate("Invoice Period", ServiceContractHeader."Invoice Period"::Year);
+        ServiceContractHeader.Validate(Prepaid, true);
+        ServiceContractHeader.Validate("Expiration Date", CalcDate('<1Y+CM+1D>', ServiceContractHeader."Starting Date"));
+        ServiceContractHeader.Validate("Contract Lines on Invoice", true);
+        ServiceContractHeader.Modify(true);
+        ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
+
+        SignServContractDoc.SignContract(ServiceContractHeader);
+
+        // Set the expiry date as the last invoicing date 
+        ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
+        ServiceContractHeader."Next Invoice Period End" := ServiceContractHeader."Expiration Date";
+        ServiceContractHeader.Modify();
+
+        // 2. Exercise: Create Service Contract Invoice.
+        ServiceContractHeader.SetRecFilter;
+        CreateServiceContractInvoice(ServiceContractHeader, CalcDate('<CM+1D>', ServiceContractHeader."Starting Date"), CalcDate('<CM+1D>', ServiceContractHeader."Starting Date"));
+
+        // 3. Verify: Check the creation of Service Invoice.
+        VerifyServiceInvoice(ServiceContractHeader."Contract No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('SignContractConfirmHandler,MsgHandler,ServContrctTemplateListHandler')]
+    [Scope('OnPrem')]
     procedure OrderDateServiceOrderContract()
     var
         ServiceContractHeader: Record "Service Contract Header";
@@ -3699,13 +3740,17 @@ codeunit 136102 "Service Contracts"
     end;
 
     local procedure CreateServiceContractInvoice(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+        CreateServiceContractInvoice(ServiceContractHeader, ServiceContractHeader."Next Invoice Date", ServiceContractHeader."Next Invoice Date");
+    end;
+
+    local procedure CreateServiceContractInvoice(var ServiceContractHeader: Record "Service Contract Header"; NewPostingDate: Date; NewInvoiceDate: Date)
     var
         CreateContractInvoices: Report "Create Contract Invoices";
         CreateInvoice: Option;
     begin
         CreateContractInvoices.SetTableView(ServiceContractHeader);
-        CreateContractInvoices.SetOptions(
-          ServiceContractHeader."Next Invoice Date", ServiceContractHeader."Next Invoice Date", CreateInvoice);
+        CreateContractInvoices.SetOptions(NewPostingDate, NewInvoiceDate, CreateInvoice);
         CreateContractInvoices.SetHideDialog(true);
         CreateContractInvoices.UseRequestPage(false);
         CreateContractInvoices.Run;
@@ -3930,7 +3975,7 @@ codeunit 136102 "Service Contracts"
         end;
     end;
 
-    local procedure CreateServiceContractWithInvPeriod(var ServiceContractHeader: Record "Service Contract Header"; InvoicePeriod: Option)
+    local procedure CreateServiceContractWithInvPeriod(var ServiceContractHeader: Record "Service Contract Header"; InvoicePeriod: Enum "Service Contract Header Invoice Period")
     var
         ServiceContractLine: Record "Service Contract Line";
     begin
@@ -4181,7 +4226,7 @@ codeunit 136102 "Service Contracts"
         end;
     end;
 
-    local procedure FindServiceDocumentWithContractNo(DocumentType: Option; ContractNo: Code[20]): Boolean
+    local procedure FindServiceDocumentWithContractNo(DocumentType: Enum "Service Document Type"; ContractNo: Code[20]): Boolean
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -4190,7 +4235,7 @@ codeunit 136102 "Service Contracts"
         exit(ServiceHeader.FindFirst);
     end;
 
-    local procedure FindServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option; ContractNo: Code[20])
+    local procedure FindServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; ContractNo: Code[20])
     begin
         ServiceHeader.SetRange("Document Type", DocumentType);
         ServiceHeader.SetRange("Contract No.", ContractNo);
@@ -4232,7 +4277,7 @@ codeunit 136102 "Service Contracts"
         ServiceLine.FindSet;
     end;
 
-    local procedure FindServiceLedgerEntry(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceContractNo: Code[20]; DocumentType: Option; EntryType: Option)
+    local procedure FindServiceLedgerEntry(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceContractNo: Code[20]; DocumentType: Enum "Service Ledger Entry Document Type"; EntryType: Option)
     begin
         ServiceLedgerEntry.SetRange("Document Type", DocumentType);
         ServiceLedgerEntry.SetRange("Entry Type", EntryType);
@@ -4513,7 +4558,7 @@ codeunit 136102 "Service Contracts"
         UpdateContractPrices.Run;
     end;
 
-    local procedure UpdateInvoicePeriod(var ServiceContractHeader: Record "Service Contract Header"; InvoicePeriod: Option)
+    local procedure UpdateInvoicePeriod(var ServiceContractHeader: Record "Service Contract Header"; InvoicePeriod: Enum "Service Contract Header Invoice Period")
     begin
         ServiceContractHeader.Validate("Invoice Period", InvoicePeriod);
         ServiceContractHeader.Modify(true);
@@ -4612,7 +4657,7 @@ codeunit 136102 "Service Contracts"
         Commit();
     end;
 
-    local procedure ModifyServiceContractHeaderWithInvoicePeriod(var ServiceContractHeader: Record "Service Contract Header"; StartingDate: Date; InvoicePeriod: Option)
+    local procedure ModifyServiceContractHeaderWithInvoicePeriod(var ServiceContractHeader: Record "Service Contract Header"; StartingDate: Date; InvoicePeriod: Enum "Service Contract Header Invoice Period")
     begin
         ServiceContractHeader.Validate("Starting Date", StartingDate);
         ServiceContractHeader.CalcFields("Calcd. Annual Amount");
@@ -4777,7 +4822,7 @@ codeunit 136102 "Service Contracts"
         end;
     end;
 
-    local procedure VerifyServiceHeaderHasLink(DocumentType: Option; ContractNo: Code[20])
+    local procedure VerifyServiceHeaderHasLink(DocumentType: Enum "Service Document Type"; ContractNo: Code[20])
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -4807,7 +4852,7 @@ codeunit 136102 "Service Contracts"
         until ServiceHour2.Next = 0;
     end;
 
-    local procedure VerifyServiceLedgerEntry(ContractNo: Code[20]; DocumentType: Option; Sign: Integer)
+    local procedure VerifyServiceLedgerEntry(ContractNo: Code[20]; DocumentType: Enum "Service Ledger Entry Document Type"; Sign: Integer)
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
         ServiceLedgerEntry2: Record "Service Ledger Entry";

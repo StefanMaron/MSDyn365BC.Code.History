@@ -6,15 +6,21 @@ codeunit 5916 ServMailManagement
     var
         TempEmailItem: Record "Email Item" temporary;
         MailManagement: Codeunit "Mail Management";
+        EmailFeature: Codeunit "Email Feature";
     begin
-        if not MailManagement.IsEnabled then
-            exit;
+        if EmailFeature.IsEnabled() then begin
+            // do not silently exit if the sending failed
+            if not MailManagement.IsEnabled() then
+                Error(EmailSendErr, "To Address", "Subject Line")
+        end else
+            if not MailManagement.IsEnabled() then
+                exit;
 
         InitTempEmailItem(TempEmailItem, Rec);
 
         MailManagement.SetHideMailDialog(true);
-        MailManagement.SetHideSMTPError(false);
-        if not MailManagement.Send(TempEmailItem) then
+        MailManagement.SetHideEmailSendingError(false);
+        if not MailManagement.Send(TempEmailItem, Enum::"Email Scenario"::"Service Order") then
             Error(EmailSendErr, "To Address", "Subject Line");
     end;
 

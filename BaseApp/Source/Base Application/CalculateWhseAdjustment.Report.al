@@ -1,4 +1,4 @@
-﻿report 7315 "Calculate Whse. Adjustment"
+report 7315 "Calculate Whse. Adjustment"
 {
     Caption = 'Calculate Warehouse Adjustment';
     ProcessingOnly = true;
@@ -266,6 +266,8 @@
         PostingDate: Date;
         NextDocNo: Code[20];
         NextLineNo: Integer;
+
+    protected var
         HideValidationDialog: Boolean;
 
     procedure SetItemJnlLine(var NewItemJnlLine: Record "Item Journal Line")
@@ -425,7 +427,7 @@
                 OnBeforeCreateReservEntryFor(ItemJournalLine);
 
                 CreateReservEntry.CreateReservEntryFor(
-                  DATABASE::"Item Journal Line", ItemJournalLine."Entry Type", ItemJournalLine."Journal Template Name",
+                  DATABASE::"Item Journal Line", ItemJournalLine."Entry Type".AsInteger(), ItemJournalLine."Journal Template Name",
                   ItemJournalLine."Journal Batch Name", OrderLineNo, ItemJournalLine."Line No.", ItemJournalLine."Qty. per Unit of Measure",
                   Abs(WarehouseEntry.Quantity), Abs(WarehouseEntry."Qty. (Base)"),
                   WarehouseEntry."Serial No.", WarehouseEntry."Lot No.");

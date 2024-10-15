@@ -396,7 +396,7 @@ codeunit 134382 "ERM Dimension Journals"
         DimensionSetID := LibraryDimension.DeleteDimSet(DimensionSetID, ShortcutDimCode);
         GenJournalLine.Validate("Dimension Set ID", DimensionSetID);
         GenJournalLine.Modify(true);
-        GenJournalLine.ShowDimensions;
+        GenJournalLine.ShowDimensions();
         // Verify shortcut dimension on the general journal is updated.
         ShortcutDimValueCode := GenJournalLine."Shortcut Dimension 1 Code";
         VerifyShortcutDim(ShortcutDimValueCode);
@@ -433,7 +433,7 @@ codeunit 134382 "ERM Dimension Journals"
         DimensionSetID := LibraryDimension.DeleteDimSet(DimensionSetID, ShortcutDimCode);
         GenJnlAllocation.Validate("Dimension Set ID", DimensionSetID);
         GenJnlAllocation.Modify(true);
-        GenJnlAllocation.ShowDimensions;
+        GenJnlAllocation.ShowDimensions();
         // Verify shortcut dimension on the general journal allocation line is updated.
         ShortcutDimValueCode := GenJnlAllocation."Shortcut Dimension 1 Code";
         VerifyShortcutDim(ShortcutDimValueCode);
@@ -475,7 +475,7 @@ codeunit 134382 "ERM Dimension Journals"
         DimensionSetID := LibraryDimension.DeleteDimSet(DimensionSetID, ShortcutDimCode);
         ItemJournalLine.Validate("Dimension Set ID", DimensionSetID);
         ItemJournalLine.Modify(true);
-        ItemJournalLine.ShowDimensions;
+        ItemJournalLine.ShowDimensions();
         // Verify shortcut dimension on the item journal is updated.
         ShortcutDimValueCode := ItemJournalLine."Shortcut Dimension 1 Code";
         VerifyShortcutDim(ShortcutDimValueCode);
@@ -513,7 +513,7 @@ codeunit 134382 "ERM Dimension Journals"
         DimensionSetID := LibraryDimension.DeleteDimSet(DimensionSetID, ShortcutDimCode);
         ResJournalLine.Validate("Dimension Set ID", DimensionSetID);
         ResJournalLine.Modify(true);
-        ResJournalLine.ShowDimensions;
+        ResJournalLine.ShowDimensions();
         // Verify shortcut dimension on the resource journal is updated.
         ShortcutDimValueCode := ResJournalLine."Shortcut Dimension 1 Code";
         VerifyShortcutDim(ShortcutDimValueCode);
@@ -554,7 +554,7 @@ codeunit 134382 "ERM Dimension Journals"
         DimensionSetID := LibraryDimension.DeleteDimSet(DimensionSetID, ShortcutDimCode);
         JobJournalLine.Validate("Dimension Set ID", DimensionSetID);
         JobJournalLine.Modify(true);
-        JobJournalLine.ShowDimensions;
+        JobJournalLine.ShowDimensions();
         // Verify shortcut dimension on the job journal is updated.
         ShortcutDimValueCode := JobJournalLine."Shortcut Dimension 1 Code";
         VerifyShortcutDim(ShortcutDimValueCode);
@@ -596,7 +596,7 @@ codeunit 134382 "ERM Dimension Journals"
         DimensionSetID := LibraryDimension.DeleteDimSet(DimensionSetID, ShortcutDimCode);
         FAJournalLine.Validate("Dimension Set ID", DimensionSetID);
         FAJournalLine.Modify(true);
-        FAJournalLine.ShowDimensions;
+        FAJournalLine.ShowDimensions();
         // Verify shortcut dimension on the FA journal is updated.
         ShortcutDimValueCode := FAJournalLine."Shortcut Dimension 1 Code";
         VerifyShortcutDim(ShortcutDimValueCode);
@@ -640,7 +640,7 @@ codeunit 134382 "ERM Dimension Journals"
         DimensionSetID := LibraryDimension.DeleteDimSet(DimensionSetID, ShortcutDimCode);
         InsuranceJournalLine.Validate("Dimension Set ID", DimensionSetID);
         InsuranceJournalLine.Modify(true);
-        InsuranceJournalLine.ShowDimensions;
+        InsuranceJournalLine.ShowDimensions();
         // Verify shortcut dimension on the insurance journal is updated.
         ShortcutDimValueCode := InsuranceJournalLine."Shortcut Dimension 1 Code";
         VerifyShortcutDim(ShortcutDimValueCode);
@@ -742,7 +742,7 @@ codeunit 134382 "ERM Dimension Journals"
         PurchInvHeader.Get(CreateAndPostPurchaseInvoice(PurchaseHeader, DefaultDimension."No."));  // Default Dimension."No." contains Vendor No.
 
         // 3. Verify: Verify Dimensions on Purchase Invoice Using Dimension Set Entries PageHandler.
-        PurchInvHeader.ShowDimensions;  // Opens Dimension Set Entries Page.
+        PurchInvHeader.ShowDimensions();  // Opens Dimension Set Entries Page.
     end;
 
     [Test]
@@ -776,7 +776,7 @@ codeunit 134382 "ERM Dimension Journals"
         LibraryVariableStorage.Enqueue(DefaultDimension."Dimension Value Code");
         LibraryVariableStorage.Enqueue(DefaultDimension2."Dimension Code");
         LibraryVariableStorage.Enqueue(DefaultDimension2."Dimension Value Code");
-        GenJournalLine.ShowDimensions;  // Opens Edit Dimension Set Entries Page.
+        GenJournalLine.ShowDimensions();  // Opens Edit Dimension Set Entries Page.
     end;
 
     [Test]
@@ -1302,7 +1302,7 @@ codeunit 134382 "ERM Dimension Journals"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GLAccount: Record "G/L Account";
     begin
@@ -1314,7 +1314,7 @@ codeunit 134382 "ERM Dimension Journals"
         UpdateGeneralLineForBalanceAccount(GenJournalLine, GenJournalLine."Bal. Account Type"::"G/L Account", GLAccount."No.");
     end;
 
-    local procedure CreateGeneralJournalLineWithGlobalDimCurrency(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; DimValCode1: Code[20]; DimValCode2: Code[20]; CurrencyCode: Code[10])
+    local procedure CreateGeneralJournalLineWithGlobalDimCurrency(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DimValCode1: Code[20]; DimValCode2: Code[20]; CurrencyCode: Code[10])
     var
         GLAccount: Record "G/L Account";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -1354,7 +1354,7 @@ codeunit 134382 "ERM Dimension Journals"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; TemplateType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; TemplateType: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1376,7 +1376,7 @@ codeunit 134382 "ERM Dimension Journals"
         end;
     end;
 
-    local procedure DimensionsOnPurchaseLine(PageId: Integer; DocumentType: Option)
+    local procedure DimensionsOnPurchaseLine(PageId: Integer; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1400,7 +1400,7 @@ codeunit 134382 "ERM Dimension Journals"
           PurchaseLine.FieldNo("Shortcut Dimension 2 Code"), DimensionValue1Code, DimensionValue2Code);
     end;
 
-    local procedure DimensionsOnSalesLine(PageId: Integer; DocumentType: Option)
+    local procedure DimensionsOnSalesLine(PageId: Integer; DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1424,7 +1424,7 @@ codeunit 134382 "ERM Dimension Journals"
           SalesLine.FieldNo("Shortcut Dimension 2 Code"), DimensionValue1Code, DimensionValue2Code);
     end;
 
-    local procedure DimensionsOnServiceLine(PageId: Integer; DocumentType: Option)
+    local procedure DimensionsOnServiceLine(PageId: Integer; DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -1453,7 +1453,7 @@ codeunit 134382 "ERM Dimension Journals"
         LibraryVariableStorage.Dequeue(DimensionValue2Code);
     end;
 
-    local procedure DefaultDimensionsOnServiceLine(DocumentType: Option)
+    local procedure DefaultDimensionsOnServiceLine(DocumentType: Enum "Service Document Type")
     var
         DefaultDimension: Record "Default Dimension";
         ServiceHeader: Record "Service Header";
@@ -1483,7 +1483,7 @@ codeunit 134382 "ERM Dimension Journals"
         GenJournalLine.FindFirst;
     end;
 
-    local procedure ApplyCustomerEntry(var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; JournalBatchName: Code[20])
+    local procedure ApplyCustomerEntry(var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; JournalBatchName: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GLRegister: Record "G/L Register";
@@ -1503,7 +1503,7 @@ codeunit 134382 "ERM Dimension Journals"
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
     end;
 
-    local procedure ApplyVendorEntry(var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; JournalBatchName: Code[20])
+    local procedure ApplyVendorEntry(var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; JournalBatchName: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GLRegister: Record "G/L Register";
@@ -1541,7 +1541,7 @@ codeunit 134382 "ERM Dimension Journals"
         GenJnlTemplate.DeleteAll();
     end;
 
-    local procedure UpdateGeneralLineForBalanceAccount(var GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure UpdateGeneralLineForBalanceAccount(var GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Enum "Gen. Journal Document Type"; BalAccountNo: Code[20])
     begin
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
@@ -2030,21 +2030,21 @@ codeunit 134382 "ERM Dimension Journals"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20])
     var
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
@@ -2070,7 +2070,7 @@ codeunit 134382 "ERM Dimension Journals"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Option)
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         BankAccount: Record "Bank Account";
@@ -2083,10 +2083,10 @@ codeunit 134382 "ERM Dimension Journals"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; Type: Option)
+    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; TemplateType: Enum "Gen. Journal Template Type")
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        GenJournalTemplate.Validate(Type, Type);
+        GenJournalTemplate.Validate(Type, TemplateType);
         GenJournalTemplate.Modify(true);
     end;
 
@@ -2277,7 +2277,7 @@ codeunit 134382 "ERM Dimension Journals"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
 
-    local procedure PrepareItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Option)
+    local procedure PrepareItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -2351,7 +2351,7 @@ codeunit 134382 "ERM Dimension Journals"
         DimensionSetEntry.TestField("Dimension Value Code", DefaultDimension."Dimension Value Code");
     end;
 
-    local procedure VerifyCustomerLedgerEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal)
+    local procedure VerifyCustomerLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -2361,7 +2361,7 @@ codeunit 134382 "ERM Dimension Journals"
         CustLedgerEntry.TestField("Remaining Amount", 0);  // Remaining Amount should be 0 after post Sales Application.
     end;
 
-    local procedure VerifyVendorLedgerEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal)
+    local procedure VerifyVendorLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin

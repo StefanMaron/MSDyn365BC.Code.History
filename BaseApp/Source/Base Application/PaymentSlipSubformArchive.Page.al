@@ -176,7 +176,7 @@ page 10878 "Payment Slip Subform Archive"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

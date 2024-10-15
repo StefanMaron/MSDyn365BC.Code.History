@@ -1,4 +1,4 @@
-﻿codeunit 10860 "Payment Management"
+codeunit 10860 "Payment Management"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm;
@@ -37,10 +37,10 @@
         DimMgt: Codeunit DimensionManagement;
         N: Integer;
         Suffix: Text;
-        EntryTypeDebit: Option;
+        EntryTypeDebit: Enum "Gen. Journal Account Type";
         EntryNoAccountDebit: Code[20];
         EntryPostGroupDebit: Code[20];
-        EntryTypeCredit: Option;
+        EntryTypeCredit: Enum "Gen. Journal Account Type";
         EntryNoAccountCredit: Code[20];
         EntryPostGroupCredit: Code[20];
         GLEntryNoTmp: Integer;
@@ -871,7 +871,7 @@
                 Error(
                   Text010,
                   PaymentHeader."No.", PaymentLine2."Line No.", DimMgt.GetDimCombErr);
-            TableID[1] := TypeToTableID(PaymentLine2."Account Type");
+            TableID[1] := TypeToTableID(PaymentLine2."Account Type".AsInteger());
             No[1] := PaymentLine2."Account No.";
             if not DimMgt.CheckDimValuePosting(TableID, No, PaymentLine2."Dimension Set ID") then
                 ThrowPmtPostError(PaymentLine2, CheckDimVauePostingLineErr, DimMgt.GetDimValuePostingErr);
@@ -1042,7 +1042,7 @@
         LastError: Text;
     begin
         PaymentHeader.TestField("Account Type", PaymentHeader."Account Type"::"Bank Account");
-        DirectDebitCollection.CreateNew(PaymentHeader."No.", PaymentHeader."Account No.", PaymentHeader."Partner Type");
+        DirectDebitCollection.CreateRecord(PaymentHeader."No.", PaymentHeader."Account No.", PaymentHeader."Partner Type");
         DirectDebitCollection."Source Table ID" := DATABASE::"Payment Header";
         DirectDebitCollection.Modify();
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");

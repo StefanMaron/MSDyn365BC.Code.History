@@ -212,7 +212,7 @@ page 10869 "Payment Slip Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Modify)

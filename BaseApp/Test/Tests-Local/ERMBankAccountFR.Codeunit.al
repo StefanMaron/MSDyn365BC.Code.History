@@ -75,7 +75,7 @@ codeunit 144011 "ERM Bank Account FR"
         GLEntry.TestField(Amount, -PaymentLine.Amount);
     end;
 
-    local procedure PaymentSlipPost(var PaymentHeader: Record "Payment Header"; AccountType: Option; AccountNo: Code[20]; Suggestions: Option)
+    local procedure PaymentSlipPost(var PaymentHeader: Record "Payment Header"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Suggestions: Option)
     var
         PaymentSlip: TestPage "Payment Slip";
     begin
@@ -136,7 +136,7 @@ codeunit 144011 "ERM Bank Account FR"
         PaymentHeader.Modify(true);
     end;
 
-    local procedure CreatePaymentLine(PaymentHeader: Record "Payment Header"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreatePaymentLine(PaymentHeader: Record "Payment Header"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         PaymentLine: Record "Payment Line";
     begin

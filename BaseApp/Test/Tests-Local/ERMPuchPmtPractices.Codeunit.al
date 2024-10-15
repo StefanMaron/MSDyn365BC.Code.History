@@ -712,7 +712,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
           -VendorLedgerEntry."Amount (LCY)" / 3, -VendorLedgerEntry."Amount (LCY)" / 3);
     end;
 
-    local procedure MockSimpleVendLedgEntry(ExcludeFromPmtReporting: Boolean; DocType: Option; PostingDate: Date; DueDate: Date; IsOpen: Boolean): Integer
+    local procedure MockSimpleVendLedgEntry(ExcludeFromPmtReporting: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean): Integer
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -720,7 +720,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         exit(VendorLedgerEntry."Entry No.");
     end;
 
-    local procedure MockVendLedgEntryWithAmt(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
+    local procedure MockVendLedgEntryWithAmt(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -730,7 +730,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
           VendorLedgerEntry."Document Type", LibraryRandom.RandDecInRange(100, 200, 2));
     end;
 
-    local procedure MockVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; ExcludeFromPmtReporting: Boolean; DocType: Option; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
+    local procedure MockVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; ExcludeFromPmtReporting: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
     begin
         with VendorLedgerEntry do begin
             Init;
@@ -769,7 +769,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         MockEntryApplication(VendorLedgerEntry."Document Type"::"Credit Memo", InvLedgEntryNo, PostingDate, EntryAmount, AppliedAmount);
     end;
 
-    local procedure MockEntryApplication(DocType: Option; InvLedgEntryNo: Integer; PostingDate: Date; EntryAmount: Decimal; AppliedAmount: Decimal)
+    local procedure MockEntryApplication(DocType: Enum "Gen. Journal Document Type"; InvLedgEntryNo: Integer; PostingDate: Date; EntryAmount: Decimal; AppliedAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -786,7 +786,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
           DocType, AppliedAmount);
     end;
 
-    local procedure MockDtldVendLedgEntry(EntryType: Option; PostingDate: Date; LedgEntryNo: Integer; AppliedLedgEntryNo: Integer; DocType: Option; AppliedAmount: Decimal): Integer
+    local procedure MockDtldVendLedgEntry(EntryType: Option; PostingDate: Date; LedgEntryNo: Integer; AppliedLedgEntryNo: Integer; DocType: Enum "Gen. Journal Document Type"; AppliedAmount: Decimal): Integer
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin

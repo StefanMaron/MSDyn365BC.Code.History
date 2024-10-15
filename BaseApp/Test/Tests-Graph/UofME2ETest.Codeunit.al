@@ -28,7 +28,7 @@ codeunit 135516 "UofM E2E Test"
         GenerateUnitsOfMeasure(UnitOfMeasure, 5);
 
         // [WHEN] A GET request is made of the service.
-        LibraryGraphMgt.GetFromWebService(Response, GetServiceUrlForEntity(UnitOfMeasure.Id));
+        LibraryGraphMgt.GetFromWebService(Response, GetServiceUrlForEntity(UnitOfMeasure.SystemId));
 
         // [THEN] The response contains the entity requested.
         ValidateUnitOfMeasure(UnitOfMeasure, Response);
@@ -56,7 +56,7 @@ codeunit 135516 "UofM E2E Test"
         Assert.AreNotEqual(UnitOfMeasure.Description, OldDescription, StrSubstNo(WrongPropertyValueErr, 'displayName'));
 
         // [WHEN] A PATCH is made against the entity.
-        LibraryGraphMgt.PatchToWebService(GetServiceUrlForEntity(UnitOfMeasure.Id), Request, Response);
+        LibraryGraphMgt.PatchToWebService(GetServiceUrlForEntity(UnitOfMeasure.SystemId), Request, Response);
 
         // [THEN] The response matches the data given in the request.
         ValidateUnitOfMeasure(UnitOfMeasure, Response);
@@ -79,7 +79,7 @@ codeunit 135516 "UofM E2E Test"
         GenerateUnitsOfMeasure(UnitOfMeasure, 5);
 
         // [WHEN] A DEELTE is made against an entity.
-        LibraryGraphMgt.DeleteFromWebService(GetServiceUrlForEntity(UnitOfMeasure.Id), '', Response);
+        LibraryGraphMgt.DeleteFromWebService(GetServiceUrlForEntity(UnitOfMeasure.SystemId), '', Response);
 
         // [THEN] The response is empty and the data is no longer in the table.
         Assert.AreEqual('', Response, 'Expected empty response for DELETE.');
@@ -144,7 +144,7 @@ codeunit 135516 "UofM E2E Test"
         JSONManagement.GetJSONObject(JSONObject);
 
         NewName := Format(LibraryUtility.GenerateRandomAlphabeticText(10, 1), 10);
-        JSONManagement.AddJPropertyToJObject(JSONObject, 'id', UnitOfMeasure.Id);
+        JSONManagement.AddJPropertyToJObject(JSONObject, 'id', UnitOfMeasure.SystemId);
         JSONManagement.AddJPropertyToJObject(JSONObject, 'displayName', NewName);
 
         UnitOfMeasure.Validate(Description, NewName);

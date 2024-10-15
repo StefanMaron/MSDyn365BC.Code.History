@@ -1,4 +1,4 @@
-﻿codeunit 5980 "Service-Post"
+codeunit 5980 "Service-Post"
 {
     Permissions = TableData "Service Header" = imd,
                   TableData "Service Item Line" = imd,
@@ -38,7 +38,6 @@
         ReplaceDocumentDate: Boolean;
         ReplacePostingDate: Boolean;
         PostingDateExists: Boolean;
-        HideValidationDialog: Boolean;
         Ship: Boolean;
         Consume: Boolean;
         Invoice: Boolean;
@@ -51,7 +50,11 @@
         Text007: Label 'is not within your range of allowed posting dates';
         WhseShip: Boolean;
         PreviewMode: Boolean;
+        SuppressCommit: Boolean;
         NotSupportedDocumentTypeErr: Label 'Document type %1 is not supported.', Comment = '%1=Document Type e.g. Invoice';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure PostWithLines(var PassedServHeader: Record "Service Header"; var PassedServLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
     var
@@ -104,7 +107,7 @@
 
             // fetch related document (if any), for testing invoices and credit memos fields.
             Clear(ServDocReg);
-            ServDocReg.ServiceDocument("Document Type", "No.", ServDocType, ServDocNo);
+            ServDocReg.ServiceDocument("Document Type".AsInteger(), "No.", ServDocType, ServDocNo);
 
             // update quantites upon posting options and test related fields.
             ServDocumentsMgt.CheckAndBlankQtys(ServDocType);
@@ -163,7 +166,9 @@
 
         if WhseShip then
             WhseServiceRelease.Release(ServiceHeader);
-        Commit();
+
+        if not SuppressCommit then
+            Commit();
 
         OnAfterPostServiceDoc(ServiceHeader, ServShipmentNo, ServInvoiceNo, ServCrMemoNo);
 
@@ -291,6 +296,11 @@
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
+    end;
+
+    procedure SetSuppressCommit(NewSuppressCommit: Boolean)
+    begin
+        SuppressCommit := NewSuppressCommit;
     end;
 
     procedure TestDeleteHeader(ServiceHeader: Record "Service Header"; var ServiceShptHeader: Record "Service Shipment Header"; var ServiceInvHeader: Record "Service Invoice Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
@@ -439,7 +449,7 @@
         until ServiceLine.Next = 0;
     end;
 
-    local procedure TestServLinePostingDate(ServHeaderDocType: Integer; ServHeaderNo: Code[20])
+    local procedure TestServLinePostingDate(ServHeaderDocType: Enum "Service Document Type"; ServHeaderNo: Code[20])
     var
         ServLine: Record "Service Line";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";

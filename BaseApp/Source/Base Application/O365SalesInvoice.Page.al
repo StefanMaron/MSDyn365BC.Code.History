@@ -354,7 +354,7 @@ page 2110 "O365 Sales Invoice"
                     SetRecFilter;
                     LockTable();
                     Find;
-                    ReportSelections.GetPdfReport(DocumentPath, ReportSelections.Usage::"S.Invoice Draft", Rec, "Sell-to Customer No.");
+                    ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Invoice Draft", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
                     Find;
                 end;
@@ -443,7 +443,7 @@ page 2110 "O365 Sales Invoice"
     begin
         IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
 
-        IdFilter := GetFilter(Id);
+        IdFilter := GetFilter(Rec.SystemId);
 
         if IdFilter <> '' then begin
             if not IntegrationRecord.Get(IdFilter) then

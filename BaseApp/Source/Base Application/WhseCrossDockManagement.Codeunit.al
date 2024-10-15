@@ -334,7 +334,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
         end;
     end;
 
-    local procedure CalculatePickQty(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var QtyOnPick: Decimal; var QtyOnPickBase: Decimal; var QtyPicked: Decimal; var QtyPickedBase: Decimal; Qty: Decimal; QtyBase: Decimal; OutstandingQty: Decimal; OutstandingQtyBase: Decimal)
+    procedure CalculatePickQty(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var QtyOnPick: Decimal; var QtyOnPickBase: Decimal; var QtyPicked: Decimal; var QtyPickedBase: Decimal; Qty: Decimal; QtyBase: Decimal; OutstandingQty: Decimal; OutstandingQtyBase: Decimal)
     var
         WhseShptLine: Record "Warehouse Shipment Line";
     begin
@@ -571,7 +571,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
         ProdOrderComp.SetRange("Variant Code", VariantCode);
         ProdOrderComp.SetRange("Location Code", LocationCode);
         ProdOrderComp.SetRange("Due Date", 0D, CrossDockDate);
-        ProdOrderComp.SetRange("Flushing Method", ProdOrderComp."Flushing Method"::Manual);
+        ProdOrderComp.SetRange("Flushing Method", "Flushing Method"::Manual);
         ProdOrderComp.SetRange("Planning Level Code", 0);
         ProdOrderComp.SetFilter("Remaining Qty. (Base)", '>0');
         if ProdOrderComp.Find('-') then
@@ -580,7 +580,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
                 OnCalcCrossDockToProdOrderComponentOnBeforeInsertCrossDockLine(ProdOrderComp);
                 InsertCrossDockLine(
                     WhseCrossDockOpp,
-                    DATABASE::"Prod. Order Component", ProdOrderComp.Status, ProdOrderComp."Prod. Order No.",
+                    DATABASE::"Prod. Order Component", ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.",
                     ProdOrderComp."Line No.", ProdOrderComp."Prod. Order Line No.",
                     ProdOrderComp."Remaining Quantity", ProdOrderComp."Remaining Qty. (Base)",
                     ProdOrderComp."Pick Qty.", ProdOrderComp."Pick Qty. (Base)", ProdOrderComp."Qty. Picked", ProdOrderComp."Qty. Picked (Base)",

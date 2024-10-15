@@ -386,7 +386,7 @@ page 2313 "BC O365 Posted Sales Invoice"
                     SetRecFilter;
                     LockTable();
                     Find;
-                    ReportSelections.GetPdfReport(DocumentPath, ReportSelections.Usage::"S.Invoice", Rec, "Sell-to Customer No.");
+                    ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Invoice", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
                     Find;
                 end;

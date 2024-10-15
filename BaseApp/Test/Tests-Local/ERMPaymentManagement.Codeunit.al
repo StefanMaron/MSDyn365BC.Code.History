@@ -128,7 +128,7 @@ codeunit 144049 "ERM Payment Management"
         GLReconciliationReport(GenJournalLine."Bal. Account Type"::Vendor, CreateVendor(''), REPORT::"GL/Vend. Ledger Reconciliation");  // Using Blank for Currency Code.
     end;
 
-    local procedure GLReconciliationReport(BalAccountType: Option; BalAccountNo: Code[20]; ReportID: Integer)
+    local procedure GLReconciliationReport(BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; ReportID: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1715,7 +1715,7 @@ codeunit 144049 "ERM Payment Management"
         exit(Round(Amount * (PaymentTerms."Discount %" / 100), LibraryERM.GetAmountRoundingPrecision));
     end;
 
-    local procedure CreateAndPostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; DocumentType: Option; Amount: Decimal; DueDate: Date)
+    local procedure CreateAndPostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; DueDate: Date)
     begin
         CreateGenJournalLine(
           GenJournalLine, AccountType, AccountNo, DocumentType,
@@ -1727,7 +1727,7 @@ codeunit 144049 "ERM Payment Management"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostNoApplyPaymentSlip(var PaymentHeaderNo: Code[20]; PaymentClass: Text[30]; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateAndPostNoApplyPaymentSlip(var PaymentHeaderNo: Code[20]; PaymentClass: Text[30]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         PaymentLine: Record "Payment Line";
     begin
@@ -1739,7 +1739,7 @@ codeunit 144049 "ERM Payment Management"
         PostPaymentSlip(PaymentClass);
     end;
 
-    local procedure CreateAndPostPaymentSlip(PaymentClass: Text[30]; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateAndPostPaymentSlip(PaymentClass: Text[30]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         CreatePaymentSlip(AccountType, AccountNo);
         ApplyPaymentSlip(PaymentClass);
@@ -1857,7 +1857,7 @@ codeunit 144049 "ERM Payment Management"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; DocumentType: Option; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1899,7 +1899,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentHeader.Modify(true);
     end;
 
-    local procedure CreatePaymentSlip(AccountType: Option; AccountNo: Code[20]): Code[20]
+    local procedure CreatePaymentSlip(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Code[20]
     var
         PaymentHeader: Record "Payment Header";
         PaymentLine: Record "Payment Line";
@@ -2010,7 +2010,7 @@ codeunit 144049 "ERM Payment Management"
         exit(PaymentStep.Line);
     end;
 
-    local procedure CreatePaymentStepLedger(var PaymentStepLedger: Record "Payment Step Ledger"; PaymentClass: Text[30]; Sign: Option; AccountingType: Option; AccountType: Option; AccountNo: Code[20]; Application: Option; LineNo: Integer)
+    local procedure CreatePaymentStepLedger(var PaymentStepLedger: Record "Payment Step Ledger"; PaymentClass: Text[30]; Sign: Option; AccountingType: Option; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Application: Option; LineNo: Integer)
     begin
         LibraryFRLocalization.CreatePaymentStepLedger(PaymentStepLedger, PaymentClass, Sign, LineNo);
         PaymentStepLedger.Validate(Description, PaymentClass);
@@ -2021,7 +2021,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentStepLedger.Modify(true);
     end;
 
-    local procedure CreatePaymentStepLedgerWithDocumentType(var PaymentStepLedger: Record "Payment Step Ledger"; PaymentClass: Text[30]; Sign: Option; AccountingType: Option; AccountType: Option; AccountNo: Code[20]; Application: Option; LineNo: Integer; DocumentType: Option)
+    local procedure CreatePaymentStepLedgerWithDocumentType(var PaymentStepLedger: Record "Payment Step Ledger"; PaymentClass: Text[30]; Sign: Option; AccountingType: Option; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Application: Option; LineNo: Integer; DocumentType: Option)
     begin
         CreatePaymentStepLedger(
           PaymentStepLedger, PaymentClass, Sign,
@@ -2474,7 +2474,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentSlip.Lines.Application.Invoke;
     end;
 
-    local procedure PostGenJournalAndCreatePaymentSlip(AccountType: Option; AccountNo: Code[20]; Suggestions: Option; Amount: Decimal): Text[30]
+    local procedure PostGenJournalAndCreatePaymentSlip(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Suggestions: Option; Amount: Decimal): Text[30]
     var
         GenJournalLine: Record "Gen. Journal Line";
         PaymentClass: Record "Payment Class";
@@ -2569,7 +2569,7 @@ codeunit 144049 "ERM Payment Management"
         exit(PaymentClass);
     end;
 
-    local procedure SetupForPaymentOnPaymentSlip(AccountType: Option; AccountNo: Code[20]; AccountNo2: Code[20]; Amount: Decimal; Suggestion: Option; DueDate: Date) PaymentClassCode: Text[30]
+    local procedure SetupForPaymentOnPaymentSlip(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AccountNo2: Code[20]; Amount: Decimal; Suggestion: Option; DueDate: Date) PaymentClassCode: Text[30]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2726,7 +2726,7 @@ codeunit 144049 "ERM Payment Management"
         end;
     end;
 
-    local procedure SetupPaymentSlip(PaymentClassCode: Text[30]; AccountType: Option; CustomerVendorNo: Code[20])
+    local procedure SetupPaymentSlip(PaymentClassCode: Text[30]; AccountType: Enum "Gen. Journal Account Type"; CustomerVendorNo: Code[20])
     begin
         LibraryVariableStorage.Enqueue(PaymentClassCode);  // Enqueue value for PaymentClassListModalPageHandler.
         CreatePaymentSlip(AccountType, CustomerVendorNo);

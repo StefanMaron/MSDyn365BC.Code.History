@@ -27,7 +27,6 @@ codeunit 134385 "ERM Sales Document"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         ArchiveManagement: Codeunit ArchiveManagement;
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
         isInitialized: Boolean;
         VATAmountError: Label 'VAT %1 must be %2 in %3.';
         FieldError: Label '%1 must be %2 in %3.';
@@ -282,7 +281,7 @@ codeunit 134385 "ERM Sales Document"
         SalesHeader.Insert(true);  // Using Copy Document feature need New record only without Customer.
 
         // Exercise: Copy Document from Sales Order to Sales Return Order.
-        CopyDocument(SalesHeader, DocType::Order, DocumentNo);
+        CopyDocument(SalesHeader, "Sales Document Type From"::Order, DocumentNo);
 
         // Verify: Verify Sales Line created on Sales Return Order after Copy Document from Sales Order.
         SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
@@ -1345,7 +1344,7 @@ codeunit 134385 "ERM Sales Document"
         // Verification done in handler SaleAnalysisMatrixRequestPageHandler
     end;
 
-    local procedure SalesAnalysisReportWithItemLedgerEntryTypeAndValueType(AnalysisColumnValueType: Option; ValueType: Option)
+    local procedure SalesAnalysisReportWithItemLedgerEntryTypeAndValueType(AnalysisColumnValueType: Enum "Analysis Value Type"; ValueType: Enum "Item Ledger Entry Type")
     var
         AnalysisReportName: Record "Analysis Report Name";
         ItemAnalysisView: Record "Item Analysis View";
@@ -1380,7 +1379,6 @@ codeunit 134385 "ERM Sales Document"
         SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];
         PostedSalesHeaderNo: Code[20];
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         // Verify that unapplied Sales Lines can be copied to Sales Return Order by Copy Document
         // and Appl.-from Item Entry is filled when Exact Cost Reversing Mondatory is enabled.
@@ -1395,7 +1393,7 @@ codeunit 134385 "ERM Sales Document"
 
         // Create Return Sales Order by Copy Document. Delete one Sales Line.
         CreateSalesReturnOrderByCopyDocument(
-          SalesHeader, CustomerNo, DocType::"Posted Invoice", PostedSalesHeaderNo, false, false);
+          SalesHeader, CustomerNo, "Sales Document Type From"::"Posted Invoice", PostedSalesHeaderNo, false, false);
         FindAndDeleteOneSalesLine(SalesHeader);
 
         // Post Sales Return Order.
@@ -1405,7 +1403,7 @@ codeunit 134385 "ERM Sales Document"
         // Verify: Verify the warning message in MessageHandler2.
         LibraryVariableStorage.Enqueue(CopyDocForReturnOrderMsg); // Enqueue for MessageHandler2.
         CreateSalesReturnOrderByCopyDocument(
-          SalesHeader, CustomerNo, DocType::"Posted Invoice", PostedSalesHeaderNo, false, false);
+          SalesHeader, CustomerNo, "Sales Document Type From"::"Posted Invoice", PostedSalesHeaderNo, false, false);
 
         // Verify the unapplied line can be copied and Exact Cost Reversal link is created.
         VerifySalesReturnOrderLine(SalesHeader);
@@ -1505,7 +1503,7 @@ codeunit 134385 "ERM Sales Document"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run Copy Document from Posted Sales Invoice to Sales Document with Include Header = TRUE
-        CopyDocument(SalesHeader, DocType::"Posted Invoice", PostedDocNo);
+        CopyDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", PostedDocNo);
         SalesHeader.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
@@ -1515,7 +1513,7 @@ codeunit 134385 "ERM Sales Document"
         SalesShipmentHeader.SetRange("Sell-to Customer No.", CustomerNo);
         SalesShipmentHeader.FindFirst;
         LibraryVariableStorage.Enqueue(false);
-        CopyDocument(SalesHeader, DocType::"Posted Shipment", SalesShipmentHeader."No.");
+        CopyDocument(SalesHeader, "Sales Document Type From"::"Posted Shipment", SalesShipmentHeader."No.");
         SalesHeader.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
@@ -1558,7 +1556,7 @@ codeunit 134385 "ERM Sales Document"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run Copy Document from Posted Sales Cr. Memo to Sales Document with Include Header = TRUE
-        CopyDocument(SalesHeader, DocType::"Posted Credit Memo", PostedDocNo);
+        CopyDocument(SalesHeader, "Sales Document Type From"::"Posted Credit Memo", PostedDocNo);
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         SalesHeader.Find;
@@ -1568,7 +1566,7 @@ codeunit 134385 "ERM Sales Document"
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", CustomerNo);
         ReturnReceiptHeader.FindFirst;
         LibraryVariableStorage.Enqueue(false);
-        CopyDocument(SalesHeader, DocType::"Posted Return Receipt", ReturnReceiptHeader."No.");
+        CopyDocument(SalesHeader, "Sales Document Type From"::"Posted Return Receipt", ReturnReceiptHeader."No.");
         SalesHeader.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
@@ -1607,7 +1605,7 @@ codeunit 134385 "ERM Sales Document"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run Copy Document from Sales Quote to Sales Document with Include Header = TRUE
-        CopyDocument(SalesHeaderDst, DocType::Quote, SalesHeaderSrc."No.");
+        CopyDocument(SalesHeaderDst, "Sales Document Type From"::Quote, SalesHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         SalesHeaderDst.Find;
@@ -1648,7 +1646,7 @@ codeunit 134385 "ERM Sales Document"
         CustomerNoDst := LibrarySales.CreateCustomerNo;
         CreateSalesDocumentWithPostingNo(SalesHeader1, CustomerNoDst, LibraryRandom.RandInt(5), PostedDocNo);
         // [WHEN] Run Copy Document from Posted Sales Invoice to Sales Document with Include Header = TRUE
-        CopyDocument(SalesHeader1, DocType::"Posted Invoice", PostedDocNo);
+        CopyDocument(SalesHeader1, "Sales Document Type From"::"Posted Invoice", PostedDocNo);
         SalesHeader1.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
@@ -1658,7 +1656,7 @@ codeunit 134385 "ERM Sales Document"
         SalesShipmentHeader.SetRange("Sell-to Customer No.", CustomerNoSrc);
         SalesShipmentHeader.FindFirst;
         CreateSalesDocumentWithPostingNo(SalesHeader2, CustomerNoDst, LibraryRandom.RandInt(5), PostedDocNo);
-        CopyDocument(SalesHeader2, DocType::"Posted Shipment", SalesShipmentHeader."No.");
+        CopyDocument(SalesHeader2, "Sales Document Type From"::"Posted Shipment", SalesShipmentHeader."No.");
         SalesHeader2.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
@@ -1699,7 +1697,7 @@ codeunit 134385 "ERM Sales Document"
           SalesHeader1, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(5), PostedDocNo);
 
         // [WHEN] Run Copy Document from Posted Sales Cr. Memo to Sales Document with Include Header = TRUE
-        CopyDocument(SalesHeader1, DocType::"Posted Credit Memo", PostedDocNo);
+        CopyDocument(SalesHeader1, "Sales Document Type From"::"Posted Credit Memo", PostedDocNo);
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
         SalesHeader1.Find;
@@ -1711,7 +1709,7 @@ codeunit 134385 "ERM Sales Document"
 
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", CustomerNo);
         ReturnReceiptHeader.FindFirst;
-        CopyDocument(SalesHeader2, DocType::"Posted Return Receipt", ReturnReceiptHeader."No.");
+        CopyDocument(SalesHeader2, "Sales Document Type From"::"Posted Return Receipt", ReturnReceiptHeader."No.");
         SalesHeader2.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
@@ -1746,7 +1744,7 @@ codeunit 134385 "ERM Sales Document"
           LibraryUtility.GenerateRandomCode(SalesHeaderDst.FieldNo("Posting No."), DATABASE::"Sales Header"));
 
         // [WHEN] Run Copy Document from Sales Quote to Sales Document with Include Header = TRUE
-        CopyDocument(SalesHeaderDst, DocType::Quote, SalesHeaderSrc."No.");
+        CopyDocument(SalesHeaderDst, "Sales Document Type From"::Quote, SalesHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
         SalesHeaderDst.Find;
@@ -1786,7 +1784,7 @@ codeunit 134385 "ERM Sales Document"
           SalesHeaderDst, SalesHeaderDst."Document Type"::Invoice, SalesHeaderSrc."Sell-to Customer No.");
 
         // [WHEN] Run "Copy Sales Document" report from Invoice to Invoice with Include Header = FALSE and Recalculate Lines = FALSE
-        asserterror LibrarySales.CopySalesDocument(SalesHeaderDst, DocType::Invoice, SalesHeaderSrc."No.", false, false);
+        asserterror LibrarySales.CopySalesDocument(SalesHeaderDst, "Sales Document Type From"::Invoice, SalesHeaderSrc."No.", false, false);
 
         // [THEN] Error thrown due to different VAT Business Groups in copied line and header
         Assert.ExpectedErrorCode(TestFieldTok);
@@ -2323,7 +2321,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader."Sell-to Customer No.");
 
         // [WHEN] Copy Archived Sales Order to new Sales Order with "Include Header" = 'No' and "Recalculate Lines" = 'No'
-        CopySalesDocumentFromArchived(SalesHeader, DocType::"Arch. Order", SalesHeaderNo, false, false, SalesHeader."Document Type");
+        CopySalesDocumentFromArchived(SalesHeader, "Sales Document Type From"::"Arch. Order", SalesHeaderNo, false, false, SalesHeader."Document Type");
 
         // [THEN] New Sales Order has "VAT Clause Code" = "A" and "VAT %" = "X"
         VerifySalesLineVATRateAndClauseCode(SalesHeader."Document Type", SalesHeader."No.", OldVATRate, OldVATClauseCode);
@@ -2363,7 +2361,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
 
         // [WHEN] Copy Archived Sales Order to new Sales Order with "Include Header" = 'Yes' and "Recalculate Lines" = 'No'
-        CopySalesDocumentFromArchived(SalesHeader, DocType::"Arch. Order", SalesHeaderNo, true, false, SalesHeader."Document Type");
+        CopySalesDocumentFromArchived(SalesHeader, "Sales Document Type From"::"Arch. Order", SalesHeaderNo, true, false, SalesHeader."Document Type");
 
         // [THEN] New Sales Order has "VAT Clause Code" = "A" and "VAT %" = "X"
         VerifySalesLineVATRateAndClauseCode(SalesHeader."Document Type", SalesHeader."No.", OldVATRate, OldVATClauseCode);
@@ -2399,7 +2397,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader."Sell-to Customer No.");
 
         // [WHEN] Copy Archived Sales Order to new Sales Order with "Include Header" = 'No' and "Recalculate Lines" = 'Yes'
-        CopySalesDocumentFromArchived(SalesHeader, DocType::"Arch. Order", SalesHeaderNo, false, true, SalesHeader."Document Type");
+        CopySalesDocumentFromArchived(SalesHeader, "Sales Document Type From"::"Arch. Order", SalesHeaderNo, false, true, SalesHeader."Document Type");
 
         // [THEN] New Sales Order has "VAT Clause Code" = "B" and "VAT %" = "Y"
         VerifySalesLineVATRateAndClauseCode(
@@ -2436,7 +2434,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
 
         // [WHEN] Copy Archived Sales Order to new Sales Order with "Include Header" = 'Yes' and "Recalculate Lines" = 'Yes'
-        CopySalesDocumentFromArchived(SalesHeader, DocType::"Arch. Order", SalesHeaderNo, true, true, SalesHeader."Document Type");
+        CopySalesDocumentFromArchived(SalesHeader, "Sales Document Type From"::"Arch. Order", SalesHeaderNo, true, true, SalesHeader."Document Type");
 
         // [THEN] New Sales Order has "VAT Clause Code" = "B" and "VAT %" = "Y"
         VerifySalesLineVATRateAndClauseCode(
@@ -2465,7 +2463,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
 
         // [WHEN] Copy Document "SO" to Sales Order "O"
-        CopySalesDocument(SalesHeader, DocType::Order, SalesHeaderNo);
+        CopySalesDocument(SalesHeader, "Sales Document Type From"::Order, SalesHeaderNo);
 
         // [THEN] "Last Posting No." and "Last Shipping No." are both <blank> in Sales Order "O"
         SalesHeader.TestField("Last Posting No.", '');
@@ -2497,7 +2495,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
 
         // [WHEN] Copy Archived Sales Order to Sales Order "O"
-        CopySalesDocumentFromArchived(SalesHeader, DocType::"Arch. Order", SalesHeaderNo, true, false, SalesHeader."Document Type");
+        CopySalesDocumentFromArchived(SalesHeader, "Sales Document Type From"::"Arch. Order", SalesHeaderNo, true, false, SalesHeader."Document Type");
 
         // [THEN] "Last Posting No." and "Last Shipping No." are both <blank> in Sales Order "O"
         SalesHeader.TestField("Last Posting No.", '');
@@ -2527,7 +2525,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
 
         // [WHEN] Copy Document "SO" to Sales Order "O"
-        CopySalesDocument(SalesHeader, DocType::Order, SalesHeaderNo);
+        CopySalesDocument(SalesHeader, "Sales Document Type From"::Order, SalesHeaderNo);
 
         // [THEN] "Last Prepayment No." and "Last Prepmt. Cr. Memo No." are both <blank> in Sales Order "O"
         SalesHeader.TestField("Last Prepayment No.", '');
@@ -2559,7 +2557,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
 
         // [WHEN] Copy Archived Sales Order to Sales Order "O"
-        CopySalesDocumentFromArchived(SalesHeader, DocType::"Arch. Order", SalesHeaderNo, true, false, SalesHeader."Document Type");
+        CopySalesDocumentFromArchived(SalesHeader, "Sales Document Type From"::"Arch. Order", SalesHeaderNo, true, false, SalesHeader."Document Type");
 
         // [THEN] "Last Prepayment No." and "Last Prepmt. Cr. Memo No." are both <blank> in Sales Order "O"
         SalesHeader.TestField("Last Prepayment No.", '');
@@ -2585,7 +2583,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
 
         // [WHEN] Copy Document "SR" to Sales Order "O"
-        CopySalesDocument(SalesHeader, DocType::"Return Order", SalesHeaderNo);
+        CopySalesDocument(SalesHeader, "Sales Document Type From"::"Return Order", SalesHeaderNo);
 
         // [THEN] "Last Return Receipt No." is <blank> in Sales Order "O"
         SalesHeader.TestField("Last Return Receipt No.", '');
@@ -2616,7 +2614,7 @@ codeunit 134385 "ERM Sales Document"
 
         // [WHEN] Copy Archived Sales Return Order to Sales Order "O"
         CopySalesDocumentFromArchived(
-          SalesHeader, DocType::"Arch. Return Order", SalesHeaderNo, true, false, SalesHeader."Document Type"::"Return Order");
+          SalesHeader, "Sales Document Type From"::"Arch. Return Order", SalesHeaderNo, true, false, SalesHeader."Document Type"::"Return Order");
 
         // [THEN] "Last Return Receipt No." is <blank> in Sales Order "O"
         SalesHeader.TestField("Last Return Receipt No.", '');
@@ -2838,7 +2836,7 @@ codeunit 134385 "ERM Sales Document"
         FindSalesLine(SalesLine, SalesHeader);
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
         LibraryVariableStorage.Enqueue(SalesLine.Quantity);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibraryVariableStorage.Enqueue(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [GIVEN] Posted Sales Return Order for Sales Order
@@ -2866,7 +2864,7 @@ codeunit 134385 "ERM Sales Document"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        DocType: Option;
+        DocType: Enum "Sales Document Type";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 327504] Order Date on sales documents is initialized with WORKDATE. This is required to pick the current sales price.
@@ -3198,7 +3196,7 @@ codeunit 134385 "ERM Sales Document"
         LibraryERM.RunAddnlReportingCurrency(CurrencyCode, CurrencyCode, FindGLAccountNo);
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; GeneralPostingSetup: Record "General Posting Setup"; DocumentType: Option; CurrencyCode: Code[10])
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; GeneralPostingSetup: Record "General Posting Setup"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10])
     var
         SalesHeader: Record "Sales Header";
         CustomerNo: Code[20];
@@ -3215,7 +3213,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostSimpleSalesDocument(DocumentType: Option; var CustomerNo: Code[20]): Code[20]
+    local procedure CreateAndPostSimpleSalesDocument(DocumentType: Enum "Sales Document Type"; var CustomerNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -3237,7 +3235,7 @@ codeunit 134385 "ERM Sales Document"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAnalysisColumnWithItemLedgerEntryType(ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Option): Code[10]
+    local procedure CreateAnalysisColumnWithItemLedgerEntryType(ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"): Code[10]
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
@@ -3246,7 +3244,7 @@ codeunit 134385 "ERM Sales Document"
         exit(AnalysisColumnTemplate.Name);
     end;
 
-    local procedure CreateAnalysisMultipleColumns(ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Option; ColumnCount: Integer): Code[10]
+    local procedure CreateAnalysisMultipleColumns(ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type"; ColumnCount: Integer): Code[10]
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
         Index: Integer;
@@ -3258,7 +3256,7 @@ codeunit 134385 "ERM Sales Document"
         exit(AnalysisColumnTemplate.Name);
     end;
 
-    local procedure CreateAnalysisColumn(ColumnTemplateName: Code[10]; ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Option)
+    local procedure CreateAnalysisColumn(ColumnTemplateName: Code[10]; ItemAnalysisViewAnalysisArea: Option; ItemLedgerEntryTypeFilter: Text[250]; ValueType: Enum "Analysis Value Type")
     var
         AnalysisColumn: Record "Analysis Column";
     begin
@@ -3275,7 +3273,7 @@ codeunit 134385 "ERM Sales Document"
         AnalysisColumn.Modify(true);
     end;
 
-    local procedure CreateAnalysisLine(ItemAnalysisViewAnalysisArea: Option; AnalysisLineType: Option; RangeValue: Code[20]): Code[10]
+    local procedure CreateAnalysisLine(ItemAnalysisViewAnalysisArea: Option; AnalysisLineType: Enum "Analysis Line Type"; RangeValue: Code[20]): Code[10]
     var
         AnalysisLine: Record "Analysis Line";
         AnalysisLineTemplate: Record "Analysis Line Template";
@@ -3360,14 +3358,14 @@ codeunit 134385 "ERM Sales Document"
         exit(Location.Code);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         // Create Sales Order using Random Quantity for Sales Line.
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreateSalesDocumentWithLocation(var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10])
+    local procedure CreateSalesDocumentWithLocation(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; LocationCode: Code[10])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -3385,7 +3383,7 @@ codeunit 134385 "ERM Sales Document"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; DocType: Integer; ItemNo: Code[20]; CustNo: Code[20])
+    local procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; ItemNo: Code[20]; CustNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -3426,7 +3424,7 @@ codeunit 134385 "ERM Sales Document"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CopyDocument(SalesHeader: Record "Sales Header"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure CopyDocument(SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         LibrarySales.CopySalesDocument(SalesHeader, DocumentType, DocumentNo, true, false);
     end;
@@ -3611,7 +3609,7 @@ codeunit 134385 "ERM Sales Document"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesReturnOrderByCopyDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocType: Option; PostedSalesHeaderNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
+    local procedure CreateSalesReturnOrderByCopyDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocType: Enum "Sales Document Type"; PostedSalesHeaderNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
         LibrarySales.CopySalesDocument(SalesHeader, DocType, PostedSalesHeaderNo, IncludeHeader, RecalcLines);
@@ -3626,7 +3624,7 @@ codeunit 134385 "ERM Sales Document"
         SalesSetup.Modify();
     end;
 
-    local procedure CreateSalesOrderWithUniqueDescriptionLines(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; Type: Option)
+    local procedure CreateSalesOrderWithUniqueDescriptionLines(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; Type: Enum "Sales Line Type")
     var
         SalesLine: Record "Sales Line";
         i: Integer;
@@ -3667,7 +3665,7 @@ codeunit 134385 "ERM Sales Document"
         exit(VATClause.Code);
     end;
 
-    local procedure CreateSalesDocumentWithSetup(var SalesHeader: Record "Sales Header"; DocumentType: Integer; VATPostingSetup: Record "VAT Posting Setup")
+    local procedure CreateSalesDocumentWithSetup(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; VATPostingSetup: Record "VAT Posting Setup")
     var
         SalesLine: Record "Sales Line";
         DummyGLAccount: Record "G/L Account";
@@ -3679,7 +3677,7 @@ codeunit 134385 "ERM Sales Document"
             VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Sale), LibraryRandom.RandDecInRange(10, 20, 2));
     end;
 
-    local procedure CopySalesDocumentFromArchived(var ToSalesHeader: Record "Sales Header"; DocType: Integer; DocNo: Code[20]; IncludeHeader: Boolean; RecalculateLines: Boolean; ArchivedDocType: Integer)
+    local procedure CopySalesDocumentFromArchived(var ToSalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type From"; DocNo: Code[20]; IncludeHeader: Boolean; RecalculateLines: Boolean; ArchivedDocType: Enum "Sales Document Type")
     var
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
         DocNoOccurrence: Integer;
@@ -3692,7 +3690,7 @@ codeunit 134385 "ERM Sales Document"
         CopyDocumentMgt.CopySalesDoc(DocType, DocNo, ToSalesHeader);
     end;
 
-    local procedure CopySalesDocument(var ToSalesHeader: Record "Sales Header"; DocType: Integer; DocNo: Code[20])
+    local procedure CopySalesDocument(var ToSalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type From"; DocNo: Code[20])
     var
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
     begin
@@ -3700,7 +3698,7 @@ codeunit 134385 "ERM Sales Document"
         CopyDocumentMgt.CopySalesDoc(DocType, DocNo, ToSalesHeader);
     end;
 
-    local procedure GetDocNoOccurenceAndVersionFromArchivedDoc(var DocNoOccurrence: Integer; var DocVersionNo: Integer; ArchivedDocType: Integer; DocNo: Code[20])
+    local procedure GetDocNoOccurenceAndVersionFromArchivedDoc(var DocNoOccurrence: Integer; var DocVersionNo: Integer; ArchivedDocType: Enum "Sales Document Type"; DocNo: Code[20])
     var
         SalesHeaderArchive: Record "Sales Header Archive";
     begin
@@ -3851,7 +3849,7 @@ codeunit 134385 "ERM Sales Document"
         until SalesLine2.Next = 0;
     end;
 
-    local procedure FindCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         CustLedgerEntry.CalcFields(Amount);
@@ -3947,7 +3945,7 @@ codeunit 134385 "ERM Sales Document"
         exit(StandardText.Code);
     end;
 
-    local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         ValueEntry.SetRange("Document Type", DocumentType);
         ValueEntry.SetRange("Document No.", DocumentNo);
@@ -4098,7 +4096,7 @@ codeunit 134385 "ERM Sales Document"
         SalesOrder.OK.Invoke;
     end;
 
-    local procedure UpdateItemParameters(var Item: Record Item; ReplenishmentSystem: Option; AssemblyPolicy: Option)
+    local procedure UpdateItemParameters(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; AssemblyPolicy: Enum "Assembly Policy")
     begin
         Item.Validate("Replenishment System", ReplenishmentSystem);
         Item.Validate("Assembly Policy", AssemblyPolicy);
@@ -4244,7 +4242,7 @@ codeunit 134385 "ERM Sales Document"
         Assert.AreEqual(BinCode, SalesLine."Bin Code", UpdateBinCodeErr);
     end;
 
-    local procedure VerifyRemainingAmountOnLedger(DocumentNo: Code[20]; DocumentType: Option; RemainingAmount: Decimal)
+    local procedure VerifyRemainingAmountOnLedger(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; RemainingAmount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -4559,7 +4557,7 @@ codeunit 134385 "ERM Sales Document"
         SalesLine.TestField("Appl.-from Item Entry");
     end;
 
-    local procedure VerifySalesLineVATRateAndClauseCode(DocType: Integer; DocNo: Code[20]; VATRate: Decimal; VATClauseCode: Code[20])
+    local procedure VerifySalesLineVATRateAndClauseCode(DocType: Enum "Sales Document Type"; DocNo: Code[20]; VATRate: Decimal; VATClauseCode: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin

@@ -146,7 +146,7 @@ codeunit 144045 "UT REP Payment Management"
         PaymentReportWithCurrency(PaymentLine."Account Type"::Vendor, CreateVendor, REPORT::Draft);
     end;
 
-    local procedure PaymentReportWithCurrency(AccountType: Option; AccountNo: Code[20]; ReportID: Integer)
+    local procedure PaymentReportWithCurrency(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; ReportID: Integer)
     var
         CurrencyCode: Code[10];
     begin
@@ -183,7 +183,7 @@ codeunit 144045 "UT REP Payment Management"
         PaymentReportWithoutCurrency(PaymentLine."Account Type"::Vendor, CreateVendor, REPORT::Draft);
     end;
 
-    local procedure PaymentReportWithoutCurrency(AccountType: Option; AccountNo: Code[20]; ReportID: Integer)
+    local procedure PaymentReportWithoutCurrency(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; ReportID: Integer)
     var
         FileName: Text[1024];
     begin
@@ -582,7 +582,7 @@ codeunit 144045 "UT REP Payment Management"
         exit(PaymentHeader."No.");
     end;
 
-    local procedure CreatePaymentLine(var PaymentLine: Record "Payment Line"; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; PaymentAddressCode: Code[10])
+    local procedure CreatePaymentLine(var PaymentLine: Record "Payment Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; PaymentAddressCode: Code[10])
     begin
         PaymentLine."No." := CreatePaymentHeader;
         PaymentLine."Account Type" := AccountType;
@@ -618,7 +618,7 @@ codeunit 144045 "UT REP Payment Management"
         REPORT.Run(REPORT::"Withdraw recapitulation", true, false, PaymentLine);  // TRUE for ReqWindow and FALSE for SystemPrinter.
     end;
 
-    local procedure CreatePaymentLineAndRunPaymentReport(AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; ReportID: Integer)
+    local procedure CreatePaymentLineAndRunPaymentReport(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; ReportID: Integer)
     var
         PaymentLine: Record "Payment Line";
     begin

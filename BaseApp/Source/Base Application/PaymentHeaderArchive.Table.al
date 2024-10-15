@@ -193,7 +193,7 @@ table 10867 "Payment Header Archive"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

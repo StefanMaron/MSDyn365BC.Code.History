@@ -80,7 +80,7 @@ table 10801 "FR Acc. Schedule Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(10800; "Totaling Debtor"; Text[250])

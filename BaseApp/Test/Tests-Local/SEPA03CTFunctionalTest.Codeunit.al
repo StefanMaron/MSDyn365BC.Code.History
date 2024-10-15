@@ -56,7 +56,9 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         // Must exist a rec with same Document No.
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        LibraryERM.CreateGeneralJnlLine(GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name, 0, 0, '', 0);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+            "Gen. Journal Account Type"::"G/L Account", '', 0);
         GenJnlLine."Document No." := PaymentHeader."No.";
         GenJnlLine.Modify();
 

@@ -623,7 +623,7 @@ codeunit 144032 "ERM INTRASTAT"
         IntrastatJnlLine.Modify(true);
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesShipmentLine: Record "Sales Shipment Line"; DocumentType: Option; Quantity: Decimal)
+    local procedure CreateAndPostSalesDocument(var SalesShipmentLine: Record "Sales Shipment Line"; DocumentType: Enum "Sales Document Type"; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -633,7 +633,7 @@ codeunit 144032 "ERM INTRASTAT"
         FindSalesShipmentLine(SalesShipmentLine, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchRcptLine: Record "Purch. Rcpt. Line"; DocumentType: Option; Quantity: Decimal)
+    local procedure CreateAndPostPurchaseDocument(var PurchRcptLine: Record "Purch. Rcpt. Line"; DocumentType: Enum "Purchase Document Type"; Quantity: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";

@@ -11,6 +11,8 @@ report 99001045 "Calc. Machine Center Calendar"
             RequestFilterFields = "No.";
 
             trigger OnAfterGetRecord()
+            var
+                CapacityType: Enum "Capacity Type";
             begin
                 Window.Update(1, "No.");
                 TestField("Work Center No.");
@@ -18,11 +20,7 @@ report 99001045 "Calc. Machine Center Calendar"
                 TestField(Efficiency);
 
                 CalendarMgt.CalculateSchedule(
-                  1,
-                  "No.",
-                  "Work Center No.",
-                  StartingDate,
-                  EndingDate)
+                    CapacityType::"Machine Center", "No.", "Work Center No.", StartingDate, EndingDate)
             end;
 
             trigger OnPreDataItem()

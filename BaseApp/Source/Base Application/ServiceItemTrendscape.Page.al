@@ -42,7 +42,7 @@ page 5983 "Service Item Trendscape"
                             SetRange("No.", ServItem."No.");
                             ServItemNo := ServItem."No.";
                         end;
-                        ServItemNoOnAfterValidate;
+                        ServItemNoOnAfterValidate();
                     end;
                 }
                 field(Description; Description)

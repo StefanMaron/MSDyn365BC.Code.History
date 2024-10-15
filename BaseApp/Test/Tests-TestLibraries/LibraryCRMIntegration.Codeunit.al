@@ -1675,16 +1675,11 @@ codeunit 139164 "Library - CRM Integration"
     procedure MockLastSyncModifiedOn(RecID: RecordID; SyncDateTime: DateTime)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
-        IntegrationRecord: Record "Integration Record";
     begin
         CRMIntegrationRecord.FindByRecordID(RecID);
         CRMIntegrationRecord."Last Synch. Modified On" := SyncDateTime;
         CRMIntegrationRecord."Last Synch. CRM Modified On" := SyncDateTime;
         CRMIntegrationRecord.Modify();
-        // mock an unchaged IntegrationRecord, "Modified On" is equal to "Last Synch. Modified On"
-        IntegrationRecord.FindByRecordId(RecID);
-        IntegrationRecord."Modified On" := CRMIntegrationRecord."Last Synch. Modified On";
-        IntegrationRecord.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -1826,6 +1821,7 @@ codeunit 139164 "Library - CRM Integration"
         Assert.AreEqual(ExpectedIntegrationSynchJob.Failed, IntegrationSynchJob.Failed, 'count of Failed');
         Assert.AreEqual(ExpectedIntegrationSynchJob.Deleted, IntegrationSynchJob.Deleted, 'count of Deleted');
         Assert.AreEqual(ExpectedIntegrationSynchJob.Unchanged, IntegrationSynchJob.Unchanged, 'count of Unchanged');
+        Assert.AreEqual(ExpectedIntegrationSynchJob.Skipped, IntegrationSynchJob.Skipped, 'count of Skipped');
     end;
 
     [Scope('OnPrem')]

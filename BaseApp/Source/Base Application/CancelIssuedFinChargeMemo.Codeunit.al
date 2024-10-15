@@ -168,7 +168,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         end;
     end;
 
-    local procedure InitGenJnlLine(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; var GenJnlLine: Record "Gen. Journal Line"; AccountType: Integer; AccountNo: Code[20]; SystemCreatedEntry: Boolean; DocumentNo: Code[20]; PostingDate: Date)
+    local procedure InitGenJnlLine(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; SystemCreatedEntry: Boolean; DocumentNo: Code[20]; PostingDate: Date)
     begin
         with GenJnlLine do begin
             Init;

@@ -7,6 +7,7 @@ report 129 "Customer - Trial Balance"
     Caption = 'Customer - Trial Balance';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

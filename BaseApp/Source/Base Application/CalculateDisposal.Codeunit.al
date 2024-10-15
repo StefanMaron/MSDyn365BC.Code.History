@@ -217,7 +217,7 @@ codeunit 5605 "Calculate Disposal"
                 15:
                     "FA Posting Type" := "FA Posting Type"::Derogatory;
             end;
-            exit("FA Posting Type");
+            exit("FA Posting Type".AsInteger());
         end;
     end;
 
@@ -257,7 +257,7 @@ codeunit 5605 "Calculate Disposal"
                 5:
                     "FA Posting Type" := "FA Posting Type"::Derogatory;
             end;
-            exit("FA Posting Type");
+            exit("FA Posting Type".AsInteger());
         end;
     end;
 

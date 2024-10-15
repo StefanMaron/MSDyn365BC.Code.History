@@ -43,7 +43,7 @@ codeunit 144041 "UT PAG Number To Text"
         PreviewCheckPaymentJournal(GenJournalLine."Account Type"::Customer, CreateCustomer);
     end;
 
-    local procedure PreviewCheckPaymentJournal(AccountType: Option; AccountNo: Code[20])
+    local procedure PreviewCheckPaymentJournal(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
         Check: Report Check;
@@ -75,7 +75,7 @@ codeunit 144041 "UT PAG Number To Text"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         GenJournalLine."Account Type" := AccountType;
         GenJournalLine."Account No." := AccountNo;

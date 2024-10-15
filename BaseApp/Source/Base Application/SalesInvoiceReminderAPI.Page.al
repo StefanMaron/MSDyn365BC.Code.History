@@ -32,8 +32,7 @@ page 2201 "Sales Invoice Reminder API"
         if IsNullGuid(InvoiceId) then
             Error('');
 
-        SalesInvoiceHeader.SetRange(Id, InvoiceId);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.GetBySystemId(InvoiceId);
 
         SalesInvoiceHeader.EmailRecords(false);
 

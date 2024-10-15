@@ -82,6 +82,18 @@ table 8623 "Config. Package"
             InitValue = 5;
             DataClassification = SystemMetadata;
         }
+        field(20; "Import Error"; Text[2048])
+        {
+            Caption = 'Import Error';
+            DataClassification = SystemMetadata;
+            Editable = false;
+        }
+        field(21; "Apply Error"; Text[2048])
+        {
+            Caption = 'Apply Error';
+            DataClassification = SystemMetadata;
+            Editable = false;
+        }
     }
 
     keys

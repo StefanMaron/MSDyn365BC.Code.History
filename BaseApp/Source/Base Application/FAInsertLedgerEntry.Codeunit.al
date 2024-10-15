@@ -1,4 +1,4 @@
-codeunit 5600 "FA Insert Ledger Entry"
+﻿codeunit 5600 "FA Insert Ledger Entry"
 {
     Permissions = TableData "FA Ledger Entry" = rim,
                   TableData "FA Depreciation Book" = rim,
@@ -117,7 +117,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         end;
 
         if FALedgEntry3."FA Posting Category" = FALedgEntry3."FA Posting Category"::" " then
-            if (FALedgEntry3."FA Posting Type" <= FALedgEntry3."FA Posting Type"::"Salvage Value") or
+            if (FALedgEntry3."FA Posting Type".AsInteger() <= FALedgEntry3."FA Posting Type"::"Salvage Value".AsInteger()) or
                (FALedgEntry3."FA Posting Type" = FALedgEntry3."FA Posting Type"::Derogatory)
             then
                 CODEUNIT.Run(CODEUNIT::"FA Check Consistency", FALedgEntry);

@@ -512,7 +512,7 @@ page 302 "Customer Entry Statistics"
         CustLedgEntry2.SetRange(Open, true);
         if CustLedgEntry2.Find('+') then
             repeat
-                j := CustLedgEntry2."Document Type";
+                j := CustLedgEntry2."Document Type".AsInteger();
                 if j > 0 then begin
                     CustLedgEntry2.CalcFields("Remaining Amt. (LCY)");
                     TotalRemainAmountLCY[j] := TotalRemainAmountLCY[j] + CustLedgEntry2."Remaining Amt. (LCY)";
@@ -542,7 +542,7 @@ page 302 "Customer Entry Statistics"
             CustLedgEntry2.SetFilter("Posting Date", CustDateFilter[i]);
             if CustLedgEntry2.Find('+') then
                 repeat
-                    j := CustLedgEntry2."Document Type";
+                    j := CustLedgEntry2."Document Type".AsInteger();
                     if j > 0 then
                         NoOfDoc[i] [j] := NoOfDoc[i] [j] + 1;
 

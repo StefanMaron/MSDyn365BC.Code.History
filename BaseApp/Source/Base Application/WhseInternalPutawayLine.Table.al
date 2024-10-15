@@ -402,10 +402,12 @@ table 7332 "Whse. Internal Put-away Line"
         Text002: Label 'must not be greater than %1 units';
         Text003: Label 'You cannot rename a %1.';
         LastLineNo: Integer;
-        HideValidationDialog: Boolean;
         Text004: Label '%1 = %2 is less than the %3 = %4.\Do you really want to delete the %5?';
         Text005: Label 'Cancelled.';
         Text006: Label 'Nothing to handle.';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure SetUpNewLine(LastWhseInternalPutAwayLine: Record "Whse. Internal Put-away Line")
     var

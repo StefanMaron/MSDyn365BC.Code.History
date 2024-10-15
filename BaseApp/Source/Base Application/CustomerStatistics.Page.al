@@ -743,7 +743,10 @@ page 151 "Customer Statistics"
 
     var
         Text000: Label 'Overdue Amounts (LCY) as of %1';
+        Text001: Label 'Placeholder';
         DateFilterCalc: Codeunit "DateFilter-Calc";
+
+    protected var
         CustDateFilter: array[4] of Text[30];
         CustDateName: array[4] of Text[30];
         CurrentDate: Date;
@@ -763,9 +766,8 @@ page 151 "Customer Statistics"
         CustPaymentsLCY: array[4] of Decimal;
         CustRefundsLCY: array[4] of Decimal;
         CustOtherAmountsLCY: array[4] of Decimal;
-        i: Integer;
         InvAmountsLCY: array[4] of Decimal;
-        Text001: Label 'Placeholder';
+        i: Integer;
 
     local procedure SetDateFilter()
     begin

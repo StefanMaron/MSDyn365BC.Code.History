@@ -207,7 +207,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         ServerFileExtensionTxt: Label 'TXT';
         IncludeOpeningBalances: Boolean;
         CurrentTransactionNo: Integer;
-        CurrentSourceType: Option;
+        CurrentSourceType: Enum "Gen. Journal Source Type";
         CustVendLedgEntryPartyNo: Code[20];
         CustVendLedgEntryPartyName: Text[100];
         CustVendLedgEntryFCYAmount: Text[250];
@@ -520,7 +520,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         DocNoSet := '';
         DateApplied := 0D;
         case SourceType of
-            GLEntry."Source Type"::Customer:
+            GLEntry."Source Type"::Customer.AsInteger():
                 begin
                     CustLedgerEntry.SetRange("Transaction No.", TransactionNo);
                     if CustLedgerEntry.FindFirst then begin
@@ -549,7 +549,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                         DocNoSet := DelChr(DocNoSet, '>', ';');
                     end;
                 end;
-            GLEntry."Source Type"::Vendor:
+            GLEntry."Source Type"::Vendor.AsInteger():
                 begin
                     VendorLedgerEntry.SetRange("Transaction No.", TransactionNo);
                     if VendorLedgerEntry.FindFirst then begin
@@ -641,7 +641,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         if (GLEntry."Transaction No." <> CurrentTransactionNo) or (GLEntry."Source Type" <> CurrentSourceType) then begin
             ResetTransactionData;
             GetLedgerEntryDataForCustVend(
-              GLEntry."Transaction No.", GLEntry."Source Type",
+              GLEntry."Transaction No.", GLEntry."Source Type".AsInteger(),
               CustVendLedgEntryPartyNo,
               CustVendLedgEntryPartyName,
               CustVendLedgEntryFCYAmount,
@@ -756,7 +756,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         end;
     end;
 
-    local procedure WriteDetailedGLAccountBySource(GLAccountNo: Code[20]; SourceType: Option; SourceNo: Code[20]) TotalAmt: Decimal
+    local procedure WriteDetailedGLAccountBySource(GLAccountNo: Code[20]; SourceType: Enum "Gen. Journal Source Type"; SourceNo: Code[20]) TotalAmt: Decimal
     var
         GLEntry: Record "G/L Entry";
         PartyNo: Code[20];

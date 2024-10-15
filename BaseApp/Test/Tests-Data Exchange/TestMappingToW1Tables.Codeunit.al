@@ -739,8 +739,9 @@ codeunit 132542 TestMappingToW1Tables
         Initialize;
 
         // Pre-Setup
-        DataExchDef.InsertRecForExport(LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Bank Statement Import",
-          XMLPORT::"Data Exch. Import - CSV", DataExchDef."File Type"::"Variable Text");
+        DataExchDef.InsertRecForExport(
+            LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Bank Statement Import".AsInteger(),
+            XMLPORT::"Data Exch. Import - CSV", DataExchDef."File Type"::"Variable Text");
         DataExchLineDef.InsertRec(DataExchDef.Code, LibraryUtility.GenerateGUID, '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, DataExchLineDef.Code, 1, '',
           true, DataExchColumnDef."Data Type"::Decimal, '', '', '');

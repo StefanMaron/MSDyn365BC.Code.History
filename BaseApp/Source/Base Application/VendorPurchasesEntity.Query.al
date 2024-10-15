@@ -9,7 +9,7 @@ query 5481 "Vendor Purchases Entity"
     {
         dataitem(Vendor; Vendor)
         {
-            column(vendorId; Id)
+            column(vendorId; SystemId)
             {
                 Caption = 'Id', Locked = true;
             }

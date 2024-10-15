@@ -1,4 +1,4 @@
-﻿codeunit 5944 SignServContractDoc
+codeunit 5944 SignServContractDoc
 {
     Permissions = TableData "Filed Service Contract Header" = rimd;
     TableNo = "Service Contract Header";

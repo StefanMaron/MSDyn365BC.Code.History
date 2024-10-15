@@ -49,6 +49,11 @@ table 1252 "Bank Pmt. Appl. Rule"
             Caption = 'Score';
             Editable = false;
         }
+
+        field(40; "Review Required"; Boolean)
+        {
+            Caption = 'Review Required';
+        }
     }
 
     keys
@@ -122,6 +127,31 @@ table 1252 "Bank Pmt. Appl. Rule"
             exit(Score);
 
         exit(0);
+    end;
+
+    procedure GetReviewRequiredScoreFilter(): Text
+    var
+        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        BankPmtRecordRef: RecordRef;
+    begin
+        BankPmtApplRule.SetRange("Review Required", true);
+        BankPmtApplRule.SetCurrentKey(Score);
+        BankPmtRecordRef.GetTable(BankPmtApplRule);
+        exit(SelectionFilterManagement.GetSelectionFilter(BankPmtRecordRef, BankPmtApplRule.FieldNo(Score)));
+    end;
+
+    procedure IsMatchedAutomatically(MatchConfidence: Option; NoOfAppliedEntries: Integer): Boolean
+    begin
+        if (NoOfAppliedEntries = 0) then
+            exit(false);
+
+        exit(MatchConfidence in ["Match Confidence"::None, "Match Confidence"::Low, "Match Confidence"::Medium, "Match Confidence"::High]);
+    end;
+
+    procedure GetMatchedAutomaticallyFilter(): Text
+    begin
+        exit(StrSubstNo('=%1|%2|%3|%4', "Match Confidence"::None, "Match Confidence"::Low, "Match Confidence"::Medium, "Match Confidence"::High));
     end;
 
     procedure GetTextMapperScore(): Integer
@@ -395,6 +425,10 @@ table 1252 "Bank Pmt. Appl. Rule"
         BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := DocumentMatch;
         BankPmtApplRule."Amount Incl. Tolerance Matched" := AmountMatch;
         BankPmtApplRule."Direct Debit Collect. Matched" := DirectDebitCollectionMatch;
+
+        if BankPmtApplRule."Match Confidence" in [BankPmtApplRule."Match Confidence"::None, BankPmtApplRule."Match Confidence"::Low, BankPmtApplRule."Match Confidence"::Medium] then
+            BankPmtApplRule."Review Required" := true;
+
         BankPmtApplRule.Insert(true);
         RulePriority += 1;
     end;

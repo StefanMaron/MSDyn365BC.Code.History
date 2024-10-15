@@ -172,11 +172,9 @@ table 10864 "Payment Post. Buffer"
         {
             Caption = 'GL Entry No.';
         }
-        field(34; "Applies-to Doc. Type"; Option)
+        field(34; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder;
         }
         field(35; "Applies-to Doc. No."; Code[20])
         {
@@ -198,11 +196,9 @@ table 10864 "Payment Post. Buffer"
         {
             Caption = 'External Document No.';
         }
-        field(78; "Source Type"; Option)
+        field(78; "Source Type"; Enum "Gen. Journal Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = " ",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(79; "Source No."; Code[20])
         {
@@ -312,11 +308,9 @@ table 10864 "Payment Post. Buffer"
         {
             Caption = 'Due Date';
         }
-        field(5620; "Document Type"; Option)
+        field(5620; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder;
         }
         field(5621; "Document No."; Code[20])
         {

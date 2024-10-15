@@ -803,7 +803,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         end;
     end;
 
-    local procedure PostDocument(DocumentType: Option; AccountType: Option; AccountNo: Code[20]; LineAmount: Decimal): Code[20]
+    local procedure PostDocument(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; LineAmount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";

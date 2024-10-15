@@ -678,7 +678,7 @@ codeunit 132573 "Payment Export XMLPort UT"
     local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; ProcessingXMLport: Integer; ColumnSeparator: Option; FileType: Option)
     begin
         DataExchDef.InsertRecForExport(LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def"),
-          LibraryUtility.GenerateGUID, DataExchDef.Type::"Payment Export", ProcessingXMLport, FileType);
+          LibraryUtility.GenerateGUID, DataExchDef.Type::"Payment Export".AsInteger(), ProcessingXMLport, FileType);
         DataExchDef."Column Separator" := ColumnSeparator;
         DataExchDef."File Encoding" := DataExchDef."File Encoding"::WINDOWS;
         DataExchDef.Modify();

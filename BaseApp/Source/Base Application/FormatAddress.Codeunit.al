@@ -1197,7 +1197,7 @@
 
         with ServiceHeader do
             FormatAddr(
-              AddrArray, Name, "Name 2", "Contact No.", Address, "Address 2",
+              AddrArray, Name, "Name 2", "Contact Name", Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
     end;
 

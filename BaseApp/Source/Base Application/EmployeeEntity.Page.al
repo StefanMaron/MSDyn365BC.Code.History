@@ -4,7 +4,7 @@ page 5483 "Employee Entity"
     DelayedInsert = true;
     EntityName = 'employee';
     EntitySetName = 'employees';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = Employee;
 
@@ -14,7 +14,7 @@ page 5483 "Employee Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -149,7 +149,7 @@ page 5483 "Employee Entity"
                     Caption = 'picture';
                     EntityName = 'picture';
                     EntitySetName = 'picture';
-                    SubPageLink = Id = FIELD(Id);
+                    SubPageLink = Id = FIELD(SystemId);
                 }
                 part(defaultDimensions; "Default Dimension Entity")
                 {
@@ -157,7 +157,7 @@ page 5483 "Employee Entity"
                     Caption = 'Default Dimensions', Locked = true;
                     EntityName = 'defaultDimensions';
                     EntitySetName = 'defaultDimensions';
-                    SubPageLink = ParentId = FIELD(Id);
+                    SubPageLink = ParentId = FIELD(SystemId);
                 }
             }
         }
@@ -195,12 +195,8 @@ page 5483 "Employee Entity"
     var
         Employee: Record Employee;
         GraphMgtEmployee: Codeunit "Graph Mgt - Employee";
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        if xRec.Id <> Id then
-            GraphMgtGeneralTools.ErrorIdImmutable;
-        Employee.SetRange(Id, Id);
-        Employee.FindFirst;
+        Employee.GetBySystemId(SystemId);
 
         GraphMgtEmployee.ProcessComplexTypes(Rec, PostalAddressJSON);
 
@@ -220,13 +216,6 @@ page 5483 "Employee Entity"
         ClearCalculatedFields;
     end;
 
-    trigger OnOpenPage()
-    var
-        GraphMgtEmployee: Codeunit "Graph Mgt - Employee";
-    begin
-        GraphMgtEmployee.UpdateIntegrationRecords(true);
-    end;
-
     var
         TempFieldSet: Record "Field" temporary;
         PostalAddressJSON: Text;
@@ -242,7 +231,6 @@ page 5483 "Employee Entity"
 
     local procedure ClearCalculatedFields()
     begin
-        Clear(Id);
         Clear(PostalAddressJSON);
         TempFieldSet.DeleteAll();
     end;

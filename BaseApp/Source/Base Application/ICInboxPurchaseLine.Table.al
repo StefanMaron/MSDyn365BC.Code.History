@@ -162,6 +162,11 @@ table 437 "IC Inbox Purchase Line"
             OptionCaption = 'Local Item No.,Cross Reference,Vendor Item No.';
             OptionMembers = "Local Item No.","Cross Reference","Vendor Item No.";
         }
+        field(138; "IC Item Reference No."; Code[50])
+        {
+            AccessByPermission = TableData "Item Reference" = R;
+            Caption = 'IC Item Reference No.';
+        }
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';

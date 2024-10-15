@@ -18,7 +18,6 @@ codeunit 135530 "Sales Quote E2E Test"
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
         QuoteServiceNameTxt: Label 'salesQuotes';
-        GraphContactIdFieldTxt: Label 'contactId';
         CustomerIdFieldTxt: Label 'customerId';
         CustomerNameFieldTxt: Label 'customerName';
         CustomerNumberFieldTxt: Label 'customerNumber';
@@ -215,7 +214,7 @@ codeunit 135530 "Sales Quote E2E Test"
 
         // [GIVEN] the quote's unique ID
         FindSalesHeader(SalesHeader, '', QuoteNumber);
-        QuoteIntegrationID := SalesHeader.Id;
+        QuoteIntegrationID := SalesHeader.SystemId;
         Assert.AreNotEqual('', QuoteIntegrationID, 'ID should not be empty');
 
         if EmptyData then
@@ -259,12 +258,12 @@ codeunit 135530 "Sales Quote E2E Test"
         Initialize;
         CreateSalesQuoteWithLines(SalesHeader);
         QuoteID[1] := SalesHeader."No.";
-        ID[1] := SalesHeader.Id;
+        ID[1] := SalesHeader.SystemId;
         Assert.AreNotEqual('', ID[1], 'ID should not be empty');
 
         CreateSalesQuoteWithLines(SalesHeader);
         QuoteID[2] := SalesHeader."No.";
-        ID[2] := SalesHeader.Id;
+        ID[2] := SalesHeader.SystemId;
         Assert.AreNotEqual('', ID[2], 'ID should not be empty');
         Commit();
 
@@ -363,7 +362,7 @@ codeunit 135530 "Sales Quote E2E Test"
         Commit();
 
         // [WHEN] we GET the quote from the web service
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] the quote should exist in the response and Discount Should be Applied
@@ -398,122 +397,13 @@ codeunit 135530 "Sales Quote E2E Test"
         Commit();
 
         // [WHEN] we GET the quote from the web service
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] the quote should exist in the response and Discount Should be Applied
         LibraryGraphMgt.VerifyIDInJson(ResponseText);
         LibraryGraphDocumentTools.VerifySalesTotals(
           SalesHeader, ResponseText, DiscountAmt, SalesHeader."Invoice Discount Calculation"::Amount);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestGetQuotesWithContactId()
-    var
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        QuoteID: Code[20];
-        TargetURL: Text;
-        ResponseText: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO] Create a quote with a contact with graph ID (GET method should return Graph Contact ID)
-        // [GIVEN] One Quote with contact ID
-        Initialize;
-
-        CreateSalesQuoteWithGraphContactID(SalesHeader, GraphIntegrationRecord);
-        QuoteID := SalesHeader.Id;
-
-        // [WHEN] We get Quote from web service
-        TargetURL := LibraryGraphMgt.CreateTargetURL(QuoteID, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
-        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
-
-        // [THEN] The Quote should contain the Contact ID
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestPostQuotesWithGraphContactId()
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        QuoteWithComplexJSON: Text;
-        TargetURL: Text;
-        ResponseText: Text;
-        QuoteNumber: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO] Posting a Quote with Graph Contact ID (POST method should find the customer based on Contact ID)
-        // [GIVEN] One Quote with contact ID
-        Initialize;
-        LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
-        QuoteWithComplexJSON := CreateQuoteJSONWithContactId(GraphIntegrationRecord);
-
-        TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
-        Commit();
-
-        // [WHEN] We post a quote to web service
-        LibraryGraphMgt.PostToWebService(TargetURL, QuoteWithComplexJSON, ResponseText);
-
-        // [THEN] The Quote should have a customer found based on contact ID
-        VerifyValidPostRequest(ResponseText, QuoteNumber);
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-        VerifyCustomerFields(Customer, ResponseText);
-        VerifyContactFieldsUpdatedOnSalesHeader(QuoteNumber, SalesHeader."Document Type"::Quote, Contact);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestModifyingContactIdUpdatesSellToCustomer()
-    var
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        SecondCustomer: Record Customer;
-        SecondContact: Record Contact;
-        SecondGraphIntegrationRecord: Record "Graph Integration Record";
-        QuoteID: Code[20];
-        CustomerNo: Code[20];
-        TargetURL: Text;
-        ResponseText: Text;
-        QuoteWithComplexJSON: Text;
-        QuoteNumber: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO] Create a quote with a contact with graph ID (Selecting a different contact will change sell-to customer)
-        // [GIVEN] One quote with contact ID
-        Initialize;
-
-        CreateSalesQuoteWithGraphContactID(SalesHeader, GraphIntegrationRecord);
-        QuoteID := SalesHeader.Id;
-        CustomerNo := SalesHeader."Sell-to Customer No.";
-
-        LibraryGraphDocumentTools.CreateContactWithGraphId(SecondContact, SecondGraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(SecondCustomer, SecondContact);
-
-        // Creating the second contact will update the header due to the bug
-        SalesHeader.Find;
-        SalesHeader."Sell-to Customer No." := CustomerNo;
-        SalesHeader.Modify();
-
-        TargetURL := LibraryGraphMgt.CreateTargetURL(QuoteID, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
-        QuoteWithComplexJSON := CreateQuoteJSONWithContactId(SecondGraphIntegrationRecord);
-
-        Commit();
-
-        // [WHEN] We Patch to web service
-        LibraryGraphMgt.PatchToWebService(TargetURL, QuoteWithComplexJSON, ResponseText);
-
-        // [THEN] The Quote should have a new customer
-        VerifyValidPostRequest(ResponseText, QuoteNumber);
-        VerifyContactId(ResponseText, SecondGraphIntegrationRecord."Graph ID");
-        VerifyCustomerFields(SecondCustomer, ResponseText);
-        VerifyContactFieldsUpdatedOnSalesHeader(QuoteNumber, SalesHeader."Document Type"::Quote, SecondContact);
     end;
 
     [Test]
@@ -550,7 +440,7 @@ codeunit 135530 "Sales Quote E2E Test"
         Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
         QuoteJSON := StrSubstNo('{"%1": %2}', DiscountAmountFieldTxt, Format(InvoiceDiscountAmount, 0, 9));
         LibraryGraphMgt.PatchToWebService(TargetURL, QuoteJSON, ResponseText);
 
@@ -603,7 +493,7 @@ codeunit 135530 "Sales Quote E2E Test"
         Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
-        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
         QuoteJSON := StrSubstNo('{"%1": %2}', DiscountAmountFieldTxt, Format(0, 0, 9));
         LibraryGraphMgt.PatchToWebService(TargetURL, QuoteJSON, ResponseText);
 
@@ -652,31 +542,6 @@ codeunit 135530 "Sales Quote E2E Test"
         SalesLine.FindFirst;
     end;
 
-    local procedure CreateSalesQuoteWithGraphContactID(var SalesHeader: Record "Sales Header"; var GraphIntegrationRecord: Record "Graph Integration Record")
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-    begin
-        LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
-    end;
-
-    local procedure CreateQuoteJSONWithContactId(GraphIntegrationRecord: Record "Graph Integration Record"): Text
-    var
-        JSONManagement: Codeunit "JSON Management";
-        JObject: DotNet JObject;
-        QuoteJSON: Text;
-    begin
-        JSONManagement.InitializeEmptyObject;
-        JSONManagement.GetJSONObject(JObject);
-
-        JSONManagement.AddJPropertyToJObject(JObject, GraphContactIdFieldTxt, GraphIntegrationRecord."Graph ID");
-        QuoteJSON := JSONManagement.WriteObjectToString;
-
-        exit(QuoteJSON);
-    end;
-
     local procedure VerifyValidPostRequest(ResponseText: Text; var QuoteNumber: Text)
     begin
         Assert.AreNotEqual('', ResponseText, 'response JSON should not be blank');
@@ -698,25 +563,9 @@ codeunit 135530 "Sales Quote E2E Test"
         LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, CustomerNumberFieldTxt, customerNumberValue);
 
         Assert.AreEqual(
-          IntegrationManagement.GetIdWithoutBrackets(ExpectedCustomer.Id), UpperCase(customerIdValue), 'Wrong setting for Customer Id');
+          IntegrationManagement.GetIdWithoutBrackets(ExpectedCustomer.SystemId), UpperCase(customerIdValue), 'Wrong setting for Customer Id');
         Assert.AreEqual(ExpectedCustomer."No.", customerNumberValue, 'Wrong setting for Customer Number');
         Assert.AreEqual(ExpectedCustomer.Name, customerNameValue, 'Wrong setting for Customer Name');
-    end;
-
-    local procedure VerifyContactFieldsUpdatedOnSalesHeader(DocumentNumber: Text; DocumentType: Option; ExpectedContact: Record Contact)
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        Assert.IsTrue(SalesHeader.Get(DocumentType, DocumentNumber), 'Could not find the sales header for ' + DocumentNumber);
-        Assert.AreEqual(ExpectedContact."No.", SalesHeader."Sell-to Contact No.", 'Wrong sell to contact no');
-    end;
-
-    local procedure VerifyContactId(ResponseText: Text; ExpectedContactId: Text)
-    var
-        contactId: Text;
-    begin
-        LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, GraphContactIdFieldTxt, contactId);
-        Assert.AreEqual(ExpectedContactId, contactId, 'Wrong contact id was returned');
     end;
 
     local procedure CreateSalesQuoteWithLines(var SalesHeader: Record "Sales Header")

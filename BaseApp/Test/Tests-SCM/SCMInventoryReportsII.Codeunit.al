@@ -924,9 +924,9 @@ codeunit 137302 "SCM Inventory Reports - II"
         end;
 
         CreateSalesPriceForItem(
-          Item, SalesPrice."Sales Type"::Customer, CustomerNo, ItemVariant1.Code, MinimumQty[1], UnitPrice[1]);
+          Item, "Sales Price Type"::Customer, CustomerNo, ItemVariant1.Code, MinimumQty[1], UnitPrice[1]);
         CreateSalesPriceForItem(
-          Item, SalesPrice."Sales Type"::Customer, CustomerNo, ItemVariant1.Code, MinimumQty[2], UnitPrice[2]);
+          Item, "Sales Price Type"::Customer, CustomerNo, ItemVariant1.Code, MinimumQty[2], UnitPrice[2]);
         //PriceListLine.CopyFrom(SalesPrice);
 
         CreateSalesLineDiscountForItem(Item, CustomerNo, ItemVariant2.Code, MinimumQty[3], LineDiscount[1]);
@@ -1662,7 +1662,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Reports - II");
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
-        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
 
         if isInitialized then
             exit;
@@ -1677,7 +1677,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - II");
     end;
 
-    local procedure CreateItem(var Item: Record Item; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ItemManufacturingPolicy: Option)
+    local procedure CreateItem(var Item: Record Item; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ItemManufacturingPolicy: Enum "Manufacturing Policy")
     begin
         // Random value unimportant for test.
         LibraryManufacturing.CreateItemManufacturing(
@@ -1688,7 +1688,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Item.Modify(true);
     end;
 
-    local procedure CreateItemWithUpdatedBaseUnitOfMeasure(var ItemUnitOfMeasure: Record "Item Unit of Measure"; var Item: Record Item; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ItemManufacturingPolicy: Option)
+    local procedure CreateItemWithUpdatedBaseUnitOfMeasure(var ItemUnitOfMeasure: Record "Item Unit of Measure"; var Item: Record Item; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ItemManufacturingPolicy: Enum "Manufacturing Policy")
     var
         ItemUnitOfMeasure2: Record "Item Unit of Measure";
     begin
@@ -1713,7 +1713,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Item.Modify(true);
     end;
 
-    local procedure CreateCertifiedProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; UoMCode: Code[10]; Type: Option; No: Code[20]; QtyPer: Decimal)
+    local procedure CreateCertifiedProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; UoMCode: Code[10]; Type: Enum "Production BOM Line Type"; No: Code[20]; QtyPer: Decimal)
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
@@ -1722,7 +1722,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         UpdateProdBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
     end;
 
-    local procedure CreateCertifiedProductionBOMWithMultipleLines(var ProductionBOMHeader: Record "Production BOM Header"; UoMCode: Code[10]; UoMCode2: Code[10]; Type: Option; No: Code[20]; QtyPer: Decimal; No2: Code[20]; Type2: Option)
+    local procedure CreateCertifiedProductionBOMWithMultipleLines(var ProductionBOMHeader: Record "Production BOM Header"; UoMCode: Code[10]; UoMCode2: Code[10]; Type: Enum "Production BOM Line Type"; No: Code[20]; QtyPer: Decimal; No2: Code[20]; Type2: Enum "Production BOM Line Type")
     var
         ProductionBOMLine: array[2] of Record "Production BOM Line";
     begin
@@ -1734,7 +1734,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         UpdateProdBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
     end;
 
-    local procedure CreateCertifiedProdBOMWithScrap(var ProductionBOMHeader: Record "Production BOM Header"; UoMCode: Code[10]; Type: Option; No: Code[20]; QtyPer: Decimal; ScrapPct: Decimal)
+    local procedure CreateCertifiedProdBOMWithScrap(var ProductionBOMHeader: Record "Production BOM Header"; UoMCode: Code[10]; Type: Enum "Production BOM Line Type"; No: Code[20]; QtyPer: Decimal; ScrapPct: Decimal)
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
@@ -1784,7 +1784,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Customer.Modify(true);
     end;
 
-    local procedure CreateProdBOMVersion(var ProductionBOMVersion: Record "Production BOM Version"; Item: Record Item; Status: Option)
+    local procedure CreateProdBOMVersion(var ProductionBOMVersion: Record "Production BOM Version"; Item: Record Item; Status: Enum "BOM Status")
     begin
         LibraryManufacturing.CreateProductionBOMVersion(
           ProductionBOMVersion, Item."Production BOM No.", LibraryUtility.GenerateGUID, Item."Base Unit of Measure");
@@ -1876,7 +1876,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         SalesPrice.Modify(true);
     end;
 
-    local procedure CreateSalesPriceForItem(Item: Record Item; SalesType: Option; SalesCode: Code[20]; VariantCode: Code[10]; MinimumQty: Decimal; UnitPrice: Decimal)
+    local procedure CreateSalesPriceForItem(Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; VariantCode: Code[10]; MinimumQty: Decimal; UnitPrice: Decimal)
     var
         SalesPrice: Record "Sales Price";
     begin
@@ -2029,7 +2029,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         exit(Item."No.");
     end;
 
-    local procedure PostItemPositiveAdjmt(ItemJournalBatch: Record "Item Journal Batch"; EntryType: Option; ItemNo: Code[20]; Qty: Decimal)
+    local procedure PostItemPositiveAdjmt(ItemJournalBatch: Record "Item Journal Batch"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -2039,7 +2039,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure CreateItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; EntryType: Option; ItemNo: Code[20]; Quantity: Integer; UnitAmount: Decimal)
+    local procedure CreateItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Integer; UnitAmount: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -2059,7 +2059,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ProdOrderLine.FindSet;
     end;
 
-    local procedure CreateAndRefreshRelProdOrder(var ProductionOrder: Record "Production Order"; SourceType: Option; SourceNo: Code[20]; Qty: Decimal)
+    local procedure CreateAndRefreshRelProdOrder(var ProductionOrder: Record "Production Order"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Qty: Decimal)
     begin
         // Create Production Order with small random value.
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, SourceType, SourceNo, Qty);
@@ -2172,7 +2172,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         REPORT.Run(REPORT::"Purchase Reservation Avail.", true, false, PurchLine);
     end;
 
-    local procedure RolledUpCostShareReportWithStatus(Status: Option)
+    local procedure RolledUpCostShareReportWithStatus(Status: Enum "BOM Status")
     var
         Item: Record Item;
         ProductionBOMVersion: Record "Production BOM Version";
@@ -2189,7 +2189,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         VerifyComponentItem(Item."Production BOM No.", ProductionBOMVersion."Version Code");
     end;
 
-    local procedure RolledUpCostShareReportWithTypeProdBOM(Status: Option)
+    local procedure RolledUpCostShareReportWithTypeProdBOM(Status: Enum "BOM Status")
     var
         Item: Record Item;
         Item2: Record Item;
@@ -2324,7 +2324,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Option; ProdOrderNo: Code[20])
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
@@ -2411,7 +2411,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Post with Receive Option.
     end;
 
-    local procedure CreateProdBOMLineWithScrap(ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; Type: Option; No: Code[20]; QtyPer: Decimal; ScrapPct: Decimal)
+    local procedure CreateProdBOMLineWithScrap(ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; Type: Enum "Production BOM Line Type"; No: Code[20]; QtyPer: Decimal; ScrapPct: Decimal)
     begin
         LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, No, QtyPer);
         ProductionBOMLine.Validate("Scrap %", ScrapPct);
@@ -2515,13 +2515,13 @@ codeunit 137302 "SCM Inventory Reports - II"
         Item.Modify(true);
     end;
 
-    local procedure UpdateProdBOMStatus(var ProductionBOMHeader: Record "Production BOM Header"; Status: Option)
+    local procedure UpdateProdBOMStatus(var ProductionBOMHeader: Record "Production BOM Header"; Status: Enum "BOM Status")
     begin
         ProductionBOMHeader.Validate(Status, Status);
         ProductionBOMHeader.Modify(true);
     end;
 
-    local procedure UpdateRoutingStatus(var RoutingHeader: Record "Routing Header"; Status: Option)
+    local procedure UpdateRoutingStatus(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")
     begin
         RoutingHeader.Validate(Status, Status);
         RoutingHeader.Modify(true);

@@ -126,7 +126,7 @@ codeunit 144058 "UT SEPA"
     end;
 
     [TransactionModel(TransactionModel::AutoRollback)]
-    local procedure CreatePaymentSlipForReportSEPAISO20022(SEPAAllowed: Boolean; AccountType: Option; CurrencyCode: Code[10]; IBAN: Code[50]; SWIFTCode: Code[20]; ErrorCode: Text[50])
+    local procedure CreatePaymentSlipForReportSEPAISO20022(SEPAAllowed: Boolean; AccountType: Enum "Gen. Journal Account Type"; CurrencyCode: Code[10]; IBAN: Code[50]; SWIFTCode: Code[20]; ErrorCode: Text[50])
     var
         VendorBankAccount: Record "Vendor Bank Account";
     begin
@@ -618,7 +618,7 @@ codeunit 144058 "UT SEPA"
         PaymentHeader.Insert();
     end;
 
-    local procedure CreatePaymentLine(PaymentHeaderNo: Code[20]; AccountType: Option; AccountNo: Code[20]; DocumentNo: Code[10])
+    local procedure CreatePaymentLine(PaymentHeaderNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentNo: Code[10])
     var
         PaymentLine: Record "Payment Line";
     begin
@@ -631,7 +631,7 @@ codeunit 144058 "UT SEPA"
         PaymentLine.Insert();
     end;
 
-    local procedure CreatePaymentSlip(AccountType: Option; AccountNo: Code[20]; BankAccountCode: Code[20]; CurrencyCode: Code[10]; BankCountryRegionCode: Code[10]; IBAN: Code[50]; SWIFTCode: Code[20]): Code[20]
+    local procedure CreatePaymentSlip(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankAccountCode: Code[20]; CurrencyCode: Code[10]; BankCountryRegionCode: Code[10]; IBAN: Code[50]; SWIFTCode: Code[20]): Code[20]
     var
         PaymentHeader: Record "Payment Header";
         PaymentLine: Record "Payment Line";
@@ -665,7 +665,7 @@ codeunit 144058 "UT SEPA"
         VendorBankAccount.Insert();
     end;
 
-    local procedure CreatePaymentDocument(AccountType: Option; AccountNo: Code[20]; DocumentNo: Code[10]): Code[20]
+    local procedure CreatePaymentDocument(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentNo: Code[10]): Code[20]
     var
         PaymentHeader: Record "Payment Header";
     begin

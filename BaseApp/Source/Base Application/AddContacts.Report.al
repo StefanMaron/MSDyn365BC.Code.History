@@ -1,4 +1,4 @@
-﻿report 5198 "Add Contacts"
+report 5198 "Add Contacts"
 {
     Caption = 'Add Contacts';
     ProcessingOnly = true;

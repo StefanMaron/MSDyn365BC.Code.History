@@ -84,11 +84,9 @@ table 10863 "Payment Step Ledger"
         {
             Caption = 'Memorize Entry';
         }
-        field(18; "Document Type"; Option)
+        field(18; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder;
         }
         field(19; "Document No."; Option)
         {

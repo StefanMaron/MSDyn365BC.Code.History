@@ -139,7 +139,7 @@ table 10865 "Payment Header"
         }
         field(8; "Status Name"; Text[50])
         {
-            CalcFormula = Lookup ("Payment Status".Name WHERE("Payment Class" = FIELD("Payment Class"),
+            CalcFormula = Lookup("Payment Status".Name WHERE("Payment Class" = FIELD("Payment Class"),
                                                               Line = FIELD("Status No.")));
             Caption = 'Status Name';
             Editable = false;
@@ -181,7 +181,7 @@ table 10865 "Payment Header"
         }
         field(11; "Payment Class Name"; Text[50])
         {
-            CalcFormula = Lookup ("Payment Class".Name WHERE(Code = FIELD("Payment Class")));
+            CalcFormula = Lookup("Payment Class".Name WHERE(Code = FIELD("Payment Class")));
             Caption = 'Payment Class Name';
             Editable = false;
             FieldClass = FlowField;
@@ -263,14 +263,14 @@ table 10865 "Payment Header"
         }
         field(16; "Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Payment Line"."Amount (LCY)" WHERE("No." = FIELD("No.")));
+            CalcFormula = Sum("Payment Line"."Amount (LCY)" WHERE("No." = FIELD("No.")));
             Caption = 'Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(17; Amount; Decimal)
         {
-            CalcFormula = Sum ("Payment Line".Amount WHERE("No." = FIELD("No.")));
+            CalcFormula = Sum("Payment Line".Amount WHERE("No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -389,14 +389,14 @@ table 10865 "Payment Header"
         }
         field(41; "No. of Lines"; Integer)
         {
-            CalcFormula = Count ("Payment Line" WHERE("No." = FIELD("No.")));
+            CalcFormula = Count("Payment Line" WHERE("No." = FIELD("No.")));
             Caption = 'No. of Lines';
             Editable = false;
             FieldClass = FlowField;
         }
         field(42; "No. of Unposted Lines"; Integer)
         {
-            CalcFormula = Count ("Payment Line" WHERE("No." = FIELD("No."),
+            CalcFormula = Count("Payment Line" WHERE("No." = FIELD("No."),
                                                       Posted = CONST(false)));
             Caption = 'No. of Unposted Lines';
             Editable = false;
@@ -404,7 +404,7 @@ table 10865 "Payment Header"
         }
         field(43; "Archiving Authorized"; Boolean)
         {
-            CalcFormula = Lookup ("Payment Status"."Archiving Authorized" WHERE("Payment Class" = FIELD("Payment Class"),
+            CalcFormula = Lookup("Payment Status"."Archiving Authorized" WHERE("Payment Class" = FIELD("Payment Class"),
                                                                                 Line = FIELD("Status No.")));
             Caption = 'Archiving Authorized';
             Editable = false;
@@ -425,11 +425,9 @@ table 10865 "Payment Header"
         {
             Caption = 'SWIFT Code';
         }
-        field(132; "Partner Type"; Option)
+        field(132; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
-            OptionCaption = ' ,Company,Person';
-            OptionMembers = " ",Company,Person;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -615,7 +613,7 @@ table 10865 "Payment Header"
         No: array[10] of Code[20];
         OldDimSetID: Integer;
     begin
-        TableID[1] := DimManagement.TypeToTableID1("Account Type");
+        TableID[1] := DimManagement.TypeToTableID1("Account Type".AsInteger());
         No[1] := "Account No.";
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';

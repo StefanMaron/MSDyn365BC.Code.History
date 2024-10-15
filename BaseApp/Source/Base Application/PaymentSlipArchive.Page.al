@@ -123,7 +123,7 @@ page 10877 "Payment Slip Archive"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Header RIB")

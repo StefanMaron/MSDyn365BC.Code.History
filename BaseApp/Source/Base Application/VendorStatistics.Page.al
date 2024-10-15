@@ -500,7 +500,10 @@ page 152 "Vendor Statistics"
 
     var
         Text000: Label 'Overdue Amounts (LCY) as of %1';
+        Text001: Label 'Placeholder';
         DateFilterCalc: Codeunit "DateFilter-Calc";
+
+    protected var
         VendDateFilter: array[4] of Text[30];
         VendDateName: array[4] of Text[30];
         CurrentDate: Date;
@@ -515,9 +518,8 @@ page 152 "Vendor Statistics"
         VendPaymentsLCY: array[4] of Decimal;
         VendRefundsLCY: array[4] of Decimal;
         VendOtherAmountsLCY: array[4] of Decimal;
-        i: Integer;
         InvAmountsLCY: array[4] of Decimal;
-        Text001: Label 'Placeholder';
+        i: Integer;
 
     local procedure SetDateFilter()
     begin

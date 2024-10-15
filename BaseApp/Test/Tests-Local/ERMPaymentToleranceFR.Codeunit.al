@@ -350,7 +350,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         end;
     end;
 
-    local procedure CreatePaymentSlip(AccountType: Option; AccountNo: Code[20]): Integer
+    local procedure CreatePaymentSlip(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Integer
     var
         PaymentHeader: Record "Payment Header";
         PaymentLine: Record "Payment Line";
@@ -363,7 +363,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         exit(PaymentLine."Dimension Set ID");
     end;
 
-    local procedure CreatePaymentSlipWithAmount(var PaymentLine: Record "Payment Line"; AccountType: Option; AccountNo: Code[20]; PaymentAmount: Decimal)
+    local procedure CreatePaymentSlipWithAmount(var PaymentLine: Record "Payment Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PaymentAmount: Decimal)
     begin
         CreatePaymentSlip(AccountType, AccountNo);
         FindPaymentLine(PaymentLine, AccountType, AccountNo);
@@ -378,7 +378,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         LibraryVariableStorage.Enqueue(DateFilter);
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         with CustLedgerEntry do begin
             SetRange("Document Type", DocumentType);
@@ -388,7 +388,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         end;
     end;
 
-    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Option)
+    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         with VendorLedgerEntry do begin
             SetRange("Document Type", DocumentType);
@@ -398,7 +398,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         end;
     end;
 
-    local procedure FindPaymentLine(var PaymentLine: Record "Payment Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure FindPaymentLine(var PaymentLine: Record "Payment Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         PaymentLine.SetRange("Account Type", AccountType);
         PaymentLine.SetRange("Account No.", AccountNo);

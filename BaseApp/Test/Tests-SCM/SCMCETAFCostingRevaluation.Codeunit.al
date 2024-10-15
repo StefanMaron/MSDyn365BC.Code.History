@@ -740,7 +740,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         ItemLedgerEntry[2].TestField("Cost Amount (Actual)", -NewCost);
     end;
 
-    local procedure TestRevalueExistingInv(CostingMethod: Option; StandardCost: Decimal; CalcPer: Option; FilterByLocation: Boolean)
+    local procedure TestRevalueExistingInv(CostingMethod: Enum "Costing Method"; StandardCost: Decimal; CalcPer: Option; FilterByLocation: Boolean)
     var
         Item: Record Item;
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
@@ -764,7 +764,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LibraryCosting.CheckAdjustment(Item);
     end;
 
-    local procedure TestRevalueExistingInvNegZeroInv(CostingMethod: Option; StandardCost: Decimal; CalcPer: Option)
+    local procedure TestRevalueExistingInvNegZeroInv(CostingMethod: Enum "Costing Method"; StandardCost: Decimal; CalcPer: Option)
     var
         Item: Record Item;
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
@@ -777,7 +777,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         ExecuteRevalueExistingInventory(Item, ItemJnlBatch, WorkDate, CalcPer, false, false, false, CalculationBase::" ", '', '');
     end;
 
-    local procedure TestRevalueExistingInvwLocVar(CostingMethod: Option; StandardCost: Decimal; CalcPer: Option)
+    local procedure TestRevalueExistingInvwLocVar(CostingMethod: Enum "Costing Method"; StandardCost: Decimal; CalcPer: Option)
     var
         Item: Record Item;
         ItemVariant: Record "Item Variant";
@@ -818,7 +818,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LibraryCosting.CheckAdjustment(Item);
     end;
 
-    local procedure TestRevalueInboundILEwLoc(CostingMethod: Option; StandardCost: Decimal)
+    local procedure TestRevalueInboundILEwLoc(CostingMethod: Enum "Costing Method"; StandardCost: Decimal)
     var
         Item: Record Item;
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
@@ -836,7 +836,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LibraryPatterns.ExecutePostRevalueInboundILE(Item, TempItemLedgerEntry, 1.1);
     end;
 
-    local procedure TestRounding(CostingMethod: Option)
+    local procedure TestRounding(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         ItemJnlBatch: Record "Item Journal Batch";
@@ -875,7 +875,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         end;
     end;
 
-    local procedure TestRevaluationCircularTransfer(CostingMethod: Option; StandardCost: Decimal)
+    local procedure TestRevaluationCircularTransfer(CostingMethod: Enum "Costing Method"; StandardCost: Decimal)
     var
         Item: Record Item;
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
@@ -893,7 +893,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LibraryCosting.CheckInboundEntriesCost(TempItemLedgerEntry);
     end;
 
-    local procedure TestRevaluationSalesReturn(CostingMethod: Option; StandardCost: Decimal)
+    local procedure TestRevaluationSalesReturn(CostingMethod: Enum "Costing Method"; StandardCost: Decimal)
     var
         Item: Record Item;
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
@@ -1284,7 +1284,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         end;
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20]; LocationCode: Code[10])
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[10])
     begin
         with ItemLedgerEntry do begin
             SetRange("Entry Type", EntryType);

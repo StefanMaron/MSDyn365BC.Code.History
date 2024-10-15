@@ -3,6 +3,9 @@ page 875 "Social Listening FactBox"
     Caption = 'Social Media Insights';
     PageType = CardPart;
     SourceTable = "Social Listening Search Topic";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+    ObsoleteTag = '17.0';
 
     layout
     {

@@ -1,4 +1,4 @@
-﻿page 475 "VAT Statement Preview Line"
+page 475 "VAT Statement Preview Line"
 {
     Caption = 'Lines';
     Editable = false;
@@ -127,12 +127,14 @@
 
     var
         Text000: Label 'Drilldown is not possible when %1 is %2.';
+
+    protected var
         GLEntry: Record "G/L Entry";
         VATEntry: Record "VAT Entry";
         VATStatement: Report "VAT Statement";
         ColumnValue: Decimal;
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         UseAmtsInAddCurr: Boolean;
 
     local procedure CalcColumnValue(VATStatementLine: Record "VAT Statement Line"; var ColumnValue: Decimal; Level: Integer)
@@ -147,7 +149,7 @@
         VATStatement.CalcLineTotal(VATStatementLine, ColumnValue, Level);
     end;
 
-    procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Option Open,Closed,"Open and Closed"; NewPeriodSelection: Option "Before and Within Period","Within Period"; NewUseAmtsInAddCurr: Boolean)
+    procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewUseAmtsInAddCurr: Boolean)
     begin
         SetRange("Statement Template Name", VATStmtName."Statement Template Name");
         SetRange("Statement Name", VATStmtName.Name);
@@ -156,6 +158,7 @@
         PeriodSelection := NewPeriodSelection;
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
         VATStatement.InitializeRequest(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr);
+        OnUpdateFormOnBeforePageUpdate(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr);
         CurrPage.Update;
 
         OnAfterUpdateForm();
@@ -173,6 +176,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnColumnValueDrillDownOnBeforeRunGeneralLedgerEntries(var VATEntry: Record "VAT Entry"; var GLEntry: Record "G/L Entry"; var VATStatementLine: Record "VAT Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateFormOnBeforePageUpdate(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
     begin
     end;
 

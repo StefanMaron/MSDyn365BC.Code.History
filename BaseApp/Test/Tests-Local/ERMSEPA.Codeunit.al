@@ -144,7 +144,7 @@ codeunit 144059 "ERM SEPA"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePaymentSlip(var PaymentLine: Record "Payment Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreatePaymentSlip(var PaymentLine: Record "Payment Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         PaymentHeader: Record "Payment Header";
     begin

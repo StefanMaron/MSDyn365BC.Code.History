@@ -1,11 +1,12 @@
 page 6401 "Flow Selector"
 {
     ApplicationArea = Suite;
-    Caption = 'Manage Flows';
+    Caption = 'Manage Power Automate Flows';
     Editable = false;
     LinksAllowed = false;
     PromotedActionCategories = 'New,Process,Report,Configuration';
     UsageCategory = Lists;
+    AdditionalSearchTerms = 'Power Automate,Microsoft Power Automate,Flow,Microsoft Flow';
 
     layout
     {
@@ -48,7 +49,7 @@ page 6401 "Flow Selector"
                     begin
                         Company.Get(CompanyName); // Dummy record to attach to activity log
                         ActivityLog.LogActivityForUser(
-                          Company.RecordId, ActivityLog.Status::Failed, 'Microsoft Flow', description, error, UserId);
+                          Company.RecordId, ActivityLog.Status::Failed, 'Microsoft Power Automate', description, error, UserId);
                         ShowErrorMessage(FlowServiceManagement.GetGenericError);
                     end;
 
@@ -86,7 +87,7 @@ page 6401 "Flow Selector"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'View and configure Flow entries.';
+                ToolTip = 'View and configure Power Automate flow entries.';
                 Visible = IsSaaS;
 
                 trigger OnAction()
@@ -100,13 +101,13 @@ page 6401 "Flow Selector"
             action(OpenMyFlows)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Open Flow';
+                Caption = 'Open Power Automate';
                 Image = Flow;
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'View and configure Flows on the Flow website.';
+                ToolTip = 'View and configure flows on the Power Automate website.';
                 Visible = NOT IsPPE;
 
                 trigger OnAction()
@@ -123,7 +124,7 @@ page 6401 "Flow Selector"
                 PromotedCategory = Category4;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Select your Flow environment.';
+                ToolTip = 'Select your Power Automate environment.';
                 Visible = NOT IsPPE;
 
                 trigger OnAction()
@@ -190,12 +191,13 @@ page 6401 "Flow Selector"
         if not FlowServiceManagement.HasUserSelectedFlowEnvironment then
             FlowServiceManagement.SetSelectedFlowEnvironmentIDToDefault;
 
-        IsSaaS := AzureAdMgt.IsSaaS;
+        IsSaaS := EnvironmentInfo.IsSaaS();
     end;
 
     var
         AzureAdMgt: Codeunit "Azure AD Mgt.";
         FlowServiceManagement: Codeunit "Flow Service Management";
+        EnvironmentInfo: Codeunit "Environment Information";
         IsErrorMessageVisible: Boolean;
         ErrorMessageText: Text;
         IsUserReadyForFlow: Boolean;
@@ -209,7 +211,7 @@ page 6401 "Flow Selector"
         IsUserReadyForFlow := FlowServiceManagement.IsUserReadyForFlow;
 
         if not IsUserReadyForFlow then begin
-            if AzureAdMgt.IsSaaS then
+            if EnvironmentInfo.IsSaaS() then
                 Error(FlowServiceManagement.GetGenericError);
             if not TryGetAccessTokenForFlowService then
                 ShowErrorMessage(GetLastErrorText);

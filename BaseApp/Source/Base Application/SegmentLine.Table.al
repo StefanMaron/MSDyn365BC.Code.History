@@ -242,7 +242,7 @@ table 5077 "Segment Line"
         }
         field(12; "Contact Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact.Name WHERE("No." = FIELD("Contact No."),
+            CalcFormula = Lookup(Contact.Name WHERE("No." = FIELD("Contact No."),
                                                      Type = CONST(Person)));
             Caption = 'Contact Name';
             Editable = false;
@@ -285,7 +285,7 @@ table 5077 "Segment Line"
         }
         field(18; "Contact Company Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact.Name WHERE("No." = FIELD("Contact Company No."),
+            CalcFormula = Lookup(Contact.Name WHERE("No." = FIELD("Contact Company No."),
                                                      Type = CONST(Company)));
             Caption = 'Contact Company Name';
             Editable = false;
@@ -413,6 +413,36 @@ table 5077 "Segment Line"
         {
             Caption = 'Opportunity No.';
             TableRelation = Opportunity;
+        }
+        field(50; "Contact Phone No."; Text[30])
+        {
+            CalcFormula = Lookup(Contact."Phone No." WHERE("No." = FIELD("Contact No."),
+                                                     Type = CONST(Person)));
+            Caption = 'Contact Phone No.';
+            Editable = false;
+            FieldClass = FlowField;
+            ExtendedDatatype = PhoneNo;
+
+        }
+        field(51; "Contact Mobile Phone No."; Text[30])
+        {
+            CalcFormula = Lookup(Contact."Mobile Phone No." WHERE("No." = FIELD("Contact No."),
+                                                     Type = CONST(Person)));
+            Caption = 'Contact Mobile Phone No.';
+            Editable = false;
+            FieldClass = FlowField;
+            ExtendedDatatype = PhoneNo;
+
+        }
+        field(52; "Contact Email"; Text[80])
+        {
+            CalcFormula = Lookup(Contact."E-Mail" WHERE("No." = FIELD("Contact No."),
+                                                     Type = CONST(Person)));
+            Caption = 'Contact Email';
+            Editable = false;
+            FieldClass = FlowField;
+            ExtendedDatatype = EMail;
+
         }
         field(9501; "Wizard Step"; Enum "Segment Line Wizard Step")
         {
@@ -571,8 +601,14 @@ table 5077 "Segment Line"
         exit('');
     end;
 
+    [Obsolete('Replaced by MaintainSegLineAttachment()', '17.0')]
     [Scope('OnPrem')]
     procedure MaintainAttachment()
+    begin
+        MaintainSegLineAttachment();
+    end;
+
+    procedure MaintainSegLineAttachment()
     var
         Cont: Record Contact;
         SalutationFormula: Record "Salutation Formula";
@@ -584,13 +620,19 @@ table 5077 "Segment Line"
         if SalutationFormula.Get(Cont."Salutation Code", "Language Code", 1) then;
 
         if "Attachment No." <> 0 then
-            OpenAttachment
+            OpenSegLineAttachment()
         else
-            CreateAttachment;
+            CreateSegLineAttachment();
     end;
 
+    [Obsolete('Replaced by CreateSegLineAttachment()', '17.0')]
     [Scope('OnPrem')]
     procedure CreateAttachment()
+    begin
+        CreateSegLineAttachment();
+    end;
+
+    procedure CreateSegLineAttachment()
     var
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
@@ -603,11 +645,17 @@ table 5077 "Segment Line"
             SegInteractLanguage.Subject := Subject;
         end;
 
-        SegInteractLanguage.CreateAttachment;
+        SegInteractLanguage.CreateAttachment();
     end;
 
+    [Obsolete('Replaced by OpenSegLineAttachment()', '17.0')]
     [Scope('OnPrem')]
     procedure OpenAttachment()
+    begin
+        OpenSegLineAttachment();
+    end;
+
+    procedure OpenSegLineAttachment()
     var
         Attachment: Record Attachment;
         Attachment2: Record Attachment;
@@ -642,8 +690,14 @@ table 5077 "Segment Line"
         end
     end;
 
+    [Obsolete('Replaced by ImportSegLineAttachment', '17.0')]
     [Scope('OnPrem')]
     procedure ImportAttachment()
+    begin
+        ImportSegLineAttachment();
+    end;
+
+    procedure ImportSegLineAttachment()
     var
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
@@ -658,8 +712,14 @@ table 5077 "Segment Line"
         SegInteractLanguage.ImportAttachment;
     end;
 
+    [Obsolete('Replaced by ExportSegLineAttachment()', '17.0')]
     [Scope('OnPrem')]
     procedure ExportAttachment()
+    begin
+        ExportSegLineAttachment();
+    end;
+
+    procedure ExportSegLineAttachment()
     var
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
@@ -846,11 +906,17 @@ table 5077 "Segment Line"
         OnAfterCopyFromInteractionLogEntry(Rec, InteractLogEntry);
     end;
 
+    [Obsolete('Replaced by CreateSegLineInteractionFromContact()', '17.0')]
     [Scope('OnPrem')]
     procedure CreateInteractionFromContact(var Contact: Record Contact)
     begin
+        CreateSegLineInteractionFromContact(Contact);
+    end;
+
+    procedure CreateSegLineInteractionFromContact(var Contact: Record Contact)
+    begin
         DeleteAll();
-        Init;
+        Init();
         if Contact.Type = Contact.Type::Person then
             SetRange("Contact Company No.", Contact."Company No.");
         SetRange("Contact No.", Contact."No.");
@@ -862,19 +928,19 @@ table 5077 "Segment Line"
 
         OnCreateInteractionFromContactOnBeforeStartWizard(Rec, Contact);
 
-        StartWizard;
+        StartWizard();
     end;
 
     procedure CreateInteractionFromSalesperson(var Salesperson: Record "Salesperson/Purchaser")
     begin
         DeleteAll();
-        Init;
+        Init();
         Validate("Salesperson Code", Salesperson.Code);
         SetRange("Salesperson Code", Salesperson.Code);
 
         OnCreateInteractionFromSalespersonOnBeforeStartWizard(Rec, Salesperson);
 
-        StartWizard;
+        StartWizard();
     end;
 
     procedure CreateInteractionFromInteractLogEntry(var InteractionLogEntry: Record "Interaction Log Entry")
@@ -913,18 +979,18 @@ table 5077 "Segment Line"
 
         OnCreateInteractionFromInteractLogEntryOnBeforeStartWizard(Rec, InteractionLogEntry);
 
-        StartWizard;
+        StartWizard();
     end;
 
     procedure CreateInteractionFromTask(var Task: Record "To-do")
     begin
-        Init;
+        Init();
         CreateFromTask(Task);
         SetRange("To-do No.", "To-do No.");
 
         OnCreateInteractionFromTaskOnBeforeStartWizard(Rec, Task);
 
-        StartWizard;
+        StartWizard();
     end;
 
     procedure CreateInteractionFromOpp(var Opportunity: Record Opportunity)
@@ -933,7 +999,7 @@ table 5077 "Segment Line"
         Salesperson: Record "Salesperson/Purchaser";
         Campaign: Record Campaign;
     begin
-        Init;
+        Init();
         if Contact.Get(Opportunity."Contact Company No.") then begin
             Contact.CheckIfPrivacyBlockedGeneric;
             Validate("Contact No.", Contact."Company No.");
@@ -957,7 +1023,7 @@ table 5077 "Segment Line"
 
         OnCreateInteractionFromOppOnBeforeStartWizard(Rec, Opportunity);
 
-        StartWizard;
+        StartWizard();
     end;
 
     procedure CreateOpportunity(): Code[20]
@@ -1009,7 +1075,7 @@ table 5077 "Segment Line"
         "Interaction Successful" := true;
         Validate(Date, WorkDate);
         "Time of Interaction" := DT2Time(RoundDateTime(CurrentDateTime + 1000, 60000, '>'));
-        Insert;
+        Insert();
 
         if PAGE.RunModal(PAGE::"Create Interaction", Rec, "Interaction Template Code") = ACTION::OK then;
         if "Wizard Step" = "Wizard Step"::"6" then
@@ -1026,7 +1092,7 @@ table 5077 "Segment Line"
         if IsHandled then
             exit;
 
-            RelationshipPerformanceMgt.SendCreateOpportunityNotification(Rec);
+        RelationshipPerformanceMgt.SendCreateOpportunityNotification(Rec);
     end;
 
     procedure CheckStatus()
@@ -1071,8 +1137,14 @@ table 5077 "Segment Line"
         OnAfterCheckStatus(Rec);
     end;
 
+    [Obsolete('Replaced by FinishSegLineWizard()', '17.0')]
     [Scope('OnPrem')]
     procedure FinishWizard(IsFinish: Boolean)
+    begin
+        FinishSegLineWizard(IsFinish);
+    end;
+
+    procedure FinishSegLineWizard(IsFinish: Boolean)
     var
         InteractionLogEntry: Record "Interaction Log Entry";
         SegManagement: Codeunit SegManagement;
@@ -1235,8 +1307,14 @@ table 5077 "Segment Line"
                 Attachment.RemoveAttachment(false);
     end;
 
+    [Obsolete('Replaced by LoadSegLineAttachment()', '17.0')]
     [Scope('OnPrem')]
     procedure LoadAttachment(ForceReload: Boolean)
+    begin
+        LoadSegLineAttachment(ForceReload);
+    end;
+
+    procedure LoadSegLineAttachment(ForceReload: Boolean)
     begin
         if "Line No." <> 0 then begin
             InterLogEntryCommentLine.SetRange("Entry No.", "Line No.");
@@ -1259,7 +1337,7 @@ table 5077 "Segment Line"
 
     procedure MakePhoneCallFromContact(var Cont: Record Contact; Task: Record "To-do"; TableNo: Integer; PhoneNo: Text[30]; ContAltAddrCode: Code[10])
     begin
-        Init;
+        Init();
         if Cont.Type = Cont.Type::Person then
             SetRange("Contact No.", Cont."No.")
         else
@@ -1299,7 +1377,7 @@ table 5077 "Segment Line"
             "Campaign Description" := Campaign.Description;
         "Wizard Contact Name" := GetContactName;
 
-        Insert;
+        Insert();
         Validate("Interaction Template Code", InteractionTmplSetup."Outg. Calls");
         if PAGE.RunModal(PAGE::"Make Phone Call", Rec, "Contact Via") = ACTION::OK then;
     end;
@@ -1318,8 +1396,14 @@ table 5077 "Segment Line"
         end;
     end;
 
+    [Obsolete('Replaced by LogSegLinePhoneCall()', '17.0')]
     [Scope('OnPrem')]
     procedure LogPhoneCall()
+    begin
+        LogSegLinePhoneCall();
+    end;
+
+    procedure LogSegLinePhoneCall()
     var
         TempAttachment: Record Attachment temporary;
         SegLine: Record "Segment Line";
@@ -1360,8 +1444,14 @@ table 5077 "Segment Line"
         exit(TempAttachment.IsHTML);
     end;
 
+    [Obsolete('Replaced by PreviewSegLineHTMLContent()', '17.0')]
     [Scope('OnPrem')]
     procedure PreviewHTMLContent()
+    begin
+        PreviewSegLineHTMLContent();
+    end;
+
+    procedure PreviewSegLineHTMLContent()
     begin
         TempAttachment.Find;
         TempAttachment.ShowAttachment(Rec, '', true, false);

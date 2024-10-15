@@ -23,9 +23,9 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryJournals: Codeunit "Library - Journals";
         DeferralUtilities: Codeunit "Deferral Utilities";
-        CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined";
+        CalcMethod: Enum "Deferral Calculation Method";
         DeferralDocType: Option Purchase,Sales,"G/L";
-        StartDate: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period";
+        StartDate: Enum "Deferral Calculation Start Date";
         isInitialized: Boolean;
         DecimalPlacesInDeferralPctErr: Label 'Wrong decimal places count in "Defferal %" field.';
         AccTypeMustBeGLAccountErr: Label 'Account Type must be equal to ''G/L Account''';
@@ -977,7 +977,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         LongDescription := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(LongDescription)), 1, MaxStrLen(LongDescription));
         DeferralUtilities.RemoveOrSetDeferralSchedule(
           DeferralCode, DeferralDocType::Sales, GenJournalBatch."Journal Template Name",
-          GenJournalBatch.Name, SalesHeader."Document Type", SalesHeader."No.", 1, 0,
+          GenJournalBatch.Name, SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 1, 0,
           SalesHeader."Posting Date", LongDescription, '', false);
 
         // [THEN] Schedule Description = 'ABC-Deferral12346589....11'
@@ -1011,7 +1011,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [WHEN] DeferralCodeOnValidate with long description = 'Deferral12346589....112233' and GenJnlBatchName = ''
         LongDescription := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(LongDescription)), 1, MaxStrLen(LongDescription));
         DeferralUtilities.RemoveOrSetDeferralSchedule(
-          DeferralCode, DeferralDocType::Sales, '', '', SalesHeader."Document Type",
+          DeferralCode, DeferralDocType::Sales, '', '', SalesHeader."Document Type".AsInteger(),
           SalesHeader."No.", 1, 0, SalesHeader."Posting Date", LongDescription, '', false);
 
         // [THEN] Schedule Description = 'INV-Deferral12346589....11'
@@ -1047,7 +1047,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         LongDescription := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(LongDescription)), 1, MaxStrLen(LongDescription));
         DeferralUtilities.DeferralCodeOnValidate(
           DeferralCode, DeferralDocType::Sales, GenJournalBatch."Journal Template Name",
-          GenJournalBatch.Name, SalesHeader."Document Type", SalesHeader."No.", 1, 0,
+          GenJournalBatch.Name, SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 1, 0,
           SalesHeader."Posting Date", LongDescription, '');
 
         // [THEN] Schedule Description = 'ABC-Deferral12346589....11'
@@ -1081,7 +1081,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [WHEN] DeferralCodeOnValidate with long description = 'Deferral12346589....112233' and GenJnlBatchName = ''
         LongDescription := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(LongDescription)), 1, MaxStrLen(LongDescription));
         DeferralUtilities.DeferralCodeOnValidate(
-          DeferralCode, DeferralDocType::Sales, '', '', SalesHeader."Document Type",
+          DeferralCode, DeferralDocType::Sales, '', '', SalesHeader."Document Type".AsInteger(),
           SalesHeader."No.", 1, 0, SalesHeader."Posting Date", LongDescription, '');
 
         // [THEN] Schedule Description = 'INV-Deferral12346589....11'
@@ -1118,7 +1118,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         LongDescription := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(LongDescription)), 1, MaxStrLen(LongDescription));
         DeferralUtilities.OpenLineScheduleEdit(
           DeferralCode, DeferralDocType::Sales, GenJournalBatch."Journal Template Name",
-          GenJournalBatch.Name, SalesHeader."Document Type", SalesHeader."No.", 1, 0,
+          GenJournalBatch.Name, SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 1, 0,
           SalesHeader."Posting Date", LongDescription, '');
 
         // [THEN] Schedule Description = 'ABC-Deferral12346589....11'
@@ -1153,7 +1153,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [WHEN] DeferralCodeOnValidate with long description = 'Deferral12346589....112233' and GenJnlBatchName = ''
         LongDescription := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(LongDescription)), 1, MaxStrLen(LongDescription));
         DeferralUtilities.OpenLineScheduleEdit(
-          DeferralCode, DeferralDocType::Sales, '', '', SalesHeader."Document Type",
+          DeferralCode, DeferralDocType::Sales, '', '', SalesHeader."Document Type".AsInteger(),
           SalesHeader."No.", 1, 0, SalesHeader."Posting Date", LongDescription, '');
 
         // [THEN] Schedule Description = 'INV-Deferral12346589....11'
@@ -1278,7 +1278,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     end;
 
     [Scope('OnPrem')]
-    procedure CreateMasterDeferralRecord(CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined"; StartDate: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period"; NumOfPeriods: Integer; PeriodDescription: Text[50]; DeferralPercentage: Decimal) "Code": Code[10]
+    procedure CreateMasterDeferralRecord(CalcMethod: Enum "Deferral Calculation Method"; StartDate: Enum "Deferral Calculation Start Date"; NumOfPeriods: Integer; PeriodDescription: Text[50]; DeferralPercentage: Decimal) "Code": Code[10]
     var
         DeferralTemplate: Record "Deferral Template";
         DeferralCode: Code[10];
@@ -1414,7 +1414,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GenJournalLine.FindFirst;
     end;
 
-    local procedure CreateSalesInvoiceWithLineDeferral(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DeferralCode: Code[10]; DocumentType: Option)
+    local procedure CreateSalesInvoiceWithLineDeferral(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DeferralCode: Code[10]; DocumentType: Enum "Sales Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -1429,14 +1429,14 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
           LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0), 1);
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "), 1);
 
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
         SalesLine.Validate("Deferral Code", DeferralCode);
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchInvoiceWithLineDeferral(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DeferralCode: Code[10]; DocumentType: Option)
+    local procedure CreatePurchInvoiceWithLineDeferral(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DeferralCode: Code[10]; DocumentType: Enum "Purchase Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -1451,14 +1451,14 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0), 1);
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "), 1);
 
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
         PurchaseLine.Validate("Deferral Code", DeferralCode);
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateGenJournalLineWithTemplate(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplate: Record "Gen. Journal Template"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGenJournalLineWithTemplate(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplate: Record "Gen. Journal Template"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1563,7 +1563,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         SourceCodeSetup.Modify(true);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         NoSeries: Record "No. Series";

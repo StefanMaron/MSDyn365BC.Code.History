@@ -419,16 +419,16 @@ codeunit 144015 "ERM FR Feature Bugs"
 
         // [WHEN] Create 'Payment Line' for that Vendor
         LibraryFRLocalization.CreatePaymentHeader(PaymentHeader);
-        LibraryFRLocalization.CreatePaymentLine(PaymentLine,PaymentHeader."No.");
-        PaymentLine.Validate("Account Type",PaymentLine."Account Type"::Vendor);
-        PaymentLine.Validate("Account No.",DefaultDimension."No.");
+        LibraryFRLocalization.CreatePaymentLine(PaymentLine, PaymentHeader."No.");
+        PaymentLine.Validate("Account Type", PaymentLine."Account Type"::Vendor);
+        PaymentLine.Validate("Account No.", DefaultDimension."No.");
         PaymentLine.Modify(true);
 
         // [THEN] No error thrown, and invalid Dimension Set Entry is not created
-        PaymentLine.TestField("Dimension Set ID",0);
+        PaymentLine.TestField("Dimension Set ID", 0);
     end;
 
-    local procedure DefaultDimensionCodeOnPaymentSlip(Sign: Option; AccountType: Option; AccountNo: Code[20]; DimensionCode: Code[10])
+    local procedure DefaultDimensionCodeOnPaymentSlip(Sign: Option; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DimensionCode: Code[10])
     var
         DimensionSetEntry: Record "Dimension Set Entry";
         DimensionSetID: Integer;
@@ -566,7 +566,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         UpdateFAPostingGroup(FixedAsset."FA Posting Group");
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingDate: Date; FAPostingType: Option; FANo: Code[20]; DepreciationBookCode: Code[10]; Amount: Decimal)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingDate: Date; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; FANo: Code[20]; DepreciationBookCode: Code[10]; Amount: Decimal)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -650,7 +650,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         LibraryFRLocalization.CreatePaymentStepLedger(PaymentStepLedger, PaymentClass, Sign, PaymentStep.Line);
     end;
 
-    local procedure CreatePaymentSlip(AccountType: Option; AccountNo: Code[20]): Integer
+    local procedure CreatePaymentSlip(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Integer
     var
         PaymentHeader: Record "Payment Header";
         PaymentLine: Record "Payment Line";
@@ -675,7 +675,7 @@ codeunit 144015 "ERM FR Feature Bugs"
           DepreciationBookCode, -DerogatoryAmount);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);  // Use random value for Quantity.
@@ -691,7 +691,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         LibrarySales.CreateCustomer(Customer);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", ItemNo, Quantity);
         LibraryVariableStorage.Enqueue(Quantity);  // Enqueue value for use in ItemTrackingPageHandler.
-        SalesLine.OpenItemTrackingLines;  // Invokes ItemTrackingPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Invokes ItemTrackingPageHandler.
     end;
 
     local procedure CreateShipmentAndSalesInvoice(var SalesLine: Record "Sales Line"): Code[20]
@@ -730,7 +730,7 @@ codeunit 144015 "ERM FR Feature Bugs"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         LibraryDimension.CreateDimension(Dimension);
-        LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension,Vendor."No.",Dimension.Code,'');
+        LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, Vendor."No.", Dimension.Code, '');
     end;
 
     local procedure PostSalesInvoiceWithGetShipmentLine(var ShipmentNo: Code[20]): Code[20]
@@ -796,7 +796,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         DepreciationBook.Modify(true);
     end;
 
-    local procedure VerifyFALedgerEntries(FANo: Code[20]; FAPostingType: Option; FAPostingDate: Date; Amount: Decimal)
+    local procedure VerifyFALedgerEntries(FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"; FAPostingDate: Date; Amount: Decimal)
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
@@ -821,7 +821,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         ItemLedgerEntry.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyPostedSalesInvoice(DocumentNo: Code[20]; Type: Option; Quantity: Decimal; SellToCustomerNo: Code[20])
+    local procedure VerifyPostedSalesInvoice(DocumentNo: Code[20]; Type: Enum "Sales Line Type"; Quantity: Decimal; SellToCustomerNo: Code[20])
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin

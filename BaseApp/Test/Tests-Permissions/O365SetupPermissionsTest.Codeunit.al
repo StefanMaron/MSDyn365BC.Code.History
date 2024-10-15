@@ -164,7 +164,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         LibraryERM.CreateCountryRegion(CountryRegion);
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
         LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
-        LibraryERM.CreateDeferralTemplateCode(1, 1, 12);
+        LibraryERM.CreateDeferralTemplateCode("Deferral Calculation Method"::"Equal per Period", "Deferral Calculation Start Date"::"Beginning of Period", 12);
         LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
         LibraryERM.CreateFinanceChargeText(
           FinanceChargeText, FinanceChargeTerms.Code, 1, CopyStr(LibraryUtility.GenerateRandomText(10), 1, 10));

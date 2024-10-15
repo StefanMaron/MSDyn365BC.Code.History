@@ -578,7 +578,7 @@ codeunit 144046 "UT TAB Payment Management"
         PaymentLine: Record "Payment Line";
         AppliesToID: Code[20];
         DocNo: Code[20];
-        DocType: Option;
+        DocType: Enum "Gen. Journal Document Type";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 315612] Codeunit "Payment-Apply" doesn't delete "Applies-to Doc. No." and "Applies-to Doc. Type".
@@ -587,7 +587,7 @@ codeunit 144046 "UT TAB Payment Management"
         // [GIVEN] Payment Line with "Account Type"::Customer and no existing Customer Ledger entry.
         AppliesToID := LibraryUtility.GenerateRandomCode(PaymentLine.FieldNo("Applies-to ID"), DATABASE::"Cust. Ledger Entry");
         DocNo := LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
-        DocType := LibraryRandom.RandInt(7);
+        DocType := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(7));
         MockPaymentSlipWithPaymentLine(PaymentHeader, PaymentLine."Account Type"::Customer, AppliesToID, DocNo, DocType);
         PaymentLine.SetRange("No.", PaymentHeader."No.");
         PaymentLine.FindFirst;
@@ -610,7 +610,7 @@ codeunit 144046 "UT TAB Payment Management"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         AppliesToID: Code[20];
         DocNo: Code[20];
-        DocType: Option;
+        DocType: Enum "Gen. Journal Document Type";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 315612] Codeunit "Payment-Apply" doesn't delete "Applies-to Doc. No." and "Applies-to Doc. Type".
@@ -619,7 +619,7 @@ codeunit 144046 "UT TAB Payment Management"
         // [GIVEN] Payment Line with "Account Type"::Vendor and no existing Vendor Ledger entry.
         AppliesToID := LibraryUtility.GenerateRandomCode(PaymentLine.FieldNo("Applies-to ID"), DATABASE::"Vendor Ledger Entry");
         DocNo := LibraryUtility.GenerateRandomCode(VendorLedgerEntry.FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
-        DocType := LibraryRandom.RandInt(7);
+        DocType := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(7));
         MockPaymentSlipWithPaymentLine(PaymentHeader, PaymentLine."Account Type"::Vendor, AppliesToID, DocNo, DocType);
         PaymentLine.SetRange("No.", PaymentHeader."No.");
         PaymentLine.FindFirst;
@@ -646,7 +646,7 @@ codeunit 144046 "UT TAB Payment Management"
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
-    local procedure OnValidateAccountNoErrorInPaymentLine(AccountType: Option; AccountNo: Code[20]; ErrorCode: Text)
+    local procedure OnValidateAccountNoErrorInPaymentLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; ErrorCode: Text)
     var
         PaymentLine: Record "Payment Line";
     begin
@@ -660,7 +660,7 @@ codeunit 144046 "UT TAB Payment Management"
         Assert.ExpectedErrorCode(ErrorCode);
     end;
 
-    local procedure OnValidateAccountNoInPaymentLine(AccountType: Option; AccountNo: Code[20])
+    local procedure OnValidateAccountNoInPaymentLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         PaymentLine: Record "Payment Line";
         PaymentSlip: TestPage "Payment Slip";
@@ -679,7 +679,7 @@ codeunit 144046 "UT TAB Payment Management"
         PaymentSlip.Close;
     end;
 
-    local procedure CreateBlockedCustomer(Blocked: Option): Code[20]
+    local procedure CreateBlockedCustomer(Blocked: Enum "Customer Blocked"): Code[20]
     var
         Customer: Record Customer;
     begin
@@ -689,7 +689,7 @@ codeunit 144046 "UT TAB Payment Management"
         exit(Customer."No.");
     end;
 
-    local procedure CreateBlockedVendor(Blocked: Option): Code[20]
+    local procedure CreateBlockedVendor(Blocked: Enum "Vendor Blocked"): Code[20]
     var
         Vendor: Record Vendor;
     begin
@@ -706,7 +706,7 @@ codeunit 144046 "UT TAB Payment Management"
         PaymentClass.Insert();
     end;
 
-    local procedure CreatePaymentSlip(var PaymentLine: Record "Payment Line"; AccountType: Option)
+    local procedure CreatePaymentSlip(var PaymentLine: Record "Payment Line"; AccountType: Enum "Gen. Journal Account Type")
     var
         PaymentClass: Record "Payment Class";
         PaymentHeader: Record "Payment Header";
@@ -756,13 +756,13 @@ codeunit 144046 "UT TAB Payment Management"
             "Entry No." := EntryNo;
             "Applies-to ID" := AppliesToID;
             "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
-            "Document Type" := LibraryRandom.RandInt(7);
+            "Document Type" := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(7));
             Open := true;
             Insert;
         end;
     end;
 
-    local procedure MockPaymentSlipWithPaymentLine(var PaymentHeader: Record "Payment Header"; AccountType: Option; AppliesToID: Code[50]; AppliesToDocNo: Code[20]; AppliesToDocType: Option)
+    local procedure MockPaymentSlipWithPaymentLine(var PaymentHeader: Record "Payment Header"; AccountType: Enum "Gen. Journal Account Type"; AppliesToID: Code[50]; AppliesToDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type")
     var
         PaymentLine: Record "Payment Line";
     begin
@@ -795,7 +795,7 @@ codeunit 144046 "UT TAB Payment Management"
             "Entry No." := EntryNo;
             "Applies-to ID" := AppliesToID;
             "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
-            "Document Type" := LibraryRandom.RandInt(7);
+            "Document Type" := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(7));
             Open := true;
             Insert;
         end;

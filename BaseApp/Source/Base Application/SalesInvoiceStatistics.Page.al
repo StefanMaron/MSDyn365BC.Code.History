@@ -265,7 +265,6 @@ page 397 "Sales Invoice Statistics"
         AmountInclVAT: Decimal;
         InvDiscAmount: Decimal;
         VATAmount: Decimal;
-        CostLCY: Decimal;
         ProfitLCY: Decimal;
         ProfitPct: Decimal;
         AdjProfitLCY: Decimal;
@@ -275,12 +274,15 @@ page 397 "Sales Invoice Statistics"
         TotalGrossWeight: Decimal;
         TotalVolume: Decimal;
         TotalParcels: Decimal;
-        AmountLCY: Decimal;
         CreditLimitLCYExpendedPct: Decimal;
         VATPercentage: Decimal;
         VATAmountText: Text[30];
 
-    local procedure CalculateTotals()
+    protected var
+        AmountLCY: Decimal;
+        CostLCY: Decimal;
+
+        local procedure CalculateTotals()
     var
         CostCalcMgt: Codeunit "Cost Calculation Management";
         IsHandled: Boolean;

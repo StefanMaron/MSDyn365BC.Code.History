@@ -626,7 +626,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
           -CustLedgerEntry."Amount (LCY)" / 3, -CustLedgerEntry."Amount (LCY)" / 3);
     end;
 
-    local procedure MockSimpleCustLedgEntry(ExcludeFromPmtReporting: Boolean; DocType: Option; PostingDate: Date; DueDate: Date; IsOpen: Boolean): Integer
+    local procedure MockSimpleCustLedgEntry(ExcludeFromPmtReporting: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean): Integer
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -634,7 +634,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         exit(CustLedgerEntry."Entry No.");
     end;
 
-    local procedure MockCustLedgEntryWithAmt(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
+    local procedure MockCustLedgEntryWithAmt(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -644,7 +644,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
           CustLedgerEntry."Document Type", LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure MockCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; ExcludeFromPmtReporting: Boolean; DocType: Option; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
+    local procedure MockCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; ExcludeFromPmtReporting: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
     begin
         with CustLedgerEntry do begin
             Init;
@@ -683,7 +683,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         MockEntryApplication(CustLedgerEntry."Document Type"::"Credit Memo", InvLedgEntryNo, PostingDate, EntryAmount, AppliedAmount);
     end;
 
-    local procedure MockEntryApplication(DocType: Option; InvLedgEntryNo: Integer; PostingDate: Date; EntryAmount: Decimal; AppliedAmount: Decimal)
+    local procedure MockEntryApplication(DocType: Enum "Gen. Journal Document Type"; InvLedgEntryNo: Integer; PostingDate: Date; EntryAmount: Decimal; AppliedAmount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -700,7 +700,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
           DocType, AppliedAmount);
     end;
 
-    local procedure MockDtldCustLedgEntry(EntryType: Option; PostingDate: Date; LedgEntryNo: Integer; AppliedLedgEntryNo: Integer; DocType: Option; AppliedAmount: Decimal): Integer
+    local procedure MockDtldCustLedgEntry(EntryType: Option; PostingDate: Date; LedgEntryNo: Integer; AppliedLedgEntryNo: Integer; DocType: Enum "Gen. Journal Document Type"; AppliedAmount: Decimal): Integer
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin

@@ -161,7 +161,7 @@ table 10866 "Payment Line"
         }
         field(18; "Status Name"; Text[50])
         {
-            CalcFormula = Lookup ("Payment Status".Name WHERE("Payment Class" = FIELD("Payment Class"),
+            CalcFormula = Lookup("Payment Status".Name WHERE("Payment Class" = FIELD("Payment Class"),
                                                               Line = FIELD("Status No.")));
             Caption = 'Status Name';
             Editable = false;
@@ -353,12 +353,10 @@ table 10866 "Payment Line"
             TableRelation = "Payment Address".Code WHERE("Account Type" = FIELD("Account Type"),
                                                           "Account No." = FIELD("Account No."));
         }
-        field(41; "Applies-to Doc. Type"; Option)
+        field(41; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
             Editable = false;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder;
         }
         field(42; "Applies-to Doc. No."; Code[20])
         {
@@ -418,7 +416,7 @@ table 10866 "Payment Line"
         }
         field(291; "Has Payment Export Error"; Boolean)
         {
-            CalcFormula = Exist ("Payment Jnl. Export Error Text" WHERE("Document No." = FIELD("No."),
+            CalcFormula = Exist("Payment Jnl. Export Error Text" WHERE("Document No." = FIELD("No."),
                                                                         "Journal Line No." = FIELD("Line No.")));
             Caption = 'Has Payment Export Error';
             Editable = false;
@@ -432,7 +430,7 @@ table 10866 "Payment Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1230; "Direct Debit Mandate ID"; Code[35])
@@ -672,7 +670,7 @@ table 10866 "Payment Line"
     begin
         if "Line No." <> 0 then begin
             Clear(DefaultDimension);
-            DefaultDimension.SetRange("Table ID", DimManagt.TypeToTableID1("Account Type"));
+            DefaultDimension.SetRange("Table ID", DimManagt.TypeToTableID1("Account Type".AsInteger()));
             DimensionCreate;
         end;
     end;
