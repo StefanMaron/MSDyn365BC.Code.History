@@ -88,12 +88,17 @@ codeunit 9004 "User Grp. Perm. Subscribers"
     local procedure GetAppId(var UserGroupPermissionSet: Record "User Group Permission Set"): Guid
     var
         AggregatePermissionSet: Record "Aggregate Permission Set";
+        ServerSetting: Codeunit "Server Setting";
         NullGuid: Guid;
         Handled: Boolean;
     begin
         OnBeforeGetAppId(Handled); // for testing
         if Handled then
             exit;
+
+        // Do not change the App ID if the UsePermissionSetsFromExtensions server setting is set to false
+        if not ServerSetting.GetUsePermissionSetsFromExtensions() then
+            exit(UserGroupPermissionSet."App ID");
 
         // If the permission set is a system permission set, it should never have a null guid.
         // As such, ignore any null guid permission set unless SUPER or SECURITY

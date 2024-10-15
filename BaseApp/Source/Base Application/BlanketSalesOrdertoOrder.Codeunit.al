@@ -223,6 +223,7 @@ codeunit 87 "Blanket Sales Order to Order"
 
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal) CreditLimitExceeded: Boolean
     var
+        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
         PostCodeCheck: Codeunit "Post Code Check";
     begin
         OnBeforeCreateSalesHeader(SalesHeader);
@@ -239,6 +240,8 @@ codeunit 87 "Blanket Sales Order to Order"
 
             SalesOrderLine.LockTable();
             OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
+            StandardCodesMgt.SetSkipRecurringLines(true);
+            SalesOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
             SalesOrderHeader.Insert(true);
 
             PostCodeCheck.CopyAllAddressID(

@@ -64,6 +64,7 @@ report 114 "Salesperson - Sales Statistics"
 
             trigger OnAfterGetRecord()
             var
+                [SecurityFiltering(SecurityFilter::Filtered)]
                 CustLedgEntry: Record "Cust. Ledger Entry";
                 CostCalculationMgt: Codeunit "Cost Calculation Management";
             begin
@@ -152,6 +153,7 @@ report 114 "Salesperson - Sales Statistics"
 
     trigger OnPreReport()
     begin
+        "Cust. Ledger Entry".SecurityFiltering(SecurityFilter::Filtered);
         SalespersonFilter := "Salesperson/Purchaser".GetFilters;
         CustLedgEntryFilter := "Cust. Ledger Entry".GetFilters;
         PeriodText := "Cust. Ledger Entry".GetFilter("Posting Date");

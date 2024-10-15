@@ -577,7 +577,8 @@ codeunit 5407 "Prod. Order Status Management"
                     else begin
                         QtyToPost := GetNeededQty(0, false);
                         if SuppliedByProdOrderLine.Get(Status, "Prod. Order No.", "Supplied-by Line No.") and
-                           (SuppliedByProdOrderLine."Remaining Quantity" = 0)
+                           (SuppliedByProdOrderLine."Remaining Quantity" = 0) or
+                           (Abs(QtyToPost * "Qty. per Unit of Measure" - "Remaining Qty. (Base)") < Item."Rounding Precision")
                         then
                             QtyToPost := GetNeededQty(1, false);
                     end;

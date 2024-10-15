@@ -17,7 +17,7 @@
         WorkflowStepInstanceIdNotFoundErr: Label 'The workflow step instance id %1 was not found.', Comment = '%1=Id value of a record.';
 
     [IntegrationEvent(false, FALSE)]
-    local procedure OnCancelWorkflow(WorkflowWebhookEntry: Record "Workflow Webhook Entry")
+    local procedure OnCancelWorkflow(WorkflowWebhookEntry: Record "Workflow Webhook Entry"; OnDeletion: Boolean)
     begin
     end;
 
@@ -96,6 +96,11 @@
 
     procedure Cancel(var WorkflowWebhookEntry: Record "Workflow Webhook Entry")
     begin
+        Cancel(WorkflowWebhookEntry, false);
+    end;
+
+    procedure Cancel(var WorkflowWebhookEntry: Record "Workflow Webhook Entry"; OnDeletion: Boolean)
+    begin
         VerifyResponseExpected(WorkflowWebhookEntry);
 
         if not CanCancel(WorkflowWebhookEntry) then
@@ -104,7 +109,7 @@
         WorkflowWebhookEntry.Validate(Response, WorkflowWebhookEntry.Response::Cancel);
         WorkflowWebhookEntry.Modify(true);
 
-        OnCancelWorkflow(WorkflowWebhookEntry);
+        OnCancelWorkflow(WorkflowWebhookEntry, OnDeletion);
     end;
 
     procedure CancelByStepInstanceId(Id: Guid)
@@ -352,6 +357,11 @@
     end;
 
     procedure FindAndCancel(RecordId: RecordID)
+    begin
+        FindAndCancel(RecordId, false);
+    end;
+
+    procedure FindAndCancel(RecordId: RecordID; OnDeletion: Boolean)
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
@@ -360,7 +370,7 @@
         if FindWorkflowWebhookEntryByRecordIdAndResponse(WorkflowWebhookEntry, RecordId, WorkflowWebhookEntry.Response::Pending) and
            CanCancel(WorkflowWebhookEntry)
         then
-            Cancel(WorkflowWebhookEntry);
+            Cancel(WorkflowWebhookEntry, OnDeletion);
     end;
 
     procedure DeleteWorkflowWebhookEntries(RecordId: RecordID)

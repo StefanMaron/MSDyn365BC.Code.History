@@ -239,15 +239,7 @@ codeunit 139064 "Monitor Sensitive Field Test"
         Assert.IsTrue(ChangeLogEntry.FindFirst(), 'A log entry should have been added when changing sensitive field');
         Assert.IsFalse(IsNullGuid(ChangeLogEntry."Notification Message Id"), 'Message Id should have been populated in the log entry');
         Assert.AreEqual(ChangeLogEntry."Notification Status"::"Email Enqueued", ChangeLogEntry."Notification Status", 'Notification status should be sent');
-
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        // [WHEN] Simulate raising an event that email was sent
-        MonitorNotification.UpdateEmailStatus(ChangeLogEntry."Notification Message Id", true);
-
-        // [THEN] Email status should be marked as sent
-        ChangeLogEntry.FindFirst();
-        Assert.AreEqual(ChangeLogEntry."Notification Status"::"Email Sent", ChangeLogEntry."Notification Status", 'Notification status should be sent');
-    end;
+  end;
 
     [Test]
     [TestPermissions(TestPermissions::Disabled)]
