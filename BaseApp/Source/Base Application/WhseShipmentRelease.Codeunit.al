@@ -77,7 +77,7 @@
         OnAfterRelease(WhseShptHeader, WhseShptLine);
     end;
 
-    procedure Reopen(WhseShptHeader: Record "Warehouse Shipment Header")
+    procedure Reopen(var WhseShptHeader: Record "Warehouse Shipment Header")
     var
         WhsePickRqst: Record "Whse. Pick Request";
         PickWkshLine: Record "Whse. Worksheet Line";

@@ -264,10 +264,8 @@ codeunit 350 IntraJnlManagement
                          IntrastatJnlLine, AdvancedIntrastatChecklist."Field No.", ErrorMessage."Message Type"::Error) <> 0);
             until AdvancedIntrastatChecklist.Next() = 0;
 
-        if AnyError and ThrowError then begin
-            Commit();
-            Error(AdvChecklistErr);
-        end;
+        if AnyError and ThrowError then
+            ThrowJournalBatchError();
 
         exit(not AnyError);
     end;
@@ -342,6 +340,21 @@ codeunit 350 IntraJnlManagement
         AdvancedIntrastatChecklist.Validate("Filter Expression", CopyStr(FilterExpr, 1, MaxStrLen(AdvancedIntrastatChecklist."Filter Expression")));
         AdvancedIntrastatChecklist.Validate("Reversed Filter Expression", Reverse);
         if AdvancedIntrastatChecklist.Insert() then;
+    end;
+
+    procedure CheckForJournalBatchError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; ThrowError: Boolean)
+    var
+        ErrorMessage: Record "Error Message";
+    begin
+        ChecklistSetBatchContext(ErrorMessage, IntrastatJnlLine);
+        if ErrorMessage.HasErrors(false) and ThrowError then
+            ThrowJournalBatchError();
+    end;
+
+    local procedure ThrowJournalBatchError()
+    begin
+        Commit();
+        Error(AdvChecklistErr);
     end;
 }
 
