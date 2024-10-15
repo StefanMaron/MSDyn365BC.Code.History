@@ -1094,7 +1094,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         CreateJournalLine(GenJournalLine, Customer."Gen. Bus. Posting Group", DocumentTypeForSalesJournal,
           GenJournalLine."Gen. Posting Type"::Sale, GenJournalTemplate.Type::Sales,
           GenJournalLine."Account Type"::Customer, Customer."No.", CreateAmount(DocumentTypeForSalesJournal));
-        UpdateAdjustForPaymentDiscountOnVATPostingSetup(GenJournalLine);
+        UpdateAdjustForPaymentDiscountOnVATPostingSetup(GenJournalLine, true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.FindBankAccount(BankAccount);
         CreateJournalLineWithAppliesToDocNo(GenJournalLineForPayment, GenJournalTemplate.Type::"Cash Receipts",
@@ -1106,6 +1106,9 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error raised on General Journal Line Validation.
         Assert.ExpectedError(JournalLineErr);
+
+        // Tear down.
+        UpdateAdjustForPaymentDiscountOnVATPostingSetup(GenJournalLine, false);
     end;
 
     [Test]
@@ -1204,7 +1207,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         CreateJournalLine(GenJournalLine, Vendor."Gen. Bus. Posting Group", DocumentTypeForPurchaseJournal,
           GenJournalLine."Gen. Posting Type"::Purchase, GenJournalTemplate.Type::Purchases,
           GenJournalLine."Account Type"::Vendor, Vendor."No.", -1 * CreateAmount(DocumentTypeForPurchaseJournal));
-        UpdateAdjustForPaymentDiscountOnVATPostingSetup(GenJournalLine);
+        UpdateAdjustForPaymentDiscountOnVATPostingSetup(GenJournalLine, true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.FindBankAccount(BankAccount);
         CreateJournalLineWithAppliesToDocNo(GenJournalLineForPayment, GenJournalTemplate.Type::Payments,
@@ -1216,6 +1219,9 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error raised on General Journal Line Validation.
         Assert.ExpectedError(JournalLineErr);
+
+        // Tear down.
+        UpdateAdjustForPaymentDiscountOnVATPostingSetup(GenJournalLine, false);
     end;
 
     [Test]
@@ -1667,7 +1673,15 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Initialize();
         ResetPostingNoSeriesOnPurchaseSetup();
 
-        LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
+        asserterror LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+        Assert.ExpectedError(PurchasesPayablesSetup.FieldCaption("Posted Credit Memo Nos."));
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify();
+        Commit();
+
+        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
         Commit();
 
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1675,14 +1689,6 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", CreateNoSeriesCode());
-        PurchasesPayablesSetup.Modify();
-        Commit();
-
-        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        Assert.ExpectedError(PurchaseHeader.FieldCaption("Posting No. Series"));
-
-        PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", CreateNoSeriesCode());
         PurchasesPayablesSetup.Modify();
         Commit();
 
@@ -1853,6 +1859,287 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         SalesCrMemoHeader.SetRange("No.", GetLastNoUsedFromNoSeries(SalesReceivablesSetup."Posted Credit Memo Nos."));
         Assert.RecordCount(SalesCrMemoHeader, 1);
+    end;
+
+    [Test]
+    procedure PostPurchaseCreditMemoManualNoSeries()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        NoSeriesCode: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [No. Series] [Purchase] [Credit Memo]
+        // [SCENARIO 368758] Stan can post Purchase Credit Memo with No. Series having "Default Nos." = false and "Manual Nos." = true
+        Initialize();
+        ResetPostingNoSeriesOnPurchaseSetup();
+
+        DocumentNo := LibraryUtility.GenerateGUID() + '-ABC';
+        PurchCrMemoHdr.SetRange("No.", DocumentNo);
+        Assert.RecordCount(PurchCrMemoHdr, 0);
+
+        NoSeriesCode := CreateNoSeriesCode();
+        UpdateNoSeries(NoSeriesCode, false, true);
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Credit Memo Nos.", NoSeriesCode);
+        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", NoSeriesCode);
+        PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify(true);
+
+        PurchaseHeader.Init();
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+        PurchaseHeader.Validate("No.", DocumentNo);
+        PurchaseHeader.Insert(true);
+
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        Assert.RecordCount(PurchCrMemoHdr, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesCreditMemoManualNoSeries()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        NoSeriesCode: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [No. Series] [Sales] [Credit Memo]
+        // [SCENARIO 368758] Stan can post Sales Credit Memo with No. Series having "Default Nos." = false and "Manual Nos." = true
+        Initialize();
+        ResetPostingNoSeriesOnSalesSetup();
+
+        DocumentNo := LibraryUtility.GenerateGUID() + '-ABC';
+        SalesCrMemoHeader.SetRange("No.", DocumentNo);
+        Assert.RecordCount(SalesCrMemoHeader, 0);
+
+        NoSeriesCode := CreateNoSeriesCode();
+        UpdateNoSeries(NoSeriesCode, false, true);
+
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Credit Memo Nos.", NoSeriesCode);
+        SalesReceivablesSetup.Validate("Posted Credit Memo Nos.", NoSeriesCode);
+        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", CreateNoSeriesCode());
+        SalesReceivablesSetup.Modify();
+
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        SalesHeader.Validate("No.", DocumentNo);
+        SalesHeader.Insert(true);
+
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+
+        SalesHeader.Validate(Ship, true);
+        SalesHeader.Validate(Receive, true);
+        SalesHeader.Validate(Invoice, true);
+        Codeunit.Run(Codeunit::"Sales-Post", SalesHeader);
+
+        Assert.RecordCount(SalesCrMemoHeader, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanChangeRequestedReceiptDateOnReleasedPurchOrderHeader()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        NewDate: Date;
+    begin
+        // [FEATURE] [Purchase] [Order] [Release Document] [UT]
+        // [SCENARIO 362133] Stan can change "Requested Receipt Date" on released purchase order.
+        Initialize();
+        NewDate := LibraryRandom.RandDateFromInRange(WorkDate(), 20, 40);
+
+        CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+
+        PurchaseHeader.Validate("Requested Receipt Date", NewDate);
+        PurchaseHeader.Modify(true);
+
+        PurchaseHeader.TestField("Requested Receipt Date", NewDate);
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Requested Receipt Date", NewDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanChangeLeadTimeCalculationOnReleasedPurchOrderHeader()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LeadTimeCalculation: DateFormula;
+    begin
+        // [FEATURE] [Purchase] [Order] [Release Document] [UT]
+        // [SCENARIO 362133] Stan can change "Lead Time Calculation" on released purchase order.
+        Initialize();
+        Evaluate(LeadTimeCalculation, StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(20, 40)));
+
+        CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+
+        PurchaseHeader.Validate("Lead Time Calculation", LeadTimeCalculation);
+        PurchaseHeader.Modify(true);
+
+        PurchaseHeader.TestField("Lead Time Calculation", LeadTimeCalculation);
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Lead Time Calculation", LeadTimeCalculation);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanChangeInboundWhseHandlingTimeOnReleasedPurchOrderHeader()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        InboundWhseHandlingTime: DateFormula;
+    begin
+        // [FEATURE] [Purchase] [Order] [Release Document] [UT]
+        // [SCENARIO 362133] Stan can change "Inbound Whse. Handling Time" on released purchase order.
+        Initialize();
+        Evaluate(InboundWhseHandlingTime, StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(20, 40)));
+
+        CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+
+        PurchaseHeader.Validate("Inbound Whse. Handling Time", InboundWhseHandlingTime);
+        PurchaseHeader.Modify(true);
+
+        PurchaseHeader.TestField("Inbound Whse. Handling Time", InboundWhseHandlingTime);
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Inbound Whse. Handling Time", InboundWhseHandlingTime);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CanChangeOrderDateOnReleasedPurchOrderHeader()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        NewDate: Date;
+    begin
+        // [FEATURE] [Purchase] [Order] [Release Document] [UT]
+        // [SCENARIO 362133] Stan can change "Order Date" on released purchase order.
+        Initialize();
+        NewDate := LibraryRandom.RandDateFromInRange(WorkDate(), 20, 40);
+
+        CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+
+        PurchaseHeader.Validate("Order Date", NewDate);
+        PurchaseHeader.Modify(true);
+
+        PurchaseHeader.TestField("Order Date", NewDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanChangeRequestedReceiptDateOnReleasedPurchOrderLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        NewDate: Date;
+    begin
+        // [FEATURE] [Purchase] [Order] [Release Document] [UT]
+        // [SCENARIO 362133] Stan can change "Requested Receipt Date" on released purchase order line.
+        Initialize();
+        NewDate := LibraryRandom.RandDateFromInRange(WorkDate(), 20, 40);
+
+        CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+
+        PurchaseLine.Validate("Requested Receipt Date", NewDate);
+
+        PurchaseLine.TestField("Requested Receipt Date", NewDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanChangeLeadTimeCalculationOnReleasedPurchOrderLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LeadTimeCalculation: DateFormula;
+    begin
+        // [FEATURE] [Purchase] [Order] [Release Document] [UT]
+        // [SCENARIO 362133] Stan can change "Lead Time Calculation" on released purchase order line.
+        Initialize();
+        Evaluate(LeadTimeCalculation, StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(20, 40)));
+
+        CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+
+        PurchaseLine.Validate("Lead Time Calculation", LeadTimeCalculation);
+
+        PurchaseLine.TestField("Lead Time Calculation", LeadTimeCalculation);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanChangeInboundWhseHandlingTimeOnReleasedPurchOrderLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        InboundWhseHandlingTime: DateFormula;
+    begin
+        // [FEATURE] [Purchase] [Order] [Release Document] [UT]
+        // [SCENARIO 362133] Stan can change "Inbound Whse. Handling Time" on released purchase order line.
+        Initialize();
+        Evaluate(InboundWhseHandlingTime, StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(20, 40)));
+
+        CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+
+        PurchaseLine.Validate("Inbound Whse. Handling Time", InboundWhseHandlingTime);
+
+        PurchaseLine.TestField("Inbound Whse. Handling Time", InboundWhseHandlingTime);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanChangeOrderDateOnReleasedPurchOrderLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        NewDate: Date;
+    begin
+        // [FEATURE] [Purchase] [Order] [Release Document] [UT]
+        // [SCENARIO 362133] Stan can change "Order Date" on released purchase order line.
+        Initialize();
+        NewDate := LibraryRandom.RandDateFromInRange(WorkDate(), 20, 40);
+
+        CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+
+        PurchaseLine.Validate("Order Date", NewDate);
+
+        PurchaseLine.TestField("Order Date", NewDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanChangePlannedReceiptDateOnReleasedPurchOrderLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        NewDate: Date;
+    begin
+        // [FEATURE] [Purchase] [Order] [Release Document] [UT]
+        // [SCENARIO 362133] Stan can change "Planned Receipt Date" on released purchase order line.
+        Initialize();
+        NewDate := LibraryRandom.RandDateFromInRange(WorkDate(), 20, 40);
+
+        CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
+
+        PurchaseLine.Validate("Planned Receipt Date", NewDate);
+
+        PurchaseLine.TestField("Planned Receipt Date", NewDate);
     end;
 
     local procedure Initialize()
@@ -2183,6 +2470,16 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         exit(NoSeriesCode);
     end;
 
+    local procedure UpdateNoSeries(NoSeriesCode: Code[20]; DefaultNos: Boolean; ManualNos: Boolean)
+    var
+        NoSeries: Record "No. Series";
+    begin
+        NoSeries.Get(NoSeriesCode);
+        NoSeries.Validate("Default Nos.", DefaultNos);
+        NoSeries.TestField("Manual Nos.", ManualNos);
+        NoSeries.Modify(true);
+    end;
+
     local procedure GetLastNoUsedFromNoSeries(NoSeriesCode: Code[20]): Code[20]
     var
         NoSeriesLine: Record "No. Series Line";
@@ -2329,12 +2626,12 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         exit(ReturnReason.Code);
     end;
 
-    local procedure UpdateAdjustForPaymentDiscountOnVATPostingSetup(GenJournalLine: Record "Gen. Journal Line")
+    local procedure UpdateAdjustForPaymentDiscountOnVATPostingSetup(GenJournalLine: Record "Gen. Journal Line"; AdjustForPaymentDisc: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.Get(GenJournalLine."Bal. VAT Bus. Posting Group", GenJournalLine."Bal. VAT Prod. Posting Group");
-        VATPostingSetup.Validate("Adjust for Payment Discount", true);
+        VATPostingSetup.Validate("Adjust for Payment Discount", AdjustForPaymentDisc);
         VATPostingSetup.Modify(true);
     end;
 
@@ -2438,6 +2735,12 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     procedure SalesDocumentTestRequestPage(var SalesDocumentTest: TestRequestPage "Sales Document - Test")
     begin
         SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text)
+    begin
     end;
 }
 
