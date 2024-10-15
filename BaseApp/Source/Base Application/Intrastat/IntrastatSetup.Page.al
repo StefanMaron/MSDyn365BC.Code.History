@@ -45,6 +45,21 @@ page 328 "Intrastat Setup"
                     ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
                 }
 #endif
+                field("Company VAT No. on File"; "Company VAT No. on File")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies how the company''s VAT registration number exports to the Intrastat file. 0 is the value of the VAT Reg. No. field, 1 adds the EU country code as a prefix, and 2 removes the EU country code.';
+                }
+                field("Vend. VAT No. on File"; "Vend. VAT No. on File")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies how a vendor''s VAT registration number exports to the Intrastat file. 0 is the value of the VAT Reg. No. field, 1 adds the EU country code as a prefix, and 2 removes the EU country code.';
+                }
+                field("Cust. VAT No. on File"; "Cust. VAT No. on File")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies how a customer''s VAT registration number exports to the Intrastat file. 0 is the value of the VAT Reg. No. field, 1 adds the EU country code as a prefix, and 2 removes the EU country code.';
+                }
             }
             group("Default Transactions")
             {

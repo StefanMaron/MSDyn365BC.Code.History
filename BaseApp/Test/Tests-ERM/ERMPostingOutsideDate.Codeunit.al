@@ -1,13 +1,11 @@
 codeunit 134342 "ERM Posting Outside Date"
 {
-    // // [FEATURE] [Fiscal Year] [Posting After Fiscal Year]
-
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
     trigger OnRun()
     begin
-        // [FEATURE] [Fiscal Year] [Posting After Fiscal Year]
+        // [FEATURE] [Posting After Working Date]
     end;
 
     var
@@ -20,9 +18,9 @@ codeunit 134342 "ERM Posting Outside Date"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         InstructionMgt: Codeunit "Instruction Mgt.";
         IsInitialized: Boolean;
-        ConfirmPostingAfterCurrentDateQst: Label 'The posting date of one or more journal lines is after the current calendar date. Do you want to continue?';
+        ConfirmPostingAfterWorkingDateQst: Label 'The posting date of one or more journal lines is after the working date. Do you want to continue?';
         UnexpectedConfirmTextErr: Label 'Unexpected confirmation text.';
-        NotAllowedToPostAfterCurrentDateErr: Label 'Cannot post because one or more transactions have dates after the current calendar date.';
+        NotAllowedToPostAfterWorkingDateErr: Label 'Cannot post because one or more transactions have dates after the working date.';
 
     [Test]
     [Scope('OnPrem')]
@@ -34,8 +32,8 @@ codeunit 134342 "ERM Posting Outside Date"
 
         Initialize;
 
-        // [GIVEN] "Posting After Fiscal Year" confirmation is enabled
-        EnablePostingAfterFiscalYear;
+        // [GIVEN] "Posting After Working Date" confirmation is enabled
+        EnablePostingAfterWorkignDate();
 
         // [GIVEN] Current work date is 05.01.2017
         // [GIVEN] General Journal Line with "Posting Date" = 05.01.2017
@@ -48,7 +46,7 @@ codeunit 134342 "ERM Posting Outside Date"
         VerifyGLEntryExists(GenJnlLine."Posting Date", GenJnlLine."Document No.");
 
         // Tear Down
-        DisablePostingAfterFiscalYear;
+        DisablePostingAfterWorkingDate();
     end;
 
     [Test]
@@ -61,8 +59,8 @@ codeunit 134342 "ERM Posting Outside Date"
 
         Initialize;
 
-        // [GIVEN] "Posting After Fiscal Year" confirmation is enabled
-        EnablePostingAfterFiscalYear;
+        // [GIVEN] "Posting After Working Date" confirmation is enabled
+        EnablePostingAfterWorkignDate();
 
         // [GIVEN] Current work date is 06.01.2017
         // [GIVEN] General Journal Line with "Posting Date" = 05.01.2017
@@ -75,7 +73,7 @@ codeunit 134342 "ERM Posting Outside Date"
         VerifyGLEntryExists(GenJnlLine."Posting Date", GenJnlLine."Document No.");
 
         // Tear Down
-        DisablePostingAfterFiscalYear;
+        DisablePostingAfterWorkingDate();
     end;
 
     [Test]
@@ -89,13 +87,13 @@ codeunit 134342 "ERM Posting Outside Date"
 
         Initialize;
 
-        // [GIVEN] "Posting After Fiscal Year" confirmation is enabled
-        EnablePostingAfterFiscalYear;
+        // [GIVEN] "Posting After Working Date" confirmation is enabled
+        EnablePostingAfterWorkignDate();
 
         // [GIVEN] Current work date is 06.01.2017
         // [GIVEN] General Journal Line with "Posting Date" = 07.01.2017
         CreateGenJnlLine(GenJnlLine, WorkDate + 1);
-        LibraryVariableStorage.Enqueue(ConfirmPostingAfterCurrentDateQst);
+        LibraryVariableStorage.Enqueue(ConfirmPostingAfterWorkingDateQst);
 
         // [WHEN] Confirm dialog "The posting date of one or more General Journal Line is after the current date. Do you want to continue?" while posting Gen. Journal Line
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
@@ -104,55 +102,55 @@ codeunit 134342 "ERM Posting Outside Date"
         VerifyGLEntryExists(GenJnlLine."Posting Date", GenJnlLine."Document No.");
 
         // Tear Down
-        DisablePostingAfterFiscalYear;
+        DisablePostingAfterWorkingDate();
     end;
 
     [Test]
     [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
-    procedure PostGenJnlLineDoNotConfirmPostingAfterCurrentDate()
+    procedure PostGenJnlLineDoNotConfirmPostingAfterWorkingDate()
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        // [SCENARIO 169269] Error message should be thrown if posting of General Journal Line after current date is not confirmed
+        // [SCENARIO 169269] Error message should be thrown if posting of General Journal Line after working date is not confirmed
 
         Initialize;
 
-        // [GIVEN] "Posting After Fiscal Year" confirmation is enabled
-        EnablePostingAfterFiscalYear;
+        // [GIVEN] "Posting After Working Date" confirmation is enabled
+        EnablePostingAfterWorkignDate();
 
         // [GIVEN] Current work date is 06.01.2017
         // [GIVEN] General Journal Line with "Posting Date" = 07.01.2017
         CreateGenJnlLine(GenJnlLine, WorkDate + 1);
         Commit();
 
-        // [WHEN] Do not confirm dialog "The posting date of one or more General Journal Line is after the current date. Do you want to continue?" while posting Gen. Journal Line
+        // [WHEN] Do not confirm dialog "The posting date of one or more General Journal Line is after the working date. Do you want to continue?" while posting Gen. Journal Line
         asserterror LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
-        // [THEN] General Journal Line is not posted and error message "You cannot post when one or more dates is After the current fiscal year" is thrown
-        Assert.ExpectedError(NotAllowedToPostAfterCurrentDateErr);
+        // [THEN] General Journal Line is not posted and error message "You cannot post when one or more dates is After the working date" is thrown
+        Assert.ExpectedError(NotAllowedToPostAfterWorkingDateErr);
         GenJnlLine.Find;
         VerfifyGLEntryDoesNotExist(GenJnlLine."Posting Date", GenJnlLine."Document No.");
 
         // Tear Down
-        DisablePostingAfterFiscalYear;
+        DisablePostingAfterWorkingDate();
     end;
 
     [Test]
     [HandlerFunctions('ConfirmWithCheckHandler')]
     [Scope('OnPrem')]
-    procedure PostMultipleGenJnlLineWithOneConfirmAfterCurrentDate()
+    procedure PostMultipleGenJnlLineWithOneConfirmAfterWorkingDate()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJnlLine: array[2] of Record "Gen. Journal Line";
         i: Integer;
     begin
-        // [SCENARIO 169269] Multiple General Journal Lines after current date should be posted with only one confirmation of "Posting After Current Date"
+        // [SCENARIO 169269] Multiple General Journal Lines after current date should be posted with only one confirmation of "Posting After Working Date"
 
         Initialize;
 
-        // [GIVEN] "Posting After Fiscal Year" confirmation is enabled
-        EnablePostingAfterFiscalYear;
+        // [GIVEN] "Posting After Working Date" confirmation is enabled
+        EnablePostingAfterWorkignDate();
 
         // [GIVEN] Current work date is 06.01.2017
         // [GIVEN] Two General Journal Lines with "Posting Date" = 07.01.2017
@@ -160,7 +158,7 @@ codeunit 134342 "ERM Posting Outside Date"
         for i := 1 to ArrayLen(GenJnlLine) do
             CreateGenJnlLineWithBatch(GenJnlLine[i], GenJournalBatch, WorkDate + 1);
 
-        // [WHEN] Confirm dialog "The posting date of one or more General Journal Line is after current date. Do you want to continue?" while posting Gen. Journal Line one time for two entries
+        // [WHEN] Confirm dialog "The posting date of one or more General Journal Line is after working date. Do you want to continue?" while posting Gen. Journal Line one time for two entries
         // Single confirmation handled by ConfirmWithCheckHandler
         LibraryVariableStorage.Enqueue(true);
         LibraryERM.PostGeneralJnlLine(GenJnlLine[1]); // will post two entries with the same batch
@@ -170,7 +168,7 @@ codeunit 134342 "ERM Posting Outside Date"
             VerifyGLEntryExists(GenJnlLine[i]."Posting Date", GenJnlLine[i]."Document No.");
 
         // Tear Down
-        DisablePostingAfterFiscalYear;
+        DisablePostingAfterWorkingDate();
     end;
 
     local procedure Initialize()
@@ -192,21 +190,21 @@ codeunit 134342 "ERM Posting Outside Date"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Posting Outside Date");
     end;
 
-    local procedure EnablePostingAfterFiscalYear()
+    local procedure EnablePostingAfterWorkignDate()
     var
         MyNotifications: Record "My Notifications";
     begin
         MyNotifications.InsertDefault(
-          InstructionMgt.GetPostingAfterCurrentCalendarDateNotificationId,
-          InstructionMgt.PostingAfterCurrentCalendarDateNotAllowedCode,
+          InstructionMgt.GetPostingAfterWorkingDateNotificationId(),
+          InstructionMgt.PostingAfterWorkingDateNotAllowedCode(),
           '', true);
     end;
 
-    local procedure DisablePostingAfterFiscalYear()
+    local procedure DisablePostingAfterWorkingDate()
     var
         MyNotifications: Record "My Notifications";
     begin
-        if MyNotifications.Get(UserId, InstructionMgt.GetPostingAfterCurrentCalendarDateNotificationId) then
+        if MyNotifications.Get(UserId, InstructionMgt.GetPostingAfterWorkingDateNotificationId()) then
             MyNotifications.Delete();
     end;
 

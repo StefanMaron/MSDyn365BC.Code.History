@@ -81,6 +81,7 @@ page 97 "Purchase Quote Subform"
                     begin
                         CrossReferenceNoLookUp();
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -103,6 +104,7 @@ page 97 "Purchase Quote Subform"
                     begin
                         ItemReferenceMgt.PurchaseReferenceNoLookup(Rec);
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
                         OnItemReferenceNoOnLookup(Rec);
                     end;
 

@@ -61,8 +61,7 @@ codeunit 7017 "Price List Management"
     begin
         PriceListLine."Price List Code" := ToPriceListHeader.Code;
         PriceListLine.SetNextLineNo();
-        ToPriceListHeader."Allow Updating Defaults" := false; // to copy defaults
-        PriceListLine.CopyFrom(ToPriceListHeader);
+        PriceListLine.CopyFrom(ToPriceListHeader, true);
         PriceListLine."Amount Type" := "Price Amount Type"::Price;
         PriceListLine.CopyFrom(PriceAsset);
         ExistingPriceListLine.CopyPriceFrom(PriceAsset);
@@ -185,10 +184,8 @@ codeunit 7017 "Price List Management"
         end else
             if not PriceLineFilters.Worksheet then
                 FromPriceListLine.SetFilter("Price List Code", '<>%1', ToPriceListHeader.Code);
-        if PriceLineFilters.Worksheet then begin
-            FromPriceListLine.SetRange("Price Type", ToPriceListHeader."Price Type");
-            FromPriceListLine.SetRange("Source Group", ToPriceListHeader."Source Group");
-        end;
+        FromPriceListLine.SetRange("Price Type", ToPriceListHeader."Price Type");
+        FromPriceListLine.SetRange("Source Group", ToPriceListHeader."Source Group");
         if FromPriceListLine.FindSet() then
             repeat
                 CopyLine(PriceLineFilters, FromPriceListLine, ToPriceListHeader);
@@ -200,10 +197,11 @@ codeunit 7017 "Price List Management"
         ToPriceListLine: Record "Price List Line";
     begin
         ToPriceListLine := FromPriceListLine;
-        if not PriceLineFilters.Worksheet then begin
+        if not PriceLineFilters.Worksheet or PriceLineFilters."Force Defaults" then begin
             ToPriceListLine."Price List Code" := PriceLineFilters."To Price List Code";
-            ToPriceListLine.CopyFrom(ToPriceListHeader);
+            ToPriceListLine.CopyFrom(ToPriceListHeader, PriceLineFilters."Force Defaults");
         end;
+        SetCurrencyCodes(FromPriceListLine, ToPriceListHeader, PriceLineFilters);
         AdjustAmount(ToPriceListLine."Unit Price", PriceLineFilters);
         AdjustAmount(ToPriceListLine."Direct Unit Cost", PriceLineFilters);
         AdjustAmount(ToPriceListLine."Unit Cost", PriceLineFilters);
@@ -213,6 +211,15 @@ codeunit 7017 "Price List Management"
             ToPriceListLine.SetNextLineNo();
             ToPriceListLine.Insert(true);
         end;
+    end;
+
+    local procedure SetCurrencyCodes(FromPriceListLine: Record "Price List Line"; ToPriceListHeader: Record "Price List Header"; var PriceLineFilters: Record "Price Line Filters")
+    begin
+        PriceLineFilters."From Currency Code" := FromPriceListLine."Currency Code";
+        if PriceLineFilters."Force Defaults" then
+            PriceLineFilters."To Currency Code" := ToPriceListHeader."Currency Code"
+        else
+            PriceLineFilters."To Currency Code" := PriceLineFilters."From Currency Code";
     end;
 
     procedure FindDuplicatePrice(PriceListLine: Record "Price List Line"): Boolean;
@@ -836,6 +843,7 @@ codeunit 7017 "Price List Management"
         PriceWorksheetLine.Validate("Existing Line", not CreateNewLine);
         PriceWorksheetLine.Insert(true);
     end;
+
 
     procedure VerifySourceGroupInLines(): Boolean;
     var
