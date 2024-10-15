@@ -496,4 +496,3 @@ codeunit 1876 "Business Setup Subscribers"
         end;
     end;
 }
-

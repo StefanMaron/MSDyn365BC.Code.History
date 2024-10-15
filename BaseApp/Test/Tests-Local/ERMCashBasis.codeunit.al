@@ -20,6 +20,7 @@ codeunit 144056 "ERM Cash Basis"
         LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
+        AmountErr: Label '%1 must be %2 in %3.', Comment = '%1 = Amount FieldCaption, %2 = Amount Value, %3 = Record TableCaption';
 
     [Test]
     [Scope('OnPrem')]
@@ -543,6 +544,72 @@ codeunit 144056 "ERM Cash Basis"
           LibraryERM.GetAmountRoundingPrecision, RealizedVATEntry.FieldCaption("Remaining Unrealized Amount"));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyVATEntryAfterApplication()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+        CustomerNo: Code[20];
+        ItemNo: array[2] of Code[20];
+        InvoiceNo: Code[20];
+        DocumentNo: Code[20];
+        UnitAmount: array[2] of Decimal;
+        VATAmount: Decimal;
+    begin
+        // [SCENARIO 477534] Wrong posted VAT Entries using Unrealized VAT and applying and Invoice against a partial Credit Memo in the Mexican version.
+        Initialize();
+
+        // [GIVEN] Create two VAT Posting Setup
+        GeneralLedgerSetupForRealizedVAT(VATPostingSetup, VATPostingSetup[1]."Unrealized VAT Type"::"Cash Basis", ItemNo);
+
+        // [GIVEN] Create customer
+        CustomerNo := CreateCustomer('', VATPostingSetup[1]."VAT Bus. Posting Group");
+
+        // [GIVEN] Get two Unit amount for two Items
+        UnitAmount[1] := LibraryRandom.RandInt(10);
+        UnitAmount[2] := LibraryRandom.RandInt(20);
+
+        // [GIVEN] Create Sales order
+        LibrarySales.CreateSalesHeader(SalesHeader[1], SalesLine[1]."Document Type"::Order, CustomerNo);
+
+        // [GIVEN] Create first Sales Line of Item1
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item, ItemNo[1], 1);
+        SalesLine[1].Validate("Unit Price", UnitAmount[1]);
+        SalesLine[1].Modify(true);
+
+        // Create Second Sales Line of Item2
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item, ItemNo[2], 1);
+        SalesLine[1].Validate("Unit Price", UnitAmount[2]);
+        SalesLine[1].Modify(true);
+
+        // [THEN] Post Sales Order
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader[1], true, true);
+
+        // [GIVEN] Create Credit Memo
+        LibrarySales.CreateSalesHeader(SalesHeader[2], SalesLine[2]."Document Type"::"Credit Memo", CustomerNo);
+
+        // [GIVEN] Create Sales Line for Item1
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader[2], SalesLine[2].Type::Item, ItemNo[1], 1);
+        SalesLine[2].Validate("Unit Price", UnitAmount[1]);
+        SalesLine[2].Modify(true);
+
+        // [GIVEN] Get VAT Amount of Item1
+        VATAmount := SalesLine[2].Quantity * SalesLine[2]."Unit Price" * SalesLine[2]."VAT %" / 100;
+
+        // [THEN] Post the Sales Credit Memo
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader[2], true, true);
+
+        // [WHEN] Apply Invoice with Credit Memo
+        ApplyAndPostCustomerEntry(CustLedgerEntry."Document Type"::"Credit Memo", DocumentNo, InvoiceNo);
+
+        // [VERIFY] Verify VAT Realized Amount for customer.
+        VerifyVATEntryForPostApplication(SalesLine[2].Quantity * SalesLine[2]."Unit Price", VATAmount);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -798,6 +865,83 @@ codeunit 144056 "ERM Cash Basis"
         VATEntry.FindLast();
         VATEntry.TestField(Amount, VATAmount);
         VATEntry.TestField(Base, VATBase);
+    end;
+
+    local procedure ApplyAndPostCustomerEntry(DocumentType: Option; DocumentNo: Code[20]; InvoiceNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        ApplyCustomerEntry(CustLedgerEntry, DocumentType, DocumentNo, InvoiceNo);
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
+    end;
+
+    local procedure ApplyCustomerEntry(var ApplyCustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; InvoiceNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GLRegister: Record "G/L Register";
+        GEnJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(ApplyCustLedgerEntry, DocumentType, DocumentNo);
+        ApplyCustLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyCustomerEntry(ApplyCustLedgerEntry, ApplyCustLedgerEntry."Remaining Amount");
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry)
+    end;
+
+    local procedure VerifyVATEntryForPostApplication(Amount: Decimal; VATAmount: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+        GLRegister: Record "G/L Register";
+    begin
+        GLRegister.FindLast();
+        VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
+        VATEntry.FindSet();
+        Assert.AreNearlyEqual(
+          VATEntry.Amount, -VATAmount, LibraryERM.GetAmountRoundingPrecision,
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATAmount, VATEntry.TableCaption()));
+        VATEntry.Next();
+        Assert.AreNearlyEqual(
+          VATEntry.Amount, VATAmount, LibraryERM.GetAmountRoundingPrecision,
+          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), -VATAmount, VATEntry.TableCaption()));
+    end;
+
+    local procedure GeneralLedgerSetupForRealizedVAT(var VATPostingSetup: array[2] of Record "VAT Posting Setup"; UnrealizedVATType: Option; var ItemNo: array[2] of Code[20])
+    begin
+        CreateVATPostingSetupWithVATPer(
+          VATPostingSetup, UnrealizedVATType, VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT");
+        ItemNo[1] := CreateItem(VATPostingSetup[1]."VAT Prod. Posting Group");
+        ItemNo[2] := CreateItem(VATPostingSetup[2]."VAT Prod. Posting Group");
+    end;
+
+    local procedure CreateVATPostingSetupWithVATPer(var VATPostingSetup: array[2] of Record "VAT Posting Setup"; UnrealizedVATType: Option; VATCalculationType: Option)
+    var
+        GLAccount: array[4] of Record "G/L Account";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup[1], VATCalculationType);
+
+        VATPostingSetup[2].SetFilter("VAT Bus. Posting Group", VATPostingSetup[1]."VAT Bus. Posting Group");
+        VATPostingSetup[2].SetFilter("VAT %", '>%1', VATPostingSetup[1]."VAT %");
+        VATPostingSetup[2].SetRange("VAT Calculation Type", VATCalculationType);
+        if not VATPostingSetup[2].FindFirst() then
+            LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup[2], VATCalculationType, LibraryRandom.RandDecInDecimalRange(10, 25, 0));
+
+        with VATPostingSetup[1] do begin
+            Validate("Unrealized VAT Type", UnrealizedVATType);
+            Validate("Sales VAT Account", CreateGLAccount(GLAccount[1], "VAT Prod. Posting Group"));
+            Validate("Sales VAT Unreal. Account", CreateGLAccount(GLAccount[2], "VAT Prod. Posting Group"));
+            Validate("Purchase VAT Account", CreateGLAccount(GLAccount[3], "VAT Prod. Posting Group"));
+            Validate("Purch. VAT Unreal. Account", CreateGLAccount(GLAccount[4], "VAT Prod. Posting Group"));
+            Modify(true);
+        end;
+
+        with VATPostingSetup[2] do begin
+            Validate("Unrealized VAT Type", UnrealizedVATType);
+            Validate("Sales VAT Account", CreateGLAccount(GLAccount[1], "VAT Prod. Posting Group"));
+            Validate("Sales VAT Unreal. Account", CreateGLAccount(GLAccount[2], "VAT Prod. Posting Group"));
+            Validate("Purchase VAT Account", CreateGLAccount(GLAccount[3], "VAT Prod. Posting Group"));
+            Validate("Purch. VAT Unreal. Account", CreateGLAccount(GLAccount[4], "VAT Prod. Posting Group"));
+            Modify(true);
+        end;
     end;
 
     [Scope('OnPrem')]
