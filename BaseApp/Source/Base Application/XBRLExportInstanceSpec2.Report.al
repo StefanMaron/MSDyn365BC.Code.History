@@ -3,7 +3,7 @@ report 505 "XBRL Export Instance - Spec. 2"
     DefaultLayout = RDLC;
     RDLCLayout = './XBRLExportInstanceSpec2.rdlc';
     ApplicationArea = XBRL;
-    Caption = 'XBRL Spec. 2 Instance Document';
+    Caption = 'XBRL Specification 2 Instance Document';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -273,27 +273,13 @@ report 505 "XBRL Export Instance - Spec. 2"
             end;
 
             trigger OnPostDataItem()
-            var
-                TempFile: File;
-                ToFile: Text[1024];
-                FullPathNameOfExportFile: Text[1024];
             begin
                 while TupleLevel > 1 do begin
                     TupleNode[TupleLevel - 1].AppendChild(TupleNode[TupleLevel]);
                     TupleLevel := TupleLevel - 1;
                 end;
 
-                Window.Close;
-
-                if CreateFile then begin
-                    TempFile.CreateTempFile;
-                    FullPathNameOfExportFile := TempFile.Name;
-                    TempFile.Close;
-                    XBRLInstanceDocument.Save(FullPathNameOfExportFile);
-                    ToFile := Text025;
-                    Download(FullPathNameOfExportFile, Text024, '', Text001, ToFile);
-                    Message(Text017, ToFile);
-                end;
+                Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -682,6 +668,24 @@ report 505 "XBRL Export Instance - Spec. 2"
         "XBRL Taxonomy Line".SetRange("XBRL Taxonomy Name", XBRLTaxonomyName);
         "XBRL Taxonomy Line".SetFilter(
           "Source Type", '<>%1', "XBRL Taxonomy Line"."Source Type"::"Not Applicable");
+    end;
+
+    trigger OnPostReport()
+    var
+        FileManagement: Codeunit "File Management";
+        XMLDOMManagement: Codeunit "XML DOM Management";
+        TempBlob: Codeunit "Temp Blob";
+        XmlInStream: InStream;
+        XmlOutStream: OutStream;
+    begin
+        if CreateFile then begin
+            TempBlob.CreateInStream(XmlInStream);
+            TempBlob.CreateOutStream(XmlOutStream);
+
+            XMLDOMManagement.SaveXMLDocumentToOutStream(XmlOutStream, XBRLInstanceDocument.DocumentElement);
+            FileManagement.DownloadFromStreamHandler(XmlInStream, Text024, '', Text001, Text025);
+            Message(Text017, Text025);
+        end;
     end;
 
     var

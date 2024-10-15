@@ -572,10 +572,10 @@ page 5098 "Task Card"
             LocationEnable := true;
             AllDayEventEnable := true;
         end else begin
-            StartTimeEnable := false;
-            EndingTimeEnable := false;
+            StartTimeEnable := Type = Type::"Phone Call";
+            EndingTimeEnable := Type = Type::"Phone Call";
+            DurationEnable := Type = Type::"Phone Call";
             LocationEnable := false;
-            DurationEnable := false;
             AllDayEventEnable := false;
         end;
 

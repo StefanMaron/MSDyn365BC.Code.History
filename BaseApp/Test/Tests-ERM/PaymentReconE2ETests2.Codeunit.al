@@ -1752,6 +1752,56 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PostedPaymentReconLine.TestField("Statement No.", PostedPaymentReconHdr."Statement No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentRecJnlStatementEndingBalanceZero()
+    var
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        PmtReconJnl: TestPage "Payment Reconciliation Journal";
+        TempBlobUTF8: Codeunit "Temp Blob";
+    begin
+        // [FEATURE] [Payment Reconciliation Journal] [UT]
+        // [SCENARIO 421360] Statement Ending Balance field is not visible if it is 0
+        Initialize();
+
+        // [GIVEN] Mock Bank reconciliation "BR" with "Statement Ending Balance" = 0
+        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        BankAccRecon.TestField("Statement Ending Balance", 0);
+
+        // [WHEN] Open Payment Reconcilation Journal for "BR"
+        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
+
+        // [THEN] Statement Ending Balance field is invisible
+        Assert.IsFalse(PmtReconJnl.StatementEndingBalanceFixedLayout.Visible(), 'Statement Ending Balance must be invisible');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentRecJnlStatementEndingBalanceNotZero()
+    var
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        PmtReconJnl: TestPage "Payment Reconciliation Journal";
+        TempBlobUTF8: Codeunit "Temp Blob";
+        OutStream: OutStream;
+    begin
+        // [FEATURE] [Payment Reconciliation Journal] [UT]
+        // [SCENARIO 421360] Statement Ending Balance field is visible if it is <> 0
+        Initialize();
+
+        // [GIVEN] Mock Bank reconciliation "BR" with "Statement Ending Balance" <> 0
+        CreateOnePurchOnePmtOutstream(VendLedgEntry, OutStream, TempBlobUTF8);
+        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
+        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
+        BankAccRecon.TestField("Statement Ending Balance");
+
+        // [WHEN] Open Payment Reconcilation Journal for "BR"
+        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
+
+        // [THEN] Statement Ending Balance field is visible
+        Assert.IsTrue(PmtReconJnl.StatementEndingBalanceFixedLayout.Visible(), 'Statement Ending Balance must be visible');
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2848,6 +2898,24 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Payment Reconciliation Journal is opened
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
+    end;
+
+    local procedure GetLinesAndUpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation")
+    var
+        BankAccRecLine: Record "Bank Acc. Reconciliation Line";
+        TotalLinesAmount: Decimal;
+    begin
+        BankAccRecLine.LinesExist(BankAccRecon);
+        repeat
+            TotalLinesAmount += BankAccRecLine."Statement Amount";
+        until BankAccRecLine.Next() = 0;
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + TotalLinesAmount);
+    end;
+
+    local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
+    begin
+        BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
+        BankAccRecon.Modify();
     end;
 }
 
