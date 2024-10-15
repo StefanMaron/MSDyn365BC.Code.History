@@ -594,9 +594,9 @@ report 10070 "Sales Invoice (Pre-Printed)"
         Text001: Label 'Transferred from page %1';
         Text002: Label 'Transferred to page %1';
         TaxRegNo: Text[30];
-        TaxRegLabel: Text[30];
-        TotalTaxLabel: Text[30];
-        BreakdownTitle: Text[30];
+        TaxRegLabel: Text;
+        TotalTaxLabel: Text;
+        BreakdownTitle: Text;
         BreakdownLabel: array[4] of Text[30];
         BreakdownAmt: array[4] of Decimal;
         BrkIdx: Integer;

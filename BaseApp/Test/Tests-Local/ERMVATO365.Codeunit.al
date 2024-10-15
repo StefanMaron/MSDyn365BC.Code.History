@@ -15,6 +15,7 @@ codeunit 144023 "ERM VAT O365"
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
         AmountErr: Label '%1 must be %2 in %3.', Comment = '%1 = Amount FieldCaption, %2 = Amount Value, %3 = Record TableCaption';
+        FieldNotFoundCodeErr: Label 'TestFieldNotFound';
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
 
@@ -134,6 +135,98 @@ codeunit 144023 "ERM VAT O365"
         // Exercise: Post Sales order.
         LibraryLowerPermissions.SetSalesDocsPost;
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TheVATStatementTemplatesPageIsNotVisibleWithFoundationSetup()
+    var
+        VATStatementTemplates: TestPage "VAT Statement Templates";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] Open page 318 "VAT Statement Templates" and check visibility of Name and Description controls
+
+        // [GIVEN] Enabled foundation setup   
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [WHEN] Page "VAT Statement Templates" is opened
+        VATStatementTemplates.OpenEdit();
+
+        // [THEN] The controls Name and Description are not visible
+        asserterror Assert.IsFalse(VATStatementTemplates.Name.Visible(), '');
+        Assert.ExpectedErrorCode(FieldNotFoundCodeErr);
+        asserterror Assert.IsFalse(VATStatementTemplates.Description.Visible(), '');
+        Assert.ExpectedErrorCode(FieldNotFoundCodeErr);
+        VATStatementTemplates.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TheVATStatementTemplateListPageIsNotVisibleWithFoundationSetup()
+    var
+        VATStatementTemplateList: TestPage "VAT Statement Template List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] Open page 319 "VAT Statement Template List" and check visibility of Name and Description controls
+
+        // [GIVEN] Enabled foundation setup   
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [WHEN] Page "VAT Statement Template List" is opened
+        VATStatementTemplateList.OpenEdit();
+
+        // [THEN] The controls Name and Description are not visible
+        asserterror Assert.IsFalse(VATStatementTemplateList.Name.Visible(), '');
+        Assert.ExpectedErrorCode(FieldNotFoundCodeErr);
+        asserterror Assert.IsFalse(VATStatementTemplateList.Description.Visible(), '');
+        Assert.ExpectedErrorCode(FieldNotFoundCodeErr);
+        VATStatementTemplateList.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TheVATStatementTemplatesPageIsVisibleWithVATSetup()
+    var
+        VATStatementTemplates: TestPage "VAT Statement Templates";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] Open page 318 "VAT Statement Templates" and check visibility of Name and Description controls
+
+        // [GIVEN] Enabled VAT setup   
+        LibraryApplicationArea.EnableVATSetup();
+
+        // [WHEN] Page "VAT Statement Templates" is opened
+        VATStatementTemplates.OpenEdit();
+
+        // [THEN] The controls Name and Description are visible
+        Assert.IsTrue(VATStatementTemplates.Name.Visible(), '');
+        Assert.IsTrue(VATStatementTemplates.Description.Visible(), '');
+        VATStatementTemplates.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TheVATStatementTemplateListPageIsVisibleWithVATSetup()
+    var
+        VATStatementTemplateList: TestPage "VAT Statement Template List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] Open page 319 "VAT Statement Template List" and check visibility of Name and Description controls
+
+        // [GIVEN] Enabled VAT setup   
+        LibraryApplicationArea.EnableVATSetup();
+
+        // [WHEN] Page "VAT Statement Template List" is opened
+        VATStatementTemplateList.OpenEdit();
+
+        // [THEN] The controls Name and Description are visible
+        Assert.IsTrue(VATStatementTemplateList.Name.Visible(), '');
+        Assert.IsTrue(VATStatementTemplateList.Description.Visible(), '');
+        VATStatementTemplateList.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     local procedure Initialize()

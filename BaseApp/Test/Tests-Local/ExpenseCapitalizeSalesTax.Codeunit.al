@@ -73,7 +73,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         UpdatePurchaseSetup(true);
 
         CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
-        CreateTaxJurisdiction(TaxArea.Code, TaxGroup.Code, false);
+        CreateTaxJurisdictionWithTaxRate(TaxArea.Code, TaxGroup.Code, LibraryRandom.RandDecInRange(5, 10, 2), false);
 
         UnitAmount := LibraryRandom.RandDecInRange(100, 500, 2);
         CreateJobPurchaseOrderInLocalCurrency(
@@ -445,6 +445,88 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         Assert.RecordCount(GLEntry, 2);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseAmtRcdNotInvExVATCalculationWhenTaxMinus100Pct()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        GLEntry: Record "G/L Entry";
+        VATEntry: Record "VAT Entry";
+        GLAccountNo: array[2] of Code[20];
+        PostedDocNo: Code[20];
+        TaxJurisdictionCode: Code[10];
+        DirectUnitCost: array[2] of Decimal;
+        Amount: array[2] of Decimal;
+        TaxRate1: Decimal;
+        TaxRate2: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 351503] Calculation of "A. Rcd. Not Inv. Ex. VAT (LCY)" for Purchase Line in case ("VAT %" - Expense Tax) = -100 for this line.
+        Initialize();
+        UpdatePurchaseSetup(true);
+        CreateSalesTaxVATPostingSetup(VATPostingSetup);
+
+        // [GIVEN] Tax Area with two lines. Tax Jurisdiction "GST" is set for the first line and has "Tax Below Maximum" = 5%, "Expense/Capitalize" = FALSE.
+        // [GIVEN] Tax Jurisdiction "PST" is set for the second line and has "Tax Below Maximum" = 7%, "Expense/Capitalize" = TRUE.
+        // [GIVEN] Both Tax Jurisdictions have Details with Tax Group.
+        TaxRate1 := 0.05;
+        TaxRate2 := 0.07;
+        CreateSalesTaxSetup(TaxArea, TaxGroup);
+        TaxJurisdictionCode := CreateTaxJurisdictionWithTaxRate(TaxArea.Code, TaxGroup.Code, TaxRate1 * 100, false);
+        CreateTaxJurisdictionWithTaxRate(TaxArea.Code, TaxGroup.Code, TaxRate2 * 100, true);
+
+        // [GIVEN] Purchase Order with two lines, G/L Accounts "G1" and "G2" are set for both lines.
+        // [GIVEN] First Purchase Line has Quantity = 3, "Direct Unit Cost" = 150. Second Purchase Line has Quantity = 30.
+        CreateVATPostingSetupForSalesTax(VATPostingSetup);
+        CreateVendor(Vendor, VATPostingSetup, TaxArea.Code);
+        GLAccountNo[1] := CreateGLAccountNo(VATPostingSetup."VAT Prod. Posting Group", TaxGroup.Code);
+        GLAccountNo[2] := CreateGLAccountNo(VATPostingSetup."VAT Prod. Posting Group", TaxGroup.Code);
+        DirectUnitCost[1] := 150;
+        DirectUnitCost[2] := 1;
+        Amount[1] := 3 * 150;
+        Amount[2] := 30 * 1;
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo[1], 3);
+        UpdateDirectUnitCostOnPurchaseLine(PurchaseLine, DirectUnitCost[1]);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo[2], 30);
+
+        // [WHEN] Set "Direct Unit Cost" = 1 for the second Purchase Line.
+        UpdateDirectUnitCostOnPurchaseLine(PurchaseLine, DirectUnitCost[2]);
+
+        // [THEN] "Direct Unit Cost" was set to 1; "A. Rcd. Not Inv. Ex. VAT (LCY)" = 0, because "Amt. Rcd. Not Invoiced" = 0.
+        PurchaseLine.TestField("Direct Unit Cost", DirectUnitCost[2]);
+        PurchaseLine.TestField("Amt. Rcd. Not Invoiced", 0);
+        PurchaseLine.TestField("A. Rcd. Not Inv. Ex. VAT (LCY)", 0);
+
+        // [THEN] Purchase Invoice can be posted. Four G/L Entries and one VAT entry are created.
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        GLEntry.SetRange("Document No.", PostedDocNo);
+        VATEntry.SetRange("Document No.", PostedDocNo);
+        Assert.RecordCount(GLEntry, 4);
+        Assert.RecordCount(VATEntry, 1);
+
+        // [THEN] Two G/L Entries are created for G/L Accounts "G1"/"G2" and included "PST" taxes; "G1" Amount = 450 + (450 * 0.07); "G2" Amount = 30 + (30 * 0.07).
+        // [THEN] One G/L Entry is created for Tax Account from Tax Jurisdiction "GST"; Amount = (450 + 30) * 0.05.
+        // [THEN] One G/L Entry is created for Payables Account from Vendor Posting Group; Amount = -(450 + 30) * (1 + 0.05 + 0.07).
+        // [THEN] VAT Entry with Amount = (450 + 30) * 0.05.
+        TaxJurisdiction.Get(TaxJurisdictionCode);
+        VendorPostingGroup.Get(PurchaseHeader."Vendor Posting Group");
+        VerifyGLEntry(PostedDocNo, GLAccountNo[1], Amount[1] * (1 + TaxRate2));
+        VerifyGLEntry(PostedDocNo, GLAccountNo[2], Amount[2] * (1 + TaxRate2));
+        VerifyGLEntry(PostedDocNo, TaxJurisdiction."Tax Account (Purchases)", (Amount[1] + Amount[2]) * TaxRate1);
+        VerifyGLEntry(
+            PostedDocNo, VendorPostingGroup."Payables Account", -(Amount[1] + Amount[2]) * (1 + TaxRate1 + TaxRate2));
+        VerifyVATEntry(PostedDocNo, TaxJurisdictionCode, (Amount[1] + Amount[2]) * TaxRate1);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -491,6 +573,14 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
             Validate("Tax Group Code", TaxGroupCode);
             Modify(true);
         end;
+    end;
+
+    local procedure CreateGLAccountNo(VATProdPostingGroup: Code[20]; TaxGroupCode: Code[20]): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        CreateGLAccount(GLAccount, VATProdPostingGroup, TaxGroupCode);
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateJobAndTask(var Job: Record Job; var JobTask: Record "Job Task"; CurrencyCode: Code[10])
@@ -573,7 +663,7 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
     local procedure CreateSalesTaxSetupWithTaxExpenseJurisdiction(var TaxArea: Record "Tax Area"; var TaxGroup: Record "Tax Group")
     begin
         CreateSalesTaxSetup(TaxArea, TaxGroup);
-        CreateTaxJurisdiction(TaxArea.Code, TaxGroup.Code, true);
+        CreateTaxJurisdictionWithTaxRate(TaxArea.Code, TaxGroup.Code, LibraryRandom.RandDecInRange(5, 10, 2), true);
     end;
 
     local procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; SalesTaxRate: Decimal; ExpenseTax: Boolean)
@@ -584,15 +674,22 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         TaxDetail.Modify(true);
     end;
 
-    local procedure CreateTaxJurisdiction(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; ExpenseTax: Boolean)
+    local procedure CreateTaxJurisdictionWithTaxRate(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; SalesTaxRate: Decimal; ExpenseTax: Boolean): Code[10]
     var
+        GLAccount: Record "G/L Account";
         TaxJurisdiction: Record "Tax Jurisdiction";
         TaxAreaLine: Record "Tax Area Line";
         TaxDetail: Record "Tax Detail";
     begin
+        LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
+        TaxJurisdiction.Validate("Tax Account (Sales)", GLAccount."No.");
+        TaxJurisdiction.Validate("Tax Account (Purchases)", GLAccount."No.");
+        TaxJurisdiction.Modify(true);
+
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdiction.Code);
-        CreateTaxDetail(TaxDetail, TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode, LibraryRandom.RandIntInRange(5, 10), ExpenseTax);
+        CreateTaxDetail(TaxDetail, TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode, SalesTaxRate, ExpenseTax);
+        exit(TaxJurisdiction.Code);
     end;
 
     local procedure CreateVATPostingSetupForSalesTax(var VATPostingSetup: Record "VAT Posting Setup")
@@ -709,6 +806,12 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
         exit(OldUseVendorTaxAreaCode);
     end;
 
+    local procedure UpdateDirectUnitCostOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; DirectUnitCost: Decimal)
+    begin
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure VerifyJobLedgerEntry(PurchaseLine: Record "Purchase Line")
     var
         JobLedgerEntry: Record "Job Ledger Entry";
@@ -757,6 +860,26 @@ codeunit 142091 "Expense/Capitalize Sales Tax"
             CalcFields(Amount, "Amount Including VAT");
             TestField("Amount Including VAT", Round(Amount * (1 + TaxDetail."Tax Below Maximum" / 100)));
         end;
+    end;
+
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, ExpectedAmount);
+    end;
+
+    local procedure VerifyVATEntry(DocumentNo: Code[20]; TaxJurisdictionCode: Code[10]; ExpectedAmount: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("Tax Jurisdiction Code", TaxJurisdictionCode);
+        VATEntry.FindFirst();
+        VATEntry.TestField(Amount, ExpectedAmount);
     end;
 
     [RequestPageHandler]

@@ -591,9 +591,9 @@ report 10473 "Service Credit Memo-Sales Tax"
         SalesTaxCalc: Codeunit "Sales Tax Calculate";
         Text000: Label 'COPY';
         TaxRegNo: Text[30];
-        TaxRegLabel: Text[30];
-        TotalTaxLabel: Text[30];
-        BreakdownTitle: Text[30];
+        TaxRegLabel: Text;
+        TotalTaxLabel: Text;
+        BreakdownTitle: Text;
         BreakdownLabel: array[4] of Text[30];
         BreakdownAmt: array[4] of Decimal;
         BrkIdx: Integer;

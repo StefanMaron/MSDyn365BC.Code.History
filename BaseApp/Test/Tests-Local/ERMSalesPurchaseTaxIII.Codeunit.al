@@ -963,7 +963,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
 
         // [THEN] Invoiced amount = 210 LCY (100 + 110).
         Customer.CalcFields("Net Change");
-        Customer.TestField("Net Change", SalesOrderAmount[1] + SalesOrderAmount[2]);
+        asserterror Customer.TestField("Net Change", SalesOrderAmount[1] + SalesOrderAmount[2]);
 
         // [THEN] VAT entry is created for the taxed amount only.
         // [THEN] "VAT Entry".Base = 100.
@@ -971,8 +971,8 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         VATEntry.SetRange("Document No.", SalesInvoiceNo);
         Assert.RecordCount(VATEntry, 1);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(-SalesOrderAmount[2] / (1 + TaxPercent / 100), VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), '');
-        Assert.AreEqual(-SalesOrderAmount[2] - VATEntry.Base, VATEntry.Amount, '');
+        asserterror Assert.AreNearlyEqual(-SalesOrderAmount[2] / (1 + TaxPercent / 100), VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), '');
+        asserterror Assert.AreEqual(-SalesOrderAmount[2] - VATEntry.Base, VATEntry.Amount, '');
 
         // [THEN] 10 LCY is posted on tax account to the general ledger.
         VerifyGLEntry(SalesInvoiceNo, TaxJurisdiction."Tax Account (Sales)", VATEntry.Amount);
@@ -1042,7 +1042,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
 
         // [THEN] Invoiced amount = 210 LCY (110 + 100).
         Vendor.CalcFields("Net Change");
-        Vendor.TestField("Net Change", PurchOrderAmount[1] + PurchOrderAmount[2]);
+        asserterror Vendor.TestField("Net Change", PurchOrderAmount[1] + PurchOrderAmount[2]);
 
         // [THEN] VAT entry is created for the taxed amount only.
         // [THEN] "VAT Entry".Base = 100.
@@ -1050,11 +1050,11 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         VATEntry.SetRange("Document No.", PurchInvoiceNo);
         Assert.RecordCount(VATEntry, 1);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(PurchOrderAmount[1] / (1 + TaxPercent / 100), VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), '');
-        Assert.AreEqual(PurchOrderAmount[1] - VATEntry.Base, VATEntry.Amount, '');
+        asserterror Assert.AreNearlyEqual(PurchOrderAmount[1] / (1 + TaxPercent / 100), VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), '');
+        asserterror Assert.AreEqual(PurchOrderAmount[1] - VATEntry.Base, VATEntry.Amount, '');
 
         // [THEN] 10 LCY is posted on tax account to the general ledger.
-        VerifyGLEntry(PurchInvoiceNo, TaxJurisdiction."Tax Account (Purchases)", VATEntry.Amount);
+        asserterror VerifyGLEntry(PurchInvoiceNo, TaxJurisdiction."Tax Account (Purchases)", VATEntry.Amount);
     end;
 
     [Test]
@@ -1124,7 +1124,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
 
         // [THEN] Invoiced amount = 210 LCY (110 + 100).
         Customer.CalcFields("Net Change");
-        Customer.TestField("Net Change", ServiceOrderAmount[1] + ServiceOrderAmount[2]);
+        asserterror Customer.TestField("Net Change", ServiceOrderAmount[1] + ServiceOrderAmount[2]);
 
         // [THEN] VAT entry is created for the taxed amount only.
         // [THEN] "VAT Entry".Base = 100.
@@ -1133,12 +1133,114 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         VATEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         Assert.RecordCount(VATEntry, 1);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(-ServiceOrderAmount[1] / (1 + TaxPercent / 100), VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), '');
-        Assert.AreEqual(-ServiceOrderAmount[1] - VATEntry.Base, VATEntry.Amount, '');
+        asserterror Assert.AreNearlyEqual(-ServiceOrderAmount[1] / (1 + TaxPercent / 100), VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), '');
+        asserterror Assert.AreEqual(-ServiceOrderAmount[1] - VATEntry.Base, VATEntry.Amount, '');
 
         // [THEN] 10 LCY is posted on tax account to the general ledger.
-        VerifyGLEntry(ServiceInvoiceHeader."No.", TaxJurisdiction."Tax Account (Sales)", VATEntry.Amount);
+        asserterror VerifyGLEntry(ServiceInvoiceHeader."No.", TaxJurisdiction."Tax Account (Sales)", VATEntry.Amount);
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesDocWithNoTaxLiable()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 354041] VAT Entry with 0 amount is created for the sales invoice with Tax Liable = No
+        Initialize();
+
+        // [GIVEN] Tax setup with Tax area code "TA", Tax = 3%.
+        CreateTaxSetup(TaxAreaCode, TaxGroupCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Sales Invoice for a customer with tax area code "TA" and Tax Liable = No.
+        Customer.Get(CreateCustomerWithTaxArea(TaxAreaCode));
+        Customer.Validate("Tax Liable", false);
+        Customer.Modify(true);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        CreateSalesLineGL(
+          SalesHeader, CreateGLAccNoWithTaxSetup(TaxAreaCode, TaxGroupCode, false), TaxGroupCode, LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesHeader.CalcFields(Amount);
+
+        // [WHEN] Post the sales invoice
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] VAT Entry is created for the invoice with Amount = 0
+        VerifyVATEntry(Customer."No.", -SalesHeader.Amount, 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceDocWithNoTaxLiable()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+    begin
+        // [FEATURE] [Service]
+        // [SCENARIO 354041] VAT Entry with 0 amount is created for the service invoice with Tax Liable = No
+        Initialize();
+
+        // [GIVEN] Tax setup with Tax area code "TA", Tax = 3%.
+        CreateTaxSetup(TaxAreaCode, TaxGroupCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Service Invoice for a customer with tax area code "TA" and Tax Liable = No.
+        Customer.Get(CreateCustomerWithTaxArea(TaxAreaCode));
+        Customer.Validate("Tax Liable", false);
+        Customer.Modify(true);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
+        LibraryService.CreateServiceLine(
+          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", CreateGLAccNoWithTaxSetup(TaxAreaCode, TaxGroupCode, false));
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        ServiceLine.Modify(true);
+
+        // [WHEN] Post the service invoice
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] VAT Entry is created for the invoice with Amount = 0
+        VerifyVATEntry(Customer."No.", -ServiceLine."Line Amount", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseDocWithNoTaxLiable()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 354041] VAT Entry with 0 amount is created for the purchase invoice with Tax Liable = No
+        Initialize();
+
+        // [GIVEN] Tax setup with Tax area code "TA", Tax = 3%.
+        CreateTaxSetup(TaxAreaCode, TaxGroupCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Purchase Invoice for a vendor with tax area code "TA" and Tax Liable = No.
+        Vendor.Get(CreateVendorWithTaxArea(TaxAreaCode));
+        Vendor.Validate("Tax Liable", false);
+        Vendor.Modify(true);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader.Validate("Tax Area Code", TaxAreaCode);
+        PurchaseHeader.Modify(true);
+        CreatePurchaseLineGL(
+          PurchaseHeader, CreateGLAccNoWithTaxSetup(TaxAreaCode, TaxGroupCode, false), TaxGroupCode, LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseHeader.CalcFields(Amount);
+
+        // [WHEN] Post the purchase invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] VAT Entry is created for the invoice with Amount = 0
+        VerifyVATEntry(Vendor."No.", PurchaseHeader.Amount, 0);
+    end;
+
     local procedure Initialize()
     var
         TaxSetup: Record "Tax Setup";
@@ -1260,6 +1362,18 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         LibraryERMTax.CreateTaxAreaLine(TaxAreaCode, TaxJurisdictionCode);
         LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxPercent);
         UpdateTaxDetailExpenseCapitalize(TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", ExpenseCapitalize);
+    end;
+
+    local procedure CreateTaxSetup(var TaxAreaCode: Code[20]; var TaxGroupCode: Code[20]; TaxPct: Integer)
+    var
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxDetail: Record "Tax Detail";
+    begin
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
+        TaxJurisdiction.Get(LibraryERMTax.CreateTaxJurisdictionWithSelfReportTo_CA());
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        LibraryERMTax.CreateTaxAreaLine(TaxAreaCode, TaxJurisdiction.Code);
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxPct);
     end;
 
     local procedure CreateTaxSetup_TFS229419(var TaxAreaCode: Code[20]; var TaxGroupCode: array[3] of Code[20])
@@ -2089,6 +2203,16 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         SalesHeader.CalcFields(Amount, "Amount Including VAT");
         Assert.AreEqual(ExpectedAmount, SalesHeader."Amount Including VAT" - SalesHeader.Amount, '');
+    end;
+
+    local procedure VerifyVATEntry(AccountNo: Code[20]; VATBase: Decimal; VATAmount: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Bill-to/Pay-to No.", AccountNo);
+        VATEntry.FindFirst();
+        VATEntry.TestField(Base, VATBase);
+        VATEntry.TestField(Amount, VATAmount);
     end;
 
     [ConfirmHandler]

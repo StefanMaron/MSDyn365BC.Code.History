@@ -1141,6 +1141,7 @@ table 39 "Purchase Line"
             var
                 Currency2: Record Currency;
                 TaxToBeExpensedRate: Decimal;
+                TaxFactor: Decimal;
             begin
                 GetPurchHeader;
                 Currency2.InitRoundingPrecision;
@@ -1157,8 +1158,13 @@ table 39 "Purchase Line"
 
                 if Amount <> 0 then
                     TaxToBeExpensedRate := "Tax To Be Expensed" / Amount * 100;
-                "A. Rcd. Not Inv. Ex. VAT (LCY)" :=
-                  Round("Amt. Rcd. Not Invoiced (LCY)" / (1 + ("VAT %" - TaxToBeExpensedRate) / 100), Currency2."Amount Rounding Precision");
+
+                TaxFactor := 1 + ("VAT %" - TaxToBeExpensedRate) / 100;
+                if TaxFactor = 0 then
+                    "A. Rcd. Not Inv. Ex. VAT (LCY)" := 0
+                else
+                    "A. Rcd. Not Inv. Ex. VAT (LCY)" :=
+                        Round("Amt. Rcd. Not Invoiced (LCY)" / TaxFactor, Currency2."Amount Rounding Precision");
             end;
         }
         field(60; "Quantity Received"; Decimal)

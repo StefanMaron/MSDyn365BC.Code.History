@@ -57,7 +57,7 @@ codeunit 137056 "SCM Warehouse-V"
         WrongBinCodeErr: Label 'You must enter a %1';
         BinCodeNotFoundErr: Label 'Bin Code %1 not found in Warehouse Entry.';
         WhseJournalLineBinCodeErr: Label 'Bin Code in Warehouse Journal Line is not equal to Location Adjustment bin.';
-        InsufficientQtyErr: Label 'You have insufficient quantity';
+        CannotUnapplyItemLedgEntryErr: Label 'Item ledger entry %1 cannot be left unapplied';
         AdjmtBinCodeMustHaveValueErr: Label 'Adjustment Bin Code must have a value in Location';
         WrongNeededQtyErr: Label 'Incorrect %1 in %2.', Comment = '%1: FieldCaption(Qty. Needed), %2: TableCaption(Whse. Cross-Dock Opportunity)';
         CrossDockQtyExceedsReceiptQtyErr: Label 'The sum of the Qty. to Cross-Dock and Qty. Cross-Docked (Base) fields must not exceed the value in the Qty. to Receive field on the warehouse receipt line.';
@@ -2894,6 +2894,7 @@ codeunit 137056 "SCM Warehouse-V"
         PurchaseHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        ShipmentNo: Code[20];
         Quantity: Decimal;
         PrevNoNegInventory: Boolean;
     begin
@@ -2912,7 +2913,7 @@ codeunit 137056 "SCM Warehouse-V"
         CreateAndReleasePurchaseOrder(PurchaseHeader, Item."No.", Location.Code, Quantity, '', '', false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", Quantity, Location.Code);
-        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        ShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [GIVEN] Purchase Return Order, lines acquired via Get Posted Document Lines to Reverse, use Original Quantity.
         CreateAndReleasePurchReturnOrderAfterGetPostedDocumentLinesToReverse(PurchaseHeader, PurchaseHeader."Buy-from Vendor No.");
@@ -2921,7 +2922,7 @@ codeunit 137056 "SCM Warehouse-V"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [THEN] Insufficient quantity error message appears.
-        Assert.ExpectedError(InsufficientQtyErr);
+        Assert.ExpectedError(StrSubstNo(CannotUnapplyItemLedgEntryErr, FindItemLedgEntryNo(ShipmentNo)));
 
         // Teardown.
         SetPreventNegInventory(PrevNoNegInventory);
@@ -4444,6 +4445,15 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseActivityHeader.SetRange("Source Document", SourceDocument);
         WarehouseActivityHeader.SetRange("Source No.", SourceNo);
         WarehouseActivityHeader.FindFirst;
+    end;
+
+    local procedure FindItemLedgEntryNo(DocumentNo: Code[20]): Integer
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Document No.", DocumentNo);
+        ItemLedgerEntry.FindFirst();
+        exit(ItemLedgerEntry."Entry No.");
     end;
 
     local procedure GetBinContentFromMovementWorksheet(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LocationCode: Code[10]; ItemNo: Code[20])

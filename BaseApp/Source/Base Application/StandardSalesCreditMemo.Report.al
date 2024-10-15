@@ -727,7 +727,8 @@ report 1307 "Standard Sales - Credit Memo"
             }
             dataitem(VATClauseLine; "VAT Amount Line")
             {
-                UseTemporary = true;
+                DataItemTableView = SORTING("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", Positive);
+				UseTemporary = true;
                 column(VATIdentifier_VATClauseLine; "VAT Identifier")
                 {
                 }
