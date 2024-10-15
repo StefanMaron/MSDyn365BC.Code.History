@@ -1,11 +1,9 @@
 codeunit 9002 "Permission Manager"
 {
-    Permissions = TableData "User Group Plan" = rimd;
+    Permissions = TableData "User Group Member" = rid, // Do not add m so the check UserGroupMember.WritePermission() would be false unless the user has direct access
+                  TableData "User Group Plan" = rimd;
     SingleInstance = true;
 
-    trigger OnRun()
-    begin
-    end;
 
     var
         OfficePortalUserAdministrationUrlTxt: Label 'https://portal.office.com/admin/default.aspx#ActiveUsersPage', Locked = true;
