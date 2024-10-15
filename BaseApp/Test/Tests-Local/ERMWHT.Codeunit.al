@@ -1732,6 +1732,70 @@ codeunit 141012 "ERM WHT"
           GenJournalLine."Document No.", WHTPostingSetup."Payable WHT Account Code", ExpectedWHTAmounts);
     end;
 
+    [Test]
+    [HandlerFunctions('UnapplyVendorEntriesPageHandler,ConfirmHandler,MessageHandler')]
+    procedure InvoiceToCreditMemoApplyUnapply()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        LastWHTEntry: Record "WHT Entry";
+        InvoiceWHTEntry: Record "WHT Entry";
+        CrMemoWHTEntry: Record "WHT Entry";
+        VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
+        PostedInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Unapply]
+        // [SCENARIO 401035] There is no new WHT Entry is created after unapply invocie to credit memo application
+        Initialize();
+        UpdateGeneralLedgerSetup(false, true, false);
+        LastWHTEntry.FindLast();
+
+        // [GIVEN] Posted purchase invoice with WHT Entry "No." =  "X"
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        FindWHTPostingSetup(WHTPostingSetup);
+        PostedInvoiceNo :=
+          CreateAndPostPurchaseDocumentWithWHT(
+            PurchaseLine, WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"),
+            CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), '');
+        InvoiceWHTEntry.FindLast();
+        InvoiceWHTEntry.TestField("Entry No.", LastWHTEntry."Entry No." + 1);
+        InvoiceWHTEntry.TestField("Remaining Unrealized Base");
+        InvoiceWHTEntry.TestField("Remaining Unrealized Amount");
+
+        // [GIVEN] Posted purchase credit memo with WHT Entry "No." = "Y"
+        CreateAndPostPurchaseDocumentWithWHT(
+          PurchaseLine, WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
+          PurchaseLine."Buy-from Vendor No.", PurchaseLine."No.", '');
+        CrMemoWHTEntry.FindLast();
+        CrMemoWHTEntry.TestField("Entry No.", LastWHTEntry."Entry No." + 2);
+        CrMemoWHTEntry.TestField("Remaining Unrealized Base");
+        CrMemoWHTEntry.TestField("Remaining Unrealized Amount");
+
+        // [GIVEN] Apply post invoice to credit memo vendor ledger entry
+        ApplyAndPostVendorEntryApplication(GenJournalLine."Document Type"::Invoice, PostedInvoiceNo);
+
+        // [WHEN] Unapply the application
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PostedInvoiceNo);
+        VendEntryApplyPostedEntries.UnApplyVendLedgEntry(VendorLedgerEntry."Entry No.");
+
+        // [THEN] There is no new WHT Entry is created (with Entry No. > "Y") and invoice and credit memo WHT entries remains unchanged
+        InvoiceWHTEntry.Find();
+        InvoiceWHTEntry.TestField("Remaining Unrealized Base", InvoiceWHTEntry."Unrealized Base");
+        InvoiceWHTEntry.TestField("Remaining Unrealized Amount", InvoiceWHTEntry."Unrealized Amount");
+
+        CrMemoWHTEntry.Find();
+        CrMemoWHTEntry.TestField("Remaining Unrealized Base", CrMemoWHTEntry."Unrealized Base");
+        CrMemoWHTEntry.TestField("Remaining Unrealized Amount", CrMemoWHTEntry."Unrealized Amount");
+
+        LastWHTEntry.SetFilter("Entry No.", '>%1', CrMemoWHTEntry."Entry No.");
+        Assert.RecordIsEmpty(LastWHTEntry);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
