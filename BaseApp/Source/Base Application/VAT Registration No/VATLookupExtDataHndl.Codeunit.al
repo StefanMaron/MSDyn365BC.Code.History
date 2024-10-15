@@ -5,6 +5,7 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
 
     trigger OnRun()
     begin
+        InitVATRegistrationLog(Rec);
         VATRegistrationLog := Rec;
 
         LookupVatRegistrationFromWebService(true);
@@ -29,10 +30,16 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
     local procedure LookupVatRegistrationFromWebService(ShowErrors: Boolean)
     var
         TempBlobRequestBody: Codeunit "Temp Blob";
+        SuppressCommit: Boolean;
     begin
         SendRequestToVatRegistrationService(TempBlobRequestBody, ShowErrors);
 
         InsertLogEntry(TempBlobRequestBody);
+
+        SuppressCommit := false;
+        OnLookupVatRegistrationFromWebServiceOnAfterResponseLogRecordingAndBeforeCommit(VATRegistrationLog, ShowErrors, SuppressCommit);
+        if not SuppressCommit then
+            Commit();
     end;
 
     local procedure SendRequestToVatRegistrationService(var TempBlobBody: Codeunit "Temp Blob"; ShowErrors: Boolean)
@@ -164,6 +171,33 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
             Result := FieldRef.Value();
     end;
 
+    local procedure InitVATRegistrationLog(var NewVATRegistrationLog: Record "VAT Registration Log")
+    begin
+        if NewVATRegistrationLog."Entry No." <> 0 then
+            exit;
+
+        InitForContactVATRegistrationLog(NewVATRegistrationLog);
+    end;
+
+    local procedure InitForContactVATRegistrationLog(var NewVATRegistrationLog: Record "VAT Registration Log")
+    var
+        Contact: Record Contact;
+        AccountNoFilter: Text;
+    begin
+        if Format(NewVATRegistrationLog.GetFilter("Account Type")) <> Format(NewVATRegistrationLog."Account Type"::Contact) then
+            exit;
+
+        AccountNoFilter := NewVATRegistrationLog.GetFilter("Account No.");
+
+        if Contact.Get(AccountNoFilter) then
+            NewVATRegistrationLog.InitVATRegLog(
+                NewVATRegistrationLog,
+                Contact."Country/Region Code",
+                NewVATRegistrationLog."Account Type"::Contact.AsInteger(),
+                Contact."No.",
+                Contact."VAT Registration No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterLookupVatRegistrationFromWebService(var VATRegistrationLog: Record "VAT Registration Log"; var RecVATRegistrationLog: Record "VAT Registration Log")
     begin
@@ -176,6 +210,11 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
 
     [IntegrationEvent(false, false)]
     local procedure OnSendRequestToVATRegistrationServiceBeforeShowErrors(var VATRegistrationLog: Record "VAT Registration Log"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupVatRegistrationFromWebServiceOnAfterResponseLogRecordingAndBeforeCommit(VATRegistrationLog: Record "VAT Registration Log"; ShowErrors: Boolean; var SuppressCommit: Boolean)
     begin
     end;
 }
