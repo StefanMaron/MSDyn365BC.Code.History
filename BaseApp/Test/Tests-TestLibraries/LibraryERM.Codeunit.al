@@ -3119,6 +3119,24 @@
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
     end;
 
+    procedure FillSalesHeaderExcludedFieldList(var FieldListToExclude: List of [Text])
+    var
+        SalesHeaderRef: Record "Sales Header";
+    begin
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Document Type"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Quote No."));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("No."));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Posting Date"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Posting Description"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("No. Series"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Prepayment No. Series"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Prepmt. Cr. Memo No. Series"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Shipping No. Series"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName(Id));
+
+        OnAfterFillSalesHeaderExcludedFieldList(FieldListToExclude);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePaymentTerms(var PaymentTerms: Record "Payment Terms")
     begin
@@ -3171,6 +3189,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateVATProductPostingGroup(var VATProductPostingGroup: Record "VAT Product Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillSalesHeaderExcludedFieldList(var FieldListToExclude: List of [Text])
     begin
     end;
 }

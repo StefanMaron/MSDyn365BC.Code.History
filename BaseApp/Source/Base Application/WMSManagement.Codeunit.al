@@ -1986,24 +1986,30 @@ codeunit 7302 "WMS Management"
     local procedure CheckBlockedBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; CheckInbound: Boolean)
     var
         BinContent: Record "Bin Content";
+        IsHandled: Boolean;
     begin
-        GetLocation(LocationCode);
-        if Location."Directed Put-away and Pick" then
-            if BinContent.Get(LocationCode, BinCode, ItemNo, VariantCode, UnitOfMeasureCode) then begin
-                if (CheckInbound and
-                    (BinContent."Block Movement" in [BinContent."Block Movement"::Inbound, BinContent."Block Movement"::All])) or
-                   (not CheckInbound and
-                    (BinContent."Block Movement" in [BinContent."Block Movement"::Outbound, BinContent."Block Movement"::All]))
-                then
-                    BinContent.FieldError("Block Movement");
-            end else
-                if Location."Bin Mandatory" then begin
-                    GetBin(LocationCode, BinCode);
-                    if (CheckInbound and (Bin."Block Movement" in [Bin."Block Movement"::Inbound, Bin."Block Movement"::All])) or
-                       (not CheckInbound and (Bin."Block Movement" in [Bin."Block Movement"::Outbound, Bin."Block Movement"::All]))
+        IsHandled := false;
+        OnBeforeCheckBlockedBin(LocationCode, BinCode, ItemNo, VariantCode, UnitOfMeasureCode, CheckInbound, IsHandled);
+        if not IsHandled then begin
+            GetLocation(LocationCode);
+            if Location."Directed Put-away and Pick" then
+                if BinContent.Get(LocationCode, BinCode, ItemNo, VariantCode, UnitOfMeasureCode) then begin
+                    if (CheckInbound and
+                        (BinContent."Block Movement" in [BinContent."Block Movement"::Inbound, BinContent."Block Movement"::All])) or
+                       (not CheckInbound and
+                        (BinContent."Block Movement" in [BinContent."Block Movement"::Outbound, BinContent."Block Movement"::All]))
                     then
-                        Bin.FieldError("Block Movement");
-                end;
+                        BinContent.FieldError("Block Movement");
+                end else
+                    if Location."Bin Mandatory" then begin
+                        GetBin(LocationCode, BinCode);
+                        if (CheckInbound and (Bin."Block Movement" in [Bin."Block Movement"::Inbound, Bin."Block Movement"::All])) or
+                           (not CheckInbound and (Bin."Block Movement" in [Bin."Block Movement"::Outbound, Bin."Block Movement"::All]))
+                        then
+                            Bin.FieldError("Block Movement");
+                    end;
+        end;
+        OnAfterCheckBlockedBin(LocationCode, BinCode, ItemNo, VariantCode, UnitOfMeasureCode, CheckInbound);
     end;
 
     local procedure GetWhseJnlLineBinCode(SourceCode: Code[10]; BinCode: Code[20]; AdjBinCode: Code[20]) Result: Code[20]
@@ -2121,6 +2127,11 @@ codeunit 7302 "WMS Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckBlockedBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; CheckInbound: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCheckWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; SourceJnl: Option " ",ItemJnl,OutputJnl,ConsumpJnl,WhseJnl; DecreaseQtyBase: Decimal; ToTransfer: Boolean; var Item: Record Item)
     begin
     end;
@@ -2167,6 +2178,11 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBalanceQtyToHandle(var WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBlockedBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; CheckInbound: Boolean; var IsHandled: Boolean)
     begin
     end;
 

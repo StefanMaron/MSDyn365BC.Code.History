@@ -55,30 +55,32 @@ codeunit 1302 "Customer Mgt."
     end;
 
     procedure CalculateStatistic(Customer: Record Customer; var AdjmtCostLCY: Decimal; var AdjCustProfit: Decimal; var AdjProfitPct: Decimal; var CustInvDiscAmountLCY: Decimal; var CustPaymentsLCY: Decimal; var CustSalesLCY: Decimal; var CustProfit: Decimal)
+    begin
+        Customer.SetFilter("Date Filter", GetCurrentYearFilter());
+        Customer.CalcFields("Sales (LCY)", "Profit (LCY)", "Inv. Discounts (LCY)", "Payments (LCY)");
+
+        CalculateStatisticsWithCurrentCustomerValues(Customer, AdjmtCostLCY, AdjCustProfit, AdjProfitPct, CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY, CustProfit)
+    end;
+
+    procedure CalculateStatisticsWithCurrentCustomerValues(var Customer: Record Customer; var AdjmtCostLCY: Decimal; var AdjCustProfit: Decimal; var AdjProfitPct: Decimal; var CustInvDiscAmountLCY: Decimal; var CustPaymentsLCY: Decimal; var CustSalesLCY: Decimal; var CustProfit: Decimal)
     var
         CostCalcuMgt: Codeunit "Cost Calculation Management";
     begin
-        with Customer do begin
-            SetFilter("Date Filter", GetCurrentYearFilter);
+        // Costs (LCY):
+        CustSalesLCY := Customer."Sales (LCY)";
+        CustProfit := Customer."Profit (LCY)" + CostCalcuMgt.NonInvtblCostAmt(Customer);
+        AdjmtCostLCY := CustSalesLCY - CustProfit + CostCalcuMgt.CalcCustActualCostLCY(Customer);
+        AdjCustProfit := CustProfit + AdjmtCostLCY;
 
-            CalcFields("Sales (LCY)", "Profit (LCY)", "Inv. Discounts (LCY)", "Payments (LCY)");
+        // Profit %
+        if Customer."Sales (LCY)" <> 0 then
+            AdjProfitPct := Round(100 * AdjCustProfit / Customer."Sales (LCY)", 0.1)
+        else
+            AdjProfitPct := 0;
 
-            // Costs (LCY):
-            CustSalesLCY := "Sales (LCY)";
-            CustProfit := "Profit (LCY)" + CostCalcuMgt.NonInvtblCostAmt(Customer);
-            AdjmtCostLCY := CustSalesLCY - CustProfit + CostCalcuMgt.CalcCustActualCostLCY(Customer);
-            AdjCustProfit := CustProfit + AdjmtCostLCY;
+        CustInvDiscAmountLCY := Customer."Inv. Discounts (LCY)";
 
-            // Profit %
-            if "Sales (LCY)" <> 0 then
-                AdjProfitPct := Round(100 * AdjCustProfit / "Sales (LCY)", 0.1)
-            else
-                AdjProfitPct := 0;
-
-            CustInvDiscAmountLCY := "Inv. Discounts (LCY)";
-
-            CustPaymentsLCY := "Payments (LCY)";
-        end;
+        CustPaymentsLCY := Customer."Payments (LCY)";
     end;
 
     procedure CalcAmountsOnPostedInvoices(CustNo: Code[20]; var RecCount: Integer): Decimal
