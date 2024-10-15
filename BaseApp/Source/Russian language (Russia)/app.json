@@ -2,7 +2,7 @@
     "id":  "80e80fa9-7100-4885-852c-ac6b053298dd",
     "name":  "Russian language (Russia)",
     "publisher":  "Microsoft",
-    "version":  "20.1.39764.39901",
+    "version":  "20.2.41144.41423",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "20.1.0.0"
+    "application":  "20.2.0.0"
 }

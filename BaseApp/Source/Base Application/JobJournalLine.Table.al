@@ -55,7 +55,14 @@
             Caption = 'Posting Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePostingDate(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CheckPostingDateNotEmpty();
                 Validate("Document Date", "Posting Date");
                 if "Currency Code" <> '' then begin
@@ -149,7 +156,13 @@
             trigger OnValidate()
             var
                 WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantity(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
 
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
@@ -1846,8 +1859,10 @@
         if RetrieveCostPrice(CalledByFieldNo) and ("No." <> '') then begin
             ApplyPrice(PriceType::Sale, CalledByFieldNo);
             ApplyPrice(PriceType::Purchase, CalledByFieldNo);
-            if Type = Type::Resource then
-                "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
+            if Type = Type::Resource then begin
+                "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
+                "Direct Unit Cost (LCY)" := ConvertAmountToLCY("Direct Unit Cost (LCY)", UnitAmountRoundingPrecision);
+            end;
         end;
     end;
 
@@ -2128,7 +2143,7 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::Job, Rec."Job No.", FieldNo = Rec.FieldNo("Job No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::"Resource Group", Rec."Resource Group No.", FieldNo = Rec.FieldNo("Resource Group No."));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
 #if not CLEAN20
@@ -2168,7 +2183,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var JobJournalLine: Record "Job Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var JobJournalLine: Record "Job Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
@@ -2318,6 +2333,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateWorkTypeCodeQty(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; Resource: Record Resource; WorkType: Record "Work Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostingDate(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantity(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

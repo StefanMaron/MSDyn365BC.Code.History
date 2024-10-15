@@ -904,7 +904,7 @@
                     CalcApplnAmount();
                 end;
         end;
-        OnAfterSetApplyingVendLedgEntry(TempApplyingVendLedgEntry, GenJnlLine, PurchHeader);
+        OnAfterSetApplyingVendLedgEntry(TempApplyingVendLedgEntry, GenJnlLine, PurchHeader, CalcType);
     end;
 
     procedure SetVendApplId(CurrentRec: Boolean)
@@ -1221,6 +1221,7 @@
         repeat
             TempAppliedVendLedgEntry := AppliedVendLedgEntry;
             TempAppliedVendLedgEntry.Insert();
+            OnHandleChosenEntriesOnAfterTempAppliedVendLedgEntryInsert(TempAppliedVendLedgEntry);
         until AppliedVendLedgEntry.Next() = 0;
 
         FromZeroGenJnl := (CurrentAmount = 0) and (Type = Type::"Gen. Jnl. Line");
@@ -1480,7 +1481,7 @@
         CalcType := NewCalcType;
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCalcApplnAmount(VendorLedgerEntry: Record "Vendor Ledger Entry"; var AppliedAmount: Decimal; var ApplyingAmount: Decimal; CalcType: Enum "Vendor Apply Calculation Type"; var AppliedVendLedgEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -1514,7 +1515,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterSetApplyingVendLedgEntry(var TempApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; PurchaseHeader: Record "Purchase Header")
+    local procedure OnAfterSetApplyingVendLedgEntry(var TempApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; PurchaseHeader: Record "Purchase Header"; CalcType: Enum "Vendor Apply Calculation Type")
     begin
     end;
 
@@ -1580,6 +1581,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnFindApplyingEntryOnAfterSetFilters(ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnHandleChosenEntriesOnAfterTempAppliedVendLedgEntryInsert(var TempAppliedVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
     begin
     end;
 

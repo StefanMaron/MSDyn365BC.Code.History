@@ -42,6 +42,7 @@ codeunit 147316 "Test 347 Declaration"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         AnnualVATCashAmountErr: Label 'Incorrect Annual VAT Cash Amount';
         AmountCustVendErr: Label 'Incorrect Amount for Customer/Vendor';
@@ -899,14 +900,47 @@ codeunit 147316 "Test 347 Declaration"
         Assert.AreEqual('123', Make347Declaration.FormatTextName('123', false), 'Wrong formatted string.');
     end;
 
+    [Test]
+    [HandlerFunctions('Make347DeclarationReportHandler')]
+    [Scope('OnPrem')]
+    procedure ExcludeCountryCodeFromCompanyVATRegNo()
+    var
+        CompanyInformation: Record "Company Information";
+        CustomerNo: Code[20];
+        FileName: Text[1024];
+        Line: Text;
+        VATRegNo: Code[10];
+    begin
+        // [SCENARIO 433410] VAT Registration no. of the company information is exported to the 347 declaration without the country code
+
+        Initialize();
+
+        // [GIVEN] "Country Code" is "ES", "VAT Registration No." is "ES123456789" in the Company Information
+        VATRegNo := '123456789';
+        CompanyInformation.Get();
+        CompanyInformation."VAT Registration No." := CompanyInformation."Country/Region Code" + VATRegNo;
+        CompanyInformation.Modify();
+
+        // [GIVEN] Posted sales invoice
+        CreateAndPostSalesInvoiceWithVATCashRegime(CustomerNo, false, false);
+
+        // [WHEN] Run "Make 347 Declaration report"
+        FileName := RunMake347DeclarationReport();
+
+        // [THEN] VAT registration no. is "123456789" in the generated file
+        Line := ReadLineIn347ReportFile(FileName, CustomerNo);
+        Assert.AreEqual(VATRegNo, CopyStr(Line, 9, 9), '');
+    end;
+
     local procedure Initialize()
     begin
+        LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
         Library347Declaration.Init347DeclarationParameters(Test347DeclarationParameter);
         if IsInitialized then
             exit;
         Library347Declaration.CreateAndPostSalesInvoiceToEnsureAReportGetsGenerated;
-
+        LibrarySetupStorage.SaveCompanyInformation();
         IsInitialized := true;
         Commit();
     end;

@@ -350,6 +350,8 @@
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
                     FeatureTelemetry.LogUptake('0000FAF', IntrastatTok, Enum::"Feature Uptake Status"::Used);
+                    Commit();
+
                     if FindVATReportsConfiguration(VATReportsConfiguration) and
                         (VATReportsConfiguration."Validate Codeunit ID" <> 0) and
                         (VATReportsConfiguration."Content Codeunit ID" <> 0)
@@ -425,7 +427,6 @@
         JnlSelected: Boolean;
     begin
         FeatureTelemetry.LogUptake('0000FAS', IntrastatTok, Enum::"Feature Uptake Status"::Discovered);
-        Commit();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;

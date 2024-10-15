@@ -178,6 +178,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CreateOrUpdateSalesQuoteLines(CRMQuote, SalesHeader);
         CreateOrUpdateSalesQuoteNotes(CRMQuote, SalesHeader);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(SalesHeader.RecordId, CRMQuote.QuoteId);
+        OnCreateOrUpdateNAVQuoteOnAfterCoupleRecordIdToCRMID(CRMQuote, SalesHeader);
         if OpType = OpType::Create then
             Session.LogMessage('0000839', StrSubstNo(SuccessfullyCoupledSalesQuoteTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMQuote.QuoteId, CRMQuote.QuoteNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
         exit(true);
@@ -219,6 +220,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         IntegrationRecordSynch.SetTextValue(DestinationFieldRef, IntegrationRecordSynch.GetTextValue(SourceFieldRef));
         DestinationRecordRef.SetTable(SalesHeader);
 
+        OnCreateOrUpdateSalesQuoteHeaderOnBeforeInsertOrModify(CRMQuote, SalesHeader, OpType);
         if OpType = OpType::Create then
             SalesHeader.Insert(true)
         else
@@ -444,6 +446,8 @@ codeunit 5348 "CRM Quote to Sales Quote"
           "Line Discount Amount",
           CRMQuotedetail.Quantity * CRMQuotedetail.VolumeDiscountAmount +
           CRMQuotedetail.ManualDiscountAmount);
+
+        OnAfterInitializeSalesQuoteLine(CRMQuotedetail, SalesHeader, SalesLine);
     end;
 
     local procedure UpdateSalesLineUnitOfMeasure(CRMQuotedetail: Record "CRM Quotedetail"; CRMProduct: Record "CRM Product"; var SalesLine: Record "Sales Line")
@@ -610,6 +614,21 @@ codeunit 5348 "CRM Quote to Sales Quote"
         RecRef := RecordID.GetRecord;
         RecRef.SetTable(SalesHeader);
         SalesHeader.Find;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeSalesQuoteLine(CRMQuotedetail: Record "CRM Quotedetail"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOrUpdateNAVQuoteOnAfterCoupleRecordIdToCRMID(CRMQuote: Record "CRM Quote"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOrUpdateSalesQuoteHeaderOnBeforeInsertOrModify(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header"; OpType: Option)
+    begin
     end;
 }
 

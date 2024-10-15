@@ -592,7 +592,7 @@ codeunit 5342 "CRM Synch. Helper"
         if PaymentMethod.Get(SalesInvoiceHeader."Payment Method Code") then
             if PaymentMethod."Create Bills" then
                 CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Bill);
-        if CustLedgerEntry.FindFirst() then
+        if CustLedgerEntry.FindSet() then
             UpdateCRMInvoiceStatusFromEntry(CRMInvoice, CustLedgerEntry);
     end;
 
@@ -612,15 +612,23 @@ codeunit 5342 "CRM Synch. Helper"
         end;
     end;
 
-    local procedure CalculateActualStatusCode(CustLedgerEntry: Record "Cust. Ledger Entry"; var CRMInvoice: Record "CRM Invoice")
+    local procedure CalculateActualStatusCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; var CRMInvoice: Record "CRM Invoice")
+    var
+        RemainingAmount: Decimal;
+        Amount: Decimal;
     begin
         with CRMInvoice do begin
             CustLedgerEntry.CalcFields("Remaining Amount", Amount);
-            if CustLedgerEntry."Remaining Amount" = 0 then begin
+            repeat
+                RemainingAmount += CustLedgerEntry."Remaining Amount";
+                Amount += CustLedgerEntry.Amount;
+            until CustLedgerEntry.Next() = 0;
+
+            if RemainingAmount = 0 then begin
                 StateCode := StateCode::Paid;
                 StatusCode := StatusCode::Complete;
             end else
-                if CustLedgerEntry."Remaining Amount" <> CustLedgerEntry.Amount then begin
+                if RemainingAmount <> Amount then begin
                     StateCode := StateCode::Paid;
                     StatusCode := StatusCode::Partial;
                 end else begin
@@ -1664,7 +1672,7 @@ codeunit 5342 "CRM Synch. Helper"
                             CDSFailedOptionMapping.Insert();
                         end;
                     end;
-            end;
+                end;
         end;
         exit(TableIsMapped);
     end;

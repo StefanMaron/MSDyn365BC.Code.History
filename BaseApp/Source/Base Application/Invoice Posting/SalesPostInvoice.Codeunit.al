@@ -730,6 +730,7 @@
                 CurrExchRate.ExchangeAmtFCYToLCY(
                   SalesHeader.GetUseDate(), SalesHeader."Currency Code",
                   TempDeferralHeader."Amount to Defer", SalesHeader."Currency Factor"));
+            SalesPostInvoiceEvents.RunOnCalcDeferralAmountsOnBeforeTempDeferralHeaderInsert(TempDeferralHeader, DeferralHeader, SalesLine);
             TempDeferralHeader.Insert();
 
             with DeferralLine do begin

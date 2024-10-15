@@ -18,7 +18,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         ContactMustBeRelatedToCustomerOrVendorErr: Label 'The contact %1 must have a contact company that has a business relation to a customer or vendor.', Comment = '%1 = Contact No.';
         NewCodePatternTxt: Label 'SP NO. %1', Locked = true;
         SalespersonPurchaserCodeFilterLbl: Label 'SP NO. 0*', Locked = true;
-        CouplingsNeedToBeResetErr: Label 'Dataverse integration is enabled. The existing couplings must be reset so that other companies can access records that are coupled to the company being deleted.';
+        CouplingsNeedToBeResetErr: Label 'Dataverse integration is enabled, and records have been coupled for this company. Before you can delete this company, you must delete its couplings so that other companies can access the coupled records. You can delete the couplings on the %1 page.', Comment = '%1 = page caption of Integration Table Mappings';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         UpdateContactParentCompanyTxt: Label 'Updating contact parent company.', Locked = true;
         UpdateContactParentCompanyFailedTxt: Label 'Updating contact parent company failed. Parent Customer ID: %1', Locked = true, Comment = '%1 - parent customer id';
@@ -781,6 +781,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMIntegrationRecord: Record "CRM Integration Record";
         TenantLicenseState: Codeunit "Tenant License State";
+        IntegrationTableMappingList: Page "Integration Table Mapping List";
         EnumTenantLicenseState: Enum "Tenant License State";
     begin
         if Rec.IsTemporary() then
@@ -798,7 +799,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                                     EnumTenantLicenseState::LockedOut]
                                 then
                                     exit;
-                            Error(CouplingsNeedToBeResetErr);
+                            Error(CouplingsNeedToBeResetErr, IntegrationTableMappingList.Caption());
                         end;
     end;
 
@@ -1195,19 +1196,26 @@ codeunit 7205 "CDS Int. Table. Subscriber"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Table Synch.", 'OnAfterInitSynchJob', '', true, true)]
     local procedure LogTelemetryOnAfterInitSynchJob(ConnectionType: TableConnectionType; IntegrationTableID: Integer)
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         if ConnectionType <> TableConnectionType::CRM then
             exit;
+        FeatureTelemetry.LogUptake('0000H7M', 'Dataverse', Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000H7N', 'Dataverse', 'Entity sync');
         if IntegrationTableID in [
                 Database::"CRM Account",
                 Database::"CRM Contact",
                 Database::"CRM Transactioncurrency",
                 Database::"CRM Systemuser"] then begin
             Session.LogMessage('0000FMC', 'Synching a base entity.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            FeatureTelemetry.LogUsage('0000H7O', 'Dataverse', 'Base entity synch');
             exit;
         end;
-        if IntegrationTableID > MinCustomTableId() then
+        if IntegrationTableID > MinCustomTableId() then begin
             Session.LogMessage('0000FMD', 'Synching a custom entity.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            FeatureTelemetry.LogUsage('0000H7P', 'Dataverse', 'Custom entity synch');
+        end;
     end;
 
     local procedure MinCustomTableId(): Integer
@@ -1349,5 +1357,4 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                 CDSSystemuser.SetRange(DomainName, CDSConnectionSetup."User Name");
         end;
     end;
-
 }

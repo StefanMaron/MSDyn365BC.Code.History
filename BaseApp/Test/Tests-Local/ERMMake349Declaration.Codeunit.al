@@ -24,6 +24,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         LibraryVariableStorageForSpecifyCorrectionsConfirmHandler: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         FileNameTxt: Label '%1.txt';
         FileNotfoundErr: Label 'Could not find file';
         OriginalDeclaredAmountErr: Label '"Original declared Amount" cannot be high than "Previous Declared Amount"';
@@ -185,6 +186,8 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // Setup and Exercise.
         Initialize();
+
+        SetRandomCompanyName();
         CountryRegionCode := CreateCountryRegion;
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
         FileName := TemporaryPath + StrSubstNo(FileNameTxt, LibraryUtility.GenerateGUID());
@@ -222,6 +225,7 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // Setup: Create and post Sales Order with EU and Non-EU Customers.
         Initialize();
+        SetRandomCompanyName();
         CreateVATPostingSetup(VATPostingSetup, false);  // EUService as False.
         CreateVATPostingSetup(VATPostingSetup2, true);  // EUService as True.
         CountryRegionCode := CreateCountryRegion;
@@ -271,6 +275,8 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // Setup: Create and post Purchase Order with EU and Non-EU Vendors.
         Initialize();
+
+        SetRandomCompanyName();
         CreateVATPostingSetup(VATPostingSetup, true);   // EUService as True.
         FileName := TemporaryPath + StrSubstNo(FileNameTxt, LibraryUtility.GenerateGUID());
         CreateVATPostingSetup(VATPostingSetup2, false);  // EUService as False.
@@ -431,6 +437,7 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // Setup: Create and post Sales Order with EU and Non-EU Customers.
         Initialize();
+        SetRandomCompanyName();
 
         CreateVATPostingSetup(VATPostingSetup, false);  // EUService as False.
         CreateVATPostingSetup(VATPostingSetup2, true);  // EUService as True.
@@ -4443,10 +4450,12 @@ codeunit 144117 "ERM Make 349 Declaration"
         InventorySetup: Record "Inventory Setup";
     begin
         LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
 
+        LibrarySetupStorage.SaveCompanyInformation();
         IsInitialized := true;
         InventorySetup.Get();
 
@@ -5951,6 +5960,15 @@ codeunit 144117 "ERM Make 349 Declaration"
             VATRegNoHasCountryPrefix),
           FieldValue,
           IncorrectValueErr);
+    end;
+
+    local procedure SetRandomCompanyName()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        CompanyInformation.Name := LibraryUtility.GenerateGUID();
+        CompanyInformation.Modify();
     end;
 }
 

@@ -188,8 +188,11 @@
             until JobTask.Next() = 0;
         JobTaskCalcAccruedCostsWIP(Job, AccruedCostsJobWIPTotal, AccruedCostsJobTask, RecognizedCostAmount, UsageTotalCost);
         CalcCostInvoicePercentage(JobWIPTotal);
+        OnJobTaskCalcWIPOnBeforeJobWIPTotalModify(Job, JobWIPTotal);
         JobWIPTotal.Modify();
         JobWIPWarning.CreateEntries(JobWIPTotal);
+
+        OnAfterJobTaskCalcWIP(Job, FromJobTask, ToJobTask, JobWIPTotal);
     end;
 
     local procedure JobTaskCalcAccruedCostsWIP(Job: Record Job; AccruedCostsJobWIPTotal: Record "Job WIP Total"; AccruedCostsJobTask: Record "Job Task"; RecognizedCostAmount: Decimal; UsageTotalCost: Decimal)
@@ -1205,6 +1208,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertWIPGLOnBeforeGenJnPostLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobTaskCalcWIPOnBeforeJobWIPTotalModify(var Job: Record Job; var JobWIPTotal: Record "Job WIP Total")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterJobTaskCalcWIP(var Job: Record Job; FromJobTask: Code[20]; ToJobTask: Code[20]; var JobWIPTotal: Record "Job WIP Total")
     begin
     end;
 }

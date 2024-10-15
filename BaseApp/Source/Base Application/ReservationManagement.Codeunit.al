@@ -325,6 +325,7 @@ codeunit 99000845 "Reservation Management"
         ValueArrayNo: Integer;
         TotalQuantity: Decimal;
     begin
+        OnBeforeUpdateStatistics(AvailabilityDate);
         CurrentEntryNo := TempEntrySummary."Entry No.";
         CalcReservEntry.TestField("Source Type");
         TempEntrySummary.DeleteAll();
@@ -378,6 +379,7 @@ codeunit 99000845 "Reservation Management"
                 if TempEntrySummary."Total Reserved Quantity" > 0 then
                     TempEntrySummary."Non-specific Reserved Qty." := LateBindingMgt.NonspecificReservedQty(CalcItemLedgEntry);
 
+            OnUpdateItemLedgEntryStatsOnBeforePrepareTempEntrySummary(CalcReservEntry, TempEntrySummary);
             if CalcSumValue <> 0 then
                 if (CalcSumValue > 0) = Positive then begin
                     if Location.Get(CalcItemLedgEntry."Location Code") and
@@ -557,7 +559,7 @@ codeunit 99000845 "Reservation Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAutoReserveOneLine(IsHandled);
+        OnBeforeAutoReserveOneLine(IsHandled, AvailabilityDate);
         if IsHandled then
             exit;
 
@@ -654,8 +656,7 @@ codeunit 99000845 "Reservation Management"
         IsFound: Boolean;
     begin
         IsReserved := false;
-        OnBeforeAutoReserveItemLedgEntry(
-          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, IsReserved, CalcReservEntry);
+        OnBeforeAutoReserveItemLedgEntry(ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, IsReserved, CalcReservEntry, CalcItemLedgEntry, ItemTrackingCode, Positive);
         if IsReserved then
             exit;
 
@@ -1417,6 +1418,7 @@ codeunit 99000845 "Reservation Management"
                             // Release non-inventory reservations in first cycle
                             repeat
                                 CalcReservEntry4.Get(ReservEntry."Entry No.", not ReservEntry.Positive); // Find related entry
+                                OnDeleteReservEntriesOnReservationOnAfterCalcReservEntry4Get(CalcReservEntry4, ReservEntry);
                                 if (Release = Release::Inventory) = (CalcReservEntry4."Source Type" = DATABASE::"Item Ledger Entry") then
                                     if (Abs(ReservEntry."Quantity (Base)") <= Abs(QtyToRelease)) or DeleteAll then begin
                                         ReservEngineMgt.CloseReservEntry(ReservEntry, false, DeleteAll);
@@ -1481,7 +1483,7 @@ codeunit 99000845 "Reservation Management"
         exit(GetAvailabilityFilter2(AvailabilityDate, Positive));
     end;
 
-    local procedure GetAvailabilityFilter2(AvailabilityDate: Date; SearchForSupply: Boolean): Text[80]
+    local procedure GetAvailabilityFilter2(AvailabilityDate: Date; SearchForSupply: Boolean) Result: Text[80]
     var
         ReservEntry2: Record "Reservation Entry";
     begin
@@ -1490,7 +1492,8 @@ codeunit 99000845 "Reservation Management"
         else
             ReservEntry2.SetFilter("Expected Receipt Date", '>=%1', AvailabilityDate);
 
-        exit(ReservEntry2.GetFilter("Expected Receipt Date"));
+        Result := ReservEntry2.GetFilter("Expected Receipt Date");
+        OnAfterGetAvailabilityFilter2(ReservEntry2, AvailabilityDate, SearchForSupply, Result);
     end;
 
     procedure CopySign(FromValue: Decimal; var ToValue: Decimal)
@@ -1500,69 +1503,74 @@ codeunit 99000845 "Reservation Management"
     end;
 
     local procedure SetValueArray(EntryStatus: Option Reservation,Tracking,Simulation) ArrayCounter: Integer
+    var
+        IsHandled: Boolean;
     begin
-        Clear(ValueArray);
-        case EntryStatus of
-            0:
-                begin // Reservation
-                    ValueArray[1] := "Reservation Summary Type"::"Item Ledger Entry".AsInteger();
-                    ValueArray[2] := "Reservation Summary Type"::"Sales Order".AsInteger();
-                    ValueArray[3] := "Reservation Summary Type"::"Sales Return Order".AsInteger();
-                    ValueArray[4] := "Reservation Summary Type"::"Purchase Order".AsInteger();
-                    ValueArray[5] := "Reservation Summary Type"::"Purchase Return Order".AsInteger();
-                    ValueArray[6] := "Reservation Summary Type"::"Firm Planned Production Order".AsInteger();
-                    ValueArray[7] := "Reservation Summary Type"::"Released Production Order".AsInteger();
-                    ValueArray[8] := "Reservation Summary Type"::"Firm Planned Prod. Order Comp.".AsInteger();
-                    ValueArray[9] := "Reservation Summary Type"::"Released Prod. Order Comp.".AsInteger();
-                    ValueArray[10] := "Reservation Summary Type"::"Transfer Shipment".AsInteger();
-                    ValueArray[11] := "Reservation Summary Type"::"Transfer Receipt".AsInteger();
-                    ValueArray[12] := "Reservation Summary Type"::"Service Order".AsInteger();
-                    ValueArray[13] := "Reservation Summary Type"::"Job Planning Order".AsInteger();
-                    ValueArray[14] := "Reservation Summary Type"::"Assembly Order Header".AsInteger();
-                    ValueArray[15] := "Reservation Summary Type"::"Assembly Order Line".AsInteger();
-                    ValueArray[16] := "Reservation Summary Type"::"Inventory Receipt".AsInteger();
-                    ValueArray[17] := "Reservation Summary Type"::"Inventory Shipment".AsInteger();
-                    ArrayCounter := 17;
-                end;
-            1:
-                begin // Order Tracking
-                    ValueArray[1] := "Reservation Summary Type"::"Item Ledger Entry".AsInteger();
-                    ValueArray[2] := "Reservation Summary Type"::"Sales Order".AsInteger();
-                    ValueArray[3] := "Reservation Summary Type"::"Sales Return Order".AsInteger();
-                    ValueArray[4] := "Reservation Summary Type"::"Requisition Line".AsInteger();
-                    ValueArray[5] := "Reservation Summary Type"::"Purchase Order".AsInteger();
-                    ValueArray[6] := "Reservation Summary Type"::"Purchase Return Order".AsInteger();
-                    ValueArray[7] := "Reservation Summary Type"::"Planned Production Order".AsInteger();
-                    ValueArray[8] := "Reservation Summary Type"::"Firm Planned Production Order".AsInteger();
-                    ValueArray[9] := "Reservation Summary Type"::"Released Production Order".AsInteger();
-                    ValueArray[10] := "Reservation Summary Type"::"Planned Prod. Order Comp.".AsInteger();
-                    ValueArray[11] := "Reservation Summary Type"::"Firm Planned Prod. Order Comp.".AsInteger();
-                    ValueArray[12] := "Reservation Summary Type"::"Released Prod. Order Comp.".AsInteger();
-                    ValueArray[13] := "Reservation Summary Type"::"Transfer Shipment".AsInteger();
-                    ValueArray[14] := "Reservation Summary Type"::"Transfer Receipt".AsInteger();
-                    ValueArray[15] := "Reservation Summary Type"::"Service Order".AsInteger();
-                    ValueArray[16] := "Reservation Summary Type"::"Job Planning Order".AsInteger();
-                    ValueArray[17] := "Reservation Summary Type"::"Assembly Order Header".AsInteger();
-                    ValueArray[18] := "Reservation Summary Type"::"Assembly Order Line".AsInteger();
-                    ValueArray[19] := "Reservation Summary Type"::"Inventory Receipt".AsInteger();
-                    ValueArray[20] := "Reservation Summary Type"::"Inventory Shipment".AsInteger();
-                    ArrayCounter := 20;
-                end;
-            2:
-                begin // Simulation order tracking
-                    ValueArray[1] := "Reservation Summary Type"::"Sales Quote".AsInteger();
-                    ValueArray[2] := "Reservation Summary Type"::"Simulated Production Order".AsInteger();
-                    ValueArray[3] := "Reservation Summary Type"::"Simulated Prod. Order Comp.".AsInteger();
-                    ArrayCounter := 3;
-                end;
-            3:
-                begin // Item Tracking
-                    ValueArray[1] := "Reservation Summary Type"::"Item Ledger Entry".AsInteger();
-                    ValueArray[2] := "Reservation Summary Type"::"Item Tracking Line".AsInteger();
-                    ArrayCounter := 2;
-                end;
+        IsHandled := false;
+        OnBeforeSetValueArray(EntryStatus, ValueArray, ArrayCounter, IsHandled);
+        if not IsHandled then begin
+            Clear(ValueArray);
+            case EntryStatus of
+                0:
+                    begin // Reservation
+                        ValueArray[1] := "Reservation Summary Type"::"Item Ledger Entry".AsInteger();
+                        ValueArray[2] := "Reservation Summary Type"::"Sales Order".AsInteger();
+                        ValueArray[3] := "Reservation Summary Type"::"Sales Return Order".AsInteger();
+                        ValueArray[4] := "Reservation Summary Type"::"Purchase Order".AsInteger();
+                        ValueArray[5] := "Reservation Summary Type"::"Purchase Return Order".AsInteger();
+                        ValueArray[6] := "Reservation Summary Type"::"Firm Planned Production Order".AsInteger();
+                        ValueArray[7] := "Reservation Summary Type"::"Released Production Order".AsInteger();
+                        ValueArray[8] := "Reservation Summary Type"::"Firm Planned Prod. Order Comp.".AsInteger();
+                        ValueArray[9] := "Reservation Summary Type"::"Released Prod. Order Comp.".AsInteger();
+                        ValueArray[10] := "Reservation Summary Type"::"Transfer Shipment".AsInteger();
+                        ValueArray[11] := "Reservation Summary Type"::"Transfer Receipt".AsInteger();
+                        ValueArray[12] := "Reservation Summary Type"::"Service Order".AsInteger();
+                        ValueArray[13] := "Reservation Summary Type"::"Job Planning Order".AsInteger();
+                        ValueArray[14] := "Reservation Summary Type"::"Assembly Order Header".AsInteger();
+                        ValueArray[15] := "Reservation Summary Type"::"Assembly Order Line".AsInteger();
+                        ValueArray[16] := "Reservation Summary Type"::"Inventory Receipt".AsInteger();
+                        ValueArray[17] := "Reservation Summary Type"::"Inventory Shipment".AsInteger();
+                        ArrayCounter := 17;
+                    end;
+                1:
+                    begin // Order Tracking
+                        ValueArray[1] := "Reservation Summary Type"::"Item Ledger Entry".AsInteger();
+                        ValueArray[2] := "Reservation Summary Type"::"Sales Order".AsInteger();
+                        ValueArray[3] := "Reservation Summary Type"::"Sales Return Order".AsInteger();
+                        ValueArray[4] := "Reservation Summary Type"::"Requisition Line".AsInteger();
+                        ValueArray[5] := "Reservation Summary Type"::"Purchase Order".AsInteger();
+                        ValueArray[6] := "Reservation Summary Type"::"Purchase Return Order".AsInteger();
+                        ValueArray[7] := "Reservation Summary Type"::"Planned Production Order".AsInteger();
+                        ValueArray[8] := "Reservation Summary Type"::"Firm Planned Production Order".AsInteger();
+                        ValueArray[9] := "Reservation Summary Type"::"Released Production Order".AsInteger();
+                        ValueArray[10] := "Reservation Summary Type"::"Planned Prod. Order Comp.".AsInteger();
+                        ValueArray[11] := "Reservation Summary Type"::"Firm Planned Prod. Order Comp.".AsInteger();
+                        ValueArray[12] := "Reservation Summary Type"::"Released Prod. Order Comp.".AsInteger();
+                        ValueArray[13] := "Reservation Summary Type"::"Transfer Shipment".AsInteger();
+                        ValueArray[14] := "Reservation Summary Type"::"Transfer Receipt".AsInteger();
+                        ValueArray[15] := "Reservation Summary Type"::"Service Order".AsInteger();
+                        ValueArray[16] := "Reservation Summary Type"::"Job Planning Order".AsInteger();
+                        ValueArray[17] := "Reservation Summary Type"::"Assembly Order Header".AsInteger();
+                        ValueArray[18] := "Reservation Summary Type"::"Assembly Order Line".AsInteger();
+                        ValueArray[19] := "Reservation Summary Type"::"Inventory Receipt".AsInteger();
+                        ValueArray[20] := "Reservation Summary Type"::"Inventory Shipment".AsInteger();
+                        ArrayCounter := 20;
+                    end;
+                2:
+                    begin // Simulation order tracking
+                        ValueArray[1] := "Reservation Summary Type"::"Sales Quote".AsInteger();
+                        ValueArray[2] := "Reservation Summary Type"::"Simulated Production Order".AsInteger();
+                        ValueArray[3] := "Reservation Summary Type"::"Simulated Prod. Order Comp.".AsInteger();
+                        ArrayCounter := 3;
+                    end;
+                3:
+                    begin // Item Tracking
+                        ValueArray[1] := "Reservation Summary Type"::"Item Ledger Entry".AsInteger();
+                        ValueArray[2] := "Reservation Summary Type"::"Item Tracking Line".AsInteger();
+                        ArrayCounter := 2;
+                    end;
+            end;
         end;
-
         OnAfterSetValueArray(EntryStatus, ValueArray, ArrayCounter);
     end;
 
@@ -1802,7 +1810,13 @@ codeunit 99000845 "Reservation Management"
     var
         ReservEntry2: Record "Reservation Entry";
         TotalQuantity: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMakeRoomForReservation(ReservEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         TotalQuantity := SourceQuantity(ReservEntry, false);
         ReservEntry2 := ReservEntry;
         ReservEntry2.SetPointerFilter;
@@ -2832,7 +2846,7 @@ codeunit 99000845 "Reservation Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterAutoReserveOneLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer; CalcReservEntry: Record "Reservation Entry"; CalcReservEntry2: Record "Reservation Entry"; Positive: Boolean)
     begin
     end;
@@ -2853,17 +2867,37 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAvailabilityFilter2(var ReservationEntry: Record "Reservation Entry"; AvailabilityDate: Date; SearchForSupply: Boolean; Result: Text[80])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertReservationEntries(var TrackingSpecification: Record "Tracking Specification"; var CalcReservEntry: Record "Reservation Entry"; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; var QtyThisLine: Decimal; var QtyThisLineBase: Decimal; var ReservationCreated: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoReserveOneLine(var IsHandled: Boolean)
+    local procedure OnBeforeAutoReserveOneLine(var IsHandled: Boolean; var AvailabilityDate: Date)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteDocumentReservation(TableID: Integer; DocType: Option; DocNo: Code[20]; var HideValidationDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeRoomForReservation(var ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetValueArray(EntryStatus: Option; var ValueArray: array[30] of Integer; var ArrayCounter: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateStatistics(var AvailabilityDate: Date)
     begin
     end;
 
@@ -2927,8 +2961,8 @@ codeunit 99000845 "Reservation Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoReserveItemLedgEntry(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; var IsReserved: Boolean; CalcReservEntry: Record "Reservation Entry")
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeAutoReserveItemLedgEntry(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; var IsReserved: Boolean; CalcReservEntry: Record "Reservation Entry"; var CalcItemLedgerEntry: Record "Item Ledger Entry"; var ItemTrackingCode: Record "Item Tracking Code"; Positive: Boolean)
     begin
     end;
 
@@ -3161,6 +3195,11 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemLedgEntryStatsOnBeforePrepareTempEntrySummary(CalcReservationEntry: Record "Reservation Entry"; var TempEntrySummary: Record "Entry Summary")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateItemLedgEntryStatsUpdateTotals(CalcReservEntry: Record "Reservation Entry"; var CalcItemLedgEntry: Record "Item Ledger Entry"; TotalAvailQty: Decimal; QtyOnOutBound: Decimal; var CalcSumValue: Decimal; var TempEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
     begin
     end;
@@ -3202,6 +3241,11 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteReservEntriesOnBeforeDeleteReservEntries(CalcReservEntry: Record "Reservation Entry"; var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteReservEntriesOnReservationOnAfterCalcReservEntry4Get(var CalcReservEntry4: Record "Reservation Entry"; var ReservEntry: Record "Reservation Entry")
     begin
     end;
 

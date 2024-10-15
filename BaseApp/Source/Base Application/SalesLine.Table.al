@@ -3,6 +3,7 @@
     Caption = 'Sales Line';
     DrillDownPageID = "Sales Lines";
     LookupPageID = "Sales Lines";
+    Permissions = TableData "Sales Line" = m;
 
     fields
     {
@@ -1395,6 +1396,11 @@
             var
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVATProdPostingGroupTrigger(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 CheckPrepmtAmtInvEmpty();
 
@@ -2131,7 +2137,7 @@
                 JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
                 JobPlanningLine.SetRange("Job Contract Entry No.", "Job Contract Entry No.");
                 JobPlanningLine.FindFirst();
-                InitDefaultDimensionSources(DefaultDimSource, JobPlanningLine."Job No.");
+                InitDefaultDimensionSources(DefaultDimSource, JobPlanningLine."Job No.", Rec.FieldNo("Job Contract Entry No."));
                 CreateDim(DefaultDimSource);
             end;
         }
@@ -4158,7 +4164,14 @@
     end;
 
     procedure UpdateUnitPrice(CalledByFieldNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateUnitPriceProcedure(Rec, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ClearFieldCausedPriceCalculation();
         PlanPriceCalcByField(CalledByFieldNo);
         UpdateUnitPriceByField(CalledByFieldNo);
@@ -4452,8 +4465,7 @@
                 FieldError("Prepmt. Line Amount", StrSubstNo(Text049, "Prepmt. Amt. Inv."));
             end;
             if "Prepmt. Line Amount" <> 0 then begin
-                RemLineAmountToInvoice :=
-                  Round("Line Amount" * (Quantity - "Quantity Invoiced") / Quantity, Currency."Amount Rounding Precision");
+                RemLineAmountToInvoice := GetLineAmountToHandleInclPrepmt(Quantity - "Quantity Invoiced");
                 if RemLineAmountToInvoice < ("Prepmt. Line Amount" - "Prepmt Amt Deducted") then
                     FieldError("Prepmt. Line Amount", StrSubstNo(Text045, RemLineAmountToInvoice + "Prepmt Amt Deducted"));
             end;
@@ -5151,6 +5163,8 @@
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Sales,
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", SalesHeader."Dimension Set ID", DATABASE::Customer);
+
+        OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(Rec);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         ATOLink.UpdateAsmDimFromSalesLine(Rec);
 
@@ -8207,17 +8221,17 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::Job, Rec."Job No.", FieldNo = Rec.FieldNo("Job No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
-    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; JobNo: Code[20])
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; JobNo: Code[20]; FieldNo: Integer)
     begin
         DimMgt.AddDimSource(DefaultDimSource, DimMgt.SalesLineTypeToTableID(Type), Rec."No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center");
         DimMgt.AddDimSource(DefaultDimSource, Database::Job, JobNo);
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
 #if not CLEAN20
@@ -8263,7 +8277,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var SalesLine: Record "Sales Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var SalesLine: Record "Sales Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
@@ -8747,6 +8761,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateUnitPrice(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CalledByFieldNo: Integer; CurrFieldNo: Integer; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateUnitPriceProcedure(var SalesLine: Record "Sales Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -9243,6 +9262,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnGetDeferralPostDate(SalesHeader: Record "Sales Header"; var DeferralPostingDate: Date; SalesLine: Record "Sales Line")
     begin
     end;
@@ -9587,6 +9611,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateVATProdPostingGroup(var IsHandled: Boolean; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeValidateVATProdPostingGroupTrigger(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

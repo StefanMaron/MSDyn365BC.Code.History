@@ -101,6 +101,7 @@
         RemDiscAmt: Decimal;
         WhsePosting: Boolean;
         CheckApplFromItemEntry: Boolean;
+        ShouldCreateWhseJnlLine: Boolean;
     begin
         Clear(ItemJnlPostLine);
         if not ItemJnlRollRndg then begin
@@ -222,9 +223,10 @@
                 else
                     CheckApplFromItemEntry := ServiceLine.Quantity < 0;
 
-            OnPostItemJnlLineOnBeforeCreateWhseJnlLine(ItemJnlLine, ServiceHeader);
+            ShouldCreateWhseJnlLine := true;
+            OnPostItemJnlLineOnBeforeCreateWhseJnlLine(ItemJnlLine, ServiceHeader, ShouldCreateWhseJnlLine);
 
-            if (ServiceLine."Location Code" <> '') and (ServiceLine.Type = ServiceLine.Type::Item) and (Quantity <> 0) then begin
+            if ShouldCreateWhseJnlLine and (ServiceLine."Location Code" <> '') and (ServiceLine.Type = ServiceLine.Type::Item) and (Quantity <> 0) then begin
                 GetLocation(ServiceLine."Location Code", Location);
                 if ((ServiceLine."Document Type" in [ServiceLine."Document Type"::Invoice, ServiceLine."Document Type"::"Credit Memo"]) and
                     Location."Directed Put-away and Pick") or
@@ -730,7 +732,7 @@
                    (not CarteraSetup.ReadPermission) and Invoice
                 then
                     Error(CannotCreateCarteraDocErr);
-
+            OnCreateBillsOnBeforeSplitServiceInv(ServiceHeader, CustLedgEntry, TotalServiceLine);
             if ("Bal. Account No." = '') and ("Document Type" <> "Document Type"::"Credit Memo") and CarteraSetup.ReadPermission then
                 SplitPayment.SplitServiceInv(
                   ServiceHeader, CustLedgEntry, Window, SrcCode, GenJnlLineExtDocNo, GenJnlLineDocNo,
@@ -799,7 +801,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnBeforeCreateWhseJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceHeader: Record "Service Header");
+    local procedure OnCreateBillsOnBeforeSplitServiceInv(ServiceHeader : Record "Service Header"; CustLedgerEntry : Record "Cust. Ledger Entry"; var TotalServiceLine : Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforeCreateWhseJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceHeader: Record "Service Header"; var ShouldCreateWhseJnlLine: Boolean);
     begin
     end;
 

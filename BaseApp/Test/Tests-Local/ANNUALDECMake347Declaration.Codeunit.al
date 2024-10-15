@@ -21,6 +21,8 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         ESTxt: Label 'ES';
         PTTxt: Label 'PT';
@@ -291,6 +293,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     begin
         // Setup: Setup Demo Data.
         Initialize();
+        SetRandomCompanyName();
 
         // Create a Customer
         custNo :=
@@ -317,6 +320,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     begin
         // Setup: Setup Demo Data.
         Initialize();
+        SetRandomCompanyName();
 
         // Create a Customer with at VatRegno that needs padding
         custNo := Library347Declaration.CreateCustomerWithPostCode(Library347Declaration.CreateShortVATRegNo(ESTxt));
@@ -507,6 +511,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     begin
         // Setup: Setup Demo Data.
         Initialize();
+        SetRandomCompanyName();
 
         // Create a Vendor
         vendorNo :=
@@ -533,6 +538,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     begin
         // Setup: Setup Demo Data.
         Initialize();
+        SetRandomCompanyName();
 
         // Create a Vendor
         vendorNo := Library347Declaration.CreateVendorWithPostCode(Library347Declaration.CreateShortVATRegNo(ESTxt));
@@ -1595,11 +1601,12 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     begin
         LibraryVariableStorage.Clear();
         Library347Declaration.Init347DeclarationParameters(Test347DeclarationParameter);
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         Library347Declaration.CreateAndPostSalesInvoiceToEnsureAReportGetsGenerated;
         InventorySetup.Get();
-
+        LibrarySetupStorage.SaveCompanyInformation();
         IsInitialized := true;
         Commit();
     end;
@@ -1611,6 +1618,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
 
     local procedure RunMake347DeclarationReportExpectError(ExpectedError: Text[1024])
     begin
+        Commit();
         // Excercise: Run Make 347 declaration report.
         asserterror RunMake347DeclarationReport;
 
@@ -1846,6 +1854,15 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Read year amount, in this case it should be the same as entry amount
         YearAmount := ReadYearAmount(Line);
         Assert.AreEqual(EntryAmount, YearAmount, 'The entry amount and the year amount should be the same in this case');
+    end;
+
+    local procedure SetRandomCompanyName()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        CompanyInformation.Name := LibraryUtility.GenerateGUID();
+        CompanyInformation.Modify();
     end;
 
     local procedure ValidateFileHasNoLineForCustomer(FileName: Text[1024]; CustOrVendNo: Code[20])

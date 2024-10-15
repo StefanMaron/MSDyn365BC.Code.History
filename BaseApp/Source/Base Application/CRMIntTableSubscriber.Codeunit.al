@@ -1,4 +1,4 @@
-codeunit 5341 "CRM Int. Table. Subscriber"
+﻿codeunit 5341 "CRM Int. Table. Subscriber"
 {
     SingleInstance = true;
 
@@ -581,6 +581,8 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Table Synch.", 'OnAfterInitSynchJob', '', true, true)]
     local procedure LogTelemetryOnAfterInitSynchJob(ConnectionType: TableConnectionType; IntegrationTableID: Integer)
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         if ConnectionType <> TableConnectionType::CRM then
             exit;
@@ -594,8 +596,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 Database::"CRM Productpricelevel",
                 Database::"CRM Uom",
                 Database::"CRM Uomschedule",
-                Database::"CRM Account Statistics"] then
+                Database::"CRM Account Statistics"] then begin
             Session.LogMessage('0000FME', StrSubstNo(SynchingSalesSpecificEntityTxt, CRMProductName.SHORT()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            FeatureTelemetry.LogUptake('0000H7F', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::Used);
+            FeatureTelemetry.LogUsage('0000H7G', 'Dynamics 365 Sales', 'Sales entity synch');
+        end;
     end;
 
     local procedure UpdateOwnerIdAndCompanyId(var DestinationRecordRef: RecordRef)
@@ -1174,6 +1179,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         // Update CRM UoM ID, UoMSchedule Id. The CRM UoM Name and UoMScheduleName will be cascade-updated from their IDs by CRM
         if SourceRecordRef.Number() = DATABASE::Item then begin
             Blocked := SourceRecordRef.Field(Item.FieldNo(Blocked)).Value();
+            OnUpdateCRMProductAfterTransferRecordFieldsOnAfterCalcItemBlocked(SourceRecordRef, Blocked);
             UnitOfMeasureCodeFieldRef := SourceRecordRef.Field(Item.FieldNo("Base Unit of Measure"));
             ProductTypeCode := CRMProduct.ProductTypeCode::SalesInventory;
         end;
@@ -1944,6 +1950,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                     Resource.Get(SalesInvLine."No.");
                     Resource.TestField(Blocked, false);
                 end;
+                OnCheckItemOrResourceIsNotBlockedOnAfterSalesInvLineLoop(SalesInvLine);
             until SalesInvLine.Next() = 0;
     end;
 
@@ -1999,7 +2006,17 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckItemOrResourceIsNotBlockedOnAfterSalesInvLineLoop(SalesInvLine: Record "Sales Invoice Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFindNewValueForCoupledRecordPK(IntegrationTableMapping: Record "Integration Table Mapping"; SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant; var IsValueFound: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCRMProductAfterTransferRecordFieldsOnAfterCalcItemBlocked(SourceRecordRef: RecordRef; var Blocked: Boolean)
     begin
     end;
 }

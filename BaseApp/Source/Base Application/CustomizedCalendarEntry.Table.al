@@ -79,6 +79,7 @@ table 7603 "Customized Calendar Entry"
         CustomizedCalendarChange.Validate(Date, Date);
         CustomizedCalendarChange.Nonworking := Nonworking;
         CustomizedCalendarChange.Description := Description;
+        OnUpdateExceptionEntryOnBeforeInsert(CustomizedCalendarChange, Rec);
         CustomizedCalendarChange.Insert();
 
         OnAfterUpdateExceptionEntry(CustomizedCalendarChange, Rec);
@@ -91,28 +92,32 @@ table 7603 "Customized Calendar Entry"
         Location: Record Location;
         ServMgtSetup: Record "Service Mgt. Setup";
         ShippingAgentService: Record "Shipping Agent Services";
+        IsHandled: Boolean;
     begin
-        case "Source Type" of
-            "Source Type"::Company:
-                exit(CompanyName);
-            "Source Type"::Customer:
-                if Customer.Get("Source Code") then
-                    exit("Source Code" + ' ' + Customer.Name);
-            "Source Type"::Vendor:
-                if Vendor.Get("Source Code") then
-                    exit("Source Code" + ' ' + Vendor.Name);
-            "Source Type"::Location:
-                if Location.Get("Source Code") then
-                    exit("Source Code" + ' ' + Location.Name);
-            "Source Type"::"Shipping Agent":
-                if ShippingAgentService.Get("Source Code", "Additional Source Code") then
-                    exit("Source Code" + ' ' + "Additional Source Code" + ' ' + ShippingAgentService.Description);
-            "Source Type"::Service:
-                if ServMgtSetup.Get then
-                    exit("Source Code" + ' ' + ServMgtsetup.TableCaption);
-            else
-                OnGetCaptionOnCaseElse(Rec, TableCaption);
-        end;
+        IsHandled := false;
+        OnBeforeGetCaption(Rec, TableCaption, IsHandled);
+        if not IsHandled then
+            case "Source Type" of
+                "Source Type"::Company:
+                    exit(CompanyName);
+                "Source Type"::Customer:
+                    if Customer.Get("Source Code") then
+                        exit("Source Code" + ' ' + Customer.Name);
+                "Source Type"::Vendor:
+                    if Vendor.Get("Source Code") then
+                        exit("Source Code" + ' ' + Vendor.Name);
+                "Source Type"::Location:
+                    if Location.Get("Source Code") then
+                        exit("Source Code" + ' ' + Location.Name);
+                "Source Type"::"Shipping Agent":
+                    if ShippingAgentService.Get("Source Code", "Additional Source Code") then
+                        exit("Source Code" + ' ' + "Additional Source Code" + ' ' + ShippingAgentService.Description);
+                "Source Type"::Service:
+                    if ServMgtSetup.Get() then
+                        exit("Source Code" + ' ' + ServMgtsetup.TableCaption());
+                else
+                    OnGetCaptionOnCaseElse(Rec, TableCaption);
+            end;
     end;
 
     procedure CopyFromCustomizedCalendarChange(CustomizedCalendarChange: Record "Customized Calendar Change")
@@ -138,7 +143,17 @@ table 7603 "Customized Calendar Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCaption(var CustomizedCalendarEntry: Record "Customized Calendar Entry"; var TableCaption: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnGetCaptionOnCaseElse(var CustomizedCalendarEntry: Record "Customized Calendar Entry"; var TableCaption: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateExceptionEntryOnBeforeInsert(var CustomizedCalendarChange: Record "Customized Calendar Change"; CustomizedCalendarEntry: Record "Customized Calendar Entry")
     begin
     end;
 }
