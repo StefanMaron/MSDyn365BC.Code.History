@@ -15,7 +15,6 @@ table 260 "Tariff Number"
         {
             Caption = 'No.';
             NotBlank = true;
-            Numeric = true;
         }
         field(2; Description; Text[100])
         {

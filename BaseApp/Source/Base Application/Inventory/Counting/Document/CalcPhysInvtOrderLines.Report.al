@@ -259,7 +259,7 @@ report 5880 "Calc. Phys. Invt. Order Lines"
 
     local procedure SetItemLedgEntryFilters()
     begin
-        ItemLedgEntry.Reset();
+        Clear(ItemLedgEntry);
         ItemLedgEntry.SetCurrentKey(
           "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
         ItemLedgEntry.SetRange("Item No.", Item."No.");

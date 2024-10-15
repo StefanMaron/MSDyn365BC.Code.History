@@ -28,7 +28,7 @@ codeunit 6134 "E-Doc. Integration Management"
         ErrorCount := EDocumentErrorHelper.ErrorMessageCount(EDocument);
         Send(EDocumentService, EDocument, TempBlob, IsAsync, HttpRequest, HttpResponse);
         Success := EDocumentErrorHelper.ErrorMessageCount(EDocument) = ErrorCount;
-        SetDocumentStatusAndInsertLogs(EDocument, EDocumentService, TempBlob, HttpRequest, HttpResponse, IsAsync, Success);
+        SetDocumentStatusAndInsertLogs(EDocument, EDocumentService, 0, HttpRequest, HttpResponse, IsAsync, Success);
     end;
 
     internal procedure SendBatch(var EDocuments: Record "E-Document"; EDocumentService: Record "E-Document Service"; var IsAsync: Boolean) Success: Boolean
@@ -38,7 +38,6 @@ codeunit 6134 "E-Doc. Integration Management"
         HttpRequest: HttpRequestMessage;
         ErrorCount: Integer;
         BeforeSendEDocErrorCount: Dictionary of [Integer, Integer];
-        EDocDataStorageEntryNo: Integer;
     begin
         Success := false;
         if EDocumentService."Service Integration" = EDocumentService."Service Integration"::"No Integration" then
@@ -58,13 +57,11 @@ codeunit 6134 "E-Doc. Integration Management"
             BeforeSendEDocErrorCount.Add(EDocuments."Entry No", EDocumentErrorHelper.ErrorMessageCount(EDocuments));
         until EDocuments.Next() = 0;
         SendBatch(EDocumentService, EDocuments, TempBlob, IsAsync, HttpRequest, HttpResponse);
-        if TempBlob.HasValue() then
-            EDocDataStorageEntryNo := EDocumentLog.AddTempBlobToLog(TempBlob);
         EDocuments.FindSet();
         repeat
             BeforeSendEDocErrorCount.Get(EDocuments."Entry No", ErrorCount);
             Success := EDocumentErrorHelper.ErrorMessageCount(EDocuments) = ErrorCount;
-            SetDocumentStatusAndInsertLogs(EDocuments, EDocumentService, EDocDataStorageEntryNo, HttpRequest, HttpResponse, IsAsync, Success);
+            SetDocumentStatusAndInsertLogs(EDocuments, EDocumentService, 0, HttpRequest, HttpResponse, IsAsync, Success);
         until EDocuments.Next() = 0;
     end;
 
@@ -148,10 +145,8 @@ codeunit 6134 "E-Doc. Integration Management"
         if EDocumentService."Service Integration" = EDocumentService."Service Integration"::"No Integration" then
             exit(false);
 
-        EDocumentServiceStatus.SetRange("E-Document Entry No", EDocument."Entry No");
-        EDocumentServiceStatus.SetRange("E-Document Service Code", EDocumentService.Code);
-        if EDocumentServiceStatus.FindFirst() then
-            if EDocumentServiceStatus.Status = Enum::"E-Document Service Status"::Sent then begin
+        if EDocumentServiceStatus.Get(EDocument."Entry No", EDocumentService.Code) then
+            if not (EDocumentServiceStatus.Status in [Enum::"E-Document Service Status"::"Sending Error", Enum::"E-Document Service Status"::Exported]) then begin
                 Message(EDocumentSendErr, EDocumentServiceStatus.Status);
                 exit(false);
             end;

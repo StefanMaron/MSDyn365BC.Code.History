@@ -410,6 +410,7 @@ codeunit 1336 "Item Templ. Mgt."
 
     local procedure InitItemNo(var Item: Record Item; ItemTempl: Record "Item Templ.")
     var
+        InventorySetup: Record "Inventory Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         IsHandled: Boolean;
     begin
@@ -421,7 +422,10 @@ codeunit 1336 "Item Templ. Mgt."
         if ItemTempl."No. Series" = '' then
             exit;
 
+        InventorySetup.SetLoadFields("Default Costing Method");
+        InventorySetup.Get();
         NoSeriesManagement.InitSeries(ItemTempl."No. Series", '', 0D, Item."No.", Item."No. Series");
+        Item."Costing Method" := InventorySetup."Default Costing Method";
     end;
 
     local procedure GetUnitOfMeasureCode(): Code[10]
