@@ -560,6 +560,12 @@ page 21 "Customer Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the customer''s bank account that will be used by default when you process refunds to the customer and direct debit collections.';
                 }
+                field("Exclude from Pmt. Practices"; Rec."Exclude from Pmt. Practices")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies that the customer must be excluded from Payment Practices calculations.';
+                }
             }
             group(Shipping)
             {
@@ -720,11 +726,16 @@ page 21 "Customer Card"
                             CustLedgEntry.DrillDownOnOverdueEntries(DtldCustLedgEntry);
                         end;
                     }
-                    field("Payments (LCY)"; Rec."Payments (LCY)")
+                    field("Payments (LCY)"; CustPaymentsLCY)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Payments This Year';
-                        ToolTip = 'Specifies the sum of payments received from the customer in the current fiscal year.';
+                        CaptionClass = Format(StrSubstNo(PaymentsThisYearTxt, Format(CustomerMgt.GetCurrentYearFilter())));
+                        ToolTip = 'Specifies the sum of payments received from the customer in the current fiscal year. Current fiscal year is determined by the system date. The value shown here is calculated asynchronously so there might be a delay in updating this field.';
+
+                        trigger OnDrillDown()
+                        begin
+                            OpenCurrFiscalYearDetailedCustLedgerEntries();
+                        end;
                     }
                     field("CustomerMgt.AvgDaysToPay(""No."")"; AvgDaysToPay)
                     {
@@ -2774,6 +2785,7 @@ page 21 "Customer Card"
         PrevCountryCode: Code[10];
         BackgroundTaskId: Integer;
         BalanceAsVendorEnabled: Boolean;
+        PaymentsThisYearTxt: Label 'Payments This Year as of %1', Comment = '%1 = Current Fiscal Year Filter';
 
     protected var
         [InDataSet]
@@ -2907,6 +2919,18 @@ page 21 "Customer Card"
         CustLedgerEntries.SetRange("Customer No.", Rec."No.");
         CustLedgerEntries.SetFilter("Posting Date", CustomerMgt.GetCurrentYearFilter());
         Page.Run(0, CustLedgerEntries);
+    end;
+
+    local procedure OpenCurrFiscalYearDetailedCustLedgerEntries()
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        DetailedCustLedgEntry.SetCurrentKey("Customer No.", "Posting Date", "Currency Code");
+        DetailedCustLedgEntry.SetRange("Customer No.", Rec."No.");
+        DetailedCustLedgEntry.SetRange("Initial Document Type", DetailedCustLedgEntry."Initial Document Type"::Payment);
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
+        DetailedCustLedgEntry.SetFilter("Posting Date", CustomerMgt.GetCurrentYearFilter());
+        Page.Run(0, DetailedCustLedgEntry);
     end;
 
     [IntegrationEvent(true, false)]

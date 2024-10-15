@@ -2517,6 +2517,98 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure GetShipmentLinesInSalesInvoiceWithAttachedNonInvtLine()
+    var
+        Item: Record Item;
+        NonInvtItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineNonInvtItem: Record "Sales Line";
+    begin
+        // [FEATURE] [Non-Inventory Item] [Sales] [Order] [Invoice] [Get Shipment Lines]
+        // [SCENARIO 477047] Get Shipment Lines in Sales Invoice with attached non-inventory line does not produce duplicate lines.
+        Initialize();
+
+        // [GIVEN] Set "Non-Invt. Item Whse. Policy" in sales setup to "Attached/Assigned".
+        UpdateNonInvtPostingPolicyInSalesSetup("Non-Invt. Item Whse. Policy"::"Attached/Assigned");
+
+        // [GIVEN] Create item and non-inventory item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem);
+
+        // [GIVEN] Create sales order with two lines: item and non-inventory item.
+        // [GIVEN] Attach the non-inventory item to the item line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(
+          SalesLineItem, SalesHeader, SalesLineItem.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        LibrarySales.CreateSalesLine(
+          SalesLineNonInvtItem, SalesHeader, SalesLineNonInvtItem.Type::Item, NonInvtItem."No.", LibraryRandom.RandInt(10));
+        SalesLineNonInvtItem."Attached to Line No." := SalesLineItem."Line No.";
+        SalesLineNonInvtItem.Modify();
+
+        // [GIVEN] Post the sales order as Ship.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Create sales invoice using "Get Shipment Lines".
+        CreateSalesInvoiceFromShipment(SalesHeaderInvoice, SalesHeader);
+
+        // [THEN] Sales invoice has two lines: item and non-inventory item.
+        // [THEN] No duplicate lines.
+        FindSalesLine(SalesLineNonInvtItem, SalesHeaderInvoice, NonInvtItem."No.");
+        Assert.RecordCount(SalesLineNonInvtItem, 1);
+        FindSalesLine(SalesLineNonInvtItem, SalesHeaderInvoice, Item."No.");
+        Assert.RecordCount(SalesLineNonInvtItem, 1);
+    end;
+
+    [Test]
+    procedure GetReturnReceiptLinesInSalesCrMemoWithAttachedNonInvtLine()
+    var
+        Item: Record Item;
+        NonInvtItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesHeaderCrMemo: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineNonInvtItem: Record "Sales Line";
+    begin
+        // [FEATURE] [Non-Inventory Item] [Sales] [Return Order] [Credit Memo] [Get Return Receipt Lines]
+        // [SCENARIO 477047] Get Return Receipt Lines in Sales Credit Memo with attached non-inventory line does not produce duplicate lines.
+        Initialize();
+
+        // [GIVEN] Set "Non-Invt. Item Whse. Policy" in sales setup to "Attached/Assigned".
+        UpdateNonInvtPostingPolicyInSalesSetup("Non-Invt. Item Whse. Policy"::"Attached/Assigned");
+
+        // [GIVEN] Create item and non-inventory item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem);
+
+        // [GIVEN] Create sales return order with two lines: item and non-inventory item.
+        // [GIVEN] Attach the non-inventory item to the item line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", '');
+        LibrarySales.CreateSalesLine(
+          SalesLineItem, SalesHeader, SalesLineItem.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        LibrarySales.CreateSalesLine(
+          SalesLineNonInvtItem, SalesHeader, SalesLineNonInvtItem.Type::Item, NonInvtItem."No.", LibraryRandom.RandInt(10));
+        SalesLineNonInvtItem."Attached to Line No." := SalesLineItem."Line No.";
+        SalesLineNonInvtItem.Modify();
+
+        // [GIVEN] Post the sales return as Receive.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Create sales credit memo using "Get Return Receipt Lines".
+        CreateSalesCrMemoFromReturnReceipt(SalesHeaderCrMemo, SalesHeader);
+
+        // [THEN] Sales credit memo has two lines: item and non-inventory item.
+        // [THEN] No duplicate lines.
+        FindSalesLine(SalesLineNonInvtItem, SalesHeaderCrMemo, NonInvtItem."No.");
+        Assert.RecordCount(SalesLineNonInvtItem, 1);
+        FindSalesLine(SalesLineNonInvtItem, SalesHeaderCrMemo, Item."No.");
+        Assert.RecordCount(SalesLineNonInvtItem, 1);
+    end;    
+    
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3586,10 +3678,9 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Modify(true);
 
-        for i := 1 to 2 do begin
+        for i := 1 to 2 do
             LibrarySales.CreateSalesLine(
               SalesLineItem[i], SalesHeader, SalesLineItem[i].Type::Item, Item[i]."No.", LibraryRandom.RandInt(10));
-        end;
 
         for i := 1 to 2 do begin
             LibrarySales.CreateSalesLine(
@@ -3611,6 +3702,28 @@ codeunit 137162 "SCM Warehouse - Shipping III"
                 ItemChargeAssignmentSales.Insert(true);
             end;
         end;
+    end;
+
+    local procedure CreateSalesInvoiceFromShipment(var SalesHeaderInvoice: Record "Sales Header"; SalesHeader: Record "Sales Header")
+    var
+        SalesShptLine: Record "Sales Shipment Line";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+    begin
+        FindSalesShipmentLine(SalesShptLine, SalesHeader."No.");
+        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+        SalesGetShipment.SetSalesHeader(SalesHeaderInvoice);
+        SalesGetShipment.CreateInvLines(SalesShptLine);
+    end;
+
+    local procedure CreateSalesCrMemoFromReturnReceipt(var SalesHeaderCrMemo: Record "Sales Header"; SalesHeader: Record "Sales Header")
+    var
+        ReturnReceiptLine: Record "Return Receipt Line";
+        SalesGetReturnReceipts: Codeunit "Sales-Get Return Receipts";
+    begin
+        FindReturnReceiptLine(ReturnReceiptLine, SalesHeader."No.");
+        LibrarySales.CreateSalesHeader(SalesHeaderCrMemo, SalesHeaderCrMemo."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
+        SalesGetReturnReceipts.SetSalesHeader(SalesHeaderCrMemo);
+        SalesGetReturnReceipts.CreateInvLines(ReturnReceiptLine);
     end;
 
     local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; No: Code[20]; Quantity: Decimal)
@@ -3711,6 +3824,26 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         SalesLine.Reset();
         SalesLine.SetRange("No.", No);
         LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+    end;
+
+    local procedure FindSalesShipmentLine(var SalesShptLine: Record "Sales Shipment Line"; OrderNo: Code[20])
+    var
+        SalesShptHeader: Record "Sales Shipment Header";
+    begin
+        SalesShptHeader.SetRange("Order No.", OrderNo);
+        SalesShptHeader.FindFirst();
+        SalesShptLine.SetRange("Document No.", SalesShptHeader."No.");
+        SalesShptLine.FindFirst();
+    end;
+
+    local procedure FindReturnReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; ReturnOrderNo: Code[20])
+    var
+        ReturnReceiptHeader: Record "Return Receipt Header";
+    begin
+        ReturnReceiptHeader.SetRange("Return Order No.", ReturnOrderNo);
+        ReturnReceiptHeader.FindFirst();
+        ReturnReceiptLine.SetRange("Document No.", ReturnReceiptHeader."No.");
+        ReturnReceiptLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
