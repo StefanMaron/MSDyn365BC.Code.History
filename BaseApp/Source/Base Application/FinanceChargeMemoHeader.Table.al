@@ -808,29 +808,35 @@ table 302 "Finance Charge Memo Header"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
-    local procedure FinanceChargeRounding(FinanceChargeHeader: Record "Finance Charge Memo Header")
+    procedure GetInvoiceRoundingAmount(): Decimal
     var
         TotalAmountInclVAT: Decimal;
+    begin
+        GetCurrency(Rec);
+        if Currency."Invoice Rounding Precision" = 0 then
+            exit(0);
+
+        CalcFields(
+            "Interest Amount","Additional Fee","VAT Amount");
+        TotalAmountInclVAT :=
+            "Interest Amount" + "Additional Fee" + "VAT Amount";
+
+        exit(
+            -Round(
+                TotalAmountInclVAT -
+                Round(
+                    TotalAmountInclVAT,
+                    Currency."Invoice Rounding Precision",
+                    Currency.InvoiceRoundingDirection),
+              Currency."Amount Rounding Precision"));
+    end;
+
+    local procedure FinanceChargeRounding(FinanceChargeHeader: Record "Finance Charge Memo Header")
+    var
         FinanceChargeRoundingAmount: Decimal;
     begin
-        GetCurrency(FinanceChargeHeader);
-        if Currency."Invoice Rounding Precision" = 0 then
-            exit;
+        FinanceChargeRoundingAmount := FinanceChargeHeader.GetInvoiceRoundingAmount();
 
-        FinanceChargeHeader.CalcFields(
-          "Interest Amount", "Additional Fee", "VAT Amount");
-
-        TotalAmountInclVAT := FinanceChargeHeader."Interest Amount" +
-          FinanceChargeHeader."Additional Fee" +
-          FinanceChargeHeader."VAT Amount";
-        FinanceChargeRoundingAmount :=
-          -Round(
-            TotalAmountInclVAT -
-            Round(
-              TotalAmountInclVAT,
-              Currency."Invoice Rounding Precision",
-              Currency.InvoiceRoundingDirection),
-            Currency."Amount Rounding Precision");
         if FinanceChargeRoundingAmount <> 0 then begin
             CustPostingGr.Get(FinanceChargeHeader."Customer Posting Group");
             with FinChrgMemoLine do begin

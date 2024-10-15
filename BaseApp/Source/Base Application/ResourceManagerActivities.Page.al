@@ -84,7 +84,7 @@ page 9067 "Resource Manager Activities"
         end;
 
         SetRange("Date Filter", WorkDate, WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var

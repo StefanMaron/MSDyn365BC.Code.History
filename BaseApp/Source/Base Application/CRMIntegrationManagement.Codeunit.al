@@ -72,6 +72,7 @@ codeunit 5330 "CRM Integration Management"
         IntegrationRoleNotFoundErr: Label 'There is no integration role %1 for business unit %2.', Comment = '%1 = role name, %2 = business unit name';
         RoleNotFoundForBusinessUnitTxt: Label 'Integration role is not found for business unit.', Locked = true;
         CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        DeletedRecordWithZeroTableIdTxt: Label 'CRM Integration Record with zero Table ID has been deleted. Integration ID: %1, CRM ID: %2', Locked = true;
 
     procedure IsCRMIntegrationEnabled(): Boolean
     var
@@ -476,6 +477,31 @@ codeunit 5330 "CRM Integration Management"
             RecordCounter[NoOf::Failed] += 1;
 
         SendSyncNotification(RecordCounter);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RepairBrokenCouplings()
+    begin
+        RepairBrokenCouplings(false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RepairBrokenCouplings(UseLocalRecordsOnly: Boolean)
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        BlankGuid: Guid;
+    begin
+        CRMIntegrationRecord.SetRange("Table ID", 0);
+        CRMIntegrationRecord.SetFilter("Integration ID", '<>%1', BlankGuid);
+        if CRMIntegrationRecord.FindSet() then
+            repeat
+                if not CRMIntegrationRecord.RepairTableIdByLocalRecord() then
+                    if not UseLocalRecordsOnly then
+                        if not CRMIntegrationRecord.RepairTableIdByCRMRecord() then begin
+                            CRMIntegrationRecord.Delete();
+                            SendTraceTag('0000DQD', CategoryTok, Verbosity::Warning, StrSubstNo(DeletedRecordWithZeroTableIdTxt, CRMIntegrationRecord."Integration ID", CRMIntegrationRecord."CRM ID"), DataClassification::SystemMetadata);
+                        end;
+            until CRMIntegrationRecord.Next() = 0;
     end;
 
     local procedure GetIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; TableID: Integer)
