@@ -1,7 +1,7 @@
 page 2368 "Remit Address"
 {
     Caption = 'Remit Address';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DataCaptionFields = "Code";
     PageType = Card;
     SourceTable = "Remit Address";

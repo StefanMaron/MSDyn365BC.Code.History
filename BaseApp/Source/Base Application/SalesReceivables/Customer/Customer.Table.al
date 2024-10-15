@@ -137,6 +137,9 @@
                 for i := 1 to StrLen("Phone No.") do
                     if Char.IsLetter("Phone No."[i]) then
                         FieldError("Phone No.", PhoneNoCannotContainLettersErr);
+                
+                if (Rec."Phone No." <> xRec."Phone No.") then
+                    SetForceUpdateContact(true);
             end;
         }
         field(10; "Telex No."; Text[20])
