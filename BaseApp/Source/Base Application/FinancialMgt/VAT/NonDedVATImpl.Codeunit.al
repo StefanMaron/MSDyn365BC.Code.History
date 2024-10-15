@@ -666,6 +666,11 @@ codeunit 6201 "Non-Ded. VAT Impl."
         if not IsNonDeductibleVATEnabled() then
             exit;
 
+        if PurchaseLine."Non-Deductible VAT %" = 100 then begin
+            PurchaseLine."Non-Deductible VAT Base" := PurchaseLine."VAT Base Amount";
+            PurchaseLine."Non-Deductible VAT Amount" := PurchaseLine."Amount Including VAT" - PurchaseLine."VAT Base Amount" - PurchaseLine."VAT Difference";
+            exit;
+        end;
         PurchaseLine."Non-Deductible VAT Base" :=
             Round(
                 CurrExchRate.ExchangeAmtFCYToLCY(

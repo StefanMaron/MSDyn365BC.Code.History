@@ -1458,7 +1458,7 @@ report 840 "Suggest Worksheet Lines"
 
     local procedure InsertOrModifyCFLine(InsertConditionHasBeenMetAlready: Boolean)
     begin
-        CFWorksheetLine2."Amount (LCY)" += TempCFWorksheetLine."Amount (LCY)";
+        CFWorksheetLine2."Amount (LCY)" := TempCFWorksheetLine."Amount (LCY)";
         if InsertConditionHasBeenMetAlready then
             TempCFWorksheetLine.Modify()
         else
