@@ -310,8 +310,8 @@ codeunit 141057 "ERM Prepayment APAC"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        GeneralPostingSetup.Validate("Sales Prepayments Account", CreateGLAccount);
-        GeneralPostingSetup.Validate("Purch. Prepayments Account", CreateGLAccount);
+        GeneralPostingSetup."Sales Prepayments Account" := CreateGLAccount;
+        GeneralPostingSetup."Purch. Prepayments Account" := CreateGLAccount;
         GeneralPostingSetup.Modify(true);
     end;
 
