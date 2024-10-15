@@ -42,7 +42,7 @@
         TaxDetail: Record "Tax Detail";
         UnrealizedCustLedgEntry: Record "Cust. Ledger Entry";
         UnrealizedVendLedgEntry: Record "Vendor Ledger Entry";
-        GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
+        TempGLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link" temporary;
         TempVATEntry: Record "VAT Entry" temporary;
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
@@ -668,7 +668,7 @@
 
                 OnBeforeInsertVATEntry(VATEntry, GenJnlLine);
                 VATEntry.Insert(true);
-                GLEntryVATEntryLink.InsertLink(TempGLEntryBuf."Entry No.", VATEntry."Entry No.");
+                TempGLEntryVATEntryLink.InsertLinkSelf(TempGLEntryBuf."Entry No.", VATEntry."Entry No.");
                 NextVATEntryNo := NextVATEntryNo + 1;
                 OnAfterInsertVATEntry(GenJnlLine, VATEntry, TempGLEntryBuf."Entry No.", NextVATEntryNo);
             end;
@@ -1435,6 +1435,7 @@
             GLReg."To VAT Entry No." := NextVATEntryNo - 1;
             GLReg."To Entry No." := GlobalGLEntry."Entry No.";
             UpdateGLReg(IsTransactionConsistent, GenJnlLine);
+            SetGLAccountNoInVATEntries();
         end;
         GlobalGLEntry.Consistent(IsTransactionConsistent);
 
@@ -2271,6 +2272,7 @@
             TempVATEntry."Add.-Currency Unrealized Amt." := 0;
             TempVATEntry."Add.-Currency Unrealized Base" := 0;
         end;
+        TempVATEntry."G/L Acc. No." := '';
         OnBeforeInsertTempVATEntry(TempVATEntry, GenJnlLine, VATEntry2);
         TempVATEntry.Insert();
     end;
@@ -4313,9 +4315,10 @@
         VATEntry."Sales Tax Connection No." := NextConnectionNo;
         VATEntry."Unrealized VAT Entry No." := VATEntry2."Entry No.";
         VATEntry."Base Before Pmt. Disc." := VATEntry.Base;
+        VATEntry."G/L Acc. No." := '';
         OnBeforeInsertPostUnrealVATEntry(VATEntry, GenJnlLine, VATEntry2);
         VATEntry.Insert(true);
-        GLEntryVATEntryLink.InsertLink(GLEntryNo + 1, NextVATEntryNo);
+        TempGLEntryVATEntryLink.InsertLinkSelf(GLEntryNo + 1, NextVATEntryNo);
         NextVATEntryNo := NextVATEntryNo + 1;
 
         VATEntry2."Remaining Unrealized Amount" :=
@@ -4831,7 +4834,6 @@
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATEntry2: Record "VAT Entry";
-        GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
         AccNo: Code[20];
         TempVATEntryNo: Integer;
         GLEntryNoFromVAT: Integer;
@@ -4872,7 +4874,7 @@
                         VATEntry2.Insert();
                         OnPostUnapplyOnAfterVATEntryInsert(VATEntry2, GenJnlLine, VATEntry);
                         if GLEntryNoFromVAT <> 0 then
-                            GLEntryVATEntryLink.InsertLink(GLEntryNoFromVAT, VATEntry2."Entry No.");
+                            TempGLEntryVATEntryLink.InsertLinkSelf(GLEntryNoFromVAT, VATEntry2."Entry No.");
                         GLEntryNoFromVAT := 0;
                         TempVATEntry.Delete();
                         IncrNextVATEntryNo;
@@ -5020,9 +5022,26 @@
             "Document No." := GenJnlLine."Document No.";
             "User ID" := UserId;
             "Transaction No." := NextTransactionNo;
+            "G/L Acc. No." := '';
             OnInsertTempVATEntryOnBeforeInsert(TempVATEntry, GenJnlLine);
             Insert;
         end;
+    end;
+
+    local procedure SetGLAccountNoInVATEntries();
+    var
+        GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
+        VATEntryEdit: Codeunit "VAT Entry - Edit";
+    begin
+        if TempGLEntryVATEntryLink.FindSet() then
+            repeat
+                GLEntryVATEntryLink.InsertLinkSelf(TempGLEntryVATEntryLink."G/L Entry No.", TempGLEntryVATEntryLink."VAT Entry No.");
+                if (TempGLEntryVATEntryLink."G/L Entry No." <> 0) then
+                    if TempGLEntryBuf.Get(TempGLEntryVATEntryLink."G/L Entry No.") then
+                        VATEntryEdit.SetGLAccountNo(TempGLEntryVATEntryLink."VAT Entry No.", TempGLEntryBuf."G/L Account No.");
+            until TempGLEntryVATEntryLink.Next() = 0;
+
+        TempGLEntryVATEntryLink.DeleteAll();
     end;
 
     local procedure ProcessTempVATEntry(DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var TempVATEntry: Record "VAT Entry" temporary)
@@ -5426,7 +5445,7 @@
                 VATEntry.Insert(true);
                 NextVATEntryNo := NextVATEntryNo + 1;
                 if VATEntry."Unrealized VAT Entry No." = 0 then
-                    GLEntryVATEntryLink.InsertLink(GLEntry."Entry No.", VATEntry."Entry No.");
+                    TempGLEntryVATEntryLink.InsertLinkSelf(GLEntry."Entry No.", VATEntry."Entry No.");
                 LinkedAmount += VATEntry.Amount + VATEntry.Base;
                 Complete := LinkedAmount = -(DtldCVLedgEntryBuf."Amount (LCY)" + DtldCVLedgEntryBuf."VAT Amount (LCY)");
                 LastEntryNo := TempVATEntry."Entry No.";

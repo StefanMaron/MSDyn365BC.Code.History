@@ -1359,6 +1359,49 @@ codeunit 134462 "ERM Copy Item"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    [HandlerFunctions('CopyItemSetTargetItemNosPageHandler,NoSeriesListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyItemWithTargetNoSeriesDiffFromInvtSetup()
+    var
+        InventorySetup: Record "Inventory Setup";
+        Item: Record Item;
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        TargetItemNo: Code[20];
+        NoSeriesCode: Code[20];
+    begin
+        // [FEATURE] [No. Series]
+        // [SCENARIO 413076] Copying item when target no. series has "Default Nos." = TRUE and default item no. series in Inventory Setup has "Default Nos." = FALSE.
+        Initialize();
+
+        // [GIVEN] Item "I".
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Set "Default Nos." = FALSE for default item no. series in Inventory Setup.
+        InventorySetup.Get();
+        NoSeries.Get(InventorySetup."Item Nos.");
+        NoSeries.Validate("Default Nos.", false);
+        NoSeries.Modify(true);
+
+        // [GIVEN] New no. series "ITEM-X" with next number "X-00001" and "Default Nos." = TRUE.
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
+        LibraryUtility.CreateNoSeriesRelationship(InventorySetup."Item Nos.", NoSeries.Code);
+        NoSeriesCode := NoSeries.Code;
+        TargetItemNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+
+        // [WHEN] Run "Item Copy" report for item "I" with parameter "Target No. Series" = "ITEM-X".
+        LibraryVariableStorage.Enqueue(NoSeriesCode);
+        CopyItem(Item."No.");
+
+        // [THEN] New item created with "No." = "X-00001".
+        VerifyItemGeneralInformation(TargetItemNo, Item.Description);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
