@@ -627,12 +627,13 @@ page 9233 "G/L Balance by Dim. Matrix"
             if MATRIX_CurrentColumnOrdinal <> 1 then
                 MATRIX_OnNextRecord(1 - MATRIX_CurrentColumnOrdinal);
         end;
-
+        SetColumnVisibility();
         FormatLine();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
+        FindNext := false;
         exit(FindRec(AnalysisByDimParameters."Line Dim Option", Rec, Which));
     end;
 
@@ -689,7 +690,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         end;
         AnalysisByDimParameters."Line Dim Option" := DimCodeToOption(LineDimCode);
         AnalysisByDimParameters."Column Dim Option" := DimCodeToOption(ColumnDimCode);
-
+        InitRecord(Rec, AnalysisByDimParameters."Line Dim Option");
         CalculateClosingDateFilter();
 
         MATRIX_NoOfMatrixColumns := ArrayLen(MATRIX_CellData);
@@ -789,6 +790,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         [InDataSet]
         Field32Visible: Boolean;
         Emphasize: Boolean;
+        FindNext: Boolean;
 
         Text001: Label 'Period';
 
@@ -831,12 +833,18 @@ page 9233 "G/L Balance by Dim. Matrix"
         BusUnit: Record "Business Unit";
         Period: Record Date;
         DimVal: Record "Dimension Value";
+        DimensionCodeBuffer: Record "Dimension Code Buffer";
         PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         OnBeforeFindRec(DimOption, DimVal);
         case DimOption of
             DimOption::"G/L Account":
                 begin
+                    if (DimCodeBuf.Code <> '') or (not (DimensionCodeBuffer.Get(DimCodeBuf.Code))) then begin
+                        FindNext := true;
+                        exit(DimCodeBuf.Find(Which));
+                    end;
+                    DimCodeBuf.DeleteAll();
                     GLAcc."No." := DimCodeBuf.Code;
                     if AnalysisByDimParameters."Account Filter" <> '' then
                         GLAcc.SetFilter("No.", AnalysisByDimParameters."Account Filter");
@@ -907,6 +915,8 @@ page 9233 "G/L Balance by Dim. Matrix"
         case DimOption of
             DimOption::"G/L Account":
                 begin
+                    if FindNext then
+                        exit(DimCodeBuf.Next(Steps));
                     GLAcc."No." := DimCodeBuf.Code;
                     if AnalysisByDimParameters."Account Filter" <> '' then
                         GLAcc.SetFilter("No.", AnalysisByDimParameters."Account Filter");
@@ -967,6 +977,7 @@ page 9233 "G/L Balance by Dim. Matrix"
             Totaling := TheGLAcc.Totaling;
             Indentation := TheGLAcc.Indentation;
             "Show in Bold" := TheGLAcc."Account Type" <> TheGLAcc."Account Type"::Posting;
+            Insert();
         end;
     end;
 
@@ -1510,6 +1521,24 @@ page 9233 "G/L Balance by Dim. Matrix"
     begin
         DimensionManagement.ResolveDimValueFilter(DimValueFilter, DimensionCode);
         exit(DimValueFilter);
+    end;
+
+    local procedure InitRecord(var DimCodeBuf: Record "Dimension Code Buffer"; DimOption: Enum "Analysis Dimension Option")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        case DimOption of
+            DimOption::"G/L Account":
+                begin
+                    if AnalysisByDimParameters."Account Filter" <> '' then
+                        GLAccount.SetFilter("No.", AnalysisByDimParameters."Account Filter");
+                    if GLAccount.FindSet() then
+                        repeat
+                            CopyGLAccToBuf(GLAccount, DimCodeBuf);
+                        until GLAccount.Next() = 0;
+                end;
+        end;
+        if Rec.FindFirst() then;
     end;
 
     [IntegrationEvent(true, false)]
