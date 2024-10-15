@@ -149,6 +149,10 @@ codeunit 2 "Company-Initialize"
         SEPACTNameTxt: Label 'SEPA Credit Transfer';
         SEPADDCodeTxt: Label 'SEPADD', Comment = 'No need to translate - but can be translated at will.';
         SEPADDNameTxt: Label 'SEPA Direct Debit';
+        SEPACTCode09Txt: Label 'SEPACTPAIN00100109', Locked = true;
+        SEPACTName09Txt: Label 'SEPA Credit Transfer pain.001.001.09';
+        SEPADDCode08Txt: Label 'SEPADDPAIN00800108', Locked = true;
+        SEPADDName08Txt: Label 'SEPA Direct Debit pain.008.001.08';
         Text001: Label 'SALES';
         Text002: Label 'Sales';
         Text003: Label 'PURCHASES';
@@ -278,8 +282,12 @@ codeunit 2 "Company-Initialize"
         SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral';
         SwissSEPACTCodeTxt: Label 'SEPACT SWISS', Comment = 'No need to translate - but can be translated at will.';
         SwissSEPACTNameTxt: Label 'Swiss SEPA Credit Transfer';
+        SwissSEPACTCode09Txt: Label 'SEPACTSWISS 00100109', Comment = 'No need to translate - but can be translated at will.';
+        SwissSEPACTName09Txt: Label 'Swiss SEPA Credit Transfer pain.001.001.09';
         SwissSEPADDCodeTxt: Label 'SEPADD SWISS', Comment = 'No need to translate - but can be translated at will.';
         SwissSEPADDNameTxt: Label 'Swiss SEPA Direct Debit';
+        SwissSEPADDCode08Txt: Label 'SEPADDSWISS 00800108', Comment = 'No need to translate - but can be translated at will.';
+        SwissSEPADDName08Txt: Label 'Swiss SEPA Direct Debit pain.008.001.08';
         ProductionOrderLbl: Label 'PRODUCTION';
         ProductionOrderTxt: Label 'Production Order';
 
@@ -610,7 +618,55 @@ codeunit 2 "Company-Initialize"
               CODEUNIT::"Swiss SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.03", CODEUNIT::"SEPA CT-Check Line");
             InsertBankExportImportSetup(SwissSEPADDCodeTxt, SwissSEPADDNameTxt, BankExportImportSetup.Direction::Export,
               CODEUNIT::"Swiss SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02.ch03", CODEUNIT::"SEPA DD-Check Line");
+            InsertBankExportImportSetup(SEPACTCode09Txt, SEPACTName09Txt, BankExportImportSetup.Direction::Export,
+              CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.09", CODEUNIT::"SEPA CT-Check Line");
+            InsertBankExportImportSetup(SEPADDCode08Txt, SEPADDName08Txt, BankExportImportSetup.Direction::Export,
+              CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.08", CODEUNIT::"SEPA DD-Check Line");
+            InsertBankExportImportSetup(SwissSEPACTCode09Txt, SwissSEPACTName09Txt, BankExportImportSetup.Direction::Export,
+              CODEUNIT::"Swiss SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.09", CODEUNIT::"SEPA CT-Check Line");
+            InsertBankExportImportSetup(SwissSEPADDCode08Txt, SwissSEPADDName08Txt, BankExportImportSetup.Direction::Export,
+              CODEUNIT::"Swiss SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.08", CODEUNIT::"SEPA CT-Check Line");
         end;
+    end;
+
+    procedure GetSEPACT09Code(): Code[20]
+    begin
+        exit(SEPACTCode09Txt);
+    end;
+
+    procedure GetSEPADD08Code(): Code[20]
+    begin
+        exit(SEPADDCode08Txt);
+    end;
+
+    procedure GetSwissSEPACT09Code(): Code[20]
+    begin
+        exit(SwissSEPACTCode09Txt);
+    end;
+
+    procedure GetSEPACT09Name(): Text[100]
+    begin
+        exit(SEPACTName09Txt);
+    end;
+
+    procedure GetSwissSEPACT09Name(): Text[100]
+    begin
+        exit(SwissSEPACTName09Txt);
+    end;
+
+    procedure GetSEPADD08Name(): Text[100]
+    begin
+        exit(SEPADDName08Txt);
+    end;
+
+    procedure GetSwissSEPADD08Code(): Code[20]
+    begin
+        exit(SwissSEPADDCode08Txt);
+    end;
+
+    procedure GetSwissSEPADD08Name(): Text[100]
+    begin
+        exit(SwissSEPADDName08Txt);
     end;
 
     local procedure InitDocExchServiceSetup()
@@ -705,7 +761,7 @@ codeunit 2 "Company-Initialize"
         JobWIPMethod.Insert();
     end;
 
-    local procedure InsertBankExportImportSetup(CodeTxt: Text[20]; NameTxt: Text[100]; DirectionOpt: Option; CodeunitID: Integer; XMLPortID: Integer; CheckCodeunitID: Integer)
+    internal procedure InsertBankExportImportSetup(CodeTxt: Text[20]; NameTxt: Text[100]; DirectionOpt: Option; CodeunitID: Integer; XMLPortID: Integer; CheckCodeunitID: Integer)
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin

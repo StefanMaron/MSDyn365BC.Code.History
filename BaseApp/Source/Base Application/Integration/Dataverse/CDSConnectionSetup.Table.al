@@ -579,22 +579,23 @@ table 7200 "CDS Connection Setup"
 
     end;
 
-    [Scope('OnPrem')]
     procedure EnsureCRMConnectionSetupIsDisabled()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        ErrorInfo: ErrorInfo;
     begin
-        if not CRMConnectionSetup.Get() then
-            exit;
+        OnEnsureConnectionSetupIsDisabled();
 
-        if not CRMConnectionSetup.IsEnabled() then
-            exit;
-
-        if CRMConnectionSetup."Server Address" = TestServerAddressTok then
-            exit;
-
-        Session.LogMessage('0000D3R', CRMConnEnabledTelemetryErr, Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-        Error(CRMConnEnabledErr);
+        if CRMConnectionSetup.Get() then
+            if CRMConnectionSetup.IsEnabled() then
+                if CRMConnectionSetup."Server Address" <> TestServerAddressTok then begin
+                    Session.LogMessage('0000D3R', CRMConnEnabledTelemetryErr, Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    ErrorInfo.Message := CRMConnEnabledErr;
+                    ErrorInfo.AddAction(LearnMoreLbl, Codeunit::"CDS Integration Impl.", 'LearnMoreDisablingCRMConnection', LearnMoreDescriptionLbl);
+                    ErrorInfo.AddNavigationAction(ShowCRMConnectionSetupLbl, ShowCRMConnectionSetupDescLbl);
+                    ErrorInfo.PageNo(Page::"CRM Connection Setup");
+                    Error(ErrorInfo);
+                end;
     end;
 
     local procedure UpdateCDSJobQueueEntriesStatus()
@@ -634,6 +635,11 @@ table 7200 "CDS Connection Setup"
         exit(100);
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnEnsureConnectionSetupIsDisabled()
+    begin
+    end;
+
     var
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
@@ -654,4 +660,8 @@ table 7200 "CDS Connection Setup"
         TransferringConnectionValuesFromCRMConnectionsetupTxt: Label 'Transferring connection string values from Dynamics 365 sales connection setup to Dataverse connection setup', Locked = true;
         TestServerAddressTok: Label '@@test@@', Locked = true;
         DefaultingToDataverseServiceClientTxt: Label 'Defaulting to DataverseServiceClient', Locked = true;
+        LearnMoreLbl: Label 'Learn more';
+        LearnMoreDescriptionLbl: Label 'Read more about disabling connection.';
+        ShowCRMConnectionSetupLbl: Label 'Sales Integration Setup';
+        ShowCRMConnectionSetupDescLbl: Label 'Shows Dynamics 365 Sales Integration Setup page where you can disable the connection.';
 }

@@ -286,7 +286,7 @@ codeunit 5005271 "Create Delivery Reminder"
 
     local procedure InsertTextLines(DeliveryReminder: Record "Delivery Reminder Header")
     begin
-        if DeliveryReminderText.Find('-') then begin
+        if DeliveryReminderText.FindSet() then begin
             if DeliveryReminderText.Position = DeliveryReminderText.Position::Ending then
                 InsertBlankLine();
             repeat
@@ -303,7 +303,7 @@ codeunit 5005271 "Create Delivery Reminder"
                       DeliveryReminder."Reminder Terms Code"),
                     1,
                     MaxStrLen(DeliveryReminderLine.Description));
-                OnBeforeDeliveryReminderTextLineInsert(DeliveryReminderLine);
+                OnBeforeDeliveryReminderTextLineInsert(DeliveryReminderLine, DeliveryReminderText);
                 DeliveryReminderLine.Insert();
             until DeliveryReminderText.Next() = 0;
             if DeliveryReminderText.Position = DeliveryReminderText.Position::Beginning then
@@ -331,7 +331,7 @@ codeunit 5005271 "Create Delivery Reminder"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeliveryReminderTextLineInsert(var DeliveryReminderLine: Record "Delivery Reminder Line")
+    local procedure OnBeforeDeliveryReminderTextLineInsert(var DeliveryReminderLine: Record "Delivery Reminder Line"; DeliveryReminderText: Record "Delivery Reminder Text")
     begin
     end;
 

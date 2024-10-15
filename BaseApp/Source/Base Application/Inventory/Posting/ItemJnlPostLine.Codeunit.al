@@ -1482,7 +1482,7 @@ codeunit 22 "Item Jnl.-Post Line"
         end else
             QtyToPost := ProdOrderComp.GetNeededQty(CalcBasedOn::"Expected Output", true);
         QtyToPost := UOMMgt.RoundToItemRndPrecision(QtyToPost, CompItem."Rounding Precision");
-        OnPostFlushedConsumpOnAfterCalcQtyToPost(ProdOrder, ProdOrderLine, ProdOrderComp, OutputQtyBase, QtyToPost, OldItemJnlLine, ProdOrderRoutingLine);
+        OnPostFlushedConsumpOnAfterCalcQtyToPost(ProdOrder, ProdOrderLine, ProdOrderComp, OutputQtyBase, QtyToPost, OldItemJnlLine, ProdOrderRoutingLine, CompItem);
         if QtyToPost = 0 then
             exit;
 
@@ -2752,7 +2752,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
             ItemApplnEntry."Creation Date" := CurrentDateTime;
             ItemApplnEntry."Created By User" := UserId;
-            OnBeforeItemApplnEntryInsert(ItemApplnEntry, GlobalItemLedgEntry, OldItemLedgEntry);
+            OnBeforeItemApplnEntryInsert(ItemApplnEntry, GlobalItemLedgEntry, OldItemLedgEntry, ItemApplnEntryNo);
             ItemApplnEntry.Insert(true);
             OnAfterItemApplnEntryInsert(ItemApplnEntry, GlobalItemLedgEntry, OldItemLedgEntry);
         end;
@@ -4836,10 +4836,11 @@ codeunit 22 "Item Jnl.-Post Line"
         if GlobalItemTrackingSetup."Lot No. Required" and (ItemJnlLine."Lot No." = '') then
             Error(GetTextStringWithLineNo(LotNoRequiredErr, ItemJnlLine."Item No.", ItemJnlLine."Line No."));
 
-        OnCheckItemTrackingOnAfterCheckRequiredTrackingNos(ItemJnlLine, GlobalItemTrackingSetup);
-
-        if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then
-            ItemJnlLine.CheckNewTrackingIfRequired(GlobalItemTrackingSetup);
+        IsHandled := false;
+        OnCheckItemTrackingOnAfterCheckRequiredTrackingNos(ItemJnlLine, GlobalItemTrackingSetup, IsHandled);
+        if not IsHandled then
+            if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then
+                ItemJnlLine.CheckNewTrackingIfRequired(GlobalItemTrackingSetup);
 
         OnAfterCheckItemTracking(ItemJnlLine, GlobalItemTrackingSetup, GlobalItemTrackingCode);
     end;
@@ -5598,6 +5599,7 @@ codeunit 22 "Item Jnl.-Post Line"
         ValueEntry: Record "Value Entry";
     begin
         ValueEntry.SetCurrentKey("Item Ledger Entry Type", "Order No.", "Valuation Date");
+        ValueEntry.SetLoadFields("Valuation Date");
         ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
         ValueEntry.SetRange("Order No.", ItemLedgerEntry."Order No.");
         ValueEntry.SetRange("Order Line No.", ItemLedgerEntry."Order Line No.");
@@ -6185,7 +6187,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeItemApplnEntryInsert(var ItemApplicationEntry: Record "Item Application Entry"; GlobalItemLedgerEntry: Record "Item Ledger Entry"; OldItemLedgerEntry: Record "Item Ledger Entry")
+    local procedure OnBeforeItemApplnEntryInsert(var ItemApplicationEntry: Record "Item Application Entry"; GlobalItemLedgerEntry: Record "Item Ledger Entry"; OldItemLedgerEntry: Record "Item Ledger Entry"; var ItemApplnEntryNo: Integer)
     begin
     end;
 
@@ -6730,7 +6732,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostFlushedConsumpOnAfterCalcQtyToPost(ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComponent: Record "Prod. Order Component"; ActOutputQtyBase: Decimal; var QtyToPost: Decimal; var OldItemJournalLine: Record "Item Journal Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    local procedure OnPostFlushedConsumpOnAfterCalcQtyToPost(ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComponent: Record "Prod. Order Component"; ActOutputQtyBase: Decimal; var QtyToPost: Decimal; var OldItemJournalLine: Record "Item Journal Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var CompItem: Record Item)
     begin
     end;
 
@@ -7587,7 +7589,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckItemTrackingOnAfterCheckRequiredTrackingNos(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup")
+    local procedure OnCheckItemTrackingOnAfterCheckRequiredTrackingNos(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean)
     begin
     end;
 

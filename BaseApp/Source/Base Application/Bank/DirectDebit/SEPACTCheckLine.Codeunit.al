@@ -235,8 +235,8 @@ codeunit 1223 "SEPA CT-Check Line"
                 if VendorBankAccount."ESR Account No." = '' then
                     AddFieldEmptyError(GenJnlLine, VendorBankAccount.TableCaption(), VendorBankAccount.FieldCaption(VendorBankAccount."ESR Account No."), VendorBankAccount.Code);
             VendorBankAccount."Payment Form"::"Post Payment Domestic":
-                if VendorBankAccount."Giro Account No." = '' then
-                    AddFieldEmptyError(GenJnlLine, VendorBankAccount.TableCaption(), VendorBankAccount.FieldCaption(VendorBankAccount."Giro Account No."), VendorBankAccount.Code);
+                if VendorBankAccount.IBAN = '' then
+                    AddFieldEmptyError(GenJnlLine, VendorBankAccount.TableCaption(), VendorBankAccount.FieldCaption(VendorBankAccount.IBAN), VendorBankAccount.Code);
             VendorBankAccount."Payment Form"::"Bank Payment Domestic":
                 if (VendorBankAccount."Clearing No." = '') and (VendorBankAccount."SWIFT Code" = '') then
                     AddFieldEmptyError(GenJnlLine, VendorBankAccount.TableCaption(), VendorBankAccount.FieldCaption(VendorBankAccount."SWIFT Code"), VendorBankAccount.Code);

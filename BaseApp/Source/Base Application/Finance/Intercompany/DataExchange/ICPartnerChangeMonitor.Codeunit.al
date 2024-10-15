@@ -81,6 +81,9 @@ codeunit 489 "IC Partner Change Monitor"
     [EventSubscriber(ObjectType::Table, Database::"IC Partner", 'OnBeforeInsertEvent', '', false, false)]
     local procedure CheckPermissionsBeforeInsert(RunTrigger: Boolean; var Rec: Record "IC Partner")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if HasSensitiveFieldsSet(Rec) then
             CheckHasPermissionsToChangeSensitiveFields();
 

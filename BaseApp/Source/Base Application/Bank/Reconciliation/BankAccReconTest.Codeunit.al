@@ -47,6 +47,14 @@ codeunit 380 "Bank Acc. Recon. Test"
             BankAccountLedgerEntry.SetRange("Posting Date", 0D, BankAccReconciliation."Statement Date");
     end;
 
+    local procedure TotalOfClosedEntriesWithNoClosedAtDate(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"): Decimal
+    begin
+        BankAccountLedgerEntry.SetRange("Closed at Date", 0D);
+        BankAccountLedgerEntry.SetRange(Open, false);
+        BankAccountLedgerEntry.CalcSums(Amount);
+        exit(BankAccountLedgerEntry.Amount);
+    end;
+
     procedure TotalOutstandingBankTransactions(BankAccReconciliation: Record "Bank Acc. Reconciliation"): Decimal
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
@@ -59,6 +67,7 @@ codeunit 380 "Bank Acc. Recon. Test"
 
         BankAccountLedgerEntry.CalcSums(Amount);
         Total := BankAccountLedgerEntry.Amount;
+        Total -= TotalOfClosedEntriesWithNoClosedAtDate(BankAccountLedgerEntry);
 
         if BankAccReconciliation."Statement Type" = BankAccReconciliation."Statement Type"::"Payment Application" then begin
             // When the BankAccReconciliation is created from the Payment Reconciliation Journal:
@@ -95,6 +104,7 @@ codeunit 380 "Bank Acc. Recon. Test"
 
         BankAccountLedgerEntry.CalcSums(Amount);
         Total := BankAccountLedgerEntry.Amount;
+        Total -= TotalOfClosedEntriesWithNoClosedAtDate(BankAccountLedgerEntry);
 
         if BankAccReconciliation."Statement Type" = BankAccReconciliation."Statement Type"::"Payment Application" then begin
             // When the BankAccReconciliation is created from the Payment Reconciliation Journal:

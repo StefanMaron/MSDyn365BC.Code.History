@@ -34,6 +34,8 @@ codeunit 144352 "Swiss SEPA CT Export"
         IBANTypeErr: Label 'The IBAN type on the recipient bank account must match the payment reference type.';
         QRIBANErr: Label 'The recipient bank account has an IBAN that is of type QR-IBAN. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.';
         QRRefErr: Label 'The payment reference is a QR reference. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.';
+        IBANErr: Label 'Vendor Bank Account %1 must have a value in IBAN.', Comment = '%1 Vendor Bank Account Code.';
+        NoIBANErr: Label 'IBAN must have value in Vendor Bank Account.';
 
     [Test]
     [Scope('OnPrem')]
@@ -42,6 +44,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 220991] There is a Swiss SEPA CT "Bank Export/Import Setup" in demodata
         Assert.AreEqual('SEPACT SWISS', FindSwissSEPACTBankExpImpCode(), '');
+        Assert.AreEqual('SEPACTSWISS 00100109', FindLastSwissSEPACTBankExpImpCode(), '');
     end;
 
     [Test]
@@ -747,31 +750,6 @@ codeunit 144352 "Swiss SEPA CT Export"
 
         // [THEN] XML File has been exported with correct Swiss SEPA CT scheme for "Payment Type" = "1"
         VerifyXMLFile(GenJournalLine, FileName, MessageID, PaymentTypeGbl::"1");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure XMLExport_PaymentType21_Negative_BlankedGiroAccountNo()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        VendorBankAccount: Record "Vendor Bank Account";
-        VendorNo: Code[20];
-    begin
-        // [FEATURE] [XML] [Export]
-        // [SCENARIO 220991] Swiss SEPA CT export for "Payment Type" = "2.1" in case of blanked "Giro Account No."
-        Initialize();
-
-        // [GIVEN] Vendor with bank account having "Payment Form" = "Post Payment Domestic" and "Giro Account No." = ""
-        VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::"Post Payment Domestic", '', '', '', '');
-        // [GIVEN] Vendor payment journal line with "Currency Code" = ""
-        CreatePaymentJournalLine(GenJournalLine, VendorNo, '', '',
-          GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment);
-
-        // [WHEN] Export payments to file
-        asserterror GenJournalLine_XMLExport(GenJournalLine);
-
-        // [THEN] The file export has one or more errors (Vendor Bank Account "X" must have a value in Giro Account No.)
-        VerifyPaymentJnlExportErrorForBlankedVendorBankField(GenJournalLine, VendorBankAccount.FieldCaption("Giro Account No."));
     end;
 
     [Test]
@@ -2944,6 +2922,30 @@ codeunit 144352 "Swiss SEPA CT Export"
         Assert.IsFalse(CHMgt.IsSwissSEPACTExport(GenJournalLine), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure XMLExportPaymentTypeBlankedIBAN()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 532901] The Giro account number must not be entered but IBAN must be 
+        Initialize();
+
+        // [GIVEN] Vendor with bank account having "Payment Form" = "Post Payment Domestic" and IBAN is blank
+        VendorNo := CreateVendorWithBankAccount(PaymentFormGbl::"Post Payment Domestic", '', '', '', '');
+
+        // [GIVEN] Vendor payment journal line with "Currency Code" = ""
+        CreatePaymentJournalLine(GenJournalLine, VendorNo, '', '',
+          GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment);
+
+        // [WHEN] Export payments to file
+        asserterror GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] The IBAN must have value in Vendor Bank Account.
+        VerifyVendorBankAccountFieldIBAN(GenJournalLine);
+    end;
+
     local procedure Initialize()
     var
         GLSetup: Record "General Ledger Setup";
@@ -3407,15 +3409,20 @@ codeunit 144352 "Swiss SEPA CT Export"
 
     local procedure FindW1SEPACTBankExpImpCode(): Code[20]
     begin
-        exit(FindSEPACTBankExpImpCode(CODEUNIT::"SEPA CT-Export File"));
+        exit(FindFirstSEPACTBankExpImpCode(CODEUNIT::"SEPA CT-Export File"));
     end;
 
     local procedure FindSwissSEPACTBankExpImpCode(): Code[20]
     begin
-        exit(FindSEPACTBankExpImpCode(CODEUNIT::"Swiss SEPA CT-Export File"));
+        exit(FindFirstSEPACTBankExpImpCode(CODEUNIT::"Swiss SEPA CT-Export File"));
     end;
 
-    local procedure FindSEPACTBankExpImpCode(ProcDodeunitID: Integer): Code[20]
+    local procedure FindLastSwissSEPACTBankExpImpCode(): Code[20]
+    begin
+        exit(FindLastSEPACTBankExpImpCode(CODEUNIT::"Swiss SEPA CT-Export File"));
+    end;
+
+    local procedure FindFirstSEPACTBankExpImpCode(ProcDodeunitID: Integer): Code[20]
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
@@ -3427,6 +3434,18 @@ codeunit 144352 "Swiss SEPA CT Export"
             FindFirst();
             exit(Code);
         end;
+    end;
+
+    local procedure FindLastSEPACTBankExpImpCode(ProcDodeunitID: Integer): Code[20]
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+    begin
+        BankExportImportSetup.SetRange(Direction, BankExportImportSetup.Direction::Export);
+        BankExportImportSetup.SetRange("Processing Codeunit ID", ProcDodeunitID);
+        BankExportImportSetup.SetRange("Processing XMLport ID", XMLPORT::"SEPA CT pain.001.001.09");
+        BankExportImportSetup.SetRange("Check Export Codeunit", CODEUNIT::"SEPA CT-Check Line");
+        BankExportImportSetup.FindLast();
+        exit(BankExportImportSetup.Code);
     end;
 
     local procedure FindVendorBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; VendorNo: Code[20])
@@ -4001,6 +4020,43 @@ codeunit 144352 "Swiss SEPA CT Export"
         Assert.AreEqual(ArrayLen(VendorNo) - 1, LibraryXMLRead.GetNodesCount('CdOrPrtry'), '<CdOrPrtry> node count');
         LibraryXMLRead.VerifyNodeValueInSubtree('CdOrPrtry', 'Prtry', 'QRR');
         LibraryXMLRead.VerifyNodeValueInSubtree('CdOrPrtry', 'Cd', 'SCOR');
+    end;
+
+    local procedure VerifyPaymentJnlExportErrorTextIBAN(GenJournalLine: Record "Gen. Journal Line"; ExpectedText: Text)
+    var
+        PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
+    begin
+        PaymentJnlExportErrorText.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        PaymentJnlExportErrorText.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        PaymentJnlExportErrorText.SetRange("Journal Line No.", GenJournalLine."Line No.");
+        if PaymentJnlExportErrorText.FindFirst() then
+            Assert.AreEqual(PaymentJnlExportErrorText."Error Text", ExpectedText, NoIBANErr);
+    end;
+
+    local procedure VerifyPaymentJnlExportErrorForBlankedVendorBankFieldIBAN(GenJournalLine: Record "Gen. Journal Line"; VendorBankAccountFieldCaption: Text)
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(ExportHasErrorsErr);
+
+        VerifyPaymentJnlExportErrorTextIBAN(
+          GenJournalLine,
+          StrSubstNo(
+            FieldKeyBlankErr,
+            VendorBankAccount.TableCaption(), GenJournalLine."Recipient Bank Account", VendorBankAccountFieldCaption));
+    end;
+
+    local procedure VerifyVendorBankAccountFieldIBAN(GenJournalLine: Record "Gen. Journal Line")
+    var
+    begin
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(ExportHasErrorsErr);
+
+        VerifyPaymentJnlExportErrorTextIBAN(
+          GenJournalLine,
+          StrSubstNo(
+            IBANErr, GenJournalLine."Recipient Bank Account"));
     end;
 
     [RequestPageHandler]

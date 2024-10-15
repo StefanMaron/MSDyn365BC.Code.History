@@ -1229,6 +1229,96 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Swiss Inventory Cost. Reports - NamedType EndBalanceCaptionTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2038665092 - NamedType 152547236" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Swiss SEPA CT 09 Export - NamedType ExportHasErrorsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2038665092 - NamedType 565480431" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The %1 field must be filled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= field name. Example: The Name field must be filled.]D;]A;(LookupHint=Codeunit Swiss SEPA CT 09 Export - NamedType FieldBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2038665092 - NamedType 2630528958" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 must have a value in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=table name, %2=key field value, %3=field name. Example: Customer 10000 must have a value in Name.]D;]A;(LookupHint=Codeunit Swiss SEPA CT 09 Export - NamedType FieldKeyBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2038665092 - NamedType 1126073195" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong result of GetPaymentType]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Swiss SEPA CT 09 Export - NamedType GetPaymentTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2038665092 - NamedType 2957536715" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The IBAN type on the recipient bank account must match the payment reference type.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Swiss SEPA CT 09 Export - NamedType IBANTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2038665092 - NamedType 2053384910" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Payment of %1 %2 to vendor %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 document type, %2 Document No., %3 Vendor No.]D;]A;(LookupHint=Codeunit Swiss SEPA CT 09 Export - NamedType MessageToRecipientMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2038665092 - NamedType 3154088638" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The recipient bank account has an IBAN that is of type QR-IBAN. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Swiss SEPA CT 09 Export - NamedType QRIBANErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2038665092 - NamedType 2172708673" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The payment reference is a QR reference. This type requires that the recipient bank account has a SEPA CT export payment type that is type 3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Swiss SEPA CT 09 Export - NamedType QRRefErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2038665092 - NamedType 39523010" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[For vendor %1 and document %2, a reference number is defined. \The document type must be "Invoice".]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Swiss SEPA CT 09 Export - NamedType ReferenceNumberIsDefinedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2038665092 - NamedType 3066168974" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unknown Swiss SEPA CT export payment type.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Swiss SEPA CT 09 Export - NamedType UnknownSwissPaymentTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 498214539 - NamedType 152547236" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.]]></Val>
@@ -1265,6 +1355,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Swiss SEPA CT Export - NamedType GetPaymentTypeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 498214539 - NamedType 580978611" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Vendor Bank Account %1 must have a value in IBAN.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 Vendor Bank Account Code.]D;]A;(LookupHint=Codeunit Swiss SEPA CT Export - NamedType IBANErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 498214539 - NamedType 2957536715" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The IBAN type on the recipient bank account must match the payment reference type.]]></Val>
@@ -1281,6 +1380,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 document type, %2 Document No., %3 Vendor No.]D;]A;(LookupHint=Codeunit Swiss SEPA CT Export - NamedType MessageToRecipientMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 498214539 - NamedType 1342959396" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[IBAN must have value in Vendor Bank Account.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Swiss SEPA CT Export - NamedType NoIBANErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 498214539 - NamedType 3154088638" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

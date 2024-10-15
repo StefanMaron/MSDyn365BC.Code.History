@@ -2,7 +2,9 @@
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Journal;
+#if not CLEAN25
 using Microsoft.Integration.FieldService;
+#endif
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.Task;
@@ -32,7 +34,9 @@ using System.Integration.PowerBI;
 using System.Threading;
 using Microsoft.Projects.Project.Archive;
 using System.Visualization;
+#if not CLEAN25
 using Microsoft.Integration.Dataverse;
+#endif
 
 page 9015 "Job Project Manager RC"
 {
@@ -478,20 +482,32 @@ page 9015 "Job Project Manager RC"
                     RunObject = Page "Job Archive List";
                 }
             }
+#if not CLEAN25
             group("Group15")
             {
                 Caption = 'Dynamics 365 Field Service';
+                Visible = false;
+                ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';
+
                 action("Bookable Resources - Dynamics 365 Field Service")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Bookable Resources - Dynamics 365 Field Service';
                     RunObject = page "FS Bookable Resource List";
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 action("Customer Assets - Dynamics 365 Field Service")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Customer Assets - Dynamics 365 Field Service';
                     RunObject = page "FS Customer Asset List";
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 action("Records Skipped For Synchronization")
                 {
@@ -499,8 +515,12 @@ page 9015 "Job Project Manager RC"
                     Caption = 'Coupled Data Synchronization Errors';
                     RunObject = page "CRM Skipped Records";
                     AccessByPermission = TableData "CRM Integration Record" = R;
+                    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
             }
+#endif
         }
         area(processing)
         {

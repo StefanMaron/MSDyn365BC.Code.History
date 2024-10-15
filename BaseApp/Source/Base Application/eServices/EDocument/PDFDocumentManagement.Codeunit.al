@@ -1,12 +1,15 @@
 ﻿namespace Microsoft.EServices.EDocument;
 
 using Microsoft.Foundation.Company;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Contact;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Integration.Entity;
 using Microsoft.Integration.Graph;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
+using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using System.EMail;
 using System.Utilities;
@@ -24,8 +27,10 @@ codeunit 5467 "PDF Document Management"
         UnpostedSalesCreditMemoErr: Label 'You must post sales credit memo %1 before generating the PDF document.', Comment = '%1 - sales credit memo id';
         UnpostedPurchaseCreditMemoErr: Label 'You must post purchase credit memo %1 before generating the PDF document.', Comment = '%1 - purchase credit memo id';
         UnpostedPurchaseInvoiceErr: Label 'You must post purchase invoice %1 before generating the PDF document.', Comment = '%1 - sales credit memo id';
+        CannotFindContactErr: Label 'The Contact cannot be found with SystemtId %1,', Comment = '%1 - Contact System id';
         BlobEmptyErr: Label 'Opening the file failed.';
         CreditMemoTxt: Label 'Credit Memo';
+        CustomerStatementTxt: Label 'Customer Statement';
         PurchaseInvoiceTxt: Label 'Purchase Invoice';
 
     [Scope('OnPrem')]
@@ -138,6 +143,9 @@ codeunit 5467 "PDF Document Management"
         PurchInvHeader: Record "Purch. Inv. Header";
         ReportSelections: Record "Report Selections";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
         DocumentMailing: Codeunit "Document-Mailing";
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
@@ -194,6 +202,22 @@ codeunit 5467 "PDF Document Management"
                         ReportUsage := "Report Selection Usage"::"S.Cr.Memo";
                         ReportSelections.GetPdfReportForCust(TempBlob, ReportUsage, SalesCrMemoHeader, SalesCrMemoHeader."Sell-to Customer No.");
                         DocumentMailing.GetAttachmentFileName(Name, SalesCrMemoHeader."No.", CreditMemoTxt, ReportUsage.AsInteger());
+                        DocumentFound := true;
+                    end;
+                end;
+            DocumentType::"Customer Statement":
+                begin
+                    if not Contact.GetBySystemId(DocumentId) then
+                        error(CannotFindContactErr, DocumentId);
+                    Clear(Customer);
+                    ContactBusinessRelation.SetRange("Contact No.", Contact."Company No.");
+                    ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+                    if ContactBusinessRelation.FindFirst() then begin
+                        Customer.Get(ContactBusinessRelation."No.");
+                        Customer.SetRange("No.", Customer."No.");
+                        ReportUsage := "Report Selection Usage"::"C.Statement";
+                        ReportSelections.GetPdfReportForCust(TempBlob, ReportUsage, Customer, Customer."No.");
+                        DocumentMailing.GetAttachmentFileName(Name, Customer."No.", CustomerStatementTxt, ReportUsage.AsInteger());
                         DocumentFound := true;
                     end;
                 end;
