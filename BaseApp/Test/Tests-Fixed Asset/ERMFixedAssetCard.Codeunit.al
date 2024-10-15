@@ -607,6 +607,8 @@ codeunit 134456 "ERM Fixed Asset Card"
     begin
         // [FEATURE] [Disposal] [Book Value]
         // [SCENARIO 283324] Create FA document and disposed it. As a result should be 2 FA Ledger Entries Line.
+        // [SCENARIO 386725] Create FA document and disposed it. When you drill down on Fixed Asset card page all 3 relevant entries must be shown.
+
         // [GIVEN] FA Setup in place, and a disposed fixed asset with a default depreciation book and Amount = "A"
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
         FASetup.Get;
@@ -625,23 +627,23 @@ codeunit 134456 "ERM Fixed Asset Card"
         FALedgerEntriesList.Trap;
         FixedAssetCard.BookValue.DrillDown;
 
-        // [THEN] Page "FA Ledger Entries" have 1 line.
-        // [THEN] Page "FA Ledger Entries" showing 1 entries, where total "Amount" is "A",
-        // [THEN] First line's amount = "A" ,
-        // [THEN] "FA Posting Type" = "Book Value on Disposal" and "FA Posting Category" = 'Disposal'
+        // [THEN] Page "FA Ledger Entries" has 3 lines.
+        // [THEN] First is acquisition Line and there are two more
         FALedgerEntriesList.First;
         Assert.AreEqual(FALedgerEntriesList.Amount.Value, Format(BookValue), 'FA doc.');
         Assert.AreEqual(
+          Format(FALedgerEntry."FA Posting Type"::"Acquisition Cost"),
           FALedgerEntriesList."FA Posting Type".Value,
-          Format(FALedgerEntry."FA Posting Type"::"Book Value on Disposal"),
           FALedgerEntry.FieldCaption("FA Posting Type"));
         Assert.AreEqual(
+          Format(FALedgerEntry."FA Posting Category"::" "),
           FALedgerEntriesList."FA Posting Category".Value,
-          Format(FALedgerEntry."FA Posting Category"::Disposal),
           FALedgerEntry.FieldCaption("FA Posting Category"));
 
-        // [THEN] There are no more "FA Ledger Entries" lines.
-        Assert.IsFalse(FALedgerEntriesList.Next, 'No more records expected');
+        // [THEN] There are 3 records total shown
+        Assert.IsTrue(FALedgerEntriesList.Next, 'There must be a second record shown');
+        Assert.IsTrue(FALedgerEntriesList.Next, 'There must be a third record shown');
+        Assert.IsFalse(FALedgerEntriesList.Next, 'No more records must be shown');
 
         FALedgerEntriesList.Close;
         FixedAssetCard.Close;
