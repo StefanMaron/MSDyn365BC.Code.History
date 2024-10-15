@@ -2210,6 +2210,122 @@ codeunit 134301 "Workflow Notification Test"
         VerifyEmailBody(ExpectedValues,OnBeforeSendEmailTxt);
     end;
 
+    [Test]
+    procedure NotificationForSubstituteUserWhenDelegationJobQueueOwnedBySameUser()
+    var
+        SalesHeader: Record "Sales Header";
+        FirstApproverUserSetup: Record "User Setup";
+        CurrentUserSetup: Record "User Setup";
+        ApprovalEntry: Record "Approval Entry";
+        JobQueueEntry: Record "Job Queue Entry";
+        NotificationEntry: Record "Notification Entry";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        WorkflowSetup: Codeunit "Workflow Setup";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        RecRef: RecordRef;
+    begin
+        // [FEATURE] [Approval] [Notification]
+        // [SCENARIO 399026] Notification for Substitute user when Approval Entry is Overdue and Job Queue for delegation is owned by Substitute user.
+        Initialize();
+
+        // [GIVEN] Two users "U1" and "U2". "U2" is a current user and "U2" is set as Substitute for "U1".
+        CurrentUserSetup.Get(UserId);
+        LibraryDocumentApprovals.CreateMockupUserSetup(FirstApproverUserSetup);
+        LibraryDocumentApprovals.SetSubstitute(FirstApproverUserSetup, CurrentUserSetup);
+
+        // [GIVEN] Sales Document Approval Workflow "WF" where notification should be sent on approval delegation.
+        // [GIVEN] "WF" has Approver Type = "Approver" and Approver Limit Type = "Specific Approver", Approver ID = "U1".
+        // [GIVEN] Sales Invoice "SI" created by user "U2" and sent for approval.
+        CreateApprovalWorkflowForSalesDocWithDelegateNotification(FirstApproverUserSetup."User ID");
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesHeader.CalcFields(Amount);
+        ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
+
+        // [GIVEN] Approval Entry with Sender ID = "U2" and Approver ID = "U1" is created. Overdue is set to Yes for Approval Entry.
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId());
+        UpdateDelegationDateFormulaOnApprovalEntry(ApprovalEntry, '-2D');
+        NotificationEntry.DeleteAll();
+
+        // [GIVEN] Job Queue Entry "JQ" with Object Report "Delegate Approval Requests" and User ID = "U2".
+        WorkflowSetup.CreateJobQueueEntry(
+            JobQueueEntry."Object Type to Run"::Report, Report::"Delegate Approval Requests",
+            LibraryUtility.GenerateGUID(), CurrentDateTime(), 1440);
+
+        // [WHEN] Report "Delegate Approval Requests" is run in background using "JQ".
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Background);
+        BindSubscription(TestClientTypeSubscriber);
+        FindAndRunJobQueueEntry(JobQueueEntry."Object Type to Run"::Report, Report::"Delegate Approval Requests");
+
+        // [THEN] Approver ID was set to "U2" for Approval Entry.
+        VerifyDelegatedApprovalEntry(ApprovalEntry, CurrentUserSetup);
+
+        // [THEN] One Notification Entry with Type = Approval and Recepient User ID = "U2" (current user) was created.
+        Assert.RecordCount(NotificationEntry, 1);
+        RecRef.GetTable(ApprovalEntry);
+        VerifyNotifyMessageForSalesPurchDocs(
+            RecRef, 'Sales Invoice', SalesHeader."No.", SalesHeader."Currency Code",
+            'Customer', SalesHeader."Sell-to Customer Name", SalesHeader."Sell-to Customer No.", SalesHeader.Amount);
+    end;
+
+    [Test]
+    procedure NotificationForSenderWhenDelegationJobQueueOwnedSameUser()
+    var
+        SalesHeader: Record "Sales Header";
+        FirstApproverUserSetup: Record "User Setup";
+        SecondApproverUserSetup: Record "User Setup";
+        CurrentUserSetup: Record "User Setup";
+        ApprovalEntry: Record "Approval Entry";
+        JobQueueEntry: Record "Job Queue Entry";
+        NotificationEntry: Record "Notification Entry";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        WorkflowSetup: Codeunit "Workflow Setup";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        ExpectedValues: array[20] of Text;
+    begin
+        // [FEATURE] [Approval] [Notification]
+        // [SCENARIO 399026] Notification for Sender user when Approval Entry is Overdue and Job Queue for delegation is owned by Sender user.
+        Initialize();
+
+        // [GIVEN] Three users "U1", "U2" and current user "U3". "U2" is set as Substitute for "U1".
+        LibraryDocumentApprovals.CreateMockupUserSetup(FirstApproverUserSetup);
+        LibraryDocumentApprovals.CreateMockupUserSetup(SecondApproverUserSetup);
+        LibraryDocumentApprovals.SetSubstitute(FirstApproverUserSetup, SecondApproverUserSetup);
+        CurrentUserSetup.Get(UserId);
+
+        // [GIVEN] Sales Document Approval Workflow "WF" where notification should be sent on approval delegation.
+        // [GIVEN] "WF" has Approver Type = "Approver" and Approver Limit Type = "Specific Approver", Approver ID = "U1".
+        // [GIVEN] Sales Invoice "SI" created by current user "U3" and sent for approval.
+        CreateApprovalWorkflowForSalesDocWithDelegateNotification(FirstApproverUserSetup."User ID");
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
+
+        // [GIVEN] Approval Entry with Sender ID = "U3" and Approver ID = "U1" is created. Overdue is set to Yes for Approval Entry.
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId());
+        UpdateDelegationDateFormulaOnApprovalEntry(ApprovalEntry, '-2D');
+        NotificationEntry.DeleteAll();
+
+        // [GIVEN] Job Queue Entry "JQ" with Object Report "Delegate Approval Requests" and User ID = "U3".
+        WorkflowSetup.CreateJobQueueEntry(
+            JobQueueEntry."Object Type to Run"::Report, Report::"Delegate Approval Requests",
+            LibraryUtility.GenerateGUID(), CurrentDateTime(), 1440);
+
+        // [WHEN] Report "Delegate Approval Requests" is run in background using "JQ".
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Background);
+        BindSubscription(TestClientTypeSubscriber);
+        FindAndRunJobQueueEntry(JobQueueEntry."Object Type to Run"::Report, Report::"Delegate Approval Requests");
+
+        // [THEN] Approver ID was set to "U2" for Approval Entry.
+        VerifyDelegatedApprovalEntry(ApprovalEntry, SecondApproverUserSetup);
+
+        // [THEN] Two Notification Entries with Type = Approval and Recepient User ID = "U2"/"U3" were created.
+        ExpectedValues[1] := 'Sales Invoice';
+        ExpectedValues[2] := Format(SalesHeader."No.");
+        ExpectedValues[3] := 'requires your approval.';
+        Assert.RecordCount(NotificationEntry, 2);
+        VerifyNotificationsForRecipient(SecondApproverUserSetup."User ID", ExpectedValues);
+        VerifyNotificationsForRecipient(CurrentUserSetup."User ID", ExpectedValues);
+    end;
+
     local procedure Initialize()
     var
         UserSetup: Record "User Setup";
@@ -2977,6 +3093,19 @@ codeunit 134301 "Workflow Notification Test"
         UpdateApprovalEntrySenderApprover(ApprovalEntry, NewSenderUserCode, NewApproverUserCode);
     end;
 
+    local procedure FindAndRunJobQueueEntry(ObjectTypeToRun: Option; ObjectIDToRun: Integer)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.SetRange("Object Type to Run", ObjectTypeToRun);
+        JobQueueEntry.SetRange("Object ID to Run", ObjectIDToRun);
+        JobQueueEntry.FindFirst();
+        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+        JobQueueEntry.Modify();
+
+        Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+    end;
+
     local procedure UpdateApprovalEntrySenderApproverForGroupMember(var ApprovalEntry: Record "Approval Entry"; RecID: RecordID; SequenceNo: Integer; NewSenderUserCode: Code[50]; NewApproverUserCode: Code[50])
     begin
         ApprovalEntry.SetRange("Record ID to Approve", RecID);
@@ -2996,6 +3125,12 @@ codeunit 134301 "Workflow Notification Test"
     begin
         ApprovalEntry.Status := NewStatusOption;
         ApprovalEntry.Modify();
+    end;
+
+    local procedure UpdateDelegationDateFormulaOnApprovalEntry(var ApprovalEntry: Record "Approval Entry"; DelegationDateFormula: Text)
+    begin
+        Evaluate(ApprovalEntry."Delegation Date Formula", DelegationDateFormula);
+        ApprovalEntry.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -3158,6 +3293,49 @@ codeunit 134301 "Workflow Notification Test"
         RejectResponse :=
             LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RejectAllApprovalRequestsCode, SecondStepID);
         LibraryWorkflow.SetNotifySenderInResponse(Workflow.Code, RejectResponse);
+
+        LibraryWorkflow.EnableWorkflow(Workflow);
+    end;
+
+    local procedure CreateApprovalWorkflowForSalesDocWithDelegateNotification(ApproverUserID: Code[50])
+    var
+        Workflow: Record Workflow;
+        WorkflowStep: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+        EntryPointStepID: Integer;
+        FirstResponse: Integer;
+        DelegateResponse: Integer;
+        SecondResponse: Integer;
+        SecondStepID: Integer;
+    begin
+        LibraryWorkflow.CreateWorkflow(Workflow);
+
+        EntryPointStepID :=
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
+
+        FirstResponse :=
+          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode, EntryPointStepID);
+
+        SecondResponse :=
+          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode, FirstResponse);
+
+        WorkflowStep.SetRange(ID, FirstResponse);
+        WorkflowStep.FindFirst;
+        LibraryWorkflow.UpdateWorkflowStepArgumentApproverLimitType(
+          WorkflowStep.Argument, WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Specific Approver", '', ApproverUserID);
+
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        WorkflowStepArgument."Notify Sender" := true;
+        WorkflowStepArgument.Modify();
+
+        SecondStepID :=
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode(), SecondResponse);
+
+        DelegateResponse :=
+            LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(), SecondStepID);
+        LibraryWorkflow.SetNotifySenderInResponse(Workflow.Code, DelegateResponse);
 
         LibraryWorkflow.EnableWorkflow(Workflow);
     end;

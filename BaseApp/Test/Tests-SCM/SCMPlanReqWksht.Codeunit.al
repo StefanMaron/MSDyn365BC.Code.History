@@ -3218,6 +3218,49 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         RequisitionLine.TestField("Vendor No.", StockkeepingUnit."Vendor No.");
     end;
 
+    [Test]
+    procedure RequestedReceiptDateInPurchaseEqualToPlanDeliveryDateOnSalesForDropShipment()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Item: Record Item;
+        Purchasing: Record Purchasing;
+        SalesLine: Record "Sales Line";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+        DefaultLeadTimeDateFormula: DateFormula;
+    begin
+        // [FEATURE] [Drop Shipment] [Get Sales Orders]
+        // [SCENARIO 404883] Lead time settings are not applied when planning drop shipment.
+        Initialize();
+        Evaluate(DefaultLeadTimeDateFormula, '<1D>');
+
+        // [GIVEN] Ensure "Default Safety Lead Time" is not blank in Manufacturing Setup.
+        ManufacturingSetup.Get;
+        ManufacturingSetup.Validate("Default Safety Lead Time", DefaultLeadTimeDateFormula);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Item with vendor.
+        LibraryInventory.CreateItem(Item);
+        UpdateItemVendorNo(Item, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Sales order for drop shipment.
+        LibraryPurchase.CreateDropShipmentPurchasingCode(Purchasing);
+        CreateSalesOrderWithPurchasingCode(SalesLine, '', Item."No.", '', Purchasing.Code, LibraryRandom.RandInt(10));
+
+        // [WHEN] Open requisition worksheet and go to "Drop Shipment" - "Get Sales Orders".
+        CreateRequisitionLine(RequisitionLine);
+        LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, 0);
+
+        // [THEN] Expected receipt date on a new purchase line for drop shipment is equal to the shipment date on sales line.
+        FindRequisitionLineForItem(RequisitionLine, Item."No.");
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        PurchaseLine.SetRange("Sales Order No.", SalesLine."Document No.");
+        PurchaseLine.SetRange("Sales Order Line No.", SalesLine."Line No.");
+        PurchaseLine.SetRange("No.", SalesLine."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField("Requested Receipt Date", SalesLine."Planned Delivery Date");
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
