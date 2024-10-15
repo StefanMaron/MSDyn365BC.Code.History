@@ -721,6 +721,46 @@
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure PostedPurchaseInvoiceFCYWithProvincialTaxAndExpensePosting()
+    var
+        Vendor: Record Vendor;
+        TaxArea, ProvincialTaxArea : Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLAccount: Record "G/L Account";
+        CurrencyCode: Code[10];
+        UnitCost: Decimal;
+
+    begin
+        // [FEATURE] [Purchase] [Invoice] [FCY]
+        // [SCENARIO 494849] Stan posts FCY Purchase Invoice with Expense/Capitalize tax
+        Initialize();
+        UpdatePurchaseSetup(false);
+
+        // [GIVEN] Sales Tax setup with "Tax Below Maximum" = 8, "Expense/Capitalize" = TRUE Exchangerate = 1.4286 and Direct unit Cost = 356.23
+        CreateTaxAreaWithCASetup(ProvincialTaxArea, TaxArea, TaxGroup);
+        CurrencyCode := CreateCurrencyWithExchangeRate(1 / 1.4286);
+        UnitCost := 356.23;
+
+        // VEndor and order gets created
+        CreateVendorWithTaxSetupAndCurrency(Vendor, TaxArea.Code, CurrencyCode);
+        CreatePurchaseOrderWithTaxSetupAndCurrency(PurchaseHeader, Vendor."No.", TaxArea.Code, CurrencyCode);
+        PurchaseHeader."Provincial Tax Area Code" := ProvincialTaxArea.Code;
+        PurchaseHeader.Modify();
+
+        CreateGLAccountWithPurchaseTaxSetup(GLAccount, TaxGroup.Code);
+        CreatePurchaseLineWithJob(PurchaseLine, PurchaseHeader, GLAccount."No.", '', '', UnitCost);
+        PurchaseLine."Tax Area Code" := TaxArea.code;
+        PurchaseLine."Provincial Tax Area Code" := ProvincialTaxArea.code;
+        PurchaseLine.modify();
+
+        // [THEN] Orders post succesfully 
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
+    [Test]
     [HandlerFunctions('PurchOrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure VerifyTaxAmountOnPurchaseOrderReport()
@@ -787,6 +827,35 @@
     begin
         ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 20, 2);
         exit(CreateCurrencyWithExchangeRate(ExchangeRateAmount));
+    end;
+
+    Local procedure SetCountyCode(Var TaxArea: Record "Tax Area"; Country: Option US,CA)
+    var
+        TaxAreaLine: Record "Tax Area Line";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+    begin
+        TaxAreaLine.SetRange("Tax Area", TaxArea.Code);
+        if TaxAreaLine.Find('-') then
+            repeat
+                TaxJurisdiction.Get(TaxAreaLine."Tax Jurisdiction Code");
+                TaxJurisdiction."Country/Region" := Country;
+                TaxJurisdiction.Modify();
+            until TaxAreaLine.Next() = 0;
+        TaxArea.Validate("Country/Region", TaxArea."Country/Region"::CA);
+        TaxArea.Modify(true);
+    end;
+
+    local procedure CreateTaxAreaWithCASetup(Var ProvincialTaxArea: Record "Tax Area"; TaxArea: Record "Tax Area"; var TaxGroup: Record "Tax Group");
+    var
+        Country: Option US,CA;
+    begin
+        LibraryERM.CreateTaxArea(ProvincialTaxArea);
+        CreateSalesTaxSetup(TaxArea, TaxGroup);
+        CreateTaxJurisdictionWithTaxRate(TaxArea.Code, TaxGroup.Code, 0, false);
+        CreateTaxJurisdictionWithTaxRate(ProvincialTaxArea.Code, TaxGroup.Code, 8, false);
+
+        SetCountyCode(TaxArea, Country::CA);
+        SetCountyCode(ProvincialTaxArea, Country::CA);
     end;
 
     local procedure CreateCurrencyWithExchangeRate(ExchangeRateAmount: Decimal): Code[10]
@@ -940,6 +1009,7 @@
         CreateSalesTaxSetup(TaxArea, TaxGroup);
         CreateTaxJurisdictionWithTaxRate(TaxArea.Code, TaxGroup.Code, TaxPercent, ExpenseCapitalize);
     end;
+
 
     local procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; SalesTaxRate: Decimal; ExpenseTax: Boolean)
     begin
