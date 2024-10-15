@@ -119,7 +119,8 @@ table 7000 "Price List Header"
                 if not "Allow Updating Defaults" then begin
                     CopyTo(PriceSource);
                     PriceSource.VerifyAmountTypeForSourceType("Amount Type");
-                end;
+                end else
+                    VerifyAmountTypeForCustPriceAndDiscountGroup();
             end;
         }
         field(10; "Currency Code"; Code[10])
@@ -611,6 +612,7 @@ table 7000 "Price List Header"
             exit(false);
         PriceListLine.SetRange("Price List Code", Code);
         PriceListLine.SetRange(Status, Status::Draft);
+        PriceListLine.SetRange(SystemModifiedBy, UserSecurityId());
         exit(not PriceListLine.IsEmpty());
     end;
 
@@ -679,6 +681,15 @@ table 7000 "Price List Header"
             TestField("Source No.")
         else
             TestField("Source No.", '');
+    end;
+
+    local procedure VerifyAmountTypeForCustPriceAndDiscountGroup()
+    begin
+        if not ("Source Type" in ["Source Type"::"Customer Price Group", "Source Type"::"Customer Disc. Group"]) then
+            exit;
+
+        CopyTo(PriceSource);
+        PriceSource.VerifyAmountTypeForSourceType("Amount Type");
     end;
 
     [IntegrationEvent(false, false)]

@@ -522,7 +522,14 @@ page 9253 "Dim. Value Combinations Matrix"
     end;
 
     procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record "Dimension Value"; _Row: Code[20]; CurrentNoOfMatrixColumn: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLoad(MatrixColumns1, MatrixRecords1, _Row, CurrentNoOfMatrixColumn, IsHandled);
+        if IsHandled then
+            exit;
+
         CopyArray(MATRIX_ColumnCaption, MatrixColumns1, 1);
         CopyArray(MatrixRecords, MatrixRecords1, 1);
         MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumn;
@@ -658,6 +665,11 @@ page 9253 "Dim. Value Combinations Matrix"
         Field30Visible := MATRIX_CurrentNoOfMatrixColumn >= 30;
         Field31Visible := MATRIX_CurrentNoOfMatrixColumn >= 31;
         Field32Visible := MATRIX_CurrentNoOfMatrixColumn >= 32;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLoad(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record "Dimension Value"; _Row: Code[20]; CurrentNoOfMatrixColumn: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

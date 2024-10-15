@@ -181,7 +181,7 @@ codeunit 1100 "Cost Account Mgt"
                             CostType."G/L Account Range" := "No."
                         else
                             CostType."G/L Account Range" := '';
-
+                        OnUpdateCostTypeFromGLAccOnInsertOrModifyCostTypeBeforeModify(CostType);
                         CostType.Modify();
                         "Cost Type No." := CostType."No.";
                     end;
@@ -193,6 +193,7 @@ codeunit 1100 "Cost Account Mgt"
                     if CostType.Get(xGLAcc."No.") then begin
                         CostType.Rename(GLAcc."No.");
                         CostType."G/L Account Range" := GLAcc."No.";
+                        OnUpdateCostTypeFromGLAccOnRenameCostTypeBeforeModify(CostType);
                         CostType.Modify();
                         GLAcc."Cost Type No." := GLAcc."No.";
                     end else
@@ -393,13 +394,14 @@ codeunit 1100 "Cost Account Mgt"
         GLAcc.ModifyAll("Cost Type No.", '');
         CostType.SetRange(Type, CostType.Type::"Cost Type");
         CostType.SetFilter("G/L Account Range", '<>%1', '');
+        OnLinkCostTypesToGLAccountsOnAfterCostTypeSetFilter(CostType);
         if CostType.FindSet() then
             repeat
                 Window.Update(1, CostType."No.");
                 NoOfCostTypes := NoOfCostTypes + 1;
                 GLAcc.SetFilter("No.", CostType."G/L Account Range");
                 GLAcc.SetRange("Income/Balance", GLAcc."Income/Balance"::"Income Statement");
-                OnLinkCostTypesToGLAccountsOnAfterSetFilters(GLAcc);
+                OnLinkCostTypesToGLAccountsOnAfterSetFilters(GLAcc, CostType);
                 if GLAcc.FindSet() then
                     repeat
                         if GLAcc."Cost Type No." <> '' then begin
@@ -909,6 +911,7 @@ codeunit 1100 "Cost Account Mgt"
         GLAccCheck: Record "G/L Account";
     begin
         GLAccCheck.SetFilter("No.", CostType."G/L Account Range");
+        OnIsGLAccNoFirstFromRangeOnAfterGLAccSetFilter(CostType, GLAccCHeck);
         if GLAccCheck.FindFirst() then
             exit(GLAccNo = GLAccCheck."No.");
 
@@ -927,12 +930,13 @@ codeunit 1100 "Cost Account Mgt"
             CostType.Reset();
             CostType.SetRange(Type, CostType.Type::"Cost Type");
             CostType.SetFilter("G/L Account Range", '<>%1', '');
+            OnGetCostTypeOnAfterCostTypeSetFilter(CostType);
             if CostType.FindSet() then
                 repeat
                     GLAcc.Reset();
                     GLAcc.SetRange("Income/Balance", GLAcc."Income/Balance"::"Income Statement");
                     GLAcc.SetFilter("No.", CostType."G/L Account Range");
-                    OnGetCostTypeOnAfterSetFilters(GLAcc);
+                    OnGetCostTypeOnAfterSetFilters(GLAcc, CostType);
                     if GLAcc.FindSet() then
                         repeat
                             if GLAccNo = GLAcc."No." then
@@ -998,12 +1002,22 @@ codeunit 1100 "Cost Account Mgt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetCostTypeOnAfterSetFilters(var GLAccount: Record "G/L Account")
+    local procedure OnGetCostTypeOnAfterSetFilters(var GLAccount: Record "G/L Account"; var CostType: Record "Cost Type")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLinkCostTypesToGLAccountsOnAfterSetFilters(var GLAccount: Record "G/L Account")
+    local procedure OnGetCostTypeOnAfterCostTypeSetFilter(var CostType: Record "Cost Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkCostTypesToGLAccountsOnAfterSetFilters(var GLAccount: Record "G/L Account"; var CostType: Record "Cost Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkCostTypesToGLAccountsOnAfterCostTypeSetFilter(var CostType: Record "Cost Type")
     begin
     end;
 
@@ -1029,6 +1043,21 @@ codeunit 1100 "Cost Account Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyDimValueToCostObject(DimValue: Record "Dimension Value"; var CostObject: Record "Cost Object")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsGLAccNoFirstFromRangeOnAfterGLAccSetFilter(var CostType: Record "Cost Type"; var GLAccountCheck: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCostTypeFromGLAccOnInsertOrModifyCostTypeBeforeModify(var CostType: Record "Cost Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCostTypeFromGLAccOnRenameCostTypeBeforeModify(var CostType: Record "Cost Type")
     begin
     end;
 }

@@ -33,9 +33,9 @@ codeunit 134380 "ERM Dimension"
         TestDim2Value: Code[20];
         ErrorText: Text[250];
         MandatoryError: Label 'A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. Select a Dimension Value Code for the Dimension Code %4 for Customer %5.';
-        SameCodeError: Label 'A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. Select Dimension Value Code %4 for the Dimension Code %5 for Customer %6.';
-        NoCodeError: Label 'A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. Dimension Code %4 must not be mentioned for Customer %5.';
-        CombinationError: Label 'A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. Select Dimension Value Code %4 for the Dimension Code %5.';
+        SameCodeOrNoCodeError: Label 'A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. The %4 must be %5 for %6 %7 for %8 %9. Currently it''s %10.', Comment = '%4 = "Dimension value code" caption, %5 = expected "Dimension value code" value, %6 = "Dimension code" caption, %7 = "Dimension Code" value, %8 = Table caption (Vendor), %9 = Table value (XYZ), %10 = current "Dimension value code" value';
+        BlankLbl: Label 'blank';
+        CombinationError: Label 'A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. The %4 must be %5 for %6 %7. Currently it''s %8.', Comment = '%4 = "Dimension value code" caption, %5 = expected "Dimension value code" value, %6 = "Dimension code" caption, %7 = "Dimension Code" value, %8 = current "Dimension value code" value';
         UnknownError: Label 'Unexpected Error.';
         GeneralLineMustNotExistError: Label 'General Journal Line must not exist.';
         BlockedErr: Label 'is blocked';
@@ -114,7 +114,7 @@ codeunit 134380 "ERM Dimension"
         // Necessary to be able to run possitive test after negative test.
         Commit();
 
-        ErrorText := StrSubstNo(SameCodeError, JournalTemplate, JournalBatch, GenJnlLine."Line No.", TestDimValue, TestDim, Customer."No.");
+        ErrorText := StrSubstNo(SameCodeOrNoCodeError, JournalTemplate, JournalBatch, GenJnlLine."Line No.", DefaultDimension.FieldCaption("Dimension Value Code"), DefaultDimension."Dimension Value Code", DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code", Customer.TableCaption, Customer."No.", TestDimValue2);
 
         NegativeTest(GenJnlLine, ErrorText);
         PossitiveTest(GenJnlLine, DimSetID);
@@ -141,7 +141,7 @@ codeunit 134380 "ERM Dimension"
         // Necessary to be able to run possitive test after negative test.
         Commit();
 
-        ErrorText := StrSubstNo(NoCodeError, JournalTemplate, JournalBatch, GenJnlLine."Line No.", TestDim, Customer."No.");
+        ErrorText := StrSubstNo(SameCodeOrNoCodeError, JournalTemplate, JournalBatch, GenJnlLine."Line No.", DefaultDimension.FieldCaption("Dimension Value Code"), BlankLbl, DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code", Customer.TableCaption, Customer."No.", TestDimValue);
 
         NegativeTest(GenJnlLine, ErrorText);
         PossitiveTest(GenJnlLine, 0);
@@ -196,8 +196,9 @@ codeunit 134380 "ERM Dimension"
         Commit();
 
         // [WHEN] Post the journal lines, where dimension value code is 'B'
-        // [THEN] Error message "Select Dimension Value Code A fro Customer C0001"
-        ErrorText := StrSubstNo(SameCodeError, JournalTemplate, JournalBatch, GenJnlLine."Line No.", TestDimValue, TestDim, Customer."No.");
+        // [THEN] Error: Dimension value has to be same as the default dimensions for the customer. 
+        ErrorText := StrSubstNo(SameCodeOrNoCodeError, JournalTemplate, JournalBatch, GenJnlLine."Line No.", DefaultDimension.FieldCaption("Dimension Value Code"), DefaultDimension."Dimension Value Code", DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code", Customer.TableCaption, Customer."No.", TestDimValue2);
+
         NegativeTest(GenJnlLine, ErrorText);
 
         // [WHEN] Post the journal lines, where dimension value code is 'A'
@@ -271,7 +272,7 @@ codeunit 134380 "ERM Dimension"
 
         // Verify: Verify error occurs on posting General Journal Line with different Dimension Value Code.
         Assert.AreEqual(
-          StrSubstNo(CombinationError, JournalTemplate, JournalBatch, GenJournalLine."Line No.", TestDimValue, TestDim), GetLastErrorText,
+          StrSubstNo(CombinationError, JournalTemplate, JournalBatch, GenJournalLine."Line No.", DefaultDimension.FieldCaption("Dimension Value Code"), DefaultDimension."Dimension Value Code", DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code", TestDimValue2), GetLastErrorText,
           UnknownError);
 
         // Tear down: Reset Account Type Default Dimension.

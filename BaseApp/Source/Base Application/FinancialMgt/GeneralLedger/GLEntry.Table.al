@@ -397,6 +397,11 @@ table 17 "G/L Entry"
             Caption = 'Non-Deductible VAT Amount';
             AutoFormatType = 1;
         }
+        field(6201; "Non-Deductible VAT Amount ACY"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Amount ACY';
+            AutoFormatType = 1;
+        }
         field(8001; "Account Id"; Guid)
         {
             CalcFormula = Lookup("G/L Account".SystemId WHERE("No." = FIELD("G/L Account No.")));

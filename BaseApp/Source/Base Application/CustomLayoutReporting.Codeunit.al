@@ -75,6 +75,7 @@ codeunit 8800 "Custom Layout Reporting"
         ForTok: Label ' for %1', Comment = '%1: customer name, Sample: Statement for Stan as of 21/02/2020';
         AsOfTok: Label ' as of %1', Comment = '%1: date, Sample: Statement for Stan as of 21/02/2020';
         TargetEmailAddressErr: Label 'The target email address has not been specified on the document layout for %1, %2. //Choose the Document Layouts action on the customer or vendor card to specify the email address.', Comment = '%1 - Source Data RecordID, %2 - Usage';
+        TargetEmailAddressNotValidErr: Label 'The target email address "%1" is not valid on the document layout for %2, %3. //Choose the Document Layouts action on the customer or vendor card to adjust the email address.', Comment = '%1 - Target email address, %2 - Source Data RecordID, %3 - Usage';
         DifferentThanFilterTxt: Label '<>%1', Locked = true;
 
     procedure GetLayoutIteratorKeyFilter(var FilterRecordRef: RecordRef; var FilterRecordKeyFieldRef: FieldRef; CustomReportLayoutCode: Code[20])
@@ -431,6 +432,7 @@ codeunit 8800 "Custom Layout Reporting"
     var
         CustomReportLayoutCode: Code[20];
         SendToEmailID: Text[250];
+        EmailBlankOrNotValid: Boolean;
         IsHandled: Boolean;
     begin
         OnBeforeRunReportWithCustomReportSelection(
@@ -450,14 +452,15 @@ codeunit 8800 "Custom Layout Reporting"
             OutputType::Email:
                 begin
                     GetSendToEmailID(CustomReportSelection, SendToEmailID);
-                    if SendToEmailID = '' then begin
+                    EmailBlankOrNotValid := CheckEmailSendTo(SendToEmailID);
+                    if EmailBlankOrNotValid then begin
                         if EmailPrintIfEmailIsMissing then
                             if IsWordLayout(ReportID, CustomReportLayoutCode) then
                                 SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Word)
                             else
                                 SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::PDF)
                         else
-                            CheckEmailSendTo(DataRecRef, CustomReportSelection);
+                            LogErrorEmailSendTo(DataRecRef, CustomReportSelection, EmailBlankOrNotValid, SendToEmailID);
                     end else
                         EmailReport(DataRecRef, ReportID, CustomReportSelection);
                 end;
@@ -1599,20 +1602,37 @@ codeunit 8800 "Custom Layout Reporting"
             ReportInbox.Modify(true);
     end;
 
-    local procedure CheckEmailSendTo(DataRecRef: RecordRef; CustomReportSelection: Record "Custom Report Selection")
+    local procedure CheckEmailSendTo(SendToEmailID: Text[250]): Boolean
     var
-        ErrorMessage: Text;
-        ReportSelectionUsage: Text;
+        EmailAccount: Codeunit "Email Account";
     begin
-        if CustomReportSelection."Send To Email" = '' then begin
-            if IsCustomReportSelectionNull(CustomReportSelection) then
-                ReportSelectionUsage := Format(ReportSelections.Usage)
-            else
-                ReportSelectionUsage := Format(CustomReportSelection.Usage);
+        if SendToEmailID = '' then
+            exit(true);
 
-            ErrorMessage := StrSubstNo(TargetEmailAddressErr, DataRecRef.RecordId, ReportSelectionUsage);
-            ErrorMessageManagement.LogError(CustomReportSelection, ErrorMessage, '');
+        if not EmailAccount.ValidateEmailAddresses(SendToEmailID, false) then begin
+            ClearLastError();
+            exit(true);
         end;
+    end;
+
+    local procedure LogErrorEmailSendTo(DataRecordRef: RecordRef; UsedCustomReportSelection: Record "Custom Report Selection"; EmailBlankOrNotValid: Boolean; SendToEmailID: Text)
+    var
+        ReportSelectionUsage: Text;
+        ErrorMessage: Text;
+    begin
+        if not EmailBlankOrNotValid then
+            exit;
+
+        if IsCustomReportSelectionNull(UsedCustomReportSelection) then
+            ReportSelectionUsage := Format(ReportSelections.Usage)
+        else
+            ReportSelectionUsage := Format(UsedCustomReportSelection.Usage);
+
+        if UsedCustomReportSelection."Send To Email" = '' then
+            ErrorMessage := StrSubstNo(TargetEmailAddressErr, DataRecordRef.RecordId(), ReportSelectionUsage)
+        else
+            ErrorMessage := StrSubstNo(TargetEmailAddressNotValidErr, SendToEmailID, DataRecordRef.RecordId(), ReportSelectionUsage);
+        ErrorMessageManagement.LogError(UsedCustomReportSelection, ErrorMessage, '');
     end;
 
     procedure SetRunReportOncePerFilter(NewRunReportOncePerFilter: Boolean)

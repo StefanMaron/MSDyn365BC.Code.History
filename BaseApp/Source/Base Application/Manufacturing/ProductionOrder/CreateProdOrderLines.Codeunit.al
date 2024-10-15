@@ -714,7 +714,7 @@ codeunit 99000787 "Create Prod. Order Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyFromSalesOrderOnBeforeSalesPlanLineInsert(var SalesLine: Record "Sales Line"; SalesPlanningLine: Record "Sales Planning Line")
+    local procedure OnCopyFromSalesOrderOnBeforeSalesPlanLineInsert(var SalesLine: Record "Sales Line"; var SalesPlanningLine: Record "Sales Planning Line")
     begin
     end;
 
