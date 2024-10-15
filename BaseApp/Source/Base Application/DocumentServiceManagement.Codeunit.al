@@ -1,4 +1,4 @@
-codeunit 9510 "Document Service Management"
+﻿codeunit 9510 "Document Service Management"
 {
     // Provides functions for the storage of documents to online services such as O365 (Office 365).
     Permissions = TableData "Document Service Cache" = rimd;
@@ -144,7 +144,7 @@ codeunit 9510 "Document Service Management"
         DocumentServiceRec: Record "Document Service";
     begin
         // Returns TRUE if Dynamics NAV has been configured with a Document Service.
-
+        OnBeforeIsConfigured(DocumentServiceRec);
         with DocumentServiceRec do begin
             if Count > 1 then
                 Error(MultipleConfigsErr);
@@ -352,6 +352,7 @@ codeunit 9510 "Document Service Management"
         DocumentServiceHelper: DotNet NavDocumentServiceHelper;
         AccessToken: Text;
     begin
+        OnBeforeSetProperties(DocumentServiceRec);
         with DocumentServiceRec do begin
             // The Document Service will throw an exception if the property is not known to the service type provider.
             DocumentService.Properties.SetProperty(FieldName(Description), Description);
@@ -1044,6 +1045,15 @@ codeunit 9510 "Document Service Management"
         DocumentSharing.Modify();
 
         Handled := DocumentSharing.DocumentUri <> '';
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsConfigured(var DocumentServiceRec: Record "Document Service")
+    begin
+    end;
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetProperties(var DocumentServiceRec: Record "Document Service")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

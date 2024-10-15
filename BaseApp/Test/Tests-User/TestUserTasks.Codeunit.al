@@ -270,6 +270,22 @@ codeunit 134769 "Test User Tasks"
             until FieldRec.Next() = 0;
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestWindowsSecurityIdNotEditableOnSaaS()
+    begin
+        VerifyWindowsSecurityIdEditability(true);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestWindowsSecurityIdEditableOnPrem()
+    begin
+        VerifyWindowsSecurityIdEditability(false);
+    end;
+
     [Scope('OnPrem')]
     procedure Init()
     var
@@ -378,6 +394,30 @@ codeunit 134769 "Test User Tasks"
         UserTaskGroupMember."User Task Group Code" := GroupCode;
         UserTaskGroupMember."User Security ID" := UserSecID;
         UserTaskGroupMember.Insert(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure VerifyWindowsSecurityIdEditability(IsSaaS: Boolean)
+    var
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        User: Record User;
+        LibraryPermissions: Codeunit "Library - Permissions";
+    begin
+        // [SCENARIO] User Windows Security ID editability based on environment
+        LibraryPermissions.CreateUser(User, '', false);
+        User.FindFirst();
+
+        // [GIVEN] A given system setup (SaaS or OnPrem)
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(IsSaaS);
+
+        // [GIVEN] User tries to modify SID
+        User."Windows Security ID" := 'SomeSID';
+
+        // [THEN] Modification throws error when in SaaS environment or succeeds when in OnPrem environment
+        if IsSaaS then
+            asserterror User.Modify()
+        else
+            Assert.IsTrue(User.Modify(), 'Modifying the Windows user''s Windows Security ID should be possible in OnPrem environment');
     end;
 }
 

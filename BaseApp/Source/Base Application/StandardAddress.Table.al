@@ -154,6 +154,7 @@ table 730 "Standard Address"
         "Country/Region Code" := Customer."Country/Region Code";
         "Post Code" := Customer."Post Code";
         County := Customer.County;
+        OnCopyFromCustomerOnBeforeInsert(Rec, Customer);
         Insert(true);
     end;
 
@@ -228,6 +229,7 @@ table 730 "Standard Address"
         Customer.Validate("Country/Region Code", "Country/Region Code");
         Customer.Validate("Post Code", "Post Code");
         Customer.Validate(County, County);
+        OnSaveToCustomerOnBeforeModify(Rec, Customer);
         Customer.Modify(true);
     end;
 
@@ -263,6 +265,16 @@ table 730 "Standard Address"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeToString(var StandardAddress: Record "Standard Address"; var FullAddress: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveToCustomerOnBeforeModify(StandardAddress: Record "Standard Address"; var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromCustomerOnBeforeInsert(StandardAddress: Record "Standard Address"; var Customer: Record Customer)
     begin
     end;
 }

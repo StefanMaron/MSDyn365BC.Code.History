@@ -507,57 +507,9 @@
                       Round(
                         ServContractLine."Line Amount" / 12 * NoOfMonthsAndMParts, Currency."Amount Rounding Precision");
                 until ServContractLine.Next() = 0;
-            if RemainingAmt <> 0 then begin
-                ServHeader.Get(ServHeader."Document Type"::Invoice, ServHeaderNo);
-                if FromServContractHeader."Contract Lines on Invoice" then begin
-                    ServContractLine.Reset();
-                    ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
-                    ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
-                    ServContractLine.SetRange("New Line", true);
-                    if ServContractLine.FindSet() then
-                        repeat
-                            if FromServContractHeader."Contract Lines on Invoice" then
-                                ServContractMgt.CreateDetailedServiceLine(
-                                  ServHeader,
-                                  ServContractLine,
-                                  FromServContractHeader."Contract Type",
-                                  FromServContractHeader."Contract No.");
-
-                            AppliedEntry :=
-                              ServContractMgt.CreateServiceLedgEntry(
-                                ServHeader, FromServContractHeader."Contract Type",
-                                FromServContractHeader."Contract No.", FirstPrepaidPostingDate,
-                                LastPrepaidPostingDate, false, true,
-                                ServContractLine."Line No.");
-
-                            ServContractMgt.CreateServiceLine(
-                              ServHeader,
-                              FromServContractHeader."Contract Type",
-                              FromServContractHeader."Contract No.",
-                              FirstPrepaidPostingDate, LastPrepaidPostingDate,
-                              AppliedEntry, false);
-                        until ServContractLine.Next() = 0;
-                end else begin
-                    ServContractMgt.CreateHeadingServiceLine(
-                      ServHeader,
-                      FromServContractHeader."Contract Type",
-                      FromServContractHeader."Contract No.");
-
-                    AppliedEntry :=
-                      ServContractMgt.CreateServiceLedgEntry(
-                        ServHeader, FromServContractHeader."Contract Type",
-                        FromServContractHeader."Contract No.", FirstPrepaidPostingDate,
-                        LastPrepaidPostingDate, false, true, 0);
-
-                    ServContractMgt.CreateServiceLine(
-                      ServHeader,
-                      FromServContractHeader."Contract Type",
-                      FromServContractHeader."Contract No.",
-                      FirstPrepaidPostingDate, LastPrepaidPostingDate,
-                      AppliedEntry, false);
-                end;
-            end;
-            ServContractMgt.FinishCodeunit;
+            if RemainingAmt <> 0 then
+                CreateServiceLinesForRemainingAmt();
+            ServContractMgt.FinishCodeunit();
         end;
 
         ServContractLine.Reset();
@@ -587,6 +539,67 @@
         if not HideDialog then
             if ServHeaderNo <> '' then
                 Message(Text016, ServHeaderNo);
+    end;
+
+    local procedure CreateServiceLinesForRemainingAmt()
+    var
+        ServContractLine: Record "Service Contract Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateServiceLinesForRemainingAmt(ServHeader, FromServContractHeader, FirstPrepaidPostingDate, LastPrepaidPostingDate, AppliedEntry, IsHandled);
+        if not IsHandled then begin
+            ServHeader.Get(ServHeader."Document Type"::Invoice, ServHeaderNo);
+            if FromServContractHeader."Contract Lines on Invoice" then begin
+                ServContractLine.Reset();
+                ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
+                ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
+                ServContractLine.SetRange("New Line", true);
+                if ServContractLine.FindSet() then
+                    repeat
+                        if FromServContractHeader."Contract Lines on Invoice" then
+                            ServContractMgt.CreateDetailedServiceLine(
+                              ServHeader,
+                              ServContractLine,
+                              FromServContractHeader."Contract Type",
+                              FromServContractHeader."Contract No.");
+
+                        AppliedEntry :=
+                          ServContractMgt.CreateServiceLedgEntry(
+                            ServHeader, FromServContractHeader."Contract Type",
+                            FromServContractHeader."Contract No.", FirstPrepaidPostingDate,
+                            LastPrepaidPostingDate, false, true,
+                            ServContractLine."Line No.");
+
+                        ServContractMgt.CreateServiceLine(
+                          ServHeader,
+                          FromServContractHeader."Contract Type",
+                          FromServContractHeader."Contract No.",
+                          FirstPrepaidPostingDate, LastPrepaidPostingDate,
+                          AppliedEntry, false);
+                    until ServContractLine.Next() = 0;
+            end else begin
+                ServContractMgt.CreateHeadingServiceLine(
+                  ServHeader,
+                  FromServContractHeader."Contract Type",
+                  FromServContractHeader."Contract No.");
+
+                AppliedEntry :=
+                  ServContractMgt.CreateServiceLedgEntry(
+                    ServHeader, FromServContractHeader."Contract Type",
+                    FromServContractHeader."Contract No.", FirstPrepaidPostingDate,
+                    LastPrepaidPostingDate, false, true, 0);
+
+                ServContractMgt.CreateServiceLine(
+                  ServHeader,
+                  FromServContractHeader."Contract Type",
+                  FromServContractHeader."Contract No.",
+                  FirstPrepaidPostingDate, LastPrepaidPostingDate,
+                  AppliedEntry, false);
+            end;
+        end;
+
+        OnAfterCreateServiceLinesForRemainingAmt(FromServContractHeader);
     end;
 
     local procedure ClearServContractLineNewLine()
@@ -619,7 +632,13 @@
     var
         ConfirmManagement: Codeunit "Confirm Management";
         TempDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetInvoicing(ServContractHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServContractHeader."Invoice Period" = ServContractHeader."Invoice Period"::None then
             exit;
 
@@ -896,59 +915,64 @@
     local procedure CreateServiceLinesLedgerEntries(var ServContractHeader: Record "Service Contract Header"; NewLine: Boolean)
     var
         ServContractLine: Record "Service Contract Line";
+        IsHandled: Boolean;
     begin
-        ServContractMgt.InitCodeUnit;
-        ServHeaderNo :=
-          ServContractMgt.CreateServHeader(ServContractHeader, PostingDate, false);
+        IsHandled := false;
+        OnBeforeCreateServiceLinesLedgerEntries(ServContractHeader, NewLine, IsHandled);
+        if not IsHandled then begin
+            ServContractMgt.InitCodeUnit;
+            ServHeaderNo :=
+              ServContractMgt.CreateServHeader(ServContractHeader, PostingDate, false);
 
-        ServHeader.Get(ServHeader."Document Type"::Invoice, ServHeaderNo);
-        if ServContractHeader."Contract Lines on Invoice" then begin
-            ServContractLine.Reset();
-            ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
-            ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
-            if NewLine then
-                ServContractLine.SetRange("New Line", true);
-            if ServContractLine.FindSet() then
-                repeat
-                    ServContractMgt.CreateDetailedServiceLine(
-                      ServHeader, ServContractLine,
-                      ServContractHeader."Contract Type",
-                      ServContractHeader."Contract No.");
+            ServHeader.Get(ServHeader."Document Type"::Invoice, ServHeaderNo);
+            if ServContractHeader."Contract Lines on Invoice" then begin
+                ServContractLine.Reset();
+                ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
+                ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
+                if NewLine then
+                    ServContractLine.SetRange("New Line", true);
+                if ServContractLine.FindSet() then
+                    repeat
+                        ServContractMgt.CreateDetailedServiceLine(
+                          ServHeader, ServContractLine,
+                          ServContractHeader."Contract Type",
+                          ServContractHeader."Contract No.");
 
-                    AppliedEntry :=
-                      ServContractMgt.CreateServiceLedgEntry(
-                        ServHeader, ServContractHeader."Contract Type",
-                        ServContractHeader."Contract No.", InvoiceFrom,
-                        InvoiceTo, not NewLine, NewLine,
-                        ServContractLine."Line No.");
+                        AppliedEntry :=
+                          ServContractMgt.CreateServiceLedgEntry(
+                            ServHeader, ServContractHeader."Contract Type",
+                            ServContractHeader."Contract No.", InvoiceFrom,
+                            InvoiceTo, not NewLine, NewLine,
+                            ServContractLine."Line No.");
 
-                    ServContractMgt.CreateServiceLine(
-                      ServHeader,
-                      ServContractHeader."Contract Type",
-                      ServContractHeader."Contract No.",
-                      InvoiceFrom, InvoiceTo, AppliedEntry, not NewLine);
-                until ServContractLine.Next() = 0;
-        end else begin
-            ServContractMgt.CreateHeadingServiceLine(
-              ServHeader,
-              ServContractHeader."Contract Type",
-              ServContractHeader."Contract No.");
+                        ServContractMgt.CreateServiceLine(
+                          ServHeader,
+                          ServContractHeader."Contract Type",
+                          ServContractHeader."Contract No.",
+                          InvoiceFrom, InvoiceTo, AppliedEntry, not NewLine);
+                    until ServContractLine.Next() = 0;
+            end else begin
+                ServContractMgt.CreateHeadingServiceLine(
+                  ServHeader,
+                  ServContractHeader."Contract Type",
+                  ServContractHeader."Contract No.");
 
-            AppliedEntry :=
-              ServContractMgt.CreateServiceLedgEntry(
-                ServHeader, ServContractHeader."Contract Type",
-                ServContractHeader."Contract No.", InvoiceFrom,
-                InvoiceTo, not NewLine, NewLine, 0);
+                AppliedEntry :=
+                  ServContractMgt.CreateServiceLedgEntry(
+                    ServHeader, ServContractHeader."Contract Type",
+                    ServContractHeader."Contract No.", InvoiceFrom,
+                    InvoiceTo, not NewLine, NewLine, 0);
 
-            ServContractMgt.CreateServiceLine(
-              ServHeader,
-              ServContractHeader."Contract Type",
-              ServContractHeader."Contract No.",
-              InvoiceFrom, InvoiceTo, AppliedEntry, not NewLine);
+                ServContractMgt.CreateServiceLine(
+                  ServHeader,
+                  ServContractHeader."Contract Type",
+                  ServContractHeader."Contract No.",
+                  InvoiceFrom, InvoiceTo, AppliedEntry, not NewLine);
+            end;
+
+            ServContractHeader.Modify();
+            ServContractMgt.FinishCodeunit;
         end;
-
-        ServContractHeader.Modify();
-        ServContractMgt.FinishCodeunit;
 
         OnAfterCreateServiceLinesLedgerEntries(ServHeader, ServContractHeader);
     end;
@@ -1065,6 +1089,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateServiceLinesForRemainingAmt(FromServContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAddendumToContractOnAfterCalcCreateInvoiceConfirmed(ServContractHeader: Record "Service Contract Header"; var CreateInvoiceConfirmed: Boolean)
     begin
     end;
@@ -1145,6 +1174,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetInvoicing(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSignContractQuote(var SourceServiceContractHeader: Record "Service Contract Header"; var DestServiceContractHeader: Record "Service Contract Header")
     begin
     end;
@@ -1165,6 +1199,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateServiceLinesForRemainingAmt(var ServHeader: Record "Service Header"; var FromServContractHeader: Record "Service Contract Header"; var FirstPrepaidPostingDate: Date; var LastPrepaidPostingDate: Date; var AppliedEntry: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckServContractQuote(var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
@@ -1181,6 +1220,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckServContractDatesDimensionsAndResponseTime(ServiceContractHeader: Record "Service Contract Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateServiceLinesLedgerEntries(var ServiceContractHeader: Record "Service Contract Header"; NewLine: Boolean; var IsHandled: Boolean)
     begin
     end;
 

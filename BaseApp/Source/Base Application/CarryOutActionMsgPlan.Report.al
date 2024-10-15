@@ -59,14 +59,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
                     end;
                 end;
 
-                if ReserveforPlannedProd then
-                    Message(Text010);
-
-                if CounterFailed > 0 then
-                    if GetLastErrorText = '' then
-                        Message(Text013, CounterFailed)
-                    else
-                        Message(GetLastErrorText);
+                ShowResult();
             end;
 
             trigger OnPreDataItem()
@@ -640,6 +633,25 @@ report 99001020 "Carry Out Action Msg. - Plan."
                 TestField("Supply From");
     end;
 
+    local procedure ShowResult()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowResult(IsHandled);
+        if IsHandled then
+            exit;
+
+        if ReserveforPlannedProd then
+            Message(Text010);
+
+        if CounterFailed > 0 then
+            if GetLastErrorText() = '' then
+                Message(Text013, CounterFailed)
+            else
+                Message(GetLastErrorText);
+    end;
+
     local procedure WindowUpdate()
     begin
         Counter := Counter + 1;
@@ -677,7 +689,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckSupplyFrom(RequisitionLine: Record "Requisition Line"; PurchOrderChoice: Option " ","Make Purch. Orders","Make Purch. Orders & Print","Copy to Req. Wksh"; TransOrderChoice: Option " ","Make Trans. Orders","Make Trans. Orders & Print","Copy to Req. Wksh"; var IsHandled: Boolean)
     begin
     end;
@@ -699,6 +711,11 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRequisitionLineOnAfterGetRecord(var RequisitionLine: Record "Requisition Line"; var CombineTransferOrders: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeShowResult(var IsHandled: Boolean)
     begin
     end;
 
