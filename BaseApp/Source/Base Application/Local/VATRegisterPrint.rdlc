@@ -1519,6 +1519,7 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="VAT_Book_Entry__Document_No__">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>

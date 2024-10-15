@@ -5021,6 +5021,238 @@
     end;
 
     [Test]
+    procedure S470567_ShipmentMethodAssignmentPriority_CustomerWithoutSM_NoDefaultShipToAddress_ShipToAddressWithoutSM()
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Vendor] [Customer] [Ship-to Address] [Shipment Method] [Purchase Order] [UT]
+        // [SCENARIO 470567] Customer does not have default "Ship-to Address" and "Shipment Method Code" is blank in Customer Card and blank in "Ship-to Address".
+        // [SCENARIO 470567] "Shipment Method Code" must be copied from "Customer Card" if ther is not "Ship-to Address" defined or "Ship-to Address" has blank "Shipment Method Code".
+        Initialize();
+
+        // [GIVEN] Create Vendor "V" with "Shipment Method Code".
+        CreateVendorWithDefaultLocation(Vendor);
+        if Vendor."Shipment Method Code" = '' then begin
+            Vendor.Validate("Shipment Method Code", CreateShipmentMethodCode());
+            Vendor.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer "C" without "Shipment Method Code" and without default "Ship-to Address".
+        LibrarySales.CreateCustomer(Customer);
+        if Customer."Shipment Method Code" <> '' then begin
+            Customer.Validate("Shipment Method Code", '');
+            Customer.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer Ship-to Address "C_SA" without "Shipment Method Code".
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" <> '' then begin
+            ShipToAddress.Validate("Shipment Method Code", '');
+            ShipToAddress.Modify(true);
+        end;
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and validate "Buy-from Vendor No." with "V" after inserting Purchase Order Header.
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Purchase Order = "Shipment Method Code" from Vendor "V".
+        PurchaseHeader.TestField("Shipment Method Code", Vendor."Shipment Method Code");
+
+        // [WHEN] Then validate "Sell-to Customer No." as "C" in Purchase Order.
+        PurchaseHeader.Validate("Sell-to Customer No.", Customer."No.");
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Purchase Order = "Shipment Method Code" from "Customer" (blank).
+        PurchaseHeader.TestField("Shipment Method Code", '');
+
+        // [WHEN] Set "C_SA" as "Ship-to Code" in Purchase Order.
+        PurchaseHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Purchase Order = "Shipment Method Code" from "Customer" (blank).
+        PurchaseHeader.TestField("Shipment Method Code", '');
+    end;
+
+    [Test]
+    procedure S470567_ShipmentMethodAssignmentPriority_CustomerWithoutSM_NoDefaultShipToAddress_ShipToAddressWithSM()
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Vendor] [Customer] [Ship-to Address] [Shipment Method] [Purchase Order] [UT]
+        // [SCENARIO 470567] Vendor has "Shipment Method Code" defined. Customer does not have default "Ship-to Address" and "Shipment Method Code" is blank in Customer Card, but is defined for "Ship-to Address".
+        // [SCENARIO 470567] "Shipment Method Code" must be copied from "Customer Card" if ther is not "Ship-to Address" defined or "Ship-to Address" has blank "Shipment Method Code".
+        Initialize();
+
+        // [GIVEN] Create Vendor "V" with "Shipment Method Code".
+        CreateVendorWithDefaultLocation(Vendor);
+        if Vendor."Shipment Method Code" = '' then begin
+            Vendor.Validate("Shipment Method Code", CreateShipmentMethodCode());
+            Vendor.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer "C" without "Shipment Method Code" and without default "Ship-to Address".
+        LibrarySales.CreateCustomer(Customer);
+        if Customer."Shipment Method Code" <> '' then begin
+            Customer.Validate("Shipment Method Code", '');
+            Customer.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer Ship-to Address "C_SA" with "Shipment Method Code".
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" = '' then begin
+            ShipToAddress.Validate("Shipment Method Code", CreateShipmentMethodCode());
+            ShipToAddress.Modify(true);
+        end;
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and validate "Buy-from Vendor No." with "V" after inserting Purchase Order Header.
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Purchase Order = "Shipment Method Code" from Vendor "V".
+        PurchaseHeader.TestField("Shipment Method Code", Vendor."Shipment Method Code");
+
+        // [WHEN] Then validate "Sell-to Customer No." as "C" in Purchase Order.
+        PurchaseHeader.Validate("Sell-to Customer No.", Customer."No.");
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Purchase Order = "Shipment Method Code" from "Customer" (blank).
+        PurchaseHeader.TestField("Shipment Method Code", '');
+
+        // [WHEN] Set "C_SA" as "Ship-to Code" in Purchase Order.
+        PurchaseHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Purchase Order = "Shipment Method Code" from "Ship-to Address".
+        PurchaseHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+    end;
+
+    [Test]
+    procedure S470567_ShipmentMethodAssignmentPriority_CustomerWithSM_NoDefaultShipToAddress_ShipToAddressWithoutSM()
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Vendor] [Customer] [Ship-to Address] [Shipment Method] [Purchase Order] [UT]
+        // [SCENARIO 470567] Customer does not have default "Ship-to Address" and "Shipment Method Code" is defined for Customer Card and blank in "Ship-to Address".
+        // [SCENARIO 470567] "Shipment Method Code" must be copied from "Customer Card" if ther is not "Ship-to Address" defined or "Ship-to Address" has blank "Shipment Method Code".
+        Initialize();
+
+        // [GIVEN] Create Vendor "V" with "Shipment Method Code".
+        CreateVendorWithDefaultLocation(Vendor);
+        if Vendor."Shipment Method Code" = '' then begin
+            Vendor.Validate("Shipment Method Code", CreateShipmentMethodCode());
+            Vendor.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer "C" with "Shipment Method Code" and without default "Ship-to Address".
+        LibrarySales.CreateCustomer(Customer);
+        if Customer."Shipment Method Code" = '' then begin
+            Customer.Validate("Shipment Method Code", CreateShipmentMethodCode());
+            Customer.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer Ship-to Address "C_SA" without "Shipment Method Code".
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" <> '' then begin
+            ShipToAddress.Validate("Shipment Method Code", '');
+            ShipToAddress.Modify(true);
+        end;
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and validate "Buy-from Vendor No." with "V" after inserting Purchase Order Header.
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Purchase Order = "Shipment Method Code" from Vendor "V".
+        PurchaseHeader.TestField("Shipment Method Code", Vendor."Shipment Method Code");
+
+        // [WHEN] Then validate "Sell-to Customer No." as "C" in Purchase Order.
+        PurchaseHeader.Validate("Sell-to Customer No.", Customer."No.");
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Purchase Order = "Shipment Method Code" from "Customer".
+        PurchaseHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+
+        // [WHEN] Set "C_SA" as "Ship-to Code" in Purchase Order.
+        PurchaseHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Purchase Order = "Shipment Method Code" from "Customer".
+        PurchaseHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+    end;
+
+    [Test]
+    procedure S470567_ShipmentMethodAssignmentPriority_CustomerWithSM_NoDefaultShipToAddress_ShipToAddressWithSM()
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Vendor] [Customer] [Ship-to Address] [Shipment Method] [Purchase Order] [UT]
+        // [SCENARIO 470567] Customer does not have default "Ship-to Address" and "Shipment Method Code" is defined for Customer Card and is defined for "Ship-to Address".
+        // [SCENARIO 470567] "Shipment Method Code" must be copied from "Customer Card" if ther is not "Ship-to Address" defined or "Ship-to Address" has blank "Shipment Method Code".
+        Initialize();
+
+        // [GIVEN] Create Vendor "V" with "Shipment Method Code".
+        CreateVendorWithDefaultLocation(Vendor);
+        if Vendor."Shipment Method Code" = '' then begin
+            Vendor.Validate("Shipment Method Code", CreateShipmentMethodCode());
+            Vendor.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer "C" with "Shipment Method Code" and without default "Ship-to Address".
+        LibrarySales.CreateCustomer(Customer);
+        if Customer."Shipment Method Code" = '' then begin
+            Customer.Validate("Shipment Method Code", CreateShipmentMethodCode());
+            Customer.Modify(true);
+        end;
+
+        // [GIVEN] Create Customer Ship-to Address "C_SA" with "Shipment Method Code".
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" = '' then begin
+            ShipToAddress.Validate("Shipment Method Code", CreateShipmentMethodCode());
+            ShipToAddress.Modify(true);
+        end;
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and validate "Buy-from Vendor No." with "V" after inserting Purchase Order Header.
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Purchase Order = "Shipment Method Code" from Vendor "V".
+        PurchaseHeader.TestField("Shipment Method Code", Vendor."Shipment Method Code");
+
+        // [WHEN] Then validate "Sell-to Customer No." as "C" in Purchase Order.
+        PurchaseHeader.Validate("Sell-to Customer No.", Customer."No.");
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Purchase Order = "Shipment Method Code" from "Customer".
+        PurchaseHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
+
+        // [WHEN] Set "C_SA" as "Ship-to Code" in Purchase Order.
+        PurchaseHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Shipment Method Code" in the Purchase Order = "Shipment Method Code" from "Ship-to Address".
+        PurchaseHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
+    end;
+
+    [Test]
     [HandlerFunctions('GetReceiptLinesPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure NotInsertInvLineFromExtTextRcptLine()

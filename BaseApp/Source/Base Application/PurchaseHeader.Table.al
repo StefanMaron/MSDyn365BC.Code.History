@@ -382,8 +382,15 @@
                       ShipToAddr.Name, ShipToAddr."Name 2", ShipToAddr.Address, ShipToAddr."Address 2",
                       ShipToAddr.City, ShipToAddr."Post Code", ShipToAddr.County, ShipToAddr."Country/Region Code");
                     "Ship-to Contact" := ShipToAddr.Contact;
-                    "Shipment Method Code" := ShipToAddr."Shipment Method Code";
-                    Validate("Shipment Method Code", ShipToAddr."Shipment Method Code");
+                    if ShipToAddr."Shipment Method Code" <> '' then begin
+                        "Shipment Method Code" := ShipToAddr."Shipment Method Code";
+                        Validate("Shipment Method Code", ShipToAddr."Shipment Method Code");
+                    end else
+                        if "Sell-to Customer No." <> '' then
+                            if Cust.Get("Sell-to Customer No.") then begin
+                                "Shipment Method Code" := Cust."Shipment Method Code";
+                                Validate("Shipment Method Code", Cust."Shipment Method Code");
+                            end;
                     if ShipToAddr."Location Code" <> '' then
                         Validate("Location Code", ShipToAddr."Location Code");
                     OnValidateShipToCodeOnAfterCopyFromShipToAddr(Rec, ShipToAddr);
@@ -395,7 +402,7 @@
                       Cust.City, Cust."Post Code", Cust.County, Cust."Country/Region Code");
                     "Ship-to Contact" := Cust.Contact;
                     "Shipment Method Code" := Cust."Shipment Method Code";
-                    Validate("Shipment Method Code", ShipToAddr."Shipment Method Code");
+                    Validate("Shipment Method Code", Cust."Shipment Method Code");
                     if Cust."Location Code" <> '' then
                         Validate("Location Code", Cust."Location Code");
                     OnValidateShipToCodeOnAfterCopyFromSellToCust(Rec, Cust);

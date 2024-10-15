@@ -60,6 +60,12 @@ page 315 "VAT Entries"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
+                field("Operation Occurred Date"; Rec."Operation Occurred Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the operation occurred date.';
+                    Visible = false;
+                }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;

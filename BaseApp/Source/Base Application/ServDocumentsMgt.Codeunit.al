@@ -55,6 +55,7 @@
         ServAllocMgt: Codeunit ServAllocationManagement;
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        ErrorMessageMgt: Codeunit "Error Message Management";
         InvoicePostingInterface: Interface "Invoice Posting";
         IsInterfaceInitialized: Boolean;
         GenJnlLineExtDocNo: Code[35];
@@ -179,6 +180,9 @@
         Item: Record Item;
         VATExemption: Record "VAT Exemption";
         ServItemMgt: Codeunit ServItemManagement;
+        ErrorContextElementProcessLine: Codeunit "Error Context Element";
+        ErrorContextElementPostLine: Codeunit "Error Context Element";
+        ZeroServiceLineRecID: RecordId;
         RemQtyToBeInvoiced: Decimal;
         RemQtyToBeInvoicedBase: Decimal;
         RemQtyToBeConsumed: Decimal;
@@ -191,6 +195,7 @@
         LastLineRetrieved: Boolean;
         Check: Boolean;
         ShouldPostShipmentServiceEntry: Boolean;
+        PostDocumentLinesMsg: Label 'Post document lines.';
     begin
         with ServHeader do begin
             if not FindVATExemption(VATExemption, Check, true) then
@@ -250,12 +255,16 @@
             ServLine.CalcVATAmountLines(2, ServHeader, ServLine, TempVATAmountLineForSLE, Ship);
         end;
 
+        GetZeroServiceLineRecID(ServHeader, ZeroServiceLineRecID);
+        ErrorMessageMgt.PushContext(ErrorContextElementProcessLine, ZeroServiceLineRecID, 0, PostDocumentLinesMsg);
+
         ServLine.Reset();
         SortLines(ServLine);
         OnPostDocumentLinesOnAfterSortLines(ServHeader, ServLine);
         ServLedgEntryNo := FindFirstServLedgEntry(ServLine);
         if ServLine.Find('-') then
             repeat
+                ErrorMessageMgt.PushContext(ErrorContextElementPostLine, ServLine.RecordId, 0, PostDocumentLinesMsg);
                 ServPostingJnlsMgt.SetItemJnlRollRndg(false);
                 if ServLine.Type = ServLine.Type::Item then
                     DummyTrackingSpecification.CheckItemTrackingQuantity(
@@ -444,7 +453,11 @@
                               LastLineRetrieved, false, BiggestLineNo);
                     end;
                 end; // With ServLine
+                ErrorMessageMgt.PopContext(ErrorContextElementPostLine);
             until LastLineRetrieved;
+
+        ErrorMessageMgt.PopContext(ErrorContextElementProcessLine);
+        ErrorMessageMgt.Finish(ZeroServiceLineRecID);
 
         with ServHeader do begin
             // again reverse amount
@@ -1540,7 +1553,8 @@
                     // Service Charge line should not be tested.
                     if (Type <> Type::" ") and not "System-Created Entry" then begin
                         if ServDocType = DATABASE::"Service Contract Header" then
-                            TestField("Contract No.");
+                            if not "Automatically Generated" then
+                                TestField("Contract No.");
                         if ServDocType = DATABASE::"Service Header" then
                             TestField("Shipment No.");
                     end;
@@ -2309,6 +2323,16 @@
                 CertificateOfSupply.SetRequired(ServShptHeader."No.");
                 OnAfterCheckCertificateOfSupplyStatus(ServShptHeader, ServShptLine);
             end;
+    end;
+
+    local procedure GetZeroServiceLineRecID(ServiceHeader: Record "Service Header"; var ServiceLineRecID: RecordId)
+    var
+        ZeroServiceLine: Record "Service Line";
+    begin
+        ZeroServiceLine."Document Type" := ServiceHeader."Document Type";
+        ZeroServiceLine."Document No." := ServiceHeader."No.";
+        ZeroServiceLine."Line No." := 0;
+        ServiceLineRecID := ZeroServiceLine.RecordId;
     end;
 
     [IntegrationEvent(false, false)]
