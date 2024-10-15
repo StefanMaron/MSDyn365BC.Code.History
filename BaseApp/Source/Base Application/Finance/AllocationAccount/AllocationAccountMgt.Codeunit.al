@@ -15,7 +15,7 @@ codeunit 2675 "Allocation Account Mgt."
         exit(not (AllocAccountDistribution.IsEmpty()));
     end;
 
-    internal procedure GenerateAllocationLines(var AllocationAccount: Record "Allocation Account"; var AllocationLine: Record "Allocation Line"; AmountToDistribute: Decimal; PostingDate: Date; ExistingDimensionSetId: Integer; CurrencyCode: Code[10])
+    procedure GenerateAllocationLines(var AllocationAccount: Record "Allocation Account"; var AllocationLine: Record "Allocation Line"; AmountToDistribute: Decimal; PostingDate: Date; ExistingDimensionSetId: Integer; CurrencyCode: Code[10])
     begin
         if AllocationAccount."Account Type" = AllocationAccount."Account Type"::Fixed then
             GenerateFixedAllocationLines(AllocationAccount, AllocationLine, AmountToDistribute, ExistingDimensionSetId, CurrencyCode)
