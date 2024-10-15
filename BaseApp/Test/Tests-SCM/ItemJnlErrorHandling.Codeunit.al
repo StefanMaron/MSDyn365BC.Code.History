@@ -222,7 +222,7 @@ codeunit 137274 "Item Jnl. Error Handling"
         TempErrorMessage.FindFirst();
 
         VerifyErrorMessageText(
-            TempErrorMessage.Description,
+            TempErrorMessage."Message",
             StrSubstNo(TestFieldMustHaveValueErr, ItemJournalLine[2].FieldCaption("Document No.")));
     end;
 

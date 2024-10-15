@@ -1,4 +1,4 @@
-﻿codeunit 104000 "Upgrade - BaseApp"
+codeunit 104000 "Upgrade - BaseApp"
 {
     Subtype = Upgrade;
     Permissions = TableData "User Group Plan" = rimd;
@@ -95,6 +95,7 @@
         UpgradeCRMUnitGroupMapping();
         UpgradeCRMSDK90ToCRMSDK91();
         UpdatePurchaserOnRequisitionLines();
+        SendCloudMigrationUsageTelemetry();
     end;
 
     local procedure ClearTemporaryTables()
@@ -1188,6 +1189,7 @@
         IF StandardSalesCode.FindSet() then
             REPEAT
                 StandardCustomerSalesCode.SETRANGE(Code, StandardSalesCode.Code);
+                StandardCustomerSalesCode.SetFilter("Currency Code", '<>%1', StandardSalesCode."Currency Code");
                 StandardCustomerSalesCode.MODIFYALL("Currency Code", StandardSalesCode."Currency Code");
             UNTIL StandardSalesCode.Next() = 0;
 
@@ -1207,6 +1209,7 @@
         IF StandardPurchaseCode.FindSet() then
             REPEAT
                 StandardVendorPurchaseCode.SETRANGE(Code, StandardPurchaseCode.Code);
+                StandardVendorPurchaseCode.SetFilter("Currency Code", '<>%1', StandardPurchaseCode."Currency Code");
                 StandardVendorPurchaseCode.MODIFYALL("Currency Code", StandardPurchaseCode."Currency Code");
             UNTIL StandardPurchaseCode.Next() = 0;
 
@@ -2901,6 +2904,26 @@
         end else
             PurchaserCodeToAssign := '';
         exit(PurchaserCodeToAssign <> '');
+    end;
+
+    local procedure SendCloudMigrationUsageTelemetry()
+    var
+        IntelligentCloud: Record "Intelligent Cloud";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSendCloudMigrationUpgradeTelemetryBaseAppTag()) then
+            exit;
+
+        if IntelligentCloud.Get() then begin
+            FeatureTelemetry.LogUptake('0000JMJ', 'Cloud Migration', Enum::"Feature Uptake Status"::Used);
+            TelemetryDimensions.Add('MigrationDateTime', Format(IntelligentCloud.SystemModifiedAt, 0, 9)); 
+            FeatureTelemetry.LogUsage('0000JMK', 'Cloud Migration', 'Base app - Tenant used cloud migration', TelemetryDimensions);
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSendCloudMigrationUpgradeTelemetryBaseAppTag());
     end;
 }
 

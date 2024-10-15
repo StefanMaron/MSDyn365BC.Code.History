@@ -105,121 +105,122 @@
     begin
         IsHandled := false;
         OnBeforeTransferBOM(ProdBOMNo, Level, LineQtyPerUOM, ItemQtyPerUOM, ReqLine, Blocked, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
 
-        if ReqLine."Production BOM No." = '' then
-            exit;
+            if ReqLine."Production BOM No." = '' then
+                exit;
 
-        PlanningComponent.LockTable();
+            PlanningComponent.LockTable();
 
-        if Level > 50 then begin
-            if PlanningResiliency then begin
-                BOMHeader.Get(ReqLine."Production BOM No.");
-                TempPlanningErrorLog.SetError(
-                  StrSubstNo(Text014, ReqLine."Production BOM No.", ReqLine."No."),
-                  DATABASE::"Production BOM Header", BOMHeader.GetPosition());
-            end;
-            Error(
-              Text000,
-              ProdBOMNo);
-        end;
-
-        if NextPlanningCompLineNo = 0 then begin
-            PlanningComponent.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
-            PlanningComponent.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
-            PlanningComponent.SetRange("Worksheet Line No.", ReqLine."Line No.");
-            if PlanningComponent.Find('+') then
-                NextPlanningCompLineNo := PlanningComponent."Line No.";
-            PlanningComponent.Reset();
-        end;
-
-        BOMHeader.Get(ProdBOMNo);
-
-        if Level > 1 then
-            VersionCode := VersionMgt.GetBOMVersion(ProdBOMNo, ReqLine."Starting Date", true)
-        else
-            VersionCode := ReqLine."Production BOM Version Code";
-        if VersionCode <> '' then begin
-            ProductionBOMVersion.Get(ProdBOMNo, VersionCode);
-            ProductionBOMVersion.TestField(Status, ProductionBOMVersion.Status::Certified);
-        end else
-            BOMHeader.TestField(Status, BOMHeader.Status::Certified);
-
-        ProdBOMLine[Level].SetRange("Production BOM No.", ProdBOMNo);
-        if Level > 1 then
-            ProdBOMLine[Level].SetRange("Version Code", VersionMgt.GetBOMVersion(BOMHeader."No.", ReqLine."Starting Date", true))
-        else
-            ProdBOMLine[Level].SetRange("Version Code", ReqLine."Production BOM Version Code");
-        ProdBOMLine[Level].SetFilter("Starting Date", '%1|..%2', 0D, ReqLine."Starting Date");
-        ProdBOMLine[Level].SetFilter("Ending Date", '%1|%2..', 0D, ReqLine."Starting Date");
-        OnTransferBOMOnAfterProdBOMLineSetFilters(ProdBOMLine[Level], ReqLine);
-        if ProdBOMLine[Level].Find('-') then
-            repeat
-                IsHandled := false;
-                OnTransferBOMOnBeforeTransferPlanningComponent(ReqLine, ProdBOMLine[Level], Blocked, IsHandled);
-                if not IsHandled then begin
-                    if ProdBOMLine[Level]."Routing Link Code" <> '' then begin
-                        PlanningRtngLine2.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
-                        PlanningRtngLine2.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
-                        PlanningRtngLine2.SetRange("Worksheet Line No.", ReqLine."Line No.");
-                        PlanningRtngLine2.SetRange("Routing Link Code", ProdBOMLine[Level]."Routing Link Code");
-                        PlanningRtngLine2.FindFirst();
-                        ReqQty :=
-                          ProdBOMLine[Level].Quantity *
-                          (1 + ProdBOMLine[Level]."Scrap %" / 100) *
-                          (1 + PlanningRtngLine2."Scrap Factor % (Accumulated)") *
-                          LineQtyPerUOM / ItemQtyPerUOM +
-                          PlanningRtngLine2."Fixed Scrap Qty. (Accum.)";
-                    end else
-                        ReqQty :=
-                          ProdBOMLine[Level].Quantity *
-                          (1 + ProdBOMLine[Level]."Scrap %" / 100) *
-                          LineQtyPerUOM / ItemQtyPerUOM;
-
-                    OnTransferBOMOnAfterCalculateReqQty(ReqQty, ProdBOMLine[Level]);
-                    case ProdBOMLine[Level].Type of
-                        ProdBOMLine[Level].Type::Item:
-                            begin
-                                IsHandled := false;
-                                UpdateCondition := ReqQty <> 0;
-                                OnTransferBOMOnBeforeUpdatePlanningComp(ProdBOMLine[Level], UpdateCondition, IsHandled);
-                                if not IsHandled then
-                                    if UpdateCondition then begin
-                                        if not IsPlannedComp(PlanningComponent, ReqLine, ProdBOMLine[Level]) then begin
-                                            NextPlanningCompLineNo := NextPlanningCompLineNo + 10000;
-                                            CreatePlanningComponentFromProdBOM(
-                                              PlanningComponent, ReqLine, ProdBOMLine[Level], CompSKU, LineQtyPerUOM, ItemQtyPerUOM);
-                                        end else begin
-                                            PlanningComponent.Reset();
-                                            PlanningComponent.BlockDynamicTracking(Blocked);
-                                            PlanningComponent.Validate(
-                                              "Quantity per",
-                                              PlanningComponent."Quantity per" + ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM);
-                                            PlanningComponent.Validate("Routing Link Code", ProdBOMLine[Level]."Routing Link Code");
-                                            OnBeforeModifyPlanningComponent(ReqLine, ProdBOMLine[Level], PlanningComponent, LineQtyPerUOM, ItemQtyPerUOM);
-                                            PlanningComponent.Modify();
-                                        end;
-
-                                        // A temporary list of Planning Components handled is sustained:
-                                        TempPlanningComponent := PlanningComponent;
-                                        if not TempPlanningComponent.Insert() then
-                                            TempPlanningComponent.Modify();
-                                    end;
-                            end;
-                        ProdBOMLine[Level].Type::"Production BOM":
-                            begin
-                                OnTransferBOMOnBeforeTransferProductionBOM(ReqQty, ProdBOMLine[Level], LineQtyPerUOM, ItemQtyPerUOM);
-                                TransferBOM(ProdBOMLine[Level]."No.", Level + 1, ReqQty, 1);
-                                ProdBOMLine[Level].SetRange("Production BOM No.", ProdBOMNo);
-                                ProdBOMLine[Level].SetRange(
-                                  "Version Code", VersionMgt.GetBOMVersion(ProdBOMNo, ReqLine."Starting Date", true));
-                                ProdBOMLine[Level].SetFilter("Starting Date", '%1|..%2', 0D, ReqLine."Starting Date");
-                                ProdBOMLine[Level].SetFilter("Ending Date", '%1|%2..', 0D, ReqLine."Starting Date");
-                            end;
-                    end;
+            if Level > 50 then begin
+                if PlanningResiliency then begin
+                    BOMHeader.Get(ReqLine."Production BOM No.");
+                    TempPlanningErrorLog.SetError(
+                      StrSubstNo(Text014, ReqLine."Production BOM No.", ReqLine."No."),
+                      DATABASE::"Production BOM Header", BOMHeader.GetPosition());
                 end;
-            until ProdBOMLine[Level].Next() = 0;
+                Error(
+                  Text000,
+                  ProdBOMNo);
+            end;
+
+            if NextPlanningCompLineNo = 0 then begin
+                PlanningComponent.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
+                PlanningComponent.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
+                PlanningComponent.SetRange("Worksheet Line No.", ReqLine."Line No.");
+                if PlanningComponent.Find('+') then
+                    NextPlanningCompLineNo := PlanningComponent."Line No.";
+                PlanningComponent.Reset();
+            end;
+
+            BOMHeader.Get(ProdBOMNo);
+
+            if Level > 1 then
+                VersionCode := VersionMgt.GetBOMVersion(ProdBOMNo, ReqLine."Starting Date", true)
+            else
+                VersionCode := ReqLine."Production BOM Version Code";
+            if VersionCode <> '' then begin
+                ProductionBOMVersion.Get(ProdBOMNo, VersionCode);
+                ProductionBOMVersion.TestField(Status, ProductionBOMVersion.Status::Certified);
+            end else
+                BOMHeader.TestField(Status, BOMHeader.Status::Certified);
+
+            ProdBOMLine[Level].SetRange("Production BOM No.", ProdBOMNo);
+            if Level > 1 then
+                ProdBOMLine[Level].SetRange("Version Code", VersionMgt.GetBOMVersion(BOMHeader."No.", ReqLine."Starting Date", true))
+            else
+                ProdBOMLine[Level].SetRange("Version Code", ReqLine."Production BOM Version Code");
+            ProdBOMLine[Level].SetFilter("Starting Date", '%1|..%2', 0D, ReqLine."Starting Date");
+            ProdBOMLine[Level].SetFilter("Ending Date", '%1|%2..', 0D, ReqLine."Starting Date");
+            OnTransferBOMOnAfterProdBOMLineSetFilters(ProdBOMLine[Level], ReqLine);
+            if ProdBOMLine[Level].Find('-') then
+                repeat
+                    IsHandled := false;
+                    OnTransferBOMOnBeforeTransferPlanningComponent(ReqLine, ProdBOMLine[Level], Blocked, IsHandled);
+                    if not IsHandled then begin
+                        if ProdBOMLine[Level]."Routing Link Code" <> '' then begin
+                            PlanningRtngLine2.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
+                            PlanningRtngLine2.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
+                            PlanningRtngLine2.SetRange("Worksheet Line No.", ReqLine."Line No.");
+                            PlanningRtngLine2.SetRange("Routing Link Code", ProdBOMLine[Level]."Routing Link Code");
+                            PlanningRtngLine2.FindFirst();
+                            ReqQty :=
+                              ProdBOMLine[Level].Quantity *
+                              (1 + ProdBOMLine[Level]."Scrap %" / 100) *
+                              (1 + PlanningRtngLine2."Scrap Factor % (Accumulated)") *
+                              LineQtyPerUOM / ItemQtyPerUOM +
+                              PlanningRtngLine2."Fixed Scrap Qty. (Accum.)";
+                        end else
+                            ReqQty :=
+                              ProdBOMLine[Level].Quantity *
+                              (1 + ProdBOMLine[Level]."Scrap %" / 100) *
+                              LineQtyPerUOM / ItemQtyPerUOM;
+
+                        OnTransferBOMOnAfterCalculateReqQty(ReqQty, ProdBOMLine[Level]);
+                        case ProdBOMLine[Level].Type of
+                            ProdBOMLine[Level].Type::Item:
+                                begin
+                                    IsHandled := false;
+                                    UpdateCondition := ReqQty <> 0;
+                                    OnTransferBOMOnBeforeUpdatePlanningComp(ProdBOMLine[Level], UpdateCondition, IsHandled);
+                                    if not IsHandled then
+                                        if UpdateCondition then begin
+                                            if not IsPlannedComp(PlanningComponent, ReqLine, ProdBOMLine[Level]) then begin
+                                                NextPlanningCompLineNo := NextPlanningCompLineNo + 10000;
+                                                CreatePlanningComponentFromProdBOM(
+                                                  PlanningComponent, ReqLine, ProdBOMLine[Level], CompSKU, LineQtyPerUOM, ItemQtyPerUOM);
+                                            end else begin
+                                                PlanningComponent.Reset();
+                                                PlanningComponent.BlockDynamicTracking(Blocked);
+                                                PlanningComponent.Validate(
+                                                  "Quantity per",
+                                                  PlanningComponent."Quantity per" + ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM);
+                                                PlanningComponent.Validate("Routing Link Code", ProdBOMLine[Level]."Routing Link Code");
+                                                OnBeforeModifyPlanningComponent(ReqLine, ProdBOMLine[Level], PlanningComponent, LineQtyPerUOM, ItemQtyPerUOM);
+                                                PlanningComponent.Modify();
+                                            end;
+
+                                            // A temporary list of Planning Components handled is sustained:
+                                            TempPlanningComponent := PlanningComponent;
+                                            if not TempPlanningComponent.Insert() then
+                                                TempPlanningComponent.Modify();
+                                        end;
+                                end;
+                            ProdBOMLine[Level].Type::"Production BOM":
+                                begin
+                                    OnTransferBOMOnBeforeTransferProductionBOM(ReqQty, ProdBOMLine[Level], LineQtyPerUOM, ItemQtyPerUOM, ReqLine);
+                                    TransferBOM(ProdBOMLine[Level]."No.", Level + 1, ReqQty, 1);
+                                    ProdBOMLine[Level].SetRange("Production BOM No.", ProdBOMNo);
+                                    ProdBOMLine[Level].SetRange(
+                                      "Version Code", VersionMgt.GetBOMVersion(ProdBOMNo, ReqLine."Starting Date", true));
+                                    ProdBOMLine[Level].SetFilter("Starting Date", '%1|..%2', 0D, ReqLine."Starting Date");
+                                    ProdBOMLine[Level].SetFilter("Ending Date", '%1|%2..', 0D, ReqLine."Starting Date");
+                                end;
+                        end;
+                    end;
+                until ProdBOMLine[Level].Next() = 0;
+        end;
+        OnAfterTransferBOM(ReqLine, ProdBOMNo, Level, LineQtyPerUOM, ItemQtyPerUOM);
     end;
 
     local procedure TransferAsmBOM(ParentItemNo: Code[20]; Level: Integer; Quantity: Decimal)
@@ -985,6 +986,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferBOM(RequisitionLine: Record "Requisition Line"; ProdBOMNo: Code[20]; Level: Integer; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterRecalculateWithOptionalModify(var RequisitionLine: Record "Requisition Line"; Direction: Option Forward,Backward)
     begin
     end;
@@ -1085,7 +1091,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferBOMOnBeforeTransferProductionBOM(var ReqQty: Decimal; ProductionBOMLine: Record "Production BOM Line"; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal)
+    local procedure OnTransferBOMOnBeforeTransferProductionBOM(var ReqQty: Decimal; ProductionBOMLine: Record "Production BOM Line"; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal; RequisitionLine: Record "Requisition Line")
     begin
     end;
 

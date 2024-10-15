@@ -249,7 +249,10 @@ page 489 "Column Layout"
     end;
 
     trigger OnOpenPage()
+    var
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
     begin
+        FinancialReportMgt.LaunchEditColumnsWarningNotification();
         AccSchedManagement.OpenColumns(CurrentColumnName, Rec);
     end;
 

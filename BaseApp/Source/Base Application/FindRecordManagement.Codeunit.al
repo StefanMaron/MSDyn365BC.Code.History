@@ -1,6 +1,8 @@
 codeunit 703 "Find Record Management"
 {
-    Permissions = tabledata "Capacity Ledger Entry" = r;
+    Permissions = tabledata "G/L Entry" = r,
+                  tabledata "Capacity Ledger Entry" = r;
+
 
     trigger OnRun()
     begin

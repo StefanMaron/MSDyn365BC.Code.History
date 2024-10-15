@@ -2077,6 +2077,7 @@
         if IsHandled then
             exit;
 
+        RMSetup.Get();
         if RMSetup."Maintain Dupl. Search Strings" then
             DuplMgt.MakeContIndex(Rec);
 

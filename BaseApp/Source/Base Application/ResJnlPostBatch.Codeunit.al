@@ -43,6 +43,8 @@ codeunit 213 "Res. Jnl.-Post Batch"
         Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
 
     local procedure "Code"()
+    var
+        RecordLinkManagement: Codeunit "Record Link Management";
     begin
         OnBeforeCode(ResJnlLine);
 
@@ -180,6 +182,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
                     ResJnlLine2.SetFilter("Resource No.", '<>%1', '');
                     if ResJnlLine2.Find('+') then; // Remember the last line
                     ResJnlLine3.Copy(ResJnlLine);
+                    RecordLinkManagement.RemoveLinks(ResJnlLine3);
                     ResJnlLine3.DeleteAll();
                     ResJnlLine3.Reset();
                     ResJnlLine3.SetRange("Journal Template Name", "Journal Template Name");

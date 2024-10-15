@@ -21,8 +21,8 @@ codeunit 799 "VAT Reporting Date Mgt"
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
-        VATReturnStatusWarningMsg: Label 'VAT Return for chosen period is already %1. Are you sure you want to make this change?', Comment = '%1 - The status of the VAT return.'; 
-        VATDateNotChangedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
+        VATReturnStatusWarningMsg: Label 'VAT Return for the chosen period is already %1. Are you sure you want to make this change?', Comment = '%1 - The status of the VAT return.'; 
+        VATReturnPeriodClosedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
 
     procedure UpdateLinkedEntries(VATEntry: Record "VAT Entry")
     begin
@@ -60,7 +60,7 @@ codeunit 799 "VAT Reporting Date Mgt"
     begin
         if VATReturnPeriod.FindVATPeriodByDate(VATDate) then begin
             if VATReturnPeriod.Status = VATReturnPeriod.Status::Closed then
-                Error(VATDateNotChangedErr);
+                Error(VATReturnPeriodClosedErr);
 
             VATReturnPeriod.CalcFields("VAT Return Status");
             if VATReturnPeriod."VAT Return Status" in [VATReturnPeriod."VAT Return Status"::Released, VATReturnPeriod."VAT Return Status"::Submitted] then

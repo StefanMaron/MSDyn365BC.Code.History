@@ -10,10 +10,31 @@ codeunit 1504 "Deposits Page Mgt."
     begin
         if not Confirm(MisconfiguredDepositsExtensionErr) then
             exit(false);
+        OpenFeatureMgt();
+        exit(true);
+    end;
+#endif
+
+#if not CLEAN22
+    [Obsolete('Bank Deposits feature will be enabled by default', '22.0')]
+    procedure OpenFeatureMgtFromNotification(Notification: Notification)
+    begin
+#if not CLEAN21
+        OpenFeatureMgt();
+#endif
+    end;
+#endif
+
+#if not CLEAN21
+    local procedure OpenFeatureMgt()
+    var
+        FeatureKey: Record "Feature Key";
+        BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
+        FeatureManagement: Page "Feature Management";
+    begin
         if FeatureKey.Get(BankDepositFeatureMgt.GetFeatureKeyId()) then
             FeatureManagement.SetRecord(FeatureKey);
         FeatureManagement.Run();
-        exit(true);
     end;
 #endif
 
