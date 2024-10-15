@@ -158,6 +158,8 @@ codeunit 2000042 "Post Coded Bank Statement"
     procedure ProcessCodBankStmtLine(var CodedBankStmtLine: Record "CODA Statement Line")
     var
         CodBankStmtLine: Record "CODA Statement Line";
+        AppliedAmount: Decimal;
+        UnappliedAmtInclPartial: Decimal;
     begin
         with CodedBankStmtLine do begin
             if FetchCodedTransaction(CodedBankStmtLine) then
@@ -186,14 +188,21 @@ codeunit 2000042 "Post Coded Bank Statement"
                     CodBankStmtLine.SetRange("Statement No.", "Statement No.");
                     CodBankStmtLine.SetRange(ID, ID);
                     CodBankStmtLine.SetRange("Attached to Line No.", "Statement Line No.");
-                    if CodBankStmtLine.FindSet then
+                    if CodBankStmtLine.FindSet then begin
+                        UnappliedAmtInclPartial := "Unapplied Amount";
                         repeat
                             ProcessCodBankStmtLine(CodBankStmtLine);
+
+                            if CodBankStmtLine."Application Status" = CodBankStmtLine."Application Status"::"Partly applied" then
+                                AppliedAmount := CodBankStmtLine."Statement Amount"
+                            else
+                                AppliedAmount := CodBankStmtLine.Amount;
+                            UnappliedAmtInclPartial -= AppliedAmount;
                             "Unapplied Amount" := "Unapplied Amount" - CodBankStmtLine.Amount;
-                            if "Unapplied Amount" = 0 then
-                                "Application Status" := "Application Status"::"Indirectly applied"
-                        until CodBankStmtLine.Next = 0
-                    else
+                        until CodBankStmtLine.Next = 0;
+                        if UnappliedAmtInclPartial = 0 then
+                            "Application Status" := "Application Status"::"Indirectly applied";
+                    end else
                         ApplyCodedTransaction(CodedBankStmtLine)
                 end;
             "System-Created Entry" := true;

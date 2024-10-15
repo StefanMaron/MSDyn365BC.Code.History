@@ -12,7 +12,14 @@ report 190 "Issue Reminders"
             RequestFilterHeading = 'Reminder';
 
             trigger OnAfterGetRecord()
+            var
+                InvoiceRoundingAmount: Decimal;
             begin
+                InvoiceRoundingAmount := GetInvoiceRoundingAmount();
+                if InvoiceRoundingAmount <> 0 then
+                    if not ConfirmManagement.GetResponse(ProceedOnIssuingWithInvRoundingQst, false) then
+                        CurrReport.Break();
+
                 RecordNo := RecordNo + 1;
                 Clear(ReminderIssue);
                 ReminderIssue.Set("Reminder Header", ReplacePostingDate, PostingDateReq);
@@ -219,6 +226,7 @@ report 190 "Issue Reminders"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
         ReminderIssue: Codeunit "Reminder-Issue";
+        ConfirmManagement: Codeunit "Confirm Management";
         Window: Dialog;
         NoOfRecords: Integer;
         RecordNo: Integer;
@@ -233,6 +241,7 @@ report 190 "Issue Reminders"
         [InDataSet]
         IsOfficeAddin: Boolean;
         ReminderNoFilter: Text;
+        ProceedOnIssuingWithInvRoundingQst: Label 'The invoice rounding amount will be added to the reminder when it is posted according to invoice rounding setup.\Do you want to continue?';	
         Text19067972: Label 'When posting Interest or Additional Fees:';
 
     [IntegrationEvent(false, false)]

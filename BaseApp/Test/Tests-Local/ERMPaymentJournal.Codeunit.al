@@ -557,6 +557,88 @@ codeunit 144003 "ERM Payment Journal"
         PaymentJnlLine.TestField("Payment Message", GenJnlLine."Payment Reference");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchGeneralJournalLineDescriptionForSeparatePmtLines()
+    var
+        Vendor: Record Vendor;
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        PaymentJnlLine: Record "Payment Journal Line";
+        ExportProtocolCode: Code[20];
+        TemplateName: Code[10];
+        BatchName: Code[10];
+        InvoiceNo: Code[20];
+        InvoiceAmount: Decimal;
+        BankAccountNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Message] [Separate Line]
+        // [SCENARIO 372196] General journal lines created of out the separate purchase payment journal lines contains payment message
+
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice with "External Document No." = "X"
+        CreateVendorWithBankAccount(Vendor, false);
+        InvoiceAmount := LibraryRandom.RandDec(1000, 2);
+        BankAccountNo := CreateBankAccountMod97Compliant;
+        CreateAndPostGenJnlLine(
+          GenJnlLine."Account Type"::Vendor, Vendor."No.", GenJnlLine."Document Type"::Invoice, -InvoiceAmount, InvoiceNo, BankAccountNo);
+
+        // [GIVEN] Payment journal line with "Payment Message" = "X" applied to the above invoice
+        PrepareGenJnlBatch(GenJnlLine, GenJnlBatch);
+        PreparePaymentJnlBatch(TemplateName, BatchName, ExportProtocolCode, refExportProtocolType::International);
+        CreatePaymentJnlLine(
+          TemplateName, BatchName, PaymentJnlLine, PaymentJnlLine."Account Type"::Vendor, Vendor."No.",
+          PaymentJnlLine."Applies-to Doc. Type"::Invoice, InvoiceNo, Round(InvoiceAmount * 0.8), ExportProtocolCode, BankAccountNo);
+
+        // [WHEN] Post and export payment journal lines to general journal
+        PostPaymentJournal(GenJnlLine, PaymentJnlLine, ExportProtocolCode);
+
+        // [THEN] Two general journal lines created, both has Description = "X"
+        VerifyGenJnlLinesWithSameDescription(GenJnlBatch, PaymentJnlLine."Payment Message", 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesGeneralJournalLineDescriptionForSeparatePmtLines()
+    var
+        Customer: Record Customer;
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        PaymentJnlLine: Record "Payment Journal Line";
+        ExportProtocolCode: Code[20];
+        TemplateName: Code[10];
+        BatchName: Code[10];
+        InvoiceNo: Code[20];
+        InvoiceAmount: Decimal;
+        BankAccountNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Message] [Separate Line]
+        // [SCENARIO 372196] General journal lines created of out the separate sales payment journal lines contains payment message
+
+        Initialize();
+
+        // [GIVEN] Posted sales invoice with "External Document No." = "X"
+        CreateCustomerWithBankAccount(Customer);
+        InvoiceAmount := LibraryRandom.RandDec(1000, 2);
+        BankAccountNo := CreateBankAccountMod97Compliant;
+        CreateAndPostGenJnlLine(
+          GenJnlLine."Account Type"::Customer, Customer."No.", GenJnlLine."Document Type"::Invoice, InvoiceAmount, InvoiceNo, BankAccountNo);
+
+        // [GIVEN] Payment journal line with "Payment Message" = "X" applied to the above invoice
+        PrepareGenJnlBatch(GenJnlLine, GenJnlBatch);
+        PreparePaymentJnlBatch(TemplateName, BatchName, ExportProtocolCode, refExportProtocolType::International);
+        CreatePaymentJnlLine(
+          TemplateName, BatchName, PaymentJnlLine, PaymentJnlLine."Account Type"::Customer, Customer."No.",
+          PaymentJnlLine."Applies-to Doc. Type"::Invoice, InvoiceNo, Round(InvoiceAmount * 0.8), ExportProtocolCode, BankAccountNo);
+
+        // [WHEN] Post and export payment journal lines to general journal
+        PostPaymentJournal(GenJnlLine, PaymentJnlLine, ExportProtocolCode);
+
+        // [THEN] Two general journal lines created, both has Description = "X"
+        VerifyGenJnlLinesWithSameDescription(GenJnlBatch, PaymentJnlLine."Payment Message", 2);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Journal");
@@ -1455,6 +1537,18 @@ codeunit 144003 "ERM Payment Journal"
         Assert.AreEqual(1, TempDimSetEntry.Count, IncorrectNumberOfDimErr);
         TempDimSetEntry.TestField("Dimension Code", DimValue."Dimension Code");
         TempDimSetEntry.TestField("Dimension Value Code", DimValue.Code);
+    end;
+
+    local procedure VerifyGenJnlLinesWithSameDescription(GenJournalBatch: Record "Gen. Journal Batch"; ExpectedPaymentMessage: Text[100]; ExpectedCount: Integer)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        with GenJournalLine do begin
+            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+            SetRange("Journal Batch Name", GenJournalBatch.Name);
+            SetRange(Description, ExpectedPaymentMessage);
+            Assert.RecordCount(GenJournalLine, ExpectedCount);
+        end;
     end;
 
     [RequestPageHandler]

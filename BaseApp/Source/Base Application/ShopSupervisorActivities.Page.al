@@ -139,7 +139,7 @@ page 9041 "Shop Supervisor Activities"
             Init;
             Insert;
         end;
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var

@@ -87,6 +87,20 @@ codeunit 144016 "Library CODA Data Provider"
     end;
 
     [Scope('OnPrem')]
+    procedure OntVangenCODAScenario373926DataFile() FileName: Text
+    var
+        tempFile: File;
+    begin
+        tempFile.CreateTempFile(TEXTENCODING::Windows);
+        FileName := tempFile.Name;
+        tempFile.Close;
+        tempFile.TextMode := true;
+        tempFile.Create(FileName, TEXTENCODING::Windows);
+        WriteOntVangenCODAScenario373926(tempFile);
+        tempFile.Close;
+    end;
+
+    [Scope('OnPrem')]
     procedure InsertSampleCODAStatement(var CODAStatement: Record "CODA Statement"; BankAccountNo: Code[20])
     begin
         CODAStatement.Init;
@@ -2368,6 +2382,53 @@ codeunit 144016 "Library CODA Data Provider"
           '                                                               0');
         tempFile.Write('9               000150000000092382710000000049956120            ' +
           '                                                               2');
+    end;
+
+    local procedure WriteOntVangenCODAScenario373926(var tempFile: File)
+    begin
+        tempFile.Write('0000010092072505        00503659  HERMANS  JOHAN            KRED' +
+          'BEBB   00820877643 00000                                       2');
+        tempFile.Write('10157734028222864 EUR0BE                  0000000048168530080920C & F HERMANS' +
+          ' BV          KBC-Business Comfortrekening       157');
+        tempFile.Write('2100010000HEPW03654 TK4TBNINNIG1000000000837630100920313010000Terugbetaling' +
+          '    420-3332395-64                      10092015711 0');
+        tempFile.Write('2300010000420333239564                                                     ' +
+          '                                                  0 0');
+        tempFile.Write('2100010001HEPW03654 TK4TBNINNIG1000000000832340100920813010550' +
+          '                                                     10092015700 0');
+        tempFile.Write('2100010002HEPW03654 TK4TBNINNIG1000000000005290100920813010020' +
+          '                                                     10092015710 0');
+        tempFile.Write('2100020000HGJT40426 SDDBDTBDREC1000000000078930100920005010001' +
+          '127100920110BE65ZZZ0403063902                  BEB20010092015701 0');
+        tempFile.Write('22000200000000400-7606481-71           I 0717945808 R B0880966' +
+          ' I0000016740433-110407179458082020  GEBABEBB                   1 0');
+        tempFile.Write('2300020000BE62210047007161                     TOTAL BELGIUM' +
+          '                      //20200908-BEDO1                      0    0 1');
+        tempFile.Write('3100020001HGJT40426 SDDBDTBDREC005010001001TOTAL BELGIUM' +
+          '                                                                     1 0');
+        tempFile.Write('3200020001                                              ' +
+          '                        BE65ZZZ0403063902                            0 0');
+        tempFile.Write('2100030000HOUY01870 BKTUBBBECPG1000000000001500100920304' +
+          '0200011136703420000000801251289904056009092012195IKEA ZAVEN10092015711 0');
+        tempFile.Write('2200030000TEM-FOZAVENTEM  000000000001500000100000000EUR0000000' +
+          '                                                              1 0');
+        tempFile.Write('2300030000                                                     ' +
+          '                   00000                                      0 0');
+        tempFile.Write('2100030001HOUY01870 BKTUBBBECPG1000000000001500100920804021000' +
+          '                                                     10092015710 0');
+        tempFile.Write('2100040000HOUY01871 BKTUBBBECPG1000000000000300100920304020001' +
+          '1136703420000000801231948304165809092012205MERA CLAEY10092015711 0');
+        tempFile.Write('2200040000S BVBARUDDERVOOR000000000000300000100000000EUR0000000' +
+          '                                                              1 0');
+        tempFile.Write('2300040000                                                     ' +
+          '                   00000                                      0 0');
+        tempFile.Write('2100040001HOUY01871 BKTUBBBECPG1000000000000300100920804021000' +
+          '                                                     10092015710 0');
+        tempFile.Write('8157734028222864 EUR0BE                  0000000047250170100920' +
+          '                                                                0');
+
+        tempFile.Write('9               000019000000000918360000000000000000' +
+          '                                                                           2');
     end;
 
     local procedure WriteCODA1MultipleA(var tempFile: File)

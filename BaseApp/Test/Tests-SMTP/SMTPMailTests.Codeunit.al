@@ -156,7 +156,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddRecipients(Recipients);
         SMTP.GetRecipients(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // [WHEN] Add one recipient with a bad email address
         // [THEN] Recipient is not added and an error is thrown
@@ -165,7 +165,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddRecipients(Recipients);
         SMTP.GetRecipients(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one recipient with a bad email address
         // // [THEN] Recipient is not added and an error is thrown
@@ -174,7 +174,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddRecipients(Recipients);
         SMTP.GetRecipients(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one recipient with a bad email address
         // // [THEN] Recipient is not added and an error is thrown
@@ -183,7 +183,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddRecipients(Recipients);
         SMTP.GetRecipients(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one recipient with a bad email address
         // // [THEN] Recipient is not added and an error is thrown
@@ -192,7 +192,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddRecipients(Recipients);
         SMTP.GetRecipients(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
     end;
 
     [Test]
@@ -308,7 +308,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddCC(Recipients);
         SMTP.GetCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The CC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // [WHEN] Add one CC recipient with a bad email address
         // [THEN] CC Recipient is not added and an error is thrown
@@ -317,7 +317,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddCC(Recipients);
         SMTP.GetCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The CC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one CC recipient with a bad email address
         // // [THEN] CC Recipient is not added and an error is thrown
@@ -326,7 +326,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddCC(Recipients);
         SMTP.GetCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The CC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one CC recipient with a bad email address
         // // [THEN] CC Recipient is not added and an error is thrown
@@ -335,7 +335,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddCC(Recipients);
         SMTP.GetCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The CC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one CC recipient with a bad email address
         // // [THEN] CC Recipient is not added and an error is thrown
@@ -344,7 +344,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddCC(Recipients);
         SMTP.GetCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The CC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
     end;
 
     [Test]
@@ -460,7 +460,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddBCC(Recipients);
         SMTP.GetBCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The BCC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // [WHEN] Add one BCC recipient with a bad email address
         // [THEN] BCC Recipient is not added and an error is thrown
@@ -469,7 +469,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddBCC(Recipients);
         SMTP.GetBCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The BCC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one BCC recipient with a bad email address
         // // [THEN] BCC Recipient is not added and an error is thrown
@@ -478,7 +478,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddBCC(Recipients);
         SMTP.GetBCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The BCC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one BCC recipient with a bad email address
         // // [THEN] BCC Recipient is not added and an error is thrown
@@ -487,7 +487,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddBCC(Recipients);
         SMTP.GetBCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The BCC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one BCC recipient with a bad email address
         // // [THEN] BCC Recipient is not added and an error is thrown
@@ -496,7 +496,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddBCC(Recipients);
         SMTP.GetBCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The BCC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
     end;
 
     [Test]
