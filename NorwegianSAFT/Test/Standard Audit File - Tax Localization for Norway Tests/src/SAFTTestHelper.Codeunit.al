@@ -22,17 +22,36 @@ codeunit 148099 "SAF-T Test Helper"
         TempGLAccount: Record "G/L Account" temporary;
     begin
         SetupCompanyInformation();
-        SetupGLAccounts(TempGLAccount, NumberOfMasterDataRecords);
+        RemoveGLAccData();
+        SetupGLAccounts(TempGLAccount, TempGLAccount."Income/Balance"::"Income Statement", NumberOfMasterDataRecords);
+        SetupGLAccounts(TempGLAccount, TempGLAccount."Income/Balance"::"Balance Sheet", NumberOfMasterDataRecords);
         // Use same G/L accounts for customer and vendor posting to avoid creation of new accounts
+        SetupMasterDataBasedOnGLAccounts(TempGLAccount, NumberOfMasterDataRecords);
+    end;
+
+    procedure SetupMasterDataSingleAcc(IncomeBalance: Integer)
+    var
+        TempGLAccount: Record "G/L Account" temporary;
+    begin
+        SetupCompanyInformation();
+        RemoveGLAccData();
+        SetupGLAccounts(TempGLAccount, TempGLAccount."Income/Balance"::"Balance Sheet", 1);
+        // Use same G/L accounts for customer and vendor posting to avoid creation of new accounts
+        SetupMasterDataBasedOnGLAccounts(TempGLAccount, 1);
+    end;
+
+    local procedure SetupMasterDataBasedOnGLAccounts(var TempGLAccount: Record "G/L Account" temporary; NumberOfMasterDataRecords: Integer)
+    begin
         SetupVATPostingSetupMapping();
-        SetupCompanyBankAccount();
+        SetupCompanyBankAccounts();
         TempGLAccount.FindSet();
         SetupCustomers(TempGLAccount, NumberOfMasterDataRecords);
         SetupVendors(TempGLAccount, NumberOfMasterDataRecords);
         SetupDimensions();
     end;
 
-    procedure InsertSAFTMappingRangeFullySetup(var SAFTMappingRange: Record "SAF-T Mapping Range"; MappingType: Enum "SAF-T Mapping Type"; StartingDate: Date; EndingDate: Date)
+    procedure InsertSAFTMappingRangeFullySetup(var SAFTMappingRange: Record "SAF-T Mapping Range"; MappingType: Enum "SAF-T Mapping Type"; StartingDate: Date;
+                                                                                                                    EndingDate: Date)
     var
         SAFTMappingHelper: Codeunit "SAF-T Mapping Helper";
     begin
@@ -40,7 +59,8 @@ codeunit 148099 "SAF-T Test Helper"
         SAFTMappingHelper.Run(SAFTMappingRange);
     end;
 
-    procedure InsertSAFTMappingRangeWithSource(var SAFTMappingRange: Record "SAF-T Mapping Range"; MappingType: Enum "SAF-T Mapping Type"; StartingDate: Date; EndingDate: Date)
+    procedure InsertSAFTMappingRangeWithSource(var SAFTMappingRange: Record "SAF-T Mapping Range"; MappingType: Enum "SAF-T Mapping Type"; StartingDate: Date;
+                                                                                                                    EndingDate: Date)
     var
         SAFTXMLImport: Codeunit "SAF-T XML Import";
     begin
@@ -48,7 +68,8 @@ codeunit 148099 "SAF-T Test Helper"
         SAFTXMLImport.Run(SAFTMappingRange);
     end;
 
-    procedure InsertSAFTMappingRange(var SAFTMappingRange: Record "SAF-T Mapping Range"; MappingType: Enum "SAF-T Mapping Type"; StartingDate: Date; EndingDate: Date)
+    procedure InsertSAFTMappingRange(var SAFTMappingRange: Record "SAF-T Mapping Range"; MappingType: Enum "SAF-T Mapping Type"; StartingDate: Date;
+                                                                                                          EndingDate: Date)
     begin
         SAFTMappingRange.Init();
         SAFTMappingRange.Code := LibraryUtility.GenerateGUID();
@@ -87,7 +108,6 @@ codeunit 148099 "SAF-T Test Helper"
         i: Integer;
         Amount: Decimal;
     begin
-        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
         GLAccount.FindSet();
         Customer.FindSet();
         Vendor.FindSet();
@@ -100,6 +120,11 @@ codeunit 148099 "SAF-T Test Helper"
             GLAccount.Next();
             Customer.Next();
             Vendor.Next();
+        end;
+        // Create entries for all master data records except one G/L Account. In test it verifies that all G/L accounts exports anyway
+        for i := 1 to (NumberOfMasterDataRecords - 1) do begin
+            MockGLEntry(PostingDate, LibraryUtility.GenerateGUID(), GLAccount."No.", i, 0, '', '', 0, '', GetGLSourceCode(), Amount, 0);
+            GLAccount.Next();
         end;
     end;
 
@@ -157,7 +182,7 @@ codeunit 148099 "SAF-T Test Helper"
         GLEntry."Debit Amount" := DebitAmount;
         GLEntry."Credit Amount" := CreditAmount;
         GLEntry.Amount := DebitAmount + CreditAmount;
-        GLEntry.Insert();
+        GLEntry.Insert(true);
     end;
 
     procedure MockVATEntry(var VATEntry: Record "VAT Entry"; PostingDate: Date; Type: Integer; TransactionNo: Integer)
@@ -294,36 +319,56 @@ codeunit 148099 "SAF-T Test Helper"
         VATCode.ModifyAll(Compensation, false);
     end;
 
-    local procedure SetupCompanyBankAccount()
+    local procedure SetupCompanyBankAccounts()
     var
         CompanyInformation: Record "Company Information";
+        BankAccount: Record "Bank Account";
     begin
         CompanyInformation.Get();
         CompanyInformation."Bank Account No." := LibraryUtility.GenerateGUID();
         CompanyInformation.Modify();
+        BankAccount.DeleteAll();
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Bank Account No.", LibraryUtility.GenerateGUID());
+        BankAccount.Modify(true);
     end;
 
-    local procedure SetupGLAccounts(var TempGLAccount: Record "G/L Account" temporary; NumberOfMasterDataRecords: Integer)
+    local procedure SetupGLAccounts(var TempGLAccount: Record "G/L Account" temporary; IncomeBalance: Integer; NumberOfMasterDataRecords: Integer)
+    var
+        GLAccount: Record "G/L Account";
+        i: integer;
+    begin
+        for i := 1 to NumberOfMasterDataRecords do begin
+            LibraryERM.CreateGLAccount(GLAccount);
+            GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
+            GLAccount.Validate("Account Category", GetCategoryByIncomeBalance(IncomeBalance));
+            GLAccount.Validate("Income/Balance", IncomeBalance);
+            GLAccount.Validate("Direct Posting", true);
+            GLAccount.Modify(true);
+            TempGLAccount := GLAccount;
+            TempGLAccount.Insert();
+        end;
+    end;
+
+    local procedure RemoveGLAccData()
     var
         GLAccount: Record "G/L Account";
         SAFTGLAccountMapping: Record "SAF-T G/L Account Mapping";
-        i: integer;
-        IncomeBalance: Integer;
     begin
         GLAccount.DeleteAll();
         SAFTGLAccountMapping.DeleteAll();
-        TempGLAccount.Reset();
-        TempGLAccount.DeleteAll();
-        for IncomeBalance := GLAccount."Income/Balance"::"Income Statement" to GLAccount."Income/Balance"::"Balance Sheet" do
-            for i := 1 to NumberOfMasterDataRecords do begin
-                LibraryERM.CreateGLAccount(GLAccount);
-                GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
-                GLAccount.Validate("Income/Balance", IncomeBalance);
-                GLAccount.Validate("Direct Posting", true);
-                GLAccount.Modify(true);
-                TempGLAccount := GLAccount;
-                TempGLAccount.Insert();
-            end;
+    end;
+
+    local procedure GetCategoryByIncomeBalance(IncomeBalance: Integer): Integer
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        case IncomeBalance of
+            GLAccount."Income/Balance"::"Income Statement":
+                exit(GLAccount."Account Category"::Income);
+            GLAccount."Income/Balance"::"Balance Sheet":
+                exit(GLAccount."Account Category"::Liabilities);
+        end;
     end;
 
     local procedure SetupCustomers(var TempGLAccount: Record "G/L Account" temporary; NumberOfMasterDataRecords: Integer)
@@ -439,7 +484,7 @@ codeunit 148099 "SAF-T Test Helper"
 
     procedure FindSAFTHeaderElement(var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
-        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/nl:AuditFile/nl:Header');
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/n1:AuditFile/n1:Header');
     end;
 
     procedure AssertElementValue(var TempXMLBuffer: Record "XML Buffer" temporary; ElementName: Text; ElementValue: Text)

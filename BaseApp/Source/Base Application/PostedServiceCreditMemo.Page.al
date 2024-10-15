@@ -478,6 +478,7 @@ page 5972 "Posted Service Credit Memo"
                     Ellipsis = true;
                     Image = CreateDocument;
                     ToolTip = 'Create one or more XML documents that you can send to the customer. You can run the batch job for multiple credit memos or you can run it for an individual credit memo. The document number is used as the file name. The files are stored at the location that has been specified in the Sales & Receivables Setup window.';
+                    Visible = false;
 
                     trigger OnAction()
                     begin

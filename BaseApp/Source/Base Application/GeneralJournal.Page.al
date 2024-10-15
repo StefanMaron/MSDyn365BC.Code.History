@@ -403,7 +403,9 @@ page 39 "General Journal"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowDeferralSchedule;
+                        CurrPage.SaveRecord;
+                        Commit;
+                        ShowDeferralSchedule();
                     end;
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -1134,7 +1136,7 @@ page 39 "General Journal"
 
                     trigger OnAction()
                     begin
-                        if FindLast then;
+                        if FindLast() then;
                         ImportBankStatement;
                     end;
                 }
@@ -1166,7 +1168,7 @@ page 39 "General Journal"
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run;
+                        GLReconcile.Run();
                     end;
                 }
             }
@@ -1236,7 +1238,7 @@ page 39 "General Journal"
                         ImportPayrollTransaction: Codeunit "Import Payroll Transaction";
                     begin
                         GeneralLedgerSetup.TestField("Payroll Trans. Import Format");
-                        if FindLast then;
+                        if FindLast() then;
                         ImportPayrollTransaction.SelectAndImportPayrollDataToGL(Rec, GeneralLedgerSetup."Payroll Trans. Import Format");
                     end;
                 }
@@ -1253,7 +1255,7 @@ page 39 "General Journal"
 
                     trigger OnAction()
                     begin
-                        if FindLast then;
+                        if FindLast() then;
                         PayrollManagement.ImportPayroll(Rec);
                     end;
                 }
@@ -1355,7 +1357,7 @@ page 39 "General Journal"
                     begin
                         // Opens page 6400 where the user can use filtered templates to create new flows.
                         FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetJournalTemplateFilter);
-                        FlowTemplateSelector.Run;
+                        FlowTemplateSelector.Run();
                     end;
                 }
                 action(SeeFlows)
@@ -1476,11 +1478,11 @@ page 39 "General Journal"
                             GLAccount.SetRange("Direct Posting", true);
                             GLAccount.SetRange(Blocked, false);
                             CreateGLAccJournalLines.SetTableView(GLAccount);
-                            CreateGLAccJournalLines.InitializeRequest(DocumentTypes, Today, "Journal Template Name", "Journal Batch Name", '');
+                            CreateGLAccJournalLines.InitializeRequest(DocumentTypes, GetPostingDate(), "Journal Template Name", "Journal Batch Name", '');
                             CreateGLAccJournalLines.UseRequestPage(false);
                             CreateGLAccJournalLines.SetDefaultDocumentNo(CurrentDocNo);
                             Commit();  // Commit is required for Create Lines.
-                            CreateGLAccJournalLines.Run;
+                            CreateGLAccJournalLines.Run();
                         end;
                     }
                     action("Customers Opening balance")
@@ -1495,15 +1497,17 @@ page 39 "General Journal"
                             Customer: Record Customer;
                             CreateCustomerJournalLines: Report "Create Customer Journal Lines";
                             DocumentTypes: Option;
+                            PostingDate: Date;
                         begin
                             Customer.SetRange(Blocked, Customer.Blocked::" ");
                             CreateCustomerJournalLines.SetTableView(Customer);
-                            CreateCustomerJournalLines.InitializeRequest(DocumentTypes, Today, Today);
+                            PostingDate := GetPostingDate();
+                            CreateCustomerJournalLines.InitializeRequest(DocumentTypes, PostingDate, PostingDate);
                             CreateCustomerJournalLines.InitializeRequestTemplate("Journal Template Name", "Journal Batch Name", '');
                             CreateCustomerJournalLines.UseRequestPage(false);
                             CreateCustomerJournalLines.SetDefaultDocumentNo(CurrentDocNo);
                             Commit();  // Commit is required for Create Lines.
-                            CreateCustomerJournalLines.Run;
+                            CreateCustomerJournalLines.Run();
                         end;
                     }
                     action("Vendors Opening balance")
@@ -1518,15 +1522,17 @@ page 39 "General Journal"
                             Vendor: Record Vendor;
                             CreateVendorJournalLines: Report "Create Vendor Journal Lines";
                             DocumentTypes: Option;
+                            PostingDate: Date;
                         begin
                             Vendor.SetRange(Blocked, Vendor.Blocked::" ");
                             CreateVendorJournalLines.SetTableView(Vendor);
-                            CreateVendorJournalLines.InitializeRequest(DocumentTypes, Today, Today);
+                            PostingDate := GetPostingDate();
+                            CreateVendorJournalLines.InitializeRequest(DocumentTypes, PostingDate, PostingDate);
                             CreateVendorJournalLines.InitializeRequestTemplate("Journal Template Name", "Journal Batch Name", '');
                             CreateVendorJournalLines.UseRequestPage(false);
                             CreateVendorJournalLines.SetDefaultDocumentNo(CurrentDocNo);
                             Commit();  // Commit is required for Create Lines.
-                            CreateVendorJournalLines.Run;
+                            CreateVendorJournalLines.Run();
                         end;
                     }
                 }
@@ -1654,8 +1660,8 @@ page 39 "General Journal"
     trigger OnAfterGetCurrRecord()
     begin
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
-        if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::ODataV4 then
-            UpdateBalance;
+        if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::ODataV4 then
+            UpdateBalance();
         EnableApplyEntriesAction;
         SetControlAppearance;
         // PostedFromSimplePage is set to TRUE when 'POST' / 'POST+PRINT' action is executed in simple page mode.
@@ -1686,7 +1692,7 @@ page 39 "General Journal"
         BalanceVisible := true;
         AmountVisible := true;
         // Get simple / classic mode for this page except when called from a webservices (SOAP or ODATA)
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4]
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4]
         then
             IsSimplePage := false
         else
@@ -1708,7 +1714,7 @@ page 39 "General Journal"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateBalance;
+        UpdateBalance();
         EnableApplyEntriesAction;
         SetUpNewLine(xRec, Balance, BelowxRec);
         // set values from header for currency code, doc no. and posting date
@@ -1730,7 +1736,7 @@ page 39 "General Journal"
         LastGenJnlBatch: Code[10];
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
         BalAccName := '';
@@ -1857,7 +1863,14 @@ page 39 "General Journal"
     local procedure GetCurrentlySelectedLines(var GenJournalLine: Record "Gen. Journal Line"): Boolean
     begin
         CurrPage.SetSelectionFilter(GenJournalLine);
-        exit(GenJournalLine.FindSet);
+        exit(GenJournalLine.FindSet());
+    end;
+
+    local procedure GetPostingDate(): Date
+    begin
+      if IsSimplePage then
+        exit(CurrentPostingDate);
+      exit(Workdate());
     end;
 
     local procedure SetControlAppearance()
@@ -1877,7 +1890,7 @@ page 39 "General Journal"
 
         CanCancelApprovalForJnlLine := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
 
-        SetPayrollAppearance;
+        SetPayrollAppearance();
 
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestFlowApprovalForLine, CanCancelFlowApprovalForLine);
         CanRequestFlowApprovalForBatchAndCurrentLine := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForLine;
@@ -1925,7 +1938,7 @@ page 39 "General Journal"
         GenJournalLine.SetCurrentKey("Document No.");
         GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        if GenJournalLine.FindLast then begin
+        if GenJournalLine.FindLast() then begin
             LastDocNo := GenJournalLine."Document No.";
             IncrementDocumentNo(GenJnlBatch, LastDocNo);
         end else
@@ -2058,7 +2071,7 @@ page 39 "General Journal"
                 SetDataForSimpleMode(Rec)
             else begin
                 // if no rec is found reset the currentposting date to workdate and currency code to empty
-                CurrentPostingDate := WorkDate;
+                CurrentPostingDate := WorkDate();
                 Clear(CurrentCurrencyCode);
             end;
         end;

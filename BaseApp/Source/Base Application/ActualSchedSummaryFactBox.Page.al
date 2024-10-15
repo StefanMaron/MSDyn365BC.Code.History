@@ -87,10 +87,25 @@ page 956 "Actual/Sched. Summary FactBox"
         AbsenceQty: Decimal;
 
     procedure UpdateData(TimeSheetHeader: Record "Time Sheet Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateData(
+            TimeSheetHeader, DateDescription, DateQuantity, TotalQtyText, TotalQuantity, AbsenceQty, PresenceQty, IsHandled);
+        if IsHandled then
+            exit;
+
         TimeSheetMgt.CalcActSchedFactBoxData(TimeSheetHeader, DateDescription, DateQuantity, TotalQtyText, TotalQuantity, AbsenceQty);
         PresenceQty := TotalQuantity - AbsenceQty;
         CurrPage.Update(false);
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeUpdateData(
+        var TimeSheetHeader: Record "Time Sheet Header"; var DateDescription: array[7] of Text[30]; var DateQuantity: array[7] of Text[30];
+        var TotalQtyText: Text[30]; var TotalQuantity: Decimal; var AbsenceQty: Decimal; var PresenceQty: Decimal; var IsHandled: Boolean)
+    begin
     end;
 }
 

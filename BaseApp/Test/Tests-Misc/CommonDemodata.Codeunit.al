@@ -71,7 +71,7 @@ codeunit 138500 "Common Demodata"
         VATBusPostingGroup: Record "VAT Business Posting Group";
     begin
         // [SCENARIO] There are 3 VAT Bus. Posting groups
-        Assert.RecordCount(VATBusPostingGroup, 3);
+        Assert.RecordCount(VATBusPostingGroup, 6);
     end;
 
     [Test]
@@ -83,14 +83,14 @@ codeunit 138500 "Common Demodata"
         // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
         with VATPostingSetup do begin
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            Assert.RecordCount(VATPostingSetup, 2);
+            Assert.RecordCount(VATPostingSetup, 1);
 
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Full VAT", "VAT Calculation Type"::"Sales Tax");
-            Assert.RecordCount(VATPostingSetup, 0);
+            Assert.RecordCount(VATPostingSetup, 2);
 
             Reset;
             SetRange("EU Service", true);
-            Assert.RecordCount(VATPostingSetup, 1);
+            Assert.RecordCount(VATPostingSetup, 0);
         end;
     end;
 

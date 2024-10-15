@@ -366,6 +366,13 @@ page 5165 "Purchase Quote Archive Subform"
         SetDimensionsVisibility;
     end;
 
+    trigger OnAfterGetRecord()
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
+    end;
+
     var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;

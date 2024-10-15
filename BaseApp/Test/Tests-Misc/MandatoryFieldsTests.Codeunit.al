@@ -11,10 +11,10 @@ codeunit 134590 "Mandatory Fields Tests"
 
     var
         Assert: Codeunit Assert;
+        UnexpectedShowMandatoryValueTxt: Label 'Unexpected value of ShowMandatory property.';
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        UnexpectedShowMandatoryValueTxt: Label 'Unexpected value of ShowMandatory property.';
         LibraryInventory: Codeunit "Library - Inventory";
         IsInitialized: Boolean;
 
@@ -64,6 +64,9 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsFalse(CustomerCard."VAT Bus. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CustomerCard."Customer Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CustomerCard."Payment Terms Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        Assert.IsFalse(CustomerCard.GLN.ShowMandatory, UnexpectedShowMandatoryValueTxt);
+        CustomerCard."E-Invoice".SetValue(true);
+        Assert.IsTrue(CustomerCard.GLN.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         CustomerCard.Close;
     end;
 
@@ -95,11 +98,15 @@ codeunit 134590 "Mandatory Fields Tests"
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
         LibrarySales.DisableWarningOnCloseUnreleasedDoc;
         LibrarySales.CreateCustomer(Customer);
-        VerifyMandatoryFieldsOnSalesInvoice(Customer);
-        VerifyMandatoryFieldsOnSalesOrder(Customer);
-        VerifyMandatoryFieldsOnSalesReturnOrder(Customer);
+        VerifyMandatoryFieldsOnSalesInvoice(Customer, false);
+        VerifyMandatoryFieldsOnSalesOrder(Customer, false);
+        VerifyMandatoryFieldsOnSalesReturnOrder(Customer, false);
         VerifyMandatoryFieldsOnSalesQuote(Customer);
-        VerifyMandatoryFieldsOnSalesCreditMemo(Customer);
+        VerifyMandatoryFieldsOnSalesCreditMemo(Customer, false);
+        VerifyMandatoryFieldsOnSalesInvoice(Customer, true);
+        VerifyMandatoryFieldsOnSalesOrder(Customer, true);
+        VerifyMandatoryFieldsOnSalesCreditMemo(Customer, true);
+        VerifyMandatoryFieldsOnSalesReturnOrder(Customer, true);
     end;
 
     [Test]
@@ -219,16 +226,19 @@ codeunit 134590 "Mandatory Fields Tests"
         CompanyInformation.Close;
     end;
 
-    local procedure VerifyMandatoryFieldsOnSalesInvoice(Customer: Record Customer)
+    local procedure VerifyMandatoryFieldsOnSalesInvoice(Customer: Record Customer; EInvoiceCustomer: Boolean)
     var
         SalesLine: Record "Sales Line";
         SalesInvoice: TestPage "Sales Invoice";
     begin
         SetExternalDocNoMandatory(true);
+        SetEInvoiceFlag(Customer, EInvoiceCustomer);
         SalesInvoice.OpenNew;
         Assert.IsTrue(SalesInvoice."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesInvoice."Sell-to Customer Name".SetValue(Customer."No.");
+        Assert.AreEqual(SalesInvoice."External Document No.".ShowMandatory, true, UnexpectedShowMandatoryValueTxt);
+        Assert.AreEqual(SalesInvoice."Your Reference".ShowMandatory, EInvoiceCustomer, UnexpectedShowMandatoryValueTxt);
         SalesInvoice.SalesLines.New;
         Assert.AreEqual(false, SalesInvoice.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(SalesInvoice.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -250,16 +260,19 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesInvoice.Close;
     end;
 
-    local procedure VerifyMandatoryFieldsOnSalesOrder(Customer: Record Customer)
+    local procedure VerifyMandatoryFieldsOnSalesOrder(Customer: Record Customer; EInvoiceCustomer: Boolean)
     var
         SalesLine: Record "Sales Line";
         SalesOrder: TestPage "Sales Order";
     begin
         SetExternalDocNoMandatory(true);
+        SetEInvoiceFlag(Customer, EInvoiceCustomer);
         SalesOrder.OpenNew;
         Assert.IsTrue(SalesOrder."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesOrder."Sell-to Customer Name".SetValue(Customer."No.");
+        Assert.AreEqual(SalesOrder."External Document No.".ShowMandatory, true, UnexpectedShowMandatoryValueTxt);
+        Assert.AreEqual(SalesOrder."Your Reference".ShowMandatory, EInvoiceCustomer, UnexpectedShowMandatoryValueTxt);
         SalesOrder.SalesLines.New;
         Assert.IsFalse(SalesOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(SalesOrder.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -281,14 +294,18 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesOrder.Close;
     end;
 
-    local procedure VerifyMandatoryFieldsOnSalesReturnOrder(Customer: Record Customer)
+    local procedure VerifyMandatoryFieldsOnSalesReturnOrder(Customer: Record Customer; EInvoiceCustomer: Boolean)
     var
         SalesLine: Record "Sales Line";
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
+        SetEInvoiceFlag(Customer, EInvoiceCustomer);
         SalesReturnOrder.OpenNew;
         Assert.IsTrue(SalesReturnOrder."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesReturnOrder."Sell-to Customer Name".SetValue(Customer."No.");
+        Assert.AreEqual(SalesReturnOrder."External Document No.".ShowMandatory, EInvoiceCustomer, UnexpectedShowMandatoryValueTxt);
+        Assert.AreEqual(SalesReturnOrder."Your Reference".ShowMandatory, EInvoiceCustomer, UnexpectedShowMandatoryValueTxt);
+        Assert.AreEqual(SalesReturnOrder."Shipment Date".ShowMandatory, EInvoiceCustomer, UnexpectedShowMandatoryValueTxt);
         SalesReturnOrder.SalesLines.New;
         Assert.IsFalse(SalesReturnOrder.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(SalesReturnOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
@@ -324,12 +341,13 @@ codeunit 134590 "Mandatory Fields Tests"
         SalesQuote.Close;
     end;
 
-    local procedure VerifyMandatoryFieldsOnSalesCreditMemo(Customer: Record Customer)
+    local procedure VerifyMandatoryFieldsOnSalesCreditMemo(Customer: Record Customer; EInvoiceCustomer: Boolean)
     var
         SalesLine: Record "Sales Line";
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         SetExternalDocNoMandatory(true);
+        SetEInvoiceFlag(Customer, EInvoiceCustomer);
         SalesCreditMemo.OpenNew;
         Assert.AreEqual(true, SalesCreditMemo."Sell-to Customer Name".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer."No.");
@@ -465,6 +483,12 @@ codeunit 134590 "Mandatory Fields Tests"
         ConfigTemplateHeader: Record "Config. Template Header";
     begin
         ConfigTemplateHeader.DeleteAll(true);
+    end;
+
+    local procedure SetEInvoiceFlag(var Customer: Record Customer; EInvoiceCustomer: Boolean)
+    begin
+        Customer.Validate("E-Invoice", EInvoiceCustomer);
+        Customer.Modify();
     end;
 }
 

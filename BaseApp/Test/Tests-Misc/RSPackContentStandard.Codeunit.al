@@ -398,7 +398,7 @@ codeunit 138300 "RS Pack Content - Standard"
         // [SCENARIO] VAT Statement tables must contain records
         Assert.TableIsNotEmpty(DATABASE::"VAT Statement Template");
         Assert.TableIsNotEmpty(DATABASE::"VAT Statement Name");
-        Assert.TableIsNotEmpty(DATABASE::"VAT Statement Line");
+        Assert.TableIsEmpty(DATABASE::"VAT Statement Line");
     end;
 
     [Test]

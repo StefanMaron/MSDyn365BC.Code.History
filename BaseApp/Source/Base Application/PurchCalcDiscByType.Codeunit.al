@@ -27,7 +27,7 @@ codeunit 66 "Purch - Calc Disc. By Type"
             exit;
 
         IsHandled := false;
-        OnBeforeApplyDefaultInvoiceDiscount(PurchHeader, IsHandled);
+        OnBeforeApplyDefaultInvoiceDiscount(PurchHeader, IsHandled, InvoiceDiscountAmount);
         if not IsHandled then
             if PurchHeader."Invoice Discount Calculation" = PurchHeader."Invoice Discount Calculation"::Amount then
                 ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchHeader)
@@ -216,7 +216,7 @@ codeunit 66 "Purch - Calc Disc. By Type"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeApplyDefaultInvoiceDiscount(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforeApplyDefaultInvoiceDiscount(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; InvoiceDiscountAmount: Decimal)
     begin
     end;
 

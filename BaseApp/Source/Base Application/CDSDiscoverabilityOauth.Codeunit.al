@@ -5,17 +5,16 @@ codeunit 7202 "CDS Discoverability Oauth"
 
     var
         RequestTokenUrlTxt: Label 'https://login.microsoftonline.com/common/oauth2', Locked = true;
+        ResourceUrlTxt: Label 'https://globaldisco.crm.dynamics.com', Locked = true;
         ScopeTxt: Label 'user_impersonation', Locked = true;
         ConsumerKeyTxt: Label 'globaldisco-clientid', Locked = true;
         ConsumerSecretTxt: Label 'globaldisco-clientsecret', Locked = true;
-        ResourceUrlTxt: Label 'globaldisco-resourceurl', Locked = true;
         GlobalDiscoOauthCategoryLbl: Label 'Global Discoverability OAuth', Locked = true;
         MissingKeySecretResourceErr: Label 'The consumer key secret or resource URL have not been initialized and are missing from the Azure Key Vault.';
         MissingStateErr: Label 'The returned authorization code is missing information about the returned state.';
         MismatchingStateErr: Label 'The authroization code returned state is missmatching the expected state value.';
         ConsumerKey: Text;
         ConsumerSecret: Text;
-        ResourceUrl: Text;
         ExpectedState: Text;
 
     [Scope('OnPrem')]
@@ -36,18 +35,15 @@ codeunit 7202 "CDS Discoverability Oauth"
         if ConsumerSecret = '' then
             if not AzureKeyVault.GetAzureKeyVaultSecret(ConsumerSecretTxt, ConsumerSecret) then;
 
-        if ResourceUrl = '' then
-            if not AzureKeyVault.GetAzureKeyVaultSecret(ResourceUrlTxt, ResourceUrl) then;
-
         CallbackUrl := AzureADMgt.GetRedirectUrl();
         CallbackUrl := GetCallbackUrlNoEnvironment(CallbackUrl);
 
-        if (ConsumerKey = '') OR (ConsumerSecret = '') OR (ResourceUrl = '') then begin
+        if (ConsumerKey = '') OR (ConsumerSecret = '') then begin
             SendTraceTag('0000BFG', GlobalDiscoOauthCategoryLbl, Verbosity::Error, MissingKeySecretResourceErr, DataClassification::SystemMetadata);
             exit('');
         end;
 
-        if not GetAuthRequestUrl(ConsumerKey, ConsumerSecret, ScopeTxt, RequestTokenUrlTxt, CallbackUrl, ExpectedState, ResourceUrl, AuthRequestUrl) then
+        if not GetAuthRequestUrl(ConsumerKey, ConsumerSecret, ScopeTxt, RequestTokenUrlTxt, CallbackUrl, ExpectedState, AuthRequestUrl) then
             exit('');
 
         exit(AuthRequestUrl);
@@ -99,14 +95,14 @@ codeunit 7202 "CDS Discoverability Oauth"
 
         AccessTokenKey :=
                 AzureADAuthFlow.AcquireTokenByAuthorizationCodeWithCredentials(AuthCode,
-                  ConsumerKey, ConsumerSecret, ResourceUrl);
+                  ConsumerKey, ConsumerSecret, ResourceUrlTxt);
 
         exit(AccessTokenKey);
     end;
 
     [TryFunction]
     [NonDebuggable]
-    local procedure GetAuthRequestUrl(ClientId: Text; ClientSecret: Text; Scope: Text; Url: Text; CallBackUrl: Text; State: Text; ResourceUrl: Text; var AuthRequestUrl: Text)
+    local procedure GetAuthRequestUrl(ClientId: Text; ClientSecret: Text; Scope: Text; Url: Text; CallBackUrl: Text; State: Text; var AuthRequestUrl: Text)
     var
         OAuthAuthorization: DotNet OAuthAuthorization;
         Consumer: DotNet Consumer;
@@ -116,7 +112,7 @@ codeunit 7202 "CDS Discoverability Oauth"
         Consumer := Consumer.Consumer(ClientId, ClientSecret);
         OAuthAuthorization := OAuthAuthorization.OAuthAuthorization(Consumer, Token);
         AuthRequestUrl := OAuthAuthorization.CalculateAuthRequestUrl(Url, CallBackUrl, Scope, State);
-        AuthRequestUrl := AuthRequestUrl + '&prompt=consent&resource=' + ResourceUrl;
+        AuthRequestUrl := AuthRequestUrl + '&prompt=consent&resource=' + ResourceUrlTxt;
 
     end;
 

@@ -337,6 +337,7 @@ page 144 "Posted Sales Credit Memos"
                     Caption = 'Create Electronic Credit Memo';
                     Image = CreateDocument;
                     ToolTip = 'Create one or more XML documents that you can send to the customer. You can run the batch job for multiple credit memos or you can run it for an individual credit memo. The document number is used as the file name. The files are stored at the location that has been specified in the Sales & Receivables Setup window.';
+                    Visible = false;
 
                     trigger OnAction()
                     var

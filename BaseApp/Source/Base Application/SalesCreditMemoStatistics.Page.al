@@ -217,6 +217,9 @@ page 398 "Sales Credit Memo Statistics"
             ProfitPct := Round(100 * ProfitLCY / AmountLCY, 0.1);
 
         AdjProfitLCY := AmountLCY - TotalAdjCostLCY;
+
+        OnAfterGetRecordOnAfterCalculateAdjProfitLCY(Rec, AdjProfitLCY);
+
         if AmountLCY <> 0 then
             AdjProfitPct := Round(100 * AdjProfitLCY / AmountLCY, 0.1);
 
@@ -309,6 +312,11 @@ page 398 "Sales Credit Memo Statistics"
                     SalesCrMemoLine, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
                     LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
             until SalesCrMemoLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterCalculateAdjProfitLCY(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var AdjProfitLCY: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

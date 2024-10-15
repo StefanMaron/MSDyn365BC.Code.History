@@ -338,10 +338,16 @@ table 951 "Time Sheet Line"
         Resource.Get(TimeSheetHeader."Resource No.");
     end;
 
-    local procedure GetJobApproverID(): Code[50]
+    local procedure GetJobApproverID() ApproverID: Code[50]
     var
         Resource: Record Resource;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetJobApproverID(ApproverID, IsHandled);
+        if IsHandled then
+            exit(ApproverID);
+
         Job.Get("Job No.");
         Job.TestField("Person Responsible");
         Resource.Get(Job."Person Responsible");
@@ -362,11 +368,22 @@ table 951 "Time Sheet Line"
              (ResourcesSetup."Time Sheet by Job Approval" in [ResourcesSetup."Time Sheet by Job Approval"::"Machine Only",
                                                               ResourcesSetup."Time Sheet by Job Approval"::Always])))
         then
-            "Approver ID" := GetJobApproverID
-        else begin
-            Resource.TestField("Time Sheet Approver User ID");
-            "Approver ID" := Resource."Time Sheet Approver User ID";
-        end;
+            "Approver ID" := GetJobApproverID()
+        else
+            SetApproverIDFromResource(Resource);
+    end;
+
+    local procedure SetApproverIDFromResource(Resource: Record Resource)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetApproverIDFromResource(Resource, IsHandled);
+        if IsHandled then
+            exit;
+
+        Resource.TestField("Time Sheet Approver User ID");
+        "Approver ID" := Resource."Time Sheet Approver User ID";
     end;
 
     local procedure CheckWorkType()
@@ -459,6 +476,16 @@ table 951 "Time Sheet Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeTestStatus(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetJobApproverID(var ApproverID: Code[50]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetApproverIDFromResource(Resource: Record Resource; var IsHandled: Boolean)
     begin
     end;
 

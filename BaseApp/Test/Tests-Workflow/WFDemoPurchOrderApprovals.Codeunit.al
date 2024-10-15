@@ -32,7 +32,9 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
     var
         UserSetup: Record "User Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"WF Demo Purch. Order Approvals");
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -41,8 +43,10 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         UserSetup.DeleteAll();
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"WF Demo Purch. Order Approvals");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"WF Demo Purch. Order Approvals");
     end;
 
     [Test]

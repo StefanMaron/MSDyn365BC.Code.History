@@ -803,6 +803,7 @@ page 132 "Posted Sales Invoice"
                 Ellipsis = true;
                 Image = CreateDocument;
                 ToolTip = 'Create one or more XML documents that you can send to the customer. You can run the batch job for multiple invoices or you can run it for an individual invoice. The document number is used as the file name. The files are stored at the location that has been specified in the Sales & Receivables Setup window.';
+                Visible = false;
 
                 trigger OnAction()
                 begin

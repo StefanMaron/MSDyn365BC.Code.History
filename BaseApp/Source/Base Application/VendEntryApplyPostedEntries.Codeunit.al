@@ -220,6 +220,8 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     var
         UnapplyVendEntries: Page "Unapply Vendor Entries";
     begin
+        OnBeforeUnApplyVendor(DtldVendLedgEntry);
+
         with DtldVendLedgEntry do begin
             TestField("Entry Type", "Entry Type"::Application);
             TestField(Unapplied, false);
@@ -242,7 +244,6 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         Window: Dialog;
-        LastTransactionNo: Integer;
         AddCurrChecked: Boolean;
         MaxPostingDate: Date;
     begin
@@ -271,17 +272,8 @@ codeunit 227 "VendEntry-Apply Posted Entries"
                     AddCurrChecked := true;
                 end;
                 CheckReversal(DtldVendLedgEntry."Vendor Ledger Entry No.");
-                if DtldVendLedgEntry."Transaction No." <> 0 then begin
-                    if DtldVendLedgEntry."Entry Type" = DtldVendLedgEntry."Entry Type"::Application then begin
-                        LastTransactionNo :=
-                          FindLastApplTransactionEntry(DtldVendLedgEntry."Vendor Ledger Entry No.");
-                        if (LastTransactionNo <> 0) and (LastTransactionNo <> DtldVendLedgEntry."Transaction No.") then
-                            Error(UnapplyAllPostedAfterThisEntryErr, DtldVendLedgEntry."Vendor Ledger Entry No.");
-                    end;
-                    LastTransactionNo := FindLastTransactionNo(DtldVendLedgEntry."Vendor Ledger Entry No.");
-                    if (LastTransactionNo <> 0) and (LastTransactionNo <> DtldVendLedgEntry."Transaction No.") then
-                        Error(LatestEntryMustBeApplicationErr, DtldVendLedgEntry."Vendor Ledger Entry No.");
-                end;
+                if DtldVendLedgEntry."Transaction No." <> 0 then
+                    CheckUnappliedEntries(DtldVendLedgEntry);
             until DtldVendLedgEntry.Next = 0;
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);
@@ -380,6 +372,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
         VendLedgEntry.SetRange("Vendor No.", ApplyingVendLedgEntry."Vendor No.");
         VendLedgEntry.SetRange(Open, true);
+        OnApplyVendEntryFormEntryOnAfterVendLedgEntrySetFilters(VendLedgEntry, ApplyingVendLedgEntry);
         if VendLedgEntry.FindFirst then begin
             ApplyVendEntries.SetVendLedgEntry(ApplyingVendLedgEntry);
             ApplyVendEntries.SetRecord(VendLedgEntry);
@@ -475,6 +468,22 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         RunOptionPreviewContext := RunOptionPreview::Unapply;
     end;
 
+    local procedure CheckUnappliedEntries(DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    var
+        LastTransactionNo: Integer;
+        IsHandled: Boolean;
+    begin
+        if DtldVendLedgEntry."Entry Type" = DtldVendLedgEntry."Entry Type"::Application then begin
+            LastTransactionNo := FindLastApplTransactionEntry(DtldVendLedgEntry."Vendor Ledger Entry No.");
+            OnCheckunappliedEntriesOnBeforeUnapplyAllEntriesError(DtldVendLedgEntry, LastTransactionNo, IsHandled);
+            if (LastTransactionNo <> 0) and (LastTransactionNo <> DtldVendLedgEntry."Transaction No.") then
+                Error(UnapplyAllPostedAfterThisEntryErr, DtldVendLedgEntry."Vendor Ledger Entry No.");
+        end;
+        LastTransactionNo := FindLastTransactionNo(DtldVendLedgEntry."Vendor Ledger Entry No.");
+        if (LastTransactionNo <> 0) and (LastTransactionNo <> DtldVendLedgEntry."Transaction No.") then
+            Error(LatestEntryMustBeApplicationErr, DtldVendLedgEntry."Vendor Ledger Entry No.");
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
     local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
@@ -496,6 +505,11 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyVendEntryFormEntryOnAfterVendLedgEntrySetFilters(var VendorLedgEntry: Record "Vendor Ledger Entry"; var ApplyToVendLedgEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetApplicationDate(VendorLedgEntry: Record "Vendor Ledger Entry"; var ApplicationDate: Date; var IsHandled: Boolean)
     begin
     end;
@@ -512,6 +526,16 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetApplicationDateOnAfterSetFilters(var ApplyToVendLedgEntry: Record "Vendor Ledger Entry"; VendorLedgEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckunappliedEntriesOnBeforeUnapplyAllEntriesError(DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; LastTransactionNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUnApplyVendor(DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry");
     begin
     end;
 }

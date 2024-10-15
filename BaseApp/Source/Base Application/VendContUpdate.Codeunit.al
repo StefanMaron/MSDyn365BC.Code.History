@@ -1,4 +1,4 @@
-codeunit 5057 "VendCont-Update"
+﻿codeunit 5057 "VendCont-Update"
 {
 
     trigger OnRun()
@@ -64,6 +64,8 @@ codeunit 5057 "VendCont-Update"
         Cont.Modify(true);
 
         Vend.Get(Vend."No.");
+
+        OnAfterOnModify(Cont, OldCont, Vend);
     end;
 
     procedure OnDelete(var Vend: Record Vendor)
@@ -111,7 +113,7 @@ codeunit 5057 "VendCont-Update"
             Validate(Name);
             Validate("E-Mail");
             IsHandled := false;
-            OnInsertNewContactOnBeforeAssignNo(Cont, IsHandled);
+            OnInsertNewContactOnBeforeAssignNo(Cont, IsHandled, Vend);
             if not IsHandled then begin
                 "No." := '';
                 "No. Series" := '';
@@ -188,6 +190,11 @@ codeunit 5057 "VendCont-Update"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnModify(var Contact: Record Contact; var OldContact: Record Contact; var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferFieldsFromVendToCont(var Contact: Record Contact; Vendor: Record Vendor)
     begin
     end;
@@ -213,7 +220,7 @@ codeunit 5057 "VendCont-Update"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertNewContactOnBeforeAssignNo(var Contact: Record Contact; var IsHandled: Boolean);
+    local procedure OnInsertNewContactOnBeforeAssignNo(var Contact: Record Contact; var IsHandled: Boolean; Vendor: Record Vendor);
     begin
     end;
 

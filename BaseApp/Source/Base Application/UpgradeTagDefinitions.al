@@ -40,6 +40,8 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetCortanaIntelligenceUsageUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPriceCalcMethodInSetupTag());
         PerCompanyUpgradeTags.Add(GetPowerBiEmbedUrlTooShortUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSearchEmailUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetItemVariantItemIdUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -91,7 +93,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('294917-PurchInvoiceAddingMultipleAddresses-20190213');
     end;
 
-    [Obsolete('Function will be removed in release 17.0','16.0')]
+    [Obsolete('Function will be removed in release 17.0', '16.0')]
     procedure GetPriceCalcMethodInSetupTag(): Code[250]
     begin
         exit('344135-PriceCalcMethodInSetup-20200210');
@@ -343,6 +345,16 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetPowerBiEmbedUrlTooShortUpgradeTag(): Code[250];
     begin
         exit('MS-343007-PowerBiEmbedUrlTooShort-20200220');
+    end;
+
+    procedure GetSearchEmailUpgradeTag(): Code[250];
+    begin
+        exit('MS-346850-SearchEmail-20200302');
+    end;
+
+    procedure GetItemVariantItemIdUpgradeTag(): Code[250];
+    begin
+        exit('MS-350552-ItemVariantsItemId-20200327');
     end;
 }
 

@@ -14,6 +14,9 @@ table 10670 "SAF-T Setup"
             DataClassification = CustomerContent;
             Caption = 'Dimension No. Series Code';
             TableRelation = "No. Series";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced with Dimension No.';
+            ObsoleteTag = '17.0';
         }
         field(3; "Last Tax Code"; Integer)
         {
@@ -25,6 +28,11 @@ table 10670 "SAF-T Setup"
             Caption = 'Not Applicable VAT Code';
             DataClassification = CustomerContent;
             TableRelation = "VAT Code";
+        }
+        field(5; "Dimension No."; Integer)
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Dimension No.';
         }
     }
 

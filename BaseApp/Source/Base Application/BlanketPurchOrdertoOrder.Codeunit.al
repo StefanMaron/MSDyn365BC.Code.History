@@ -56,22 +56,8 @@ codeunit 97 "Blanket Purch. Order to Order"
                                 then
                                     QuantityOnOrders := QuantityOnOrders + PurchLine."Outstanding Qty. (Base)";
                         until PurchLine.Next = 0;
-                    if (Abs(PurchBlanketOrderLine."Qty. to Receive (Base)" + QuantityOnOrders +
-                          PurchBlanketOrderLine."Qty. Received (Base)") >
-                        Abs(PurchBlanketOrderLine."Quantity (Base)")) or
-                       (PurchBlanketOrderLine."Quantity (Base)" * PurchBlanketOrderLine."Outstanding Qty. (Base)" < 0)
-                    then
-                        Error(
-                          QuantityCheckErr,
-                          PurchBlanketOrderLine.FieldCaption("Qty. to Receive (Base)"),
-                          PurchBlanketOrderLine.Type, PurchBlanketOrderLine."No.",
-                          PurchBlanketOrderLine.FieldCaption("Line No."), PurchBlanketOrderLine."Line No.",
-                          PurchBlanketOrderLine."Outstanding Qty. (Base)" - QuantityOnOrders,
-                          StrSubstNo(
-                            Text001,
-                            PurchBlanketOrderLine.FieldCaption("Outstanding Qty. (Base)"),
-                            PurchBlanketOrderLine.FieldCaption("Qty. to Receive (Base)")),
-                          PurchBlanketOrderLine."Outstanding Qty. (Base)", QuantityOnOrders);
+
+                    CheckBlanketOrderLineQuantity();
 
                     PurchOrderLine := PurchBlanketOrderLine;
                     ResetQuantityFields(PurchOrderLine);
@@ -153,6 +139,33 @@ codeunit 97 "Blanket Purch. Order to Order"
         QuantityOnOrders: Decimal;
         Text002: Label 'There is nothing to create.';
 
+    local procedure CheckBlanketOrderLineQuantity()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBlanketOrderLineQuantity(PurchBlanketOrderLine, QuantityOnOrders, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (Abs(PurchBlanketOrderLine."Qty. to Receive (Base)" + QuantityOnOrders +
+            PurchBlanketOrderLine."Qty. Received (Base)") >
+            Abs(PurchBlanketOrderLine."Quantity (Base)")) or
+           (PurchBlanketOrderLine."Quantity (Base)" * PurchBlanketOrderLine."Outstanding Qty. (Base)" < 0)
+        then
+            Error(
+              QuantityCheckErr,
+              PurchBlanketOrderLine.FieldCaption("Qty. to Receive (Base)"),
+              PurchBlanketOrderLine.Type, PurchBlanketOrderLine."No.",
+              PurchBlanketOrderLine.FieldCaption("Line No."), PurchBlanketOrderLine."Line No.",
+              PurchBlanketOrderLine."Outstanding Qty. (Base)" - QuantityOnOrders,
+              StrSubstNo(
+                Text001,
+                PurchBlanketOrderLine.FieldCaption("Outstanding Qty. (Base)"),
+                PurchBlanketOrderLine.FieldCaption("Qty. to Receive (Base)")),
+              PurchBlanketOrderLine."Outstanding Qty. (Base)", QuantityOnOrders);
+    end;
+
     local procedure CreatePurchHeader(PurchHeader: Record "Purchase Header"; PrepmtPercent: Decimal)
     begin
         OnBeforeCreatePurchHeader(PurchHeader);
@@ -196,6 +209,8 @@ codeunit 97 "Blanket Purch. Order to Order"
         TempPurchLine."Qty. Rcd. Not Invoiced (Base)" := 0;
         TempPurchLine."Qty. Received (Base)" := 0;
         TempPurchLine."Qty. Invoiced (Base)" := 0;
+
+        OnAfterResetQuantityFields(TempPurchLine);
     end;
 
     procedure GetPurchOrderHeader(var PurchHeader: Record "Purchase Header")
@@ -215,7 +230,17 @@ codeunit 97 "Blanket Purch. Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPurchOrderLineInsert(var PurchaseLine: Record "Purchase Line"; var BlanketOrderPurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterRun(var PurchaseHeader: Record "Purchase Header"; var PurchOrderHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterResetQuantityFields(var TempPurchLine: Record "Purchase Line")
     begin
     end;
 
@@ -225,7 +250,7 @@ codeunit 97 "Blanket Purch. Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPurchOrderLineInsert(var PurchaseLine: Record "Purchase Line"; var BlanketOrderPurchLine: Record "Purchase Line")
+    local procedure OnBeforeCheckBlanketOrderLineQuantity(var PurchBlanketOrderLine: Record "Purchase Line"; QuantityOnOrders: Decimal; var IsHandled: Boolean)
     begin
     end;
 

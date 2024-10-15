@@ -1980,6 +1980,8 @@ codeunit 131300 "Library - ERM"
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
         VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
+        if VATCalculationType = VATPostingSetup."VAT Calculation Type"::"Normal VAT" then
+            VATPostingSetup.SetRange("VAT Code", '');
         if not VATPostingSetup.FindFirst then
             CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, LibraryRandom.RandDecInDecimalRange(10, 25, 0));
     end;
@@ -1993,6 +1995,7 @@ codeunit 131300 "Library - ERM"
             VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
         if SearchPostingType <> SearchPostingType::Sales then
             VATPostingSetup.SetFilter("Purchase VAT Account", '<>%1', '');
+        VATPostingSetup.SetRange("VAT Code", '');
         if not VATPostingSetup.FindFirst then
             CreateVATPostingSetupWithAccounts(VATPostingSetup,
               VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInDecimalRange(10, 25, 0));
@@ -2734,6 +2737,15 @@ codeunit 131300 "Library - ERM"
             "Direct Posting" := true;
             Modify;
         end;
+    end;
+
+    procedure SetEnterpriseRegisterCompInfo(IsEnterpriseRegister: Boolean)
+    var
+        CompanyInfo: Record "Company Information";
+    begin
+        CompanyInfo.Get();
+        CompanyInfo.Validate(Enterpriseregister, IsEnterpriseRegister);
+        CompanyInfo.Modify(true);
     end;
 
     procedure SetInvRoundingPrecisionLCY(InvRoundingPrecisionLCY: Decimal)

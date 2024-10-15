@@ -519,7 +519,9 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowDeferralSchedule;
+                        CurrPage.SaveRecord();
+                        Commit();
+                        ShowDeferralSchedule();
                     end;
                 }
                 field("Returns Deferral Start Date"; "Returns Deferral Start Date")

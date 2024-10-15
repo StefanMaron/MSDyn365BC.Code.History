@@ -3096,7 +3096,13 @@ codeunit 134986 "ERM Financial Reports II"
 
             // Verify "VAT Base" and "VAT Amount" in VAT Amount Specification in GBP Caption.
             VerifyVATAmountSpecInGBPOnFinanceChargeMemoReport(
-              Format(IssuedFinChargeMemoLine."VAT %"), VATBase / CurrFactor, (AmountIncludeVAT - VATBase) / CurrFactor);
+              Format(IssuedFinChargeMemoLine."VAT %"),
+              Round(
+                VATBase / CurrFactor,
+                LibraryERM.GetCurrencyAmountRoundingPrecision(IssuedFinChargeMemoHeader."Currency Code")),
+              Round(
+                (AmountIncludeVAT - VATBase) / CurrFactor,
+                LibraryERM.GetCurrencyAmountRoundingPrecision(IssuedFinChargeMemoHeader."Currency Code")));
         until IssuedFinChargeMemoLine.Next = 0;
     end;
 

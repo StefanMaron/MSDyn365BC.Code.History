@@ -590,4 +590,24 @@ codeunit 1279 "Cryptography Management Impl."
         if IsNull(RijndaelProvider) then
             InitRijndaelProvider();
     end;
+
+    procedure HashRfc2898DeriveBytes(InputString: Text; Salt: Text; NoOfBytes: Integer; HashAlgorithmType: Option MD5,SHA1,SHA256,SHA384,SHA512): Text;
+    var
+        ByteArray: DotNet Array;
+        Convert: DotNet Convert;
+        Encoding: DotNet Encoding;
+        Rfc2898DeriveBytes: DotNet Rfc2898DeriveBytes;
+    begin
+        if Salt = '' then
+            exit;
+
+        //Implement password-based key derivation functionality, PBKDF2, by using a pseudo-random number generator based on HMACSHA1.
+        Rfc2898DeriveBytes := Rfc2898DeriveBytes.Rfc2898DeriveBytes(InputString, Encoding.ASCII.GetBytes(Salt));
+
+        //Return a Base64 encoded string of the hash of the first X bytes (X = NoOfBytes) returned from the generator.
+        if not TryGenerateHash(ByteArray, Rfc2898DeriveBytes.GetBytes(NoOfBytes), Format(HashAlgorithmType)) then
+            Error(GetLastErrorText());
+
+        exit(Convert.ToBase64String(ByteArray));
+    end;
 }

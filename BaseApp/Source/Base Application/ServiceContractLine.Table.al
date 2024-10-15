@@ -1014,7 +1014,7 @@ table 5964 "Service Contract Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateServiceItemNoOnBeforeCheckSameCustomer(ServItem: Record "Service Item"; ServContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    local procedure OnValidateServiceItemNoOnBeforeCheckSameCustomer(ServItem: Record "Service Item"; var ServContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 }

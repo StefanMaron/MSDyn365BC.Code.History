@@ -180,6 +180,7 @@ page 2650 "Email Printer Settings"
         IsSizeCustom: Boolean;
         IsSmtpSetup: Boolean;
         NewMode: Boolean;
+        DeleteMode: Boolean;
         SetupSMTPLbl: Label 'Set up SMTP';
         SMTPSetupRequiredLbl: Label 'This printer requires SMTP mail setup to print the jobs.';
         LearnMoreActionLbl: Label 'Learn more';
@@ -196,13 +197,15 @@ page 2650 "Email Printer Settings"
     var
     begin
         SetupPrinters.DeletePrinterSettings(ID);
+        DeleteMode := true;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if not (CloseAction in [ACTION::OK, ACTION::LookupOK]) then
+        if DeleteMode then
             exit(true);
-        exit(SetupPrinters.OnQueryClosePrinterSettingsPage(Rec));
+        if (CloseAction in [ACTION::OK, ACTION::LookupOK]) then
+            exit(SetupPrinters.OnQueryClosePrinterSettingsPage(Rec));
     end;
 
     trigger OnAfterGetCurrRecord()

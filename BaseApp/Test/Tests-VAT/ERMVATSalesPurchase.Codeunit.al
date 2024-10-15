@@ -10,6 +10,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
     var
         LibraryERM: Codeunit "Library - ERM";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -1287,24 +1288,20 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        NewAmount: Decimal;
-        NewAmountInclVAT: Decimal;
     begin
         // [FEATURE] [Sales] [Prices Incl. VAT]
-        // [SCENARIO 375125] Sales Line has correct Outstanding and Line amounts after switching off "Prices Incl. VAT" without recalculation confirm
+        // [SCENARIO 375125] Sales Order error trying switching off "Prices Incl. VAT" without recalculation confirm
         Initialize;
 
-        // [GIVEN] Sales Order with "Prices Incl. VAT" = TRUE, Line Amount = "A", Amount Including VAT = "B"
+        // [GIVEN] Sales Order with "Prices Incl. VAT" = TRUE
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, true);
-        NewAmount := SalesLine."Amount Including VAT";
-        NewAmountInclVAT := Round(NewAmount * (1 + SalesLine."VAT %" / 100));
 
         // [WHEN] Modify "Prices Incl. VAT" = FALSE without recalculation confirm
-        ModifySalesHeaderPricesInclVAT(SalesHeader, false);
+        asserterror ModifySalesHeaderPricesInclVAT(SalesHeader, false);
 
-        // [THEN] Line Amount = "B"
-        // [THEN] Outstanding Amount = Amount Including VAT = "B" * (1 + VAT / 100)
-        VerifySalesLineAmounts(SalesLine, NewAmount, NewAmountInclVAT);
+        // [THEN] Error occurs
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.AreEqual(0, StrLen(GetLastErrorText), '');
     end;
 
     [Test]
@@ -1341,24 +1338,20 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        NewAmount: Decimal;
-        NewAmountInclVAT: Decimal;
     begin
         // [FEATURE] [Sales] [Prices Incl. VAT]
-        // [SCENARIO 375125] Sales Line has correct Outstanding and Line amounts after switching on "Prices Incl. VAT" without recalculation confirm
+        // [SCENARIO 375125] Sales Order error trying switching on "Prices Incl. VAT" without recalculation confirm
         Initialize;
 
-        // [GIVEN] Sales Order with "Prices Incl. VAT" = FALSE, Line Amount = "A", Amount Including VAT = "B"
+        // [GIVEN] Sales Order with "Prices Incl. VAT" = FALSE
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, false);
-        NewAmountInclVAT := SalesLine.Amount;
-        NewAmount := Round(NewAmountInclVAT / (1 + SalesLine."VAT %" / 100));
 
         // [WHEN] Modify "Prices Incl. VAT" = TRUE without recalculation confirm
-        ModifySalesHeaderPricesInclVAT(SalesHeader, true);
+        asserterror ModifySalesHeaderPricesInclVAT(SalesHeader, true);
 
-        // [THEN] Line Amount = "A" / (1 + VAT / 100)
-        // [THEN] Outstanding Amount = Amount Including VAT = "A"
-        VerifySalesLineAmounts(SalesLine, NewAmount, NewAmountInclVAT);
+        // [THEN] Error occurs
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.AreEqual(0, StrLen(GetLastErrorText), '');
     end;
 
     [Test]
@@ -1395,24 +1388,20 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        NewAmount: Decimal;
-        NewAmountInclVAT: Decimal;
     begin
         // [FEATURE] [Purchases] [Prices Incl. VAT]
-        // [SCENARIO 375125] Purchase Line has correct Outstanding and Line amounts after switching off "Prices Incl. VAT" without recalculation confirm
+        // [SCENARIO 375125] Purchase Order error trying switching off "Prices Incl. VAT" without recalculation confirm
         Initialize;
 
-        // [GIVEN] Purchase Order with "Prices Incl. VAT" = TRUE, Line Amount = "A", Amount Including VAT = "B"
+        // [GIVEN] Purchase Order with "Prices Incl. VAT" = TRUE
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, true);
-        NewAmount := PurchaseLine."Amount Including VAT";
-        NewAmountInclVAT := Round(NewAmount * (1 + PurchaseLine."VAT %" / 100));
 
         // [WHEN] Modify "Prices Incl. VAT" = FALSE without recalculation confirm
-        ModifyPurchaseHeaderPricesInclVAT(PurchaseHeader, false);
+        asserterror ModifyPurchaseHeaderPricesInclVAT(PurchaseHeader, false);
 
-        // [THEN] Line Amount = "B"
-        // [THEN] Outstanding Amount = Amount Including VAT = "B" * (1 + VAT / 100)
-        VerifyPurchLineAmounts(PurchaseLine, NewAmount, NewAmountInclVAT);
+        // [THEN] Error occurs
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.AreEqual(0, StrLen(GetLastErrorText), '');
     end;
 
     [Test]
@@ -1449,24 +1438,20 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        NewAmount: Decimal;
-        NewAmountInclVAT: Decimal;
     begin
         // [FEATURE] [Purchases] [Prices Incl. VAT]
-        // [SCENARIO 375125] Purchase Line has correct Outstanding and Line amounts after switching on "Prices Incl. VAT" without recalculation confirm
+        // [SCENARIO 375125] Purchase Order error trying switching on "Prices Incl. VAT" without recalculation confirm
         Initialize;
 
         // [GIVEN] Purchase Order with "Prices Incl. VAT" = FALSE, Line Amount = "A", Amount Including VAT = "B"
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, false);
-        NewAmountInclVAT := PurchaseLine.Amount;
-        NewAmount := Round(NewAmountInclVAT / (1 + PurchaseLine."VAT %" / 100));
 
         // [WHEN] Modify "Prices Incl. VAT" = TRUE without recalculation confirm
-        ModifyPurchaseHeaderPricesInclVAT(PurchaseHeader, true);
+        asserterror ModifyPurchaseHeaderPricesInclVAT(PurchaseHeader, true);
 
-        // [THEN] Line Amount = "A" / (1 + VAT / 100)
-        // [THEN] Outstanding Amount = Amount Including VAT = "A"
-        VerifyPurchLineAmounts(PurchaseLine, NewAmount, NewAmountInclVAT);
+        // [THEN] Error occurs
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.AreEqual(0, StrLen(GetLastErrorText), '');
     end;
 
     [Test]
@@ -2174,6 +2159,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseHeader: Record "Purchase Header";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
         LibrarySetupStorage.Restore;
         LibraryRandom.SetSeed(1);  // Generate Random Seed using Random Number Generator.
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
@@ -2183,6 +2169,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -2193,6 +2180,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Sales/Purchase");
     end;
 
     local procedure SetupForSalesOrderAndVAT(var VATAmountLine: Record "VAT Amount Line")
@@ -3058,17 +3046,26 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatisticsHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    var
+        AmountForValidation: Decimal;
     begin
         // Modal Page Handler.
-        PurchaseStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        AmountForValidation := LibraryVariableStorage.DequeueDecimal;
+        Assert.AreNearlyEqual(PurchaseStatistics.TotalAmount1.AsDEcimal, AmountForValidation, LibraryERM.GetAmountRoundingPrecision,
+          StrSubstNo(AmountErr, PurchaseStatistics.TotalAmount1.Caption, AmountForValidation, PurchaseStatistics.Caption));
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
+    var
+        AmountForValidation: Decimal;
     begin
         // Modal Page Handler.
-        SalesStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        // SalesStatistics.TotalAmount1.ASSERTEQUALS(LibraryVariableStorage.DequeueDecimal);
+        AmountForValidation := LibraryVariableStorage.DequeueDecimal;
+        Assert.AreNearlyEqual(SalesStatistics.TotalAmount1.AsDEcimal, AmountForValidation, LibraryERM.GetAmountRoundingPrecision,
+          StrSubstNo(AmountErr, SalesStatistics.TotalAmount1.Caption, AmountForValidation, SalesStatistics.Caption));
     end;
 
     [ModalPageHandler]

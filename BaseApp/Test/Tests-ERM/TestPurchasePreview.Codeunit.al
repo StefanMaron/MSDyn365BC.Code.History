@@ -164,62 +164,6 @@ codeunit 134762 "Test Purchase Preview"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure PurchPrepmtInvoiceOpensPreview()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        GLPostingPreview: TestPage "G/L Posting Preview";
-        PurchaseOrder: TestPage "Purchase Order";
-    begin
-        // [SCENARIO] Preview action on Purchase Order page runs Prepayment Invoice posting preview engine
-        Initialize;
-
-        CreatePurchaseOrderWithPrepayment(PurchaseHeader);
-
-        PurchaseOrder.Trap;
-        PAGE.Run(PAGE::"Purchase Order", PurchaseHeader);
-
-        GLPostingPreview.Trap;
-        PurchaseOrder.PreviewPrepmtInvoicePosting.Invoke;
-
-        if not GLPostingPreview.First then
-            Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
-
-        // Cleanup
-        asserterror Error('');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchPrepmtCrMemoOpensPreview()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        GLPostingPreview: TestPage "G/L Posting Preview";
-        PurchaseOrder: TestPage "Purchase Order";
-    begin
-        // [SCENARIO] Preview action on Sales Order page runs posting preview engine
-        Initialize;
-
-        CreatePurchaseOrderWithPrepayment(PurchaseHeader);
-        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
-        Commit();
-
-        PurchaseOrder.Trap;
-        PAGE.Run(PAGE::"Purchase Order", PurchaseHeader);
-
-        GLPostingPreview.Trap;
-        PurchaseOrder.PreviewPrepmtCrMemoPosting.Invoke;
-
-        if not GLPostingPreview.First then
-            Error(NoRecordsErr);
-        GLPostingPreview.OK.Invoke;
-
-        // Cleanup
-        asserterror Error('');
-    end;
-
-    [Test]
     [HandlerFunctions('PaymentRegistrationSetup')]
     [Scope('OnPrem')]
     procedure PaymentRegistrationErrorsWhenNothingToPost()

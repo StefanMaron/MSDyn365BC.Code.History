@@ -523,7 +523,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     begin
         IssueFinanceChargeMemos.PrintDoc.SetValue(LibraryVariableStorage.DequeueInteger);
         IssueFinanceChargeMemos.HideEmailDialog.SetValue(LibraryVariableStorage.DequeueBoolean);
-        IssueFinanceChargeMemos."Finance Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
+        IssueFinanceChargeMemos."Check Fin Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
         IssueFinanceChargeMemos.OK.Invoke;
     end;
 

@@ -35,9 +35,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         EURCode: Code[10];
         PostingDocNoWithGapOnNoSeriesErr: Label 'You have one or more documents that must be posted before you post document no. %1 according to your company''s No. Series setup.', Comment = '%1 = Document number to be posted.';
         ExtDocNoTxt: Label 'A123', Locked = true;
+        InvalidLengthErr: Label 'The lengths are not identical';
         NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
-        MessageToRecipientNotFoundErr: Label 'The Message To Recipient was not found in the XML file.';
-        MessageExceedsLimitErr: Label 'The length of the string is %1, but it must be less than or equal to', Comment = '.';
         TransferDateErr: Label 'The earliest possible transfer date is today.';
         XMLNoChildrenErr: Label 'XML Document has no child nodes.';
         XMLUnknownElementErr: Label 'Unknown element: %1.', Comment = '%1 = xml element name.';
@@ -48,6 +47,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         HasErrorsErr: Label 'The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.';
         CdtrAgtTagErr: Label 'There should not be CdtrAgt tag.';
         EuroCurrErr: Label 'Only transactions in euro (EUR) are allowed, because the %1 bank account is set up to use the %2 export format.', Comment = '%1= bank account No, %2 export format; Example: Only transactions in euro (EUR) are allowed, because the GIRO bank account is set up to use the SEPACT export format.';
+        RecipientRef1Txt: Label 'Random Text 1', Locked = true;
+        RecipientRef2Txt: Label 'Random Text 2', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -498,15 +499,23 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         TempPaymentExportData: Record "Payment Export Data" temporary;
         CreditTransferRegister: Record "Credit Transfer Register";
         TempPaymentExportRemittanceText: Record "Payment Export Remittance Text" temporary;
+        RemittanceAgreement: Record "Remittance Agreement";
         SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
     begin
         Init;
+        CreateRemittancePayment(RemittanceAgreement);
         CreateGenJnlLine(GenJnlLine);
+        UpdateLineToUnStructuredLine(GenJnlLine, RemittanceAgreement.Code, RecipientRef1Txt, RecipientRef2Txt);
         SEPACTFillExportBuffer.FillExportBuffer(GenJnlLine, TempPaymentExportData);
         Assert.AreEqual(1, TempPaymentExportData.Count, 'Wrong number of payment lines created.');
         TempPaymentExportData.GetRemittanceTexts(TempPaymentExportRemittanceText);
-        Assert.AreEqual(1, TempPaymentExportRemittanceText.Count, 'Wrong number of remittance lines created.');
-        Assert.IsTrue(StrPos(TempPaymentExportRemittanceText.Text, ExtDocNoTxt) > 0, 'Remittance text should contain ext. doc. no.');
+        Assert.AreEqual(2, TempPaymentExportRemittanceText.Count, 'Wrong number of remittance lines created.');
+        TempPaymentExportRemittanceText.Find('-');
+        Assert.IsTrue(StrPos(TempPaymentExportRemittanceText.Text, UpperCase(RecipientRef1Txt)) > 0,
+          'Remittance text should contain Recipient Ref. 1');
+        TempPaymentExportRemittanceText.Next;
+        Assert.IsTrue(StrPos(TempPaymentExportRemittanceText.Text, UpperCase(RecipientRef2Txt)) > 0,
+          'Remittance text should contain Recipient Ref. 2');
         CreditTransferRegister.FindLast;
         CreditTransferRegister.TestField("Created by User", UserId);
         CreditTransferRegister.TestField(Status, CreditTransferRegister.Status::Canceled);
@@ -798,120 +807,54 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestXMLMessageToRecipientAppliesToExtDocNoFilled()
+    procedure TestXMLMessageToRecipient()
     var
         GenJnlLine: Record "Gen. Journal Line";
+        RemittanceAgreement: Record "Remittance Agreement";
         TempBlob: Codeunit "Temp Blob";
+        NodeList: DotNet XmlNodeList;
+        XMLNode: DotNet XmlNode;
         OutStr: OutStream;
-    begin
-        // [SCENARIO 318397] Exported SEPA CT 001.001.03 contains one Ustrd tag with "Applies-to Ext. Doc. No." and "Message to Recipient"
-        Init;
-        // [GIVEN] GenJnlLine with "Message to recipient" "Applies-to Ext. Doc. No." not empty
-        CreateGenJnlLine(GenJnlLine);
-        GenJnlLine.Validate("Message to Recipient", LibraryUtility.GenerateRandomXMLText(140));
-        GenJnlLine.Modify(true);
-
-        // [WHEN] The Payment Journal Line is exported
-        GenJnlLine.SetRange("Document No.", GenJnlLine."Document No.");
-        GenJnlLine.SetRange("Document Type", GenJnlLine."Document Type");
-        TempBlob.CreateOutStream(OutStr);
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
-
-        // [THEN] The exported file contains one ustrd tag with "Message to recipient" and "Applies-to Ext. Doc. No."
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Ustrd', 1);
-        Assert.AreEqual(
-          CopyStr(StrSubstNo('%1 %2; %3', GenJnlLine."Applies-to Doc. Type", GenJnlLine."Applies-to Ext. Doc. No.", GenJnlLine."Message to Recipient"), 1, 140),
-          LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Ustrd', 0),
-          MessageToRecipientNotFoundErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestXMLMessageToRecipientAppliesToExtDocNoEmpty()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        TempBlob: Codeunit "Temp Blob";
-        OutStr: OutStream;
-    begin
-        // [SCENARIO 318397] Exported SEPA CT 001.001.03 contains one Ustrd tag with "Description" and "Message to Recipient"
-        Init;
-
-        // [GIVEN] GenJnlLine with "Message to recipient" and Decsription not empty, "Applies-to Ext. Doc. No." empty
-        CreateGenJnlLine(GenJnlLine);
-        GenJnlLine.Validate("Message to Recipient", LibraryUtility.GenerateRandomXMLText(140));
-        GenJnlLine.Validate("Applies-to Ext. Doc. No.", '');
-        GenJnlLine.Modify(true);
-
-        // [WHEN] The Payment Journal Line is exported
-        GenJnlLine.SetRange("Document No.", GenJnlLine."Document No.");
-        GenJnlLine.SetRange("Document Type", GenJnlLine."Document Type");
-        TempBlob.CreateOutStream(OutStr);
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
-
-        // [THEN] The exported file contains one ustrd tag with "Message to recipient" and Decsription
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Ustrd', 1);
-        Assert.AreEqual(
-          CopyStr(StrSubstNo('%1; %2', GenJnlLine.Description, GenJnlLine."Message to Recipient"), 1, 140),
-          LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Ustrd', 0),
-          MessageToRecipientNotFoundErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestXMLMessageToRecipientDescriptionEmpty()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        TempBlob: Codeunit "Temp Blob";
-        OutStr: OutStream;
-    begin
-        // [SCENARIO 318397] Exported SEPA CT 001.001.03 contains one Ustrd tag with "Message to Recipient"
-        Init;
-
-        // [GIVEN] GenJnlLine with "Message to recipient" not empty, Description and "Applies-to Ext. Doc. No." empty
-        CreateGenJnlLine(GenJnlLine);
-        GenJnlLine.Validate("Message to Recipient", LibraryUtility.GenerateRandomXMLText(140));
-        GenJnlLine.Validate("Applies-to Ext. Doc. No.", '');
-        GenJnlLine.Validate(Description, '');
-        GenJnlLine.Modify(true);
-
-        // [WHEN] The Payment Journal Line is exported
-        GenJnlLine.SetRange("Document No.", GenJnlLine."Document No.");
-        GenJnlLine.SetRange("Document Type", GenJnlLine."Document Type");
-        TempBlob.CreateOutStream(OutStr);
-
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
-
-        // [THEN] The exported file contains one ustrd tag with "Message to recipient"
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Ustrd', 1);
-        Assert.AreEqual(
-          GenJnlLine."Message to Recipient",
-          LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Ustrd', 0),
-          MessageToRecipientNotFoundErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestXMLMessageToRecipientLimit()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
         RequiredMessageLength: Integer;
+        RecRef1Txt: Text[80];
+        RecRef2Txt: Text[80];
     begin
-        // [SCENARIO 109389] Message to recipient cannot contain more than 140 characters
+        // [SCENARIO 109389] Message to recipient is stored in the exported file
         Init;
-        RequiredMessageLength := 141;
+        RequiredMessageLength := 40;
 
         // [GIVEN] A Payment Journal Line
         // [GIVEN] bal. bank account using the SEPA CT export format
+        CreateRemittancePayment(RemittanceAgreement);
         CreateGenJnlLine(GenJnlLine);
 
-        // [WHEN] 141 characters is inserted into "Message to recipient"
-        // [THEN] Expect error message, that 141 characters are not allowed into this field.
-        asserterror GenJnlLine.Validate("Message to Recipient", LibraryUtility.GenerateRandomXMLText(RequiredMessageLength));
+        // [GIVEN] 40 characters in "Recipient Ref. 1" and "Recipient Ref. 2"
+        RecRef1Txt := CopyStr(LibraryUtility.GenerateRandomXMLText(RequiredMessageLength), 1, RequiredMessageLength);
+        RecRef2Txt := CopyStr(LibraryUtility.GenerateRandomXMLText(RequiredMessageLength), 1, RequiredMessageLength);
+        // [GIVEN] "Recepient Ref. 1" = "X" and "Recepient Ref. 2" = "Y" in Payment Journal Line
+        UpdateLineToUnStructuredLine(GenJnlLine, RemittanceAgreement.Code, RecRef1Txt, RecRef2Txt);
 
-        Assert.ExpectedError(StrSubstNo(MessageExceedsLimitErr, RequiredMessageLength));
+        Assert.AreEqual(RequiredMessageLength, StrLen(GenJnlLine."Recipient Ref. 1"), InvalidLengthErr);
+        Assert.AreEqual(RequiredMessageLength, StrLen(GenJnlLine."Recipient Ref. 2"), InvalidLengthErr);
+
+        // [WHEN] The Payment Journal Line is exported
+        TempBlob.CreateOutStream(OutStr);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
+
+        // [THEN] The exported file contains a two ustrd tags which are equal to "X" and "Y"
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
+        LibraryXPathXMLReader.GetNodeList('//Ustrd', NodeList);
+
+        Assert.AreEqual(GenJnlLine."Recipient Ref. 1", NodeList.Item(0).InnerText, 'Unexpected Recipient Ref. 1 value.');
+        Assert.AreEqual(GenJnlLine."Recipient Ref. 2", NodeList.Item(1).InnerText, 'Unexpected Recipient Ref. 2 value.');
+
+        // [THEN] The exported file contains a tag <Cd> with "BANK" value within tag <SchmeNm>
+        // TFS 217316: The tag <Cd> contains "BANK" value
+        LibraryXPathXMLReader.GetNodeList('//SchmeNm', NodeList);
+        Assert.IsTrue(NodeList.Item(0).HasChildNodes, XMLNoChildrenErr);
+        XMLNode := NodeList.Item(0).FirstChild;
+        Assert.AreEqual('Cd', XMLNode.Name, 'Missing <Cd> tag within <SchmeNm>.');
+        Assert.AreEqual('BANK', XMLNode.InnerText, 'Incorrect value in <Cd> tag.');
     end;
 
     [Test]
@@ -1001,6 +944,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
         Init;
+
         // Setup.
         CreateVendorLedgerEntry(VendorLedgerEntry, 0);
         CreateGenJnlLine(GenJnlLine);
@@ -1015,11 +959,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
         // Verify.
         VendorLedgerEntry.Get(VendorLedgerEntry."Entry No.");
-        GenJnlLine.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", GenJnlLine."Line No.");
         Assert.IsTrue(VendorLedgerEntry."Exported to Payment File",
           '''Exported to payment file'' flag not set on the vendor ledger entry.');
-        Assert.IsTrue(GenJnlLine."Exported to Payment File",
-          '''Exported to payment file'' flag not set on the general journal line.');
     end;
 
     [Test]
@@ -1458,7 +1399,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
             if "Applies-to Ext. Doc. No." = '' then
                 "Applies-to Ext. Doc. No." := ExtDocNoTxt;
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
             Validate("Currency Code", CurrencyCode);
             Validate(Amount, DefaultLineAmount);
             Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
@@ -1466,6 +1406,13 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             Validate("Recipient Bank Account", RecipientBankAcc);
             Modify;
         end;
+    end;
+
+    local procedure CreateRemittancePayment(var RemittanceAgreement: Record "Remittance Agreement")
+    var
+        LibraryRemittance: Codeunit "Library - Remittance";
+    begin
+        LibraryRemittance.CreateRemittanceAgreement(RemittanceAgreement, RemittanceAgreement."Payment System"::"DnB Telebank");
     end;
 
     local procedure CreateGenJnlLinesDiffDate(var GenJnlLine: Record "Gen. Journal Line"; NoOfGroups: Integer; NoOfPmtsPerGroup: Integer)
@@ -1670,11 +1617,15 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     var
         XMLNodes: DotNet XmlNodeList;
         XMLNode: DotNet XmlNode;
+        SubXMLNodes: DotNet XmlNodeList;
+        SubXMLNode: DotNet XmlNode;
+        DocNo: Code[20];
         ActualDate: Date;
         NoOfCdtTrfTxInf: Integer;
         i: Integer;
         CtrlSum: Decimal;
         NbOfTxs: Integer;
+        InstrId: Guid;
     begin
         XMLNodes := XMLParentNode.ChildNodes;
         for i := 0 to XMLNodes.Count - 1 do begin
@@ -1702,7 +1653,17 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
                         Assert.AreEqual(ExpectedDate, ActualDate, 'ReqdExctnDt');
                     end;
                 'CdtTrfTxInf':
-                    NoOfCdtTrfTxInf += 1;
+                    begin
+                        NoOfCdtTrfTxInf += 1;
+
+                        SubXMLNodes := XMLNode.ChildNodes;
+                        SubXMLNode := SubXMLNodes.ItemOf(0); // 'PmtId'
+                        SubXMLNodes := SubXMLNode.ChildNodes;
+                        SubXMLNode := SubXMLNodes.ItemOf(0); // 'InstrId'
+                                                             // TFS 306878: The tag "InstrId" is GUID
+                        Assert.IsTrue(Evaluate(InstrId, SubXMLNode.InnerXml, 9),
+                          'Unexpected value type in xml file for element ''InstrId''. Expecting GUID.');
+                    end;
                 else
                     Error(XMLUnknownElementErr, XMLNode.Name);
             end;
@@ -1721,6 +1682,16 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             SetRange("Journal Line No.", GenJnlLine."Line No.");
             FindFirst;
             TestField("Error Text", ErrText);
+        end;
+    end;
+
+    local procedure UpdateLineToUnStructuredLine(var GenJournalLine: Record "Gen. Journal Line"; RemittanceAgreementCode: Code[10]; RecipientRef1: Text[80]; RecipientRef2: Text[80])
+    begin
+        with GenJournalLine do begin
+            Validate("Remittance Agreement Code", RemittanceAgreementCode);
+            Validate("Recipient Ref. 1", RecipientRef1);
+            Validate("Recipient Ref. 2", RecipientRef2);
+            Modify;
         end;
     end;
 }

@@ -51,12 +51,15 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         // [THEN] <OrderReference> is "INV01"
         LibraryXMLRead.Initialize(XMLFilePath);
         VerifyPEPPOLBISIdentifiers('Invoice');
-        LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:CompanyID', Customer."VAT Registration No.");
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:CompanyID', GetCustomerVATRegNo(Customer));
         LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cac:OrderReference', SalesInvoiceHeader."External Document No.");
-        // [THEN] Two nodes 'InvoiceLine' created
-        Assert.AreEqual(LibraryXMLRead.GetNodesCount('cac:InvoiceLine'), 2, '');
+        LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cbc:DueDate',Format(SalesInvoiceHeader."Due Date", 0, 9));
+        // [THEN] One node 'InvoiceLine' created
+        Assert.AreEqual(LibraryXMLRead.GetNodesCount('cac:InvoiceLine'), 1, '');
         // [THEN] <EndpointID> exported as 'BE1234567890' with VAT schema ID (TFS 340767)
-        VerifyCustomerEndpoint(Customer."VAT Registration No.", GetVATSchemaID(Customer."Country/Region Code"));
+        VerifyCustomerEndpoint(GetCustomerVATRegNo(Customer), GetVATSchemaID(Customer."Country/Region Code"));
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'Foretaksregisteret' with <TaxScheme> ID = 'TAX'
+        VerifyPEPPOLBISPartyTaxNO;
     end;
 
     [Test]
@@ -72,7 +75,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with GLN where "External Document No." is blank
         Initialize;
 
-        // [GIVEN] Posted Sales Invoice with "GLN" = '1234567890123' and "External Document No." = blank
+        // [GIVEN] Posted Sales Invoice with "GLN" = '1234567890123' and "External Document No." = blank and VAT Registration No. = 'NO1234567890MVA'
         Customer.Get(CreateCustomerWithAddressAndGLN);
         SalesInvoiceHeader.Get(
           CreatePostSalesDoc(Customer."No.", SalesHeader."Document Type"::Invoice));
@@ -84,13 +87,15 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <AccountingCustomerParty> has <ID> = '1234567890123' with <SchemeID> = '0088'
-        // [THEN] <OrderReference> is taken from invoice's "Document No."
+        // [THEN] <OrderReference> is not exported
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', Customer.GLN);
         LibraryXMLRead.VerifyAttributeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', 'schemeID', GetGLNSchemeID);
-        LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cac:OrderReference', SalesInvoiceHeader."No.");
+        LibraryXMLRead.VerifyNodeAbsence('cac:OrderReference');
         // [THEN] <EndpointID> exported as '1234567890123' with GLN schema ID (TFS 340767)
         VerifyCustomerEndpoint(Customer.GLN, GetGLNSchemeID);
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'Foretaksregisteret' with <TaxScheme> ID = 'TAX'
+        VerifyPEPPOLBISPartyTaxNO;
     end;
 
     [Test]
@@ -118,16 +123,18 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <AccountingSupplierParty> has <CompanyID> = 'NO1234567890'
-        // [THEN] <PartyTaxScheme> has <CompanyID> = 'NO1234567890'
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'NO1234567890MVA'
         CompanyInformation.Get();
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyNodeValueInSubtree(
           'cac:AccountingSupplierParty', 'cbc:CompanyID', GetCompanyVATRegNo(CompanyInformation));
         LibraryXMLRead.VerifyNodeValueInSubtree(
-          'cac:PartyTaxScheme', 'cbc:CompanyID', GetCompanyVATRegNo(CompanyInformation));
-        // [THEN] <EndpointID> exported as 'NO1234567890' with VAT schema ID (TFS 340767)
+          'cac:PartyTaxScheme', 'cbc:CompanyID', GetCompanyVATRegNoPartyTaxScheme(CompanyInformation));
+        // [THEN] <EndpointID> exported as 'NO1234567890MVA' with VAT schema ID (TFS 340767)
         VerifySupplierEndpoint(
-          DelChr(CompanyInformation."VAT Registration No."), GetVATSchemaID(CompanyInformation."Country/Region Code"));
+          GetCompanyVATRegNo(CompanyInformation), GetVATSchemaID(CompanyInformation."Country/Region Code"));
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'Foretaksregisteret' with <TaxScheme> ID = 'TAX'
+        VerifyPEPPOLBISPartyTaxNO;
     end;
 
     [Test]
@@ -143,7 +150,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice when Company Information has GLN
         Initialize;
 
-        // [GIVEN] Company has GLN = '1234567890123'
+        // [GIVEN] Company has GLN = '1234567890123' and VAT Registration No. = 'NO1234567890MVA'
         UpdateCompanyGLN;
 
         // [GIVEN] Posted Sales Invoice
@@ -155,15 +162,17 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
 
         // [THEN] <PartyLegalEntity> of <AccountingCustomerParty> has <CompanyID> = '1234567890123' with <SchemeID> = '0088'
-        // [THEN] <PartyTaxScheme> has <CompanyID> = 'NO1234567890'
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'NO1234567890MVA'
         CompanyInformation.Get();
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyLegalEntity', 'cbc:CompanyID', CompanyInformation.GLN);
         LibraryXMLRead.VerifyAttributeValueInSubtree('cac:PartyLegalEntity', 'cbc:CompanyID', 'schemeID', GetGLNSchemeID);
         LibraryXMLRead.VerifyNodeValueInSubtree(
-          'cac:PartyTaxScheme', 'cbc:CompanyID', GetCompanyVATRegNo(CompanyInformation));
+          'cac:PartyTaxScheme', 'cbc:CompanyID', GetCompanyVATRegNoPartyTaxScheme(CompanyInformation));
         // [THEN] <EndpointID> exported as '1234567890123' with GLN schema ID (TFS 340767)
         VerifySupplierEndpoint(CompanyInformation.GLN, GetGLNSchemeID);
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'Foretaksregisteret' with <TaxScheme> ID = 'TAX'
+        VerifyPEPPOLBISPartyTaxNO;
     end;
 
     [Test]
@@ -456,12 +465,14 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         // [THEN] <OrderReference> is "INV01"
         LibraryXMLRead.Initialize(XMLFilePath);
         VerifyPEPPOLBISIdentifiers('CreditNote');
-        LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:CompanyID', Customer."VAT Registration No.");
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:CompanyID', GetCustomerVATRegNo(Customer));
         LibraryXMLRead.VerifyNodeValueInSubtree('CreditNote', 'cac:OrderReference', SalesCrMemoHeader."External Document No.");
-        // [THEN] Two nodes 'CreditNoteLine' created
-        Assert.AreEqual(LibraryXMLRead.GetNodesCount('cac:CreditNoteLine'), 2, '');
+        // [THEN] One node 'CreditNoteLine' created
+        Assert.AreEqual(LibraryXMLRead.GetNodesCount('cac:CreditNoteLine'), 1, '');
         // [THEN] <EndpointID> exported as 'BE1234567890' with VAT schema ID (TFS 340767)
-        VerifyCustomerEndpoint(Customer."VAT Registration No.", GetVATSchemaID(Customer."Country/Region Code"));
+        VerifyCustomerEndpoint(GetCustomerVATRegNo(Customer), GetVATSchemaID(Customer."Country/Region Code"));
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'Foretaksregisteret' with <TaxScheme> ID = 'TAX'
+        VerifyPEPPOLBISPartyTaxNO;
     end;
 
     [Test]
@@ -489,13 +500,15 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <AccountingCustomerParty> has <ID> = '1234567890123' with <SchemeID> = '0088'
-        // [THEN] <OrderReference> is taken from credit memo's "Document No."
+        // [THEN] <OrderReference> is not exported
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', Customer.GLN);
         LibraryXMLRead.VerifyAttributeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', 'schemeID', GetGLNSchemeID);
-        LibraryXMLRead.VerifyNodeValueInSubtree('CreditNote', 'cac:OrderReference', SalesCrMemoHeader."No.");
+        LibraryXMLRead.VerifyNodeAbsence('cac:OrderReference');
         // [THEN] <EndpointID> exported as '1234567890123' with GLN schema ID (TFS 340767)
         VerifyCustomerEndpoint(Customer.GLN, GetGLNSchemeID);
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'Foretaksregisteret' with <TaxScheme> ID = 'TAX'
+        VerifyPEPPOLBISPartyTaxNO;
     end;
 
     [Test]
@@ -523,16 +536,18 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <AccountingSupplierParty> has <CompanyID> = 'NO1234567890'
-        // [THEN] <PartyTaxScheme> has <CompanyID> = 'NO1234567890'
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'NO1234567890MVA'
         CompanyInformation.Get();
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyNodeValueInSubtree(
           'cac:AccountingSupplierParty', 'cbc:CompanyID', GetCompanyVATRegNo(CompanyInformation));
         LibraryXMLRead.VerifyNodeValueInSubtree(
-          'cac:PartyTaxScheme', 'cbc:CompanyID', GetCompanyVATRegNo(CompanyInformation));
-        // [THEN] <EndpointID> exported as 'NO1234567890' with VAT schema ID (TFS 340767)
+          'cac:PartyTaxScheme', 'cbc:CompanyID', GetCompanyVATRegNoPartyTaxScheme(CompanyInformation));
+        // [THEN] <EndpointID> exported as 'NO1234567890MVA' with VAT schema ID (TFS 340767)
         VerifySupplierEndpoint(
-          DelChr(CompanyInformation."VAT Registration No."), GetVATSchemaID(CompanyInformation."Country/Region Code"));
+          GetCompanyVATRegNo(CompanyInformation), GetVATSchemaID(CompanyInformation."Country/Region Code"));
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'Foretaksregisteret' with <TaxScheme> ID = 'TAX'
+        VerifyPEPPOLBISPartyTaxNO;
     end;
 
     [Test]
@@ -548,7 +563,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo when Company Information has GLN
         Initialize;
 
-        // [GIVEN] Company has GLN = '1234567890123'
+        // [GIVEN] Company has GLN = '1234567890123' and VAT Registration No. = 'NO1234567890MVA'
         UpdateCompanyGLN;
 
         // [GIVEN] Posted Sales Credit Memo
@@ -560,15 +575,17 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
 
         // [THEN] <PartyLegalEntity> of <AccountingCustomerParty> has <CompanyID> = '1234567890123' with <SchemeID> = '0088'
-        // [THEN] <PartyTaxScheme> has <CompanyID> = 'NO1234567890'
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'NO1234567890MVA'
         CompanyInformation.Get();
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyLegalEntity', 'cbc:CompanyID', CompanyInformation.GLN);
         LibraryXMLRead.VerifyAttributeValueInSubtree('cac:PartyLegalEntity', 'cbc:CompanyID', 'schemeID', GetGLNSchemeID);
         LibraryXMLRead.VerifyNodeValueInSubtree(
-          'cac:PartyTaxScheme', 'cbc:CompanyID', GetCompanyVATRegNo(CompanyInformation));
+          'cac:PartyTaxScheme', 'cbc:CompanyID', GetCompanyVATRegNoPartyTaxScheme(CompanyInformation));
         // [THEN] <EndpointID> exported as '1234567890123' with GLN schema ID (TFS 340767)
         VerifySupplierEndpoint(CompanyInformation.GLN, GetGLNSchemeID);
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'Foretaksregisteret' with <TaxScheme> ID = 'TAX'
+        VerifyPEPPOLBISPartyTaxNO;
     end;
 
     [Test]
@@ -855,14 +872,17 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         XMLFilePath := PEPPOLXMLExport(ServiceInvoiceHeader, CreateBISElectronicDocumentFormatServiceInvoice);
 
         // [THEN] <AccountingCustomerParty> has <ID> = '1234567890123' with <SchemeID> = '0088'
-        // [THEN] <OrderReference> is taken from invoice's "Document No."
+        // [THEN] <OrderReference> is not exported
         LibraryXMLRead.Initialize(XMLFilePath);
         VerifyPEPPOLBISIdentifiers('Invoice');
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', Customer.GLN);
         LibraryXMLRead.VerifyAttributeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', 'schemeID', GetGLNSchemeID);
-        LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cac:OrderReference', ServiceInvoiceHeader."No.");
+        LibraryXMLRead.VerifyNodeAbsence('cac:OrderReference');
+        LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cbc:DueDate',Format(ServiceInvoiceHeader."Due Date", 0, 9));
         // [THEN] <EndpointID> exported as '1234567890123' with GLN schema ID (TFS 340767)
         VerifyCustomerEndpoint(Customer.GLN, GetGLNSchemeID);
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'Foretaksregisteret' with <TaxScheme> ID = 'TAX'
+        VerifyPEPPOLBISPartyTaxNO;
     end;
 
     [Test]
@@ -886,14 +906,16 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         XMLFilePath := PEPPOLXMLExport(ServiceCrMemoHeader, CreateBISElectronicDocumentFormatServiceCrMemo);
 
         // [THEN] <AccountingCustomerParty> has <ID> = '1234567890123' with <SchemeID> = '0088'
-        // [THEN] <OrderReference> is taken from credit memo's "Document No."
+        // [THEN] <OrderReference> is not exported
         LibraryXMLRead.Initialize(XMLFilePath);
         VerifyPEPPOLBISIdentifiers('CreditNote');
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', Customer.GLN);
         LibraryXMLRead.VerifyAttributeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', 'schemeID', GetGLNSchemeID);
-        LibraryXMLRead.VerifyNodeValueInSubtree('CreditNote', 'cac:OrderReference', ServiceCrMemoHeader."No.");
+        LibraryXMLRead.VerifyNodeAbsence('cac:OrderReference');
         // [THEN] <EndpointID> exported as '1234567890123' with GLN schema ID (TFS 340767)
         VerifyCustomerEndpoint(Customer.GLN, GetGLNSchemeID);
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'Foretaksregisteret' with <TaxScheme> ID = 'TAX'
+        VerifyPEPPOLBISPartyTaxNO;
     end;
 
     [Test]
@@ -970,7 +992,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
 
             if CompanyInfo."VAT Registration No." = '' then
                 CompanyInfo."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInfo."Country/Region Code");
-
+            CompanyInfo.Validate("Use GLN in Electronic Document", true);
             CompanyInfo.Modify(true);
 
             ConfigureVATPostingSetup;
@@ -1158,6 +1180,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         LibrarySales.CreateCustomerWithAddress(Customer);
         Customer."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code");
+        Customer."Use GLN in Electronic Document" := true;
         Customer.Modify();
         exit(Customer."No.");
     end;
@@ -1196,14 +1219,32 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     end;
 
     local procedure GetCompanyVATRegNo(CompanyInformation: Record "Company Information"): Text
+    var
+        EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
     begin
         with CompanyInformation do
-            exit("Country/Region Code" + DelChr("VAT Registration No."));
+            exit(EInvoiceDocumentEncode.GetVATRegNo("VAT Registration No.", false));
     end;
 
     local procedure GetGLNSchemeID(): Text
     begin
         exit('0088');
+    end;
+
+    local procedure GetCompanyVATRegNoPartyTaxScheme(CompanyInformation: Record "Company Information"): Text
+    var
+        EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
+    begin
+        with CompanyInformation do
+            exit("Country/Region Code" + EInvoiceDocumentEncode.GetVATRegNo("VAT Registration No.", true));
+    end;
+
+    local procedure GetCustomerVATRegNo(Customer: Record Customer): Text
+    var
+        EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
+    begin
+        with Customer do
+            exit(EInvoiceDocumentEncode.GetVATRegNo("VAT Registration No.", false));
     end;
 
     local procedure GetGNLID(): Code[13]
@@ -1365,11 +1406,13 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         CreateElectronicDocumentFormatSetup(
-          'PEPPOL 2.1', ElectronicDocumentFormat.Usage::"Sales Credit Memo", CODEUNIT::"Export Sales Cr.M. - PEPPOL2.1");
+          'PEPPOL BIS3', ElectronicDocumentFormat.Usage::"Sales Invoice", CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0");
         CreateElectronicDocumentFormatSetup(
-          'PEPPOL 2.1', ElectronicDocumentFormat.Usage::"Service Invoice", CODEUNIT::"Export Serv. Inv. - PEPPOL 2.1");
+          'PEPPOL BIS3', ElectronicDocumentFormat.Usage::"Sales Credit Memo", CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0");
         CreateElectronicDocumentFormatSetup(
-          'PEPPOL 2.1', ElectronicDocumentFormat.Usage::"Service Credit Memo", CODEUNIT::"Exp. Service Cr.M. - PEPPOL2.1");
+          'PEPPOL BIS3', ElectronicDocumentFormat.Usage::"Service Invoice", CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0");
+        CreateElectronicDocumentFormatSetup(
+          'PEPPOL BIS3', ElectronicDocumentFormat.Usage::"Service Credit Memo", CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0");
     end;
 
     local procedure VerifyPEPPOLBISIdentifiers(RootNode: Text)
@@ -1389,6 +1432,12 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:EndpointID', EndpointID);
         LibraryXMLRead.VerifyAttributeValueInSubtree('cac:AccountingCustomerParty', 'cbc:EndpointID', 'schemeID', schemeID);
+    end;
+
+    local procedure VerifyPEPPOLBISPartyTaxNO()
+    begin
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyTaxScheme', 'cbc:CompanyID', 'Foretaksregisteret');
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyTaxScheme', 'cbc:ID', 'TAX');
     end;
 }
 

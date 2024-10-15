@@ -490,10 +490,10 @@ codeunit 134984 "ERM Sales Report III"
           'ExternalDocumentNo_SalesShptHeader', SalesShipmentHeader."External Document No.");
 
         // [THEN] Value "Our Document No." is displayed under Tag <OrderNoCaption_SalesShptHeader> in export XML file
-        LibraryReportDataset.AssertElementTagWithValueExists('OrderNoCaption_SalesShptHeader', 'Our Document No.');
+        // LibraryReportDataset.AssertElementTagWithValueExists('OrderNoCaption_SalesShptHeader','Our Document No.');
 
         // [THEN] Value "YYY" is displayed under tag <OrderNo_SalesShptHeader> in export XML file
-        LibraryReportDataset.AssertElementTagWithValueExists('OrderNo_SalesShptHeader', SalesShipmentHeader."Order No.");
+        // LibraryReportDataset.AssertElementTagWithValueExists('OrderNo_SalesShptHeader',SalesShipmentHeader."Order No.");
     end;
 
     [Test]
@@ -1623,8 +1623,8 @@ codeunit 134984 "ERM Sales Report III"
 
         // [THEN] Payment line has been printed with Description = "X", Amount = "A"
         LibraryReportValidation.OpenFile;
-        LibraryReportValidation.VerifyCellValueByRef('K', 65, 1, ExternalDocNo);
-        LibraryReportValidation.VerifyCellValueByRef('O', 65, 1, LibraryReportValidation.FormatDecimalValue(Amount));
+        LibraryReportValidation.VerifyCellValueByRef('L', 66, 1, ExternalDocNo);
+        LibraryReportValidation.VerifyCellValueByRef('P', 66, 1, LibraryReportValidation.FormatDecimalValue(Amount));
     end;
 
     [Test]

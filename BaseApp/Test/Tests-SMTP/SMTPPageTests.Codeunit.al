@@ -168,6 +168,22 @@ codeunit 139022 "SMTP Page Tests"
         CODEUNIT.Run(CODEUNIT::"SMTP Test Mail");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestMail_ValidateSendAsEmailAddressTest()
+    var
+        SMTPMailSetup: TestPage "SMTP Mail Setup";
+    begin
+        SMTPMailSetup.OpenEdit();
+        SMTPMailSetup."Send As".Value := 'a@b';
+        SMTPMailSetup."Send As".Value := 'vlabtst1@microsoft.com';
+        asserterror SMTPMailSetup."Send As".Value := 'ab.c';
+        asserterror SMTPMailSetup."Send As".Value := ' ';
+        asserterror SMTPMailSetup."Send As".Value := 'a#b()´Š¢´Š¢c';
+        asserterror SMTPMailSetup."Send As".Value := 'a@b@c';
+        SMTPMailSetup.Close();
+    end;
+
     local procedure SMTPMailSetupInitialize()
     begin
         SMTPMailSetupClear();
