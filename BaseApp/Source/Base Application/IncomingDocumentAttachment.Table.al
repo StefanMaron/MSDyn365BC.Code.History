@@ -1,4 +1,4 @@
-table 133 "Incoming Document Attachment"
+﻿table 133 "Incoming Document Attachment"
 {
     Caption = 'Incoming Document Attachment';
 
@@ -540,7 +540,13 @@ table 133 "Incoming Document Attachment"
         DocumentNoFieldRef: FieldRef;
         PostingDateFieldRef: FieldRef;
         PostingDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetFiltersFromMainRecord(MainRecordRef, IncomingDocumentAttachment, IsHandled);
+        if IsHandled then
+            exit;
+
         case MainRecordRef.Number of
             DATABASE::"Incoming Document":
                 exit;
@@ -610,6 +616,11 @@ table 133 "Incoming Document Attachment"
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnBeforeExtractHeaderFields(var TempFieldBuffer: Record "Field Buffer" temporary; var IncomingDocument: Record "Incoming Document")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeSetFiltersFromMainRecord(var MainRecordRef: RecordRef; var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IsHandled: Boolean)
     begin
     end;
 }

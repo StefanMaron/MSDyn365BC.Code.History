@@ -37,6 +37,7 @@ codeunit 137305 "SCM Warehouse Reports"
         InvtPutAwayCreated: Label 'Number of Invt. Put-away activities created';
         CombineShipmentErr: Label 'Incorrect Sales Invoice Line Type';
         RequestPageMissingErr: Label 'RequestPage %1', Comment = '%1 - Report ID';
+        TransferOrderCaptionLbl: Label 'Transfer Order No.';
 
     [Test]
     [HandlerFunctions('PickingListRequestPageHandler')]
@@ -510,8 +511,11 @@ codeunit 137305 "SCM Warehouse Reports"
         REPORT.Run(REPORT::"Transfer Order", true, false, TransferHeader);
 
         // Verify: Check Transfer Order Quantity equals Quantity in report.
+        // [THEN] "Transfer Order No." is printed
         LibraryReportDataset.LoadDataSetFile;
         VerifyReportData('ItemNo_TransLine', Item."No.", 'Qty_TransLine', TransferQuantity);
+        LibraryReportDataset.AssertElementTagWithValueExists('No_TransferHdr', TransferHeader."No.");
+        LibraryReportDataset.AssertElementTagWithValueExists('TransferOrderNoCaption', TransferOrderCaptionLbl);
     end;
 
     [Test]

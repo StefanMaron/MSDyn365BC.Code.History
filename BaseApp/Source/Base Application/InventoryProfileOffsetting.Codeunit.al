@@ -2433,6 +2433,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     "Location Code" := SupplyInvtProfile."Location Code";
                     "Bin Code" := SupplyInvtProfile."Bin Code";
                     "Planning Line Origin" := "Planning Line Origin"::Planning;
+                    OnMaintainPlanningLineOnAfterPopulateReqLineFields(ReqLine, SupplyInvtProfile, DemandInvtProfile, NewPhase, Direction, TempSKU);
                     if SupplyInvtProfile."Action Message" = SupplyInvtProfile."Action Message"::New then begin
                         "Order Date" := SupplyInvtProfile."Due Date";
                         "Planning Level" := SupplyInvtProfile."Planning Level Code";
@@ -2757,9 +2758,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             then begin
                 if "Qty. per Unit of Measure" = 0 then
                     "Qty. per Unit of Measure" := 1;
-                ReqLine.Validate(
-                  Quantity,
-                  Round("Remaining Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+                UpdateReqLineQuantity(SupplyInventoryProfile);
                 ReqLine."Original Quantity" := "Original Quantity";
                 ReqLine."Net Quantity (Base)" :=
                   (ReqLine."Remaining Quantity" - ReqLine."Original Quantity") *
@@ -2784,6 +2783,20 @@ codeunit 99000854 "Inventory Profile Offsetting"
             then
                 ReqLine."Starting Date" := ReqLine."Ending Date";
         end;
+    end;
+
+    local procedure UpdateReqLineQuantity(var SupplyInventoryProfile: Record "Inventory Profile")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateReqLineQuantity(ReqLine, SupplyInventoryProfile, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReqLine.Validate(
+            Quantity,
+            Round(SupplyInventoryProfile."Remaining Quantity (Base)" / SupplyInventoryProfile."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
     end;
 
     local procedure DisableRelations()
@@ -5113,6 +5126,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindCombinationOnBeforeSetState(var TempSKU: Record "Stockkeeping Unit" temporary; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateReqLineQuantity(var ReqLine: Record "Requisition Line"; var SupplyInventoryProfile: Record "Inventory Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMaintainPlanningLineOnAfterPopulateReqLineFields(var ReqLine: Record "Requisition Line"; var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; NewPhase: Option " ","Line Created","Routing Created",Exploded,Obsolete; Direction: Option Forward,Backward; var TempSKU: Record "Stockkeeping Unit")
     begin
     end;
 }

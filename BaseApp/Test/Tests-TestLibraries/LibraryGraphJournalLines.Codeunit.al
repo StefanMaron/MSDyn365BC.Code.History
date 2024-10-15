@@ -8,6 +8,7 @@ codeunit 130622 "Library - Graph Journal Lines"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
@@ -66,6 +67,14 @@ codeunit 130622 "Library - Graph Journal Lines"
     begin
         exit(
           GenJournalLine.GetNewLineNo(GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName, JournalName));
+    end;
+
+    procedure GetNextVendorPaymentNo(JournalName: Code[10]): Integer
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        exit(
+          GenJournalLine.GetNewLineNo(GraphMgtJournal.GetDefaultVendorPaymentsTemplateName, JournalName));
     end;
 
     procedure CreateJournalLine(JournalLineBatchName: Code[10]; AccountNo: Code[20]; AccountId: Guid; Amount: Decimal; DocumentNo: Code[20]): Integer
@@ -137,6 +146,36 @@ codeunit 130622 "Library - Graph Journal Lines"
         exit(GenJournalLine."Line No.");
     end;
 
+    procedure CreateVendorPayment(VendorPaymentBatchName: Code[10]; VendorNo: Code[20]; VendorId: Guid; AppliesToDocumentNo: Code[20]; AppliesToDocumentId: Guid; Amount: Decimal; DocumentNo: Code[20]): Integer
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GraphMgtVendorPayments: Codeunit "Graph Mgt - Vendor Payments";
+    begin
+        GenJournalLine.Init();
+        GraphMgtVendorPayments.SetVendorPaymentsFilters(GenJournalLine);
+        GenJournalLine.SetRange("Journal Batch Name", VendorPaymentBatchName);
+        GenJournalLine.Validate("Journal Template Name", GraphMgtJournal.GetDefaultVendorPaymentsTemplateName);
+        GenJournalLine.Validate("Journal Batch Name", VendorPaymentBatchName);
+        GenJournalLine."Line No." := GetNextVendorPaymentNo(VendorPaymentBatchName);
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Vendor);
+        if not IsNullGuid(VendorId) then
+            GenJournalLine.Validate("Vendor Id", VendorId);
+        if VendorNo <> '' then
+            GenJournalLine.Validate("Account No.", VendorNo);
+        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate(Amount, Amount);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        if not IsNullGuid(AppliesToDocumentId) then
+            GenJournalLine.Validate("Applies-to Invoice Id", AppliesToDocumentId);
+        if AppliesToDocumentNo <> '' then
+            GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocumentNo);
+        GenJournalLine.Insert(true);
+
+        exit(GenJournalLine."Line No.");
+    end;
+
     [Normal]
     procedure CreateAccount(): Text[20]
     var
@@ -159,6 +198,16 @@ codeunit 130622 "Library - Graph Journal Lines"
         exit(Customer."No.");
     end;
 
+    [Normal]
+    procedure CreateVendor(): Text[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
     procedure CreateJournal(): Code[10]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -179,6 +228,16 @@ codeunit 130622 "Library - Graph Journal Lines"
         exit(JournalName);
     end;
 
+    procedure CreateVendorPaymentsJournal(): Code[10]
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        JournalName: Code[10];
+    begin
+        JournalName := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
+        LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultVendorPaymentsTemplateName, JournalName);
+        exit(JournalName);
+    end;
+
     procedure CreatePostedSalesInvoice(CustomerNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
@@ -192,6 +251,22 @@ codeunit 130622 "Library - Graph Journal Lines"
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+        exit(InvoiceNo);
+    end;
+
+    procedure CreatePostedPurchaseInvoice(VendorNo: Code[20]): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        InvoiceNo: Code[20];
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader."Posting Date" := WorkDate();
+        PurchaseHeader.Modify();
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 2);
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
         exit(InvoiceNo);
     end;
 

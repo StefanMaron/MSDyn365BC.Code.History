@@ -913,7 +913,7 @@
         DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
         DimVal."Dimension Code" := GLSetupShortcutDimCode[FieldNumber];
         DimVal.Code := ShortcutDimCode;
-        OnLookupDimValueCodeOnBeforeDimValRunModal(DimVal);
+        OnLookupDimValueCodeOnBeforeDimValRunModal(DimVal, FieldNumber);
         if PAGE.RunModal(0, DimVal) = ACTION::LookupOK then begin
             CheckDim(DimVal."Dimension Code");
             CheckDimValue(DimVal."Dimension Code", DimVal.Code);
@@ -2560,7 +2560,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLookupDimValueCodeOnBeforeDimValRunModal(var DimensionValue: Record "Dimension Value")
+    local procedure OnLookupDimValueCodeOnBeforeDimValRunModal(var DimensionValue: Record "Dimension Value"; FieldNumber: Integer)
     begin
     end;
 

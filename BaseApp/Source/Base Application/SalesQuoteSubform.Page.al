@@ -1187,6 +1187,8 @@ page 95 "Sales Quote Subform"
             AutoReserve();
         end;
         DeltaUpdateTotals();
+
+        OnAfterQuantityOnAfterValidate(Rec, xRec);
     end;
 
     protected procedure UnitofMeasureCodeOnAfterValidate()
@@ -1321,6 +1323,11 @@ page 95 "Sales Quote Subform"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 
