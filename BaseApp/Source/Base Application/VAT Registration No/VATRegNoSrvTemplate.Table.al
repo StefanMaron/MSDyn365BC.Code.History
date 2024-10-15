@@ -38,6 +38,10 @@ table 226 "VAT Reg. No. Srv. Template"
         {
             Caption = 'Validate Post Code';
         }
+        field(24; "Ignore Details"; Boolean)
+        {
+            Caption = 'Ignore Details';
+        }
     }
 
     keys

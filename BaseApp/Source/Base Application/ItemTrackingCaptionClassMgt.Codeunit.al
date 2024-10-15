@@ -37,16 +37,13 @@ codeunit 6512 "Item Tracking CaptionClass Mgt"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Caption Class", 'OnResolveCaptionClass', '', true, true)]
     local procedure ResolveCaptionClass(CaptionArea: Text; CaptionExpr: Text; Language: Integer; var Caption: Text; var Resolved: Boolean)
     begin
-        if CaptionArea = '6' then begin
-            Caption := ItemTrackingCaptionClassTranslate(CaptionExpr);
-            Resolved := true;
-        end;
+        if CaptionArea = '6' then
+            Caption := ItemTrackingCaptionClassTranslate(CaptionExpr, Resolved);
     end;
 
-    local procedure ItemTrackingCaptionClassTranslate(CaptionExpr: Text): Text
+    local procedure ItemTrackingCaptionClassTranslate(CaptionExpr: Text; var IsResolved: Boolean): Text
     var
         ResolvedExpr: Text;
-        IsResolved: Boolean;
     begin
         // Caption Type = 1 - Package No.
         // Caption Type = 2 - New Package No.
@@ -57,6 +54,7 @@ codeunit 6512 "Item Tracking CaptionClass Mgt"
 
         if InventorySetup.Get() then;
 
+        IsResolved := true;
         case CaptionExpr of
             '1':
                 exit(ResolveCaption(PackageNoTxt));
@@ -113,6 +111,7 @@ codeunit 6512 "Item Tracking CaptionClass Mgt"
                         exit(ResolvedExpr);
                 end;
         end;
+        IsResolved := false;
         exit(PackageNoTxt);
     end;
 

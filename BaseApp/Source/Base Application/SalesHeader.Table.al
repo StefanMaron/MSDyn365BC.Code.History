@@ -867,12 +867,7 @@
                       DATABASE::"Customer Template", "Bill-to Customer Template Code")
                 else
 #endif
-                    CreateDim(
-                      DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                      DATABASE::Customer, "Bill-to Customer No.",
-                      DATABASE::Campaign, "Campaign No.",
-                      DATABASE::"Responsibility Center", "Responsibility Center",
-                      DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
+                CreateDimensionsFromValidateSalesPersonCode();
             end;
         }
         field(45; "Order Class"; Code[10])
@@ -3454,7 +3449,6 @@
         SourceCode: Record "Source Code";
         SourceCodeSetup: Record "Source Code Setup";
         PostSalesDelete: Codeunit "PostSales-Delete";
-        ConfirmManagement: Codeunit "Confirm Management";
     begin
         OnBeforeConfirmDeletion(Rec);
         SourceCodeSetup.Get();
@@ -3464,6 +3458,19 @@
         PostSalesDelete.InitDeleteHeader(
           Rec, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader,
           SalesInvHeaderPrepmt, SalesCrMemoHeaderPrepmt, SourceCode.Code);
+
+        exit(CheckNoAndShowConfirm(SourceCode));
+    end;
+
+    local procedure CheckNoAndShowConfirm(SourceCode: Record "Source Code") Result: Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNoAndShowConfirm(Rec, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, SalesInvHeaderPrepmt, SalesCrMemoHeaderPrepmt, SourceCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         if SalesShptHeader."No." <> '' then
             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text009, SalesShptHeader."No."), true) then
@@ -4199,6 +4206,23 @@
         CreateDim(
             DATABASE::Customer, "Bill-to Customer No.",
             DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+            DATABASE::Campaign, "Campaign No.",
+            DATABASE::"Responsibility Center", "Responsibility Center",
+            DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
+    end;
+
+    local procedure CreateDimensionsFromValidateSalesPersonCode()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDimensionsFromValidateSalesPersonCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        CreateDim(
+            DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+            DATABASE::Customer, "Bill-to Customer No.",
             DATABASE::Campaign, "Campaign No.",
             DATABASE::"Responsibility Center", "Responsibility Center",
             DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
@@ -5225,7 +5249,13 @@
     procedure IsApprovedForPosting() Approved: Boolean
     var
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsApprovedForPosting(Rec, Approved, IsHandled);
+        if IsHandled then
+            exit(Approved);
+
         if ApprovalsMgmt.PrePostApprovalCheckSales(Rec) then begin
             if PrepaymentMgt.TestSalesPrepayment(Rec) then
                 Error(PrepaymentInvoicesNotPaidErr, "Document Type", "No.");
@@ -5238,7 +5268,14 @@
     end;
 
     procedure IsApprovedForPostingBatch() Approved: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsApprovedForPostingBatch(Rec, Approved, IsHandled);
+        if IsHandled then
+            exit(Approved);
+
         Approved := ApprovedForPostingBatch;
         OnAfterIsApprovedForPostingBatch(Rec, Approved);
     end;
@@ -6333,7 +6370,9 @@
 
     local procedure ShouldCopyAddressFromBillToCustomer(BillToCustomer: Record Customer): Boolean
     begin
-        exit((not HasBillToAddress) and BillToCustomer.HasAddress);
+        exit(((not HasBillToAddress) and BillToCustomer.HasAddress) or
+            ((xRec."Bill-to Customer No." <> Rec."Bill-to Customer No.") and
+            (xRec."Bill-to Contact No." <> BillToCustomer."Primary Contact No.")));
     end;
 
     local procedure SellToCustomerIsReplaced(): Boolean
@@ -7610,6 +7649,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoAndShowConfirm(SalesHeader: Record "Sales Header"; var SalesShptHeader: Record "Sales Shipment Header"; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnRcptHeader: Record "Return Receipt Header"; var SalesInvHeaderPrePmt: Record "Sales Invoice Header"; var SalesCrMemoHeaderPrePmt: Record "Sales Cr.Memo Header"; SourceCode: Record "Source Code"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReturnInfo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -7626,6 +7670,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDimensionsFromValidateBillToCustomerNo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDimensionsFromValidateSalesPersonCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7761,6 +7810,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsCreditDocType(SalesHeader: Record "Sales Header"; var CreditDocType: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsApprovedForPosting(var SalesHeader: Record "Sales Header"; var Approved: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsApprovedForPostingBatch(var SalesHeader: Record "Sales Header"; var Approved: Boolean; var IsHandled: Boolean)
     begin
     end;
 
