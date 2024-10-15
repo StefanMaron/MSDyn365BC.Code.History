@@ -86,6 +86,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Reports Tests - NamedType NoseriesLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2676363268 - NamedType 3857768190" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[To reverse these entries, correcting entries will be posted.\Do you want to reverse the entries?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Voucher Reports Tests - NamedType ReverseTransactionQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2676363268 - NamedType 2602220690" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[SourceDesc]]></Val>

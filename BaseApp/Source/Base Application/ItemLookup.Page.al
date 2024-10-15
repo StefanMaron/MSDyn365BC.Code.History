@@ -32,6 +32,11 @@ page 32 "Item Lookup"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the price for one unit of the item.';
                 }
+                field(InventoryCtrl; Rec.Inventory)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the quantity in stock for this item.';
+                }
                 field("Created From Nonstock Item"; Rec."Created From Nonstock Item")
                 {
                     ApplicationArea = Basic, Suite;

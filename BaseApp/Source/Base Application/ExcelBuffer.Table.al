@@ -464,6 +464,7 @@ table 370 "Excel Buffer"
         FileMode: DotNet FileMode;
         Encoding: DotNet Encoding;
         VmlDrawingPart: DotNet VmlDrawingPart;
+        IsHandled: Boolean;
     begin
         XlWrkShtWriter.AddPageSetup(OrientationValues.Landscape, 9); // 9 - default value for Paper Size - A4
         if ReportHeader <> '' then
@@ -475,7 +476,10 @@ table 370 "Excel Buffer"
           false,
           StrSubstNo('%1%3%4%3%5 %2', GetExcelReference(2), GetExcelReference(3), TypeHelper.LFSeparator(), UserID2, PageTxt));
 
-        OpenXMLManagement.AddAndInitializeCommentsPart(XlWrkShtWriter, VmlDrawingPart);
+        IsHandled := false;
+        OnWriteSheetOnBeforeAddAndInitializeCommentsPart(Rec, IsHandled);
+        if not IsHandled then
+            OpenXMLManagement.AddAndInitializeCommentsPart(XlWrkShtWriter, VmlDrawingPart);
 
         StringBld := StringBld.StringBuilder();
         StringBld.Append(VmlDrawingXmlTxt);
@@ -484,10 +488,14 @@ table 370 "Excel Buffer"
 
         StringBld.Append(EndXmlTokenTxt);
 
-        XmlTextWriter := XmlTextWriter.XmlTextWriter(VmlDrawingPart.GetStream(FileMode.Create), Encoding.UTF8);
-        XmlTextWriter.WriteRaw(StringBld.ToString());
-        XmlTextWriter.Flush();
-        XmlTextWriter.Close();
+        IsHandled := false;
+        OnWriteSheetOnBeforeUseXmlTextWriter(Rec, IsHandled);
+        if not IsHandled then begin
+            XmlTextWriter := XmlTextWriter.XmlTextWriter(VmlDrawingPart.GetStream(FileMode.Create), Encoding.UTF8);
+            XmlTextWriter.WriteRaw(StringBld.ToString());
+            XmlTextWriter.Flush();
+            XmlTextWriter.Close();
+        end;
 
         if UseInfoSheet then
             if not TempInfoExcelBuf.IsEmpty() then begin
@@ -1318,6 +1326,16 @@ table 370 "Excel Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnParseCellValueOnBeforeRoundDecimal(var ExcelBuffer: Record "Excel Buffer"; DecimalValue: Decimal; var RoundingPrecision: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWriteSheetOnBeforeUseXmlTextWriter(var ExcelBuffer: Record "Excel Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWriteSheetOnBeforeAddAndInitializeCommentsPart(var ExcelBuffer: Record "Excel Buffer"; var IsHandled: Boolean)
     begin
     end;
 

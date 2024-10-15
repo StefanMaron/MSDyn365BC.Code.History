@@ -312,6 +312,7 @@ codeunit 6325 "Power BI Report Synchronizer"
         UploadFromApiRequestList(ApiRequestList, EnvName);
     end;
 
+    [NonDebuggable]
     local procedure UploadFromApiRequestList(ApiRequestList: DotNet ImportReportRequestList; EnvName: Text)
     var
         UrlHelper: Codeunit "Url Helper";
@@ -368,6 +369,7 @@ codeunit 6325 "Power BI Report Synchronizer"
         exit(StrSubstNo(ReportEnvNameTxt, EnvironmentName, PbixReportName));
     end;
 
+    [NonDebuggable]
     local procedure RetryPartialUploadBatch()
     var
         PowerBIReportUploads: Record "Power BI Report Uploads";

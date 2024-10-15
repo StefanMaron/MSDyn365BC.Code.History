@@ -537,6 +537,7 @@
                             DescriptionTxt := Text0011;
                         if "Qty. to Assemble to Order" <> 0 then
                             DescriptionTxt := Text0018;
+                        OnCanUpdateSalesOnAfterLoopIteration(DescriptionTxt, SalesLine);
                     end;
                 until (Next() = 0) or (DescriptionTxt <> '');
         end;
@@ -947,6 +948,7 @@
                         if "Prepmt. Amount Inv. (LCY)" <> 0 then
                             DescriptionTxt := Text0011;
                     end;
+                    OnCanUpdatePurchaseOnAfterLoopIteration(DescriptionTxt, PurchaseLine);
                 until (Next() = 0) or (DescriptionTxt <> '');
         end;
         if DescriptionTxt = '' then
@@ -2044,7 +2046,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCanUpdatePurchaseOnAfterLoopIteration(var DescriptionTxt: Text[250]; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCanUpdatePurchaseOnAfterPurchaseLineSetFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCanUpdateSalesOnAfterLoopIteration(var DescriptionTxt: Text[250]; SalesLine: Record "Sales Line")
     begin
     end;
 
