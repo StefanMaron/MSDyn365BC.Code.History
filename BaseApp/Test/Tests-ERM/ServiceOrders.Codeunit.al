@@ -69,6 +69,7 @@ codeunit 136101 "Service Orders"
         RoundingBalanceErr: Label 'This will cause the quantity and base quantity fields to be out of balance.';
         InvalidDiscCodeErr: Label 'Invalid Invoice Disc. Code';
         UnitCostErr: Label 'Unit Cost are Not equal.';
+        AvailableExpectedQuantityErr: Label 'Available expected quantity must be %1.', Comment = '%1=Value';
 
     [Test]
     [Scope('OnPrem')]
@@ -5014,6 +5015,39 @@ codeunit 136101 "Service Orders"
         Assert.AreEqual(Item."Unit Cost", ServiceLine."Unit Cost", UnitCostErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyItemAvailabilityByEventOnServiceLine()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceLineFactBox: TestPage "Service Line FactBox";
+        ExpectedAvailabilityQty: Integer;
+    begin
+        // [SCENARIO 464013] At service lines level, item availability by event is wrong compared to item availability by event at sales lines level.
+
+        // [GIVEN] Create Service Order and update the Posting Date on the Service Item Worksheet.
+        Initialize();
+        CreateServiceOrderWithUpdatedPostingDate(ServiceHeader, ServiceLine);
+
+        // [THEN] Post Inventory for service item
+        PostPositiveAdjustment(ServiceLine."No.", (ServiceLine.Quantity * 4));
+
+        // [GIVEN] Create Sales Order for service item
+        CreateSalesOrder(ServiceHeader."Customer No.", ServiceLine."No.", ServiceLine.Quantity);
+        ExpectedAvailabilityQty := ServiceLine.Quantity * 2;
+
+        // [THEN] Verify: Quantity availablity from service line item
+        ServiceLineFactBox.OpenView();
+        ServiceLineFactBox.Filter.SetFilter("Document Type", Format(ServiceLine."Document Type"));
+        ServiceLineFactBox.Filter.SetFilter("Document No.", Format(ServiceLine."Document No."));
+        ServiceLineFactBox.Filter.SetFilter("Line No.", Format(ServiceLine."Line No."));
+        Assert.AreEqual(
+            Format(ExpectedAvailabilityQty),
+            ServiceLineFactBox."StrSubstNo('%1',ServInfoPaneMgt.CalcAvailability(Rec))".Value,
+            StrSubstNo(AvailableExpectedQuantityErr, ExpectedAvailabilityQty));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5044,6 +5078,12 @@ codeunit 136101 "Service Orders"
         LibraryTemplates.EnableTemplatesFeature();
         BindSubscription(LibraryJobQueue);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Orders");
+    end;
+
+    local procedure CheckWorkDateIsWorkingDate()
+    begin
+        if Date2DWY(WorkDate(), 1) in [6, 7] then
+            WorkDate(WorkDate() + 2);
     end;
 
     local procedure CreateCustomerWithCountryRegion(var CountryRegion: Record "Country/Region"; var Customer: Record Customer)
@@ -7298,6 +7338,46 @@ codeunit 136101 "Service Orders"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, '');
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+    end;
+
+    local procedure CreateSalesOrder(No: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, No);
+
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure PostPositiveAdjustment(ItemNo: Code[20]; Quantity: Decimal): Integer
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+        exit(FindItemLedgEntryNo(ItemNo, ItemLedgerEntry."Entry Type"::"Positive Adjmt."));
+    end;
+
+    local procedure FindItemLedgEntryNo(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"): Integer
+    var
+        ItemLedgEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgEntry.SetRange("Item No.", ItemNo);
+        ItemLedgEntry.SetRange("Entry Type", EntryType);
+        ItemLedgEntry.FindLast();
+        exit(ItemLedgEntry."Entry No.");
     end;
 
     [ConfirmHandler]

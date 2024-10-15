@@ -545,6 +545,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Acc. Allocations - NamedType WrongBalanceErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2061240834 - NamedType 2032812016" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Allocated Register No. does not exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Codeunit - NamedType AllocatedregitserNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2061240834 - NamedType 3992542682" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Cost allocation sources were found.]]></Val>
@@ -786,6 +795,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Codeunit - NamedType NoGLEntriesTransferedError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2061240834 - NamedType 1716902023" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are no records within the filters specified for table %1. The filters are: %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Codeunit - NamedType NoRecordsInFilterErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2061240834 - NamedType 4048758464" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

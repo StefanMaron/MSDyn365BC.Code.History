@@ -345,7 +345,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
                     ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account"))
                 then
                     GenJnlLine.FieldError("Document Date", ErrorInfo.Create(Text000, true));
-
             if HasVAT(GenJnlLine) then
                 CheckVATDate(GenJnlLine);
         end;
@@ -970,7 +969,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
             GenJournalLine.FieldError(GenJournalLine."VAT Reporting Date", ErrorInfo.Create(VATDateNotAllowedErr, true));
     end;
 
-    internal procedure HasVAT(var GenJnlLine: Record "Gen. Journal Line") : Boolean
+    internal procedure HasVAT(var GenJnlLine: Record "Gen. Journal Line"): Boolean
     begin
         exit((GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::" ") or 
             (GenJnlLine."Bal. Gen. Posting Type" <> GenJnlLine."Bal. Gen. Posting Type"::" "));
