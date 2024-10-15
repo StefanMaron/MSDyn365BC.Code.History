@@ -364,6 +364,7 @@ codeunit 131305 "Library - ERM Country Data"
         if not ReasonCode.FindFirst() then
             LibraryERM.CreateReasonCode(ReasonCode);
         SalesReceivableSetup.Validate("Payment Discount Reason Code", ReasonCode.Code);
+        SalesReceivableSetup.Validate("Default Cancel Reason Code", ReasonCode.Code);
         SalesReceivableSetup.Validate("Invoice Rounding", false);
         SalesReceivableSetup.Modify(true);
     end;
@@ -371,9 +372,13 @@ codeunit 131305 "Library - ERM Country Data"
     local procedure UpdatePurchaseReceivableSetupData()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        ReasonCode: Record "Reason Code";
     begin
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Invoice Rounding", false);
+        if not ReasonCode.FindFirst() then
+            LibraryERM.CreateReasonCode(ReasonCode);
+        PurchasesPayablesSetup.Validate("Default Cancel Reason Code", ReasonCode.Code);
         PurchasesPayablesSetup.Modify(true);
     end;
 

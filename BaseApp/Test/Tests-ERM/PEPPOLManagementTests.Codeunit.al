@@ -688,6 +688,7 @@ codeunit 139155 "PEPPOL Management Tests"
     var
         DummySalesHeader: Record "Sales Header";
         Cust: Record Customer;
+        CountryRegion: Record "Country/Region";
         PEPPOLMgt: Codeunit "PEPPOL Management";
         CustPartyLegalEntityRegName: Text;
         CustPartyLegalEntityCompanyID: Text;
@@ -695,8 +696,9 @@ codeunit 139155 "PEPPOL Management Tests"
     begin
         // Setup
         Initialize();
-
+        CountryRegion.FindFirst();
         LibrarySales.CreateCustomer(Cust);
+        Cust."Country/Region Code" := CountryRegion.Code;
         Cust.GLN := LibraryUtility.GenerateGUID();
         Cust."Use GLN in Electronic Document" := true;
         Cust.Modify();
