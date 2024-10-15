@@ -554,22 +554,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Manual VAT Correction - NamedType UserIdErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2211344488 - NamedType 1943186384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2768063627 - NamedType 1943186384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Purchase Statistics.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT - NamedType PurchStatisticsErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Tests - NamedType PurchStatisticsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2211344488 - NamedType 4085612146" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2768063627 - NamedType 4085612146" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA["VAT Amount" field should not be editable.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT - NamedType VATAmountIsEditableErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Tests - NamedType VATAmountIsEditableErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3509990025 - NamedType 3075491178" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -207,7 +207,7 @@ page 9200 "Personalized Pages"
 
         if User.FindSet() then
             repeat
-                UserSidFilter := '|' + User."User Security ID";
+                UserSidFilter += '|' + User."User Security ID";
             until User.Next() = 0
     end;
 

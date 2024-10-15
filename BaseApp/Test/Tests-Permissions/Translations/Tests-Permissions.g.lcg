@@ -95,6 +95,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Budgets & Analysis Reports E2E - NamedType TurnoverInBudgetTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4199409546 - NamedType 552006252" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Company]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Login Permissions Tests - NamedType CompanyName)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 535961468 - NamedType 1427803297" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong Interaction Template Code]]></Val>

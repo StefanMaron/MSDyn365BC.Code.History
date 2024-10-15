@@ -496,6 +496,7 @@ codeunit 144013 "VAT Annual Listing Report"
     procedure VATLiableIsPrinted()
     var
         Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
     begin
         // [FEATURE] [VAT Liable]
         // [SCENARIO 388486] Customer with "VAT Liable" = True is printed by the "VAT Annual Listing" report
@@ -504,6 +505,9 @@ codeunit 144013 "VAT Annual Listing Report"
         // [GIVEN] Customer with "VAT Liable" = True
         LibraryBEHelper.CreateDomesticCustomer(Customer);
         Customer.TestField("VAT Liable", true);
+
+        // [GIVEN] Posted Invoice for Customer.
+        CreateAndPostSalesDocument(SalesHeader."Document Type"::Invoice, Customer."No.");
 
         // [WHEN] Print "VAT Annual Listing" report
         OpenAnnualListingRep(
@@ -520,6 +524,7 @@ codeunit 144013 "VAT Annual Listing Report"
     procedure NonVATLiableIsNotPrinted()
     var
         Customer: array[2] of Record Customer;
+        SalesHeader: Record "Sales Header";
     begin
         // [FEATURE] [VAT Liable]
         // [SCENARIO 388486] Customer with "VAT Liable" = False is not printed by the "VAT Annual Listing" report
@@ -532,6 +537,10 @@ codeunit 144013 "VAT Annual Listing Report"
         LibraryBEHelper.CreateDomesticCustomer(Customer[2]);
         Customer[2].Validate("VAT Liable", false);
         Customer[2].Modify(true);
+
+        // [GIVEN] Posted Invoice for Customer.
+        CreateAndPostSalesDocument(SalesHeader."Document Type"::Invoice, Customer[1]."No.");
+        CreateAndPostSalesDocument(SalesHeader."Document Type"::Invoice, Customer[2]."No.");
 
         // [WHEN] Print "VAT Annual Listing" report
         OpenAnnualListingRep(

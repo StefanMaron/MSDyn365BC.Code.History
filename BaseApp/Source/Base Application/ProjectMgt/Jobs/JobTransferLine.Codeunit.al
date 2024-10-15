@@ -563,8 +563,14 @@
         Item: Record Item;
         JobTask: Record "Job Task";
         UOMMgt: Codeunit "Unit of Measure Management";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         Factor: Decimal;
-        NondeductibleVATAmount: Decimal;
+        NonDeductibleVATAmount: Decimal;
+        NonDeductibleBaseAmount: Decimal;
+        NonDeductibleVATAmtPerUnit: Decimal;
+        NondeductibleVATAmtPerUnitLCY: Decimal;
+        NDVATAmountRounding: Decimal;
+        NDVATBaseRounding: Decimal;
         NondeductibleVATAmtPrUnitLCY: Decimal;
         IsHandled: Boolean;
     begin
@@ -607,20 +613,26 @@
                 JobJnlLine."External Document No." := PurchHeader."Vendor Invoice No.";
             end;
 
+            NonDeductibleVAT.Calculate(NonDeductibleBaseAmount, NonDeductibleVATAmount, NonDeductibleVATAmtPerUnit, NonDeductibleVATAmtPerUnitLCY, NDVATAmountRounding, NDVATBaseRounding, PurchHeader, PurchLine);
             NondeductibleVATAmount := PurchLine.GetNonDeductibleVATAmount();
             NondeductibleVATAmtPrUnitLCY := NondeductibleVATAmount / Quantity;
 
             GetCurrencyRounding(JobJnlLine."Currency Code");
 
             JobJnlLine."Unit Cost (LCY)" := "Unit Cost (LCY)" / "Qty. per Unit of Measure" + Abs(NondeductibleVATAmtPrUnitLCY);
+            if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then
+                JobJnlLine."Unit Cost (LCY)" += Abs(NonDeductibleVATAmtPerUnitLCY);
             OnFromPurchaseLineToJnlLineOnAfterCalcUnitCostLCY(JobJnlLine, PurchLine);
 
             if Type = Type::Item then
                 if Item."Inventory Value Zero" then
                     JobJnlLine."Unit Cost (LCY)" := 0
                 else
-                    if Item."Costing Method" = Item."Costing Method"::Standard then
+                    if Item."Costing Method" = Item."Costing Method"::Standard then begin
                         JobJnlLine."Unit Cost (LCY)" := Item."Standard Cost" + NondeductibleVATAmtPrUnitLCY;
+                        if NonDeductibleVAT.UseNonDeductibleVATAmountForJobCost() then
+                            JobJnlLine."Unit Cost (LCY)" += NonDeductibleVATAmtPerUnitLCY;
+                    end;
 
             JobJnlLine."Unit Cost (LCY)" := Round(JobJnlLine."Unit Cost (LCY)", LCYCurrency."Unit-Amount Rounding Precision");
 

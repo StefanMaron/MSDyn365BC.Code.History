@@ -159,6 +159,13 @@ page 20 "General Ledger Entries"
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                     Visible = false;
                 }
+                field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                    Visible = false;
+                }
                 field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -515,6 +522,7 @@ page 20 "General Ledger Entries"
                         ShowValueEntries();
                     end;
                 }
+#pragma warning disable AS0072
 #if not CLEAN22
                 action("Applied E&ntries")
                 {
@@ -529,6 +537,7 @@ page 20 "General Ledger Entries"
                     trigger OnAction()
                     var
                         GLEABRec: Record "G/L Entry Application Buffer";
+                        ApplyGLEntries: Page "Apply General Ledger Entries";
                     begin
                         ApplyGLEntries.SetAppliedEntries(Rec);
                         GLEABRec.Init();
@@ -539,6 +548,7 @@ page 20 "General Ledger Entries"
                     end;
                 }
 #endif
+#pragma warning restore AS0072
             }
         }
         area(processing)
@@ -573,14 +583,16 @@ page 20 "General Ledger Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Apply Entries';
+                    ObsoleteReason = 'Local feature is replaced with W1 extension Review G/L Entries';
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by feature Review General Ledger Entries';
                     ObsoleteTag = '22.0';
                     Image = ApplyEntries;
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Apply the selected entries to a sales or purchase document that was already posted for a customer or vendor. This updates the amount on the posted document, and the document can either be partially paid, or closed as paid or refunded.';
 
                     trigger OnAction()
+                    var
+                        ApplyGLEntries: Page "Apply General Ledger Entries";
                     begin
                         Clear(ApplyGLEntries);
                         ApplyGLEntries.SetAllEntries("G/L Account No.");
@@ -778,9 +790,6 @@ page 20 "General Ledger Entries"
     var
         GLAcc: Record "G/L Account";
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
-#if not CLEAN22
-        ApplyGLEntries: Page "Apply General Ledger Entries";
-#endif
         HasIncomingDocument: Boolean;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;

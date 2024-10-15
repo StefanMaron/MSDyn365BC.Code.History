@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 144023 "Test Apply G/L Account"
 {
     // // [FEATURE] [Apply G/L Account]
@@ -503,4 +504,4 @@ codeunit 144023 "Test Apply G/L Account"
         DimensionSetEntriesPage.OK.Invoke;
     end;
 }
-
+#endif

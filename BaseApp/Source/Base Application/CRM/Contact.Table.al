@@ -135,6 +135,22 @@
             Caption = 'Language Code';
             TableRelation = Language;
         }
+        field(25; "Registration Number"; Text[50])
+        {
+            Caption = 'Registration No.';
+
+            trigger OnValidate()
+            var
+                IsHandled: Boolean;
+            begin
+                IsHandled := false;
+                OnBeforeValidateRegistrationNumber(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+                if StrLen("Registration Number") > 20 then
+                    FieldError("Registration Number", FieldLengthErr);
+            end;
+        }
         field(29; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
@@ -317,6 +333,21 @@
         {
             Caption = 'Coupled to Dataverse';
             Editable = false;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
+        }
+        field(721; "Coupled to Dataverse"; Boolean)
+        {
+            FieldClass = FlowField;
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+            CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Contact)));
         }
         field(5050; Type; Enum "Contact Type")
         {
@@ -837,9 +868,14 @@
         key(Key13; SystemModifiedAt)
         {
         }
+#if not CLEAN23
         key(Key14; "Coupled to CRM")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+            ObsoleteTag = '23.0';
         }
+#endif
     }
 
     fieldgroups
@@ -1117,6 +1153,7 @@
         DifferentCustomerTemplateMsg: Label 'Sales quote %1 with original customer template %2 was assigned to the customer created from template %3.', Comment = '%1=Document No.,%2=Original Customer Template Code,%3=Customer Template Code';
         NoOriginalCustomerTemplateMsg: Label 'Sales quote %1 without an original customer template was assigned to the customer created from template %2.', Comment = '%1=Document No.,%2=Customer Template Code';
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
+        FieldLengthErr: Label 'must not have the length more than 20 symbols';
 
     protected var
         HideValidationDialog: Boolean;
@@ -1596,8 +1633,12 @@
         if OfficeManagement.IsAvailable() then
             PAGE.Run(PAGE::"Vendor Card", Vendor)
         else
-            if not HideValidationDialog then
-                Message(RelatedRecordIsCreatedMsg, Vendor.TableCaption());
+            if not HideValidationDialog then begin
+                IsHandled := false;
+                OnShowResultForVendorOnBeforeShowrelatedRecordisCreatedMsg(Vendor, IsHandled);
+                if not IsHandled then
+                    Message(RelatedRecordIsCreatedMsg, Vendor.TableCaption());
+            end;
     end;
 
     local procedure CreateCompanyContactVendor(var VendorNo: Code[20]; VendorTemplateCode: Code[20]) VendorCreated: Boolean
@@ -3620,6 +3661,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateEmail(var Contact: Record Contact; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowResultForVendorOnBeforeShowrelatedRecordisCreatedMsg(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateRegistrationNumber(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 }

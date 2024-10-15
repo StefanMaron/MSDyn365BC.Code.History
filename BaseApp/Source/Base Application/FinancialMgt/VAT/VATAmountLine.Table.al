@@ -28,6 +28,7 @@ table 290 "VAT Amount Line"
                 if "VAT Amount" / "VAT Base" < 0 then
                     Error(Text002, FieldCaption("VAT Amount"));
                 "VAT Difference" := "VAT Amount" - "Calculated VAT Amount";
+                NonDeductibleVAT.ValidateVATAmountInVATAmountLine(Rec);
             end;
         }
         field(4; "Amount Including VAT"; Decimal)
@@ -128,6 +129,52 @@ table 290 "VAT Amount Line"
             Caption = 'Pmt. Discount Amount';
             Editable = false;
         }
+        field(6200; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+        }
+        field(6201; "Non-Deductible VAT Base"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Base';
+            Editable = false;
+        }
+        field(6202; "Non-Deductible VAT Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Amount';
+
+            trigger OnValidate()
+            begin
+                NonDeductibleVAT.ValidateNonDeductibleVATInVATAmountLine(Rec);
+            end;
+        }
+        field(6203; "Calc. Non-Ded. VAT Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Calculated Non-Deductible VAT Amount';
+            Editable = false;
+        }
+        field(6204; "Deductible VAT Base"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Deductible VAT Base';
+            Editable = false;
+        }
+        field(6205; "Deductible VAT Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Deductible VAT Amount';
+            Editable = false;
+        }
+        field(6206; "Non-Deductible VAT Diff."; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Non-Deductible VAT Difference';
+            Editable = false;
+        }
         field(11301; "VAT Base (Lowered)"; Decimal)
         {
             AutoFormatType = 1;
@@ -158,6 +205,7 @@ table 290 "VAT Amount Line"
 
     var
         Currency: Record Currency;
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         AllowVATDifference: Boolean;
         GlobalsInitialized: Boolean;
 
@@ -230,6 +278,7 @@ table 290 "VAT Amount Line"
             "VAT Amount" := "Amount Including VAT" - "VAT Base";
             "Calculated VAT Amount" += VATAmountLine."Calculated VAT Amount";
             "VAT Base (Lowered)" += VATAmountLine."VAT Base (Lowered)";
+            NonDeductibleVAT.Increment(Rec, VATAmountLine);
             OnInsertLineOnBeforeModify(Rec, VATAmountLine);
             Modify();
         end else begin
@@ -241,6 +290,8 @@ table 290 "VAT Amount Line"
         exit(true);
     end;
 
+#if not CLEAN23
+    [Obsolete('Replaced with InsertNewLine with NonDeductibleVATPct parameter', '23.0')]
     procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean)
     begin
         Init();
@@ -253,6 +304,22 @@ table 290 "VAT Amount Line"
         Positive := IsPositive;
         "Includes Prepayment" := IsPrepayment;
         Insert();
+    end;
+#endif
+
+    procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean; NonDeductibleVATPct: Decimal)
+    begin
+        Rec.Init();
+        Rec."VAT Identifier" := VATIdentifier;
+        Rec."VAT Calculation Type" := VATCalcType;
+        Rec."Tax Group Code" := TaxGroupCode;
+        Rec."Use Tax" := UseTax;
+        Rec."VAT %" := TaxRate;
+        Rec.Modified := true;
+        Rec.Positive := IsPositive;
+        Rec."Includes Prepayment" := IsPrepayment;
+        Rec."Non-Deductible VAT %" := NonDeductibleVATPct;
+        Rec.Insert();
     end;
 
     procedure GetLine(Number: Integer)
@@ -501,6 +568,7 @@ table 290 "VAT Amount Line"
         end;
         "Calculated VAT Amount" := "VAT Amount";
         "VAT Difference" := 0;
+        NonDeductibleVAT.Update(Rec, Currency);
         Modified := true;
 
         OnAfterCalcVATFields(Rec, NewPricesIncludingVAT, NewVATBaseDiscPct, Currency);
@@ -539,6 +607,7 @@ table 290 "VAT Amount Line"
                     "Invoice Discount Amount" -= VATAmountLineDeduct."Invoice Discount Amount";
                     "Calculated VAT Amount" -= VATAmountLineDeduct."Calculated VAT Amount";
                     "VAT Difference" -= VATAmountLineDeduct."VAT Difference";
+                    NonDeductibleVAT.DeductNonDedValuesFromVATAmountLine(Rec, VATAmountLineDeduct);
                     OnDeductVATAmountLineOnBeforeModify(Rec, VATAmountLineDeduct);
                     Modify();
                 end;
@@ -651,6 +720,7 @@ table 290 "VAT Amount Line"
                                 OnUpdateLinesOnAfterCalcVATAmount(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
                                 "Amount Including VAT" := CalcLineAmount() + "VAT Amount";
                                 OnUpdateLinesOnAfterCalcAmountIncludingVATNormalVAT(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
+                                NonDeductibleVAT.UpdateNonDeductibleAmountsWithDiffInVATAmountLine(Rec, Currency);
                                 if Positive then
                                     PrevVATAmountLine.Init()
                                 else
@@ -744,6 +814,7 @@ table 290 "VAT Amount Line"
             if PurchInvHeader."VAT Base Discount %" <> 0 then
                 "VAT Base (Lowered)" := "VAT Base (Lowered)" * (1 - PurchInvHeader."VAT Base Discount %" / 100);
         end;
+        NonDeductibleVAT.CopyNonDedVATFromPurchInvLineToVATAmountLine(Rec, PurchInvLine);
 
         OnAfterCopyFromPurchInvLine(Rec, PurchInvLine);
     end;
@@ -779,6 +850,7 @@ table 290 "VAT Amount Line"
             if PurchCrMemoHdr."VAT Base Discount %" <> 0 then
                 "VAT Base (Lowered)" := "VAT Base (Lowered)" * (1 - PurchCrMemoHdr."VAT Base Discount %" / 100);
         end;
+        NonDeductibleVAT.CopyNonDedVATFromPurchCrMemoLineToVATAmountLine(Rec, PurchCrMemoLine);
         OnAfterCopyFromPurchCrMemoLine(Rec, PurchCrMemoLine);
     end;
 

@@ -30,8 +30,8 @@
         MissingFieldNameErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
         SkipShowNotification: Boolean;
         UseSameDocumentNo: Boolean;
-        UseSamePostingDate: Boolean;
-        NewPostingDate: Date;
+        UseSamePostingDate, UseSameVATDate : Boolean;
+        NewPostingDate, NewVATDate : Date;
 
     local procedure CheckIssuedReminder(IssuedReminderHeader: Record "Issued Reminder Header") Result: Boolean
     begin
@@ -61,7 +61,7 @@
         CustPostingGr: Record "Customer Posting Group";
         FeePosted: Boolean;
         DocumentNo: Code[20];
-        PostingDate: Date;
+        PostingDate, VATDate : Date;
         ReminderInterestAmount: Decimal;
         ReminderInterestVATAmount: Decimal;
         IsHandled: Boolean;
@@ -73,7 +73,7 @@
         ReminderSourceCode := SourceCodeSetup.Reminder;
         ReminderTerms.Get(IssuedReminderHeader."Reminder Terms Code");
         FeePosted := IsFeePosted(IssuedReminderHeader);
-        GetDocumentNoAndPostingDate(IssuedReminderHeader, DocumentNo, PostingDate);
+        GetDocumentNoAndDates(IssuedReminderHeader, DocumentNo, PostingDate, VATDate);
 
         SetIssuedReminderCancelled(IssuedReminderHeader, DocumentNo);
 
@@ -81,8 +81,7 @@
         if IssuedReminderLine.FindSet() then
             repeat
                 IsHandled := false;
-                OnCancelIssuedReminderOnBeforeProcessIssuedReminderLine(
-                    IssuedReminderLine, ReminderInterestAmount, ReminderInterestVATAmount, DocumentNo, PostingDate, IsHandled);
+                OnCancelIssuedReminderOnBeforeProcessIssuedReminderLine(IssuedReminderLine, ReminderInterestAmount, ReminderInterestVATAmount, DocumentNo, PostingDate, IsHandled);
                 if not IsHandled then
                     case IssuedReminderLine.Type of
                         IssuedReminderLine.Type::"Customer Ledger Entry":
@@ -94,17 +93,17 @@
                             end;
                         IssuedReminderLine.Type::"G/L Account":
                             if ReminderTerms."Post Additional Fee" then
-                                InsertGenJnlLineForFee(IssuedReminderHeader, IssuedReminderLine, DocumentNo, PostingDate);
+                                InsertGenJnlLineForFee(IssuedReminderHeader, IssuedReminderLine, DocumentNo, PostingDate, VATDate);
                         IssuedReminderLine.Type::"Line Fee":
                             if ReminderTerms."Post Add. Fee per Line" then
-                                InsertGenJnlLineForFee(IssuedReminderHeader, IssuedReminderLine, DocumentNo, PostingDate);
+                                InsertGenJnlLineForFee(IssuedReminderHeader, IssuedReminderLine, DocumentNo, PostingDate, VATDate);
                     end;
             until IssuedReminderLine.Next() = 0;
 
         if (ReminderInterestAmount <> 0) and ReminderTerms."Post Interest" then begin
             CustPostingGr.Get(IssuedReminderHeader."Customer Posting Group");
             InitGenJnlLine(IssuedReminderHeader, TempGenJnlLine, TempGenJnlLine."Account Type"::"G/L Account",
-              CustPostingGr.GetInterestAccount(), true, DocumentNo, PostingDate);
+              CustPostingGr.GetInterestAccount(), true, DocumentNo, PostingDate, VATDate);
             TempGenJnlLine.Validate("VAT Bus. Posting Group", IssuedReminderHeader."VAT Bus. Posting Group");
             TempGenJnlLine.Validate(Amount, ReminderInterestAmount + ReminderInterestVATAmount);
             TempGenJnlLine.UpdateLineBalance();
@@ -117,7 +116,7 @@
         if (TotalAmount <> 0) or (TotalAmountLCY <> 0) then begin
             InitGenJnlLine(
               IssuedReminderHeader, TempGenJnlLine, TempGenJnlLine."Account Type"::Customer,
-              IssuedReminderHeader."Customer No.", true, DocumentNo, PostingDate);
+              IssuedReminderHeader."Customer No.", true, DocumentNo, PostingDate, VATDate);
             TempGenJnlLine.Validate(Amount, TotalAmount);
             TempGenJnlLine.Validate("Amount (LCY)", TotalAmountLCY);
             TempGenJnlLine.Insert();
@@ -203,14 +202,14 @@
         CustLedgerEntry.Modify();
     end;
 
-    local procedure InsertGenJnlLineForFee(IssuedReminderHeader: Record "Issued Reminder Header"; var IssuedReminderLine: Record "Issued Reminder Line"; DocumentNo: Code[20]; PostingDate: Date)
+    local procedure InsertGenJnlLineForFee(IssuedReminderHeader: Record "Issued Reminder Header"; var IssuedReminderLine: Record "Issued Reminder Line"; DocumentNo: Code[20]; PostingDate: Date; VATDate: Date)
     begin
         with IssuedReminderLine do
             if Amount <> 0 then begin
                 TestField("No.");
                 InitGenJnlLine(IssuedReminderHeader, TempGenJnlLine, TempGenJnlLine."Account Type"::"G/L Account",
                   "No.",
-                  "Line Type" = "Line Type"::Rounding, DocumentNo, PostingDate);
+                  "Line Type" = "Line Type"::Rounding, DocumentNo, PostingDate, VATDate);
                 TempGenJnlLine.CopyFromIssuedReminderLine(IssuedReminderLine);
                 if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then begin
                     TempGenJnlLine.Validate("Tax Area Code", IssuedReminderHeader."Tax Area Code");
@@ -225,7 +224,7 @@
             end;
     end;
 
-    local procedure InitGenJnlLine(IssuedReminderHeader: Record "Issued Reminder Header"; var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; SystemCreatedEntry: Boolean; DocumentNo: Code[20]; PostingDate: Date)
+    local procedure InitGenJnlLine(IssuedReminderHeader: Record "Issued Reminder Header"; var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; SystemCreatedEntry: Boolean; DocumentNo: Code[20]; PostingDate: Date; VATDate: Date)
     begin
         with GenJnlLine do begin
             Init();
@@ -233,6 +232,7 @@
             "Document Type" := "Document Type"::" ";
             "Document No." := DocumentNo;
             "Posting Date" := PostingDate;
+            "VAT Reporting Date" := VATDate;
 
             "Account Type" := AccountType;
             Validate("Account No.", AccountNo);
@@ -273,7 +273,7 @@
         exit(not TempErrorMessage.IsEmpty);
     end;
 
-    local procedure GetDocumentNoAndPostingDate(IssuedReminderHeader: Record "Issued Reminder Header"; var DocumentNo: Code[20]; var PostingDate: Date)
+    local procedure GetDocumentNoAndDates(IssuedReminderHeader: Record "Issued Reminder Header"; var DocumentNo: Code[20]; var PostingDate: Date; var VATDate: Date)
     var
         SalesSetup: Record "Sales & Receivables Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
@@ -282,6 +282,11 @@
             PostingDate := IssuedReminderHeader."Posting Date"
         else
             PostingDate := NewPostingDate;
+
+        if UseSameVATDate then
+            VATDate := IssuedReminderHeader."VAT Reporting Date"
+        else
+            VATDate := NewVATDate;
 
         if UseSameDocumentNo then
             DocumentNo := IssuedReminderHeader."No."
@@ -304,12 +309,26 @@
         TempGenJnlLine.DeleteAll();
     end;
 
+    /// <summary>
+    /// Specify parameters with specifying VAT Date
+    /// </summary>
+    procedure SetParameters(NewUseSameDocumentNo: Boolean; NewUseSamePostingDate: Boolean; PostingDate: Date; NewUseSameVATDate: Boolean; VATDate: Date; NewSkipShowNotification: Boolean)
+    begin
+        SetParameters(NewUseSameDocumentNo, NewUseSamePostingDate, PostingDate, NewSkipShowNotification);
+        UseSameVATDate := NewUseSameVATDate;
+        NewVATDate := VATDate;
+    end;
+
+    /// <summary>
+    /// Specify parameters with UseSameVATDate default to True
+    /// </summary>
     procedure SetParameters(NewUseSameDocumentNo: Boolean; NewUseSamePostingDate: Boolean; PostingDate: Date; NewSkipShowNotification: Boolean)
     begin
         UseSameDocumentNo := NewUseSameDocumentNo;
         UseSamePostingDate := NewUseSamePostingDate;
         NewPostingDate := PostingDate;
         SkipShowNotification := NewSkipShowNotification;
+        UseSameVATDate := true;
     end;
 
     procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")

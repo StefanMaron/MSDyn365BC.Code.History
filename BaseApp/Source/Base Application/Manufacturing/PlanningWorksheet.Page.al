@@ -557,6 +557,7 @@ page 99000852 "Planning Worksheet"
                                   "Worksheet Batch Name" = FIELD("Journal Batch Name"),
                                   "Worksheet Line No." = FIELD("Line No.");
                     ToolTip = 'View or edit the production order components of the parent item on the line.';
+                    ShortCutKey = 'Ctrl+Alt+C';
                 }
                 action("Ro&uting")
                 {
@@ -568,6 +569,7 @@ page 99000852 "Planning Worksheet"
                                   "Worksheet Batch Name" = FIELD("Journal Batch Name"),
                                   "Worksheet Line No." = FIELD("Line No.");
                     ToolTip = 'View or edit the operations list of the parent item on the line.';
+                    ShortCutKey = 'Ctrl+Alt+R';
                 }
                 group("&Item Availability by")
                 {

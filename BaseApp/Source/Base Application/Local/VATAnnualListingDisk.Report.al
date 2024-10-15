@@ -94,7 +94,7 @@ report 11309 "VAT Annual Listing - Disk"
                     i: Integer;
                 begin
                     i := Buffer.Count + 1;
-                    if IsCustBalanceGreaterThanMinimum or IsCreditMemoWithAppliedInvoice then begin
+                    if (IsCustBalanceGreaterThanMinimum() and IsCustVATAmountNotZero()) or IsCreditMemoWithAppliedInvoice then begin
                         Buffer.Init();
                         Buffer."Entry No." := i;
                         Buffer."Enterprise No." := DelChr(Customer."Enterprise No.", '=', DelChr(Customer."Enterprise No.", '=', '0123456789'));
@@ -488,6 +488,11 @@ report 11309 "VAT Annual Listing - Disk"
     local procedure PageSetRepresentativeEnabled()
     begin
         IDEnable := AddRepresentative;
+    end;
+
+    local procedure IsCustVATAmountNotZero(): Boolean
+    begin
+        exit(WAmount <> 0);
     end;
 }
 

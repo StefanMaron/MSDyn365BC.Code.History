@@ -1,4 +1,4 @@
-codeunit 144000 "Non-Deductible VAT"
+codeunit 144000 "Non-Deductible VAT Tests"
 {
     // // [FEATURE] [Non Deductible VAT] [VAT]
     // 
@@ -2776,6 +2776,65 @@ codeunit 144000 "Non-Deductible VAT"
         ExpectedVATAmount := ExpectedVATAmount - Round(ExpectedVATAmount * GLAccount."% Non deductible VAT" / 100);
         VerifyAmountsWithCreatedVATEntries(DocumentNo, GLAccount, ExpectedVATBase, ExpectedVATAmount);
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure AutomaticStandardPurchaseLinesWithNonDeductibleVAT()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        StandardPurchaseCode: Record "Standard Purchase Code";
+        StandardPurchaseLine: Record "Standard Purchase Line";
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        VendorList: TestPage "Vendor List";
+        PurchaseOrder: TestPage "Purchase Order";
+        NonDeductibleVAT: Decimal;
+    begin
+        // [FEATURE] [Standard Lines]
+        // [SCENARIO 467195] Stan can use the automatic standard purcahse lines functionality with Non-Deductible VAT
+
+        Initialize();
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(30));
+        NonDeductibleVAT := LibraryRandom.RandInt(99);
+        // [GIVEN] G/L Account "X" with "% Nondeductible VAT"
+        CreateGLAccount(GLAccount, VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase, NonDeductibleVAT);
+        // [GIVEN] Standard purchase code "Y" with one line that has "No." = "X"
+        LibraryPurchase.CreateStandardPurchaseCode(StandardPurchaseCode);
+        LibraryPurchase.CreateStandardPurchaseLine(StandardPurchaseLine, StandardPurchaseCode.Code);
+        StandardPurchaseLine.Validate(Type, StandardPurchaseLine.Type::"G/L Account");
+        StandardPurchaseLine.Validate("No.", GLAccount."No.");
+        StandardPurchaseLine.Modify();
+        // [GIVEN] Vendor "V" with standard purchase code "Y" that has "Insert Rec. Lines On Orders" = Automatic
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreateVendorPurchaseCode(StandardVendorPurchaseCode, Vendor."No.", StandardPurchaseCode.Code);
+        StandardVendorPurchaseCode.Validate(
+          "Insert Rec. Lines On Orders", StandardVendorPurchaseCode."Insert Rec. Lines On Orders"::Automatic);
+        StandardVendorPurchaseCode.Modify(true);
+
+        // [GIVEN] Vendor List on vendor "V" record
+        VendorList.OpenEdit();
+        VendorList.Filter.SetFilter("No.", Vendor."No.");
+
+        // [GIVEN] Perform page action: New Purchase Document -> Purchase Order
+        PurchaseOrder.Trap();
+        VendorList.NewPurchaseOrder.Invoke();
+
+        // [WHEN] Activate "Buy-from Vendor No." field
+        PurchaseOrder."Buy-from Vendor No.".Activate();
+
+        PurchaseOrder.Close();
+        VendorList.Close();
+        // [THEN] Purchase line with G/L Account "X" and Non-Deductible VAT is inserted
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        PurchaseLine.TestField(Type, PurchaseLine.Type::"G/L Account");
+        PurchaseLine.TestField("No.", GLAccount."No.");
+        PurchaseLine.TestField("Non Deductible VAT %", GLAccount."% Non deductible VAT");
     end;
 
     local procedure Initialize()

@@ -20,6 +20,13 @@ page 9821 "Inherited Permission Sets Part"
                     ToolTip = 'Specifies the ID of a permission set.';
                     Style = Unfavorable;
                     StyleExpr = PermissionSetNotFound;
+
+                    trigger OnDrillDown()
+                    var
+                        PermissionSetRelation: Codeunit "Permission Set Relation";
+                    begin
+                        PermissionSetRelation.OpenPermissionSetPage('', Rec."Role ID", Rec."App ID", Rec.Scope);
+                    end;
                 }
                 field(Company; Rec."Company Name")
                 {

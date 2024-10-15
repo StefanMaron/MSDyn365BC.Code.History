@@ -244,6 +244,7 @@
                             then begin
                                 NewCalledFromWhseDoc := true;
                                 OnInitSourceDocumentHeaderOnBeforeReopenSalesHeader(SalesHeader, Invoice, NewCalledFromWhseDoc);
+                                SalesRelease.SetSkipWhseRequestOperations(true);
                                 SalesRelease.Reopen(SalesHeader);
                                 SalesRelease.SetSkipCheckReleaseRestrictions();
                                 SalesHeader.SetHideValidationDialog(true);
@@ -299,6 +300,7 @@
                                (PurchHeader."Posting Date" <> WhseShptHeader."Posting Date")
                             then begin
                                 OnInitSourceDocumentHeaderOnBeforeReopenPurchHeader(WhseShptLine, PurchHeader);
+                                PurchRelease.SetSkipWhseRequestOperations(true);
                                 PurchRelease.Reopen(PurchHeader);
                                 PurchRelease.SetSkipCheckReleaseRestrictions();
                                 PurchHeader.SetHideValidationDialog(true);

@@ -46,12 +46,13 @@ codeunit 1174 "User Task Management"
             UserTask.FilterGroup(-1);
             UserTask.SetFilter("User Task Group Assigned To", MyTasksUserGroups);
             UserTask.SetFilter("Assigned To", UserSecurityId());
-            UserTask.FilterGroup(25);
-            UserTask.SetFilter("Percent Complete", '<>100');
         end else begin
+            UserTask.FilterGroup(2);
             UserTask.SetFilter("Assigned To", UserSecurityId());
-            UserTask.SetFilter("Percent Complete", '<>100');
         end;
+        UserTask.FilterGroup(2);
+        UserTask.SetFilter("Percent Complete", '<>100');
+        UserTask.FilterGroup(0);
 
         case DueDateFilterOption of
             DueDateFilterOptions::NONE:

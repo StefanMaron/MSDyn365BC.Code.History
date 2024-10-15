@@ -1247,6 +1247,92 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         PurchaseLine.ShowDeferralSchedule();
     end;
 
+    [Test]
+    procedure S463854_SalesLineUpdateDeferralScheduleCustomCalcMethodAndNoOfPeriods()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralTemplate: Record "Deferral Template";
+        DeferralHeader: Record "Deferral Header";
+    begin
+        // [FEATURE] [Sales] [Sales Order] [Deferral Template] [Deferral Schedule]
+        // [SCENARIO 463854] System does not change custom Calculation Method and No. of Periods in deferral schedule when a user updates amounts in document or journal line.
+        Initialize();
+
+        // [GIVEN] Create Deferral Template with "Calculation Method" = "Equal per Period" and No. of Periods between 3 and 10.
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate, DeferralTemplate."Calc. Method"::"Equal per Period",
+          DeferralTemplate."Start Date"::"Posting Date", LibraryRandom.RandIntInRange(3, 10));
+
+        // [GIVEN] Create Sales Order with Deferral Template applied in line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(),
+          LibraryRandom.RandIntInRange(5, 10));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
+        SalesLine.Modify(true);
+
+        // [GIVEN] Change "Calculation Method" to "Straight-Line" and "No. of Periods" to 12 in Deferral Schedule Header.
+        DeferralHeader.Get(
+          DeferralHeader."Deferral Doc. Type"::Sales, '', '', SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
+        DeferralHeader.Validate("Calc. Method", DeferralHeader."Calc. Method"::"Straight-Line");
+        DeferralHeader.Validate("No. of Periods", 12);
+        DeferralHeader.Modify(true);
+
+        // [WHEN] Update Deferral Amounts recreates Defferal Header.
+        SalesLine.UpdateDeferralAmounts();
+
+        // [THEN] Customized values are kept. "Calculation Method" is equal to "Straight-Line" and "No. of Periods" is equal to to 12 in Deferral Schedule Header.
+        DeferralHeader.Get(
+          DeferralHeader."Deferral Doc. Type"::Sales, '', '', SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
+        DeferralHeader.TestField("Calc. Method", DeferralHeader."Calc. Method"::"Straight-Line");
+        DeferralHeader.TestField("No. of Periods", 12);
+    end;
+
+    [Test]
+    procedure S463854_PurchaseLineUpdateDeferralScheduleCustomCalcMethodAndNoOfPeriods()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DeferralTemplate: Record "Deferral Template";
+        DeferralHeader: Record "Deferral Header";
+    begin
+        // [FEATURE] [Purchase] [Purchase Order] [Deferral Template] [Deferral Schedule]
+        // [SCENARIO 463854] System does not change custom Calculation Method and No. of Periods in deferral schedule when a user updates amounts in document or journal line.
+        Initialize();
+
+        // [GIVEN] Create Deferral Template with "Calculation Method" = "Equal per Period" and No. of Periods between 3 and 10.
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate, DeferralTemplate."Calc. Method"::"Equal per Period",
+          DeferralTemplate."Start Date"::"Posting Date", LibraryRandom.RandIntInRange(3, 10));
+
+        // [GIVEN] Create Purchase Order with Deferral Template applied in line.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(),
+          LibraryRandom.RandIntInRange(5, 10));
+        PurchaseLine.Validate("Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Change "Calculation Method" to "Straight-Line" and "No. of Periods" to 12 in Deferral Schedule Header.
+        DeferralHeader.Get(
+          DeferralHeader."Deferral Doc. Type"::Purchase, '', '', PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No.");
+        DeferralHeader.Validate("Calc. Method", DeferralHeader."Calc. Method"::"Straight-Line");
+        DeferralHeader.Validate("No. of Periods", 12);
+        DeferralHeader.Modify(true);
+
+        // [WHEN] Update Deferral Amounts recreates Defferal Header.
+        PurchaseLine.UpdateDeferralAmounts();
+
+        // [THEN] Customized values are kept. "Calculation Method" is equal to "Straight-Line" and "No. of Periods" is equal to to 12 in Deferral Schedule Header.
+        DeferralHeader.Get(
+          DeferralHeader."Deferral Doc. Type"::Purchase, '', '', PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No.");
+        DeferralHeader.TestField("Calc. Method", DeferralHeader."Calc. Method"::"Straight-Line");
+        DeferralHeader.TestField("No. of Periods", 12);
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";

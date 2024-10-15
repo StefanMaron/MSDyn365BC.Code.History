@@ -1,3 +1,4 @@
+#pragma warning disable AS0072
 #if not CLEAN22
 page 11309 "Apply General Ledger Entries"
 {
@@ -27,7 +28,6 @@ page 11309 "Apply General Ledger Entries"
                     trigger OnValidate()
                     begin
                         SetIncludeEntryFilter();
-                        IncludeEntryFilterOnAfterValid();
                     end;
                 }
             }
@@ -406,6 +406,7 @@ page 11309 "Apply General Ledger Entries"
 
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by the w1 functionality in 22', '22.0')]
     procedure Apply(var GLEntryBuf: Record "G/L Entry Application Buffer")
     var
         GLEntry: Record "G/L Entry";
@@ -464,6 +465,7 @@ page 11309 "Apply General Ledger Entries"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by the w1 functionality in 22', '22.0')]
     procedure Undo(var GLEntryBuf: Record "G/L Entry Application Buffer")
     var
         OrgGLEntry: Record "G/L Entry";
@@ -505,6 +507,7 @@ page 11309 "Apply General Ledger Entries"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by the w1 functionality in 22', '22.0')]
     procedure SetApplId(var GLEntryBuf: Record "G/L Entry Application Buffer")
     begin
         GLEntryBuf.TestField(Open, true);
@@ -532,6 +535,7 @@ page 11309 "Apply General Ledger Entries"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by the w1 functionality in 22', '22.0')]
     procedure SetAllEntries(GLAccNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
@@ -561,6 +565,7 @@ page 11309 "Apply General Ledger Entries"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by the w1 functionality in 22', '22.0')]
     procedure SetAppliedEntries(OrgGLEntry: Record "G/L Entry")
     var
         GLEntry: Record "G/L Entry";
@@ -586,6 +591,7 @@ page 11309 "Apply General Ledger Entries"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by the w1 functionality in 22', '22.0')]
     procedure SetIncludeEntryFilter()
     begin
         SetCurrentKey("G/L Account No.", "Posting Date", "Entry No.", Open);
@@ -600,6 +606,7 @@ page 11309 "Apply General Ledger Entries"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by the w1 functionality in 22', '22.0')]
     procedure UpdateAmounts()
     begin
         ShowAppliedAmount := 0;
@@ -611,6 +618,7 @@ page 11309 "Apply General Ledger Entries"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by the w1 functionality in 22', '22.0')]
     procedure RealEntryChanged(TempEntry: Record "G/L Entry Application Buffer"; var GlEntry: Record "G/L Entry")
     begin
         // 'Real' G/L Entry changed whilst application ?
@@ -628,6 +636,7 @@ page 11309 "Apply General Ledger Entries"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by the w1 functionality in 22', '22.0')]
     procedure UpdateTempTable(var TempEntry: Record "G/L Entry Application Buffer"; RemainingAmt: Decimal; IsOpen: Boolean; ClosedbyEntryNo: Integer; ClosedbyDate: Date; ClosedbyAmt: Decimal; AppliesToID: Code[20])
     begin
         // Update Temporary Table
@@ -643,6 +652,7 @@ page 11309 "Apply General Ledger Entries"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by the w1 functionality in 22', '22.0')]
     procedure UpdateRealTable(RealEntry: Record "G/L Entry"; RemainingAmt: Decimal; IsOpen: Boolean; ClosedbyEntryNo: Integer; ClosedbyDate: Date; ClosedbyAmt: Decimal; AppliesToID: Code[20])
     begin
         // Update Temporary Table
@@ -657,11 +667,6 @@ page 11309 "Apply General Ledger Entries"
         end;
     end;
 
-    local procedure IncludeEntryFilterOnAfterValid()
-    begin
-        CurrPage.Update(false);
-    end;
-
     local procedure TransferGLEntry(var GLEntryBuf: Record "G/L Entry Application Buffer"; GLEntry: Record "G/L Entry")
     begin
         GLEntryBuf.TransferFields(GLEntry);
@@ -669,5 +674,5 @@ page 11309 "Apply General Ledger Entries"
         GLEntryBuf.Insert();
     end;
 }
-
 #endif
+#pragma warning restore AS0072

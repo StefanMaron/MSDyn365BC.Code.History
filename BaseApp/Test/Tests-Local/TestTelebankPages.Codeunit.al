@@ -173,62 +173,6 @@ codeunit 144022 "Test Telebank Pages"
     end;
 
     [Test]
-    [HandlerFunctions('EBPaymentJournalBatchHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure EBPaymentJournalBatches()
-    var
-        PaymentJnlTemplate: Record "Payment Journal Template";
-        PaymJournalBatch: Record "Paym. Journal Batch";
-        EBPaymentJournalBatches: Page "EB Payment Journal Batches";
-    begin
-        // Init
-        LibraryPaymentJournalBE.CreateTemplate(PaymentJnlTemplate);
-        LibraryPaymentJournalBE.CreateBatch(PaymentJnlTemplate, PaymJournalBatch);
-        PmtJnlBatchesPageCaption := '';
-
-        // Exercise
-        EBPaymentJournalBatches.SetTableView(PaymJournalBatch);
-        EBPaymentJournalBatches.RunModal();
-
-        // Verify: Page 2000003 opens - caught by page handler.
-        Assert.AreEqual(
-          StrSubstNo(
-            'Edit - %1 - %2 %3',
-            EBPaymentJournalBatches.Caption,
-            PaymentJnlTemplate.Name, PaymentJnlTemplate.Description),
-          PmtJnlBatchesPageCaption, '');
-    end;
-
-    [Test]
-    [HandlerFunctions('DomiciliationJournalBatchesHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure DomiciliationJournalBatches()
-    var
-        DomiciliationJournalTemplate: Record "Domiciliation Journal Template";
-        DomiciliationJournalBatch: Record "Domiciliation Journal Batch";
-        DomiciliationJournalBatches: Page "Domiciliation Journal Batches";
-    begin
-        // Init
-        LibraryPaymentJournalBE.CreateDomTemplate(DomiciliationJournalTemplate);
-        LibraryPaymentJournalBE.CreateDomBatch(DomiciliationJournalTemplate, DomiciliationJournalBatch);
-        PmtJnlBatchesPageCaption := '';
-
-        // Exercise
-        DomiciliationJournalBatches.SetTableView(DomiciliationJournalBatch);
-        DomiciliationJournalBatches.RunModal();
-
-        // Verify: Page 2000021 opens - caught by page handler.
-        Assert.AreEqual(
-          StrSubstNo(
-            'Edit - %1 - %2 %3',
-            DomiciliationJournalBatches.Caption,
-            DomiciliationJournalTemplate.Name, DomiciliationJournalTemplate.Description),
-          PmtJnlBatchesPageCaption, '');
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure DomiciliationJournalOnOpen1()
     var

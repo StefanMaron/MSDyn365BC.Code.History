@@ -527,6 +527,7 @@ report 6646 "Sales - Return Receipt"
     begin
         if not CurrReport.UseRequestPage then
             InitLogInteraction();
+        OnAfterPreReport("Return Receipt Header", NoOfCopies, ShowCorrectionLines, LogInteraction, ShowInternalInfo);
     end;
 
     var
@@ -615,13 +616,18 @@ report 6646 "Sales - Return Receipt"
         end;
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInitReport()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPostDataItem(var ReturnReceiptHeader: Record "Return Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterPreReport(var ReturnReceiptHeader: Record "Return Receipt Header"; var NoOfCopies: Integer; var ShowCorrectionLines: Boolean; var LogInteraction: Boolean; var ShowInternalInfo: Boolean)
     begin
     end;
 }

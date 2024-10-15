@@ -196,15 +196,14 @@ codeunit 410 "Update Analysis View"
                 UpdateEntriesForGLAccount();
             AnalysisView."Account Source"::"Cash Flow Account":
                 UpdateEntriesForCFAccount();
-            else begin
-                OnGetEntriesForUpdate(AnalysisView, UpdAnalysisViewEntryBuffer);
-                UpdAnalysisViewEntryBuffer.Reset();
-                if UpdAnalysisViewEntryBuffer.FindSet() then
-                    repeat
-                        UpdateAnalysisViewEntry(UpdAnalysisViewEntryBuffer);
-                    until UpdAnalysisViewEntryBuffer.Next() = 0;
-            end;
         end;
+
+        OnGetEntriesForUpdate(AnalysisView, UpdAnalysisViewEntryBuffer);
+        UpdAnalysisViewEntryBuffer.Reset();
+        if UpdAnalysisViewEntryBuffer.FindSet() then
+            repeat
+                UpdateAnalysisViewEntry(UpdAnalysisViewEntryBuffer);
+            until UpdAnalysisViewEntryBuffer.Next() = 0;
 
         FlushAnalysisViewEntry();
     end;
@@ -392,6 +391,8 @@ codeunit 410 "Update Analysis View"
     end;
 
     procedure UpdateAnalysisViewEntry(UpdAnalysisViewEntryBuffer: Record "Upd Analysis View Entry Buffer")
+    var
+        DummyUpdAnalysisViewEntryBuffer: Record "Upd Analysis View Entry Buffer";
     begin
         if UpdAnalysisViewEntryBuffer.PostingDate < AnalysisView."Starting Date" then begin
             UpdAnalysisViewEntryBuffer.PostingDate := AnalysisView."Starting Date" - 1;
@@ -405,7 +406,11 @@ codeunit 410 "Update Analysis View"
                 UpdAnalysisViewEntryBuffer.EntryNo := 0;
         end;
         TempAnalysisViewEntry."Analysis View Code" := AnalysisView.Code;
-        TempAnalysisViewEntry."Account Source" := AnalysisView."Account Source";
+
+        if UpdAnalysisViewEntryBuffer."Account Source" = DummyUpdAnalysisViewEntryBuffer."Account Source" then
+            UpdAnalysisViewEntryBuffer."Account Source" := AnalysisView."Account Source";
+
+        TempAnalysisViewEntry."Account Source" := UpdAnalysisViewEntryBuffer."Account Source";
         TempAnalysisViewEntry."Business Unit Code" := UpdAnalysisViewEntryBuffer.BusUnitCode;
         TempAnalysisViewEntry."Account No." := UpdAnalysisViewEntryBuffer.AccNo;
         TempAnalysisViewEntry."Cash Flow Forecast No." := UpdAnalysisViewEntryBuffer.CashFlowForecastNo;

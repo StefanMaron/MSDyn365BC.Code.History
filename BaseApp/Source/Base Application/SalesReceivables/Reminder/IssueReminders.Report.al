@@ -14,15 +14,18 @@
             trigger OnAfterGetRecord()
             var
                 InvoiceRoundingAmount: Decimal;
+                ShouldConfirmInvoiceRounding: Boolean;
             begin
                 InvoiceRoundingAmount := GetInvoiceRoundingAmount();
-                if InvoiceRoundingAmount <> 0 then
+                ShouldConfirmInvoiceRounding := InvoiceRoundingAmount <> 0;
+                OnReminderHeaderOnAfterGetRecordOnAfterCalcShouldConfirmInvoiceRounding("Reminder Header", InvoiceRoundingAmount, ShouldConfirmInvoiceRounding);
+                if ShouldConfirmInvoiceRounding then
                     if not ConfirmManagement.GetResponse(ProceedOnIssuingWithInvRoundingQst, false) then
                         CurrReport.Break();
 
                 RecordNo := RecordNo + 1;
                 Clear(ReminderIssue);
-                ReminderIssue.Set("Reminder Header", ReplacePostingDate, PostingDateReq);
+                ReminderIssue.Set("Reminder Header", ReplacePostingDate, PostingDateReq, ReplaceVATDateReq, VATDateReq);
                 ReminderIssue.SetGenJnlBatch(GenJnlBatch);
                 OnReminderHeaderOnAfterGetRecordOnAfterReminderIssueSetParams("Reminder Header", ReminderIssue, PrintEmailDocument);
                 if NoOfRecords = 1 then begin
@@ -80,6 +83,8 @@
             begin
                 if ReplacePostingDate and (PostingDateReq = 0D) then
                     Error(EnterPostingDateErr);
+                if ReplaceVATDateReq and (VATDateReq = 0D) then
+                    Error(EnterVATDateErr);
                 if ReminderNoFilter <> '' then
                     SetFilter("No.", ReminderNoFilter);
                 NoOfRecords := Count;
@@ -116,12 +121,40 @@
                         ApplicationArea = Suite;
                         Caption = 'Replace Posting Date';
                         ToolTip = 'Specifies if you want to replace the reminders'' posting date with the date entered in the field below.';
+
+                        trigger OnValidate()
+                        begin
+                            if VATReportingDateMgt.IsVATDateUsageSetToPostingDate() then
+                                ReplaceVATDateReq := ReplacePostingDate;
+                            UpdateVATDate();
+                        end;
+                    }
+                    field(ReplaceVATDate; ReplaceVATDateReq)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'Replace VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
+                        ToolTip = 'Specifies if you want to replace the reminders'' VAT date with the date entered in the field below.';
                     }
                     field(PostingDateReq; PostingDateReq)
                     {
                         ApplicationArea = Suite;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the posting date. If you place a check mark in the check box above, the program will use this date on all reminders when you post.';
+
+                        trigger OnValidate()
+                        begin
+                            UpdateVATDate();
+                        end;
+                    }
+                    field(VATDate; VATDateReq)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
+                        ToolTip = 'Specifies the VAT date. If you place a check mark in the check box above, the program will use this date on all reminders when you post.';
                     }
                     field(HideEmailDialog; HideDialog)
                     {
@@ -209,6 +242,8 @@
             ReminderNoFilter := '';
 
             GLSetup.Get();
+            VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+
             if GLSetup."Journal Templ. Name Mandatory" then begin
                 IsJournalTemplNameVisible := true;
                 SalesSetup.get();
@@ -243,6 +278,7 @@
         SalesSetup: Record "Sales & Receivables Setup";
         ReminderIssue: Codeunit "Reminder-Issue";
         ConfirmManagement: Codeunit "Confirm Management";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         Window: Dialog;
         NoOfRecords: Integer;
         RecordNo: Integer;
@@ -250,13 +286,14 @@
         OldProgress: Integer;
         NewDateTime: DateTime;
         OldDateTime: DateTime;
-        ReplacePostingDate: Boolean;
+        ReplacePostingDate, ReplaceVATDateReq : Boolean;
         HideDialog: Boolean;
         [InDataSet]
         IsJournalTemplNameVisible: Boolean;
         ReminderNoFilter: Text;
 
-        EnterPostingDateErr: Label 'Enter the posting date.';
+        EnterPostingDateErr: Label 'Enter the Posting Date.';
+        EnterVATDateErr: Label 'Enter the VAT Date.';
         IssuingReminderMsg: Label 'Issuing reminder...';
         IssuingRemindersMsg: Label 'Issuing reminders @1@@@@@@@@@@@@@';
         ShowNotIssuedQst: Label 'It was not possible to issue some of the selected reminders.\Do you want to see these reminders?';
@@ -266,10 +303,17 @@
 #endif        
 
     protected var
-        PostingDateReq: Date;
+        PostingDateReq, VATDateReq : Date;
         PrintEmailDocument: Option " ",Print,Email;
         [InDataSet]
         IsOfficeAddin: Boolean;
+        VATDateEnabled: Boolean;
+
+    local procedure UpdateVATDate()
+    begin
+        if ReplaceVATDateReq then
+            VATDateReq := PostingDateReq;
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitReport(var PrintDoc: Option " ",Print,Email; var ReplacePostingDate: Boolean; var PostingDateReq: Date; var HideDialog: Boolean)
@@ -283,6 +327,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempIssuedReminderHeaderInsert(var TempIssuedReminderHeader: Record "Issued Reminder Header" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReminderHeaderOnAfterGetRecordOnAfterCalcShouldConfirmInvoiceRounding(var ReminderHeader: Record "Reminder Header"; InvoiceRoundingAmount: Decimal; var ShouldConfirmInvoiceRounding: Boolean)
     begin
     end;
 

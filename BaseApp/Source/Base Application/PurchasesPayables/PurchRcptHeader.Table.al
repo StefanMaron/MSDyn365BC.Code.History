@@ -535,6 +535,7 @@ table 120 "Purch. Rcpt. Header"
     var
         PostPurchDelete: Codeunit "PostPurch-Delete";
     begin
+        PostPurchDelete.IsDocumentDeletionAllowed("Posting Date");
         LockTable();
         PostPurchDelete.DeletePurchRcptLines(Rec);
 

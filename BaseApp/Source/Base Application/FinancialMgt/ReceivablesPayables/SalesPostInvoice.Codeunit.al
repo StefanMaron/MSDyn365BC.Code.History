@@ -499,76 +499,78 @@
 #endif
     end;
 
-    procedure PostBalancingEntry(SalesHeaderVar: Variant; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    procedure PostBalancingEntry(SalesHeaderVariant: Variant; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     var
         SalesHeader: Record "Sales Header";
-        GenJnlLine: Record "Gen. Journal Line";
-        CustLedgEntry2: Record "Cust. Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry2: Record "Cust. Ledger Entry";
         EntryFound: Boolean;
         IsHandled: Boolean;
     begin
-        SalesHeader := SalesHeaderVar;
+        SalesHeader := SalesHeaderVariant;
 
         EntryFound := false;
         IsHandled := false;
         SalesPostInvoiceEvents.RunOnPostBalancingEntryOnBeforeFindCustLedgEntry(
-           SalesHeader, TotalSalesLine, InvoicePostingParameters, CustLedgEntry2, EntryFound, IsHandled);
+           SalesHeader, TotalSalesLine, InvoicePostingParameters, CustLedgerEntry2, EntryFound, IsHandled);
         if IsHandled then
             exit;
 
         if not EntryFound then
-            FindCustLedgEntry(CustLedgEntry2);
+            FindCustLedgEntry(CustLedgerEntry2);
 
-        SalesPostInvoiceEvents.RunOnPostBalancingEntryOnAfterFindCustLedgEntry(CustLedgEntry2);
+        SalesPostInvoiceEvents.RunOnPostBalancingEntryOnAfterFindCustLedgEntry(CustLedgerEntry2);
 
-        GenJnlLine.InitNewLine(
+        GenJournalLine.InitNewLine(
             SalesHeader."Posting Date", SalesHeader."Document Date", SalesHeader."VAT Reporting Date", SalesHeader."Posting Description",
             SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code",
             SalesHeader."Dimension Set ID", SalesHeader."Reason Code");
 
-        GenJnlLine.CopyDocumentFields(
+        SalesPostInvoiceEvents.RunOnPostBalancingEntryOnAfterInitNewLine(SalesHeader, GenJournalLine);
+
+        GenJournalLine.CopyDocumentFields(
             "Gen. Journal Document Type"::" ", InvoicePostingParameters."Document No.",
             InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
 
-        GenJnlLine."Account Type" := "Gen. Journal Account Type"::Customer;
-        GenJnlLine."Account No." := SalesHeader."Bill-to Customer No.";
-        GenJnlLine.CopyFromSalesHeader(SalesHeader);
-        GenJnlLine.SetCurrencyFactor(SalesHeader."Currency Code", SalesHeader."Currency Factor");
+        GenJournalLine."Account Type" := "Gen. Journal Account Type"::Customer;
+        GenJournalLine."Account No." := SalesHeader."Bill-to Customer No.";
+        GenJournalLine.CopyFromSalesHeader(SalesHeader);
+        GenJournalLine.SetCurrencyFactor(SalesHeader."Currency Code", SalesHeader."Currency Factor");
 
         if SalesHeader.IsCreditDocType() then
-            GenJnlLine."Document Type" := "Gen. Journal Document Type"::Refund
+            GenJournalLine."Document Type" := "Gen. Journal Document Type"::Refund
         else
-            GenJnlLine."Document Type" := "Gen. Journal Document Type"::Payment;
+            GenJournalLine."Document Type" := "Gen. Journal Document Type"::Payment;
 
-        SetApplyToDocNo(SalesHeader, GenJnlLine);
+        SetApplyToDocNo(SalesHeader, GenJournalLine);
 
-        SetAmountsForBalancingEntry(SalesHeader, CustLedgEntry2, GenJnlLine);
+        SetAmountsForBalancingEntry(SalesHeader, CustLedgerEntry2, GenJournalLine);
 
         SalesPostInvoiceEvents.RunOnPostBalancingEntryOnBeforeGenJnlPostLine(
-            GenJnlLine, SalesHeader, TotalSalesLine, TotalSalesLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
-        GenJnlPostLine.RunWithCheck(GenJnlLine);
+            GenJournalLine, SalesHeader, TotalSalesLine, TotalSalesLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
+        GenJnlPostLine.RunWithCheck(GenJournalLine);
         SalesPostInvoiceEvents.RunOnPostBalancingEntryOnAfterGenJnlPostLine(
-            GenJnlLine, SalesHeader, TotalSalesLine, TotalSalesLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
+            GenJournalLine, SalesHeader, TotalSalesLine, TotalSalesLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
     end;
 
-    local procedure SetAmountsForBalancingEntry(SalesHeader: Record "Sales Header"; var CustLedgEntry: Record "Cust. Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line")
+    local procedure SetAmountsForBalancingEntry(SalesHeader: Record "Sales Header"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line")
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        SalesPostInvoiceEvents.RunOnBeforeSetAmountsForBalancingEntry(CustLedgEntry, GenJnlLine, TotalSalesLine, TotalSalesLineLCY, IsHandled);
+        SalesPostInvoiceEvents.RunOnBeforeSetAmountsForBalancingEntry(CustLedgerEntry, GenJnlLine, TotalSalesLine, TotalSalesLineLCY, IsHandled);
         if IsHandled then
             exit;
 
-        GenJnlLine.Amount := TotalSalesLine."Amount Including VAT" + CustLedgEntry."Remaining Pmt. Disc. Possible";
+        GenJnlLine.Amount := TotalSalesLine."Amount Including VAT" + CustLedgerEntry."Remaining Pmt. Disc. Possible";
         GenJnlLine."Source Currency Amount" := GenJnlLine.Amount;
-        CustLedgEntry.CalcFields(Amount);
-        if CustLedgEntry.Amount = 0 then
+        CustLedgerEntry.CalcFields(Amount);
+        if CustLedgerEntry.Amount = 0 then
             GenJnlLine."Amount (LCY)" := TotalSalesLineLCY."Amount Including VAT"
         else
             GenJnlLine."Amount (LCY)" :=
               TotalSalesLineLCY."Amount Including VAT" +
-              Round(CustLedgEntry."Remaining Pmt. Disc. Possible" / CustLedgEntry."Adjusted Currency Factor");
+              Round(CustLedgerEntry."Remaining Pmt. Disc. Possible" / CustLedgerEntry."Adjusted Currency Factor");
         GenJnlLine."Allow Zero-Amount Posting" := true;
 
         GenJnlLine."Orig. Pmt. Disc. Possible" := TotalSalesLine."Pmt. Discount Amount";
@@ -577,15 +579,15 @@
                 SalesHeader.GetUseDate(), SalesHeader."Currency Code", TotalSalesLine."Pmt. Discount Amount", SalesHeader."Currency Factor");
     end;
 
-    local procedure SetApplyToDocNo(SalesHeader: Record "Sales Header"; var GenJnlLine: Record "Gen. Journal Line")
+    local procedure SetApplyToDocNo(SalesHeader: Record "Sales Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
         if SalesHeader."Bal. Account Type" = SalesHeader."Bal. Account Type"::"Bank Account" then
-            GenJnlLine."Bal. Account Type" := "Gen. Journal Account Type"::"Bank Account";
-        GenJnlLine."Bal. Account No." := SalesHeader."Bal. Account No.";
-        GenJnlLine."Applies-to Doc. Type" := InvoicePostingParameters."Document Type";
-        GenJnlLine."Applies-to Doc. No." := InvoicePostingParameters."Document No.";
+            GenJournalLine."Bal. Account Type" := "Gen. Journal Account Type"::"Bank Account";
+        GenJournalLine."Bal. Account No." := SalesHeader."Bal. Account No.";
+        GenJournalLine."Applies-to Doc. Type" := InvoicePostingParameters."Document Type";
+        GenJournalLine."Applies-to Doc. No." := InvoicePostingParameters."Document No.";
 
-        SalesPostInvoiceEvents.RunOnAfterSetApplyToDocNo(GenJnlLine, SalesHeader);
+        SalesPostInvoiceEvents.RunOnAfterSetApplyToDocNo(GenJournalLine, SalesHeader);
     end;
 
     local procedure FindCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry")

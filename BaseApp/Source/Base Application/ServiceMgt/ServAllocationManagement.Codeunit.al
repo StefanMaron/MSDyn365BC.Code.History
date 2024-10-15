@@ -193,6 +193,7 @@ codeunit 5930 ServAllocationManagement
                         ServOrderAlloc.Validate("Resource No.", "Resource No.");
                         ServOrderAlloc.Validate("Resource Group No.", "Resource Group No.");
                         ServOrderAlloc.Validate("Allocated Hours", SplitAllocHours);
+                        OnSplitAllocationOnBeforeServOrderAllocModify(ServOrderAlloc, SplitServOrderAlloc);
                         ServOrderAlloc.Modify(true);
                     end;
                     Validate("Allocated Hours", SplitAllocHours);
@@ -343,6 +344,11 @@ codeunit 5930 ServAllocationManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateAllocationEntry(DocumentType: Integer; DocumentNo: Code[20]; ServItemLineNo: Integer; ServItemNo: Code[20]; ServSerialNo: Code[50]; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitAllocationOnBeforeServOrderAllocModify(var ServiceOrderAllocation: Record "Service Order Allocation"; var SplitServiceOrderAllocation: Record "Service Order Allocation")
     begin
     end;
 
