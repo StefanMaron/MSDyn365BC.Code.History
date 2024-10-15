@@ -683,6 +683,45 @@ report 595 "Adjust Exchange Rates"
             dataitem("G/L Account"; "G/L Account")
             {
                 DataItemTableView = SORTING("No.") WHERE("Exchange Rate Adjustment" = FILTER("Adjust Amount" .. "Adjust Additional-Currency Amount"));
+                column(GLAccountsCaption; GLAccountCaptionLbl)
+                {
+                }
+                column(TodayFormatted; Format(Today, 0, 4))
+                {
+                }
+                column(KeyDate; Format(PostingDate))
+                {
+                }
+                column(No_GLAccount; "No.")
+                {
+                }
+                column(Name_GLAccount; Name)
+                {
+                    IncludeCaption = true;
+                }
+                column(CurrencyCode_GLAccount; "Currency Code")
+                {
+                }
+                column(BalanceatDateFCY_GLAccount; "Balance at Date (FCY)")
+                {
+                }
+                column(BalanceatDate_GLAccount; "Balance at Date")
+                {
+                }
+                column(AvgExRate; AvgExRate)
+                {
+                    DecimalPlaces = 2 : 5;
+                }
+                column(CurrRate; CurrRate)
+                {
+                    DecimalPlaces = 2 : 5;
+                }
+                column(Correction2; Correction2)
+                {
+                }
+                column(EMU; EMU)
+                {
+                }
 
                 trigger OnAfterGetRecord()
                 begin
@@ -690,6 +729,25 @@ report 595 "Adjust Exchange Rates"
                     Window.Update(1, Round(GLAccNo / GLAccNoTotal * 10000, 1));
                     if "Exchange Rate Adjustment" = "Exchange Rate Adjustment"::"No Adjustment" then
                         CurrReport.Skip();
+
+                    Currency.Get("Currency Code");
+                    if Currency."EMU Currency" then
+                        EMU := 'x'
+                    else
+                        EMU := '';
+
+                    // Calc avg. exrate of existing entries
+                    CalcFields("Balance at Date (FCY)", "Balance at Date");
+                    if "Balance at Date (FCY)" <> 0 then
+                        AvgExRate := Round("Balance at Date" / "Balance at Date (FCY)", 0.00001)
+                    else
+                        AvgExRate := 0;
+
+                    // Calc value of FCY at current exrate
+                    CurrRate := ExchRate.ExchangeRateAdjmt(PostingDate, Currency.Code);
+                    if CurrRate <> 0 then
+                        CurrRate := Round(1 / CurrRate, 0.00001);
+                    Correction2 := Round(("Balance at Date (FCY)" * CurrRate) - "Balance at Date", 0.01);
 
                     TempDimSetEntry.Reset();
                     TempDimSetEntry.DeleteAll();
@@ -738,6 +796,13 @@ report 595 "Adjust Exchange Rates"
 
                     GLAccNoTotal := Count;
                     SetRange("Date Filter", StartDate, EndDate);
+
+                    if GetFilter("Currency Code") <> '' then
+                        SetFilter("Currency Code", '<>%1&%2', '', GetFilter("Currency Code"))
+                    else
+                        SetFilter("Currency Code", '<>%1', '');
+
+                    Clear(Correction2);
                 end;
             }
         }
@@ -964,6 +1029,15 @@ report 595 "Adjust Exchange Rates"
         DueDateCaption = 'Due Date';
         VATExchRateAmountCaption = 'VAT Exch. Rate Amount';
         RelationalVATExchRateAmtCaption = 'Relational VAT Exch. Rate Amt';
+        GLAccountCaption = 'G/L Account';
+        AdjustExchangeRatesGLCaption = 'Adjust Exchange Rates G/L';
+        CorrectionCaption = 'Correction';
+        ExrateOnKeyDateCaption = 'Exrate on Posting Date';
+        AvgExRateCaption = 'Average Exrate';
+        BalanceAtDateCaption = 'Balance in LCY';
+        BalanceAtDateFCYCaption = 'Balance in FCY';
+        EMUCaption = 'EMU';
+        TotalRateAdjustmentCaption = 'Total Rate Adjustment';
     }
 
     trigger OnInitReport()
@@ -1109,6 +1183,7 @@ report 595 "Adjust Exchange Rates"
         CurrExchRate: Record "Currency Exchange Rate";
         CurrExchRate2: Record "Currency Exchange Rate";
         CurrExchRate3: Record "Currency Exchange Rate";
+        ExchRate: Record "Currency Exchange Rate";
         GLSetup: Record "General Ledger Setup";
         VATEntry: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
@@ -1204,6 +1279,10 @@ report 595 "Adjust Exchange Rates"
         Vendor_Document_type: Integer;
         CorrRevChargeEntryNo: Integer;
         NextVATEntryNo: Integer;
+        AvgExRate: Decimal;
+        CurrRate: Decimal;
+        EMU: Text[10];
+        Correction2: Decimal;
 
         Text000Err: Label 'Document No. must be entered.';
         Text001Txt: Label 'Do you want to adjust general ledger entries for currency fluctuations without adjusting customer, vendor and bank ledger entries? This may result in incorrect currency adjustments to payables, receivables and bank accounts.\\ ';
@@ -1241,6 +1320,7 @@ report 595 "Adjust Exchange Rates"
         VATEntriesCaptionLbl: Label 'VAT Entries';
         Text11000: Label 'Valuation Reference Date: ';
         Text11001: Label 'Short term liabilities until must not be before Valuation Reference Date.';
+        GLAccountCaptionLbl: Label 'G/L Accounts';
 
     local procedure PostAdjmt(GLAccNo: Code[20]; PostingAmount: Decimal; AdjBase2: Decimal; CurrencyCode2: Code[10]; var DimSetEntry: Record "Dimension Set Entry"; PostingDate2: Date; ICCode: Code[20]) TransactionNo: Integer
     var

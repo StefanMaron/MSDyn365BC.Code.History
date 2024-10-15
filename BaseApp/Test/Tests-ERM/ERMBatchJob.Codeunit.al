@@ -1673,7 +1673,7 @@ codeunit 134900 "ERM Batch Job"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The archive copy of Sales Order is created.
-        VerifyArchiveOfSalesOrder(SalesHeader, 1); // [BUG 369983]
+        VerifyArchiveOfSalesOrder(SalesHeader, 1);
     end;
 
     [Test]
