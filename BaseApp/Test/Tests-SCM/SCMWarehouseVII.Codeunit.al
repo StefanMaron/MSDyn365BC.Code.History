@@ -1997,6 +1997,69 @@ codeunit 137159 "SCM Warehouse VII"
         WarehouseActivityLine.TestField("Cross-Dock Information", WarehouseActivityLine."Cross-Dock Information"::"Cross-Dock Items");
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure MovementFromInternalMvmtWithAutoHandlingItemTrackingByFEFO()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        FromBin: array[2] of Record Bin;
+        ToBin: Record Bin;
+        InternalMovementHeader: Record "Internal Movement Header";
+        InternalMovementLine: Record "Internal Movement Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNos: array[2] of Code[20];
+        ItemTrackingMode: Option " ",AssignLotNo,SelectEntries,SetQuantity;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Internal Movement] [Inventory Movement] [Item Tracking] [FEFO]
+        // [SCENARIO 373187] Creating inventory movement from internal movement with automatic item tracking assignment by FEFO.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Lot-tracked item.
+        CreateItemWithItemTrackingCode(Item, true, false, true, LibraryUtility.GetGlobalNoSeriesCode(), '');
+
+        // [GIVEN] Location set up for FEFO picking.
+        CreateAndUpdateLocation(Location, false, true, false, false, true);
+        Location.Validate("Pick According to FEFO", true);
+        Location.Modify(true);
+
+        // [GIVEN] Bins "A1", "A2" and "B".
+        LibraryWarehouse.CreateBin(FromBin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(FromBin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(ToBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Post inventory to bin "A1". Lot No. = "L1", expiration date = "D1".
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);
+        CreateAndPostItemJournalLine(Location.Code, FromBin[1].Code, Item."No.", '', Qty, true, true);
+        LotNos[1] := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(LotNos[1]));
+
+        // [GIVEN] Post inventory to bin "A2". Lot No. = "L2", expiration date = "D2" >= "D1".
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);
+        CreateAndPostItemJournalLine(Location.Code, FromBin[2].Code, Item."No.", '', Qty, true, true);
+        LotNos[2] := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(LotNos[2]));
+
+        // [GIVEN] Create internal movement.
+        // [GIVEN] Populate inventory movement line: "From Bin Code" = "A2", "To Bin Code" = "B".
+        // [GIVEN] Do not assign item tracking.
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Location.Code, ToBin.Code);
+        LibraryWarehouse.CreateInternalMovementLine(
+          InternalMovementHeader, InternalMovementLine, Item."No.", FromBin[2].Code, ToBin.Code, Qty);
+
+        // [WHEN] Create inventory movement from the internal movement.
+        CreateInventoryMovementFromInternalMovement(InternalMovementHeader);
+
+        // [THEN] An inventory movement has been created.
+        // [THEN] Lot no. "L2" has been automatically selected.
+        FindInventoryMovementLine(
+          WarehouseActivityLine, WarehouseActivityLine."Action Type"::Take, Item."No.", WarehouseActivityLine."Source Document"::" ", '');
+        WarehouseActivityLine.TestField("Lot No.", LotNos[2]);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
