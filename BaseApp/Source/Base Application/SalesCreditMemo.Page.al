@@ -140,11 +140,22 @@ page 44 "Sales Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact person that the sales document will be sent to.';
 
+                        trigger OnLookup(var Text: Text): Boolean
+                        begin
+                            if not SelltoContactLookup() then
+                                exit(false);
+                            Text := Rec."Sell-to Contact No.";
+                            CurrPage.Update();
+                            exit(true);
+                        end;
+
                         trigger OnValidate()
                         begin
                             if GetFilter("Sell-to Contact No.") = xRec."Sell-to Contact No." then
                                 if "Sell-to Contact No." <> xRec."Sell-to Contact No." then
                                     SetRange("Sell-to Contact No.");
+                            if "Sell-to Contact No." <> xRec."Sell-to Contact No." then
+                                CurrPage.Update();
                         end;
                     }
                     field(SellToPhoneNo; SellToContact."Phone No.")
@@ -598,7 +609,7 @@ page 44 "Sales Credit Memo"
                 field("Area"; Area)
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
+                    ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
                 }
             }
         }

@@ -673,6 +673,14 @@ codeunit 6516 "Package Management"
         ToEntrySummary.SetRange("Package No.", ItemTrackingSetup."Package No.");
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Entry Summary", 'OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired', '', false, false)]
+    local procedure EntrySummarySetTrackingFilterFromItemTrackingSetupIfRequired(var ToEntrySummary: Record "Entry Summary"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        ToEntrySummary.SetRange("Package No.");
+        if ItemTrackingSetup."Package No. Required" then
+            ToEntrySummary.SetRange("Package No.", ItemTrackingSetup."Package No.");
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Entry Summary", 'OnAfterSetTrackingFilterFromReservEntry', '', false, false)]
     local procedure EntrySummarySetTrackingFilterFromReservEntry(var ToEntrySummary: Record "Entry Summary"; FromReservEntry: Record "Reservation Entry")
     begin
