@@ -30,6 +30,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         UpdateContactParentCompanyFailedTxt: Label 'Updating contact parent company failed. Parent Customer ID: %1', Locked = true, Comment = '%1 - parent customer id';
         UpdateContactParentCompanySuccessfulTxt: Label 'Updated contact parent company successfully.', Locked = true;
         SynchingSalesSpecificEntityTxt: Label 'Synching a %1 specific entity.', Locked = true;
+        FailedToGetPostedSalesInvoiceTxt: Label 'Failed to get posted sales invoice %1 from SQL database. Flushing the cache and retrying.', Locked = true;
 
     procedure ClearCache()
     begin
@@ -723,6 +724,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         SourceLinesRecordRef: RecordRef;
         TaxAmount: Decimal;
     begin
+        Commit();
         SourceRecordRef.SetTable(SalesInvoiceHeader);
         DestinationRecordRef.SetTable(CRMInvoice);
 
@@ -750,8 +752,8 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         end;
         CRMInvoice.Modify();
         CRMSynchHelper.UpdateCRMInvoiceStatus(CRMInvoice, SalesInvoiceHeader);
-
         CRMSynchHelper.SetSalesInvoiceHeaderCoupledToCRM(SalesInvoiceHeader);
+        Commit();
     end;
 
     local procedure UpdateCRMInvoiceBeforeInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
@@ -856,7 +858,14 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         DestinationRecordRef.SetTable(CRMInvoicedetail);
 
         // Get the NAV and CRM invoice headers
-        SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
+        if not SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.") then begin
+            // if the Get fails, wait for 5 seconds, flush the cache and retry once more
+            // this is necessary because lines synch is done in a separate thread from invoice synch, and invoice may not be in the SQL database yet
+            Session.LogMessage('0000G8C', StrSubstNo(FailedToGetPostedSalesInvoiceTxt, SalesInvoiceLine."Document No."), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            Sleep(5000);
+            Database.SelectLatestVersion();
+            SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
+        end;
         if not CRMIntegrationRecord.FindIDFromRecordID(SalesInvoiceHeader.RecordId(), CRMSalesInvoiceHeaderId) then
             Error(NoCoupledSalesInvoiceHeaderErr, CRMProductName.CDSServiceName());
 

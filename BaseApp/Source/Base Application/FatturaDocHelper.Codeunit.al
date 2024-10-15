@@ -1004,18 +1004,15 @@ codeunit 12184 "Fattura Doc. Helper"
         Finished: Boolean;
         LineNo: Integer;
     begin
+        if TempFatturaHeader."Customer Purchase Order No." = '' then
+            exit;
+
         TempShptFatturaLine.Reset();
         TempShptFatturaLine.SetRange("Split Line", false);
         if not TempShptFatturaLine.FindSet() then
             exit;
 
         MultipleOrders := HasMultipleOrders(TempShptFatturaLine);
-        if (not MultipleOrders) and
-           (TempFatturaHeader."Customer Purchase Order No." = '') and
-           (TempFatturaHeader."Fattura Project Code" = '') and
-           (TempFatturaHeader."Fattura Tender Code" = '')
-        then
-            exit;
 
         Clear(TempFatturaLine);
         repeat

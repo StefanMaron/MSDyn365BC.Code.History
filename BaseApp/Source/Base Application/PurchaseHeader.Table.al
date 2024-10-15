@@ -1292,7 +1292,11 @@
             TableRelation = "Country/Region";
 
             trigger OnValidate()
+            var
+                FormatAddress: Codeunit "Format Address";
             begin
+                if not FormatAddress.UseCounty("Pay-to Country/Region Code") then
+                    "Pay-to County" := '';
                 ModifyPayToVendorAddress();
             end;
         }
@@ -1343,7 +1347,11 @@
             TableRelation = "Country/Region";
 
             trigger OnValidate()
+            var
+                FormatAddress: Codeunit "Format Address";
             begin
+                if not FormatAddress.UseCounty("Buy-from Country/Region Code") then
+                    "Buy-from County" := '';
                 UpdatePayToAddressFromBuyFromAddress(FieldNo("Pay-to Country/Region Code"));
                 ModifyVendorAddress();
             end;
@@ -2024,25 +2032,8 @@
             TableRelation = Contact;
 
             trigger OnLookup()
-            var
-                Cont: Record Contact;
-                ContBusinessRelation: Record "Contact Business Relation";
             begin
-                if "Buy-from Vendor No." <> '' then
-                    if Cont.Get("Buy-from Contact No.") then
-                        Cont.SetRange("Company No.", Cont."Company No.")
-                    else
-                        if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Vendor, "Buy-from Vendor No.") then
-                            Cont.SetRange("Company No.", ContBusinessRelation."Contact No.")
-                        else
-                            Cont.SetRange("No.", '');
-
-                if "Buy-from Contact No." <> '' then
-                    if Cont.Get("Buy-from Contact No.") then;
-                if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
-                    xRec := Rec;
-                    Validate("Buy-from Contact No.", Cont."No.");
-                end;
+                BuyfromContactLookup();
             end;
 
             trigger OnValidate()
@@ -5403,6 +5394,31 @@
             Contact.SetRange("Company No.", '');
         if ContactNo <> '' then
             if Contact.Get(ContactNo) then;
+    end;
+
+    procedure BuyfromContactLookup(): Boolean
+    var
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        if "Buy-from Vendor No." <> '' then
+            if Contact.Get("Buy-from Contact No.") then
+                Contact.SetRange("Company No.", Contact."Company No.")
+            else
+                if ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Vendor, "Buy-from Vendor No.") then
+                    Contact.SetRange("Company No.", ContactBusinessRelation."Contact No.")
+                else
+                    Contact.SetRange("No.", '');
+
+        if "Buy-from Contact No." <> '' then
+            if Contact.Get("Buy-from Contact No.") then;
+        if Page.RunModal(0, Contact) = Action::LookupOK then begin
+            xRec := Rec;
+            CurrFieldNo := FieldNo("Buy-from Contact No.");
+            Validate("Buy-from Contact No.", Contact."No.");
+            exit(true);
+        end;
+        exit(false);
     end;
 
     procedure SendRecords()

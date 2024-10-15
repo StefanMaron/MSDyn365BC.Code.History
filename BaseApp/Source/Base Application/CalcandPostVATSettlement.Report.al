@@ -463,7 +463,7 @@
                             NextVATEntryNo := GetSettlementVATEntryNo(PostSettlement, IsPostingAllowed);
 
                             // Close current VAT entries
-                            if PostSettlement and (NextVATEntryNo <> 0) then begin
+                            if PostSettlement then begin
                                 CloseVATEntriesOnPostSettlement(VATEntry, NextVATEntryNo);
                                 UpdateVATPeriodOnSettlementVATEntry(NextVATEntryNo);
                             end;
@@ -875,6 +875,8 @@
 
     trigger OnPostReport()
     begin
+        if GenJnlPostLine.IsGLEntryInconsistent() then
+            GenJnlPostLine.ShowInconsistentEntries();
         OnAfterPostReport();
     end;
 

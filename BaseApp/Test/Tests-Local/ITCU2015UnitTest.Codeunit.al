@@ -16,6 +16,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        FileMgt: Codeunit "File Management";
         TextFile: BigText;
         CommunicationNumber: Integer;
         ConstReason: Option " ",A,B,C,D,E,G,H,I,L,L1,M,M1,M2,N,O,O1,P,Q,R,S,T,U,V,V1,V2,W,X,Y,ZO;
@@ -24,7 +25,6 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         EmptyFieldErr: Label '''%1'' in ''%2'' must not be blank.', Comment = '%1=caption of a field, %2=key of record';
         BaseExcludedAmountTotalErr: Label 'Base - Excluded Amount total on lines for Withholding Tax Entry No. = %1 must be equal to Base - Excluded Amount on the Withholding Tax card for that entry (%2).', Comment = '%1=Entry number,%2=Amount.';
         IsInitialized: Boolean;
-        BlankedExceptionalEventErr: Label 'You must specify an exceptional event.';
         CURTxt: Label 'CUR%1', Locked = true;
 
     [Test]
@@ -781,21 +781,27 @@ codeunit 144021 "IT - CU 2015 Unit Test"
 #endif
 
     [Test]
-    procedure ExceptionalEventMandatoryField()
+    procedure ExceptionalEventFieldNotMandatory()
     var
-        WithholdingTaxExport: TestPage "Withholding Tax Export";
-    BEGIN
-        // [FEATURE] [UI]
-        // [SCENARIO 397347] Withholding Tax Export has a mandatory field "Exceptional Event" code
+        WithholdingTaxExport: Codeunit "Withholding Tax Export";
+        Filename: Text;
+        Date: Date;
+    begin
+        // [SCENARIO 413573] "Exceptional Event" field is not mandatory when Export function is run from Withholding Tax Export codeunit.
         Initialize();
 
-        WithholdingTaxExport.OpenEdit();
-        WithholdingTaxExport."Signing Company Officials".SetValue(CreateCompanyOfficial());
-        WithholdingTaxExport."Exceptional Event".SetValue('');
-        asserterror WithholdingTaxExport.ExportFile.Invoke();
+        // [GIVEN] Withholding Tax for 2021 year.
+        Date := DMY2Date(1, 1, LibraryRandom.RandIntInRange(2020, 2030));
+        CreateWithholdingTaxAndContributionEntry(CreateVendor, ConstReason::A, 0, Date, Date);
 
-        Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(BlankedExceptionalEventErr);
+        // [WHEN] Run Export function of Withholding Tax Export codeunit with blank "Exceptional Event" field.
+        Filename := FileMgt.ServerTempFileName('.dcm');
+        WithholdingTaxExport.SetServerFileName(Filename);
+        WithholdingTaxExport.Export(Date2DMY(Date, 3), CreateCompanyOfficial, 1, 0, '');
+
+        // [THEN] File is created. Record B Field 17 = "  " (two spaces).
+        LoadFile(Filename);
+        Assert.AreEqual('  ', LibrarySpesometro.ReadValue(TextFile, 2, 309, 2), '');
     end;
 
     [Test]

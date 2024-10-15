@@ -100,6 +100,21 @@ page 509 "Blanket Purchase Order"
                         Caption = 'Contact No.';
                         Importance = Additional;
                         ToolTip = 'Specifies the number of your contact at the vendor.';
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        begin
+                            if not BuyfromContactLookup() then
+                                exit(false);
+                            Text := Rec."Buy-from Contact No.";
+                            CurrPage.Update();
+                            exit(true);
+                        end;
+
+                        trigger OnValidate()
+                        begin
+                            if xRec."Buy-from Contact No." <> Rec."Buy-from Contact No." then
+                                CurrPage.Update();
+                        end;
                     }
                     field(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
                     {
@@ -503,7 +518,7 @@ page 509 "Blanket Purchase Order"
                 field("Area"; Area)
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
+                    ToolTip = 'Specifies the destination country or region for the purpose of Intrastat reporting.';
                 }
             }
         }

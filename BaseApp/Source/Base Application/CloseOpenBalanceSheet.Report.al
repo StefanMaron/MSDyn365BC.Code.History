@@ -71,6 +71,7 @@ report 12113 "Close/Open Balance Sheet"
                                 EntryNoAmountBuf.Amount2 := EntryNoAmountBuf.Amount2 + "Additional-Currency Amount";
                                 EntryNoAmountBuf.Modify();
                             end else begin
+                                EntryNoAmountBuf."Business Unit Code" := "Business Unit Code";
                                 EntryNoAmountBuf."Entry No." := EntryNo;
                                 EntryNoAmountBuf.Amount := Amount;
                                 EntryNoAmountBuf.Amount2 := "Additional-Currency Amount";

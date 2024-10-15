@@ -577,7 +577,7 @@ codeunit 6224 "XML DOM Management"
         LoadXMLNodeFromText(XmlText, XMLRootNode);
     end;
 
-    local procedure ClearUTF8BOMSymbols(var XmlText: Text)
+    procedure ClearUTF8BOMSymbols(var XmlText: Text)
     var
         UTF8Encoding: DotNet UTF8Encoding;
         ByteOrderMarkUtf8: Text;

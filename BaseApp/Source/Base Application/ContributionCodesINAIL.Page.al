@@ -1,7 +1,7 @@
 page 12197 "Contribution Codes-INAIL"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Contribution Codes';
+    Caption = 'INAIL Codes';
     DelayedInsert = true;
     PageType = Card;
     SourceTable = "Contribution Code";
