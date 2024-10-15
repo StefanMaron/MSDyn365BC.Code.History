@@ -1,4 +1,4 @@
-codeunit 5633 "FA Jnl.-Post Batch"
+﻿codeunit 5633 "FA Jnl.-Post Batch"
 {
     Permissions = TableData "FA Journal Batch" = imd;
     TableNo = "FA Journal Line";
@@ -54,6 +54,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
         with FAJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
+            OnCodeOnBeforeLockTable(FAJnlLine);
             LockTable();
 
             FAJnlTemplate.Get("Journal Template Name");
@@ -72,18 +73,20 @@ codeunit 5633 "FA Jnl.-Post Batch"
                 exit;
             end;
 
-            if FAJnlTemplate.Recurring then
-                Window.Open(
-                  Text001 +
-                  Text002 +
-                  Text003 +
-                  Text004)
-            else
-                Window.Open(
-                  Text001 +
-                  Text002 +
-                  Text005);
-            Window.Update(1, "Journal Batch Name");
+            if GuiAllowed() then begin
+                if FAJnlTemplate.Recurring then
+                    Window.Open(
+                      Text001 +
+                      Text002 +
+                      Text003 +
+                      Text004)
+                else
+                    Window.Open(
+                      Text001 +
+                      Text002 +
+                      Text005);
+                Window.Update(1, "Journal Batch Name");
+            end;
 
             Clear(CompressDepr);
             CompressDepr[1].DeleteAll();
@@ -93,7 +96,8 @@ codeunit 5633 "FA Jnl.-Post Batch"
             StartLineNo := "Line No.";
             repeat
                 LineCount := LineCount + 1;
-                Window.Update(2, LineCount);
+                if GuiAllowed() then
+                    Window.Update(2, LineCount);
                 CheckRecurringLine(FAJnlLine);
                 FAJnlCheckLine.CheckFAJnlLine(FAJnlLine);
                 if Next() = 0 then
@@ -127,8 +131,10 @@ codeunit 5633 "FA Jnl.-Post Batch"
                     FAJnlLine2.Find('-');
                     repeat
                         LineCount := LineCount + 1;
-                        Window.Update(5, LineCount);
-                        Window.Update(6, Round(LineCount / NoOfRecords * 10000, 1));
+                        if GuiAllowed() then begin
+                            Window.Update(5, LineCount);
+                            Window.Update(6, Round(LineCount / NoOfRecords * 10000, 1));
+                        end;
                         if FAJnlLine2."FA Posting Date" <> 0D then
                             FAJnlLine2.Validate("FA Posting Date", CalcDate(FAJnlLine2."Recurring Frequency", FAJnlLine2."FA Posting Date"));
                         if FAJnlLine2."Recurring Method" <> FAJnlLine2."Recurring Method"::"F Fixed" then
@@ -140,6 +146,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
                     FAJnlLine2.SetFilter("FA No.", '<>%1', '');
                     if FAJnlLine2.Find('+') then; // Remember the last line
                     FAJnlLine3.Copy(FAJnlLine);
+                    OnCodeOnBeforeFAJnlLine3DeleteAll(FAJnlLine3, FAJnlLine);
                     FAJnlLine3.DeleteAll();
                     FAJnlLine3.Reset();
                     FAJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
@@ -403,8 +410,10 @@ codeunit 5633 "FA Jnl.-Post Batch"
             Find('-');
             repeat
                 LineCount := LineCount + 1;
-                Window.Update(3, LineCount);
-                Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+                if GuiAllowed() then begin
+                    Window.Update(3, LineCount);
+                    Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+                end;
                 CheckFAJnlLineDocumentNo();
                 if not ("FA No." = '') then
                     LastDocNo2 := "Document No.";
@@ -463,6 +472,16 @@ codeunit 5633 "FA Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCommit(FARegNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeFAJnlLine3DeleteAll(var FAJnlLine3: Record "FA Journal Line"; var FAJnlLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeLockTable(var FAJnlLine: Record "FA Journal Line")
     begin
     end;
 

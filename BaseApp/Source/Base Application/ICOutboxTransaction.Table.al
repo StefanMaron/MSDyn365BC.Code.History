@@ -179,6 +179,8 @@
                     ICOutboxPurchDoc.RunModal;
                 end;
         end;
+
+        OnAfterShowDetails(Rec);
     end;
 
     local procedure OutboxCheckSend()
@@ -219,6 +221,11 @@
                  StrSubstNo(Text001, ICOutboxTransaction2."Transaction No.", "Transaction No."), true)
             then
                 Error('');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDetails(var IOutboxTransction: Record "IC Outbox Transaction")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

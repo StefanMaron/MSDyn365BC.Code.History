@@ -1079,13 +1079,12 @@ page 43 "Sales Invoice"
                     var
                         Handled: Boolean;
                     begin
+                        Handled := false;
                         OnBeforeStatisticsAction(Rec, Handled);
-                        if not Handled then begin
-                            CalcInvDiscForHeader;
-                            Commit();
-                            PAGE.RunModal(PAGE::"Sales Statistics", Rec);
-                            SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
-                        end
+                        if Handled then
+                            exit;
+
+                        OpenDocumentStatistics();
                     end;
                 }
                 action("Co&mments")
@@ -1268,6 +1267,7 @@ page 43 "Sales Invoice"
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
                 action(Reopen)
@@ -1286,6 +1286,7 @@ page 43 "Sales Invoice"
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
             }

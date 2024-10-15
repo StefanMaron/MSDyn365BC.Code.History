@@ -1,4 +1,4 @@
-report 840 "Suggest Worksheet Lines"
+﻿report 840 "Suggest Worksheet Lines"
 {
     Caption = 'Suggest Worksheet Lines';
     Permissions = TableData "Dimension Set ID Filter Line" = rimd,
@@ -326,6 +326,7 @@ report 840 "Suggest Worksheet Lines"
                     if not ("Line Type" in ["Line Type"::Billable, "Line Type"::"Both Budget and Billable"]) then
                         exit;
 
+                    OnJobPlanningLineOnAfterGetRecordOnBeforeInsertCFLineForJobPlanningLine("Job Planning Line");
                     InsertCFLineForJobPlanningLine();
                 end;
 
@@ -1235,7 +1236,7 @@ report 840 "Suggest Worksheet Lines"
                       Job.Description,
                       Format("Job Planning Line"."Document Date")),
                     1, MaxStrLen(Description));
-                SetCashFlowDate(CFWorksheetLine2, "Job Planning Line"."Planning Date");
+                SetCashFlowDate(CFWorksheetLine2, "Job Planning Line"."Planning Due Date");
                 "Document No." := "Job Planning Line"."Document No.";
                 "Amount (LCY)" := GetJobPlanningAmountForCFLine("Job Planning Line");
 
@@ -1436,7 +1437,14 @@ report 840 "Suggest Worksheet Lines"
     end;
 
     local procedure SetCashFlowDate(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; CashFlowDate: Date)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetCashFlowDate(CashFlowWorksheetLine, IsHandled);
+        if IsHandled then
+            exit;
+
         CashFlowWorksheetLine."Cash Flow Date" := CashFlowDate;
         if CashFlowDate < WorkDate then begin
             if SelectionCashFlowForecast."Overdue CF Dates to Work Date" then
@@ -1647,7 +1655,17 @@ report 840 "Suggest Worksheet Lines"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCashFlowDate(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeNoOptionsChosen(var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobPlanningLineOnAfterGetRecordOnBeforeInsertCFLineForJobPlanningLine(JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

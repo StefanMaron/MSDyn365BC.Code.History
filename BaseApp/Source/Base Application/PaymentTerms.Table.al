@@ -182,6 +182,20 @@ table 3 "Payment Terms"
         exit(not PaymentLines.IsEmpty);
     end;
 
+    [Scope('OnPrem')]
+    procedure GetDueDateCalculation(var DueDateCalculation: DateFormula)
+    var
+        PaymentLines: Record "Payment Lines";
+    begin
+        PaymentLines.SetRange("Sales/Purchase", PaymentLines."Sales/Purchase"::" ");
+        PaymentLines.SetRange(Type, PaymentLines.Type::"Payment Terms");
+        PaymentLines.SetRange(Code, Code);
+        if PaymentLines.FindFirst() then
+            DueDateCalculation := PaymentLines."Due Date Calculation"
+        else
+            Evaluate(DueDateCalculation, '<0D>');
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterTranslateDescription(var PaymentTerms: Record "Payment Terms"; Language: Code[10])
     begin

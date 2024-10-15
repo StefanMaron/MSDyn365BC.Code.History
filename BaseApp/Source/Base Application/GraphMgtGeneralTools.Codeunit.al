@@ -375,6 +375,8 @@ codeunit 5465 "Graph Mgt - General Tools"
     var
         ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
     begin
+        if Rec.IsTemporary() then
+            exit;
         if RunTrigger then begin
             ConfigTmplSelectionRules.SetRange("Template Code", Rec.Code);
             ConfigTmplSelectionRules.DeleteAll();

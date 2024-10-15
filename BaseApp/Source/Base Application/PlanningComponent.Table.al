@@ -51,6 +51,8 @@ table 99000829 "Planning Component"
                 Validate("Unit of Measure Code", Item."Base Unit of Measure");
                 GetUpdateFromSKU;
                 CreateDim(DATABASE::Item, "Item No.");
+
+                OnAfterValidateItemNo(Rec, Item);
             end;
         }
         field(12; Description; Text[100])
@@ -1143,6 +1145,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var PlanningComponent: Record "Planning Component"; var xPlanningComponent: Record "Planning Component"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateItemNo(var PlanningComponent: Record "Planning Component"; Item: Record Item);
     begin
     end;
 

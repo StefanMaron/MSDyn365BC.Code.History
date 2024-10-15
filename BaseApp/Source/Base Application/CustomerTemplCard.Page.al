@@ -35,6 +35,112 @@ page 1382 "Customer Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to customers.';
                 }
+                field("Privacy Blocked"; "Privacy Blocked")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
+                    Visible = false;
+                }
+                field("Salesperson Code"; "Salesperson Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies a code for the salesperson who normally handles this customer''s account.';
+                    Visible = false;
+                }
+                field("IC Partner Code"; "IC Partner Code")
+                {
+                    ApplicationArea = Intercompany;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s intercompany partner code.';
+                    Visible = false;
+                }
+                field("Tax Representative Type"; "Tax Representative Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the tax representative is a customer or a contact.';
+                }
+                field("Tax Representative No."; "Tax Representative No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the identification number of the customer''s tax representative.';
+                }
+                field("Disable Search by Name"; "Disable Search by Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies that you can change customer name in the document, because the name is not used in search.';
+                    Visible = false;
+                }
+                field("Responsibility Center"; "Responsibility Center")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the code for the responsibility center that will administer this customer by default.';
+                    Visible = false;
+                }
+                field("Service Zone Code"; "Service Zone Code")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the code for the service zone that is assigned to the customer.';
+                    Visible = false;
+                }
+                field("Credit Limit (LCY)"; "Credit Limit (LCY)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
+                    Visible = false;
+                }
+            }
+            group(Individual)
+            {
+                Caption = 'Individual';
+                field("Individual Person"; "Individual Person")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the customer is an individual person.';
+                }
+                field(Resident; Resident)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the individual is a resident or non-resident of Italy.';
+                }
+                field("First Name"; "First Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the first name of the individual person.';
+                }
+                field("Last Name"; "Last Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the last name of the individual person.';
+                }
+                field("Date of Birth"; "Date of Birth")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the date of birth of the individual person.';
+                }
+                field("Place of Birth"; "Place of Birth")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the birth place of the individual person.';
+                }
+                field("Fiscal Code"; "Fiscal Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the customer''s identification code assigned by the Finance and Economics Government Department.';
+                }
+                field("PA Code"; "PA Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a code.';
+                }
+                field("PEC E-Mail Address"; "PEC E-Mail Address")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the e-mail address to identify the customer instead of the PA Code in the electronic invoice.';
+                }
             }
             group("Address & Contact")
             {
@@ -42,6 +148,18 @@ page 1382 "Customer Templ. Card"
                 group(AddressDetails)
                 {
                     Caption = 'Address';
+                    field(Address; Address)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the customer''s address. This address will appear on all sales documents for the customer.';
+                        Visible = false;
+                    }
+                    field("Address 2"; "Address 2")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies additional address information.';
+                        Visible = false;
+                    }
                     field("Country/Region Code"; "Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
@@ -62,6 +180,39 @@ page 1382 "Customer Templ. Card"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the postal code.';
                     }
+                }
+                field("Phone No."; "Phone No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the customer''s telephone number.';
+                    Visible = false;
+                }
+                field(MobilePhoneNo; "Mobile Phone No.")
+                {
+                    Caption = 'Mobile Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the customer''s mobile telephone number.';
+                    Visible = false;
+                }
+                field("E-Mail"; "E-Mail")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = EMail;
+                    ToolTip = 'Specifies the customer''s email address.';
+                    Visible = false;
+                }
+                field("Fax No."; "Fax No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the customer''s fax number.';
+                    Visible = false;
+                }
+                field("Home Page"; "Home Page")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the customer''s home page address.';
+                    Visible = false;
                 }
                 group(ContactDetails)
                 {
@@ -92,6 +243,48 @@ page 1382 "Customer Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the VAT registration number has been validated by the VAT number validation service.';
                 }
+                field("VAT Registration No."; "VAT Registration No.")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the customer''s VAT registration number for customers in EU countries/regions.';
+                    Visible = false;
+                }
+                field("EORI Number"; "EORI Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
+                    Visible = false;
+                }
+                field(GLN; GLN)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the customer in connection with electronic document sending.';
+                    Visible = false;
+                }
+                field("Use GLN in Electronic Document"; "Use GLN in Electronic Document")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
+                    Visible = false;
+                }
+                field("Copy Sell-to Addr. to Qte From"; "Copy Sell-to Addr. to Qte From")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies which customer address is inserted on sales quotes that you create for the customer.';
+                    Visible = false;
+                }
+                field("Tax Liable"; "Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
+                    Visible = false;
+                }
+                field("Tax Area Code"; "Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                    Visible = false;
+                }
                 group(PostingDetails)
                 {
                     Caption = 'Posting Details';
@@ -115,6 +308,7 @@ page 1382 "Customer Templ. Card"
                         ShowMandatory = true;
                         ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                     }
+
                 }
                 group(PricesandDiscounts)
                 {
@@ -161,6 +355,13 @@ page 1382 "Customer Templ. Card"
             group(Payments)
             {
                 Caption = 'Payments';
+                field("Prepayment %"; "Prepayment %")
+                {
+                    ApplicationArea = Prepayments;
+                    Importance = Additional;
+                    ToolTip = 'Specifies a prepayment percentage that applies to all orders for this customer, regardless of the items or services on the order lines.';
+                    Visible = false;
+                }
                 field("Application Method"; "Application Method")
                 {
                     ApplicationArea = Basic, Suite;
@@ -198,17 +399,34 @@ page 1382 "Customer Templ. Card"
                     Importance = Additional;
                     ToolTip = 'Specifies whether to calculate finance charges for the customer.';
                 }
+                field("Cash Flow Payment Terms Code"; "Cash Flow Payment Terms Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies a payment term that will be used to calculate cash flow for the customer.';
+                    Visible = false;
+                }
                 field("Print Statements"; "Print Statements")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies whether to include this customer when you print the Statement report.';
                 }
+                field("Cumulative Bank Receipts"; "Cumulative Bank Receipts")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the customer bill entry is included in a cumulative bank receipt.';
+                }
                 field("Block Payment Tolerance"; "Block Payment Tolerance")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that the customer is not allowed a payment tolerance.';
+                }
+                field("Int. on Arrears Code"; "Int. on Arrears Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a code that specifies how the program will compute interest on arrears for the customer.';
                 }
             }
             group(Shipping)
@@ -220,6 +438,25 @@ page 1382 "Customer Templ. Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies from which location sales to this customer will be processed by default.';
                 }
+                field("Combine Shipments"; "Combine Shipments")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if several orders delivered to the customer can appear on the same sales invoice.';
+                    Visible = false;
+                }
+                field(Reserve; Reserve)
+                {
+                    ApplicationArea = Reservation;
+                    ToolTip = 'Specifies whether items will never, automatically (Always), or optionally be reserved for this customer.';
+                    Visible = false;
+                }
+                field("Shipping Advice"; "Shipping Advice")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies if the customer accepts partial shipment of orders.';
+                    Visible = false;
+                }
                 group("Shipment Method")
                 {
                     Caption = 'Shipment Method';
@@ -230,6 +467,35 @@ page 1382 "Customer Templ. Card"
                         Importance = Promoted;
                         ToolTip = 'Specifies which shipment method to use when you ship items to the customer.';
                     }
+                    field("Shipping Agent Code"; "Shipping Agent Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Agent';
+                        ToolTip = 'Specifies which shipping company is used when you ship items to the customer.';
+                        Visible = false;
+                    }
+                    field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Agent Service';
+                        Importance = Additional;
+                        ToolTip = 'Specifies the code for the shipping agent service to use for this customer.';
+                        Visible = false;
+                    }
+                }
+                field("Shipping Time"; "Shipping Time")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
+                    Visible = false;
+                }
+                field("Base Calendar Code"; "Base Calendar Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    DrillDown = false;
+                    ToolTip = 'Specifies a customizable calendar for shipment planning that holds the customer''s working days and holidays.';
+                    Visible = false;
                 }
             }
         }
@@ -263,7 +529,7 @@ page 1382 "Customer Templ. Card"
                 trigger OnAction()
                 var
                     CustomerTempl: Record "Customer Templ.";
-                    CustomerTemplList: Page "Customer Templ. List";
+                    CustomerTemplList: Page "Select Customer Templ. List";
                 begin
                     TestField(Code);
                     CustomerTempl.SetFilter(Code, '<>%1', Code);

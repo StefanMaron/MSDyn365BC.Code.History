@@ -1,4 +1,4 @@
-codeunit 5653 "Insurance Jnl.-Post Batch"
+﻿codeunit 5653 "Insurance Jnl.-Post Batch"
 {
     Permissions = TableData "Insurance Journal Batch" = imd;
     TableNo = "Insurance Journal Line";
@@ -123,6 +123,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                             LastPostedDocNo := "Document No.";
                         end;
                 InsuranceJnlPostLine.RunWithOutCheck(InsuranceJnlLine);
+                OnCodeOnAfterInsuranceJnlPostLineRunWithOutCheck(InsuranceJnlLine);
             until Next() = 0;
 
             if InsuranceReg.FindLast then;
@@ -138,6 +139,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                 InsuranceJnlLine2.SetFilter("Insurance No.", '<>%1', '');
                 if InsuranceJnlLine2.FindLast then; // Remember the last line
                 InsuranceJnlLine3.Copy(InsuranceJnlLine);
+                OnCodeOnBeforeInsuranceJnlLine3DeleteAll(InsuranceJnlLine3, InsuranceJnlLine);
                 InsuranceJnlLine3.DeleteAll();
                 InsuranceJnlLine3.Reset();
                 InsuranceJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
@@ -178,6 +180,16 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
         end;
         UpdateAnalysisView.UpdateAll(0, true);
         Commit();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterInsuranceJnlPostLineRunWithOutCheck(var InsuranceJnlLine: Record "Insurance Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeInsuranceJnlLine3DeleteAll(var InsuranceJnlLine3: Record "Insurance Journal Line"; var InsuranceJnlLine: Record "Insurance Journal Line")
+    begin
     end;
 }
 

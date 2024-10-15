@@ -88,7 +88,9 @@
                                 TotalAmount := TotalAmount - GenJnlLine.Amount;
                                 TotalAmountLCY := TotalAmountLCY - GenJnlLine."Balance (LCY)";
                                 GenJnlLine."Bill-to/Pay-to No." := "Customer No.";
+                                OnRunOnBeforeGLAccountGenJnlLineInsert(GenJnlLine);
                                 GenJnlLine.Insert();
+                                OnRunOnAfterGLAccountGenJnlLineInsert(GenJnlLine);
                             end;
                         FinChrgMemoLine.Type::"Customer Ledger Entry":
                             begin
@@ -112,14 +114,18 @@
                 TotalAmount := TotalAmount - GenJnlLine.Amount;
                 TotalAmountLCY := TotalAmountLCY - GenJnlLine."Balance (LCY)";
                 GenJnlLine."Bill-to/Pay-to No." := "Customer No.";
+                OnRunOnBeforeInterestGenJnlLineInsert(GenJnlLine);
                 GenJnlLine.Insert();
+                OnRunOnAfterInterestGenJnlLineInsert(GenJnlLine);
             end;
 
             if (TotalAmount <> 0) or (TotalAmountLCY <> 0) then begin
                 InitGenJnlLine(GenJnlLine."Account Type"::Customer, "Customer No.", true);
                 GenJnlLine.Validate(Amount, TotalAmount);
                 GenJnlLine.Validate("Amount (LCY)", TotalAmountLCY);
+                OnRunOnBeforeTotalGenJnlLineInsert(GenJnlLine);
                 GenJnlLine.Insert();
+                OnRunOnAfterTotalGenJnlLineInsert(GenJnlLine);
             end;
             if GenJnlLine.Find('-') then
                 repeat
@@ -127,6 +133,7 @@
                     SetDimensions(GenJnlLine2, FinChrgMemoHeader);
                     OnBeforeGenJnlPostLineRunWithCheck(GenJnlLine2, FinChrgMemoHeader);
                     GenJnlPostLine.RunWithCheck(GenJnlLine2);
+                    OnRunOnAfterGenJnlPostLineRunWithCheck(GenJnlLine);
                 until GenJnlLine.Next() = 0;
 
             GenJnlLine.DeleteAll();
@@ -253,7 +260,7 @@
             GeneralLedgerSetup.GetRecordOnce();
             if GeneralLedgerSetup."Use Activity Code" then
                 GenJnlLine."Activity Code" := "Activity Code";
-            OnAfterInitGenJnlLine(GenJnlLine, FinChrgMemoHeader);
+            OnAfterInitGenJnlLine(GenJnlLine, FinChrgMemoHeader, SrcCode);
         end;
     end;
 
@@ -387,6 +394,8 @@
                         TableID, No, SrcCode, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "Dimension Set ID", 0);
             end;
         end;
+
+        OnAfterSetDimensions(GenJnlLine, FinanceChargeMemoHeader, TableID, No, SrcCode);
     end;
 
     local procedure UpdateCustLedgEntriesCalculateInterest(EntryNo: Integer; DocumentDate: Date)
@@ -409,12 +418,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; FinChargeMemoHeader: Record "Finance Charge Memo Header")
+    local procedure OnAfterInitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; FinChargeMemoHeader: Record "Finance Charge Memo Header"; var SrcCode: Code[10])
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIssueFinChargeMemo(var FinChargeMemoHeader: Record "Finance Charge Memo Header"; IssuedFinChargeMemoNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDimensions(var GenJnlLine: Record "Gen. Journal Line"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var SrcCode: Code[10])
     begin
     end;
 
@@ -449,6 +463,41 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetFinChrgMemoLine(FinChrgMemoLine: Record "Finance Charge Memo Line"; DocNo: Code[20]; CurrencyFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterGLAccountGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeGLAccountGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInterestGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeInterestGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterTotalGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeTotalGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterGenJnlPostLineRunWithCheck(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

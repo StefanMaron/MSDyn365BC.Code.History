@@ -15,6 +15,7 @@ codeunit 5870 "Calculate BOM Tree"
         Window: Dialog;
         WindowUpdateDateTime: DateTime;
         LocationSpecific: Boolean;
+        HideDialog: Boolean;
         EntryNo: Integer;
         ZeroDF: DateFormula;
         AvailToUse: Option UpdatedQtyOnItemAvail,QtyOnItemAvail,QtyAvail;
@@ -25,12 +26,18 @@ codeunit 5870 "Calculate BOM Tree"
 
     local procedure OpenWindow()
     begin
+        if HideDialog then
+            exit;
+
         Window.Open(Text000);
         WindowUpdateDateTime := CurrentDateTime;
     end;
 
     local procedure UpdateWindow(ProgressValue: Integer)
     begin
+        if HideDialog then
+            exit;
+
         if CurrentDateTime - WindowUpdateDateTime >= 300 then begin
             WindowUpdateDateTime := CurrentDateTime;
             Window.Update(1, ProgressValue);
@@ -64,6 +71,8 @@ codeunit 5870 "Calculate BOM Tree"
         NoOfRecords: Integer;
         DemandDate: Date;
     begin
+        OnBeforeGenerateTreeForItems(HideDialog);
+
         OpenWindow;
 
         InitBOMBuffer(BOMBuffer);
@@ -86,7 +95,8 @@ codeunit 5870 "Calculate BOM Tree"
 
         ParentItem.Copy(ItemFilter);
 
-        Window.Close;
+        if not HideDialog then
+            Window.Close;
     end;
 
     procedure GenerateTreeForItem(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer"; DemandDate: Date; TreeType: Option)
@@ -124,6 +134,7 @@ codeunit 5870 "Calculate BOM Tree"
                     BOMBuffer.SetLocationVariantFiltersFrom(ItemFilter);
                     BOMBuffer.TransferFromItem(EntryNo, ParentItem, DemandDate);
                     GenerateItemSubTree("No.", BOMBuffer);
+                    OnGenerateTreeForItemLocalOnBeforeCalculateTreeType(ParentItem, BOMBuffer, TreeType, EntryNo);
                     CalculateTreeType(BOMBuffer, ShowTotalAvailability, TreeType);
                     OnAfterFilterBOMBuffer(ParentItem, BOMBuffer, DemandDate, TreeType);
                 end;
@@ -341,6 +352,7 @@ codeunit 5870 "Calculate BOM Tree"
                    CertifiedRoutingVersionExists(ParentItem."Routing No.", WorkDate)
                 then begin
                     repeat
+                        OnGenerateProdCompSubTreeOnBeforeRoutingLineLoop(RoutingLine, BOMBuffer);
                         if "No." <> '' then begin
                             BOMBuffer.SetLocationVariantFiltersFrom(ItemFilter);
                             BOMBuffer.TransferFromProdRouting(
@@ -1002,6 +1014,11 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateTreeForItems(var HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferFromProdBOM(var BOMBuffer: Record "BOM Buffer"; var ProdBOMLine: Record "Production BOM Line"; var ParentItem: Record Item; var ParentBOMBuffer: Record "BOM Buffer"; var EntryNo: Integer; TreeType: Option " ",Availability,Cost)
     begin
     end;
@@ -1023,6 +1040,16 @@ codeunit 5870 "Calculate BOM Tree"
 
     [IntegrationEvent(false, false)]
     local procedure OnGenerateProdCompSubTreeOnAfterBOMBufferModify(var BOMBuffer: Record "BOM Buffer"; RoutingLine: Record "Routing Line"; LotSize: Decimal; ParentItem: Record Item; ParentBOMBuffer: Record "BOM Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateProdCompSubTreeOnBeforeRoutingLineLoop(var RoutingLine: Record "Routing Line"; var BOMBuffer: Record "BOM Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateTreeForItemLocalOnBeforeCalculateTreeType(var ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer"; var TreeType: Option; var EntryNo: Integer)
     begin
     end;
 

@@ -284,6 +284,10 @@
         }
         area(factboxes)
         {
+            part(ErrorMessagesPart; "Error Messages Part")
+            {
+                ApplicationArea = BasicEU;
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -427,15 +431,17 @@
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        UpdateErrors();
+        SourceEntryNoEditable := "Source Type" = "Source Type"::"VAT Entry";
+    end;
+
     trigger OnAfterGetCurrRecord()
     begin
         if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::ODataV4 then
             UpdateStatisticalValue;
-    end;
-
-    trigger OnAfterGetRecord()
-    begin
-        SourceEntryNoEditable := "Source Type" = "Source Type"::"VAT Entry";
+        UpdateErrors();
     end;
 
     trigger OnInit()
@@ -461,6 +467,8 @@
         if not JnlSelected then
             Error('');
         IntraJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+
+        LineStyleExpression := 'Standard';
     end;
 
     var
@@ -468,6 +476,7 @@
         GetItemEntries: Report "Get Item Ledger Entries";
         IntraJnlManagement: Codeunit IntraJnlManagement;
         ClientTypeManagement: Codeunit "Client Type Management";
+        LineStyleExpression: Text;
         StatisticalValue: Decimal;
         TotalStatisticalValue: Decimal;
         CurrentJnlBatchName: Code[10];
@@ -494,6 +503,35 @@
         CurrPage.SaveRecord;
         IntraJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
+    end;
+
+    local procedure ErrorsExistOnCurrentLine(): Boolean
+    var
+        ErrorMessage: Record "Error Message";
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        IntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+        ErrorMessage.SetContext(IntrastatJnlBatch);
+        exit(ErrorMessage.HasErrorMessagesRelatedTo(Rec));
+    end;
+
+    local procedure UpdateErrors()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateErrors(IsHandled, Rec);
+        if IsHandled then
+            exit;
+
+        CurrPage.ErrorMessagesPart.PAGE.SetRecordID(Rec.RecordId);
+        CurrPage.ErrorMessagesPart.PAGE.GetStyleOfRecord(Rec, LineStyleExpression);
+        Rec.Mark(ErrorsExistOnCurrentLine());
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateErrors(var IsHandled: boolean; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
     end;
 }
 

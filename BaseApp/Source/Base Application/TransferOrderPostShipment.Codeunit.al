@@ -812,7 +812,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeTransferOrderPostShipment(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforeTransferOrderPostShipment(var TransferHeader: Record "Transfer Header"; var CommitIsSuppressed: Boolean)
     begin
     end;
 

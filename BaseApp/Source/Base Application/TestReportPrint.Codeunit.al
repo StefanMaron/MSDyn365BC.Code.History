@@ -1,4 +1,4 @@
-codeunit 228 "Test Report-Print"
+﻿codeunit 228 "Test Report-Print"
 {
 
     trigger OnRun()
@@ -37,6 +37,7 @@ codeunit 228 "Test Report-Print"
     procedure PrintGenJnlLine(var NewGenJnlLine: Record "Gen. Journal Line")
     begin
         GenJnlLine.Copy(NewGenJnlLine);
+        OnPrintGenJnlLineOnAfterGenJnlLineCopy(GenJnlLine);
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
         GenJnlTemplate.Get(GenJnlLine."Journal Template Name");
@@ -351,6 +352,11 @@ codeunit 228 "Test Report-Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcServDiscOnBeforeRun(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrintGenJnlLineOnAfterGenJnlLineCopy(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

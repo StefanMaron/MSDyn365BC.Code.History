@@ -330,6 +330,7 @@ page 1818 "Cash Flow Forecast Wizard"
         CurrentTaxBalAccountType: Option;
         AzureAIEnabled: Boolean;
         APIURL: Text[250];
+        [NonDebuggable]
         APIKEY: Text[250];
         AzureAIStepVisible: Boolean;
 

@@ -768,7 +768,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             if SpecialOrder then
                 if Vendor.Get(PurchOrderHeader."Buy-from Vendor No.") then
                     PurchOrderHeader."Shipment Method Code" := Vendor."Shipment Method Code";
-            OnAfterInsertPurchOrderHeader(ReqLine2, PurchOrderHeader, SuppressCommit);
+            OnAfterInsertPurchOrderHeader(ReqLine2, PurchOrderHeader, SuppressCommit, SpecialOrder);
             PurchOrderHeader.Modify();
             PurchOrderHeader.Mark(true);
             TempDocumentEntry.Init();
@@ -1433,7 +1433,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertPurchOrderHeader(var RequisitionLine: Record "Requisition Line"; var PurchaseOrderHeader: Record "Purchase Header"; CommitIsSuppressed: Boolean)
+    local procedure OnAfterInsertPurchOrderHeader(var RequisitionLine: Record "Requisition Line"; var PurchaseOrderHeader: Record "Purchase Header"; CommitIsSuppressed: Boolean; SpecialOrder: Boolean)
     begin
     end;
 

@@ -463,8 +463,10 @@
                             NextVATEntryNo := GetSettlementVATEntryNo(PostSettlement, IsPostingAllowed);
 
                             // Close current VAT entries
-                            if PostSettlement and (NextVATEntryNo <> 0) then
+                            if PostSettlement and (NextVATEntryNo <> 0) then begin
                                 CloseVATEntriesOnPostSettlement(VATEntry, NextVATEntryNo);
+                                UpdateVATPeriodOnSettlementVATEntry(NextVATEntryNo);
+                            end;
 
                             FinalUndVATAmnt += TotalVATNondeducAmnt;
 
@@ -1290,6 +1292,16 @@
     begin
         if LastVATEntryNo <> 0 then
             NextVATEntryNo := LastVATEntryNo;
+    end;
+
+    local procedure UpdateVATPeriodOnSettlementVATEntry(SettlementVATEntryNo: Integer)
+    var
+        SttlmtVATEntry: Record "VAT Entry";
+    begin
+        if SttlmtVATEntry.Get(SettlementVATEntryNo) then begin
+            SttlmtVATEntry.Validate("VAT Period", VATPeriod);
+            SttlmtVATEntry.Modify(true);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

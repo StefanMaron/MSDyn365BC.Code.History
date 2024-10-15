@@ -782,6 +782,7 @@ page 370 "Bank Account Card"
     var
         Contact: Record Contact;
     begin
+        OnBeforeOnOpenPage();
         ContactActionVisible := Contact.ReadPermission;
         SetNoFieldVisible;
     end;
@@ -810,6 +811,11 @@ page 370 "Bank Account Card"
     begin
         BankAccount.SetRange("No.", BankActNumber);
         REPORT.RunModal(ReportNumber, true, true, BankAccount);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage()
+    begin
     end;
 }
 

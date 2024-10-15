@@ -1568,7 +1568,10 @@
         OnAfterVendorInsert(Vend, Rec);
 
         UpdateCustVendBank.UpdateVendor(ContComp, ContBusRel);
-        Commit();
+        IsHandled := false;
+        OnCreateVendorFromTemplateOnBeforeCommit(Rec, Vend, IsHandled);
+        if not IsHandled then
+            Commit();
         Vend.Get(Vend."No.");
         if TemplateSelected then
             VendorTemplMgt.ApplyVendorTemplate(Vend, VendorTempl);
@@ -3779,6 +3782,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDefaultSalesperson(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateVendorFromTemplateOnBeforeCommit(Contact: Record Contact; Vend: Record Vendor; var IsHandled: Boolean)
     begin
     end;
 }

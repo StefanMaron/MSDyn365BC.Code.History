@@ -199,7 +199,7 @@ codeunit 138022 "O365 Charts Tests"
         BusinessChartBuffer."Drill-Down Measure Index" := 0;
         for ColumnIndex := 0 to 9 do begin
             BusinessChartBuffer.GetXValue(ColumnIndex, CustomerName);
-            LibraryVariableStorage.Enqueue(CustomerName);
+            LibraryVariableStorage.Enqueue(TestCustomerNames[ColumnIndex + 1]);
             BusinessChartBuffer."Drill-Down X Index" := ColumnIndex;
             TopTenCustomersChartMgt.DrillDown(BusinessChartBuffer);
         end;
@@ -224,7 +224,8 @@ codeunit 138022 "O365 Charts Tests"
         for ColumnIndex := 0 to (TopCostumerCount - 1) do begin
             BusinessChartBuffer.GetXValue(ColumnIndex, CustomerName);
             BusinessChartBuffer.GetValue(SalesLCYYCaptionTxt, ColumnIndex, CustomerSalesLCY);
-            Assert.AreEqual(TestCustomerNames[ColumnIndex + 1], Format(CustomerName), UnexpectedCustomerTxt);
+            Assert.AreEqual(
+                StrSubstNo('%1 - %1', TestCustomerNames[ColumnIndex + 1]), Format(CustomerName), UnexpectedCustomerTxt);
             Assert.AreEqual(Format(TestCustomerSalesLCYs[ColumnIndex + 1]), Format(CustomerSalesLCY), UnexpectedSalesLCYTxt);
         end;
 

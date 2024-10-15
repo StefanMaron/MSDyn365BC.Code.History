@@ -2130,6 +2130,7 @@ codeunit 5940 ServContractManagement
         ServLine.Init();
         ServLine."Line No." := ServLine.GetLineNo();
         ServLine.Description := Description;
+        OnInsertDescriptionServiceLineOnBeforeServiceLineInsert(ServLine);
         ServLine.Insert();
     end;
 
@@ -2505,6 +2506,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServLedgEntryToServiceLine(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceLedgerEntry: Record "Service Ledger Entry"; var IsHandled: Boolean; ServiceLedgerEntryParm: Record "Service Ledger Entry"; InvFrom: Date; InvTo: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDescriptionServiceLineOnBeforeServiceLineInsert(var ServiceLine: Record "Service Line")
     begin
     end;
 

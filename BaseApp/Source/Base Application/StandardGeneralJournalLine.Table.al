@@ -1311,6 +1311,8 @@
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Standard Journal Code", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec);
     end;
 
     local procedure CheckGLAcc(GLAcc: Record "G/L Account")
@@ -1840,6 +1842,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var StandardGenJournalLine: Record "Standard General Journal Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var StandardGenJnlLine: Record "Standard General Journal Line")
     begin
     end;
 

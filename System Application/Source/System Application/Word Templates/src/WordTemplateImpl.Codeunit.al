@@ -997,6 +997,9 @@ codeunit 9988 "Word Template Impl."
     [EventSubscriber(ObjectType::Table, Database::"Word Template", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertWordTemplate(var Rec: Record "Word Template")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         Session.LogMessage('0000ECZ', StrSubstNo(CreatedTemplateTxt, Rec.SystemId, Rec."Table ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', WordTemplatesCategoryTxt);
     end;
 
@@ -1005,6 +1008,9 @@ codeunit 9988 "Word Template Impl."
     var
         RelatedTables: Record "Word Templates Related Table";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         RelatedTables.SetRange(Code, Rec.Code);
         RelatedTables.DeleteAll();
         Session.LogMessage('0000ED0', StrSubstNo(DeletedTemplateTxt, Rec.SystemId, Rec."Table ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', WordTemplatesCategoryTxt);

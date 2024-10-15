@@ -138,7 +138,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateItemReference(Rec, IsHandled);
+        OnBeforeUpdateItemReference(Rec, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -255,7 +255,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateItemReference(var ItemVendor: Record "Item Vendor"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateItemReference(var ItemVendor: Record "Item Vendor"; var IsHandled: Boolean; var xItemVendor: Record "Item Vendor")
     begin
     end;
 }

@@ -1,4 +1,4 @@
-codeunit 364 "PostPurch-Delete"
+﻿codeunit 364 "PostPurch-Delete"
 {
     Permissions = TableData "Purch. Rcpt. Header" = i,
                   TableData "Purch. Rcpt. Line" = rid,
@@ -27,7 +27,13 @@ codeunit 364 "PostPurch-Delete"
         ReturnShptLine: Record "Return Shipment Line";
         SourceCode: Record "Source Code";
         SourceCodeSetup: Record "Source Code Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteHeader(PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchHeader do begin
             SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Deleted Document");
@@ -307,6 +313,11 @@ codeunit 364 "PostPurch-Delete"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitPurchInvHeaderPrepmt(var PurchInvHeaderPrepmt: Record "Purch. Inv. Header"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteHeader(var PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

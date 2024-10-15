@@ -443,6 +443,9 @@ codeunit 418 "User Management"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
+        if User.IsTemporary() then
+            exit;
+
         if EnvironmentInfo.IsSaaS then begin
             if not (User."License Type" in [User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application]) then
                 Error(UnsupportedLicenseTypeOnSaasErr, User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application);
