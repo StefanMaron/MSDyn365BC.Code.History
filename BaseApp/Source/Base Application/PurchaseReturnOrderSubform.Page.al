@@ -658,7 +658,7 @@ page 6641 "Purchase Return Order Subform"
                     field(AmountBeforeDiscount; TotalPurchaseLine."Line Amount")
                     {
                         ApplicationArea = PurchReturnOrder;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetTotalLineAmountWithVATAndCurrencyCaption(Currency.Code, TotalPurchaseHeader."Prices Including VAT");
                         Caption = 'Subtotal Excl. VAT';
@@ -668,12 +668,12 @@ page 6641 "Purchase Return Order Subform"
                     field("Invoice Discount Amount"; InvoiceDiscountAmount)
                     {
                         ApplicationArea = PurchReturnOrder;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetInvoiceDiscAmountWithVATAndCurrencyCaption(FieldCaption("Inv. Discount Amount"), Currency.Code);
                         Caption = 'Invoice Discount Amount';
                         Editable = InvDiscAmountEditable;
-                        ToolTip = 'Specifies the amount that is calculated and shown in the Invoice Discount Amount field. The invoice discount amount is deducted from the value shown in the Total Amount Incl. VAT field.';
+                        ToolTip = 'Specifies a discount amount that is deducted from the value of the Total Incl. VAT field, based on purchase lines where the Allow Invoice Disc. field is selected. You can enter or change the amount manually.';
 
                         trigger OnValidate()
                         begin
@@ -687,7 +687,7 @@ page 6641 "Purchase Return Order Subform"
                         Caption = 'Invoice Discount %';
                         DecimalPlaces = 0 : 3;
                         Editable = InvDiscAmountEditable;
-                        ToolTip = 'Specifies a discount percentage that is granted if criteria that you have set up for the customer are met. The calculated discount amount is inserted in the Invoice Discount Amount field, but you can change it manually.';
+                        ToolTip = 'Specifies a discount percentage that is applied to the invoice, based on purchase lines where the Allow Invoice Disc. field is selected. The percentage and criteria are defined in the Vendor Invoice Discounts page, but you can enter or change the percentage manually.';
 
                         trigger OnValidate()
                         begin
@@ -704,7 +704,7 @@ page 6641 "Purchase Return Order Subform"
                     field("Total Amount Excl. VAT"; TotalPurchaseLine.Amount)
                     {
                         ApplicationArea = PurchReturnOrder;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetTotalExclVATCaption(Currency.Code);
                         Caption = 'Total Amount Excl. VAT';
@@ -715,7 +715,7 @@ page 6641 "Purchase Return Order Subform"
                     field("Total VAT Amount"; VATAmount)
                     {
                         ApplicationArea = PurchReturnOrder;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetTotalVATCaption(Currency.Code);
                         Caption = 'Total VAT';

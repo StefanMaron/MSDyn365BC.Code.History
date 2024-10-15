@@ -72,7 +72,7 @@ codeunit 141036 "UT VAT For SEA"
 
         // Verify: Verify values of No_PurchTaxInvHdr, AmountLangB1AmountLangB2 and VATRegNo_PurchTaxInvHdr on Report - 28071 (Purch. - Tax Invoice).
         VerifyXMLValuesForMiscellaneousReport(
-          NoPurchTaxInvHdrCap, VATRegNoPurchInvHdrCap, AmountLangCap, PurchTaxInvHeader."No.", PurchTaxInvHeader."VAT Registration No.", '');  // Amount Lang as blank.
+          NoPurchTaxInvHdrCap, VATRegNoPurchInvHdrCap, AmountLangCap, PurchTaxInvHeader."No.", PurchTaxInvHeader."VAT Registration No.", ' ');  // Amount Lang as blank.
     end;
 
     [Test]
@@ -249,7 +249,7 @@ codeunit 141036 "UT VAT For SEA"
 
         // Verify: Verify values of No_PurchTaxCrMemoHdr, AmountLangB1AmountLangB2 and VATRegNo_PurchTaxCrMemoHdr on Report - 28073 (Purch. - Tax Cr. Memo).
         VerifyXMLValuesForMiscellaneousReport(
-          NoPurchTaxCrMemoCap, VATRegNoPurchCrMemoCap, AmountLangCap, PurchTaxCrMemoHdr."No.", PurchTaxCrMemoHdr."VAT Registration No.", '');  // Amount Lang as blank.
+          NoPurchTaxCrMemoCap, VATRegNoPurchCrMemoCap, AmountLangCap, PurchTaxCrMemoHdr."No.", PurchTaxCrMemoHdr."VAT Registration No.", ' ');  // Amount Lang as blank.
     end;
 
     [Test]

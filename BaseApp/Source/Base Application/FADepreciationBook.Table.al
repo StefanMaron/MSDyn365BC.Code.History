@@ -1003,8 +1003,6 @@ table 5612 "FA Depreciation Book"
     begin
         SetBookValueFiltersOnFALedgerEntry(FALedgEntry);
         FALedgEntry.SetRange("Part of Book Value");
-        FALedgEntry.SetRange("FA Posting Category", FALedgEntry."FA Posting Category"::Disposal);
-        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Book Value on Disposal");
         if GetFilter("FA Posting Date Filter") <> '' then
             FALedgEntry.SetFilter("FA Posting Date", GetFilter("FA Posting Date Filter"));
     end;
