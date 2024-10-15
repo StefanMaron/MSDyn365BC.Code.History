@@ -528,6 +528,7 @@ page 7335 "Warehouse Shipment"
 
     trigger OnAfterGetCurrRecord()
     begin
+        ActivateControls();
         SetBinFieldsVisibility(true);
     end;
 

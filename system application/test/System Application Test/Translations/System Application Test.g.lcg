@@ -833,6 +833,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure Key Vault Test - NamedType SecretNotInitializedTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2570708368 - Method 1347803747 - NamedType 47864828" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[BLOB property is assigned incorrectly]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ABS Blob Client Test - Method VerifyContainerContentType - NamedType IncorrectBlobPropertyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3436840527 - NamedType 125272424" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[http://127.0.0.1:10000/devstoreaccount1]]></Val>

@@ -128,6 +128,7 @@ page 7326 "Whse. Phys. Invt. Journal"
                 field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;
+                    Editable = ExpirationDateEditable;
                     ToolTip = 'Specifies the last date that the item on the line can be used.';
                     visible = False;
                 }
@@ -514,6 +515,7 @@ page 7326 "Whse. Phys. Invt. Journal"
     begin
         LotNoEditable := true;
         SerialNoEditable := true;
+        ExpirationDateEditable := true;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -565,12 +567,14 @@ page 7326 "Whse. Phys. Invt. Journal"
         PackageNoEditable: Boolean;
         PackageNoVisible: Boolean;
         QtyPhysInventoryBaseIsEditable: Boolean;
+        ExpirationDateEditable: Boolean;
 
     procedure SetControls()
     begin
         SerialNoEditable := not Rec."Phys. Inventory";
         LotNoEditable := not Rec."Phys. Inventory";
         PackageNoEditable := not Rec."Phys. Inventory";
+        ExpirationDateEditable := not (Rec.CheckExpirationDateExists() or Rec."Phys. Inventory");
         QtyPhysInventoryBaseIsEditable := Rec.IsQtyPhysInventoryBaseEditable();
     end;
 

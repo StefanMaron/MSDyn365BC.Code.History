@@ -12,6 +12,8 @@ using Microsoft.Integration.SyncEngine;
 using Microsoft.Sales.Archive;
 using Microsoft.Purchases.Archive;
 using Microsoft.Integration.Dataverse;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Warehouse.History;
 using System.Environment.Configuration;
 using Microsoft.Utilities;
 using Microsoft.EServices.EDocument;
@@ -19,16 +21,20 @@ using Microsoft.EServices.EDocument;
 codeunit 3995 "Base Application Logs Delete"
 {
     Access = Internal;
-    Permissions = tabledata "Change Log Entry" = rd,
-                tabledata "Job Queue Log Entry" = rd,
-                tabledata "Workflow Step Instance Archive" = rd,
+    Permissions =
+                tabledata "Activity Log" = rd,
+                tabledata "Change Log Entry" = rd,
+                tabledata "Dataverse Entity Change" = rd,
                 tabledata "Integration Synch. Job" = rd,
                 tabledata "Integration Synch. Job Errors" = rd,
+                tabledata "Job Queue Log Entry" = rd,
+                tabledata "Posted Whse. Receipt Header" = rd,
+                tabledata "Posted Whse. Shipment Header" = rd,
+                tabledata "Purchase Header Archive" = rd,
+                tabledata "Registered Whse. Activity Hdr." = rd,
                 tabledata "Report Inbox" = rd,
                 tabledata "Sales Header Archive" = rd,
-                tabledata "Purchase Header Archive" = rd,
-                tabledata "Dataverse Entity Change" = rd,
-                tabledata "Activity Log" = rd,
+                tabledata "Workflow Step Instance Archive" = rd,
                 tabledata "Sent Notification Entry" = rd;
 
     var
@@ -54,6 +60,9 @@ codeunit 3995 "Base Application Logs Delete"
             Database::"Purchase Header Archive",
             Database::"Dataverse Entity Change",
             Database::"Sent Notification Entry",
+            Database::"Registered Whse. Activity Hdr.",
+            Database::"Posted Whse. Receipt Header",
+            Database::"Posted Whse. Shipment Header",
             Database::"Activity Log"])
         then
             exit;

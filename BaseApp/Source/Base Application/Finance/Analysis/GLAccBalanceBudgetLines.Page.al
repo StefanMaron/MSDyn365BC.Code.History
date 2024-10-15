@@ -258,6 +258,7 @@ page 350 "G/L Acc. Balance/Budget Lines"
         GLBudgetEntry.SetFilter("Global Dimension 1 Code", GLAcc.GetFilter("Global Dimension 1 Filter"));
         GLBudgetEntry.SetFilter("Global Dimension 2 Code", GLAcc.GetFilter("Global Dimension 2 Filter"));
         GLBudgetEntry.SetFilter("Business Unit Code", GLAcc.GetFilter("Business Unit Filter"));
+        OnBudgetDrillDownOnAfterSetFilters(GLBudgetEntry, GLAcc);
         PAGE.Run(0, GLBudgetEntry);
     end;
 
@@ -319,6 +320,11 @@ page 350 "G/L Acc. Balance/Budget Lines"
 
     [IntegrationEvent(true, false)]
     local procedure OnBalanceDrillDownOnAfterSetFilters(var GLEntry: Record "G/L Entry"; GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBudgetDrillDownOnAfterSetFilters(var GLBudgetEntry: Record "G/L Budget Entry"; GLAccount: Record "G/L Account")
     begin
     end;
 }

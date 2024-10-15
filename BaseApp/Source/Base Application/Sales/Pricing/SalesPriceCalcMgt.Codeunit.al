@@ -295,7 +295,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     var
         IsHandled: Boolean;
     begin
-        IsHandled := true;
+        IsHandled := false;
         OnBeforeFindStdItemJnlLinePrice(StdItemJnlLine, CalledByFieldNo, IsHandled);
         if IsHandled then
             exit;

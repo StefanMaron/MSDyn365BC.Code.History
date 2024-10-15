@@ -2928,8 +2928,9 @@ page 30 "Item Card"
         IntegrationTableMapping: Record "Integration Table Mapping";
         EnvironmentInfo: Codeunit "Environment Information";
         MarketingText: Codeunit "Marketing Text";
+        AdjustItemInventory: Codeunit "Adjust Item Inventory";
     begin
-        IsInventoryAdjmtAllowed := GetInventoryAdjustmentAllowed();
+        IsInventoryAdjmtAllowed := AdjustItemInventory.GetInventoryAdjustmentAllowed();
         SetNoFieldVisible();
         IsSaaS := EnvironmentInfo.IsSaaS();
         DescriptionFieldVisible := true;
@@ -3282,15 +3283,6 @@ page 30 "Item Card"
             PurchPriceListsTextIsInitForNo := Rec."No."
         end;
         exit(PurchPriceListsText);
-    end;
-
-    local procedure GetInventoryAdjustmentAllowed(): Boolean;
-    var
-        InventorySetup: Record "Inventory Setup";
-    begin
-        InventorySetup.SetLoadFields("Allow Inventory Adjustment");
-        InventorySetup.Get();
-        exit(InventorySetup."Allow Inventory Adjustment");
     end;
 
 #if not CLEAN22

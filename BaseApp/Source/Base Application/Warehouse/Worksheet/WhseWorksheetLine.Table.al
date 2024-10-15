@@ -744,8 +744,8 @@ table 7326 "Whse. Worksheet Line"
     procedure CalcReservedNotFromILEQty(QtyBaseAvailToPick: Decimal; var QtyToPick: Decimal; var QtyToPickBase: Decimal)
     begin
         CreatePick.CheckReservation(
-          QtyBaseAvailToPick, "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", false,
-          "Qty. per Unit of Measure", QtyToPick, QtyToPickBase);
+            QtyBaseAvailToPick, "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", false,
+            "Qty. per Unit of Measure", QtyToPick, QtyToPickBase);
     end;
 
     procedure CheckAvailQtytoMove() AvailableQtyToMoveBase: Decimal
@@ -1260,6 +1260,7 @@ table 7326 "Whse. Worksheet Line"
 
     local procedure UpdatePickQtyToHandleBase()
     var
+        TypeHelper: Codeunit "Type Helper";
         AvailableQty: Decimal;
         IsHandled: Boolean;
     begin
@@ -1270,17 +1271,15 @@ table 7326 "Whse. Worksheet Line"
 
         GetLocation("Location Code");
         if Location."Bin Mandatory" then begin
-            if CurrFieldNo <> FieldNo("Qty. to Handle") then begin
-                AvailableQty := CalcAvailableQtyBase();
-                if not Location."Always Create Pick Line" then
+            if CurrFieldNo <> FieldNo("Qty. to Handle") then
+                if not Location."Always Create Pick Line" then begin
+                    AvailableQty := CalcAvailableQtyBase();
                     if "Qty. to Handle (Base)" > AvailableQty then
-                        if ("Shipping Advice" = "Shipping Advice"::Complete) or
-                           (AvailableQty < 0)
-                        then
+                        if ("Shipping Advice" = "Shipping Advice"::Complete) then
                             "Qty. to Handle (Base)" := 0
                         else
-                            "Qty. to Handle (Base)" := AvailableQty;
-            end
+                            "Qty. to Handle (Base)" := TypeHelper.Maximum(0, AvailableQty);
+                end
         end else begin
             AvailableQty := CalcAvailableQtyBase();
             if "Qty. to Handle (Base)" > AvailableQty then begin

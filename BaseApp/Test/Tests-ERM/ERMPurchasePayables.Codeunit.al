@@ -1230,6 +1230,51 @@
         VendLedgEntry.TestField("Vendor Posting Group", PurchHeader."Vendor Posting Group");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchInvoiceAndSuggestPaymentsWithDiffVendPostingGroup()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+    begin
+        // [SCENARIO 380573] Purchase Invoice is posted with alternative "Vendor Posting Group"
+        // [WHEN] Suggest Payment job create Gen. Journal Line with same alternative posting group.
+
+        Initialize();
+        SetPurchAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Vendor "X" with "Vendor Posting Group" "DOMESTIC"
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Modify();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Purchase Invoice with Vendor "X" and "Vendor Posting Group" "FOREIGN"
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        LibraryPurchase.CreateAltVendorPostingGroup(Vendor."Vendor Posting Group", VendorPostingGroup.Code);
+        PurchaseHeader.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Post Purchase Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Vendor Ledger Entry with "Vendor Posting Group" "FOREIGN" is posted
+        SuggestVendorPayment(GenJournalLine, PurchaseHeader."Posting Date", PurchaseHeader."Buy-from Vendor No.", true);
+
+        GenJournalLine.SetRange("Account No.", PurchaseHeader."Buy-from Vendor No.");
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Posting Group", PurchaseHeader."Vendor Posting Group");
+
+        SetPurchAllowMultiplePostingGroups(false);
+    end;
+
 #if not CLEAN21
     [Test]
     [Scope('OnPrem')]
@@ -2409,8 +2454,6 @@
     [Test]
     [Scope('OnPrem')]
     procedure GetStatusStyleTextFavorable()
-    var
-        SalesHeader: Record "Sales Header";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 342484] GetStatusStyleText = 'Favorable' when Status = Open
@@ -2551,7 +2594,6 @@
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
-        RecordRef: RecordRef;
         NewDescription, OldDescription : Text;
     begin
         Initialize();

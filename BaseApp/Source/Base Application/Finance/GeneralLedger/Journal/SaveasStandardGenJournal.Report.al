@@ -158,6 +158,7 @@ report 750 "Save as Standard Gen. Journal"
                 OnBeforeStandardGenJnlLineInsert(StdGenJnlLine, GenJnlLine);
                 StdGenJnlLine.Insert(true);
                 CopyGenJnlLineDims(GenJnlLine, StdGenJnlLine);
+                OnAfterStandardGenJnlLineInsert(StdGenJnlLine, GenJnlLine);
             until GenJnlLine.Next() = 0;
 
         StdJournalCreated := true;
@@ -200,6 +201,11 @@ report 750 "Save as Standard Gen. Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyGenJnlLineDimsOnBeforeStdGenJnlLineModify(var StdGenJnlLine: Record "Standard General Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterStandardGenJnlLineInsert(var StandardGeneralJournalLine: Record "Standard General Journal Line"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }
