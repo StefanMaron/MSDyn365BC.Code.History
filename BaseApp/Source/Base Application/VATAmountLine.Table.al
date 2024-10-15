@@ -715,6 +715,7 @@
                                   Round(
                                     (CalcLineAmount - "Pmt. Discount Amount") / (1 + ("VAT %" + "EC %") / 100),
                                     Currency."Amount Rounding Precision") - "VAT Difference";
+                                OnUpdateLinesOnAfterCalcVATBase(Rec, Currency, PricesIncludingVAT);
                                 if ("VAT %" <> 0) or ("EC %" <> 0) then begin
                                     "VAT Amount" :=
                                       "VAT Difference" +
@@ -793,6 +794,7 @@
                         "VAT Calculation Type"::"No taxable VAT":
                             begin
                                 "VAT Base" := CalcLineAmount - "Pmt. Discount Amount";
+                                OnUpdateLinesOnAfterCalcVATBase(Rec, Currency, PricesIncludingVAT);
                                 "VAT Amount" :=
                                   "VAT Difference" +
                                   Round(
@@ -842,6 +844,7 @@
                             begin
                                 OnUpdateLinesOnBeforeCalcSalesTaxVatBase(Rec);
                                 "VAT Base" := CalcLineAmount;
+                                OnUpdateLinesOnAfterCalcVATBaseSalesTax(Rec, Currency, PricesIncludingVAT);
                                 if "Use Tax" then
                                     "VAT Amount" := 0
                                 else
@@ -1088,6 +1091,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateLinesOnBeforeCalcSalesTaxVatBase(var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateLinesOnAfterCalcVATBase(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; PricesIncludingVAT: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateLinesOnAfterCalcVATBaseSalesTax(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; PricesIncludingVAT: Boolean)
     begin
     end;
 

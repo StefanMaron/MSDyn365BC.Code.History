@@ -648,6 +648,7 @@ table 17 "G/L Entry"
         "User ID" := UserId;
         "No. Series" := GenJnlLine."Posting No. Series";
         "IC Partner Code" := GenJnlLine."IC Partner Code";
+	    "Prod. Order No." := GenJnlLine."Prod. Order No.";
         "Bill No." := GenJnlLine."Bill No.";
 
         OnAfterCopyGLEntryFromGenJnlLine(Rec, GenJnlLine);

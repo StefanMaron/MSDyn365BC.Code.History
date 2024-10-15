@@ -1439,6 +1439,7 @@ codeunit 5342 "CRM Synch. Helper"
         CRMIntegrationRecord: Record "CRM Integration Record";
         Item: Record Item;
         Resource: Record Resource;
+        PriceListLine: Record "Price List Line";
         SourceRecordCode: Code[20];
     begin
         if Format(SourceFieldRef.Value()) = '' then
@@ -1460,6 +1461,20 @@ codeunit 5342 "CRM Synch. Helper"
                         if ResourceUnitOfMeasure.Get(SourceRecordCode, SourceFieldRef.Value()) then
                             if CRMIntegrationRecord.FindIDFromRecordID(ResourceUnitOfMeasure.RecordId, NewValue) then
                                 exit;
+                    end;
+                Database::"Price List Line":
+                    begin
+                        SourceFieldRef.Record().SetTable(PriceListLine);
+                        case PriceListLine."Asset Type" of
+                            "Price Asset Type"::Item:
+                                if ItemUnitOfMeasure.Get(PriceListLine."Asset No.", SourceFieldRef.Value()) then
+                                    if CRMIntegrationRecord.FindIDFromRecordID(ItemUnitOfMeasure.RecordId, NewValue) then
+                                        exit;
+                            "Price Asset Type"::Resource:
+                                if ResourceUnitOfMeasure.Get(PriceListLine."Asset No.", SourceFieldRef.Value()) then
+                                    if CRMIntegrationRecord.FindIDFromRecordID(ResourceUnitOfMeasure.RecordId, NewValue) then
+                                        exit;
+                        end;
                     end;
             end;
 

@@ -713,6 +713,9 @@ report 1308 "Standard Sales - Shipment"
                 if not Cust.Get("Bill-to Customer No.") then
                     Clear(Cust);
 
+                TempTrackingSpecBuffer.Reset();
+                TempTrackingSpecBuffer.DeleteAll();
+
                 OnAfterGetSalesHeader(Header);
             end;
 

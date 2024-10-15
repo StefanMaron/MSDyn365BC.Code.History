@@ -2426,6 +2426,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Insert Std. Purch. Lines - NamedType ResourceErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2369040337 - NamedType 549624305" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Insert Std. Purch. Lines - NamedType StdCodeDeleteConfirmLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2369040337 - NamedType 3887901338" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must exist.]]></Val>
@@ -2451,6 +2460,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Insert Std. Sales Lines - NamedType InvalidNotificationIdMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 253409855 - NamedType 549624305" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Insert Std. Sales Lines - NamedType StdCodeDeleteConfirmLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 253409855 - NamedType 3887901338" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7619,6 +7637,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - the price list code.]D;]A;(LookupHint=Codeunit Price List Header UT - NamedType CannotDeleteActivePriceListErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2122422003 - NamedType 3481077568" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot rename a %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - table caption]D;]A;(LookupHint=Codeunit Price List Header UT - NamedType CannotRenameErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 69047353" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Code must have a value in Price List]]></Val>
@@ -7644,6 +7671,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - Field caption]D;]A;(LookupHint=Codeunit Price List Header UT - NamedType LinesExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2122422003 - NamedType 3146852077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - field caption.]D;]A;(LookupHint=Codeunit Price List Header UT - NamedType MissingPriceListCodeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 440975670" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

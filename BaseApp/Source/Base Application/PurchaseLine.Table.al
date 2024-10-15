@@ -2440,6 +2440,7 @@
                 UnitOfMeasureTranslation: Record "Unit of Measure Translation";
                 Resource: Record Resource;
                 IsHandled: Boolean;
+                ShouldUpdateItemReference: Boolean;
             begin
                 TestStatusOpen();
                 TestField("Quantity Received", 0);
@@ -2475,7 +2476,9 @@
                             "Unit of Measure" := UnitOfMeasureTranslation.Description;
                     end;
                 end;
-                if Type = Type::Item then
+                ShouldUpdateItemReference := Type = Type::Item;
+                OnValidateUnitOfMeasureCodeOnAfterCalcShouldUpdateItemReference(Rec, ShouldUpdateItemReference);
+                if ShouldUpdateItemReference then
                     UpdateItemReference();
                 if "Prod. Order No." = '' then
                     case Type of
@@ -6315,7 +6318,7 @@
         HandleDedicatedBin(true);
     end;
 
-    local procedure GetOverheadRateFCY() Result: Decimal
+    protected procedure GetOverheadRateFCY() Result: Decimal
     var
         Item: Record Item;
         QtyPerUOM: Decimal;
@@ -9010,6 +9013,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitOfMeasureCodeOnAfterCalcShouldUpdateItemReference(PurchaseLine: Record "Purchase Line"; var ShouldUpdateItemReference: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnAfterValidationChecks(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer)
     begin
     end;
@@ -9204,7 +9212,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateDirectUnitCostByFieldOnBeforeUpdateItemReference(var PurchaseLine: Record "Purchase Line"; CalledByFieldNo: Integer)
+    local procedure OnUpdateDirectUnitCostByFieldOnBeforeUpdateItemReference(var PurchaseLine: Record "Purchase Line"; var CalledByFieldNo: Integer)
     begin
     end;
 

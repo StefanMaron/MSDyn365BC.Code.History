@@ -585,6 +585,7 @@ codeunit 7000000 CarteraManagement
         VATEntry: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
         VATEntry3: Record "VAT Entry";
+        VATEntryLast: Record "VAT Entry";
         PaymentTerms: Record "Payment Terms";
         SalesInvHeader: Record "Sales Invoice Header";
         VATPart: Decimal;
@@ -619,6 +620,9 @@ codeunit 7000000 CarteraManagement
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", CustLedgEntry2."Transaction No.");
+
+        VATEntryLast.Copy(VATEntry2);
+        if VATEntryLast.FindLast() then;
 
         if VATEntry2.Find('-') then begin
             LastConnectionNo := 0;
@@ -746,7 +750,7 @@ codeunit 7000000 CarteraManagement
                     FirstVATEntryNo := LastVATEntryNo;
                 ExistVATEntry := Test1 and Test2;
 
-            until VATEntry2.Next() = 0;
+            until (VATEntry2.Next() = 0) or (VATEntryLast."Entry No." = VATEntry2."Entry No.");
         end;
     end;
 
@@ -776,6 +780,7 @@ codeunit 7000000 CarteraManagement
         VATEntry: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
         VATEntry3: Record "VAT Entry";
+        VATEntryLast: Record "VAT Entry";
         PurchInvHeader: Record "Purch. Inv. Header";
         PaymentTerms: Record "Payment Terms";
         VATPart: Decimal;
@@ -812,6 +817,9 @@ codeunit 7000000 CarteraManagement
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", VendLedgEntry2."Transaction No.");
+
+        VATEntryLast.Copy(VATEntry2);
+        if VATEntryLast.FindLast() then;
 
         if VATEntry2.Find('-') then begin
             LastConnectionNo := 0;
@@ -957,7 +965,7 @@ codeunit 7000000 CarteraManagement
                     FirstVATEntryNo := LastVATEntryNo;
                 ExistVATEntry := Test1 and Test2;
 
-            until VATEntry2.Next() = 0;
+            until (VATEntry2.Next() = 0) or (VATEntryLast."Entry No." = VATEntry2."Entry No.");
         end;
     end;
 

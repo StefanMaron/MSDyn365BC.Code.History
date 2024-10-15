@@ -2574,66 +2574,94 @@ codeunit 139155 "PEPPOL Management Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ValidatePeppolCommonPagesContainFields()
+    procedure ValidatePeppolContainsFieldsOnResponsibilityCenterCard()
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
         ResponsibilityCenterCard: TestPage "Responsibility Center Card";
+    begin
+        // [SCENARIO] Ensure the required fields for PEPPOL validation can be entered on Responsibility Center Card page
+
+        ResponsibilityCenterCard.OpenNew();
+        AssertVisibility(ResponsibilityCenterCard.Name.Visible(), 'Resp Center.Name');
+        AssertVisibility(ResponsibilityCenterCard.Address.Visible(), 'Resp Center.Address');
+        AssertVisibility(ResponsibilityCenterCard."Address 2".Visible(), 'Resp Center.Address 2');
+        AssertVisibility(ResponsibilityCenterCard."Post Code".Visible(), 'Resp Center.Post Code');
+        AssertVisibility(ResponsibilityCenterCard.City.Visible(), 'Resp Center.City');
+        AssertVisibility(ResponsibilityCenterCard."Country/Region Code".Visible(), 'Respt Center.Country/Region Code');
+        ResponsibilityCenterCard.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePeppolContainsFieldsOnCompanyInformation()
+    var
         CompanyInformation: TestPage "Company Information";
+    begin
+        // [SCENARIO] Ensure the required fields for PEPPOL validation can be entered on Company Information page
+
+        CompanyInformation.OpenEdit();
+        AssertVisibility(CompanyInformation.Name.Visible(), 'Company Info.Name');
+        AssertVisibility(CompanyInformation.Address.Visible(), 'Company Info.Address');
+        AssertVisibility(CompanyInformation."Address 2".Visible(), 'Company Info.Address 2');
+        AssertVisibility(CompanyInformation."Post Code".Visible(), 'Company Info.Post Code');
+        AssertVisibility(CompanyInformation.City.Visible(), 'Company Info.City');
+        AssertVisibility(CompanyInformation."Country/Region Code".Visible(), 'Company Info.Country/Region Code');
+
+        AssertVisibility(CompanyInformation.GLN.Visible(), 'Company Info.GLN');
+        AssertVisibility(CompanyInformation."VAT Registration No.".Visible(), 'Company Info.VAT Registration No.');
+
+        AssertVisibility(CompanyInformation.IBAN.Visible(), 'Company Info.IBAN');
+        AssertVisibility(CompanyInformation."Bank Account No.".Visible(), 'Company Info.Bank Account No.');
+        AssertVisibility(CompanyInformation."Bank Branch No.".Visible(), 'Company Info.Bank Branch No.');
+        CompanyInformation.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePeppolContainsFieldsOnCustomerCard()
+    var
         CustomerCard: TestPage "Customer Card";
+    begin
+        // [SCENARIO] Ensure the required fields for PEPPOL validation can be entered on Customer Card page
+
+        CustomerCard.OpenEdit();
+        AssertVisibility(CustomerCard.Name.Visible(), 'Customer Card.Name');
+        AssertVisibility(CustomerCard.Address.Visible(), 'Customer Card.Address');
+        AssertVisibility(CustomerCard."Address 2".Visible(), 'Customer Card.Address 2');
+        AssertVisibility(CustomerCard."Post Code".Visible(), 'Customer Card.Post Code');
+        AssertVisibility(CustomerCard.City.Visible(), 'Customer Card.City');
+        AssertVisibility(CustomerCard."Country/Region Code".Visible(), 'Customer Card.Country/Region Code');
+        AssertVisibility(CustomerCard.GLN.Visible(), 'Customer Card.GLN');
+        AssertVisibility(CustomerCard."VAT Registration No.".Visible(), 'Customer Card."VAT Registration No."');
+        CustomerCard.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePeppolContainsFieldsOnCustomerBankAccountCard()
+    var
         CustomerBankAccountCard: TestPage "Customer Bank Account Card";
+    begin
+        // [SCENARIO] Ensure the required fields for PEPPOL validation can be entered on Customer Bank Account Card page
+
+        CustomerBankAccountCard.OpenNew();
+        AssertVisibility(CustomerBankAccountCard."Bank Account No.".Visible(), 'Customer Bank Acc.Bank Account No.');
+        AssertVisibility(CustomerBankAccountCard."Bank Branch No.".Visible(), 'Customer Bank Acc.Bank Branch No.');
+        AssertVisibility(CustomerBankAccountCard.IBAN.Visible(), 'Customer Bank Acc.IBAN');
+        CustomerBankAccountCard.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePeppolContainsFieldsOnUnitsofMeasure()
+    var
         UnitsofMeasure: TestPage "Units of Measure";
     begin
-        // Ensure the required fields for PEPPOL validation
-        // can be entered on pages used both by
-        // Sales Invoice and Sales Credit Memo creation
+        // [SCENARIO] Ensure the required fields for PEPPOL validation can be entered on Units of Measure page
 
-        LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
-        LibraryVariableStorage.Clear;
-        LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Code);
-
-        ResponsibilityCenterCard.OpenNew;
-        CompanyInformation.OpenEdit;
-
-        CustomerCard.OpenEdit;
-        CustomerBankAccountCard.OpenNew;
-        UnitsofMeasure.OpenNew;
-
-        AssertVisibility(ResponsibilityCenterCard.Name.Visible, 'Resp Center.Name');
-        AssertVisibility(ResponsibilityCenterCard.Address.Visible, 'Resp Center.Address');
-        AssertVisibility(ResponsibilityCenterCard."Address 2".Visible, 'Resp Center.Address 2');
-        AssertVisibility(ResponsibilityCenterCard."Post Code".Visible, 'Resp Center.Post Code');
-        AssertVisibility(ResponsibilityCenterCard.City.Visible, 'Resp Center.City');
-        AssertVisibility(ResponsibilityCenterCard."Country/Region Code".Visible, 'Respt Center.Country/Region Code');
-
-        AssertVisibility(CompanyInformation.Name.Visible, 'Company Info.Name');
-        AssertVisibility(CompanyInformation.Address.Visible, 'Company Info.Address');
-        AssertVisibility(CompanyInformation."Address 2".Visible, 'Company Info.Address 2');
-        AssertVisibility(CompanyInformation."Post Code".Visible, 'Company Info.Post Code');
-        AssertVisibility(CompanyInformation.City.Visible, 'Company Info.City');
-        AssertVisibility(CompanyInformation."Country/Region Code".Visible, 'Company Info.Country/Region Code');
-
-        AssertVisibility(CompanyInformation.GLN.Visible, 'Company Info.GLN');
-        AssertVisibility(CompanyInformation."VAT Registration No.".Visible, 'Company Info.VAT Registration No.');
-
-        AssertVisibility(CustomerCard.Name.Visible, 'Customer Card.Name');
-        AssertVisibility(CustomerCard.Address.Visible, 'Customer Card.Address');
-        AssertVisibility(CustomerCard."Address 2".Visible, 'Customer Card.Address 2');
-        AssertVisibility(CustomerCard."Post Code".Visible, 'Customer Card.Post Code');
-        AssertVisibility(CustomerCard.City.Visible, 'Customer Card.City');
-        AssertVisibility(CustomerCard."Country/Region Code".Visible, 'Customer Card.Country/Region Code');
-        AssertVisibility(CustomerCard.GLN.Visible, 'Customer Card.GLN');
-        AssertVisibility(CustomerCard."VAT Registration No.".Visible, 'Customer Card."VAT Registration No."');
-
-        AssertVisibility(CompanyInformation.IBAN.Visible, 'Company Info.IBAN');
-        AssertVisibility(CompanyInformation."Bank Account No.".Visible, 'Company Info.Bank Account No.');
-        AssertVisibility(CompanyInformation."Bank Branch No.".Visible, 'Company Info.Bank Branch No.');
-
-        AssertVisibility(CustomerBankAccountCard."Bank Account No.".Visible, 'Customer Bank Acc.Bank Account No.');
-        AssertVisibility(CustomerBankAccountCard."Bank Branch No.".Visible, 'Customer Bank Acc.Bank Branch No.');
-        AssertVisibility(CustomerBankAccountCard.IBAN.Visible, 'Customer Bank Acc.IBAN');
-
-        AssertVisibility(UnitsofMeasure.Code.Visible, 'Unit of Measure.Code');
-        AssertVisibility(UnitsofMeasure."International Standard Code".Visible, 'Unit of measure.International Standard Code');
+        UnitsofMeasure.OpenNew();
+        AssertVisibility(UnitsofMeasure.Code.Visible(), 'Unit of Measure.Code');
+        AssertVisibility(UnitsofMeasure."International Standard Code".Visible(), 'Unit of measure.International Standard Code');
+        UnitsofMeasure.Close();
     end;
 
     [Test]

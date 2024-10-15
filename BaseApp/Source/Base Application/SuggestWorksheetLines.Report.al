@@ -714,7 +714,6 @@ report 840 "Suggest Worksheet Lines"
         CarteraSetup: Record "Cartera Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         CashFlowManagement: Codeunit "Cash Flow Management";
-        Window: Dialog;
         ConsiderSource: array[16] of Boolean;
         SourceType: Enum "Cash Flow Source Type";
         CashFlowNo: Code[20];
@@ -762,6 +761,9 @@ report 840 "Suggest Worksheet Lines"
         XTAXRECEIVABLESCORRECTIONTxt: Label 'Tax from Sales entries';
         XTAXSALESORDERSTxt: Label 'Tax from Sales Orders';
         XTAXPURCHORDERSTxt: Label 'Tax from Purchase Orders';
+
+    protected var
+        Window: Dialog;
 
     local procedure InsertConditionMet(): Boolean
     begin

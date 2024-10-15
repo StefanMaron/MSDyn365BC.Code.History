@@ -88,6 +88,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeCreditTransferIBAN();
         UpgradeDocumentDefaultLineType();
         UpgradeOnlineMap();
+        UpgradeDataExchFieldMapping();
     end;
 
     local procedure ClearTemporaryTables()
@@ -537,7 +538,6 @@ codeunit 104000 "Upgrade - BaseApp"
     procedure UpgradeItemPostingGroups()
     var
         Item: Record "Item";
-        Item2: Record "Item";
         GenProdPostingGroup: Record "Gen. Product Posting Group";
         InventoryPostingGroup: Record "Inventory Posting Group";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
@@ -550,20 +550,19 @@ codeunit 104000 "Upgrade - BaseApp"
         Item.SetLoadFields("Gen. Prod. Posting Group", "Inventory Posting Group");
         if Item.FindSet() then
             repeat
-                Item2 := Item;
                 ItemModified := false;
                 if Item."Gen. Prod. Posting Group" <> '' then
                     if GenProdPostingGroup.Get(Item."Gen. Prod. Posting Group") then begin
-                        Item2."Gen. Prod. Posting Group Id" := GenProdPostingGroup.SystemId;
+                        Item."Gen. Prod. Posting Group Id" := GenProdPostingGroup.SystemId;
                         ItemModified := true;
                     end;
                 if Item."Inventory Posting Group" <> '' then
                     if InventoryPostingGroup.Get(Item."Inventory Posting Group") then begin
-                        Item2."Inventory Posting Group Id" := InventoryPostingGroup.SystemId;
+                        Item."Inventory Posting Group Id" := InventoryPostingGroup.SystemId;
                         ItemModified := true;
                     end;
                 if ItemModified then
-                    Item2.Modify();
+                    Item.Modify(false);
             until Item.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemPostingGroupsUpgradeTag());
@@ -998,6 +997,91 @@ codeunit 104000 "Upgrade - BaseApp"
             ItemTrackingCode.MODIFYALL("Use Expiration Dates", TRUE);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemTrackingCodeUseExpirationDatesTag());
+    end;
+
+    local procedure UpgradeDataExchFieldMapping()
+    var
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDataExchOCRVendorNoTag()) then
+            exit;
+
+        UpgradeDataExchVendorIdFieldMapping('OCRINVOICE', 'OCRINVHEADER', 18);
+        UpgradeDataExchVendorIdFieldMapping('OCRCREDITMEMO', 'OCRCRMEMOHEADER', 18);
+        UpgradeDataExchVendorNoFieldMapping('OCRINVOICE', 'OCRINVHEADER', 19);
+        UpgradeDataExchVendorNoFieldMapping('OCRCREDITMEMO', 'OCRCRMEMOHEADER', 19);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDataExchOCRVendorNoTag());
+    end;
+
+    local procedure UpgradeDataExchVendorIdFieldMapping(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer)
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchColumnDef: Record "Data Exch. Column Def";
+        TempVendor: Record Vendor temporary;
+    begin
+        if not DataExchDef.Get(DataExchDefCode) then
+            exit;
+
+        UpgradeDataExchColumnDef(DataExchColumnDef, DataExchDefCode, DataExchLineDefCode, ColumnNo, 'Supplier ID', 'Buy-from Vendor ID', '/Document/Parties/Party[Type[text()=''supplier'']]/ExternalId');
+        UpgradeDataExchFieldMapping(DataExchColumnDef, Database::Vendor, TempVendor.FieldNo(SystemId));
+    end;
+
+    local procedure UpgradeDataExchVendorNoFieldMapping(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer)
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchColumnDef: Record "Data Exch. Column Def";
+        TempVendor: Record Vendor temporary;
+    begin
+        if not DataExchDef.Get(DataExchDefCode) then
+            exit;
+
+        UpgradeDataExchColumnDef(DataExchColumnDef, DataExchDefCode, DataExchLineDefCode, ColumnNo, 'Supplier No.', 'Buy-from Vendor No.', '/Document/Parties/Party[Type[text()=''supplier'']]/ExternalId');
+        UpgradeDataExchFieldMapping(DataExchColumnDef, Database::Vendor, TempVendor.FieldNo("No."));
+    end;
+
+    local procedure UpgradeDataExchColumnDef(var DataExchColumnDef: Record "Data Exch. Column Def"; DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; Name: Text[250]; Description: Text[100]; Path: Text[250])
+    begin
+        if not DataExchColumnDef.Get(DataExchDefCode, DataExchLineDefCode, ColumnNo) then begin
+            DataExchColumnDef."Data Exch. Def Code" := DataExchDefCode;
+            DataExchColumnDef."Data Exch. Line Def Code" := DataExchLineDefCode;
+            DataExchColumnDef."Column No." := ColumnNo;
+            DataExchColumnDef.Name := Name;
+            DataExchColumnDef.Description := Description;
+            DataExchColumnDef.Path := Path;
+            DataExchColumnDef."Data Type" := DataExchColumnDef."Data Type"::Text;
+            DataExchColumnDef.Insert();
+        end;
+    end;
+
+    local procedure UpgradeDataExchFieldMapping(var DataExchColumnDef: Record "Data Exch. Column Def"; TargetTableId: Integer; TargetFieldId: Integer)
+    var
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        Changed: Boolean;
+    begin
+        if not DataExchFieldMapping.Get(DataExchColumnDef."Data Exch. Def Code", DataExchColumnDef."Data Exch. Line Def Code", Database::"Intermediate Data Import", DataExchColumnDef."Column No.", 0) then begin
+            DataExchFieldMapping."Data Exch. Def Code" := DataExchColumnDef."Data Exch. Def Code";
+            DataExchFieldMapping."Data Exch. Line Def Code" := DataExchColumnDef."Data Exch. Line Def Code";
+            DataExchFieldMapping."Column No." := DataExchColumnDef."Column No.";
+            DataExchFieldMapping."Table ID" := Database::"Intermediate Data Import";
+            DataExchFieldMapping."Field ID" := 0;
+            DataExchFieldMapping."Target Table ID" := TargetTableId;
+            DataExchFieldMapping."Target Field ID" := TargetFieldId;
+            DataExchFieldMapping.Optional := true;
+            DataExchFieldMapping.Insert();
+        end else begin
+            if DataExchFieldMapping."Target Table ID" <> TargetTableId then begin
+                DataExchFieldMapping."Target Table ID" := TargetTableId;
+                Changed := true;
+            end;
+            if DataExchFieldMapping."Target Field ID" <> TargetFieldId then begin
+                DataExchFieldMapping."Target Field ID" := TargetFieldId;
+                Changed := true;
+            end;
+            if Changed then
+                DataExchFieldMapping.Modify();
+        end;
     end;
 
     local procedure UpgradeJobQueueEntries()
@@ -2187,9 +2271,9 @@ codeunit 104000 "Upgrade - BaseApp"
 
     local procedure UpgradeDimensionSetEntryIsHandled() IsHandled: Boolean;
     begin
-        // If you have extended the table "Dimension Set Entry", ModifyAll calls in Codeunit "Update Dim. Set Glbl. Dim. No." 
-        // can lead to the whole upgrade failed by time out. 
-        // Subscribe to OnUpgradeDimensionSetEntry and return IsHandled as true to skip the "Dimension Set Entry" update. 
+        // If you have extended the table "Dimension Set Entry", ModifyAll calls in Codeunit "Update Dim. Set Glbl. Dim. No."
+        // can lead to the whole upgrade failed by time out.
+        // Subscribe to OnUpgradeDimensionSetEntry and return IsHandled as true to skip the "Dimension Set Entry" update.
         // After upgrade is done you can run the same update by report 482 "Update Dim. Set Glbl. Dim. No.".
         OnUpgradeDimensionSetEntry(IsHandled);
     end;
@@ -2251,236 +2335,46 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesCreditMemoReasonCodeUpgradeTag());
     end;
 
-    local procedure UpgradeSalesInvoiceShortcutDimension()
-    var
-        SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
-        SalesHeader: Record "Sales Header";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        SourceRecordRef: RecordRef;
-        TargetRecordRef: RecordRef;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesInvoiceShortcutDimensionsUpgradeTag()) then
-            exit;
-
-        if SalesInvoiceEntityAggregate.FindSet(true, false) then
-            repeat
-                if SalesInvoiceEntityAggregate.Posted then begin
-                    SalesInvoiceHeader.SetRange(SystemId, SalesInvoiceEntityAggregate.Id);
-                    if SalesInvoiceHeader.FindFirst() then begin
-                        SourceRecordRef.GetTable(SalesInvoiceHeader);
-                        TargetRecordRef.GetTable(SalesInvoiceEntityAggregate);
-                        UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
-                    end;
-                end else begin
-                    SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-                    SalesHeader.SetRange(SystemId, SalesInvoiceEntityAggregate.Id);
-                    if SalesHeader.FindFirst() then begin
-                        SourceRecordRef.GetTable(SalesHeader);
-                        TargetRecordRef.GetTable(SalesInvoiceEntityAggregate);
-                        UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
-                    end;
-                end;
-            until SalesInvoiceEntityAggregate.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesInvoiceShortcutDimensionsUpgradeTag());
-    end;
-
-    local procedure UpgradePurchInvoiceShortcutDimension()
-    var
-        PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
-        PurchaseHeader: Record "Purchase Header";
-        PurchInvHeader: Record "Purch. Inv. Header";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        SourceRecordRef: RecordRef;
-        TargetRecordRef: RecordRef;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchInvoiceShortcutDimensionsUpgradeTag()) then
-            exit;
-
-        if PurchInvEntityAggregate.FindSet(true, false) then
-            repeat
-                if PurchInvEntityAggregate.Posted then begin
-                    PurchInvHeader.SetRange(SystemId, PurchInvEntityAggregate.Id);
-                    if PurchInvHeader.FindFirst() then begin
-                        SourceRecordRef.GetTable(PurchInvHeader);
-                        TargetRecordRef.GetTable(PurchInvEntityAggregate);
-                        UpdatePurchaseDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
-                    end;
-                end else begin
-                    PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
-                    PurchaseHeader.SetRange(SystemId, PurchInvEntityAggregate.Id);
-                    if PurchaseHeader.FindFirst() then begin
-                        SourceRecordRef.GetTable(PurchaseHeader);
-                        TargetRecordRef.GetTable(PurchInvEntityAggregate);
-                        UpdatePurchaseDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
-                    end;
-                end;
-            until PurchInvEntityAggregate.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchInvoiceShortcutDimensionsUpgradeTag());
-    end;
-
-    local procedure UpgradePurchaseOrderShortcutDimension()
-    var
-        PurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer";
-        PurchaseHeader: Record "Purchase Header";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        SourceRecordRef: RecordRef;
-        TargetRecordRef: RecordRef;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaseOrderShortcutDimensionsUpgradeTag()) then
-            exit;
-
-        if PurchaseOrderEntityBuffer.FindSet(true, false) then
-            repeat
-                PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
-                PurchaseHeader.SetRange(SystemId, PurchaseOrderEntityBuffer.Id);
-                if PurchaseHeader.FindFirst() then begin
-                    SourceRecordRef.GetTable(PurchaseHeader);
-                    TargetRecordRef.GetTable(PurchaseOrderEntityBuffer);
-                    UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
-                end;
-            until PurchaseOrderEntityBuffer.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaseOrderShortcutDimensionsUpgradeTag());
-    end;
-
     local procedure UpgradeSalesOrderShortcutDimension()
     var
-        SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
-        SalesHeader: Record "Sales Header";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        SourceRecordRef: RecordRef;
-        TargetRecordRef: RecordRef;
+        APIFixDocumentShortcutDim: Codeunit "API Fix Document Shortcut Dim.";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesOrderShortcutDimensionsUpgradeTag()) then
-            exit;
-
-        if SalesOrderEntityBuffer.FindSet(true, false) then
-            repeat
-                SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-                SalesHeader.SetRange(SystemId, SalesOrderEntityBuffer.Id);
-                if SalesHeader.FindFirst() then begin
-                    SourceRecordRef.GetTable(SalesHeader);
-                    TargetRecordRef.GetTable(SalesOrderEntityBuffer);
-                    UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
-                end;
-            until SalesOrderEntityBuffer.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesOrderShortcutDimensionsUpgradeTag());
+        APIFixDocumentShortcutDim.UpgradeSalesOrderShortcutDimension();
     end;
 
     local procedure UpgradeSalesQuoteShortcutDimension()
     var
-        SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
-        SalesHeader: Record "Sales Header";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        SourceRecordRef: RecordRef;
-        TargetRecordRef: RecordRef;
+        APIFixDocumentShortcutDim: Codeunit "API Fix Document Shortcut Dim.";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesQuoteShortcutDimensionsUpgradeTag()) then
-            exit;
+        APIFixDocumentShortcutDim.UpgradeSalesQuoteShortcutDimension();
+    end;
 
-        if SalesQuoteEntityBuffer.FindSet(true, false) then
-            repeat
-                SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-                SalesHeader.SetRange(SystemId, SalesQuoteEntityBuffer.Id);
-                if SalesHeader.FindFirst() then begin
-                    SourceRecordRef.GetTable(SalesHeader);
-                    TargetRecordRef.GetTable(SalesQuoteEntityBuffer);
-                    UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
-                end;
-            until SalesQuoteEntityBuffer.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesQuoteShortcutDimensionsUpgradeTag());
+    local procedure UpgradeSalesInvoiceShortcutDimension()
+    var
+        APIFixDocumentShortcutDim: Codeunit "API Fix Document Shortcut Dim.";
+    begin
+        APIFixDocumentShortcutDim.UpgradeSalesInvoiceShortcutDimension();
     end;
 
     local procedure UpgradeSalesCrMemoShortcutDimension()
     var
-        SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
-        SalesHeader: Record "Sales Header";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        SourceRecordRef: RecordRef;
-        TargetRecordRef: RecordRef;
+        APIFixDocumentShortcutDim: Codeunit "API Fix Document Shortcut Dim.";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesCrMemoShortcutDimensionsUpgradeTag()) then
-            exit;
-
-        if SalesCrMemoEntityBuffer.FindSet(true, false) then
-            repeat
-                if SalesCrMemoEntityBuffer.Posted then begin
-                    SalesCrMemoHeader.SetRange(SystemId, SalesCrMemoEntityBuffer.Id);
-                    if SalesCrMemoHeader.FindFirst() then begin
-                        SourceRecordRef.GetTable(SalesCrMemoHeader);
-                        TargetRecordRef.GetTable(SalesCrMemoEntityBuffer);
-                        UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
-                    end;
-                end else begin
-                    SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
-                    SalesHeader.SetRange(SystemId, SalesCrMemoEntityBuffer.Id);
-                    if SalesHeader.FindFirst() then begin
-                        SourceRecordRef.GetTable(SalesHeader);
-                        TargetRecordRef.GetTable(SalesCrMemoEntityBuffer);
-                        UpdateSalesDocumentShortcutDimensionFields(SourceRecordRef, TargetRecordRef);
-                    end;
-                end;
-            until SalesCrMemoEntityBuffer.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesCrMemoShortcutDimensionsUpgradeTag());
+        APIFixDocumentShortcutDim.UpgradeSalesCrMemoShortcutDimension();
     end;
 
-    local procedure UpdateSalesDocumentShortcutDimensionFields(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef)
+    local procedure UpgradePurchaseOrderShortcutDimension()
     var
-        SalesHeader: Record "Sales Header";
-        ShortcutDim1SourceFieldRef: FieldRef;
-        ShortcutDim2SourceFieldRef: FieldRef;
-        ShortcutDimension1: Code[20];
-        ShortcutDimension2: Code[20];
-        Modified: Boolean;
+        APIFixDocumentShortcutDim: Codeunit "API Fix Document Shortcut Dim.";
     begin
-        ShortcutDim1SourceFieldRef := SourceRecordRef.Field(SalesHeader.FieldNo("Shortcut Dimension 1 Code"));
-        ShortcutDim2SourceFieldRef := SourceRecordRef.Field(SalesHeader.FieldNo("Shortcut Dimension 2 Code"));
-        ShortcutDimension1 := ShortcutDim1SourceFieldRef.Value();
-        ShortcutDimension2 := ShortcutDim2SourceFieldRef.Value();
-        if ShortcutDimension1 <> '' then
-            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FieldNo("Shortcut Dimension 1 Code")) then
-                Modified := true;
-        if ShortcutDimension2 <> '' then
-            if CopyFieldValue(SourceRecordRef, TargetRecordRef, SalesHeader.FieldNo("Shortcut Dimension 2 Code")) then
-                Modified := true;
-        if Modified then
-            TargetRecordRef.Modify();
+        APIFixDocumentShortcutDim.UpgradePurchaseOrderShortcutDimension();
     end;
 
-    local procedure UpdatePurchaseDocumentShortcutDimensionFields(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef)
+    local procedure UpgradePurchInvoiceShortcutDimension()
     var
-        PurchaseHeader: Record "Purchase Header";
-        ShortcutDim1SourceFieldRef: FieldRef;
-        ShortcutDim2SourceFieldRef: FieldRef;
-        ShortcutDimension1: Code[20];
-        ShortcutDimension2: Code[20];
-        Modified: Boolean;
+        APIFixDocumentShortcutDim: Codeunit "API Fix Document Shortcut Dim.";
     begin
-        ShortcutDim1SourceFieldRef := SourceRecordRef.Field(PurchaseHeader.FieldNo("Shortcut Dimension 1 Code"));
-        ShortcutDim2SourceFieldRef := SourceRecordRef.Field(PurchaseHeader.FieldNo("Shortcut Dimension 2 Code"));
-        ShortcutDimension1 := ShortcutDim1SourceFieldRef.Value();
-        ShortcutDimension2 := ShortcutDim2SourceFieldRef.Value();
-        if ShortcutDimension1 <> '' then
-            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FieldNo("Shortcut Dimension 1 Code")) then
-                Modified := true;
-        if ShortcutDimension2 <> '' then
-            if CopyFieldValue(SourceRecordRef, TargetRecordRef, PurchaseHeader.FieldNo("Shortcut Dimension 2 Code")) then
-                Modified := true;
-        if Modified then
-            TargetRecordRef.Modify();
+        APIFixDocumentShortcutDim.UpgradePurchInvoiceShortcutDimension()
     end;
 
     local procedure UpgradePowerBIOptin()

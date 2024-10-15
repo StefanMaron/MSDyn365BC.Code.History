@@ -1,5 +1,9 @@
 codeunit 5055 "CustVendBank-Update"
 {
+    Permissions = TableData "Bank Account" = rm,
+                  TableData Customer = rm,
+                  TableData Employee = rm,
+                  TableData Vendor = rm;
     TableNo = Contact;
 
     trigger OnRun()
@@ -123,6 +127,8 @@ codeunit 5055 "CustVendBank-Update"
             OnAfterUpdateBankAccount(BankAcc, Cont, ContBusRel);
             Modify;
         end;
+
+        OnAfterUpdateBankAccountProcedure(BankAcc, Cont, ContBusRel);
     end;
 
     local procedure BankAccountCopyFieldsFromCont(var Cont: Record Contact)
@@ -188,6 +194,11 @@ codeunit 5055 "CustVendBank-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBankAccount(var BankAccount: Record "Bank Account"; Contact: Record Contact; var ContBusRel: Record "Contact Business Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateBankAccountProcedure(var BankAccount: Record "Bank Account"; var Contact: Record Contact; var ContBusRel: Record "Contact Business Relation")
     begin
     end;
 

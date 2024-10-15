@@ -13,6 +13,8 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         Assert: Codeunit Assert;
         LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
         LibraryCarteraReceivables: Codeunit "Library - Cartera Receivables";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -958,6 +960,79 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,BillGroupDiscountPostedMessageHandler,SettlDocsPostedBillGroupsRequestPageHandler,RedrawReceivableBillsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TotalSettlementBillGroupWithUnrealizedVATPositiveNegativeLinesInDocument()
+    var
+        BankAccount: Record "Bank Account";
+        BillGroup: Record "Bill Group";
+        Customer: Record Customer;
+        PaymentMethod: Record "Payment Method";
+        PaymentTerms: Record "Payment Terms";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CarteraDoc: Record "Cartera Doc.";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BGPostAndPrint: Codeunit "BG/PO-Post and Print";
+        DocumentNo: Code[20];
+        TotalAmount: Decimal;
+    begin
+        // [SCENARIO 416820] Stan can settle Payment Order for Invoice containing NO VAT self balancing zero VAT Entries within Cash Regime and Unrealized VAT
+        Initialize;
+
+        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Validate("VAT Cash Regime", true);
+        GeneralLedgerSetup.Modify(true);
+
+        PrePostBillGroupSetup(BankAccount, Customer);
+
+        PaymentMethod.Get(Customer."Payment Method Code");
+        LibraryCarteraReceivables.UpdatePaymentMethodForBillsWithUnrealizedVAT(PaymentMethod);
+
+        LibraryCarteraReceivables.SetPaymentTermsVatDistribution(
+          Customer."Payment Terms Code", PaymentTerms."VAT distribution"::Proportional);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        CreateVATPostingSetupVATCashRegime(VATPostingSetup, Customer."VAT Bus. Posting Group", 0);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        SalesLine.Validate("Unit Price", 100);
+        SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        SalesLine.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, SalesLine."No.", -1);
+        SalesLine.Validate("Unit Price", 100);
+        SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        SalesLine.Modify(true);
+
+        CreateVATPostingSetupVATCashRegime(VATPostingSetup, Customer."VAT Bus. Posting Group", 21);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        SalesLine.Validate("Unit Price", 1000);
+        SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        SalesLine.Modify(true);
+
+        SalesHeader.TestField("Special Scheme Code", SalesHeader."Special Scheme Code"::"07 Special Cash");
+
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        LibraryCarteraReceivables.CreateBillGroup(BillGroup, BankAccount."No.", BillGroup."Dealing Type"::Collection);
+        LibraryCarteraReceivables.AddCarteraDocumentToBillGroup(CarteraDoc, DocumentNo, Customer."No.", BillGroup."No.");
+
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        BGPostAndPrint.ReceivablePostOnly(BillGroup);
+
+        InvokeTotalSettlementOnBillGroup(Customer."No.", DocumentNo, BillGroup."No.", TotalAmount, WorkDate);
+
+        ValidateSettlementUnrealizedVATLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", TotalAmount, TotalAmount);
+        ValidateTotalSettlementClosedDocuments(DocumentNo, TotalAmount);
+        ValidateUnrealizedVATRedraw(BillGroup."No.");
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1606,6 +1681,22 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         BillGroup.Validate("Bank Account No.", BankAccountNo);
         BillGroup.Validate(Factoring, Factoring);
         BillGroup.Modify(true);
+    end;
+
+    local procedure CreateVATPostingSetupVATCashRegime(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATPercent: Decimal)
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("VAT %", VATPercent);
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID);
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
+        VATPostingSetup.Validate("VAT Cash Regime", true);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure GetCarteraTemplBatch(var TemplateName: Code[10]; var BatchName: Code[10])
