@@ -178,6 +178,11 @@ page 5769 "Whse. Receipt Subform"
                     ApplicationArea = Warehouse;
                     Visible = OverReceiptAllowed;
                     ToolTip = 'Specifies over-receipt quantity.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Over-Receipt Code"; "Over-Receipt Code")
                 {

@@ -967,6 +967,7 @@ table 99000829 "Planning Component"
         Item.CopyFilter("Global Dimension 2 Filter", "Shortcut Dimension 2 Code");
         SetFilter("Quantity (Base)", '<>0');
         SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
+        OnAfterFilterLinesWithItemToPlan(Rec, Item);
     end;
 
     procedure FindLinesWithItemToPlan(var Item: Record Item): Boolean
@@ -1090,6 +1091,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var PlanningComponent: Record "Planning Component"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesWithItemToPlan(var PlanningComponent: Record "Planning Component"; var Item: Record Item)
     begin
     end;
 

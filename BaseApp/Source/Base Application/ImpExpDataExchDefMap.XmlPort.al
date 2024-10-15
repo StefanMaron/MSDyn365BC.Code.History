@@ -462,13 +462,9 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                         TransformationRuleRec.GetDeleteNOTPROVIDEDCode:
                                             TransformationRule := 'DELETE_NOTPROVIDED';
                                         else begin
-                                                TransformationRule := "Data Exch. Field Mapping"."Transformation Rule";
-                                                if (TransformationRule <> '') and not TempTransformationRuleRec.Get(TransformationRule) then begin
-                                                    TransformationRuleRec.Get(TransformationRule);
-                                                    TempTransformationRuleRec := TransformationRuleRec;
-                                                    TempTransformationRuleRec.Insert();
-                                                end;
-                                            end;
+                                            TransformationRule := "Data Exch. Field Mapping"."Transformation Rule";
+                                            AddTransformationRule(TransformationRule);
+                                        end;
                                     end;
                                 end;
 
@@ -539,6 +535,10 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                 fieldelement(DataFormattingCulture; TempTransformationRuleRec."Data Formatting Culture")
                                 {
                                 }
+                                fieldelement(NextTransformationRule; TempTransformationRuleRec."Next Transformation Rule")
+                                {
+                                    MinOccurs = Zero;
+                                }
 
                                 trigger OnAfterInsertRecord()
                                 var
@@ -550,6 +550,11 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                     end;
                                 end;
                             }
+
+                            trigger OnAfterGetRecord()
+                            begin
+                                TempTransformationRuleRec.DeleteAll();
+                            end;
                         }
 
                         trigger OnAfterGetRecord()
@@ -581,5 +586,17 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
         {
         }
     }
+
+    local procedure AddTransformationRule(TransformationRule: Text)
+    var
+        TransformationRuleRec: Record "Transformation Rule";
+    begin
+        while (TransformationRule <> '') and not TempTransformationRuleRec.Get(TransformationRule) do begin
+            TransformationRuleRec.Get(TransformationRule);
+            TempTransformationRuleRec := TransformationRuleRec;
+            TempTransformationRuleRec.Insert();
+            TransformationRule := TransformationRuleRec."Next Transformation Rule";
+        end;
+    end;
 }
 

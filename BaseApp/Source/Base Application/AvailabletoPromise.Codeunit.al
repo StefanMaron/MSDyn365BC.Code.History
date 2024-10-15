@@ -198,18 +198,19 @@ codeunit 5790 "Available to Promise"
                 AvailableQty := AvailableQty + AvailableQtyPeriod;
                 if AvailableQty < NeededQty then
                     QtyIsAvailable := false;
-            end else
+            end else begin
                 if not QtyIsAvailable then begin
                     AvailableQty := AvailableQty + AvailableQtyPeriod;
                     if AvailableQty >= NeededQty then
                         QtyIsAvailable := true;
                 end;
 
-            if QtyIsAvailable then begin
-                AvailableDate := AvailabilityAtDate."Period End";
-                PeriodStart := AvailabilityAtDate."Period Start";
-                PeriodEnd := AvailabilityAtDate."Period End";
-                AvailabilityAtDate.FindLast();
+                if QtyIsAvailable then begin
+                    AvailableDate := AvailabilityAtDate."Period End";
+                    PeriodStart := AvailabilityAtDate."Period Start";
+                    PeriodEnd := AvailabilityAtDate."Period End";
+                    AvailabilityAtDate.FindLast();
+                end;
             end;
         end;
 
@@ -404,6 +405,11 @@ codeunit 5790 "Available to Promise"
     procedure SetPromisingReqShipDate(OrderPromisingLine: Record "Order Promising Line")
     begin
         ReqShipDate := OrderPromisingLine."Requested Shipment Date";
+    end;
+
+    procedure SetOriginalShipmentDate(OrderPromisingLine: Record "Order Promising Line")
+    begin
+        ReqShipDate := OrderPromisingLine."Original Shipment Date";
     end;
 
     procedure SetChangedSalesLine(SalesLine: Record "Sales Line")

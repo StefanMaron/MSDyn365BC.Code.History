@@ -1323,10 +1323,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.2395cm</Top>
-              <Left>11.79342cm</Left>
+              <Top>6.71cm</Top>
+              <Left>10.8cm</Left>
               <Height>11pt</Height>
-              <Width>2.9549cm</Width>
+              <Width>3cm</Width>
               <ZIndex>1</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -1350,10 +1350,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.8165cm</Top>
-              <Left>11.79871cm</Left>
+              <Top>6.29cm</Top>
+              <Left>10.8cm</Left>
               <Height>11pt</Height>
-              <Width>2.91786cm</Width>
+              <Width>3cm</Width>
               <ZIndex>2</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -1377,10 +1377,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.457cm</Top>
-              <Left>11.79342cm</Left>
+              <Top>5.87cm</Top>
+              <Left>10.8cm</Left>
               <Height>11pt</Height>
-              <Width>2.9549cm</Width>
+              <Width>3cm</Width>
               <ZIndex>3</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -1404,10 +1404,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>4.30375cm</Top>
-              <Left>11.79586cm</Left>
+              <Top>4.61cm</Top>
+              <Left>10.8cm</Left>
               <Height>11pt</Height>
-              <Width>2.97892cm</Width>
+              <Width>3cm</Width>
               <ZIndex>4</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -1431,10 +1431,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>3.90225cm</Top>
-              <Left>11.79586cm</Left>
+              <Top>4.19cm</Top>
+              <Left>10.8cm</Left>
               <Height>11pt</Height>
-              <Width>3.01596cm</Width>
+              <Width>3cm</Width>
               <ZIndex>5</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -1638,10 +1638,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.41427cm</Top>
-              <Left>14.84425cm</Left>
+              <Top>7.97cm</Top>
+              <Left>13.83cm</Left>
               <Height>11pt</Height>
-              <Width>2.94226cm</Width>
+              <Width>3.98cm</Width>
               <ZIndex>13</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -1663,10 +1663,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>7.41932cm</Top>
-              <Left>11.79871cm</Left>
+              <Top>7.97cm</Top>
+              <Left>10.8cm</Left>
               <Height>11pt</Height>
-              <Width>2.94961cm</Width>
+              <Width>3cm</Width>
               <ZIndex>14</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -1690,10 +1690,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.27125cm</Top>
-              <Left>14.84425cm</Left>
+              <Top>6.71cm</Top>
+              <Left>13.83cm</Left>
               <Height>11pt</Height>
-              <Width>1.15837in</Width>
+              <Width>3.98cm</Width>
               <ZIndex>15</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -1717,10 +1717,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.84825cm</Top>
-              <Left>14.84425cm</Left>
+              <Top>6.29cm</Top>
+              <Left>13.83cm</Left>
               <Height>11pt</Height>
-              <Width>1.15837in</Width>
+              <Width>3.98cm</Width>
               <ZIndex>16</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -1744,10 +1744,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.42525cm</Top>
-              <Left>14.84425cm</Left>
+              <Top>5.87cm</Top>
+              <Left>13.83cm</Left>
               <Height>11pt</Height>
-              <Width>1.15837in</Width>
+              <Width>3.98cm</Width>
               <ZIndex>17</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -1771,10 +1771,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>4.27201cm</Top>
-              <Left>14.84669cm</Left>
+              <Top>4.61cm</Top>
+              <Left>13.83cm</Left>
               <Height>11pt</Height>
-              <Width>1.15837in</Width>
+              <Width>3.98cm</Width>
               <ZIndex>18</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -1822,10 +1822,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>3.8705cm</Top>
-              <Left>14.84425cm</Left>
+              <Top>4.19cm</Top>
+              <Left>13.83cm</Left>
               <Height>11pt</Height>
-              <Width>1.15837in</Width>
+              <Width>3.98cm</Width>
               <ZIndex>20</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -2161,10 +2161,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.02621cm</Top>
-              <Left>11.79342cm</Left>
+              <Top>7.55cm</Top>
+              <Left>10.8cm</Left>
               <Height>11pt</Height>
-              <Width>2.95734cm</Width>
+              <Width>3cm</Width>
               <ZIndex>33</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -2188,10 +2188,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.63496cm</Top>
-              <Left>11.79342cm</Left>
+              <Top>7.13cm</Top>
+              <Left>10.8cm</Left>
               <Height>11pt</Height>
-              <Width>2.95734cm</Width>
+              <Width>3cm</Width>
               <ZIndex>34</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -2215,10 +2215,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.02621cm</Top>
-              <Left>14.84668cm</Left>
+              <Top>7.55cm</Top>
+              <Left>13.83cm</Left>
               <Height>11pt</Height>
-              <Width>1.15837in</Width>
+              <Width>3.98cm</Width>
               <ZIndex>35</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -2242,10 +2242,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>6.66671cm</Top>
-              <Left>14.84668cm</Left>
+              <Top>7.13cm</Top>
+              <Left>13.83cm</Left>
               <Height>11pt</Height>
-              <Width>1.15837in</Width>
+              <Width>3.98cm</Width>
               <ZIndex>36</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -2372,10 +2372,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>4.65878cm</Top>
-              <Left>11.79342cm</Left>
+              <Top>5.03cm</Top>
+              <Left>10.8cm</Left>
               <Height>11pt</Height>
-              <Width>3.0184cm</Width>
+              <Width>3cm</Width>
               <ZIndex>41</ZIndex>
               <Style>
                 <Border>
@@ -2403,10 +2403,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>4.62478cm</Top>
-              <Left>14.84669cm</Left>
+              <Top>5.03cm</Top>
+              <Left>13.83cm</Left>
               <Height>11pt</Height>
-              <Width>1.15837in</Width>
+              <Width>3.98cm</Width>
               <ZIndex>42</ZIndex>
               <Style>
                 <Border>
@@ -2434,10 +2434,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.06095cm</Top>
-              <Left>11.79342cm</Left>
+              <Top>5.45cm</Top>
+              <Left>10.8cm</Left>
               <Height>11pt</Height>
-              <Width>2.94961cm</Width>
+              <Width>3cm</Width>
               <ZIndex>43</ZIndex>
               <Style>
                 <Border>
@@ -2465,10 +2465,10 @@ Fields!ABNDivPartNo_PurchRcptHdr.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>5.00192cm</Top>
-              <Left>14.84669cm</Left>
+              <Top>5.45cm</Top>
+              <Left>13.83cm</Left>
               <Height>11pt</Height>
-              <Width>1.15837in</Width>
+              <Width>3.98cm</Width>
               <ZIndex>44</ZIndex>
               <Style>
                 <Border>

@@ -1567,6 +1567,60 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure GetRecurringSalesLinesIsNotEnabledWithoutSalesToCustomerNoInSalesQuote()
+    var
+        Contact: Record Contact;
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [FEATURE] [UI] [Contact]
+        // [SCENARIO 361782] When you create a new sales quote with validated "Sell-to Contact No."
+        // [SCENARIO 361782] and not validated "Sell-to Customer No.", the action "Get Recurring Sales Lines" is not enabled.
+        Initialize();
+
+        // [GIVEN] Sales Quote is created for new Contact
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] Created new Sales Quote
+        SalesQuote.OpenNew();
+
+        // [WHEN] Validate "Sell-to Contact No.". The "Sell-to Customer No." do not validated.
+        SalesQuote."Sell-to Contact No.".SetValue(Contact."No.");
+
+        // [THEN] The action "Get Recurring Sales Lines" is not enabled.
+        Assert.IsFalse(SalesQuote.GetRecurringSalesLines.Enabled, '');
+        SalesQuote.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetRecurringSalesLinesIsUnabledWithValidationSalesToCustomerNoFromValidationSalesToContactNoInSalesQuote()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [FEATURE] [UI] [Contact]
+        // [SCENARIO 361782] When you create a new sales quote with validated "Sell-to Contact No."
+        // [SCENARIO 361782] and validated "Sell-to Customer No.", the action "Get Recurring Sales Lines" is enabled.
+        Initialize();
+
+        // [GIVEN] Sales Quote is created for new Contact with Customer
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+
+        // [GIVEN] Created new Sales Quote
+        SalesQuote.OpenNew();
+
+        // [WHEN] Validate "Sell-to Contact No.". The "Sell-to Customer No." is validated too.
+        SalesQuote."Sell-to Contact No.".SetValue(Contact."No.");
+
+        // [THEN] The action "Get Recurring Sales Lines" is enabled.
+        Assert.IsTrue(SalesQuote.GetRecurringSalesLines.Enabled, '');
+        SalesQuote.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

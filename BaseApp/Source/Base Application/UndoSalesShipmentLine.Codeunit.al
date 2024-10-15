@@ -284,6 +284,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                     ItemJnlLine."Applies-to Entry" := ItemLedgEntryNotInvoiced."Entry No.";
                     ItemJnlLine.Quantity := ItemLedgEntryNotInvoiced.Quantity;
                     ItemJnlLine."Quantity (Base)" := ItemLedgEntryNotInvoiced.Quantity;
+                    OnPostItemJnlLineOnBeforeRunItemJnlPostLine(ItemJnlLine, ItemLedgEntryNotInvoiced, SalesShptLine, SalesShptHeader);
                     ItemJnlPostLine.Run(ItemJnlLine);
                     RemQtyBase -= ItemJnlLine.Quantity;
                     if ItemLedgEntryNotInvoiced.Next = 0 then;
@@ -609,6 +610,11 @@ codeunit 5815 "Undo Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesShptLineModify(var SalesShptLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforeRunItemJnlPostLine(var ItemJnlLine: Record "Item Journal Line"; ItemLedgEntryNotInvoiced: Record "Item Ledger Entry"; SalesShptLine: Record "Sales Shipment Line"; SalesShptHeader: Record "Sales Shipment Header")
     begin
     end;
 }

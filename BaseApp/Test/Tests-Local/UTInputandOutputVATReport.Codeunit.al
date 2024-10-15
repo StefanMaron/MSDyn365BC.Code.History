@@ -20,6 +20,10 @@ codeunit 141073 "UT Input and Output VAT Report"
         TINCap: Label 'TIN';
         VATGoodsCap: Label 'VATGoods';
         VATServicesCap: Label 'VATServices';
+        TotalBaseAmtgoodsTxt: Label 'TotalBaseAmtgoods';
+        TotalVATGoodsTxt: Label 'TotalVATGoods';
+        TotalBaseAmtServicesTxt: Label 'TotalBaseAmtServices';
+        TotalVATServicesTxt: Label 'TotalVATServices';
 
     [Test]
     [HandlerFunctions('VATReportCustomerRequestPageHandler')]
@@ -161,6 +165,66 @@ codeunit 141073 "UT Input and Output VAT Report"
         VerifyXMLValuesOnVATReport(VATEntry, Vendor.Address, Vendor."VAT Registration No.", AmountCaption, BaseCaption);
     end;
 
+    [Test]
+    [HandlerFunctions('VATReportCustomerRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATReportCustomerTotals()
+    var
+        Customer: Record Customer;
+        VATEntry: Record "VAT Entry";
+        TotalBaseAmtgoods: Decimal;
+        TotalVATGoods: Decimal;
+        TotalBaseAmtServices: Decimal;
+        TotalVATServices: Decimal;
+    begin
+        // [SCENARIO 361087] "VAT Report - Customer" has totals of VAT Entries in Dataset.
+        Initialize();
+
+        // [GIVEN] Goods and Services Vat Entries for Customer with totals TotalBaseAmtgoods, TotalVATGoods, TotalBaseAmtServices, TotalVATServices.
+        CreateCustomer(Customer);
+        CreateGoodsAndServicesVatEntries(
+          Customer."No.", VATEntry.Type::Sale, LibraryRandom.RandIntInRange(3, 5),
+          TotalBaseAmtgoods, TotalVATGoods, TotalBaseAmtServices, TotalVATServices);
+
+        // [WHEN] Report "VAT Report - Customer" is run.
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        Commit();
+        REPORT.Run(REPORT::"VAT Report - Customer");
+
+        // [THEN] Resulting dataset contains TotalBaseAmtgoods, TotalVATGoods, TotalBaseAmtServices, TotalVATServices.
+        VerifyXMLTotalValuesOnVATReport(TotalBaseAmtgoods, TotalVATGoods, TotalBaseAmtServices, TotalVATServices);
+    end;
+
+    [Test]
+    [HandlerFunctions('VATReportVendorRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATReportVendorTotals()
+    var
+        Vendor: Record Vendor;
+        VATEntry: Record "VAT Entry";
+        TotalBaseAmtgoods: Decimal;
+        TotalVATGoods: Decimal;
+        TotalBaseAmtServices: Decimal;
+        TotalVATServices: Decimal;
+    begin
+        // [SCENARIO 361087] "VAT Report - Vendor" has totals of VAT Entries in Dataset.
+        Initialize();
+
+        // [GIVEN] Goods and Services Vat Entries for Vendor with totals TotalBaseAmtgoods, TotalVATGoods, TotalBaseAmtServices, TotalVATServices.
+        CreateVendor(Vendor);
+        CreateGoodsAndServicesVatEntries(
+          Vendor."No.", VATEntry.Type::Purchase, LibraryRandom.RandIntInRange(3, 5),
+          TotalBaseAmtgoods, TotalVATGoods, TotalBaseAmtServices, TotalVATServices);
+
+        // [WHEN] Report "VAT Report - Vendor" is run.
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        Commit();
+        REPORT.Run(REPORT::"VAT Report - Vendor");
+
+        // [THEN] Resulting dataset containt TotalBaseAmtgoods, TotalVATGoods, TotalBaseAmtServices, TotalVATServices.
+        VerifyXMLTotalValuesOnVATReport(TotalBaseAmtgoods, TotalVATGoods, TotalBaseAmtServices, TotalVATServices);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -174,8 +238,27 @@ codeunit 141073 "UT Input and Output VAT Report"
         Customer.Insert();
     end;
 
-    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; BillToPayToNo: Code[20]; DocumentType: Option; Type: Option)
+    local procedure CreateGoodsAndServicesVatEntries(BillToPayToNo: Code[20]; VATEntryType: Option; "Count": Integer; var TotalBaseAmtgoods: Decimal; var TotalVATGoods: Decimal; var TotalBaseAmtServices: Decimal; var TotalVATServices: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+        i: Integer;
     begin
+        for i := 1 to Count do begin
+            CreateVATEntry(VATEntry, BillToPayToNo, VATEntry."Document Type"::Invoice, VATEntryType);
+            TotalBaseAmtgoods += VATEntry.Base;
+            TotalVATGoods += VATEntry.Amount;
+            CreateVATEntry(VATEntry, BillToPayToNo, VATEntry."Document Type"::Payment, VATEntryType);
+            TotalBaseAmtServices += VATEntry.Base;
+            TotalVATServices += VATEntry.Amount;
+        end;
+    end;
+
+    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; BillToPayToNo: Code[20]; DocumentType: Option; Type: Option)
+    var
+        VATEntryLast: Record "VAT Entry";
+    begin
+        VATEntryLast.FindLast();
+        VATEntry."Entry No." := VATEntryLast."Entry No." + 1;
         VATEntry.Type := Type;
         VATEntry."Document Type" := DocumentType;
         VATEntry."Bill-to/Pay-to No." := BillToPayToNo;
@@ -190,6 +273,15 @@ codeunit 141073 "UT Input and Output VAT Report"
         Vendor.Address := LibraryUTUtility.GetNewCode;
         Vendor."VAT Registration No." := LibraryUTUtility.GetNewCode;
         Vendor.Insert();
+    end;
+
+    local procedure VerifyXMLTotalValuesOnVATReport(TotalBaseAmtgoods: Decimal; TotalVATGoods: Decimal; TotalBaseAmtServices: Decimal; TotalVATServices: Decimal)
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(TotalBaseAmtgoodsTxt, TotalBaseAmtgoods);
+        LibraryReportDataset.AssertElementWithValueExists(TotalVATGoodsTxt, TotalVATGoods);
+        LibraryReportDataset.AssertElementWithValueExists(TotalBaseAmtServicesTxt, TotalBaseAmtServices);
+        LibraryReportDataset.AssertElementWithValueExists(TotalVATServicesTxt, TotalVATServices);
     end;
 
     local procedure VerifyXMLValuesOnVATReport(VATEntry: Record "VAT Entry"; Address: Code[20]; VATRegistrationNo: Code[20]; AmountCaption: Text[20]; BaseCaption: Text[20])

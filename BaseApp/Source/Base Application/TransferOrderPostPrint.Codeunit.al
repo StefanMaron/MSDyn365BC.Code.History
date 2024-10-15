@@ -59,7 +59,7 @@ codeunit 5707 "TransferOrder-Post + Print"
             end;
         end;
 
-        OnAfterPost(TransHeader);
+        OnAfterPost(TransHeader, Selection);
     end;
 
     procedure PrintReport(TransHeaderSource: Record "Transfer Header"; Selection: Option " ",Shipment,Receipt)
@@ -106,7 +106,7 @@ codeunit 5707 "TransferOrder-Post + Print"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPost(var TransHeader: Record "Transfer Header")
+    local procedure OnAfterPost(var TransHeader: Record "Transfer Header"; Selection: Option " ",Shipment,Receipt)
     begin
     end;
 

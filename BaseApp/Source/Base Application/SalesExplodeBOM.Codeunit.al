@@ -65,9 +65,12 @@ codeunit 63 "Sales-Explode BOM"
                     ToSalesLine."Unit of Measure Code" := FromBOMComp."Unit of Measure Code";
                     ToSalesLine."Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, FromBOMComp."Unit of Measure Code");
                     ToSalesLine."Outstanding Quantity" := Round("Quantity (Base)" * FromBOMComp."Quantity per", UOMMgt.QtyRndPrecision);
-                    if ToSalesLine."Outstanding Quantity" > 0 then
-                        if ItemCheckAvail.SalesLineCheck(ToSalesLine) then
-                            ItemCheckAvail.RaiseUpdateInterruptedError;
+                    IsHandled := false;
+                    OnRunOnBeforeItemCheckAvailSalesLineCheck(ToSalesLine, FromBOMComp, Rec);
+                    if not IsHandled then
+                        if ToSalesLine."Outstanding Quantity" > 0 then
+                            if ItemCheckAvail.SalesLineCheck(ToSalesLine) then
+                                ItemCheckAvail.RaiseUpdateInterruptedError;
                 until FromBOMComp.Next = 0;
         end;
 
@@ -88,6 +91,8 @@ codeunit 63 "Sales-Explode BOM"
             TransferExtendedText.InsertSalesExtText(ToSalesLine);
 
         ExplodeBOMCompLines(Rec);
+
+        OnAfterOnRun(ToSalesLine, Rec);
     end;
 
     var
@@ -202,6 +207,7 @@ codeunit 63 "Sales-Explode BOM"
                 OnInsertOfExplodedBOMLineToSalesLine(ToSalesLine, SalesLine, FromBOMComp);
 
                 ToSalesLine.Insert();
+                OnExplodeBOMCompLinesOnAfterToSalesLineInsert(ToSalesLine, SalesLine, FromBOMComp);
 
                 ToSalesLine.Validate("Qty. to Assemble to Order");
 
@@ -266,6 +272,21 @@ codeunit 63 "Sales-Explode BOM"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertOfExplodedBOMLineToSalesLine(var ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; BOMComponent: Record "BOM Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeItemCheckAvailSalesLineCheck(var ToSalesLine: Record "Sales Line"; FromBOMComp: Record "BOM Component"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExplodeBOMCompLinesOnAfterToSalesLineInsert(ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; FromBOMComp: Record "BOM Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line")
     begin
     end;
 }

@@ -1,4 +1,4 @@
-codeunit 5895 "Inventory Adjustment"
+﻿codeunit 5895 "Inventory Adjustment"
 {
     Permissions = TableData Item = rm,
                   TableData "Item Ledger Entry" = rm,
@@ -108,7 +108,7 @@ codeunit 5895 "Inventory Adjustment"
 
         UpdateJobItemCost;
 
-        OnAfterMakeMultiLevelAdjmt(TempItem, IsOnlineAdjmt, PostToGL);
+        OnAfterMakeMultiLevelAdjmt(TempItem, IsOnlineAdjmt, PostToGL, FilterItem);
     end;
 
     local procedure InitializeAdjmt()
@@ -989,8 +989,10 @@ codeunit 5895 "Inventory Adjustment"
         TempExcludedValueEntry: Record "Value Entry" temporary;
         TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary;
         AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
+        PeriodFormMgt: Codeunit PeriodFormManagement;
         RemainingOutbnd: Integer;
         Restart: Boolean;
+        EndOfValuationDateReached: Boolean;
     begin
         if not IsAvgCostItem() then
             exit;
@@ -1020,8 +1022,9 @@ codeunit 5895 "Inventory Adjustment"
                     ModifyAll("Cost Is Adjusted", true);
                     Reset;
 
+                    EndOfValuationDateReached := false;
                     while not Restart and AvgValueEntriesToAdjustExist(
-                            TempOutbndValueEntry, TempExcludedValueEntry, AvgCostAdjmtEntryPoint)
+                            TempOutbndValueEntry, TempExcludedValueEntry, AvgCostAdjmtEntryPoint) and not EndOfValuationDateReached
                     do begin
                         RemainingOutbnd := TempOutbndValueEntry.Count();
                         TempOutbndValueEntry.SetCurrentKey("Item Ledger Entry No.");
@@ -1036,7 +1039,10 @@ codeunit 5895 "Inventory Adjustment"
 
                         SetAvgCostAjmtFilter(AvgCostAdjmtEntryPoint);
                         Restart := FindFirst and not "Cost Is Adjusted";
-                        "Valuation Date" := GetNextDate("Valuation Date");
+                        if "Valuation Date" >= PeriodFormMgt.EndOfPeriod() then
+                            EndOfValuationDateReached := true
+                        else
+                            "Valuation Date" := GetNextDate("Valuation Date");
                     end;
                 until (TempAvgCostAdjmtEntryPoint.Next = 0) or Restart;
     end;
@@ -1059,6 +1065,7 @@ codeunit 5895 "Inventory Adjustment"
         ValueEntry: Record "Value Entry";
         CalendarPeriod: Record Date;
         FiscalYearAccPeriod: Record "Accounting Period";
+        PeriodFormMgt: Codeunit PeriodFormManagement;
         FindNextRange: Boolean;
     begin
         with ValueEntry do begin
@@ -1143,11 +1150,11 @@ codeunit 5895 "Inventory Adjustment"
                 FetchOpenItemEntriesToExclude(AvgCostAdjmtEntryPoint, ExcludedValueEntry, TempOpenItemLedgEntry, CalendarPeriod);
             end;
 
-            if FindNextRange then begin
-                AvgCostAdjmtEntryPoint."Valuation Date" := GetNextDate(AvgCostAdjmtEntryPoint."Valuation Date");
-                AvgValueEntriesToAdjustExist(OutbndValueEntry, ExcludedValueEntry, AvgCostAdjmtEntryPoint);
-            end;
-
+            if FindNextRange then
+                if AvgCostAdjmtEntryPoint."Valuation Date" < PeriodFormMgt.EndOfPeriod() then begin
+                    AvgCostAdjmtEntryPoint."Valuation Date" := GetNextDate(AvgCostAdjmtEntryPoint."Valuation Date");
+                    AvgValueEntriesToAdjustExist(OutbndValueEntry, ExcludedValueEntry, AvgCostAdjmtEntryPoint);
+                end;
             exit(not OutbndValueEntry.IsEmpty and not IsEmpty);
         end;
     end;
@@ -1899,6 +1906,7 @@ codeunit 5895 "Inventory Adjustment"
 
             LockTable();
             Get("No.");
+            OnUpdateItemUnitCostOnAfterItemGet(Item);
             if not LevelExceeded then begin
                 "Allow Online Adjustment" := true;
                 AvgCostAdjmtPoint.SetRange("Item No.", "No.");
@@ -2589,7 +2597,7 @@ codeunit 5895 "Inventory Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterMakeMultiLevelAdjmt(var Item: Record Item; IsOnlineAdjmt: Boolean; PostToGL: Boolean)
+    local procedure OnAfterMakeMultiLevelAdjmt(var Item: Record Item; IsOnlineAdjmt: Boolean; PostToGL: Boolean; var FilterItem: Record Item)
     begin
     end;
 
@@ -2650,6 +2658,11 @@ codeunit 5895 "Inventory Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateJobItemCost(var Job: Record Job);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemUnitCostOnAfterItemGet(var Item: Record Item)
     begin
     end;
 }
