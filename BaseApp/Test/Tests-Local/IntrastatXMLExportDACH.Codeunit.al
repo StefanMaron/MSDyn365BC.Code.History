@@ -1,6 +1,6 @@
 codeunit 142086 "Intrastat XML Export DACH"
 {
-    // // [FEATURE] [Intrastat] [XML] [Export] [Local]
+    // [FEATURE] [Intrastat] [XML] [Export] [Local]
 
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -773,7 +773,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         PrepareIntraJnlForBasicScenario(IntrastatJnlBatch, DummyIntrastatJnlLineSpec);
 
         // [WHEN] Run REP 11014 "Intrastat - Disk Tax Auth DE" using "Format Type" = "XML"
-        ZipFileName := RunReport(IntrastatJnlBatch,FormatTypeGlb::XML,FALSE);
+        ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, FALSE);
 
         ZipFile.Open(ZipFileName);
         ZipFile.CreateInStream(ZipFileInStream);
@@ -798,6 +798,61 @@ codeunit 142086 "Intrastat XML Export DACH"
         VerifyXMLItemWithSUQtyAndOriginCountry('/INSTAT/Envelope/Declaration/', DummyIntrastatJnlLineSpec[2], 1);
         VerifyXMLItemWithSUQty('/INSTAT/Envelope/Declaration/', DummyIntrastatJnlLineSpec[3], 2);
         VerifyXMLItemWithSUQty('/INSTAT/Envelope/Declaration/', DummyIntrastatJnlLineSpec[4], 3);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatDiskTaxAuthDE_RPH')]
+    [Scope('OnPrem')]
+    procedure ReportXMLIntrastatDE_StatisticalValue()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        DataCompression: Codeunit "Data Compression";
+        TempBlob: Codeunit "Temp Blob";
+        XMLDocument: DotNet XmlDocument;
+        ExtractedFileInStream: InStream;
+        ZipFileInStream: InStream;
+        ExtractedFileOutStream: OutStream;
+        FileName: Text;
+        ZipFile: File;
+        EntryList: List of [Text];
+        EntryLength: Integer;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 331036] REP 11014 "Intrastat - Disk Tax Auth DE" in case of "Format Type" = "XML", Amount = 0, Statistical Value entered manually
+        Initialize;
+
+        // [GIVEN] Intrastat Journal Line with no item, Amount = 0, Statistical Value = 100
+        MockIntrastatJnlLine(IntrastatJnlLine, 0, false);
+        IntrastatJnlLine."Item No." := '';
+        IntrastatJnlLine.Amount := 0;
+        IntrastatJnlLine."Statistical Value" := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        IntrastatJnlLine.Modify;
+        IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
+
+        // [WHEN] Run REP 11014 "Intrastat - Disk Tax Auth DE" using "Format Type" = "XML"
+        FileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, FALSE);
+
+        ZipFile.Open(FileName);
+        ZipFile.CreateInStream(ZipFileInStream);
+        DataCompression.OpenZipArchive(ZipFileInStream, false);
+        DataCompression.GetEntryList(EntryList);
+        TempBlob.CreateOutStream(ExtractedFileOutStream);
+        DataCompression.ExtractEntry(EntryList.Get(1), ExtractedFileOutStream, EntryLength);
+        TempBlob.CreateInStream(ExtractedFileInStream);
+        DataCompression.CloseZipArchive();
+        ZipFile.Close();
+
+        // [THEN] XML has been exported with Amount = 0, Statistical Value = 100
+        LoadXMLFile(XMLDocument, ExtractedFileInStream);
+        LibraryXPathXMLReader.InitializeWithText(XMLDocument.OuterXml, '');
+        IntrastatJnlLine.Find;
+        VerifyXMLItem('/INSTAT/Envelope/Declaration/', IntrastatJnlLine, 0);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+          '/INSTAT/Envelope/Declaration/Item/invoicedAmount', FormatDecimal(IntrastatJnlLine.Amount));
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+          '/INSTAT/Envelope/Declaration/Item/statisticalValue', FormatDecimal(IntrastatJnlLine."Statistical Value"));
         LibraryVariableStorage.AssertEmpty;
     end;
 

@@ -8,6 +8,7 @@ codeunit 11503 CHMgt
     var
         Text000: Label 'No valid ESR bank has been defined. You can define an ESR bank in three areas:\1. ESR bank from requestform\2. Payment type on customer or sales header\3. Main bank in ESR setup.';
         Text004: Label 'The reference number must have 27 characters. Please check the ESR setup.';
+        CannotAssignReferenceNoMsg: Label 'The Reference No. field could not be filled automatically because more than one vendor ledger entry exist for the payment.';
 
     procedure PrepareEsr(_Head: Record "Sales Invoice Header"; var _EsrBank: Record "ESR Setup"; var _EsrType: Option Default,ESR,"ESR+"; var _Adr: array[8] of Text[100]; var _AmtTxt: Text[30]; var _CurrencyCode: Code[10]; var _DocType: Text[10]; var _RefNo: Text[35]; var _CodingLine: Text[100])
     var
@@ -281,6 +282,68 @@ codeunit 11503 CHMgt
         exit(true);
     end;
 
+    local procedure CopyReferenceFromVLEToGenJournalLine(VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        if VendorLedgerEntry."Reference No." = '' then
+            exit;
+
+        with VendorBankAccount do begin
+            Get(VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Recipient Bank Account");
+            if ("Payment Form" = "Payment Form"::ESR) and ("ESR Type" = "ESR Type"::"5/15") then begin
+                GenJournalLine."Reference No." := CopyStr(VendorLedgerEntry."Reference No.", 1, 15);
+                if StrLen(GenJournalLine."Reference No.") > 15 then
+                    GenJournalLine.Checksum := CopyStr(VendorLedgerEntry."Reference No.", 17, 2);
+            end else
+                GenJournalLine."Reference No." := VendorLedgerEntry."Reference No.";
+        end;
+
+        GenJournalLine."Recipient Bank Account" := VendorLedgerEntry."Recipient Bank Account";
+    end;
+
+    local procedure FindFirstVendLedgEntryWithAppliesToID(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AccNo: Code[20]; AppliesToID: Code[50]): Boolean
+    begin
+        with VendorLedgerEntry do begin
+            Reset;
+            SetCurrentKey("Vendor No.", "Applies-to ID", Open);
+            SetRange("Vendor No.", AccNo);
+            SetRange("Applies-to ID", AppliesToID);
+            SetRange(Open, true);
+            exit(FindSet);
+        end;
+    end;
+
+    local procedure FindFirstVendLedgEntryWithAppliesToDocNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AccNo: Code[20]; AppliestoDocType: Option; AppliestoDocNo: Code[20]): Boolean
+    begin
+        with VendorLedgerEntry do begin
+            Reset;
+            SetCurrentKey("Document No.");
+            SetRange("Document No.", AppliestoDocNo);
+            SetRange("Document Type", AppliestoDocType);
+            SetRange("Vendor No.", AccNo);
+            SetRange(Open, true);
+            exit(FindFirst);
+        end;
+    end;
+
+    local procedure SendReferenceNoCollisionNotification()
+    var
+        ReferenceNoNotificaiton: Notification;
+    begin
+        ReferenceNoNotificaiton.Id := GetReferenceNoCollisionNotificationId;
+        ReferenceNoNotificaiton.Recall;
+
+        ReferenceNoNotificaiton.Message := CannotAssignReferenceNoMsg;
+        ReferenceNoNotificaiton.Scope := NOTIFICATIONSCOPE::LocalScope;
+        ReferenceNoNotificaiton.Send;
+    end;
+
+    local procedure GetReferenceNoCollisionNotificationId(): Guid
+    begin
+        exit('957D62D7-3D00-4C8F-A3B0-D14DBC9EC4FD');
+    end;
+
     [Scope('OnPrem')]
     procedure NoOfPaymentsForBatchBooking(): Integer
     begin
@@ -289,15 +352,7 @@ codeunit 11503 CHMgt
 
     [EventSubscriber(ObjectType::Report, 393, 'OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer', '', false, false)]
     local procedure SuggestVendorPaymentUpdatePaymentLine(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
-    var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        if VendorLedgerEntry.Get(TempPaymentBuffer."Vendor Ledg. Entry No.") then begin
-            if VendorLedgerEntry."Recipient Bank Account" <> '' then
-                GenJournalLine.Validate("Recipient Bank Account", VendorLedgerEntry."Recipient Bank Account");
-            GenJournalLine."Reference No." := VendorLedgerEntry."Reference No.";
-        end;
-
         // NewDescription = Description + ', ' + ExternalDocNo, where Description is truncated to fit full ExternalDocNo value
         if TempPaymentBuffer."Applies-to Ext. Doc. No." <> '' then
             GenJournalLine.Description :=
@@ -309,16 +364,44 @@ codeunit 11503 CHMgt
                 -MaxStrLen(GenJournalLine.Description));
     end;
 
-    [EventSubscriber(ObjectType::Page, 1190, 'OnUpdateTempBufferFromVendorLedgerEntry', '', false, false)]
-    local procedure CreatePaymentUpdatePaymentBuffer(var TempPaymentBuffer: Record "Payment Buffer" temporary; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    [EventSubscriber(ObjectType::Table, 372, 'OnCopyFieldsFromVendorLedgerEntry', '', false, false)]
+    local procedure HandleOnCopyFieldsFromVendorLedgerEntry(VendorLedgerEntrySource: Record "Vendor Ledger Entry"; var PaymentBufferTarget: Record "Payment Buffer")
     begin
-        TempPaymentBuffer."Reference No." := VendorLedgerEntry."Reference No.";
+        PaymentBufferTarget."Reference No." := VendorLedgerEntrySource."Reference No.";
     end;
 
-    [EventSubscriber(ObjectType::Page, 1190, 'OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer', '', false, false)]
-    local procedure CreatePaymentUpdateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
+    [EventSubscriber(ObjectType::Table, 372, 'OnCopyFieldsToGenJournalLine', '', false, false)]
+    local procedure HandleOnCopyFieldsToGenJournalLine(PaymentBufferSource: Record "Payment Buffer"; var GenJournalLineTarget: Record "Gen. Journal Line")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        GenJournalLine."Reference No." := TempPaymentBuffer."Reference No.";
+        if PaymentBufferSource."Vendor Ledg. Entry No." <> 0 then begin
+            GenJournalLineTarget."Reference No." := PaymentBufferSource."Reference No.";
+            VendorLedgerEntry.Get(PaymentBufferSource."Vendor Ledg. Entry No.");
+            if VendorLedgerEntry."Recipient Bank Account" <> '' then
+                GenJournalLineTarget.Validate("Recipient Bank Account", VendorLedgerEntry."Recipient Bank Account");
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, 81, 'OnAfterSetJournalLineFieldsFromApplication', '', false, false)]
+    local procedure HandleOnAfterSetJournalLineFieldsFromApplication(var GenJournalLine: Record "Gen. Journal Line"; AccType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee; AccNo: Code[20]; xGenJournalLine: Record "Gen. Journal Line")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        with GenJournalLine do
+            if AccType = AccType::Vendor then begin
+                "Reference No." := '';
+                if "Applies-to ID" <> '' then begin
+                    if FindFirstVendLedgEntryWithAppliesToID(VendorLedgerEntry, AccNo, "Applies-to ID") then
+                        if VendorLedgerEntry.Next = 0 then
+                            CopyReferenceFromVLEToGenJournalLine(VendorLedgerEntry, GenJournalLine)
+                        else
+                            SendReferenceNoCollisionNotification;
+                end else
+                    if "Applies-to Doc. No." <> '' then
+                        if FindFirstVendLedgEntryWithAppliesToDocNo(VendorLedgerEntry, AccNo, "Applies-to Doc. Type", "Applies-to Doc. No.") then
+                            CopyReferenceFromVLEToGenJournalLine(VendorLedgerEntry, GenJournalLine);
+            end;
     end;
 }
 

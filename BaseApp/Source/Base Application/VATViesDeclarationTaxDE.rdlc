@@ -2943,7 +2943,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value>=Last(Fields!The_data_that_is_required_in_this_summary_according_to_the_149_etc_German_Fiscal_Code_AO_and_Lbl.Value, "table2").ToString().Replace(chr(92), vbCrLf)</Value>
+                                      <Value>=Last(Fields!The_data_that_is_required_in_this_summary_notification_are_required.Value, "table2").ToString().Replace(chr(92), vbCrLf)</Value>
                                       <Style>
                                         <FontSize>7pt</FontSize>
                                       </Style>
@@ -4400,8 +4400,8 @@ End Function</Code>
         <Field Name="Note_according_to_the_regulations_of_data_protection_laws_Caption">
           <DataField>Note_according_to_the_regulations_of_data_protection_laws_Caption</DataField>
         </Field>
-        <Field Name="The_data_that_is_required_in_this_summary_according_to_the_149_etc_German_Fiscal_Code_AO_and_Lbl">
-          <DataField>The_data_that_is_required_in_this_summary_according_to_the_149_etc_German_Fiscal_Code_AO_and_Lbl</DataField>
+        <Field Name="The_data_that_is_required_in_this_summary_notification_are_required">
+          <DataField>The_data_that_is_required_in_this_summary_notification_are_required</DataField>
         </Field>
         <Field Name="Microsoft_Deutschland_GmbH___BfF___8__April_1998___S7427_a__ZU_23___SW_191Caption_Control1140178">
           <DataField>Microsoft_Deutschland_GmbH___BfF___8__April_1998___S7427_a__ZU_23___SW_191Caption_Control1140178</DataField>

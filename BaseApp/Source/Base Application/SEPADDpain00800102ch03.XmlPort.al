@@ -52,27 +52,6 @@ xmlport 11501 "SEPA DD pain.008.001.02.ch03"
                                 }
                             }
                         }
-                        textelement(CtctDtls)
-                        {
-                            fieldelement(Nm; CompanyInformation.Address)
-                            {
-
-                                trigger OnBeforePassField()
-                                begin
-                                    if CompanyInformation.Address = '' then
-                                        currXMLport.Skip;
-                                end;
-                            }
-                            fieldelement(Othr; CompanyInformation."Post Code")
-                            {
-
-                                trigger OnBeforePassField()
-                                begin
-                                    if CompanyInformation."Post Code" = '' then
-                                        currXMLport.Skip;
-                                end;
-                            }
-                        }
                     }
                 }
                 tableelement(paymentexportdatagroup; "Payment Export Data")
@@ -175,13 +154,6 @@ xmlport 11501 "SEPA DD pain.008.001.02.ch03"
                                 textelement(cdtrmmbid)
                                 {
                                     XmlName = 'MmbId';
-                                }
-                            }
-                            textelement(othrch)
-                            {
-                                XmlName = 'Othr';
-                                fieldelement(Id; PaymentExportDataGroup."Payment Information ID")
-                                {
                                 }
                             }
                         }

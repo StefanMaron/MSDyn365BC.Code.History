@@ -201,7 +201,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     end;
 
     [Test]
-    [HandlerFunctions('GeneralJournalTemplateHandler,MessageHandler')]
+    [HandlerFunctions('GeneralJournalTemplateHandler')]
     [Scope('OnPrem')]
     procedure GeneralJournalWithBatchName()
     var

@@ -862,12 +862,19 @@ page 9245 "Demand Forecast Matrix"
 
     local procedure QtyValidate(ColumnID: Integer)
     begin
-        Enter_BaseQty(ColumnID);
+        EnterBaseQty(ColumnID);
         ProdForecastQtyBase_OnValidate(ColumnID);
     end;
 
-    local procedure Enter_BaseQty(ColumnID: Integer)
+    local procedure EnterBaseQty(ColumnID: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEnterBaseQty(Rec, ColumnID, IsHandled);
+        if IsHandled then
+            exit;
+
         SetDateFilter(ColumnID);
         if QtyType = QtyType::"Net Change" then
             SetRange("Date Filter", MatrixRecords[ColumnID]."Period Start", MatrixRecords[ColumnID]."Period End")
@@ -895,9 +902,16 @@ page 9245 "Demand Forecast Matrix"
     var
         ProdForecastEntry: Record "Production Forecast Entry";
         ProdForecastEntry2: Record "Production Forecast Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeProdForecastQtyBase_OnValidate(Rec, ColumnID, IsHandled);
+        if IsHandled then
+            exit;
+
         if ForecastType = ForecastType::Both then
             Error(Text000);
+
         ProdForecastEntry.SetCurrentKey("Production Forecast Name", "Item No.", "Location Code", "Forecast Date", "Component Forecast");
         ProdForecastEntry.SetRange("Production Forecast Name", GetFilter("Production Forecast Name"));
         ProdForecastEntry.SetRange("Item No.", "No.");
@@ -943,6 +957,16 @@ page 9245 "Demand Forecast Matrix"
             CalcSums("Forecast Quantity (Base)");
             exit("Forecast Quantity (Base)");
         end;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeEnterBaseQty(var Item: Record Item; ColumnID: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeProdForecastQtyBase_OnValidate(var Item: Record Item; ColumnID: Integer; var IsHandled: Boolean);
+    begin
     end;
 }
 

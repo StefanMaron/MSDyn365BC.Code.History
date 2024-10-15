@@ -80,6 +80,7 @@ page 8909 "Warehouse Manager Role Center"
                     }
                     action("Posted Credit Memos")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Posted Purchase Credit Memos';
                         RunObject = page "Posted Purchase Credit Memos";
                     }
@@ -91,6 +92,7 @@ page 8909 "Warehouse Manager Role Center"
                     }
                     action("Posted Credit Memos1")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Posted Sales Credit Memos';
                         RunObject = page "Posted Sales Credit Memos";
                     }
@@ -274,18 +276,18 @@ page 8909 "Warehouse Manager Role Center"
                         Caption = 'Posted Invt. Pick';
                         RunObject = page "Posted Invt. Pick List";
                     }
-                    // action("Posted Phys. Invt. Order")
-                    // {
-                    // 	ApplicationArea = Basic,Suite;
-                    // 	Caption = 'Posted Phys. Invt. Order';
-                    // 	RunObject = page 5005359;
-                    // }
-                    // action("Posted Phys. Invt. Recording")
-                    // {
-                    // 	ApplicationArea = Basic,Suite;
-                    // 	Caption = 'Posted Phys. Invt. Recording';
-                    // 	RunObject = page 5005363;
-                    // }
+                    action("Posted Phys. Invt. Order")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Posted Phys. Invt. Order';
+                        RunObject = page "Posted Phys. Invt. Order";
+                    }
+                    action("Posted Phys. Invt. Recording")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Posted Phys. Invt. Recording';
+                        RunObject = page "Posted Phys. Invt. Recording";
+                    }
                 }
                 group("Group6")
                 {
@@ -684,6 +686,7 @@ page 8909 "Warehouse Manager Role Center"
                     }
                     action("Item Journal Templates")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Item Journal Templates';
                         RunObject = page "Item Journal Templates";
                     }
@@ -707,6 +710,7 @@ page 8909 "Warehouse Manager Role Center"
                     }
                     action("Report Selections Inventory")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Inventory';
                         RunObject = page "Report Selection - Inventory";
                     }
@@ -890,7 +894,7 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Warehouse;
                         Caption = 'Bin Creation Worksheet Templates';
                         RunObject = page "Bin Creation Wksh. Templates";
-                        AccessByPermission = tabledata 7354 = R;
+                        AccessByPermission = tableData 7354 = R;
                     }
                     action("Whse. Journal Templates")
                     {

@@ -40,6 +40,8 @@ codeunit 1255 "Match Bank Payments"
         ProgressBarMsg: Label 'Please wait while the operation is being completed.';
         MustChooseAccountErr: Label 'You must choose an account to transfer the difference to.';
         LineSplitTxt: Label 'The value in the Transaction Amount field has been reduced by %1. A new line with %1 in the Transaction Amount field has been created.', Comment = '%1 - Difference';
+        BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
+        BankAccountRecTotalAndMatchedLinesLbl: Label 'Total Bank Statement Lines: %1, of those applied: %2, and text-matched: %3', Locked = true;
 
     procedure "Code"(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
@@ -323,6 +325,7 @@ codeunit 1255 "Match Bank Payments"
     var
         Score: Integer;
         RemainingAmount: Decimal;
+        IsHandled: Boolean;
     begin
         if CanEntriesMatch(
              BankAccReconciliationLine, TempLedgerEntryMatchingBuffer."Remaining Amount", TempLedgerEntryMatchingBuffer."Posting Date")
@@ -330,11 +333,14 @@ codeunit 1255 "Match Bank Payments"
             if AccountType = TempBankStatementMatchingBuffer."Account Type"::Customer then
                 DirectDebitCollectionMatching(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer);
 
-            if AccountType <> TempBankStatementMatchingBuffer."Account Type"::"Bank Account" then
-                DocumentMatching(BankPmtApplRule, BankAccReconciliationLine,
-                  TempLedgerEntryMatchingBuffer."Document No.", TempLedgerEntryMatchingBuffer."External Document No.")
-            else
-                DocumentMatchingForBankLedgerEntry(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer);
+            IsHandled := false;
+            OnFindMatchingEntryOnBeforeDocumentMatching(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer, IsHandled);
+            if not IsHandled then
+                if AccountType <> TempBankStatementMatchingBuffer."Account Type"::"Bank Account" then
+                    DocumentMatching(BankPmtApplRule, BankAccReconciliationLine,
+                    TempLedgerEntryMatchingBuffer."Document No.", TempLedgerEntryMatchingBuffer."External Document No.")
+                else
+                    DocumentMatchingForBankLedgerEntry(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer);
 
             if (not CHMgt.IsESRFormat(BankAccReconciliationLine."ESR Reference No.")) or
                (BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" = BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes)
@@ -1052,6 +1058,7 @@ codeunit 1255 "Match Bank Payments"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         MatchedCount: Integer;
         TotalCount: Integer;
+        TextMatchCount: Integer;
         FinalText: Text;
     begin
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type"::"Payment Application");
@@ -1064,6 +1071,11 @@ codeunit 1255 "Match Bank Payments"
 
         FinalText := StrSubstNo(MatchSummaryMsg, MatchedCount, TotalCount);
         Message(FinalText);
+
+        BankAccReconciliationLine.SetRange("Match Confidence", BankAccReconciliationLine."Match Confidence"::"High - Text-to-Account Mapping");
+
+        SendTraceTag('0000AIA', BankAccountRecCategoryLbl, Verbosity::Normal,
+          StrSubstNo(BankAccountRecTotalAndMatchedLinesLbl, TotalCount, MatchedCount, TextMatchCount), DataClassification::SystemMetadata);
     end;
 
     local procedure UpdateOneToManyMatches(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
@@ -1445,6 +1457,11 @@ codeunit 1255 "Match Bank Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnDocumentMatchingForBankLedgerEntryOnBeforeMatch(SearchText: Text; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var BankPmtApplRule: Record "Bank Pmt. Appl. Rule")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindMatchingEntryOnBeforeDocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 

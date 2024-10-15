@@ -58,7 +58,7 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = SalesAnalysis;
                         Caption = 'Sales Analysis Reports';
-                        RunObject = page "Analysis report Sale";
+                        RunObject = page "Analysis Report Sale";
                     }
                     action("Sales Analysis by Dimensions")
                     {
@@ -206,12 +206,14 @@ page 8907 "Sales & Marketing Manager RC"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer - Order Summary';
                             RunObject = report "Customer - Order Summary";
+                            Visible = false;
                         }
                         action("Customer/Item Sales")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer/Item Sales';
                             RunObject = report "Customer/Item Sales";
+                            Visible = false;
                         }
                         action("Customer Register")
                         {
@@ -224,18 +226,21 @@ page 8907 "Sales & Marketing Manager RC"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer - Order Detail';
                             RunObject = report "Customer - Order Detail";
+                            Visible = false;
                         }
                         action("Customer - Top 10 List")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer Top 10 List';
                             RunObject = report "Customer - Top 10 List";
+                            Visible = false;
                         }
                         action("Customer - Trial Balance")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Customer Trial Balance';
                             RunObject = report "Customer - Trial Balance";
+                            Visible = false;
                         }
                         action("Customer - Sales List")
                         {
@@ -419,6 +424,7 @@ page 8907 "Sales & Marketing Manager RC"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer - Order Detail';
                         RunObject = report "Customer - Order Detail";
+                        Visible = false;
                     }
                     action("Sales Reservation Avail.")
                     {
@@ -449,12 +455,14 @@ page 8907 "Sales & Marketing Manager RC"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer/Item Sales';
                         RunObject = report "Customer/Item Sales";
+                        Visible = false;
                     }
                     action("Customer - Order Summary1")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer - Order Summary';
                         RunObject = report "Customer - Order Summary";
+                        Visible = false;
                     }
                 }
             }
@@ -501,7 +509,7 @@ page 8907 "Sales & Marketing Manager RC"
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Export Contact';
-                    RunObject = XMLport "Export Contact";
+                    RunObject = xmlport "Export Contact";
                 }
                 action("Campaign - Details")
                 {
@@ -585,6 +593,7 @@ page 8907 "Sales & Marketing Manager RC"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Item Charges - Specification';
                         RunObject = report "Item Charges - Specification";
+                        Visible = false;
                     }
                     action("Inventory - Customer Sales")
                     {
@@ -645,6 +654,7 @@ page 8907 "Sales & Marketing Manager RC"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Item ABC Analysis';
                         RunObject = report "Item ABC Analysis";
+                        Visible = false;
                     }
                 }
             }
@@ -710,7 +720,7 @@ page 8907 "Sales & Marketing Manager RC"
                     ApplicationArea = Suite;
                     Caption = 'Coupled Data Synchronization Errors';
                     RunObject = page "CRM Skipped Records";
-                    AccessByPermission = TableData 5331 = R;
+                    AccessByPermission = tabledata 5331 = R;
                 }
             }
             group("Group16")
@@ -731,8 +741,8 @@ page 8907 "Sales & Marketing Manager RC"
                 action("report Selection Sales")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'report Selections Sales';
-                    RunObject = page "report Selection - Sales";
+                    Caption = 'Report Selections Sales';
+                    RunObject = page "Report Selection - Sales";
                 }
                 action("Standard Sales Codes")
                 {
@@ -821,6 +831,7 @@ page 8907 "Sales & Marketing Manager RC"
                     }
                     action("Customer Disc. Groups")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Customer Discount Groups';
                         RunObject = page "Customer Disc. Groups";
                     }
@@ -848,6 +859,7 @@ page 8907 "Sales & Marketing Manager RC"
                     }
                     action("Inventory Setup")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Inventory Setup';
                         RunObject = page "Inventory Setup";
                     }

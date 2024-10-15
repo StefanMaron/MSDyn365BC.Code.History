@@ -426,6 +426,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         if GLAccountNo = '' then begin
             VATPostingSetup.SetRange("VAT Bus. Posting Group", SalesHeader."VAT Bus. Posting Group");
             VATPostingSetup.SetFilter("VAT Calculation Type", '<>%1', VATPostingSetup."VAT Calculation Type"::"Full VAT");
+            VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
             VATPostingSetup.FindFirst;
             GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase);
         end;

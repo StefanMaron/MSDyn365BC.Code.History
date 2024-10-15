@@ -34,6 +34,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         WrongValErr: Label '%1 must be %2 in %3.';
         DialogTxt: Label 'Dialog';
         DimensionUsedErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error.';
+        CannotAssignReferenceNoMsg: Label 'The Reference No. field could not be filled automatically because more than one vendor ledger entry exist for the payment.';
 
     [Test]
     [Scope('OnPrem')]
@@ -722,7 +723,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     end;
 
     [Test]
-    [HandlerFunctions('TwoEntriesWithSameAppliesToIDModalPageHandler,GeneralJournalTemplateListPageHandler')]
+    [HandlerFunctions('TwoEntriesWithSameAppliesToIDModalPageHandler,GeneralJournalTemplateListPageHandler,ReferencNoSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure SetAppliesToIDInOneRecordOfSeveralCustLedgEntries()
     var
@@ -762,7 +763,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     end;
 
     [Test]
-    [HandlerFunctions('TwoEntriesWithDifferentAppliesToIDModalPageHandler,GeneralJournalTemplateListPageHandler')]
+    [HandlerFunctions('TwoEntriesWithDifferentAppliesToIDModalPageHandler,GeneralJournalTemplateListPageHandler,ReferencNoSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure SetDifferentAppliesToIDInOneRecordOfSeveralCustLedgEntries()
     var
@@ -1663,6 +1664,14 @@ codeunit 134001 "ERM Apply Purchase/Payables"
     begin
         GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText);
         GeneralJournalTemplateList.OK.Invoke;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure ReferencNoSendNotificationHandler(var TheNoitification: Notification): Boolean
+    begin
+        Assert.AreEqual(Format(CannotAssignReferenceNoMsg), TheNoitification.Message, 'Wrong notification message');
+        exit(false)
     end;
 }
 

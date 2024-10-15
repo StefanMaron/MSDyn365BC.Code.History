@@ -37,13 +37,13 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Export Business Data';
-                    RunObject = Report "Export Business Data";
+                    RunObject = report "Export Business Data";
                 }
                 action("Paragraph 131 Export")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Paragraph 131 Export';
-                    RunObject = Report "Paragraph 131 Export";
+                    RunObject = report "Paragraph 131 Export";
                 }
                 group("Group1")
                 {
@@ -98,12 +98,14 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'VAT- VIES Declaration Tax Auth';
                             RunObject = report "VAT- VIES Declaration Tax Auth";
+                            Visible = false;
                         }
                         action("VAT- VIES Declaration Disk")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'VAT- VIES Declaration Disk...';
                             RunObject = report "VAT- VIES Declaration Disk";
+                            Visible = false;
                         }
                         action("Day Book VAT Entry")
                         {
@@ -127,31 +129,35 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'VAT Statement Germany';
-                            RunObject = Report "VAT Statement Germany";
+                            RunObject = report "VAT Statement Germany";
+                            Visible = false;
                         }
                         action("VAT Statement AT")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'VAT Statement Austria';
-                            RunObject = Report "VAT Statement AT";
+                            RunObject = report "VAT Statement AT";
+                            Visible = false;
                         }
                         action("VAT-Vies Declaration Tax - DE")
                         {
                             ApplicationArea = BasicEU;
                             Caption = 'VAT-Vies Declaration Tax - DE';
-                            RunObject = Report "VAT-Vies Declaration Tax - DE";
+                            RunObject = report "VAT-Vies Declaration Tax - DE";
+                            Visible = false;
                         }
                         action("VAT - VIES Declaration XML")
                         {
                             ApplicationArea = BasicEU;
                             Caption = 'VAT - VIES Declaration XML';
-                            RunObject = Report "VAT - VIES Declaration XML";
+                            RunObject = report "VAT - VIES Declaration XML";
+                            Visible = false;
                         }
                         action("Crossborder Services")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Crossborder Services';
-                            RunObject = Report "Crossborder Services";
+                            RunObject = report "Crossborder Services";
                         }
                     }
                 }
@@ -326,6 +332,7 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Dimensions;
                             Caption = 'Dimensions - Total';
                             RunObject = report "Dimensions - Total";
+                            Visible = false;
                         }
                         action("Check Value Posting")
                         {
@@ -342,6 +349,7 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Account Schedule';
                             RunObject = report "Account Schedule";
+                            Visible = false;
                         }
                         action("Trial Balance")
                         {
@@ -435,13 +443,13 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Provisional Trial Balance';
-                            RunObject = Report "Provisional Trial Balance";
+                            RunObject = report "Provisional Trial Balance";
                         }
                         action("G/L Total-Balance")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L Total-Balance';
-                            RunObject = Report "G/L Total-Balance";
+                            RunObject = report "G/L Total-Balance";
                         }
                     }
                     group("Group10")
@@ -452,18 +460,19 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Checklist';
                             RunObject = report "Intrastat - Checklist";
+                            Visible = false;
                         }
                         action("Intrastat - Checklist AT")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Checklist AT';
-                            RunObject = Report "Intrastat - Checklist AT";
+                            RunObject = report "Intrastat - Checklist AT";
                         }
                         action("Intrastat - Checklist DE")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Checklist DE';
-                            RunObject = Report "Intrastat - Checklist DE";
+                            RunObject = report "Intrastat - Checklist DE";
                         }
                         action("Intrastat - Form")
                         {
@@ -475,19 +484,19 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Form AT';
-                            RunObject = Report "Intrastat - Form AT";
+                            RunObject = report "Intrastat - Form AT";
                         }
                         action("Intrastat - Form DE")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Form DE';
-                            RunObject = Report "Intrastat - Form DE";
+                            RunObject = report "Intrastat - Form DE";
                         }
                         action("Intrastat - Item List")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Item List';
-                            RunObject = Report "Intrastat - Item List";
+                            RunObject = report "Intrastat - Item List";
                         }
                         action("Foreign Currency Balance")
                         {
@@ -539,7 +548,7 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L Setup Information';
-                            RunObject = Report "G/L Setup Information";
+                            RunObject = report "G/L Setup Information";
                         }
                     }
                 }
@@ -781,6 +790,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Report Selection - Bank Acc.")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Bank Account';
                         RunObject = page "Report Selection - Bank Acc.";
                     }
@@ -938,6 +948,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Cost Journal Templates")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Cost Journal Templates';
                         RunObject = page "Cost Journal Templates";
                     }
@@ -1135,7 +1146,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer Total-Balance';
-                        RunObject = Report "Customer Total-Balance";
+                        RunObject = report "Customer Total-Balance";
                     }
                     action("Customer - List")
                     {
@@ -1160,12 +1171,14 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer - Order Summary';
                         RunObject = report "Customer - Order Summary";
+                        Visible = false;
                     }
                     action("Customer - Order Detail")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer - Order Detail';
                         RunObject = report "Customer - Order Detail";
+                        Visible = false;
                     }
                     action("Customer - Labels")
                     {
@@ -1178,6 +1191,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer Top 10 List';
                         RunObject = report "Customer - Top 10 List";
+                        Visible = false;
                     }
                     action("Sales Statistics")
                     {
@@ -1190,6 +1204,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer/Item Sales';
                         RunObject = report "Customer/Item Sales";
+                        Visible = false;
                     }
                     action("Salesperson - Sales Statistics")
                     {
@@ -1220,6 +1235,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer Trial Balance';
                         RunObject = report "Customer - Trial Balance";
+                        Visible = false;
                     }
                     action("EC Sales List")
                     {
@@ -1245,6 +1261,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Report Selection Reminder and")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Reminder/Fin. Charge';
                         RunObject = page "Report Selection - Reminder";
                     }
@@ -1422,13 +1439,13 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Vendor Total-Balance';
-                        RunObject = Report "Vendor Total-Balance";
+                        RunObject = report "Vendor Total-Balance";
                     }
                     action("Vendor Detailed Aging")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Vendor Detailed Aging';
-                        RunObject = Report "Vendor Detailed Aging";
+                        RunObject = report "Vendor Detailed Aging";
                     }
                     action("Vendor - Labels")
                     {
@@ -1464,7 +1481,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Vendor Payments List';
-                        RunObject = Report "Vendor Payments List";
+                        RunObject = report "Vendor Payments List";
                     }
                     action("Vendor - Summary Aging")
                     {
@@ -1621,7 +1638,7 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'FA Book Value 03';
-                            RunObject = Report "Fixed Asset - Book Value 03";
+                            RunObject = report "Fixed Asset - Book Value 03";
                         }
                         action("Details")
                         {
@@ -1645,7 +1662,7 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'List AT';
-                            RunObject = Report "Fixed Assets - List AT";
+                            RunObject = report "Fixed Assets - List AT";
                         }
                         action("Projected Value")
                         {
@@ -1960,7 +1977,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Inventory Value (Help Report)';
-                        RunObject = Report "Inventory Value (Help Report)";
+                        RunObject = report "Inventory Value (Help Report)";
                     }
                     action("Cost Shares Breakdown")
                     {
@@ -1996,31 +2013,31 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Phys. Invt. Order Diff. List';
-                        RunObject = Report "Phys. Invt. Order Diff. List";
+                        RunObject = report "Phys. Invt. Order Diff. List";
                     }
                     action("Posted Phys. Invt. Order Diff.")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Phys. Invt. Order Diff.';
-                        RunObject = Report "Posted Phys. Invt. Order Diff.";
+                        RunObject = report "Posted Phys. Invt. Order Diff.";
                     }
                     action("Phys. Invt. Order - Test")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Phys. Invt. Order - Test';
-                        RunObject = Report "Phys. Invt. Order - Test";
+                        RunObject = report "Phys. Invt. Order - Test";
                     }
                     action("Phys. Invt. Recording")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Phys. Invt. Recording';
-                        RunObject = Report "Phys. Invt. Recording";
+                        RunObject = report "Phys. Invt. Recording";
                     }
                     action("Posted Phys. Invt. Recording")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Phys. Invt. Recording';
-                        RunObject = Report "Posted Phys. Invt. Recording";
+                        RunObject = report "Posted Phys. Invt. Recording";
                     }
                 }
                 group("Group54")
@@ -2100,6 +2117,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 action("Incoming Documents Setup")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Incoming Documents Setup';
                     RunObject = page "Incoming Documents Setup";
                 }
@@ -2156,11 +2174,13 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Update VAT Statement Template")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Update VAT Statement Template';
-                        RunObject = Report "Update VAT Statement Template";
+                        RunObject = report "Update VAT Statement Template";
                     }
                     action("Report Selections VAT")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections VAT';
                         RunObject = page "Report Selection - VAT";
                     }
@@ -2375,6 +2395,236 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Product Posting Groups';
                         RunObject = page "VAT Product Posting Groups";
+                    }
+                }
+            }
+            group("Group62")
+            {
+                Caption = 'Local';
+                group("Group63")
+                {
+                    Caption = 'Misc';
+                    action("G/L Entries with Foreign Curre")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'G/L Entries with Foreign Currency';
+                        RunObject = report 11521;
+                    }
+                    action("Detail Trial Balance1")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'G/L Account Sheet with Bal. Account Info';
+                        RunObject = report 11563;
+                    }
+                    action("[Financial Statement with % of ]")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'G/L Account Sheet with Foreign Currency';
+                        RunObject = report 11564;
+                    }
+                    action("G/L Account Sheet with with Re")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'G/L Account Sheet with with Reporting Currency';
+                        RunObject = report 11565;
+                    }
+                    action("G/L Account Sheet with Posting")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'G/L Account Sheet with Posting Info';
+                        RunObject = report 11566;
+                    }
+                    action("G/L Account Sheet with VAT Inf")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'G/L Account Sheet with VAT Info';
+                        RunObject = report 11567;
+                    }
+                    action("Swiss VAT Statement")
+                    {
+                        ApplicationArea = BasicEU;
+                        Caption = 'Swiss VAT Statement';
+                        RunObject = report 26100;
+                    }
+                    action("Adjust Exchange Rates G/L")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Adjust Exchange Rates G/L';
+                        RunObject = report 3010536;
+                    }
+                    action("Account Interest")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Account Interest';
+                        RunObject = report 11529;
+                    }
+                    action("Balance to Date")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Balance to Date';
+                        RunObject = report 11559;
+                    }
+                    action("Orders per Period")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor Orders per Period';
+                        RunObject = report 11554;
+                    }
+                    action("Vendor Ranking")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor Ranking';
+                        RunObject = report 11557;
+                    }
+                    action("Vendor Payment Advice")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor Payment Advice';
+                        RunObject = report 11561;
+                    }
+                    action("Bank Directory")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Bank Directory';
+                        RunObject = page 11501;
+                    }
+                    action("Due Amount per Period")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Due Amount per Period';
+                        RunObject = report 11553;
+                    }
+                    action("Quote Analysis")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Quote Analysis';
+                        RunObject = report 3010801;
+                    }
+                    action("Payments List")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Payments List Standard';
+                        RunObject = report 11568;
+                    }
+                    action("Payments List FCY Amo")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Payments List FCY Amounts';
+                        RunObject = report 11569;
+                    }
+                    action("Payments List Posting")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Payments List Posting Info';
+                        RunObject = report 11570;
+                    }
+                    action("Customer Ranking")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Customer Ranking';
+                        RunObject = report 11539;
+                    }
+                    action("Invoice ESR")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Invoice ESR';
+                        RunObject = report 3010532;
+                    }
+                    action("ESR Coupon")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'ESR Coupon';
+                        RunObject = report 3010533;
+                    }
+                    action("ESR Setup")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'ESR Setup List';
+                        RunObject = page 3010532;
+                    }
+                    action("LSV Setup")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'LSV Setup List';
+                        RunObject = page 3010830;
+                    }
+                    action("Vendor Shipping Reminder")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Vendor Shipping Reminder';
+                        RunObject = report 11581;
+                    }
+                    action("Account Sheet")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Item Acc Sheet Net Change';
+                        RunObject = report 11505;
+                    }
+                    action("SR Item Acc Sheet Inv. Value")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Item Acc Sheet Inv. Value';
+                        RunObject = report 11506;
+                    }
+                    action("Ranking")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Ranking';
+                        RunObject = report 11577;
+                    }
+                    action("DTA Setup")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'DTA Setup List';
+                        RunObject = page 3010542;
+                    }
+                    action("Payment Order")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Payment Order';
+                        RunObject = report 11509;
+                    }
+                    action("Service - Invoice ESR")
+                    {
+                        ApplicationArea =;
+                        Caption = 'Service - Invoice ESR';
+                        RunObject = report 3010534;
+                    }
+                    action("Service - ESR Coupon")
+                    {
+                        ApplicationArea =;
+                        Caption = 'Service - ESR Coupon';
+                        RunObject = report 3010535;
+                    }
+                    action("Customer Due Amount per Period")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Customer Due Amount per Period';
+                        RunObject = report 11537;
+                    }
+                    action("Customer Orders per Period")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Customer Orders per Period';
+                        RunObject = report 11535;
+                    }
+                    action("LSV Journal List")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'LSV Journal List';
+                        RunObject = page 3010832;
+                    }
+                    action("VAT Cipher Codes")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'VAT Cipher Codes';
+                        RunObject = page 11023;
+                    }
+                    action("VAT Cipher Setup")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'VAT Cipher Setup';
+                        RunObject = page 11024;
                     }
                 }
             }

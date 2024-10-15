@@ -1,6 +1,7 @@
 codeunit 134008 "ERM VAT Settlement with Apply"
 {
-    Permissions = TableData "Cust. Ledger Entry" = rimd;
+    Permissions = TableData "Cust. Ledger Entry" = rimd,
+                  TableData "VAT Entry" = rimd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -18,6 +19,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -384,6 +386,56 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         VATEntry.TestField(Type, VATEntry.Type::Settlement);
     end;
 
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesTaxCalcAndPostVATSettlementAllJurisdictions()
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        TaxDetail: Record "Tax Detail";
+        VATEntry: Record "VAT Entry";
+        CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
+        TaxJurisdictionCode: array[2] of Code[10];
+    begin
+        // [FEATURE] [Report] [VAT Settlement]
+        // [SCENARIO 328943] Report "Calculate and Post VAT Settlement" for Sales Tax includes all Tax Jurisdictions
+        Initialize;
+
+        // [GIVEN] VAT Posting Setup "X","Y" for Sales Tax calculation type
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Sales Tax");
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Vat Entry for Tax Jurisdiction "TJ01", VAT Posting Setup "X","Y" on Posting Date "21-01-2019"
+        CreateSalesTaxDetail(TaxDetail);
+        TaxJurisdictionCode[1] := TaxDetail."Tax Jurisdiction Code";
+        MockVATEntryForVATPostingSetup(VATEntry, TaxDetail, VATPostingSetup, 0, true, CalcDate('<+1D>', WorkDate));
+
+        // [GIVEN] Vat Entries for Tax Jurisdiction "TJ02", VAT Posting Setup "X","Y" on Posting Dates "20-01-2019" and "21-01-2019"
+        CreateSalesTaxDetail(TaxDetail);
+        TaxJurisdictionCode[2] := TaxDetail."Tax Jurisdiction Code";
+        MockVATEntryForVATPostingSetup(VATEntry, TaxDetail, VATPostingSetup, 0, true, WorkDate);
+        MockVATEntryForVATPostingSetup(VATEntry, TaxDetail, VATPostingSetup, 0, true, CalcDate('<+1D>', WorkDate));
+
+        // [WHEN] Run Calculate And Post VAT Settlement report for VAT Posting Setup "X","Y" for dates starting with "20-01-2019" until "27-01-2019"
+        CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
+        CalcAndPostVATSettlement.InitializeRequest(
+          WorkDate, CalcDate('<+7D>', WorkDate), WorkDate,
+          LibraryUtility.GenerateGUID, LibraryERM.CreateGLAccountNo, false, false);
+        CalcAndPostVATSettlement.SetInitialized(false);
+        Commit;
+        CalcAndPostVATSettlement.Run;
+
+        // [THEN] Tax Jurisdictions "TJ01" and "TJ02" are included in the report
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementTagWithValueExists('VATEntryGetFiltTaxJurisCd', TaxJurisdictionCode[1]);
+        LibraryReportDataset.AssertElementTagWithValueExists('VATEntryGetFiltTaxJurisCd', TaxJurisdictionCode[2]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -599,6 +651,33 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         TaxJurisdiction.Validate("Tax Account (Sales)", GLAccount."No.");
         TaxJurisdiction.Validate("Tax Account (Purchases)", GLAccount."No.");
         TaxJurisdiction.Modify(true);
+    end;
+
+    local procedure CreateSalesTaxDetail(var TaxDetail: Record "Tax Detail")
+    var
+        TaxGroup: Record "Tax Group";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+    begin
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        CreateTaxJurisdiction(TaxJurisdiction);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax", WorkDate);
+    end;
+
+    local procedure MockVATEntryForVATPostingSetup(var VATEntry: Record "VAT Entry"; TaxDetail: Record "Tax Detail"; VATPostingSetup: Record "VAT Posting Setup"; TaxAmount: Decimal; TaxLiable: Boolean; PostingDate: Date)
+    begin
+        VATEntry.Init;
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry."Posting Date" := PostingDate;
+        VATEntry."Tax Type" := VATEntry."Tax Type"::"Sales Tax";
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry."Tax Group Code" := TaxDetail."Tax Group Code";
+        VATEntry."Tax Jurisdiction Code" := TaxDetail."Tax Jurisdiction Code";
+        VATEntry."Tax Liable" := TaxLiable;
+        VATEntry.Base := LibraryRandom.RandDecInRange(100, 200, 2);
+        VATEntry.Amount := TaxAmount;
+        VATEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        VATEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        VATEntry.Insert;
     end;
 
     local procedure FindInvoiceAmount(DocumentNo: Code[20]; DocumentType: Option): Decimal
@@ -850,6 +929,13 @@ codeunit 134008 "ERM VAT Settlement with Apply"
             SetRange("Transaction No.", "Transaction No.");
             Assert.AreEqual(1, Count, IncorrectVATEntryCountErr);
         end;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CalcAndPostVATSettlementReqPageHandler(var CalcandPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
+    begin
+        CalcandPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

@@ -438,6 +438,151 @@ codeunit 142072 "UT PAG SWS46"
         CashReceiptJournal.Control1906888607.PaymentAmt.AssertEquals(PaymentAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyCustomerEntriesHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateInfoBoxAmountsCashReceiptJournalCustomerWithAppliedEntries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InvoiceNo: Code[20];
+        CustomerNo: Code[20];
+    begin
+        // [FEATURE] [Cash Receipt Journal]
+        // [SCENARIO 331818] Calclulate Payment and Remaining After Payment amounts in "Cash Receipt Journal FactBox" when Customer as Account, Entry is applied by ID.
+        // [GIVEN] Cleared the Gen. Journal Template
+        ResetGenJnlTemplate;
+        // [GIVEN] Posted Invoice "I" with Amount "X" for Customer "C"
+        CustomerNo := LibrarySales.CreateCustomerNo;
+        InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Customer, CustomerNo, LibraryRandom.RandDec(100, 2));
+        FindCustomerLedgerEntry(InvoiceNo, CustomerNo, CustLedgerEntry);
+
+        // [GIVEN] Cash Receipt Journal "J" with "C" in "Account No."
+        CreateGeneralJournalLine(GenJournalLine, GenJournalTemplate.Type::"Cash Receipts");
+        CustLedgerEntry.CalcFields(Amount);
+        UpdateGenJournalLineAmountAndAccount(
+          GenJournalLine, -CustLedgerEntry.Amount, GenJournalLine."Account Type"::Customer, CustomerNo);
+
+        // [WHEN] "I" is applied to "J"
+        UpdateAppliesToDocCashReceiptJournalWithAppliedEntries(GenJournalLine."Journal Batch Name");
+
+        // [THEN] "Payment" = -"X" and "Remaining After Payment" = 0 in "Cash Receipt Journal Fact Box"
+        VerifyPaymentAmountsCashReceiptJournalWithAppliedEntries(GenJournalLine, -GenJournalLine.Amount);
+
+        // [THEN] All Variable were used in test.
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateInfoBoxAmountsPaymentJournalVendorWithAppliedEntries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Payment Journal]
+        // [SCENARIO 331818] Calclulate Payment and Remaining After Payment amounts in "Payment Journal FactBox" when Vendor as Account, Entry is applied by ID.
+        // [GIVEN] Cleared the Gen. Journal Template
+        ResetGenJnlTemplate;
+        // [GIVEN] Posted Invoice "I" with Amount "X" for Vendor "V"
+        VendorNo := LibraryPurchase.CreateVendorNo;
+        InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(100, 2));
+        FindVendorLedgerEntry(InvoiceNo, VendorNo, VendorLedgerEntry);
+
+        // [GIVEN] Payment Journal "J" with "V" in "Account No."
+        CreateGeneralJournalLine(GenJournalLine, GenJournalTemplate.Type::Payments);
+        VendorLedgerEntry.CalcFields(Amount);
+        UpdateGenJournalLineAmountAndAccount(
+          GenJournalLine, -VendorLedgerEntry.Amount, GenJournalLine."Account Type"::Vendor, VendorNo);
+
+        // [WHEN] "I" is applied to "J"
+        UpdateAppliesToDocPaymentJournalWithAppliedEntries(GenJournalLine."Journal Batch Name");
+
+        // [THEN] "Payment" = -"X" and "Remaining After Payment" = 0 in Payment Journal Fact Box"
+        VerifyPaymentAmountsPaymentJournalWithAppliedEntries(GenJournalLine, -GenJournalLine.Amount);
+
+        // [THEN] All Variable were used in test.
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyCustomerEntriesHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateInfoBoxAmountsCashReceiptJournalCustomerAsBalanceWithAppliedEntries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InvoiceNo: Code[20];
+        CustomerNo: Code[20];
+    begin
+        // [FEATURE] [Cash Receipt Journal]
+        // [SCENARIO 331818] Calclulate Payment and Remaining After Payment amounts in "Cash Receipt Journal FactBox" when Customer as Balance Account, Entry is applied by ID.
+        // [GIVEN] Cleared the Gen. Journal Template
+        ResetGenJnlTemplate;
+
+        // [GIVEN] Posted Invoice "I" with Amount "X" for Customer "C"
+        CustomerNo := LibrarySales.CreateCustomerNo;
+        InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Customer, CustomerNo, LibraryRandom.RandDec(100, 2));
+        FindCustomerLedgerEntry(InvoiceNo, CustomerNo, CustLedgerEntry);
+
+        // [GIVEN] Cash Receipt Journal "J" with "C" in "Bal. Account No."
+        CreateGeneralJournalLine(GenJournalLine, GenJournalTemplate.Type::"Cash Receipts");
+        CustLedgerEntry.CalcFields(Amount);
+        UpdateGenJournalLineAmountAndBalAccount(
+          GenJournalLine, CustLedgerEntry.Amount, GenJournalLine."Bal. Account Type"::Customer, CustomerNo);
+
+        // [WHEN] "I" is applied to "J"
+        UpdateAppliesToDocCashReceiptJournalWithAppliedEntries(GenJournalLine."Journal Batch Name");
+
+        // [THEN] "Payment" = "X" and "Remaining After Payment" = 0 in "Cash Receipt Journal Fact Box"
+        VerifyPaymentAmountsCashReceiptJournalWithAppliedEntries(GenJournalLine, GenJournalLine.Amount);
+
+        // [THEN] All Variable were used in test.
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateInfoBoxAmountsPaymentJournalVendorAsBalanceWithAppliedEntries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Payment Journal]
+        // [SCENARIO 331818] Calclulate Payment and Remaining After Payment amounts in "Payment Journal FactBox" when Vendor as Balance Account, Entry is applied by ID.
+        // [GIVEN] Cleared the Gen. Journal Template
+        ResetGenJnlTemplate;
+
+        // [GIVEN] Posted Invoice "I" with Amount "X" for Vendor "V"
+        VendorNo := LibraryPurchase.CreateVendorNo;
+        InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(100, 2));
+        FindVendorLedgerEntry(InvoiceNo, VendorNo, VendorLedgerEntry);
+        // [GIVEN] Payment Journal "J" with "V" in "Bal. Account No."
+        CreateGeneralJournalLine(GenJournalLine, GenJournalTemplate.Type::Payments);
+        VendorLedgerEntry.CalcFields(Amount);
+        UpdateGenJournalLineAmountAndBalAccount(
+          GenJournalLine, VendorLedgerEntry.Amount, GenJournalLine."Bal. Account Type"::Vendor, VendorNo);
+
+        // [WHEN] "I" is applied to "J"
+        UpdateAppliesToDocPaymentJournalWithAppliedEntries(GenJournalLine."Journal Batch Name");
+
+        // [THEN] "Payment" = "X" and "Remaining After Payment" = 0 in "Payment Journal Fact Box"
+        VerifyPaymentAmountsPaymentJournalWithAppliedEntries(GenJournalLine, GenJournalLine.Amount);
+
+        // [THEN] All Variable were used in test.
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -712,12 +857,84 @@ codeunit 142072 "UT PAG SWS46"
         PaymentJournal.Close;
     end;
 
+    local procedure UpdateAppliesToDocCashReceiptJournalWithAppliedEntries(JournalBatchName: Code[10])
+    var
+        CashReceiptJournal: TestPage "Cash Receipt Journal";
+    begin
+        OpenCashReceiptJournal(CashReceiptJournal, JournalBatchName);
+        LibraryVariableStorage.Enqueue(CashReceiptJournal."Document No.".Value);
+        CashReceiptJournal."Apply Entries".Invoke;
+        CashReceiptJournal.OK.Invoke;
+    end;
+
+    local procedure UpdateAppliesToDocPaymentJournalWithAppliedEntries(JournalBatchName: Code[10])
+    var
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        OpenPaymentJournal(PaymentJournal, JournalBatchName);
+        LibraryVariableStorage.Enqueue(PaymentJournal."Document No.".Value);
+        PaymentJournal.ApplyEntries.Invoke;
+        PaymentJournal.OK.Invoke;
+    end;
+
+    local procedure VerifyPaymentAmountsCashReceiptJournalWithAppliedEntries(GenJournalLine: Record "Gen. Journal Line"; PaymentAmount: Decimal)
+    var
+        CashReceiptJournal: TestPage "Cash Receipt Journal";
+    begin
+        OpenCashReceiptJournal(CashReceiptJournal, GenJournalLine."Journal Batch Name");
+        Assert.AreNotEqual(0, GenJournalLine.Amount, GenJournalLine.FieldCaption(Amount));
+        CashReceiptJournal.Control1906888607.PaymentAmt.AssertEquals(PaymentAmount);
+        Assert.AreEqual(
+          0,
+          CashReceiptJournal.Control1906888607.RemainAfterPaymentText.AsDEcimal,
+          CashReceiptJournal.Control1906888607.RemainAfterPaymentText.Caption);
+        CashReceiptJournal.Close;
+    end;
+
+    local procedure VerifyPaymentAmountsPaymentJournalWithAppliedEntries(GenJournalLine: Record "Gen. Journal Line"; PaymentAmount: Decimal)
+    var
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        OpenPaymentJournal(PaymentJournal, GenJournalLine."Journal Batch Name");
+        Assert.AreNotEqual(0, GenJournalLine.Amount, GenJournalLine.FieldCaption(Amount));
+        PaymentJournal.Control1906888707.PaymentAmt.AssertEquals(PaymentAmount);
+        Assert.AreEqual(
+          0,
+          PaymentJournal.Control1906888707.RemainAfterPayment.AsDEcimal,
+          PaymentJournal.Control1906888707.RemainAfterPayment.Caption);
+        PaymentJournal.Close;
+    end;
+
+    local procedure ResetGenJnlTemplate();
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.SetRange("No. Series", '');
+        GenJournalTemplate.DeleteAll;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure TemplateSelectHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
         GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
         GeneralJournalTemplateList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    begin
+        ApplyCustomerEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText);
+        ApplyCustomerEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    begin
+        ApplyVendorEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText);
+        ApplyVendorEntries.OK.Invoke;
     end;
 }
 

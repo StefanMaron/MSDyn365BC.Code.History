@@ -1,4 +1,4 @@
-table 27 Item
+﻿table 27 Item
 {
     Caption = 'Item';
     DataCaptionFields = "No.", Description;
@@ -583,7 +583,8 @@ table 27 Item
                                                                   "Drop Shipment" = FIELD("Drop Shipment Filter"),
                                                                   "Variant Code" = FIELD("Variant Filter"),
                                                                   "Lot No." = FIELD("Lot No. Filter"),
-                                                                  "Serial No." = FIELD("Serial No. Filter")));
+                                                                  "Serial No." = FIELD("Serial No. Filter"),
+                                                                  "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Inventory';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -614,7 +615,8 @@ table 27 Item
                                                                   "Posting Date" = FIELD("Date Filter"),
                                                                   "Variant Code" = FIELD("Variant Filter"),
                                                                   "Lot No." = FIELD("Lot No. Filter"),
-                                                                  "Serial No." = FIELD("Serial No. Filter")));
+                                                                  "Serial No." = FIELD("Serial No. Filter"),
+                                                                  "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Net Change';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -772,7 +774,8 @@ table 27 Item
                                                                                "Location Code" = FIELD("Location Filter"),
                                                                                "Drop Shipment" = FIELD("Drop Shipment Filter"),
                                                                                "Variant Code" = FIELD("Variant Filter"),
-                                                                               "Expected Receipt Date" = FIELD("Date Filter")));
+                                                                               "Expected Receipt Date" = FIELD("Date Filter"),
+                                                                               "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Qty. on Purch. Order';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -789,7 +792,8 @@ table 27 Item
                                                                             "Location Code" = FIELD("Location Filter"),
                                                                             "Drop Shipment" = FIELD("Drop Shipment Filter"),
                                                                             "Variant Code" = FIELD("Variant Filter"),
-                                                                            "Shipment Date" = FIELD("Date Filter")));
+                                                                            "Shipment Date" = FIELD("Date Filter"),
+                                                                            "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Qty. on Sales Order';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1145,7 +1149,8 @@ table 27 Item
                                                                                    "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    "Location Code" = FIELD("Location Filter"),
                                                                                    "Variant Code" = FIELD("Variant Filter"),
-                                                                                   "Due Date" = FIELD("Date Filter")));
+                                                                                   "Due Date" = FIELD("Date Filter"),
+                                                                                   "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Qty. on Assembly Order';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1160,7 +1165,8 @@ table 27 Item
                                                                                  "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                  "Location Code" = FIELD("Location Filter"),
                                                                                  "Variant Code" = FIELD("Variant Filter"),
-                                                                                 "Due Date" = FIELD("Date Filter")));
+                                                                                 "Due Date" = FIELD("Date Filter"),
+                                                                                 "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Qty. on Asm. Component';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1173,7 +1179,8 @@ table 27 Item
                                                                                  "No." = FIELD("No."),
                                                                                  "Location Code" = FIELD("Location Filter"),
                                                                                  "Variant Code" = FIELD("Variant Filter"),
-                                                                                 "Planning Date" = FIELD("Date Filter")));
+                                                                                 "Planning Date" = FIELD("Date Filter"),
+                                                                                 "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Qty. on Job Order';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1331,7 +1338,8 @@ table 27 Item
                                                                                 "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Location Code" = FIELD("Location Filter"),
-                                                                                "Due Date" = FIELD("Date Filter")));
+                                                                                "Due Date" = FIELD("Date Filter"),
+                                                                                "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Scheduled Receipt (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1345,7 +1353,8 @@ table 27 Item
                                                                                      "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                      "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                      "Location Code" = FIELD("Location Filter"),
-                                                                                     "Due Date" = FIELD("Date Filter")));
+                                                                                     "Due Date" = FIELD("Date Filter"),
+                                                                                     "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Scheduled Need (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1389,6 +1398,12 @@ table 27 Item
             TableRelation = IF ("No." = FILTER(<> '')) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."))
             ELSE
             "Unit of Measure";
+        }
+        field(5427; "Unit of Measure Filter"; Code[10])
+        {
+            Caption = 'Unit of Measure Filter';
+            FieldClass = FlowFilter;
+            TableRelation = "Unit of Measure";
         }
         field(5428; "Time Bucket"; DateFormula)
         {
@@ -1601,7 +1616,8 @@ table 27 Item
                                                                               "Variant Code" = FIELD("Variant Filter"),
                                                                               "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                               "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                              "Receipt Date" = FIELD("Date Filter")));
+                                                                              "Receipt Date" = FIELD("Date Filter"),
+                                                                              "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Qty. in Transit';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1615,7 +1631,8 @@ table 27 Item
                                                                                "Variant Code" = FIELD("Variant Filter"),
                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                               "Receipt Date" = FIELD("Date Filter")));
+                                                                               "Receipt Date" = FIELD("Date Filter"),
+                                                                               "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Trans. Ord. Receipt (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1629,7 +1646,8 @@ table 27 Item
                                                                                "Variant Code" = FIELD("Variant Filter"),
                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                               "Shipment Date" = FIELD("Date Filter")));
+                                                                               "Shipment Date" = FIELD("Date Filter"),
+                                                                               "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Trans. Ord. Shipment (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1697,7 +1715,8 @@ table 27 Item
                                                                               "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                               "Location Code" = FIELD("Location Filter"),
                                                                               "Variant Code" = FIELD("Variant Filter"),
-                                                                              "Needed by Date" = FIELD("Date Filter")));
+                                                                              "Needed by Date" = FIELD("Date Filter"),
+                                                                              "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Qty. on Service Order';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1807,7 +1826,8 @@ table 27 Item
                                                                                "Location Code" = FIELD("Location Filter"),
                                                                                "Drop Shipment" = FIELD("Drop Shipment Filter"),
                                                                                "Variant Code" = FIELD("Variant Filter"),
-                                                                               "Expected Receipt Date" = FIELD("Date Filter")));
+                                                                               "Expected Receipt Date" = FIELD("Date Filter"),
+                                                                               "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Qty. on Purch. Return';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1824,7 +1844,8 @@ table 27 Item
                                                                             "Location Code" = FIELD("Location Filter"),
                                                                             "Drop Shipment" = FIELD("Drop Shipment Filter"),
                                                                             "Variant Code" = FIELD("Variant Filter"),
-                                                                            "Shipment Date" = FIELD("Date Filter")));
+                                                                            "Shipment Date" = FIELD("Date Filter"),
+                                                                            "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Qty. on Sales Return';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2127,7 +2148,8 @@ table 27 Item
                                                                                      "Variant Code" = FIELD("Variant Filter"),
                                                                                      "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                      "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                                     "Planning Line Origin" = CONST(" ")));
+                                                                                     "Planning Line Origin" = CONST(" "),
+                                                                                     "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Planning Issues (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2141,7 +2163,8 @@ table 27 Item
                                                                           "Location Code" = FIELD("Location Filter"),
                                                                           "Variant Code" = FIELD("Variant Filter"),
                                                                           "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                          "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter")));
+                                                                          "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                          "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Planning Receipt (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2155,7 +2178,8 @@ table 27 Item
                                                                                 "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Location Code" = FIELD("Location Filter"),
-                                                                                "Due Date" = FIELD("Date Filter")));
+                                                                                "Due Date" = FIELD("Date Filter"),
+                                                                                "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Planned Order Receipt (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2169,7 +2193,8 @@ table 27 Item
                                                                                 "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Location Code" = FIELD("Location Filter"),
-                                                                                "Due Date" = FIELD("Date Filter")));
+                                                                                "Due Date" = FIELD("Date Filter"),
+                                                                                "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'FP Order Receipt (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2183,7 +2208,8 @@ table 27 Item
                                                                                 "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Location Code" = FIELD("Location Filter"),
-                                                                                "Due Date" = FIELD("Date Filter")));
+                                                                                "Due Date" = FIELD("Date Filter"),
+                                                                                "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Rel. Order Receipt (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2197,7 +2223,8 @@ table 27 Item
                                                                           "Location Code" = FIELD("Location Filter"),
                                                                           "Variant Code" = FIELD("Variant Filter"),
                                                                           "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                          "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter")));
+                                                                          "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                          "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Planning Release (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2211,7 +2238,8 @@ table 27 Item
                                                                                 "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Location Code" = FIELD("Location Filter"),
-                                                                                "Starting Date" = FIELD("Date Filter")));
+                                                                                "Starting Date" = FIELD("Date Filter"),
+                                                                                "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Planned Order Release (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2226,7 +2254,8 @@ table 27 Item
                                                                           "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                           "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                           "Due Date" = FIELD("Date Filter"),
-                                                                          "Planning Line Origin" = CONST(" ")));
+                                                                          "Planning Line Origin" = CONST(" "),
+                                                                          "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Purch. Req. Receipt (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2240,7 +2269,8 @@ table 27 Item
                                                                           "Variant Code" = FIELD("Variant Filter"),
                                                                           "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                           "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                          "Order Date" = FIELD("Date Filter")));
+                                                                          "Order Date" = FIELD("Date Filter"),
+                                                                          "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Purch. Req. Release (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2322,7 +2352,8 @@ table 27 Item
                                                                                 "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Location Code" = FIELD("Location Filter"),
                                                                                 "Variant Code" = FIELD("Variant Filter"),
-                                                                                "Due Date" = FIELD("Date Filter")));
+                                                                                "Due Date" = FIELD("Date Filter"),
+                                                                                "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Qty. on Prod. Order';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2336,7 +2367,8 @@ table 27 Item
                                                                                      "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                      "Location Code" = FIELD("Location Filter"),
                                                                                      "Variant Code" = FIELD("Variant Filter"),
-                                                                                     "Due Date" = FIELD("Date Filter")));
+                                                                                     "Due Date" = FIELD("Date Filter"),
+                                                                                     "Unit of Measure Code" = FIELD("Unit of Measure Filter")));
             Caption = 'Qty. on Component Lines';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -2709,6 +2741,7 @@ table 27 Item
         ItemVend.SetRange("Item No.", "No.");
         ItemVend.SetRange("Vendor No.", ItemVend."Vendor No.");
         ItemVend.SetRange("Variant Code", ItemVend."Variant Code");
+        OnFindItemVendOnAfterSetFilters(ItemVend, Rec);
 
         if not ItemVend.Find('+') then begin
             ItemVend."Item No." := "No.";
@@ -2735,9 +2768,11 @@ table 27 Item
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
 
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::Item, "No.", FieldNumber, ShortcutDimCode);
-        Modify;
-
+        if not IsTemporary then begin
+            DimMgt.SaveDefaultDim(DATABASE::Item, "No.", FieldNumber, ShortcutDimCode);
+            Modify;
+        end;
+	
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -3320,6 +3355,7 @@ table 27 Item
             Item.SetFilter("No.", ItemFilterContains);
             Item.SetFilter(Description, ItemFilterContains);
             Item.SetFilter("Base Unit of Measure", ItemFilterContains);
+            OnTryGetItemNoOpenCardOnAfterSetItemFilters(Item, ItemFilterContains);
         end;
 
         if ShowItemCard then
@@ -3586,6 +3622,16 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateStandardCost(var Item: Record Item; xItem: Record Item; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindItemVendOnAfterSetFilters(var ItemVend: Record "Item Vendor"; Item: Record Item);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTryGetItemNoOpenCardOnAfterSetItemFilters(var Item: Record Item; var ItemFilterContains: Text);
     begin
     end;
 

@@ -633,7 +633,7 @@ report 594 "Get Item Ledger Entries"
         end;
     end;
 
-    local procedure CalculateTotals(ItemLedgEntry: Record "Item Ledger Entry")
+    local procedure CalculateTotals(ItemLedgerEntry: Record "Item Ledger Entry")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         TotalInvoicedQty: Decimal;
@@ -641,134 +641,137 @@ report 594 "Get Item Ledger Entries"
         TotalAmtExpected: Decimal;
         TotalCostAmtExpected: Decimal;
     begin
-        TotalInvoicedQty := 0;
-        TotalAmt := 0;
-        TotalAmtExpected := 0;
-        TotalCostAmt := 0;
-        TotalCostAmtExpected := 0;
-        TotalIndirectCost := 0;
-        TotalIndirectCostExpected := 0;
-        TotalIndirectCostAmt := 0;
-        TotalIndirectCostAmtExpected := 0;
+        with ItemLedgerEntry do begin
+            TotalInvoicedQty := 0;
+            TotalAmt := 0;
+            TotalAmtExpected := 0;
+            TotalCostAmt := 0;
+            TotalCostAmtExpected := 0;
+            TotalIndirectCost := 0;
+            TotalIndirectCostExpected := 0;
+            TotalIndirectCostAmt := 0;
+            TotalIndirectCostAmtExpected := 0;
 
-        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-        if ValueEntry.Find('-') then
-            repeat
-                if not ((ValueEntry."Item Charge No." <> '') and
-                        ((ValueEntry."Posting Date" > EndDate) or (ValueEntry."Posting Date" < StartDate)))
-                then begin
-                    TotalInvoicedQty := TotalInvoicedQty + ValueEntry."Invoiced Quantity";
-                    if not IntrastatJnlBatch."Amounts in Add. Currency" then begin
-                        if ValueEntry."Item Charge No." = '' then begin
-                            TotalAmt := TotalAmt + ValueEntry."Sales Amount (Actual)";
-                            TotalCostAmt := TotalCostAmt + ValueEntry."Cost Amount (Actual)";
-                            TotalAmtExpected := TotalAmtExpected + ValueEntry."Sales Amount (Expected)";
-                            TotalCostAmtExpected := TotalCostAmtExpected + ValueEntry."Cost Amount (Expected)";
-                        end else begin
-                            TotalIndirectCost := TotalIndirectCost + ValueEntry."Sales Amount (Actual)";
-                            TotalIndirectCostAmt := TotalIndirectCostAmt + ValueEntry."Cost Amount (Actual)";
-                            TotalIndirectCostExpected := TotalIndirectCostExpected + ValueEntry."Sales Amount (Expected)";
-                            TotalIndirectCostAmtExpected := TotalIndirectCostAmtExpected + ValueEntry."Cost Amount (Expected)";
-                        end;
-                    end else begin
-                        if ValueEntry."Item Charge No." = '' then begin
-                            TotalCostAmt := TotalCostAmt + ValueEntry."Cost Amount (Actual) (ACY)";
-                            TotalCostAmtExpected := TotalCostAmtExpected + ValueEntry."Cost Amount (Expected) (ACY)";
-                        end else begin
-                            TotalIndirectCostAmt := TotalIndirectCostAmt + ValueEntry."Cost Amount (Actual) (ACY)";
-                            TotalIndirectCostAmtExpected := TotalIndirectCostAmtExpected + ValueEntry."Cost Amount (Expected) (ACY)";
-                        end;
-                        if ValueEntry."Cost per Unit" <> 0 then begin
+            ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
+            if ValueEntry.Find('-') then
+                repeat
+                    if not ((ValueEntry."Item Charge No." <> '') and
+                            ((ValueEntry."Posting Date" > EndDate) or (ValueEntry."Posting Date" < StartDate)))
+                    then begin
+                        TotalInvoicedQty := TotalInvoicedQty + ValueEntry."Invoiced Quantity";
+                        if not IntrastatJnlBatch."Amounts in Add. Currency" then begin
                             if ValueEntry."Item Charge No." = '' then begin
-                                TotalAmt :=
-                                  TotalAmt +
-                                  ValueEntry."Sales Amount (Actual)" * ValueEntry."Cost per Unit (ACY)" / ValueEntry."Cost per Unit";
-                                TotalAmtExpected :=
-                                  TotalAmtExpected +
-                                  ValueEntry."Sales Amount (Expected)" * ValueEntry."Cost per Unit (ACY)" / ValueEntry."Cost per Unit";
+                                TotalAmt := TotalAmt + ValueEntry."Sales Amount (Actual)";
+                                TotalCostAmt := TotalCostAmt + ValueEntry."Cost Amount (Actual)";
+                                TotalAmtExpected := TotalAmtExpected + ValueEntry."Sales Amount (Expected)";
+                                TotalCostAmtExpected := TotalCostAmtExpected + ValueEntry."Cost Amount (Expected)";
                             end else begin
-                                TotalIndirectCost :=
-                                  TotalIndirectCost +
-                                  ValueEntry."Sales Amount (Actual)" * ValueEntry."Cost per Unit (ACY)" / ValueEntry."Cost per Unit";
-                                TotalIndirectCostExpected :=
-                                  TotalIndirectCostExpected +
-                                  ValueEntry."Sales Amount (Expected)" * ValueEntry."Cost per Unit (ACY)" / ValueEntry."Cost per Unit";
+                                TotalIndirectCost := TotalIndirectCost + ValueEntry."Sales Amount (Actual)";
+                                TotalIndirectCostAmt := TotalIndirectCostAmt + ValueEntry."Cost Amount (Actual)";
+                                TotalIndirectCostExpected := TotalIndirectCostExpected + ValueEntry."Sales Amount (Expected)";
+                                TotalIndirectCostAmtExpected := TotalIndirectCostAmtExpected + ValueEntry."Cost Amount (Expected)";
                             end;
-                        end else
+                        end else begin
                             if ValueEntry."Item Charge No." = '' then begin
-                                TotalAmt :=
-                                  TotalAmt +
-                                  CurrExchRate.ExchangeAmtLCYToFCY(
-                                    ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
-                                    ValueEntry."Sales Amount (Actual)", AddCurrencyFactor);
-                                TotalAmtExpected :=
-                                  TotalAmtExpected +
-                                  CurrExchRate.ExchangeAmtLCYToFCY(
-                                    ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
-                                    ValueEntry."Sales Amount (Expected)", AddCurrencyFactor);
+                                TotalCostAmt := TotalCostAmt + ValueEntry."Cost Amount (Actual) (ACY)";
+                                TotalCostAmtExpected := TotalCostAmtExpected + ValueEntry."Cost Amount (Expected) (ACY)";
                             end else begin
-                                TotalIndirectCost :=
-                                  TotalIndirectCost +
-                                  CurrExchRate.ExchangeAmtLCYToFCY(
-                                    ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
-                                    ValueEntry."Sales Amount (Actual)", AddCurrencyFactor);
-                                TotalIndirectCostExpected :=
-                                  TotalIndirectCostExpected +
-                                  CurrExchRate.ExchangeAmtLCYToFCY(
-                                    ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
-                                    ValueEntry."Sales Amount (Expected)", AddCurrencyFactor);
+                                TotalIndirectCostAmt := TotalIndirectCostAmt + ValueEntry."Cost Amount (Actual) (ACY)";
+                                TotalIndirectCostAmtExpected := TotalIndirectCostAmtExpected + ValueEntry."Cost Amount (Expected) (ACY)";
                             end;
+                            if ValueEntry."Cost per Unit" <> 0 then begin
+                                if ValueEntry."Item Charge No." = '' then begin
+                                    TotalAmt :=
+                                      TotalAmt +
+                                      ValueEntry."Sales Amount (Actual)" * ValueEntry."Cost per Unit (ACY)" / ValueEntry."Cost per Unit";
+                                    TotalAmtExpected :=
+                                      TotalAmtExpected +
+                                      ValueEntry."Sales Amount (Expected)" * ValueEntry."Cost per Unit (ACY)" / ValueEntry."Cost per Unit";
+                                end else begin
+                                    TotalIndirectCost :=
+                                      TotalIndirectCost +
+                                      ValueEntry."Sales Amount (Actual)" * ValueEntry."Cost per Unit (ACY)" / ValueEntry."Cost per Unit";
+                                    TotalIndirectCostExpected :=
+                                      TotalIndirectCostExpected +
+                                      ValueEntry."Sales Amount (Expected)" * ValueEntry."Cost per Unit (ACY)" / ValueEntry."Cost per Unit";
+                                end;
+                            end else
+                                if ValueEntry."Item Charge No." = '' then begin
+                                    TotalAmt :=
+                                      TotalAmt +
+                                      CurrExchRate.ExchangeAmtLCYToFCY(
+                                        ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
+                                        ValueEntry."Sales Amount (Actual)", AddCurrencyFactor);
+                                    TotalAmtExpected :=
+                                      TotalAmtExpected +
+                                      CurrExchRate.ExchangeAmtLCYToFCY(
+                                        ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
+                                        ValueEntry."Sales Amount (Expected)", AddCurrencyFactor);
+                                end else begin
+                                    TotalIndirectCost :=
+                                      TotalIndirectCost +
+                                      CurrExchRate.ExchangeAmtLCYToFCY(
+                                        ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
+                                        ValueEntry."Sales Amount (Actual)", AddCurrencyFactor);
+                                    TotalIndirectCostExpected :=
+                                      TotalIndirectCostExpected +
+                                      CurrExchRate.ExchangeAmtLCYToFCY(
+                                        ValueEntry."Posting Date", GLSetup."Additional Reporting Currency",
+                                        ValueEntry."Sales Amount (Expected)", AddCurrencyFactor);
+                                end;
+                        end;
                     end;
-                end;
-            until ValueEntry.Next = 0;
+                until ValueEntry.Next = 0;
 
-        if ItemLedgEntry.Quantity <> TotalInvoicedQty then begin
-            TotalAmt := TotalAmt + TotalAmtExpected;
-            TotalCostAmt := TotalCostAmt + TotalCostAmtExpected;
-        end;
-
-        if ItemLedgEntry."Entry Type" in [ItemLedgEntry."Entry Type"::Purchase, ItemLedgEntry."Entry Type"::Transfer] then begin
-            if TotalCostAmt = 0 then begin
-                CalculateAverageCost(AverageCost, AverageCostACY);
-                if IntrastatJnlBatch."Amounts in Add. Currency" then
-                    TotalCostAmt :=
-                      TotalCostAmt + ItemLedgEntry.Quantity * AverageCostACY
-                else
-                    TotalCostAmt :=
-                      TotalCostAmt + ItemLedgEntry.Quantity * AverageCost;
+            if Quantity <> TotalInvoicedQty then begin
+                TotalAmt := TotalAmt + TotalAmtExpected;
+                TotalCostAmt := TotalCostAmt + TotalCostAmtExpected;
             end;
 
-            TotalAmt := TotalCostAmt;
-            TotalIndirectCost := TotalIndirectCostAmt;
-        end;
+            OnCalculateTotalsOnAfterSumTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
 
-        if (TotalAmt = 0) and (ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Sale) and (not SkipRecalcZeroAmounts) then begin
-            if Item."No." <> ItemLedgEntry."Item No." then
-                Item.Get(ItemLedgEntry."Item No.");
-            if IntrastatJnlBatch."Amounts in Add. Currency" then
-                Item."Unit Price" :=
-                  CurrExchRate.ExchangeAmtLCYToFCY(
-                    EndDate, GLSetup."Additional Reporting Currency",
-                    Item."Unit Price", AddCurrencyFactor);
-            if Item."Price Includes VAT" then begin
-                VATPostingSetup.Get(Item."VAT Bus. Posting Gr. (Price)", Item."VAT Prod. Posting Group");
-                case VATPostingSetup."VAT Calculation Type" of
-                    VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
-                        VATPostingSetup."VAT %" := 0;
-                    VATPostingSetup."VAT Calculation Type"::"Sales Tax":
-                        Error(
-                          Text000,
-                          VATPostingSetup.FieldCaption("VAT Calculation Type"),
-                          VATPostingSetup."VAT Calculation Type");
+            if "Entry Type" in ["Entry Type"::Purchase, "Entry Type"::Transfer] then begin
+                if TotalCostAmt = 0 then begin
+                    CalculateAverageCost(AverageCost, AverageCostACY);
+                    if IntrastatJnlBatch."Amounts in Add. Currency" then
+                        TotalCostAmt :=
+                          TotalCostAmt + Quantity * AverageCostACY
+                    else
+                        TotalCostAmt :=
+                          TotalCostAmt + Quantity * AverageCost;
                 end;
-                TotalAmt :=
-                  TotalAmt + ItemLedgEntry.Quantity *
-                  (Item."Unit Price" / (1 + (VATPostingSetup."VAT %" / 100)));
-            end else
-                TotalAmt := TotalAmt + ItemLedgEntry.Quantity * Item."Unit Price";
+                TotalAmt := TotalCostAmt;
+                TotalIndirectCost := TotalIndirectCostAmt;
+            end;
+
+            if (TotalAmt = 0) and ("Entry Type" = "Entry Type"::Sale) and (not SkipRecalcZeroAmounts) then begin
+                if Item."No." <> "Item No." then
+                    Item.Get("Item No.");
+                if IntrastatJnlBatch."Amounts in Add. Currency" then
+                    Item."Unit Price" :=
+                      CurrExchRate.ExchangeAmtLCYToFCY(
+                        EndDate, GLSetup."Additional Reporting Currency",
+                        Item."Unit Price", AddCurrencyFactor);
+                if Item."Price Includes VAT" then begin
+                    VATPostingSetup.Get(Item."VAT Bus. Posting Gr. (Price)", Item."VAT Prod. Posting Group");
+                    case VATPostingSetup."VAT Calculation Type" of
+                        VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
+                            VATPostingSetup."VAT %" := 0;
+                        VATPostingSetup."VAT Calculation Type"::"Sales Tax":
+                            Error(
+                              Text000,
+                              VATPostingSetup.FieldCaption("VAT Calculation Type"),
+                              VATPostingSetup."VAT Calculation Type");
+                    end;
+                    TotalAmt :=
+                      TotalAmt + Quantity *
+                      (Item."Unit Price" / (1 + (VATPostingSetup."VAT %" / 100)));
+                end else
+                    TotalAmt := TotalAmt + Quantity * Item."Unit Price";
+            end;
         end;
 
-        OnAfterCalculateTotals(ItemLedgEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
+        OnAfterCalculateTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
     end;
 
     local procedure IsJobService(JobLedgEntry: Record "Job Ledger Entry"): Boolean
@@ -865,6 +868,11 @@ report 594 "Get Item Ledger Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertValueEntryLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterSumTotals(var ItemLedgerEntry: Record "Item Ledger Entry"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var TotalAmt: Decimal; var TotalCostAmt: Decimal)
     begin
     end;
 }

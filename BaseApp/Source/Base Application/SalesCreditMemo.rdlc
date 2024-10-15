@@ -1022,6 +1022,9 @@
                                               </Paragraph>
                                             </Paragraphs>
                                             <rd:DefaultName>Textbox44</rd:DefaultName>
+                                            <Visibility>
+                                              <Hidden>=Iif((Fields!Type_SalesCrMemoLine.Value = " ") Or (Fields!Type_SalesCrMemoLineInt.Value = 6), true, false)</Hidden>
+                                            </Visibility>
                                             <Style>
                                               <VerticalAlign>Top</VerticalAlign>
                                               <PaddingRight>5pt</PaddingRight>

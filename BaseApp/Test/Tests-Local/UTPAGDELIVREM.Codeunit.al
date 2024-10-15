@@ -8,6 +8,8 @@ codeunit 142041 "UT PAG DELIVREM"
     end;
 
     var
+        Assert: Codeunit Assert;
+        LibraryPermissions: Codeunit "Library - Permissions";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -292,6 +294,21 @@ codeunit 142041 "UT PAG DELIVREM"
 
         // [THEN] "P2".PostingDateFilter = "R1"."Posting Date".
         Navigate.PostingDateFilter.AssertEquals(IssuedDelivReminderHeader."Posting Date");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultDelRemDateFieldIsPresentOnPurchasePayablesSetupPage()
+    var
+        PurchasesPayablesSetup: TestPage "Purchases & Payables Setup";
+    begin
+        // [FEATURE] [UI] [Purchases] [Reminder]
+        // [SCENARIO 330466] Default Del. Rem. Date Field is accessible and editable on Purchases & Payables Setup page
+        LibraryPermissions.SetTestabilitySoftwareAsAService(true);
+        PurchasesPayablesSetup.OpenEdit;
+        Assert.IsTrue(PurchasesPayablesSetup."Default Del. Rem. Date Field".Enabled, '');
+        Assert.IsTrue(PurchasesPayablesSetup."Default Del. Rem. Date Field".Editable, '');
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
     end;
 
     local procedure CreateIssuedDelivReminderHeader(var IssuedDelivReminderHeader: Record "Issued Deliv. Reminder Header")

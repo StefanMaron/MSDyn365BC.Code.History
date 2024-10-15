@@ -788,6 +788,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Purchase/Payables - NamedType DimensionUsedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3642890093 - NamedType 905757573" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Reference No. field could not be filled automatically because more than one vendor ledger entry exist for the payment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Purchase/Payables - NamedType CannotAssignReferenceNoMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1195557970 - NamedType 3345205943" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
@@ -3263,6 +3272,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Partial Payment Vendor - NamedType UnknownError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3181948313 - NamedType 905757573" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Reference No. field could not be filled automatically because more than one vendor ledger entry exist for the payment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Partial Payment Vendor - NamedType CannotAssignReferenceNoMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2213116817 - NamedType 1760651170" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 %2 field must be true after Unapply entries.]]></Val>
@@ -5736,6 +5754,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Document No.,%2=Original Customer Template Code,%3=Customer Template Code]D;]A;(LookupHint=Codeunit ERM Sales Quotes - NamedType DifferentCustomerTemplateMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2154995965 - NamedType 1065889999" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sales quote %1 without an original customer template was assigned to the customer created from template %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Document No.,%2=Customer Template Code]D;]A;(LookupHint=Codeunit ERM Sales Quotes - NamedType NoOriginalCustomerTemplateMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3883241108 - NamedType 1646674215" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

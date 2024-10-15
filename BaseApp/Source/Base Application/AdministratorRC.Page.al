@@ -22,26 +22,29 @@ page 8900 "Administrator Main Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Extension Management';
-                        RunObject = Page "Extension Management";
+                        RunObject = page "Extension Management";
                     }
                     action("Profiles")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Profiles';
+                        Caption = 'Profiles (Roles)';
                         RunObject = page "Profile List";
                     }
                     action("Devices")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Devices';
                         RunObject = page "Devices";
                     }
                     action("Control Add-ins")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Control Add-ins';
                         RunObject = page "Control Add-ins";
                     }
                     action("Get the Mobile Device App (Tablet and Phone activatation code)")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Mobile device activation and app';
                         RunObject = page "O365 Device Setup";
                     }
@@ -103,6 +106,12 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Customer/Vendor/Item Templates';
                         RunObject = page "Config Templates";
                     }
+                    // action("Setup and Help Resources")
+                    // {
+                    //     ApplicationArea = Basic, Suite;
+                    //     Caption = 'Setup and Help Resources';
+                    //     RunObject = page 1822;
+                    // }
                     action("Transformation Rules")
                     {
                         ApplicationArea = Basic, Suite;
@@ -255,9 +264,9 @@ page 8900 "Administrator Main Role Center"
                     // }
                     // action("Report Selection - Comf. Invt.")
                     // {
-                    // 	ApplicationArea = Basic,Suite;
-                    // 	Caption = 'Report Selection - Comf. Invt.';
-                    // 	RunObject = page 5005392;
+                    //     ApplicationArea = Basic, Suite;
+                    //     Caption = 'Report Selection - Comf. Invt.';
+                    //     RunObject = page 5005392;
                     // }
                     action("Report Selection - Comf. Purch")
                     {
@@ -313,6 +322,7 @@ page 8900 "Administrator Main Role Center"
                     }
                     action("Companies")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Companies';
                         RunObject = page "Companies";
                     }
@@ -367,7 +377,7 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = All;
                         Caption = 'Data Encryption Management';
                         RunObject = page "Data Encryption Management";
-                        //AccessByPermission = System 5420 = X;
+                        // AccessByPermission = system 5420 = X;
                     }
                     action("Data Classification Worksheet")
                     {
@@ -417,11 +427,13 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Data Exchange';
                     action("Import from a Data File")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Import from a Data File';
                         RunObject = page "Import Data";
                     }
                     action("Export to a Data File")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Export to a Data File';
                         RunObject = page "Export Data";
                     }
@@ -510,11 +522,13 @@ page 8900 "Administrator Main Role Center"
                 Caption = 'Users';
                 action("Users")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Users';
                     RunObject = page "Users";
                 }
                 action("User Groups")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'User Groups';
                     RunObject = page "User Groups";
                 }
@@ -526,12 +540,13 @@ page 8900 "Administrator Main Role Center"
                 }
                 action("Permission Sets")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Permission Sets';
                     RunObject = page "Permission Sets";
                 }
                 // action("Change Password")
                 // {
-                //     ApplicationArea = Basic, Suite;
+                //     ApplicationArea =;
                 //     Caption = 'Change Password';
                 //     RunObject = page 9809;
                 // }
@@ -716,14 +731,14 @@ page 8900 "Administrator Main Role Center"
                     action("Dynamic Request page Entities")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Dynamic Request page Entities';
-                        RunObject = page "Dynamic Request page Entities";
+                        Caption = 'Dynamic Request Page Entities';
+                        RunObject = page "Dynamic Request Page Entities";
                     }
                     action("Dynamic Request page Fields")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Dynamic Request page Fields';
-                        RunObject = page "Dynamic Request page Fields";
+                        Caption = 'Dynamic Request Page Fields';
+                        RunObject = page "Dynamic Request Page Fields";
                     }
                 }
             }
@@ -736,6 +751,12 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Web Services';
                     RunObject = page "Web Services";
                 }
+                // action("Bank Data Conv. Service Setup")
+                // {
+                //     ApplicationArea = Basic, Suite;
+                //     Caption = 'Bank Data Conv. Service Setup';
+                //     RunObject = page 1260;
+                // }
                 action("Microsoft Dynamics 365 Connection Setup")
                 {
                     ApplicationArea = Suite;
@@ -835,11 +856,13 @@ page 8900 "Administrator Main Role Center"
                 }
                 action("Account Schedule KPI Web Servi")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Account Schedule KPI Web Service Setup';
                     RunObject = page "Acc. Sched. KPI Web Srv. Setup";
                 }
                 action("Acc. Sched. KPI Web Service")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Account Schedule KPI Web Service';
                     RunObject = page "Acc. Sched. KPI Web Service";
                 }

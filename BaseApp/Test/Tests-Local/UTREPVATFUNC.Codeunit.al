@@ -13,6 +13,7 @@ codeunit 142057 "UT REP VATFUNC"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryRandom: Codeunit "Library - Random";
+        FileManagement: Codeunit "File Management";
         ValueMustBeEqualMsg: Label 'Value must be Equal.';
 
     [Test]
@@ -289,6 +290,21 @@ codeunit 142057 "UT REP VATFUNC"
         Assert.AreEqual(2, VATViesDeclarationTaxDE.GetIndicatorCode(true, false), ValueMustBeEqualMsg);  // Value 2 is returned by function GetIndicatorCode for TRUE value of EU 3-Party Trade and FALSE for EU Service field of VAT Entry.
     end;
 
+    [Test]
+    [HandlerFunctions('VATViesDeclarationTaxDESaveAsPDFReportHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure PrintVATVieDeclarationTaxDE()
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 333888] Report "VAT-Vies Declaration Tax - DE" can be printed without RDLC rendering errors
+        Initialize;
+
+        // [WHEN] Report "VAT-Vies Declaration Tax - DE" is being printed to PDF
+        Report.Run(Report::"VAT-Vies Declaration Tax - DE");
+        // [THEN] No RDLC rendering errors
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -425,6 +441,19 @@ codeunit 142057 "UT REP VATFUNC"
         VATStatementGermany."VAT Statement Name".SetFilter("Statement Template Name", StatementTemplateName);
         VATStatementGermany.PrintInIntegers.SetValue(true);
         VATStatementGermany.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure VATViesDeclarationTaxDESaveAsPDFReportHandler(var VATViesDeclarationTaxDE: Report "VAT-Vies Declaration Tax - DE")
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Posting Date", WorkDate());
+        VATEntry.SetFilter("VAT Registration No.", '<>%1', '');
+        VATEntry.SetFilter("Country/Region Code", '<>%1', '');
+        VATViesDeclarationTaxDE.SetTableView(VATEntry);
+        VATViesDeclarationTaxDE.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
 }
 
