@@ -295,7 +295,7 @@ table 5746 "Transfer Receipt Header"
         TransRcptLine.SetRange("Document No.", "No.");
         if TransRcptLine.Find('-') then
             repeat
-                TransRcptLine.Delete();
+                TransRcptLine.Delete(true);
             until TransRcptLine.Next() = 0;
 
         InvtCommentLine.SetRange("Document Type", InvtCommentLine."Document Type"::"Posted Transfer Receipt");

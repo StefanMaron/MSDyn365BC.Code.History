@@ -160,6 +160,7 @@ table 5809 "Item Charge Assignment (Sales)"
         Text000: Label 'You cannot assign item charges to the %1 because it has been invoiced. Instead you can get the posted document line and then assign the item charge to that line.';
         SalesLine: Record "Sales Line";
         Currency: Record Currency;
+        ItemChargeDeletionErr: Label 'You cannot delete posted documents that are applied as item charges to sales lines. This document applied to item %3 in %1 %2.', Comment = '%1 - Document Type; %2 - Document No., %3 - Item No.';
 
     procedure SalesLineInvoiced(): Boolean
     begin
@@ -167,6 +168,17 @@ table 5809 "Item Charge Assignment (Sales)"
             exit(false);
         SalesLine.Get("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
         exit(SalesLine.Quantity = SalesLine."Quantity Invoiced");
+    end;
+
+    procedure CheckAssignment(AppliesToDocumentType: Enum "Sales Applies-to Document Type"; AppliesToDocumentNo: Code[20]; AppliesToDocumentLineNo: Integer)
+    begin
+        Reset();
+        SetCurrentKey("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
+        SetRange("Applies-to Doc. Type", AppliesToDocumentType);
+        SetRange("Applies-to Doc. No.", AppliesToDocumentNo);
+        SetRange("Applies-to Doc. Line No.", AppliesToDocumentLineNo);
+        if FindFirst() then
+            error(ItemChargeDeletionErr, "Document Type", "Document No.", "Item No.");
     end;
 }
 
