@@ -7,6 +7,23 @@ pageextension 10538 "MTD OAuth 2.0 Setup" extends "OAuth 2.0 Setup"
 {
     layout
     {
+        modify(General)
+        {
+            Editable = true;
+        }
+        modify(Description)
+        {
+            Editable = false;
+        }
+        modify("Service URL")
+        {
+            Editable = false;
+        }
+        modify("Enter Authorization Code")
+        {
+            Visible = not IsSaaS and IsMTD;
+        }
+
         addafter("Request URL Paths")
         {
             group("HMRC VAT Client Tokens")

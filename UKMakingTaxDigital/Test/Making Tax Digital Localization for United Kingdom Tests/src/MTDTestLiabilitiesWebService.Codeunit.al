@@ -24,6 +24,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
         RetrieveVATLiabilitiesTxt: Label 'Retrieve VAT Liabilities.', Locked = true;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_Negative_DisabledOutput()
     var
@@ -41,6 +42,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_Negative_Reason()
     var
@@ -61,6 +63,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_Negative_BlankedJsonResponse()
     var
@@ -76,6 +79,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_Negative_WrongJsonResponse()
     var
@@ -91,6 +95,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_OneNewLbl_DisabledOutput()
     var
@@ -108,7 +113,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
-    [HandlerFunctions('GetMTDRecords_RPH,MessageHandler')]
+    [HandlerFunctions('GetMTDRecords_RPH,MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_OneNewLbl_UI()
     var
@@ -130,6 +135,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
+    [HandlerFunctions('MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_OneNew_ExpiredToken()
     var
@@ -151,7 +157,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_OneUpToDateLbl()
     var
@@ -169,7 +175,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_OneModifiedLbl_OrgAmt()
     var
@@ -187,7 +193,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_OneModifiedLbl_OutstAmt()
     var
@@ -205,7 +211,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_OneModifiedLbl_DueDate()
     var
@@ -223,7 +229,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_TwoNewLbl()
     var
@@ -239,7 +245,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_TwoUpToDateLbl()
     var
@@ -259,7 +265,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_TwoModifiedLbl()
     var
@@ -279,7 +285,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_TwoLblInclOneNew()
     var
@@ -297,7 +303,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_TwoLblInclOneModified()
     var
@@ -317,7 +323,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,MTDWebClientFPHeaders_MPH')]
     [Scope('OnPrem')]
     procedure GetVATLiabilitiesAndShowResult_TwoLblInclOneNewAndOneModified()
     var
@@ -548,5 +554,10 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
     procedure MessageHandler(Message: Text[1024])
     begin
         LibraryVariableStorage.Enqueue(Message);
+    end;
+
+    [ModalPageHandler]
+    procedure MTDWebClientFPHeaders_MPH(var MTDWebClientFPHeaders: TestPage "MTD Web Client FP Headers")
+    begin
     end;
 }

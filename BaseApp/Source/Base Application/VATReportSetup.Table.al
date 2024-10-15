@@ -230,6 +230,12 @@
             ObsoleteTag = '18.0';
             OptionMembers = BC,NAV2018,NAV2017;
         }
+        field(10541; "MTD-FP Public IP Service URL"; Text[250])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Moved to Making Tax Digital extension.';
+            ObsoleteTag = '21.0';
+        }
     }
 
     keys

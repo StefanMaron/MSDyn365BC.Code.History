@@ -186,7 +186,7 @@ codeunit 144015 "UT REP Intrastat"
         JournalTemplateName: Variant;
     begin
         LibraryVariableStorage.Dequeue(JournalTemplateName);
-        IntrastatCheckList."Intrastat Jnl. Line".SetFilter("Journal Template Name", JournalTemplateName);
+        IntrastatCheckList."Intrastat Jnl. Batch".SetFilter("Journal Template Name", JournalTemplateName);
         IntrastatCheckList.ShowIntrastatJournalLines.SetValue(true);
         IntrastatCheckList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
