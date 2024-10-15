@@ -136,7 +136,7 @@ report 6655 "Batch Post Sales Return Orders"
     }
 
     var
-        Text003: Label 'The exchange rate associated with the new posting date on the sales header will not apply to the sales lines.';
+        Text003: Label 'The exchange rate associated with the new posting date on the sales header will apply to the sales lines.';
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
