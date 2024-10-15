@@ -105,7 +105,7 @@ codeunit 1305 "Sales-Quote to Invoice"
             SalesQuoteLine.SetRange("Document Type", "Document Type");
             SalesQuoteLine.SetRange("Document No.", "No.");
             OnAfterSalesQuoteLineSetFilters(SalesQuoteLine);
-            if SalesQuoteLine.FindSet then
+            if SalesQuoteLine.FindSet() then
                 repeat
                     IsHandled := false;
                     OnBeforeCreateSalesInvoiceLineLoop(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceHeader, IsHandled);

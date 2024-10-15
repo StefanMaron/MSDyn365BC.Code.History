@@ -31,7 +31,7 @@ table 10860 "Payment Class"
             begin
                 if "Header No. Series" <> '' then begin
                     NoSeriesLine.SetRange("Series Code", "Header No. Series");
-                    if NoSeriesLine.FindLast then
+                    if NoSeriesLine.FindLast() then
                         if (StrLen(NoSeriesLine."Starting No.") > 10) or (StrLen(NoSeriesLine."Ending No.") > 10) then
                             Error(Text002);
                 end;
@@ -53,7 +53,7 @@ table 10860 "Payment Class"
             begin
                 if "Line No. Series" <> '' then begin
                     NoSeriesLine.SetRange("Series Code", "Line No. Series");
-                    if NoSeriesLine.FindLast then
+                    if NoSeriesLine.FindLast() then
                         if (StrLen(NoSeriesLine."Starting No.") > 10) or (StrLen(NoSeriesLine."Ending No.") > 10) then
                             Error(Text002);
                 end;
@@ -87,7 +87,7 @@ table 10860 "Payment Class"
                 end else begin
                     PaymentStep.SetRange("Payment Class", Code);
                     PaymentStep.SetRange("Realize VAT", true);
-                    if PaymentStep.FindFirst then
+                    if PaymentStep.FindFirst() then
                         Error(
                           Text003, TableCaption, Code,
                           PaymentStep.TableCaption, PaymentStep.FieldCaption("Realize VAT"));
@@ -127,9 +127,9 @@ table 10860 "Payment Class"
     begin
         PaymentHeader.SetRange("Payment Class", Code);
         PaymentLine.SetRange("Payment Class", Code);
-        if PaymentHeader.FindFirst then
+        if PaymentHeader.FindFirst() then
             Error(Text001);
-        if PaymentLine.FindFirst then
+        if PaymentLine.FindFirst() then
             Error(Text001);
         Status.SetRange("Payment Class", Code);
         Status.DeleteAll();

@@ -65,7 +65,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         Assert.AreEqual(true, O365SalesDocument.Posted, 'Invoice is not posted');
 
         SetSalesInvoiceHeaderKey(SalesInvoiceHeader);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         Assert.AreEqual(SalesInvoiceHeader."No.", O365SalesDocument."No.", 'Posted invoice is not the first one');
     end;
 
@@ -164,7 +164,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         Assert.AreEqual(true, O365SalesDocument.Posted, 'Invoice is a draft');
 
         SetSalesInvoiceHeaderKey(SalesInvoiceHeader);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         Assert.AreEqual(SalesInvoiceHeader."No.", O365SalesDocument."No.", 'Found document is not expected document');
     end;
 
@@ -306,7 +306,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
 
         // Verify
         SetSalesInvoiceHeaderKey(SalesInvoiceHeader);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         Assert.AreEqual(SalesInvoiceHeader."No.", O365SalesDocument."No.", 'Not the correct invoice');
         Assert.IsTrue(O365SalesDocument.Posted, 'The invoice should be sent');
@@ -465,7 +465,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
 
         // Verify
         SetSalesHeaderKey(SalesHeader);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
 
         Assert.AreEqual(SalesHeader."No.", O365SalesDocument."No.", 'Not the correct invoice');
         Assert.IsFalse(O365SalesDocument.Posted, 'The invoice should be a draft');
@@ -665,7 +665,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Combined Sales Doc. Tests");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         SalesHeader.DeleteAll();
         SalesInvoiceHeader.DeleteAll();
 
@@ -756,7 +756,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
     local procedure GetFirstDraftDocument(var SalesHeader: Record "Sales Header"; var O365SalesDocument: Record "O365 Sales Document")
     begin
         SetSalesHeaderKey(SalesHeader);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
 
         ApplySalesHeaderKeysToDocument(O365SalesDocument, SalesHeader);
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
@@ -765,7 +765,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
     local procedure GetLastDraftDocument(var SalesHeader: Record "Sales Header"; var O365SalesDocument: Record "O365 Sales Document")
     begin
         SetSalesHeaderKey(SalesHeader);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
 
         ApplySalesHeaderKeysToDocument(O365SalesDocument, SalesHeader);
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
@@ -774,7 +774,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
     local procedure GetFirstSentDocument(var SalesInvoiceHeader: Record "Sales Invoice Header"; var O365SalesDocument: Record "O365 Sales Document")
     begin
         SetSalesInvoiceHeaderKey(SalesInvoiceHeader);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         ApplySalesInvoiceHeaderKeysToDocument(O365SalesDocument, SalesInvoiceHeader);
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
@@ -783,7 +783,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
     local procedure GetLastSentDocument(var SalesInvoiceHeader: Record "Sales Invoice Header"; var O365SalesDocument: Record "O365 Sales Document")
     begin
         SetSalesInvoiceHeaderKey(SalesInvoiceHeader);
-        SalesInvoiceHeader.FindLast;
+        SalesInvoiceHeader.FindLast();
 
         ApplySalesInvoiceHeaderKeysToDocument(O365SalesDocument, SalesInvoiceHeader);
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');

@@ -71,7 +71,7 @@ page 9375 "Analysis Report Purchase"
                     PurchaseAnalysisReport: Page "Purchase Analysis Report";
                 begin
                     PurchaseAnalysisReport.SetReportName(Name);
-                    PurchaseAnalysisReport.Run;
+                    PurchaseAnalysisReport.Run();
                 end;
             }
         }

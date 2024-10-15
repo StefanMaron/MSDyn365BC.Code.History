@@ -49,13 +49,13 @@ codeunit 5052 AttachmentManagement
             exit;
         ProcessDeliverySorter(DeliverySorter, TempDeliverySorterHtml, TempDeliverySorterWord, TempDeliverySorterOther);
 
-        if TempDeliverySorterWord.FindFirst then
+        if TempDeliverySorterWord.FindFirst() then
             WordTemplateInteractions.Merge(TempDeliverySorterWord);
 
-        if TempDeliverySorterHtml.FindFirst then
+        if TempDeliverySorterHtml.FindFirst() then
             DeliverHTMLEmail(TempDeliverySorterHtml, InteractLogEntry);
 
-        if TempDeliverySorterOther.FindFirst then
+        if TempDeliverySorterOther.FindFirst() then
             DeliverEmailWithAttachment(TempDeliverySorterOther, InteractLogEntry);
 
         OnAfterSend(
@@ -75,14 +75,14 @@ codeunit 5052 AttachmentManagement
     begin
         ProcessDeliverySorter(DeliverySorter, TempDeliverySorterHtml, TempDeliverySorterWord, TempDeliverySorterOther);
 
-        if TempDeliverySorterWord.FindFirst then
+        if TempDeliverySorterWord.FindFirst() then
             WordTemplateInteractions.Merge(TempDeliverySorterWord);
 
         InitializeExchange(ExchangeWebServicesServer);
-        if TempDeliverySorterHtml.FindFirst then
+        if TempDeliverySorterHtml.FindFirst() then
             DeliverHTMLEmailViaExchange(ExchangeWebServicesServer, TempDeliverySorterHtml, InteractLogEntry);
 
-        if TempDeliverySorterOther.FindFirst then
+        if TempDeliverySorterOther.FindFirst() then
             DeliverEmailWithAttachmentViaExchange(ExchangeWebServicesServer, TempDeliverySorterOther, InteractLogEntry);
     end;
 
@@ -458,7 +458,6 @@ codeunit 5052 AttachmentManagement
     local procedure SendHTMLEmail(var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry"; EmailBodyFilePath: Text)
     var
         Contact: Record Contact;
-        EmailFeature: Codeunit "Email Feature";
         DocumentMailing: Codeunit "Document-Mailing";
         TempBlob: Codeunit "Temp Blob";
         AttachmentStream: Instream;
@@ -478,14 +477,9 @@ codeunit 5052 AttachmentManagement
             SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
         end;
 
-        if EmailFeature.IsEnabled() then
-            IsSent := DocumentMailing.EmailFile(
-                AttachmentStream, '', EmailBodyFilePath,
-                TempDeliverySorterHtml.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default, SourceTableIDs, SourceIDs, SourceRelationTypes)
-        else
-            IsSent := DocumentMailing.EmailFileWithSubject(
-           '', '', EmailBodyFilePath,
-           TempDeliverySorterHtml.Subject, InteractionEMail(InteractLogEntry), false);
+        IsSent := DocumentMailing.EmailFile(
+            AttachmentStream, '', EmailBodyFilePath,
+            TempDeliverySorterHtml.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default, SourceTableIDs, SourceIDs, SourceRelationTypes);
 
         SetDeliveryState(InteractLogEntry, IsSent);
     end;
@@ -505,7 +499,6 @@ codeunit 5052 AttachmentManagement
     local procedure SendEmailWithAttachment(TempDeliverySorterOther: Record "Delivery Sorter" temporary; InteractLogEntry: Record "Interaction Log Entry"; AttachmentFileFullName: Text; EmailBodyFilePath: Text)
     var
         Contact: Record Contact;
-        EmailFeature: Codeunit "Email Feature";
         DocumentMailing: Codeunit "Document-Mailing";
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
@@ -529,14 +522,9 @@ codeunit 5052 AttachmentManagement
             SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
         end;
 
-        if EmailFeature.IsEnabled() then
-            IsSent := DocumentMailing.EmailFile(
-                AttachmentStream, GetAttachmentFileDefaultName(TempDeliverySorterOther."Attachment No."),
-                EmailBodyFilePath, TempDeliverySorterOther.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default, SourceTableIDs, SourceIDs, SourceRelationTypes)
-        else
-            IsSent := DocumentMailing.EmailFileWithSubject(
-                AttachmentFileFullName, GetAttachmentFileDefaultName(TempDeliverySorterOther."Attachment No."),
-                EmailBodyFilePath, TempDeliverySorterOther.Subject, InteractionEMail(InteractLogEntry), false);
+        IsSent := DocumentMailing.EmailFile(
+            AttachmentStream, GetAttachmentFileDefaultName(TempDeliverySorterOther."Attachment No."),
+            EmailBodyFilePath, TempDeliverySorterOther.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default, SourceTableIDs, SourceIDs, SourceRelationTypes);
 
         SetDeliveryState(InteractLogEntry, IsSent);
     end;

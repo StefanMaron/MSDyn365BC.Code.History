@@ -202,7 +202,7 @@ table 50 "Accounting Period"
         AccountingPeriod2.SetRange("New Fiscal Year", true);
         AccountingPeriod2.SetRange("Fiscally Closed", false);
         NoOfOpenFiscalYears := AccountingPeriod2.Count();
-        if AccountingPeriod2.FindFirst then;
+        if AccountingPeriod2.FindFirst() then;
 
         // check last period of previous fiscal year
         AccountingPeriod2.SetRange("New Fiscal Year");
@@ -223,7 +223,7 @@ table 50 "Accounting Period"
     begin
         AccountingPeriod2.Reset();
         AccountingPeriod2.SetRange("Fiscally Closed", false);
-        if AccountingPeriod2.FindFirst then begin
+        if AccountingPeriod2.FindFirst() then begin
             if not AccountingPeriod2.Find('>') then
                 Error(Text10809);
             // check last period in fiscal year
@@ -250,11 +250,11 @@ table 50 "Accounting Period"
     begin
         AccountingPeriod2.Reset();
         AccountingPeriod2.SetRange("Fiscally Closed", false);
-        if AccountingPeriod2.FindFirst then
+        if AccountingPeriod2.FindFirst() then
             if AccountingPeriod2."New Fiscal Year" then
                 Error(Text10805);
         AccountingPeriod2.SetRange("Fiscally Closed", true);
-        if AccountingPeriod2.FindLast then begin
+        if AccountingPeriod2.FindLast() then begin
             if not Confirm(Text10806, false, AccountingPeriod2."Starting Date") then
                 exit;
             AccountingPeriod2."Fiscally Closed" := false;
@@ -285,7 +285,7 @@ table 50 "Accounting Period"
     procedure UpdateUserSetup(PeriodEndDate: Date)
     begin
         with UserSetup do begin
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     if "Allow Posting From" <= PeriodEndDate then begin
                         "Allow Posting From" := GLSetup."Posting Allowed From";
@@ -309,7 +309,7 @@ table 50 "Accounting Period"
         end;
 
         with UserSetup do
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     if ("Allow Posting From" > FYEndDate) or ("Allow Posting To" > FYEndDate) then
                         exit(true);
@@ -330,7 +330,7 @@ table 50 "Accounting Period"
         NewPostingAllowedTo := GetPostingAllowedToDate(ExcludePeriod);
         AccountingPeriod2.SetRange("New Fiscal Year", true);
         AccountingPeriod2.SetFilter("Starting Date", '<>%1', ExcludePeriod);
-        if AccountingPeriod2.FindLast then
+        if AccountingPeriod2.FindLast() then
             if NewPostingAllowedTo <> 0D then
                 if CheckPostingRangeSetup(CalcDate('<-1D>', NewPostingAllowedTo)) then
                     Error(
@@ -347,7 +347,7 @@ table 50 "Accounting Period"
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetRange("Fiscally Closed", false);
         AccountingPeriod.SetFilter("Starting Date", '<>%1', ExcludePeriod);
-        if AccountingPeriod.FindLast then
+        if AccountingPeriod.FindLast() then
             exit(AccountingPeriod."Starting Date");
 
         exit(0D);

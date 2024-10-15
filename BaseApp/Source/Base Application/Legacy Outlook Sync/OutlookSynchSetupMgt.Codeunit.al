@@ -172,7 +172,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
             CollectionName := ShowLookupNames(TempOSynchLookupName);
             if CollectionName <> '' then begin
                 SetRange("Outlook Collection", CollectionName);
-                if FindFirst then
+                if FindFirst() then
                     if CheckOCollectionAvailability(OSynchEntityElement, UserID) then
                         ElementNo := "Element No.";
             end;
@@ -209,7 +209,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         TempString := ShowLookupNames(TempOSynchLookupName);
         TempOSynchLookupName.SetCurrentKey(Name);
         TempOSynchLookupName.SetRange(Name, TempString);
-        if TempOSynchLookupName.FindFirst then
+        if TempOSynchLookupName.FindFirst() then
             OptionID := TempOSynchLookupName."Entry No.";
     end;
 
@@ -274,7 +274,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
 
     local procedure ShowLookupNames(var OSynchLookupNameRec: Record "Outlook Synch. Lookup Name") SelectedName: Text[80]
     begin
-        OSynchLookupNameRec.FindFirst;
+        OSynchLookupNameRec.FindFirst();
 
         if PAGE.RunModal(PAGE::"Outlook Synch. Lookup Names", OSynchLookupNameRec) = ACTION::LookupOK then
             SelectedName := OSynchLookupNameRec.Name;
@@ -439,7 +439,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                         if Evaluate(IntVar, InputValue) then begin
                             TempOSynchLookupName.Reset();
                             TempOSynchLookupName.SetRange("Entry No.", IntVar);
-                            if TempOSynchLookupName.FindFirst then begin
+                            if TempOSynchLookupName.FindFirst() then begin
                                 InputValue := TempOSynchLookupName.Name;
                                 EnumerationNo := TempOSynchLookupName."Entry No.";
                                 exit;
@@ -448,7 +448,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
 
                         TempOSynchLookupName.Reset();
                         TempOSynchLookupName.SetFilter(Name, '@' + InputValue + '*');
-                        if not TempOSynchLookupName.FindFirst then
+                        if not TempOSynchLookupName.FindFirst() then
                             Error(Text007);
 
                         InputValue := TempOSynchLookupName.Name;
@@ -475,7 +475,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                                 if Evaluate(IntVar, InputValue) then begin
                                     TempOSynchLookupName.Reset();
                                     TempOSynchLookupName.SetRange("Entry No.", IntVar);
-                                    if TempOSynchLookupName.FindFirst then begin
+                                    if TempOSynchLookupName.FindFirst() then begin
                                         InputValue := TempOSynchLookupName.Name;
                                         EnumerationNo := TempOSynchLookupName."Entry No.";
                                         exit;
@@ -484,7 +484,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
 
                                 TempOSynchLookupName.Reset();
                                 TempOSynchLookupName.SetFilter(Name, '@' + InputValue + '*');
-                                if not TempOSynchLookupName.FindFirst then
+                                if not TempOSynchLookupName.FindFirst() then
                                     Error(Text007);
 
                                 InputValue := TempOSynchLookupName.Name;
@@ -501,7 +501,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         Field.Reset();
         Field.SetRange(TableNo, TableID);
         Field.SetFilter("Field Caption", '@' + OSynchTypeConversion.ReplaceFilterChars(NameString) + '*');
-        if Field.FindFirst then begin
+        if Field.FindFirst() then begin
             NameString := Field."Field Caption";
             exit(true);
         end;
@@ -528,7 +528,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         TempOSynchLookupName.SetCurrentKey(Name);
         TempOSynchLookupName.SetFilter(Name, '@' + OSynchTypeConversion.ReplaceFilterChars(InputString) + '*');
 
-        if TempOSynchLookupName.FindFirst then begin
+        if TempOSynchLookupName.FindFirst() then begin
             InputString := TempOSynchLookupName.Name;
             exit(true);
         end;
@@ -559,7 +559,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         TempOSynchLookupName.SetCurrentKey(Name);
         TempOSynchLookupName.SetFilter(Name, '@' + OSynchTypeConversion.ReplaceFilterChars(InputString) + '*');
 
-        if TempOSynchLookupName.FindFirst then begin
+        if TempOSynchLookupName.FindFirst() then begin
             InputString := TempOSynchLookupName.Name;
             exit(true);
         end;
@@ -595,7 +595,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         else
             TempOSynchLookupName.SetFilter(Name, '@' + OSynchTypeConversion.ReplaceFilterChars(InputString) + '*');
 
-        if TempOSynchLookupName.FindFirst then begin
+        if TempOSynchLookupName.FindFirst() then begin
             InputString := TempOSynchLookupName.Name;
             PropertyItem := PropertyList.Item(TempOSynchLookupName."Entry No." - 1);
             IsReadOnly := PropertyItem.IsReadOnly;
@@ -638,7 +638,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
         else
             TempOSynchLookupName.SetFilter(Name, '@' + OSynchTypeConversion.ReplaceFilterChars(InputString) + '*');
 
-        if TempOSynchLookupName.FindFirst then
+        if TempOSynchLookupName.FindFirst() then
             for Counter := 0 to PropertyList.Count - 1 do
                 if PropertyList.Item(Counter).ReturnsCollection then
                     if PropertyList.Item(Counter).Name = CollectionName then begin

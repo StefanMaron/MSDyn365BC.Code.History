@@ -38,7 +38,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // exercise
-        CustomerPostingGroup.FindFirst;
+        CustomerPostingGroup.FindFirst();
 
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
         InsertGLentry(GLEntry, CustomerPostingGroup."Receivables Account");
@@ -65,7 +65,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // exercise
-        CustomerPostingGroup.FindFirst;
+        CustomerPostingGroup.FindFirst();
 
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
         InsertGLentry(GLEntry, CustomerPostingGroup."Receivables Account");
@@ -91,7 +91,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // exercise
-        CustomerPostingGroup.FindFirst;
+        CustomerPostingGroup.FindFirst();
 
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
         InsertGLentry(GLEntry, CustomerPostingGroup."Receivables Account");
@@ -116,7 +116,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // exercise
-        CustomerPostingGroup.FindFirst;
+        CustomerPostingGroup.FindFirst();
 
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
         InsertGLentry(GLEntry, CustomerPostingGroup."Receivables Account");
@@ -141,7 +141,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // exercise
-        CustomerPostingGroup.FindFirst;
+        CustomerPostingGroup.FindFirst();
 
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
         InsertGLentry(GLEntry, CustomerPostingGroup."Receivables Account");
@@ -151,7 +151,7 @@ codeunit 144563 "Test Export G/L Entries"
         InsertCustLedgerEntryWithDetail(CustLedgerEntry, DetailedCustLedgEntry,
           CustomerPostingGroup.Code, GLEntry."Transaction No.", 0);
 
-        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo;
+        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo();
         CustLedgerEntry.Modify();
 
         VerifyGetLedgerEntryDataForCustVend_Customer(GLEntry."Transaction No.", CustLedgerEntry);
@@ -207,7 +207,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // exercise
-        CustomerPostingGroup.FindFirst;
+        CustomerPostingGroup.FindFirst();
 
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
 
@@ -233,7 +233,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // exercise
-        VendorPostingGroup.FindFirst;
+        VendorPostingGroup.FindFirst();
 
         InsertGLentry(GLEntry, GetNonRecPayAccountNo); // !
         InsertGLentry(GLEntry, VendorPostingGroup."Payables Account");
@@ -260,7 +260,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // exercise
-        VendorPostingGroup.FindFirst;
+        VendorPostingGroup.FindFirst();
 
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
         InsertGLentry(GLEntry, VendorPostingGroup."Payables Account");
@@ -286,7 +286,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // exercise
-        VendorPostingGroup.FindFirst;
+        VendorPostingGroup.FindFirst();
 
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
         InsertGLentry(GLEntry, VendorPostingGroup."Payables Account");
@@ -312,7 +312,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // exercise
-        VendorPostingGroup.FindFirst;
+        VendorPostingGroup.FindFirst();
         PayRecAccount := VendorPostingGroup."Payables Account";
 
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
@@ -353,7 +353,7 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [THEN] Fields 7 CompAuxNume and 8 CompAuxLib are exported as Bank Account's number and name respectively for Bank Account Posting G/L Account
         // [THEN] All non-posting accounts have fields 7 CompAuxNume and 8 CompAuxLib with blank values
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         VerifyExportGLEntriesReport(
           GLRegister,
           ReportFileName,
@@ -391,7 +391,7 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [THEN] Fields 7 CompAuxNume and 8 CompAuxLib are exported as Customer's number and name respectively for Customer Receivables Account
         // [THEN] All non-posting accounts have fields 7 CompAuxNume and 8 CompAuxLib with blank values
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         VerifyExportGLEntriesReport(
           GLRegister,
           ReportFileName,
@@ -429,7 +429,7 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [THEN] Fields 7 CompAuxNume and 8 CompAuxLib are exported as Vendor's number and name respectively for Vendor Payables Account
         // [THEN] All non-posting accounts have fields 7 CompAuxNume and 8 CompAuxLib with blank values
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         VerifyExportGLEntriesReport(
           GLRegister,
           ReportFileName,
@@ -517,7 +517,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // exercise
-        VendorPostingGroup.FindFirst;
+        VendorPostingGroup.FindFirst();
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
 
         InsertVendorLedgerEntryWithDetail(VendorLedgerEntry, DetailedVendorLedgEntry,
@@ -542,7 +542,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // exercise
-        VendorPostingGroup.FindFirst;
+        VendorPostingGroup.FindFirst();
 
         InsertGLentry(GLEntry, VendorPostingGroup."Payables Account");
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
@@ -552,7 +552,7 @@ codeunit 144563 "Test Export G/L Entries"
         InsertVendorLedgerEntryWithDetail(VendorLedgerEntry, DetailedVendorLedgEntry,
           VendorPostingGroup.Code, GLEntry."Transaction No.", 0);
 
-        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo;
+        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo();
         VendorLedgerEntry.Modify();
 
         VerifyGetLedgerEntryDataForCustVend_Vendor(GLEntry."Transaction No.", VendorLedgerEntry);
@@ -625,7 +625,7 @@ codeunit 144563 "Test Export G/L Entries"
           CreateGenJournalLine(GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer,
             Customer."No.", StartingDate, -Amount);
         ApplyAndPostGenJournalLine(PaymentDocNo, GenJournalLine."Document Type"::Invoice, InvoiceDocNo);
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // [WHEN] Export report Export G/L Entries
         ExportReportFile(ReportFileName, StartingDate, StartingDate, '', false); // IncludeOpeningBalancesValue = FALSE
@@ -675,7 +675,7 @@ codeunit 144563 "Test Export G/L Entries"
           CreateGenJournalLine(GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
             Vendor."No.", StartingDate, Amount);
         ApplyAndPostGenJournalLine(PaymentDocNo, GenJournalLine."Document Type"::Invoice, InvoiceDocNo);
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // [WHEN] Export report Export G/L Entries
         ExportReportFile(ReportFileName, StartingDate, StartingDate, '', false); // IncludeOpeningBalancesValue = FALSE
@@ -726,7 +726,7 @@ codeunit 144563 "Test Export G/L Entries"
           CreateGenJournalLine(GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"Bank Account",
             BankAccount."No.", StartingDate, Amount);
         ApplyAndPostGenJournalLine(PaymentDocNo, GenJournalLine."Document Type"::Invoice, InvoiceDocNo);
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // [WHEN] Export report Export G/L Entries
         ExportReportFile(ReportFileName, StartingDate, StartingDate, '', false); // IncludeOpeningBalancesValue = FALSE
@@ -764,10 +764,10 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 201283] Apply several sales invoices in the same Payment Slip in the French version
-        CustomerPostingGroup.FindFirst;
+        CustomerPostingGroup.FindFirst();
 
-        InsertCustLedgerEntry(InvoiceCustLedgerEntry[1], '', GetTransactionNo, LibraryUtility.GenerateGUID);
-        InsertCustLedgerEntry(InvoiceCustLedgerEntry[2], '', GetTransactionNo, LibraryUtility.GenerateGUID);
+        InsertCustLedgerEntry(InvoiceCustLedgerEntry[1], '', GetTransactionNo, LibraryUtility.GenerateGUID());
+        InsertCustLedgerEntry(InvoiceCustLedgerEntry[2], '', GetTransactionNo, LibraryUtility.GenerateGUID());
 
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
         InsertGLentry(GLEntry, CustomerPostingGroup."Receivables Account");
@@ -815,10 +815,10 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 201283] Apply several purchase invoices in the same Payment Slip in the French version
-        VendorPostingGroup.FindFirst;
+        VendorPostingGroup.FindFirst();
 
-        InsertVendorLedgerEntry(InvoiceVendorLedgerEntry[1], '', GetTransactionNo, LibraryUtility.GenerateGUID);
-        InsertVendorLedgerEntry(InvoiceVendorLedgerEntry[2], '', GetTransactionNo, LibraryUtility.GenerateGUID);
+        InsertVendorLedgerEntry(InvoiceVendorLedgerEntry[1], '', GetTransactionNo, LibraryUtility.GenerateGUID());
+        InsertVendorLedgerEntry(InvoiceVendorLedgerEntry[2], '', GetTransactionNo, LibraryUtility.GenerateGUID());
 
         InsertGLentry(GLEntry, GetNonRecPayAccountNo);
         InsertGLentry(GLEntry, VendorPostingGroup."Payables Account");
@@ -1033,7 +1033,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         // [FEATURE] [UI] [UT] [Detailed Balance]
         // [SCENARIO 288107]  'Detailed Balance' field on G/L Account card is accessible and editable
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccountCard.OpenEdit;
         GLAccountCard.FILTER.SetFilter("No.", GLAccount."No.");
@@ -1068,7 +1068,7 @@ codeunit 144563 "Test Export G/L Entries"
         // [GIVEN] G/L Account "GLAcc2" with "Detailed Balance" = No
         // [GIVEN] Customer "Cust3" of Customer Posting Group with "GLAcc2" has entry of amount 100 on 31.12.2018
         // [GIVEN] Customer "Cust4" of Customer Posting Group with "GLAcc2" has entry of amount 300 on 31.12.2018
-        GLAccountNo2 := LibraryERM.CreateGLAccountNo;
+        GLAccountNo2 := LibraryERM.CreateGLAccountNo();
         CustomerNo[3] := CreateCustomerWithPostingGroup(CreateCustomerPostingGroup(GLAccountNo2));
         CustomerNo[4] := CreateCustomerWithPostingGroup(CreateCustomerPostingGroup(GLAccountNo2));
 
@@ -1209,8 +1209,11 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
-
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+#endif
         // [GIVEN] An entry for "Cust2" on 01.01.2019
         CreatePostCustGenJnlLineOnDate(CustomerNo[2], '', WorkDate);
 
@@ -1262,7 +1265,11 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+#endif
 
         // [GIVEN] An entry for "Cust2" on 01.01.2019
         CreatePostCustGenJnlLineOnDate(CustomerNo[2], '', WorkDate);
@@ -1479,7 +1486,7 @@ codeunit 144563 "Test Export G/L Entries"
         // [GIVEN] G/L Account "GLAcc2" with "Detailed Balance" = No
         // [GIVEN] Vendor "Vend3" of Vendor Posting Group with "GLAcc2" has entry of amount 100 on 31.12.2018
         // [GIVEN] Vendor "Vend4" of Vendor Posting Group with "GLAcc2" has entry of amount 300 on 31.12.2018
-        GLAccountNo2 := LibraryERM.CreateGLAccountNo;
+        GLAccountNo2 := LibraryERM.CreateGLAccountNo();
         VendorNo[3] := CreateVendorWithPostingGroup(CreateVendorPostingGroup(GLAccountNo2));
         VendorNo[4] := CreateVendorWithPostingGroup(CreateVendorPostingGroup(GLAccountNo2));
 
@@ -1620,8 +1627,11 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
-
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+#endif
         // [GIVEN] An entry for "Vend2" on 01.01.2019
         CreatePostVendGenJnlLineOnDate(VendorNo[2], '', WorkDate);
 
@@ -1673,8 +1683,11 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
-
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+#endif
         // [GIVEN] An entry for "Vend2" on 01.01.2019
         CreatePostVendGenJnlLineOnDate(VendorNo[2], '', WorkDate);
 
@@ -1889,7 +1902,7 @@ codeunit 144563 "Test Export G/L Entries"
         // [GIVEN] G/L Account "GLAcc2" with "Detailed Balance" = No
         // [GIVEN] Bank Account "Bank3" of Bank Account Posting Group with "GLAcc2" has entry of amount 100 on 31.12.2018
         // [GIVEN] Bank Account "Bank4" of Bank Account Posting Group with "GLAcc2" has entry of amount 300 on 31.12.2018
-        GLAccountNo2 := LibraryERM.CreateGLAccountNo;
+        GLAccountNo2 := LibraryERM.CreateGLAccountNo();
         BankAccountNo[3] := CreateBankAccWithPostingGroup(CreateBankAccPostingGroup(GLAccountNo2), '');
         BankAccountNo[4] := CreateBankAccWithPostingGroup(CreateBankAccPostingGroup(GLAccountNo2), '');
 
@@ -1987,7 +2000,11 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+#endif
 
         // [GIVEN] An entry for "Bank2" on 01.01.2019
         CreatePostBankAccGenJnlLineOnDate(BankAccountNo[2], CurrencyCode, WorkDate);
@@ -2041,7 +2058,11 @@ codeunit 144563 "Test Export G/L Entries"
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
         CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+#endif
 
         // [GIVEN] An entry for "Bank2" on 01.01.2019
         CreatePostBankAccGenJnlLineOnDate(BankAccountNo[2], CurrencyCode, WorkDate);
@@ -2248,7 +2269,7 @@ codeunit 144563 "Test Export G/L Entries"
         CreateAndPostGenJnlLine(
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", 0, WorkDate, -LibraryRandom.RandDec(100, 2));
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry."Source Code" := '';
         GLEntry.Modify;
 
@@ -2280,7 +2301,7 @@ codeunit 144563 "Test Export G/L Entries"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetRange("Document No.", DocNoToApplyTo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.Validate("Applies-to Doc. Type", DocTypeToApply);
         GenJournalLine.Validate("Applies-to Doc. No.", DocNoToApply);
         GenJournalLine.Modify(true);
@@ -2296,7 +2317,7 @@ codeunit 144563 "Test Export G/L Entries"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GLAccount.SetRange("Direct Posting", true);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         GenJournalBatch.Validate("Bal. Account No.", GLAccount."No.");
         GenJournalBatch.Modify(true);
     end;
@@ -2372,7 +2393,7 @@ codeunit 144563 "Test Export G/L Entries"
     var
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
-        BankAccountPostingGroup.FindLast;
+        BankAccountPostingGroup.FindLast();
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
         BankAccount.Validate(Name, LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(Name), DATABASE::"Bank Account"));
@@ -2676,7 +2697,7 @@ codeunit 144563 "Test Export G/L Entries"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
 
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -2702,7 +2723,7 @@ codeunit 144563 "Test Export G/L Entries"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
 
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -2734,7 +2755,7 @@ codeunit 144563 "Test Export G/L Entries"
         CustomerPostingGroup: Record "Customer Posting Group";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        CustomerPostingGroup.FindFirst;
+        CustomerPostingGroup.FindFirst();
         InsertGLentryWithGivenTransactionNo(GLEntry, CustomerPostingGroup."Receivables Account", TransactionNo);
         InsertCustLedgerEntryWithDetail(
           CustLedgerEntry, DetailedCustLedgEntry, CustomerPostingGroup.Code, GLEntry."Transaction No.", 0);
@@ -2746,7 +2767,7 @@ codeunit 144563 "Test Export G/L Entries"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        VendorPostingGroup.FindFirst;
+        VendorPostingGroup.FindFirst();
         InsertGLentryWithGivenTransactionNo(GLEntry, VendorPostingGroup."Payables Account", TransactionNo);
         InsertVendorLedgerEntryWithDetail(
           VendorLedgerEntry, DetailedVendorLedgEntry, VendorPostingGroup.Code, GLEntry."Transaction No.", 0);
@@ -2767,7 +2788,7 @@ codeunit 144563 "Test Export G/L Entries"
         ExchRate: Decimal;
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         ExchRate := CurrencyExchangeRate."Exchange Rate Amount" + LibraryRandom.RandIntInRange(1, 5);
         LibraryERM.CreateExchangeRate(CurrencyCode, StartingDate, ExchRate, ExchRate);
     end;
@@ -2779,15 +2800,15 @@ codeunit 144563 "Test Export G/L Entries"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         GLEntry.SetRange("Transaction No.", TransactionNo);
-        if GLEntry.FindFirst then
+        if GLEntry.FindFirst() then
             GLEntry.DeleteAll();
 
         CustLedgerEntry.SetRange("Transaction No.", TransactionNo);
-        if CustLedgerEntry.FindFirst then
+        if CustLedgerEntry.FindFirst() then
             CustLedgerEntry.DeleteAll();
 
         DetailedCustLedgEntry.SetRange("Transaction No.", TransactionNo);
-        if DetailedCustLedgEntry.FindFirst then
+        if DetailedCustLedgEntry.FindFirst() then
             DetailedCustLedgEntry.DeleteAll();
     end;
 
@@ -2798,15 +2819,15 @@ codeunit 144563 "Test Export G/L Entries"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         GLEntry.SetRange("Transaction No.", TransactionNo);
-        if GLEntry.FindFirst then
+        if GLEntry.FindFirst() then
             GLEntry.DeleteAll();
 
         VendorLedgerEntry.SetRange("Transaction No.", TransactionNo);
-        if VendorLedgerEntry.FindFirst then
+        if VendorLedgerEntry.FindFirst() then
             VendorLedgerEntry.DeleteAll();
 
         DetailedVendorLedgEntry.SetRange("Transaction No.", TransactionNo);
-        if DetailedVendorLedgEntry.FindFirst then
+        if DetailedVendorLedgEntry.FindFirst() then
             DetailedVendorLedgEntry.DeleteAll();
     end;
 
@@ -2823,7 +2844,7 @@ codeunit 144563 "Test Export G/L Entries"
         LibraryVariableStorage.Enqueue(IncludeOpeningBalancesValue);
 
         ExportGLEntriesTaxAudit.Init(StartingDateValue, EndingDateValue, IncludeOpeningBalancesValue, AccNoFilter, ReportTempFilePath, '');
-        ExportGLEntriesTaxAudit.Run;
+        ExportGLEntriesTaxAudit.Run();
     end;
 
     [HandlerFunctions('MessageHandler')]
@@ -2840,7 +2861,7 @@ codeunit 144563 "Test Export G/L Entries"
 
         ExportGLEntriesTaxAudit.Init(
           StartingDateValue, EndingDateValue, IncludeOpeningBalancesValue, AccNoFilter, ReportTempFilePath, SourceCode);
-        ExportGLEntriesTaxAudit.Run;
+        ExportGLEntriesTaxAudit.Run();
     end;
 
     [HandlerFunctions('MessageHandler')]
@@ -2850,7 +2871,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         ExportGLEntriesTaxAudit.Init(StartingDateValue, EndingDateValue, IncludeOpeningBalancesValue, AccNoFilter, ReportTempFilePath, '');
         ExportGLEntriesTaxAudit.UseRequestPage(false);
-        ExportGLEntriesTaxAudit.Run;
+        ExportGLEntriesTaxAudit.Run();
     end;
 
     local procedure GetErrorTextForAssertStmnt(FieldNo: Integer): Text[250]
@@ -2881,7 +2902,7 @@ codeunit 144563 "Test Export G/L Entries"
 
     local procedure GetNonRecPayAccountNo(): Code[20]
     begin
-        exit(LibraryUtility.GenerateGUID)
+        exit(LibraryUtility.GenerateGUID())
     end;
 
     local procedure GetStartingDate(): Date
@@ -2893,7 +2914,7 @@ codeunit 144563 "Test Export G/L Entries"
         repeat
             StartingDate := CalcDate('<+1D>', StartingDate);
             GLEntry.SetRange("Posting Date", StartingDate);
-        until not GLEntry.FindFirst;
+        until not GLEntry.FindFirst();
         exit(StartingDate)
     end;
 
@@ -2916,12 +2937,12 @@ codeunit 144563 "Test Export G/L Entries"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         TransactionNo := GLEntry."Transaction No.";
         repeat
             TransactionNo += 1;
             GLEntry.SetRange("Transaction No.", TransactionNo);
-        until not GLEntry.FindFirst;
+        until not GLEntry.FindFirst();
     end;
 
     local procedure GetCustInvoiceAmount(CustomerNo: Code[20]): Decimal
@@ -2931,7 +2952,7 @@ codeunit 144563 "Test Export G/L Entries"
         with CustLedgerEntry do begin
             SetRange("Customer No.", CustomerNo);
             SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount);
             exit(Amount);
         end;
@@ -2944,7 +2965,7 @@ codeunit 144563 "Test Export G/L Entries"
         with VendorLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
             SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount);
             exit(Amount);
         end;
@@ -2957,7 +2978,7 @@ codeunit 144563 "Test Export G/L Entries"
         with BankAccountLedgerEntry do begin
             SetRange("Bank Account No.", BankAccountNo);
             SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst;
+            FindFirst();
             exit(Amount);
         end;
     end;
@@ -3011,18 +3032,18 @@ codeunit 144563 "Test Export G/L Entries"
         Currency: Record Currency;
         EntryNo: Integer;
     begin
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         EntryNo := CustLedgerEntry."Entry No." + 1;
 
         CustLedgerEntry.Init();
         CustLedgerEntry."Transaction No." := TransactionNo;
         CustLedgerEntry."Document No." := DocumentNo;
         CustLedgerEntry."Entry No." := EntryNo;
-        Customer.FindFirst;
+        Customer.FindFirst();
 
         CustLedgerEntry."Customer No." := Customer."No.";
         CustLedgerEntry."Customer Posting Group" := CustomerPostingGroupCode;
-        Currency.FindFirst;
+        Currency.FindFirst();
         CustLedgerEntry."Currency Code" := Currency.Code;
         CustLedgerEntry.Insert();
     end;
@@ -3045,7 +3066,7 @@ codeunit 144563 "Test Export G/L Entries"
     var
         EntryNo: Integer;
     begin
-        DetailedCustLedgEntry.FindLast;
+        DetailedCustLedgEntry.FindLast();
         EntryNo := DetailedCustLedgEntry."Entry No." + 1;
         DetailedCustLedgEntry.Init();
         DetailedCustLedgEntry."Transaction No." := TransactionNo;
@@ -3061,7 +3082,7 @@ codeunit 144563 "Test Export G/L Entries"
     var
         EntryNo: Integer;
     begin
-        DetailedVendorLedgEntry.FindLast;
+        DetailedVendorLedgEntry.FindLast();
         EntryNo := DetailedVendorLedgEntry."Entry No." + 1;
 
         DetailedVendorLedgEntry.Init();
@@ -3080,17 +3101,17 @@ codeunit 144563 "Test Export G/L Entries"
         Currency: Record Currency;
         EntryNo: Integer;
     begin
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         EntryNo := VendorLedgerEntry."Entry No." + 1;
 
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Transaction No." := TransactionNo;
         VendorLedgerEntry."Document No." := DocumentNo;
         VendorLedgerEntry."Entry No." := EntryNo;
-        Vendor.FindFirst;
+        Vendor.FindFirst();
         VendorLedgerEntry."Vendor No." := Vendor."No.";
         VendorLedgerEntry."Vendor Posting Group" := VendorPostingGroupCode;
-        Currency.FindFirst;
+        Currency.FindFirst();
         VendorLedgerEntry."Currency Code" := Currency.Code;
         VendorLedgerEntry.Insert();
     end;
@@ -3118,7 +3139,7 @@ codeunit 144563 "Test Export G/L Entries"
     var
         EntryNo: Integer;
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         EntryNo := GLEntry."Entry No." + 1;
         GLEntry.Init();
         GLEntry."Entry No." := EntryNo;
@@ -3147,7 +3168,7 @@ codeunit 144563 "Test Export G/L Entries"
         TransactionNo: Integer;
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         TransactionNo := GLEntry."Transaction No.";
         GLEntry.Reset();
         GLEntry.SetRange("Transaction No.", TransactionNo);
@@ -3198,7 +3219,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         VendorLedgerEntry.SetRange("Transaction No.", VendorLedgerEntry."Transaction No.");
         VendorLedgerEntry.SetFilter("Vendor No.", '<>%1', VendorLedgerEntry."Vendor No.");
-        if VendorLedgerEntry.FindFirst then begin
+        if VendorLedgerEntry.FindFirst() then begin
             PartyNameExpected := 'multi-fournisseurs';
             PartyNoExpected := '*';
             FCYAmountExpected := '';
@@ -3208,7 +3229,7 @@ codeunit 144563 "Test Export G/L Entries"
                 PartyNameExpected := Vendor.Name;
                 VendorLedgerEntry.SetRange("Transaction No.", VendorLedgerEntry."Transaction No.");
                 VendorLedgerEntry.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
-                if VendorLedgerEntry.FindSet then begin
+                if VendorLedgerEntry.FindSet() then begin
                     repeat
                         VendorLedgerEntry.CalcFields("Original Amount");
                         LedgerAmount += VendorLedgerEntry."Original Amount";
@@ -3235,7 +3256,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         CustLedgerEntry.SetRange("Transaction No.", CustLedgerEntry."Transaction No.");
         CustLedgerEntry.SetFilter("Customer No.", '<>%1', CustLedgerEntry."Customer No.");
-        if CustLedgerEntry.FindFirst then begin
+        if CustLedgerEntry.FindFirst() then begin
             PartyNameExpected := 'multi-clients';
             PartyNoExpected := '*';
             FCYAmountExpected := '';
@@ -3245,7 +3266,7 @@ codeunit 144563 "Test Export G/L Entries"
                 PartyNameExpected := Customer.Name;
                 CustLedgerEntry.SetRange("Transaction No.", CustLedgerEntry."Transaction No.");
                 CustLedgerEntry.SetRange("Customer No.", CustLedgerEntry."Customer No.");
-                if CustLedgerEntry.FindSet then begin
+                if CustLedgerEntry.FindSet() then begin
                     repeat
                         CustLedgerEntry.CalcFields("Original Amount");
                         LedgerAmount += CustLedgerEntry."Original Amount";
@@ -3296,11 +3317,11 @@ codeunit 144563 "Test Export G/L Entries"
         LineToRead: Text[1024];
         FieldsValueArray: array[18] of Text[50];
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         CreateReadStream(iStream, InputFile, ReportFile);
         iStream.ReadText(LineToRead); // Read Headers
         GLEntry.SetFilter("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         PopulateFieldsArray(iStream, FieldsValueArray);
         VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister."No.", GLRegister."Creation Date");
         iStream.ReadText(LineToRead);
@@ -3317,11 +3338,11 @@ codeunit 144563 "Test Export G/L Entries"
         LineToRead: Text[1024];
         FieldsValueArray: array[18] of Text[50];
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         CreateReadStream(iStream, InputFile, ReportFile);
         iStream.ReadText(LineToRead); // Read Headers
         GLEntry.SetFilter("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         PopulateFieldsArray(iStream, FieldsValueArray);
         Assert.AreEqual(SourceCode, FieldsValueArray[1], GetErrorTextForAssertStmnt(1));
         InputFile.Close;
@@ -3347,7 +3368,7 @@ codeunit 144563 "Test Export G/L Entries"
         GLEntry.SetFilter("Entry No.", '%1..%2', GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document Type", DocumentType);
-        if GLEntry.FindSet then
+        if GLEntry.FindSet() then
             repeat
                 PopulateFieldsArray(iStream, FieldsValueArray);
                 VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister."No.", GLRegister."Creation Date");
@@ -3397,7 +3418,7 @@ codeunit 144563 "Test Export G/L Entries"
         ExportReportFile(ReportFileName, StartingDate, StartingDate, '', false);
 
         // verify
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         VerifyExportGLEntriesReport(
           GLRegister,
           ReportFileName,

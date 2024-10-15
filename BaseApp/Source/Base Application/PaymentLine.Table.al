@@ -590,7 +590,7 @@ table 10866 "Payment Line"
                         CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                     end else
                         CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                    if CustLedgEntry.FindSet then
+                    if CustLedgEntry.FindSet() then
                         repeat
                             AddDocumentNoToList(List, CustLedgEntry."Document No.", LenToCut);
                         until CustLedgEntry.Next() = 0;
@@ -603,7 +603,7 @@ table 10866 "Payment Line"
                         VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                     end else
                         VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                    if VendLedgEntry.FindSet then
+                    if VendLedgEntry.FindSet() then
                         repeat
                             if VendLedgEntry."External Document No." = '' then
                                 DocumentNo := VendLedgEntry."Document No."
@@ -629,11 +629,11 @@ table 10866 "Payment Line"
         if "Applies-to Doc. No." <> '' then begin
             CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-            if CustLedgEntry.FindFirst then;
+            if CustLedgEntry.FindFirst() then;
         end else
             if "Applies-to ID" <> '' then begin
                 CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                if CustLedgEntry.FindSet then;
+                if CustLedgEntry.FindSet() then;
             end;
     end;
 
@@ -703,10 +703,10 @@ table 10866 "Payment Line"
             until DefaultDimension.Next() = 0;
 
         PaymentHeader.SetRange("No.", "No.");
-        PaymentHeader.FindFirst;
+        PaymentHeader.FindFirst();
 
         DimSetEntry.SetRange("Dimension Set ID", PaymentHeader."Dimension Set ID");
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
                 TempDimSetEntry := DimSetEntry;
                 TempDimSetEntry."Dimension Set ID" := 0;
@@ -837,7 +837,7 @@ table 10866 "Payment Line"
         PaymentAddress.SetRange("Account Type", "Account Type");
         PaymentAddress.SetRange("Account No.", "Account No.");
         PaymentAddress.SetRange("Default Value", true);
-        if PaymentAddress.FindFirst then
+        if PaymentAddress.FindFirst() then
             "Payment Address Code" := PaymentAddress.Code
         else
             "Payment Address Code" := '';

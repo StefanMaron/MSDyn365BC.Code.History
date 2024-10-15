@@ -31,7 +31,7 @@ codeunit 136356 "UT T Job WIP Entry"
     [Scope('OnPrem')]
     procedure TestFunctionDeleteForJob()
     begin
-        Initialize;
+        Initialize();
         SetUp;
 
         // Validate that the Job WIP Entry gets deleted.
@@ -55,15 +55,15 @@ codeunit 136356 "UT T Job WIP Entry"
     begin
         // [FEATURE] [Costs/Sales calculation]
         // [SCENARIO 123634] Verify that Recognized Costs/Sales calculation is considered the negative entry for Job in status Order
-        Initialize;
+        Initialize();
         // [GIVEN] Job in status Order with WIP Method for Recognized Costs/Sales calculation
         CreateJobWithWIPMethod(JobTask, Job.Status::Open);
         // [GIVEN] Job Ledger entries for Costs and Sales with negative amount = "X"
         CreateJobLedgerEntries(Job, ExpectedCostAmount, ExpectedSalesAmount, JobTask);
         // [WHEN] Calculate Job WIP
-        if UserGroup.FindFirst then
+        if UserGroup.FindFirst() then
             if UserGroup.Code <> D365UserGroupCodeTxt then begin
-                JobCalculateWIP.JobCalcWIP(Job, WorkDate, LibraryUtility.GenerateGUID);
+                JobCalculateWIP.JobCalcWIP(Job, WorkDate, LibraryUtility.GenerateGUID());
                 // [THEN] Job WIP Entry is created with negative amount = "X"
                 VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Costs", ExpectedCostAmount);
                 VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Sales", ExpectedSalesAmount);
@@ -84,7 +84,7 @@ codeunit 136356 "UT T Job WIP Entry"
     begin
         // [FEATURE] [Costs/Sales calculation]
         // [SCENARIO 123634] Verify that Recognized Costs/Sales calculation is considered the negative entry for Job in status Completed
-        Initialize;
+        Initialize();
         // [GIVEN] Job in status Completed with WIP Method for Recognized Costs/Sales calculation
         LibraryVariableStorage.Enqueue(true);
         CreateJobWithWIPMethod(JobTask, Job.Status::Completed);
@@ -92,9 +92,9 @@ codeunit 136356 "UT T Job WIP Entry"
         CreateJobLedgerEntries(Job, ExpectedCostAmount, ExpectedSalesAmount, JobTask);
         // [WHEN] Calculate Job WIP
         LibraryVariableStorage.Enqueue(true);
-        JobCalculateWIP.JobCalcWIP(Job, WorkDate, LibraryUtility.GenerateGUID);
+        JobCalculateWIP.JobCalcWIP(Job, WorkDate, LibraryUtility.GenerateGUID());
         // [THEN] Job WIP Entry is created with negative amount = "X"
-        if UserGroup.FindFirst then
+        if UserGroup.FindFirst() then
             if UserGroup.Code <> D365UserGroupCodeTxt then begin
                 VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Costs", ExpectedCostAmount);
                 VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Sales", ExpectedSalesAmount);
@@ -111,7 +111,7 @@ codeunit 136356 "UT T Job WIP Entry"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT T Job WIP Entry");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         JobBatchJobs.SetJobNoSeries(JobsSetup, NoSeries);
 
         IsInitialized := true;
@@ -122,7 +122,7 @@ codeunit 136356 "UT T Job WIP Entry"
     begin
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
-        if JobWIPEntry.FindLast then
+        if JobWIPEntry.FindLast() then
             JobWIPEntry."Entry No." += 1
         else
             JobWIPEntry."Entry No." := 1;

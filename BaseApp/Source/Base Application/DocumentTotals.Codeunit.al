@@ -73,7 +73,7 @@ codeunit 57 "Document Totals"
         then begin
             TotalSalesHeader.CalcFields("Recalculate Invoice Disc.");
             if TotalSalesHeader."Recalculate Invoice Disc." then
-                if TotalSalesLine2.FindFirst then begin
+                if TotalSalesLine2.FindFirst() then begin
                     SalesCalcDiscount.CalculateInvoiceDiscountOnLine(TotalSalesLine2);
                     NeedRefreshSalesLine := true;
                 end;
@@ -629,7 +629,7 @@ codeunit 57 "Document Totals"
         then begin
             TotalPurchaseHeader.CalcFields("Recalculate Invoice Disc.");
             if TotalPurchaseHeader."Recalculate Invoice Disc." then
-                if TotalPurchaseLine2.FindFirst then begin
+                if TotalPurchaseLine2.FindFirst() then begin
                     PurchCalcDiscount.CalculateInvoiceDiscountOnLine(TotalPurchaseLine2);
                     NeedRefreshPurchaseLine := true;
                 end;

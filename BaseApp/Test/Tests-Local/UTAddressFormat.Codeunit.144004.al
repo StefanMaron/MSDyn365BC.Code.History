@@ -44,7 +44,7 @@ codeunit 144004 "UT Address Format"
         // Purpose of this test to verify Country Region Code on Page - 21 Customer Card.
 
         // Setup: Create Customer with Country Region.
-        Initialize;
+        Initialize();
         CreateCustomerWithCountryRegion(Customer, CreateCountryRegionCode(CountryRegion."Address Format"::"Post Code+City"));
         CustomerCard.OpenEdit;
 
@@ -68,7 +68,7 @@ codeunit 144004 "UT Address Format"
         // Purpose of this test to verify Country Region Code on Page - 26 Vendor Card.
 
         // Setup: Create Vendor with Country Region.
-        Initialize;
+        Initialize();
         CreateVendorWithCountryRegion(Vendor, CreateCountryRegionCode(CountryRegion."Address Format"::"Post Code+City"));
         VendorCard.OpenEdit;
 
@@ -92,7 +92,7 @@ codeunit 144004 "UT Address Format"
         // Purpose of this test to verify Country Region Code on Page - 5050 Contact Card.
 
         // Setup: Create Contact with Country Region.
-        Initialize;
+        Initialize();
         CreateContactWithCountryRegion(Contact, CreateCountryRegionCode(CountryRegion."Address Format"::"Post Code+City"));
         ContactCard.OpenEdit;
 
@@ -115,7 +115,7 @@ codeunit 144004 "UT Address Format"
         // Purpose of this test to verify Country Region Code is deleted on Table - 9 Country/Region.
 
         // Setup: Create Country Region.
-        Initialize;
+        Initialize();
         CountryRegion.Code := LibraryUTUtility.GetNewCode10;
         CountryRegion.Insert();
 
@@ -129,7 +129,7 @@ codeunit 144004 "UT Address Format"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreatePostedSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; CountryRegionCode: Code[10])

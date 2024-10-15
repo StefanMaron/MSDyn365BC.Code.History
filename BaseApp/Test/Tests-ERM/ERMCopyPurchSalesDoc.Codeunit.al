@@ -51,7 +51,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] Purchase Document is copied with options CopyHeader = TRUE and RecalculateLine = TRUE
-        Initialize;
+        Initialize();
         PreparePurchaseTest(Item, OriginalDocType, DestinationDocType, ItemCost, ItemPrice);
 
         // Create original purch document without discount specified.
@@ -101,7 +101,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] Purchase Document is copied with options CopyHeader = TRUE and RecalculateLine = FALSE
-        Initialize;
+        Initialize();
         PreparePurchaseTest(Item, OriginalDocType, DestinationDocType, ItemCost, ItemPrice);
 
         // Create original purch document without discount specified.
@@ -149,7 +149,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] Purchase Document is copied with options CopyHeader = FALSE and RecalculateLine = TRUE
-        Initialize;
+        Initialize();
         PreparePurchaseTest(Item, OriginalDocType, DestinationDocType, ItemCost, ItemPrice);
 
         CreateOneItemPurchDocWithItem(OriginalPurchHeader, Item, OriginalDocType);
@@ -199,7 +199,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Invoice Rounding] [Purchase]
         // [SCENARIO 140138] Copy Document should not skip a purchase line that has Item's "No." equal to "Invoice Rounding Account"
-        Initialize;
+        Initialize();
         LibraryPurchase.SetInvoiceRounding(true);
 
         // [GIVEN] Order "1001" with two lines:
@@ -244,7 +244,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Invoice Rounding] [Purchase]
         // [SCENARIO] Copy Document should not fail trying to copy a line of Type "G/L Account" when "Invoice Rounding Account" is not defined
-        Initialize;
+        Initialize();
         LibraryPurchase.SetInvoiceRounding(true);
 
         // [GIVEN] Vendor with Vendor Posting Group, where "Invoice Rounding Account" is blank
@@ -285,7 +285,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Invoice Rounding] [Purchase]
         // [SCENARIO] Copy Document should copy a line of Type "G/L Account" and blank "No." when "Invoice Rounding Account" is not defined
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Vendor Posting Group, where "Invoice Rounding Account" is blank
         LibraryPurchase.CreateVendor(Vendor);
@@ -309,7 +309,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchLine.SetRange("Document Type", DestinationPurchHeader."Document Type");
         PurchLine.SetRange("Document No.", DestinationPurchHeader."No.");
         Assert.AreEqual(1, PurchLine.Count, OneLineShouldBeCopiedErr);
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
         PurchLine.TestField("No.", '');
 
         // Tear Down
@@ -327,7 +327,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] Purchase Document is copied with options CopyHeader = FALSE and RecalculateLine = FALSE
-        Initialize;
+        Initialize();
 
         DestinationDocType := "Purchase Document Type".FromInteger(LibraryRandom.RandInt(6) - 1);
         OriginalDocType := "Purchase Document Type".FromInteger(LibraryRandom.RandInt(6) - 1);
@@ -368,7 +368,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Sales Document is copied with options CopyHeader = TRUE and RecalculateLine = TRUE
-        Initialize;
+        Initialize();
         PrepareSalesTest(Item, OriginalDocType, DestinationDocType, ItemCost, ItemPrice);
 
         // Create original Sales document without discount specified.
@@ -414,7 +414,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Sales Document is copied with options CopyHeader = TRUE and RecalculateLine = FALSE
-        Initialize;
+        Initialize();
         PrepareSalesTest(Item, OriginalDocType, DestinationDocType, ItemCost, ItemPrice);
 
         // Create original Sales document without discount specified.
@@ -462,7 +462,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Sales Document is copied with options CopyHeader = FALSE and RecalculateLine = TRUE
-        Initialize;
+        Initialize();
         PrepareSalesTest(Item, OriginalDocType, DestinationDocType, ItemCost, ItemPrice);
 
         CreateOneItemSalesDocWithItem(OriginalSalesHeader, Item, OriginalDocType);
@@ -509,7 +509,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Invoice Rounding] [Sales]
         // [SCENARIO 140138] Copy Document should not skip a sales line that has Item's "No." equal to "Invoice Rounding Account"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Order "1001" with two lines:
         // [GIVEN] The 1st line of Type "Item", where "No." is "IRA"
@@ -553,7 +553,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Invoice Rounding] [Sales]
         // [SCENARIO] Copy Document should not fail trying to copy a line of Type "G/L Account" when "Invoice Rounding Account" is not defined
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Customer Posting Group, where "Invoice Rounding Account" is blank
         LibrarySales.CreateCustomer(Customer);
@@ -593,7 +593,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Invoice Rounding] [Sales]
         // [SCENARIO] Copy Document should copy a line of Type "G/L Account" and blank "No." when "Invoice Rounding Account" is not defined
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Customer Posting Group, where "Invoice Rounding Account" is blank
         LibrarySales.CreateCustomer(Customer);
@@ -617,7 +617,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine.SetRange("Document Type", DestinationSalesHeader."Document Type");
         SalesLine.SetRange("Document No.", DestinationSalesHeader."No.");
         Assert.AreEqual(1, SalesLine.Count, OneLineShouldBeCopiedErr);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("No.", '');
 
         // Tear Down
@@ -635,7 +635,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Sales Document is copied with options CopyHeader = FALSE and RecalculateLine = FALSE
-        Initialize;
+        Initialize();
 
         DestinationDocType := "Sales Document Type".FromInteger(LibraryRandom.RandInt(6) - 1);
         OriginalDocType := "Sales Document Type".FromInteger(LibraryRandom.RandInt(6) - 1);
@@ -668,7 +668,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Copy of Sales Document without specifying a source document no. fails
-        Initialize;
+        Initialize();
 
         DestinationDocType := "Sales Document Type".FromInteger(LibraryRandom.RandInt(6) - 1);
         OriginalDocType := "Sales Document Type".FromInteger(LibraryRandom.RandInt(6) - 1);
@@ -700,7 +700,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Extended Text]
         // [SCENARIO 375365] Extended text lines should be copied to Document from Posted Sales Order preserving the original order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Order with 2 lines of extended text divided by an empty line.
         CreateSalesDocWithExtLines(SalesHeader, SalesHeader."Document Type"::Order);
@@ -733,7 +733,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Extended Text]
         // [SCENARIO 375365] Extended text lines should be copied to Document from Shipped Sales Order preserving the original order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipped Sales Order with 2 lines of extended text divided by an empty line.
         CreateSalesDocWithExtLines(SalesHeader, SalesHeader."Document Type"::Order);
@@ -765,7 +765,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Extended Text]
         // [SCENARIO 375365] Extended text lines should be copied to Document from Posted Sales Credit Memo preserving the original order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with 2 lines of extended text divided by an empty line.
         CreateSalesDocWithExtLines(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -798,7 +798,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Extended Text]
         // [SCENARIO 375365] Extended text lines should be copied to Document from Posted Sales Return Order preserving the original order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Return Order with 2 lines of extended text divided by an empty line.
         CreateSalesDocWithExtLines(SalesHeader, SalesHeader."Document Type"::"Return Order");
@@ -830,7 +830,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Extended Text]
         // [SCENARIO 375365] Extended text lines should be copied to Document from Posted Purchase Order preserving the original order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Order with 2 lines with extended text divided by an empty line.
         CreatePurchDocWithExtLines(PurchHeader, PurchHeader."Document Type"::Order);
@@ -862,7 +862,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Extended Text]
         // [SCENARIO 375365] Extended text lines should be copied to Document from Receipt Purchase Order preserving the original order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Receipt Purchase Order with 2 lines with extended text divided by an empty line.
         CreatePurchDocWithExtLines(PurchHeader, PurchHeader."Document Type"::Order);
@@ -894,7 +894,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Extended Text]
         // [SCENARIO 375365] Extended text lines should be copied to Document from Posted Purchase Credit Memo preserving the original order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo with 2 lines with extended text divided by an empty line.
         CreatePurchDocWithExtLines(PurchHeader, PurchHeader."Document Type"::"Credit Memo");
@@ -926,7 +926,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Extended Text]
         // [SCENARIO 375365] Extended text lines should be copied to Document from Posted Purchase Return Order preserving the original order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Return Order with 2 lines with extended text divided by an empty line.
         CreatePurchDocWithExtLines(PurchHeader, PurchHeader."Document Type"::"Return Order");
@@ -958,7 +958,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 378530] Copy posted Sales Invoice description line with Type = Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Order with two lines:
         // [GIVEN] Line1: Type = "Item", No="1000", Description = "Bicycle"
@@ -985,7 +985,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 378530] Copy posted Purchase Invoice description line with Type = Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Order with two lines:
         // [GIVEN] Line1: Type = "Item", No="1000", Description = "Bicycle"
@@ -1010,7 +1010,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales][Credit Memo]
         // [SCENARIO 381712] Ship-to address of Credit Memo have to contains Ship-to Address of Company after copying Sales Invoice to Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Information with "Ship-to Address" = "SA"
         UpdateShiptoAddrOfCompany;
@@ -1038,7 +1038,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales][Invoice]
         // [SCENARIO 381712] Ship-to address of Sales Invoice have to contains Address of Customer after copying Credit Memo to Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with address = "A"
         CreateCustomerWithShiptoAddr(Customer);
@@ -1070,7 +1070,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales][Invoice]
         // [SCENARIO 381712] Ship-to address of Sales Invoice have to contains Ship-to address original invoice after copying from credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Ship-to Address" = "SA"
         ShiptoAddressCode := CreateCustomerWithShiptoAddr(Customer);
@@ -1105,7 +1105,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales][Invoice]
         // [SCENARIO 381712] Ship-to address of Sales Invoice have to contains address of Customer if Ship-to address of original invoice is empty after copying from credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Ship-to Address" = "SA" and Address = "A"
         CreateCustomerWithShiptoAddr(Customer);
@@ -1142,8 +1142,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Get Posted Document Lines to Reverse] [G/L Account]
         // [SCENARIO 382275] Sales Credit Memo "Get Posted Document Lines to Reverse" from two Invoices (G/L Account)
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Posted sales invoice "I1" with line "Type" = "G/L Account", "No." = "GLAcc1"
         // [GIVEN] Posted sales invoice "I2" with line "Type" = "G/L Account", "No." = "GLAcc2"
@@ -1179,8 +1179,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Get Posted Document Lines to Reverse] [Item]
         // [SCENARIO 382275] Sales Credit Memo "Get Posted Document Lines to Reverse" from two Invoices (Item)
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Posted sales invoice "I1" and shipment "S1" with line "Type" = "Item", "No." = "ITEM1"
         // [GIVEN] Posted sales invoice "I2" and shipment "S2" with line "Type" = "Item", "No." = "ITEM2"
@@ -1219,8 +1219,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Get Posted Document Lines to Reverse] [G/L Account] [Item]
         // [SCENARIO 382275] Sales Credit Memo "Get Posted Document Lines to Reverse" from two Invoices (G/L Account, Item)
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Posted sales invoice "I1" with line "Type" = "G/L Account", "No." = "GLAcc"
         // [GIVEN] Posted sales invoice "I2" and shipment "S2" with line "Type" = "Item", "No." = "ITEM"
@@ -1258,8 +1258,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Get Posted Document Lines to Reverse] [G/L Account] [Item]
         // [SCENARIO 382275] Sales Credit Memo "Get Posted Document Lines to Reverse" from two Invoices (Item, G/L Account)
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Posted sales invoice "I1" and shipment "S1" with line "Type" = "Item", "No." = "ITEM"
         // [GIVEN] Posted sales invoice "I2" with line "Type" = "G/L Account", "No." = "GLAcc"
@@ -1297,8 +1297,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Get Posted Document Lines to Reverse] [G/L Account] [Item]
         // [SCENARIO 382275] Sales Credit Memo "Get Posted Document Lines to Reverse" from three Invoices (G/L Account, Item, G/L Account)
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Posted sales invoice "I1" with line "Type" = "G/L Account", "No." = "GLAcc1"
         // [GIVEN] Posted sales invoice "I2" and shipment "S1" with line "Type" = "Item", "No." = "ITEM"
@@ -1341,8 +1341,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Get Posted Document Lines to Reverse] [G/L Account] [Item]
         // [SCENARIO 382275] Sales Credit Memo "Get Posted Document Lines to Reverse" from three Invoices (Item, G/L Account, Item)
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Posted sales invoice "I1" and shipment "S1" with line "Type" = "Item", "No." = "ITEM1"
         // [GIVEN] Posted sales invoice "I2" with line "Type" = "G/L Account", "No." = "GLAcc"
@@ -1384,8 +1384,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Get Posted Document Lines to Reverse] [G/L Account]
         // [SCENARIO 382275] Purchase Credit Memo "Get Posted Document Lines to Reverse" from two Invoices (G/L Account)
-        Initialize;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Posted purchase invoice "I1" and receipt "R1" with line "Type" = "G/L Account", "No." = "GLAcc1"
         // [GIVEN] Posted purchase invoice "I2" and receipt "R2" with line "Type" = "G/L Account", "No." = "GLAcc2"
@@ -1421,8 +1421,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Get Posted Document Lines to Reverse] [Item]
         // [SCENARIO 382275] Purchase Credit Memo "Get Posted Document Lines to Reverse" from two Invoices (Item)
-        Initialize;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Posted purchase invoice "I1" with line "Type" = "Item", "No." = "ITEM1"
         // [GIVEN] Posted purchase invoice "I2" with line "Type" = "Item", "No." = "ITEM2"
@@ -1461,8 +1461,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Get Posted Document Lines to Reverse] [G/L Account] [Item]
         // [SCENARIO 382275] Purchase Credit Memo "Get Posted Document Lines to Reverse" from two Invoices (G/L Account, Item)
-        Initialize;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Posted purchase invoice "I1" with line "Type" = "G/L Account", "No." = "GLAcc"
         // [GIVEN] Posted purchase invoice "I2" and receipt "R1" with line "Type" = "Item", "No." = "ITEM"
@@ -1500,8 +1500,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Get Posted Document Lines to Reverse] [G/L Account] [Item]
         // [SCENARIO 382275] Purchase Credit Memo "Get Posted Document Lines to Reverse" from two Invoices (Item, G/L Account)
-        Initialize;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Posted purchase invoice "I1" and receipt "R1" with line "Type" = "Item", "No." = "ITEM"
         // [GIVEN] Posted purchase invoice "I2" with line "Type" = "G/L Account", "No." = "GLAcc"
@@ -1539,8 +1539,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Get Posted Document Lines to Reverse] [G/L Account] [Item]
         // [SCENARIO 382275] Purchase Credit Memo "Get Posted Document Lines to Reverse" from three Invoices (G/L Account, Item, G/L Account)
-        Initialize;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Posted purchase invoice "I1" with line "Type" = "G/L Account", "No." = "GLAcc1"
         // [GIVEN] Posted purchase invoice "I2" and receipt "R1" with line "Type" = "Item", "No." = "ITEM"
@@ -1583,8 +1583,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Get Posted Document Lines to Reverse] [G/L Account] [Item]
         // [SCENARIO 382275] Purchase Credit Memo "Get Posted Document Lines to Reverse" from three Invoices (Item, G/L Account, Item)
-        Initialize;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Posted purchase invoice "I1" and receipt "R1" with line "Type" = "Item", "No." = "ITEM1"
         // [GIVEN] Posted purchase invoice "I2" with line "Type" = "G/L Account", "No." = "GLAcc"
@@ -1627,7 +1627,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Sales] [Shipment] [Prices Incl. VAT] [UT]
         // [SCENARIO 211714] If "Prices Including VAT" value of Sales Shipment Line is FALSE and in destination Sales Document it is TRUE, then it cannot be copied to Sales Document
 
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithPricesInclVAT(ToSalesHeader, true);
         MockSalesShptLineWithPricesInclVAT(FromSalesShptLine, false);
@@ -1650,7 +1650,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Sales] [Shipment] [Prices Incl. VAT] [UT]
         // [SCENARIO 211714] If "Prices Including VAT" value of Sales Shipment Line is TRUE and in destination Sales Document it is FALSE, then it cannot be copied to Sales Document
 
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithPricesInclVAT(ToSalesHeader, false);
         MockSalesShptLineWithPricesInclVAT(FromSalesShptLine, true);
@@ -1669,7 +1669,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 212724] Ship-to address should be copied to Purchase Order from original Purchase Order with Location = '' after copying
-        Initialize;
+        Initialize();
 
         // [GIVEN] A purchase order "PO1" with "Ship-to Address" = 'Lenina St.', "Ship-to Address 2" = 'Bld. 3, App. 45'
         // [GIVEN] "Ship-to City" = 'Moscow', "Ship-to Country/Region Code" = 'RU'
@@ -1706,7 +1706,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 212724] Ship-to address should be copied to Purchase Order from original Purchase Order with Location <> '' after copying
-        Initialize;
+        Initialize();
 
         // [GIVEN] A purchase order "PO1" with "Ship-to Address" = 'Lenina St.', "Ship-to Address 2" = 'Bld. 3, App. 45'
         // [GIVEN] "Ship-to City" = 'Moscow', "Ship-to Country/Region Code" = 'RU'
@@ -1746,7 +1746,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Purchase] [Receipt] [Prices Incl. VAT] [UT]
         // [SCENARIO 216846] If "Prices Including VAT" value of Purchase Receipt Line is FALSE and in destination Purchase Document it is TRUE, then it cannot be copied to Purchase Document
 
-        Initialize;
+        Initialize();
 
         CreatePurchHeaderWithPricesInclVAT(ToPurchaseHeader, true);
         MockPurchRcptLineWithPricesInclVAT(FromPurchRcptLine, false);
@@ -1768,7 +1768,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Purchase] [Receipt] [Prices Incl. VAT] [UT]
         // [SCENARIO 216846] If "Prices Including VAT" value of Purchase Receipt Line is TRUE and in destination Purchase Document it is FALSE, then it cannot be copied to Purchase Document
 
-        Initialize;
+        Initialize();
 
         CreatePurchHeaderWithPricesInclVAT(ToPurchaseHeader, false);
         MockPurchRcptLineWithPricesInclVAT(FromPurchRcptLine, true);
@@ -1790,7 +1790,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Purchase] [Invoice] [Prices Incl. VAT] [UT]
         // [SCENARIO 216846] If "Prices Including VAT" value of Purchase Receipt Line is FALSE and in destination Purchase Document it is TRUE, then it cannot be copied to Purchase Document
 
-        Initialize;
+        Initialize();
 
         CreatePurchHeaderWithPricesInclVAT(ToPurchaseHeader, true);
         MockPurchInvLineWithPricesInclVAT(FromPurchInvLine, false);
@@ -1812,7 +1812,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Purchase] [Invoice] [Prices Incl. VAT] [UT]
         // [SCENARIO 216846] If "Prices Including VAT" value of Purchase Receipt Line is TRUE and in destination Purchase Document it is FALSE, then it cannot be copied to Purchase Document
 
-        Initialize;
+        Initialize();
 
         CreatePurchHeaderWithPricesInclVAT(ToPurchaseHeader, false);
         MockPurchInvLineWithPricesInclVAT(FromPurchInvLine, true);
@@ -1834,7 +1834,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Purchase] [Credit Memo] [Prices Incl. VAT] [UT]
         // [SCENARIO 216846] If "Prices Including VAT" value of Purchase Credit Memo Line is FALSE and in destination Purchase Document it is TRUE, then it cannot be copied to Purchase Document
 
-        Initialize;
+        Initialize();
 
         CreatePurchHeaderWithPricesInclVAT(ToPurchaseHeader, true);
         MockPurchCrMemoLineWithPricesInclVAT(FromPurchCrMemoLine, false);
@@ -1856,7 +1856,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Purchase] [Credit Memo] [Prices Incl. VAT] [UT]
         // [SCENARIO 216846] If "Prices Including VAT" value of Purchase Credit Memo Line is TRUE and in destination Purchase Document it is FALSE, then it cannot be copied to Purchase Document
 
-        Initialize;
+        Initialize();
 
         CreatePurchHeaderWithPricesInclVAT(ToPurchaseHeader, false);
         MockPurchCrMemoLineWithPricesInclVAT(FromPurchCrMemoLine, true);
@@ -1878,7 +1878,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Purchase] [Return] [Shipment] [Prices Incl. VAT] [UT]
         // [SCENARIO 216846] If "Prices Including VAT" value of Return Shipment Line is FALSE and in destination Purchase Document it is TRUE, then it cannot be copied to Purchase Document
 
-        Initialize;
+        Initialize();
 
         CreatePurchHeaderWithPricesInclVAT(ToPurchaseHeader, true);
         MockReturnShptLineWithPricesInclVAT(FromReturnShipmentLine, false);
@@ -1900,7 +1900,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Purchase] [Return] [Shipment] [Prices Incl. VAT] [UT]
         // [SCENARIO 216846] If "Prices Including VAT" value of Purchase Credit Memo Line is TRUE and in destination Purchase Document it is FALSE, then it cannot be copied to Purchase Document
 
-        Initialize;
+        Initialize();
 
         CreatePurchHeaderWithPricesInclVAT(ToPurchaseHeader, false);
         MockReturnShptLineWithPricesInclVAT(FromReturnShipmentLine, true);
@@ -1921,7 +1921,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Sales] [Invoice Discount]
         // [SCENARIO 277369] Copy sales document with include header and recalculate lines and calculate invoice discount
         // [SCENARIO 277369] when destination line has zero amount after recalculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Calc. Invoice Discount is Yes in Sales Setup
         UpdateSalesSetupCalcInvDiscount(true);
@@ -1960,7 +1960,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Sales] [Invoice Discount]
         // [SCENARIO 277369] Copy sales document with include header and recalculate lines and calculate invoice discount
         // [SCENARIO 277369] when destination line has amount less than source invoice discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Calc. Invoice Discount is Yes in Sales Setup
         UpdateSalesSetupCalcInvDiscount(true);
@@ -2003,7 +2003,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Purchase] [Invoice Discount]
         // [SCENARIO 277369] Copy purchase document with include header and recalculate lines and calculate invoice discount
         // [SCENARIO 277369] when destination line has zero amount after recalculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Calc. Invoice Discount is Yes in Purchase Setup
         UpdatePurchaseSetupCalcInvDiscount(true);
@@ -2041,7 +2041,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [FEATURE] [Purchase] [Invoice Discount]
         // [SCENARIO 277369] Copy purchase document with include header and recalculate lines and calculate invoice discount
         // [SCENARIO 277369] when destination line has amount less than source invoice discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Calc. Invoice Discount is Yes in Purchase Setup
         UpdatePurchaseSetupCalcInvDiscount(true);
@@ -2083,7 +2083,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Purchasing Code] [Drop Shipment]
         // [SCENARIO 304519] Purchasing Code and Drop Shipment are not copied to Purchase Order
-        Initialize;
+        Initialize();
         DropShipment := true;
         SpecialOrder := not DropShipment;
 
@@ -2120,7 +2120,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Purchasing Code] [Drop Shipment] [Archive]
         // [SCENARIO 304519] Purchasing Code and Drop Shipment are not copied to Purchase Order from Archived Purchase Order
-        Initialize;
+        Initialize();
         DropShipment := true;
         SpecialOrder := not DropShipment;
 
@@ -2156,7 +2156,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Purchasing Code] [Special Order]
         // [SCENARIO 304519] Purchasing Code and Special Order are not copied to Purchase Order
-        Initialize;
+        Initialize();
         SpecialOrder := true;
         DropShipment := not SpecialOrder;
 
@@ -2193,7 +2193,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase] [Purchasing Code] [Special Order] [Archive]
         // [SCENARIO 304519] Purchasing Code and Special Order are not copied to Purchase Order from Archived Purchase Order
-        Initialize;
+        Initialize();
         SpecialOrder := true;
         DropShipment := not SpecialOrder;
 
@@ -2229,7 +2229,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Purchasing Code] [Drop Shipment]
         // [SCENARIO 304519] Purchasing Code and Drop Shipment are copied to Sales Order when Recalculate Lines is FALSE
-        Initialize;
+        Initialize();
         DropShipment := true;
         SpecialOrder := not DropShipment;
 
@@ -2266,7 +2266,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Purchasing Code] [Drop Shipment] [Archive]
         // [SCENARIO 304519] Purchasing Code and Drop Shipment are copied to Sales Order from Archived Sales Order when Recalculate Lines is FALSE
-        Initialize;
+        Initialize();
         DropShipment := true;
         SpecialOrder := not DropShipment;
 
@@ -2302,7 +2302,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Purchasing Code] [Special Order]
         // [SCENARIO 304519] Purchasing Code and Special Order are copied to Sales Order when Recalculate Lines is FALSE
-        Initialize;
+        Initialize();
         SpecialOrder := true;
         DropShipment := not SpecialOrder;
 
@@ -2339,7 +2339,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales] [Purchasing Code] [Special Order] [Archive]
         // [SCENARIO 304519] Purchasing Code and Special Order are copied to Sales Order from archived Sales Order when Recalculate Lines is FALSE
-        Initialize;
+        Initialize();
         SpecialOrder := true;
         DropShipment := not SpecialOrder;
 
@@ -2376,7 +2376,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] Purchase Document is copied without creating first "copy from" line
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Create and post purchase invoce
@@ -2414,7 +2414,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] Sales Document is copied without creating first "copy from" line
-        Initialize;
+        Initialize();
         CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Create and post sales invoce
@@ -2458,7 +2458,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 318774] Posted Sales Invoice is copied to Corrective Credit Memo with item charge of zero unit cost.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase invoice with two lines - first with item, second one with item charge assigned to the first line.
         GeneralLedgerSetup.Get();
@@ -2492,7 +2492,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [THEN] Number of charge item purchase line created for corrective credit memo is the same as of charge item.
         PurchaseLineItem.SetRange("No.", ItemCharge."No.");
-        PurchaseLineItem.FindFirst;
+        PurchaseLineItem.FindFirst();
         PurchaseLineItem.TestField("Unit Cost", 0);
         PurchaseLineItem.TestField("Qty. to Assign", 0);
     end;
@@ -2510,7 +2510,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 323428] Posted Sales Invoice is copied to Corrective Credit Memo with item charge of zero unit cost.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase invoice with two lines - first with standard text, second one with item
         UpdatePurchaseSetupForCorrectiveMemo(false, true);
@@ -2532,7 +2532,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [THEN] Two purchase lines are created for corrective credit memo. First - with standard text
         CopiedPurchaseLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         Assert.RecordCount(CopiedPurchaseLine, 2);
-        CopiedPurchaseLine.FindFirst;
+        CopiedPurchaseLine.FindFirst();
         CopiedPurchaseLine.TestField(Type, CopiedPurchaseLine.Type::" ");
         CopiedPurchaseLine.TestField("No.", StandardText.Code);
     end;
@@ -3417,7 +3417,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PriceListLine: Record "Price List Line";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Copy Purch/Sales Doc");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         PriceListLine.DeleteAll();
         if IsInitialized then
             exit;
@@ -3425,10 +3425,10 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySetupStorage.SaveSalesSetup();
         LibrarySetupStorage.SavePurchasesSetup();
         LibrarySetupStorage.SaveGeneralLedgerSetup();
@@ -3477,7 +3477,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           IncludeHeader, RecalculateLines, false, false, false, false, false);
         PurchaseHeaderArchive.SetRange("Document Type", ArchivedDocType);
         PurchaseHeaderArchive.SetRange("No.", FromDocNo);
-        PurchaseHeaderArchive.FindFirst;
+        PurchaseHeaderArchive.FindFirst();
         CopyDocumentMgt.SetArchDocVal(PurchaseHeaderArchive."Doc. No. Occurrence", PurchaseHeaderArchive."Version No.");
         CopyDocumentMgt.CopyPurchDoc(FromDocType, FromDocNo, ToPurchaseHeader);
     end;
@@ -3491,7 +3491,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           IncludeHeader, RecalculateLines, false, false, false, false, false);
         SalesHeaderArchive.SetRange("Document Type", ArchivedDocType);
         SalesHeaderArchive.SetRange("No.", FromDocNo);
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
         CopyDocumentMgt.SetArchDocVal(SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.");
         CopyDocumentMgt.CopySalesDoc(FromDocType, FromDocNo, ToSalesHeader);
     end;
@@ -3504,7 +3504,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CopyPurchDoc.SetParameters(DocType, DocumentNo, IncludeHeader, RecalculateLines);
         CopyPurchDoc.SetPurchHeader(NewPurchHeader);
         CopyPurchDoc.UseRequestPage(false);
-        CopyPurchDoc.RunModal;
+        CopyPurchDoc.RunModal();
     end;
 
     local procedure RunCopySalesDoc(DocumentNo: Code[20]; NewSalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type From"; IncludeHeader: Boolean; RecalculateLines: Boolean)
@@ -3520,7 +3520,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CopySalesDoc.SetParameters(DocType, DocumentNo, IncludeHeader, RecalculateLines);
         CopySalesDoc.SetSalesHeader(NewSalesHeader);
         CopySalesDoc.UseRequestPage(UseRequestPage);
-        CopySalesDoc.RunModal;
+        CopySalesDoc.RunModal();
     end;
 
     local procedure CopyPostedSalesInvoiceLines(var SalesHeader: Record "Sales Header")
@@ -3805,9 +3805,9 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         PurchCrMemoHdr.Init();
-        PurchCrMemoHdr."No." := LibraryUtility.GenerateGUID;
+        PurchCrMemoHdr."No." := LibraryUtility.GenerateGUID();
         PurchCrMemoHdr."Prices Including VAT" := PricesInclVAT;
-        PurchCrMemoHdr."Pay-to Vendor No." := LibraryPurchase.CreateVendorNo;
+        PurchCrMemoHdr."Pay-to Vendor No." := LibraryPurchase.CreateVendorNo();
         PurchCrMemoHdr.Insert();
 
         PurchCrMemoLine.Init();
@@ -3821,9 +3821,9 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.Init();
-        PurchInvHeader."No." := LibraryUtility.GenerateGUID;
+        PurchInvHeader."No." := LibraryUtility.GenerateGUID();
         PurchInvHeader."Prices Including VAT" := PricesInclVAT;
-        PurchInvHeader."Pay-to Vendor No." := LibraryPurchase.CreateVendorNo;
+        PurchInvHeader."Pay-to Vendor No." := LibraryPurchase.CreateVendorNo();
         PurchInvHeader.Insert();
 
         PurchInvLine.Init();
@@ -3842,9 +3842,9 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchaseHeader.Modify();
 
         PurchRcptHeader.Init();
-        PurchRcptHeader."No." := LibraryUtility.GenerateGUID;
+        PurchRcptHeader."No." := LibraryUtility.GenerateGUID();
         PurchRcptHeader."Order No." := PurchaseHeader."No.";
-        PurchRcptHeader."Pay-to Vendor No." := LibraryPurchase.CreateVendorNo;
+        PurchRcptHeader."Pay-to Vendor No." := LibraryPurchase.CreateVendorNo();
         PurchRcptHeader.Insert();
 
         PurchRcptLine.Init();
@@ -3863,9 +3863,9 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchaseHeader.Modify();
 
         ReturnShipmentHeader.Init();
-        ReturnShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        ReturnShipmentHeader."No." := LibraryUtility.GenerateGUID();
         ReturnShipmentHeader."Return Order No." := PurchaseHeader."No.";
-        ReturnShipmentHeader."Pay-to Vendor No." := LibraryPurchase.CreateVendorNo;
+        ReturnShipmentHeader."Pay-to Vendor No." := LibraryPurchase.CreateVendorNo();
         ReturnShipmentHeader.Insert();
 
         ReturnShipmentLine.Init();
@@ -3886,7 +3886,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         SalesShipmentHeader.Init();
-        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID();
         SalesShipmentHeader."Prices Including VAT" := PricesInclVAT;
         SalesShipmentHeader.Insert();
 
@@ -4055,7 +4055,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesCalcDiscountByType.CalcInvoiceDiscOnLine(true);
         SalesCalcDiscountByType.Run(SalesLine);
     end;
@@ -4067,7 +4067,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchCalcDiscount.CalculateInvoiceDiscountOnLine(PurchaseLine);
     end;
 
@@ -4272,28 +4272,28 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindFirstLineOfSalesDocument(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindLastLineOfPurchaseDocument(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
     end;
 
     local procedure FindLastLineOfSalesDocument(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindLast;
+        SalesLine.FindLast();
     end;
 
     local procedure FindSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; DocumentNo: Code[20]; ItemNo: Code[20]; Quantity: Integer)
@@ -4580,7 +4580,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ShiptoAddr: array[9] of Text;
     begin
         Customer.SetRange("No.", CustomerNo);
-        Customer.FindFirst;
+        Customer.FindFirst();
         ShiptoAddr[1] := Customer.Name;
         ShiptoAddr[2] := Customer."Name 2";
         ShiptoAddr[3] := Customer.Address;
@@ -4599,7 +4599,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ShiptoAddr: array[9] of Text;
     begin
         ShipToAddress.SetRange("Customer No.", CustomerNo);
-        ShipToAddress.FindFirst;
+        ShipToAddress.FindFirst();
         ShiptoAddr[1] := ShipToAddress.Name;
         ShiptoAddr[2] := ShipToAddress."Name 2";
         ShiptoAddr[3] := ShipToAddress.Address;
@@ -4668,7 +4668,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.SetRange("Attached to Line No.", SalesLine."Line No.");
         SalesLine.SetRange(Type, SalesLine.Type::" ");
         Assert.RecordCount(SalesLine, ExpectedCount);
@@ -4732,7 +4732,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.SetRange("Attached to Line No.", PurchaseLine."Line No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::" ");
         Assert.RecordCount(PurchaseLine, ExpectedCount);
@@ -4744,7 +4744,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         DeferralTemplate.Init();
         DeferralTemplate."Deferral Code" := LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
-        DeferralTemplate."Deferral Account" := LibraryERM.CreateGLAccountNo;
+        DeferralTemplate."Deferral Account" := LibraryERM.CreateGLAccountNo();
         DeferralTemplate."Calc. Method" := DeferralTemplate."Calc. Method"::"Straight-Line";
         DeferralTemplate."Start Date" := DeferralTemplate."Start Date"::"Posting Date";
         DeferralTemplate."No. of Periods" := 1;

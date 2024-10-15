@@ -79,7 +79,7 @@ codeunit 137071 "SCM Supply Planning -II"
         OldCombinedMPSMRPCalculation: Boolean;
     begin
         // Setup: Create Lot for Lot Item. Create Production Forecast with multiple Entries.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
         CreateLotForLotItem(Item);
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", WorkDate, false);  // Boolean - FALSE, for single Forecast Entry.
@@ -125,7 +125,7 @@ codeunit 137071 "SCM Supply Planning -II"
         NewShipmentDate: Date;
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup - FALSE.
         CreateLotForLotItem(ChildItem);
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
@@ -181,7 +181,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Quantity: Decimal;
     begin
         // Setup: Create Lot for Lot Item with Stockkeeping Units.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSKUSetup(Item, ItemVariant, ItemVariant2, LocationYellow.Code, LocationRed.Code);
         Quantity := LibraryRandom.RandDec(5, 2);  // Random Quantity not important
 
@@ -218,7 +218,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Lot for Lot Item with Stockkeeping Units with single Location and Variant.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSKUSetup(Item, ItemVariant, ItemVariant, LocationYellow.Code, '');
 
         // Create Sales Order, update Location and Variant Code on Sales Line.
@@ -246,7 +246,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Lot for Lot Item with Stockkeeping Units with single Location and Variant. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSKUSetup(ChildItem, ItemVariant, ItemVariant, LocationYellow.Code, '');
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
         CreateLotForLotItem(Item);
@@ -280,7 +280,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Quantity: Decimal;
     begin
         // Setup: Create Lot for Lot Item with Stockkeeping Units.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSKUSetup(Item, ItemVariant, ItemVariant, LocationYellow.Code, LocationRed.Code);
         Quantity := LibraryRandom.RandDec(10, 2);  // Random Quantity not important.
 
@@ -317,7 +317,7 @@ codeunit 137071 "SCM Supply Planning -II"
         PlanningComponent: Record "Planning Component";
     begin
         // Setup: Create Lot for Lot Item with Stockkeeping Units with single Location and Variant.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSKUSetup(ChildItem, ItemVariant, ItemVariant, LocationYellow.Code, '');
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
         CreateLotForLotItem(Item);
@@ -355,7 +355,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Quantity: Decimal;
     begin
         // Setup: Create Lot for Lot Item with Stockkeeping Units with single Location and Variant.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSKUSetup(Item, ItemVariant, ItemVariant, LocationYellow.Code, '');
 
         // Update Inventory with Negative Adjustment.
@@ -383,7 +383,7 @@ codeunit 137071 "SCM Supply Planning -II"
         ProductionBOMLine: Record "Production BOM Line";
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create and Certify Production BOM.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(ChildItem, Item);
 
         // Create Sales Order for Parent Item.
@@ -410,7 +410,7 @@ codeunit 137071 "SCM Supply Planning -II"
         PlanningComponent: Record "Planning Component";
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create and Certify Production BOM.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(ChildItem, Item);
 
         // Create Sales Order with Parent Item.
@@ -448,7 +448,7 @@ codeunit 137071 "SCM Supply Planning -II"
         PlanningComponent: Record "Planning Component";
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create and Certify Production BOM.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(ChildItem, Item);
 
         // Create Sales Order for Parent Item.
@@ -480,7 +480,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create Lot for Lot Item.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item);
 
         // Exercise: Calculate Net Change Plan for Planning Worksheet without any demand.
@@ -504,7 +504,7 @@ codeunit 137071 "SCM Supply Planning -II"
         ProductionBOMLine: Record "Production BOM Line";
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(ChildItem, Item);
         UpdateReplenishmentSystemOnItem(ChildItem);  // Update Replenishment System to Production Order on Child Item.
 
@@ -538,7 +538,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create Lot for Lot Item. Create and Refresh Firm Planned Production Order.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item);
         UpdateReplenishmentSystemOnItem(Item);
         CreateAndRefreshProductionOrder(
@@ -574,7 +574,7 @@ codeunit 137071 "SCM Supply Planning -II"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(ChildItem, Item);
         UpdateReplenishmentSystemOnItem(ChildItem);
 
@@ -614,7 +614,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(ChildItem, Item);
         UpdateReplenishmentSystemOnItem(ChildItem);
 
@@ -649,7 +649,7 @@ codeunit 137071 "SCM Supply Planning -II"
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create Lot for Lot Item.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item);
         UpdateReplenishmentSystemOnItem(Item);
 
@@ -683,7 +683,7 @@ codeunit 137071 "SCM Supply Planning -II"
         // [SCENARIO] Verify Quantities for Parent and Child Items are correct after Calculate Regeneration Plan: Production Order which expects child Qty greater than is on stock, plus Sales Order for parent Item.
 
         // [GIVEN] Lot for Lot parent and child Items (Costing Method is Average).
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(ChildItem, Item);
         UpdateCostingMethodToAverageOnItem(ChildItem);
         UpdateCostingMethodToAverageOnItem(Item);
@@ -731,7 +731,7 @@ codeunit 137071 "SCM Supply Planning -II"
         // [SCENARIO] Verify Quantities for Parent and Child Items are correct after Calculate Regeneration Plan and Carry Out with no Accepted lines: Production Order which expects child Qty greater than is on stock, plus Sales Order for parent Item.
 
         // [GIVEN] Lot for Lot parent and child Items (Costing Method is Average).
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(ChildItem, Item);
         UpdateCostingMethodToAverageOnItem(ChildItem);
         UpdateCostingMethodToAverageOnItem(Item);
@@ -783,7 +783,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Qty: Decimal;
     begin
         // Setup: Create Lot for Lot Item setup. Update Costing Method to Average on Parent and Child Item.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(ChildItem, Item);
         UpdateCostingMethodToAverageOnItem(ChildItem);
         UpdateCostingMethodToAverageOnItem(Item);
@@ -832,7 +832,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create Lot for Lot Item setup. Update Lot specific Tracking and Lot Nos on Child Item.
-        Initialize;
+        Initialize();
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
         CreateLotForLotItemSetup(ChildItem, Item);
         UpdateTrackingAndLotNosOnItem(ChildItem, ItemTrackingCode.Code);
@@ -877,7 +877,7 @@ codeunit 137071 "SCM Supply Planning -II"
         ShipmentDate: Date;
     begin
         // Setup: Create Order Item. Create Production Forecast.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
         CreateOrderItem(Item);
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
@@ -920,7 +920,7 @@ codeunit 137071 "SCM Supply Planning -II"
         ForecastDate: Date;
     begin
         // Setup: Create Order Item. Update Item parameters. Create Production Forecast
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
         CreateOrderItem(Item);
         UpdateUnitOfMeasuresOnItem(Item);  // Update Sales and Purchase Unit Of Measure and Include Inventory - FALSE on Item.
@@ -966,7 +966,7 @@ codeunit 137071 "SCM Supply Planning -II"
         ForecastDate: Date;
     begin
         // Setup: Create Lot for Lot Child Item. Create Lot for Lot Item and Stockkeeping Unit setup.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(ChildItem);
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
         CreateLotForLotItemSKUSetupWithTransfer(Item, StockkeepingUnit, StockkeepingUnit2, LocationSilver.Code, LocationBlue.Code);
@@ -1031,7 +1031,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create Lot for Lot Child Item. Create Lot for Lot Item and Stockkeeping Unit setup.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(ChildItem);
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
         CreateLotForLotItemSKUSetupWithTransfer(Item, StockkeepingUnit, StockkeepingUnit2, LocationSilver.Code, LocationBlue.Code);
@@ -1090,7 +1090,7 @@ codeunit 137071 "SCM Supply Planning -II"
         ForecastDate: Date;
     begin
         // Setup: Create Lot for Lot Child Item. Create Lot for Lot Item and Stockkeeping Unit setup.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(ChildItem);
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
         CreateLotForLotItemSKUSetupWithTransfer(Item, StockkeepingUnit, StockkeepingUnit2, LocationSilver.Code, LocationBlue.Code);
@@ -1156,7 +1156,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create Lot for Lot Child Item. Create Lot for Lot Item and Stockkeeping Unit setup.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(ChildItem);
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
         CreateLotForLotItemSKUSetupWithTransfer(Item, StockkeepingUnit, StockkeepingUnit2, LocationSilver.Code, LocationBlue.Code);
@@ -1209,7 +1209,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create Maximum Quantity Item. Create Stockkeeping Unit.
-        Initialize;
+        Initialize();
         CreateStockkeepingUnitForMaximumQtyItem(Item, ItemVariant, LocationBlue.Code);
 
         // Update Inventory With Location.
@@ -1245,7 +1245,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Order Item. Create Sales Order with Purchasing Code, Drop Shipment for Sales Line on Requisition Worksheet. Post Sales Order.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item);
         CreateSalesOrderWithPurchasingCode(SalesHeader, SalesLine, Item."No.", LocationSilver.Code, LibraryRandom.RandDec(10, 2));
         GetSalesOrderOnRequisitionWkshtAndCarryOutActionMsg(SalesLine, RequisitionLine);  // Drop Shipment On Requisition Line.
@@ -1275,7 +1275,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Bin: Record Bin;
     begin
         // Setup: Create Order Item. Create Sales Order with Purchasing Code, Drop Shipment for Sales Line on Requisition Worksheet.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item);
         CreateSalesOrderWithPurchasingCode(SalesHeader, SalesLine, Item."No.", LocationSilver.Code, LibraryRandom.RandDec(10, 2));
         GetSalesOrderOnRequisitionWkshtAndCarryOutActionMsg(SalesLine, RequisitionLine);  // Drop Shipment On Requisition Line. Carry out to generate a new Purchase Order.
@@ -1308,7 +1308,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create Order Item. Update Inventory with Location.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item);
         UpdateInventoryWithLocationAndBin(ItemJournalLine, Item."No.", LocationSilver2.Code, '', LibraryRandom.RandDec(10, 2) + 100);  // Large Random Quantity Required.
 
@@ -1339,7 +1339,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create FRQ Item with Item Category Code.
-        Initialize;
+        Initialize();
         CreateFRQItem(Item);
         UpdateItemCategoryCode(Item);
 
@@ -1367,7 +1367,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create Order Item, Create Sales Order from Blanket Order with new Quantity To Ship.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(OldStockoutWarning, OldCreditWarnings, false, SalesReceivablesSetup."Credit Warnings"::"No Warning");
         CreateOrderItem(Item);
         QuantityToShip := LibraryRandom.RandDec(10, 2);
@@ -1400,7 +1400,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create Maximum Quantity Item.Create Stockkeeping Unit. Update Inventory With Location.
-        Initialize;
+        Initialize();
         CreateMaximumQtyItem(Item, LibraryRandom.RandDec(50, 2) + 50);  // Large Random quantity for Maximum Inventory.
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationSilver2.Code, Item."No.", '');
         UpdateInventoryWithLocationAndVariant(
@@ -1435,7 +1435,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create Lot for Lot Item and Stockkeeping Unit setup.
-        Initialize;
+        Initialize();
         CreateLFLItemWithVariantAndSKU(Item, ItemVariant, StockkeepingUnit, LocationSilver.Code);
 
         // Update Rescheduling Period - 0D, Dampener Period with random value and Lot Accumulation Period -0D  on Stockkeeping Unit of Item.
@@ -1471,7 +1471,7 @@ codeunit 137071 "SCM Supply Planning -II"
         ForecastDate: Date;
     begin
         // Setup: Create Lot for Lot Item and Stockkeeping Unit setup.
-        Initialize;
+        Initialize();
         CreateLFLItemWithVariantAndSKU(Item, ItemVariant, StockkeepingUnit, LocationSilver.Code);
 
         // Update Rescheduling Period - 0D, Dampener Period with random value and Lot Accumulation Period -0D  on Stockkeeping Unit of Item.
@@ -1528,7 +1528,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Lot for Lot Item with Safety Stock Quantity. Create Stockkeeping Unit for Item.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item);
         UpdateReplenishmentSystemOnItem(Item);  // Update Replenishment System Production Order.
         UpdateItemSafetyStockQuantityAndLeadTimeCalculation(Item, '<0D>');  // Lead Time Calculation - 0D.
@@ -1560,7 +1560,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Lot for Lot Item. Update Lot specific Tracking and Lot Nos on Item.
-        Initialize;
+        Initialize();
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
         CreateLotForLotItem(Item);
         UpdateTrackingAndLotNosOnItem(Item, ItemTrackingCode.Code);
@@ -1594,7 +1594,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Lot for Lot Item. Update Lot specific Tracking and Lot Nos on Item.
-        Initialize;
+        Initialize();
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
         CreateLotForLotItem(Item);
         UpdateTrackingAndLotNosOnItem(Item, ItemTrackingCode.Code);
@@ -1632,7 +1632,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create Lot for Lot Item setup. Update Lot specific Tracking and Lot Nos on Child Item.
-        Initialize;
+        Initialize();
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
         CreateLFLItemWithVariantAndSKU(Item, ItemVariant, StockkeepingUnit, LocationSilver.Code);
         UpdateTrackingAndLotNosOnItem(Item, ItemTrackingCode.Code);
@@ -1682,7 +1682,7 @@ codeunit 137071 "SCM Supply Planning -II"
         PlannedDeliveryDate: Date;
     begin
         // Setup: Create Lot for Lot Item.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item);
 
         // Create Sales Order. Update Plannede Delivery date on Sales Line.
@@ -1716,7 +1716,7 @@ codeunit 137071 "SCM Supply Planning -II"
         // Then change the "Sell-to Customer No" and verify that the req lines are not removed.
 
         // Setup: Create Sales Order with location
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateSalesOrder(SalesOrderHeader, SalesOrderLine, Item."No.", LibraryRandom.RandDec(10, 2));
         SalesOrderLine.Validate("Location Code", LocationBlue.Code);
@@ -1762,7 +1762,7 @@ codeunit 137071 "SCM Supply Planning -II"
         EndDate: Date;
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create and Certify Production BOM. Update Safety Stock Quantity and Lead Time Calculation on Child item.
-        Initialize;
+        Initialize();
         CreateLotForLotItemSetup(ChildItem, Item);
         UpdateItemSafetyStockQuantityAndLeadTimeCalculation(ChildItem, '<' + Format(LibraryRandom.RandInt(5) + 10) + 'W>');  // Random Lead Time Calculation.
 
@@ -1800,7 +1800,7 @@ codeunit 137071 "SCM Supply Planning -II"
         StartDate: Date;
         EndDate: Date;
     begin
-        // Setup: Create Lot for Lot Parent and Child Item. Create and Certify Production BOM. Update Safety Stock Quantity and Lead Time Calculation on Child item.Initialize;
+        // Setup: Create Lot for Lot Parent and Child Item. Create and Certify Production BOM. Update Safety Stock Quantity and Lead Time Calculation on Child item.Initialize();
         CreateLotForLotItemSetup(ChildItem, Item);
         UpdateItemSafetyStockQuantityAndLeadTimeCalculation(ChildItem, '<' + Format(LibraryRandom.RandInt(5) + 10) + 'W>');  // Random Lead Time Calculation.
 
@@ -1835,7 +1835,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Lot for Lot Item. Create Sales Order With Location.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item);
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandDec(10, 2));
         UpdateLocationAndVariantOnSalesLine(SalesLine, LocationYellow.Code, '');
@@ -1865,7 +1865,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Order Item. Create Transfer Order.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item);
         CreateTransferOrderWithReceiptDate(
           TransferHeader, Item."No.", LocationSilver.Code, LocationBlue.Code, LibraryRandom.RandDec(10, 2));
@@ -1889,7 +1889,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Quantity: Decimal;
     begin
         // Setup: Create Lot For Lot Item.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item);
 
         // Create Purchase Order with Location.Post Purchase Order.
@@ -1913,7 +1913,7 @@ codeunit 137071 "SCM Supply Planning -II"
     procedure CalcRegenPlanForSalesWithLocationCarryOutForTransferOrderLFLItem()
     begin
         // Setup: Calculate Plan for Planning Worksheet and Carry out Action Message with locations that are not Warehouse Locations.
-        Initialize;
+        Initialize();
         CalcRegenPlanForSalesAndSKUNewTransferWithLocationsAfterCarryOutLFLItem(LocationRed.Code, LocationBlue.Code);
     end;
 
@@ -1922,7 +1922,7 @@ codeunit 137071 "SCM Supply Planning -II"
     procedure CalcRegenPlanForSalesWithWarehouseLocationCarryOutForTransferOrderLFLItem()
     begin
         // Setup: Calculate Plan for Planning Worksheet and Carry out Action Message with Warehouse Locations.
-        Initialize;
+        Initialize();
         CalcRegenPlanForSalesAndSKUNewTransferWithLocationsAfterCarryOutLFLItem(LocationSilver2.Code, LocationGreen.Code);
     end;
 
@@ -1938,7 +1938,7 @@ codeunit 137071 "SCM Supply Planning -II"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create Location.
-        Initialize;
+        Initialize();
 
         // Create a new Item and define the Stockkeeping Unit.
         CreateOrderItem(Item);
@@ -1975,7 +1975,7 @@ codeunit 137071 "SCM Supply Planning -II"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create Location.
-        Initialize;
+        Initialize();
 
         // Create a new Item and define the Stockkeeping Unit.
         CreateOrderItem(Item);
@@ -2032,7 +2032,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Operation: Option Comment,Tool,Personnel,QualityMeasure;
     begin
         // Setup: Create item. Create routing with comment. Create and release sales order.
-        Initialize;
+        Initialize();
         // Reordering Policy can be anyone except Order. Since reservation entry will be generated when select order
         // so that production order cannot be refreshed. Using Lot-for-Lot is easier than other available options.
         CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::"Prod. Order");
@@ -2057,7 +2057,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Operation: Option Comment,Tool,Personnel,QualityMeasure;
     begin
         // Setup: Create item. Create routing with Tool. Create and release sales order.
-        Initialize;
+        Initialize();
         // Reordering Policy can be anyone except Order. Since reservation entry will be generated when select order
         // so that production order cannot be refreshed. Using Lot-for-Lot is easier than other available options.
         CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::"Prod. Order");
@@ -2082,7 +2082,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Operation: Option Comment,Tool,Personnel,QualityMeasure;
     begin
         // Setup:  Create item. Create routing with personnel. Create and release sales order.
-        Initialize;
+        Initialize();
         // Reordering Policy can be anyone except Order. Since reservation entry will be generated when select order
         // so that production order cannot be refreshed. Using Lot-for-Lot is easier than other available options.
         CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::"Prod. Order");
@@ -2107,7 +2107,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Operation: Option Comment,Tool,Personnel,QualityMeasure;
     begin
         // Setup: Create item. Create routing with Quality measure.Create and release sales order.
-        Initialize;
+        Initialize();
         // Reordering Policy can be anyone except Order. Since reservation entry will be generated when select order
         // so that production order cannot be refreshed. Using Lot-for-Lot is easier than other available options.
         CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::"Prod. Order");
@@ -2133,7 +2133,7 @@ codeunit 137071 "SCM Supply Planning -II"
         QuantityPer: Decimal;
     begin
         // Setup: Create sales order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         QuantityPer := LibraryRandom.RandInt(10);
         CreateSalesOrderForRegenPlan(Item, Item2, Quantity);
@@ -2176,7 +2176,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Quantity: Decimal;
     begin
         // Setup: Create an Order Item.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item);
         Quantity := LibraryRandom.RandInt(10);
 
@@ -2220,7 +2220,7 @@ codeunit 137071 "SCM Supply Planning -II"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create Order Item. Create Sales Order with Drop Shipment. Carry out Purchase Order by Requisition Worksheet.
-        Initialize;
+        Initialize();
         CarryOutPurchaseOrderForDropShipmentOnReqWksh(Item, SalesHeader, SalesLine);
 
         // Exercise: Receive Purchase Order.
@@ -2245,7 +2245,7 @@ codeunit 137071 "SCM Supply Planning -II"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create Order Item. Create Sales Order with Drop Shipment. Carry out Purchase Order by Requisition Worksheet.
-        Initialize;
+        Initialize();
         CarryOutPurchaseOrderForDropShipmentOnReqWksh(Item, SalesHeader, SalesLine);
 
         // Exercise: Ship the Sales Order.
@@ -2286,7 +2286,7 @@ codeunit 137071 "SCM Supply Planning -II"
         // Verify no extra empty line generated before the generated line with Item when re-calc Regenerative Plan in Planning Worksheet.
 
         // Setup: Create two Maximum Items. Maximum Inventory must be greater than Reorder Point.
-        Initialize;
+        Initialize();
         CreateMaximumQtyItem(Item, LibraryRandom.RandIntInRange(40, 50));
         CreateMaximumQtyItem(Item2, LibraryRandom.RandIntInRange(40, 50));
 
@@ -2342,7 +2342,7 @@ codeunit 137071 "SCM Supply Planning -II"
         // [SCENARIO 375502] When two items are planned for replenishment and each has not certified BOM, two errors logged for each item respectively.
 
         // [GIVEN] Two Items with Prod Order replenishment, each has BOM with Status = "New"
-        Initialize;
+        Initialize();
         CreateItem(ChildItem, ChildItem."Reordering Policy"::"Lot-for-Lot", ChildItem."Replenishment System"::Purchase);
         CreateProductionBOM(ProductionBOMHeader, ChildItem."No.");
         CreatePurchaseOrderWithLocationAndVariant(
@@ -2389,7 +2389,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // [FEATURE] [Planning Worksheet] [Calculate Regenerative Plan] [Manufacturing]
         // [SCENARIO 379441] For three Items with Prod Order replenishment "Ref. Order No." must be corresponding
-        Initialize;
+        Initialize();
 
         // [GIVEN] First and Second Parent Items have same demand dates.
         ShipmentDate := WorkDate + LibraryRandom.RandInt(30); // up to 1 month after WORKDATE
@@ -2434,7 +2434,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // [FEATURE] [Planning Worksheet] [Calculate Regenerative Plan] [Manufacturing]
         // [SCENARIO 379978] For Item with Prod Order replenishment and "Dampener Quantity" Surplus must be equal to "Dampener Quantity"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item has Dampener Quantity.
         DampenerQuantity := LibraryRandom.RandInt(10);
@@ -2452,7 +2452,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Assert.RecordCount(ReservationEntry, 1);
 
         // [THEN] Reservation Entry Quantity with "Reservation Status" Surplus for Item is equal to "Dampener Quantity".
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         Assert.AreEqual(
           DampenerQuantity, ReservationEntry.Quantity, StrSubstNo(ReservationEntrySurplusErr, DampenerQuantity, ReservationEntry));
     end;
@@ -2471,7 +2471,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // [FEATURE] [Planning Component] [Reservation]
         // [SCENARIO 380209] When Item has only Base Unit Of Measure the fields "Reserved Quantity" and "Reserved Qty. (Base)" must be equal in "Planning Component" table
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prod. Order Lot For Lot Child Item.
         CreateProdOrderLotForLotReserveAlwaysItem(ChildItem);
@@ -2517,7 +2517,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // [FEATURE] [Reservation]
         // [SCENARIO 204345] Requisition line can be deleted with its reservation entries from a worksheet having a filter-like name.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Lot-for-Lot reordering policy.
         CreateLotForLotItem(Item);
@@ -2562,7 +2562,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // [FEATURE] [Planning Component] [Reservation]
         // [SCENARIO 204345] Requisition line can be deleted with its planning components and their reservation entries from a worksheet having a filter-like name.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production item "P" with a purchased component "C", both with Lot-for-Lot reordering policy.
         CreateProductionItem(ProdItem, CompItem);
@@ -2611,7 +2611,7 @@ codeunit 137071 "SCM Supply Planning -II"
         // [FEATURE] [Production] [Item Tracking]
         // [SCENARIO 232555] Item tracking entries for production component should not be deleted when replanning the production order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Manufactured item "MI" and a component "CI", both with "Lot-for-Lot" reordering policy
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
@@ -2620,7 +2620,7 @@ codeunit 137071 "SCM Supply Planning -II"
         // [GIVEN] Component "CI" is tracked by lot nos.
         UpdateTrackingAndLotNosOnItem(CompItem, ItemTrackingCode.Code);
 
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, CompItem."No.", '', '', LibraryRandom.RandInt(100));
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignManualLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -2648,7 +2648,7 @@ codeunit 137071 "SCM Supply Planning -II"
         // [THEN] Reservation entry with lot no. "L" has not been deleted
         ReservationEntry.SetRange("Item No.", CompItem."No.");
         ReservationEntry.SetRange("Source Type", DATABASE::"Prod. Order Component");
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Lot No.", LotNo);
     end;
 
@@ -2667,7 +2667,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // [FEATURE] [Lot-for-Lot] [Lot Accumulation Period]
         // [SCENARIO 300731] When a user runs planning for a production item together with its component set up for lot-for-lot reordering policy and blank lot accumulation period, the program joins several planning lines for the component into one supply.
-        Initialize;
+        Initialize();
 
         Qty := LibraryRandom.RandIntInRange(10, 20);
 
@@ -2709,7 +2709,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // [FEATURE] [Lot-for-Lot] [Lot Accumulation Period] [Production Order] [Make-to-Order]
         // [SCENARIO 300731] When a user runs planning for a make-to-order chain of production items, and the low-level item is set up for lot-for-lot reordering policy, the program does not join planning lines for the low-level item.
-        Initialize;
+        Initialize();
 
         Qty := LibraryRandom.RandIntInRange(10, 20);
 
@@ -2753,7 +2753,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         // [FEATURE] [Stockkeeping Unit] [Transfer] [Order-to-Order Binding] [Purchase]
         // [SCENARIO 333528] Reordering policy "Order" is respected when a planned supply is planned to fulfill an intermediate requisition line for transfer.
-        Initialize;
+        Initialize();
         NoOfSalesOrders := LibraryRandom.RandIntInRange(2, 4);
 
         SelectTransferRoute(LocationRed.Code, LocationBlue.Code);
@@ -2859,10 +2859,10 @@ codeunit 137071 "SCM Supply Planning -II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Supply Planning -II");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         RequisitionLine.DeleteAll();
         ReservationEntry.DeleteAll();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryRandom.Init();
 
         LibraryApplicationArea.EnableEssentialSetup;
@@ -2874,9 +2874,9 @@ codeunit 137071 "SCM Supply Planning -II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Supply Planning -II");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
         ItemJournalSetup;
         CreateLocationSetup;
         ConsumptionJournalSetup;
@@ -2995,7 +2995,7 @@ codeunit 137071 "SCM Supply Planning -II"
         OldCombinedMPSMRPCalculation: Boolean;
     begin
         // Setup: Create BOM with component.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(true); // Combined MPS/MRP Calculation of Manufacturing Setup -TRUE.
         CreateLotForLotItemSetup(ChildItem, Item);
 
@@ -3274,18 +3274,18 @@ codeunit 137071 "SCM Supply Planning -II"
         SalesLine.Modify(true);
     end;
 
-    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Option)
+    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Enum "Req. Worksheet Template Type")
     begin
         ReqWkshTemplate.SetRange(Type, Type);
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
     end;
 
     local procedure SelectProductionOrder(var ProductionOrder: Record "Production Order"; SourceNo: Code[20]; Status: Enum "Production Order Status")
     begin
         ProductionOrder.SetRange("Source No.", SourceNo);
         ProductionOrder.SetRange(Status, Status);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
     end;
 
     local procedure FilterOnRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20])
@@ -3327,7 +3327,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         PlanningComponent.SetRange("Worksheet Template Name", WorksheetTemplateName);
         PlanningComponent.SetRange("Worksheet Batch Name", WorksheetBatchName);
-        PlanningComponent.FindFirst;
+        PlanningComponent.FindFirst();
     end;
 
     local procedure CreateItemJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal)
@@ -3372,7 +3372,7 @@ codeunit 137071 "SCM Supply Planning -II"
     local procedure SelectProductionBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMNo: Code[20])
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
     end;
 
     local procedure UpdateQuantityAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Quantity: Decimal)
@@ -3394,7 +3394,7 @@ codeunit 137071 "SCM Supply Planning -II"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure OpenPlanningWorksheetPage(var PlanningWorksheet: TestPage "Planning Worksheet"; Name: Code[10])
@@ -3432,7 +3432,7 @@ codeunit 137071 "SCM Supply Planning -II"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.Validate("Variant Code", VariantCode);
         ProdOrderComponent.Modify(true);
     end;
@@ -3488,7 +3488,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure CreateAndPostOutputJournal(ProductionOrderNo: Code[20])
@@ -3621,7 +3621,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         CalculateRegenPlanForPlanningWorksheet(Item);
         PlanningRoutingLine.SetRange("No.", WorkCenterNo);
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
         PlanningRoutingLine.Delete();
         AcceptActionMessage(RequisitionLine, Item."No.");
         CarryoutActionMessageForPlanWorksheet(RequisitionLine, Item."No.");
@@ -3641,7 +3641,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
     end;
 
@@ -3649,7 +3649,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         WhseActivityHeader.SetRange(Type, WhseActivityHeaderType);
         WhseActivityHeader.SetRange("Location Code", LocationCode);
-        WhseActivityHeader.FindFirst;
+        WhseActivityHeader.FindFirst();
     end;
 
     local procedure FindWarehouseEntry(var WarehouseEntry: Record "Warehouse Entry"; ItemNo: Code[20]; LocationCode: Code[10])
@@ -3658,7 +3658,7 @@ codeunit 137071 "SCM Supply Planning -II"
             SetRange("Item No.", ItemNo);
             SetRange("Location Code", LocationCode);
             SetRange("Entry Type", "Entry Type"::"Negative Adjmt.");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3673,7 +3673,7 @@ codeunit 137071 "SCM Supply Planning -II"
         ProdOrderComponent.SetRange(Status, Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
     end;
 
     local procedure CarryoutActionMessageForPlanWorksheet(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
@@ -3816,7 +3816,7 @@ codeunit 137071 "SCM Supply Planning -II"
     local procedure SelectTransferLine(var TransferLine: Record "Transfer Line"; DocumentNo: Code[20])
     begin
         TransferLine.SetRange("Document No.", DocumentNo);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
     end;
 
     local procedure GetRequiredPeriod(Days: Integer; IncludeAdditionalPeriod: Integer): Text[30]
@@ -3870,7 +3870,7 @@ codeunit 137071 "SCM Supply Planning -II"
         TransferRoute.SetRange("Transfer-to Code", TransferTo);
 
         // If Transfer Not Found then Create it.
-        if not TransferRoute.FindFirst then begin
+        if not TransferRoute.FindFirst() then begin
             LibraryWarehouse.CreateTransferRoute(TransferRoute, TransferFrom, TransferTo);
             TransferRoute.Validate("In-Transit Code", LocationInTransit.Code);
             TransferRoute.Modify(true);
@@ -4109,7 +4109,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderLine.SetRange(Status, Status);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure CreateProdOrderComponent(ProductionOrder: Record "Production Order"; var ProdOrderComponent: Record "Prod. Order Component"; ItemNo: Code[20])
@@ -4175,7 +4175,7 @@ codeunit 137071 "SCM Supply Planning -II"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
         PurchaseHeader.Validate(
           "Vendor Invoice No.", LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
@@ -4188,7 +4188,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Bin: Record Bin;
     begin
         Bin.SetRange("Location Code", TransferHeader."Transfer-to Code");
-        Bin.FindFirst;
+        Bin.FindFirst();
         TransferLine.Validate("Transfer-To Bin Code", Bin.Code);
         TransferLine.Modify(true);
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
@@ -4204,7 +4204,7 @@ codeunit 137071 "SCM Supply Planning -II"
         OriginalRequirePick: Boolean;
     begin
         // Setup: Create a Item. Update Item inventory with Bin.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1); // Find Bin of Index 1.
         OriginalRequirePick := UpdateLocation(true);
@@ -4242,9 +4242,9 @@ codeunit 137071 "SCM Supply Planning -II"
         TransferLine: Record "Transfer Line";
     begin
         TransferLine.SetRange("Item No.", ItemNo);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         TransferHeader.SetRange("No.", TransferLine."Document No.");
-        TransferHeader.FindFirst;
+        TransferHeader.FindFirst();
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
     end;
 
@@ -4309,7 +4309,7 @@ codeunit 137071 "SCM Supply Planning -II"
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
             SetRange(Quantity, Qty);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -4395,7 +4395,7 @@ codeunit 137071 "SCM Supply Planning -II"
     local procedure FindPlanningComponentByItemNoAndCALCResQtys(var PlanningComponent: Record "Planning Component"; ItemNo: Code[20])
     begin
         PlanningComponent.SetRange("Item No.", ItemNo);
-        PlanningComponent.FindFirst;
+        PlanningComponent.FindFirst();
         PlanningComponent.CalcFields("Reserved Qty. (Base)", "Reserved Quantity");
     end;
 
@@ -4404,7 +4404,7 @@ codeunit 137071 "SCM Supply Planning -II"
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
         ReservationEntry.SetRange("Source Type", DATABASE::"Planning Component");
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
     end;
 
     local procedure VerifyPlanningComponentsAreEmpty(ReqWkshtTemplateName: Code[10]; ReqWkshtName: Code[10]; ReqWkshtLineNo: Integer)
@@ -4421,7 +4421,7 @@ codeunit 137071 "SCM Supply Planning -II"
     local procedure VerifyRequisitionLineWithDueDateForItem(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; RefOrderType: Option; DueDate: Date)
     begin
         RequisitionLine.SetRange("Due Date", DueDate);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField("No.", ItemNo);
         RequisitionLine.TestField("Ref. Order Type", RefOrderType);
     end;
@@ -4462,7 +4462,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("Due Date", DueDate);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField("Ref. Order Type", RequisitionLine."Ref. Order Type"::Transfer);
         RequisitionLine.TestField("Location Code", LocationCode);
         VerifyRequisitionLineQuantityAndActionMessage(RequisitionLine, Quantity, OriginalQuantity, ActionMessage);
@@ -4496,7 +4496,7 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("Variant Code", VariantCode);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField("Location Code", LocationCode);
         VerifyRequisitionLineQuantityAndActionMessage(RequisitionLine, Quantity, OriginalQuantity, ActionMessage);
     end;
@@ -4506,14 +4506,14 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField("MPS Order", IsMPSOrder);
     end;
 
     local procedure VerifyRequisitionLineWithAddedItem(RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; Qty: Decimal)
     begin
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(Quantity, Qty);
     end;
 
@@ -4523,7 +4523,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         BinContent.SetRange("Item No.", SalesLine."No.");
         BinContent.SetRange("Location Code", SalesLine."Location Code");
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         BinContent.TestField("Bin Code", BinCode);
     end;
 
@@ -4533,7 +4533,7 @@ codeunit 137071 "SCM Supply Planning -II"
     begin
         TransferLine.SetRange(Status, TransferLine.Status::Open);
         TransferLine.SetRange("Item No.", ItemNo);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         TransferLine.TestField("Transfer-from Code", TransferFromCode);
         TransferLine.TestField(Quantity, Quantity);
     end;
@@ -4543,7 +4543,7 @@ codeunit 137071 "SCM Supply Planning -II"
         TransferShipmentLine: Record "Transfer Shipment Line";
     begin
         TransferShipmentLine.SetRange("Item No.", ItemNo);
-        TransferShipmentLine.FindFirst;
+        TransferShipmentLine.FindFirst();
         TransferShipmentLine.TestField("Transfer-from Code", TransferFromCode);
         TransferShipmentLine.TestField("Transfer-to Code", TransferToCode);
     end;

@@ -91,7 +91,7 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify Intrastat Journal Line - Shipment Method Code and VAT Registration Number for Shipment.
 
         // Setup: Create and Post Sales Order.
-        Initialize;
+        Initialize();
         CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
 
         // Exercise.
@@ -112,7 +112,7 @@ codeunit 144032 "ERM INTRASTAT"
     begin
         // Verify Customer VAT Registration Number in Intrastat Journal for a vendor - The same as customer No. and with positive quantity on the Purchase invoice.
         // Setup.
-        Initialize;
+        Initialize();
         CustVATRegNoForReceiptSameCustomer(IntrastatJnlLine.Type::Receipt, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
     end;
 
@@ -125,7 +125,7 @@ codeunit 144032 "ERM INTRASTAT"
     begin
         // Verify Customer VAT Registration Number in Intrastat Journal for a vendor - The same as customer No. and with negative quantity on the Purchase invoice.
         // Setup.
-        Initialize;
+        Initialize();
         CustVATRegNoForReceiptSameCustomer(IntrastatJnlLine.Type::Shipment, -LibraryRandom.RandDec(10, 2));  // Negative Random value for Quantity.
     end;
 
@@ -163,7 +163,7 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify Customer VAT Registration Number as a blank in Intrastat Journal for a vendor.
 
         // Setup: Create and Post Purchase Invoice.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
 
         // Exercise.
@@ -187,7 +187,7 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify Customer VAT Registration No. in Intrastat Journal for a customer.
 
         // Setup: Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Invoice, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
 
         // Exercise.
@@ -208,7 +208,7 @@ codeunit 144032 "ERM INTRASTAT"
     begin
         // Verify Customer VAT Registration No. in Intrastat Journal for a customer - The same as vendor No. and with positive quantity on the Sales invoice.
         // Setup.
-        Initialize;
+        Initialize();
         CustVATRegNoForShipmentSameVendor(IntrastatJnlLine.Type::Shipment, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
     end;
 
@@ -221,7 +221,7 @@ codeunit 144032 "ERM INTRASTAT"
     begin
         // Verify Customer VAT Registration No. in Intrastat Journal for a customer - The same as vendor No. and with negative quantity on the Sales invoice.
         // Setup.
-        Initialize;
+        Initialize();
         CustVATRegNoForShipmentSameVendor(IntrastatJnlLine.Type::Receipt, -LibraryRandom.RandDec(10, 2));  // Negative Random value for Quantity.
     end;
 
@@ -259,7 +259,7 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify Total Weight for Shipment Type is calculated and shown correctly on Report.
 
         // Setup: Create and Post Sales Order, Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
+        Initialize();
         CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesShipmentLine."Document No.");
         LibraryVariableStorage.Enqueue(IntrastatJnlLine.Type::Shipment);  // Enqueue value for handler - IntrastatFormRequestPageHandler.
@@ -284,7 +284,7 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify Total Weight for Receipt Type is calculated and shown correctly on Report.
 
         // Setup: Create and Post Purchase Order, Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
         LibraryVariableStorage.Enqueue(IntrastatJnlLine.Type::Receipt);  // Enqueue value for handler - IntrastatFormRequestPageHandler.
@@ -311,8 +311,8 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify generated XML file for Type Receipt and confirmation message when XML file is successfully exported.
 
         // Setup: Create and Post Purchase Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
+        Initialize();
+        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID());
         CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
 
@@ -340,7 +340,7 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify Company Information - CISD mandatory fields behavior for DEB DTI +export Error.
 
         // Setup: Create and Post Purchase Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
+        Initialize();
         OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, '');
         CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
@@ -369,8 +369,8 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify Intrastat Journal Line - Transaction Specification mandatory fields behavior for DEB DTI +export Error.
 
         // Setup: Create and Post Purchase Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
+        Initialize();
+        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID());
         CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
         UpdateTransactionSpecificationBlankIntrastatJnlLine(IntrastatJnlLine);
@@ -400,8 +400,8 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify Intrastat Journal Line - Quantity mandatory fields behavior for DEB DTI +export Error.
 
         // Setup: Create and Post Purchase Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
+        Initialize();
+        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID());
         CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
         UpdateAmountAndQuantityOnIntrastatJnlLine(IntrastatJnlLine, LibraryRandom.RandDec(10, 2), 0);  // Random value for Amount and Quantity - 0.
@@ -431,8 +431,8 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify Intrastat Journal Line - Amount mandatory fields behavior for DEB DTI +export Error.
 
         // Setup: Create and Post Purchase Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);  // GUILD value for Company Information - CISD.
+        Initialize();
+        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID());  // GUILD value for Company Information - CISD.
         CreateAndPostPurchaseDocument(PurchRcptLine, PurchaseHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchRcptLine."Document No.");
         UpdateAmountAndQuantityOnIntrastatJnlLine(IntrastatJnlLine, 0, LibraryRandom.RandDec(10, 2));  // Amount - 0 and Random value for Quantity.
@@ -460,9 +460,9 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify Intrastat Journal Line mandatory behavior for DEB DTI +export Error.
 
         // Setup: Update Company Information for CISD.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);  // Enqueue value for handler - ExportDEBDTIRequestPageHandler.
+        Initialize();
+        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());  // Enqueue value for handler - ExportDEBDTIRequestPageHandler.
 
         // Exercise.
         IntrastatJournal.OpenEdit;
@@ -490,8 +490,8 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify generated XML file for type shipment and confirmation message when XML file is successfully exported.
 
         // Setup: Create and Post Sales Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
+        Initialize();
+        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID());
         CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesShipmentLine."Document No.");
 
@@ -521,8 +521,8 @@ codeunit 144032 "ERM INTRASTAT"
         // Verify Intrastat Journal Batch - Reported as No mandatory fields behavior for DEB DTI +export Error.
 
         // Setup: Create and Post Sales Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID);
+        Initialize();
+        OldCISD := UpdateCISDOnCompanyInformation(CompanyInformation, LibraryUtility.GenerateGUID());
         CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesShipmentLine."Document No.");
         UpdateReportedTrueOnIntrastatJnlBatch(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
@@ -548,7 +548,7 @@ codeunit 144032 "ERM INTRASTAT"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         // [SCENARIO 207564] Check Get Item Ledger Entries report with "Group Entries" option summarized Quantity and Amount on Intrastat Journal when another Intrastat Batch has lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales shipment is posted for Item "X" with Quantity = 1 Amount = 10 on 01 january
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
@@ -575,7 +575,7 @@ codeunit 144032 "ERM INTRASTAT"
         // [THEN] Intrastat Journal Line in second batch for Item "X" has Quantity = 5, Amount = 50.
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlLine.SetRange("Item No.", SalesLine2."No.");
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField(Quantity, SalesLine1.Quantity + SalesLine2.Quantity);
         IntrastatJnlLine.TestField(Amount, Round(SalesLine1.Amount, 1) + Round(SalesLine2.Amount, 1));
     end;
@@ -586,7 +586,7 @@ codeunit 144032 "ERM INTRASTAT"
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM INTRASTAT");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         IntrastatJnlTemplate.DeleteAll();
         IntrastatJnlLine.DeleteAll();
     end;
@@ -642,7 +642,7 @@ codeunit 144032 "ERM INTRASTAT"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Shipment Method Code", FindShipmentMethod);
         Customer.Validate("Country/Region Code", CreateVATRegistrationNoFormat);
-        Customer.Validate("VAT Registration No.", LibraryUtility.GenerateGUID);
+        Customer.Validate("VAT Registration No.", LibraryUtility.GenerateGUID());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -682,7 +682,7 @@ codeunit 144032 "ERM INTRASTAT"
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         LibraryInventory.CreateItem(Item);
         Item.Validate("Tariff No.", TariffNumber."No.");
         Item.Validate("Net Weight", LibraryRandom.RandDec(10, 2));
@@ -717,7 +717,7 @@ codeunit 144032 "ERM INTRASTAT"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Shipment Method Code", FindShipmentMethod);
         Vendor.Validate("Country/Region Code", CreateVATRegistrationNoFormat);
-        Vendor.Validate("VAT Registration No.", LibraryUtility.GenerateGUID);
+        Vendor.Validate("VAT Registration No.", LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -729,7 +729,7 @@ codeunit 144032 "ERM INTRASTAT"
         IntrastatJnlLine.SetRange("Journal Template Name", JournalTemplateName);
         IntrastatJnlLine.SetRange("Journal Batch Name", JournalBatchName);
         IntrastatJnlLine.SetFilter("Document No.", '<>%1', DocumentNo);
-        if IntrastatJnlLine.FindFirst then
+        if IntrastatJnlLine.FindFirst() then
             IntrastatJnlLine.DeleteAll();
     end;
 
@@ -737,7 +737,7 @@ codeunit 144032 "ERM INTRASTAT"
     begin
         IntrastatJnlLine.SetRange(Type, Type);
         IntrastatJnlLine.SetRange("Document No.", DocumentNo);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
     end;
 
     local procedure FindPurchaseReceipt(var PurchRcptLine: Record "Purch. Rcpt. Line"; DocumentNo: Code[20])
@@ -747,11 +747,11 @@ codeunit 144032 "ERM INTRASTAT"
     begin
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Invoice");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.");
         PurchRcptLine.SetRange("Document No.", ItemLedgerEntry."Document No.");
         PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; InvoiceNo: Code[20])
@@ -759,17 +759,17 @@ codeunit 144032 "ERM INTRASTAT"
         ShipmentInvoiced: Record "Shipment Invoiced";
     begin
         ShipmentInvoiced.SetRange("Invoice No.", InvoiceNo);
-        ShipmentInvoiced.FindFirst;
+        ShipmentInvoiced.FindFirst();
         SalesShipmentLine.SetRange("Document No.", ShipmentInvoiced."Shipment No.");
         SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure FindShipmentMethod(): Code[10]
     var
         ShipmentMethod: Record "Shipment Method";
     begin
-        ShipmentMethod.FindFirst;
+        ShipmentMethod.FindFirst();
         exit(ShipmentMethod.Code);
     end;
 
@@ -816,7 +816,7 @@ codeunit 144032 "ERM INTRASTAT"
         LibraryVariableStorage.Enqueue(GroupEntries);
         Clear(GetItemLedgerEntries);
         GetItemLedgerEntries.SetIntrastatJnlLine(IntrastatJnlLine);
-        GetItemLedgerEntries.Run;  // Opens handler - GetItemLedgerEntriesRequestPageHandler.
+        GetItemLedgerEntries.Run();  // Opens handler - GetItemLedgerEntriesRequestPageHandler.
     end;
 
     local procedure UpdateAmountAndQuantityOnIntrastatJnlLine(IntrastatJnlLine: Record "Intrastat Jnl. Line"; Amount: Decimal; Quantity: Decimal)
@@ -848,8 +848,8 @@ codeunit 144032 "ERM INTRASTAT"
         TransactionSpecification: Record "Transaction Specification";
         TransactionType: Record "Transaction Type";
     begin
-        TransactionSpecification.FindFirst;
-        TransactionType.FindFirst;
+        TransactionSpecification.FindFirst();
+        TransactionType.FindFirst();
         IntrastatJnlLine.Validate("Transaction Specification", TransactionSpecification.Code);
         IntrastatJnlLine.Validate("Transaction Type", TransactionType.Code);
         IntrastatJnlLine.Validate(Amount, LibraryRandom.RandDec(10, 2));

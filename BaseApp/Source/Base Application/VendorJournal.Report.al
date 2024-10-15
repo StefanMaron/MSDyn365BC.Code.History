@@ -234,7 +234,7 @@ report 10814 "Vendor Journal"
                 StartDate := GetRangeMin("Period Start");
                 CopyFilter("Period Type", Period."Period Type");
                 Period.SetRange("Period Start", StartDate);
-                if not Period.FindFirst then
+                if not Period.FindFirst() then
                     Error(Text008, StartDate, GetFilter("Period Type"));
                 FiltreDateCalc.CreateFiscalYearFilter(TextDate, TextDate, StartDate, 0);
                 TextDate := ConvertStr(TextDate, '.', ',');
@@ -250,7 +250,7 @@ report 10814 "Vendor Journal"
                 Clear(Period);
                 CopyFilter("Period Type", Period."Period Type");
                 Period.SetRange("Period End", ClosingDate(EndDate));
-                if not Period.FindFirst then
+                if not Period.FindFirst() then
                     Error(Text009, EndDate, GetFilter("Period Type"));
                 DateRecNo := 0;
             end;

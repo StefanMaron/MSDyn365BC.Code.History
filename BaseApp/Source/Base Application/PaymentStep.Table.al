@@ -75,7 +75,7 @@ table 10862 "Payment Step"
             begin
                 if "Header Nos. Series" <> '' then begin
                     NoSeriesLine.SetRange("Series Code", "Header Nos. Series");
-                    if NoSeriesLine.FindLast then
+                    if NoSeriesLine.FindLast() then
                         if (StrLen(NoSeriesLine."Starting No.") > 10) or (StrLen(NoSeriesLine."Ending No.") > 10) then
                             Error(Text001);
                 end;

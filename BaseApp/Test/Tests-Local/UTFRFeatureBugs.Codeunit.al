@@ -34,7 +34,7 @@ codeunit 144016 "UT FR Feature Bugs"
     begin
         // Purpose of the test is to verify Country_Region_Code EC Sales List - Service Report 10876.
         // Setup.
-        Initialize;
+        Initialize();
         CountryRegionCode := CreateVATEntry;
         CalculateDate(Calender);
 
@@ -59,7 +59,7 @@ codeunit 144016 "UT FR Feature Bugs"
     begin
         // Purpose of the test is to verify Error on EC Sales List - Service Report 10876.
         // Setup.
-        Initialize;
+        Initialize();
         CountryRegionCode := CreateVATEntry;
 
         // Enqueue CountryRegion,Start Date and End Date.
@@ -74,7 +74,7 @@ codeunit 144016 "UT FR Feature Bugs"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateVATEntry(): Code[10]
@@ -86,7 +86,7 @@ codeunit 144016 "UT FR Feature Bugs"
         CountryRegion.Code := LibraryUTUtility.GetNewCode10;
         CountryRegion."EU Country/Region Code" := CountryRegion.Code;
         CountryRegion.Insert();
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry."Country/Region Code" := CountryRegion.Code;
         VATEntry.Type := VATEntry.Type::Sale;
@@ -103,7 +103,7 @@ codeunit 144016 "UT FR Feature Bugs"
         StartDate := DMY2Date(1, 12, Date2DMY(WorkDate, 3) - 1);
         Calender.SetRange("Period Type", Calender."Period Type"::Month);
         Calender.SetRange("Period Start", StartDate);
-        Calender.FindFirst;
+        Calender.FindFirst();
     end;
 
     local procedure EnqueueVariables(CountryRegionCode: Code[10]; StartDate: Date; EndDate: Date)

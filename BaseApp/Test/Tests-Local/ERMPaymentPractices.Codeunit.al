@@ -23,7 +23,7 @@ codeunit 144566 "ERM Payment Practices"
         // [FEATURE] [DEMO] [UT]
         // [SCENARIO 257582] Payment Period Setup demodata exists
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         CheckPaymentPeriodExists(1, 30);
         CheckPaymentPeriodExists(31, 60);
         CheckPaymentPeriodExists(61, 90);
@@ -39,8 +39,8 @@ codeunit 144566 "ERM Payment Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] Stan cannot create "Payment Period Setup" where "Days From" after "Days To"
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
         PaymentPeriodSetup.Init();
         PaymentPeriodSetup.Validate("Days From", 10);
         asserterror PaymentPeriodSetup.Validate("Days To", 9);
@@ -57,9 +57,9 @@ codeunit 144566 "ERM Payment Practices"
         // [FEATURE] [UI]
         // [SCENARIO 257582] Stan cannot create "Payment Period Setup" where "Days From" is blank
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        PaymentPeriodSetup.OpenNew;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        PaymentPeriodSetup.OpenNew();
         asserterror PaymentPeriodSetup."Days From".SetValue(0);
 
         Assert.ExpectedError('Days From must be filled');
@@ -74,8 +74,8 @@ codeunit 144566 "ERM Payment Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] Stan can create "Payment Period Setup" where "Days To" is blank
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
         PaymentPeriodSetup.Init();
         PaymentPeriodSetup.Validate("Days From", 10);
         PaymentPeriodSetup.Validate("Days To", 0);
@@ -94,8 +94,8 @@ codeunit 144566 "ERM Payment Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] Stan can create "Payment Period Setup" where "Days To" after "Days From"
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
         DaysFrom := LibraryRandom.RandInt(100);
         DaysTo := DaysFrom + LibraryRandom.RandInt(100);
         PaymentPeriodSetup.Init();

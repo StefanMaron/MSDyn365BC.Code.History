@@ -81,7 +81,7 @@ codeunit 144006 "UT REP Apply GL Entries"
         GLEntry: Record "G/L Entry";
     begin
         // Setup: Create two GL Entry with different Letter and Posting Date.
-        Initialize;
+        Initialize();
         CreateGLEntry(GLEntry, CreateGLAccount, Letter, 0D);  // Using Posting Date as blank.
         CreateGLEntry(GLEntry, GLEntry."G/L Account No.", Letter2, WorkDate); // Using Posting Date as WORKDATE.
 
@@ -110,8 +110,8 @@ codeunit 144006 "UT REP Apply GL Entries"
         GLEntry: Record "G/L Entry";
     begin
         // [SCENARIO 332702] Run report "G/L Account Statement" with saving results to Excel file.
-        Initialize;
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] G/L Entry.
         CreateGLEntry(GLEntry, CreateGLAccount, SmallLetterTxt, WorkDate());
@@ -128,7 +128,7 @@ codeunit 144006 "UT REP Apply GL Entries"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateGLAccount(): Code[20]
@@ -144,7 +144,7 @@ codeunit 144006 "UT REP Apply GL Entries"
     var
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := GLAccountNo;
         GLEntry."Debit Amount" := LibraryRandom.RandDec(10, 2);

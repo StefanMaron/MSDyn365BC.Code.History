@@ -246,7 +246,7 @@ codeunit 144046 "UT TAB Payment Management"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 375959] Payment Line Global Dimension changed after change on Payment Slip
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Header with one line
         CreatePaymentSlip(PaymentLine, PaymentLine."Account Type"::Customer);
@@ -295,7 +295,7 @@ codeunit 144046 "UT TAB Payment Management"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 375959] Payment Line Global Dimension changed after change on Payment Slip using Lookup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Header with one line
         CreatePaymentSlip(PaymentLine, PaymentLine."Account Type"::Customer);
@@ -341,7 +341,7 @@ codeunit 144046 "UT TAB Payment Management"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 376115] Payment Header Dimension merges with Payment Line Dimension
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Default Dimension "D1"
         CustomerNo := CreateCustomerWithDefaultDimension(DimensionValue[1]);
@@ -379,7 +379,7 @@ codeunit 144046 "UT TAB Payment Management"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 376115] Payment Header Dimension Value overwrites Dimension Value of Payment Line with same Dimension
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Header with Dimension "D1" and Dimension Value "DV1"
         GLSetup.Get();
@@ -390,7 +390,7 @@ codeunit 144046 "UT TAB Payment Management"
         PaymentHeader.Modify();
 
         // [GIVEN] Customer with Default Dimension "D1" and Dimension Value "DV2"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibraryDimension.CreateDimensionValue(DimensionValue[2], DimensionValue[1]."Dimension Code");
         LibraryDimension.CreateDefaultDimensionCustomer(
           DefaultDimension, CustomerNo, DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
@@ -415,7 +415,7 @@ codeunit 144046 "UT TAB Payment Management"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 376115] Payment Line Dimension is taken from validated Account
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Default Dimension "D1"
         CustomerNo := CreateCustomerWithDefaultDimension(DimensionValue);
@@ -442,7 +442,7 @@ codeunit 144046 "UT TAB Payment Management"
         AppliesToID: Code[20];
     begin
         // [SCENARIO 304798] Deleting Payment Slip leads to only associated Vendor Ledger Entries having empty Applies-to ID
-        Initialize;
+        Initialize();
 
         AppliesToID := LibraryUtility.GenerateRandomCode(PaymentLine.FieldNo("Applies-to ID"), DATABASE::"Vendor Ledger Entry");
 
@@ -479,7 +479,7 @@ codeunit 144046 "UT TAB Payment Management"
         AppliesToID: Code[20];
     begin
         // [SCENARIO 304798] Deleting Payment Slip leads to only associated Customer Ledger Entries having empty Applies-to ID
-        Initialize;
+        Initialize();
 
         AppliesToID := LibraryUtility.GenerateRandomCode(PaymentLine.FieldNo("Applies-to ID"), DATABASE::"Cust. Ledger Entry");
 
@@ -518,7 +518,7 @@ codeunit 144046 "UT TAB Payment Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 315612] Codeunit "Payment-Apply" doesn't delete "Applies-to Doc. No." and "Applies-to Doc. Type".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Line with "Account Type"::Customer and existing Customer Ledger entry.
         AppliesToID := LibraryUtility.GenerateRandomCode(PaymentLine.FieldNo("Applies-to ID"), DATABASE::"Cust. Ledger Entry");
@@ -527,7 +527,7 @@ codeunit 144046 "UT TAB Payment Management"
           PaymentHeader, PaymentLine."Account Type"::Customer, AppliesToID,
           CustLedgerEntry."Document No.", CustLedgerEntry."Document Type");
         PaymentLine.SetRange("No.", PaymentHeader."No.");
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
 
         // [WHEN] Codeunit "Payment-Apply" is run for Payment Line.
         CODEUNIT.Run(CODEUNIT::"Payment-Apply", PaymentLine);
@@ -549,7 +549,7 @@ codeunit 144046 "UT TAB Payment Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 315612] Codeunit "Payment-Apply" doesn't delete "Applies-to Doc. No." and "Applies-to Doc. Type".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Line with "Account Type"::Vendor and existing Vendor Ledger entry.
         AppliesToID := LibraryUtility.GenerateRandomCode(PaymentLine.FieldNo("Applies-to ID"), DATABASE::"Vendor Ledger Entry");
@@ -558,7 +558,7 @@ codeunit 144046 "UT TAB Payment Management"
           PaymentHeader, PaymentLine."Account Type"::Vendor, AppliesToID,
           VendorLedgerEntry."Document No.", VendorLedgerEntry."Document Type");
         PaymentLine.SetRange("No.", PaymentHeader."No.");
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
 
         // [WHEN] Codeunit "Payment-Apply" is run for Payment Line.
         CODEUNIT.Run(CODEUNIT::"Payment-Apply", PaymentLine);
@@ -582,7 +582,7 @@ codeunit 144046 "UT TAB Payment Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 315612] Codeunit "Payment-Apply" doesn't delete "Applies-to Doc. No." and "Applies-to Doc. Type".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Line with "Account Type"::Customer and no existing Customer Ledger entry.
         AppliesToID := LibraryUtility.GenerateRandomCode(PaymentLine.FieldNo("Applies-to ID"), DATABASE::"Cust. Ledger Entry");
@@ -590,7 +590,7 @@ codeunit 144046 "UT TAB Payment Management"
         DocType := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(7));
         MockPaymentSlipWithPaymentLine(PaymentHeader, PaymentLine."Account Type"::Customer, AppliesToID, DocNo, DocType);
         PaymentLine.SetRange("No.", PaymentHeader."No.");
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
 
         // [WHEN] Codeunit "Payment-Apply" is run for Payment Line.
         CODEUNIT.Run(CODEUNIT::"Payment-Apply", PaymentLine);
@@ -614,7 +614,7 @@ codeunit 144046 "UT TAB Payment Management"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 315612] Codeunit "Payment-Apply" doesn't delete "Applies-to Doc. No." and "Applies-to Doc. Type".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Line with "Account Type"::Vendor and no existing Vendor Ledger entry.
         AppliesToID := LibraryUtility.GenerateRandomCode(PaymentLine.FieldNo("Applies-to ID"), DATABASE::"Vendor Ledger Entry");
@@ -622,7 +622,7 @@ codeunit 144046 "UT TAB Payment Management"
         DocType := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(7));
         MockPaymentSlipWithPaymentLine(PaymentHeader, PaymentLine."Account Type"::Vendor, AppliesToID, DocNo, DocType);
         PaymentLine.SetRange("No.", PaymentHeader."No.");
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
 
         // [WHEN] Codeunit "Payment-Apply" is run for Payment Line.
         CODEUNIT.Run(CODEUNIT::"Payment-Apply", PaymentLine);
@@ -634,14 +634,14 @@ codeunit 144046 "UT TAB Payment Management"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomerWithDefaultDimension(var DimensionValue: Record "Dimension Value") CustomerNo: Code[20]
     var
         DefaultDimension: Record "Default Dimension";
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
     end;
@@ -711,7 +711,7 @@ codeunit 144046 "UT TAB Payment Management"
         PaymentClass: Record "Payment Class";
         PaymentHeader: Record "Payment Header";
     begin
-        PaymentClass.FindFirst;
+        PaymentClass.FindFirst();
         PaymentHeader."No." := LibraryUTUtility.GetNewCode;
         PaymentHeader."Payment Class" := PaymentClass.Code;
         PaymentHeader.Insert();
@@ -747,7 +747,7 @@ codeunit 144046 "UT TAB Payment Management"
         EntryNo: Integer;
     begin
         with CustLedgerEntry do begin
-            if FindLast then
+            if FindLast() then
                 EntryNo := "Entry No." + 1
             else
                 EntryNo := 1;
@@ -786,7 +786,7 @@ codeunit 144046 "UT TAB Payment Management"
         EntryNo: Integer;
     begin
         with VendorLedgerEntry do begin
-            if FindLast then
+            if FindLast() then
                 EntryNo := "Entry No." + 1
             else
                 EntryNo := 1;
@@ -876,7 +876,7 @@ codeunit 144046 "UT TAB Payment Management"
         LibraryVariableStorage.Dequeue(DimensionValueCodVar);
         DimensionValue.SetRange("Dimension Code", DimensionCodeVar);
         DimensionValue.SetRange(Code, DimensionValueCodVar);
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
         DimensionValueList.SetRecord(DimensionValue);
         Response := ACTION::LookupOK;
     end;

@@ -33,7 +33,7 @@ codeunit 134044 "ERM VAT on Jnl"
         // Check that Error Raised when changing sign on VAT Amount field on General Journal Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         ModifyBatchAndCreateGenJnLine(GenJournalLine);
         GenJournalLine.Validate("VAT %", LibraryRandom.RandDec(10, 1));
         GenJournalLine.Modify(true);
@@ -54,7 +54,7 @@ codeunit 134044 "ERM VAT on Jnl"
         // Check that Error Raised when changing sign on Bal. VAT Amount field on General Journal Line.
 
         // Setup: Validate Bal. VAT Percent with Random Value on General Journal Line.
-        Initialize;
+        Initialize();
         ModifyBatchAndCreateGenJnLine(GenJournalLine);
         GenJournalLine.Validate("Bal. VAT %", LibraryRandom.RandDec(10, 2));
         GenJournalLine.Modify(true);
@@ -80,7 +80,7 @@ codeunit 134044 "ERM VAT on Jnl"
         // General Journal Batch is Set to TRUE.
 
         // Setup: Crete General Template and Batch with "Copy VAT Setup to Jnl. Lines" field TRUE.
-        Initialize;
+        Initialize();
         CreateGenTemplateAndBatch(GenJournalTemplate, GenJournalBatch, false, true);
 
         // Exercise: Create General Journal Line with Created General Journal Batch and Modify General Journal Line and
@@ -115,7 +115,7 @@ codeunit 134044 "ERM VAT on Jnl"
 
         // Setup: Crete General Template and Batch with "Copy VAT Setup to Jnl. Lines" field TRUE and General Journal Line and Calculate
         // VAT Amount and Amount.
-        Initialize;
+        Initialize();
         CreateGenTemplateAndBatch(GenJournalTemplate, GenJournalBatch, false, true);
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment);
         VATAmount := ModifyGenJournalLine(GenJournalLine, GenJournalBatch.Name);
@@ -144,7 +144,7 @@ codeunit 134044 "ERM VAT on Jnl"
         // Check General Journal Line fields value for Blank when "Copy VAT Setup to Jnl. Lines" field of General Journal Batch is FALSE.
 
         // Setup: Crete General Template and Batch with "Copy VAT Setup to Jnl. Lines" field Set to FALSE.
-        Initialize;
+        Initialize();
         CreateGenTemplateAndBatch(GenJournalTemplate, GenJournalBatch, false, false);
 
         // Exercise: Create General Journal Line with Created General Journal Batch and Modify General Journal Line and
@@ -177,7 +177,7 @@ codeunit 134044 "ERM VAT on Jnl"
 
         // Setup: Crete General Template and Batch with "Copy VAT Setup to Jnl. Lines" field FALSE and General Journal Line
         // and Calculate Amount.
-        Initialize;
+        Initialize();
         CreateGenTemplateAndBatch(GenJournalTemplate, GenJournalBatch, false, false);
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment);
         ModifyGenJournalLine(GenJournalLine, GenJournalBatch.Name);
@@ -203,7 +203,7 @@ codeunit 134044 "ERM VAT on Jnl"
     begin
         // [FEATURE] [General Journal Template] [Allow VAT Difference]
         // [SCENARIO] Allow VAT Difference = NO in General Journal Batches after setting Allow VAT Difference = NO in General Journal Template.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create General Journal Template and two Journal Batches.
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -231,7 +231,7 @@ codeunit 134044 "ERM VAT on Jnl"
     begin
         // [FEATURE] [General Journal Template] [Allow VAT Difference]
         // [SCENARIO] Allow VAT Difference = YES in General Journal Batch after setting Allow VAT Difference = YES in General Journal Template.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create General Journal Template and two Journal Batches.
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -259,7 +259,7 @@ codeunit 134044 "ERM VAT on Jnl"
     begin
         // [FEATURE] [General Journal Template] [Allow VAT Difference] [UI]
         // [SCENARIO] Confirmation request should be shown while updating "Allow VAT Difference" on "General Journal Templates" page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create General Journal Template and one Journal Batch, where "Allow VAT Difference" is YES.
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -287,7 +287,7 @@ codeunit 134044 "ERM VAT on Jnl"
     procedure GenJnlBatchWithAllowVATDiffYes()
     begin
         // Check Allow VAT Difference = Yes on General Journal Batch when Allow VAT Difference = Yes on General Journal Template.
-        Initialize;
+        Initialize();
         GenJnlBatchWithAllowVATDiff(true);
     end;
 
@@ -296,7 +296,7 @@ codeunit 134044 "ERM VAT on Jnl"
     procedure GenJnlBatchWithAllowVATDiffNo()
     begin
         // Check Allow VAT Difference = No on General Journal Batch when Allow VAT Difference = No on General Journal Template.
-        Initialize;
+        Initialize();
         GenJnlBatchWithAllowVATDiff(false);
     end;
 
@@ -330,7 +330,7 @@ codeunit 134044 "ERM VAT on Jnl"
         // Check Error after updating General Journal Batch, when Allow VAT Difference = No on General Journal Template.
 
         // Setup: Find a General Journal Template with Allow VAT Difference = No.
-        Initialize;
+        Initialize();
         FindGeneralJournalTemplate(GenJournalTemplate);
 
         // Exercise: Create a new General Journal Batch with Allow VAT Difference = Yes.
@@ -353,7 +353,7 @@ codeunit 134044 "ERM VAT on Jnl"
         // Check that Error Raised when changing VAT Amount on General Journal Line and Allow VAT Difference = Yes.
 
         // Setup.
-        Initialize;
+        Initialize();
         ModifyGeneralLedgerSetup(0);
         CreateBatchAndGenJournalLine(GenJournalBatch, GenJournalLine, GenJournalLine."Document Type"::Invoice, true);
 
@@ -371,7 +371,7 @@ codeunit 134044 "ERM VAT on Jnl"
     procedure UpdateVATWhenAllowVATDiffNo()
     begin
         // Check that Error Raised when changing VAT Amount on General Journal Line and Allow VAT Difference = No.
-        Initialize;
+        Initialize();
         UpdateVATAmtOnGenJournalLine(false);
     end;
 
@@ -405,7 +405,7 @@ codeunit 134044 "ERM VAT on Jnl"
         // Check that Error Raised when changing VAT Amount on General Journal Line and Amount is bigger than Allowed VAT Difference.
 
         // Setup: Update General Ledger Setup. Create General Journal Template, Batch and General Journal Line.
-        Initialize;
+        Initialize();
         VATDifference := LibraryRandom.RandDec(1, 2);  // Take random Amount for VAT Difference.
         ModifyGeneralLedgerSetup(VATDifference);
         CreateBatchAndGenJournalLine(GenJournalBatch, GenJournalLine, GenJournalLine."Document Type"::Invoice, true);
@@ -429,7 +429,7 @@ codeunit 134044 "ERM VAT on Jnl"
         // Check error after updating Bal. Account No. and Balance VAT Amount on General Journal Line with Allow VAT Difference = Yes.
 
         // Setup: Update General Ledger Setup. Create General Journal Template, Batch and General Journal Line.
-        Initialize;
+        Initialize();
         VATDifference := LibraryRandom.RandDec(1, 2);  // Take random Amount for VAT Difference.
         ModifyGeneralLedgerSetup(VATDifference);
         CreateBatchAndGenJournalLine(GenJournalBatch, GenJournalLine, GenJournalLine."Document Type"::Invoice, true);
@@ -450,7 +450,7 @@ codeunit 134044 "ERM VAT on Jnl"
     procedure BalVATAmtInGenJournalLine()
     begin
         // Check that Error Raised after updating Bal. VAT Amount on General Journal Line.
-        Initialize;
+        Initialize();
         BalanceVATAmtInGenJournalLine(LibraryRandom.RandDec(1, 2));
     end;
 
@@ -459,7 +459,7 @@ codeunit 134044 "ERM VAT on Jnl"
     procedure NegBalVATAmtInGenJournalLine()
     begin
         // Check that Error Raised when changing sign on Bal. VAT Amount field on General Journal Line.
-        Initialize;
+        Initialize();
         BalanceVATAmtInGenJournalLine(-LibraryRandom.RandDec(1, 2));
     end;
 
@@ -492,7 +492,7 @@ codeunit 134044 "ERM VAT on Jnl"
 
         // Setup: Create General Journal Template and General Journal Batch and set the value of
         // Copy VAT Setup to Jnl. Lines in General Journal Template, but decline confirmation
-        Initialize;
+        Initialize();
         asserterror GenJnlLineCopyVATSetup(true);
     end;
 
@@ -505,7 +505,7 @@ codeunit 134044 "ERM VAT on Jnl"
 
         // Setup: Create General Journal Template and General Journal Batch and set the value of
         // Copy VAT Setup to Jnl. Lines in General Journal Template.
-        Initialize;
+        Initialize();
         GenJnlLineCopyVATSetup(false);
     end;
 
@@ -540,7 +540,7 @@ codeunit 134044 "ERM VAT on Jnl"
         VATAmount: Decimal;
     begin
         // Check VAT Base and VAT Difference on General Journal Line after changing VAT Amount. Allow VAT Difference = Yes.
-        Initialize;
+        Initialize();
         VATDifference := LibraryRandom.RandDec(1, 2);
         VATBaseAmount := SetupAndCreatePmtJournalLine(GenJournalLine, VATDifferenceOld, VATAmount, VATDifference);
 
@@ -568,7 +568,7 @@ codeunit 134044 "ERM VAT on Jnl"
         VATAmount: Decimal;
     begin
         // Check GL Entry, VAT Entry after posting General Journal Line and changing VAT Amount. Allow VAT Difference = Yes.
-        Initialize;
+        Initialize();
         VATDifference := LibraryRandom.RandDec(1, 2);
         VATBaseAmount := SetupAndCreatePmtJournalLine(GenJournalLine, VATDifferenceOld, VATAmount, VATDifference);
 
@@ -599,7 +599,7 @@ codeunit 134044 "ERM VAT on Jnl"
         // Check Posted Entries after updating Maximum Manual VAT on a General Journal And Post them.
 
         // Setup: Create Template, G/L Accounts, and two General Journal Lines.
-        Initialize;
+        Initialize();
         VATDifference := LibraryRandom.RandDec(1, 2);  // Take random Amount for VAT Difference.
         OldVATDifference := ModifyGeneralLedgerSetup(VATDifference);
         CreateJournalTemplateBatch(GenJournalBatch);
@@ -629,7 +629,7 @@ codeunit 134044 "ERM VAT on Jnl"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Post an entry in FCY with positive Manual VAT.
-        Initialize;
+        Initialize();
         CreateGenJournalWithVAT(GenJournalLine);
         PostAndVerifyGLEntry(GenJournalLine, 1, GenJournalLine."VAT Amount");
     end;
@@ -641,7 +641,7 @@ codeunit 134044 "ERM VAT on Jnl"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Post an entry in FCY with negative Manual VAT.
-        Initialize;
+        Initialize();
         CreateGenJournalWithVAT(GenJournalLine);
         PostAndVerifyGLEntry(GenJournalLine, -1, GenJournalLine."Bal. VAT Amount");
     end;
@@ -659,7 +659,7 @@ codeunit 134044 "ERM VAT on Jnl"
         // Check GL Entry VAT Entry Link for Posted General Journal Entry.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create and Post Entry for GL Account with Random Amount.
         SelectJournalBatchAndClearJournalLines(GenJournalBatch);
@@ -682,8 +682,8 @@ codeunit 134044 "ERM VAT on Jnl"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();
@@ -713,7 +713,7 @@ codeunit 134044 "ERM VAT on Jnl"
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         LibraryERM.CreateRandomExchangeRate(Currency2.Code);
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate("Relational Currency Code", Currency2.Code);
         CurrencyExchangeRate.Modify(true);
         Currency.Validate("Max. VAT Difference Allowed", LibraryRandom.RandDec(1, 2));  // Take random value for VAT Difference.
@@ -850,7 +850,7 @@ codeunit 134044 "ERM VAT on Jnl"
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure FindExchRateAmount(GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal): Decimal
@@ -858,7 +858,7 @@ codeunit 134044 "ERM VAT on Jnl"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", GenJournalLine."Currency Code");
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         Amount := LibraryERM.ConvertCurrency(Amount, CurrencyExchangeRate."Relational Currency Code", '', WorkDate);
         Amount := LibraryERM.ConvertCurrency(Amount, GenJournalLine."Currency Code", '', WorkDate);
         exit(Amount);
@@ -868,7 +868,7 @@ codeunit 134044 "ERM VAT on Jnl"
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure ModifyBatchAndCreateGenJnLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -1020,7 +1020,7 @@ codeunit 134044 "ERM VAT on Jnl"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("VAT Amount", VATAmount);
     end;
 

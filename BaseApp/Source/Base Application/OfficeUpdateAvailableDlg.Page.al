@@ -103,7 +103,7 @@ page 1607 "Office Update Available Dlg"
         Email: Text[250];
     begin
         User.SetRange("User Name", UserId);
-        if User.FindFirst then
+        if User.FindFirst() then
             Email := User."Authentication Email";
         UserCanUpdate := (Email <> '') and not ExchangeAddinSetup.CredentialsRequired(CopyStr(Email, 1, 80));
         UserCanContinue := not Breaking;

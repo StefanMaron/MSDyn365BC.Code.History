@@ -24,7 +24,6 @@ page 5747 "Transfer Routes"
                 {
                     ApplicationArea = Location;
                     Caption = 'Show';
-                    OptionCaption = 'In-Transit Code,Shipping Agent Code,Shipping Agent Service Code';
                     ToolTip = 'Specifies if the selected value is shown in the window.';
 
                     trigger OnValidate()
@@ -111,7 +110,7 @@ page 5747 "Transfer Routes"
         MATRIX_PKFirstRecInCurrSet: Text;
         MATRIX_CurrentNoOfColumns: Integer;
         ShowTransferToName: Boolean;
-        Show: Option "In-Transit Code","Shipping Agent Code","Shipping Agent Service Code";
+        Show: Enum "Transfer Routes Show";
 
     local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
@@ -155,7 +154,7 @@ page 5747 "Transfer Routes"
 
     local procedure UpdateMatrixSubform()
     begin
-        CurrPage.MatrixForm.PAGE.Load(MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrentNoOfColumns, Show);
+        CurrPage.MatrixForm.PAGE.LoadMatrix(MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrentNoOfColumns, Show);
         CurrPage.MatrixForm.PAGE.SetRecord(Rec);
         CurrPage.Update();
     end;

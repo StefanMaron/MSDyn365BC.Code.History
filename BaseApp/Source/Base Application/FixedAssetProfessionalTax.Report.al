@@ -516,7 +516,7 @@ report 10812 "Fixed Asset-Professional Tax"
             exit;
         with FADateType do begin
             SetRange("FA Entry", true);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TypeExist := DateType = "FA Date Type Name";
                     if TypeExist then
@@ -535,7 +535,7 @@ report 10812 "Fixed Asset-Professional Tax"
             exit;
         with FAPostingType do begin
             SetRange("FA Entry", true);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TypeExist := PostingType = "FA Posting Type Name";
                     if TypeExist then

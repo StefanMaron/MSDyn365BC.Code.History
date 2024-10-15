@@ -106,6 +106,24 @@ report 10885 "Export G/L Entries - Tax Audit"
 
             trigger OnPreDataItem()
             begin
+                GLEntry.SetLoadFields(
+                    Amount,
+                    "Bal. Account Type",
+                    "Credit Amount",
+                    "Debit Amount",
+                    Description,
+                    "Document Date",
+                    "Document No.",
+                    "Entry No.",
+                    "G/L Account Name",
+                    "G/L Account No.",
+                    "Posting Date",
+                    "Source Code",
+                    "Source No.",
+                    "Source Type",
+                    "Transaction No."
+                );
+
                 SetRange("Posting Date", StartingDate, EndingDate);
                 SetFilter("G/L Account No.", GLAccount.GetFilter("No."));
                 SetFilter(Amount, '<>%1', 0);
@@ -169,14 +187,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         ToFileName := GetFileName;
         Writer.Close;
 
-#if not CLEAN17
-        if (ToFileFullName = '') or not FileManagement.IsLocalFileSystemAccessible then
-            FileManagement.DownloadHandler(OutputFileName, '', '', '', ToFileName)
-        else
-            FileManagement.DownloadToFile(OutputFileName, ToFileFullName);
-#else
         FileManagement.DownloadHandler(OutputFileName, '', '', '', ToFileName);
-#endif
         Clear(oStream);
         Erase(OutputFileName);
     end;
@@ -271,7 +282,7 @@ report 10885 "Export G/L Entries - Tax Audit"
     begin
         GLRegister.SetFilter("From Entry No.", '<=%1', EntryNo);
         GLRegister.SetFilter("To Entry No.", '>=%1', EntryNo);
-        GLRegister.FindFirst;
+        GLRegister.FindFirst();
     end;
 
     local procedure FormatAmount(Amount: Decimal): Text[250]
@@ -301,7 +312,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         DetailedCustLedgEntryOriginal.SetCurrentKey("Cust. Ledger Entry No.");
         DetailedCustLedgEntryOriginal.SetRange("Cust. Ledger Entry No.", CustLedgerEntryOriginal."Entry No.");
         DetailedCustLedgEntryOriginal.SetRange(Unapplied, false);
-        if DetailedCustLedgEntryOriginal.FindSet then
+        if DetailedCustLedgEntryOriginal.FindSet() then
             repeat
                 if DetailedCustLedgEntryOriginal."Cust. Ledger Entry No." =
                    DetailedCustLedgEntryOriginal."Applied Cust. Ledger Entry No."
@@ -312,7 +323,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                         SetRange("Applied Cust. Ledger Entry No.", DetailedCustLedgEntryOriginal."Applied Cust. Ledger Entry No.");
                         SetRange("Entry Type", "Entry Type"::Application);
                         SetRange(Unapplied, false);
-                        if FindSet then
+                        if FindSet() then
                             repeat
                                 if "Cust. Ledger Entry No." <> "Applied Cust. Ledger Entry No." then
                                     if CustLedgEntryApplied.Get("Cust. Ledger Entry No.") and
@@ -342,7 +353,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         DetailedVendorLedgEntryOriginal.SetCurrentKey("Vendor Ledger Entry No.");
         DetailedVendorLedgEntryOriginal.SetRange("Vendor Ledger Entry No.", VendorLedgerEntryOriginal."Entry No.");
         DetailedVendorLedgEntryOriginal.SetRange(Unapplied, false);
-        if DetailedVendorLedgEntryOriginal.FindSet then
+        if DetailedVendorLedgEntryOriginal.FindSet() then
             repeat
                 if DetailedVendorLedgEntryOriginal."Vendor Ledger Entry No." =
                    DetailedVendorLedgEntryOriginal."Applied Vend. Ledger Entry No."
@@ -354,7 +365,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                           "Applied Vend. Ledger Entry No.", DetailedVendorLedgEntryOriginal."Applied Vend. Ledger Entry No.");
                         SetRange("Entry Type", "Entry Type"::Application);
                         SetRange(Unapplied, false);
-                        if FindSet then
+                        if FindSet() then
                             repeat
                                 if "Vendor Ledger Entry No." <> "Applied Vend. Ledger Entry No." then
                                     if VendorLedgEntryApplied.Get("Vendor Ledger Entry No.") and
@@ -549,9 +560,9 @@ report 10885 "Export G/L Entries - Tax Audit"
             GLEntry."Source Type"::Customer.AsInteger():
                 begin
                     CustLedgerEntry.SetRange("Transaction No.", TransactionNo);
-                    if CustLedgerEntry.FindFirst then begin
+                    if CustLedgerEntry.FindFirst() then begin
                         CustLedgerEntry.SetFilter("Customer No.", '<>%1', CustLedgerEntry."Customer No.");
-                        if CustLedgerEntry.FindFirst then begin
+                        if CustLedgerEntry.FindFirst() then begin
                             PartyName := 'multi-clients';
                             PartyNo := '*';
                             FCYAmount := '';
@@ -562,7 +573,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                         GetCustomerData(CustLedgerEntry."Customer No.", PartyNo, PartyName);
                         PayRecAccount := GetReceivablesAccount(CustLedgerEntry."Customer Posting Group");
                         CountOfGLEntriesInTransaction := GetTransPayRecEntriesCount(CustLedgerEntry."Transaction No.", PayRecAccount);
-                        if CustLedgerEntry.FindSet then
+                        if CustLedgerEntry.FindSet() then
                             repeat
                                 GetAppliedCustLedgEntry(CustLedgerEntry, DocNoSet, DateApplied);
                                 if (CustLedgerEntry."Currency Code" <> '') and (CountOfGLEntriesInTransaction = 1) then begin
@@ -578,9 +589,9 @@ report 10885 "Export G/L Entries - Tax Audit"
             GLEntry."Source Type"::Vendor.AsInteger():
                 begin
                     VendorLedgerEntry.SetRange("Transaction No.", TransactionNo);
-                    if VendorLedgerEntry.FindFirst then begin
+                    if VendorLedgerEntry.FindFirst() then begin
                         VendorLedgerEntry.SetFilter("Vendor No.", '<>%1', VendorLedgerEntry."Vendor No.");
-                        if VendorLedgerEntry.FindFirst then begin
+                        if VendorLedgerEntry.FindFirst() then begin
                             PartyName := 'multi-fournisseurs';
                             PartyNo := '*';
                             FCYAmount := '';
@@ -591,7 +602,7 @@ report 10885 "Export G/L Entries - Tax Audit"
                         GetVendorData(VendorLedgerEntry."Vendor No.", PartyNo, PartyName);
                         PayRecAccount := GetPayablesAccount(VendorLedgerEntry."Vendor Posting Group");
                         CountOfGLEntriesInTransaction := GetTransPayRecEntriesCount(VendorLedgerEntry."Transaction No.", PayRecAccount);
-                        if VendorLedgerEntry.FindSet then
+                        if VendorLedgerEntry.FindSet() then
                             repeat
                                 GetAppliedVendorLedgEntry(VendorLedgerEntry, DocNoSet, DateApplied);
                                 if (VendorLedgerEntry."Currency Code" <> '') and (CountOfGLEntriesInTransaction = 1) then begin
@@ -798,6 +809,24 @@ report 10885 "Export G/L Entries - Tax Audit"
         CreditAmt: Decimal;
         UnrealizedAmt: Decimal;
     begin
+        GLEntry.SetLoadFields(
+            Amount,
+            "Bal. Account Type",
+            "Credit Amount",
+            "Debit Amount",
+            Description,
+            "Document Date",
+            "Document No.",
+            "Entry No.",
+            "G/L Account Name",
+            "G/L Account No.",
+            "Posting Date",
+            "Source Code",
+            "Source No.",
+            "Source Type",
+            "Transaction No."
+        );
+                
         GLEntry.SetFilter("Posting Date", '..%1', StartingDate - 1);
         GLEntry.SetFilter("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Source Type", SourceType);

@@ -204,7 +204,7 @@ report 501 "Intrastat - Form"
                         PrevIntrastatJnlLine.SetRange("Tariff No.", "Tariff No.");
                         PrevIntrastatJnlLine.SetRange("Transaction Type", "Transaction Type");
                         PrevIntrastatJnlLine.SetRange("Transport Method", "Transport Method");
-                        PrevIntrastatJnlLine.FindFirst;
+                        PrevIntrastatJnlLine.FindFirst();
                     end;
                     SubTotalWeight := SubTotalWeight + Round("Total Weight", 1);
                     TotalWeight := TotalWeight + Round("Total Weight", 1);

@@ -1,4 +1,4 @@
-﻿codeunit 10860 "Payment Management"
+codeunit 10860 "Payment Management"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm;
@@ -265,7 +265,7 @@
                 end else begin
                 ToBord.Get(PayNum);
                 ToPaymentLine.SetRange("No.", PayNum);
-                if ToPaymentLine.FindLast then
+                if ToPaymentLine.FindLast() then
                     i := ToPaymentLine."Line No." + 10000
                 else
                     i := 10000;
@@ -306,7 +306,7 @@
                 repeat
                     ToPaymentLine.SetRange("Copied To No.", FromPaymentLine."No.");
                     ToPaymentLine.SetRange("Copied To Line", FromPaymentLine."Line No.");
-                    ToPaymentLine.FindFirst;
+                    ToPaymentLine.FindFirst();
                     ToPaymentLine."Copied To No." := '';
                     ToPaymentLine."Copied To Line" := 0;
                     ToPaymentLine.Modify();
@@ -569,7 +569,7 @@
                             CustLedgerEntry.SetRange("Entry No.", OldPaymentLine."Entry No. Debit")
                         else
                             CustLedgerEntry.SetRange("Entry No.", OldPaymentLine."Entry No. Credit");
-                        if CustLedgerEntry.FindFirst then begin
+                        if CustLedgerEntry.FindFirst() then begin
                             CustLedgerEntry."Applies-to ID" := InvPostingBuffer[1]."Applies-to ID";
                             CustLedgerEntry.CalcFields("Remaining Amount");
                             CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry."Remaining Amount");
@@ -581,7 +581,7 @@
                                 VendorLedgerEntry.SetRange("Entry No.", OldPaymentLine."Entry No. Debit")
                             else
                                 VendorLedgerEntry.SetRange("Entry No.", OldPaymentLine."Entry No. Credit");
-                            if VendorLedgerEntry.FindFirst then begin
+                            if VendorLedgerEntry.FindFirst() then begin
                                 VendorLedgerEntry."Applies-to ID" := InvPostingBuffer[1]."Applies-to ID";
                                 VendorLedgerEntry.CalcFields("Remaining Amount");
                                 VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
@@ -597,7 +597,7 @@
                                 CustLedgerEntry.SetRange("Entry No.", OldPaymentLine."Entry No. Debit Memo")
                             else
                                 CustLedgerEntry.SetRange("Entry No.", OldPaymentLine."Entry No. Credit Memo");
-                            if CustLedgerEntry.FindFirst then begin
+                            if CustLedgerEntry.FindFirst() then begin
                                 CustLedgerEntry."Applies-to ID" := InvPostingBuffer[1]."Applies-to ID";
                                 CustLedgerEntry.CalcFields("Remaining Amount");
                                 CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry."Remaining Amount");
@@ -609,7 +609,7 @@
                                     VendorLedgerEntry.SetRange("Entry No.", OldPaymentLine."Entry No. Debit Memo")
                                 else
                                     VendorLedgerEntry.SetRange("Entry No.", OldPaymentLine."Entry No. Credit Memo");
-                                if VendorLedgerEntry.FindFirst then begin
+                                if VendorLedgerEntry.FindFirst() then begin
                                     VendorLedgerEntry."Applies-to ID" := InvPostingBuffer[1]."Applies-to ID";
                                     VendorLedgerEntry.CalcFields("Remaining Amount");
                                     VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
@@ -781,11 +781,11 @@
         InserForm.SetSteps(PaymtStep.Line);
         InserForm.SetTableView(PaymentLine);
         InserForm.LookupMode(true);
-        InserForm.RunModal;
+        InserForm.RunModal();
         PayNum := InserForm.GetNumBor;
         if Bor.Get(PayNum) then begin
             StatementForm.SetRecord(Bor);
-            StatementForm.Run;
+            StatementForm.Run();
         end else
             Error(Text004);
         exit(PayNum);
@@ -810,7 +810,7 @@
             InserForm.SetNumBor(Header."No.");
             InserForm.SetTableView(PaymentLine);
             InserForm.LookupMode(true);
-            InserForm.RunModal;
+            InserForm.RunModal();
         end;
     end;
 
@@ -915,7 +915,7 @@
         CheckDimCombAndValue(PaymentLine);
 
         PaymentLine.SetRange("No.", PaymentHeader."No.");
-        if PaymentLine.FindSet then
+        if PaymentLine.FindSet() then
             repeat
                 CheckDimCombAndValue(PaymentLine);
             until PaymentLine.Next() = 0;
@@ -1014,7 +1014,7 @@
                 exit(false);
 
             if Count = 1 then begin
-                FindFirst;
+                FindFirst();
                 exit(Confirm(Name, true));
             end;
 
@@ -1152,7 +1152,7 @@
         GenJnlPostLine.RunWithCheck(GenJnlLine);
         GLEntry.SetRange("Document Type", GenJnlLine."Document Type");
         GLEntry.SetRange("Document No.", GenJnlLine."Document No.");
-        if GLEntry.FindLast then
+        if GLEntry.FindLast() then
             exit(GLEntry."Entry No.");
         exit(0);
     end;

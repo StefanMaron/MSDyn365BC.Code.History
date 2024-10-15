@@ -37,8 +37,8 @@ codeunit 137022 "SCM Planning Parameters"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Planning Parameters");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -47,7 +47,7 @@ codeunit 137022 "SCM Planning Parameters"
 
     local procedure InitializeNoDemand(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReorderPoint: Integer; ReorderQty: Integer; MaximumInventory: Integer; SafetyStock: Integer)
     begin
-        Initialize;
+        Initialize();
 
         if not NoDemandIsInitialized then begin
             CreateItem(NoDemandItem);
@@ -63,7 +63,7 @@ codeunit 137022 "SCM Planning Parameters"
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         if not WithDemandIsInitialized then begin
             CreateItem(WithDemandItem);

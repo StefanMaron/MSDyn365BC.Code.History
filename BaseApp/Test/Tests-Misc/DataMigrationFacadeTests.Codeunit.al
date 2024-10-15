@@ -58,7 +58,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [SCENARIO] Vendor can be created and updated
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
 
         // [WHEN] CreateVendorIfNeeded is called
         VendorDataMigrationFacade.CreateVendorIfNeeded('VEND1', 'Name');
@@ -154,7 +154,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [GIVEN] Vendor values are set
         VendorDataMigrationFacade.SetGlobalVendor('VEND1');
         VendorDataMigrationFacade.SetAddress('Address1', 'Address2', 'DK', '2600', 'Lyngby');
-        VendorDataMigrationFacade.SetBlockedType(1);
+        VendorDataMigrationFacade.SetBlocked("vendor Blocked"::Payment);
         VendorDataMigrationFacade.SetContact('Contact');
         VendorDataMigrationFacade.SetCurrencyCode('DKK');
         VendorDataMigrationFacade.SetFaxNo('123456789');
@@ -210,7 +210,7 @@ codeunit 135022 "Data Migration Facade Tests"
 
         // [THEN] A new Contact is created and is linked to Vendor
         Contact.SetRange(Name, 'Contact Name');
-        Contact.FindFirst;
+        Contact.FindFirst();
         Assert.AreEqual(Contact.Address, 'Address', 'The contact''s address was not set correctly');
         Assert.AreEqual(Contact."Address 2", 'Address2', 'The contact''s address2 was not set correctly');
         Assert.AreEqual(Contact."Post Code", '2600', 'The contact''s post code was not set correctly');
@@ -221,7 +221,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.AreEqual(Contact."Fax No.", '123456789', 'The contact''s fax was not set correctly');
         Assert.AreEqual(Contact."Mobile Phone No.", '123456789', 'The contact''s mobile was not set correctly');
         PrimaryContact.SetRange(Name, 'Name');
-        PrimaryContact.FindFirst;
+        PrimaryContact.FindFirst();
         Assert.AreEqual(Contact."Company No.", PrimaryContact."No.", 'The Primary Contact was not set Correctly');
         Assert.AreEqual(Contact."Company Name", PrimaryContact.Name, 'The Primary Contact was not set Correctly');
 
@@ -270,7 +270,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [THEN] The line's dimension is set
         GenJournalLine.SetRange("Journal Batch Name", 'MIGRATION');
         GenJournalLine.SetRange("Journal Template Name", 'MIGRATION');
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreNotEqual('', GenJournalLine."Dimension Set ID", 'Dimension was expected to have been set');
 
         Assert.AreEqual('1', GenJournalLine."Document No.", 'A different document number was expected');
@@ -323,7 +323,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [SCENARIO] Customer can be created and updated
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
 
         // [WHEN] CreateCustomerIfNeeded is called
         CustomerDataMigrationFacade.CreateCustomerIfNeeded('CUST1', 'Name');
@@ -409,7 +409,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [GIVEN] Customer values are set
         CustomerDataMigrationFacade.SetGlobalCustomer('CUST1');
         CustomerDataMigrationFacade.SetAddress('Address1', 'Address2', 'DK', '2600', 'Lyngby');
-        CustomerDataMigrationFacade.SetBlockedType(1);
+        CustomerDataMigrationFacade.SetBlocked("Customer Blocked"::Ship);
         CustomerDataMigrationFacade.SetContact('Contact');
         CustomerDataMigrationFacade.SetCurrencyCode('DKK');
         CustomerDataMigrationFacade.SetInvoiceDiscCode('CDG');
@@ -470,7 +470,7 @@ codeunit 135022 "Data Migration Facade Tests"
 
         // [THEN] A new Contact is created and is linked to Vendor
         Contact.SetRange(Name, 'Contact Name');
-        Contact.FindFirst;
+        Contact.FindFirst();
         Assert.AreEqual(Contact.Address, 'Address', 'The contact''s address was not set correctly');
         Assert.AreEqual(Contact."Address 2", 'Address2', 'The contact''s address2 was not set correctly');
         Assert.AreEqual(Contact."Post Code", '2600', 'The contact''s post code was not set correctly');
@@ -481,7 +481,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.AreEqual(Contact."Fax No.", '123456789', 'The contact''s fax was not set correctly');
         Assert.AreEqual(Contact."Mobile Phone No.", '123456789', 'The contact''s mobile was not set correctly');
         PrimaryContact.SetRange(Name, 'Name');
-        PrimaryContact.FindFirst;
+        PrimaryContact.FindFirst();
         Assert.AreEqual(Contact."Company No.", PrimaryContact."No.", 'The Primary Contact was not set Correctly');
         Assert.AreEqual(Contact."Company Name", PrimaryContact.Name, 'The Primary Contact was not set Correctly');
 
@@ -530,7 +530,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [THEN] The line's dimension is set
         GenJournalLine.SetRange("Journal Batch Name", 'MIGRATION');
         GenJournalLine.SetRange("Journal Template Name", 'MIGRATION');
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreNotEqual('', GenJournalLine."Dimension Set ID", 'Dimension was expected to have been set');
 
         Assert.AreEqual('1', GenJournalLine."Document No.", 'A different document number was expected');
@@ -698,7 +698,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [SCENARIO] Item can be created and updated
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
 
         // [WHEN] CreateItemIfNeeded is called
         ItemDataMigrationFacade.CreateItemIfNeeded('ITEM1', 'Description', 'Description2', Item.Type::Inventory.AsInteger());
@@ -757,7 +757,7 @@ codeunit 135022 "Data Migration Facade Tests"
         SalesLineDiscount.SetRange(Type, 1);
         SalesLineDiscount.SetRange("Sales Code", 'CDG');
         SalesLineDiscount.SetRange(Code, 'IDG');
-        SalesLineDiscount.FindFirst;
+        SalesLineDiscount.FindFirst();
         Assert.AreEqual(0.2, SalesLineDiscount."Line Discount %", 'Line discount % was expected to be 0.2');
         Assert.IsFalse(ItemDataMigrationFacade.CreateSalesLineDiscountIfNeeded(1, 'CDG', 1, 'IDG', 0.2),
           'Sales Line Discount was not expected to have been created');
@@ -779,7 +779,7 @@ codeunit 135022 "Data Migration Facade Tests"
         SalesPrice.SetRange("Variant Code", '');
         SalesPrice.SetRange("Minimum Quantity", 1);
         SalesPrice.SetRange("Currency Code", 'DKK');
-        SalesPrice.FindFirst;
+        SalesPrice.FindFirst();
         Assert.AreEqual(1, SalesPrice."Unit Price", 'A different unit price was expected');
         Assert.IsFalse(ItemDataMigrationFacade.CreateSalesPriceIfNeeded(1, 'CPG', 'ITEM1', 1, 'DKK', WorkDate, '', 1, ''),
           'Sales Price was not expected to have been created');
@@ -937,7 +937,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [GIVEN] The required entities have been created
         ItemDataMigrationFacade.CreateItemJournalBatchIfNeeded('IJB', '', '');
         ItemJournalBatch.SetRange(Name, 'IJB');
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
 
         ItemDataMigrationFacade.SetBlocked(false);
         ItemDataMigrationFacade.ModifyItem(true);
@@ -947,7 +947,7 @@ codeunit 135022 "Data Migration Facade Tests"
 
         // [THEN] the Item Journal line is created
         ItemJournalLine.SetRange("Journal Batch Name", 'IJB');
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         Assert.AreEqual('DOC1', ItemJournalLine."Document No.", 'A different Document Number was expected');
         Assert.AreEqual('Description', ItemJournalLine.Description, 'A different Description was expected');
         Assert.AreEqual(WorkDate, ItemJournalLine."Posting Date", 'A different posting date was expected');
@@ -961,7 +961,7 @@ codeunit 135022 "Data Migration Facade Tests"
 
         // [THEN] The dimension is created
         ItemJournalLine.SetRange("Journal Batch Name", 'IJB');
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         Assert.AreNotEqual('', ItemJournalLine."Dimension Set ID", 'Dimension Set should not be empty');
 
         // [WHEN] Serial Number and Lot Number are set
@@ -988,7 +988,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [SCENARIO] Account can be created and updated
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
 
         // [THEN] Account can be created
         Assert.IsTrue(GLAccDataMigrationFacade.CreateGLAccountIfNeeded('10003', 'Name', 2), 'Account was expected to be created');
@@ -1064,7 +1064,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [SCENARIO] Exchange Rates Can be created
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
         // [WHEN] CreateSimpleExchangeRateIfNeeded is called
         ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('DKK', WorkDate, 0.2, 0.2);
 
@@ -1100,13 +1100,13 @@ codeunit 135022 "Data Migration Facade Tests"
         // [SCENARIO] Vendor must be created first
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
 
         // [WHEN] Vendor properties or dependencies are attempted to be created
         // [THEN] An error is thrown
         asserterror VendorDataMigrationFacade.SetAddress('Address1', 'Address2', 'DK', '2600', 'Lyngby');
         Assert.ExpectedError(InteralVendorNotSetErr);
-        asserterror VendorDataMigrationFacade.SetBlockedType(1);
+        asserterror VendorDataMigrationFacade.SetBlocked("Vendor Blocked"::Payment);
         Assert.ExpectedError(InteralVendorNotSetErr);
         asserterror VendorDataMigrationFacade.SetContact('Contact');
         Assert.ExpectedError(InteralVendorNotSetErr);
@@ -1184,13 +1184,13 @@ codeunit 135022 "Data Migration Facade Tests"
         // [SCENARIO] Customer must be created first
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
 
         // [WHEN] Customer properties or dependencies are attempted to be created
         // [THEN] An error is thrown
         asserterror CustomerDataMigrationFacade.SetAddress('Address1', 'Address2', 'DK', '2600', 'Lyngby');
         Assert.ExpectedError(InternalCustomerNotSetErr);
-        asserterror CustomerDataMigrationFacade.SetBlockedType(1);
+        asserterror CustomerDataMigrationFacade.SetBlocked("Customer Blocked"::Ship);
         Assert.ExpectedError(InternalCustomerNotSetErr);
         asserterror CustomerDataMigrationFacade.SetContact('Contact');
         Assert.ExpectedError(InternalCustomerNotSetErr);
@@ -1272,7 +1272,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [SCENARIO] A series of events are fired in the correct order
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
 
         DataMigrationParameters.Init();
         DataMigrationParameters.Insert();
@@ -1295,7 +1295,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [SCENARIO] A series of events are fired in the correct order
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
 
         DataMigrationParameters.Init();
         DataMigrationParameters.Insert();
@@ -1324,7 +1324,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [SCENARIO] A series of events are fired in the correct order
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
 
         DataMigrationParameters.Init();
         DataMigrationParameters.Insert();
@@ -1352,7 +1352,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [FEATURE] [Item]
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
 
         DataMigrationParameters.Init();
         DataMigrationParameters.Insert();
@@ -1395,7 +1395,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [SCENARIO] G/L Account must be created first
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
 
         // [WHEN] Account properties or dependencies are attempted to be created
         // [THEN] An error is thrown
@@ -1470,7 +1470,7 @@ codeunit 135022 "Data Migration Facade Tests"
         // [SCENARIO] Item must be created first
         if not BindSubscription(DataMigrationFacadeTests) then;
 
-        Initialize;
+        Initialize();
 
         // [WHEN] Item properties or dependencies are attempted to be created
         // [THEN] An error is thrown

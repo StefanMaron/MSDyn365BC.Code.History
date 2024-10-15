@@ -161,7 +161,7 @@ page 10872 "Payment Lines List"
                         if Statement.Get("No.") then begin
                             Statement.SetRange("No.", "No.");
                             StatementForm.SetTableView(Statement);
-                            StatementForm.Run;
+                            StatementForm.Run();
                         end;
                     end;
                 }
@@ -189,7 +189,7 @@ page 10872 "Payment Lines List"
                         PaymentLine.SetRange("No.", "No.");
                         PaymentLine.SetRange("Line No.", "Line No.");
                         Consult.SetTableView(PaymentLine);
-                        Consult.RunModal;
+                        Consult.RunModal();
                     end;
                 }
             }

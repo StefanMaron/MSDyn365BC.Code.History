@@ -137,13 +137,13 @@ report 10805 "Customer Trial Balance FR"
                     CustLedgEntry.SetRange("Currency Code", Customer.GetFilter("Currency Filter"));
                 CustLedgEntry.SetRange("Posting Date", 0D, PreviousEndDate);
                 CustLedgEntry.SetFilter("Entry Type", '<>%1', CustLedgEntry."Entry Type"::Application);
-                if CustLedgEntry.FindSet then
+                if CustLedgEntry.FindSet() then
                     repeat
                         PreviousDebitAmountLCY += CustLedgEntry."Debit Amount (LCY)";
                         PreviousCreditAmountLCY += CustLedgEntry."Credit Amount (LCY)";
                     until CustLedgEntry.Next() = 0;
                 CustLedgEntry.SetRange("Posting Date", StartDate, EndDate);
-                if CustLedgEntry.FindSet then
+                if CustLedgEntry.FindSet() then
                     repeat
                         PeriodDebitAmountLCY += CustLedgEntry."Debit Amount (LCY)";
                         PeriodCreditAmountLCY += CustLedgEntry."Credit Amount (LCY)";

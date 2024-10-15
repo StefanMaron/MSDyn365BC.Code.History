@@ -23,7 +23,7 @@ codeunit 144042 "UT REP Number To Text"
         AmountTextFR: array[2] of Text[80];
     begin
         // [SCENARIO 270440] Validate FormatNoTextFR function used for Vendor for Report 1401 - Check when using French language.
-        Initialize;
+        Initialize();
 
         // [GIVEN] French language selected
         GlobalLanguage(1036);
@@ -46,7 +46,7 @@ codeunit 144042 "UT REP Number To Text"
         AmountTextINTL: array[2] of Text[80];
     begin
         // [SCENARIO 270440] Validate FormatNoTextINTL function used for Vendor for Report 1401 - Check when using English language.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default (English) language selected
         GlobalLanguage(OriginalLanguageID);
@@ -66,7 +66,7 @@ codeunit 144042 "UT REP Number To Text"
         AmountTextFR: array[2] of Text[80];
     begin
         // [SCENARIO 270440] Validate FormatNoTextFR function for Customer for Report 1401 - Check when using French language.
-        Initialize;
+        Initialize();
 
         // [GIVEN] French language selected
         GlobalLanguage(1036);
@@ -89,7 +89,7 @@ codeunit 144042 "UT REP Number To Text"
         AmountTextINTL: array[2] of Text[80];
     begin
         // [SCENARIO 270440] Validate FormatNoTextINTL function used for Customer for Report 1401 - Check when using English language.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default (English) language selected
         GlobalLanguage(OriginalLanguageID);

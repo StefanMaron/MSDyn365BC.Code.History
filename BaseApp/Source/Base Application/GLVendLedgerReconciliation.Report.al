@@ -192,9 +192,9 @@ report 10863 "GL/Vend. Ledger Reconciliation"
             begin
                 Clear(TotalDebit);
                 Clear(TotalCredit);
-                Vendor.FindFirst;
+                Vendor.FindFirst();
                 FirstNo := "No.";
-                Vendor.FindLast;
+                Vendor.FindLast();
                 LastNo := "No.";
             end;
         }

@@ -18,7 +18,7 @@
                     ItemLedgEntry: Record "Item Ledger Entry";
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
-                    if IntrastatJnlLine2.FindFirst then
+                    if IntrastatJnlLine2.FindFirst() then
                         CurrReport.Skip();
                     if not HasCrossedBorder("Item Ledger Entry") or IsService("Item Ledger Entry") or IsServiceItem("Item No.") then
                         CurrReport.Skip();
@@ -33,7 +33,7 @@
                                                "Document Type"::"Purchase Receipt", "Document Type"::"Purchase Return Shipment"]
                         then begin
                             ItemLedgEntry.SetRange("Document Type", "Document Type");
-                            if ItemLedgEntry.FindSet then
+                            if ItemLedgEntry.FindSet() then
                                 repeat
                                     if IsItemLedgerEntryCorrected(ItemLedgEntry, "Entry No.") then
                                         CurrReport.Skip();
@@ -109,7 +109,7 @@
             begin
                 if ShowItemCharges then begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Item Ledger Entry No.");
-                    if IntrastatJnlLine2.FindFirst then
+                    if IntrastatJnlLine2.FindFirst() then
                         CurrReport.Skip();
 
                     if "Item Ledger Entry".Get("Item Ledger Entry No.")
@@ -220,7 +220,7 @@
 
     trigger OnInitReport()
     begin
-        CompanyInfo.FindFirst;
+        CompanyInfo.FindFirst();
     end;
 
     trigger OnPostReport()
@@ -291,7 +291,7 @@
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlLine.LockTable();
-        if IntrastatJnlLine.FindLast then;
+        if IntrastatJnlLine.FindLast() then;
 
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlBatch.TestField(Reported, false);
@@ -307,7 +307,6 @@
     var
         Text000: Label 'Prices including VAT cannot be calculated when %1 is %2.';
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         IntrastatJnlLine2: Record "Intrastat Jnl. Line";
         Item: Record Item;
@@ -317,19 +316,22 @@
         CompanyInfo: Record "Company Information";
         Currency: Record Currency;
         UOMMgt: Codeunit "Unit of Measure Management";
-        StartDate: Date;
-        EndDate: Date;
-        IndirectCostPctReq: Decimal;
         TotalAmt: Decimal;
         AddCurrencyFactor: Decimal;
         AverageCost: Decimal;
         AverageCostACY: Decimal;
         GLSetupRead: Boolean;
-        ShowBlank: Boolean;
         Customer: Record Customer;
         GroupEntries: Boolean;
+
+    protected var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        StartDate: Date;
+        EndDate: Date;
+        IndirectCostPctReq: Decimal;
         SkipRecalcZeroAmounts: Boolean;
         SkipZeroAmounts: Boolean;
+        ShowBlank: Boolean;
         ShowItemCharges: Boolean;
 
     procedure SetIntrastatJnlLine(NewIntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -543,7 +545,7 @@
                             ItemLedgEntry2.SetRange("Item No.", "Item No.");
                             ItemLedgEntry2.SetRange("Posting Date", "Posting Date");
                             ItemLedgEntry2.SetRange("Applies-to Entry", "Entry No.");
-                            ItemLedgEntry2.FindFirst;
+                            ItemLedgEntry2.FindFirst();
                         end else
                             ItemLedgEntry2.Get("Applies-to Entry");
                         if (ItemLedgEntry2."Country/Region Code" <> CompanyInfo."Country/Region Code") and

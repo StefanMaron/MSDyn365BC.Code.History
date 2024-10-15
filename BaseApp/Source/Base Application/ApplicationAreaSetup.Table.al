@@ -140,6 +140,14 @@ table 9178 "Application Area Setup"
         field(2700; XBRL; Boolean)
         {
             Caption = 'XBRL';
+            ObsoleteReason = 'XBRL feature will be discontinued';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(2800; Reservation; Boolean)
         {

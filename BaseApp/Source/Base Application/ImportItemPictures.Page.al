@@ -34,7 +34,7 @@ page 348 "Import Item Pictures"
                         end;
                         ZipFileName := LoadZIPFile('', TotalCount, ReplaceMode);
                         ReplaceModeEditable := ZipFileName <> '';
-                        FindFirst;
+                        FindFirst();
 
                         UpdateCounters;
                     end;

@@ -1,4 +1,4 @@
-page 9657 "Customer Report Selections"
+﻿page 9657 "Customer Report Selections"
 {
     Caption = 'Document Layouts';
     DataCaptionFields = "Source No.";
@@ -39,23 +39,23 @@ page 9657 "Customer Report Selections"
                             "Custom Report Selection Sales"::Shipment:
                                 Rec.Usage := "Report Selection Usage"::"S.Shipment";
                             else
-                                OnValidateUsage2OnCaseElse(Rec, Usage2);
+                                OnValidateUsage2OnCaseElse(Rec, Usage2.AsInteger());
                         end;
                     end;
                 }
-                field(ReportID; "Report ID")
+                field(ReportID; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report ID';
                     ToolTip = 'Specifies the ID of the report.';
                 }
-                field(ReportCaption; "Report Caption")
+                field(ReportCaption; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report Caption';
                     ToolTip = 'Specifies the name of the report.';
                 }
-                field("Custom Report Description"; "Custom Report Description")
+                field("Custom Report Description"; Rec."Custom Report Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Custom Layout Description';
@@ -65,13 +65,13 @@ page 9657 "Customer Report Selections"
 
                     trigger OnDrillDown()
                     begin
-                        LookupCustomReportDescription;
+                        Rec.LookupCustomReportDescription();
                         CurrPage.Update(true);
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupCustomReportDescription;
+                        Rec.LookupCustomReportDescription();
                         CurrPage.Update(true);
                     end;
 
@@ -79,21 +79,21 @@ page 9657 "Customer Report Selections"
                     var
                         CustomReportLayout: Record "Custom Report Layout";
                     begin
-                        if "Custom Report Description" = '' then begin
-                            Validate("Custom Report Layout Code", '');
-                            Modify(true);
+                        if Rec."Custom Report Description" = '' then begin
+                            Rec.Validate("Custom Report Layout Code", '');
+                            Rec.Modify(true);
                         end else begin
-                            CustomReportLayout.SetRange("Report ID", "Report ID");
-                            CustomReportLayout.SetFilter(Description, StrSubstNo('@*%1*', "Custom Report Description"));
-                            if not CustomReportLayout.FindFirst then
-                                Error(CouldNotFindCustomReportLayoutErr, "Custom Report Description");
+                            CustomReportLayout.SetRange("Report ID", Rec."Report ID");
+                            CustomReportLayout.SetFilter(Description, StrSubstNo('@*%1*', Rec."Custom Report Description"));
+                            if not CustomReportLayout.FindFirst() then
+                                Error(CouldNotFindCustomReportLayoutErr, Rec."Custom Report Description");
 
-                            Validate("Custom Report Layout Code", CustomReportLayout.Code);
-                            Modify(true);
+                            Rec.Validate("Custom Report Layout Code", CustomReportLayout.Code);
+                            Rec.Modify(true);
                         end;
                     end;
                 }
-                field(SendToEmail; "Send To Email")
+                field(SendToEmail; Rec."Send To Email")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send To Email';
@@ -101,21 +101,21 @@ page 9657 "Customer Report Selections"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowSelectedContacts();
+                        Rec.ShowSelectedContacts();
                     end;
                 }
-                field("Use for Email Body"; "Use for Email Body")
+                field("Use for Email Body"; Rec."Use for Email Body")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
                 }
-                field("Email Body Layout Code"; "Email Body Layout Code")
+                field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the email body layout that is used.';
                     Visible = false;
                 }
-                field("Email Body Layout Description"; "Email Body Layout Description")
+                field("Email Body Layout Description"; Rec."Email Body Layout Description")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
@@ -124,13 +124,13 @@ page 9657 "Customer Report Selections"
 
                     trigger OnDrillDown()
                     begin
-                        LookupEmailBodyDescription;
+                        Rec.LookupEmailBodyDescription();
                         CurrPage.Update(true);
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupEmailBodyDescription;
+                        Rec.LookupEmailBodyDescription();
                         CurrPage.Update(true);
                     end;
                 }
@@ -161,7 +161,7 @@ page 9657 "Customer Report Selections"
                     CustomReportSelection := Rec;
                     FilterCustomerUsageReportSelections(ReportSelections);
                     Customer.Get("Source No.");
-                    CopyFromReportSelections(ReportSelections, Database::Customer, Customer."No.");
+                    Rec.CopyFromReportSelections(ReportSelections, Database::Customer, Customer."No.");
                     CurrPage.SetRecord(CustomReportSelection);
                 end;
             }
@@ -180,7 +180,7 @@ page 9657 "Customer Report Selections"
                 var
                     ContBusRel: Record "Contact Business Relation";
                 begin
-                    GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Customer.AsInteger(), GetFilter("Source No."));
+                    Rec.GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Customer.AsInteger(), Rec.GetFilter("Source No."));
                 end;
             }
         }
@@ -188,14 +188,14 @@ page 9657 "Customer Report Selections"
 
     trigger OnAfterGetRecord()
     begin
-        MapTableUsageValueToPageValue;
-        GetSendToEmail(false);
+        MapTableUsageValueToPageValue();
+        Rec.GetSendToEmail(false);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitUsage;
-        MapTableUsageValueToPageValue;
+        Rec.InitUsage();
+        MapTableUsageValueToPageValue();
     end;
 
     var
@@ -207,8 +207,9 @@ page 9657 "Customer Report Selections"
     local procedure MapTableUsageValueToPageValue()
     var
         CustomReportSelection: Record "Custom Report Selection";
+        UsageOpt: Option;
     begin
-        case Usage of
+        case Rec.Usage of
             "Report Selection Usage"::"S.Quote":
                 Usage2 := "Custom Report Selection Sales"::Quote;
             "Report Selection Usage"::"S.Order":
@@ -225,8 +226,11 @@ page 9657 "Customer Report Selections"
                 Usage2 := "Custom Report Selection Sales"::Reminder;
             "Report Selection Usage"::"S.Shipment":
                 Usage2 := "Custom Report Selection Sales"::Shipment;
-            else
-                OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, Usage2, Rec);
+            else begin
+                    UsageOpt := Usage2.AsInteger();
+                    OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, UsageOpt, Rec);
+                    Usage2 := "Custom Report Selection Sales".FromInteger(UsageOpt);
+                end;
         end;
     end;
 
@@ -242,6 +246,8 @@ page 9657 "Customer Report Selections"
             "Report Selection Usage"::JQ,
             "Report Selection Usage"::Reminder,
             "Report Selection Usage"::"S.Shipment");
+
+        OnAfterFilterCustomerUsageReportSelections(ReportSelections);
     end;
 
     [IntegrationEvent(false, false)]
@@ -251,6 +257,11 @@ page 9657 "Customer Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateUsage2OnCaseElse(var CustomReportSelection: Record "Custom Report Selection"; ReportUsage: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterCustomerUsageReportSelections(var ReportSelections: Record "Report Selections")
     begin
     end;
 }

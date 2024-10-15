@@ -133,7 +133,7 @@ codeunit 144049 "ERM Payment Management"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Setup: Create and post Gen Journal Line.
-        Initialize;
+        Initialize();
         CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::"G/L Account",
           LibraryERM.CreateGLAccountNo, GenJournalLine."Document Type"::" ", BalAccountType,
@@ -183,7 +183,7 @@ codeunit 144049 "ERM Payment Management"
         LineNo2: Integer;
     begin
         // Setup: Create VAT Posting Setup, Payment Class, Bank Account, GL Account, Setup for Payment Slip and Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         SellToCustomerNo := CreateAndPostSalesInvoice(UnrealizedVATType);
         PaymentClass.Get(CreatePaymentClass(PaymentClass.Suggestions::Vendor));
         LibraryVariableStorage.Enqueue(PaymentClass.Code);  // Enqueue value for PaymentClassListModalPageHandler.
@@ -228,7 +228,7 @@ codeunit 144049 "ERM Payment Management"
         LineNo2: Integer;
     begin
         // Setup: Create VAT Posting Setup, Payment Class, Bank Account, GL Account, Setup for Payment Slip and Create and Post Purchase Invoice.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseInvoice(UnrealizedVATType, BuyfromVendorNo);
         PaymentClass.Get(CreatePaymentClass(PaymentClass.Suggestions::Vendor));
         LibraryVariableStorage.Enqueue(PaymentClass.Code);  // Enqueue value for PaymentClassListModalPageHandler.
@@ -288,7 +288,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentClassCode: Text[30];
     begin
         // Setup: Create Vnedor, update Payment Terms, create and post Purchase Invoice and Credit Memo through Gen Journal Line.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(10, 1000, 2);  // Using Random Dec In Range for Amount.
         Vendor.Get(CreateVendor(CurrencyCode));
         DiscountAmount := CalcPaymentTermDiscount(Vendor."Payment Terms Code", CalcPmtDiscOnCrMemos, Amount);
@@ -358,7 +358,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentClassCode: Text[30];
     begin
         // Setup: Create Customer, update Payment Terms, create and post Sales Invoice and Credit Memo through Gen Journal Line.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(10, 1000, 2);  // Using Random Dec In Range for Amount.
         Customer.Get(CreateCustomer(CurrencyCode));
         DiscountAmount := CalcPaymentTermDiscount(Customer."Payment Terms Code", CalcPmtDiscOnCrMemos, Amount);
@@ -412,7 +412,7 @@ codeunit 144049 "ERM Payment Management"
         CustomerNo2: Code[20];
     begin
         // Setup: Create and Post two Sales Invoice with different customers, create setup for post Payment Slip and suggest customer payment.
-        Initialize;
+        Initialize();
         CustomerNo := CreateAndPostSalesInvoice(VATPostingSetup."Unrealized VAT Type"::" ");
         CustomerNo2 := CreateAndPostSalesInvoice(VATPostingSetup."Unrealized VAT Type"::" ");
         PaymentClass.Get(SetupForPaymentSlipPost(DetailLevel, PaymentClass.Suggestions::Customer));
@@ -456,7 +456,7 @@ codeunit 144049 "ERM Payment Management"
         VendorNo2: Code[20];
     begin
         // Setup: Create and Post two Purchase Invoice with different vendors, create setup for post Payment Slip and suggest Vendor payment.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseInvoice(VATPostingSetup."Unrealized VAT Type"::" ", VendorNo);
         CreateAndPostPurchaseInvoice(VATPostingSetup."Unrealized VAT Type"::" ", VendorNo2);
         PaymentClass.Get(SetupForPaymentSlipPost(DetailLevel, PaymentClass.Suggestions::Vendor));
@@ -479,7 +479,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // Verify Error on deleting payment class when Payment Slip is created.
         // Setup: Create Payment Class, Setup and payment slip.
-        Initialize;
+        Initialize();
         PaymentClass.Get(CreatePaymentClass(PaymentClass.Suggestions::Customer));
         LibraryVariableStorage.Enqueue(PaymentClass.Code);  // Enqueue value for PaymentClassListModalPageHandler.
         CreateSetupForPaymentSlip(LineNo, PaymentClass.Code, false);  // Using False for Payment In Progress.
@@ -503,7 +503,7 @@ codeunit 144049 "ERM Payment Management"
         // Verify Payment In Progress Amount on Customer Card when Payment In Progress field is set to True on Payment Status.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         PaymentInProgressLCY := PaymentInProgressOnCustomer(CustomerCard, true);  // Using True for Payment In Progress field in Payment Status.
 
         // Verify.
@@ -520,7 +520,7 @@ codeunit 144049 "ERM Payment Management"
         // Verify Payment In Progress Amount on Customer Card when Payment In Progress field is set to False on Payment Status.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         PaymentInProgressOnCustomer(CustomerCard, false);  // Using False  for Payment In Progress field in Payment Status.
 
         // Verify.
@@ -545,7 +545,7 @@ codeunit 144049 "ERM Payment Management"
 
         // Verify: Verify Payment In Progress Amount on Customer Card.
         PaymentLine.SetRange("Payment Class", PaymentClass.Code);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         CustomerCard.OpenEdit;
         CustomerCard.FILTER.SetFilter("No.", PaymentLine."Account No.");
         exit(-PaymentLine.Amount);
@@ -559,7 +559,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentSlip: TestPage "Payment Slip";
     begin
         // Verify Applied Amount on Invoice for Customer.
-        Initialize;
+        Initialize();
         CreatePaymentSlipWithDiscount(PaymentSlip);
 
         // Exercise: Application call from Payment Slip.
@@ -577,7 +577,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentSlip: TestPage "Payment Slip";
     begin
         // Verify UnApplied Amount on Invoice for Customer.
-        Initialize;
+        Initialize();
         CreatePaymentSlipWithDiscount(PaymentSlip);
         PaymentSlipApplication(PaymentSlip);
 
@@ -598,7 +598,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // Verify that the deletion of an applied customer payment line unapplies the customer ledger entry the payment line was applied to; i.e the Applied-to ID field should be cleared.
         // Setup: Create and Post Sales Invoice with Discount, Create Payment Class,
-        Initialize;
+        Initialize();
         CreatePaymentSlipWithDiscount(PaymentSlip);
         PaymentSlipApplication(PaymentSlip);
 
@@ -608,7 +608,7 @@ codeunit 144049 "ERM Payment Management"
         // Verify: Verify Applied To ID on Customer Ledger Entry table and Due Date on ApplyCustomerEntriesModalPageHandler.
         CustLedgerEntry.SetRange("Customer No.", Format(PaymentSlip.Lines."Account No."));
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Applies-to ID", '');
         PaymentSlip.Close;
     end;
@@ -625,14 +625,14 @@ codeunit 144049 "ERM Payment Management"
     begin
         // Verify that whether a proper Due Date is suggested for manually generated payments for Customer.
         // Setup & Exercise: Create and Post Sales Invoice, Create Payment Class, Setup and Create Payment Slip.
-        Initialize;
+        Initialize();
         DueDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
         CustomerNo := CreateCustomer('');  // Using blank currency.
         CreatePaymentSlipAndSuggestCustomerPayment(CustomerNo, CustomerNo, DueDate, SummarizePer::Customer);
 
         // Verify: Verify Due Date on Payment Line.
         PaymentLine.SetRange("Account No.", CustomerNo);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         PaymentLine.TestField("Due Date", WorkDate);
     end;
 
@@ -648,7 +648,7 @@ codeunit 144049 "ERM Payment Management"
         LineNo: Integer;
     begin
         // Verify removing of Payment Line from copied Payment Slip
-        Initialize;
+        Initialize();
 
         // Create Payment Slip and remove line
         CreatePaymentOfLinesFromPostedPaymentSlip(PaymentClass, LineNo);
@@ -671,7 +671,7 @@ codeunit 144049 "ERM Payment Management"
         LineNo: Integer;
     begin
         // Verify line removed from Payment Slip is available for a new Payment Slip
-        Initialize;
+        Initialize();
 
         // Create and Payment Slip and remove line
         CreatePaymentOfLinesFromPostedPaymentSlip(PaymentClass, LineNo);
@@ -739,7 +739,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentHeaderNo: Code[20];
     begin
         // [SCENARIO 123828] Payment Line's Debit/Credit Entry No. is filled after post Sales Invoice and Payment Slip with "Payment Ledger Entry"."Memorize Entry" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Slip Setup with "Payment Ledger Entry"."Memorize Entry" = TRUE
         PaymentClassCode := SetupForPaymentSlipPost(PaymentStepLedger."Detail Level"::Account, PaymentClass.Suggestions::Customer);
@@ -766,7 +766,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentHeaderNo: Code[20];
     begin
         // [SCENARIO 123828] Payment Line's Debit/Credit Entry No. is filled after post Purchase Invoice and Payment Slip with "Payment Ledger Entry"."Memorize Entry" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Slip Setup with "Payment Ledger Entry"."Memorize Entry" = TRUE
         PaymentClassCode := SetupForPaymentSlipPost(PaymentStepLedger."Detail Level"::Account, PaymentClass.Suggestions::Vendor);
@@ -795,11 +795,11 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Dimension][Sales]
         // [SCENARIO 375597] System copies "Dimension Set ID" from posted Sales Order to Payment Line on "Suggest Customer Payment".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Orders with "Dimension Set ID" = "X"
         // [GIVEN] Posted Sales Orders with "Dimension Set ID" = "Y"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         DocNo[1] := PostSalesOrderWithDimensions(DimSetID[1], CustomerNo);
         DocNo[2] := PostSalesOrderWithDimensions(DimSetID[2], CustomerNo);
         CreatePaymentSlipBySuggest(SuggestionsOption::Customer);
@@ -828,11 +828,11 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Dimension][Purchase]
         // [SCENARIO 375597] System copies "Dimension Set ID" from posted Purchase Order to Payment Line on "Suggest Vendor Payment".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Order with "Dimension Set ID" = "X"
         // [GIVEN] Posted Purchase Order with "Dimension Set ID" = "Y"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         DocNo[1] := PostPurchaseOrderWithDimensions(DimSetID[1], VendorNo);
         DocNo[2] := PostPurchaseOrderWithDimensions(DimSetID[2], VendorNo);
         CreatePaymentSlipBySuggest(SuggestionsOption::Vendor);
@@ -865,7 +865,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Apply] [Purchase]
         // [SCENARIO 376303] Applies-to ID equals to Payment Line "No."/"Document No." when payment line applied to Vendor Ledger Entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Slip Setup with Line No. series defined (<> Header No. Series)
         PaymentClass.Get(
@@ -888,7 +888,7 @@ codeunit 144049 "ERM Payment Management"
         // [THEN] Vendor Ledger Entry value of Applies-to ID = "Y"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PurchInvHeader."No.");
         PaymentLine.SetRange("No.", PaymentHeaderNo);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         VendorLedgerEntry.TestField("Applies-to ID", PaymentLine."No." + '/' + PaymentLine."Document No.");
     end;
 
@@ -909,7 +909,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Apply] [Sales]
         // [SCENARIO 376303] Applies-to ID equals to Payment Line "No."/"Document No." when payment line applied to Customer Ledger Entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Slip Setup with Line No. series defined (<> Header No. Series)
         PaymentClass.Get(
@@ -920,7 +920,7 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] Posted Sales Invoice
         CustomerNo := CreateAndPostSalesInvoice(VATPostingSetup."Unrealized VAT Type"::" ");
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         // [GIVEN] Payment Slip with Payment Line with Document No. = "Y"
         PaymentHeaderNo := CreatePaymentSlip(PaymentLine."Account Type"::Customer, CustomerNo);
@@ -933,7 +933,7 @@ codeunit 144049 "ERM Payment Management"
         // [THEN] Customer Ledger Entry value of Applies-to ID = "Y"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, SalesInvoiceHeader."No.");
         PaymentLine.SetRange("No.", PaymentHeaderNo);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         CustLedgerEntry.TestField("Applies-to ID", PaymentLine."No." + '/' + PaymentLine."Document No.");
     end;
 
@@ -954,7 +954,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Apply] [Purchase]
         // [SCENARIO 376303] Applies-to ID equals to "Payment Line No./Payment Line Line No." when payment line applied to Vendor Ledger Entry and Payment Line "Document No." is empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Slip Setup with Line No. series not defined
         PaymentClass.Get(
@@ -967,7 +967,7 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] Payment Slip with Payment Line with Document No. = "", Payment Line No. = "Y", Paymen Line Line No. = "10000"
         PaymentHeaderNo := CreatePaymentSlip(PaymentLine."Account Type"::Vendor, VendorNo);
         PaymentLine.SetRange("No.", PaymentHeaderNo);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         PaymentLine.Validate("Document No.", '');
         PaymentLine.Modify(true);
         OpenPaymentSlip(PaymentSlip, PaymentHeaderNo);
@@ -997,7 +997,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Unrealized VAT] [Purchase]
         // [SCENARIO 376302] Vendor Ledger Entries should be closed with Payment Slips and delayed Unrealized VAT reversal setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice for Vendor "V" with VAT Posting Setup and Unrealized VAT Type = Percentage
         PurchInvHeaderNo := CreateAndPostPurchaseInvoice(VATPostingSetup."Unrealized VAT Type"::Percentage, VendorNo);
@@ -1034,7 +1034,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Unrealized VAT] [Purchase]
         // [SCENARIO 376302] Vendor Ledger Entries for Normal VAT and delayed Unrealized VAT should be closed with Payment Slips
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice for Vendor "V" with Line of Unrealized VAT Type = Percentage and line of Unrealized VAT Type = ""
         PurchInvHeaderNo :=
@@ -1069,7 +1069,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Dimension] [Sales]
         // [SCENARIO 381150] "Suggest Customer Payment" with "Summarize Per" option set to blank.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Order for first Customer with "Dimension Value" = "X"
         CreateCustomerWithDefaultDimensionsPostSalesOrder(CustomerNo[1], DimensionValue[1]);
@@ -1096,7 +1096,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Dimension] [Sales]
         // [SCENARIO 381150] "Suggest Customer Payment" with "Summarize Per" option set to "Customer".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Order for first Customer with "Dimension Value" = "X"
         CreateCustomerWithDefaultDimensionsPostSalesOrder(CustomerNo[1], DimensionValue[1]);
@@ -1123,7 +1123,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Dimension] [Sales]
         // [SCENARIO 381150] "Suggest Customer Payment" with "Summarize Per" option set to "Due Date".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Order for first Customer with "Dimension Value" = "X"
         CreateCustomerWithDefaultDimensionsPostSalesOrder(CustomerNo[1], DimensionValue[1]);
@@ -1150,7 +1150,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Dimension] [Purchase]
         // [SCENARIO 381150] "Suggest Vendor Payment" with "Summarize Per" option set to blank.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Order for first Vendor with "Dimension Value" = "X"
         CreateVendorWithDefaultDimensionsPostPurchaseOrder(VendorNo[1], DimensionValue[1]);
@@ -1177,7 +1177,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Dimension] [Purchase]
         // [SCENARIO 381150] "Suggest Vendor Payment" with "Summarize Per" option set to "Vendor".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Order for first Vendor with "Dimension Value" = "X"
         CreateVendorWithDefaultDimensionsPostPurchaseOrder(VendorNo[1], DimensionValue[1]);
@@ -1204,7 +1204,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [Dimension] [Purchase]
         // [SCENARIO 381150] "Suggest Vendor Payment" with "Summarize Per" option set to "Due Date".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Order for first Vendor with "Dimension Value" = "X"
         CreateVendorWithDefaultDimensionsPostPurchaseOrder(VendorNo[1], DimensionValue[1]);
@@ -1233,7 +1233,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         // [FEATURE] [FCY]
         // [SCENARIO 381339] Suggest Vendor Payments function on the Payment Slip page when Currency Exch. Rate is updated.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with updated Exchange Rate
         CreateCurrencyWithDifferentExchangeRate(Currency, PostingDate, RateFactorY);
@@ -1263,7 +1263,7 @@ codeunit 144049 "ERM Payment Management"
         PmtHeaderNo: Code[20];
     begin
         // [SCENARIO 311493] Posting 'Payment Line' for Vendor with empty 'Dimension Value Code' in 'Default Dimension' throws error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Vendor with 'Default Dimension' with empty 'Dimension Value Code'
         LibraryPurchase.CreateVendor(Vendor);
@@ -1302,7 +1302,7 @@ codeunit 144049 "ERM Payment Management"
         LineNo2: Integer;
     begin
         // [SCENARIO 311493] Posting 'Payment Slip' for Vendor with blocked Dimension throws error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Vendor
         LibraryPurchase.CreateVendor(Vendor);
@@ -1318,15 +1318,15 @@ codeunit 144049 "ERM Payment Management"
         CreatePaymentSlip(PaymentLine."Account Type"::Vendor, Vendor."No.");
         PaymentLine.SetFilter("Account Type", Format(PaymentLine."Account Type"::Vendor));
         PaymentLine.SetFilter("Account No.", Vendor."No.");
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         PaymentHeader.SetFilter("No.", PaymentLine."No.");
-        PaymentHeader.FindFirst;
+        PaymentHeader.FindFirst();
         PaymentHeader.Validate("Dimension Set ID", LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code));
         PaymentHeader.Modify(true);
 
         // [GIVEN] Block Dimension
         Dimension.SetFilter(Code, DimensionValue."Dimension Code");
-        Dimension.FindFirst;
+        Dimension.FindFirst();
         LibraryDimension.BlockDimension(Dimension);
 
         // [WHEN] Post Payment Slip with blocked Dimension
@@ -1352,7 +1352,7 @@ codeunit 144049 "ERM Payment Management"
         SummarizePer: Option " ",Customer,"Due date";
     begin
         // [SCENARIO 316414] Deleting Payment Slip doesn't lead to empty "Applies-to ID" of wrong Customer Ledger Entry, when entries suggested using Summarize per Customer.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customers "C1", "C2".
         LibrarySales.CreateCustomer(Customer[1]);
@@ -1391,11 +1391,11 @@ codeunit 144049 "ERM Payment Management"
 
         // [THEN] "CLE1" still has "Applies-to ID", while "CLE2"'s "Applies-to ID" is empty.
         CustLedgerEntry.SetRange("Customer No.", Customer[1]."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Applies-to ID");
 
         CustLedgerEntry.SetRange("Customer No.", Customer[2]."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Applies-to ID", '');
     end;
 
@@ -1414,7 +1414,7 @@ codeunit 144049 "ERM Payment Management"
         SummarizePer: Option " ",Customer,"Due date";
     begin
         // [SCENARIO 316414] Deleting Payment Slip doesn't lead to empty "Applies-to ID" of wrong Customer Ledger Entry, when entries suggested using Summarize per Due date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customers "C1", "C2".
         LibrarySales.CreateCustomer(Customer[1]);
@@ -1453,11 +1453,11 @@ codeunit 144049 "ERM Payment Management"
 
         // [THEN] "CLE1" still has "Applies-to ID", while "CLE2"'s "Applies-to ID" is empty.
         CustLedgerEntry.SetRange("Customer No.", Customer[1]."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Applies-to ID");
 
         CustLedgerEntry.SetRange("Customer No.", Customer[2]."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Applies-to ID", '');
     end;
 
@@ -1476,7 +1476,7 @@ codeunit 144049 "ERM Payment Management"
         SummarizePer: Option " ",Customer,"Due date";
     begin
         // [SCENARIO 316414] Deleting Payment Slip doesn't lead to empty "Applies-to ID" of wrong Customer Ledger Entry, when entries suggested without summarization.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customers "C1", "C2".
         LibrarySales.CreateCustomer(Customer[1]);
@@ -1515,11 +1515,11 @@ codeunit 144049 "ERM Payment Management"
 
         // [THEN] "CLE1" still has "Applies-to ID", while "CLE2"'s "Applies-to ID" is empty.
         CustLedgerEntry.SetRange("Customer No.", Customer[1]."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Applies-to ID");
 
         CustLedgerEntry.SetRange("Customer No.", Customer[2]."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Applies-to ID", '');
     end;
 
@@ -1538,7 +1538,7 @@ codeunit 144049 "ERM Payment Management"
         SummarizePer: Option " ",Vendor,"Due date";
     begin
         // [SCENARIO 316414] Deleting Payment Slip doesn't lead to empty "Applies-to ID" of wrong Vendor Ledger Entry, when entries suggested using Summarize per Vendor.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendors "C1", "C2".
         LibraryPurchase.CreateVendor(Vendor[1]);
@@ -1577,11 +1577,11 @@ codeunit 144049 "ERM Payment Management"
 
         // [THEN] "VLE1" still has "Applies-to ID", while "VLE2"'s "Applies-to ID" is empty.
         VendorLedgerEntry.SetRange("Vendor No.", Vendor[1]."No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField("Applies-to ID");
 
         VendorLedgerEntry.SetRange("Vendor No.", Vendor[2]."No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField("Applies-to ID", '');
     end;
 
@@ -1600,7 +1600,7 @@ codeunit 144049 "ERM Payment Management"
         SummarizePer: Option " ",Customer,"Due date";
     begin
         // [SCENARIO 316414] Deleting Payment Slip doesn't lead to empty "Applies-to ID" of wrong Vendor Ledger Entry, when entries suggested using Summarize per Due date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendors "C1", "C2".
         LibraryPurchase.CreateVendor(Vendor[1]);
@@ -1639,11 +1639,11 @@ codeunit 144049 "ERM Payment Management"
 
         // [THEN] "VLE1" still has "Applies-to ID", while "VLE2"'s "Applies-to ID" is empty.
         VendorLedgerEntry.SetRange("Vendor No.", Vendor[1]."No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField("Applies-to ID");
 
         VendorLedgerEntry.SetRange("Vendor No.", Vendor[2]."No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField("Applies-to ID", '');
     end;
 
@@ -1662,7 +1662,7 @@ codeunit 144049 "ERM Payment Management"
         SummarizePer: Option " ",Customer,"Due date";
     begin
         // [SCENARIO 316414] Deleting Payment Slip doesn't lead to empty "Applies-to ID" of wrong Vendor Ledger Entry, when entries suggested without summarization.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendors "C1", "C2".
         LibraryPurchase.CreateVendor(Vendor[1]);
@@ -1701,11 +1701,11 @@ codeunit 144049 "ERM Payment Management"
 
         // [THEN] "VLE1" still has "Applies-to ID", while "VLE2"'s "Applies-to ID" is empty.
         VendorLedgerEntry.SetRange("Vendor No.", Vendor[1]."No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField("Applies-to ID");
 
         VendorLedgerEntry.SetRange("Vendor No.", Vendor[2]."No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField("Applies-to ID", '');
     end;
 
@@ -1775,7 +1775,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Management");
         UpdateUnrealizedVATGeneralLedgerSetup;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         ClearPaymentSlipData;
     end;
 
@@ -1820,7 +1820,7 @@ codeunit 144049 "ERM Payment Management"
         CreatePaymentSlip(AccountType, AccountNo);
         PaymentLine.SetFilter("Account Type", Format(AccountType));
         PaymentLine.SetFilter("Account No.", AccountNo);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         PaymentHeaderNo := PaymentLine."No.";
         PostPaymentSlip(PaymentClass);
     end;
@@ -2083,7 +2083,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentStep: Record "Payment Step";
         NoSeries: Record "No. Series";
     begin
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         LibraryFRLocalization.CreatePaymentStep(PaymentStep, PaymentClass);
         PaymentStep.Validate(Name, Name);
         PaymentStep.Validate("Previous Status", PreviousStatus);
@@ -2447,7 +2447,7 @@ codeunit 144049 "ERM Payment Management"
     var
         DefaultDimension: Record "Default Dimension";
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
         PostSalesOrder(CustomerNo);
@@ -2457,7 +2457,7 @@ codeunit 144049 "ERM Payment Management"
     var
         DefaultDimension: Record "Default Dimension";
     begin
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, VendorNo, DimensionValue."Dimension Code", DimensionValue.Code);
         PostPurchaseOrder(VendorNo);
@@ -2513,7 +2513,7 @@ codeunit 144049 "ERM Payment Management"
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
         GLAccount.Get(VendorPostingGroup."Invoice Rounding Account");
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
-        VATPostingSetup."Purchase VAT Account" := LibraryERM.CreateGLAccountNo;
+        VATPostingSetup."Purchase VAT Account" := LibraryERM.CreateGLAccountNo();
         VATPostingSetup.Modify();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
@@ -2541,7 +2541,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         PaymentLine.SetRange("No.", No);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         PaymentLine.Delete(true);
     end;
 
@@ -2716,7 +2716,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         EnqueueValuesForHandler(Value, Value2);
         SuggestCustomerPayments.SetGenPayLine(PaymentHeader);
-        SuggestCustomerPayments.RunModal;
+        SuggestCustomerPayments.RunModal();
     end;
 
     local procedure SuggestVendorPaymentLines(Value: Variant; Value2: Variant; PaymentHeader: Record "Payment Header")
@@ -2725,7 +2725,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         EnqueueValuesForHandler(Value, Value2);
         SuggestVendorPaymentsFR.SetGenPayLine(PaymentHeader);
-        SuggestVendorPaymentsFR.RunModal;
+        SuggestVendorPaymentsFR.RunModal();
     end;
 
     local procedure OpenPaymentSlip(var PaymentSlip: TestPage "Payment Slip"; No: Text[50])
@@ -2852,7 +2852,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         with PaymentHeader do begin
             SetRange("Payment Class", PaymentClassCode);
-            FindFirst;
+            FindFirst();
             Validate("Account No.", LibraryERM.CreateBankAccountNo);
             Modify;
         end;
@@ -2873,14 +2873,14 @@ codeunit 144049 "ERM Payment Management"
     begin
         PaymentStep.SetRange("Payment Class", PaymentClass);
         PaymentStep.SetRange("Previous Status", LineNo);
-        PaymentStep.FindFirst;
+        PaymentStep.FindFirst();
     end;
 
     local procedure FindPaymentHeader(var PaymentHeader: Record "Payment Header"; PaymentClass: Text[30]; LineNo: Integer)
     begin
         PaymentHeader.SetRange("Payment Class", PaymentClass);
         PaymentHeader.SetRange("Status No.", LineNo);
-        PaymentHeader.FindFirst;
+        PaymentHeader.FindFirst();
     end;
 
     local procedure FindPaymentLine(var PaymentLine: Record "Payment Line"; PaymentClass: Text[30]; LineNo: Integer)
@@ -2889,14 +2889,14 @@ codeunit 144049 "ERM Payment Management"
             SetRange("Payment Class", PaymentClass);
             if LineNo <> 0 then
                 SetRange("Status No.", LineNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure GetLastDebitGLEntryNo(PaymentHeaderNo: Code[20]): Integer
@@ -2906,7 +2906,7 @@ codeunit 144049 "ERM Payment Management"
         with GLEntry do begin
             SetRange("Document No.", PaymentHeaderNo);
             SetRange("Credit Amount", 0);
-            FindLast;
+            FindLast();
             exit("Entry No.");
         end;
     end;
@@ -2918,7 +2918,7 @@ codeunit 144049 "ERM Payment Management"
         with GLEntry do begin
             SetRange("Document No.", PaymentHeaderNo);
             SetRange("Debit Amount", 0);
-            FindLast;
+            FindLast();
             exit("Entry No.");
         end;
     end;
@@ -2954,13 +2954,13 @@ codeunit 144049 "ERM Payment Management"
     begin
         with PaymentStep do begin
             SetRange("Payment Class", PaymentClassCode);
-            FindLast;
+            FindLast();
             SetRecFilter;
         end;
 
         with PaymentHeader do begin
             SetRange("Payment Class", PaymentClassCode);
-            FindFirst;
+            FindFirst();
         end;
 
         asserterror PaymentManagement.ProcessPaymentSteps(PaymentHeader, PaymentStep);
@@ -2993,7 +2993,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         PaymentLine.SetRange("Applies-to Doc. No.", AppliestoDocNo);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         PaymentLine.TestField("Dimension Set ID", DimSetID);
     end;
 
@@ -3020,7 +3020,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         PaymentLine.SetRange("Account Type", AccountType);
         PaymentLine.SetRange("Account No.", AccountNo);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         DimensionManagement.GetDimensionSet(TempDimSetEntry, PaymentLine."Dimension Set ID");
         TempDimSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
         TempDimSetEntry.SetRange("Dimension Value Code", DimensionValue.Code);
@@ -3032,7 +3032,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         PaymentLine.SetRange("No.", PaymentHeader."No.");
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         PaymentLine.TestField("Currency Factor", RateFactor);
     end;
 

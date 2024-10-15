@@ -137,14 +137,14 @@ table 849 "Cash Flow Manual Revenue"
         CashFlowCode: Code[10];
     begin
         CashFlowManualRevenue.SetFilter(Code, '%1', RevTxt + '0*');
-        if not CashFlowManualRevenue.FindLast then
+        if not CashFlowManualRevenue.FindLast() then
             CashFlowCode := PadStr(RevTxt, MaxStrLen(CashFlowManualRevenue.Code), '0')
         else
             CashFlowCode := CashFlowManualRevenue.Code;
         CashFlowCode := IncStr(CashFlowCode);
 
         CashFlowAccount.SetRange("Source Type", CashFlowAccount."Source Type"::"Cash Flow Manual Revenue");
-        if not CashFlowAccount.FindFirst then
+        if not CashFlowAccount.FindFirst() then
             exit;
 
         Code := CashFlowCode;

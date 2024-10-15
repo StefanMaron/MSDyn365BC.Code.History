@@ -564,7 +564,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         with MainAssetComponent do begin
             Reset;
             SetRange("Main Asset No.", FA."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ComponentFADeprBook.Get("FA No.", DeprBookCode) then
                         if ComponentFADeprBook."Disposal Date" = 0D then

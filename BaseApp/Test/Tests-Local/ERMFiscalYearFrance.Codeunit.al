@@ -77,7 +77,7 @@ codeunit 144074 "ERM Fiscal Year France"
         // [FEATURE] [Allowed Posting Period]
         // [SCENARIO 273709] "New Fiscal Year" in accounting period can be changed from TRUE to FALSE when allowed posting period is outside of this period
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two fiscal years: 2020-01-01..2020-12-31 and 2021-01-01..2021-12-31
         CreateAccountingPeriods;
@@ -87,7 +87,7 @@ codeunit 144074 "ERM Fiscal Year France"
         UpdateGLSetupAllowPostingFrom(AccountingPeriod."Starting Date");
 
         // [WHEN] Change the "New Fiscal Year" field to FALSE
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         asserterror AccountingPeriod.Validate("New Fiscal Year", false);
 
         // [THEN] Error: Allow Posting From and Allow Posting To must be outside of the year being deleted
@@ -103,7 +103,7 @@ codeunit 144074 "ERM Fiscal Year France"
         // [FEATURE] [Allowed Posting Period]
         // [SCENARIO 273709] Accounting period can be deleted when allowed posting period is outside of this period
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two fiscal years: 2020-01-01..2020-12-31 and 2021-01-01..2021-12-31
         CreateAccountingPeriods;
@@ -113,7 +113,7 @@ codeunit 144074 "ERM Fiscal Year France"
         UpdateGLSetupAllowPostingFrom(AccountingPeriod."Starting Date");
 
         // [WHEN] Delete the accounting period
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         asserterror AccountingPeriod.Delete(true);
 
         // [THEN] Error: Allow Posting From and Allow Posting To must be outside of the year being deleted
@@ -129,19 +129,19 @@ codeunit 144074 "ERM Fiscal Year France"
         // [FEATURE] [Allowed Posting Period]
         // [SCENARIO 273709] "New Fiscal Year" in accounting period can be changed from TRUE to FALSE when allowed posting period is outside of this period
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two fiscal years: 2020-01-01..2020-12-31 and 2021-01-01..2021-12-31
         CreateAccountingPeriods;
 
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
 
         // [GIVEN] "Allow Posting From" in General Ledger Setup is 2020-01-01
         UpdateGLSetupAllowPostingFrom(AccountingPeriod."Starting Date");
 
         // [WHEN] Change the "New Fiscal Year" field to FALSE
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         AccountingPeriod.Validate("New Fiscal Year", false);
 
         // [THEN] Average cost account settings are reset to default values
@@ -157,19 +157,19 @@ codeunit 144074 "ERM Fiscal Year France"
         // [FEATURE] [Allowed Posting Period]
         // [SCENARIO 273709] Accounting period can be deleted when allowed posting period is outside of this period
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two fiscal years: 2020-01-01..2020-12-31 and 2021-01-01..2021-12-31
         CreateAccountingPeriods;
 
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
 
         // [GIVEN] "Allow Posting From" in General Ledger Setup is 2020-01-01
         UpdateGLSetupAllowPostingFrom(AccountingPeriod."Starting Date");
 
         // [WHEN] Delete the accounting period
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         AccountingPeriod.Delete(true);
 
         // [THEN] Accounting period is deleted
@@ -178,7 +178,7 @@ codeunit 144074 "ERM Fiscal Year France"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -192,8 +192,8 @@ codeunit 144074 "ERM Fiscal Year France"
         AccountingPeriod: Record "Accounting Period";
     begin
         AccountingPeriod.DeleteAll();
-        LibraryFiscalYear.CreateFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
+        LibraryFiscalYear.CreateFiscalYear();
     end;
 
     local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -216,7 +216,7 @@ codeunit 144074 "ERM Fiscal Year France"
     begin
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetRange("Date Locked", false);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
     end;
 
     local procedure FiscallyCloseFiscalYear()
@@ -244,7 +244,7 @@ codeunit 144074 "ERM Fiscal Year France"
         AccountingPeriod: Record "Accounting Period";
     begin
         AccountingPeriod.SetRange("Fiscally Closed", FiscallyClosed);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         exit(AccountingPeriod."Starting Date");
     end;
 

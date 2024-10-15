@@ -29,7 +29,7 @@ codeunit 138921 "O365 Test Quotes"
         O365SalesQuote: TestPage "O365 Sales Quote";
     begin
         // [GIVEN] An existing customer wants a quote from us
-        Initialize;
+        Initialize();
         CreateCustItem(Customer, Item);
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -55,7 +55,7 @@ codeunit 138921 "O365 Test Quotes"
         O365SalesQuote: TestPage "O365 Sales Quote";
     begin
         // [GIVEN] An existing customer wants a quote from us
-        Initialize;
+        Initialize();
         CreateCustItem(Customer, Item);
         LibraryLowerPermissions.SetO365BusFull;
 
@@ -84,7 +84,7 @@ codeunit 138921 "O365 Test Quotes"
         O365SalesQuote: TestPage "O365 Sales Quote";
     begin
         // [GIVEN] An existing customer has accepted a quote and the work is done
-        Initialize;
+        Initialize();
         CreateCustItem(Customer, Item);
         CreateQuote(Customer, Item, O365SalesQuote);
         SalesHeader.SetRange("Sell-to Customer Name", O365SalesQuote."Sell-to Customer Name".Value);
@@ -113,11 +113,11 @@ codeunit 138921 "O365 Test Quotes"
         O365SalesQuote: TestPage "O365 Sales Quote";
     begin
         // [GIVEN] An existing customer has accepted a quote
-        Initialize;
+        Initialize();
         CreateCustItem(Customer, Item);
         CreateQuote(Customer, Item, O365SalesQuote);
         SalesHeader.SetRange("Sell-to Customer Name", O365SalesQuote."Sell-to Customer Name".Value);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         Assert.AreEqual(1, SalesHeader.Count, '');
         Assert.AreEqual(SalesHeader."Document Type"::Quote, SalesHeader."Document Type", 'Wrong document type');
         LibraryLowerPermissions.SetO365BusFull;
@@ -126,7 +126,7 @@ codeunit 138921 "O365 Test Quotes"
         O365SalesQuote.MakeToInvoice.Invoke;
 
         // [THEN] The quote is deleted and a draft invoice is created.
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         Assert.AreEqual(1, SalesHeader.Count, '');
         Assert.AreEqual(SalesHeader."Document Type"::Invoice, SalesHeader."Document Type", 'Wrong document type');
         CleanUp;
@@ -150,12 +150,12 @@ codeunit 138921 "O365 Test Quotes"
         SalesLine: Record "Sales Line";
         O365SalesInvoiceLineCard: TestPage "O365 Sales Invoice Line Card";
     begin
-        O365SalesQuote.OpenNew;
+        O365SalesQuote.OpenNew();
 
         O365SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
 
         LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
         SalesLine.Validate(Type, SalesLine.Type::Item);
@@ -172,7 +172,6 @@ codeunit 138921 "O365 Test Quotes"
 
     local procedure Initialize()
     var
-        SMTPMailSetup: Record "SMTP Mail Setup";
         ReportSelections: Record "Report Selections";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Test Quotes");
@@ -185,14 +184,6 @@ codeunit 138921 "O365 Test Quotes"
         Initialized := true;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"O365 Test Quotes");
-        if SMTPMailSetup.Get then
-            SMTPMailSetup.Delete();
-        SMTPMailSetup.Init();
-        SMTPMailSetup."SMTP Server" := 'smtp.office365.com';
-        SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
-        SMTPMailSetup."User ID" := 'a@b.c';
-        SMTPMailSetup.SetPassword('password');
-        SMTPMailSetup.Insert();
 
         ReportSelections.SetRange(Usage, "Report Selection Usage"::"S.Quote");
         ReportSelections.DeleteAll();

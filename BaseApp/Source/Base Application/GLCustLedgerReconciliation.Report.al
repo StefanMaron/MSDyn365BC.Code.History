@@ -192,9 +192,9 @@ report 10861 "GL/Cust. Ledger Reconciliation"
             begin
                 Clear(TotalDebit);
                 Clear(TotalCredit);
-                Customer.FindFirst;
+                Customer.FindFirst();
                 FirstNo := "No.";
-                Customer.FindLast;
+                Customer.FindLast();
                 LastNo := "No.";
             end;
         }

@@ -39,8 +39,8 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     begin
         PaymentLine.Init();
         PaymentLine."Account Type" := PaymentLine."Account Type"::Customer;
-        PaymentLine."Account No." := LibrarySales.CreateCustomerNo;
-        PaymentLine."Applies-to ID" := LibraryUtility.GenerateGUID;
+        PaymentLine."Account No." := LibrarySales.CreateCustomerNo();
+        PaymentLine."Applies-to ID" := LibraryUtility.GenerateGUID();
 
         DocumentNo[1] := InsertCustLedgEntry(CustLedgEntry, PaymentLine."Account No.", PaymentLine."Applies-to ID");
         DocumentNo[2] := InsertCustLedgEntry(CustLedgEntry, PaymentLine."Account No.", PaymentLine."Applies-to ID");
@@ -58,8 +58,8 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     begin
         PaymentLine.Init();
         PaymentLine."Account Type" := PaymentLine."Account Type"::Vendor;
-        PaymentLine."Account No." := LibraryPurchase.CreateVendorNo;
-        PaymentLine."Applies-to ID" := LibraryUtility.GenerateGUID;
+        PaymentLine."Account No." := LibraryPurchase.CreateVendorNo();
+        PaymentLine."Applies-to ID" := LibraryUtility.GenerateGUID();
 
         DocumentNo[1] := InsertVendLedgEntry(VendLedgEntry, PaymentLine."Account No.", PaymentLine."Applies-to ID");
         DocumentNo[2] := InsertVendLedgEntry(VendLedgEntry, PaymentLine."Account No.", PaymentLine."Applies-to ID");
@@ -77,7 +77,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     begin
         PaymentLine.Init();
         PaymentLine."Account Type" := PaymentLine."Account Type"::Customer;
-        PaymentLine."Account No." := LibrarySales.CreateCustomerNo;
+        PaymentLine."Account No." := LibrarySales.CreateCustomerNo();
         PaymentLine."Applies-to ID" := '';
         PaymentLine."Applies-to Doc. No." := '';
 
@@ -97,7 +97,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     begin
         PaymentLine.Init();
         PaymentLine."Account Type" := PaymentLine."Account Type"::Vendor;
-        PaymentLine."Account No." := LibraryPurchase.CreateVendorNo;
+        PaymentLine."Account No." := LibraryPurchase.CreateVendorNo();
         PaymentLine."Applies-to ID" := '';
         PaymentLine."Applies-to Doc. No." := '';
 
@@ -116,7 +116,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     begin
         PaymentLine.Init();
         PaymentLine."Account Type" := PaymentLine."Account Type"::Customer;
-        PaymentLine."Account No." := LibrarySales.CreateCustomerNo;
+        PaymentLine."Account No." := LibrarySales.CreateCustomerNo();
 
         InsertCustLedgEntry(CustLedgEntry, PaymentLine."Account No.", '');
 
@@ -138,7 +138,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         // [SCENARIO 227892] Purchase invoice's "External Document No." is used as an applied Document No. for export (generate) payment slip file
         PaymentLine.Init();
         PaymentLine."Account Type" := PaymentLine."Account Type"::Vendor;
-        PaymentLine."Account No." := LibraryPurchase.CreateVendorNo;
+        PaymentLine."Account No." := LibraryPurchase.CreateVendorNo();
 
         InsertVendLedgEntry(VendLedgEntry, PaymentLine."Account No.", '');
 
@@ -159,7 +159,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         PaymentLine: Record "Payment Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentHeader(PaymentHeader);
         CreatePaymentLineVend(PaymentLine, PaymentHeader."No.", Vendor);
@@ -178,7 +178,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         PaymentHeader: Record "Payment Header";
         PaymentLine: Record "Payment Line";
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentHeader(PaymentHeader);
         CreatePaymentLineCust(PaymentLine, PaymentHeader."No.", Customer);
@@ -195,7 +195,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         PaymentLine: Record "Payment Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentHeader(PaymentHeader);
         CreatePaymentLineVend(PaymentLine, PaymentHeader."No.", Vendor);
@@ -208,7 +208,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     [Scope('OnPrem')]
     procedure BankInfoNotVisibleWithNoRIBOnStatus()
     begin
-        Initialize;
+        Initialize();
 
         BankInfoVisibleDependsOnRIB(false);
     end;
@@ -218,7 +218,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     [Scope('OnPrem')]
     procedure BankInfoVisibleWithRIBOnStatus()
     begin
-        Initialize;
+        Initialize();
 
         BankInfoVisibleDependsOnRIB(true);
     end;
@@ -235,7 +235,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         TempPaymentExportData: Record "Payment Export Data" temporary;
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentHeader(PaymentHeader);
         CreatePaymentLineCust(PaymentLineCust, PaymentHeader."No.", Customer);
@@ -244,14 +244,14 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         FillExportBuffer(PaymentHeader."No.", TempPaymentExportData);
 
         Assert.AreEqual(2, TempPaymentExportData.Count, BufferEntryCountErr);
-        TempPaymentExportData.FindFirst;
+        TempPaymentExportData.FindFirst();
         Assert.AreEqual(
           Customer.Name, TempPaymentExportData."Recipient Name",
           StrSubstNo(FieldValueErr, TempPaymentExportData.FieldName("Recipient Name")));
         Assert.AreEqual(
           PaymentLineCust.Amount, TempPaymentExportData.Amount,
           StrSubstNo(FieldValueErr, TempPaymentExportData.FieldName(Amount)));
-        TempPaymentExportData.FindLast;
+        TempPaymentExportData.FindLast();
         Assert.AreEqual(
           Vendor.Name, TempPaymentExportData."Recipient Name",
           StrSubstNo(FieldValueErr, TempPaymentExportData.FieldName("Recipient Name")));
@@ -267,7 +267,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         PaymentLine: Record "Payment Line";
         PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
     begin
-        Initialize;
+        Initialize();
 
         InsertPaymentLinesWithExportErrors(PaymentLine, LibraryUtility.GenerateGUID, 3);
 
@@ -293,12 +293,12 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
         NotDeletedDocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         InsertPaymentLinesWithExportErrors(PaymentLine, LibraryUtility.GenerateGUID, 1);
         NotDeletedDocumentNo := PaymentLine."No.";
 
-        PaymentHeader."No." := LibraryUtility.GenerateGUID;
+        PaymentHeader."No." := LibraryUtility.GenerateGUID();
         PaymentHeader.Insert();
         InsertPaymentLinesWithExportErrors(PaymentLine, PaymentHeader."No.", 2);
 
@@ -325,7 +325,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         Vendor: Record Vendor;
         PaymentSlip: TestPage "Payment Slip";
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentHeader(PaymentHeader);
         CreatePaymentLineVend(PaymentLine, PaymentHeader."No.", Vendor);
@@ -356,7 +356,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         TempPaymentExportData: Record "Payment Export Data" temporary;
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentHeader(PaymentHeader);
         PaymentHeader.Validate("Currency Code", FindCurrency);
@@ -371,7 +371,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         PaymentJnlExportErrorText.SetRange("Document No.", PaymentLine."No.");
         PaymentJnlExportErrorText.SetRange("Journal Line No.", PaymentLine."Line No.");
         Assert.AreEqual(1, PaymentJnlExportErrorText.Count, BufferEntryCountErr);
-        PaymentJnlExportErrorText.FindFirst;
+        PaymentJnlExportErrorText.FindFirst();
         Assert.IsTrue(
           StrPos(PaymentJnlExportErrorText."Error Text", TransInEURAllowedErr) <> 0,
           StrSubstNo(ExportErrorTextErr, TransInEURAllowedErr, PaymentJnlExportErrorText."Error Text"));
@@ -387,7 +387,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         Vendor: Record Vendor;
         TempPaymentExportData: Record "Payment Export Data" temporary;
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentHeader(PaymentHeader);
         CreatePaymentLineVend(PaymentLine, PaymentHeader."No.", Vendor);
@@ -413,7 +413,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         PaymentMgt: Codeunit "Payment Management";
         ExpectedPickedLine: Integer;
     begin
-        Initialize;
+        Initialize();
 
         PrepareHeaderWithNoReportSteps(PaymentHeader, PaymentStep);
 
@@ -440,7 +440,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         PaymentMgt: Codeunit "Payment Management";
         ExpectedPickedLine: Integer;
     begin
-        Initialize;
+        Initialize();
 
         PrepareHeaderWithNoReportSteps(PaymentHeader, PaymentStep);
 
@@ -465,7 +465,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         Vendor: Record Vendor;
         TempPaymentExportData: Record "Payment Export Data" temporary;
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentHeader(PaymentHeader);
         CreatePaymentLineVend(PaymentLine, PaymentHeader."No.", Vendor);
@@ -475,7 +475,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         FillExportBuffer(PaymentHeader."No.", TempPaymentExportData);
 
         Assert.AreEqual(3, TempPaymentExportData.Count, BufferEntryCountErr);
-        TempPaymentExportData.FindLast;
+        TempPaymentExportData.FindLast();
         Assert.AreEqual(
           Vendor.Name, TempPaymentExportData."Recipient Name",
           StrSubstNo(FieldValueErr, TempPaymentExportData.FieldName("Recipient Name")));
@@ -494,14 +494,14 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         Vendor: Record Vendor;
         TempPaymentExportData: Record "Payment Export Data" temporary;
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentHeader(PaymentHeader);
         CreatePaymentLineVend(PaymentLine, PaymentHeader."No.", Vendor);
 
         FillExportBuffer(PaymentHeader."No.", TempPaymentExportData);
 
-        TempPaymentExportData.FindFirst;
+        TempPaymentExportData.FindFirst();
         // Recipient
         Assert.AreEqual(
           Vendor.Name, TempPaymentExportData."Recipient Name",
@@ -537,14 +537,14 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         Vendor: Record Vendor;
         TempPaymentExportData: Record "Payment Export Data" temporary;
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentHeader(PaymentHeader);
         CreatePaymentLineVend(PaymentLine, PaymentHeader."No.", Vendor);
 
         FillExportBuffer(PaymentHeader."No.", TempPaymentExportData);
 
-        TempPaymentExportData.FindFirst;
+        TempPaymentExportData.FindFirst();
         // Sender Bank
         Assert.AreEqual(
           DelChr(PaymentHeader."SWIFT Code"), TempPaymentExportData."Sender Bank BIC",
@@ -564,14 +564,14 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         Vendor: Record Vendor;
         TempPaymentExportData: Record "Payment Export Data" temporary;
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentHeader(PaymentHeader);
         CreatePaymentLineVend(PaymentLine, PaymentHeader."No.", Vendor);
 
         FillExportBuffer(PaymentHeader."No.", TempPaymentExportData);
 
-        TempPaymentExportData.FindFirst;
+        TempPaymentExportData.FindFirst();
         Assert.AreEqual(
           PaymentLine."Posting Date", TempPaymentExportData."Transfer Date",
           StrSubstNo(FieldValueErr, TempPaymentExportData.FieldName("Transfer Date")));
@@ -587,7 +587,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     begin
         // [FEATURE] [UI] [Payment Step]
         // [SCENARIO 263818] New action must be available at Payment Steps page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Steps page
         PaymentSteps.OpenEdit;
@@ -596,12 +596,12 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         PaymentSteps.New;
 
         // [THEN] New Payment Step record created
-        Code := LibraryUtility.GenerateGUID;
+        Code := LibraryUtility.GenerateGUID();
         PaymentSteps.Name.Value := Code;
         PaymentSteps.OK.Invoke;
 
         PaymentStep.SetRange(Name, Code);
-        PaymentStep.FindFirst;
+        PaymentStep.FindFirst();
     end;
 
     local procedure Initialize()
@@ -652,10 +652,10 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         LibraryERM.CreateBankAccount(BankAccount);
         with BankAccount do begin
             Validate(IBAN, 'FR14 2004 1010 0505 0001 3M02 606');
-            Validate("SWIFT Code", LibraryUtility.GenerateGUID);
-            Validate("Bank Account No.", LibraryUtility.GenerateGUID);
+            Validate("SWIFT Code", LibraryUtility.GenerateGUID());
+            Validate("Bank Account No.", LibraryUtility.GenerateGUID());
             "Payment Export Format" := PaymentExportSetupCode;
-            NoSeries.FindFirst;
+            NoSeries.FindFirst();
             Validate("Credit Transfer Msg. Nos.", NoSeries.Code);
             Modify(true);
             exit("No.");
@@ -667,7 +667,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         NoSeries: Record "No. Series";
         PaymentStatus: Record "Payment Status";
     begin
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         LibraryFRLocalization.CreatePaymentClass(PaymentClass);
         with PaymentClass do begin
             Validate(Name, '');
@@ -725,7 +725,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustomerNo);
         with CustomerBankAccount do begin
             Validate(IBAN, 'FR29 4515 9000 053J 1300 0000 051');
-            "SWIFT Code" := LibraryUtility.GenerateGUID;
+            "SWIFT Code" := LibraryUtility.GenerateGUID();
             Name := 'CustomerBankAcc';
             Modify(true);
             exit(Code);
@@ -739,7 +739,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
         with VendorBankAccount do begin
             Validate(IBAN, 'FR29 4515 9000 053J 1300 0000 051');
-            "SWIFT Code" := LibraryUtility.GenerateGUID;
+            "SWIFT Code" := LibraryUtility.GenerateGUID();
             Name := 'VendorBankAcc';
             Modify(true);
             exit(Code);
@@ -842,7 +842,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     begin
         DocumentNo := PostDocument(GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
         VendLedgEntry.SetRange("Document No.", DocumentNo);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
     end;
 
     local procedure PostSalesCreditMemo(var CustLedgEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; Amount: Decimal)
@@ -853,12 +853,12 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         DocumentNo :=
           PostDocument(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
         CustLedgEntry.SetRange("Document No.", DocumentNo);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
     end;
 
     local procedure PrepareHeaderWithNoReportSteps(var PaymentHeader: Record "Payment Header"; var PaymentStep: Record "Payment Step")
     begin
-        PaymentHeader."Payment Class" := LibraryUtility.GenerateGUID;
+        PaymentHeader."Payment Class" := LibraryUtility.GenerateGUID();
         PaymentHeader."Status No." := 0;
 
         PaymentStep.SetRange("Payment Class", PaymentHeader."Payment Class");

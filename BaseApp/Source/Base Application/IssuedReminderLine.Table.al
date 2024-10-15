@@ -163,7 +163,7 @@ table 298 "Issued Reminder Line"
                 CustLedgEntry.SetRange("Customer No.", IssuedReminderHeader."Customer No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-To Document Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-To Document No.");
-                if CustLedgEntry.FindLast then;
+                if CustLedgEntry.FindLast() then;
                 PAGE.RunModal(0, CustLedgEntry);
             end;
         }

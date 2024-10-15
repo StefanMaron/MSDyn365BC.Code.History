@@ -270,7 +270,7 @@ report 10801 Journals
                 StartDate := GetRangeMin("Period Start");
                 CopyFilter("Period Type", Period."Period Type");
                 Period.SetRange("Period Start", StartDate);
-                if not Period.FindFirst then
+                if not Period.FindFirst() then
                     Error(Text009, StartDate, GetFilter("Period Type"));
                 DateFilterCalc.CreateFiscalYearFilter(TextDate, TextDate, StartDate, 0);
                 TextDate := ConvertStr(TextDate, '.', ',');
@@ -286,7 +286,7 @@ report 10801 Journals
                 Clear(Period);
                 CopyFilter("Period Type", Period."Period Type");
                 Period.SetRange("Period End", ClosingDate(EndDate));
-                if not Period.FindFirst then
+                if not Period.FindFirst() then
                     Error(Text010, EndDate, GetFilter("Period Type"));
                 FiscalYearStatusText := StrSubstNo(Text011, FiscalYearFiscalClose.CheckFiscalYearStatus(GetFilter("Period Start")));
 

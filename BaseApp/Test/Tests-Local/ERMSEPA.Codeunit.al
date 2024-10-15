@@ -55,7 +55,7 @@ codeunit 144059 "ERM SEPA"
         SalesHeader: Record "Sales Header";
     begin
         // Setup:  Create Setup for Payment Slip, create and post Sales Order and create Payment Slip.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader);
         LibraryVariableStorage.Enqueue(SetupForPaymentSlip(ReportID));  // Enqueue Payment Class Code for PaymentClassListPageHandler.
         LibraryVariableStorage.Enqueue(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Enqueue Sales Invoice Header No for ApplyCustomerEntriesPageHandler.
@@ -82,7 +82,7 @@ codeunit 144059 "ERM SEPA"
         // Test to Verify XML Data after print Payment Slip using report Draft recapitulation.
 
         // Setup:  Create Setup for Payment Slip. Create and post Purchase Order and create Payment Slip.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader);
         LibraryVariableStorage.Enqueue(SetupForPaymentSlip(REPORT::"Draft recapitulation"));  // Enqueue Payment Class Code for PaymentClassListPageHandler.
         LibraryVariableStorage.Enqueue(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));  // Enqueue Purchase Invoice Header No for ApplyVendorEntriesPageHandler.
@@ -100,7 +100,7 @@ codeunit 144059 "ERM SEPA"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomerBankAccount(): Code[20]
@@ -113,7 +113,7 @@ codeunit 144059 "ERM SEPA"
         LibrarySales.CreateCustomer(Customer);
         LibraryFRLocalization.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         CustomerBankAccount.Validate(IBAN, CompanyInformation.IBAN);
-        CustomerBankAccount.Validate("SWIFT Code", LibraryUtility.GenerateGUID);
+        CustomerBankAccount.Validate("SWIFT Code", LibraryUtility.GenerateGUID());
         CustomerBankAccount.Validate("Country/Region Code", CompanyInformation."Country/Region Code");
         CustomerBankAccount.Modify(true);
         exit(CustomerBankAccount."Customer No.");
@@ -124,7 +124,7 @@ codeunit 144059 "ERM SEPA"
         NoSeries: Record "No. Series";
         PaymentClass: Record "Payment Class";
     begin
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         LibraryFRLocalization.CreatePaymentClass(PaymentClass);
         PaymentClass.Validate("Header No. Series", NoSeries.Code);
         PaymentClass.Modify(true);
@@ -189,7 +189,7 @@ codeunit 144059 "ERM SEPA"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         VendorBankAccount.Validate(IBAN, CompanyInformation.IBAN);
         VendorBankAccount.Validate("Country/Region Code", CompanyInformation."Country/Region Code");
-        VendorBankAccount.Validate("SWIFT Code", LibraryUtility.GenerateGUID);
+        VendorBankAccount.Validate("SWIFT Code", LibraryUtility.GenerateGUID());
         VendorBankAccount.Modify(true);
         exit(VendorBankAccount."Vendor No.");
     end;

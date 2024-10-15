@@ -37,7 +37,7 @@ page 5983 "Service Item Trendscape"
                     begin
                         Clear(ServItem);
                         ServItem."No." := ServItemNo;
-                        if ServItem.FindFirst then begin
+                        if ServItem.FindFirst() then begin
                             Get(ServItem."No.");
                             SetRange("No.", ServItem."No.");
                             ServItemNo := ServItem."No.";

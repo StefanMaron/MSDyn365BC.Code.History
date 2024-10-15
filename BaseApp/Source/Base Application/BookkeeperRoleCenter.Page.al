@@ -323,6 +323,14 @@ page 9004 "Bookkeeper Role Center"
                 RunObject = Page "Bank Account List";
                 ToolTip = 'View or set up detailed information about your bank account, such as which currency to use, the format of bank files that you import and export as electronic payments, and the numbering of checks.';
             }
+            action(BankDeposit)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Bank Deposit';
+                Image = DepositSlip;
+                RunObject = codeunit "Open Deposits Page";
+                ToolTip = 'Create a new bank deposit.';
+            }
             action(Customers)
             {
                 ApplicationArea = Basic, Suite;
@@ -553,6 +561,12 @@ page 9004 "Bookkeeper Role Center"
                     Caption = 'Payment Slip List Archives';
                     RunObject = Page "Payment Slip List Archive";
                     ToolTip = 'View a list of payment slips that have been posted and archived.';
+                }
+                action("Posted Bank Deposit List")
+                {
+                    Caption = 'Posted Bank Deposit List';
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted bank deposit header, bank deposit header lines, bank deposit comments, and bank deposit dimensions.';
                 }
             }
             group(Action22)
@@ -837,7 +851,7 @@ page 9004 "Bookkeeper Role Center"
                 Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }

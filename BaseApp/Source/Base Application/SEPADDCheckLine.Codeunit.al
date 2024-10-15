@@ -134,7 +134,7 @@ codeunit 1233 "SEPA DD-Check Line"
             PaymentLine.GetAppliesToDocCustLedgEntry(CustLedgerEntry);
             if CustLedgerEntry.Count > 1 then
                 DirectDebitCollectionEntry.InsertPaymentFileError(SummarizeNotAllowedErr);
-            CustLedgerEntry.FindFirst;
+            CustLedgerEntry.FindFirst();
             if CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::Invoice then
                 DirectDebitCollectionEntry.InsertPaymentFileError(StrSubstNo(UnappliedLinesNotAllowedErr, PaymentLine."Line No."));
             AppliesToEntryNo := CustLedgerEntry."Entry No.";

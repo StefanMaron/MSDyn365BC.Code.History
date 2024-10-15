@@ -40,7 +40,7 @@ table 10865 "Payment Header"
                 else
                     if "Currency Code" <> xRec."Currency Code" then begin
                         PaymentLine.SetRange("No.", "No.");
-                        if PaymentLine.FindFirst then
+                        if PaymentLine.FindFirst() then
                             Error(Text002);
                         UpdateCurrencyFactor;
                     end else
@@ -67,7 +67,7 @@ table 10865 "Payment Header"
                 PaymentLine: Record "Payment Line";
             begin
                 PaymentLine.SetRange("No.", "No.");
-                if PaymentLine.FindSet then
+                if PaymentLine.FindSet() then
                     repeat
                         PaymentLine."Currency Factor" := "Currency Factor";
                         PaymentLine.Validate(Amount);
@@ -101,7 +101,7 @@ table 10865 "Payment Header"
                 if "Document Date" <> xRec."Document Date" then begin
                     PaymentLine.Reset();
                     PaymentLine.SetRange("No.", "No.");
-                    if PaymentLine.FindSet then
+                    if PaymentLine.FindSet() then
                         repeat
                             PaymentLine.UpdateDueDate("Document Date");
                         until PaymentLine.Next() = 0;
@@ -131,7 +131,7 @@ table 10865 "Payment Header"
                 PaymentStep.SetRange("Payment Class", "Payment Class");
                 PaymentStep.SetFilter("Next Status", '>%1', "Status No.");
                 PaymentStep.SetRange("Action Type", PaymentStep."Action Type"::Ledger);
-                if PaymentStep.FindFirst then
+                if PaymentStep.FindFirst() then
                     "Source Code" := PaymentStep."Source Code";
                 PaymentStatus.Get("Payment Class", "Status No.");
                 "Archiving Authorized" := PaymentStatus."Archiving Authorized";
@@ -476,7 +476,7 @@ table 10865 "Payment Header"
 
         PaymentLine.SetRange("No.", "No.");
         PaymentLine.SetFilter("Copied To No.", '<>''''');
-        if PaymentLine.FindFirst then
+        if PaymentLine.FindFirst() then
             Error(Text000);
         PaymentLine.SetRange("Copied To No.");
         PaymentLine.DeleteAll(true);

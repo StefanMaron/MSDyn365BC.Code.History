@@ -70,7 +70,7 @@ page 7601 "Base Calendar List"
                         WhereUsedList: Page "Where-Used Base Calendar";
                     begin
                         CalendarMgmt.CreateWhereUsedEntries(Code);
-                        WhereUsedList.RunModal;
+                        WhereUsedList.RunModal();
                         Clear(WhereUsedList);
                     end;
                 }

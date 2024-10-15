@@ -53,7 +53,7 @@ report 10862 "Suggest Vendor Payments FR"
 
                 GenPayLine.LockTable();
                 GenPayLine.SetRange("No.", GenPayLine."No.");
-                if GenPayLine.FindLast then begin
+                if GenPayLine.FindLast() then begin
                     LastLineNo := GenPayLine."Line No.";
                     GenPayLine.Init();
                 end;
@@ -398,7 +398,7 @@ report 10862 "Suggest Vendor Payments FR"
                         GenPayLine3.SetRange("Account No.", VendLedgEntry."Vendor No.");
                         GenPayLine3.SetRange("Applies-to Doc. Type", VendLedgEntry."Document Type");
                         GenPayLine3.SetRange("Applies-to Doc. No.", VendLedgEntry."Document No.");
-                        if GenPayLine3.FindFirst then
+                        if GenPayLine3.FindFirst() then
                             GenPayLine3.FieldError(
                               "Applies-to Doc. No.",
                               StrSubstNo(
@@ -413,7 +413,7 @@ report 10862 "Suggest Vendor Payments FR"
                     CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
                 until PayableVendLedgEntry.Next() = 0;
                 PayableVendLedgEntry.SetFilter("Vendor No.", '>%1', PayableVendLedgEntry."Vendor No.");
-            until not PayableVendLedgEntry.FindFirst;
+            until not PayableVendLedgEntry.FindFirst();
 
         Clear(OldTempPaymentPostBuffer);
         TempPaymentPostBuffer.SetCurrentKey("Document No.");

@@ -208,7 +208,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         PaymentReportingMgt.BuildCustPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate, false);
 
         TempPaymentApplicationBuffer.SetFilter("Pmt. Entry No.", '<>%1', 0);
-        TempPaymentApplicationBuffer.FindFirst;
+        TempPaymentApplicationBuffer.FindFirst();
         TempPaymentApplicationBuffer.TestField("Pmt. Days Delayed", PaymentDate - DueDate);
     end;
 
@@ -239,7 +239,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         PaymentReportingMgt.BuildCustPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate, false);
 
         TempPaymentApplicationBuffer.SetFilter("Pmt. Entry No.", '<>%1', 0);
-        TempPaymentApplicationBuffer.FindFirst;
+        TempPaymentApplicationBuffer.FindFirst();
         TempPaymentApplicationBuffer.TestField("Pmt. Amount (LCY)", AppliedAmount);
     end;
 
@@ -268,7 +268,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         PaymentReportingMgt.BuildCustPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate, false);
 
         TempPaymentApplicationBuffer.SetRange("Pmt. Entry No.", 0);
-        TempPaymentApplicationBuffer.FindFirst;
+        TempPaymentApplicationBuffer.FindFirst();
         TempPaymentApplicationBuffer.TestField("Entry Amount Corrected (LCY)", CustLedgerEntry."Amount (LCY)" + CrMemoAmount);
     end;
 
@@ -300,7 +300,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         PaymentReportingMgt.BuildCustPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate, false);
 
         TempPaymentApplicationBuffer.SetRange("Pmt. Entry No.", 0);
-        TempPaymentApplicationBuffer.FindFirst;
+        TempPaymentApplicationBuffer.FindFirst();
         TempPaymentApplicationBuffer.TestField("Remaining Amount (LCY)", CustLedgerEntry."Amount (LCY)" + CrMemoAmount + PmtAmount);
     end;
 
@@ -423,7 +423,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         CustLedgerEntry.CalcFields("Amount (LCY)");
 
         // [GIVEN] Run "Payment Practices Reporting" report.
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         RunPaymentPracticesReporting(StartingDate, EndingDate, false);
 
         // [THEN] "Total amount of invoices (Corrected)" is shown for unpaid customer invoices page only.
@@ -458,7 +458,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
           CustLedgerEntry."Entry No.", WorkDate, -CustLedgerEntry."Amount (LCY)", -CustLedgerEntry."Amount (LCY)");
 
         // [GIVEN] Run "Payment Practices Reporting" report.
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         RunPaymentPracticesReporting(StartingDate, EndingDate, false);
 
         // [THEN] "Total amount of invoices (Corrected)" is shown for delayed in payment customer invoices page only.

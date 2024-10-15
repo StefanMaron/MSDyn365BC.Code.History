@@ -525,7 +525,7 @@ codeunit 5611 "Calculate Normal Depreciation"
                 BookValue := EntryAmounts[1];
             if DateFromProjection = 0D then begin
                 DerogDeprBook.SetRange("Derogatory Calculation", DeprBookCode);
-                if DerogDeprBook.FindFirst then begin
+                if DerogDeprBook.FindFirst() then begin
                     DerogFALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "Posting Date");
                     DerogFALedgEntry.SetRange("FA No.", "FA No.");
                     DerogFALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
@@ -629,7 +629,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1',
           DepreciationCalc.ToMorrow(FADeprBook."Depreciation Starting Date", Year365Days));
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         NewYearDate := AccountingPeriod."Starting Date";
         if FirstDeprDate >= NewYearDate then
             exit(false);

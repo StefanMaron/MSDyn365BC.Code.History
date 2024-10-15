@@ -972,7 +972,7 @@ report 10886 "FA - Proj. Value (Derogatory)"
             exit(FADateCalculation.CalculateDate(PeriodEndingDate, PeriodLength, Year365Days));
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1', DepreciationCalculation.ToMorrow(PeriodEndingDate, Year365Days) + 1);
-        if AccountingPeriod.FindFirst then begin
+        if AccountingPeriod.FindFirst() then begin
             if Date2DMY(AccountingPeriod."Starting Date", 1) <> 31 then
                 UntilDate2 := DepreciationCalculation.Yesterday(AccountingPeriod."Starting Date", Year365Days)
             else
@@ -1321,7 +1321,7 @@ report 10886 "FA - Proj. Value (Derogatory)"
         TotalDerogAssetsIncluded := false;
         DerogDeprBookCode := '';
         DerogDepreciationBook.SetRange("Derogatory Calculation", DeprBookCode);
-        if DerogDepreciationBook.FindFirst then
+        if DerogDepreciationBook.FindFirst() then
             DerogDeprBookCode := DerogDepreciationBook.Code;
     end;
 
@@ -1345,7 +1345,7 @@ report 10886 "FA - Proj. Value (Derogatory)"
             SetRange("Document No.", DocumentNo);
             SetRange("FA Posting Date", FAPostingDate);
             SetRange("FA Posting Type", "FA Posting Type"::Derogatory);
-            if FindFirst then
+            if FindFirst() then
                 exit(Amount);
         end;
         exit(0);

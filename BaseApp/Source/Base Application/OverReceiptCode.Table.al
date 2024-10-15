@@ -32,8 +32,11 @@ table 8510 "Over-Receipt Code"
         {
             Caption = 'Over-Receipt Tolerance %';
             DecimalPlaces = 0 : 2;
-            MinValue = 0;
-            MaxValue = 100;
+
+            trigger OnValidate()
+            begin
+                CheckMinMaxValue();
+            end;
         }
         field(5; "Required Approval"; Boolean)
         {
@@ -48,4 +51,22 @@ table 8510 "Over-Receipt Code"
             Clustered = true;
         }
     }
+
+    local procedure CheckMinMaxValue()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckMinMaxValue(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ("Over-Receipt Tolerance %" < 0) or ("Over-Receipt Tolerance %" > 100) then
+            FieldError("Over-Receipt Tolerance %");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckMinMaxValue(var OverReceiptCode: Record "Over-Receipt Code"; var IsHandled: Boolean)
+    begin
+    end;
 }

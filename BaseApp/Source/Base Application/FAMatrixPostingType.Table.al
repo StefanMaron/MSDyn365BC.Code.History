@@ -31,7 +31,7 @@ table 5647 "FA Matrix Posting Type"
     var
         FADeprBook: Record "FA Depreciation Book";
     begin
-        if not FindSet then begin
+        if not FindSet() then begin
             ;
             InsertRec(1, FADeprBook.FieldCaption("Book Value"));
             InsertRec(2, FADeprBook.FieldCaption("Acquisition Cost"));

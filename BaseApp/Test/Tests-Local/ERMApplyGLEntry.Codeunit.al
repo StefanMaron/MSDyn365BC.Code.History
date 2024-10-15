@@ -1061,14 +1061,14 @@ codeunit 144007 "ERM Apply GL Entry"
 
     local procedure MockSingleGLEntry(var GLEntry: Record "G/L Entry"; Amount: Decimal; Letter: Text[10])
     begin
-        GLEntry."G/L Account No." := LibraryUtility.GenerateGUID;
+        GLEntry."G/L Account No." := LibraryUtility.GenerateGUID();
         MockGLEnty(GLEntry."G/L Account No.", Amount, Letter);
         GLEntry.SetRange("G/L Account No.", GLEntry."G/L Account No.");
     end;
 
     local procedure MockTwoGLEntries(var GLEntry: Record "G/L Entry"; var GLEntryNo: array[2] of Integer; Amount1: Decimal; Letter1: Text[10]; Amount2: Decimal; Letter2: Text[10])
     begin
-        GLEntry."G/L Account No." := LibraryUtility.GenerateGUID;
+        GLEntry."G/L Account No." := LibraryUtility.GenerateGUID();
         GLEntryNo[1] := MockGLEnty(GLEntry."G/L Account No.", Amount1, Letter1);
         GLEntryNo[2] := MockGLEnty(GLEntry."G/L Account No.", Amount2, Letter2);
         GLEntry.SetRange("G/L Account No.", GLEntry."G/L Account No.");
@@ -1097,7 +1097,7 @@ codeunit 144007 "ERM Apply GL Entry"
     begin
         GLEntry.SetRange("G/L Account No.", GenJournalLine."Bal. Account No.");
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Reversed, true);
         GLEntry.TestField(Letter, '');
     end;

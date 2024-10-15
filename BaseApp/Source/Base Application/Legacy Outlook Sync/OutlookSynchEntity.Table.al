@@ -277,7 +277,7 @@ table 5300 "Outlook Synch. Entity"
     begin
         OSynchUserSetup.Reset();
         OSynchUserSetup.SetRange("Synch. Entity Code", Code);
-        if OSynchUserSetup.FindFirst then
+        if OSynchUserSetup.FindFirst() then
             Error(Text006, OSynchUserSetup."User ID");
     end;
 #endif

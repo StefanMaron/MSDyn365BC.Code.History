@@ -312,7 +312,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 RemittanceText := '';
 
                                 TempPaymentExportRemittanceText.SetRange("Pmt. Export Data Entry No.", PaymentExportData."Entry No.");
-                                if not TempPaymentExportRemittanceText.FindFirst then
+                                if not TempPaymentExportRemittanceText.FindFirst() then
                                     currXMLport.Skip();
                                 RemittanceText := TempPaymentExportRemittanceText.Text;
                                 // there is not text combination like in W1.
@@ -369,7 +369,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
           "Sender Bank BIC", "SEPA Instruction Priority Text", "Transfer Date",
           "SEPA Batch Booking", "SEPA Charge Bearer Text");
 
-        if not PaymentExportData.FindSet then
+        if not PaymentExportData.FindSet() then
             Error(NoDataToExportErr);
 
         InitPmtGroup;

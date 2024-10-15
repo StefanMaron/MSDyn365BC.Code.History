@@ -58,7 +58,7 @@ codeunit 144021 "UT REP Export General Ledger"
     local procedure ExportGLEntriesToXMLAndVerifyError(StartingDate: Date; EndingDate: Date)
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(StartingDate);  // Enqueue required for ExportGLEntriesToXMLRequestPageHandler.
         LibraryVariableStorage.Enqueue(EndingDate);  // Enqueue required for ExportGLEntriesToXMLRequestPageHandler.
 
@@ -71,7 +71,7 @@ codeunit 144021 "UT REP Export General Ledger"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     [RequestPageHandler]

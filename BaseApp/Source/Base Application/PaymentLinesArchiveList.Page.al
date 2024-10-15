@@ -158,7 +158,7 @@ page 10880 "Payment Lines Archive List"
                         if Statement.Get("No.") then begin
                             Statement.SetRange("No.", "No.");
                             StatementForm.SetTableView(Statement);
-                            StatementForm.Run;
+                            StatementForm.Run();
                         end;
                     end;
                 }

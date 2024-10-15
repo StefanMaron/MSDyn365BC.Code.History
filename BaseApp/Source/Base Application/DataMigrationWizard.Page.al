@@ -521,7 +521,7 @@ page 1808 "Data Migration Wizard"
         DataMigrationMgt: Codeunit "Data Migration Mgt.";
     begin
         OnRegisterDataMigrator;
-        if FindFirst then;
+        if FindFirst() then;
         ResetWizardControls;
         ShowIntroStep;
         DataMigrationMgt.CheckMigrationInProgress(false);
@@ -531,7 +531,6 @@ page 1808 "Data Migration Wizard"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         GuidedExperience: Codeunit "Guided Experience";
-        Info: ModuleInfo;
     begin
         if CloseAction = ACTION::OK then
             if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"Data Migration Wizard") then
@@ -742,7 +741,7 @@ page 1808 "Data Migration Wizard"
             TempDataMigrationEntity.Reset();
             TempDataMigrationEntity.SetRange("Table ID", 15);
             TempDataMigrationEntity.SetRange(Selected, true);
-            if TempDataMigrationEntity.FindFirst then begin
+            if TempDataMigrationEntity.FindFirst() then begin
                 DoneVisible := false;
                 NextEnabled := true;
                 FinishEnabled := false;
@@ -817,7 +816,7 @@ page 1808 "Data Migration Wizard"
 
     local procedure GetTotalNoOfMigrationRecords(var DataMigrationEntity: Record "Data Migration Entity") TotalCount: Integer
     begin
-        if DataMigrationEntity.FindSet then
+        if DataMigrationEntity.FindSet() then
             repeat
                 TotalCount += DataMigrationEntity."No. of Records";
             until DataMigrationEntity.Next() = 0;

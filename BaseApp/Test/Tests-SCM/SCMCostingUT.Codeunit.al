@@ -85,7 +85,7 @@ codeunit 137811 "SCM - Costing UT"
     local procedure SetupValueEntry(var ValueEntry: Record "Value Entry"; var SKU: Record "Stockkeeping Unit"; CostAmountActual: Decimal)
     begin
         with ValueEntry do begin
-            if FindLast then begin
+            if FindLast() then begin
                 Init;
                 "Entry No." += 1;
             end else

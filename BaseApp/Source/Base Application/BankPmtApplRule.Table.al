@@ -99,7 +99,7 @@ table 1252 "Bank Pmt. Appl. Rule"
             Error(LoadRulesOnlyOnTempRecordsErr);
 
         DeleteAll();
-        if BankPmtApplRule.FindSet then
+        if BankPmtApplRule.FindSet() then
             repeat
                 TransferFields(BankPmtApplRule);
                 Insert;
@@ -128,7 +128,7 @@ table 1252 "Bank Pmt. Appl. Rule"
           ParameterBankPmtApplRule."Direct Debit Collect. Matched",
           ParameterBankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
-        if FindFirst then
+        if FindFirst() then
             exit(Score);
 
         exit(0);

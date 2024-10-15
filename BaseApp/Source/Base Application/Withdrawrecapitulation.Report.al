@@ -283,7 +283,7 @@ report 10871 "Withdraw recapitulation"
                         trigger OnAfterGetRecord()
                         begin
                             Customer.SetRange("No.", "Account No.");
-                            if not Customer.FindFirst then
+                            if not Customer.FindFirst() then
                                 Error(Text004, "Account No.");
 
                             WithdrawAmount := Abs(Amount);

@@ -226,7 +226,7 @@ report 10804 "G/L Detail Trial Balance"
                     TotalBy::Year:
                         Period.SetRange("Period Type", Period."Period Type"::Year);
                 end;
-                if not Period.FindFirst then
+                if not Period.FindFirst() then
                     Error(Text010, StartDate, Period.GetFilter("Period Type"));
                 PreviousEndDate := ClosingDate(StartDate - 1);
                 DateFilterCalc.CreateFiscalYearFilter(TextDate, TextDate, StartDate, 0);
@@ -252,7 +252,7 @@ report 10804 "G/L Detail Trial Balance"
                     TotalBy::Year:
                         Period.SetRange("Period Type", Period."Period Type"::Year);
                 end;
-                if not Period.FindFirst then
+                if not Period.FindFirst() then
                     Error(Text011, EndDate, Period.GetFilter("Period Type"));
                 FiscalYearStatusText := StrSubstNo(Text012, FiscalYearFiscalClose.CheckFiscalYearStatus(GetFilter("Date Filter")));
 

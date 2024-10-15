@@ -45,7 +45,7 @@ report 7304 "Get Outbound Source Documents"
                             if ATOLink.AsmExistsForWhseShptLine("Warehouse Shipment Line") then begin
                                 ATOAsmLine.SetRange("Document Type", ATOLink."Assembly Document Type");
                                 ATOAsmLine.SetRange("Document No.", ATOLink."Assembly Document No.");
-                                if ATOAsmLine.FindSet then
+                                if ATOAsmLine.FindSet() then
                                     repeat
                                         ProcessAsmLineFromWhseShpt(ATOAsmLine, "Warehouse Shipment Line");
                                     until ATOAsmLine.Next() = 0;
@@ -167,6 +167,32 @@ report 7304 "Get Outbound Source Documents"
                         CurrReport.Break();
                 end;
             }
+            dataitem(Job; Job)
+            {
+                DataItemLink = "No." = field("Document No.");
+                DataItemTableView = sorting("No.") where(Status = const(Open));
+                dataitem("Job Planning Line"; "Job Planning Line")
+                {
+                    DataItemLink = "Job No." = field("No.");
+                    DataItemTableView = sorting("Job No.", "Job Task No.", "Line No.") where(Type = const(Item), "Line Type" = filter(Budget | "Both Budget and Billable"));
+
+                    trigger OnAfterGetRecord()
+                    begin
+                        ProcessJobPlanningLine("Job Planning Line");
+                    end;
+
+                    trigger OnPreDataItem()
+                    begin
+                        SetRange("Location Code", "Whse. Pick Request"."Location Code");
+                    end;
+                }
+
+                trigger OnPreDataItem()
+                begin
+                    if "Whse. Pick Request"."Document Type" <> "Whse. Pick Request"."Document Type"::Job then
+                        CurrReport.Break();
+                end;
+            }
 
             trigger OnAfterGetRecord()
             var
@@ -281,6 +307,24 @@ report 7304 "Get Outbound Source Documents"
         if IsPickToBeMadeForAsmLine(AsmLine) then
             if WhsePickWkshCreate.FromAssemblyLineInATOWhseShpt(PickWkshTemplate, PickWkshName, AsmLine, WhseShptLine) then
                 LineCreated := true;
+    end;
+
+    local procedure ProcessJobPlanningLine(var JobPlanningLine: Record "Job Planning Line")
+    var
+        Item: Record Item;
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        GetLocation(JobPlanningLine."Location Code");
+        if Location."Require Pick" and Location."Require Shipment" and not JobPlanningLine."Completely Picked" then begin
+            Item.Get(JobPlanningLine."No.");
+            if Item.IsInventoriableType() then
+                if ItemTrackingManagement.GetWhseItemTrkgSetup(Item."No.") then
+                    FeatureTelemetry.LogUsage('0000GRN', 'Picks on jobs', 'Skip Pick Worksheet: Warehouse Tracking Enabled')
+                else
+                    if WhsePickWkshCreate.FromJobPlanningLine(PickWkshTemplate, PickWkshName, JobPlanningLine) then
+                        LineCreated := true;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

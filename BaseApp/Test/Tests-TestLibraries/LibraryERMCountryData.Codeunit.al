@@ -92,7 +92,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
-        if InventoryPostingSetup.FindSet then
+        if InventoryPostingSetup.FindSet() then
             repeat
                 if InventoryPostingSetup."Inventory Account (Interim)" = '' then
                     InventoryPostingSetup.Validate("Inventory Account (Interim)", CreateGLAccount);
@@ -185,7 +185,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         FAPostingGroup: Record "FA Posting Group";
     begin
-        if FAPostingGroup.FindSet then
+        if FAPostingGroup.FindSet() then
             repeat
                 if FAPostingGroup."Losses Acc. on Disposal" = '' then begin
                     FAPostingGroup.Validate("Losses Acc. on Disposal", CreateGLAccount);
@@ -273,10 +273,13 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        if BankAccountLedgerEntries."Credit Amount".AsDEcimal <> 0 then
-            EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDEcimal
+        if BankAccountLedgerEntries.Amount.Visible() then
+            EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDEcimal;
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+                EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
+            else
+                EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
         exit(EntryRemainingAmount);
     end;
 
@@ -291,7 +294,7 @@ codeunit 131305 "Library - ERM Country Data"
     begin
         LibraryERM.FindGeneralPostingSetupInvtFull(NormalGeneralPostingSetup);
         with GeneralPostingSetup do
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Direct Cost Applied Account" = '' then
                         Validate("Direct Cost Applied Account", NormalGeneralPostingSetup."Direct Cost Applied Account")

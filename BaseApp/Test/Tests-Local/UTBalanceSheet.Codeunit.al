@@ -59,7 +59,7 @@ codeunit 144009 "UT Balance Sheet"
     begin
         // Purpose of the test is to validate Open Account Schedule Page through Page FR Account Schedule Names.
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndModifyFRAccScheduleLine(
           FRAccScheduleLine, FRAccScheduleLine."G/L Entry Type Filter"::Definitive, FRAccScheduleLine."Calculate with"::Sign,
           false, FRAccScheduleLine."Totaling Type"::"Posting Accounts");
@@ -90,7 +90,7 @@ codeunit 144009 "UT Balance Sheet"
     begin
         // Purpose of the test is to validate Print Action through Page FR Account Schedule.
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndModifyFRAccScheduleLine(
           FRAccScheduleLine, FRAccScheduleLine."G/L Entry Type Filter"::Definitive, FRAccScheduleLine."Calculate with"::Sign,
           false, FRAccScheduleLine."Totaling Type"::"Posting Accounts");
@@ -141,7 +141,7 @@ codeunit 144009 "UT Balance Sheet"
         FRAccScheduleLine: Record "FR Acc. Schedule Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndModifyFRAccScheduleLine(FRAccScheduleLine, GLEntryTypeFilter, CalculateWith, NewPage, TotalingType);
         LibraryVariableStorage.Enqueue(FRAccScheduleLine."Schedule Name");  // Enqueue for FRAccountSchedulePageHandler.
 
@@ -161,7 +161,7 @@ codeunit 144009 "UT Balance Sheet"
     begin
         // Purpose of the test is to validate OnInsret code for Table 10801 - FR Acc. Schedule Line.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         FRAccScheduleLine.Insert(true);
@@ -183,7 +183,7 @@ codeunit 144009 "UT Balance Sheet"
     begin
         // Purpose of the test is to validate OnValidate Code of Totaling of Table 10801 - FR Acc. Schedule Line.
         // Setup.
-        Initialize;
+        Initialize();
         GLAccount.Get(CreateGLEntry);
         CreateFRAccScheduleLine(FRAccScheduleLine, FRAccScheduleLine."Totaling Type"::"Posting Accounts");
         GLAccount.CalcFields(Balance);
@@ -225,7 +225,7 @@ codeunit 144009 "UT Balance Sheet"
         GLAccount2: Record "G/L Account";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GLAccount.Get(CreateGLEntry);
         GLAccount2.Get(CreateGLEntry);
         CreateFRAccScheduleLine(FRAccScheduleLine, FRAccScheduleLine."Totaling Type"::"Posting Accounts");
@@ -270,7 +270,7 @@ codeunit 144009 "UT Balance Sheet"
         GLAccount2: Record "G/L Account";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GLAccount.Get(CreateGLEntry);
         GLAccount2.Get(CreateGLEntry);
         CreateAndUpdateFRAccScheduleLine(FRAccScheduleLine, GLAccount."No.");
@@ -295,7 +295,7 @@ codeunit 144009 "UT Balance Sheet"
     begin
         // Purpose of the test is to validate OnValidate Code of Totaling of Table 10801 - FR Acc. Schedule Line.
         // Setup.
-        Initialize;
+        Initialize();
         GLAccount.Get(CreateGLEntry);
         CreateAndUpdateFRAccScheduleLine(FRAccScheduleLine, GLAccount."No.");
         GLAccount.CalcFields(Balance);
@@ -318,7 +318,7 @@ codeunit 144009 "UT Balance Sheet"
     begin
         // Purpose of the test is to validate OnValidate Code of Totaling when Totaling Type Row of Table 10801 - FR Acc. Schedule Line.
         // Setup.
-        Initialize;
+        Initialize();
         GLAccount.Get(CreateGLEntry);
         CreateAndUpdateFRAccScheduleLine(FRAccScheduleLine, GLAccount."No.");
         CreateFRAccScheduleLine(FRAccScheduleLine2, FRAccScheduleLine."Totaling Type"::Rows);
@@ -342,7 +342,7 @@ codeunit 144009 "UT Balance Sheet"
     begin
         // Purpose of the test is to validate OnValidate Code of Totaling Creditor when Totaling Type Row of Table 10801 - FR Acc. Schedule Line.
         // Setup.
-        Initialize;
+        Initialize();
         GLAccount.Get(CreateGLEntry);
         CreateAndUpdateFRAccScheduleLine(FRAccScheduleLine, GLAccount."No.");
         UpdateFRAccScheduleLine(FRAccScheduleLine."Schedule Name", FRAccScheduleLine.FieldNo("Totaling Creditor"), GLAccount."No.");
@@ -364,7 +364,7 @@ codeunit 144009 "UT Balance Sheet"
         GLEntryApplication: Codeunit "G/L Entry Application";
         GLAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         GLAccountNo := CreateGLEntry;
         FindGLEntryByGLAccNo(GLEntry, GLAccountNo);
 
@@ -379,7 +379,7 @@ codeunit 144009 "UT Balance Sheet"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     [MessageHandler]
@@ -408,7 +408,7 @@ codeunit 144009 "UT Balance Sheet"
         GLEntry: Record "G/L Entry";
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := CreateGLAccount;
         GLEntry.Amount := LibraryRandom.RandDec(10, 2);
@@ -446,7 +446,7 @@ codeunit 144009 "UT Balance Sheet"
     var
         FRAccScheduleLine2: Record "FR Acc. Schedule Line";
     begin
-        FRAccScheduleLine2.FindLast;
+        FRAccScheduleLine2.FindLast();
         FRAccScheduleLine."Schedule Name" := CreateFRAccScheduleName;
         FRAccScheduleLine."Line No." := FRAccScheduleLine2."Line No." + 1;
         FRAccScheduleLine."Totaling Type" := TotalingType;
@@ -471,7 +471,7 @@ codeunit 144009 "UT Balance Sheet"
         FieldRef: FieldRef;
     begin
         FRAccScheduleLine.SetRange("Schedule Name", Name);
-        FRAccScheduleLine.FindFirst;
+        FRAccScheduleLine.FindFirst();
         RecRef.GetTable(FRAccScheduleLine);
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.Validate(FieldValue);
@@ -520,7 +520,7 @@ codeunit 144009 "UT Balance Sheet"
     local procedure FindGLEntryByGLAccNo(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20])
     begin
         GLEntry.SetFilter("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 }
 

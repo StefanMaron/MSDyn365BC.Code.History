@@ -131,7 +131,7 @@ codeunit 144058 "UT SEPA"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         // Setup: Create Vendor Bank Account. Create Payment Slip.
-        Initialize;
+        Initialize();
         CreateVendorBankAccount(VendorBankAccount, SEPAAllowed);
 
         // Enqueue Payment Slip No. for SEPAISO20022RequestPageHandler.
@@ -159,7 +159,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to verify error of Report 10883 (SEPA ISO20022) with Account Type Customer on Payment Line.
 
         // Setup: Create Customer Bank Account. Create Payment Slip.
-        Initialize;
+        Initialize();
         CreateCustomerBankAccount(CustomerBankAccount);
 
         // Enqueue Payment Slip No. for SEPAISO20022RequestPageHandler.
@@ -187,7 +187,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to verify error of Report 10883 (SEPA ISO20022) with Account Type Vendor on Payment Line.
 
         // Setup: Create Vendor Bank Account. Create Payment Slip.
-        Initialize;
+        Initialize();
         CreateVendorBankAccount(VendorBankAccount, false);  // SEPA Allowed as False.
 
         // Enqueue Payment Slip No. for SEPAISO20022RequestPageHandler.
@@ -215,7 +215,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to verify error of Report 10883 (SEPA ISO20022) with Local Currency Other on General Ledger Setup.
 
         // Setup: Create Vendor Bank Account. Create Payment Slip.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup;
         CreateVendorBankAccount(VendorBankAccount, true);  // SEPA Allowed as True.
 
@@ -243,7 +243,7 @@ codeunit 144058 "UT SEPA"
         // [SCENARIO] Invalid IBAN for Payment Line is set in case of Stan confirms its setting.
         // [GIVEN] Payment Line.
         PaymentLine.Init();
-        IBANNumber := LibraryUtility.GenerateGUID;
+        IBANNumber := LibraryUtility.GenerateGUID();
 
         // [WHEN] Set invalid IBAN for Payment Line. Confim setting of IBAN in the dialog.
         LibraryVariableStorage.Enqueue(true);
@@ -268,7 +268,7 @@ codeunit 144058 "UT SEPA"
 
         // [WHEN] Set invalid IBAN for Payment Line. Reject setting of IBAN in the dialog.
         LibraryVariableStorage.Enqueue(false);
-        asserterror PaymentLine.Validate(IBAN, LibraryUtility.GenerateGUID);
+        asserterror PaymentLine.Validate(IBAN, LibraryUtility.GenerateGUID());
 
         // [THEN] New IBAN is not set.
         VerifyIBAN(PaymentLine.IBAN, OldIBAN);
@@ -285,7 +285,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to verify error of Table ID - 10866 (Payment Line) when delete Payment Line.
 
         // Setup: Create Payment Slip.
-        Initialize;
+        Initialize();
         CreatePaymentHeader(PaymentHeader, '', '', '');  // IBAN, SWIFT Code and Country Region Code as blank.
         PaymentLine."No." := PaymentHeader."No.";
         PaymentLine."Copied To No." := LibraryUTUtility.GetNewCode;
@@ -309,7 +309,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to verify error of Table ID - 10866 (Payment Line) when Currency is different on Payment Header and Payment Line.
 
         // Setup: Create Payment Slip.
-        Initialize;
+        Initialize();
         CreatePaymentHeader(PaymentHeader, '', '', '');  // IBAN, SWIFT Code and Country Region Code as blank.
         PaymentLine."No." := PaymentHeader."No.";
         PaymentLine.IsCopy := true;
@@ -332,7 +332,7 @@ codeunit 144058 "UT SEPA"
         RecRef: RecordRef;
     begin
         // [SCENARIO 363057] Error message when inserting Payment Line in Payment Header with "File Export Completed" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Payment Header with "File Export Completed" = TRUE
         CreatePaymentHeader(PaymentHeader, '', '', '');
@@ -363,7 +363,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to verify error of Table ID - 10866 (Payment Line) when modify Payment Line which is already posted.
 
         // Setup: Create Payment Slip.
-        Initialize;
+        Initialize();
         CreatePaymentHeader(PaymentHeader, '', '', '');  // IBAN, SWIFT Code and Country Region Code as blank.
         PaymentLine."No." := PaymentHeader."No.";
         PaymentLine.Insert();
@@ -390,7 +390,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to validate action Modify on Payment Line List page ID - 10872.
 
         // Setup: Create Vendor Bank Account and Payment Slip.
-        Initialize;
+        Initialize();
         CreateVendorBankAccount(VendorBankAccount, true);  // SEPA Allowed as True.
         No :=
           CreatePaymentSlip(
@@ -419,7 +419,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to validate trigger OnValidate of IBAN field on Table IDs - 10867 (Payment Header Archive).
 
         // Setup: Create Payment Header Archive with IBAN.
-        Initialize;
+        Initialize();
         PaymentHeaderArchive."No." := LibraryUTUtility.GetNewCode;
 
         // Exercise.
@@ -442,7 +442,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to validate trigger OnValidate of IBAN field on Table IDs - 10868 (Payment Line Archive).
 
         // Setup: Create Payment Line Archive with IBAN.
-        Initialize;
+        Initialize();
         PaymentLineArchive."No." := LibraryUTUtility.GetNewCode;
         PaymentLineArchive."Line No." := LibraryRandom.RandInt(1000);  // Using Random Int for Line No.
 
@@ -467,7 +467,7 @@ codeunit 144058 "UT SEPA"
     begin
         // [FEATURE] [UT][Customer]
         // [SCENARIO 377537] "Message to Recipient" of "Gen. Journal Line" should contain "Document No." from payment applied to Customer Ledger Entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] 20 records of Customer ledger entries
         // [GIVEN] Length of merged "Document No." is more than 140 symbols
@@ -500,7 +500,7 @@ codeunit 144058 "UT SEPA"
     begin
         // [FEATURE] [UT][Vendor]
         // [SCENARIO 377537] "Message to Recipient" of "Gen. Journal Line" should contain "Document No." from payment applied to Vendor Ledger Entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] 20 records of Vendor ledger entries
         // [GIVEN] Length of merged "Document No." is more than 140 symbols
@@ -561,8 +561,8 @@ codeunit 144058 "UT SEPA"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -669,7 +669,7 @@ codeunit 144058 "UT SEPA"
     var
         PaymentHeader: Record "Payment Header";
     begin
-        CreatePaymentHeader(PaymentHeader, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        CreatePaymentHeader(PaymentHeader, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
         CreatePaymentLine(PaymentHeader."No.", AccountType, AccountNo, DocumentNo);
         exit(PaymentHeader."No.");
     end;
@@ -678,7 +678,7 @@ codeunit 144058 "UT SEPA"
     var
         i: Integer;
     begin
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         CustomerNo := CreateCustomer;
         Result := DocumentNo;
         for i := 0 to CountofEntries do begin
@@ -691,7 +691,7 @@ codeunit 144058 "UT SEPA"
     var
         i: Integer;
     begin
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         VendorNo := CreateVendor;
         Result := DocumentNo;
         for i := 0 to CountofEntries do begin
@@ -727,7 +727,7 @@ codeunit 144058 "UT SEPA"
         SEPAISO20022: Report "SEPA ISO20022";
     begin
         SEPAISO20022.SetFilePath(FileName);
-        SEPAISO20022.Run;
+        SEPAISO20022.Run();
     end;
 
     local procedure UpdateGeneralLedgerSetup()

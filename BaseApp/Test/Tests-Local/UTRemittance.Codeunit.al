@@ -37,7 +37,7 @@ codeunit 144057 "UT Remittance"
     begin
         // Purpose of the test is to validate OnAfterGetRecord - Bank Account Code On report 10843 Recapitulation Form.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGenJournalLineAndRunRecapitulationForm(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer, '', '', CreateBankAccount);  // Using blank for Bank Account Code and Currency Code.
 
@@ -56,7 +56,7 @@ codeunit 144057 "UT Remittance"
     begin
         // Purpose of the test is to validate OnAfterGetRecord - Customer Code On report 10843 Recapitulation Form.
         // Setup.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreateGenJournalLineAndRunRecapitulationForm(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, CreateCustomerBankAccount(CustomerNo),
@@ -77,7 +77,7 @@ codeunit 144057 "UT Remittance"
         // Purpose of the test is validate OnAfterGetRecord - Gen. Journal Line On report 10843 Recapitulation Form.
         // Using LibraryUTUtility.GetNewCode for G/L Account No., blank for Bank Account Code and Currency Code.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGenJournalLineAndRunRecapitulationForm(
           GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryUTUtility.GetNewCode, '', '', CreateBankAccount);
 
@@ -96,7 +96,7 @@ codeunit 144057 "UT Remittance"
     begin
         // Purpose of the test is to validate OnPreDataItem -  Gen. Journal Line On report 10843 Recapitulation Form.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGenJournalLineAndRunRecapitulationForm(
           GenJournalLine, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount, '', '', '');  // Using blank for Bank Account Code,Currency Code and Bank Account No.
 
@@ -124,7 +124,7 @@ codeunit 144057 "UT Remittance"
         // Purpose of the test is to Open Check Remittance report through Page 255 Cash Receipt Journal.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer, '', '', CreateBankAccount);  // Using blank for Bank Account Code and Currency Code.
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");  // Enqueue for RecapitulationFormRequestPageHandler.
@@ -144,7 +144,7 @@ codeunit 144057 "UT Remittance"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         GenJournalLine.DeleteAll();
     end;
 

@@ -1,4 +1,4 @@
-codeunit 134082 "ERM Apply Invoice EMU Currency"
+﻿codeunit 134082 "ERM Apply Invoice EMU Currency"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -13,6 +13,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         AmountError: Label '%1 must be %2 in \\%3 %4=%5.';
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
@@ -34,7 +35,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
 
         // Setup: Modify Sales & Receivables Setup for EMU Currency, Create Currency, Modify Exchange Rate, Create Sales Invoice and Post
         // it.
-        Initialize;
+        Initialize();
         ModifySalesAndReceivablesSetup(ApplnbetweenCurrencies, SalesReceivablesSetup."Appln. between Currencies"::EMU);
 
         CurrencyCode := CreateCurrency;
@@ -74,12 +75,16 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
 
         // Setup: Modify Sales & Receivables Setup for EMU Currency, Create Currency, Modify Exchange Rate, Create Sales Invoice and Post
         // it and Run Adjust Exchange Rate Batch Job.
-        Initialize;
+        Initialize();
         ModifySalesAndReceivablesSetup(ApplnbetweenCurrencies, SalesReceivablesSetup."Appln. between Currencies"::EMU);
 
         PostedDocumentNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency);
         ModifyExchangeRate(SalesHeader."Currency Code");
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRates(SalesHeader."Currency Code", 0D, WorkDate, 'Test', WorkDate, PostedDocumentNo, false);
+#else
+        LibraryERM.RunExchRateAdjustment(SalesHeader."Currency Code", 0D, WorkDate, 'Test', WorkDate, PostedDocumentNo, false);
+#endif
         FindSalesInvoiceHeaderAmt(SalesInvoiceHeader, PostedDocumentNo);
         Amount := LibraryERM.ConvertCurrency(SalesInvoiceHeader."Amount Including VAT", SalesHeader."Currency Code", '', WorkDate);
 
@@ -99,13 +104,18 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
         IsInitialized := true;
         Commit();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
     end;
 
     local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]) PostedDocumentNo: Code[20]
@@ -172,7 +182,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
     local procedure FindSalesInvoiceHeaderAmt(var SalesInvoiceHeader: Record "Sales Invoice Header"; No: Code[20])
     begin
         SalesInvoiceHeader.SetRange("No.", No);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
     end;
 
@@ -191,7 +201,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate("Relational Currency Code", CreateCurrency);
         CurrencyExchangeRate.Modify(true);
     end;
@@ -204,7 +214,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
         GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"G/L Account");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetFilter(Amount, '>0');
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Currency.Get(CurrencyCode);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision",

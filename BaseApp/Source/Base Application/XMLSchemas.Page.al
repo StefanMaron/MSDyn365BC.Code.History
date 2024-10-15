@@ -99,7 +99,7 @@ page 9600 "XML Schemas"
                     XMLSchemaViewer: Page "XML Schema Viewer";
                 begin
                     XMLSchemaViewer.SetXMLSchemaCode(Code);
-                    XMLSchemaViewer.Run;
+                    XMLSchemaViewer.Run();
                 end;
             }
             action("Expand All")

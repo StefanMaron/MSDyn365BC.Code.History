@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 2822 "Native - Reports"
 {
     ObsoleteState = Pending;
@@ -43,4 +44,4 @@ codeunit 2822 "Native - Reports"
         exit(TempReportSelections.Usage::"P.Invoice".AsInteger());
     end;
 }
-
+#endif

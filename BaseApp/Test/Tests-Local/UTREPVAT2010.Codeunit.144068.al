@@ -54,7 +54,7 @@ codeunit 144068 "UT REP VAT2010"
     local procedure ECSalesListServicesReportErrors(PostingDate: Text)
     begin
         // Setup: Enqueue required for ECSalesListServicesRequestPageHandler.
-        Initialize;
+        Initialize();
         EnqueueForECSalesListServicesReqPageHandler(true, true, PostingDate);  // Create XML and ShowAmountsInAddReportingCurrency as True.
 
         // Exercise.
@@ -72,7 +72,7 @@ codeunit 144068 "UT REP VAT2010"
     begin
         // Purpose of the test is to verify VAT Entry - OnAfterGetRecord for Report - 10876 (EC Sales List - Services).
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise and Verify.
         ExecuteECSalesListServicesReportWithData(UpdateCompanyInformation, UpdateGeneralLedgerSetup, true);  // ShowAmountsInAddReportingCurrency as True.
@@ -88,7 +88,7 @@ codeunit 144068 "UT REP VAT2010"
     begin
         // Purpose of the test is to verify Country/Region - OnPreDataItem for Report - 10876 (EC Sales List - Services).
         // Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
 
         // Exercise and Verify.
@@ -97,7 +97,7 @@ codeunit 144068 "UT REP VAT2010"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure EnqueueForECSalesListServicesReqPageHandler(CreateXML: Boolean; ShowAmountsInAddReportingCurrency: Boolean; PostingDate: Text)

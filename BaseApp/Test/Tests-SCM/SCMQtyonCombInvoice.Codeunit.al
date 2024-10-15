@@ -34,8 +34,8 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Qty on Comb. Invoice");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -54,7 +54,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
         InvoiceNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateItem(Item, ItemUnitOfMeasure);
         CreatePurchaseOrder(PurchaseHeader, Item."No.");
         VendorNo := PurchaseHeader."Buy-from Vendor No.";
@@ -149,7 +149,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
         CrMemoNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateItem(Item, ItemUnitOfMeasure);
         CreatePurchaseRetOrder(PurchaseHeader, Item."No.");
         VendorNo := PurchaseHeader."Buy-from Vendor No.";
@@ -201,7 +201,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
         SalesShptLine: Record "Sales Shipment Line";
         InvoiceNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateItem(Item, ItemUnitOfMeasure);
         LibrarySales.CreateCustomer(Customer);
 
@@ -297,7 +297,7 @@ codeunit 137503 "SCM Qty on Comb. Invoice"
         ReturnRcptLine: Record "Return Receipt Line";
         CrMemoNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateItem(Item, ItemUnitOfMeasure);
         LibrarySales.CreateCustomer(Customer);
 

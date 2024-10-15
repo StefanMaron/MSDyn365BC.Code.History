@@ -66,7 +66,7 @@ page 10800 "FR Account Schedule Names"
                     AccSchedule: Page "FR Account Schedule";
                 begin
                     AccSchedule.SetAccSchedName(Name);
-                    AccSchedule.Run;
+                    AccSchedule.Run();
                 end;
             }
         }

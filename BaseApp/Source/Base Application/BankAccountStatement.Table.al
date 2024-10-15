@@ -34,6 +34,41 @@ table 275 "Bank Account Statement"
             Caption = 'Balance Last Statement';
             Editable = false;
         }
+        field(100; "G/L Balance at Posting Date"; Decimal)
+        {
+            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatType = 1;
+            Caption = 'G/L Balance at Posting Date';
+            Editable = false;
+        }
+        field(101; "Outstd. Payments at Posting"; Decimal)
+        {
+            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatType = 1;
+            Caption = 'Outstanding Payments at Posting Date';
+            Editable = false;
+        }
+        field(102; "Outstd. Transact. at Posting"; Decimal)
+        {
+            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatType = 1;
+            Caption = 'Outstading Bank Transactions at Posting Date';
+            Editable = false;
+        }
+        field(103; "Total Pos. Diff. at Posting"; Decimal)
+        {
+            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatType = 1;
+            Caption = 'Total Positive Difference at Posting Date';
+            Editable = false;
+        }
+        field(104; "Total Neg. Diff. at Posting"; Decimal)
+        {
+            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatType = 1;
+            Caption = 'Total Negative Difference at Posting Date';
+            Editable = false;
+        }
     }
 
     keys

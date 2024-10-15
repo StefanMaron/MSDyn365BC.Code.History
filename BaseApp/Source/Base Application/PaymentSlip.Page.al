@@ -187,7 +187,7 @@ page 10868 "Payment Slip"
                     trigger OnAction()
                     begin
                         Navigate.SetDoc("Posting Date", "No.");
-                        Navigate.Run;
+                        Navigate.Run();
                     end;
                 }
                 action(Line)
@@ -230,7 +230,7 @@ page 10868 "Payment Slip"
                             if PaymentClass.Get("Payment Class") then
                                 if PaymentClass.Suggestions = PaymentClass.Suggestions::Vendor then begin
                                     CreateVendorPmtSuggestion.SetGenPayLine(Rec);
-                                    CreateVendorPmtSuggestion.RunModal;
+                                    CreateVendorPmtSuggestion.RunModal();
                                     Clear(CreateVendorPmtSuggestion);
                                 end else
                                     Message(Text001);
@@ -259,7 +259,7 @@ page 10868 "Payment Slip"
                                     CreateCustomerPmtSuggestion.SetGenPayLine(Rec);
                                     Customer.SetRange("Partner Type", "Partner Type");
                                     CreateCustomerPmtSuggestion.SetTableView(Customer);
-                                    CreateCustomerPmtSuggestion.RunModal;
+                                    CreateCustomerPmtSuggestion.RunModal();
                                     Clear(CreateCustomerPmtSuggestion);
                                 end else
                                     Message(Text002);

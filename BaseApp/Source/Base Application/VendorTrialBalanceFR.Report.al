@@ -136,13 +136,13 @@ report 10807 "Vendor Trial Balance FR"
                     VendLedgEntry.SetRange("Currency Code", Vendor.GetFilter("Currency Filter"));
                 VendLedgEntry.SetRange("Posting Date", 0D, PreviousEndDate);
                 VendLedgEntry.SetFilter("Entry Type", '<>%1', VendLedgEntry."Entry Type"::Application);
-                if VendLedgEntry.FindSet then
+                if VendLedgEntry.FindSet() then
                     repeat
                         PreviousDebitAmountLCY += VendLedgEntry."Debit Amount (LCY)";
                         PreviousCreditAmountLCY += VendLedgEntry."Credit Amount (LCY)";
                     until VendLedgEntry.Next() = 0;
                 VendLedgEntry.SetRange("Posting Date", StartDate, EndDate);
-                if VendLedgEntry.FindSet then
+                if VendLedgEntry.FindSet() then
                     repeat
                         PeriodDebitAmountLCY += VendLedgEntry."Debit Amount (LCY)";
                         PeriodCreditAmountLCY += VendLedgEntry."Credit Amount (LCY)";

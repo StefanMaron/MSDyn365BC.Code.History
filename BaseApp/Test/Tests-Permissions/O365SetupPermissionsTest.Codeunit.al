@@ -28,7 +28,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         NoSeries2: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryUtility.CreateNoSeries(NoSeries, true, false, true);
         LibraryUtility.CreateNoSeries(NoSeries2, true, false, true);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '001', '999');
@@ -48,7 +48,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         VendorBankAccount: Record "Vendor Bank Account";
         StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
     begin
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryPurchase.CreateVendorWithVATRegNo(Vendor);
         LibraryPurchase.CreateOrderAddress(OrderAddress, Vendor."No.");
         LibraryPurchase.CreatePurchasingCode(Purchasing);
@@ -80,7 +80,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryUtility.CreateNoSeries(NoSeries, true, false, true);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '001', '999');
         SalesReceivablesSetup.Get();
@@ -149,7 +149,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         GLAccountCode: Code[20];
         CurrencyCode: Code[10];
     begin
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         // [GIVEN] A customer and a Vendor
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         LibraryPurchase.CreateVendorWithVATRegNo(Vendor);
@@ -223,7 +223,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         DefaultDimension: Record "Default Dimension";
         SelectedDimension: Record "Selected Dimension";
     begin
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         LibraryERM.CreateAnalysisView(AnalysisView);
 
@@ -244,7 +244,7 @@ codeunit 139450 "O365 Setup Permissions Test"
     var
         IncomingDocument: Record "Incoming Document";
     begin
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
     end;
 
@@ -253,9 +253,9 @@ codeunit 139450 "O365 Setup Permissions Test"
     [Scope('OnPrem')]
     procedure O365SetupFiscalYear()
     begin
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.SetO365Full;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
     end;
 
     [Test]
@@ -270,7 +270,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         NotificationSetup: Record "Notification Setup";
         WFEventResponseCombination: Record "WF Event/Response Combination";
     begin
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         LibraryDimension.CreateDimension(Dimension);
 
@@ -306,7 +306,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         InsuranceType: Record "Insurance Type";
         FAJournalTemplate: Record "FA Journal Template";
     begin
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddO365FASetup;
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
@@ -355,7 +355,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         TimeSheetLineArchive."Line No." := 10000;
         TimeSheetLineArchive.Insert();
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddO365Basic;
 
         // Verify read permissions

@@ -82,19 +82,19 @@ table 10861 "Payment Status"
             Error(Text000);
         PaymentStep.SetRange("Payment Class", "Payment Class");
         PaymentStep.SetRange("Previous Status", Line);
-        if PaymentStep.FindFirst then
+        if PaymentStep.FindFirst() then
             Error(Text001);
         PaymentStep.SetRange("Previous Status");
         PaymentStep.SetRange("Next Status", Line);
-        if PaymentStep.FindFirst then
+        if PaymentStep.FindFirst() then
             Error(Text001);
         PaymentHeader.SetRange("Payment Class", "Payment Class");
         PaymentHeader.SetRange("Status No.", Line);
-        if PaymentHeader.FindFirst then
+        if PaymentHeader.FindFirst() then
             Error(Text001);
         PaymentLine.SetRange("Payment Class", "Payment Class");
         PaymentLine.SetRange("Status No.", Line);
-        if PaymentLine.FindFirst then
+        if PaymentLine.FindFirst() then
             Error(Text001);
     end;
 

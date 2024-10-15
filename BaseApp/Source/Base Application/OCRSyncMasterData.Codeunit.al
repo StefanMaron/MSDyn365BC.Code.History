@@ -36,13 +36,13 @@ codeunit 882 "OCR - Sync Master Data"
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"OCR - Sync Master Data");
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Ready);
-        if JobQueueEntry.FindFirst then begin
+        if JobQueueEntry.FindFirst() then begin
             RestartJob(JobQueueEntry);
             exit;
         end;
 
         JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::"On Hold", JobQueueEntry.Status::Finished);
-        if JobQueueEntry.FindFirst then begin
+        if JobQueueEntry.FindFirst() then begin
             RestartJob(JobQueueEntry);
             exit;
         end;

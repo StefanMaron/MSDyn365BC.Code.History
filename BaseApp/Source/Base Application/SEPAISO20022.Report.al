@@ -444,7 +444,7 @@ report 10883 "SEPA ISO20022"
                     VendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID");
                     VendLedgEntry.SetRange("Vendor No.", PaymentLine."Account No.");
                     VendLedgEntry.SetRange("Applies-to ID", PaymentLine."Applies-to ID");
-                    if VendLedgEntry.FindSet then
+                    if VendLedgEntry.FindSet() then
                         repeat
                             if UstrdRemitInfo = '' then
                                 Separator := ''
@@ -464,7 +464,7 @@ report 10883 "SEPA ISO20022"
                     CustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID");
                     CustLedgEntry.SetRange("Customer No.", PaymentLine."Account No.");
                     CustLedgEntry.SetRange("Applies-to ID", PaymentLine."Applies-to ID");
-                    if CustLedgEntry.FindSet then
+                    if CustLedgEntry.FindSet() then
                         repeat
                             if UstrdRemitInfo = '' then
                                 Separator := ''

@@ -220,7 +220,7 @@ codeunit 144072 "UT REP Fiscal Year"
         // Purpose of the test is to verify error message on OnPreDataItemDate trigger for Report 10801 (Journals).
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Try to execute report without any filter.
         asserterror REPORT.Run(REPORT::Journals);  // Invokes NoFilterOnJournalsRequestPageHandler.
@@ -249,7 +249,7 @@ codeunit 144072 "UT REP Fiscal Year"
         GLEntry: array[2] of Record "G/L Entry";
     begin
         // [SCENARIO 331475] Balance of one G/L Account doesn't affect another.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two G/L Accounts with Entries for Amount 100 and 333 respectively.
         LibraryERM.CreateGLAccount(GLAccount[1]);
@@ -361,7 +361,7 @@ codeunit 144072 "UT REP Fiscal Year"
     local procedure LocalGLReportErrors(ReportID: Integer; PeriodStart: Variant; ErrorCode: Text)
     begin
         // Setup: Enqueue value for GLJournalRequestPageHandler, GLTrialBalanceRequestPageHandler, GLDetailTrialBalanceRequestPageHandler.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(PeriodStart);
 
         // Exercise: Invokes CentralizeJournalsRequestPageHandler, GLDetailTrialBalanceRequestPageHandler, GLJournalRequestPageHandler,

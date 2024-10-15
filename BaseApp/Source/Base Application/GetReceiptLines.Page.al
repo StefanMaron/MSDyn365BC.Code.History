@@ -270,18 +270,18 @@ page 5709 "Get Receipt Lines"
         PurchHeader.TestField("Document Type", PurchHeader."Document Type"::Invoice);
     end;
 
-    local procedure IsFirstDocLine(): Boolean
+    protected procedure IsFirstDocLine(): Boolean
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
         TempPurchRcptLine.Reset();
         TempPurchRcptLine.CopyFilters(Rec);
         TempPurchRcptLine.SetRange("Document No.", "Document No.");
-        if not TempPurchRcptLine.FindFirst then begin
+        if not TempPurchRcptLine.FindFirst() then begin
             PurchRcptLine.CopyFilters(Rec);
             PurchRcptLine.SetRange("Document No.", "Document No.");
             PurchRcptLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
-            if PurchRcptLine.FindFirst then begin
+            if PurchRcptLine.FindFirst() then begin
                 TempPurchRcptLine := PurchRcptLine;
                 TempPurchRcptLine.Insert();
             end;

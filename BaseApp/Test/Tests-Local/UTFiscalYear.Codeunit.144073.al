@@ -1,9 +1,6 @@
 codeunit 144073 "UT Fiscal Year"
 {
     // Miscellaneous unit test cases related to Fiscal Year Area.
-    // 1-4. Purpose of these test cases to verify errors on OnValidate Allow Posting From/ To Trigger for TAB98 [GL Setup] with First and Last Accounting Period Date.
-    // 5-6. Purpose of these test cases to verify errors on OnValidate Allow Posting From/To Trigger for TAB91 [User Setup] with First and Last Accounting Period Date.
-    //   7. Purpose of this test is to verify OnRunTrigger Execution for Allowed Posting Range Page (PAG10819).
     //   8. Purpose of this test is to verify OnRunTrigger Execution for Fiscal Year Closing Steps Page (PAG10818).
     //   9. Purpose of the test is to verify error while Fiscally closing all closed Fiscal Years.
     //  10. Purpose of this test is to verify error while Fiscally Closing an open Fiscal Year.
@@ -18,11 +15,6 @@ codeunit 144073 "UT Fiscal Year"
     // ------------------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                                      TFS ID
     // ------------------------------------------------------------------------------------------------------------------
-    // OnValidateAllowPostingFromGLSetupFirstAccPerError, OnValidateAllowPostingFromGLSetupLastAccPerError     151800
-    // OnValidateAllowPostingToGLSetupFirstAccPerError, OnValidateAllowPostingToGLSetupLastAccPerError         151336
-    // OnValidateAllowPostingFromUserSetupError                                                                151801
-    // OnValidateAllowPostingToUserSetupError                                                                  151337
-    // OnRunAllowedPostingRangePage                                                                            151799,151874
     // OnRunFiscalYearClosingStepsPage                                                                         151798
     // 
     // Covers Test Cases for WI - 344839
@@ -50,124 +42,6 @@ codeunit 144073 "UT Fiscal Year"
         UneditableErr: Label '%1 Field must be uneditable.';
         Assert: Codeunit Assert;
         LibraryUTUtility: Codeunit "Library UT Utility";
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnValidateAllowPostingFromGLSetupFirstAccPerError()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        // Purpose of test is to verify error message on OnValidate Allow Posting From Trigger for TAB98 [General Ledger Setup] with First Accounting Period Date.
-        // Verify actual error message: Allow Posting From must be within the allowed posting range: XXXXXX...YYYYYY.
-        ErrorOnUpdatingFieldInGLSetup(GeneralLedgerSetup.FieldNo("Allow Posting From"), CalcDate('<-1D>', GetFirstAccountingPeriodDate));
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnValidateAllowPostingFromGLSetupLastAccPerError()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        // Purpose of test is to verify error message on OnValidate Allow Posting From Trigger for TAB98 [General Ledger Setup] with Last Accounting Period Date.
-        // Verify actual error message: Allow Posting From must be within the allowed posting range: XXXXXX...YYYYYY.
-        ErrorOnUpdatingFieldInGLSetup(GeneralLedgerSetup.FieldNo("Allow Posting From"), CalcDate('<1D>', GetLastAccountingPeriodDate));
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnValidateAllowPostingToGLSetupFirstAccPerError()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        // Purpose of test is to verify error message on OnValidate Allow Posting To Trigger for TAB98 [General Ledger Setup] with First Accounting Period Date.
-        // Verify actual error message: Allow Posting From must be within the allowed posting range: XXXXXX...YYYYYY.
-        ErrorOnUpdatingFieldInGLSetup(GeneralLedgerSetup.FieldNo("Allow Posting To"), CalcDate('<-1D>', GetFirstAccountingPeriodDate));
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnValidateAllowPostingToGLSetupLastAccPerError()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        // Purpose of test is to verify error message on OnValidate Allow Posting To Trigger for TAB98 [General Ledger Setup] with Last Accounting Period Date.
-        // Verify actual error message: Allow Posting From must be within the allowed posting range: XXXXXX...YYYYYY.
-        ErrorOnUpdatingFieldInGLSetup(GeneralLedgerSetup.FieldNo("Allow Posting To"), CalcDate('<1D>', GetLastAccountingPeriodDate));
-    end;
-
-    local procedure ErrorOnUpdatingFieldInGLSetup(FieldNo: Integer; AllowedDate: Date)
-    begin
-        // Setup and Exercise.
-        asserterror UpdateFieldsInGLSetup(FieldNo, AllowedDate);
-
-        // Verify.
-        Assert.ExpectedErrorCode(DialogTxt);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnValidateAllowPostingFromUserSetupError()
-    var
-        UserSetup: Record "User Setup";
-    begin
-        // Purpose of test is to verify error message on OnValidate Allow Posting From Trigger for TAB91 [User Setup] with First Accounting Period Date.
-        // Setup.
-        CreateUserSetup(UserSetup);
-
-        // Exercise.
-        asserterror UserSetup.Validate("Allow Posting From", CalcDate('<-1D>', GetFirstAccountingPeriodDate));
-
-        // Verify: Actual error message: Allow Posting From must be within the allowed posting range: YYYYYY..XXXXXX.
-        Assert.ExpectedErrorCode(DialogTxt);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnValidateAllowPostingToUserSetupError()
-    var
-        UserSetup: Record "User Setup";
-    begin
-        // Purpose of test is to verify error message on OnValidate Allow Posting From Trigger for TAB91 [User Setup] with Last Accounting Period Date.
-        // Setup.
-        CreateUserSetup(UserSetup);
-
-        // Exercise.
-        asserterror UserSetup.Validate("Allow Posting To", CalcDate('<1D>', GetLastAccountingPeriodDate));
-
-        // Verify: Actual error message: Allow Posting To must be within the allowed posting range: YYYYYY..XXXXXX.
-        Assert.ExpectedErrorCode(DialogTxt);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnRunAllowedPostingRangePage()
-    var
-        AllowedPostingRange: TestPage "Allowed Posting Range";
-    begin
-        // Purpose of this test is to verify OnRunTrigger Execution for Allowed Posting Range Page (PAG10819).
-
-        // Setup And Exercise: Open page in Edit Mode.
-        AllowedPostingRange.OpenEdit;
-
-        // Verify: Verify allowed posting range values, fields should be uneditable.
-        AllowedPostingRange."Posting Allowed From".AssertEquals(GetFirstAccountingPeriodDate);
-        AllowedPostingRange.PostingAllowedTo.AssertEquals(GetLastAccountingPeriodDate);
-        Assert.IsFalse(
-          AllowedPostingRange."Posting Allowed From".Editable,
-          StrSubstNo(UneditableErr, AllowedPostingRange."Posting Allowed From".Caption));
-        Assert.IsFalse(
-          AllowedPostingRange.PostingAllowedTo.Editable, StrSubstNo(UneditableErr, AllowedPostingRange.PostingAllowedTo.Caption));
-
-        // Tear Down.
-        AllowedPostingRange.Close;
-    end;
 
     [Test]
     [HandlerFunctions('AccountingPeriodsPageHandler')]
@@ -388,42 +262,13 @@ codeunit 144073 "UT Fiscal Year"
         GenJournalLine.Insert();
     end;
 
-    local procedure CreateUserSetup(var UserSetup: Record "User Setup")
-    begin
-        UserSetup."User ID" := LibraryUTUtility.GetNewCode;
-        UserSetup.Insert();
-    end;
-
     local procedure GetFirstAccountingPeriodDate(): Date
     var
         AccountingPeriod: Record "Accounting Period";
     begin
         AccountingPeriod.SetRange("Fiscally Closed", false);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         exit(AccountingPeriod."Starting Date");
-    end;
-
-    local procedure GetLastAccountingPeriodDate(): Date
-    var
-        AccountingPeriod: Record "Accounting Period";
-    begin
-        AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.SetRange("Fiscally Closed", false);
-        AccountingPeriod.FindLast;
-        exit(CalcDate('<-1D>', AccountingPeriod."Starting Date"));
-    end;
-
-    local procedure UpdateFieldsInGLSetup(FieldNo: Integer; FieldValue: Date)
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        RecRef: RecordRef;
-        FieldRef: FieldRef;
-    begin
-        GeneralLedgerSetup.Get();
-        RecRef.GetTable(GeneralLedgerSetup);
-        FieldRef := RecRef.Field(FieldNo);
-        FieldRef.Validate(FieldValue);
-        RecRef.SetTable(GeneralLedgerSetup);
     end;
 
     [PageHandler]

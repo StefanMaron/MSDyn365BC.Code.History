@@ -396,7 +396,7 @@ report 10870 "Withdraw notice"
                 PaymtLine.Reset();
                 PaymtLine.SetRange("No.", WithdrawNo);
                 PaymtLine.SetRange("Account No.", "No.");
-                if not PaymtLine.FindFirst then
+                if not PaymtLine.FindFirst() then
                     CurrReport.Skip();
             end;
         }

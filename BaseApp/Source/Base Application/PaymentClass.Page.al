@@ -82,7 +82,7 @@ page 10864 "Payment Class"
                             PaymentClass.SetRange(Code, Code);
                             DuplicateParameter.SetTableView(PaymentClass);
                             DuplicateParameter.InitParameter(Code);
-                            DuplicateParameter.RunModal;
+                            DuplicateParameter.RunModal();
                         end;
                     end;
                 }

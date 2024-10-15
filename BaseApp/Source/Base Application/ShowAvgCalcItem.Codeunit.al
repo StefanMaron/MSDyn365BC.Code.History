@@ -20,15 +20,19 @@ codeunit 5803 "Show Avg. Calc. - Item"
     procedure DrillDownAvgCostAdjmtPoint(var Item: Record Item)
     var
         AvgCostCalcOverview: Page "Average Cost Calc. Overview";
+        IsHandled: Boolean;
     begin
-        OnBeforeDrillDownAvgCostAdjmtPoint(Item);
+        IsHandled := false;
+        OnBeforeDrillDownAvgCostAdjmtPoint(Item, IsHandled);
+        if IsHandled then
+            exit;
 
         AvgCostCalcOverview.SetItem(Item);
-        AvgCostCalcOverview.RunModal;
+        AvgCostCalcOverview.RunModal();
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDrillDownAvgCostAdjmtPoint(var Item: Record Item)
+    local procedure OnBeforeDrillDownAvgCostAdjmtPoint(var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 

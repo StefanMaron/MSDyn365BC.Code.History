@@ -37,7 +37,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         InvoiceAmount: Decimal;
     begin
         // [SCENARIO 121976] Posted Sales Invoice with Amount "A" and Possible Payment Tolerance "PT"
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Posted Sales Invoice with Amount "A" and Possible Payment Tolerance "PT"
@@ -76,7 +76,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         InvoiceAmount: Decimal;
     begin
         // [SCENARIO 121976] Posted Purchase Invoice with Amount "A" and Possible Payment Tolerance "PT"
-        Initialize;
+        Initialize();
         InvoiceAmount := -LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Posted Purchase Invoice with Amount "A" and Possible Payment Tolerance "PT"
@@ -116,7 +116,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
     begin
         // [FEATURE] [Payment Slip] [Application] [Sales]
         // [SCENARIO 363455] Accept Payment Tolerance Warning dialog on applying customer entries
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Posted Sales Invoice with Amount "A" and Possible Payment Tolerance "PT"
@@ -155,7 +155,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
     begin
         // [FEATURE] [Payment Slip] [Application] [Purchases]
         // [SCENARIO 363455] Accept Payment Tolerance Warning dialog on applying vendor entries in Payment Slip
-        Initialize;
+        Initialize();
         InvoiceAmount := -LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Posted Purchase Invoice with Amount "A" and Possible Payment Tolerance "PT"
@@ -200,7 +200,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
     begin
         // [FEATURE] [Application] [Purchases]
         // [SCENARIO 379007] Print Vendor Detail Trial Balance Report in case of Payment Tolerance
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup Max Payment Tolerance Amount
         InvoiceAmount := LibraryRandom.RandDecInRange(10, 500, 2);
@@ -251,7 +251,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
     begin
         // [FEATURE] [Application] [Sales]
         // [SCENARIO 379007] Print Customer Detail Trial Balance Report in case of Payment Tolerance
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup Max Payment Tolerance Amount
         InvoiceAmount := LibraryRandom.RandDecInRange(10, 500, 2);
@@ -289,7 +289,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Tolerance FR");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if IsInitialized then
@@ -298,8 +298,8 @@ codeunit 144012 "ERM Payment Tolerance FR"
 
         IsInitialized := true;
         LibrarySales.SetCreditWarningsToNoWarnings;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Payment Tolerance FR");
@@ -383,7 +383,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         with CustLedgerEntry do begin
             SetRange("Document Type", DocumentType);
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Remaining Amount", Amount);
         end;
     end;
@@ -393,7 +393,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         with VendorLedgerEntry do begin
             SetRange("Document Type", DocumentType);
             SetRange("Vendor No.", VendorNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Remaining Amount", Amount);
         end;
     end;
@@ -402,7 +402,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
     begin
         PaymentLine.SetRange("Account Type", AccountType);
         PaymentLine.SetRange("Account No.", AccountNo);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
     end;
 
     local procedure GetMaxPaymentTolerance(InvoiceAmount: Decimal) MaxPaymentToleranceAmount: Decimal
@@ -463,7 +463,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         Clear(ChangePaymentTolerance);
         ChangePaymentTolerance.InitializeRequest(false, CurrencyCode, PaymentTolerance, MaxPmtToleranceAmount);
         ChangePaymentTolerance.UseRequestPage(false);
-        ChangePaymentTolerance.Run;
+        ChangePaymentTolerance.Run();
     end;
 
     local procedure RunVendorDetailedBalance(VendorNo: Code[20]; ApplicationDate: Date)
@@ -600,7 +600,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         LibraryVariableStorage.Dequeue(DocumentNo);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         ApplyCustomerEntries.GotoRecord(CustLedgerEntry);
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
@@ -619,7 +619,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         LibraryVariableStorage.Dequeue(DocumentNo);
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         ApplyVendorrEntries.GotoRecord(VendorLedgerEntry);
         ApplyVendorrEntries.ActionSetAppliesToID.Invoke;

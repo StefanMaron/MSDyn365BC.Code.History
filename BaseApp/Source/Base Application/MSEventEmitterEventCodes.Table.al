@@ -5,6 +5,7 @@ table 7800 "MS-Event Emitter Event Codes"
     ObsoleteReason = 'Deprecated';
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
+    ReplicateData = false;
 
     fields
     {

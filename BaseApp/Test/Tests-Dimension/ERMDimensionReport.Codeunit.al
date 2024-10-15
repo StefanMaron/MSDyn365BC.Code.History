@@ -117,7 +117,7 @@ codeunit 134975 "ERM Dimension Report"
         // Test Check Value Posting report functionality.
 
         // Setup: Create initial data for Check Value Posting report.
-        Initialize;
+        Initialize();
         DimensionValueCode := CreateDimensionValues(DimensionValue);
         LibraryPurchase.CreateVendor(Vendor);
         CreateDefaultDimensionVendor(
@@ -159,7 +159,7 @@ codeunit 134975 "ERM Dimension Report"
     begin
         // Test case checks that report Calculate Inventory creates Item Journal Lines with correctly specified Dimension IDs.
 
-        Initialize;
+        Initialize();
         // 1. Create Item
         LibraryInventory.CreateItem(Item);
         // 2. Find Item Journal Batch of 'Item' type
@@ -207,7 +207,7 @@ codeunit 134975 "ERM Dimension Report"
     [Scope('OnPrem')]
     procedure DimensionDetailAnalysisCodeMissingError()
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetDimensionDetailParameters('', Format(WorkDate));
@@ -229,7 +229,7 @@ codeunit 134975 "ERM Dimension Report"
     begin
         // Test case checks that report Calculate Inventory creates Item Journal Lines with correctly specified Dimension Value Code.
 
-        Initialize;
+        Initialize();
         // 1. Create 2 Item Journal Lines with Items and Default Dimension
         CreateTwoJrnlLinesItemsWithDefaultDimension(ItemJournalLine, DefaultDimension, ItemNo);
 
@@ -255,7 +255,7 @@ codeunit 134975 "ERM Dimension Report"
         AnalysisView: Record "Analysis View";
         GLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryERM.CreateGLAccount(GLAccount);
@@ -277,7 +277,7 @@ codeunit 134975 "ERM Dimension Report"
         GLAccount: Record "G/L Account";
         ExpectedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         if Confirm('', true) then; // dummy confirm
 
@@ -302,7 +302,7 @@ codeunit 134975 "ERM Dimension Report"
     [Scope('OnPrem')]
     procedure DimensionTotalAnalysisCodeMissingError()
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         SetDimensionTotalParameters('', CreateColumnLayout, Format(WorkDate));
@@ -321,7 +321,7 @@ codeunit 134975 "ERM Dimension Report"
         AnalysisView: Record "Analysis View";
         GLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryERM.CreateGLAccount(GLAccount);
@@ -342,7 +342,7 @@ codeunit 134975 "ERM Dimension Report"
         AnalysisView: Record "Analysis View";
         GLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryERM.CreateGLAccount(GLAccount);
@@ -364,7 +364,7 @@ codeunit 134975 "ERM Dimension Report"
         GLAccount: Record "G/L Account";
         ExpectedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         if Confirm('', true) then; // dummy confirm
 
@@ -393,7 +393,7 @@ codeunit 134975 "ERM Dimension Report"
         CashFlowAccount: Record "Cash Flow Account";
         ExpectedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         if Confirm('', true) then; // dummy confirm
 
@@ -553,7 +553,7 @@ codeunit 134975 "ERM Dimension Report"
         // [FEATURE] [Physical Inventory] [Calculate Inventory]
         // [SCENARIO 296470] Item Journal Lines posted for Locations without transactions in 'Calculate Inventory' have 'Dimension Set ID' = 0
 
-        Initialize;
+        Initialize();
         Location[1].DeleteAll();
 
         // [GIVEN] Locations: L1,L2
@@ -563,7 +563,7 @@ codeunit 134975 "ERM Dimension Report"
         LibraryDimension.CreateDimension(Dimension);
         DimensionSetID := CreateDimSetID(Dimension);
         // [GIVEN] Posted Item Ledger Entry on L1 with D1
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         FindItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item, true);
         CreateItemJnlLineWithDim(
           ItemJournalBatch, ItemJournalLine, WorkDate, DimensionSetID, ItemJournalLine."Entry Type"::Purchase,
@@ -582,11 +582,11 @@ codeunit 134975 "ERM Dimension Report"
         // [THEN] Two lines are created: one with 'Dimension Set ID' = D1, another - 0
         Assert.AreEqual(2, ItemJournalLine.Count, '');
         ItemJournalLine.SetRange("Location Code", Location[1].Code);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         Assert.AreEqual(DimensionSetID, ItemJournalLine."Dimension Set ID",
           StrSubstNo(CheckItemJnlLineDimIDError, ItemJournalLine."Line No."));
         ItemJournalLine.SetRange("Location Code", Location[2].Code);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         Assert.AreEqual(0, ItemJournalLine."Dimension Set ID",
           StrSubstNo(CheckItemJnlLineDimIDError, ItemJournalLine."Line No."));
     end;
@@ -652,13 +652,13 @@ codeunit 134975 "ERM Dimension Report"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Report");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension Report");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         ClearDimensionCombinations;
 
@@ -677,7 +677,7 @@ codeunit 134975 "ERM Dimension Report"
     begin
         LibraryERM.FindRecurringTemplateName(GenJnlTemplate);
         GenJnlBatch.SetFilter("Journal Template Name", GenJnlTemplate.Name);
-        if not GenJnlBatch.FindFirst then
+        if not GenJnlBatch.FindFirst() then
             LibraryERM.CreateRecurringBatchName(GenJnlBatch, GenJnlTemplate.Name);
     end;
 
@@ -791,7 +791,7 @@ codeunit 134975 "ERM Dimension Report"
         LocalValueCode: Code[20];
         GlobalValueCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(Customer);
@@ -883,7 +883,7 @@ codeunit 134975 "ERM Dimension Report"
     begin
         LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
         LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName.Name);
-        ColumnLayout.Validate("Column No.", Format(LibraryUtility.GenerateGUID));
+        ColumnLayout.Validate("Column No.", Format(LibraryUtility.GenerateGUID()));
         ColumnLayout.Validate("Column Type", ColumnLayout."Column Type"::"Net Change");
         ColumnLayout.Modify(true);
         exit(ColumnLayout."Column Layout Name")

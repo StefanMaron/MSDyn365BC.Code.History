@@ -278,7 +278,7 @@ table 288 "Vendor Bank Account"
         OnGetBankAccount(Handled, Rec, ResultBankAccountNo);
 
         if Handled then exit(ResultBankAccountNo);
-        
+
         if IBAN <> '' then
             exit(DelChr(IBAN, '=<>'));
 

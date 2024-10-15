@@ -26,7 +26,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     begin
         // [SCENARIO] validate Function OnAfterGetRecord for Dataset PhysInvtOrderHeader - Report 5005352 - Phys. Invt. Order - Test.
         // [GIVEN] Create Physical Inventory Order Header with Status Open.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         PhysInvtOrderHeader.Status := PhysInvtOrderHeader.Status::Open;
         PhysInvtOrderHeader."Posting Date" := 0D;
@@ -57,7 +57,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     begin
         // [SCENARIO] validate Function OnAfterGetRecord for Dataset PhysInvtOrderHeader - Report 5005352 - Phys. Invt. Order - Test.
         // [GIVEN] Update User Setup with Allow Posting From, Create Physical Inventory Order Header with Posting Date less than Allow Posting From.
-        Initialize;
+        Initialize();
         UserSetup."User ID" := UserId;
         UserSetup."Allow Posting From" := CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
         UserSetup.Insert();
@@ -87,7 +87,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     begin
         // [SCENARIO] validate Function OnAfterGetRecord for Dataset PhysInvtOrderHeader - Report 5005352 - Phys. Invt. Order - Test.
         // [GIVEN] Update User Setup with Allow Posting To, Create Physical Inventory Order Header with Posting Date more than Allow Posting To.
-        Initialize;
+        Initialize();
         UserSetup."User ID" := UserId;
         UserSetup."Allow Posting To" := WorkDate;
         UserSetup.Insert();
@@ -119,7 +119,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     begin
         // [SCENARIO] validate Function OnAfterGetRecord for Dataset Phys. Inventory Order Line - Report 5005352 - Phys. Invt. Order - Test.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryUTUtility.GetNewCode);
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
@@ -150,7 +150,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     begin
         // [SCENARIO] validate Function OnAfterGetRecord for Dataset Phys. Inventory Order Line - Report 5005352 - Phys. Invt. Order - Test.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", CreateBlockedItem);
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
@@ -176,7 +176,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     begin
         // [SCENARIO] validate Function OnAfterGetRecord for Dataset PhysInvtOrderHeader - Report 5005352 - Phys. Invt. Order - Test.
         // [GIVEN] Create Physical Inventory Order Header and Line with Location.
-        Initialize;
+        Initialize();
         LocationCode := LibraryUTUtility.GetNewCode10;
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         PhysInvtOrderHeader."Location Code" := LocationCode;
@@ -212,8 +212,8 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     begin
         // [SCENARIO] validate Function OnAfterGetRecord for DataItem LineDimensionLoop - Report 5005352 - Phys. Invt. Order - Test.
         // Setup.
-        Initialize;
-        DimensionSetEntry.FindLast;
+        Initialize();
+        DimensionSetEntry.FindLast();
         CreateDimensionSetEntry(DimensionSetEntry2, DimensionSetEntry."Dimension Set ID" + LibraryRandom.RandInt(10));  // Value required for non existing Dimension Set Entry.
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", CreateBlockedItem);
@@ -245,8 +245,8 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     begin
         // [SCENARIO] validate Function OnAfterGetRecord for DataItem LineDimensionLoop - Report 5005352 - Phys. Invt. Order - Test.
         // Setup.
-        Initialize;
-        DimensionSetEntry.FindLast;
+        Initialize();
+        DimensionSetEntry.FindLast();
         DimensionSetID := DimensionSetEntry."Dimension Set ID" + LibraryRandom.RandInt(10);  // Value required for non existing Dimension Set Entry.
         CreateDimensionSetEntry(DimensionSetEntry2, DimensionSetID);
         CreateDimensionSetEntry(DimensionSetEntry3, DimensionSetID);
@@ -270,7 +270,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreatePhysInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")

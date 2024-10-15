@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 10819 "Allowed Posting Range"
 {
     Caption = 'Allowed Posting Range';
@@ -5,6 +6,9 @@ page 10819 "Allowed Posting Range"
     InsertAllowed = false;
     PageType = Card;
     SourceTable = "General Ledger Setup";
+    ObsoleteReason = 'Not used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -41,4 +45,4 @@ page 10819 "Allowed Posting Range"
         CalcFields("Posting Allowed To");
     end;
 }
-
+#endif

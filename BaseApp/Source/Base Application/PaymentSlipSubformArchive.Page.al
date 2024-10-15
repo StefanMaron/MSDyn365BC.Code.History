@@ -210,7 +210,7 @@ page 10878 "Payment Slip Subform Archive"
     procedure NavigateLine(PostingDate: Date)
     begin
         Navigate.SetDoc(PostingDate, "Document No.");
-        Navigate.Run;
+        Navigate.Run();
     end;
 }
 

@@ -39,7 +39,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         PaymentStep: Record "Payment Step";
         PaymentMgt: Codeunit "Payment Management";
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentSlip(PaymentHeader, PaymentLine);
         PaymentLine.Amount := -PaymentLine.Amount; // Inject an error
@@ -165,7 +165,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         ExportedFilePath: Text;
     begin
         // [SCENARIO 344720] SEPA Export File contains element PmtInf/PmtTpInf/SvcLvl/Cd with value 'SEPA'.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Slip.
         CreatePaymentSlip(PaymentHeader, PaymentLine);
@@ -234,7 +234,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         PaymentClass: Record "Payment Class";
         PaymentStatus: Record "Payment Status";
     begin
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         LibraryFRLocalization.CreatePaymentClass(PaymentClass);
         with PaymentClass do begin
             Validate(Name, '');
@@ -308,7 +308,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
             Validate("Preferred Bank Account Code", BankAccount."No.");
             Validate(Address, '´Š¢sterbrogade ´Š¢´Š¢'); // for testing non latin characters
             PostCode.SetRange("Country/Region Code", "Country/Region Code");
-            PostCode.FindFirst;
+            PostCode.FindFirst();
             Validate("Post Code", PostCode.Code);
             Validate(City, PostCode.City);
             Modify(true);
@@ -338,7 +338,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         BankExportImportSetup.SetRange("Processing XMLport ID", XMLPORT::"SEPA CT pain.001.001.03");
-        BankExportImportSetup.FindFirst;
+        BankExportImportSetup.FindFirst();
         exit(BankExportImportSetup.Code);
     end;
 
@@ -370,7 +370,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
     var
         ExportedFilePath: Text;
     begin
-        Initialize;
+        Initialize();
         CreatePaymentSlip(PaymentHeader, PaymentLine);
         ExportedFilePath := ExportSEPAFile(PaymentHeader);
         LibraryXMLRead.Initialize(ExportedFilePath);

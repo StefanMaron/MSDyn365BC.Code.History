@@ -22,7 +22,7 @@ codeunit 10880 "Payment Reporting Mgt."
         VendorLedgerEntry.SetCurrentKey("Vendor No.", "Posting Date", "Currency Code");
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Posting Date", StartingDate, EndingDate);
-        if VendorLedgerEntry.FindSet then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 if LastVendNo <> VendorLedgerEntry."Vendor No." then begin
                     Vendor.Get(VendorLedgerEntry."Vendor No.");
@@ -31,7 +31,7 @@ codeunit 10880 "Payment Reporting Mgt."
                 if Vendor."Exclude from Payment Reporting" then begin
                     // Skip all entries associated with this Vendor
                     VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
-                    VendorLedgerEntry.FindLast;
+                    VendorLedgerEntry.FindLast();
                     VendorLedgerEntry.SetRange("Vendor No.");
                 end else begin
                     TotalPmtAmount := 0;
@@ -39,7 +39,7 @@ codeunit 10880 "Payment Reporting Mgt."
                     if HasAppliedPmtVendLedgEntries(TempDtldVendLedgEntry, CorrectionAmount, VendorLedgerEntry) then begin
                         if PaymentsWithinPeriod then
                             TempDtldVendLedgEntry.SetRange("Posting Date", StartingDate, EndingDate);
-                        if TempDtldVendLedgEntry.FindSet then
+                        if TempDtldVendLedgEntry.FindSet() then
                             repeat
                                 TempPaymentApplicationBuffer.InsertVendorPayment(VendorLedgerEntry, TempDtldVendLedgEntry);
                                 TotalPmtAmount += TempPaymentApplicationBuffer."Pmt. Amount (LCY)";
@@ -61,7 +61,7 @@ codeunit 10880 "Payment Reporting Mgt."
         InvDtldVendLedgEntry.SetRange("Entry Type", InvDtldVendLedgEntry."Entry Type"::Application);
         InvDtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", InvVendorLedgerEntry."Entry No.");
         InvDtldVendLedgEntry.SetRange(Unapplied, false);
-        if InvDtldVendLedgEntry.FindSet then
+        if InvDtldVendLedgEntry.FindSet() then
             repeat
                 if InvDtldVendLedgEntry."Vendor Ledger Entry No." =
                    InvDtldVendLedgEntry."Applied Vend. Ledger Entry No."
@@ -70,7 +70,7 @@ codeunit 10880 "Payment Reporting Mgt."
                       "Applied Vend. Ledger Entry No.", InvDtldVendLedgEntry."Applied Vend. Ledger Entry No.");
                     PmtDtldVendLedgEntry.SetRange("Entry Type", PmtDtldVendLedgEntry."Entry Type"::Application);
                     PmtDtldVendLedgEntry.SetRange(Unapplied, false);
-                    if PmtDtldVendLedgEntry.FindSet then
+                    if PmtDtldVendLedgEntry.FindSet() then
                         repeat
                             if PmtDtldVendLedgEntry."Vendor Ledger Entry No." <>
                                PmtDtldVendLedgEntry."Applied Vend. Ledger Entry No."
@@ -111,7 +111,7 @@ codeunit 10880 "Payment Reporting Mgt."
         CustLedgerEntry.SetCurrentKey("Customer No.", "Posting Date", "Currency Code");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Posting Date", StartingDate, EndingDate);
-        if CustLedgerEntry.FindSet then
+        if CustLedgerEntry.FindSet() then
             repeat
                 if LastCustNo <> CustLedgerEntry."Customer No." then begin
                     Customer.Get(CustLedgerEntry."Customer No.");
@@ -120,7 +120,7 @@ codeunit 10880 "Payment Reporting Mgt."
                 if Customer."Exclude from Payment Reporting" then begin
                     // Skip all entries associated with this Vendor
                     CustLedgerEntry.SetRange("Customer No.", Customer."No.");
-                    CustLedgerEntry.FindLast;
+                    CustLedgerEntry.FindLast();
                     CustLedgerEntry.SetRange("Customer No.");
                 end else begin
                     TotalPmtAmount := 0;
@@ -128,7 +128,7 @@ codeunit 10880 "Payment Reporting Mgt."
                     if HasAppliedPmtCustLedgEntries(TempDtldCustLedgEntry, CorrectionAmount, CustLedgerEntry) then begin
                         if PaymentsWithinPeriod then
                             TempDtldCustLedgEntry.SetRange("Posting Date", StartingDate, EndingDate);
-                        if TempDtldCustLedgEntry.FindSet then
+                        if TempDtldCustLedgEntry.FindSet() then
                             repeat
                                 TempPaymentApplicationBuffer.InsertCustomerPayment(CustLedgerEntry, TempDtldCustLedgEntry);
                                 TotalPmtAmount += TempPaymentApplicationBuffer."Pmt. Amount (LCY)";
@@ -150,7 +150,7 @@ codeunit 10880 "Payment Reporting Mgt."
         InvDtldCustLedgEntry.SetRange("Entry Type", InvDtldCustLedgEntry."Entry Type"::Application);
         InvDtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", InvCustLedgerEntry."Entry No.");
         InvDtldCustLedgEntry.SetRange(Unapplied, false);
-        if InvDtldCustLedgEntry.FindSet then
+        if InvDtldCustLedgEntry.FindSet() then
             repeat
                 if InvDtldCustLedgEntry."Cust. Ledger Entry No." =
                    InvDtldCustLedgEntry."Applied Cust. Ledger Entry No."
@@ -159,7 +159,7 @@ codeunit 10880 "Payment Reporting Mgt."
                       "Applied Cust. Ledger Entry No.", InvDtldCustLedgEntry."Applied Cust. Ledger Entry No.");
                     PmtDtldCustLedgEntry.SetRange("Entry Type", PmtDtldCustLedgEntry."Entry Type"::Application);
                     PmtDtldCustLedgEntry.SetRange(Unapplied, false);
-                    if PmtDtldCustLedgEntry.FindSet then
+                    if PmtDtldCustLedgEntry.FindSet() then
                         repeat
                             if PmtDtldCustLedgEntry."Cust. Ledger Entry No." <>
                                PmtDtldCustLedgEntry."Applied Cust. Ledger Entry No."
@@ -262,7 +262,7 @@ codeunit 10880 "Payment Reporting Mgt."
         Customer: Record Customer;
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 DetailedCustLedgEntry.SetRange("Customer No.", Customer."No.");
                 DetailedCustLedgEntry.SetFilter(
@@ -280,7 +280,7 @@ codeunit 10880 "Payment Reporting Mgt."
         Vendor: Record Vendor;
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 DetailedVendorLedgEntry.SetRange("Vendor No.", Vendor."No.");
                 DetailedVendorLedgEntry.SetFilter(

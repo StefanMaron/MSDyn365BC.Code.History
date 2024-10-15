@@ -37,7 +37,7 @@ report 10864 "Suggest Customer Payments"
 
                 GenPayLine.LockTable();
                 GenPayLine.SetRange("No.", GenPayLine."No.");
-                if GenPayLine.FindLast then begin
+                if GenPayLine.FindLast() then begin
                     LastLineNo := GenPayLine."Line No.";
                     GenPayLine.Init();
                 end;
@@ -338,7 +338,7 @@ report 10864 "Suggest Customer Payments"
                         GenPayLine3.SetRange("Account No.", CustLedgEntry."Customer No.");
                         GenPayLine3.SetRange("Applies-to Doc. Type", CustLedgEntry."Document Type");
                         GenPayLine3.SetRange("Applies-to Doc. No.", CustLedgEntry."Document No.");
-                        if GenPayLine3.FindFirst then
+                        if GenPayLine3.FindFirst() then
                             GenPayLine3.FieldError(
                               "Applies-to Doc. No.",
                               StrSubstNo(
@@ -357,7 +357,7 @@ report 10864 "Suggest Customer Payments"
 
         Clear(OldTempPaymentPostBuffer);
         TempPaymentPostBuffer.SetCurrentKey("Document No.");
-        if TempPaymentPostBuffer.FindSet then
+        if TempPaymentPostBuffer.FindSet() then
             repeat
                 with GenPayLine do begin
                     Init;

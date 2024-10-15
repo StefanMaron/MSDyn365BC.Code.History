@@ -1005,14 +1005,14 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Dimension Allowed by Acc.");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryDimension.InitGlobalDimChange;
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Dimension Allowed by Acc.");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();

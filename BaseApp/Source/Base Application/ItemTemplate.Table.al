@@ -220,7 +220,7 @@ table 1301 "Item Template"
     begin
         TempItemTemplate.SetRange(Code, ConfigTemplateHeader.Code);
         TempItemTemplate.SetRange("Template Name", ConfigTemplateHeader.Description);
-        if not TempItemTemplate.FindFirst then begin
+        if not TempItemTemplate.FindFirst() then begin
             TempItemTemplate.Init();
             TempItemTemplate.Code := ConfigTemplateHeader.Code;
             TempItemTemplate."Template Name" := ConfigTemplateHeader.Description;
@@ -289,7 +289,7 @@ table 1301 "Item Template"
         ConfigTemplateHeader.SetRange(Enabled, true);
 
         if ConfigTemplateHeader.Count = 1 then begin
-            ConfigTemplateHeader.FindFirst;
+            ConfigTemplateHeader.FindFirst();
             InsertItemFromTemplate(ConfigTemplateHeader, Item);
             exit(true);
         end;
@@ -355,10 +355,10 @@ table 1301 "Item Template"
         OnInsertItemFromTemplateOnAfterCalcShouldUpdateBaseUOM(Item, ShouldUpdateBaseUOM);
         if ShouldUpdateBaseUOM then begin
             UnitOfMeasure.SetRange("International Standard Code", 'EA'); // 'Each' ~= 'PCS'
-            FoundUoM := UnitOfMeasure.FindFirst;
+            FoundUoM := UnitOfMeasure.FindFirst();
             if not FoundUoM then begin
                 UnitOfMeasure.SetRange("International Standard Code");
-                FoundUoM := UnitOfMeasure.FindFirst;
+                FoundUoM := UnitOfMeasure.FindFirst();
             end;
             if FoundUoM then begin
                 Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
@@ -389,7 +389,7 @@ table 1301 "Item Template"
             if ConfigTemplates.RunModal = ACTION::LookupOK then begin
                 ConfigTemplates.GetRecord(ConfigTemplateHeader);
                 ItemRecRef.GetTable(Item);
-                if ItemRecRef.FindSet then
+                if ItemRecRef.FindSet() then
                     repeat
                         ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, ItemRecRef);
                         FldRef := ItemRecRef.Field(1);

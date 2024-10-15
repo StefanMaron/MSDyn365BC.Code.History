@@ -61,7 +61,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Resource Capacity Matrix Page.
 
         // Setup: Create Resource and generate Column Captions.
-        Initialize;
+        Initialize();
         No := CreateResource;
         GeneratePeriodMatrixData;
         ResourceCapacity.OpenEdit;
@@ -96,7 +96,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Res. Group Capacity Matrix Page.
 
         // Setup: Create Resource Group and generate Column Captions.
-        Initialize;
+        Initialize();
         No := CreateResourceGroup;
         GeneratePeriodMatrixData;
         ResGroupCapacity.OpenEdit;
@@ -131,7 +131,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Resource Allocated per Job Matrix Page.
 
         // Setup: Create Resource,Job and generate Column Captions.
-        Initialize;
+        Initialize();
         ResourceNo := CreateResource;
         JobNo := CreateJob(ResourceNo, '');  // Using blank for Resource Group.
         OpenResourceAllocatedPerJobPage(ResourceAllocatedPerJob, ResourceNo);
@@ -158,7 +158,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on To-Dos Matrix Page.
 
         // Setup: Create To-dos and generate Column Captions.
-        Initialize;
+        Initialize();
         No := CreateToDos;
         LibraryVariableStorage.Enqueue(No);  // Enqueue Values for Page Handler - ToDosMatrixPageHandler.
         GeneratePeriodMatrixData;
@@ -185,7 +185,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Res. Gr. Allocated per Job Matrix Page.
 
         // Setup: Create Resource Group,Job and generate Column Captions.
-        Initialize;
+        Initialize();
         ResourceGroupNo := CreateResourceGroup;
         JobNo := CreateJob('', ResourceGroupNo);  // Using blank for Resource.
         OpenResGrAllocatedPerJobPage(ResGrAllocatedPerJob, ResourceGroupNo);
@@ -212,7 +212,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Opportunities Matrix Page.
 
         // Setup: Create Opportunity and generate Column Captions.
-        Initialize;
+        Initialize();
         No := CreateOpportunity;
         LibraryVariableStorage.Enqueue(No);  // Enqueue Values for Page Handler - OpportunitiesMatrixPageHandler.
         GeneratePeriodMatrixData;
@@ -240,7 +240,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Absence Overview by Periods Matrix Page.
 
         // Setup: Create Employee and generate Column Captions.
-        Initialize;
+        Initialize();
         No := CreateEmployee;
         LibraryVariableStorage.Enqueue(No);  // Enqueue Values for Page Handler - AbsOverviewByPeriodMatrixPageHandler.
         GeneratePeriodMatrixData;
@@ -267,7 +267,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Res. Availability (Service) Matrix Page.
 
         // Setup: Create Resource and generate Column Captions.
-        Initialize;
+        Initialize();
         ResourceNo := CreateResource;
         OrderNo := CreateServiceOrder(ResourceNo, '');  // Using blank for Resource Group.
         CreateServiceOrderAllocation(ResourceNo, '', OrderNo);  // Using blank for Resource Group.
@@ -292,7 +292,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Res. Gr. Availability (Service) Matrix Page.
 
         // Setup: Create Resource Group,Service Order,Service Order Allocation and generate Column Captions.
-        Initialize;
+        Initialize();
         ResourceGroupNo := CreateResourceGroup;
         OrderNo := CreateServiceOrder('', ResourceGroupNo);  // Using blank for Resource.
         CreateServiceOrderAllocation('', ResourceGroupNo, OrderNo);  // Using blank for Resource.
@@ -317,7 +317,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Res. Alloc. per Service Order Matrix Page.
 
         // Setup: Create Resource,Service Order and generate Column Captions.
-        Initialize;
+        Initialize();
         ResourceNo := CreateResource;
         OrderNo := CreateServiceOrder(ResourceNo, '');  // Using blank for Resource Group.
         OpenResAllocPerServiceOrderPage(ResAllocPerServiceOrder, ResourceNo);
@@ -343,7 +343,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on  Res. Gr. Alloc. per Service Order Matrix Page.
 
         // Setup: Create Resource Group,Service Order and generate Column Captions.
-        Initialize;
+        Initialize();
         ResourceGroupNo := CreateResourceGroup;
         OrderNo := CreateServiceOrder('', ResourceGroupNo);  // Using blank for Resource.
         OpenResGrAllocPerServOrderPage(ResGrAllocPerServOrder, ResourceGroupNo);
@@ -369,7 +369,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Work Center Calendar Matrix Page.
 
         // Setup: Create Work Center and generate Column Captions.
-        Initialize;
+        Initialize();
         No := CreateWorkCenter;
         OpenWorkCenterCalendarPage(WorkCenterCalendar, No);
         LibraryVariableStorage.Enqueue(No);  // Enqueue Values for Page Handler - WorkCenterCalendarMatrixPageHandler.
@@ -394,7 +394,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Machine Center Calendar Matrix Page.
 
         // Setup: Create Machine Center and generate Column Captions.
-        Initialize;
+        Initialize();
         No := CreateMachineCenter;
         OpenMachineCenterCalendarPage(MachineCenterCalendar, No);
         LibraryVariableStorage.Enqueue(No);  // Enqueue Values for Page Handler - MachineCenterCalendarMatrixPageHandler.
@@ -419,7 +419,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Work Ctr. Group Calendar Matrix Page.
 
         // Setup: Create Work Center Group and generate Column Captions.
-        Initialize;
+        Initialize();
         Code := CreateWorkCenterGroup;
         OpenWorkCenterGroupPage(WorkCtrGroupCalendar, Code);
         LibraryVariableStorage.Enqueue(Code);  // Enqueue Values for Page Handler - WorkCtrGrpCalendarMatrixPageHandler.
@@ -431,7 +431,7 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Verify: Verify Column Captions on Work Ctr Group Calendar Matrix Page on Page Handler WorkCtrGrpCalendarMatrixPageHandler.
     end;
-
+#if not CLEAN20
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -444,7 +444,7 @@ codeunit 144071 "UT PAG ABBREV"
         // Purpose of the test is to verify caption on Production Forecast Matrix Page.
 
         // Setup: Create Production Forcast Name and generate Column Captions.
-        Initialize;
+        Initialize();
         Name := CreateProductionForeCastName;
         GeneratePeriodMatrixData;
         ProductionForecast.OpenEdit;
@@ -462,10 +462,38 @@ codeunit 144071 "UT PAG ABBREV"
           ProductionForecast.Matrix.Field10.Caption, ProductionForecast.Matrix.Field11.Caption, ProductionForecast.Matrix.Field12.Caption);
         ProductionForecast.Close;
     end;
+#endif
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure DemandForecastWithPeriodTypeMonth()
+    var
+        DemandForecast: TestPage "Demand Forecast Card";
+        PeriodType: Enum "Analysis Period Type";
+        Name: Code[10];
+    begin
+        // Purpose of the test is to verify caption on Production Forecast Matrix Page.
+
+        // Setup: Create Production Forecast Name and generate Column Captions.
+        Initialize();
+        Name := CreateProductionForeCastName();
+        GeneratePeriodMatrixData();
+        DemandForecast.OpenEdit();
+        DemandForecast.Name.SetValue(Name);
+
+        // Exercise: Set Period Type on Production Forecast Page.
+        DemandForecast."View By".SetValue(PeriodType::Month);
+
+        // Verify: Verify Column Captions on Production Forecast Matrix Page.
+        VerifyCaptionJanToJune(DemandForecast.Matrix.Field1.Caption, DemandForecast.Matrix.Field2.Caption, DemandForecast.Matrix.Field3.Caption, DemandForecast.Matrix.Field4.Caption, DemandForecast.Matrix.Field5.Caption, DemandForecast.Matrix.Field6.Caption);
+        VerifyCaptionJulToDec(DemandForecast.Matrix.Field7.Caption, DemandForecast.Matrix.Field8.Caption, DemandForecast.Matrix.Field9.Caption, DemandForecast.Matrix.Field10.Caption, DemandForecast.Matrix.Field11.Caption, DemandForecast.Matrix.Field12.Caption);
+        DemandForecast.Close();
+    end;
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateEmployee(): Code[20]
@@ -551,7 +579,7 @@ codeunit 144071 "UT PAG ABBREV"
         ServiceOrderAllocation2: Record "Service Order Allocation";
     begin
         ServiceOrderAllocation."Entry No." := 1;
-        if ServiceOrderAllocation2.FindLast then
+        if ServiceOrderAllocation2.FindLast() then
             ServiceOrderAllocation."Entry No." := ServiceOrderAllocation2."Entry No." + 1;
         ServiceOrderAllocation.Status := ServiceOrderAllocation.Status::Active;
         ServiceOrderAllocation."Resource No." := ResourceNo;

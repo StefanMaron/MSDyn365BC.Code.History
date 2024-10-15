@@ -210,7 +210,7 @@ report 10843 "Recapitulation Form"
 
                 trigger OnPostDataItem()
                 begin
-                    if not GenJnlLine.FindFirst then
+                    if not GenJnlLine.FindFirst() then
                         CurrReport.Skip();
 
                     if BalanceAmount then
@@ -223,7 +223,7 @@ report 10843 "Recapitulation Form"
                     GenJnlLine.Copy("Gen. Journal Line");
                     GenJnlLine.SetRange("Bal. Account Type", "Account Type"::"Bank Account");
                     GenJnlLine.SetRange("Bal. Account No.", "Bank Account"."No.");
-                    if GenJnlLine.FindFirst then begin
+                    if GenJnlLine.FindFirst() then begin
                         BalanceAmount := true;
                         "Gen. Journal Line".SetRange("Bal. Account No.", "Bank Account"."No.");
                         "Gen. Journal Line".SetRange("Posting Date", GenJnlLine."Posting Date");
@@ -232,7 +232,7 @@ report 10843 "Recapitulation Form"
                         GenJnlLine.SetRange("Account Type", "Account Type"::"Bank Account");
                         GenJnlLine.SetRange("Account No.", "Bank Account"."No.");
                         BalanceAmount := false;
-                        if GenJnlLine.FindFirst then begin
+                        if GenJnlLine.FindFirst() then begin
                             "Gen. Journal Line".SetRange("Document No.", GenJnlLine."Document No.");
                             "Gen. Journal Line".SetRange("Posting Date", GenJnlLine."Posting Date");
                         end else

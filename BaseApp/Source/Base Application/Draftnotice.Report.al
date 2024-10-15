@@ -385,7 +385,7 @@ report 10868 "Draft notice"
                 PaymtLine.Reset();
                 PaymtLine.SetRange("No.", TransfertNo);
                 PaymtLine.SetRange("Account No.", "No.");
-                if not PaymtLine.FindFirst then
+                if not PaymtLine.FindFirst() then
                     CurrReport.Skip();
             end;
         }

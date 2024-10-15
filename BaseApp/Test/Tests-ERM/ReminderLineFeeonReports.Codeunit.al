@@ -34,7 +34,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
     begin
         // [SCENARIO 107048] A service invoice contains Add. Fee per Line note with the amount picked up from the Reminder Terms
         //  as the selected reminder terms has a Add. Fee per Line > 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Reminder Term X with level 1 having Add. Fee per Line = A, where A > 0
         AddFeePerLine := LibraryRandom.RandDec(100, 2);
@@ -59,7 +59,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
     begin
         // [SCENARIO 107048] A service invoice does not contain Add. Fee per Line text
         // as the selected reminder terms has a Add. Fee per Line = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Reminder Term X with level 1 having Add. Fee per Line = A, where A = 0
         CreateCustomerWithReminderTermsAddFeePerLine(CustomerNo, ReminderTermsCode, true, '', 0); // WithLump = TRUE, AddFeePerLine = 0
@@ -87,7 +87,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
     begin
         // [SCENARIO 107048] A service invoice contains multiple add. fee notes
         // as the selected reminder terms has two reminder levels with line fee defined
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Reminder Term X with level 1 having Add. Fee per Line = A, where A > 0
         AddFeePerLine1 := LibraryRandom.RandDec(100, 2);
@@ -127,7 +127,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
     begin
         // [SCENARIO 107048] A service invoice report has Add. Fee per Line note with FCY amount as
         // the selected reminder terms has a Add. Fee per Line defined in FCY
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Reminder Term X with level 1 having Add. Fee per Line = A, where A > 0
         AddFeePerLine := LibraryRandom.RandDec(100, 2);
@@ -155,7 +155,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
     begin
         // [SCENARIO 107048] A service invoice report contains Add. Fee per Line note with Marginal Percentage shown
         // as the selected reminder terms has a Add. Fee per Line > 0  and Calc. Type is not Fixed
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Reminder Term X, with level 1 with Add. Fee per Line = A, where A > 0, with Add. Fee Setup created
         AddFeePerLine := LibraryRandom.RandDec(1000, 2);
@@ -185,7 +185,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
     begin
         // [SCENARIO 107048] A service invoice report contains translated Add. Fee Note
         // as selected Reminder Terms contain Translated text on Report and Customer Country is set to use specific lang.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Reminder Term X, with level 1 with Add. Fee per Line = A, where A > 0, with Text on Report
         // defined in other language and Customer Language set to that language
@@ -216,7 +216,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
 
         IsInitialized := true;
 
-        CustomerPostingGroup.FindFirst;
+        CustomerPostingGroup.FindFirst();
         CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", CustomerPostingGroup."Additional Fee Account");
 
         FCYCode := LibraryERM.CreateCurrencyWithRandomExchRates;
@@ -336,7 +336,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
     var
         Language: Record Language;
     begin
-        Language.FindFirst;
+        Language.FindFirst();
         ReminderTermsTranslation.Init();
         ReminderTermsTranslation.Validate("Reminder Terms Code", ReminderTermsCode);
         ReminderTermsTranslation.Validate("Language Code", Language.Code);
@@ -354,7 +354,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", CustomerNo);
         ServiceInvoice.SetTableView(ServiceInvoiceHeader);
         Commit();
-        ServiceInvoice.Run;
+        ServiceInvoice.Run();
     end;
 
     local procedure PostSalesInvoice(CustomerNo: Code[20]; PostingDate: Date): Code[20]
@@ -404,7 +404,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true); // Ship, Consume, Invoice
 
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -425,7 +425,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true); // Ship, Consume, Invoice
 
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -454,7 +454,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         ReminderLevel.Get(ReminderTermsCode, LevelNo);
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", InvoiceHeaderNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Original Amount");
 
         if LevelNo = 1 then

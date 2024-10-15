@@ -202,7 +202,7 @@ page 1171 "User Task Card"
                         if Rec."Object Type" = AllObjWithCaption."Object Type"::Page then begin
                             AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Page);
                             AllObjWithCaption.SetRange("Object ID", Rec."Object ID");
-                            if AllObjWithCaption.FindFirst then
+                            if AllObjWithCaption.FindFirst() then
                                 if AllObjWithCaption."Object Subtype" <> 'List' then
                                     Error(InvalidPageTypeErr);
                         end;

@@ -1,4 +1,4 @@
-﻿codeunit 397 Mail
+codeunit 397 Mail
 {
 
     trigger OnRun()
@@ -13,7 +13,7 @@
     [Scope('OnPrem')]
     procedure OpenNewMessage(ToName: Text)
     begin
-        Initialize;
+        Initialize();
         NewMessage(ToName, '', '', '', '', '', true);
     end;
 
@@ -40,7 +40,7 @@
         if IsHandled then
             exit(MailSent);
 
-        Initialize;
+        Initialize();
 
         CreateMessage(ToAddresses, CcAddresses, BccAddresses, Subject, Body, ShowNewMailDialogOnSend, RunModal);
         AttachFile(AttachFilename);
@@ -51,7 +51,7 @@
 
     procedure CreateMessage(ToAddresses: Text; CcAddresses: Text; BccAddresses: Text; Subject: Text; Body: Text; ShowNewMailDialogOnSend: Boolean; RunModal: Boolean)
     begin
-        Initialize;
+        Initialize();
 
         OnBeforeCreateMessage(ToAddresses, CcAddresses, BccAddresses, Subject, Body);
 
@@ -69,7 +69,7 @@
     [Scope('OnPrem')]
     procedure AddBodyline(TextLine: Text): Boolean
     begin
-        Initialize;
+        Initialize();
 
         if TextLine <> '' then
             OutlookMessageHelper.Body.Append(FormatTextForHtml(TextLine));
@@ -79,7 +79,7 @@
     [Scope('OnPrem')]
     procedure AttachFile(Filename: Text)
     begin
-        Initialize;
+        Initialize();
 
         if Filename <> '' then
             OutlookMessageHelper.AttachmentFileNames.Add(Filename);
@@ -88,14 +88,14 @@
     [Scope('OnPrem')]
     procedure Send(): Boolean
     begin
-        Initialize;
+        Initialize();
         exit(OutlookMessageHelper.Send);
     end;
 
     [Scope('OnPrem')]
     procedure GetErrorDesc(): Text
     begin
-        Initialize;
+        Initialize();
         if not IsNull(OutlookMessageHelper.LastException) then
             exit(OutlookMessageHelper.LastException.Message);
     end;
@@ -131,7 +131,7 @@
     procedure ValidateEmail(var ContactThrough: Record "Communication Method"; EMailToValidate: Text) EMailExists: Boolean
     begin
         ContactThrough.Reset();
-        if ContactThrough.FindFirst then begin
+        if ContactThrough.FindFirst() then begin
             ContactThrough.SetRange("E-Mail", CopyStr(EMailToValidate, 1, MaxStrLen(ContactThrough."E-Mail")));
             EMailExists := not ContactThrough.IsEmpty;
         end;
@@ -147,7 +147,7 @@
         if not Contact.Get(ContactNo) then
             exit;
         with ContactThrough do begin
-            if FindLast then
+            if FindLast() then
                 KeyNo := Key + 1
             else
                 KeyNo := 1;
@@ -168,7 +168,7 @@
             ContAltAddrDateRange.SetRange("Contact No.", ContactNo);
             ContAltAddrDateRange.SetRange("Starting Date", 0D, Today);
             ContAltAddrDateRange.SetFilter("Ending Date", '>=%1|%2', Today, 0D);
-            if ContAltAddrDateRange.FindSet then
+            if ContAltAddrDateRange.FindSet() then
                 repeat
                     if ContAltAddr.Get(Contact."No.", ContAltAddrDateRange."Contact Alt. Address Code") then
                         if ContAltAddr."E-Mail" <> '' then begin
@@ -195,14 +195,13 @@
     [Scope('OnPrem')]
     procedure TryInitializeOutlook(): Boolean
     begin
-        Initialize;
+        Initialize();
         exit(OutlookMessageHelper.CanInitializeOutlook);
     end;
 
     procedure CollectCurrentUserEmailAddresses(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        EmailFeature: Codeunit "Email Feature";
     begin
         AddAddressToCollection('GraphSetup', GetEmailFromGraphSetupTable, TempNameValueBuffer);
         AddAddressToCollection('UserSetup', GetEmailFromUserSetupTable, TempNameValueBuffer);
@@ -211,9 +210,7 @@
         if not EnvironmentInfo.IsSaaS then
             AddAddressToCollection('AD', GetActiveDirectoryMailFromUser, TempNameValueBuffer);
 
-        if EmailFeature.IsEnabled() then
-            AddAddressToCollection('DefaultEmailAccount', GetDefaultScenarioEmailAddress(), TempNameValueBuffer);
-        AddAddressToCollection('SMTPSetup', GetAddressFromSMTPSetup, TempNameValueBuffer); // To be removed together with deprecated SMTP objects
+        AddAddressToCollection('DefaultEmailAccount', GetDefaultScenarioEmailAddress(), TempNameValueBuffer);
     end;
 
     local procedure AddAddressToCollection(EmailKey: Text; EmailAddress: Text; var TempNameValueBuffer: Record "Name/Value Buffer" temporary): Boolean
@@ -225,12 +222,12 @@
 
         with TempNameValueBuffer do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     if UpperCase(Value) = UpperCase(EmailAddress) then
                         exit(false);
                 until Next() = 0;
-            if FindLast then
+            if FindLast() then
                 NextID := ID + 1
             else
                 NextID := 1;
@@ -244,21 +241,6 @@
         end;
 
         exit(true);
-    end;
-
-    local procedure GetAddressFromSMTPSetup(): Text
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-        MailManagement: Codeunit "Mail Management";
-    begin
-        with SMTPMailSetup do begin
-            if not FindFirst then
-                exit;
-            if Authentication in [Authentication::Basic, Authentication::OAuth2] then
-                if "User ID" <> '' then
-                    if MailManagement.CheckValidEmailAddress(GetSender) then
-                        exit(GetSender);
-        end;
     end;
 
     local procedure GetDefaultScenarioEmailAddress(): Text
@@ -296,7 +278,7 @@
         User: Record User;
     begin
         User.SetRange("User Name", UserId);
-        if User.FindFirst then
+        if User.FindFirst() then
             exit(User."Authentication Email");
     end;
 
@@ -305,7 +287,7 @@
         User: Record User;
     begin
         User.SetRange("User Name", UserId);
-        if User.FindFirst then
+        if User.FindFirst() then
             exit(User."Contact Email");
     end;
 
@@ -314,7 +296,7 @@
         UserSetup: Record "User Setup";
     begin
         UserSetup.SetRange("User ID", UserId);
-        if UserSetup.FindFirst then
+        if UserSetup.FindFirst() then
             exit(UserSetup."E-Mail");
     end;
 

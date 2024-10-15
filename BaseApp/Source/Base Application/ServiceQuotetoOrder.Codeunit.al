@@ -91,124 +91,123 @@ codeunit 5923 "Service-Quote to Order"
         RecordLinkManagement: Codeunit "Record Link Management";
         SkipDelete: Boolean;
     begin
-        with ServOrderHeader do begin
-            "No." := '';
-            "No. Printed" := 0;
-            Validate(Status, Status::Pending);
-            "Order Date" := WorkDate;
-            "Order Time" := Time;
-            "Actual Response Time (Hours)" := 0;
-            "Service Time (Hours)" := 0;
-            "Starting Date" := 0D;
-            "Starting Time" := 0T;
-            "Finishing Date" := 0D;
-            "Finishing Time" := 0T;
+        ServOrderHeader."No." := '';
+        ServOrderHeader."No. Printed" := 0;
+        ServOrderHeader.Validate(Status, ServOrderHeader.Status::Pending);
+        ServOrderHeader."Order Date" := WorkDate;
+        ServOrderHeader."Order Time" := Time;
+        ServOrderHeader."Actual Response Time (Hours)" := 0;
+        ServOrderHeader."Service Time (Hours)" := 0;
+        ServOrderHeader."Starting Date" := 0D;
+        ServOrderHeader."Starting Time" := 0T;
+        ServOrderHeader."Finishing Date" := 0D;
+        ServOrderHeader."Finishing Time" := 0T;
 
-            TestNoSeries;
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, '', 0D, "No.", "No. Series");
+        TestNoSeries();
+        NoSeriesMgt.InitSeries(GetNoSeriesCode, '', 0D, ServOrderHeader."No.", ServOrderHeader."No. Series");
 
-            "Quote No." := ServiceHeader."No.";
-            RecordLinkManagement.CopyLinks(ServiceHeader, ServOrderHeader);
-            InsertServHeader(ServOrderHeader, ServiceHeader);
+        ServOrderHeader."Quote No." := ServiceHeader."No.";
+        RecordLinkManagement.CopyLinks(ServiceHeader, ServOrderHeader);
+        InsertServHeader(ServOrderHeader, ServiceHeader);
 
-            ServCommentLine.Reset();
-            ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Header");
-            ServCommentLine.SetRange("Table Subtype", ServiceHeader."Document Type");
-            ServCommentLine.SetRange("No.", ServiceHeader."No.");
-            ServCommentLine.SetRange("Table Line No.", 0);
-            if ServCommentLine.Find('-') then
-                repeat
-                    ServCommentLine2 := ServCommentLine;
-                    ServCommentLine2."Table Subtype" := "Document Type";
-                    ServCommentLine2."No." := "No.";
-                    OnBeforeServCommentLineInsert(ServCommentLine2, ServiceHeader, ServOrderHeader);
-                    ServCommentLine2.Insert();
-                until ServCommentLine.Next() = 0;
+        ServCommentLine.Reset();
+        ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Header");
+        ServCommentLine.SetRange("Table Subtype", ServiceHeader."Document Type");
+        ServCommentLine.SetRange("No.", ServiceHeader."No.");
+        ServCommentLine.SetRange("Table Line No.", 0);
+        if ServCommentLine.Find('-') then
+            repeat
+                ServCommentLine2 := ServCommentLine;
+                ServCommentLine2."Table Subtype" := ServOrderHeader."Document Type";
+                ServCommentLine2."No." := ServOrderHeader."No.";
+                OnBeforeServCommentLineInsert(ServCommentLine2, ServiceHeader, ServOrderHeader);
+                ServCommentLine2.Insert();
+            until ServCommentLine.Next() = 0;
 
-            ServOrderAlloc.Reset();
-            ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", Status);
-            ServOrderAlloc.SetRange("Document Type", ServiceHeader."Document Type");
-            ServOrderAlloc.SetRange("Document No.", ServiceHeader."No.");
-            ServOrderAlloc.SetRange(Status, ServOrderAlloc.Status::Active);
-            while ServOrderAlloc.FindFirst do begin
-                ServOrderAlloc."Document Type" := "Document Type";
-                ServOrderAlloc."Document No." := "No.";
-                ServOrderAlloc."Service Started" := true;
-                ServOrderAlloc.Status := ServOrderAlloc.Status::"Reallocation Needed";
-                ServOrderAlloc.Modify();
-            end;
+        ServOrderAlloc.Reset();
+        ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", Status);
+        ServOrderAlloc.SetRange("Document Type", ServiceHeader."Document Type");
+        ServOrderAlloc.SetRange("Document No.", ServiceHeader."No.");
+        ServOrderAlloc.SetRange(Status, ServOrderAlloc.Status::Active);
+        while ServOrderAlloc.FindFirst() do begin
+            ServOrderAlloc."Document Type" := ServOrderHeader."Document Type";
+            ServOrderAlloc."Document No." := ServOrderHeader."No.";
+            ServOrderAlloc."Service Started" := true;
+            ServOrderAlloc.Status := ServOrderAlloc.Status::"Reallocation Needed";
+            ServOrderAlloc.Modify();
+        end;
 
-            ServItemLine.Reset();
-            ServItemLine.SetRange("Document Type", ServiceHeader."Document Type");
-            ServItemLine.SetRange("Document No.", ServiceHeader."No.");
-            if ServItemLine.Find('-') then
-                repeat
-                    ServItemLine2 := ServItemLine;
-                    ServItemLine2."Document Type" := "Document Type";
-                    ServItemLine2."Document No." := "No.";
-                    ServItemLine2."Starting Date" := 0D;
-                    ServItemLine2."Starting Time" := 0T;
-                    ServItemLine2."Actual Response Time (Hours)" := 0;
-                    ServItemLine2."Finishing Date" := 0D;
-                    ServItemLine2."Finishing Time" := 0T;
-                    RepairStatus.Reset();
-                    RepairStatus.SetRange(Initial, true);
-                    if RepairStatus.FindFirst then
-                        ServItemLine2."Repair Status Code" := RepairStatus.Code;
-                    OnBeforeServiceItemLineInsert(ServItemLine2, ServItemLine, ServOrderHeader);
-                    ServItemLine2.Insert(true);
-                    OnAfterInsertServiceLine(ServItemLine2, ServItemLine);
-                until ServItemLine.Next() = 0;
+        ServItemLine.Reset();
+        ServItemLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServItemLine.SetRange("Document No.", ServiceHeader."No.");
+        if ServItemLine.Find('-') then
+            repeat
+                ServItemLine2 := ServItemLine;
+                ServItemLine2."Document Type" := ServOrderHeader."Document Type";
+                ServItemLine2."Document No." := ServOrderHeader."No.";
+                ServItemLine2."Starting Date" := 0D;
+                ServItemLine2."Starting Time" := 0T;
+                ServItemLine2."Actual Response Time (Hours)" := 0;
+                ServItemLine2."Finishing Date" := 0D;
+                ServItemLine2."Finishing Time" := 0T;
+                RepairStatus.Reset();
+                RepairStatus.SetRange(Initial, true);
+                if RepairStatus.FindFirst() then
+                    ServItemLine2."Repair Status Code" := RepairStatus.Code;
+                OnBeforeServiceItemLineInsert(ServItemLine2, ServItemLine, ServOrderHeader);
+                ServItemLine2.Insert(true);
+                OnAfterInsertServiceLine(ServItemLine2, ServItemLine);
+            until ServItemLine.Next() = 0;
 
-            UpdateResponseDateTime;
+        ServOrderHeader.UpdateResponseDateTime();
 
-            LoanerEntry.Reset();
-            LoanerEntry.SetCurrentKey("Document Type", "Document No.");
-            LoanerEntry.SetRange("Document Type", ServiceHeader."Document Type".AsInteger() + 1);
-            LoanerEntry.SetRange("Document No.", ServiceHeader."No.");
-            while LoanerEntry.FindFirst do begin
-                LoanerEntry."Document Type" := LoanerEntry.GetDocTypeFromServDocType("Document Type");
-                LoanerEntry."Document No." := "No.";
-                LoanerEntry.Modify();
-            end;
+        LoanerEntry.Reset();
+        LoanerEntry.SetCurrentKey("Document Type", "Document No.");
+        LoanerEntry.SetRange("Document Type", ServiceHeader."Document Type".AsInteger() + 1);
+        LoanerEntry.SetRange("Document No.", ServiceHeader."No.");
+        while LoanerEntry.FindFirst() do begin
+            LoanerEntry."Document Type" := LoanerEntry.GetDocTypeFromServDocType(ServOrderHeader."Document Type");
+            LoanerEntry."Document No." := ServOrderHeader."No.";
+            LoanerEntry.Modify();
+        end;
 
-            ServCommentLine.Reset();
-            ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Header");
-            ServCommentLine.SetRange("Table Subtype", ServiceHeader."Document Type");
-            ServCommentLine.SetRange("No.", ServiceHeader."No.");
-            ServCommentLine.SetFilter("Table Line No.", '>%1', 0);
-            if ServCommentLine.Find('-') then
-                repeat
-                    ServCommentLine2 := ServCommentLine;
-                    ServCommentLine2."Table Subtype" := "Document Type";
-                    ServCommentLine2."No." := "No.";
-                    ServCommentLine2.Insert();
-                until ServCommentLine.Next() = 0;
+        ServCommentLine.Reset();
+        ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Header");
+        ServCommentLine.SetRange("Table Subtype", ServiceHeader."Document Type");
+        ServCommentLine.SetRange("No.", ServiceHeader."No.");
+        ServCommentLine.SetFilter("Table Line No.", '>%1', 0);
+        if ServCommentLine.Find('-') then
+            repeat
+                ServCommentLine2 := ServCommentLine;
+                ServCommentLine2."Table Subtype" := ServOrderHeader."Document Type";
+                ServCommentLine2."No." := ServOrderHeader."No.";
+                ServCommentLine2.Insert();
+            until ServCommentLine.Next() = 0;
 
-            ServOrderLine.Reset();
-            ServOrderLine.SetRange("Document Type", ServiceHeader."Document Type");
-            ServOrderLine.SetRange("Document No.", ServiceHeader."No.");
-            if ServOrderLine.Find('-') then
-                repeat
-                    ServOrderLine2 := ServOrderLine;
-                    ServOrderLine2."Document Type" := "Document Type";
-                    ServOrderLine2."Document No." := "No.";
-                    ServOrderLine2."Posting Date" := "Posting Date";
-                    OnBeforeServOrderLineInsert(ServOrderLine2, ServOrderLine, ServOrderHeader);
-                    ServOrderLine2.Insert();
-                    OnAfterServOrderLineInsert(ServOrderLine2, ServOrderLine);
-                    ServiceLineReserve.TransServLineToServLine(ServOrderLine, ServOrderLine2, ServOrderLine.Quantity);
-                until ServOrderLine.Next() = 0;
+        ServOrderLine.Reset();
+        ServOrderLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServOrderLine.SetRange("Document No.", ServiceHeader."No.");
+        if ServOrderLine.Find('-') then
+            repeat
+                ServOrderLine2 := ServOrderLine;
+                ServOrderLine2."Document Type" := ServOrderHeader."Document Type";
+                ServOrderLine2."Document No." := ServOrderHeader."No.";
+                ServOrderLine2."Posting Date" := ServOrderHeader."Posting Date";
+                OnBeforeServOrderLineInsert(ServOrderLine2, ServOrderLine, ServOrderHeader);
+                ServOrderLine2.Insert();
+                OnAfterServOrderLineInsert(ServOrderLine2, ServOrderLine);
+                ServiceLineReserve.TransServLineToServLine(ServOrderLine, ServOrderLine2, ServOrderLine.Quantity);
+            until ServOrderLine.Next() = 0;
 
-            ServLogMgt.ServOrderQuoteChanged(ServOrderHeader, ServiceHeader);
-            ApprovalsMgmt.CopyApprovalEntryQuoteToOrder(ServiceHeader.RecordId, "No.", RecordId);
+        ServLogMgt.ServOrderQuoteChanged(ServOrderHeader, ServiceHeader);
+        ApprovalsMgmt.CopyApprovalEntryQuoteToOrder(
+            ServiceHeader.RecordId, ServOrderHeader."No.", ServOrderHeader.RecordId);
 
-            SkipDelete := false;
-            OnBeforeServLineDeleteAll(ServiceHeader, ServOrderHeader, SkipDelete);
-            if not SkipDelete then begin
-                ApprovalsMgmt.DeleteApprovalEntries(ServiceHeader.RecordId);
-                ServOrderLine.DeleteAll(true);
-            end;
+        SkipDelete := false;
+        OnBeforeServLineDeleteAll(ServiceHeader, ServOrderHeader, SkipDelete);
+        if not SkipDelete then begin
+            ApprovalsMgmt.DeleteApprovalEntries(ServiceHeader.RecordId);
+            ServOrderLine.DeleteAll(true);
         end;
     end;
 
@@ -222,7 +221,7 @@ codeunit 5923 "Service-Quote to Order"
         ServiceQuoteLine.SetRange("Document No.", ServiceQuoteHeader."No.");
         ServiceQuoteLine.SetRange(Type, ServiceQuoteLine.Type::Item);
         ServiceQuoteLine.SetFilter("No.", '<>%1', '');
-        if ServiceQuoteLine.FindSet then
+        if ServiceQuoteLine.FindSet() then
             repeat
                 IsHandled := false;
                 OnBeforeTransferQuoteLineToOrderLineLoop(ServiceQuoteLine, ServiceQuoteHeader, ServiceOrderHeader, IsHandled);

@@ -40,14 +40,14 @@ codeunit 144011 "ERM Bank Account FR"
         // Purpose of the test is to Post Payment Slip and verify created GL Entry for Customer Bank Account Code.
 
         // Setup And Exercise.
-        Initialize;
+        Initialize();
         PaymentSlipPost(PaymentHeader, PaymentLine."Account Type"::Customer, CreateCustomer, PaymentClass.Suggestions::Customer);
 
         // Verify.
         PaymentLine.SetRange("No.", PaymentHeader."No.");
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         GLEntry.SetRange("Document No.", PaymentLine."Document No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, PaymentLine.Amount);
     end;
 
@@ -64,14 +64,14 @@ codeunit 144011 "ERM Bank Account FR"
         // Purpose of the test is to Post Payment Slip and verify created GL Entry for Vendor Bank Account Code.
 
         // Setup And Exercise.
-        Initialize;
+        Initialize();
         PaymentSlipPost(PaymentHeader, PaymentLine."Account Type"::Vendor, CreateVendor, PaymentClass.Suggestions::Vendor);
 
         // Verify.
         PaymentLine.SetRange("No.", PaymentHeader."No.");
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         GLEntry.SetRange("Document No.", PaymentLine."Document No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, -PaymentLine.Amount);
     end;
 
@@ -91,7 +91,7 @@ codeunit 144011 "ERM Bank Account FR"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -125,7 +125,7 @@ codeunit 144011 "ERM Bank Account FR"
         PaymentClass: Record "Payment Class";
     begin
         PaymentClass.SetRange(Suggestions, Suggestions);
-        PaymentClass.FindFirst;
+        PaymentClass.FindFirst();
         LibraryVariableStorage.Enqueue(PaymentClass.Code);
         LibraryFRLocalization.CreatePaymentHeader(PaymentHeader);
         PaymentHeader.Validate("Payment Class", PaymentClass.Code);

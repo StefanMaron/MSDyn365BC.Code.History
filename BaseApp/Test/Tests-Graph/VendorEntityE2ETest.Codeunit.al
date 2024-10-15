@@ -40,7 +40,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 201343] User can get a simple vendor with a GET request to the service.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A vendor exists in the system.
         CreateSimpleVendor(Vendor);
@@ -63,7 +63,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 201343] User can get a vendor that has non-empty values for complex type fields.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A vendor exists and has values assigned to some of the fields contained in complex types.
         CreateVendorWithAddress(Vendor);
@@ -89,7 +89,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 201343] Create an vendor through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a simple vendor JSON object to send to the service.
         VendorJSON := GetSimpleVendorJSON(TempVendor);
@@ -117,7 +117,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         ResponseTxt: Text;
     begin
         // [SCENARIO 201343] Create a vendor with a complex type through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] A payment term
         Commit();
@@ -149,7 +149,7 @@ codeunit 135503 "Vendor Entity E2E Test"
     begin
         // [FEATURE] [Template]
         // [SCENARIO 201343] User can create a new vendor and have the system apply a template.
-        Initialize;
+        Initialize();
         LibraryInventory.CreatePaymentTerms(PaymentTerms);
         LibraryInventory.CreatePaymentMethod(PaymentMethod);
 
@@ -198,12 +198,12 @@ codeunit 135503 "Vendor Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 201343] User can modify a vendor through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A vendor exists.
         CreateSimpleVendor(Vendor);
         TempVendor.TransferFields(Vendor);
-        TempVendor.Name := LibraryUtility.GenerateGUID;
+        TempVendor.Name := LibraryUtility.GenerateGUID();
         RequestBody := GetSimpleVendorJSON(TempVendor);
         Commit();
 
@@ -230,7 +230,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 201343] User can modify a complex type in a vendor through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A vendor exists with an address.
         CreateVendorWithAddress(Vendor);
@@ -263,7 +263,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO 201343] User can clear the values encapsulated in a complex type by specifying null.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Vendor exists with a specific address.
         CreateVendorWithAddress(Vendor);
@@ -292,7 +292,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         Responsetext: Text;
     begin
         // [SCENARIO 201343] User can delete a vendor by making a DELETE request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A vendor exists.
         CreateSimpleVendor(Vendor);
@@ -413,7 +413,7 @@ codeunit 135503 "Vendor Entity E2E Test"
     begin
         Vendor.Init();
         Vendor."No." := GetNextVendorID;
-        Vendor.Name := LibraryUtility.GenerateGUID;
+        Vendor.Name := LibraryUtility.GenerateGUID();
         Vendor.Insert(true);
 
         Commit();
@@ -423,12 +423,12 @@ codeunit 135503 "Vendor Entity E2E Test"
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         CreateSimpleVendor(Vendor);
-        Vendor.Address := LibraryUtility.GenerateGUID;
-        Vendor."Address 2" := LibraryUtility.GenerateGUID;
-        Vendor.City := LibraryUtility.GenerateGUID;
-        Vendor.County := LibraryUtility.GenerateGUID;
+        Vendor.Address := LibraryUtility.GenerateGUID();
+        Vendor."Address 2" := LibraryUtility.GenerateGUID();
+        Vendor.City := LibraryUtility.GenerateGUID();
+        Vendor.County := LibraryUtility.GenerateGUID();
         Vendor."Country/Region Code" := CountryRegion.Code;
         Vendor.Modify(true);
     end;
@@ -438,7 +438,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         Vendor: Record Vendor;
     begin
         Vendor.SetFilter("No.", StrSubstNo('%1*', VendorKeyPrefixTxt));
-        if Vendor.FindLast then
+        if Vendor.FindLast() then
             exit(IncStr(Vendor."No."));
 
         exit(CopyStr(VendorKeyPrefixTxt + '00001', 1, 20));
@@ -454,7 +454,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         if Vendor."No." = '' then
             Vendor."No." := GetNextVendorID;
         if Vendor.Name = '' then
-            Vendor.Name := LibraryUtility.GenerateGUID;
+            Vendor.Name := LibraryUtility.GenerateGUID();
         JSONManagement.AddJPropertyToJObject(JsonObject, 'number', Vendor."No.");
         JSONManagement.AddJPropertyToJObject(JsonObject, 'displayName', Vendor.Name);
         SimpleVendorJSON := JSONManagement.WriteObjectToString;

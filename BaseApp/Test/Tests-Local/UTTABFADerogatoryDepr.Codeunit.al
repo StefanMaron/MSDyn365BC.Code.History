@@ -328,7 +328,7 @@ codeunit 144025 "UT TAB FA Derogatory Depr."
         FALedgerEntry2: Record "FA Ledger Entry";
     begin
         FALedgerEntry."Entry No." := 1;
-        if FALedgerEntry2.FindLast then
+        if FALedgerEntry2.FindLast() then
             FALedgerEntry."Entry No." := FALedgerEntry2."Entry No." + 1;
         FALedgerEntry."FA No." := FADepreciationBook."FA No.";
         FALedgerEntry."Depreciation Book Code" := FADepreciationBook."Depreciation Book Code";

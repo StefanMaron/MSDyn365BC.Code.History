@@ -129,7 +129,7 @@ report 93 "Create Fiscal Year"
     begin
         NoOfPeriods := NewNoOfPeriods;
         PeriodLength := NewPeriodLength;
-        if AccountingPeriod.FindLast then
+        if AccountingPeriod.FindLast() then
             FiscalYearStartDate := AccountingPeriod."Starting Date"
         else
             FiscalYearStartDate := StartingDate;

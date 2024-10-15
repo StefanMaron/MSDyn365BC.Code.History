@@ -73,7 +73,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that System generates an error when Starting Date and End Date are not filled.
 
         // 1. Setup: Set File Name for Report.
-        Initialize;
+        Initialize();
         FixedAssetAnalysis.GetFASetup;
         LibraryReportValidation.SetFileName(FixedAsset.TableCaption + FixedAsset."No.");
 
@@ -96,7 +96,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that System generates an error when Starting Date is later than the Ending Date.
 
         // 1. Setup: Set Mandatory Fields and File Name for Report.
-        Initialize;
+        Initialize();
         Clear(FixedAssetAnalysis);
 
         // Using the Random Number for the Day.
@@ -121,7 +121,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that system generates an error when Proceeds on Disposal specified without option at Ending Date.
 
         // 1. Setup: Set Mandatory Fields and File Name for Report.
-        Initialize;
+        Initialize();
         Clear(FixedAssetAnalysis);
         OptionWithStartingDateError(ProceedsonDisposalTxt);
 
@@ -144,7 +144,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that system generates an error when Gain/Loss specified without option at Ending Date.
 
         // 1. Setup: Set Mandatory Fields and File Name for Report.
-        Initialize;
+        Initialize();
         Clear(FixedAssetAnalysis);
         OptionWithStartingDateError(GainLossTxt);
 
@@ -185,7 +185,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Acquisition Cost with Period 1 option Before Starting Date and Date Field 1 as Acquisition Date.
 
         // 1.Setup: Create Fixed Asset, Depreciation Book, FA Depreciation Book and Post FA Journal Line for Acquisition cost.
-        Initialize;
+        Initialize();
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         Clear(FixedAssetAnalysis);
         FixedAssetAnalysis.GetFASetup;
@@ -210,7 +210,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Acquisition Cost with Period 1 option Net Change and Date Field 1 as Acquisition Date.
 
         // 1.Setup: Create Fixed Asset, Depreciation Book, FA Depreciation Book and Post FA Journal Line for Acquisition cost.
-        Initialize;
+        Initialize();
         FAJournalLineAmount := AcquisitionCostWithPeriod(FADepreciationBook);
 
         // 2. Exercise: Set Value for the Report and save as excel.
@@ -232,7 +232,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Acquisition Cost with Period 1 option at Ending Date and Date Field 1 as Acquisition Date.
 
         // 1.Setup: Create Fixed Asset, Depreciation Book, FA Depreciation Book and Post FA Journal Line for Acquisition cost.
-        Initialize;
+        Initialize();
         FAJournalLineAmount := AcquisitionCostWithPeriod(FADepreciationBook);
 
         // 2. Exercise: Set Value for the Report and save as excel.
@@ -279,7 +279,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Acquisition Cost with Period 1 option at Ending Date and Date Field 1 as Acquisition Date and Print Details.
 
         // 1.Setup: Create Fixed Asset, Depreciation Book, FA Depreciation Book and Post FA Journal Line for Acquisition cost.
-        Initialize;
+        Initialize();
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         Clear(FixedAssetAnalysis);
         FixedAssetAnalysis.GetFASetup;
@@ -307,7 +307,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Appreciation with Period2 option Before Starting Date and Date Field 1 as Acquisition Date.
 
         // 1.Setup: Create Fixed Asset, Depreciation Book and Post FA Journal Line for Acquisition cost and Appreciation.
-        Initialize;
+        Initialize();
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
@@ -339,7 +339,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Appreciation with Period2 option Net Change and Date Field 1 as Acquisition Date.
 
         // 1.Setup: Create Fixed Asset, Depreciation Book and Post FA Journal Line for Acquisition cost and Appreciation.
-        Initialize;
+        Initialize();
         AppreciationWithOption(FADepreciationBook, FAJournalLineAmount, FAJournalLineAmount2);
 
         // 2. Exercise: Set Value for the Report and save as excel.
@@ -363,7 +363,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Appreciation with Period2 option at Ending Date and Date Field 1 as Acquisition Date.
 
         // 1.Setup: Create Fixed Asset, Depreciation Book and Post FA Journal Line for Acquisition cost and Appreciation.
-        Initialize;
+        Initialize();
         AppreciationWithOption(FADepreciationBook, FAJournalLineAmount, FAJournalLineAmount2);
 
         // 2. Exercise: Set Value for the Report and save as excel.
@@ -404,7 +404,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Appreciation with Period2 option at Ending Date and Date Field 1 as Acquisition Date and Print Details.
 
         // 1.Setup: Create Fixed Asset, Depreciation Book and Post FA Journal Line for Acquisition cost and Appreciation.
-        Initialize;
+        Initialize();
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
@@ -436,7 +436,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Appreciation with Period2 option Before Starting Date and Date Field 2 as Acquisition Date.
 
         // 1.Setup: Create Fixed Asset, Depreciation Book and Post FA Journal Line for Acquisition cost and Appreciation.
-        Initialize;
+        Initialize();
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
@@ -471,7 +471,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Appreciation with Period2 option Net Change and Date Field 2 as Acquisition Date.
 
         // 1.Setup: Create Fixed Asset, FA Acquisition, Depreciation Book and Post FA Journal Line for Acquisition cost and Appreciation.
-        Initialize;
+        Initialize();
         AppreciationDateTypeWithOption(FANo, DeprBookCode, FAJournalLineAmount, FAJournalLineAmount2);
 
         // 2. Exercise: Set Value for the Report and save as excel.
@@ -498,7 +498,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Appreciation with Period2 option at Ending Date and Date Field 2 as Acquisition Date.
 
         // 1.Setup: Create Fixed Asset, FA Acquisition, Depreciation Book and Post FA Journal Line for Acquisition cost and Appreciation.
-        Initialize;
+        Initialize();
         AppreciationDateTypeWithOption(FANo, DeprBookCode, FAJournalLineAmount, FAJournalLineAmount2);
 
         // 2. Exercise: Set Value for the Report and save as excel.
@@ -543,7 +543,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Appreciation with Period2 option at Ending Date and Date Field 2 as Acquisition Date and Print Details.
 
         // 1.Setup: Create Fixed Asset, Depreciation Book and Post FA Journal Line for Acquisition cost and Appreciation.
-        Initialize;
+        Initialize();
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
@@ -580,7 +580,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Group Total amount of Appreciation and Acquisition Cost.
 
         // 1.Setup: Create Fixed Asset, Depreciation Book and Post FA Journal Line for Acquisition cost and Appreciation.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateDepreciationJournalSetup(DepreciationBook);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
@@ -623,7 +623,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that value of Total amount of Appreciation and Acquisition Cost.
 
         // 1.Setup: Create Fixed Asset, DepreciationBook, FADepreciationBook and Post FA Journal Line for Acquisition cost and Appreciation.
-        Initialize;
+        Initialize();
         AcquireNewFixedAssetUsingFAJournal(FixedAsset, DepreciationBook, FADepreciationBook, FAJournalLine, FAJournalLineAmount);
         FAJournalLineAmount2 :=
           CreateAndPostFAJournalLine(
@@ -653,7 +653,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that report Asset - Analysis Report with check Only Sold Assets.
 
         // 1.Setup: Create Fixed Asset, DepreciationBook, FADepreciationBook and Post FA Journal Line for Acquisition cost and Disposal.
-        Initialize;
+        Initialize();
         DisposalOfFixedAssets(FADepreciationBook);
 
         // 2. Exercise: Set Value for the Report and save as excel.
@@ -675,7 +675,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test that report Asset - Analysis Report with check Budget Report.
 
         // 1.Setup: Create Fixed Asset, DepreciationBook, FADepreciationBook and Post FA Journal Line for Acquisition cost and Disposal.
-        Initialize;
+        Initialize();
         DisposalOfFixedAssets(FADepreciationBook);
 
         // 2. Exercise: Set Value for the Report and save as excel.
@@ -714,7 +714,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test error occurs on Running Fixed Asset Book Value 01 Report without Starting and Ending Date.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report without Starting and Ending Date.
         LibraryLowerPermissions.SetO365FAView;
@@ -738,7 +738,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test error occurs on Running Fixed Asset Book Value 01 Report with Starting Date greater than Ending Date.
 
         // 1. Setup: Create Depreciation Book.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report with Starting Date greater than Ending Date.
@@ -765,7 +765,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test error occurs on Running Fixed Asset Book Value 01 Report without Depreciation Book Code.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Run Fixed Asset Book Value 01 Report without Depreciation Book Code.
         LibraryLowerPermissions.SetO365FAView;
@@ -797,7 +797,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same FA Posting Group, Create FA Depreciation Book, Create and
         // Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
@@ -847,7 +847,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same FA Class Code, Create FA Depreciation Book, Create and
         // Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
@@ -899,7 +899,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same FA SubClass Code, Create FA Depreciation Book, Create and
         // Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
@@ -950,7 +950,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same FA Location Code, Create FA Depreciation Books, Create and
         // Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
@@ -1002,7 +1002,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same Global Dimension 1 Code, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
@@ -1055,7 +1055,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same Global Dimension 2 Code, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for both Fixed Assets.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
@@ -1108,7 +1108,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 3 Fixed Assets, Create Main Asset Components, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost, Depreciation and Disposal for first 2 Fixed Assets.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
@@ -1160,7 +1160,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create Fixed Asset, Create FA Depreciation Book, Create and Post FA Journal Lines with FA
         // Posting Type Acquisition cost, Depreciation and Disposal for Fixed Asset.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
@@ -1210,7 +1210,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets, Create FA Depreciation Books, Create and Post FA Journal Lines with FA
         // Posting Type Acquisition cost, Depreciation and Disposal for Fixed Assets.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
@@ -1251,7 +1251,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create Fixed Asset, Create FA Depreciation Book, Create and Post FA Journal Lines with FA
         // Posting Type Acquisition cost.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
@@ -1283,7 +1283,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create Fixed Asset, Create FA Depreciation Book, Create and Post FA Journal Lines with FA
         // Posting Type Acquisition cost.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         UpdateCustom1Depreciation(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -1311,7 +1311,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test error occurs on Running Fixed Asset Book Value 02 Report without Starting and Ending Date.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report without Starting and Ending Date.
         LibraryLowerPermissions.SetO365FAView;
@@ -1336,7 +1336,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test error occurs on Running Fixed Asset Book Value 02 Report with Starting Date greater than Ending Date.
 
         // 1. Setup: Create Depreciation Book.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report with Starting Date greater than Ending Date.
@@ -1364,7 +1364,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test error occurs on Running Fixed Asset Book Value 02 Report without Depreciation Book Code.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Run Fixed Asset Book Value 02 Report without Depreciation Book Code.
         LibraryLowerPermissions.SetO365FAView;
@@ -1392,7 +1392,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create Fixed Asset, Create FA Depreciation Book, Create and Post FA Journal Lines with FA
         // Posting Type Acquisition cost.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
@@ -1424,7 +1424,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create Fixed Asset, Create FA Depreciation Book, Create and Post FA Journal Lines with FA
         // Posting Type Acquisition cost.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         UpdateCustom1Depreciation(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -1461,7 +1461,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same FA Posting Group, Create FA Depreciation Books, Create and
         // Post FA Journal Lines with FA Posting Type Acquisition cost and Depreciation for both Fixed Assets.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
@@ -1503,7 +1503,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // depreciation entries.
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same FA Posting Group, Create FA Depreciation Books, Create and
         // Post FA Journal Lines with FA Posting Type Acquisition cost and Depreciation for both Fixed Assets.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
@@ -1544,7 +1544,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same FA Class Code, Create FA Depreciation Books, Create and
         // Post FA Journal Lines with FA Posting Type Acquisition cost and Depreciation for both Fixed Assets.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
@@ -1591,7 +1591,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same FA SubClass Code, Create FA Depreciation Books, Create and
         // Post FA Journal Lines with FA Posting Type Acquisition cost and Depreciation for both Fixed Assets.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
@@ -1638,7 +1638,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same FA Location Code, Create FA Depreciation Books, Create and
         // Post FA Journal Lines with FA Posting Type Acquisition cost and Depreciation for both Fixed Assets.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
@@ -1686,7 +1686,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same Global Dimension 1 Code, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost and Depreciation for both Fixed Assets.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
@@ -1735,7 +1735,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 2 Fixed Assets with Same Global Dimension 2 Code, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost and Depreciation for both Fixed Assets.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
@@ -1784,7 +1784,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create 3 Fixed Assets, Create Main Asset Components, Create FA Depreciation Books, Create
         // and Post FA Journal Lines with FA Posting Type Acquisition cost and Depreciation for first 2 Fixed Assets.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
@@ -1831,7 +1831,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create Depreciation Book, Create Fixed Asset, Create FA Depreciation Book, Create and Post FA Journal Lines with FA
         // Posting Type Acquisition cost and Depreciation for Fixed Asset.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
@@ -1876,7 +1876,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
 
         // 1. Setup: Create 2 Fixed Assets, Create FA Depreciation Books, Create and Post FA G/L Journal Lines with FA Posting Type
         // Acquisition cost and Depreciation for first Fixed Asset, create and Post Reclassify Journal.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset2);
         CreateFADepreciationBook(
@@ -1923,7 +1923,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // Test values on Fixed Asset Book Value 02 Report after doing disposal of the fixed asset.
 
         // 1. Setup: Create Fixed Asset,FA Depreciation Books,Create and Post FA G/L Journal Lines with different FA Posting Type
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
         UpdateGainAccOnDisposal(OldGainOnDisposalAcc, FixedAsset."FA Posting Group");
@@ -1967,7 +1967,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         // [FEATURE] [Fixed Asset - List]
         // [SCENARIO 378065] "Depreciation Ending date" of Deprciation Book should be printed in "Fixed Assets - list" report
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Depreciation Book having "Fiscal Year 365 Days" = True and "Depreciation Ending date" = 31.12.17
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -1996,7 +1996,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DimValue: Record "Dimension Value";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Fixed Assets Reports");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportValidation);
         if isInitialized then
             exit;
@@ -2143,7 +2143,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
     var
         FAReclassJournalTemplate: Record "FA Reclass. Journal Template";
     begin
-        FAReclassJournalTemplate.FindFirst;
+        FAReclassJournalTemplate.FindFirst();
         LibraryFixedAsset.CreateFAReclassJournalBatch(FAReclassJournalBatch, FAReclassJournalTemplate.Name);
     end;
 
@@ -2161,7 +2161,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.SetRange("FA Posting Category", FALedgerEntry."FA Posting Category"::Disposal);
         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
         exit(FALedgerEntry.Amount);
     end;
 
@@ -2342,7 +2342,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         DocumentNo: Code[20];
     begin
         FAJournalSetup.SetRange("Depreciation Book Code", DepreciationBookCode);
-        FAJournalSetup.FindFirst;
+        FAJournalSetup.FindFirst();
         GenJournalBatch.Get(FAJournalSetup."Gen. Jnl. Template Name", FAJournalSetup."Gen. Jnl. Batch Name");
         DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
         GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
@@ -2371,7 +2371,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FAJournalSetup2: Record "FA Journal Setup";
     begin
         FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook);
-        FAJournalSetup2.FindFirst;
+        FAJournalSetup2.FindFirst();
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
         FAJournalSetup.Modify(true);
     end;

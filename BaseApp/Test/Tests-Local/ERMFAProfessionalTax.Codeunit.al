@@ -148,7 +148,7 @@ codeunit 144056 "ERM FA Professional Tax"
     var
         FAPostingGroup: Record "FA Posting Group";
     begin
-        FAPostingGroup.FindFirst;
+        FAPostingGroup.FindFirst();
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, CreateFixedAsset(ProfessionalTax), CreateDepreciationBook);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
         FADepreciationBook.Validate("Depreciation Starting Date", CalcDate('<-CY>', WorkDate));  // Calculate begining date of the year.

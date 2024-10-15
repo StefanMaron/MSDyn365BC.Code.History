@@ -909,7 +909,9 @@ codeunit 9178 "Application Area Mgmt."
         TempApplicationAreaSetup."Inventory Analysis" := true;
         TempApplicationAreaSetup."Item Tracking" := true;
         TempApplicationAreaSetup.Warehouse := true;
+#if not CLEAN20
         TempApplicationAreaSetup.XBRL := true;
+#endif
         TempApplicationAreaSetup."Order Promising" := true;
         TempApplicationAreaSetup.Reservation := true;
         TempApplicationAreaSetup.Dimensions := true;

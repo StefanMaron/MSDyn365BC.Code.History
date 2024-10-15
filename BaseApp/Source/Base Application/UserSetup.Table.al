@@ -29,7 +29,6 @@ table 91 "User Setup"
             trigger OnValidate()
             begin
                 CheckAllowedPostingDates(0);
-                GLSetup.CheckPostingRange("Allow Posting From", FieldCaption("Allow Posting From"));
             end;
         }
         field(3; "Allow Posting To"; Date)
@@ -39,12 +38,29 @@ table 91 "User Setup"
             trigger OnValidate()
             begin
                 CheckAllowedPostingDates(0);
-                GLSetup.CheckPostingRange("Allow Posting To", FieldCaption("Allow Posting To"));
             end;
         }
         field(4; "Register Time"; Boolean)
         {
             Caption = 'Register Time';
+        }
+        field(5; "Allow Deferral Posting From"; Date)
+        {
+            Caption = 'Allow Deferral Posting From';
+
+            trigger OnValidate()
+            begin
+                CheckAllowedDeferralPostingDates(0);
+            end;
+        }
+        field(6; "Allow Deferral Posting To"; Date)
+        {
+            Caption = 'Allow Deferral Posting To';
+
+            trigger OnValidate()
+            begin
+                CheckAllowedDeferralPostingDates(0);
+            end;
         }
         field(10; "Salespers./Purch. Code"; Code[20])
         {
@@ -225,7 +241,7 @@ table 91 "User Setup"
         }
         field(31; "License Type"; Option)
         {
-            CalcFormula = Lookup (User."License Type" WHERE("User Name" = FIELD("User ID")));
+            CalcFormula = Lookup(User."License Type" WHERE("User Name" = FIELD("User ID")));
             Caption = 'License Type';
             FieldClass = FlowField;
             OptionCaption = 'Full User,Limited User,Device Only User,Windows Group,External User';
@@ -292,16 +308,14 @@ table 91 "User Setup"
         if "User ID" <> '' then
             exit;
         User.SetRange("User Name", "User ID");
-        if User.FindFirst then
+        if User.FindFirst() then
             "E-Mail" := CopyStr(User."Contact Email", 1, MaxStrLen("E-Mail"));
     end;
 
     var
         Text001: Label 'The %1 Salesperson/Purchaser code is already assigned to another User ID %2.';
         Text003: Label 'You cannot have both a %1 and %2. ';
-        Text004: Label 'The %1 User ID does not have a %2 assigned.';
         Text005: Label 'You cannot have approval limits less than zero.';
-        GLSetup: Record "General Ledger Setup";
         SalesPersonPurchaser: Record "Salesperson/Purchaser";
         PrivacyBlockedGenericErr: Label 'Privacy Blocked must not be true for Salesperson / Purchaser %1.', Comment = '%1 = salesperson / purchaser code.';
         UserSetupManagement: Codeunit "User Setup Management";
@@ -318,7 +332,7 @@ table 91 "User Setup"
         ApprovalUserSetup.Validate("Purchase Amount Approval Limit", GetDefaultPurchaseAmountApprovalLimit);
         ApprovalUserSetup.Validate("E-Mail", User."Contact Email");
         UserSetup.SetRange("Sales Amount Approval Limit", UserSetup.GetDefaultSalesAmountApprovalLimit);
-        if UserSetup.FindFirst then
+        if UserSetup.FindFirst() then
             ApprovalUserSetup.Validate("Approver ID", UserSetup."Approver ID");
         if ApprovalUserSetup.Insert() then;
     end;
@@ -335,7 +349,7 @@ table 91 "User Setup"
 
         UserSetup.SetCurrentKey("Salespers./Purch. Code");
         UserSetup.SetRange("Salespers./Purch. Code", "Salespers./Purch. Code");
-        if UserSetup.FindFirst then
+        if UserSetup.FindFirst() then
             Error(Text001, "Salespers./Purch. Code", UserSetup."User ID");
     end;
 
@@ -347,7 +361,7 @@ table 91 "User Setup"
     begin
         UserSetup.SetRange("Unlimited Sales Approval", false);
 
-        if UserSetup.FindFirst then begin
+        if UserSetup.FindFirst() then begin
             DefaultApprovalLimit := UserSetup."Sales Amount Approval Limit";
             LimitedApprovers := UserSetup.Count();
             UserSetup.SetRange("Sales Amount Approval Limit", DefaultApprovalLimit);
@@ -367,7 +381,7 @@ table 91 "User Setup"
     begin
         UserSetup.SetRange("Unlimited Purchase Approval", false);
 
-        if UserSetup.FindFirst then begin
+        if UserSetup.FindFirst() then begin
             DefaultApprovalLimit := UserSetup."Purchase Amount Approval Limit";
             LimitedApprovers := UserSetup.Count();
             UserSetup.SetRange("Purchase Amount Approval Limit", DefaultApprovalLimit);
@@ -430,6 +444,13 @@ table 91 "User Setup"
     begin
         UserSetupManagement.CheckAllowedPostingDatesRange(
           "Allow Posting From", "Allow Posting To", NotificationType, DATABASE::"User Setup");
+    end;
+
+    procedure CheckAllowedDeferralPostingDates(NotificationType: Option Error,Notification)
+    begin
+        UserSetupManagement.CheckAllowedPostingDatesRange(
+          "Allow Deferral Posting From", "Allow Deferral Posting To", NotificationType, DATABASE::"User Setup",
+          FieldCaption("Allow Deferral Posting From"), FieldCaption("Allow Deferral Posting To"));
     end;
 
     [IntegrationEvent(false, false)]

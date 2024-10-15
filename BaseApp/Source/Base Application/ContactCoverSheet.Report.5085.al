@@ -20,7 +20,7 @@ report 5085 "Contact Cover Sheet"
                 trigger OnAfterGetRecord()
                 begin
                     TempSegmentLine.SetRange("Contact No.", "Contact No.");
-                    if not TempSegmentLine.FindFirst then begin
+                    if not TempSegmentLine.FindFirst() then begin
                         TempSegmentLine.Copy("Segment Line");
                         TempSegmentLine.Insert();
                     end;
@@ -42,9 +42,9 @@ report 5085 "Contact Cover Sheet"
                 LastTempSegLine: Integer;
             begin
                 TempSegmentLine.SetRange("Contact No.", "No.");
-                if not TempSegmentLine.FindFirst then begin
+                if not TempSegmentLine.FindFirst() then begin
                     TempSegmentLine.Reset();
-                    if TempSegmentLine.FindLast then
+                    if TempSegmentLine.FindLast() then
                         LastTempSegLine := TempSegmentLine."Line No."
                     else
                         LastTempSegLine := 0;

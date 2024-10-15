@@ -195,7 +195,7 @@ report 5871 "Item - Able to Make (Timeline)"
                 end;
         end;
 
-        if not TempBOMBuffer.FindFirst then
+        if not TempBOMBuffer.FindFirst() then
             exit(false);
         AbleToMakeQty := TempBOMBuffer."Able to Make Top Item";
         TotalQty := TempBOMBuffer."Able to Make Top Item" + TempBOMBuffer."Available Quantity";

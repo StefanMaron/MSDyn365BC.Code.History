@@ -30,8 +30,8 @@ codeunit 136139 "Service Matrix Management"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Matrix Management");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Matrix Management");
@@ -52,7 +52,7 @@ codeunit 136139 "Service Matrix Management"
 
         // 1. Setup: Create Contract Group, Service Contract Header, Service Contract Line, update Contract Group Code on Service
         // Contract Header and sign the Service Contract.
-        Initialize;
+        Initialize();
         LibraryService.CreateContractGroup(ContractGroup);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, '');
         CreateServiceContractLine(ServiceContractHeader);
@@ -91,7 +91,7 @@ codeunit 136139 "Service Matrix Management"
 
         // 1. Setup: Create Service Contract Header, create Ship to Address for Customer, update it on Service Contract Header, Service
         // Contract Line and sign the Service Contract.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
@@ -133,7 +133,7 @@ codeunit 136139 "Service Matrix Management"
 
         // 1. Setup: Create Reason Code, Service Contract Header, Service Contract Line, update Cancel Reason Code on Service
         // Contract Header, open Service Contract page and update Status to Canceled.
-        Initialize;
+        Initialize();
         LibraryService.CreateReasonCode(ReasonCode);
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
@@ -175,7 +175,7 @@ codeunit 136139 "Service Matrix Management"
 
         // 1. Setup: Create Responsibility Center, Service Contract Header, Service Contract Line, update Responsibility Center on
         // Service Contract Header and sign the Service Contract.
-        Initialize;
+        Initialize();
         LibraryService.CreateResponsibilityCenter(ResponsibilityCenter);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, '');
         CreateServiceContractLine(ServiceContractHeader);
@@ -213,7 +213,7 @@ codeunit 136139 "Service Matrix Management"
         // Test Contract Gain/Loss (Contracts) Matrix after signing the Service Contract.
 
         // 1. Setup: Create Service Contract Header, Service Contract Line and sign the Service Contract.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, '');
         CreateServiceContractLine(ServiceContractHeader);
         UpdateServiceContractHeader(ServiceContractHeader);
@@ -259,7 +259,7 @@ codeunit 136139 "Service Matrix Management"
     local procedure FindContractGainLossEntry(var ContractGainLossEntry: Record "Contract Gain/Loss Entry"; ContractNo: Code[20])
     begin
         ContractGainLossEntry.SetRange("Contract No.", ContractNo);
-        ContractGainLossEntry.FindFirst;
+        ContractGainLossEntry.FindFirst();
     end;
 
     local procedure UpdateCancelReasonCode(var ServiceContractHeader: Record "Service Contract Header"; CancelReasonCode: Code[10])

@@ -18,7 +18,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         if not FromDirectDebitCollectionEntry.IsEmpty() then begin
             FromDirectDebitCollectionEntry.SetFilter(Status, '%1|%2',
               FromDirectDebitCollectionEntry.Status::New, FromDirectDebitCollectionEntry.Status::"File Created");
-            if FromDirectDebitCollectionEntry.FindSet then
+            if FromDirectDebitCollectionEntry.FindSet() then
                 repeat
                     ToDirectDebitCollectionEntry := FromDirectDebitCollectionEntry;
                     ToDirectDebitCollectionEntry.Insert();
@@ -39,7 +39,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         DirectDebitCollection.Get(FromDirectDebitCollectionEntry.GetRangeMin("Direct Debit Collection No."));
         PaymentHeader.Get(DirectDebitCollection.Identifier);
         PaymentLine.SetRange("No.", PaymentHeader."No.");
-        if PaymentLine.FindSet then
+        if PaymentLine.FindSet() then
             with ToDirectDebitCollectionEntry do
                 repeat
                     Init;

@@ -2,6 +2,7 @@ table 9551 "Document Service Cache"
 {
     DataPerCompany = false;
     Extensible = false;
+    ReplicateData = false;
 
     fields
     {

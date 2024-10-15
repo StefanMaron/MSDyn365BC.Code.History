@@ -23,7 +23,7 @@ report 7318 "Whse.-Shipment - Create Pick"
                         WMSMgt.CheckInboundBlockedBin("Location Code", "Bin Code", "No.", "Variant Code", "Unit of Measure Code");
 
                         WhseWkshLine.SetRange("Source Line No.", "Line No.");
-                        if not WhseWkshLine.FindFirst then
+                        if not WhseWkshLine.FindFirst() then
                             CreatePick.CreateAssemblyPickLine("Assembly Line")
                         else
                             WhseWkshLineFound := true;
@@ -74,7 +74,7 @@ report 7318 "Whse.-Shipment - Create Pick"
                 WhseWkshLine.SetRange("Whse. Document No.", WhseShptHeader."No.");
                 WhseWkshLine.SetRange("Whse. Document Line No.", "Line No.");
                 OnAfterSetWhseWkshLineFilters(WhseWkshLine, "Warehouse Shipment Line", WhseShptHeader);
-                if not WhseWkshLine.FindFirst then begin
+                if not WhseWkshLine.FindFirst() then begin
                     TestField("Qty. per Unit of Measure");
                     CalcFields("Pick Qty. (Base)", "Pick Qty.");
                     QtyToPickBase := "Qty. (Base)" - ("Qty. Picked (Base)" + "Pick Qty. (Base)");

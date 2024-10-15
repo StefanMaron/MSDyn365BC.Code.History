@@ -164,7 +164,7 @@ report 10876 "EC Sales List - Services"
                             VATEntry.CopyFilters("VAT Entry");
                             VATEntry.SetRange("VAT Registration No.", "VAT Registration No.");
                             VATEntry.SetFilter(Base, '>=%1|<=%2', 0.5, -0.5);
-                            if VATEntry.FindFirst then
+                            if VATEntry.FindFirst() then
                                 LineNo := LineNo + 1;
                         end;
                         VATAmountRTC := 0;
@@ -265,18 +265,8 @@ report 10876 "EC Sales List - Services"
                         Visible = XMLFileVisible;
 
                         trigger OnAssistEdit()
-#if not CLEAN17
-                        var
-                            FileMgt: Codeunit "File Management";
-#endif
                         begin
-#if not CLEAN17
-                            if XMLFile = '' then
-                                XMLFile := '.xml';
-                            XMLFile := FileMgt.SaveFileDialog(Text002, XMLFile, '');
-#else
                             XMLFile := '';
-#endif
                         end;
                     }
                 }
@@ -340,7 +330,7 @@ report 10876 "EC Sales List - Services"
         Calendar.SetRange("Period Type", Calendar."Period Type"::Month);
         Calendar.SetRange("Period Start", PeriodStart);
         Calendar.SetRange("Period End", ClosingDate(PeriodEnd));
-        if not Calendar.FindFirst then
+        if not Calendar.FindFirst() then
             Error(Text004, "VAT Entry".FieldCaption("Posting Date"), "VAT Entry".GetFilter("Posting Date"));
 
         if CreateXMLFile then

@@ -354,7 +354,7 @@ page 10869 "Payment Slip Subform"
                 PaymentLine.SetRange("No.", "No.");
                 PaymentLine.SetRange("Line No.", "Line No.");
                 PaymentModification.SetTableView(PaymentLine);
-                PaymentModification.RunModal;
+                PaymentModification.RunModal();
             end else
                 Message(Text002);
     end;
@@ -464,7 +464,7 @@ page 10869 "Payment Slip Subform"
     procedure NavigateLine(PostingDate: Date)
     begin
         Navigate.SetDoc(PostingDate, "Document No.");
-        Navigate.Run;
+        Navigate.Run();
     end;
 
     local procedure IsBankInfoEditable(): Boolean

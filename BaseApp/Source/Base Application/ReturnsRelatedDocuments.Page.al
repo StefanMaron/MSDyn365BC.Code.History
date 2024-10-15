@@ -56,41 +56,12 @@ page 6670 "Returns-Related Documents"
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
 
                     trigger OnAction()
-                    var
-                        SalesHeader: Record "Sales Header";
-                        PurchHeader: Record "Purchase Header";
                     begin
-                        Clear(CopyDocMgt);
-                        case "Document Type" of
-                            "Document Type"::"Sales Order":
-                                SalesHeader.Get(SalesHeader."Document Type"::Order, "No.");
-                            "Document Type"::"Sales Invoice":
-                                SalesHeader.Get(SalesHeader."Document Type"::Invoice, "No.");
-                            "Document Type"::"Sales Return Order":
-                                SalesHeader.Get(SalesHeader."Document Type"::"Return Order", "No.");
-                            "Document Type"::"Sales Credit Memo":
-                                SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", "No.");
-                            "Document Type"::"Purchase Order":
-                                PurchHeader.Get(PurchHeader."Document Type"::Order, "No.");
-                            "Document Type"::"Purchase Invoice":
-                                PurchHeader.Get(PurchHeader."Document Type"::Invoice, "No.");
-                            "Document Type"::"Purchase Return Order":
-                                PurchHeader.Get(PurchHeader."Document Type"::"Return Order", "No.");
-                            "Document Type"::"Purchase Credit Memo":
-                                PurchHeader.Get(PurchHeader."Document Type"::"Credit Memo", "No.");
-                        end;
-
-                        if "Document Type" in ["Document Type"::"Sales Order" .. "Document Type"::"Sales Credit Memo"] then
-                            CopyDocMgt.ShowSalesDoc(SalesHeader)
-                        else
-                            CopyDocMgt.ShowPurchDoc(PurchHeader);
+                        Rec.ShowDocumentCard();
                     end;
                 }
             }
         }
     }
-
-    var
-        CopyDocMgt: Codeunit "Copy Document Mgt.";
 }
 

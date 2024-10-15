@@ -26,7 +26,7 @@ codeunit 10842 "G/L Entry Application"
                 ModifyAll("Applies-to ID", '');
                 SetRange(Letter, '');
             end;
-            if FindFirst then begin
+            if FindFirst() then begin
                 // Make Applies-to ID
                 if "Applies-to ID" <> '' then
                     EntryApplID := ''

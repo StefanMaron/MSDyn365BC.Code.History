@@ -36,7 +36,7 @@ codeunit 134389 "ERM Customer Statistics"
         // Check that Overdue Amount is zero on Customer Statistics Page for Customer.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         LibrarySales.CreateCustomer(Customer);
@@ -82,7 +82,7 @@ codeunit 134389 "ERM Customer Statistics"
         // Check that Amount that is not overdue must not show on Customer Statistics Page.
 
         // Setup: Create Sales Invoice for Customer.
-        Initialize;
+        Initialize();
         FindPaymentTerms(PaymentTerms);
         CreateSalesInvoice(SalesHeader, CreateCustomerWithPaymentTerms(PaymentTerms.Code), WorkDate);
 
@@ -107,7 +107,7 @@ codeunit 134389 "ERM Customer Statistics"
         // Check Overdue Amount appears on Credit Limit Warning page.
 
         // Setup: Update Sales and Receivables Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivableSetup(OldCreditWarnings, SalesReceivablesSetup."Credit Warnings"::"Overdue Balance");
         CreateAndPostSalesInvoice(SalesHeader);  // Assign Overdue Amount in global variable.
 
@@ -121,7 +121,7 @@ codeunit 134389 "ERM Customer Statistics"
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, InvoiceNo);
         SalesHeader.Delete(true);
         UpdateSalesReceivableSetup(OldCreditWarnings, OldCreditWarnings);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -140,7 +140,7 @@ codeunit 134389 "ERM Customer Statistics"
         // Check Overdue Amount on Customer Statistics Page after posting two Sales Invoice on different Dates.
 
         // Setup: Update Sales and Receivables Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivableSetup(OldCreditWarnings, SalesReceivablesSetup."Credit Warnings"::"Overdue Balance");
         OverdueAmount := CreateAndPostSalesInvoice(SalesHeader);
         CustomerNo := SalesHeader."Sell-to Customer No.";
@@ -160,7 +160,7 @@ codeunit 134389 "ERM Customer Statistics"
 
         // Tear Down: Rollback Credit Warnings value in Sales & Receivables Setup.
         UpdateSalesReceivableSetup(OldCreditWarnings, OldCreditWarnings);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -173,7 +173,7 @@ codeunit 134389 "ERM Customer Statistics"
         // Verify program show values in Fact Box Sales Line Details of Sales Order when Type is Item in Sales Order Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemWithUnitPrice;
         CreateSalesOrderAndVerifyFactBox(SalesLine.Type::Item, ItemNo, ItemNo);
     end;
@@ -189,7 +189,7 @@ codeunit 134389 "ERM Customer Statistics"
         // Verify program do not show any values in Fact Box Sales Line Details of Sales Order when Type is Resource in Sales Order Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryResource.FindResource(Resource);
         CreateSalesOrderAndVerifyFactBox(SalesLine.Type::Resource, Resource."No.", '');  // Using '' to verify Item No field on Fact Box.
     end;
@@ -204,7 +204,7 @@ codeunit 134389 "ERM Customer Statistics"
         // Verify program do not show any values in Fact Box Sales Line Details of Sales Order when Type is G/L Account in Sales Order Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.FindGLAccount(GLAccount);
         CreateSalesOrderAndVerifyFactBox(SalesLine.Type::"G/L Account", GLAccount."No.", '');  // Using '' to verify Item No field on Fact Box.
     end;
@@ -222,7 +222,7 @@ codeunit 134389 "ERM Customer Statistics"
         // Test that while opening the page CustStatsByCurrLines from the customer list, proper filter can be applied on that page.
 
         // Setup: Create Customer and Sales Document with or without currency and post it.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         BalanceLCY := CreateAndPostSalesDocument(Customer."No.", '');
         FindCurrency(Currency);
@@ -249,7 +249,7 @@ codeunit 134389 "ERM Customer Statistics"
         // Test that while opening the page CustStatsByCurrLines from the customer card, proper filter can be applied on that page.
 
         // Setup: Create Customer and Sales Document with or without currency and post it.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         BalanceLCY := CreateAndPostSalesDocument(Customer."No.", '');
         FindCurrency(Currency);
@@ -319,7 +319,7 @@ codeunit 134389 "ERM Customer Statistics"
         SalesHistBilltoFactBox: TestPage "Sales Hist. Bill-to FactBox";
     begin
         // [SCENARIO 121705] Sales Hist. Bill-to FactBox shows data for Bill-to Customer No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup new Customer with Bill-to Customer No.
         CreateCustomerWithBilltoCust(Customer);
@@ -340,7 +340,7 @@ codeunit 134389 "ERM Customer Statistics"
         ServiceHistBilltoFactBox: TestPage "Service Hist. Bill-to FactBox";
     begin
         // [SCENARIO 121705] Service Hist. Bill-to FactBox is opened for Bill-to Customer No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup new Customer with Bill-to Customer No.
         CreateCustomerWithBilltoCust(Customer);
@@ -362,7 +362,7 @@ codeunit 134389 "ERM Customer Statistics"
         ServiceHistSelltoFactBox: TestPage "Service Hist. Sell-to FactBox";
     begin
         // [SCENARIO 121705] Service Hist. Sell-to FactBox is opened for Sell-to Customer No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup new Customer
         LibrarySales.CreateCustomer(Customer);
@@ -386,7 +386,7 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerList: TestPage "Customer List";
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup new Customer with a customer ledger entry
         LibrarySales.CreateCustomer(Customer);
@@ -415,7 +415,7 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerCard: TestPage "Customer Card";
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup new Customer with a customer ledger entry
         LibrarySales.CreateCustomer(Customer);
@@ -445,7 +445,7 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
         // [SCENARIO 258948] When Drill Down on Balance Due (LCY) is called from Customer List, Due Date filter on opened Customer Ledger Entries Page = Date Filter.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup new Customer with a customer ledger entry.
         LibrarySales.CreateCustomer(Customer);
@@ -481,7 +481,7 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
         // [SCENARIO 258948] When Drill Down on Balance Due (LCY) is called from Customer Card, Due Date filter on opened Customer Ledger Entries Page = Date Filter.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup new Customer with a customer ledger entry
         LibrarySales.CreateCustomer(Customer);
@@ -517,11 +517,11 @@ codeunit 134389 "ERM Customer Statistics"
         // [FEATURE] [UI] [SaaS]
         // [SCENARIO 210531] Service statistics are not visible on "Customer Statistics Factbox" in Financials
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Switch to Software as Service client and enable Foundation Setup
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Open "Sales Order List" page
         SalesOrderList.OpenView;
@@ -548,7 +548,7 @@ codeunit 134389 "ERM Customer Statistics"
         // [FEATURE] [UI] [SaaS]
         // [SCENARIO 210531] Service statistics are not visible on "Customer Statistics Factbox" in Full
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Switch to Software as Service client and enable Full Setup
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -585,10 +585,10 @@ codeunit 134389 "ERM Customer Statistics"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 223267] Page Customer Statistic must be not editable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [WHEN] Open "Customer Statistics"
         CustomerList.OpenView;
@@ -612,7 +612,7 @@ codeunit 134389 "ERM Customer Statistics"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 254684] Invoice Payment Days Average calculation for Customer returns zero when only Invoice Customer Ledger Entries with blank Due Date exist with Payment.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Closed Customer Ledger Entry "CLE" with Type = Invoice and blank Due Date.
@@ -645,7 +645,7 @@ codeunit 134389 "ERM Customer Statistics"
     begin
         // [SCENARIO 253431] The fields on page "Customer Statistics Factbox" which are not affected by "Date Filter" must show their values
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with "Outstanding Amount (LCY)" = 100, "Shipped Not Invoiced (LCY)" = 40
         LibrarySales.CreateCustomer(Customer);
@@ -698,7 +698,7 @@ codeunit 134389 "ERM Customer Statistics"
         DetailedCustLedgEntry: array[2] of Record "Detailed Cust. Ledg. Entry";
     begin
         // [SCENARIO 258948] Cutomer "Balance Due" is calculated based on Detailed Customer Ledger Entries with Initial Entries Due Date < Date Filter.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer.
         LibrarySales.CreateCustomer(Customer);
@@ -728,7 +728,7 @@ codeunit 134389 "ERM Customer Statistics"
         DetailedCustLedgEntry: array[2] of Record "Detailed Cust. Ledg. Entry";
     begin
         // [SCENARIO 258948] Cutomer "Balance Due" is calculated based on Detailed Customer Ledger Entries with any posting date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer.
         LibrarySales.CreateCustomer(Customer);
@@ -758,7 +758,7 @@ codeunit 134389 "ERM Customer Statistics"
         ReturnAmountLCY: Decimal;
     begin
         // [SCENARIO 280348] Customer "Total Amount"/"Available Credit" calculation includes Return Received Not Invoiced amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Credit Limit = 100
         CreditLimitLCY := LibraryRandom.RandInt(100);
@@ -787,7 +787,7 @@ codeunit 134389 "ERM Customer Statistics"
         PaymentDate: array[3] of Date;
     begin
         // [SCENARIO 264555] Customer statistics factbox shows last payment date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new customer "CUST"
         LibrarySales.CreateCustomer(Customer);
@@ -823,7 +823,7 @@ codeunit 134389 "ERM Customer Statistics"
         PaymentDate: array[3] of Date;
     begin
         // [SCENARIO 264555] DrillDown of Last Payment Received Date of customer statistics factbox opens customer payments with cursor on last payment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new customer "CUST"
         LibrarySales.CreateCustomer(Customer);
@@ -865,7 +865,7 @@ codeunit 134389 "ERM Customer Statistics"
           Key,
           'Customer No.,Currency Code,Initial Entry Global Dim. 1,Initial Entry Global Dim. 2,Initial Entry Due Date,*');
         Key.SetFilter(ObsoleteState, 'No');
-        Key.FindFirst;
+        Key.FindFirst();
         Key.TestField(MaintainSIFTIndex, true);
     end;
 
@@ -881,7 +881,7 @@ codeunit 134389 "ERM Customer Statistics"
     begin
         // [FEATURE] [Service Item]
         // [SCENARIO 294617] Customer statistics shows proper value of Original Profit (LCY) for posted sales invoice with item of type Service
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with "Type" = "Service", Unit Cost = 60, Unit Price = 100
         LibraryInventory.CreateServiceTypeItem(Item);
@@ -890,7 +890,7 @@ codeunit 134389 "ERM Customer Statistics"
         Item.Modify();
 
         // [GIVEN] Create customer "CUST"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Create and post sales order for customer "CUST" with item "I", Quantity = 1
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
@@ -922,9 +922,9 @@ codeunit 134389 "ERM Customer Statistics"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Customer Statistics");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         UpdatePostedNoSeriesInSalesSetup; // required for RU
         IsInitialized := true;
         Commit();
@@ -1139,7 +1139,7 @@ codeunit 134389 "ERM Customer Statistics"
     local procedure FindPaymentTerms(var PaymentTerms: Record "Payment Terms")
     begin
         PaymentTerms.SetFilter("Due Date Calculation", '<>0D');  // Find Payment Terms having Due Date Calculation more than Zero Days.
-        PaymentTerms.FindFirst;
+        PaymentTerms.FindFirst();
     end;
 
     local procedure FindDocumentNo(CustomerNo: Code[20]): Code[20]
@@ -1147,7 +1147,7 @@ codeunit 134389 "ERM Customer Statistics"
         SalesInvHeader: Record "Sales Invoice Header";
     begin
         SalesInvHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesInvHeader.FindFirst;
+        SalesInvHeader.FindFirst();
         exit(SalesInvHeader."No.");
     end;
 
@@ -1199,7 +1199,7 @@ codeunit 134389 "ERM Customer Statistics"
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."No.".AssistEdit;
         SalesInvoice."Sell-to Customer Name".SetValue(SellToCustomerNo);
         exit(SalesInvoice."No.".Value);
@@ -1252,7 +1252,7 @@ codeunit 134389 "ERM Customer Statistics"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Posting Date", PostingDate);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         LibraryERM.ReverseTransaction(CustLedgerEntry."Transaction No.");
     end;
 
@@ -1270,7 +1270,7 @@ codeunit 134389 "ERM Customer Statistics"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryERM.CreateNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryERM.CreateNoSeriesCode);
         SalesReceivablesSetup.Modify(true);

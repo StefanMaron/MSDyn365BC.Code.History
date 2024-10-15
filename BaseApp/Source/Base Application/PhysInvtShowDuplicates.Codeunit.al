@@ -41,8 +41,7 @@ codeunit 5886 "Phys. Invt.-Show Duplicates"
                         PhysInvtOrderLine.TestField("Item No.");
                         if
                            GetSamePhysInvtOrderLine(
-                             PhysInvtOrderLine."Item No.", PhysInvtOrderLine."Variant Code",
-                             PhysInvtOrderLine."Location Code", PhysInvtOrderLine."Bin Code",
+                             PhysInvtOrderLine,
                              ErrorText,
                              PhysInvtOrderLine2) > 1
                         then begin

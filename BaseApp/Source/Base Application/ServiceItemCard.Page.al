@@ -559,7 +559,7 @@ page 5980 "Service Item Card"
                     begin
                         Clear(SkilledResourceList);
                         SkilledResourceList.Initialize(ResourceSkill.Type::"Service Item", "No.", Description);
-                        SkilledResourceList.RunModal;
+                        SkilledResourceList.RunModal();
                     end;
                 }
                 action("Co&mments")

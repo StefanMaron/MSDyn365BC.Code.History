@@ -40,7 +40,9 @@ permissionset 2118 "General Ledger Journals - Post"
                   tabledata "Incoming Document Approver" = RIMD,
                   tabledata "Incoming Document Attachment" = RIMD,
                   tabledata "Incoming Documents Setup" = RIMD,
+#if not CLEAN20
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "Notification Entry" = Rimd,
                   tabledata "Posted Docs. With No Inc. Buf." = RIMD,
                   tabledata "Restricted Record" = Rimd,

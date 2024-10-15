@@ -149,7 +149,7 @@ page 10877 "Payment Slip Archive"
                     trigger OnAction()
                     begin
                         Navigate.SetDoc("Posting Date", "No.");
-                        Navigate.Run;
+                        Navigate.Run();
                     end;
                 }
                 action(Line)

@@ -325,11 +325,9 @@ page 9306 "Purchase Quotes"
 
                     trigger OnAction()
                     var
-                        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
                     begin
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                            LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+                        LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
                         DocPrint.PrintPurchHeader(Rec);
                     end;

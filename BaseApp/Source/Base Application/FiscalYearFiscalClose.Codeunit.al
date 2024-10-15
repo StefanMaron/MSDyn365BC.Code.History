@@ -28,7 +28,7 @@ codeunit 10862 "Fiscal Year-FiscalClose"
         with AccountingPeriod do begin
             SetRange("New Fiscal Year", true);
             SetRange("Fiscally Closed", false);
-            FindFirst;
+            FindFirst();
 
             // define FY starting and ending date
             FiscalYearStartDate := "Starting Date";
@@ -46,7 +46,7 @@ codeunit 10862 "Fiscal Year-FiscalClose"
                     FiscalYearEndDate := CalcDate('<-1D>', FiscalYearStartDate);
                     SetRange("New Fiscal Year", true);
                     SetRange("Fiscally Closed", true);
-                    FindLast;
+                    FindLast();
                     FiscalYearStartDate := "Starting Date"
                 end else
                     Find('>');
@@ -89,7 +89,7 @@ codeunit 10862 "Fiscal Year-FiscalClose"
     begin
         with GenJnlLine do begin
             SetFilter("Posting Date", '%1..%2', FiscalYearStartDate, FiscalYearEndDate);
-            if FindFirst then
+            if FindFirst() then
                 Error(
                   Text006,
                   FiscalYearStartDate, FiscalYearEndDate,
@@ -126,10 +126,10 @@ codeunit 10862 "Fiscal Year-FiscalClose"
     begin
         Date.SetRange("Period Type", Date."Period Type"::Date);
         Date.SetFilter("Period Start", PeriodRange);
-        Date.FindLast;
+        Date.FindLast();
         AccountingPeriod.SetFilter("Starting Date", '<=%1', Date."Period Start");
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         if AccountingPeriod."Fiscally Closed" then
             exit(Text009);
 

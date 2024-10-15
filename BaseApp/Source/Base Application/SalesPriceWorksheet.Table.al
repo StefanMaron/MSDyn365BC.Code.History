@@ -279,7 +279,7 @@ table 7023 "Sales Price Worksheet"
         SalesPrice.SetRange("Minimum Quantity", 0, "Minimum Quantity");
         SalesPrice.SetRange("Variant Code", "Variant Code");
         OnCalcCurrentPriceOnAfterSetFilters(SalesPrice, Rec);
-        if SalesPrice.FindLast then begin
+        if SalesPrice.FindLast() then begin
             "Current Unit Price" := SalesPrice."Unit Price";
             "Price Includes VAT" := SalesPrice."Price Includes VAT";
             "Allow Line Disc." := SalesPrice."Allow Line Disc.";

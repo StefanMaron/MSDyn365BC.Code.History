@@ -266,7 +266,7 @@ report 5687 "Copy Depreciation Book"
             Insert(true);
             if BalAccount then begin
                 FAInsertGLAcc.GetBalAcc(GenJnlLine);
-                if FindLast then;
+                if FindLast() then;
                 GenJnlNextLineNo := "Line No.";
             end;
         end;

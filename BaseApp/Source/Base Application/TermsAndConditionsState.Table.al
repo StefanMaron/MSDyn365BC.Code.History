@@ -2,6 +2,7 @@ table 9191 "Terms And Conditions State"
 {
     Caption = 'Terms And Conditions State';
     DataPerCompany = false;
+    ReplicateData = false;
 
     fields
     {

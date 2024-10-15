@@ -39,7 +39,7 @@ codeunit 144055 "ERM Payment Management II"
         // Verify Customer No. on Payment Line when Currency is not blank on Payment Header.
 
         // Setup & Exercise: Create Currency, Customers, Create payment Header.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         CustomerNo := CreateCustomer(CurrencyCode, '');  // Blank for VAT Bus Posting group.
         CustomerNo2 := CreateCustomer('', '');  // Blank for currency and VAT Bus Posting group.
@@ -61,7 +61,7 @@ codeunit 144055 "ERM Payment Management II"
         // Verify Customer No. on Payment Line when Currency is blank on Payment Header.
 
         // Setup & Exercise: Create Currency, Customers, Create payment Header.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer(CreateCurrency, '');  // Blank for VAT Bus Posting group.
         CustomerNo2 := CreateCustomer('', '');  // Blank for currency and VAT Bus Posting group.
         PaymentClassCode := CreatePaymentSlipAndSuggestCustomerPayment('', CustomerNo, CustomerNo2);
@@ -82,7 +82,7 @@ codeunit 144055 "ERM Payment Management II"
         // Verify Customer Ledger Entry after posting the Payment Slip with Unrealized VAT Reversal is Application on Payment Class.
 
         // Setup: Create VAT Posting Setup, Payment Class, Bank Account, GL Account, Setup for Payment Slip and Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         OldInvoiceRounding := UpdateInvoiceRoundingSalesReceivableSetup(false);
         CurrencyCode := CreateCurrency;
         PaymentClassCode := PostSalesInvoiceAndSuggestCustomerPayment(CurrencyCode);
@@ -109,7 +109,7 @@ codeunit 144055 "ERM Payment Management II"
         // Verify VAT Entry after posting the Payment Slip with Partial Amount.
 
         // Setup: Create VAT Posting Setup, Payment Class, Bank Account, GL Account, Setup for Payment Slip and Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         PaymentClassCode := PostSalesInvoiceAndSuggestCustomerPayment('');  // // Blank for currency.
         FindPaymentLineAndUpdateAmount(PaymentLine, PaymentClassCode);
         PostPaymentSlip(PaymentClassCode);
@@ -133,7 +133,7 @@ codeunit 144055 "ERM Payment Management II"
         // Verify that the Realize VAT field is disabled when the Unrealized VAT Reversal is set to Delayed and Action Type field is changed from Ledger to None.
 
         // Setup: Create Payment Class, payment Status, Payment Step.
-        Initialize;
+        Initialize();
         PaymentClass.Get(CreatePaymentClass(PaymentClass.Suggestions::Customer, PaymentClass."Unrealized VAT Reversal"::Delayed));
         CreatePaymentStatus(PaymentStatus, PaymentClass.Code, PaymentClass.Code);
         CreatePaymentStep(
@@ -161,7 +161,7 @@ codeunit 144055 "ERM Payment Management II"
         // Verify  that the deletion of an applied Vendor Payment Line unapplies the vendor ledger entry the payment line was applied.
 
         // Setup: Create and post Purchase Invoice, create Payment Header and Suggest Vendor Payment.
-        Initialize;
+        Initialize();
         PaymentClassCode := PostPurchaseInvoiceAndSuggestVendorPayment('');  // Blank for Currency.
         FindPaymentLine(PaymentLine, PaymentClassCode);
         VendorNo := PaymentLine."Account No.";
@@ -171,7 +171,7 @@ codeunit 144055 "ERM Payment Management II"
 
         // Verify: Verify Applies - to - ID is blank when Payment Line is deleted.
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField("Applies-to ID", '');
     end;
 
@@ -188,7 +188,7 @@ codeunit 144055 "ERM Payment Management II"
         // Verify that the Debit Amount can be modified on Vendor Payment when Currency Code is not equal to blank.
 
         // Setup: Create and post Purchase Invoice, Create Payment Header and Suggest Vendor Payment.
-        Initialize;
+        Initialize();
         OldInvoiceRounding := UpdateInvoiceRoundingPurchasePayableSetup(false);
         CurrencyCode := CreateCurrency;
         PaymentClassCode := PostPurchaseInvoiceAndSuggestVendorPayment(CurrencyCode);
@@ -214,7 +214,7 @@ codeunit 144055 "ERM Payment Management II"
         // Verify Vendor No. on Payment Line when Currency is not blank on Payment Header.
 
         // Setup & Exercise: Create Currency, Customers, Create payment Header.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         VendorNo := CreateVendor(CurrencyCode);
         VendorNo2 := CreateVendor('');
@@ -239,7 +239,7 @@ codeunit 144055 "ERM Payment Management II"
         // Verify Vendor No. on Payment Line when Currency is not blank on Payment Header.
 
         // Setup & Exercise: Create Currency, Customers, Create payment Header.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor(CreateCurrency);
         VendorNo2 := CreateVendor('');  // Blank for Currency.
         PaymentClassCode :=
@@ -263,14 +263,14 @@ codeunit 144055 "ERM Payment Management II"
         // Verify proper Due Date is suggested automatically for combined payments for Vendors when Summarize Per is Vendor.
 
         // Setup: Create Vendor, Create payment Slip.
-        Initialize;
+        Initialize();
         DueDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
         VendorNo := CreateVendor('');
         CreatePaymentSlipAndSuggestVendorPayment(VendorNo, VendorNo, '', DueDate, SummarizePer::Vendor, '');  // Blank for Currency and VendorFilter.
 
         // Verify: Verify Due date on Payment Line.
         PaymentLine.SetRange("Account No.", VendorNo);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         PaymentLine.TestField("Due Date", DueDate);
     end;
 
@@ -344,13 +344,13 @@ codeunit 144055 "ERM Payment Management II"
     begin
         // [FEATURE] [Export] [Cancel]
         // [SCENARIO 291934] "Payment Header"."File Exporte Completed" becomes FALSE when Stan cancels export payment file
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Slip Setup "X" with steps "StepF" and "StepC"
         // [GIVEN] "StepF"."Action Type" = File.
         // [GIVEN] "StepC"."Action Type" = "Cancel File" and start status = "StepF"
         PaymentClassCode := PostPurchaseInvoiceAndSuggestVendorPayment('');  // Blank for Currency.
-        CreatePaymentStatus(PaymentStatusExported, PaymentClassCode, LibraryUtility.GenerateGUID);
+        CreatePaymentStatus(PaymentStatusExported, PaymentClassCode, LibraryUtility.GenerateGUID());
 
         CreatePaymentStep(
           PaymentClassCode, LibraryUtility.GenerateGUID,
@@ -361,7 +361,7 @@ codeunit 144055 "ERM Payment Management II"
 
         // [GIVEN] Payment header with generated payment file having "Status" = "StepF", "File Export Completed" = TRUE
         PaymentHeader.SetRange("Payment Class", PaymentClassCode);
-        PaymentHeader.FindFirst;
+        PaymentHeader.FindFirst();
         PaymentHeader."Status No." := PaymentStatusExported.Line;
         PaymentHeader."File Export Completed" := true;
         PaymentHeader.Modify();
@@ -371,7 +371,7 @@ codeunit 144055 "ERM Payment Management II"
         PaymentSlip.Post.Invoke;
 
         // [THEN] Payment header with "Status" = 0, "File Export Completed" = FALSE
-        PaymentHeader.FindFirst;
+        PaymentHeader.FindFirst();
         PaymentHeader.TestField("Status No.", 0);
         PaymentHeader.TestField("File Export Completed", false);
     end;
@@ -385,7 +385,7 @@ codeunit 144055 "ERM Payment Management II"
         LibraryERM.SetUnrealizedVAT(true);
         PaymentClass.DeleteAll();
         PaymentHeader.DeleteAll();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CalculateAmount(No: Code[20]; PaymentClassCode: Text[30]) Amount: Decimal
@@ -396,7 +396,7 @@ codeunit 144055 "ERM Payment Management II"
     begin
         Customer.Get(No);
         VATPostingSetup.SetRange("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         Amount := Round(PaymentLine.Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"));
     end;
 
@@ -515,8 +515,8 @@ codeunit 144055 "ERM Payment Management II"
     local procedure CreateBankAccountWithSEPAInfo(var BankAccount: Record "Bank Account")
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        BankAccount.Validate("SWIFT Code", LibraryUtility.GenerateGUID);
-        BankAccount.Validate(IBAN, LibraryUtility.GenerateGUID);
+        BankAccount.Validate("SWIFT Code", LibraryUtility.GenerateGUID());
+        BankAccount.Validate(IBAN, LibraryUtility.GenerateGUID());
         BankAccount.Modify(true);
     end;
 
@@ -591,7 +591,7 @@ codeunit 144055 "ERM Payment Management II"
         PaymentStep: Record "Payment Step";
         NoSeries: Record "No. Series";
     begin
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         LibraryFRLocalization.CreatePaymentStep(PaymentStep, PaymentClass);
         PaymentStep.Validate(Name, Name);
         PaymentStep.Validate("Previous Status", PreviousStatus);
@@ -764,8 +764,8 @@ codeunit 144055 "ERM Payment Management II"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         with VendorBankAccount do begin
-            Validate("SWIFT Code", LibraryUtility.GenerateGUID);
-            Validate(IBAN, LibraryUtility.GenerateGUID);
+            Validate("SWIFT Code", LibraryUtility.GenerateGUID());
+            Validate(IBAN, LibraryUtility.GenerateGUID());
             Modify(true);
         end;
         Vendor.Validate("Preferred Bank Account Code", VendorBankAccount.Code);
@@ -782,14 +782,14 @@ codeunit 144055 "ERM Payment Management II"
     local procedure FindPaymentLine(var PaymentLine: Record "Payment Line"; PaymentClass: Text[30])
     begin
         PaymentLine.SetRange("Payment Class", PaymentClass);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
     end;
 
     local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20])
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::" ");
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure FindPaymentLineAndUpdateAmount(var PaymentLine: Record "Payment Line"; PaymentClass: Text[30])
@@ -924,7 +924,7 @@ codeunit 144055 "ERM Payment Management II"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField(Amount, Amount);
     end;
 

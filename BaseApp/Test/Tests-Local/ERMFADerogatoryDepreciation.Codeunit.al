@@ -294,8 +294,8 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         FADepreciationBook: Record "FA Depreciation Book";
     begin
         // Setup: Create Fixed Asset Depreciation Book, create and post FA General Journal Line with Acquisition Cost and Derogatory.
-        LibraryFiscalYear.CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
+        LibraryFiscalYear.CreateFiscalYear();
         CreateFADepreciationBookAndPostFAGLJournal(FADepreciationBook);
 
         // Exercise.
@@ -357,7 +357,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         FAPostingGroup: Record "FA Posting Group";
         FixedAsset: Record "Fixed Asset";
     begin
-        FAPostingGroup.FindFirst;
+        FAPostingGroup.FindFirst();
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", CreateDepreciationBook);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
@@ -381,7 +381,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
     begin
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.SetRange("FA Posting Type", FAPostingType);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
         exit(FALedgerEntry.Amount);
     end;
 
@@ -395,7 +395,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         FixedAssetBookValue02.SetTableView(FixedAsset);
         FixedAssetBookValue02.SetMandatoryFields(FADepreciationBook."Depreciation Book Code", WorkDate, WorkDate);
         FixedAssetBookValue02.SetTotalFields(GroupTotals, PrintDetails, false, false);  // Using FALSE for Budget Report and Reclassify.
-        FixedAssetBookValue02.Run;
+        FixedAssetBookValue02.Run();
     end;
 
     local procedure RunReportFABookValue01(FADepreciationBook: Record "FA Depreciation Book"; GroupTotals: Option; PrintDetails: Boolean)
@@ -408,7 +408,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         FixedAssetBookValue01.SetTableView(FixedAsset);
         FixedAssetBookValue01.SetMandatoryFields(FADepreciationBook."Depreciation Book Code", WorkDate, WorkDate);
         FixedAssetBookValue01.SetTotalFields(GroupTotals, PrintDetails, false);  // Using FALSE for Budget Report.
-        FixedAssetBookValue01.Run;
+        FixedAssetBookValue01.Run();
     end;
 
     local procedure RunReportFAProjValueDerogatory(FADepreciationBook: Record "FA Depreciation Book"; GroupTotals: Option; PrintDetails: Boolean)
@@ -421,7 +421,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         FAProjValueDerogatory.SetTableView(FixedAsset);
         FAProjValueDerogatory.SetMandatoryFields(FADepreciationBook."Depreciation Book Code", WorkDate, WorkDate);
         FAProjValueDerogatory.SetTotalFields(GroupTotals, PrintDetails);
-        FAProjValueDerogatory.Run;
+        FAProjValueDerogatory.Run();
     end;
 
     local procedure VerifyFAProjectedValueReport(FANo: Code[20])

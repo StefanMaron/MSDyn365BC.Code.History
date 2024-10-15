@@ -203,7 +203,7 @@ codeunit 144027 "UT COD FA Derogatory Depr."
         FALedgerEntry2: Record "FA Ledger Entry";
     begin
         FALedgerEntry."Entry No." := 1;
-        if FALedgerEntry2.FindLast then
+        if FALedgerEntry2.FindLast() then
             FALedgerEntry."Entry No." := FALedgerEntry2."Entry No." + 1;
         FALedgerEntry."FA No." := FANo;
         FALedgerEntry."Depreciation Book Code" := DepreciationBookCode;

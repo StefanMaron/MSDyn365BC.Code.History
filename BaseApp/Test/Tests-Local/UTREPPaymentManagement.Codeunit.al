@@ -74,7 +74,7 @@ codeunit 144045 "UT REP Payment Management"
         // Purpose of the test is to validate On Pre Data Item Trigger of Report ID - 10860 Payment List.
 
         // Setup: Create Payment Line.
-        Initialize;
+        Initialize();
         CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, CreateVendor, '', '');  // Blank value for Currency and Payment Address code.
         LibraryVariableStorage.Enqueue(PaymentLine."No.");  // Enqueue for PaymentListRequestPageHandler.
 
@@ -112,7 +112,7 @@ codeunit 144045 "UT REP Payment Management"
     local procedure GLReconciliationDateFilterError(ReportID: Integer)
     begin
         // Setup: Enqueue values for GLCustLedgerReconciliationRequestPageHandler and GLVendLedgerReconciliationRequestPageHandler.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue('');  // Blank for No.
 
         // Exercise.
@@ -151,7 +151,7 @@ codeunit 144045 "UT REP Payment Management"
         CurrencyCode: Code[10];
     begin
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         CreatePaymentLineAndRunPaymentReport(AccountType, AccountNo, CurrencyCode, ReportID);
 
@@ -188,7 +188,7 @@ codeunit 144045 "UT REP Payment Management"
         FileName: Text[1024];
     begin
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         FileName := FileManagement.ServerTempFileName('.pdf');
         LibraryVariableStorage.Enqueue(FileName);  // Enqueue for BillBlankCurrencyRequestpageHandler and DraftBlankCurrencyRequestpageHandler.
         CreatePaymentLineAndRunPaymentReport(AccountType, AccountNo, '', ReportID);  // Blank for Currency code.
@@ -205,7 +205,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         // Purpose of the test is to validate On Pre Report Trigger of Payment Line for Report ID - 10868 'Draft Notice'.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"Draft notice");
@@ -239,7 +239,7 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // Setup: Create payment Line.
-        Initialize;
+        Initialize();
         CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, CreateVendor, '', PaymentAddressCode);  // Blank for Currency code.
         PaymentLine.SetRange("No.", PaymentLine."No.");
 
@@ -258,7 +258,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         // Purpose of the test is to validate On Pre Report Trigger of Payment Line for Report ID - 10870 'Withdraw Notice'.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"Withdraw notice");
@@ -292,7 +292,7 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // Setup: Create payment Line.
-        Initialize;
+        Initialize();
         CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Customer, CreateCustomer, '', PaymentAddressCode);  // Blank for Currency code.
         PaymentLine.SetRange("No.", PaymentLine."No.");
 
@@ -311,7 +311,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         // Purpose of the test is to validate On Pre Report Trigger of Payment Line for Report ID - 10869 'Draft Recapitulation'.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"Draft recapitulation");
@@ -328,7 +328,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10869 'Draft Recapitulation'.
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         asserterror CreatePaymentLineAndRunDraftRecapitulationReport('');  // Blank for AccountNo.
 
         // Verify: Verify expected error code. Actual error is 'Vendor does not exist'.
@@ -345,7 +345,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10869 'Draft Recapitulation'.
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor;
         CreatePaymentLineAndRunDraftRecapitulationReport(VendorNo);
 
@@ -361,7 +361,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         // Purpose of the test is to validate On Pre Report Trigger of Payment Line for Report ID - 10871 'Withdraw Recapitulation',
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"Withdraw recapitulation");
@@ -378,7 +378,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10871 'Withdraw Recapitulation'.
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         asserterror CreatePaymentLineAndRunWithdrawRecapitulationReport('');  // Blank for AccountNo.
 
         // Verify: Verify expected error code. Actual error is 'Customer  does not exist'.
@@ -395,7 +395,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10871 'Withdraw Recapitulation'.
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         CreatePaymentLineAndRunWithdrawRecapitulationReport(CustomerNo);
 
@@ -413,7 +413,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10867 Remittance.
         // Setup: Create payment Line.
-        Initialize;
+        Initialize();
         CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Customer, CreateCustomer, CreateCurrency, '');  // Blank for Payment Address Code.
         PaymentLine.SetRange("No.", PaymentLine."No.");
 
@@ -433,8 +433,8 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // [SCENARIO 332702] Run report "Draft notice" with saving results to Excel file.
-        Initialize;
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Payment Line.
         CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, CreateVendor(), '', '');
@@ -458,8 +458,8 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // [SCENARIO 332702] Run report "Draft recapitulation" with saving results to Excel file.
-        Initialize;
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Payment Line.
         CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, CreateVendor(), '', '');
@@ -483,8 +483,8 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // [SCENARIO 332702] Run report "Remittance" with saving results to Excel file.
-        Initialize;
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Payment Line.
         CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Customer, CreateCustomer(), '', '');
@@ -508,8 +508,8 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // [SCENARIO 332702] Run report "Withdraw recapitulation" with saving results to Excel file.
-        Initialize;
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Payment Line.
         CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, CreateVendor(), '', '');
@@ -533,8 +533,8 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // [SCENARIO 337173] Run report "Withdraw notice" with saving results to Excel file.
-        Initialize;
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Payment Line.
         CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Customer, CreateCustomer(), '', '');
@@ -551,7 +551,7 @@ codeunit 144045 "UT REP Payment Management"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomer(): Code[20]

@@ -271,7 +271,7 @@ report 10869 "Draft recapitulation"
                         trigger OnAfterGetRecord()
                         begin
                             Vendor.SetRange("No.", "Account No.");
-                            if not Vendor.FindFirst then
+                            if not Vendor.FindFirst() then
                                 Error(Text002, "Account No.");
 
                             DraftAmount := Abs(Amount);

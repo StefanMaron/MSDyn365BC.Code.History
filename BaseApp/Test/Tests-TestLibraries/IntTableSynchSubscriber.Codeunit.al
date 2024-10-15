@@ -102,7 +102,7 @@ codeunit 139163 "Int. Table Synch. Subscriber"
         IntegrationSynchJobErrors.SetAscending("Date/Time", false);
         ErrorCount := Format(IntegrationSynchJobErrors.Count);
         LastErrorMessage := 'No last error';
-        if IntegrationSynchJobErrors.FindFirst then
+        if IntegrationSynchJobErrors.FindFirst() then
             LastErrorMessage := IntegrationSynchJobErrors.Message;
 
         if ExpectedBeforeFieldTransfer > -1 then

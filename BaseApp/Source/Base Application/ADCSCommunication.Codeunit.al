@@ -525,7 +525,7 @@ codeunit 7701 "ADCS Communication"
         MiniformLine.Reset();
         MiniformLine.SetRange("Miniform Code", MiniFormCode);
         MiniformLine.SetRange(Text, ReturnTextValue);
-        MiniformLine.FindFirst;
+        MiniformLine.FindFirst();
         MiniformLine.TestField("Call Miniform");
         MiniformHeader2.Get(MiniformLine."Call Miniform");
     end;
@@ -654,7 +654,7 @@ codeunit 7701 "ADCS Communication"
         MiniformHeader: Record "Miniform Header";
     begin
         MiniformHeader.SetRange("Start Miniform", true);
-        if MiniformHeader.FindFirst then
+        if MiniformHeader.FindFirst() then
             exit(MiniformHeader.Code);
         Error(Text006, MiniformHeader.FieldCaption("Start Miniform"));
     end;

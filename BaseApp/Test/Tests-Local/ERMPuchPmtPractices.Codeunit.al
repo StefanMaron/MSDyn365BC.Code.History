@@ -33,9 +33,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 257582] No purchase invoices includes into Payment Application Buffer by function BuildVendPmtApplicationBuffer of codeunit "Payment Reporting Mgt." for Vendor with "Exclude from Payment Reporting" option
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         MockSimpleVendLedgEntry(true, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, false);
 
@@ -57,9 +57,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] Only purchase invoices within specified period includes into Payment Application Buffer by function BuildVendPmtApplicationBuffer of codeunit "Payment Reporting Mgt."
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // 4 invoices are within StartingDate and Ending Date
@@ -92,9 +92,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] "Days Since Due Date" of Payment Application Buffer calculates as WORKDATE - "Due Date"
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         DaysSinceDueDate := LibraryRandom.RandInt(100);
         MockSimpleVendLedgEntry(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, WorkDate - DaysSinceDueDate, true);
@@ -118,9 +118,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] Payment includes into calculation when "Posting Date" within period of report and "Payments Within Period" option is enabled
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         InvLedgEntryNo := MockSimpleVendLedgEntry(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, StartingDate, true);
         MockPaymentApplication(InvLedgEntryNo, EndingDate, 0, 0);
@@ -143,9 +143,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] Payment does not include into calculation when "Posting Date" outside period of report and "Payments Within Period" option is enabled
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         InvLedgEntryNo := MockSimpleVendLedgEntry(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, StartingDate, true);
         MockPaymentApplication(InvLedgEntryNo, EndingDate + 1, 0, 0);
@@ -168,9 +168,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] Payment includes into calculation when "Posting Date" outside period of report but "Payments Within Period" option is disabled
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         InvLedgEntryNo := MockSimpleVendLedgEntry(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, StartingDate, true);
         MockPaymentApplication(InvLedgEntryNo, EndingDate + 1, 0, 0);
@@ -194,9 +194,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] "Pmt. Days Delayed" is difference between the "Due Date" of invoice and "Posting Date" of payment
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         DueDate := StartingDate + 1;
         PaymentDate := EndingDate - 1;
@@ -207,7 +207,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         PaymentReportingMgt.BuildVendPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate, false);
 
         TempPaymentApplicationBuffer.SetFilter("Pmt. Entry No.", '<>%1', 0);
-        TempPaymentApplicationBuffer.FindFirst;
+        TempPaymentApplicationBuffer.FindFirst();
         TempPaymentApplicationBuffer.TestField("Pmt. Days Delayed", PaymentDate - DueDate);
     end;
 
@@ -226,9 +226,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 278044] "Pmt. Amount (LCY)" is application amount of Payment
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         MockVendLedgEntryWithAmt(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, StartingDate, StartingDate, true);
         VendorLedgerEntry.CalcFields("Amount (LCY)");
@@ -238,7 +238,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         PaymentReportingMgt.BuildVendPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate, false);
 
         TempPaymentApplicationBuffer.SetFilter("Pmt. Entry No.", '<>%1', 0);
-        TempPaymentApplicationBuffer.FindFirst;
+        TempPaymentApplicationBuffer.FindFirst();
         TempPaymentApplicationBuffer.TestField("Pmt. Amount (LCY)", AppliedAmount);
     end;
 
@@ -256,9 +256,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] "Entry Amount Corrected (LCY)" is invoice amount excluding applied credit memo amount
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         MockVendLedgEntryWithAmt(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, StartingDate, StartingDate, true);
         VendorLedgerEntry.CalcFields("Amount (LCY)");
@@ -267,7 +267,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         PaymentReportingMgt.BuildVendPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate, false);
 
         TempPaymentApplicationBuffer.SetRange("Pmt. Entry No.", 0);
-        TempPaymentApplicationBuffer.FindFirst;
+        TempPaymentApplicationBuffer.FindFirst();
         TempPaymentApplicationBuffer.TestField("Entry Amount Corrected (LCY)", VendorLedgerEntry."Amount (LCY)" + CrMemoAmount);
     end;
 
@@ -286,9 +286,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] "Remaining Amount (LCY)" is "Entry Amount Corrected (LCY)" amount excluding payment amount
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         MockVendLedgEntryWithAmt(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, StartingDate, StartingDate, true);
         VendorLedgerEntry.CalcFields("Amount (LCY)");
@@ -299,7 +299,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         PaymentReportingMgt.BuildVendPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate, false);
 
         TempPaymentApplicationBuffer.SetRange("Pmt. Entry No.", 0);
-        TempPaymentApplicationBuffer.FindFirst;
+        TempPaymentApplicationBuffer.FindFirst();
         TempPaymentApplicationBuffer.TestField("Remaining Amount (LCY)", VendorLedgerEntry."Amount (LCY)" + CrMemoAmount + PmtAmount);
     end;
 
@@ -315,9 +315,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         // [FEATURE] [Report]
         // [SCENARIO] Payment Practices Reporting does not show details is "Show Invoices option is disabled on Request Page
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] Work Date is January 3
         // [GIVEN] Invoice with "Due Date"  = January 4
@@ -345,9 +345,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         // [FEATURE] [Report]
         // [SCENARIO] Payment Practices Reporting shows details is "Show Invoices option is enabled on Request Page
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] Work Date is January 3
         // [GIVEN] Invoice with "Due Date"  = January 4
@@ -377,9 +377,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         // [FEATURE] [Report]
         // [SCENARIO 271362] Payment Practices Reporting prints total count of invoices not paid and delayed
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] Work Date is January 3
         // [GIVEN] Two invoices with "Due Date"  = January 4
@@ -410,8 +410,8 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279015] Test function PrepareNotPaidInDaysSource from "Payment Reporting Mgt." codeunit in case of "Days Since Due Date" >= "Days From" and "Days To" = 0.
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
 
         // [GIVEN] Temporary record Payment Application Buffer with "Days Since Due Date" = 92.
         MockTempPaymentApplicationBuffer(TempPaymentApplicationBuffer, 0, 92, 0, 0, 0);
@@ -431,8 +431,8 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279015] Test function PrepareNotPaidInDaysSource from "Payment Reporting Mgt." codeunit in case of "Days Since Due Date" < "Days From" and "Days To" = 0.
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
 
         // [GIVEN] Temporary record Payment Application Buffer with "Days Since Due Date" = 90.
         MockTempPaymentApplicationBuffer(TempPaymentApplicationBuffer, 0, 90, 0, 0, 0);
@@ -452,8 +452,8 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279015] Test function PrepareDelayedPmtInDaysSource from "Payment Reporting Mgt." codeunit in case of "Pmt. Days Delayed" >= "Days From" and "Days To" = 0.
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
 
         // [GIVEN] Temporary record Payment Application Buffer with "Pmt. Days Delayed" = 92.
         MockTempPaymentApplicationBuffer(
@@ -474,8 +474,8 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 279015] Test function PrepareDelayedPmtInDaysSource from "Payment Reporting Mgt." codeunit in case of "Pmt. Days Delayed" < "Days From" and "Days To" = 0.
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
 
         // [GIVEN] Temporary record Payment Application Buffer with "Pmt. Days Delayed" = 90.
         MockTempPaymentApplicationBuffer(
@@ -498,9 +498,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 278906] Only nonzero total amount of invoices is shown on page with vendor invoices, that are not paid.
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Vendor Ledger Entry with "Amount (LCY)" = "A" and Open = TRUE.
@@ -508,7 +508,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         VendorLedgerEntry.CalcFields("Amount (LCY)");
 
         // [GIVEN] Run "Payment Practices Reporting" report.
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         RunPaymentPracticesReporting(StartingDate, EndingDate, false);
 
         // [THEN] "Total amount of invoices (Corrected)" is shown for unpaid vendor invoices page only.
@@ -530,9 +530,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 278906] Only nonzero total amount of invoices is shown on page with vendor invoices, that were delayed in payment.
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Closed Vendor Ledger Entry with "Amount (LCY)" = "A".
@@ -543,7 +543,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
           VendorLedgerEntry."Entry No.", WorkDate, -VendorLedgerEntry."Amount (LCY)", -VendorLedgerEntry."Amount (LCY)");
 
         // [GIVEN] Run "Payment Practices Reporting" report.
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         RunPaymentPracticesReporting(StartingDate, EndingDate, false);
 
         // [THEN] "Total amount of invoices (Corrected)" is shown for delayed in payment vendor invoices page only.
@@ -566,9 +566,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 279080] Closed Vendor Ledger Entries are considered in calculation of "Total amount of invoices" for unpaid invoices.
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] One opened Invoice with Amount = "A1".
@@ -602,9 +602,9 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 279080] Closed Vendor Ledger Entries are considered in calculation of "Total amount of invoices" for delayed in payment invoices.
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] One closed Invoice with Amount = "A1" and with applied Payment with Amount = "A1", posted after "Due Date".

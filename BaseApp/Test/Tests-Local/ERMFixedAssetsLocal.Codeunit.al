@@ -336,7 +336,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate), true);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
         GenJournalLine.SetRange("Account No.", FANo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         FADepreciationBook.Get(FANo, TaxDeprBookCode);
@@ -493,7 +493,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         FADepreciationBook.Get(FANo, TaxDeprBookCode);
         FADepreciationBook.CalcFields("Book Value");
         ExpectedBookValue := FADepreciationBook."Book Value";
-        FALedgerEntry.FindLast;
+        FALedgerEntry.FindLast();
         LastFALedgerEntryNo := FALedgerEntry."Entry No.";
 
         // [GIVEN] An additional acquisition cost is posted via FA journal line with "Depr. acquisition Cost" = Yes and "Depr. until FA Posting Date" = Yes
@@ -509,7 +509,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
         FALedgerEntry.SetRange("Depreciation Book Code", NormalDeprBookCode);
-        FALedgerEntry.FindLast;
+        FALedgerEntry.FindLast();
         ReverseFALedgerEntries(FALedgerEntry);
 
         // [THEN] The FA ledger entries created by the additional acquisition are all reversed
@@ -549,7 +549,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         FADepreciationBook.Get(FANo, TaxDeprBookCode);
         FADepreciationBook.CalcFields("Book Value");
         ExpectedBookValue := FADepreciationBook."Book Value";
-        FALedgerEntry.FindLast;
+        FALedgerEntry.FindLast();
         LastFALedgerEntryNo := FALedgerEntry."Entry No.";
 
         // [GIVEN] The FA is depreciated via Calculate Depreciation report
@@ -560,12 +560,12 @@ codeunit 144002 "ERM Fixed Assets - Local"
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
         FALedgerEntry.SetRange("Depreciation Book Code", NormalDeprBookCode);
-        FALedgerEntry.FindLast;
+        FALedgerEntry.FindLast();
         ReverseFALedgerEntries(FALedgerEntry);
 
         // [WHEN] The derogatory is reversed from company book
         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Derogatory);
-        FALedgerEntry.FindLast;
+        FALedgerEntry.FindLast();
         ReverseFALedgerEntries(FALedgerEntry);
 
         // [THEN] The FA ledger entries created by the report are all reversed
@@ -1055,7 +1055,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
     begin
         FASetup.Get();
         FAJournalSetup2.SetRange("Depreciation Book Code", FASetup."Default Depr. Book");
-        FAJournalSetup2.FindFirst;
+        FAJournalSetup2.FindFirst();
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
         FAJournalSetup.Modify(true);
     end;
@@ -1094,7 +1094,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         CalculateDepreciation.InitializeRequest(
           DepreciationBookCode, PostingDate, false, 0, PostingDate, '', FixedAsset.Description, BalanceAccount);
         CalculateDepreciation.UseRequestPage(false);
-        CalculateDepreciation.Run;
+        CalculateDepreciation.Run();
     end;
 
     local procedure RunCalculateDepreciationReportAndPostJournalLines(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; PostingDate: Date; BalanceAccount: Boolean)
@@ -1106,7 +1106,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         with GenJournalLine do begin
             SetRange("Account Type", "Account Type"::"Fixed Asset");
             SetRange("Account No.", FixedAssetNo);
-            FindFirst;
+            FindFirst();
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
         end;
     end;
@@ -1522,7 +1522,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         FALedgerEntries.OpenEdit;
         FALedgerEntry.SetFilter("Depreciation Book Code", DepreciationBookCode);
         FALedgerEntry.SetFilter("FA Posting Type", Format(FAPostingType));
-        FALedgerEntry.FindLast;
+        FALedgerEntry.FindLast();
         FALedgerEntries.FILTER.SetFilter("Entry No.", Format(FALedgerEntry."Entry No."));
         FALedgerEntries.CancelEntries.Invoke;  // Open handler - CancelFAEntriesRequestPageHandler.
         FALedgerEntries.OK.Invoke;

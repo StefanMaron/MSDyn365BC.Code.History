@@ -17,7 +17,7 @@ codeunit 144001 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestGLDetailTrialBalance()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"G/L Detail Trial Balance");
     end;
 
@@ -26,7 +26,7 @@ codeunit 144001 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestFRAccountSchedule()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"FR Account Schedule");
     end;
 
@@ -35,7 +35,7 @@ codeunit 144001 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestGLCustLedgerReconciliation()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"GL/Cust. Ledger Reconciliation");
     end;
 
@@ -44,7 +44,7 @@ codeunit 144001 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestGLJournal()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"G/L Journal");
     end;
 
@@ -53,7 +53,7 @@ codeunit 144001 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestGLTrialBalance()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"G/L Trial Balance");
     end;
 
@@ -62,7 +62,7 @@ codeunit 144001 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestFixedAssetProfessionalTax()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Fixed Asset-Professional Tax");
     end;
 
@@ -71,7 +71,7 @@ codeunit 144001 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestVendorJournal()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Vendor Journal");
     end;
 
@@ -80,7 +80,7 @@ codeunit 144001 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestJournals()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::Journals);
     end;
 
@@ -89,7 +89,7 @@ codeunit 144001 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestCustomerJournal()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Customer Journal");
     end;
 

@@ -76,7 +76,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         // Test to verify that Book Value is zero when the TAX Depreciation Book achieves the Depreciation End Date.
 
         // Setup: Create a Fixed Asset with two FA Depreciation Books. Create and post Acquisition Cost for the Fixed Asset.
-        Initialize;
+        Initialize();
         AcquisitionCostAmount := LibraryRandom.RandIntInRange(10000, 20000);  // Large random Integer value required.
         NormalDepreciationBookCode := CreateDepreciationBookAndModifyDerogatoryCalculation('');  // Blank Derogatory Calculation.
         FANo := CreateFAWithTaxFADepreciationBookAndGLIntegration(TaxDepreciationBookCode, NormalDepreciationBookCode);
@@ -108,7 +108,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         // Test to verify that Derogatory Amount is only visible in the TAX Depreciation Book.
 
         // Setup: Create a Fixed Asset with two FA Depreciation Books. Create and post Acquisition Cost for the Fixed Asset.
-        Initialize;
+        Initialize();
         AcquisitionCostAmount := LibraryRandom.RandIntInRange(10000, 20000);  // Large random Integer value required.
         NormalDepreciationBookCode := CreateDepreciationBookAndModifyDerogatoryCalculation('');  // Blank Derogatory Calculation.
         FANo := CreateFAWithTaxFADepreciationBookAndGLIntegration(TaxDepreciationBookCode, NormalDepreciationBookCode);
@@ -141,7 +141,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         // Test to verify that Derogatory Entries are considered only in the TAX Depreciation Book.
 
         // Setup: Create a Fixed Asset with two FA Depreciation Books. Create and post Acquisition Cost for the Fixed Asset.
-        Initialize;
+        Initialize();
         AcquisitionCostAmount := LibraryRandom.RandIntInRange(10000, 20000);  // Large random Integer value required.
         NormalDepreciationBookCode := CreateDepreciationBookAndModifyDerogatoryCalculation('');  // Blank Derogatory Calculation.
         FANo := CreateFAWithTaxFADepreciationBookAndGLIntegration(TaxDepreciationBookCode, NormalDepreciationBookCode);
@@ -174,7 +174,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         // Test to verify that Posted Sales Invoice is created successfully with Lot Tracking in Item Ledger Entry.
 
         // Setup: Create Parent and Child Items with Lot Tracking, update Item Inventory, create a Sales Order with Lot Tracking.
-        Initialize;
+        Initialize();
         ItemNo := CreateCertifiedProductionBOMWithLotTrackedItem;
         TrackingQuantity := LibraryRandom.RandDec(10, 2);  // Decimal random value required for the bug.
         CreateAndPostItemJournalLineWithLotTracking(ItemNo, TrackingQuantity);
@@ -203,7 +203,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         // Test to verify that after posting FA GL Journal there are entries with right FA Posting Date in FA Ledger Entries.
 
         // Setup: Create a Fixed Asset with two FA Depreciation Books. Create and post Acquisition Cost for the Fixed Asset.
-        Initialize;
+        Initialize();
         AcquisitionCostAmount := LibraryRandom.RandIntInRange(10000, 20000);  // Large random Integer value required.
         NormalDepreciationBookCode := CreateDepreciationBookAndModifyDerogatoryCalculation('');  // Blank Derogatory Calculation.
         FANo := CreateFAWithTaxFADepreciationBookAndGLIntegration(TaxDepreciationBookCode, NormalDepreciationBookCode);
@@ -238,7 +238,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         // posting Sales Invoice with GetShipmentLine.
 
         // Setup: Create a Sales Shipment and Sales Invoice. Invoke GetShipmentLine function on Sales Invoice created.
-        Initialize;
+        Initialize();
         SalesShipmentLine.Get(CreateShipmentAndSalesInvoice(SalesLine), SalesLine."Line No.");
         LibrarySales.GetShipmentLines(SalesLine);  // Invokes GetShipmentLinesPageHandler.
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -270,7 +270,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         // Test to verify that relation between Sales Invoice Lines and Sales Shipment Lines is recorded in Shipment Invoiced Table.
 
         // Setup: Create Customer, create a Sales Order with multiple Sales Lines and post as Ship.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         // Use random values for Quantity.
         CreateSalesDocument(
@@ -305,7 +305,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         // Test to verify that relation between Sales Invoice and Sales Shipment is recorded in Shipment Invoiced Table.
 
         // Setup: Create Customer, create a Sales Order and post as Ship.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         ShipmentNo := CreateAndPostSalesOrderAsShip(SalesLine, Customer."No.");
         SalesShipmentHeader.Get(ShipmentNo);
@@ -317,7 +317,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         // Verify: Verify that relation between Sales Invoice and Sales Shipment is recorded in Shipment Invoiced Table.
         ShipmentInvoiced.SetRange("Invoice No.", InvoiceNo);
         ShipmentInvoiced.SetRange("Shipment No.", ShipmentNo);
-        ShipmentInvoiced.FindFirst;
+        ShipmentInvoiced.FindFirst();
     end;
 
     [Test]
@@ -332,7 +332,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         // Test to verify Dimension on Payment Slip flow form Vendor.
 
         // Setup: Create Vendor with dimension,Default dimension code on Payment Slip for Vendor.
-        Initialize;
+        Initialize();
         CreateAndUpdateVendorWithDimension(DefaultDimension);
         DefaultDimensionCodeOnPaymentSlip(
           PaymentStepLedger.Sign::Credit, PaymentLine."Account Type"::Vendor, DefaultDimension."No.", DefaultDimension."Dimension Code");
@@ -350,7 +350,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         // Test to verify Dimension on Payment Slip flow form Cusotmer.
 
         // Setup: Create Customer with dimension,Default dimension code on Payment Slip for Customer.
-        Initialize;
+        Initialize();
         CreateAndUpdateCustomerWithDimension(DefaultDimension);
         DefaultDimensionCodeOnPaymentSlip(
           PaymentStepLedger.Sign::Debit, PaymentLine."Account Type"::Customer, DefaultDimension."No.", DefaultDimension."Dimension Code");
@@ -365,7 +365,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         PaymentLine: Record "Payment Line";
     begin
         // [SCENARIO 308571] Creating 'Payment Line' for Vendor with empty 'Dimension Value Code' in 'Default Dimension' doesn't throw error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Vendor with 'Default Dimension' with empty 'Dimension Value Code'
         CreateAndUpdateVendorWithIncompleteDimension(DefaultDimension);
@@ -393,7 +393,7 @@ codeunit 144015 "ERM FR Feature Bugs"
 
         // Verify: Verify Dimension Code on Dimension Set Entry.
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimensionSetEntry.TestField("Dimension Code", DimensionCode);
     end;
 
@@ -402,7 +402,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.DeleteAll();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostItemJournalLineWithLotTracking(ItemNo: Code[20]; Quantity: Decimal)
@@ -710,7 +710,7 @@ codeunit 144015 "ERM FR Feature Bugs"
     begin
         FASetup.Get();
         FAJournalSetup2.SetRange("Depreciation Book Code", FASetup."Default Depr. Book");
-        FAJournalSetup2.FindFirst;
+        FAJournalSetup2.FindFirst();
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
         FAJournalSetup.Modify(true);
     end;
@@ -760,7 +760,7 @@ codeunit 144015 "ERM FR Feature Bugs"
     begin
         ItemLedgerEntry.SetRange("Source No.", SourceNo);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Item Tracking", ItemLedgerEntry."Item Tracking"::"Lot No.");
         ItemLedgerEntry.TestField("Lot No.", LotNo);
         ItemLedgerEntry.TestField(Quantity, Quantity);
@@ -771,7 +771,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField(Type, Type);
         SalesInvoiceLine.TestField("Sell-to Customer No.", SellToCustomerNo);
         SalesInvoiceLine.TestField(Quantity, Quantity);

@@ -163,6 +163,23 @@ table 477 "Report Inbox"
         DocumentServiceMgt.OpenInOneDrive(FileName, FileExtension, InStream);
     end;
 
+    procedure ShareWithOneDrive()
+    var
+        DocumentServiceMgt: Codeunit "Document Service Management";
+        FileName: Text;
+        FileExtension: Text;
+        InStream: InStream;
+    begin
+        if "Report Name" = '' then
+            Error(FileDoesNotExistErr);
+
+        CalcFields("Report Output");
+        "Report Output".CreateInStream(InStream);
+        FileName := GetFileNameWithoutExtension();
+        FileExtension := Suffix();
+        DocumentServiceMgt.ShareWithOneDrive(FileName, FileExtension, InStream);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowReport(var ReportInbox: Record "Report Inbox"; var IsHandled: Boolean)
     begin

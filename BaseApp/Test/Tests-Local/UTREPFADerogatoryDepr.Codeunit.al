@@ -23,7 +23,7 @@ codeunit 144026 "UT REP FA Derogatory Depr."
     begin
         // Purpose of the test is to validate OnPreReport trigger of Report ID - 5692 Calculate Depreciation.
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepreciationBook;
 
         // Exercise.
@@ -60,7 +60,7 @@ codeunit 144026 "UT REP FA Derogatory Depr."
     local procedure OnPreReportCancelFALedgerEntries(Disposal: Boolean)
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateDepreciationBook;
         LibraryVariableStorage.Enqueue(Disposal);  // Required inside CancelFALedgerEntriesRequestPageHandler.
 
@@ -85,7 +85,7 @@ codeunit 144026 "UT REP FA Derogatory Depr."
         // Purpose of the test is to validate Trigger Fixed Asset - OnAfterGetRecord of Report ID - 5684 Copy FA Entries to G/L Budget.
 
         // Setup: Create FA Depreciation Book with G/L Budget.
-        Initialize;
+        Initialize();
         GLBudgetName := CreateGLBudgetName;
         CreateFAPostingGroup(FAPostingGroup);
         CreateFADepreciationBook(FADepreciationBook, FAPostingGroup.Code);
@@ -100,13 +100,13 @@ codeunit 144026 "UT REP FA Derogatory Depr."
 
         // Verify: Verify G/L Budget Entry Created with G/L Account No. as Derogatory Account of FA Posting Group.
         GLBudgetEntry.SetRange("Budget Name", GLBudgetName);
-        GLBudgetEntry.FindFirst;
+        GLBudgetEntry.FindFirst();
         GLBudgetEntry.TestField("G/L Account No.", FAPostingGroup."Derogatory Account");
     end;
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateDepreciationBook(): Code[10]
@@ -143,7 +143,7 @@ codeunit 144026 "UT REP FA Derogatory Depr."
         FALedgerEntry2: Record "FA Ledger Entry";
     begin
         FALedgerEntry."Entry No." := 1;
-        if FALedgerEntry2.FindLast then
+        if FALedgerEntry2.FindLast() then
             FALedgerEntry."Entry No." := FALedgerEntry2."Entry No." + 1;
         FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::Derogatory;
         FALedgerEntry."FA No." := FANo;

@@ -111,7 +111,7 @@ report 313 "Vendor/Item Purchases"
                     ResetItemTotal := true;
                     ValueEntry.SetCurrentKey("Source Type", "Source No.", "Item No.", "Posting Date");
                     ValueEntry.CopyFilters("Value Entry");
-                    if ValueEntry.FindSet then;
+                    if ValueEntry.FindSet() then;
                 end;
             }
 

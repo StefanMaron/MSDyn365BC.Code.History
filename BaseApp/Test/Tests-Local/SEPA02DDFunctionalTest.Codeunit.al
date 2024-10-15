@@ -48,7 +48,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         SuggestCustomerPayments.SetGenPayLine(PaymentHeader);
         Customer.SetRange("No.", Customer."No.");
         SuggestCustomerPayments.SetTableView(Customer);
-        SuggestCustomerPayments.RunModal;
+        SuggestCustomerPayments.RunModal();
 
         // Verify.
         VerifyPaymentLines(PaymentHeader, Customer);
@@ -77,7 +77,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         Customer.SetRange("Partner Type", Customer."Partner Type");
         Commit();
         SuggestCustomerPayments.SetTableView(Customer);
-        SuggestCustomerPayments.RunModal;
+        SuggestCustomerPayments.RunModal();
 
         // Verify.
         VerifyPaymentLines(PaymentHeader, Customer);
@@ -610,8 +610,8 @@ codeunit 144077 "SEPA.02 DD Functional Test"
     local procedure CreateCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustomerNo);
-        CustomerBankAccount.IBAN := LibraryUtility.GenerateGUID;
-        CustomerBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID;
+        CustomerBankAccount.IBAN := LibraryUtility.GenerateGUID();
+        CustomerBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
         CustomerBankAccount.Modify();
     end;
 
@@ -631,7 +631,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
         CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
     end;
 
     local procedure CreateCustomerAddress(var Customer: Record Customer)
@@ -664,7 +664,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         BankExportImportSetup.SetRange("Processing XMLport ID", XMLPORT::"SEPA DD pain.008.001.02");
-        BankExportImportSetup.FindFirst;
+        BankExportImportSetup.FindFirst();
         exit(BankExportImportSetup.Code);
     end;
 
@@ -801,7 +801,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         DirectDebitCollection: Record "Direct Debit Collection";
     begin
         DirectDebitCollection.SetRange(Identifier, PaymentHeader."No.");
-        asserterror DirectDebitCollection.FindFirst;
+        asserterror DirectDebitCollection.FindFirst();
     end;
 
     local procedure VerifyPaymentLines(PaymentHeader: Record "Payment Header"; Customer: Record Customer)
@@ -822,7 +822,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
             PaymentLine.SetRange("Applies-to Doc. No.", CustLedgerEntry."Document No.");
             PaymentLine.SetRange("Direct Debit Mandate ID", CustLedgerEntry."Direct Debit Mandate ID");
             Assert.AreEqual(1, PaymentLine.Count, PaymentLine.GetFilters);
-            PaymentLine.FindFirst;
+            PaymentLine.FindFirst();
             if SEPADirectDebitMandate.Get(CustLedgerEntry."Direct Debit Mandate ID") then
                 PaymentLine.TestField("Bank Account Code", SEPADirectDebitMandate."Customer Bank Account Code")
             else

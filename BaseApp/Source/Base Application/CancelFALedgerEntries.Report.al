@@ -224,7 +224,6 @@ report 5688 "Cancel FA Ledger Entries"
         FAJnlLine: Record "FA Journal Line";
         FADeprBook: Record "FA Depreciation Book";
         DeprBook: Record "Depreciation Book";
-        FALedgEntry: Record "FA Ledger Entry";
         FAJnlSetup: Record "FA Journal Setup";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         CancelFALedgEntries: Codeunit "Cancel FA Ledger Entries";
@@ -254,6 +253,9 @@ report 5688 "Cancel FA Ledger Entries"
         NewPostingDate: Date;
         DerogDeprBook: Record "Depreciation Book";
         Text10800: Label 'You cannot cancel FA entries that were posted to a derogatory depreciation book. Instead you must\cancel the FA entries posted to the depreciation book integrated with G/L.';
+
+    protected var
+        FALedgEntry: Record "FA Ledger Entry";
 
     local procedure InsertGenJnlLine(var FALedgEntry: Record "FA Ledger Entry")
     var
@@ -293,7 +295,7 @@ report 5688 "Cancel FA Ledger Entries"
             Insert(true);
             if BalAccount then begin
                 FAInsertGLAcc.GetBalAcc(GenJnlLine);
-                if FindLast then;
+                if FindLast() then;
                 GenJnlNextLineNo := "Line No.";
             end;
         end;

@@ -82,7 +82,7 @@ codeunit 144054 "UT REP Payment Management II"
     local procedure PaymentHeaderWithRIBCheckedFalse(ReportID: Integer)
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreatePaymentHeader(false);  // RIBChecked as false.
 
         // Exercise.
@@ -238,7 +238,7 @@ codeunit 144054 "UT REP Payment Management II"
     local procedure PaymentHeaderWithRIBCheckedTrue(ReportID: Integer; FieldNo: Integer; FieldValue: Code[20])
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UpdatePaymentHeader(CreatePaymentHeader(true), FieldNo, FieldValue);  // RIBChecked as true.
 
         // Exercise.
@@ -284,7 +284,7 @@ codeunit 144054 "UT REP Payment Management II"
     local procedure CreatePaymentLineAndRunReport(ReportID: Integer; FieldValue: Code[20])
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreatePaymentLine(FieldValue);
 
         // Exercise.
@@ -375,7 +375,7 @@ codeunit 144054 "UT REP Payment Management II"
     local procedure CreateAndUpdatePaymentLine(FieldNo: Integer; ReportID: Integer)
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UpdatePaymentLine(CreatePaymentLine(CreateCustomer), FieldNo, LibraryUTUtility.GetNewCode);
 
         // Exercise.
@@ -465,7 +465,7 @@ codeunit 144054 "UT REP Payment Management II"
     local procedure RunMiscellaneousReportsAndVerifyError(InputValue: Variant; ReportID: Integer; ErrorCode: Text[30])
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Enqueue required for DuplicateParameterRequestPageHandler, SuggestVendorPaymentsFRRequestPageHandler and SuggestCustomerPaymentsRequestPageHandler.
         LibraryVariableStorage.Enqueue(InputValue);
@@ -485,7 +485,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error for Report 10873 (Archive Payment Slips).
         // Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(CreatePaymentHeader(true));  // Enqueue Payment Header No for ArchivePaymentSlipsRequestPageHandler.
 
         // Exercise.
@@ -504,7 +504,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate OnAfterGetRecord of Report 10872 (Duplicate Parameter).
         // Setup: Create Payment Class and assign value for duplicate class.
-        Initialize;
+        Initialize();
         PaymentClass.OpenEdit;
         PaymentClass.FILTER.SetFilter(Code, CreatePaymentClass);
         LibraryVariableStorage.Enqueue(CopyStr(PaymentClass.Code.Value, 1, 4));  // Enqueue required for DuplicateParameterRequestPageHandler.
@@ -520,7 +520,7 @@ codeunit 144054 "UT REP Payment Management II"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -607,7 +607,7 @@ codeunit 144054 "UT REP Payment Management II"
         FieldRef: FieldRef;
     begin
         PaymentLine.SetRange("No.", No);
-        PaymentLine.FindFirst;
+        PaymentLine.FindFirst();
         RecRef.GetTable(PaymentLine);
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.Validate(FieldValue);

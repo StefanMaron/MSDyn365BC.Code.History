@@ -100,9 +100,9 @@ codeunit 5633 "FA Jnl.-Post Batch"
             NoOfRecords := LineCount;
 
             FALedgEntry.LockTable();
-            if FALedgEntry.FindLast then;
+            if FALedgEntry.FindLast() then;
             FAReg.LockTable();
-            if FAReg.FindLast then
+            if FAReg.FindLast() then
                 FARegNo := FAReg."No." + 1
             else
                 FARegNo := 1;
@@ -110,7 +110,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
             // Post lines
             PostLines;
 
-            if FAReg.FindLast then;
+            if FAReg.FindLast() then;
             if FAReg."No." <> FARegNo then
                 FARegNo := 0;
 
@@ -146,7 +146,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
                     FAJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
                     FAJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                     if FAJnlTemplate."Increment Batch Name" then
-                        if not FAJnlLine3.FindLast then
+                        if not FAJnlLine3.FindLast() then
                             if IncStr("Journal Batch Name") <> '' then begin
                                 FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
                                 FAJnlBatch.Delete();
@@ -157,7 +157,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
                             end;
 
                     FAJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-                    if (FAJnlBatch."No. Series" = '') and not FAJnlLine3.FindLast then begin
+                    if (FAJnlBatch."No. Series" = '') and not FAJnlLine3.FindLast() then begin
                         FAJnlLine3.Init();
                         FAJnlLine3."Journal Template Name" := "Journal Template Name";
                         FAJnlLine3."Journal Batch Name" := "Journal Batch Name";
@@ -230,7 +230,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
     begin
         NewFAJnlLine.Copy(FAJnlLine);
         DeprBook.SetRange("Derogatory Calculation", FAJnlLine."Depreciation Book Code");
-        if DeprBook.FindFirst then
+        if DeprBook.FindFirst() then
             if FADeprBook.Get(NewFAJnlLine."FA No.", DeprBook.Code) then begin
                 NewFAJnlLine.Validate("Depreciation Book Code", DeprBook.Code);
                 exit(true);
@@ -254,7 +254,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
 
         DepreciationBook.Get(SourceFAJournalLine."Depreciation Book Code");
         DerogDepreciationBook.SetRange("Derogatory Calculation", DepreciationBook.Code);
-        if not DerogDepreciationBook.FindFirst then
+        if not DerogDepreciationBook.FindFirst() then
             exit;
 
         CalculateAcqCostDepr.DerogatoryCalc(

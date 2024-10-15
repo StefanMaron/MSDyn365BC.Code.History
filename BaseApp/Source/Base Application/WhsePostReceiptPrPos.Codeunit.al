@@ -30,7 +30,7 @@ codeunit 5766 "Whse.-Post Receipt + Pr. Pos."
 
             PostedWhseRcptHeader.SetRange("Whse. Receipt No.", "No.");
             PostedWhseRcptHeader.SetRange("Location Code", "Location Code");
-            PostedWhseRcptHeader.FindLast;
+            PostedWhseRcptHeader.FindLast();
             WarehouseDocumentPrint.PrintPostedRcptHeader(PostedWhseRcptHeader);
             Message(Text001);
 

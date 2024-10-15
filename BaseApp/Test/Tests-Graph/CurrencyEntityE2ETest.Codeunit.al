@@ -31,7 +31,7 @@ codeunit 135517 "Currency Entity E2E Test"
         "Count": Integer;
     begin
         // [SCENARIO] User can retrieve all Currency records from the Currencies API.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 currencies in the Currency Table
         for Count := 1 to 2 do
@@ -58,7 +58,7 @@ codeunit 135517 "Currency Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a Currency through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a Currency JSON object to send to the service.
         CurrencyJSON := GetCurrencyJSON(TempCurrency);
@@ -86,12 +86,12 @@ codeunit 135517 "Currency Entity E2E Test"
         CurrencyCode: Text;
     begin
         // [SCENARIO] User can modify a currency through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A currency exists.
         CurrencyCode := CreateCurrency;
         Currency.Get(CurrencyCode);
-        Currency.Description := LibraryUtility.GenerateGUID;
+        Currency.Description := LibraryUtility.GenerateGUID();
         RequestBody := GetCurrencyJSON(Currency);
 
         // [WHEN] The user makes a patch request to the service.
@@ -116,7 +116,7 @@ codeunit 135517 "Currency Entity E2E Test"
         Responsetext: Text;
     begin
         // [SCENARIO] User can delete a currency by making a DELETE request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A currency exists.
         CurrencyCode := CreateCurrency;
@@ -164,7 +164,7 @@ codeunit 135517 "Currency Entity E2E Test"
         Currency: Record Currency;
     begin
         Currency.SetFilter(Code, StrSubstNo('%1*', CurrencyPrefixTxt));
-        if Currency.FindLast then
+        if Currency.FindLast() then
             exit(IncStr(Currency.Code));
 
         exit(CopyStr(CurrencyPrefixTxt + '00001', 1, 10));
@@ -180,7 +180,7 @@ codeunit 135517 "Currency Entity E2E Test"
         if Currency.Code = '' then
             Currency.Code := GetNextCurrencyID;
         if Currency.Description = '' then
-            Currency.Description := LibraryUtility.GenerateGUID;
+            Currency.Description := LibraryUtility.GenerateGUID();
 
         JSONManagement.AddJPropertyToJObject(JsonObject, 'code', Currency.Code);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'displayName', Currency.Description);

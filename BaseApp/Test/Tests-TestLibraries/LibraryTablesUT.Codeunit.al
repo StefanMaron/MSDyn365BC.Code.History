@@ -31,7 +31,7 @@ codeunit 131923 "Library - Tables UT"
         RecRef.GetTable(RecVar);
         Field.SetRange(TableNo, RecRef.Number);
         Field.SetRange("No.", FieldNoFind);
-        Field.FindFirst;
+        Field.FindFirst();
     end;
 
     [Scope('OnPrem')]

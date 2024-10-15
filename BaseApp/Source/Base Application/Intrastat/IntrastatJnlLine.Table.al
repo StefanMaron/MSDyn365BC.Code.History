@@ -236,9 +236,9 @@
         {
             Caption = 'Shipment Method Code';
             ObsoleteReason = 'Merge to W1';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             TableRelation = "Shipment Method";
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '20.0';
         }
         field(10801; "Cust. VAT Registration No."; Text[20])
         {
@@ -338,7 +338,7 @@
             if TemplateFilter <> '' then
                 IntrastatJnlBatch.SetFilter("Journal Template Name", TemplateFilter);
             IntrastatJnlBatch.SetFilter(Name, BatchFilter);
-            IntrastatJnlBatch.FindFirst;
+            IntrastatJnlBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
@@ -530,7 +530,7 @@
         exit('QV999999999999');
     end;
 
-    local procedure IsCustomerPrivatePerson(CustomerNo: Code[20]): Boolean
+    protected procedure IsCustomerPrivatePerson(CustomerNo: Code[20]): Boolean
     var
         Customer: Record Customer;
     begin
@@ -539,7 +539,7 @@
         exit(false);
     end;
 
-    local procedure IsVendorPrivatePerson(VendorNo: Code[20]): Boolean
+    protected procedure IsVendorPrivatePerson(VendorNo: Code[20]): Boolean
     var
         Vendor: Record Vendor;
     begin

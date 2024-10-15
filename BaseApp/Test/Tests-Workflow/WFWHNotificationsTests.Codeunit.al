@@ -198,7 +198,7 @@ codeunit 134217 "WFWH Notifications Tests"
     begin
         WorkflowWebhookNotificationTable.SetCurrentKey("Workflow Step Instance ID");
         WorkflowWebhookNotificationTable.SetRange("Workflow Step Instance ID", WorkflowStepInstanceID);
-        WorkflowWebhookNotificationTable.FindFirst;
+        WorkflowWebhookNotificationTable.FindFirst();
     end;
 }
 

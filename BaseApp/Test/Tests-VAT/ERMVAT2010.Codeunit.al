@@ -30,7 +30,7 @@ codeunit 134030 "ERM VAT 2010"
         // --------------------------------------------------------------------------------------------------------------------------
 
         // [GIVEN] Setup: Setup Demonstration Data
-        Initialize;
+        Initialize();
 
         // [WHEN] Create and Post an Invoice General Journal Line for a Customer with Random Amount.
         EUService := CreatePostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::Invoice,
@@ -52,7 +52,7 @@ codeunit 134030 "ERM VAT 2010"
         // --------------------------------------------------------------------------------------------------------------------------
 
         // [GIVEN] Setup: Setup Demonstration Data and VAT Posting Setup
-        Initialize;
+        Initialize();
 
         // [WHEN] Create and Post a Credit Memo General Journal Line for a Customer with Random Amount.
         EUService := CreatePostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
@@ -74,7 +74,7 @@ codeunit 134030 "ERM VAT 2010"
         // --------------------------------------------------------------------------------------------------------------------------
 
         // [GIVEN] Setup: Setup Demonstration Data and VAT Posting Setup
-        Initialize;
+        Initialize();
 
         // [WHEN] Create an Invoice General Journal Line for a Vendor with Random Amount.
         EUService := CreatePostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::Invoice,
@@ -96,7 +96,7 @@ codeunit 134030 "ERM VAT 2010"
         // --------------------------------------------------------------------------------------------------------------------------
 
         // [GIVEN] Setup: Setup Demonstration Data and VAT Posting Setup
-        Initialize;
+        Initialize();
 
         // [WHEN] Create and Post a Credit Memo General Journal Line for a Vendor with Random Amount.
         EUService := CreatePostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
@@ -118,7 +118,7 @@ codeunit 134030 "ERM VAT 2010"
         // --------------------------------------------------------------------------------------------------------------------------
 
         // [GIVEN] Setup: Setup Demonstration Data and VAT Posting Setup
-        Initialize;
+        Initialize();
 
         // [WHEN] Create and Post an Invoice General Journal Line for a Vendor with Random Amount.
         EUService := CreatePostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::Invoice,
@@ -140,7 +140,7 @@ codeunit 134030 "ERM VAT 2010"
         // --------------------------------------------------------------------------------------------------------------------------
 
         // [GIVEN] Setup: Setup Demonstration Data and VAT Posting Setup
-        Initialize;
+        Initialize();
 
         // [WHEN] Create an Invoice General Journal Line for a Vendor with Random Amount.
         EUService := CreatePostGeneralJournal(GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
@@ -164,7 +164,7 @@ codeunit 134030 "ERM VAT 2010"
         // [SCENARIO 145131] Check that value of EU Service Field is TRUE after Posting Service Order.
 
         // [GIVEN] Setup: Update VAT Posting Setup, Create Service Order, Service Item, Service Item Line for the Customer.
-        Initialize;
+        Initialize();
         EUService := SetupAndCreateServiceHeader(ServiceHeader, VATPostingSetup, ServiceHeader."Document Type"::Order);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -185,7 +185,7 @@ codeunit 134030 "ERM VAT 2010"
         // [SCENARIO 145132] Check that value of EU Service Field is TRUE after Posting Service Credit Memo.
 
         // [GIVEN] Setup:  Update VAT Posting Setup, Create Service Credit Memo.
-        Initialize;
+        Initialize();
         EUService := SetupAndCreateServiceHeader(ServiceHeader, VATPostingSetup, ServiceHeader."Document Type"::"Credit Memo");
 
         // [WHEN] Post Service Credit Memo
@@ -201,9 +201,9 @@ codeunit 134030 "ERM VAT 2010"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT 2010");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
         isInitialized := true;
         Commit();
@@ -224,7 +224,7 @@ codeunit 134030 "ERM VAT 2010"
         Customer: Record Customer;
     begin
         CountryRegion.SetFilter("Intrastat Code", '<>''''');
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         Customer.Validate("Country/Region Code", CountryRegion.Code);
@@ -255,7 +255,7 @@ codeunit 134030 "ERM VAT 2010"
         TariffNumber: Record "Tariff Number";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         LibraryInventory.CreateItem(Item);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.Validate("Tariff No.", TariffNumber."No.");
@@ -287,7 +287,7 @@ codeunit 134030 "ERM VAT 2010"
         // Finds the matching VAT Ledger Entry from a General Journal Line
         with VATEntry do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 

@@ -624,7 +624,7 @@ table 5200 Employee
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::Employee, GetPosition)
         else
             Message(Text000);
@@ -677,7 +677,7 @@ table 5200 Employee
     begin
         Employee.SetFilter("No.", '<>%1', "No.");
         Employee.SetRange("Resource No.", ResourceNo);
-        if Employee.FindFirst then
+        if Employee.FindFirst() then
             Error(EmployeeLinkedToResourceErr, Employee."No.");
     end;
 

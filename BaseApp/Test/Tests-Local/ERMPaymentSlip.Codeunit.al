@@ -43,7 +43,7 @@ codeunit 144562 "ERM Payment Slip"
         // Check that programm populates correct value on payment header as on posted sales invoice through suggest customer payment report.
 
         // Setup: Create payment slip setup & Create and post sales invoice.
-        Initialize;
+        Initialize();
         CreatePaymentClass(PaymentClass);
         CreatePaymentStatus(PaymentClass.Code, true);
         CreateCustomerWithPaymentTermsCode(Customer);
@@ -57,7 +57,7 @@ codeunit 144562 "ERM Payment Slip"
         Commit();
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, SalesHeader."Document Type"::Invoice, PostedDocumentNo);
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Due Date");
-        SuggestCustomerPayments.Run;
+        SuggestCustomerPayments.Run();
 
         // Verify: Verify Payment Header Amount LCY as on Posted Sales Invoice.
         VerifyAmountOnPaymentHeader(PostedDocumentNo, PaymentHeader."No.");
@@ -73,7 +73,7 @@ codeunit 144562 "ERM Payment Slip"
     begin
         // [FEATURE] [SEPA]
         // [SCENARIO 376206] Export Payment Class via XML Port "Import/Export Parameters"
-        Name := LibraryUtility.GenerateGUID;
+        Name := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Payment Class "A" with "SEPA Transfer Type" = "Credit Transfer"
         InitPaymentClassWithSEPATransferType(PaymentClass, PaymentClass."SEPA Transfer Type"::"Credit Transfer", Name);
@@ -102,7 +102,7 @@ codeunit 144562 "ERM Payment Slip"
         Status: array[2] of Integer;
     begin
         // [SCENARIO 381553] "Payment in Progress" = TRUE after step next status with "Payment in Progress" = TRUE, "Action Type" = "None"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment class with two status: "S1" with "Payment in Progress" = FALSE, "S2" with "Payment in Progress" = TRUE
         // [GIVEN] Payment step: "Previous Status" = "S1", "Next Status" = "S2", "Action Type" := "None"
@@ -128,7 +128,7 @@ codeunit 144562 "ERM Payment Slip"
         Status: array[2] of Integer;
     begin
         // [SCENARIO 381553] "Payment in Progress" = FALSE after step next status with "Payment in Progress" = FALSE, "Action Type" = "None"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment class with two status: "S1" with "Payment in Progress" = TRUE, "S2" with "Payment in Progress" = FALSE
         // [GIVEN] Payment step: "Previous Status" = "S1", "Next Status" = "S2", "Action Type" := "None"
@@ -145,7 +145,7 @@ codeunit 144562 "ERM Payment Slip"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreatePaymentClassWithTwoStatus(var PaymentStep: Record "Payment Step"; var Status: array[2] of Integer; PaymentInProgress1: Boolean; PaymentInProgress2: Boolean)
@@ -163,7 +163,7 @@ codeunit 144562 "ERM Payment Slip"
         PaymentTerms: Record "Payment Terms";
     begin
         PaymentTerms.SetFilter("Discount %", '<>%1', 0);
-        PaymentTerms.FindFirst;
+        PaymentTerms.FindFirst();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Payment Terms Code", PaymentTerms.Code);
         Customer.Modify(true);
@@ -314,7 +314,7 @@ codeunit 144562 "ERM Payment Slip"
     begin
         with PaymentLine do begin
             SetRange("No.", PaymentHeaderNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedStatusNo, "Status No.", FieldCaption("Status No."));
             Assert.AreEqual(ExpectedPaymentInProgress, "Payment in Progress", FieldCaption("Payment in Progress"));
         end;

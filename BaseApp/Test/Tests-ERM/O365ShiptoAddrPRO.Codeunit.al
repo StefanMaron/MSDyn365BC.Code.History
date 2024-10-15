@@ -27,13 +27,13 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         // [SCENARIO] Ship-To is initialized to "Default (Vendor Address)" on a Purchase Return Order in new mode
         // [WHEN] Annie opens a new Purhase Return Order card
         // [THEN] Ship-To option is set to Default(Vendor Address)
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise - Open a New Purchase Return Order
-        PurchaseReturnOrder.OpenNew;
+        PurchaseReturnOrder.OpenNew();
         PurchaseReturnOrder."Buy-from Vendor No.".SetValue(Vendor."No.");
 
         // Verify - ShipToOptions is set to default
@@ -60,7 +60,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         // [SCENARIO] Ship-To address fields is in sync with order address fields when ShipToOption is set to a Alternate Vendor Address
         // [WHEN] Annie selects ShipToOption as 'Alternate Vendor Address' and selects a vendor address on a Purchase Return Order
         // [THEN] Ship-To address fields are updated
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Return Order with default ship to option
         LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
@@ -96,7 +96,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         // [SCENARIO] Ship-to address fields are not editable when the ShipToOption is Alternate Vendor Address on Purchase Return Order
         // [WHEN] Annie creates a Purchase Return Order and sets the ShipToOption as Alternate Vendor Address
         // [THEN] The Ship-to address fields on the Purchase Return Order page is not editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Return Order
         LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
@@ -124,7 +124,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         // [SCENARIO] Ship-to address fields are editable when the ShipToOption is Custom Address on Purchase Return Order
         // [WHEN] Annie creates a Purchase Return Order and sets the ShipToOption as Custom Address
         // [THEN] The Ship-to address fields on the Purchase Return Order page is editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Return Order
         LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
@@ -148,7 +148,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         // [SCENARIO] Ship-to address fields are not editable when the ShipToOption is Default on Purchase Return Order
         // [WHEN] Annie creates a Purchase Return Order and sets the ShipToOption as default
         // [THEN] The Ship-to address fields on the Purchase Return Order page is not editable
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Return Order
         LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
@@ -172,7 +172,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         // [SCENARIO] ShipToOption is set correctly when opening an existing Purchase Return Order
         // [WHEN] Annie opens a Purchase Return Order where the shipping address is set to default
         // [THEN] The Purchase Return Order page has the ShipToOption set to "Default (Vendor Address)"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Return Order with Company address as the shipping address
         LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
@@ -196,7 +196,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         // [SCENARIO] ShipToOption is set correctly when opening an existing Purchase Return Order
         // [WHEN] Annie opens a Purchase Return Order where a Order Address is set as the shipping address
         // [THEN] The Purchase Return Order page has the ShipToOption set to "Alternate Order Address"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Return Order with shipping address as a Location
         LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
@@ -223,11 +223,11 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
         // [SCENARIO] ShipToOption is set correctly when opening an existing Purchase Return Order
         // [WHEN] Annie opens a Purchase Return Order where a custom shipping address is set
         // [THEN] The Purchase Return Order page has the ShipToOption set to "Custom Address"
-        Initialize;
+        Initialize();
 
         // Setup - Create a Purchase Return Order with Custom shipping address
         LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
-        PurchaseHeader.Validate("Ship-to Name", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Ship-to Name", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
         // Exercise - Reopen the created Purchase Return Order
@@ -247,7 +247,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Ship-to Addr. P.R.O");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();

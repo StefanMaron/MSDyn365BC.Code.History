@@ -140,7 +140,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Bank Account - OnAfterGetRecord of the Report, ID: 10809, Bank Account Trial Balance with Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankAccountWithDimension(BankAccount);
         CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
 
@@ -165,7 +165,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Bank Account - OnAfterGetRecord of the Report, ID: 10809, Bank Account Trial Balance with Dimension.
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankAccountWithDimension(BankAccount);
         CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
 
@@ -193,7 +193,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Bank Account - OnAfterGetRecord of the Report, ID: 10809, Bank Account Trial Balance without Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankAccountWithDimension(BankAccount);
         CreateBankAccountLedgerEntry('', WorkDate);
 
@@ -216,7 +216,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Customer - OnAfterGetRecord of the Report, ID: 10806, Customer Detail Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerWithDimension(Customer);
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
 
@@ -245,7 +245,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Customer - OnAfterGetRecord of the Report, ID: 10806, Customer Detail Trial Balance without Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerWithDimension(Customer);
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
         RunTrialBalanceReport(Customer."No.", Format(CalcDate('<1M>', WorkDate)), true, '', REPORT::"Customer Detail Trial Balance");  // ExcludeBalanceOnly TRUE.
@@ -269,7 +269,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Customer - OnAfterGetRecord of the Report, ID: 10806, Customer Detail Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerWithDimension(Customer);
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
 
@@ -309,7 +309,7 @@ codeunit 144036 "UT REP Legal Report"
         Customer: Record Customer;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerWithDimension(Customer);
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
 
@@ -332,7 +332,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Customer - OnAfterGetRecord of the Report, ID: 10805, Customer Trial Balance with Dimension.
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerWithDimension(Customer);
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
 
@@ -358,10 +358,10 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // [FEATURE] [Customer] [Customer Trial Balance] [UT]
         // [SCENARIO 273269] Report 10805 "Customer Trial Balance" shows Customers with Starting Balance but without Balance Change in a date range.
-        Initialize;
+        Initialize();
 
         for Index := 1 to ArrayLen(CustomerNo) do
-            CustomerNo[Index] := LibrarySales.CreateCustomerNo;
+            CustomerNo[Index] := LibrarySales.CreateCustomerNo();
 
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(CustomerNo[1], WorkDate));
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(CustomerNo[2], WorkDate - 40));
@@ -443,7 +443,7 @@ codeunit 144036 "UT REP Legal Report"
         GLAccount: Record "G/L Account";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLAccount."No.");
 
@@ -468,7 +468,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord of the Report, ID: 10808, Vendor Detail Trial Balance without Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorWithDimension(Vendor);
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate));
         RunTrialBalanceReport(Vendor."No.", Format(CalcDate('<1M>', WorkDate)), true, '', REPORT::"Vendor Detail Trial Balance FR");  // ExcludeBalanceOnly TRUE.
@@ -492,7 +492,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord of the Report, ID: 10808, Vendor Detail Trial Balance with Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorWithDimension(Vendor);
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate));
 
@@ -517,7 +517,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord of the Report, ID: 10808, Vendor Detail Trial Balance with Dimension.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorWithDimension(Vendor);
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate));
 
@@ -545,7 +545,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord of the Report, ID: 10807, Vendor Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorWithDimension(Vendor);
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate));
 
@@ -571,7 +571,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord of the Report, ID: 10807, Vendor Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorWithDimension(Vendor);
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate - 40));
 
@@ -594,10 +594,10 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // [FEATURE] [Vendor] [Vendor Trial Balance] [UT]
         // [SCENARIO 273269] Report 10807 "Vendor Trial Balance" shows Vendors with Starting Balance but without Balance Change in a date range.
-        Initialize;
+        Initialize();
 
         for Index := 1 to ArrayLen(VendorNo) do
-            VendorNo[Index] := LibraryPurchase.CreateVendorNo;
+            VendorNo[Index] := LibraryPurchase.CreateVendorNo();
 
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(VendorNo[1], WorkDate));
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(VendorNo[2], WorkDate - 40));
@@ -621,7 +621,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate GL Account - OnAfterGetRecord of the Report, ID: 10804, GL Detail Trial Balance with Dimension.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccountWithDimension(GLAccount);
         CreateGLEntry(GLAccount."No.");
 
@@ -652,7 +652,7 @@ codeunit 144036 "UT REP Legal Report"
         // [FEATURE] [Bank Account]
         // [SCENARIO] Bank Account - OnAfterGetRecord of the Report, ID: 10810, Bank Account Detail Trial Balance with Dimension.
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankAccountWithDimension(BankAccount);
         CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
 
@@ -675,7 +675,7 @@ codeunit 144036 "UT REP Legal Report"
         // [FEATURE] [Bank Account]
         // [SCENARIO] Bank Account - OnAfterGetRecord of the Report, ID: 10810, Bank Account Detail Trial Balance without Dimension.
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankAccountWithDimension(BankAccount);
         CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
 
@@ -694,7 +694,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // [FEATURE] [Bank Account]
         // [SCENARIO 257986] Balance in Bank Account Detail Trial Balance report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account with entry on 31.12.16 of credit amount 100
         // [GIVEN] Second entry on 15.01.17 of credit amount 200
@@ -742,7 +742,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate GLAccount - OnAfterGetRecord of the Report, ID: 10803, G/L Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLAccount."No.");
 
@@ -767,7 +767,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate GLAccount - OnAfterGetRecord of the Report, ID: 10803, G/L Trial Balance without Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry('');
 
@@ -790,7 +790,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // [FEATURE] [G/L Trial Balance]
         // [Scenario 363542] G/L Account with negative debit amount is shown in the balance date range column
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account and G/L Entry with Debit Amount = "X" < 0
         CreateGLAccount(GLAccount);
@@ -818,7 +818,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // [FEATURE] [G/L Trial Balance]
         // [Scenario 363542] G/L Account with negative credit amount is shown in the balance date range column
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account and G/L Entry with Credit Amount = "X" < 0
         CreateGLAccount(GLAccount);
@@ -846,7 +846,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Bank Account - OnPreDataItem of the Report, ID: 10810, Bank Account Detail Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankAccountWithDimension(BankAccount);
         CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
 
@@ -867,7 +867,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate Bank Account - OnPreDataItem of the Report, ID: 10809, Bank Account Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankAccountWithDimension(BankAccount);
         CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
 
@@ -903,7 +903,7 @@ codeunit 144036 "UT REP Legal Report"
         Customer: Record Customer;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerWithDimension(Customer);
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
 
@@ -925,7 +925,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate GL Account - OnPreDataItem of the Report, ID: 10804, GL Detail Trial Balance centralized by month.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLAccount."No.");
 
@@ -946,7 +946,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate GL Account - OnPreDataItem of the Report, ID: 10803, GL Trial Balance.
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLAccount."No.");
 
@@ -982,7 +982,7 @@ codeunit 144036 "UT REP Legal Report"
         Vendor: Record Vendor;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorWithDimension(Vendor);
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate));
 
@@ -1004,7 +1004,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate GL Entry - OnAfterGetRecord of the Report, ID: 10800, GL Journal.
         // Setup: Create GL Account and GL Entry with Source Code.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         GLEntry.Get(CreateGLEntry(GLAccount."No."));
 
@@ -1090,7 +1090,7 @@ codeunit 144036 "UT REP Legal Report"
         GLAccount: Record "G/L Account";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLAccount."No.");
 
@@ -1175,7 +1175,7 @@ codeunit 144036 "UT REP Legal Report"
         Customer: Record Customer;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerWithDimension(Customer);
         CreateCustomerLedgerEntry(Customer."No.", WorkDate);
 
@@ -1260,7 +1260,7 @@ codeunit 144036 "UT REP Legal Report"
         Vendor: Record Vendor;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorWithDimension(Vendor);
         CreateVendorLedgerEntry(Vendor."No.", WorkDate);
 
@@ -1345,7 +1345,7 @@ codeunit 144036 "UT REP Legal Report"
         BankAccount: Record "Bank Account";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateBankAccountWithDimension(BankAccount);
         CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
 
@@ -1371,7 +1371,7 @@ codeunit 144036 "UT REP Legal Report"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         // [SCENARIO 275554] "Customer Detail Trial Balance" Report includes detailed customer ledger entries of type "Correction of Remaining Amount"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Customer
         CreateCustomer(Customer);
@@ -1407,7 +1407,7 @@ codeunit 144036 "UT REP Legal Report"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         // [SCENARIO 275554] "Vendor Detail Trial Balance" Report includes detailed Vendor ledger entries of type "Correction of Remaining Amount"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Vendor
         CreateVendor(Vendor);
@@ -1444,7 +1444,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 298434] Report 10806 works with Starting Date in the middle of a month
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Customer
         CreateCustomer(Customer);
@@ -1455,7 +1455,7 @@ codeunit 144036 "UT REP Legal Report"
         // [GIVEN] Detailed Customer Ledger Entry with "Posting Date" = 20-10-20, "Entry Type" = "Initial Entry"  and "Credit Amount (LCY)" = 100
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", StartingDate + LibraryRandom.RandInt(10)));
         DetailedCustLedgEntry.SetRange("Customer No.", Customer."No.");
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
 
         Commit();
 
@@ -1481,7 +1481,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 298434] Report 10808 works with Starting Date in the middle of a month
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Vendor
         CreateVendor(Vendor);
@@ -1492,7 +1492,7 @@ codeunit 144036 "UT REP Legal Report"
         // [GIVEN] Detailed Vendor Ledger Entry with "Posting Date" = 20-10-20, "Entry Type" = "Initial Entry"  and "Credit Amount (LCY)" = 100
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", StartingDate + LibraryRandom.RandInt(10)));
         DetailedVendorLedgEntry.SetRange("Vendor No.", Vendor."No.");
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
 
         Commit();
 
@@ -1517,7 +1517,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 333888] Report "Purchase Advice" can be printed without RDLC rendering errors
-        Initialize;
+        Initialize();
         CreateBankAccountWithDimension(BankAccount);
         CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
 
@@ -1600,13 +1600,13 @@ codeunit 144036 "UT REP Legal Report"
         PageDataPersonalization: Record "Page Data Personalization";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT REP Legal Report");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         PageDataPersonalization.DeleteAll();
     end;
 
     local procedure CreateBankAccountWithDimension(var BankAccount: Record "Bank Account")
     begin
-        BankAccount."No." := LibraryUtility.GenerateGUID;
+        BankAccount."No." := LibraryUtility.GenerateGUID();
         BankAccount."Global Dimension 1 Code" := CreateDimension;
         BankAccount.Insert();
     end;
@@ -1616,11 +1616,11 @@ codeunit 144036 "UT REP Legal Report"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccountLedgerEntry2: Record "Bank Account Ledger Entry";
     begin
-        BankAccountLedgerEntry2.FindLast;
+        BankAccountLedgerEntry2.FindLast();
         BankAccountLedgerEntry."Entry No." := BankAccountLedgerEntry2."Entry No." + 1;
         BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
         BankAccountLedgerEntry."Document Type" := BankAccountLedgerEntry."Document Type"::" ";
-        BankAccountLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
+        BankAccountLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         BankAccountLedgerEntry."Source Code" := CreateSourceCode;
         BankAccountLedgerEntry.Amount := LibraryRandom.RandDec(100, 2);
         BankAccountLedgerEntry."Posting Date" := PostingDate;
@@ -1632,13 +1632,13 @@ codeunit 144036 "UT REP Legal Report"
 
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
-        Customer."No." := LibraryUtility.GenerateGUID;
+        Customer."No." := LibraryUtility.GenerateGUID();
         Customer.Insert();
     end;
 
     local procedure CreateCustomerWithDimension(var Customer: Record Customer)
     begin
-        Customer."No." := LibraryUtility.GenerateGUID;
+        Customer."No." := LibraryUtility.GenerateGUID();
         Customer."Global Dimension 1 Code" := CreateDimension;
         Customer.Insert();
     end;
@@ -1648,11 +1648,11 @@ codeunit 144036 "UT REP Legal Report"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
-        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
+        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         CustLedgerEntry."Source Code" := CreateSourceCode;
         CustLedgerEntry."Posting Date" := PostingDate;
         CustLedgerEntry."Due Date" := PostingDate;
@@ -1668,7 +1668,7 @@ codeunit 144036 "UT REP Legal Report"
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        DetailedCustLedgEntry2.FindLast;
+        DetailedCustLedgEntry2.FindLast();
         CustLedgerEntry.Get(CustLedgerEntryNo);
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Entry Type" := EntryType;
@@ -1694,11 +1694,11 @@ codeunit 144036 "UT REP Legal Report"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
-        VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
+        VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         VendorLedgerEntry."Source Code" := CreateSourceCode;
         VendorLedgerEntry."Posting Date" := PostingDate;
         VendorLedgerEntry."Due Date" := PostingDate;
@@ -1715,7 +1715,7 @@ codeunit 144036 "UT REP Legal Report"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.Get(VendorLedgEntryNo);
-        DetailedVendorLedgEntry2.FindLast;
+        DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
         DetailedVendorLedgEntry."Entry Type" := EntryType;
         DetailedVendorLedgEntry."Document Type" := VendorLedgerEntry."Document Type";
@@ -1739,14 +1739,14 @@ codeunit 144036 "UT REP Legal Report"
     var
         Dimension: Record Dimension;
     begin
-        Dimension.Code := LibraryUtility.GenerateGUID;
+        Dimension.Code := LibraryUtility.GenerateGUID();
         Dimension.Insert();
         exit(Dimension.Code);
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
     begin
-        GLAccount."No." := LibraryUtility.GenerateGUID;
+        GLAccount."No." := LibraryUtility.GenerateGUID();
         GLAccount.Insert();
     end;
 
@@ -1774,11 +1774,11 @@ codeunit 144036 "UT REP Legal Report"
         GLEntry: Record "G/L Entry";
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := GLAccountNo;
         GLEntry."Document Type" := GLEntry."Document Type"::Invoice;
-        GLEntry."Document No." := LibraryUtility.GenerateGUID;
+        GLEntry."Document No." := LibraryUtility.GenerateGUID();
         GLEntry."Source Code" := CreateSourceCode;
         GLEntry.Amount := LibraryRandom.RandDec(10, 2);
         GLEntry."Debit Amount" := DebitAmount;
@@ -1792,20 +1792,20 @@ codeunit 144036 "UT REP Legal Report"
     var
         SourceCode: Record "Source Code";
     begin
-        SourceCode.Code := LibraryUtility.GenerateGUID;
+        SourceCode.Code := LibraryUtility.GenerateGUID();
         SourceCode.Insert();
         exit(SourceCode.Code);
     end;
 
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
-        Vendor."No." := LibraryUtility.GenerateGUID;
+        Vendor."No." := LibraryUtility.GenerateGUID();
         Vendor.Insert();
     end;
 
     local procedure CreateVendorWithDimension(var Vendor: Record Vendor)
     begin
-        Vendor."No." := LibraryUtility.GenerateGUID;
+        Vendor."No." := LibraryUtility.GenerateGUID();
         Vendor."Global Dimension 1 Code" := CreateDimension;
         Vendor.Insert();
     end;
