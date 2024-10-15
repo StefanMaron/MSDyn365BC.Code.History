@@ -1,7 +1,7 @@
 codeunit 139451 "O365 Item Permission Test"
 {
     Subtype = Test;
-    TestPermissions = NonRestrictive;
+    TestPermissions = Disabled;
 
     trigger OnRun()
     begin
@@ -72,7 +72,7 @@ codeunit 139451 "O365 Item Permission Test"
         LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Item Nos." := NoSeries.Code;
         InventorySetup.Modify(true);
     end;

@@ -127,7 +127,7 @@ report 10043 "Customer Comment List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := "Comment Line".GetFilters;
     end;
 

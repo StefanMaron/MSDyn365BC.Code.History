@@ -33,18 +33,18 @@ report 10077 "Sales Shipment NA"
                 trigger OnAfterGetRecord()
                 begin
                     TempSalesShipmentLine := "Sales Shipment Line";
-                    TempSalesShipmentLine.Insert;
+                    TempSalesShipmentLine.Insert();
                     TempSalesShipmentLineAsm := "Sales Shipment Line";
-                    TempSalesShipmentLineAsm.Insert;
+                    TempSalesShipmentLineAsm.Insert();
                     HighestLineNo := "Line No.";
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempSalesShipmentLine.Reset;
-                    TempSalesShipmentLine.DeleteAll;
-                    TempSalesShipmentLineAsm.Reset;
-                    TempSalesShipmentLineAsm.DeleteAll;
+                    TempSalesShipmentLine.Reset();
+                    TempSalesShipmentLine.DeleteAll();
+                    TempSalesShipmentLineAsm.Reset();
+                    TempSalesShipmentLineAsm.DeleteAll();
                 end;
             }
             dataitem("Sales Comment Line"; "Sales Comment Line")
@@ -65,7 +65,7 @@ report 10077 "Sales Shipment NA"
                         "Line No." := HighestLineNo + 1000;
                         HighestLineNo := "Line No.";
                     end;
-                    TempSalesShipmentLine.Insert;
+                    TempSalesShipmentLine.Insert();
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -324,9 +324,9 @@ report 10077 "Sales Shipment NA"
                             trigger OnPreDataItem()
                             begin
                                 if not DisplayAssemblyInformation then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 if not AsmHeaderExists then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
                                 SetRange(Number, 1, PostedAsmLine.Count);
                             end;
@@ -391,7 +391,7 @@ report 10077 "Sales Shipment NA"
 
                         trigger OnPreDataItem()
                         begin
-                            NumberOfLines := TempSalesShipmentLine.Count;
+                            NumberOfLines := TempSalesShipmentLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                             PrintFooter := false;
@@ -404,7 +404,7 @@ report 10077 "Sales Shipment NA"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             SalesShipmentPrinted.Run("Sales Shipment Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -553,25 +553,25 @@ report 10077 "Sales Shipment NA"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
 
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
                 ;
             SalesSetup."Logo Position on Documents"::Left:
                 begin
-                    CompanyInfo3.Get;
+                    CompanyInfo3.Get();
                     CompanyInfo3.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -582,8 +582,8 @@ report 10077 "Sales Shipment NA"
         if not CurrReport.UseRequestPage then
             InitLogInteraction;
 
-        CompanyInformation.Get;
-        SalesSetup.Get;
+        CompanyInformation.Get();
+        SalesSetup.Get();
 
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
@@ -592,12 +592,12 @@ report 10077 "Sales Shipment NA"
                 CompanyInformation.CalcFields(Picture);
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -711,7 +711,7 @@ report 10077 "Sales Shipment NA"
             HighestLineNo := "Line No.";
         end;
         FormatDocument.ParseComment(Comment, TempSalesShipmentLine.Description, TempSalesShipmentLine."Description 2");
-        TempSalesShipmentLine.Insert;
+        TempSalesShipmentLine.Insert();
     end;
 }
 

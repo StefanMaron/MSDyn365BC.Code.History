@@ -42,14 +42,14 @@ codeunit 136355 "UT T Job WIP Warning"
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
-        JobWIPTotal.Init;
+        JobWIPTotal.Init();
         JobWIPTotal."Job No." := Job."No.";
         JobWIPTotal."Job Task No." := JobTask."Job Task No.";
         JobWIPTotal."Contract (Total Price)" := 0;
         JobWIPTotal."Schedule (Total Cost)" := 0;
         JobWIPTotal."Schedule (Total Price)" := 0;
         JobWIPTotal."Usage (Total Cost)" := 1;
-        JobWIPTotal.Insert;
+        JobWIPTotal.Insert();
     end;
 
     [Normal]

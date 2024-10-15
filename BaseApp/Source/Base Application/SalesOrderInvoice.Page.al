@@ -206,7 +206,7 @@ page 10028 "Sales Order Invoice"
 
                     trigger OnAction()
                     begin
-                        SalesSetup.Get;
+                        SalesSetup.Get();
                         if SalesSetup."Calc. Inv. Discount" then begin
                             CurrPage.SalesLines.PAGE.CalcInvDisc;
                             Commit

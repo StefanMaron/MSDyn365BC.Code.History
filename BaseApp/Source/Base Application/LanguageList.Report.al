@@ -85,7 +85,7 @@ report 10310 "Language List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         LanguageFilter := Language.GetFilters;
     end;
 

@@ -53,7 +53,7 @@ codeunit 5900 ServOrderManagement
             NewResponseTime := ServItemLine."Response Time";
         end;
 
-        ServItemLine2.Reset;
+        ServItemLine2.Reset();
         ServItemLine2.SetRange("Document Type", ServItemLine."Document Type");
         ServItemLine2.SetRange("Document No.", ServItemLine."Document No.");
         ServItemLine2.SetFilter("Line No.", '<>%1', ServItemLine."Line No.");
@@ -79,7 +79,7 @@ codeunit 5900 ServOrderManagement
         then begin
             ServHeader."Response Date" := NewResponseDate;
             ServHeader."Response Time" := NewResponseTime;
-            ServHeader.Modify;
+            ServHeader.Modify();
         end;
     end;
 
@@ -104,7 +104,7 @@ codeunit 5900 ServOrderManagement
                   Text001,
                   FieldCaption(Name), FieldCaption(Address), FieldCaption(City), TableCaption, "No.", Cust.TableCaption);
 
-            Cust.Reset;
+            Cust.Reset();
             Cust.SetCurrentKey(Name, Address, City);
             Cust.SetRange(Name, Name);
             Cust.SetRange(Address, Address);
@@ -116,7 +116,7 @@ codeunit 5900 ServOrderManagement
                     Validate("Customer No.", Cust."No.");
                     exit;
                 end;
-            CustTempl.Reset;
+            CustTempl.Reset();
             if not CustTempl.FindFirst then
                 Error(Text004);
             if PAGE.RunModal(PAGE::"Customer Template List", CustTempl) = ACTION::LookupOK then begin
@@ -143,10 +143,10 @@ codeunit 5900 ServOrderManagement
 
                 if "Contact Name" <> '' then begin
                     CustContUpdate.InsertNewContactPerson(Cust, false);
-                    Cust.Modify;
+                    Cust.Modify();
                 end;
 
-                DefaultDim.Reset;
+                DefaultDim.Reset();
                 DefaultDim.SetRange("Table ID", DATABASE::"Customer Template");
                 DefaultDim.SetRange("No.", CustTempl.Code);
                 if DefaultDim.Find('-') then
@@ -158,18 +158,18 @@ codeunit 5900 ServOrderManagement
                     until DefaultDim.Next = 0;
 
                 if CustTempl."Invoice Disc. Code" <> '' then begin
-                    FromCustInvDisc.Reset;
+                    FromCustInvDisc.Reset();
                     FromCustInvDisc.SetRange(Code, CustTempl."Invoice Disc. Code");
                     if FromCustInvDisc.Find('-') then
                         repeat
-                            ToCustInvDisc.Init;
+                            ToCustInvDisc.Init();
                             ToCustInvDisc.Code := Cust."No.";
                             ToCustInvDisc."Currency Code" := FromCustInvDisc."Currency Code";
                             ToCustInvDisc."Minimum Amount" := FromCustInvDisc."Minimum Amount";
                             ToCustInvDisc."Discount %" := FromCustInvDisc."Discount %";
                             ToCustInvDisc."Service Charge" := FromCustInvDisc."Service Charge";
                             OnBeforeToCustInvDiscInsert(ToCustInvDisc, FromCustInvDisc);
-                            ToCustInvDisc.Insert;
+                            ToCustInvDisc.Insert();
                         until FromCustInvDisc.Next = 0;
                 end;
                 Validate("Customer No.", Cust."No.");
@@ -191,7 +191,7 @@ codeunit 5900 ServOrderManagement
             Error(Text005, ServiceLine.FieldCaption(Quantity), FromServItem.TableCaption, FromServItem."No.");
 
         SerialNo := '';
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
         TempTrackingSpecification.SetCurrentKey(
           "Source ID", "Source Type", "Source Subtype", "Source Batch Name",
           "Source Prod. Order Line", "Source Ref. No.");
@@ -203,7 +203,7 @@ codeunit 5900 ServOrderManagement
             SerialNo := TempTrackingSpecification."Serial No.";
 
         if SerialNo <> '' then begin
-            NewServItem.Reset;
+            NewServItem.Reset();
             NewServItem.SetCurrentKey("Item No.", "Serial No.");
             NewServItem.SetRange("Item No.", ServiceLine."No.");
             NewServItem.SetRange("Variant Code", ServiceLine."Variant Code");
@@ -214,8 +214,8 @@ codeunit 5900 ServOrderManagement
                   NewServItem.TableCaption, NewServItem."No.", NewServItem.FieldCaption("Serial No."), NewServItem."Serial No.");
         end;
 
-        NewServItem.Reset;
-        ServMgtSetup.Get;
+        NewServItem.Reset();
+        ServMgtSetup.Get();
         NewServItem := FromServItem;
         NewServItem."No." := '';
         NoSeriesMgt.InitSeries(
@@ -232,7 +232,7 @@ codeunit 5900 ServOrderManagement
                 NewServItem.Status := NewServItem.Status::Installed;
         end;
 
-        NewServItem.Insert;
+        NewServItem.Insert();
         ResSkillMgt.CloneObjectResourceSkills(ResSkill.Type::"Service Item", FromServItem."No.", NewServItem."No.");
 
         Clear(ServLogMgt);
@@ -241,7 +241,7 @@ codeunit 5900 ServOrderManagement
         Clear(ServLogMgt);
         ServLogMgt.ServItemReplaced(FromServItem, NewServItem);
         FromServItem.Status := FromServItem.Status::Defective;
-        FromServItem.Modify;
+        FromServItem.Modify();
         case ServiceLine."Copy Components From" of
             ServiceLine."Copy Components From"::"Item BOM":
                 CopyComponentsFromBOM(NewServItem);
@@ -266,7 +266,7 @@ codeunit 5900 ServOrderManagement
     begin
         ServHeader.Get(ServInvLine."Document Type", ServInvLine."Document No.");
 
-        ServInvLine2.Reset;
+        ServInvLine2.Reset();
         ServInvLine2.SetRange("Document Type", ServInvLine."Document Type");
         ServInvLine2.SetRange("Document No.", ServInvLine."Document No.");
         ServInvLine2 := ServInvLine;
@@ -279,7 +279,7 @@ codeunit 5900 ServOrderManagement
             0: // Travel Fee
                 begin
                     ServHeader.TestField("Service Zone Code");
-                    ServCost.Reset;
+                    ServCost.Reset();
                     ServCost.SetCurrentKey("Service Zone Code");
                     ServCost.SetRange("Service Zone Code", ServHeader."Service Zone Code");
                     ServCost.SetRange("Cost Type", ServCost."Cost Type"::Travel);
@@ -288,7 +288,7 @@ codeunit 5900 ServOrderManagement
                           Text009,
                           ServCost.TableCaption, ServCost.FieldCaption("Service Zone Code"), ServHeader."Service Zone Code");
 
-                    ServInvLine2.Init;
+                    ServInvLine2.Init();
                     if LinktoServItemLine then begin
                         ServInvLine2."Service Item Line No." := ServInvLine."Service Item Line No.";
                         ServInvLine2."Service Item No." := ServInvLine."Service Item No.";
@@ -305,10 +305,10 @@ codeunit 5900 ServOrderManagement
                 end;
             1: // Starting Fee
                 begin
-                    ServMgtSetup.Get;
+                    ServMgtSetup.Get();
                     ServMgtSetup.TestField("Service Order Starting Fee");
                     ServCost.Get(ServMgtSetup."Service Order Starting Fee");
-                    ServInvLine2.Init;
+                    ServInvLine2.Init();
                     if LinktoServItemLine then begin
                         ServInvLine2."Service Item Line No." := ServInvLine."Service Item Line No.";
                         ServInvLine2."Service Item No." := ServInvLine."Service Item No.";
@@ -338,20 +338,20 @@ codeunit 5900 ServOrderManagement
         ContactFound: Boolean;
     begin
         if Cust.Get(CustNo) then begin
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             ContactFound := false;
-            ContBusRel.Reset;
+            ContBusRel.Reset();
             ContBusRel.SetCurrentKey("Link to Table", "No.");
             ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
             ContBusRel.SetRange("No.", Cust."No.");
-            Cont.Reset;
+            Cont.Reset();
             Cont.SetCurrentKey("Company No.");
             Cont.SetRange(Type, Cont.Type::Person);
             if ContBusRel.FindFirst then begin
                 Cont.SetRange("Company No.", ContBusRel."Contact No.");
                 if Cont.Find('-') then
                     repeat
-                        ContJobResp.Reset;
+                        ContJobResp.Reset();
                         ContJobResp.SetRange("Contact No.", Cont."No.");
                         ContJobResp.SetRange("Job Responsibility Code", ServMgtSetup."Serv. Job Responsibility Code");
                         ContactFound := ContJobResp.FindFirst;
@@ -368,7 +368,7 @@ codeunit 5900 ServOrderManagement
     var
         ResLocation: Record "Resource Location";
     begin
-        ResLocation.Reset;
+        ResLocation.Reset();
         ResLocation.SetCurrentKey("Resource No.", "Starting Date");
         ResLocation.SetRange("Resource No.", ResourceNo);
         ResLocation.SetRange("Starting Date", 0D, StartDate);
@@ -392,7 +392,7 @@ codeunit 5900 ServOrderManagement
         if (StartingDate = 0D) or (StartingTime = 0T) or (FinishingDate = 0D) or (FinishingTime = 0T) then
             exit(0);
 
-        ServHour.Reset;
+        ServHour.Reset();
         if (ContractNo <> '') and ContractCalendarExists then begin
             ServHour.SetRange("Service Contract Type", ServHour."Service Contract Type"::Contract);
             ServHour.SetRange("Service Contract No.", ContractNo)
@@ -410,7 +410,7 @@ codeunit 5900 ServOrderManagement
         TotTime := 0;
         TempDate := StartingDate;
 
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         ServMgtSetup.TestField("Base Calendar Code");
         CalendarMgmt.SetSource(ServMgtSetup, CalChange);
 
@@ -458,7 +458,7 @@ codeunit 5900 ServOrderManagement
         if ServHeader."Contract No." = '' then begin
             if ServItem.Get(ServItemLine."Service Item No.") then
                 ServItemList.SetRecord(ServItem);
-            ServItem.Reset;
+            ServItem.Reset();
             ServItem.SetCurrentKey("Customer No.", "Ship-to Code");
             ServItem.SetRange("Customer No.", ServHeader."Customer No.");
             ServItem.SetRange("Ship-to Code", ServHeader."Ship-to Code");
@@ -475,7 +475,7 @@ codeunit 5900 ServOrderManagement
                      ServItemLine."Contract No.", ServItemLine."Contract Line No.")
                 then
                     ServContractLineList.SetRecord(ServContractLine);
-            ServContractLine.Reset;
+            ServContractLine.Reset();
             ServContractLine.FilterGroup(2);
             ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
             ServContractLine.SetRange("Contract No.", ServHeader."Contract No.");
@@ -506,7 +506,7 @@ codeunit 5900 ServOrderManagement
         if not Deleting then
             NewPriority := ServItemLine.Priority;
 
-        ServItemLine2.Reset;
+        ServItemLine2.Reset();
         ServItemLine2.SetRange("Document Type", ServItemLine."Document Type");
         ServItemLine2.SetRange("Document No.", ServItemLine."Document No.");
         ServItemLine2.SetFilter("Line No.", '<>%1', ServItemLine."Line No.");
@@ -518,7 +518,7 @@ codeunit 5900 ServOrderManagement
 
         if ServHeader.Priority <> NewPriority then begin
             ServHeader.Priority := NewPriority;
-            ServHeader.Modify;
+            ServHeader.Modify();
         end;
     end;
 
@@ -527,18 +527,18 @@ codeunit 5900 ServOrderManagement
         ServItemComponent: Record "Service Item Component";
         OldSIComponent: Record "Service Item Component";
     begin
-        OldSIComponent.Reset;
+        OldSIComponent.Reset();
         OldSIComponent.SetRange(Active, true);
         OldSIComponent.SetRange("Parent Service Item No.", OldServItem."No.");
         if OldSIComponent.Find('-') then begin
             repeat
                 Clear(ServItemComponent);
-                ServItemComponent.Init;
+                ServItemComponent.Init();
                 ServItemComponent := OldSIComponent;
                 ServItemComponent."Parent Service Item No." := NewServItem."No.";
                 if not CopySerialNo then
                     ServItemComponent."Serial No." := '';
-                ServItemComponent.Insert;
+                ServItemComponent.Insert();
             until OldSIComponent.Next = 0;
         end else
             Error(
@@ -599,7 +599,7 @@ codeunit 5900 ServOrderManagement
         ServCommentLine: Record "Service Comment Line";
         ServCommentLine2: Record "Service Comment Line";
     begin
-        ServCommentLine.Reset;
+        ServCommentLine.Reset();
         ServCommentLine.SetRange("Table Name", FromDocumentType);
         ServCommentLine.SetRange("Table Subtype", FromTableSubType);
         ServCommentLine.SetRange("No.", FromNo);
@@ -609,7 +609,7 @@ codeunit 5900 ServOrderManagement
                 ServCommentLine2."Table Name" := ToDocumentType;
                 ServCommentLine2."Table Subtype" := 0;
                 ServCommentLine2."No." := ToNo;
-                ServCommentLine2.Insert;
+                ServCommentLine2.Insert();
             until ServCommentLine.Next = 0;
     end;
 
@@ -638,7 +638,7 @@ codeunit 5900 ServOrderManagement
             ServContractLine.CalculateNextServiceVisit;
             ServContractLine."Last Preventive Maint. Date" := ServContractLine."Last Service Date";
         end;
-        ServContractLine.Modify;
+        ServContractLine.Modify();
     end;
 
     procedure CalcServItemDates(var ServHeader: Record "Service Header"; ServItemNo: Code[20])
@@ -650,7 +650,7 @@ codeunit 5900 ServOrderManagement
                 ServItem."Last Service Date" := ServHeader."Finishing Date"
             else
                 ServItem."Last Service Date" := ServHeader."Posting Date";
-            ServItem.Modify;
+            ServItem.Modify();
         end;
     end;
 

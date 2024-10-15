@@ -64,7 +64,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
 
         // [WHEN] Create General Journal Lines and post them
         CreateGeneralJournalLines;
-        Commit;
+        Commit();
 
         // [WHEN] Invoking CostAllocationSources."Report Cost Allocation".INVOKE (which runs the report)
         REPORT.Run(REPORT::"Cost Allocation");
@@ -103,7 +103,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
 
         // [WHEN] Create General Journal Lines and post them
         CreateGeneralJournalLines;
-        Commit;
+        Commit();
 
         // [WHEN] Invoking CostAllocationSources."Report Cost Allocation".INVOKE (which runs the report)
         REPORT.Run(REPORT::"Cost Allocation");
@@ -179,7 +179,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
 
         // [WHEN] Create General Journal Lines and post them
         CreateGeneralJournalLines;
-        Commit;
+        Commit();
 
         // [WHEN] Invoking CostAllocationSources."Report Cost Allocation".INVOKE (which runs the report)
         REPORT.Run(REPORT::"Cost Allocation");
@@ -255,7 +255,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
 
         // [WHEN] Create General Journal Lines and post them
         CreateGeneralJournalLines;
-        Commit;
+        Commit();
 
         // [WHEN] Invoking CostAllocationSources."Report Cost Allocation".INVOKE (which runs the report)
         REPORT.Run(REPORT::"Cost Allocation");
@@ -276,19 +276,18 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Cost Accounting Plan-based E2E");
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
-        CostRegister.DeleteAll;
-        CostType.DeleteAll;
-        CostCenter.DeleteAll;
-        CostEntry.DeleteAll;
-        CostAllocationSource.DeleteAll;
-        Commit;
+        CostRegister.DeleteAll();
+        CostType.DeleteAll();
+        CostCenter.DeleteAll();
+        CostEntry.DeleteAll();
+        CostAllocationSource.DeleteAll();
+        Commit();
 
         if IsInitialized then
             exit;
@@ -304,9 +303,6 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         IsInitialized := true;
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Cost Accounting Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     local procedure SetupCostAccounting()
@@ -318,7 +314,7 @@ codeunit 135410 "Cost Accounting Plan-based E2E"
         CostAccountingSetup.OpenEdit;
         CostAccountingSetup."Starting Date for G/L Transfer".SetValue(StartingDateForGLTransfer);
         CostAccountingSetup."Auto Transfer from G/L".SetValue(true);
-        Commit;
+        Commit();
         // Invoking CostAccountingSetup.UpdateCostAcctgDimensions"
         REPORT.RunModal(REPORT::"Update Cost Acctg. Dimensions");
         CostAccountingSetup.Close;

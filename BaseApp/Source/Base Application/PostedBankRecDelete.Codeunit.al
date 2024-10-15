@@ -9,12 +9,12 @@ codeunit 10125 "Posted Bank Rec.-Delete"
     begin
         PostedBankRecLines.SetRange("Bank Account No.", "Bank Account No.");
         PostedBankRecLines.SetRange("Statement No.", "Statement No.");
-        PostedBankRecLines.DeleteAll;
+        PostedBankRecLines.DeleteAll();
 
         BankRecCommentLines.SetRange("Table Name", BankRecCommentLines."Table Name"::"Posted Bank Rec.");
         BankRecCommentLines.SetRange("Bank Account No.", "Bank Account No.");
         BankRecCommentLines.SetRange("No.", "Statement No.");
-        BankRecCommentLines.DeleteAll;
+        BankRecCommentLines.DeleteAll();
 
         Delete;
     end;

@@ -58,21 +58,21 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMOptionMapping: Record "CRM Option Mapping";
     begin
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCode), CRMSalesorder.ShippingMethodCode)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), CRMSalesorder.ShippingMethodCodeEnum)
         then
             SalesHeader.Validate(
               "Shipping Agent Code",
               CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Shipping Agent Code")));
 
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCode), CRMSalesorder.PaymentTermsCode)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), CRMSalesorder.PaymentTermsCodeEnum)
         then
             SalesHeader.Validate(
               "Payment Terms Code",
               CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Payment Terms Code")));
 
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCode), CRMSalesorder.FreightTermsCode)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), CRMSalesorder.FreightTermsCodeEnum)
         then
             SalesHeader.Validate(
               "Shipment Method Code",
@@ -164,10 +164,10 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             exit;
 
         CreateSalesOrderHeader(CRMSalesorder, SalesHeader);
+        CRMIntegrationRecord.CoupleRecordIdToCRMID(SalesHeader.RecordId, CRMSalesorder.SalesOrderId);
         CreateSalesOrderNotes(CRMSalesorder, SalesHeader);
         CreateSalesOrderLines(CRMSalesorder, SalesHeader);
         ApplySalesOrderDiscounts(CRMSalesorder, SalesHeader);
-        CRMIntegrationRecord.CoupleRecordIdToCRMID(SalesHeader.RecordId, CRMSalesorder.SalesOrderId);
         // Flag sales order has been submitted to NAV.
         SetLastBackOfficeSubmit(CRMSalesorder, Today);
         SendTraceTag('000083B', CrmTelemetryCategoryTok, VERBOSITY::Normal,
@@ -189,7 +189,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
                 if not CRMIntegrationManagement.IsWorkingConnection then
                     exit;
                 if CRMSalesorder.Find then
-                    if CRMSalesOrder.StateCode = CrmSalesOrder.StateCode::Submitted then
+                    if CRMSalesOrder.StateCode = CRMSalesOrder.StateCode::Submitted then
                         SetLastBackOfficeSubmit(CRMSalesorder, 0D);
             end;
     end;
@@ -210,7 +210,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         if not (Rec."Document Type" = Rec."Document Type"::Order) then
             exit;
 
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit;
 
         if not CRMIntegrationRecord.FindIDFromRecordID(Rec.RecordId, CRMSalesorder.SalesOrderId) then
@@ -219,11 +219,40 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         if CRMIntegrationRecord.RemoveCouplingToRecord(Rec.RecordId) then;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Assemble-to-Order Link", 'OnBeforeSalesLineCheckAvailShowWarning', '', false, false)]
+    local procedure OnBeforeSalesLineCheckAvailShowWarning(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        if SalesLine."Document Type" <> SalesLine."Document Type"::Order then
+            exit;
+
+        if SalesLine.Type <> SalesLine.Type::Item then
+            exit;
+
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            exit;
+
+        if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
+            exit;
+
+        if not CRMIntegrationRecord.IsRecordCoupled(SalesHeader.RecordId()) then
+            exit;
+
+        IsHandled := true;
+    end;
+
     local procedure CreateSalesOrderHeader(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
     var
         Customer: Record Customer;
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        CDSIntTableSubscriber: Codeunit "CDS Int. Table. Subscriber";
+        SourceRecordRef: RecordRef;
+        DestinationRecordRef: RecordRef;
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.Validate(Status, SalesHeader.Status::Open);
         SalesHeader.InitInsert;
@@ -237,7 +266,16 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CopyCRMOptionFields(CRMSalesorder, SalesHeader);
         SalesHeader.Validate("Payment Discount %", CRMSalesorder.DiscountPercentage);
         SalesHeader.Validate("External Document No.", CopyStr(CRMSalesorder.Name, 1, MaxStrLen(SalesHeader."External Document No.")));
-        SalesHeader.Insert;
+        SalesHeader.Insert();
+
+        // set company id and owner on CDS salesorder
+        if CDSIntegrationImpl.IsIntegrationEnabled() then begin
+            SourceRecordRef.GetTable(SalesHeader);
+            DestinationRecordRef.GetTable(CRMSalesorder);
+            CDSIntTableSubscriber.SetCompanyId(DestinationRecordRef);
+            CDSIntTableSubscriber.SetOwnerId(SourceRecordRef, DestinationRecordRef);
+            DestinationRecordRef.Modify();
+        end;
     end;
 
     local procedure CreateSalesOrderNotes(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
@@ -273,7 +311,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         RecordLinkManagement.WriteNote(RecordLink, AnnotationText);
         RecordLink.Created := CRMAnnotation.CreatedOn;
         RecordLink.Company := CompanyName;
-        RecordLink.Insert;
+        RecordLink.Insert();
     end;
 
     local procedure CreateSalesOrderLines(CRMSalesorder: Record "CRM Salesorder"; SalesHeader: Record "Sales Header")
@@ -287,7 +325,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         if CRMSalesorderdetail.FindSet then begin
             repeat
                 InitializeSalesOrderLine(CRMSalesorderdetail, SalesHeader, SalesLine);
-                SalesLine.Insert;
+                SalesLine.Insert();
                 if SalesLine."Qty. to Assemble to Order" <> 0 then
                     SalesLine.Validate("Qty. to Assemble to Order");
             until CRMSalesorderdetail.Next = 0;
@@ -307,7 +345,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             InitNewSalesLine(SalesHeader, SalesLine);
 
             SalesLine.Validate(Description, CopyStr(FullDescription, 1, MaxStrLen(SalesLine.Description)));
-            SalesLine.Insert;
+            SalesLine.Insert();
             FullDescription := CopyStr(FullDescription, MaxStrLen(SalesLine.Description) + 1);
         end;
     end;
@@ -410,7 +448,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
     local procedure InitNewSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         LastSalesLineNo := LastSalesLineNo + 10000;
@@ -494,7 +532,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         SalesSetup: Record "Sales & Receivables Setup";
         SalesHeader: Record "Sales Header";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Write-in Product No." = '' then begin
             SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
             SendTraceTag('000083C', CrmTelemetryCategoryTok, VERBOSITY::Normal,

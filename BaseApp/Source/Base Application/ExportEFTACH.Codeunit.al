@@ -40,11 +40,11 @@ codeunit 10094 "Export EFT (ACH)"
     begin
         BuildIDModifier(ModifierValues);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
         with BankAccount do begin
-            LockTable;
+            LockTable();
             Get(BankAccountNo);
             TestField("Export Format", "Export Format"::US);
             TestField("Transit No.");
@@ -100,7 +100,7 @@ codeunit 10094 "Export EFT (ACH)"
             ACHUSHeader."Company Name" := CompanyInformation.Name;
             ACHUSHeader.Reference := ReferenceCode;
             ACHUSHeader."Bank Name" := BankName;
-            ACHUSHeader.Modify;
+            ACHUSHeader.Modify();
         end;
     end;
 
@@ -130,7 +130,7 @@ codeunit 10094 "Export EFT (ACH)"
         ACHUSHeader."Originator Status Code" := 1;
         ACHUSHeader."Transit Routing Number" := BankAccount."Transit No.";
         ACHUSHeader."Batch Number" := EFTValues.GetBatchNo;
-        ACHUSHeader.Modify;
+        ACHUSHeader.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -140,7 +140,7 @@ codeunit 10094 "Export EFT (ACH)"
         StringConversionManagement: Codeunit StringConversionManagement;
         Justification: Option Right,Left;
     begin
-        EFTValues.SetTraceNo(EFTValues.GetTraceNo + 1);
+        EFTValues.SetTraceNo(EFTValues.GetTraceNo() + 1);
 
         ACHUSDetail.Get(DataExchEntryNo);
         ACHUSDetail."Record Type" := 6;
@@ -151,9 +151,11 @@ codeunit 10094 "Export EFT (ACH)"
         ACHUSDetail."Federal ID No." := DelChr(CompanyInformation."Federal ID No.", '=', ' .,-');
         ACHUSDetail."Payee Name" := CompanyInformation.Name;
         ACHUSDetail."Addenda Record Indicator" := 0;
-        ACHUSDetail."Trace Number" := GenerateTraceNoCode(EFTValues.GetTraceNo, BankAccount."Transit No.");
+        ACHUSDetail."Trace Number" := GenerateTraceNoCode(EFTValues.GetTraceNo(), BankAccount."Transit No.");
         ACHUSDetail."Entry Detail Sequence No" :=
-            StringConversionManagement.GetPaddedString(Format(EFTValues.GetTraceNo), 7, '0', Justification::Right);
+            CopyStr(
+                StringConversionManagement.GetPaddedString(Format(EFTValues.GetTraceNo()), 7, '0', Justification::Right),
+                1, MaxStrLen(ACHUSDetail."Entry Detail Sequence No"));
         ACHUSDetail.Modify();
 
         EFTValues.SetEntryAddendaCount(EFTValues.GetEntryAddendaCount + 1);
@@ -161,7 +163,7 @@ codeunit 10094 "Export EFT (ACH)"
         EFTValues.SetBatchHashTotal(BatchHashTotal);
         EFTValues.SetTotalBatchDebit(EFTValues.GetTotalBatchCredit);
 
-        exit(GenerateFullTraceNoCode(EFTValues.GetTraceNo, BankAccount."Transit No."));
+        exit(GenerateFullTraceNoCode(EFTValues.GetTraceNo(), BankAccount."Transit No."));
     end;
 
     [Scope('OnPrem')]
@@ -239,7 +241,7 @@ codeunit 10094 "Export EFT (ACH)"
                     BankAcctNo := CustomerBankAccount."Bank Account No.";
                 end;
 
-            EFTValues.SetTraceNo(EFTValues.GetTraceNo + 1);
+            EFTValues.SetTraceNo(EFTValues.GetTraceNo() + 1);
 
             EFTValues.SetEntryAddendaCount(EFTValues.GetEntryAddendaCount + 1);
             if DemandCredit then
@@ -264,14 +266,16 @@ codeunit 10094 "Export EFT (ACH)"
         ACHUSDetail."Addenda Record Indicator" := 0;
         ACHUSDetail."Payee Name" := AcctName;
         ACHUSDetail."Discretionary Data" := AcctType;
-        ACHUSDetail."Trace Number" := GenerateTraceNoCode(EFTValues.GetTraceNo, BankAccount."Transit No.");
+        ACHUSDetail."Trace Number" := GenerateTraceNoCode(EFTValues.GetTraceNo(), BankAccount."Transit No.");
         ACHUSDetail."Entry Detail Sequence No" :=
-            StringConversionManagement.GetPaddedString(Format(EFTValues.GetTraceNo), 7, '0', Justification::Right);
+            CopyStr(
+                StringConversionManagement.GetPaddedString(Format(EFTValues.GetTraceNo()), 7, '0', Justification::Right),
+                1, MaxStrLen(ACHUSDetail."Entry Detail Sequence No"));
         ACHUSDetail.Modify();
 
-        TempEFTExportWorkset.TraceNumber := GenerateTraceNoCode(EFTValues.GetTraceNo, BankAccount."Transit No.");
+        TempEFTExportWorkset.TraceNumber := GenerateTraceNoCode(EFTValues.GetTraceNo(), BankAccount."Transit No.");
 
-        exit(GenerateFullTraceNoCode(EFTValues.GetTraceNo, BankAccount."Transit No."));
+        exit(GenerateFullTraceNoCode(EFTValues.GetTraceNo(), BankAccount."Transit No."));
     end;
 
     [Scope('OnPrem')]
@@ -297,7 +301,7 @@ codeunit 10094 "Export EFT (ACH)"
         ACHUSFooter."Batch Number" := EFTValues.GetBatchNo;
         ACHUSFooter."Entry Addenda Count" := EFTValues.GetFileEntryAddendaCount;
         ACHUSFooter."Batch Hash Total" := BatchHashTotal;
-        ACHUSFooter.Modify;
+        ACHUSFooter.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -317,7 +321,7 @@ codeunit 10094 "Export EFT (ACH)"
         ACHUSFooter."File Hash Total" := EFTValues.GetFileHashTotal;
         ACHUSFooter."Total File Debit Amount" := EFTValues.GetTotalFileDebit;
         ACHUSFooter."Total File Credit Amount" := EFTValues.GetTotalFileCredit;
-        ACHUSFooter.Modify;
+        ACHUSFooter.Modify();
 
         exit(true);
     end;

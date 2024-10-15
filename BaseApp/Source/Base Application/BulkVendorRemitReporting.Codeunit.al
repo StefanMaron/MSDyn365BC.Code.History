@@ -175,7 +175,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
         EFTExport: Record "EFT Export";
     begin
         with GenJournalLine do begin
-            EFTExport.Init;
+            EFTExport.Init();
             EFTExport."Journal Template Name" := "Journal Template Name";
             EFTExport."Journal Batch Name" := "Journal Batch Name";
             EFTExport."Line No." := "Line No.";
@@ -216,7 +216,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
             EFTExport."Document Date" := "Document Date";
             EFTExport."Document No." := "Document No.";
 
-            EFTExport.Insert;
+            EFTExport.Insert();
         end;
     end;
 
@@ -226,7 +226,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
         GenJournalLine."Check Exported" := true;
         GenJournalLine."Exported to Payment File" := true;
 
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure UpdateDocNo(var GenJournalLineRecRef: RecordRef)
@@ -270,11 +270,11 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
     begin
         BankAccount.Get(BankAccountNo);
         BankAccount."Last Remittance Advice No." := IncStr(BankAccount."Last Remittance Advice No.");
-        BankAccount.Modify;
+        BankAccount.Modify();
 
         GenJournalLine."Document No." := BankAccount."Last Remittance Advice No.";
 
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         InsertIntoCheckLedger(GenJournalLine, BankAccountNo);
     end;
@@ -344,7 +344,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
                 NewIdentifier := '';
 
         CreditTransferRegister.CreateNew(NewIdentifier, BalAccountNo);
-        Commit;
+        Commit();
     end;
 
     local procedure GetNextSequenceNo(): Integer
@@ -385,7 +385,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
 
                 if ProcessLine(GenJournalLine) then begin
                     GenJournalLine."Document No." := '';
-                    GenJournalLine.Modify;
+                    GenJournalLine.Modify();
                 end;
             until GenJournalLineRecRef.Next = 0;
         end;

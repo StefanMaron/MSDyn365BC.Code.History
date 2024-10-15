@@ -50,21 +50,21 @@ report 10081 "Return Authorization"
                             TempSalesLine.Description := CopyStr(Comment, 1, SpacePointer - 1);
                             TempSalesLine."Description 2" := CopyStr(CopyStr(Comment, SpacePointer + 1), 1, MaxStrLen(TempSalesLine."Description 2"));
                         end;
-                        TempSalesLine.Insert;
+                        TempSalesLine.Insert();
                     end;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     TempSalesLine := "Sales Line";
-                    TempSalesLine.Insert;
+                    TempSalesLine.Insert();
                     HighestLineNo := "Line No.";
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempSalesLine.Reset;
-                    TempSalesLine.DeleteAll;
+                    TempSalesLine.Reset();
+                    TempSalesLine.DeleteAll();
                 end;
             }
             dataitem("Sales Comment Line"; "Sales Comment Line")
@@ -93,7 +93,7 @@ report 10081 "Return Authorization"
                         TempSalesLine.Description := CopyStr(Comment, 1, SpacePointer - 1);
                         TempSalesLine."Description 2" := CopyStr(CopyStr(Comment, SpacePointer + 1), 1, MaxStrLen(TempSalesLine."Description 2"));
                     end;
-                    TempSalesLine.Insert;
+                    TempSalesLine.Insert();
                 end;
 
                 trigger OnPreDataItem()
@@ -324,7 +324,7 @@ report 10081 "Return Authorization"
 
                         trigger OnPreDataItem()
                         begin
-                            NumberOfLines := TempSalesLine.Count;
+                            NumberOfLines := TempSalesLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                         end;
@@ -336,7 +336,7 @@ report 10081 "Return Authorization"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             SalesPrinted.Run("Sales Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -397,7 +397,7 @@ report 10081 "Return Authorization"
 
             trigger OnPreDataItem()
             begin
-                CompanyInformation.Get;
+                CompanyInformation.Get();
                 if PrintCompany then
                     FormatAddress.Company(CompanyAddress, CompanyInformation)
                 else

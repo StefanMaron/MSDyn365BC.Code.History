@@ -156,7 +156,7 @@ report 10198 "Resource Register"
                     ResDescription := Description;
                     if ResDescription = '' then begin
                         if not Resource.Get("Resource No.") then
-                            Resource.Init;
+                            Resource.Init();
                         ResDescription := Resource.Name;
                     end;
                 end;
@@ -172,10 +172,10 @@ report 10198 "Resource Register"
                 if "Source Code" <> '' then begin
                     SourceCodeText := FieldCaption("Source Code") + ': ' + "Source Code";
                     if not SourceCode.Get("Source Code") then
-                        SourceCode.Init;
+                        SourceCode.Init();
                 end else begin
                     Clear(SourceCodeText);
-                    SourceCode.Init;
+                    SourceCode.Init();
                 end;
             end;
         }
@@ -213,7 +213,7 @@ report 10198 "Resource Register"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ResRegFilter := "Resource Register".GetFilters;
         ResEntryFilter := "Res. Ledger Entry".GetFilters;
     end;

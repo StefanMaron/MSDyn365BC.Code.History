@@ -272,7 +272,7 @@ report 10001 Budget
                 // if PrintAllBalance is true then skip printing posting accounts
                 // that do not have any budget amounts.
                 if NoDataFound and PrintAllBalance and ("Account Type" = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 RowNumber += 1;
             end;
@@ -353,7 +353,7 @@ report 10001 Budget
     trigger OnPreReport()
     begin
         GLFilter := "G/L Account".GetFilters;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if PeriodCalculation <> '' then begin
             Evaluate(PeriodLength, '');
             FromDate := 0D;
@@ -370,7 +370,7 @@ report 10001 Budget
             AccountingPeriod.SetRange("Starting Date", PeriodStartingDate[1]);
             AccountingPeriod.Find('-');
             for i := 2 to ArrayLen(PeriodStartingDate) do begin
-                AccountingPeriod.Reset;
+                AccountingPeriod.Reset();
                 AccountingPeriod.Next;
                 PeriodStartingDate[i] := AccountingPeriod."Starting Date";
                 PeriodStartingDateText[i] := Format(PeriodStartingDate[i]);

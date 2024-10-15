@@ -14,7 +14,7 @@ report 5690 "Index Fixed Assets"
             trigger OnAfterGetRecord()
             begin
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 Window.Update(1, "No.");
 
                 if Inactive or
@@ -23,7 +23,7 @@ report 5690 "Index Fixed Assets"
                    (FADeprBook."Acquisition Date" = 0D) or
                    (FADeprBook."Acquisition Date" > FAPostingDate)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 FALedgEntry.SetRange("FA No.", "No.");
                 MaintenanceLedgEntry.SetRange("FA No.", "No.");
@@ -186,7 +186,7 @@ report 5690 "Index Fixed Assets"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
         end;
@@ -271,14 +271,14 @@ report 5690 "Index Fixed Assets"
         GenJnlNextLineNo: Integer;
         i: Integer;
 
-    local procedure InsertGenJnlLine(FANo: Code[20]; IndexAmount: Decimal; PostingType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value")
+    local procedure InsertGenJnlLine(FANo: Code[20]; IndexAmount: Decimal; PostingType: Enum "FA Journal Line FA Posting Type")
     var
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
     begin
         if IndexAmount = 0 then
             exit;
         if FirstGenJnl then begin
-            GenJnlLine.LockTable;
+            GenJnlLine.LockTable();
             FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
             NoSeries2 := FAJnlSetup.GetGenNoSeries(GenJnlLine);
             if DocumentNo = '' then
@@ -315,12 +315,12 @@ report 5690 "Index Fixed Assets"
         end;
     end;
 
-    local procedure InsertFAJnlLine(FANo: Code[20]; IndexAmount: Decimal; PostingType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value")
+    local procedure InsertFAJnlLine(FANo: Code[20]; IndexAmount: Decimal; PostingType: Enum "FA Journal Line FA Posting Type")
     begin
         if IndexAmount = 0 then
             exit;
         if FirstFAJnl then begin
-            FAJnlLine.LockTable;
+            FAJnlLine.LockTable();
             FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
             Noseries3 := FAJnlSetup.GetFANoSeries(FAJnlLine);
             if DocumentNo = '' then

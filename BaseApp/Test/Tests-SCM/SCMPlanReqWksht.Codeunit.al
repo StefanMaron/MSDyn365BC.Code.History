@@ -2206,7 +2206,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         UpdatePromisedReceiptDateOnPurchaseHeader(PurchaseLine."Document No.", PromisedReceiptDate);
 
         // Verify: Reservation Entry existed.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         VerifyReservationEntry(Item."No.", true, CalcDate(ManufacturingSetup."Default Safety Lead Time", PromisedReceiptDate));
 
         // Exercise: Run Available to Promise in Sales Order.
@@ -2659,6 +2659,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     [Scope('OnPrem')]
     procedure RequisitionLineLocationCodeFromVendor()
     var
+        Item: Record Item;
         Location: Record Location;
         Vendor: Record Vendor;
         RequisitionLine: Record "Requisition Line";
@@ -2673,6 +2674,9 @@ codeunit 137067 "SCM Plan-Req. Wksht"
 
         // [GIVEN] Requisition Line "R"
         CreateRequisitionLine(RequisitionLine);
+        RequisitionLine.Type := RequisitionLine.Type::Item;
+        RequisitionLine."No." := LibraryInventory.CreateItem(Item);
+        RequisitionLine.Modify(true);
 
         // [WHEN] Update "R"."Vendor No." = "V"
         UpdateRequisitionLineVendorNo(RequisitionLine, Vendor."No.");
@@ -3079,9 +3083,9 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Plan-Req. Wksht");
-        ReservationEntry.DeleteAll;
-        RequisitionLine.DeleteAll;
-        RequisitionWkshName.DeleteAll;
+        ReservationEntry.DeleteAll();
+        RequisitionLine.DeleteAll();
+        RequisitionWkshName.DeleteAll();
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
 
@@ -3108,7 +3112,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Plan-Req. Wksht");
     end;
 
@@ -3127,11 +3131,11 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -3142,13 +3146,13 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     local procedure ItemJournalSetup()
     begin
         Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Modify(true);
     end;
@@ -3205,7 +3209,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         MfgUserTemplate: Record "Manufacturing User Template";
         CarryOutActionMsgPlan: Report "Carry Out Action Msg. - Plan.";
     begin
-        MfgUserTemplate.Init;
+        MfgUserTemplate.Init();
         MfgUserTemplate.Validate("Create Purchase Order", MfgUserTemplate."Create Purchase Order"::"Make Purch. Orders");
 
         ReqLine.SetRecFilter;
@@ -3239,11 +3243,11 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     local procedure ConsumptionJournalSetup()
     begin
         Clear(ConsumptionItemJournalTemplate);
-        ConsumptionItemJournalTemplate.Init;
+        ConsumptionItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ConsumptionItemJournalTemplate, ConsumptionItemJournalTemplate.Type::Consumption);
 
         Clear(ConsumptionItemJournalBatch);
-        ConsumptionItemJournalBatch.Init;
+        ConsumptionItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           ConsumptionItemJournalBatch, ConsumptionItemJournalTemplate.Type, ConsumptionItemJournalTemplate.Name);
     end;
@@ -3432,7 +3436,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
         ManufacturingSetup.Modify(true);
     end;
@@ -3581,8 +3585,12 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     end;
 
     local procedure MockRequisitionLine(var ReqLine: Record "Requisition Line"; RoutingHeaderNo: Code[20]; StartingDate: Date; EndingDate: Date)
+    var
+        Item: Record Item;
     begin
         with ReqLine do begin
+            Type := Type::Item;
+            "No." := LibraryInventory.CreateItem(Item);
             "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
             "Routing No." := RoutingHeaderNo;
             "Starting Date" := StartingDate;
@@ -3607,7 +3615,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         // Regenerative Planning using Page required where Forecast is used.
         LibraryVariableStorage.Enqueue(ItemNo);  // Set Global Value.
         LibraryVariableStorage.Enqueue(ItemNo2);  // Set Global Value.
-        Commit;  // Required for Test.
+        Commit();  // Required for Test.
         OpenPlanningWorksheetPage(PlanningWorksheet, Name);
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
         PlanningWorksheet.OK.Invoke;
@@ -3626,7 +3634,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         LibraryVariableStorage.Enqueue(RespectPlanningParm);
         SelectRequisitionTemplate(ReqWkshTemplate, ReqWkshTemplate.Type::"Req.");
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
-        Commit;
+        Commit();
         OpenRequisitionWorksheetPage(ReqWorksheet, FindRequisitionWkshName(ReqWkshTemplate.Type::"Req."));
         ReqWorksheet.CalculatePlan.Invoke; // Open report on Handler CalculatePlanReqWkshWithPeriodItemNoLocationParamsRequestPageHandler
         ReqWorksheet.OK.Invoke;
@@ -3867,7 +3875,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldStockoutWarning := SalesReceivablesSetup."Stockout Warning";
         OldCreditWarnings := SalesReceivablesSetup."Credit Warnings";
         SalesReceivablesSetup.Validate("Stockout Warning", NewStockoutWarning);
@@ -4063,7 +4071,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         OldCombinedMPSMRPCalculation := ManufacturingSetup."Combined MPS/MRP Calculation";
         ManufacturingSetup.Validate("Combined MPS/MRP Calculation", NewCombinedMPSMRPCalculation);
         ManufacturingSetup.Modify(true);

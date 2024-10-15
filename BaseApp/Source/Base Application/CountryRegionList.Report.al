@@ -86,7 +86,7 @@ report 10307 "Country/Region List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CountryFilter := "Country/Region".GetFilters;
     end;
 

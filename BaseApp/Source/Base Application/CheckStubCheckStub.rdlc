@@ -7,6 +7,7 @@
         <DataProvider>SQL</DataProvider>
         <ConnectString />
       </ConnectionProperties>
+      <rd:SecurityType>None</rd:SecurityType>
       <rd:DataSourceID>a9d36e80-4c12-404c-9f4c-5e0f505e56a5</rd:DataSourceID>
     </DataSource>
   </DataSources>
@@ -51,7 +52,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=First(Fields!DocNoCaption.Value)</Value>
+                                  <Value>=First(Fields!DocNoCaption.Value)</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -85,7 +86,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=First(Fields!DocDateCaption.Value)</Value>
+                                  <Value>=First(Fields!DocDateCaption.Value)</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -119,7 +120,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=First(Fields!Posting_DescriptionCaption.Value)</Value>
+                                  <Value>=First(Fields!Posting_DescriptionCaption.Value)</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -155,7 +156,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=First(Fields!AmountCaption.Value)</Value>
+                                  <Value>=First(Fields!AmountCaption.Value)</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -188,7 +189,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=First(Fields!LineDiscountCaption.Value)</Value>
+                                  <Value>=First(Fields!LineDiscountCaption.Value)</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -221,7 +222,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=First(Fields!LineAmountCaption.Value)</Value>
+                                  <Value>=First(Fields!LineAmountCaption.Value)</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -259,7 +260,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!DocNo.Value</Value>
+                                  <Value>=Fields!DocNo.Value</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -283,7 +284,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!DocDate.Value</Value>
+                                  <Value>=Fields!DocDate.Value</Value>
                                   <Style>
                                     <Format>d</Format>
                                   </Style>
@@ -311,7 +312,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!PostingDesc.Value</Value>
+                                  <Value>=Fields!PostingDesc.Value</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -337,7 +338,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!LineAmount___LineDiscount.Value</Value>
+                                  <Value>=Fields!LineAmount___LineDiscount.Value</Value>
                                   <Style>
                                     <Format>=Fields!LineAmount___LineDiscountFormat.Value</Format>
                                   </Style>
@@ -364,7 +365,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!LineDiscount.Value</Value>
+                                  <Value>=Fields!LineDiscount.Value</Value>
                                   <Style>
                                     <Format>=Fields!LineDiscountFormat.Value</Format>
                                   </Style>
@@ -391,7 +392,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!LineAmount.Value</Value>
+                                  <Value>=Fields!LineAmount.Value</Value>
                                   <Style>
                                     <Format>=Fields!LineAmountFormat.Value</Format>
                                   </Style>
@@ -423,7 +424,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Last(Fields!TotalText.Value) + Chr(177)
+                                  <Value>=Last(Fields!TotalText.Value) + Chr(177)
  + Cstr(Last(Fields!TotalLineAmount.Value)) + Chr(177)
  + Last(Fields!CheckToAddr_1_.Value) + Chr(177)
  + Last(Fields!CheckDateText.Value) + Chr(177)
@@ -568,7 +569,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Last(Fields!CheckStyleIndex.Value)</Value>
+                                  <Value>=Last(Fields!CheckStyleIndex.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <Color>Red</Color>
@@ -600,7 +601,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Cstr(Last(Fields!CheckToAddr_1_.Value)) + Chr(177)
+                                  <Value>=Cstr(Last(Fields!CheckToAddr_1_.Value)) + Chr(177)
  + Cstr(Last(Fields!CheckDateText.Value)) + Chr(177)
  + Cstr(Last(Fields!CheckNoTextCaption.Value)) + Chr(177)
  + Cstr(Last(Fields!CheckNoText.Value))</Value>
@@ -635,7 +636,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -751,7 +752,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(1,Split(Cstr(ReportItems!HeaderInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(1,Split(Cstr(ReportItems!HeaderInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -777,7 +778,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(2,Split(Cstr(ReportItems!HeaderInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(2,Split(Cstr(ReportItems!HeaderInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -805,7 +806,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(3,Split(Cstr(ReportItems!HeaderInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(3,Split(Cstr(ReportItems!HeaderInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -832,7 +833,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(4,Split(Cstr(ReportItems!HeaderInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(4,Split(Cstr(ReportItems!HeaderInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -868,9 +869,10 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(75,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(75,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
-                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>IDAutomationCMC7</FontFamily>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
                     </TextRun>
                   </TextRuns>
@@ -887,7 +889,11 @@
                 <Hidden>=iif(ReportItems!CheckStyle.Value = 0, true, false)</Hidden>
               </Visibility>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Textbox>
             <Textbox Name="textbox81">
               <KeepTogether>true</KeepTogether>
@@ -895,7 +901,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(76,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(76,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -921,7 +927,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(77,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(77,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontSize>8pt</FontSize>
                       </Style>
@@ -949,8 +955,11 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(80,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
-                      <Style />
+                      <Value>=Cstr(Choose(80,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Style>
+                        <FontFamily>IDAutomationSec1B</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
                     </TextRun>
                   </TextRuns>
                   <Style>
@@ -959,12 +968,16 @@
                 </Paragraph>
               </Paragraphs>
               <Top>2.42887in</Top>
-              <Left>4.37362in</Left>
+              <Left>3.56989in</Left>
               <Height>0.16654in</Height>
-              <Width>1.40551in</Width>
+              <Width>1.96172in</Width>
               <ZIndex>3</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Textbox>
             <Textbox Name="textbox86">
               <KeepTogether>true</KeepTogether>
@@ -972,8 +985,11 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(81,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
-                      <Style />
+                      <Value>=Cstr(Choose(81,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Style>
+                        <FontFamily>IDAutomationSec1B</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
                     </TextRun>
                   </TextRuns>
                   <Style>
@@ -982,35 +998,16 @@
                 </Paragraph>
               </Paragraphs>
               <Top>2.42887in</Top>
-              <Left>5.84857in</Left>
+              <Left>5.60106in</Left>
               <Height>0.16654in</Height>
-              <Width>1.16934in</Width>
+              <Width>1.96981in</Width>
               <ZIndex>4</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
-            </Textbox>
-            <Textbox Name="textbox87">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(82,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
-                      <Style />
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Left</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>2.4149in</Top>
-              <Left>7.10059in</Left>
-              <Height>0.16654in</Height>
-              <Width>0.59921in</Width>
-              <ZIndex>5</ZIndex>
-              <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Textbox>
             <Textbox Name="textbox88">
               <KeepTogether>true</KeepTogether>
@@ -1018,7 +1015,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(83,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(83,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1031,7 +1028,7 @@
               <Left>4.82953in</Left>
               <Height>0.16654in</Height>
               <Width>1.8189in</Width>
-              <ZIndex>6</ZIndex>
+              <ZIndex>5</ZIndex>
               <Visibility>
                 <Hidden>=iif(ReportItems!CheckStyle.Value = 0, false, true)</Hidden>
               </Visibility>
@@ -1044,8 +1041,11 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(97,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
-                      <Style />
+                      <Value>=Cstr(Choose(97,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Style>
+                        <FontFamily>IDAutomationSec1B</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
                     </TextRun>
                   </TextRuns>
                   <Style>
@@ -1057,9 +1057,13 @@
               <Left>0.16654in</Left>
               <Height>0.16654in</Height>
               <Width>6.77953in</Width>
-              <ZIndex>7</ZIndex>
+              <ZIndex>6</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Textbox>
             <Textbox Name="textbox98">
               <KeepTogether>true</KeepTogether>
@@ -1067,7 +1071,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(101,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(101,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1080,7 +1084,7 @@
               <Left>0.49961in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>8</ZIndex>
+              <ZIndex>7</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox99">
@@ -1089,7 +1093,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(102,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(102,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1102,7 +1106,7 @@
               <Left>0.49961in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>9</ZIndex>
+              <ZIndex>8</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox100">
@@ -1111,7 +1115,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(103,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(103,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1124,7 +1128,7 @@
               <Left>0.49961in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>10</ZIndex>
+              <ZIndex>9</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox101">
@@ -1133,7 +1137,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(104,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(104,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1146,7 +1150,7 @@
               <Left>0.49961in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>11</ZIndex>
+              <ZIndex>10</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox102">
@@ -1155,7 +1159,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(105,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(105,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1168,7 +1172,7 @@
               <Left>0.49961in</Left>
               <Height>0.16353in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>12</ZIndex>
+              <ZIndex>11</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox89">
@@ -1177,7 +1181,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(84,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(84,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1190,7 +1194,7 @@
               <Left>4.82953in</Left>
               <Height>0.16353in</Height>
               <Width>1.8189in</Width>
-              <ZIndex>13</ZIndex>
+              <ZIndex>12</ZIndex>
               <Visibility>
                 <Hidden>=iif(ReportItems!CheckStyle.Value = 0, true, false)</Hidden>
               </Visibility>
@@ -1203,7 +1207,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(91,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(91,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1216,7 +1220,7 @@
               <Left>0.20807in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>14</ZIndex>
+              <ZIndex>13</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style>
                 <BackgroundColor>White</BackgroundColor>
@@ -1228,7 +1232,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(92,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(92,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1241,7 +1245,7 @@
               <Left>0.20807in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>15</ZIndex>
+              <ZIndex>14</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style />
             </Textbox>
@@ -1251,7 +1255,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(93,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(93,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1264,7 +1268,7 @@
               <Left>0.20807in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>16</ZIndex>
+              <ZIndex>15</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style />
             </Textbox>
@@ -1274,7 +1278,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(94,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(94,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1287,7 +1291,7 @@
               <Left>0.20807in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>17</ZIndex>
+              <ZIndex>16</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style />
             </Textbox>
@@ -1297,7 +1301,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(95,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(95,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1310,7 +1314,7 @@
               <Left>0.20807in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>18</ZIndex>
+              <ZIndex>17</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style />
             </Textbox>
@@ -1320,7 +1324,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(98,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(98,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1333,7 +1337,7 @@
               <Left>0.16761in</Left>
               <Height>0.16654in</Height>
               <Width>6.77953in</Width>
-              <ZIndex>19</ZIndex>
+              <ZIndex>18</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style />
             </Textbox>
@@ -1343,7 +1347,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(1,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(1,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1356,7 +1360,7 @@
               <Left>5.6622in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>20</ZIndex>
+              <ZIndex>19</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox3">
@@ -1365,7 +1369,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=CDec(Choose(2,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=CDec(Choose(2,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                         <Format>=Cstr(Choose(111,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
@@ -1380,7 +1384,7 @@
               <Left>6.66142in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>21</ZIndex>
+              <ZIndex>20</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox4">
@@ -1389,7 +1393,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(3,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(3,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1401,7 +1405,7 @@
               <Top>4.33046in</Top>
               <Height>0.16654in</Height>
               <Width>2.71654in</Width>
-              <ZIndex>22</ZIndex>
+              <ZIndex>21</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox5">
@@ -1410,7 +1414,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(4,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(4,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1423,7 +1427,7 @@
               <Left>3.83031in</Left>
               <Height>0.16654in</Height>
               <Width>1.94882in</Width>
-              <ZIndex>23</ZIndex>
+              <ZIndex>22</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox6">
@@ -1432,7 +1436,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(5,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(5,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1445,7 +1449,7 @@
               <Left>5.99528in</Left>
               <Height>0.16654in</Height>
               <Width>0.82795in</Width>
-              <ZIndex>24</ZIndex>
+              <ZIndex>23</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox8">
@@ -1454,7 +1458,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(6,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(6,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1467,7 +1471,7 @@
               <Left>6.95928in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>25</ZIndex>
+              <ZIndex>24</ZIndex>
               <Visibility>
                 <Hidden>=iif(isnothing(Choose(1,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))), true ,false)</Hidden>
               </Visibility>
@@ -1480,7 +1484,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(7,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(7,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1494,7 +1498,7 @@
               <Top>4.66357in</Top>
               <Height>0.33307in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>26</ZIndex>
+              <ZIndex>25</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox10">
@@ -1503,7 +1507,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(8,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(8,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1518,7 +1522,7 @@
               <Left>0.99213in</Left>
               <Height>0.33307in</Height>
               <Width>0.82677in</Width>
-              <ZIndex>27</ZIndex>
+              <ZIndex>26</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox14">
@@ -1527,7 +1531,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(9,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(9,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1542,7 +1546,7 @@
               <Left>1.90158in</Left>
               <Height>0.33307in</Height>
               <Width>2.72835in</Width>
-              <ZIndex>28</ZIndex>
+              <ZIndex>27</ZIndex>
               <Style>
                 <PaddingTop>10pt</PaddingTop>
               </Style>
@@ -1553,7 +1557,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(10,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(10,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1568,7 +1572,7 @@
               <Left>4.7126in</Left>
               <Height>0.33307in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>29</ZIndex>
+              <ZIndex>28</ZIndex>
               <Style>
                 <PaddingTop>10pt</PaddingTop>
               </Style>
@@ -1579,7 +1583,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(11,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(11,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1594,7 +1598,7 @@
               <Left>5.70473in</Left>
               <Height>0.33307in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>30</ZIndex>
+              <ZIndex>29</ZIndex>
               <Style>
                 <PaddingTop>10pt</PaddingTop>
               </Style>
@@ -1605,7 +1609,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(12,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(12,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -1620,7 +1624,7 @@
               <Left>6.69685in</Left>
               <Height>0.33307in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>31</ZIndex>
+              <ZIndex>30</ZIndex>
               <Style>
                 <PaddingTop>10pt</PaddingTop>
               </Style>
@@ -1631,7 +1635,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(13,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(13,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1643,7 +1647,7 @@
               <Top>5.16324in</Top>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>32</ZIndex>
+              <ZIndex>31</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox19">
@@ -1652,7 +1656,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(23,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(23,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -1667,7 +1671,7 @@
               <Left>0.99213in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
-              <ZIndex>33</ZIndex>
+              <ZIndex>32</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox20">
@@ -1676,7 +1680,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(33,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(33,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1689,7 +1693,7 @@
               <Left>1.90158in</Left>
               <Height>0.16654in</Height>
               <Width>2.72835in</Width>
-              <ZIndex>34</ZIndex>
+              <ZIndex>33</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox21">
@@ -1698,7 +1702,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(112,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -1713,7 +1717,7 @@
               <Left>4.7126in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>35</ZIndex>
+              <ZIndex>34</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -1726,7 +1730,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(53,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(53,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(113,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -1741,7 +1745,7 @@
               <Left>5.70473in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>36</ZIndex>
+              <ZIndex>35</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -1754,7 +1758,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(63,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(63,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(114,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -1769,7 +1773,7 @@
               <Left>6.69685in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>37</ZIndex>
+              <ZIndex>36</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -1782,7 +1786,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(14,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(14,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1794,7 +1798,7 @@
               <Top>5.32979in</Top>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>38</ZIndex>
+              <ZIndex>37</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox25">
@@ -1803,7 +1807,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(24,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(24,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -1818,7 +1822,7 @@
               <Left>0.99213in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
-              <ZIndex>39</ZIndex>
+              <ZIndex>38</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox26">
@@ -1827,7 +1831,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(34,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(34,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1840,7 +1844,7 @@
               <Left>1.90158in</Left>
               <Height>0.16654in</Height>
               <Width>2.72835in</Width>
-              <ZIndex>40</ZIndex>
+              <ZIndex>39</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox27">
@@ -1849,7 +1853,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(15,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(15,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1861,7 +1865,7 @@
               <Top>5.49636in</Top>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>41</ZIndex>
+              <ZIndex>40</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox28">
@@ -1870,7 +1874,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(16,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(16,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1882,7 +1886,7 @@
               <Top>5.66291in</Top>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>42</ZIndex>
+              <ZIndex>41</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox29">
@@ -1891,7 +1895,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(17,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(17,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1903,7 +1907,7 @@
               <Top>5.82947in</Top>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>43</ZIndex>
+              <ZIndex>42</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox30">
@@ -1912,7 +1916,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(18,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(18,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1924,7 +1928,7 @@
               <Top>5.99602in</Top>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>44</ZIndex>
+              <ZIndex>43</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox31">
@@ -1933,7 +1937,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(19,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(19,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1945,7 +1949,7 @@
               <Top>6.16258in</Top>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>45</ZIndex>
+              <ZIndex>44</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox32">
@@ -1954,7 +1958,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(20,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(20,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1966,7 +1970,7 @@
               <Top>6.32913in</Top>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>46</ZIndex>
+              <ZIndex>45</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox33">
@@ -1975,7 +1979,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(21,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(21,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -1987,7 +1991,7 @@
               <Top>6.49569in</Top>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>47</ZIndex>
+              <ZIndex>46</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox34">
@@ -1996,7 +2000,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(22,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(22,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -2008,7 +2012,7 @@
               <Top>6.66225in</Top>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>48</ZIndex>
+              <ZIndex>47</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox35">
@@ -2017,7 +2021,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(25,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(25,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -2032,7 +2036,7 @@
               <Left>0.99213in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
-              <ZIndex>49</ZIndex>
+              <ZIndex>48</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox36">
@@ -2041,7 +2045,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(26,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(26,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -2056,7 +2060,7 @@
               <Left>0.99213in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
-              <ZIndex>50</ZIndex>
+              <ZIndex>49</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox37">
@@ -2065,7 +2069,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(27,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(27,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -2080,7 +2084,7 @@
               <Left>0.99213in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
-              <ZIndex>51</ZIndex>
+              <ZIndex>50</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox38">
@@ -2089,7 +2093,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(28,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(28,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -2104,7 +2108,7 @@
               <Left>0.99213in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
-              <ZIndex>52</ZIndex>
+              <ZIndex>51</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox39">
@@ -2113,7 +2117,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(29,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(29,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -2128,7 +2132,7 @@
               <Left>0.99213in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
-              <ZIndex>53</ZIndex>
+              <ZIndex>52</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox40">
@@ -2137,7 +2141,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(30,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(30,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -2152,7 +2156,7 @@
               <Left>0.99213in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
-              <ZIndex>54</ZIndex>
+              <ZIndex>53</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox41">
@@ -2161,7 +2165,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(31,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(31,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -2176,7 +2180,7 @@
               <Left>0.99213in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
-              <ZIndex>55</ZIndex>
+              <ZIndex>54</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox42">
@@ -2185,7 +2189,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(32,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(32,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -2200,7 +2204,7 @@
               <Left>0.99213in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
-              <ZIndex>56</ZIndex>
+              <ZIndex>55</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox43">
@@ -2209,7 +2213,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(35,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(35,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -2222,7 +2226,7 @@
               <Left>1.90158in</Left>
               <Height>0.16654in</Height>
               <Width>2.72835in</Width>
-              <ZIndex>57</ZIndex>
+              <ZIndex>56</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox44">
@@ -2231,7 +2235,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(36,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(36,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -2244,7 +2248,7 @@
               <Left>1.90158in</Left>
               <Height>0.16654in</Height>
               <Width>2.72835in</Width>
-              <ZIndex>58</ZIndex>
+              <ZIndex>57</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox45">
@@ -2253,7 +2257,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(37,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(37,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -2266,7 +2270,7 @@
               <Left>1.90158in</Left>
               <Height>0.16654in</Height>
               <Width>2.72835in</Width>
-              <ZIndex>59</ZIndex>
+              <ZIndex>58</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox46">
@@ -2275,7 +2279,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(38,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(38,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -2288,7 +2292,7 @@
               <Left>1.90158in</Left>
               <Height>0.16654in</Height>
               <Width>2.72835in</Width>
-              <ZIndex>60</ZIndex>
+              <ZIndex>59</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox47">
@@ -2297,7 +2301,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(39,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(39,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -2310,7 +2314,7 @@
               <Left>1.90158in</Left>
               <Height>0.16654in</Height>
               <Width>2.72835in</Width>
-              <ZIndex>61</ZIndex>
+              <ZIndex>60</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox48">
@@ -2319,7 +2323,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(40,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(40,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -2332,7 +2336,7 @@
               <Left>1.90158in</Left>
               <Height>0.16654in</Height>
               <Width>2.72835in</Width>
-              <ZIndex>62</ZIndex>
+              <ZIndex>61</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox79">
@@ -2341,7 +2345,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=CDec(Choose(74,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=CDec(Choose(74,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                         <Format>=Cstr(Choose(111,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
@@ -2355,7 +2359,7 @@
               <Left>6.69685in</Left>
               <Height>0.16567in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>63</ZIndex>
+              <ZIndex>62</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox50">
@@ -2364,7 +2368,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(42,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(42,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -2377,7 +2381,7 @@
               <Left>1.90158in</Left>
               <Height>0.16654in</Height>
               <Width>2.72835in</Width>
-              <ZIndex>64</ZIndex>
+              <ZIndex>63</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox51">
@@ -2386,7 +2390,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(44,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(44,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(112,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2401,7 +2405,7 @@
               <Left>4.7126in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>65</ZIndex>
+              <ZIndex>64</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2414,7 +2418,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(45,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(45,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(112,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2429,7 +2433,7 @@
               <Left>4.7126in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>66</ZIndex>
+              <ZIndex>65</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2442,7 +2446,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(46,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(46,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(112,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2457,7 +2461,7 @@
               <Left>4.7126in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>67</ZIndex>
+              <ZIndex>66</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2470,7 +2474,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(47,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(47,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(112,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2485,7 +2489,7 @@
               <Left>4.7126in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>68</ZIndex>
+              <ZIndex>67</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2498,7 +2502,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(48,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(48,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(112,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2513,7 +2517,7 @@
               <Left>4.7126in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>69</ZIndex>
+              <ZIndex>68</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2526,7 +2530,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(49,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(49,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(112,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2541,7 +2545,7 @@
               <Left>4.7126in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>70</ZIndex>
+              <ZIndex>69</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2554,7 +2558,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(50,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(50,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(112,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2569,7 +2573,7 @@
               <Left>4.7126in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>71</ZIndex>
+              <ZIndex>70</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2582,7 +2586,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(51,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(51,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(112,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2597,7 +2601,7 @@
               <Left>4.7126in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>72</ZIndex>
+              <ZIndex>71</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2610,7 +2614,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(52,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(52,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(112,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2625,7 +2629,7 @@
               <Left>4.7126in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>73</ZIndex>
+              <ZIndex>72</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2638,7 +2642,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(54,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(54,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(113,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2653,7 +2657,7 @@
               <Left>5.70473in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>74</ZIndex>
+              <ZIndex>73</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2666,7 +2670,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(55,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(55,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(113,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2681,7 +2685,7 @@
               <Left>5.70473in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>75</ZIndex>
+              <ZIndex>74</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2694,7 +2698,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(56,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(56,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(113,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2709,7 +2713,7 @@
               <Left>5.70473in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>76</ZIndex>
+              <ZIndex>75</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2722,7 +2726,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(57,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(57,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(113,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2737,7 +2741,7 @@
               <Left>5.70473in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>77</ZIndex>
+              <ZIndex>76</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2750,7 +2754,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(58,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(58,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(113,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2765,7 +2769,7 @@
               <Left>5.70473in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>78</ZIndex>
+              <ZIndex>77</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2778,7 +2782,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(59,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(59,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(113,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2793,7 +2797,7 @@
               <Left>5.70473in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>79</ZIndex>
+              <ZIndex>78</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2806,7 +2810,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(60,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(60,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(113,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2821,7 +2825,7 @@
               <Left>5.70473in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>80</ZIndex>
+              <ZIndex>79</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2834,7 +2838,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(61,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(61,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(113,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2849,7 +2853,7 @@
               <Left>5.70473in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>81</ZIndex>
+              <ZIndex>80</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2862,7 +2866,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(62,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(62,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(113,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2877,7 +2881,7 @@
               <Left>5.70473in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>82</ZIndex>
+              <ZIndex>81</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2890,7 +2894,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(64,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(64,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(114,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2905,7 +2909,7 @@
               <Left>6.69685in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>83</ZIndex>
+              <ZIndex>82</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2918,7 +2922,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(65,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(65,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(114,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2933,7 +2937,7 @@
               <Left>6.69685in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>84</ZIndex>
+              <ZIndex>83</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2946,7 +2950,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(66,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(66,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(114,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2961,7 +2965,7 @@
               <Left>6.69685in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>85</ZIndex>
+              <ZIndex>84</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -2974,7 +2978,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(67,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(67,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(114,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -2989,7 +2993,7 @@
               <Left>6.69685in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>86</ZIndex>
+              <ZIndex>85</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -3002,7 +3006,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(68,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(68,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(114,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -3017,7 +3021,7 @@
               <Left>6.69685in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>87</ZIndex>
+              <ZIndex>86</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -3030,7 +3034,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(69,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(69,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(114,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -3045,7 +3049,7 @@
               <Left>6.69685in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>88</ZIndex>
+              <ZIndex>87</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -3058,7 +3062,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(70,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(70,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(114,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -3073,7 +3077,7 @@
               <Left>6.69685in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>89</ZIndex>
+              <ZIndex>88</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -3086,7 +3090,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(71,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(71,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(114,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -3101,7 +3105,7 @@
               <Left>6.69685in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>90</ZIndex>
+              <ZIndex>89</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -3114,7 +3118,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Code.BlankZero(CDec(Choose(72,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
+                      <Value>=Code.BlankZero(CDec(Choose(72,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177)))))</Value>
                       <Style>
                         <Format>=Cstr(Choose(114,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Format>
                       </Style>
@@ -3129,7 +3133,7 @@
               <Left>6.69685in</Left>
               <Height>0.16654in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>91</ZIndex>
+              <ZIndex>90</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(43,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))) = "", true ,false)</Hidden>
               </Visibility>
@@ -3142,7 +3146,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(73,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(73,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -3155,7 +3159,7 @@
               <Left>5.70473in</Left>
               <Height>0.16567in</Height>
               <Width>0.90945in</Width>
-              <ZIndex>92</ZIndex>
+              <ZIndex>91</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox49">
@@ -3164,7 +3168,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Cstr(Choose(41,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Value>=Cstr(Choose(41,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -3177,7 +3181,7 @@
               <Left>1.90158in</Left>
               <Height>0.16654in</Height>
               <Width>2.72835in</Width>
-              <ZIndex>93</ZIndex>
+              <ZIndex>92</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox1">
@@ -3187,7 +3191,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto" />
+                      <Value />
                       <Style>
                         <NumeralVariant>2</NumeralVariant>
                       </Style>
@@ -3200,7 +3204,7 @@
               <Left>7.91148in</Left>
               <Height>7.16103in</Height>
               <Width>0in</Width>
-              <ZIndex>94</ZIndex>
+              <ZIndex>93</ZIndex>
               <Style>
                 <PaddingLeft>2pt</PaddingLeft>
                 <PaddingRight>2pt</PaddingRight>
@@ -3215,7 +3219,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto" />
+                      <Value />
                       <Style>
                         <NumeralVariant>2</NumeralVariant>
                       </Style>
@@ -3227,7 +3231,7 @@
               <Left>7.82814in</Left>
               <Height>4.33046in</Height>
               <Width>0in</Width>
-              <ZIndex>95</ZIndex>
+              <ZIndex>94</ZIndex>
               <Style>
                 <PaddingLeft>2pt</PaddingLeft>
                 <PaddingRight>2pt</PaddingRight>
@@ -3235,30 +3239,64 @@
                 <PaddingBottom>2pt</PaddingBottom>
               </Style>
             </Textbox>
-            <Textbox Name="textbox11">
-              <CanGrow>true</CanGrow>
+            <Textbox Name="BankAccountNo">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto" />
-                      <Style />
+                      <Value>=First(Fields!BankAccountNo.Value, "DataSet_Result")</Value>
+                      <Style>
+                        <FontFamily>IDAutomationCMC7</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
                     </TextRun>
                   </TextRuns>
-                  <Style />
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
                 </Paragraph>
               </Paragraphs>
-              <rd:DefaultName>textbox11</rd:DefaultName>
               <Top>0.66622in</Top>
-              <Height>0.16667in</Height>
-              <Width>6.83333in</Width>
-              <ZIndex>96</ZIndex>
+              <Left>5.16156in</Left>
+              <Height>0.16654in</Height>
+              <Width>1.59695in</Width>
+              <ZIndex>95</ZIndex>
+              <DataElementOutput>NoOutput</DataElementOutput>
               <Style>
-                <PaddingLeft>2pt</PaddingLeft>
-                <PaddingRight>2pt</PaddingRight>
-                <PaddingTop>2pt</PaddingTop>
-                <PaddingBottom>2pt</PaddingBottom>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
+            </Textbox>
+            <Textbox Name="BankTransitNo">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=First(Fields!BankTransitNo.Value, "DataSet_Result")</Value>
+                      <Style>
+                        <FontFamily>IDAutomationCMC7</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.66622in</Top>
+              <Left>3.56989in</Left>
+              <Height>0.16654in</Height>
+              <Width>1.59695in</Width>
+              <ZIndex>96</ZIndex>
+              <DataElementOutput>NoOutput</DataElementOutput>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
               </Style>
             </Textbox>
           </ReportItems>
@@ -3390,6 +3428,12 @@ End Function
         </Field>
         <Field Name="AmountCaption">
           <DataField>AmountCaption</DataField>
+        </Field>
+        <Field Name="BankTransitNo">
+          <DataField>BankTransitNo</DataField>
+        </Field>
+        <Field Name="BankAccountNo">
+          <DataField>BankAccountNo</DataField>
         </Field>
         <Field Name="PrnChkCheckToAddr_CheckStyle__CA_5_">
           <DataField>PrnChkCheckToAddr_CheckStyle__CA_5_</DataField>

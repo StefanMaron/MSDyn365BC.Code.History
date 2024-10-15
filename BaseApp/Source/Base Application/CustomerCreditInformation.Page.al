@@ -185,11 +185,11 @@ page 10007 "Customer Credit Information"
     trigger OnOpenPage()
     begin
         // Initialize Record Variables
-        LatestCustLedgerEntry.Reset;
+        LatestCustLedgerEntry.Reset();
         LatestCustLedgerEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date");
         LatestCustLedgerEntry.SetRange("Document Type", LatestCustLedgerEntry."Document Type"::Payment);
         for I := 1 to ArrayLen(CustLedgerEntry) do begin
-            CustLedgerEntry[I].Reset;
+            CustLedgerEntry[I].Reset();
             CustLedgerEntry[I].SetCurrentKey("Customer No.", Open, Positive, "Due Date");
             CustLedgerEntry[I].SetRange(Open, true);
         end;
@@ -300,7 +300,7 @@ page 10007 "Customer Credit Information"
         if LatestCustLedgerEntry.FindLast then
             LatestCustLedgerEntry.CalcFields("Amount (LCY)")
         else
-            LatestCustLedgerEntry.Init;
+            LatestCustLedgerEntry.Init();
     end;
 
     procedure ChangeCustomer()

@@ -54,8 +54,8 @@ codeunit 2129 "O365 Export Invoices + Email"
             Error(NoInvoicesExportedErr);
         end;
 
-        TempExcelBuffer.Reset;
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.Reset();
+        TempExcelBuffer.DeleteAll();
         ServerFileName := ExportInvoicesToExcel(StartDate, EndDate);
 
         TempExcelBuffer.CreateBook(ServerFileName, InvoicesSheetNameTxt);
@@ -86,14 +86,14 @@ codeunit 2129 "O365 Export Invoices + Email"
     var
         FileManagement: Codeunit "File Management";
     begin
-        TempExcelBuffer.Reset;
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.Reset();
+        TempExcelBuffer.DeleteAll();
         SalesInvoiceHeader.SetRange("Document Date", StartDate, EndDate);
 
         if not SalesInvoiceHeader.FindSet then
             Error(NoInvoicesExportedErr);
 
-        TempExcelBuffer.Reset;
+        TempExcelBuffer.Reset();
         InsertHeaderTextForSalesInvoices;
         InsertHeaderTextForSalesLines;
         InsertSalesInvoices;
@@ -263,7 +263,7 @@ codeunit 2129 "O365 Export Invoices + Email"
             SalesTaxCalculate.AddSalesInvoiceLines(SalesInvoiceHeader."No.");
             SalesTaxCalculate.EndSalesTaxCalculation(SalesInvoiceHeader."Posting Date");
         end;
-        TempSalesTaxAmountLine.DeleteAll;
+        TempSalesTaxAmountLine.DeleteAll();
         SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmountLine);
         SalesTaxCalculate.GetSummarizedSalesTaxTable(TempSalesTaxAmountLine);
     end;

@@ -26,7 +26,7 @@ codeunit 134068 "ECSL Suggest Line Test"
         EndDate := DMY2Date(31, 1, 2017);
 
         // [GIVEN] 2 VAT Entries in range, 1 out of range
-        VATEntry.DeleteAll;
+        VATEntry.DeleteAll();
         InitVatEntry(VATEntry, '100001', StartDate);
         InitVatEntry(VATEntry, '100002', EndDate);
         InitVatEntry(VATEntry, '100003', DMY2Date(1, 1, 1999));// out of range
@@ -63,16 +63,16 @@ codeunit 134068 "ECSL Suggest Line Test"
         EndDate := DMY2Date(31, 1, 2017);
 
         // [GIVEN] Goods 1 line, Services 1 line, EU 3-Party Trade 1 line for the same customer
-        VATEntry.DeleteAll;
+        VATEntry.DeleteAll();
         InitVatEntry(VATEntry, VATRegNo, StartDate);
 
         InitVatEntry(VATEntry, VATRegNo, EndDate);
         VATEntry."EU Service" := true;
-        VATEntry.Modify;
+        VATEntry.Modify();
 
         InitVatEntry(VATEntry, VATRegNo, StartDate);
         VATEntry."EU 3-Party Trade" := true;
-        VATEntry.Modify;
+        VATEntry.Modify();
 
         // [GIVEN] Report header with the correct date range
         InitReportHeader(VATReportHeader, StartDate, EndDate);
@@ -101,14 +101,14 @@ codeunit 134068 "ECSL Suggest Line Test"
         // [SCENARIO] Does NOT Generate report line for the vat when the total amount is Zero
         StartDate := DMY2Date(1, 1, 2017);
         EndDate := DMY2Date(31, 1, 2017);
-        ECSLVATReportLineRelation.DeleteAll;
+        ECSLVATReportLineRelation.DeleteAll();
 
         // [GIVEN] 2 VAT Entries with oposit value
-        VATEntry.DeleteAll;
+        VATEntry.DeleteAll();
         InitVatEntry(VATEntry, '100001', StartDate);
         InitVatEntry(VATEntry, '100001', EndDate);
         VATEntry.Base := -VATEntry.Base;
-        VATEntry.Modify;
+        VATEntry.Modify();
 
         // [GIVEN] Report header with the correct date range
         InitReportHeader(VATReportHeader, StartDate, EndDate);
@@ -141,7 +141,7 @@ codeunit 134068 "ECSL Suggest Line Test"
         EndDate := DMY2Date(31, 1, 2017);
 
         // [GIVEN] Created two VAT Entries
-        VATEntry.DeleteAll;
+        VATEntry.DeleteAll();
         InitVatEntry(VATEntry, '100001', StartDate);
         InitVatEntry(VATEntry, '100002', EndDate);
 
@@ -177,7 +177,7 @@ codeunit 134068 "ECSL Suggest Line Test"
         EndDate := DMY2Date(31, 1, 2017);
 
         // [GIVEN] Created two VAT Entries
-        VATEntry.DeleteAll;
+        VATEntry.DeleteAll();
         InitVatEntry(VATEntry, '100001', StartDate);
         InitVatEntry(VATEntry, '100002', EndDate);
 
@@ -200,7 +200,7 @@ codeunit 134068 "ECSL Suggest Line Test"
 
     local procedure InitReportHeader(var VATReportHeader: Record "VAT Report Header"; StartDate: Date; EndDate: Date)
     begin
-        VATReportHeader.Init;
+        VATReportHeader.Init();
         VATReportHeader."Start Date" := StartDate;
         VATReportHeader."End Date" := EndDate;
         VATReportHeader."No." := CopyStr(CreateGuid, 2, 20);
@@ -210,12 +210,12 @@ codeunit 134068 "ECSL Suggest Line Test"
         VATReportHeader."Period Year" := Date2DMY(StartDate, 3);
 
         VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"EC Sales List";
-        VATReportHeader.Insert;
+        VATReportHeader.Insert();
     end;
 
     local procedure InitVatReturnReportHeaderCopyNo(var VATReportHeader: Record "VAT Report Header"; StartDate: Date; EndDate: Date; ReportNo: Code[20])
     begin
-        VATReportHeader.Init;
+        VATReportHeader.Init();
         VATReportHeader."Start Date" := StartDate;
         VATReportHeader."End Date" := EndDate;
         VATReportHeader."No." := ReportNo;
@@ -225,7 +225,7 @@ codeunit 134068 "ECSL Suggest Line Test"
         VATReportHeader."Period Year" := Date2DMY(StartDate, 3);
 
         VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"VAT Return";
-        VATReportHeader.Insert;
+        VATReportHeader.Insert();
     end;
 
     local procedure InitVatEntry(var VATEntry: Record "VAT Entry"; VatRegNo: Text[20]; PostingDate: Date)
@@ -235,7 +235,7 @@ codeunit 134068 "ECSL Suggest Line Test"
         if VATEntry.FindLast then
             LastId := VATEntry."Entry No.";
 
-        VATEntry.Init;
+        VATEntry.Init();
         VATEntry."Entry No." := LastId + 1;
         VATEntry.Base := -1.7;
         VATEntry."Posting Date" := PostingDate;
@@ -244,7 +244,7 @@ codeunit 134068 "ECSL Suggest Line Test"
         VATEntry."VAT Registration No." := VatRegNo;
         VATEntry."EU Service" := false;
         VATEntry."Country/Region Code" := 'DE';
-        VATEntry.Insert;
+        VATEntry.Insert();
     end;
 
     local procedure GetVATEntryTotalValue(StartDate: Date; EndDate: Date): Integer
@@ -278,8 +278,8 @@ codeunit 134068 "ECSL Suggest Line Test"
         ECSLVATReportLineRelation: Record "ECSL VAT Report Line Relation";
         ECSLVATReportLine: Record "ECSL VAT Report Line";
     begin
-        ECSLVATReportLineRelation.DeleteAll;
-        ECSLVATReportLine.DeleteAll;
+        ECSLVATReportLineRelation.DeleteAll();
+        ECSLVATReportLine.DeleteAll();
     end;
 }
 

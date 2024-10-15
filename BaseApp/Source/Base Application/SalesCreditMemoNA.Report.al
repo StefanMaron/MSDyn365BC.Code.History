@@ -33,14 +33,14 @@ report 10073 "Sales Credit Memo NA"
                 trigger OnAfterGetRecord()
                 begin
                     TempSalesCrMemoLine := "Sales Cr.Memo Line";
-                    TempSalesCrMemoLine.Insert;
+                    TempSalesCrMemoLine.Insert();
                     HighestLineNo := "Line No.";
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempSalesCrMemoLine.Reset;
-                    TempSalesCrMemoLine.DeleteAll;
+                    TempSalesCrMemoLine.Reset();
+                    TempSalesCrMemoLine.DeleteAll();
                 end;
             }
             dataitem("Sales Comment Line"; "Sales Comment Line")
@@ -61,7 +61,7 @@ report 10073 "Sales Credit Memo NA"
                         "Line No." := HighestLineNo + 1000;
                         HighestLineNo := "Line No.";
                     end;
-                    TempSalesCrMemoLine.Insert;
+                    TempSalesCrMemoLine.Insert();
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -375,7 +375,7 @@ report 10073 "Sales Credit Memo NA"
                         begin
                             Clear(TaxLiable);
                             Clear(AmountExclInvDisc);
-                            NumberOfLines := TempSalesCrMemoLine.Count;
+                            NumberOfLines := TempSalesCrMemoLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                             PrintFooter := false;
@@ -388,7 +388,7 @@ report 10073 "Sales Credit Memo NA"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             SalesCrMemoPrinted.Run("Sales Cr.Memo Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -555,8 +555,8 @@ report 10073 "Sales Credit Memo NA"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
         FormatDocument.SetLogoPosition(SalesSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
 
         if PrintCompany then
@@ -666,7 +666,7 @@ report 10073 "Sales Credit Memo NA"
             TempSalesCrMemoLine."Description 2" :=
               CopyStr(CopyStr(Comment, SpacePointer + 1), 1, MaxStrLen(TempSalesCrMemoLine."Description 2"));
         end;
-        TempSalesCrMemoLine.Insert;
+        TempSalesCrMemoLine.Insert();
     end;
 }
 

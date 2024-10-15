@@ -161,7 +161,7 @@ page 404 "Check Preview"
 
     trigger OnOpenPage()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
     end;
 
@@ -197,7 +197,7 @@ page 404 "Check Preview"
         then
             Clear(BankAcc2);
         if "Check Printed" then begin
-            GenJnlLine.Reset;
+            GenJnlLine.Reset();
             GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
             GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
             GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -210,7 +210,7 @@ page 404 "Check Preview"
             GenJnlLine.SetRange("Check Printed", true);
             CheckStatusText := Text000;
         end else begin
-            GenJnlLine.Reset;
+            GenJnlLine.Reset();
             GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
             GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
             GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");

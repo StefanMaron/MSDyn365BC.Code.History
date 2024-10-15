@@ -1,4 +1,4 @@
-﻿page 1002 "Job Task Lines"
+page 1002 "Job Task Lines"
 {
     Caption = 'Job Task Lines';
     DataCaptionFields = "Job No.";

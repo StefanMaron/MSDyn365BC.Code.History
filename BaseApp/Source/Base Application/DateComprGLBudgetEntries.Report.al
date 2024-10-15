@@ -55,11 +55,10 @@ report 97 "Date Compr. G/L Budget Entries"
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
                     InsertRegister;
-                    Commit;
-                    GLBudgetEntry2.LockTable;
-                    GLBudgetEntry2.Reset;
-                    if GLBudgetEntry2.Find('+') then;
-                    LastEntryNo := GLBudgetEntry2."Entry No.";
+                    Commit();
+                    GLBudgetEntry2.LockTable();
+                    GLBudgetEntry2.Reset();
+                    LastEntryNo := GLBudgetEntry2.GetLastEntryNo();
                 end;
             end;
 
@@ -79,14 +78,14 @@ report 97 "Date Compr. G/L Budget Entries"
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(
                       Text002,
                       EntrdDateComprReg.FieldCaption("Ending Date"));
 
-                DateComprReg.Init;
+                DateComprReg.Init();
                 DateComprReg."Creation Date" := Today;
                 DateComprReg."Starting Date" := EntrdDateComprReg."Starting Date";
                 DateComprReg."Ending Date" := EntrdDateComprReg."Ending Date";
@@ -98,12 +97,12 @@ report 97 "Date Compr. G/L Budget Entries"
                 if AnalysisView.FindFirst then begin
                     AnalysisView.CheckDimensionsAreRetained(3, REPORT::"Date Compr. G/L Budget Entries", true);
                     AnalysisView.CheckViewsAreUpdated;
-                    Commit;
+                    Commit();
                 end;
 
                 SelectedDim.GetSelectedDim(
                   UserId, 3, REPORT::"Date Compr. G/L Budget Entries", '', TempSelectedDim);
-                GLSetup.Get;
+                GLSetup.Get();
                 Retain[2] :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compr. G/L Budget Entries", '', GLSetup."Global Dimension 1 Code");
@@ -111,9 +110,8 @@ report 97 "Date Compr. G/L Budget Entries"
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compr. G/L Budget Entries", '', GLSetup."Global Dimension 2 Code");
 
-                GLBudgetEntry2.LockTable;
-                if GLBudgetEntry2.Find('+') then;
-                LastEntryNo := GLBudgetEntry2."Entry No.";
+                GLBudgetEntry2.LockTable();
+                LastEntryNo := GLBudgetEntry2.GetLastEntryNo();
                 LowestEntryNo := 2147483647;
 
                 Window.Open(
@@ -310,7 +308,7 @@ report 97 "Date Compr. G/L Budget Entries"
         LastEntryNo := LastEntryNo + 1;
 
         with GLBudgetEntry2 do begin
-            NewGLBudgetEntry.Init;
+            NewGLBudgetEntry.Init();
             NewGLBudgetEntry."Entry No." := LastEntryNo;
             NewGLBudgetEntry."Budget Name" := "Budget Name";
             NewGLBudgetEntry."G/L Account No." := "G/L Account No.";
@@ -338,11 +336,11 @@ report 97 "Date Compr. G/L Budget Entries"
         TempDimBuf: Record "Dimension Buffer" temporary;
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        TempDimBuf.DeleteAll;
+        TempDimBuf.DeleteAll();
         DimBufMgt.GetDimensions(DimEntryNo, TempDimBuf);
         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
         NewGLBudgetEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        NewGLBudgetEntry.Insert;
+        NewGLBudgetEntry.Insert();
     end;
 
     local procedure InsertRegister()
@@ -352,10 +350,9 @@ report 97 "Date Compr. G/L Budget Entries"
         if RegExists then
             DateComprReg.Modify
         else begin
-            DateComprReg2.LockTable;
-            if DateComprReg2.FindLast then;
-            DateComprReg."No." := DateComprReg2."No." + 1;
-            DateComprReg.Insert;
+            DateComprReg2.LockTable();
+            DateComprReg."No." := DateComprReg2.GetLastEntryNo() + 1;
+            DateComprReg.Insert();
             RegExists := true;
         end;
     end;

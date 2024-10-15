@@ -140,7 +140,7 @@ report 10007 "Consolidated Trial Balance"
                     end;
 
                     if (GLAccNetChange = 0) and (GLBalance = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if InThousands then begin
                         GLAccNetChange := GLAccNetChange / 1000;
@@ -155,7 +155,7 @@ report 10007 "Consolidated Trial Balance"
                     if ("G/L Account"."Account Type" <> "G/L Account"."Account Type"::Posting) and
                        ("G/L Account".Totaling = '')
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     GLAccNetChangeSum := 0;
                     GLBalanceSum := 0;
                 end;
@@ -203,7 +203,7 @@ report 10007 "Consolidated Trial Balance"
                     end;
 
                     if (GLAccNetChange = 0) and (GLBalance = 0) and (EliminationAmount = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if InThousands then
                         EliminationAmount := EliminationAmount / 1000;
                 end;
@@ -213,7 +213,7 @@ report 10007 "Consolidated Trial Balance"
                     if ("G/L Account"."Account Type" <> "G/L Account"."Account Type"::Posting) and
                        ("G/L Account".Totaling = '')
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -286,7 +286,7 @@ report 10007 "Consolidated Trial Balance"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if ConsolidStartDate = 0D then
             Error(Text000);
         if ConsolidEndDate = 0D then
@@ -296,7 +296,7 @@ report 10007 "Consolidated Trial Balance"
         PeriodText := "G/L Account".GetFilter("Date Filter");
         SubTitle := StrSubstNo(Text002, PeriodText);
         if UseAddRptCurr then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Currency.Get(GLSetup."Additional Reporting Currency");
             SubTitle := SubTitle + '  ' + StrSubstNo(Text003, Currency.Description);
         end;

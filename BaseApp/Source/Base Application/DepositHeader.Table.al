@@ -13,7 +13,7 @@ table 10140 "Deposit Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     NoSeriesMgt.TestManual(GLSetup."Deposit Nos.");
                     "No. Series" := '';
                 end;
@@ -231,12 +231,12 @@ table 10140 "Deposit Header"
         SetRange("Journal Batch Name", "Journal Batch Name");
         FilterGroup(0);
         DepositHeader2.Copy(Rec);
-        DepositHeader2.Reset;
+        DepositHeader2.Reset();
         DepositHeader2.SetRange("Journal Template Name", "Journal Template Name");
         DepositHeader2.SetRange("Journal Batch Name", "Journal Batch Name");
         if DepositHeader2.FindFirst then
             Error(Text002, TableCaption, GenJnlBatch.TableCaption);
-        GLSetup.Get;
+        GLSetup.Get();
         if "No." = '' then begin
             GLSetup.TestField("Deposit Nos.");
             NoSeriesMgt.InitSeries(GLSetup."Deposit Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series");
@@ -292,7 +292,7 @@ table 10140 "Deposit Header"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         "Shortcut Dimension 1 Code" := '';
@@ -314,7 +314,7 @@ table 10140 "Deposit Header"
     begin
         with DepositHeader do begin
             DepositHeader := Rec;
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetup.TestField("Deposit Nos.");
             if NoSeriesMgt.SelectSeries(GLSetup."Deposit Nos.", OldDepositHeader."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");

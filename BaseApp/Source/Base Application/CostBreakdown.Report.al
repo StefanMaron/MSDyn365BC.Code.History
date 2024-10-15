@@ -160,7 +160,7 @@ report 10195 "Cost Breakdown"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ResourceFilter := Resource.GetFilters;
     end;
 

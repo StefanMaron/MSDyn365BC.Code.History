@@ -160,7 +160,7 @@ report 10133 "Back Order Fill by Item"
                 trigger OnAfterGetRecord()
                 begin
                     if "Shipment Date" >= WorkDate then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     Cust.Get("Sell-to Customer No.");
 
                     SalesOrderLine.Copy("Sales Line");
@@ -200,7 +200,7 @@ report 10133 "Back Order Fill by Item"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
         SalesLineFilter := "Sales Line".GetFilters;
     end;

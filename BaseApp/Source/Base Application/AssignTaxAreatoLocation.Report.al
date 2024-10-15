@@ -50,7 +50,7 @@ report 10328 "Assign Tax Area to Location"
     begin
         if not Location.Find then
             CurrReport.Quit;
-        Location.Modify;
+        Location.Modify();
     end;
 
     var

@@ -1,9 +1,9 @@
 report 10130 "Availability Projection"
 {
-    DefaultLayout = RDLC;
+	DefaultLayout = RDLC;
     RDLCLayout = './AvailabilityProjection.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Availability Projection';
+	Caption = 'Availability Projection';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -932,7 +932,7 @@ report 10130 "Availability Projection"
                     TPrintSchedOutput := false;
                     TPrintSchedCons := false;
                     Item.SetRange("Variant Filter", Code);
-                    ItemLedgerEntry.Reset;
+                    ItemLedgerEntry.Reset();
                     ItemLedgerEntry.SetCurrentKey("Item No.", "Entry Type", "Variant Code", "Drop Shipment",
                       "Location Code", "Posting Date");
                     for i := 1 to 7 do begin
@@ -1039,7 +1039,7 @@ report 10130 "Availability Projection"
                 trigger OnPreDataItem()
                 begin
                     if not BreakdownByVariant then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -1057,7 +1057,7 @@ report 10130 "Availability Projection"
                     Item.SetRange("Variant Filter", '');
                     NoVariant := Text002;
                 end;
-                ItemLedgerEntry.Reset;
+                ItemLedgerEntry.Reset();
                 ItemLedgerEntry.SetCurrentKey("Item No.", "Entry Type", "Variant Code", "Drop Shipment",
                   "Location Code", "Posting Date");
                 for i := 1 to 7 do begin
@@ -1233,7 +1233,7 @@ report 10130 "Availability Projection"
         for i := 2 to 6 do
             PeriodStartingDate[i + 1] := CalcDate(PeriodCalculation, PeriodStartingDate[i]);
         PeriodStartingDate[8] := 99991231D;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
     end;
 

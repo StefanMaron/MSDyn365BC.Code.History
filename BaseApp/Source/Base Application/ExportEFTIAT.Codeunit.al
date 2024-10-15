@@ -62,11 +62,11 @@ codeunit 10097 "Export EFT (IAT)"
     begin
         ExportEFTACH.BuildIDModifier(DummyModifierValues);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
         with BankAccount do begin
-            LockTable;
+            LockTable();
             Get(BankAccountNo);
             TestField("Export Format", "Export Format"::US);
             TestField("Transit No.");
@@ -123,7 +123,7 @@ codeunit 10097 "Export EFT (IAT)"
             ACHUSHeader."Bank Account Number" := "No.";
             ACHUSHeader."Company Name" := CompanyInformation.Name;
             ACHUSHeader.Reference := ReferenceCode;
-            ACHUSHeader.Modify;
+            ACHUSHeader.Modify();
             EFTValues.SetNoOfRec := EFTValues.GetNoOfRec + 1;
         end;
     end;
@@ -164,19 +164,19 @@ codeunit 10097 "Export EFT (IAT)"
         ACHUSHeader."Standard Class Code" := 'IAT';
         ACHUSHeader."Company Entry Description" := TempEFTExportWorkset."Source Code";
         if BankAccount."Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             ACHUSHeader."Currency Type" := GLSetup."LCY Code";
         end else
             ACHUSHeader."Currency Type" := BankAccount."Currency Code";
         if DestinationBankCurrencyCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             ACHUSHeader."Destination Currency Code" := GLSetup."LCY Code";
         end else
             ACHUSHeader."Destination Currency Code" := DestinationBankCurrencyCode;
         ACHUSHeader."Effective Date" := SettleDate;
         ACHUSHeader."Transit Routing Number" := BankAccount."Transit No.";
         ACHUSHeader."Batch Number" := EFTValues.GetBatchNo;
-        ACHUSHeader.Modify;
+        ACHUSHeader.Modify();
 
         EFTValues.SetNoOfRec := EFTValues.GetNoOfRec + 1;
     end;
@@ -317,7 +317,7 @@ codeunit 10097 "Export EFT (IAT)"
         // Addenda Record 7
         ACHUSDetail."Destination City County Code" := DestinationCity + '*' + DestinationCounty + '\';
         ACHUSDetail."Destination CntryCode PostCode" := DestinationCountryCode + '*' + DestinationPostCode + '\';
-        ACHUSDetail.Modify;
+        ACHUSDetail.Modify();
 
         if EFTValues.GetParentBoolean then begin
             EFTValues.SetNoOfRec := (EFTValues.GetNoOfRec + 1);
@@ -342,7 +342,7 @@ codeunit 10097 "Export EFT (IAT)"
         ACHUSFooter."Federal ID No." := DelChr(CompanyInformation."Federal ID No.", '=', ' .,-');
         ACHUSFooter."Transit Routing Number" := BankAccount."Transit No.";
         ACHUSFooter."Batch Number" := EFTValues.GetBatchNo;
-        ACHUSFooter.Modify;
+        ACHUSFooter.Modify();
 
         EFTValues.SetNoOfRec := (EFTValues.GetNoOfRec + 1);
         EFTValues.SetBatchCount(EFTValues.GetBatchCount + 1);
@@ -369,7 +369,7 @@ codeunit 10097 "Export EFT (IAT)"
         ACHUSFooter."File Hash Total" := EFTValues.GetFileHashTotal;
         ACHUSFooter."Total File Debit Amount" := EFTValues.GetTotalFileDebit;
         ACHUSFooter."Total File Credit Amount" := EFTValues.GetTotalFileCredit;
-        ACHUSFooter.Modify;
+        ACHUSFooter.Modify();
 
         EFTValues.SetNoOfRec := (EFTValues.GetNoOfRec + 1);
     end;

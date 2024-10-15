@@ -79,7 +79,7 @@ codeunit 10331 "EFT Export Mgt"
                 TempBlob.ToRecordRef(RecordRef, DataExch.FieldNo("File Content"));
                 RecordRef.SetTable(DataExch);
 
-                DataExch.Modify;
+                DataExch.Modify();
             end;
 
             // Now copy current file contents to table, also.
@@ -98,7 +98,7 @@ codeunit 10331 "EFT Export Mgt"
         DataExchMapping: Record "Data Exch. Mapping";
         TableID: Integer;
     begin
-        DataExchMapping.Init;
+        DataExchMapping.Init();
         DataExchMapping.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchMapping.SetRange("Data Exch. Line Def Code", DataExch."Data Exch. Line Def Code");
         if DataExchMapping.FindFirst then begin
@@ -135,7 +135,7 @@ codeunit 10331 "EFT Export Mgt"
                 else begin
                     FieldRef2 := RecRef.Field(DataExchFieldMapping."Field ID");
 
-                    if Format(FieldRef2.Class) = 'FlowField' then
+                    if FieldRef2.Class = FieldClass::FlowField then
                         FieldRef2.CalcField;
 
                     CheckOptional(DataExchFieldMapping.Optional, FieldRef2);
@@ -153,13 +153,13 @@ codeunit 10331 "EFT Export Mgt"
 
                 DataExchField.Get(DataExch."Entry No.", LineNo, DataExchFieldMapping."Column No.");
                 DataExchField.Value := ValueAsString;
-                DataExchField.Modify;
+                DataExchField.Modify();
             end else begin
                 DataExchField.Get(DataExch."Entry No.", LineNo, DataExchFieldMapping."Column No.");
                 CastToDestinationType(ValueAsDestType, DataExchField.Value, DataExchColumnDef, DataExchFieldMapping.Multiplier);
                 ValueAsString := FormatToText(DelChr(ValueAsDestType, '>', ' '), DataExchDef, DataExchColumnDef);
                 DataExchField.Value := ValueAsString;
-                DataExchField.Modify;
+                DataExchField.Modify();
             end;
 
         until DataExchFieldMapping.Next = 0;
@@ -327,24 +327,24 @@ codeunit 10331 "EFT Export Mgt"
             case BankAccount."Export Format" of
                 BankAccount."Export Format"::US:
                     if not ACHUSHeader.Get(DataExch."Entry No.") then begin
-                        ACHUSHeader.Init;
+                        ACHUSHeader.Init();
                         ACHUSHeader."Data Exch. Entry No." := DataExch."Entry No.";
                         OnBeforeACHUSHeaderInsert(ACHUSHeader, BankAccCode);
-                        ACHUSHeader.Insert;
-                        Commit;
+                        ACHUSHeader.Insert();
+                        Commit();
                         ACHUSHeader."Company Name" := CompanyName;
                         ACHUSHeader."Bank Account Number" := BankAccountNo;
                         ACHUSHeader."File Creation Date" := FileDate;
                         ACHUSHeader."File Creation Time" := FileTime;
-                        ACHUSHeader.Modify;
+                        ACHUSHeader.Modify();
                     end;
                 BankAccount."Export Format"::CA:
                     if not ACHRBHeader.Get(DataExch."Entry No.") then begin
-                        ACHRBHeader.Init;
+                        ACHRBHeader.Init();
                         ACHRBHeader."Data Exch. Entry No." := DataExch."Entry No.";
                         OnBeforeACHRBHeaderInsert(ACHRBHeader, BankAccCode);
-                        ACHRBHeader.Insert;
-                        Commit;
+                        ACHRBHeader.Insert();
+                        Commit();
                         ACHRBHeader."File Creation Date" := ExportEFTRB.JulianDate(FileDate);
 
                         // if can find the column definition, get the value of the Data Format and assign it to DateFormat variable
@@ -357,17 +357,17 @@ codeunit 10331 "EFT Export Mgt"
                             ACHRBHeader."File Creation Date" := DateInteger;
                         end;
 
-                        ACHRBHeader.Modify;
+                        ACHRBHeader.Modify();
                     end;
                 BankAccount."Export Format"::MX:
                     if not ACHCecobanHeader.Get(DataExch."Entry No.") then begin
-                        ACHCecobanHeader.Init;
+                        ACHCecobanHeader.Init();
                         ACHCecobanHeader."Data Exch. Entry No." := DataExch."Entry No.";
                         OnBeforeACHCecobanHeaderInsert(ACHCecobanHeader, BankAccCode);
-                        ACHCecobanHeader.Insert;
-                        Commit;
+                        ACHCecobanHeader.Insert();
+                        Commit();
                         ACHCecobanHeader."Bank Account No" := BankAccountNo;
-                        ACHCecobanHeader.Modify;
+                        ACHCecobanHeader.Modify();
                     end;
             end;
     end;
@@ -381,24 +381,24 @@ codeunit 10331 "EFT Export Mgt"
         case BankAccount."Export Format" of
             BankAccount."Export Format"::US:
                 if not ACHUSFooter.Get(DataExch."Entry No.") then begin
-                    ACHUSFooter.Init;
+                    ACHUSFooter.Init();
                     ACHUSFooter."Data Exch. Entry No." := DataExch."Entry No.";
-                    ACHUSFooter.Insert;
-                    Commit;
+                    ACHUSFooter.Insert();
+                    Commit();
                     ACHUSFooter."Company Name" := CompanyName;
-                    ACHUSFooter.Modify;
+                    ACHUSFooter.Modify();
                 end;
             BankAccount."Export Format"::CA:
                 if not ACHRBFooter.Get(DataExch."Entry No.") then begin
-                    ACHRBFooter.Init;
+                    ACHRBFooter.Init();
                     ACHRBFooter."Data Exch. Entry No." := DataExch."Entry No.";
-                    ACHRBFooter.Insert;
+                    ACHRBFooter.Insert();
                 end;
             BankAccount."Export Format"::MX:
                 if not ACHCecobanFooter.Get(DataExch."Entry No.") then begin
-                    ACHCecobanFooter.Init;
+                    ACHCecobanFooter.Init();
                     ACHCecobanFooter."Data Exch. Entry No." := DataExch."Entry No.";
-                    ACHCecobanFooter.Insert;
+                    ACHCecobanFooter.Insert();
                 end;
         end;
     end;

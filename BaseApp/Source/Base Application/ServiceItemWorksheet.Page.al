@@ -598,7 +598,7 @@ page 5906 "Service Item Worksheet"
         ServSetup: Record "Service Mgt. Setup";
         FaultResolutionRelation: Page "Fault/Resol. Cod. Relationship";
     begin
-        ServSetup.Get;
+        ServSetup.Get();
         case ServSetup."Fault Reporting Level" of
             ServSetup."Fault Reporting Level"::None:
                 Error(

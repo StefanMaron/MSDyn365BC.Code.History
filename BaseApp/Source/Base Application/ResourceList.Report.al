@@ -104,7 +104,7 @@ report 10197 "Resource List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ResFilter := Resource.GetFilters;
     end;
 

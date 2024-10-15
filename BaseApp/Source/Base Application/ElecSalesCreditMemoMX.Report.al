@@ -49,21 +49,21 @@ report 10476 "Elec. Sales Credit Memo MX"
                             TempSalesCrMemoLine."Description 2" :=
                               CopyStr(CopyStr(Comment, SpacePointer + 1), 1, MaxStrLen(TempSalesCrMemoLine."Description 2"));
                         end;
-                        TempSalesCrMemoLine.Insert;
+                        TempSalesCrMemoLine.Insert();
                     end;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     TempSalesCrMemoLine := "Sales Cr.Memo Line";
-                    TempSalesCrMemoLine.Insert;
+                    TempSalesCrMemoLine.Insert();
                     HighestLineNo := "Line No.";
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempSalesCrMemoLine.Reset;
-                    TempSalesCrMemoLine.DeleteAll;
+                    TempSalesCrMemoLine.Reset();
+                    TempSalesCrMemoLine.DeleteAll();
                 end;
             }
             dataitem("Sales Comment Line"; "Sales Comment Line")
@@ -92,7 +92,7 @@ report 10476 "Elec. Sales Credit Memo MX"
                         TempSalesCrMemoLine."Description 2" :=
                           CopyStr(CopyStr(Comment, SpacePointer + 1), 1, MaxStrLen(TempSalesCrMemoLine."Description 2"));
                     end;
-                    TempSalesCrMemoLine.Insert;
+                    TempSalesCrMemoLine.Insert();
                 end;
 
                 trigger OnPreDataItem()
@@ -103,7 +103,7 @@ report 10476 "Elec. Sales Credit Memo MX"
                         "Line No." := HighestLineNo + 1000;
                         HighestLineNo := "Line No.";
                     end;
-                    TempSalesCrMemoLine.Insert;
+                    TempSalesCrMemoLine.Insert();
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -428,7 +428,7 @@ report 10476 "Elec. Sales Credit Memo MX"
                         trigger OnPreDataItem()
                         begin
                             Clear(AmountExclInvDisc);
-                            NumberOfLines := TempSalesCrMemoLine.Count;
+                            NumberOfLines := TempSalesCrMemoLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                             TotalAmountIncludingVAT := 0;
@@ -534,7 +534,7 @@ report 10476 "Elec. Sales Credit Memo MX"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             SalesCrMemoPrinted.Run("Sales Cr.Memo Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -666,9 +666,9 @@ report 10476 "Elec. Sales Credit Memo MX"
     var
         SATUtilities: Codeunit "SAT Utilities";
     begin
-        CompanyInformation.Get;
-        SalesSetup.Get;
-        SourceCodeSetup.Get;
+        CompanyInformation.Get();
+        SalesSetup.Get();
+        SourceCodeSetup.Get();
         PrintCompany := true;
 
         case SalesSetup."Logo Position on Documents" of
@@ -678,12 +678,12 @@ report 10476 "Elec. Sales Credit Memo MX"
                 CompanyInformation.CalcFields(Picture);
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;

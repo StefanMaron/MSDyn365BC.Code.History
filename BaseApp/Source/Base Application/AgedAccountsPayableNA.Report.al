@@ -622,7 +622,7 @@ report 10085 "Aged Accounts Payable NA"
                                 PeriodEndingDate[1] := WorkDate();
                         end;
                     }
-                    field(AgingMethod; AgingMethod)
+                    field(AgingMethodControl; AgingMethod)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Aging Method';
@@ -641,7 +641,7 @@ report 10085 "Aged Accounts Payable NA"
                                 Error(PeriodCalculationRequiredLbl);
                         end;
                     }
-                    field(ShowOnlyOverDueBy; ShowOnlyOverDueBy)
+                    field(ShowOnlyOverDueByControl; ShowOnlyOverDueBy)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show If Overdue By';
@@ -655,7 +655,7 @@ report 10085 "Aged Accounts Payable NA"
                                 ShowAllForOverdue := false;
                         end;
                     }
-                    field(ShowAllForOverdue; ShowAllForOverdue)
+                    field(ShowAllForOverdueControl; ShowAllForOverdue)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show All for Overdue By Vendor';
@@ -682,19 +682,19 @@ report 10085 "Aged Accounts Payable NA"
                                 Error(ShowOnlyOverdueLbl);
                         end;
                     }
-                    field(PrintDetail; PrintDetail)
+                    field(PrintDetailControl; PrintDetail)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Print Detail';
                         ToolTip = 'Specifies if individual transactions are included in the report. Clear the check box to include only totals.';
                     }
-                    field(UseExternalDocNo; UseExternalDocNo)
+                    field(UseExternalDocNoControl; UseExternalDocNo)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Use External Doc. No.';
                         ToolTip = 'Specifies if you want to print the vendor''s document numbers, such as the invoice number, on all transactions. Clear this check box to print only internal document numbers.';
                     }
-                    field(PrintToExcel; PrintToExcel)
+                    field(PrintToExcelControl; PrintToExcel)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Print to Excel';
@@ -799,7 +799,7 @@ report 10085 "Aged Accounts Payable NA"
         VendorCurrencyLbl: Label 'Amounts are in the vendor''s local currency (report totals are in %1).', Comment = '%1=currency code';
         ReportTotalAmountLbl: Label 'Report Total Amount Due (%1)', Comment = '%1=currency code';
         DataLbl: Label 'Data';
-        AgedAccountsPayable: Label 'Aged Accounts Payable';
+        AgedAccountsPayableLbl: Label 'Aged Accounts Payable';
         CompanyNameLbl: Label 'Company Name';
         ReportNoLbl: Label 'Report No.';
         ReportNameLbl: Label 'Report Name';
@@ -911,10 +911,10 @@ report 10085 "Aged Accounts Payable NA"
         ExcelBuf.AddInfoColumn(CompanyInformation.Name, false, false, false, false, '', ExcelBuf."Cell Type"::Text);
         ExcelBuf.NewRow();
         ExcelBuf.AddInfoColumn(Format(ReportNameLbl), false, true, false, false, '', ExcelBuf."Cell Type"::Text);
-        ExcelBuf.AddInfoColumn(Format(AgedAccountsPayable), false, false, false, false, '', ExcelBuf."Cell Type"::Text);
+        ExcelBuf.AddInfoColumn(Format(AgedAccountsPayableLbl), false, false, false, false, '', ExcelBuf."Cell Type"::Text);
         ExcelBuf.NewRow();
         ExcelBuf.AddInfoColumn(Format(ReportNoLbl), false, true, false, false, '', ExcelBuf."Cell Type"::Text);
-        ExcelBuf.AddInfoColumn(REPORT::"Aged Accounts Payable", false, false, false, false, '', ExcelBuf."Cell Type"::Number);
+        ExcelBuf.AddInfoColumn(REPORT::"Aged Accounts Payable NA", false, false, false, false, '', ExcelBuf."Cell Type"::Number);
         ExcelBuf.NewRow();
         ExcelBuf.AddInfoColumn(Format(UserIDLbl), false, true, false, false, '', ExcelBuf."Cell Type"::Text);
         ExcelBuf.AddInfoColumn(UserId(), false, false, false, false, '', ExcelBuf."Cell Type"::Text);
@@ -995,7 +995,7 @@ report 10085 "Aged Accounts Payable NA"
 
     local procedure CreateExcelbook()
     begin
-        ExcelBuf.CreateBookAndOpenExcel('', DataLbl, AgedAccountsPayable, CompanyName(), UserId());
+        ExcelBuf.CreateBookAndOpenExcel('', DataLbl, AgedAccountsPayableLbl, CompanyName(), UserId());
     end;
 }
 

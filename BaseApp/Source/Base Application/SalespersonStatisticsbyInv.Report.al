@@ -293,7 +293,7 @@ report 10060 "Salesperson Statistics by Inv."
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PeriodText := "Salesperson/Purchaser".GetFilter("Date Filter");
         "Salesperson/Purchaser".SetRange("Date Filter");
         FilterString := "Salesperson/Purchaser".GetFilters;

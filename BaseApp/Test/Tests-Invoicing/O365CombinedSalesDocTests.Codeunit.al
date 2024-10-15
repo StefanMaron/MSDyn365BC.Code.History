@@ -55,7 +55,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         // Setup
         Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
-        SalesHeader.DeleteAll; // remove drafts
+        SalesHeader.DeleteAll(); // remove drafts
 
         // Execute
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
@@ -130,7 +130,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
 
         // Remove the sales header
         SalesHeader.Get(O365SalesDocument."Document Type", O365SalesDocument."No.");
-        SalesHeader.Delete;
+        SalesHeader.Delete();
 
         // Execute
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find another document');
@@ -154,7 +154,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
-        SalesHeader.DeleteAll;
+        SalesHeader.DeleteAll();
 
         // Execute
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find another document');
@@ -181,8 +181,8 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
-        SalesHeader.DeleteAll;
-        SalesInvoiceHeader.DeleteAll;
+        SalesHeader.DeleteAll();
+        SalesInvoiceHeader.DeleteAll();
 
         // Execute and Verify
         Assert.IsFalse(O365SalesDocument.OnFind(FindParamTxt), 'A document was found when none exist');
@@ -204,7 +204,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         ApplySalesHeaderKeysToDocument(O365SalesDocument, TargetSalesHeader);
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
 
-        TargetSalesHeader.Delete;
+        TargetSalesHeader.Delete();
 
         // Execute
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find another document');
@@ -230,7 +230,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         ApplySalesInvoiceHeaderKeysToDocument(O365SalesDocument, TargetSalesInvoiceHeader);
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
 
-        TargetSalesInvoiceHeader.Delete;
+        TargetSalesInvoiceHeader.Delete();
 
         // Execute
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find another document');
@@ -254,8 +254,8 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         LibraryLowerPermissions.SetInvoiceApp;
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
 
-        SalesHeader.DeleteAll;
-        SalesInvoiceHeader.DeleteAll;
+        SalesHeader.DeleteAll();
+        SalesInvoiceHeader.DeleteAll();
 
         // Execute and verify
         Assert.AreEqual(0, O365SalesDocument.OnNext(1), 'Expected no more invoices');
@@ -354,7 +354,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
 
         GetLastDraftDocument(SalesHeader, O365SalesDocument);
 
-        SalesInvoiceHeader.DeleteAll;
+        SalesInvoiceHeader.DeleteAll();
 
         // Execute and verify
         Assert.AreEqual(0, O365SalesDocument.OnNext(1), 'There should be no more invoices');
@@ -393,7 +393,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
 
         GetFirstDraftDocument(SalesHeader, O365SalesDocument);
 
-        SalesInvoiceHeader.DeleteAll;
+        SalesInvoiceHeader.DeleteAll();
 
         // Execute and verify
         Assert.AreEqual(0, O365SalesDocument.OnNext(-1), 'There should be no more invoices');
@@ -414,7 +414,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
 
         GetFirstSentDocument(SalesInvoiceHeader, O365SalesDocument);
 
-        SalesHeader.DeleteAll;
+        SalesHeader.DeleteAll();
 
         // Execute and verify
         Assert.AreEqual(0, O365SalesDocument.OnNext(-1), 'There should be no more invoices');
@@ -516,7 +516,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         Customer.Get(SalesHeader."Sell-to Customer No.");
 
         // Execute
-        Customer.Delete;
+        Customer.Delete();
         O365SalesInvoice.OpenEdit;
         O365SalesInvoice.GotoRecord(SalesHeader);
         asserterror O365SalesInvoice.Post.Invoke;
@@ -543,7 +543,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         Customer.Get(SalesHeader."Sell-to Customer No.");
 
         // Execute
-        Customer.Delete;
+        Customer.Delete();
         BCO365SalesInvoice.OpenEdit;
         BCO365SalesInvoice.GotoRecord(SalesHeader);
         asserterror BCO365SalesInvoice.Post.Invoke;
@@ -666,14 +666,14 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Combined Sales Doc. Tests");
 
         LibraryVariableStorage.Clear;
-        SalesHeader.DeleteAll;
-        SalesInvoiceHeader.DeleteAll;
+        SalesHeader.DeleteAll();
+        SalesInvoiceHeader.DeleteAll();
 
         if not O365C2GraphEventSettings.Get then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         for TotalInvoices := 1 to 3 do begin
             CreateDraftInvoice();

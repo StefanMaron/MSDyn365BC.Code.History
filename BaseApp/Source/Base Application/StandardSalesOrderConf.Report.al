@@ -502,9 +502,9 @@ report 1305 "Standard Sales - Order Conf."
                     trigger OnPreDataItem()
                     begin
                         if not DisplayAssemblyInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if not AsmInfoExistsForLine then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange("Document Type", AsmHeader."Document Type");
                         SetRange("Document No.", AsmHeader."No.");
                     end;
@@ -545,7 +545,7 @@ report 1305 "Standard Sales - Order Conf."
                     while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                         MoreLines := Next(-1) <> 0;
                     if not MoreLines then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange("Line No.", 0, "Line No.");
                     TransHeaderAmount := 0;
                     PrevLineAmount := 0;
@@ -566,7 +566,7 @@ report 1305 "Standard Sales - Order Conf."
                 trigger OnAfterGetRecord()
                 begin
                     if WorkDescriptionInstream.EOS then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     WorkDescriptionInstream.ReadText(WorkDescriptionLine);
                 end;
 
@@ -578,7 +578,7 @@ report 1305 "Standard Sales - Order Conf."
                 trigger OnPreDataItem()
                 begin
                     if not ShowWorkDescription then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     Header."Work Description".CreateInStream(WorkDescriptionInstream, TEXTENCODING::UTF8);
                 end;
             }
@@ -671,7 +671,7 @@ report 1305 "Standard Sales - Order Conf."
 
                     if "VAT Clause Code" <> '' then begin
                         VATClauseLine := VATAmountLine;
-                        if VATClauseLine.Insert then;
+                        if VATClauseLine.Insert() then;
                     end;
                 end;
 
@@ -683,7 +683,7 @@ report 1305 "Standard Sales - Order Conf."
                     TotalVATBaseLCY := 0;
                     TotalVATAmountLCY := 0;
 
-                    VATClauseLine.DeleteAll;
+                    VATClauseLine.DeleteAll();
                 end;
             }
             dataitem(VATClauseLine; "VAT Amount Line")
@@ -716,9 +716,9 @@ report 1305 "Standard Sales - Order Conf."
                 trigger OnAfterGetRecord()
                 begin
                     if "VAT Clause Code" = '' then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if not VATClause.Get("VAT Clause Code") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     VATClause.GetDescription(Header);
                 end;
             }
@@ -870,8 +870,8 @@ report 1305 "Standard Sales - Order Conf."
                 FirstLineHasBeenOutput := false;
                 Clear(Line);
                 Clear(SalesPost);
-                VATAmountLine.DeleteAll;
-                Line.DeleteAll;
+                VATAmountLine.DeleteAll();
+                Line.DeleteAll();
                 SalesPost.GetSalesLines(Header, Line, 0);
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
@@ -980,10 +980,10 @@ report 1305 "Standard Sales - Order Conf."
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         CompanyInfo.SetAutoCalcFields(Picture);
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
         CompanyInfo.VerifyAndSetPaymentInfo;
     end;
 
@@ -1171,7 +1171,7 @@ report 1305 "Standard Sales - Order Conf."
         TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary;
         TaxArea: Record "Tax Area";
     begin
-        ReportTotalsLine.DeleteAll;
+        ReportTotalsLine.DeleteAll();
         if Header."Tax Area Code" <> '' then
             if TaxArea.Get(Header."Tax Area Code") then;
         if (Header."Tax Area Code" = '') or (TaxArea."Country/Region" = TaxArea."Country/Region"::US) then begin
@@ -1199,7 +1199,7 @@ report 1305 "Standard Sales - Order Conf."
 
     local procedure CreateUSReportTotalLines()
     begin
-        ReportTotalsLine.DeleteAll;
+        ReportTotalsLine.DeleteAll();
         ReportTotalsLine.Add(SubtotalLbl, TotalSubTotal, true, false, false);
         ReportTotalsLine.Add(InvDiscountAmtLbl, TotalInvDiscAmount, false, false, false);
         ReportTotalsLine.Add(TotalTaxLbl, TotalAmountVAT, false, true, false);
@@ -1223,7 +1223,7 @@ report 1305 "Standard Sales - Order Conf."
                 if not TaxArea."Use External Tax Engine" then
                     SalesTaxCalculate.AddSalesLine(Line);
             until Line.Next = 0;
-        TempSalesTaxAmountLine.DeleteAll;
+        TempSalesTaxAmountLine.DeleteAll();
         if TaxArea."Use External Tax Engine" then
             SalesTaxCalculate.CallExternalTaxEngineForSales(Header, true)
         else

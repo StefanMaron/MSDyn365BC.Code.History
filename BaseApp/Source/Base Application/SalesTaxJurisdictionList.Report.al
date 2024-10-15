@@ -82,7 +82,7 @@ report 10325 "Sales Tax Jurisdiction List"
             begin
                 if "Report-to Jurisdiction" <> ReportTo.Code then
                     if not ReportTo.Get("Report-to Jurisdiction") then
-                        ReportTo.Init;
+                        ReportTo.Init();
             end;
 
             trigger OnPreDataItem()
@@ -113,7 +113,7 @@ report 10325 "Sales Tax Jurisdiction List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         JurisFilters := "Tax Jurisdiction".GetFilters;
     end;
 

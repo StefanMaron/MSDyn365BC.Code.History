@@ -162,7 +162,7 @@ report 10078 "Shipping Labels"
                 trigger OnAfterGetRecord()
                 begin
                     if NumOfBlanks <= 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     NumOfBlanks := NumOfBlanks - 1;
                 end;
             }

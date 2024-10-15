@@ -30,21 +30,17 @@ table 10124 "Posted Bank Rec. Line"
         {
             Caption = 'Posting Date';
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(7; "Document No."; Code[20])
         {
             Caption = 'Document No.';
         }
-        field(8; "Account Type"; Option)
+        field(8; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(9; "Account No."; Code[20])
         {
@@ -75,11 +71,9 @@ table 10124 "Posted Bank Rec. Line"
         {
             Caption = 'Cleared Amount';
         }
-        field(14; "Bal. Account Type"; Option)
+        field(14; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(15; "Bal. Account No."; Code[20])
         {
@@ -198,7 +192,7 @@ table 10124 "Posted Bank Rec. Line"
         BankRecCommentLine.SetRange("Bank Account No.", "Bank Account No.");
         BankRecCommentLine.SetRange("No.", "Statement No.");
         BankRecCommentLine.SetRange("Line No.", "Line No.");
-        BankRecCommentLine.DeleteAll;
+        BankRecCommentLine.DeleteAll();
     end;
 
     var

@@ -60,7 +60,7 @@ report 10400 "Check Translation Management"
                 trigger OnPreDataItem()
                 begin
                     if TestOption = TestOption::"Dates Only" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Number, 1, TestNumAmounts);
                 end;
             }
@@ -95,7 +95,7 @@ report 10400 "Check Translation Management"
                 trigger OnPreDataItem()
                 begin
                     if TestOption = TestOption::"Amounts Only" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Number, 1, TestNumDates);
                 end;
             }
@@ -284,11 +284,11 @@ report 10400 "Check Translation Management"
         SetObjectLanguage(NewLanguageCode);
 
         InitTextVariable;
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("LCY Code");
         CurrencyCode := NewCurrencyCode;
         if CurrencyCode = '' then begin
-            Currency.Init;
+            Currency.Init();
             Currency.Code := GLSetup."LCY Code";
             case GLSetup."LCY Code" of
                 'USD':
@@ -792,7 +792,7 @@ report 10400 "Check Translation Management"
             else
                 CheckLanguage := 1033;
         end;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         case CompanyInformation.GetCountryRegionCode(NewCountryCode) of
             'US', 'MX':
                 CheckStyle := CheckStyle::US;

@@ -167,14 +167,14 @@ page 9631 "Page Inspection"
 
                     trigger OnDrillDown()
                     var
-                        NavAppObjectMetadata: Record "NAV App Object Metadata";
+                        ApplicationObjectMetadata: Record "Application Object Metadata";
                         NavAppInstalledApp: Record "NAV App Installed App";
                     begin
                         ShowExtensions := true;
                         ShowFields := false;
                         ShowFilters := false;
 
-                        if NavAppObjectMetadata.ReadPermission and NavAppInstalledApp.ReadPermission then
+                        if ApplicationObjectMetadata.ReadPermission and NavAppInstalledApp.ReadPermission then
                             ShowNoPermissionForExtensions := false
                         else
                             ShowNoPermissionForExtensions := true;
@@ -262,16 +262,6 @@ page 9631 "Page Inspection"
         SetInitialVisibilities;
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
-    begin
-        exit(FindFirst());
-    end;
-
-    trigger OnNextRecord(Steps: Integer): Integer
-    begin
-        exit(0);
-    end;
-
     var
         PageInfo: Text;
         TableInfo: Text;
@@ -337,7 +327,7 @@ page 9631 "Page Inspection"
             QueryInfo := StrSubstNo('%1 (%2)', "Source Table Name", "Source Table No.");
         end;
 
-        PageMetadata.Reset;
+        PageMetadata.Reset();
         PageMetadata.SetFilter(ID, '%1', "Page ID");
         if PageMetadata.FindFirst then
             PageSourceTableIsTemporary := PageMetadata.SourceTableTemporary;

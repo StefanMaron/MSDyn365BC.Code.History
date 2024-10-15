@@ -491,7 +491,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             LibraryERM.CreateVATPostingSetupWithAccounts(
               VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 25));
             VATPostingSetup."VAT Bus. Posting Group" := PurchaseHeader."VAT Bus. Posting Group";
-            VATPostingSetup.Insert;
+            VATPostingSetup.Insert();
             GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase);
         end;
         LibraryPurchase.CreatePurchaseLine(
@@ -885,8 +885,9 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         CashFlowSetup: Record "Cash Flow Setup";
         SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
         PurchaseHeader: Record "Purchase Header";
-        CashFlowManagement: Codeunit "Cash Flow Management";
+        PurchaseLine: Record "Purchase Line";
         TotalAmount: Decimal;
         StartDate: Date;
         EndDate: Date;
@@ -900,7 +901,10 @@ codeunit 131332 "Library - Cash Flow Helper"
                     PurchaseHeader.SetFilter("Document Date", StrSubstNo('%1..%2', StartDate, EndDate));
                     if PurchaseHeader.FindSet then
                         repeat
-                            TotalAmount += CashFlowManagement.GetTaxAmountFromPurchaseOrder(PurchaseHeader);
+                            PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+                            PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+                            PurchaseLine.CalcSums("Amount Including VAT", Amount);
+                            TotalAmount += PurchaseLine."Amount Including VAT" - PurchaseLine.Amount;
                         until PurchaseHeader.Next = 0;
                 end;
             DATABASE::"Sales Header":
@@ -908,7 +912,10 @@ codeunit 131332 "Library - Cash Flow Helper"
                     SalesHeader.SetFilter("Document Date", StrSubstNo('%1..%2', StartDate, EndDate));
                     if SalesHeader.FindSet then
                         repeat
-                            TotalAmount += CashFlowManagement.GetTaxAmountFromSalesOrder(SalesHeader);
+                            SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+                            SalesLine.SetRange("Document No.", SalesHeader."No.");
+                            SalesLine.CalcSums("Amount Including VAT", Amount);
+                            TotalAmount += SalesLine.Amount - SalesLine."Amount Including VAT";
                         until SalesHeader.Next = 0;
                 end;
         end;
@@ -1015,7 +1022,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
 
         FASetup.Validate("Default Depr. Book", DepreciationBookCode);
         FASetup.Modify(true);
@@ -1032,7 +1039,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Discount Grace Period", NewDscGracePeriodFormula);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1041,7 +1048,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", NewPmtTolPercentage);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1050,7 +1057,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", NewPmtTolAmount);
         GeneralLedgerSetup.Modify(true);
     end;

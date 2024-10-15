@@ -36,15 +36,15 @@ report 11380 "Export Electronic Payment File"
                 trigger OnPreDataItem()
                 begin
                     if "Gen. Journal Line"."Applies-to ID" = '' then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if BankAccountIs = BankAccountIs::Acnt then begin
                         if "Gen. Journal Line"."Bal. Account Type" <> "Gen. Journal Line"."Bal. Account Type"::Customer then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange("Customer No.", "Gen. Journal Line"."Bal. Account No.");
                     end else begin
                         if "Gen. Journal Line"."Account Type" <> "Gen. Journal Line"."Account Type"::Customer then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange("Customer No.", "Gen. Journal Line"."Account No.");
                     end;
                 end;
@@ -75,15 +75,15 @@ report 11380 "Export Electronic Payment File"
                 trigger OnPreDataItem()
                 begin
                     if "Gen. Journal Line"."Applies-to ID" = '' then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if BankAccountIs = BankAccountIs::Acnt then begin
                         if "Gen. Journal Line"."Bal. Account Type" <> "Gen. Journal Line"."Bal. Account Type"::Vendor then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange("Vendor No.", "Gen. Journal Line"."Bal. Account No.");
                     end else begin
                         if "Gen. Journal Line"."Account Type" <> "Gen. Journal Line"."Account Type"::Vendor then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange("Vendor No.", "Gen. Journal Line"."Account No.");
                     end;
                 end;
@@ -100,7 +100,7 @@ report 11380 "Export Electronic Payment File"
                 trigger OnPreDataItem()
                 begin
                     if TotalAmountPaid >= -ExportAmount then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -111,14 +111,14 @@ report 11380 "Export Electronic Payment File"
                 if "Account Type" = "Account Type"::"Bank Account" then begin
                     BankAccountIs := BankAccountIs::Acnt;
                     if "Account No." <> BankAccount."No." then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end else
                     if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then begin
                         BankAccountIs := BankAccountIs::BalAcnt;
                         if "Bal. Account No." <> BankAccount."No." then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end else
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                 CheckAndStartExport("Gen. Journal Line");
 
@@ -170,7 +170,7 @@ report 11380 "Export Electronic Payment File"
             trigger OnPostDataItem()
             begin
                 if ACHFileCreated then begin
-                    BankAccount.Modify;
+                    BankAccount.Modify();
                     case BankAccount."Export Format" of
                         BankAccount."Export Format"::US:
                             begin
@@ -188,7 +188,7 @@ report 11380 "Export Electronic Payment File"
                     end;
                 end;
                 if IATFileCreated then begin
-                    BankAccount.Modify;
+                    BankAccount.Modify();
                     if IATBatchOpen then begin
                         ExportPaymentsIAT.EndExportBatch('220');
                         IATBatchOpen := false;
@@ -257,11 +257,11 @@ report 11380 "Export Electronic Payment File"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         GenJournalTemplate.Get("Gen. Journal Line".GetFilter("Journal Template Name"));
 
         with BankAccount do begin
-            LockTable;
+            LockTable();
             Get("No.");
             TestField(Blocked, false);
             TestField("Currency Code", '');  // local currency only
@@ -383,7 +383,7 @@ report 11380 "Export Electronic Payment File"
               Vendor.TableCaption, Vendor."No.");
         VendBankAccount.FindFirst;
         if GenJnlLine."Applies-to Doc. No." <> '' then begin
-            VendLedgEntry.Reset;
+            VendLedgEntry.Reset();
             VendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
             VendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
             VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
@@ -415,7 +415,7 @@ report 11380 "Export Electronic Payment File"
               Customer.TableCaption, Customer."No.");
         CustBankAccount.FindFirst;
         if GenJnlLine."Applies-to Doc. No." <> '' then begin
-            CustLedgEntry.Reset;
+            CustLedgEntry.Reset();
             CustLedgEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
             CustLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
             CustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");

@@ -240,7 +240,7 @@ page 9030 "Account Manager Activities"
     begin
         UseSharedTable := false;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         BankReconWithAutoMatch := GeneralLedgerSetup."Bank Recon. with Auto. Match";
     end;
 

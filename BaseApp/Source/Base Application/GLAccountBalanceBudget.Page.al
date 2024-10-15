@@ -1,4 +1,4 @@
-﻿page 154 "G/L Account Balance/Budget"
+page 154 "G/L Account Balance/Budget"
 {
     Caption = 'G/L Account Balance/Budget';
     DeleteAllowed = false;
@@ -276,7 +276,7 @@
     var
         GLBudgetOpen: Codeunit "GLBudget-Open";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLBudgetOpen.Run(Rec);
         GLBudgetOpen.SetupFiltersOnGLAccBudgetPage(
           GlobalDim1Filter, GlobalDim2Filter, GlobalDim1FilterEnable, GlobalDim2FilterEnable,

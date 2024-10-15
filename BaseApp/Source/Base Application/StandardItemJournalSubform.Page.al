@@ -1,4 +1,4 @@
-﻿page 755 "Standard Item Journal Subform"
+page 755 "Standard Item Journal Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -19,6 +19,13 @@
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies which type of transaction that the entry is created from.';
+                }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the method that will be used for price calculation in the journal line.';
                 }
                 field("Item No."; "Item No.")
                 {

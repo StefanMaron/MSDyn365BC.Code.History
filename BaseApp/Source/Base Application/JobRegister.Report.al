@@ -156,7 +156,7 @@ report 10217 "Job Register"
                     JobDescription := Description;
                     if JobDescription = '' then begin
                         if not Job.Get("Job No.") then
-                            Job.Init;
+                            Job.Init();
                         JobDescription := Job.Description;
                     end;
                 end;
@@ -172,10 +172,10 @@ report 10217 "Job Register"
                 if "Source Code" <> '' then begin
                     SourceCodeText := 'Source Code: ' + "Source Code";
                     if not SourceCode.Get("Source Code") then
-                        SourceCode.Init;
+                        SourceCode.Init();
                 end else begin
                     Clear(SourceCodeText);
-                    SourceCode.Init;
+                    SourceCode.Init();
                 end;
             end;
         }
@@ -215,7 +215,7 @@ report 10217 "Job Register"
     begin
         JobRegFilter := "Job Register".GetFilters;
         JobEntryFilter := "Job Ledger Entry".GetFilters;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

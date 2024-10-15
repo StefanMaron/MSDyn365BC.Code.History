@@ -2,7 +2,7 @@ page 5830 "Demand Overview"
 {
     AccessByPermission = TableData "Service Header" = R;
     AdditionalSearchTerms = 'supply planning,availability overview';
-    ApplicationArea = Service;
+    ApplicationArea = Planning;
     Caption = 'Demand Overview';
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -23,7 +23,7 @@ page 5830 "Demand Overview"
                 Caption = 'General';
                 field(StartDate; StartDate)
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Caption = 'Start Date';
                     ToolTip = 'Specifies the start date of the period for which you want to calculate demand.';
 
@@ -34,7 +34,7 @@ page 5830 "Demand Overview"
                 }
                 field(EndDate; EndDate)
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Caption = 'End Date';
                     ToolTip = 'Specifies the end date of the period for which you want to calculate demand. Enter a date that is later than the start date.';
 
@@ -45,7 +45,7 @@ page 5830 "Demand Overview"
                 }
                 field(DemandType; DemandType)
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Caption = 'Demand Type';
                     OptionCaption = ' All Demand,Sale,Production,Job,Service,Assembly';
                     ToolTip = 'Specifies a list of the types of orders for which you can calculate demand. Select one order type from the list:';
@@ -58,7 +58,7 @@ page 5830 "Demand Overview"
                 }
                 field(DemandNoCtrl; DemandNo)
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Caption = 'Demand No.';
                     Enabled = DemandNoCtrlEnable;
                     ToolTip = 'Specifies the number of the item for which the demand calculation was initiated.';
@@ -79,7 +79,7 @@ page 5830 "Demand Overview"
                         case DemandType of
                             DemandType::Sales:
                                 begin
-                                    SalesHeader.SetRange("Document Type", ServHeader."Document Type"::Order);
+                                    SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
                                     SalesList.SetTableView(SalesHeader);
                                     SalesList.LookupMode := true;
                                     if SalesList.RunModal = ACTION::LookupOK then begin
@@ -147,7 +147,7 @@ page 5830 "Demand Overview"
                 }
                 field(IsCalculated; IsCalculated)
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Caption = 'Calculated';
                     Editable = false;
                     ToolTip = 'Specifies whether the demand overview has been calculated. The check box is selected after you choose the Calculate button.';
@@ -161,7 +161,7 @@ page 5830 "Demand Overview"
                 ShowCaption = false;
                 field("Item No."; "Item No.")
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Editable = false;
                     HideValue = ItemNoHideValue;
                     Style = Strong;
@@ -170,14 +170,14 @@ page 5830 "Demand Overview"
                 }
                 field("Matches Criteria"; "Matches Criteria")
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Editable = false;
                     ToolTip = 'Specifies whether the line in the Demand Overview window is related to the lines where the demand overview was calculated.';
                     Visible = false;
                 }
                 field(Type; Type)
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Editable = false;
                     Style = Strong;
                     StyleExpr = TypeEmphasize;
@@ -185,7 +185,7 @@ page 5830 "Demand Overview"
                 }
                 field(Date; Date)
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Editable = false;
                     Style = Unfavorable;
                     StyleExpr = DateEmphasize;
@@ -193,14 +193,14 @@ page 5830 "Demand Overview"
                 }
                 field(SourceTypeText; SourceTypeText)
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     CaptionClass = FieldCaption("Source Type");
                     Editable = false;
                     HideValue = SourceTypeHideValue;
                 }
                 field("Source Order Status"; "Source Order Status")
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Editable = false;
                     HideValue = SourceOrderStatusHideValue;
                     ToolTip = 'Specifies the order status of the item for which availability is being calculated.';
@@ -208,14 +208,14 @@ page 5830 "Demand Overview"
                 }
                 field("Source ID"; "Source ID")
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Editable = false;
                     ToolTip = 'Specifies the identifier code of the source.';
                     Visible = false;
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Editable = false;
                     Style = Strong;
                     StyleExpr = DescriptionEmphasize;
@@ -235,7 +235,7 @@ page 5830 "Demand Overview"
                 }
                 field(QuantityText; QuantityText)
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     CaptionClass = FieldCaption(Quantity);
                     Caption = 'Quantity';
                     Editable = false;
@@ -251,7 +251,7 @@ page 5830 "Demand Overview"
                 }
                 field("Running Total"; "Running Total")
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     CaptionClass = FieldCaption("Running Total");
                     Editable = false;
                     HideValue = RunningTotalHideValue;
@@ -261,7 +261,7 @@ page 5830 "Demand Overview"
                 }
                 field("Inventory Running Total"; "Inventory Running Total")
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     CaptionClass = FieldCaption("Inventory Running Total");
                     Editable = false;
                     HideValue = InventoryRunningTotalHideValue;
@@ -272,7 +272,7 @@ page 5830 "Demand Overview"
                 }
                 field("Supply Running Total"; "Supply Running Total")
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     CaptionClass = FieldCaption("Supply Running Total");
                     Editable = false;
                     HideValue = SupplyRunningTotalHideValue;
@@ -283,7 +283,7 @@ page 5830 "Demand Overview"
                 }
                 field("Demand Running Total"; "Demand Running Total")
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     CaptionClass = FieldCaption("Demand Running Total");
                     Editable = false;
                     HideValue = DemandRunningTotalHideValue;
@@ -298,7 +298,7 @@ page 5830 "Demand Overview"
                 Caption = 'Filters';
                 field(ItemFilter; ItemFilter)
                 {
-                    ApplicationArea = Service;
+                    ApplicationArea = Planning;
                     Caption = 'Item Filter';
                     ToolTip = 'Specifies the item number or a filter on the item numbers that you want to trace.';
 
@@ -386,7 +386,7 @@ page 5830 "Demand Overview"
         {
             action(Calculate)
             {
-                ApplicationArea = Service;
+                ApplicationArea = Planning;
                 Caption = 'Calculate';
                 Image = Calculate;
                 Promoted = true;
@@ -530,7 +530,7 @@ page 5830 "Demand Overview"
 
     local procedure ApplyUserFilters(var AvailCalcOverview: Record "Availability Calc. Overview")
     begin
-        AvailCalcOverview.Reset;
+        AvailCalcOverview.Reset();
         AvailCalcOverview.SetFilter("Item No.", ItemFilter);
         if (StartDate <> 0D) or (EndDate <> 0D) then begin
             if EndDate <> 0D then
@@ -554,9 +554,9 @@ page 5830 "Demand Overview"
         ApplyUserFilters(TempAvailCalcOverview);
         CalcAvailOverview.SetParam(DemandType, DemandNo);
         CalcAvailOverview.Run(TempAvailCalcOverview);
-        TempAvailCalcOverview.Reset;
+        TempAvailCalcOverview.Reset();
         Reset;
-        DeleteAll;
+        DeleteAll();
         if TempAvailCalcOverview.Find('-') then
             repeat
                 if TempAvailCalcOverview.Level = 0 then begin
@@ -581,8 +581,8 @@ page 5830 "Demand Overview"
 
         // Set Filters
         Window.Update(1, Text022);
-        AvailCalcOverview.Reset;
-        AvailCalcOverview.DeleteAll;
+        AvailCalcOverview.Reset();
+        AvailCalcOverview.DeleteAll();
         ApplyUserFilters(AvailCalcOverview);
         CalcAvailOverview.SetParam(DemandType, DemandNo);
 
@@ -594,7 +594,7 @@ page 5830 "Demand Overview"
                 if Type = Type::Item then begin
                     AvailCalcOverview := Rec;
                     if CalcAvailOverview.EntriesExist(AvailCalcOverview) then begin
-                        AvailCalcOverview.Insert;
+                        AvailCalcOverview.Insert();
                         CalcAvailOverview.CalculateItem(AvailCalcOverview);
                     end;
                 end;
@@ -612,7 +612,7 @@ page 5830 "Demand Overview"
 
         // Copy to View Table
         Window.Update(1, Text026);
-        DeleteAll;
+        DeleteAll();
         if AvailCalcOverview.Find('-') then
             repeat
                 Rec := AvailCalcOverview;

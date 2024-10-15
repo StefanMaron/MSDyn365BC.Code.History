@@ -34,7 +34,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, NumberOfLines, DiscPct);
 
         PurchaseHeader.Validate("Invoice Discount Calculation", PurchaseHeader."Invoice Discount Calculation"::Amount);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader);
 
@@ -329,13 +329,11 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         // [GIVEN] Purchase Invoice with with two lines. Amount = 200 in each line. Invoice Discount calculation is based on amount
         CreateInvoiceWithLinesAndVendorDiscount(PurchaseHeader, 2, 0);
         PurchaseHeader.Validate("Invoice Discount Calculation", PurchaseHeader."Invoice Discount Calculation"::Amount);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         // [GIVEN] Invoice's "Invoice Discount Amount" = 100, Invoice Discount % = 25.
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(LibraryRandom.RandIntInRange(100, 200), PurchaseHeader);
         FindLastPurchaseLine(PurchaseLine, PurchaseHeader);
-        PurchaseLine.Validate("VAT %", LibraryRandom.RandIntInRange(1, 5)); // there is no VAT for Item in MX be default
-        PurchaseLine.Validate(Quantity);
         ExpectedDiscountPercent := PurchCalcDiscByType.GetVendInvoiceDiscountPct(PurchaseLine);
 
         // [WHEN] Delete line from invoice
@@ -364,7 +362,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         LibraryERMCountryData.CreateVATData;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Purch. Calc Disc. By Type");
     end;
 
@@ -375,7 +373,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;

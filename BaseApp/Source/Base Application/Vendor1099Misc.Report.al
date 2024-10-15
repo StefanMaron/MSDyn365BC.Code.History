@@ -141,7 +141,7 @@ report 10112 "Vendor 1099 Misc"
                         "No." := PadStr('x', MaxStrLen("No."), 'X');
                         "Federal ID No." := PadStr('x', MaxStrLen("Federal ID No."), 'X');
                     end else
-                        CurrReport.Break;  // The End
+                        CurrReport.Break();  // The End
                 end else begin   // not Test Printing
                     PrintThis := false;
                     // Check through all payments during calendar year
@@ -161,7 +161,7 @@ report 10112 "Vendor 1099 Misc"
                                         PrintThis := true;
                         end;
                     if not PrintThis then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     // Format City/State/ZIP address line
                     if StrLen(City + ', ' + County + '  ' + "Post Code") > MaxStrLen("Address 3") then

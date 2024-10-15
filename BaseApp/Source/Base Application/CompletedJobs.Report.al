@@ -150,7 +150,7 @@ report 10212 "Completed Jobs"
                 UsageCost := 0;
                 Profit := 0;
 
-                JobPlanningLine.Reset;
+                JobPlanningLine.Reset();
                 JobPlanningLine.SetCurrentKey("Job No.", "Schedule Line", Type, "No.", "Planning Date");
                 JobPlanningLine.SetRange("Job No.", "No.");
                 CopyFilter("Planning Date Filter", JobPlanningLine."Planning Date");
@@ -170,7 +170,7 @@ report 10212 "Completed Jobs"
                         end;
                     until JobPlanningLine.Next = 0;
 
-                JobLedgerEntry.Reset;
+                JobLedgerEntry.Reset();
                 JobLedgerEntry.SetCurrentKey("Job No.", "Posting Date");
                 JobLedgerEntry.SetRange("Job No.", "No.");
                 CopyFilter("Posting Date Filter", JobLedgerEntry."Posting Date");
@@ -220,7 +220,7 @@ report 10212 "Completed Jobs"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         JobFilter := Job.GetFilters;
     end;
 

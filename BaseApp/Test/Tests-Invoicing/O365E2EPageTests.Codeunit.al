@@ -9,6 +9,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     var
+        O365SalesInitialSetup: Record "O365 Sales Initial Setup";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryUtility: Codeunit "Library - Utility";
@@ -19,7 +20,6 @@ codeunit 138910 "O365 E2E Page Tests"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
-        TestProxyNotifMgtExt: Codeunit "Test Proxy Notif. Mgt. Ext.";
         EmailProvider: Option "Office 365",Other;
         IsInitialized: Boolean;
         MarkedPaidMsg: Label 'Invoice payment was registered.';
@@ -28,26 +28,22 @@ codeunit 138910 "O365 E2E Page Tests"
         HasEmailSetupBeenCalled: Boolean;
         ItemDescription: Text[100];
         ItemPrice: Decimal;
+        VATRate: Decimal;
         CustomerName: Text[100];
         CancelPostedInvoiceQst: Label 'The invoice will be canceled and a cancelation email will be sent to the customer.\ \Do you want to continue?';
         CancelPostedInvoiceMsg: Label 'The invoice has been canceled and an email has been sent to the customer.';
         CanceledTxt: Label 'Canceled';
         SetRecipientEmailAddress: Boolean;
         CancelationEmailSubjectTxt: Label 'Your invoice has been canceled.';
-        SetupTaxInFirstInvoiceWizard: Boolean;
-        CityTax: Decimal;
-        StateTax: Decimal;
         PaymentTermsErr: Label '1M(8D) should not be on the page.';
         TotalInvoiceAmountNegativeErr: Label 'The total amount for the invoice must be 0 or greater.';
         ProcessDraftInvoiceInstructionTxt: Label 'Do you want to keep the new invoice?';
         CustomerCreatedMsg: Label 'We added %1 to your customer list.';
         CustomerHasBeenBlockedMsg: Label 'The customer has been blocked for further business.';
         BlockQst: Label 'The customer could not be deleted as there are one or more documents for the customer.\ \Do you want to block the customer for further business?';
-        TaxSetupNeededMsg: Label 'You haven''t set up tax information for your business.';
-        UnhandledNotificationErr: Label 'Unhandled notification: %1.';
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
     [Scope('OnPrem')]
     procedure TestCannotSendInvoiceWithNegativeAmount()
     var
@@ -92,16 +88,14 @@ codeunit 138910 "O365 E2E Page Tests"
     begin
         // [FEATURE] [Application Area]
         // [SCENARIO 197381] Enabled #Invoicing does not appear in the Application Area page
-        Init;
-
         LibraryLowerPermissions.SetInvoiceApp;
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [GIVEN] #Invoicing area enabled in ApplicationAreaSetup
         Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup.DeleteAll;
+        ApplicationAreaSetup.DeleteAll();
         ApplicationAreaSetup.Invoicing := true;
-        ApplicationAreaSetup.Insert;
+        ApplicationAreaSetup.Insert();
 
         // [WHEN] Application Areas are found
         // [THEN] Invoicing value does not exist
@@ -145,7 +139,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
     [Scope('OnPrem')]
     procedure TestSendInvoice()
     begin
@@ -159,7 +153,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
     [Scope('OnPrem')]
     procedure TestSendInvoiceForPhoneByTypingName()
     var
@@ -187,7 +181,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,LookupCustomerHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler,BCEmailSetupPageHandler,LookupCustomerHandler')]
     [Scope('OnPrem')]
     procedure TestSendInvoiceForPhoneByClickingDropDown()
     var
@@ -356,7 +350,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestSetupEmailFromSettings()
     begin
@@ -373,7 +367,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestSetupEmailFromAdvancedSettings()
     begin
@@ -387,6 +381,37 @@ codeunit 138910 "O365 E2E Page Tests"
         // [WHEN] User creates and sends a simple invoice
         // [THEN] No Email setup dialog appears and it has been successfully sent
         CreateAndSendInvoice;
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyNoNotificationsAreSend')]
+    [Scope('OnPrem')]
+    procedure TestExternalServiceSettingPage()
+    var
+        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
+        O365ServiceConfiguration: TestPage "O365 Service Configuration";
+        ServiceStatus: Boolean;
+    begin
+        Init;
+        LibraryLowerPermissions.SetInvoiceApp;
+
+        // [GIVEN] A clean Invoicing App
+        // [GIVEN] VAT Service is not configured
+        // [WHEN] User opens the Setting page and enable and disable the VAT service
+        // [THEN] Service is enabled and disabled accordingly
+        VATRegNoSrvConfig.DeleteAll();
+        Assert.IsTrue(VATRegNoSrvConfig.IsEmpty, 'Table should be empty');
+
+        O365ServiceConfiguration.OpenView;
+
+        Assert.IsFalse(VATRegNoSrvConfig.IsEmpty, 'Service should be initialized after openning the page');
+        Assert.IsTrue(VATRegNoSrvConfig.FindFirst, 'Service should be initialized after openning the page');
+        Evaluate(ServiceStatus, O365ServiceConfiguration.ViesEnabled.Value);
+        Assert.IsTrue(ServiceStatus, 'Service should be enabled by default');
+
+        O365ServiceConfiguration.ViesEnabled.Value(Format(false));
+        VATRegNoSrvConfig.FindFirst;
+        Assert.IsFalse(VATRegNoSrvConfig.Enabled, 'Service should be disabled');
     end;
 
     [Test]
@@ -404,11 +429,7 @@ codeunit 138910 "O365 E2E Page Tests"
         // [GIVEN] User logs in and the First Invoice Wizard is shown
         // [WHEN] User finishes the first invoice wizard, having set up tax
         SetRecipientEmailAddress := true;
-        SetupTaxInFirstInvoiceWizard := true;
         PAGE.RunModal(PAGE::"O365 First Invoice Wizard");
-
-        // [THEN] The settings has been correctly updated with tax amounts
-        VerifyTaxSetup;
 
         // [THEN] An item, customer and invoice has been created with correct amounts
         InvoiceNo := FindLastInvoiceNo;
@@ -433,7 +454,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,FirstInvoiceWizardHandler,EmailFailedSendNotificationHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,FirstInvoiceWizardHandler,VATRateHandler,EmailFailedSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestFirstInvoiceWithTaxChangeTaxSettingsE2E()
     var
@@ -447,14 +468,10 @@ codeunit 138910 "O365 E2E Page Tests"
         // [GIVEN] User logs in and the First Invoice Wizard is shown
         // [GIVEN] User finishes the first invoice wizard, having set up tax
         SetRecipientEmailAddress := true;
-        SetupTaxInFirstInvoiceWizard := true;
         PAGE.RunModal(PAGE::"O365 First Invoice Wizard");
 
         // [GIVEN] Tax has been set up through the settings menu
-        SetupTaxFromSettingsMenu;
-
-        // [THEN] The settings has been correctly updated with tax amounts
-        VerifyTaxSetup;
+        SetupTaxFromSettingsMenu(O365SalesInitialSetup."Normal VAT Prod. Posting Gr.");
 
         // [THEN] An item, customer and invoice has been created with correct amounts
         InvoiceNo := FindLastInvoiceNo;
@@ -475,7 +492,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,EmailFailedSendNotificationHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,VATRateHandler,EmailFailedSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestSendInvoiceWithTax()
     var
@@ -486,7 +503,7 @@ codeunit 138910 "O365 E2E Page Tests"
 
         // [GIVEN] A clean Invoicing App
         // [GIVEN] Tax has been set up through the settings menu
-        SetupTaxFromSettingsMenu;
+        SetupTaxFromSettingsMenu(O365SalesInitialSetup."Normal VAT Prod. Posting Gr.");
 
         // [WHEN] User creates and sends a simple invoice, customer and item from the pages
         // [THEN] An invoice has been sent
@@ -499,40 +516,7 @@ codeunit 138910 "O365 E2E Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,EmailFailedSendNotificationHandler')]
-    [Scope('OnPrem')]
-    procedure TestCreateInvoiceWithoutTaxThenAddTax()
-    var
-        InvoiceNo: Code[20];
-        PostedInvoiceNo: Code[20];
-    begin
-        Init;
-        LibraryLowerPermissions.SetInvoiceApp;
-
-        // [GIVEN] A clean Invoicing App
-
-        // [GIVEN] An invoice has been created
-        InvoiceNo := CreateInvoice;
-        // VerifyInvoiceTax(InvoiceNo);
-
-        // [WHEN] Tax has been changed
-        SetupTaxFromSettingsMenu;
-
-        // [THEN] Tax has also been updated in the invoice
-        VerifyInvoiceTax(InvoiceNo);
-
-        // [WHEN] The invoice is posted
-        SetRecipientEmailAddress := true;
-        PostedInvoiceNo := SendInvoice(InvoiceNo);
-
-        // [THEN] The posted invoice contains correct amounts (including VAT)
-        VerifyPostedInvoice(PostedInvoiceNo);
-
-        RecallPostedInvoiceNotification(PostedInvoiceNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,EmailFailedSendNotificationHandler')]
+    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler,VATRateHandler,EmailFailedSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestCreateInvoiceWithTaxThenChangeTax()
     var
@@ -544,14 +528,14 @@ codeunit 138910 "O365 E2E Page Tests"
 
         // [GIVEN] A clean Invoicing App
         // [GIVEN] Tax has been set up through the settings menu
-        SetupTaxFromSettingsMenu;
+        SetupTaxFromSettingsMenu(O365SalesInitialSetup."Normal VAT Prod. Posting Gr.");
 
         // [GIVEN] An invoice has been created
         InvoiceNo := CreateInvoice;
         VerifyInvoiceTax(InvoiceNo);
 
         // [WHEN] Tax has been changed
-        SetupTaxFromSettingsMenu;
+        SetupTaxFromSettingsMenu(O365SalesInitialSetup."Normal VAT Prod. Posting Gr.");
 
         // [THEN] Tax has also been updated in the invoice
         VerifyInvoiceTax(InvoiceNo);
@@ -664,7 +648,7 @@ codeunit 138910 "O365 E2E Page Tests"
     var
         O365PostedSalesInvoice: TestPage "O365 Posted Sales Invoice";
     begin
-        Commit;
+        Commit();
         O365PostedSalesInvoice.OpenView;
         O365PostedSalesInvoice.GotoKey(PostedInvoiceNo);
 
@@ -693,6 +677,20 @@ codeunit 138910 "O365 E2E Page Tests"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.FindLast;
         exit(SalesHeader."No.");
+    end;
+
+    local procedure FindVATPercentage(VATProductPostingGroupDescription: Text[50]): Decimal
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        if VATRate <> 0 then
+            exit(VATRate / 100);
+        VATProductPostingGroup.SetRange(Description, VATProductPostingGroupDescription);
+        VATProductPostingGroup.FindFirst;
+        VATPostingSetup.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        VATPostingSetup.FindFirst;
+        exit(VATPostingSetup."VAT %" / 100);
     end;
 
     local procedure GetDocumentStatus(DocumentNo: Code[20]; Posted: Boolean): Text
@@ -739,26 +737,14 @@ codeunit 138910 "O365 E2E Page Tests"
         O365EmailAccountSettings.Close;
     end;
 
-    local procedure SetupTaxFromSettingsMenu()
+    local procedure SetupTaxFromSettingsMenu(VATProductPostingGroupCode: Code[20])
     var
-        O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
-        CityName: Text[20];
-        StateName: Text[20];
+        O365VATPostingSetupList: TestPage "O365 VAT Posting Setup List";
     begin
-        CityTax := LibraryRandom.RandDec(100, 2);
-        StateTax := LibraryRandom.RandDec(100, 2);
-        CityName := CopyStr(Format(CreateGuid), 26, 10);
-        StateName := CopyStr(Format(CreateGuid), 26, 2);
-
-        O365TaxSettingsCard.OpenEdit;
-        O365TaxSettingsCard.City.Value('Lyngby');
-        O365TaxSettingsCard.City.Value(CityName);
-        O365TaxSettingsCard.CityRate.SetValue(CityTax);
-        O365TaxSettingsCard.State.Value('WA');
-        O365TaxSettingsCard.State.Value(StateName);
-        O365TaxSettingsCard.StateRate.SetValue(StateTax);
-        O365TaxSettingsCard.Default.DrillDown;
-        O365TaxSettingsCard.Close;
+        O365VATPostingSetupList.OpenView;
+        O365VATPostingSetupList.GotoKey(VATProductPostingGroupCode);
+        O365VATPostingSetupList.Open.Invoke;
+        O365VATPostingSetupList.Close;
     end;
 
     local procedure RecallPostedInvoiceNotification(InvoiceNo: Code[20])
@@ -793,8 +779,6 @@ codeunit 138910 "O365 E2E Page Tests"
         SalesLine: Record "Sales Line";
         O365SalesInvoice: TestPage "O365 Sales Invoice";
         O365SalesInvoiceLineCard: TestPage "O365 Sales Invoice Line Card";
-        TempTaxRate: Text;
-        TaxRate: Decimal;
     begin
         O365SalesInvoice.OpenView;
         O365SalesInvoice.GotoKey(SalesHeader."Document Type"::Invoice, InvoiceNo);
@@ -805,12 +789,9 @@ codeunit 138910 "O365 E2E Page Tests"
         O365SalesInvoiceLineCard.OpenEdit;
         O365SalesInvoiceLineCard.GotoRecord(SalesLine);
 
-        Assert.AreEqual(Round(ItemPrice + ItemPrice * (CityTax + StateTax) / 100, 0.01),
+        Assert.AreEqual(
+          Round(ItemPrice + ItemPrice * FindVATPercentage(O365SalesInvoiceLineCard.VATProductPostingGroupDescription.Value), 0.01),
           PriceTextToDecimal(O365SalesInvoice."Amount Including VAT".Value), 'The amount of the unsent invoice is incorrect.');
-        TempTaxRate := O365SalesInvoiceLineCard.TaxRate.Value;
-        TempTaxRate := CopyStr(TempTaxRate, 1, (StrLen(TempTaxRate) - 1));
-        Evaluate(TaxRate, TempTaxRate);
-        Assert.AreEqual(CityTax + StateTax, TaxRate, 'The tax rate of the unsent invoice is incorrect.');
 
         O365SalesInvoiceLineCard.Close;
     end;
@@ -837,7 +818,7 @@ codeunit 138910 "O365 E2E Page Tests"
         O365PostedSalesInvoice.OpenView;
         O365PostedSalesInvoice.GotoKey(PostedInvoiceNo);
         Assert.AreEqual(
-          Round(ItemPrice + ItemPrice * (CityTax + StateTax) / 100, 0.01),
+          Round(ItemPrice + ItemPrice * FindVATPercentage(O365PostedSalesInvoice.Lines.VATProductPostingGroupDescription.Value), 0.01),
           PriceTextToDecimal(O365PostedSalesInvoice."Amount Including VAT".Value), 'The sent invoice contains an invalid price');
     end;
 
@@ -871,24 +852,6 @@ codeunit 138910 "O365 E2E Page Tests"
           EmailSubject, '');
     end;
 
-    local procedure VerifyTaxSetup()
-    var
-        O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
-        SettingsStateTax: Decimal;
-        SettingsCityTax: Decimal;
-    begin
-        Assert.AreNotEqual(0, CityTax, 'CityTax should have been set up by the first invoice wizard!');
-        Assert.AreNotEqual(0, StateTax, 'StateTax should have been set up by the first invoice wizard!');
-
-        O365TaxSettingsCard.OpenView;
-        Evaluate(SettingsCityTax, O365TaxSettingsCard.CityRate.Value);
-        Evaluate(SettingsStateTax, O365TaxSettingsCard.StateRate.Value);
-        Assert.AreEqual(CityTax, SettingsCityTax,
-          'The city tax has not been correctly copied from the First Invoice wizard to Tax Setup.');
-        Assert.AreEqual(StateTax, SettingsStateTax,
-          'The state tax has not been correctly copied from the First Invoice wizard to Tax Setup.');
-    end;
-
     local procedure Init()
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
@@ -897,16 +860,16 @@ codeunit 138910 "O365 E2E Page Tests"
         BindActiveDirectoryMockEvents;
 
         LibraryVariableStorage.AssertEmpty;
-        SMTPMailSetup.DeleteAll;
+        SMTPMailSetup.DeleteAll();
         Clear(CustomerName);
         Clear(ItemDescription);
         Clear(ItemPrice);
         Clear(HasEmailSetupBeenCalled);
         Clear(SetRecipientEmailAddress);
-        Clear(SetupTaxInFirstInvoiceWizard);
-        Clear(CityTax);
-        Clear(StateTax);
+        Clear(VATRate);
+        EventSubscriberInvoicingApp.Clear;
         ApplicationArea('#Invoicing');
+        O365SalesInitialSetup.Get();
 
         if IsInitialized then
             exit;
@@ -915,11 +878,10 @@ codeunit 138910 "O365 E2E Page Tests"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
-        BindSubscription(TestProxyNotifMgtExt);
 
         WorkDate(Today);
 
@@ -1013,13 +975,7 @@ codeunit 138910 "O365 E2E Page Tests"
         O365FirstInvoiceWizard.ActionNext.Invoke; // First item
         O365FirstInvoiceWizard.ItemDescription.Value(ItemDescription);
         O365FirstInvoiceWizard.ItemPrice.SetValue(ItemPrice);
-        O365FirstInvoiceWizard.ActionNext.Invoke; // show the tax
-        if SetupTaxInFirstInvoiceWizard then begin
-            CityTax := LibraryRandom.RandDec(100, 2);
-            StateTax := LibraryRandom.RandDec(100, 2);
-            O365FirstInvoiceWizard.CityTax.SetValue(CityTax);
-            O365FirstInvoiceWizard.StateTax.SetValue(StateTax);
-        end;
+        O365FirstInvoiceWizard.ActionNext.Invoke; // Show the tax
         O365FirstInvoiceWizard.ActionNext.Invoke; // Voila
     end;
 
@@ -1043,6 +999,15 @@ codeunit 138910 "O365 E2E Page Tests"
         BCO365ContactLookup.OK.Invoke;
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VATRateHandler(var O365VATPostingSetupCard: TestPage "O365 VAT Posting Setup Card")
+    begin
+        VATRate := LibraryRandom.RandDec(10000, 2);
+        O365VATPostingSetupCard."VAT Percentage".Value(Format(VATRate));
+        O365VATPostingSetupCard.OK.Invoke;
+    end;
+
     local procedure BindActiveDirectoryMockEvents()
     begin
         if ActiveDirectoryMockEvents.Enabled then
@@ -1055,11 +1020,11 @@ codeunit 138910 "O365 E2E Page Tests"
     [Scope('OnPrem')]
     procedure EmailFailedSendNotificationHandler(var TheNotification: Notification): Boolean
     begin
-        if StrPos(TheNotification.Message, 'The last email about this document could not be sent') <> 0 then
-            exit;
-        if TheNotification.Message = TaxSetupNeededMsg then
-            exit;
-        Error(UnhandledNotificationErr, TheNotification.Message);
+        Assert.AreNotEqual(
+          0,
+          StrPos(TheNotification.Message, 'The last email about this document could not be sent'),
+          'An unexpected notification was sent.'
+          );
     end;
 
     [SendNotificationHandler]
@@ -1082,14 +1047,6 @@ codeunit 138910 "O365 E2E Page Tests"
     procedure VerifyNoNotificationsAreSend(var TheNotification: Notification): Boolean
     begin
         Assert.Fail('No notification should be thrown.');
-    end;
-
-    [SendNotificationHandler(true)]
-    [Scope('OnPrem')]
-    procedure TaxNotificationHandler(var TheNotification: Notification): Boolean
-    begin
-        Assert.IsTrue(0 < StrPos(TheNotification.Message, 'You haven''t set up tax information for your business.'),
-          'Unexpected notification.');
     end;
 }
 

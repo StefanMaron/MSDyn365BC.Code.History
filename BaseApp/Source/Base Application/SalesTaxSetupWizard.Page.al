@@ -264,8 +264,7 @@ page 10807 "Sales Tax Setup Wizard"
                     Info: ModuleInfo;
                 begin
                     StoreSalesTaxSetup;
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Complete(Info.Id(), PAGE::"Sales Tax Setup Wizard");
+                    AssistedSetup.Complete(PAGE::"Sales Tax Setup Wizard");
                     CurrPage.Close;
                     AssignTaxAreaCode;
                 end;
@@ -289,15 +288,12 @@ page 10807 "Sales Tax Setup Wizard"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if AssistedSetup.Exists(Info.Id(), PAGE::"Sales Tax Setup Wizard") then
-                if AssistedSetup.ExistsAndIsNotComplete(Info.Id(), PAGE::"Sales Tax Setup Wizard") then
+        if CloseAction = ACTION::OK then 
+            if AssistedSetup.Exists(PAGE::"Sales Tax Setup Wizard") then
+                if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Sales Tax Setup Wizard") then
                     if not Confirm(NAVNotSetUpQst, false) then
                         Error('');
-        end;
     end;
 
     var
@@ -401,29 +397,29 @@ page 10807 "Sales Tax Setup Wizard"
         AssignTaxAreaToVendor: Report "Assign Tax Area to Vendor";
         AssignTaxAreaToLocation: Report "Assign Tax Area to Location";
     begin
-        Commit;
+        Commit();
         if AssignToCustomers then begin
             AssignTaxAreaToCustomer.SetTableView(Customer);
             AssignTaxAreaToCustomer.SetDefaultAreaCode("Tax Area Code");
             AssignTaxAreaToCustomer.Run;
-            Commit;
+            Commit();
         end;
         if AssignToVendors then begin
             AssignTaxAreaToVendor.SetTableView(Vendor);
             AssignTaxAreaToVendor.SetDefaultAreaCode("Tax Area Code");
             AssignTaxAreaToVendor.Run;
-            Commit;
+            Commit();
         end;
         if AssignToLocations then begin
             AssignTaxAreaToLocation.SetTableView(Location);
             AssignTaxAreaToLocation.SetDefaultAreaCode("Tax Area Code");
             AssignTaxAreaToLocation.Run;
-            Commit;
+            Commit();
         end;
         if AssignToCompanyInfo and DummyCompanyInformation.FindFirst then begin
             DummyCompanyInformation.Validate("Tax Area Code", "Tax Area Code");
-            DummyCompanyInformation.Modify;
-            Commit;
+            DummyCompanyInformation.Modify();
+            Commit();
         end;
     end;
 

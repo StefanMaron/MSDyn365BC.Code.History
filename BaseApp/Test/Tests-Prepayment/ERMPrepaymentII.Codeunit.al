@@ -35,8 +35,7 @@ codeunit 134101 "ERM Prepayment II"
         ShipmentLinesDocNoErr: Label 'Wrong Document No. in shipment line in "Get Shipment Lines" page.';
         ReceiptLinesDocNoErr: Label 'Wrong Document No. in receipt line in "Get Receipt Lines" page.';
         VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
-        PrepmtPctErr: Label 'must be %1 when the Prepayment Invoice has already been posted', Comment = '.';
-        MissingTaxGroupCodeErr: Label 'Tax Group Code must have a value';
+        PrepmtLineAmtErr: Label 'Prepmt. Line Amount Excl. VAT cannot be more than';
 
     [Test]
     [Scope('OnPrem')]
@@ -158,7 +157,7 @@ codeunit 134101 "ERM Prepayment II"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Verify GL Entry with Posted Payment Amount,
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.FindFirst;
@@ -373,7 +372,7 @@ codeunit 134101 "ERM Prepayment II"
         PrepaymentPercent := (PurchaseLine."Prepmt. Line Amount" / PurchaseLine."Line Amount") * 100;
 
         // [THEN] Verify Purchase Line "Prepayment %" field.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           PrepaymentPercent, PurchaseLine."Prepayment %", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(ValidationErr, PurchaseLine.FieldCaption("Prepayment %"), PrepaymentPercent));
@@ -421,7 +420,7 @@ codeunit 134101 "ERM Prepayment II"
         asserterror PurchaseHeader.Validate("Prepayment %", 100 - PurchaseHeader."Prepayment %" + LibraryRandom.RandInt(5));
 
         // [THEN] Error will popup after modifing Prepayment%.
-        Assert.ExpectedError(StrSubstNo(PrepmtPctErr, PurchaseHeader."Prepayment %"));
+        Assert.ExpectedError(PrepmtLineAmtErr);
     end;
 
     [Test]
@@ -456,7 +455,7 @@ codeunit 134101 "ERM Prepayment II"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [THEN] Verify GL Entry with Modified Amount.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst;
@@ -843,7 +842,7 @@ codeunit 134101 "ERM Prepayment II"
         PrepaymentPercent := (SalesLine."Prepmt. Line Amount" / SalesLine."Line Amount") * 100;
 
         // [THEN] Verify Sales Line "Prepayment %" field.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           PrepaymentPercent, SalesLine."Prepayment %", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(ValidationErr, SalesLine.FieldCaption("Prepayment %"), PrepaymentPercent));
@@ -1119,37 +1118,6 @@ codeunit 134101 "ERM Prepayment II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure SalesPrepmtWithEmptyTaxGroupCodeThrowsError()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        TaxArea: Record "Tax Area";
-        SalesOrder: TestPage "Sales Order";
-        ErrorMessagesPage: TestPage "Error Messages";
-    begin
-        // [SCENARIO ] Posting prepayment with missing Tax Group code throws an error
-        Initialize;
-
-        // [GIVEN] Sales Order, with sales lines where the Tax Group Code is missing
-        CreateSalesOrderWithPrepaymentVAT(SalesHeader, SalesLine, LibraryRandom.RandDecInRange(1, 99, 1));
-        LibraryERM.CreateTaxArea(TaxArea);
-        SalesHeader.Validate("Tax Area Code", TaxArea.Code);
-        SalesHeader.Modify;
-
-        // [WHEN] Post Prepayment Invoice
-        ErrorMessagesPage.Trap;
-        SalesOrder.OpenEdit;
-        SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.PostPrepaymentInvoice.Invoke;
-
-        // [THEN] Error Messages list shows one error: "Tax Group Code must have a value", Context = <blank>
-        Assert.ExpectedMessage(MissingTaxGroupCodeErr, ErrorMessagesPage.Description.Value);
-        ErrorMessagesPage.Context.AssertEquals('');
-    end;
-
-    [Test]
     [HandlerFunctions('VerifyNoOfGetReceiptLinesPageHandler')]
     [Scope('OnPrem')]
     procedure PurchPrepmtLinesInGetRcptLines()
@@ -1359,7 +1327,7 @@ codeunit 134101 "ERM Prepayment II"
         // [GIVEN] Update General Ledger, Inventory Setup and Create Sales Prepayment Invoice.
         Initialize;
         LibraryERM.SetUseLegacyGLEntryLocking(true);
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
         GLAccountNo := SetupAndCreateSalesPrepayment(SalesLine, LibraryRandom.RandDec(10, 2));
 
@@ -1397,7 +1365,7 @@ codeunit 134101 "ERM Prepayment II"
         // [GIVEN] Update General Ledger, Inventory Setup and Create Sales Prepayment Invoice.
         Initialize;
         LibraryERM.SetUseLegacyGLEntryLocking(true);
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
         SalesPrepaymentsAccount := SetupAndCreateSalesPrepayment(SalesLine, LibraryRandom.RandDec(10, 2));
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -1612,7 +1580,7 @@ codeunit 134101 "ERM Prepayment II"
         // [GIVEN] Sales Order with prepayment
         SetupAndCreateSalesPrepayment(SalesLine, LibraryRandom.RandDec(100, 2));
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        Commit;
+        Commit();
 
         // [WHEN] Release Sales Order
         asserterror LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -1657,7 +1625,7 @@ codeunit 134101 "ERM Prepayment II"
         // [GIVEN] Purchase Order with prepayment
         SetupAndCreatePurchasePrepayment(PurchaseLine, LibraryRandom.RandDec(100, 2));
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        Commit;
+        Commit();
 
         // [WHEN] Release Purchase Order
         asserterror LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -1879,7 +1847,7 @@ codeunit 134101 "ERM Prepayment II"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment II");
     end;
 
@@ -1957,7 +1925,7 @@ codeunit 134101 "ERM Prepayment II"
         CurrencyExchangeRateCopy."Starting Date" := PostingDate;
         CurrencyExchangeRateCopy."Exchange Rate Amount" := CurrencyExchangeRate."Exchange Rate Amount" / 2;
         CurrencyExchangeRateCopy."Adjustment Exch. Rate Amount" := CurrencyExchangeRate."Adjustment Exch. Rate Amount" / 2;
-        CurrencyExchangeRateCopy.Insert;
+        CurrencyExchangeRateCopy.Insert();
         Currency.Get(CurrencyCode);
         Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo);
         Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
@@ -2404,7 +2372,7 @@ codeunit 134101 "ERM Prepayment II"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
         InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
         InventorySetup.Modify(true);
@@ -2414,7 +2382,7 @@ codeunit 134101 "ERM Prepayment II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Check Prepmt. when Posting", CheckPrepmtwhenPosting);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -2423,7 +2391,7 @@ codeunit 134101 "ERM Prepayment II"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Check Prepmt. when Posting", CheckPrepmtwhenPosting);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -2440,7 +2408,7 @@ codeunit 134101 "ERM Prepayment II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
@@ -2456,7 +2424,7 @@ codeunit 134101 "ERM Prepayment II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
@@ -2476,7 +2444,7 @@ codeunit 134101 "ERM Prepayment II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.SetRange(Type, Type);
         PurchInvLine.SetRange("No.", No);
@@ -2516,7 +2484,7 @@ codeunit 134101 "ERM Prepayment II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange(Type, Type);
         SalesInvoiceLine.SetRange("No.", No);
@@ -2589,7 +2557,7 @@ codeunit 134101 "ERM Prepayment II"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         with PurchLine do begin
             Get("Document Type", "Document No.", "Line No.");
             Validate("Qty. to Invoice", QtyToReceive);
@@ -2750,7 +2718,7 @@ codeunit 134101 "ERM Prepayment II"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", false);
         InventorySetup.Modify(true);
     end;

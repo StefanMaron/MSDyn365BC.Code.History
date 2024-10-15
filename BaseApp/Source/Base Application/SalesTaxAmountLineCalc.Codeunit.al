@@ -229,7 +229,7 @@ codeunit 10148 "Sales Tax Amount Line Calc"
                         "Tax Liable" := TaxLiable;
                         "Use Tax" := UseTax;
 
-                        TaxDetail.Reset;
+                        TaxDetail.Reset();
                         TaxDetail.SetRange("Tax Jurisdiction Code", "Tax Jurisdiction Code");
                         if "Tax Group Code" = '' then
                             TaxDetail.SetFilter("Tax Group Code", '%1', "Tax Group Code")

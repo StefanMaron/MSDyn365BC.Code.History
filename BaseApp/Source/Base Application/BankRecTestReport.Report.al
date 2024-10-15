@@ -667,7 +667,7 @@ report 10407 "Bank Rec. Test Report"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

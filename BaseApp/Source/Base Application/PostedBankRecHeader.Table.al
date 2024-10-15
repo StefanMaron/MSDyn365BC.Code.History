@@ -269,7 +269,7 @@ table 10123 "Posted Bank Rec. Header"
 
     procedure PostedBankRecLinesExist(): Boolean
     begin
-        PostedBankRecLines.Reset;
+        PostedBankRecLines.Reset();
         PostedBankRecLines.SetRange("Bank Account No.", "Bank Account No.");
         PostedBankRecLines.SetRange("Statement No.", "Statement No.");
         exit(PostedBankRecLines.FindFirst);
@@ -286,10 +286,10 @@ table 10123 "Posted Bank Rec. Header"
         if not Confirm(Text001) then
             exit;
 
-        PostedBankRecLines.Reset;
+        PostedBankRecLines.Reset();
         PostedBankRecLines.SetRange("Bank Account No.", "Bank Account No.");
         PostedBankRecLines.SetRange("Statement No.", "Statement No.");
-        PostedBankRecLines.LockTable;
+        PostedBankRecLines.LockTable();
         if PostedBankRecLines.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(PostedBankRecLines."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -298,7 +298,7 @@ table 10123 "Posted Bank Rec. Header"
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       PostedBankRecLines."Dimension Set ID", PostedBankRecLines."Shortcut Dimension 1 Code",
                       PostedBankRecLines."Shortcut Dimension 2 Code");
-                    PostedBankRecLines.Modify;
+                    PostedBankRecLines.Modify();
                 end;
             until PostedBankRecLines.Next = 0;
     end;

@@ -190,7 +190,7 @@ report 10045 "Customer Listing"
 
                 CalcFields("Balance (LCY)", Comment);
                 if AllHavingBalance and ("Balance (LCY)" = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if ("Credit Limit (LCY)" <> 0) and ("Balance (LCY)" > "Credit Limit (LCY)") then
                     OverLimitMsg := '*** Over Limit ***'
@@ -237,7 +237,7 @@ report 10045 "Customer Listing"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := Customer.GetFilters;
         PrintAmountsInLocal := false;  // until FlowFields work for this
     end;

@@ -45,7 +45,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
         // [GIVEN] Mock last date updated
         AnalysisView."Last Date Updated" := Today;
-        AnalysisView.Modify;
+        AnalysisView.Modify();
 
         // [GIVEN] Mock analysis view entry
         CreateAnalysisViewEntryWithDimension(
@@ -86,7 +86,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [SCENARIO] Export with indented G/L Account and indented dimensions makes proper column captions on data sheet
 
         // [GIVEN] G/L Account with indentation MaxLevel
-        GLAccount.DeleteAll;
+        GLAccount.DeleteAll();
         MaxGLAccountLevel := LibraryRandom.RandIntInRange(2, 5);
         GLAccountFilter := CreateIndentedGLAccount(MaxGLAccountLevel, GLAccountNo);
 
@@ -168,7 +168,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [SCENARIO] Export analysis view entry with multi-level G/L Account and 4 single-level-dimentions
 
         // [GIVEN] G/L Account with indentation MaxLevel
-        GLAccount.DeleteAll;
+        GLAccount.DeleteAll();
         MaxGLAccountLevel := LibraryRandom.RandIntInRange(2, 5);
         GLAccountFilter := CreateIndentedGLAccount(MaxGLAccountLevel, GLAccountNo);
 
@@ -210,7 +210,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [SCENARIO] Export analysis view entry with different identation level G/L Accounts and 4 single-level-dimentions
 
         // [GIVEN] Intermediate-level G/L Account with MaxLevel = n
-        GLAccount.DeleteAll;
+        GLAccount.DeleteAll();
         GLAccountFilter := CreateDifferentLevelGLAccounts(GLAccountNo);
 
         // [GIVEN] 4 new dimensions with values
@@ -252,7 +252,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [SCENARIO] Export analysis view entry with different identation level Cash Flow Accounts and 4 single-level-dimentions
 
         // [GIVEN] Intermediate-level G/L Account with MaxLevel = n
-        CashFlowAccount.DeleteAll;
+        CashFlowAccount.DeleteAll();
         CFAccountFilter := CreateDifferentLevelCFAccounts(CFAccountNo);
 
         // [GIVEN] 4 new dimensions with values
@@ -383,7 +383,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
         // [GIVEN] Mock last date updated
         ItemAnalysisView."Last Date Updated" := Today;
-        ItemAnalysisView.Modify;
+        ItemAnalysisView.Modify();
 
         // [GIVEN] Mock item analysis view entry
         CreateItemAnalysisViewEntryWithDimension(
@@ -545,6 +545,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
     local procedure AnalysisViewExportToExcelGeneral(AnalysisView: Record "Analysis View"; AmountField: Option; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Option; ClosingEntryFilter: Option; ShowActualBudg: Option; BusUnitFilter: Text): Text
     var
         AnalysisViewEntry: Record "Analysis View Entry";
+        AnalysisByDimParameters: Record "Analysis by Dim. Parameters";
         ExportAnalysisView: Codeunit "Export Analysis View";
     begin
         SetCommonFiltersAnalysisViewEntry(
@@ -552,12 +553,29 @@ codeunit 134236 "ERM Analysis View Excel Export"
           Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, BusUnitFilter);
         AnalysisViewEntry.FindFirst;
         ExportAnalysisView.SetSkipDownload;
-        ExportAnalysisView.ExportData(
-          AnalysisViewEntry, false, false,
-          AmountField, false, DateFilter, AccFilter, BudgetFilter,
-          Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, AmountType, ClosingEntryFilter, ShowActualBudg, BusUnitFilter);
+        MakeAnalysisByDimParameters(AnalysisByDimParameters, AmountField, DateFilter, AccFilter, BudgetFilter, Dim1Filter, Dim2Filter, Dim3Filter,
+          Dim4Filter, AmountType, ClosingEntryFilter, ShowActualBudg, BusUnitFilter);
+        ExportAnalysisView.ExportData(AnalysisViewEntry, AnalysisByDimParameters);
 
         exit(ExportAnalysisView.GetServerFileName);
+    end;
+
+    local procedure MakeAnalysisByDimParameters(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; AmountField: Option; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Option; ClosingEntryFilter: Option; ShowActualBudg: Option; BusUnitFilter: Text)
+    begin
+        with AnalysisByDimParameters do begin
+            "Show Amount Field" := AmountField;
+            "Date Filter" := DateFilter;
+            "Account Filter" := AccFilter;
+            "Budget Filter" := BudgetFilter;
+            "Dimension 1 Filter" := Dim1Filter;
+            "Dimension 2 Filter" := Dim2Filter;
+            "Dimension 3 Filter" := Dim3Filter;
+            "Dimension 4 Filter" := Dim4Filter;
+            "Amount Type" := AmountType;
+            "Closing Entries" := ClosingEntryFilter;
+            "Show Actual/Budgets" := ShowActualBudg;
+            "Bus. Unit Filter" := BusUnitFilter;
+        end;
     end;
 
     local procedure CreateAnalysisView(var AnalysisView: Record "Analysis View"; AccountSource: Integer)
@@ -581,7 +599,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         AnalysisView."Dimension 2 Code" := DimensionValue[2]."Dimension Code";
         AnalysisView."Dimension 3 Code" := DimensionValue[3]."Dimension Code";
         AnalysisView."Dimension 4 Code" := DimensionValue[4]."Dimension Code";
-        AnalysisView.Modify;
+        AnalysisView.Modify();
     end;
 
     local procedure CreateAnalysisViewEntryWithDimension(AnalysisView: Record "Analysis View"; var AnalysisViewEntry: Record "Analysis View Entry"; AccountNo: Code[20]; DimensionValue: array[4] of Record "Dimension Value"; PostingDate: Date)
@@ -594,7 +612,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         AnalysisViewEntry."Dimension 4 Value Code" := DimensionValue[4].Code;
         AnalysisViewEntry."Posting Date" := PostingDate;
         AnalysisViewEntry.Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        AnalysisViewEntry.Insert;
+        AnalysisViewEntry.Insert();
     end;
 
     local procedure CreateAnalysisViewCFEntryWithDimension(AnalysisView: Record "Analysis View"; var AnalysisViewEntry: Record "Analysis View Entry"; AccountNo: Code[20]; DimensionValue: array[4] of Record "Dimension Value"; PostingDate: Date)
@@ -608,7 +626,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         AnalysisViewEntry."Dimension 4 Value Code" := DimensionValue[4].Code;
         AnalysisViewEntry."Posting Date" := PostingDate;
         AnalysisViewEntry.Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
-        AnalysisViewEntry.Insert;
+        AnalysisViewEntry.Insert();
     end;
 
     local procedure CreateAnalysisViewBudgetEntryWithDimension(AnalysisView: Record "Analysis View"; var AnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; AccountNo: Code[20]; DimensionValue: array[4] of Record "Dimension Value"; PostingDate: Date)
@@ -703,7 +721,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Account Type" := GLAccount."Account Type"::"Begin-Total";
-        GLAccount.Modify;
+        GLAccount.Modify();
         exit(GLAccount."No.");
     end;
 
@@ -721,7 +739,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Account Type" := GLAccount."Account Type"::"End-Total";
-        GLAccount.Modify;
+        GLAccount.Modify();
         exit(GLAccount."No.");
     end;
 
@@ -766,7 +784,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
     begin
         LibraryDimension.CreateDimensionValue(DimensionValue, DimCode);
         DimensionValue."Dimension Value Type" := DimensionValue."Dimension Value Type"::"Begin-Total";
-        DimensionValue.Modify;
+        DimensionValue.Modify();
         exit(DimensionValue.Code);
     end;
 
@@ -776,7 +794,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
     begin
         LibraryDimension.CreateDimensionValue(DimensionValue, DimCode);
         DimensionValue."Dimension Value Type" := DimensionValue."Dimension Value Type"::"End-Total";
-        DimensionValue.Modify;
+        DimensionValue.Modify();
         exit(DimensionValue.Code);
     end;
 

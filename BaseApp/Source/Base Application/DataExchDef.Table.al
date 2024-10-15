@@ -13,11 +13,9 @@ table 1222 "Data Exch. Def"
         {
             Caption = 'Name';
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Data Exchange Definition Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Bank Statement Import,Payment Export,Payroll Import,Generic Import,Positive Pay Export,EFT Payment Export,Generic Export';
-            OptionMembers = "Bank Statement Import","Payment Export","Payroll Import","Generic Import","Positive Pay Export","EFT Payment Export","Generic Export";
         }
         field(4; "Reading/Writing XMLport"; Integer)
         {
@@ -127,7 +125,7 @@ table 1222 "Data Exch. Def"
         ColumnSeparatorMissingErr: Label 'Column separator is missing in the definition.';
         EFTFileTypeErr: Label 'The EFT payment file that you are exporting must be of type Fixed Text or Variable Text.';
 
-    procedure InsertRec(NewCode: Code[20]; NewName: Text[100]; NewType: Option; ProcessingXMLport: Integer; HeaderCount: Integer; HeaderTag: Text[250]; FooterTag: Text[250])
+    procedure InsertRec(NewCode: Code[20]; NewName: Text[100]; NewType: Enum "Data Exchange Definition Type"; ProcessingXMLport: Integer; HeaderCount: Integer; HeaderTag: Text[250]; FooterTag: Text[250])
     begin
         Init;
         Validate(Code, NewCode);

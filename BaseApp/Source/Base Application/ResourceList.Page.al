@@ -1,4 +1,4 @@
-﻿page 77 "Resource List"
+page 77 "Resource List"
 {
     AdditionalSearchTerms = 'capacity,job,project';
     ApplicationArea = Jobs;

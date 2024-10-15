@@ -504,7 +504,7 @@ report 10040 "Aged Accounts Receivable NA"
                                 Error(PeriodCalculationRequiredLbl);
                         end;
                     }
-                    field(ShowOnlyOverDueBy; ShowOnlyOverDueBy)
+                    field(ShowOnlyOverDueByControl; ShowOnlyOverDueBy)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show If Overdue By';
@@ -518,7 +518,7 @@ report 10040 "Aged Accounts Receivable NA"
                                 ShowAllForOverdue := false;
                         end;
                     }
-                    field(ShowAllForOverdue; ShowAllForOverdue)
+                    field(ShowAllForOverdueControl; ShowAllForOverdue)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Show All for Overdue Customer';
@@ -539,13 +539,13 @@ report 10040 "Aged Accounts Receivable NA"
                         MultiLine = true;
                         ToolTip = 'Specifies if amounts are printed in the customer''s currency. Clear the check box to print all amounts in US dollars.';
                     }
-                    field(PrintDetail; PrintDetail)
+                    field(PrintDetailControl; PrintDetail)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Print Detail';
                         ToolTip = 'Specifies if individual transactions are included in the report. Clear the check box to include only totals.';
                     }
-                    field(PrintToExcel; PrintToExcel)
+                    field(PrintToExcelControl; PrintToExcel)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Print to Excel';
@@ -813,7 +813,7 @@ report 10040 "Aged Accounts Receivable NA"
         ExcelBuf.AddInfoColumn(Format(AgedAccountsPayableLbl), false, false, false, false, '', ExcelBuf."Cell Type"::Text);
         ExcelBuf.NewRow();
         ExcelBuf.AddInfoColumn(Format(ReportNoLbl), false, true, false, false, '', ExcelBuf."Cell Type"::Text);
-        ExcelBuf.AddInfoColumn(REPORT::"Aged Accounts Receivable", false, false, false, false, '', ExcelBuf."Cell Type"::Number);
+        ExcelBuf.AddInfoColumn(REPORT::"Aged Accounts Receivable NA", false, false, false, false, '', ExcelBuf."Cell Type"::Number);
         ExcelBuf.NewRow();
         ExcelBuf.AddInfoColumn(Format(UserIDLbl), false, true, false, false, '', ExcelBuf."Cell Type"::Text);
         ExcelBuf.AddInfoColumn(UserId(), false, false, false, false, '', ExcelBuf."Cell Type"::Text);

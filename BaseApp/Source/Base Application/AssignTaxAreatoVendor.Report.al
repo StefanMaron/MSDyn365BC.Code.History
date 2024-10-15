@@ -58,7 +58,7 @@ report 10327 "Assign Tax Area to Vendor"
     begin
         if not Vendor.Find then
             CurrReport.Quit;
-        Vendor.Modify;
+        Vendor.Modify();
     end;
 
     var

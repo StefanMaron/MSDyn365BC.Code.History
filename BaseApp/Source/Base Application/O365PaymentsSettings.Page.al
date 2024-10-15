@@ -70,7 +70,7 @@ page 2138 "O365 Payments Settings"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         if PaymentTermsCode <> O365SalesInitialSetup."Default Payment Terms Code" then
             O365SalesInitialSetup.UpdateDefaultPaymentTerms(PaymentTermsCode);
 
@@ -85,7 +85,7 @@ page 2138 "O365 Payments Settings"
 
     local procedure Intialize()
     begin
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         PaymentTermsCode := O365SalesInitialSetup."Default Payment Terms Code";
         PaymentMethodCode := O365SalesInitialSetup."Default Payment Method Code";
     end;

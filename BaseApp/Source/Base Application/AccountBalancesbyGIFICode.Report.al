@@ -77,7 +77,7 @@ report 10004 "Account Balances by GIFI Code"
             trigger OnAfterGetRecord()
             begin
                 if ("Balance at Date" = 0) and ("Add.-Currency Balance at Date" = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if "GIFI Code" <> GIFICode.Code then
                     GIFICode.Get("GIFI Code");
             end;
@@ -127,7 +127,7 @@ report 10004 "Account Balances by GIFI Code"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := "G/L Account".GetFilters;
         if AsOfDate = 0D then
             Error(Text001);

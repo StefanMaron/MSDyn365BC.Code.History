@@ -151,7 +151,7 @@ report 10151 "Physical Inventory Count"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         ItemJnlLineTemplateFilter := "Item Journal Line".GetFilter("Journal Template Name");
         ItemJnlLineBatchFilter := "Item Journal Line".GetFilter("Journal Batch Name");

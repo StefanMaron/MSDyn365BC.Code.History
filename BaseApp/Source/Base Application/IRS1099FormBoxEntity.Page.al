@@ -110,7 +110,7 @@ page 10900 "IRS 1099 Form-Box Entity"
         if TempFieldSet.Get(DATABASE::"IRS 1099 Form-Box", FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::"IRS 1099 Form-Box";
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

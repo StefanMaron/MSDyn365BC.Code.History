@@ -2,7 +2,6 @@ report 10094 "Outstanding Order Stat. by PO"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './OutstandingOrderStatbyPO.rdlc';
-    ApplicationArea = Basic, Suite;
     Caption = 'Outstanding Order Stat. by PO';
     UsageCategory = ReportsAndAnalysis;
 
@@ -235,7 +234,7 @@ report 10094 "Outstanding Order Stat. by PO"
     begin
         FilterString := "Purchase Header".GetFilters;
         PeriodText := "Purchase Line".GetFilter("Expected Receipt Date");
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

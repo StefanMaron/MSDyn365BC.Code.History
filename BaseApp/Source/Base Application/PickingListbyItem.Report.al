@@ -258,7 +258,7 @@ report 10152 "Picking List by Item"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
         SalesLineFilter := "Sales Line".GetFilters;
     end;

@@ -40,7 +40,7 @@ report 10030 "Budget Amount by Period"
                     BudgetDate := NextDate(BudgetDate);
                 end;
                 EntryNo := EntryNo + 10000;
-                GLBudgetEntry.Init;
+                GLBudgetEntry.Init();
                 GLBudgetEntry."Entry No." := EntryNo;
                 GLBudgetEntry."Budget Name" := "G/L Account".GetFilter("Budget Filter");
                 GLBudgetEntry."G/L Account No." := "G/L Account"."No.";
@@ -48,26 +48,26 @@ report 10030 "Budget Amount by Period"
                 if "G/L Account".GetFilter("Global Dimension 1 Filter") <> '' then begin
                     GLBudgetEntry."Global Dimension 1 Code" := "G/L Account".GetRangeMin("Global Dimension 1 Filter");
                     if DimensionValue.Get(GlobalDim1Code, GLBudgetEntry."Global Dimension 1 Code") then begin
-                        TempDimSetEntry.Init;
+                        TempDimSetEntry.Init();
                         TempDimSetEntry."Dimension Code" := DimensionValue."Dimension Code";
                         TempDimSetEntry."Dimension Value Code" := DimensionValue.Code;
                         TempDimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
-                        TempDimSetEntry.Insert;
+                        TempDimSetEntry.Insert();
                     end;
                 end;
                 if "G/L Account".GetFilter("Global Dimension 2 Filter") <> '' then begin
                     GLBudgetEntry."Global Dimension 2 Code" := "G/L Account".GetRangeMin("Global Dimension 2 Filter");
                     if DimensionValue.Get(GlobalDim2Code, GLBudgetEntry."Global Dimension 2 Code") then begin
-                        TempDimSetEntry.Init;
+                        TempDimSetEntry.Init();
                         TempDimSetEntry."Dimension Code" := DimensionValue."Dimension Code";
                         TempDimSetEntry."Dimension Value Code" := DimensionValue.Code;
                         TempDimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
-                        TempDimSetEntry.Insert;
+                        TempDimSetEntry.Insert();
                     end;
                 end;
                 GLBudgetEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
                 GLBudgetEntry.Amount := Round(BaseAmount, Precision);
-                GLBudgetEntry.Insert;
+                GLBudgetEntry.Insert();
             end;
 
             trigger OnPreDataItem()
@@ -96,7 +96,7 @@ report 10030 "Budget Amount by Period"
                 end else
                     BaseAmount := DistributeAmt;
 
-                GLBudgetEntry.Reset;
+                GLBudgetEntry.Reset();
                 if GLBudgetEntry.FindLast then
                     EntryNo := GLBudgetEntry."Entry No.";
             end;
@@ -184,7 +184,7 @@ report 10030 "Budget Amount by Period"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GlobalDim1Code := GLSetup."Global Dimension 1 Code";
         GlobalDim2Code := GLSetup."Global Dimension 2 Code";
     end;

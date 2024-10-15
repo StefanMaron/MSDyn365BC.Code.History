@@ -1,4 +1,4 @@
-﻿page 89 "Job List"
+page 89 "Job List"
 {
     AdditionalSearchTerms = 'projects';
     ApplicationArea = Jobs;

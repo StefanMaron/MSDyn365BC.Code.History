@@ -125,7 +125,7 @@ report 10323 "Sales Tax Detail List"
                 trigger OnAfterGetRecord()
                 begin
                     if not TaxGroup.Get("Tax Group Code") then
-                        TaxGroup.Init;
+                        TaxGroup.Init();
                 end;
             }
 
@@ -133,7 +133,7 @@ report 10323 "Sales Tax Detail List"
             begin
                 if ReportTo."Report-to Jurisdiction" <> "Report-to Jurisdiction" then
                     if not ReportTo.Get("Report-to Jurisdiction") then
-                        ReportTo.Init;
+                        ReportTo.Init();
             end;
 
             trigger OnPreDataItem()
@@ -161,7 +161,7 @@ report 10323 "Sales Tax Detail List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         JurisFilters := "Tax Jurisdiction".GetFilters;
         DetailFilters := "Tax Detail".GetFilters;
     end;

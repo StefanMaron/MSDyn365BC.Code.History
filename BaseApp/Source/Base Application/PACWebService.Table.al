@@ -53,7 +53,7 @@ table 10000 "PAC Web Service"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if (GeneralLedgerSetup."PAC Code" <> '') and (GeneralLedgerSetup."PAC Code" = Code) then
             Error(Text000, Code, GeneralLedgerSetup.TableCaption);
     end;
@@ -62,7 +62,7 @@ table 10000 "PAC Web Service"
     begin
         PACWebServiceDetail.SetRange("PAC Code", Code);
         if not PACWebServiceDetail.IsEmpty then
-            PACWebServiceDetail.DeleteAll;
+            PACWebServiceDetail.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -71,7 +71,7 @@ table 10000 "PAC Web Service"
         PACWebService: Record "PAC Web Service";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if PACWebService.Get(GeneralLedgerSetup."PAC Code") then
             exit(PACWebService.Certificate = '');
     end;

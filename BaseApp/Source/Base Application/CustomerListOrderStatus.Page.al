@@ -370,7 +370,7 @@ page 36631 "Customer List - Order Status"
         More: Boolean;
     begin
         CurrPage.SetSelectionFilter(Cust);
-        CustCount := Cust.Count;
+        CustCount := Cust.Count();
         if CustCount > 0 then begin
             Cust.Find('-');
             while CustCount > 0 do begin

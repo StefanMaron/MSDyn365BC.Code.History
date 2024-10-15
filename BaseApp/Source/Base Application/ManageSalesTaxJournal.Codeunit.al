@@ -24,16 +24,16 @@ codeunit 10102 "Manage Sales Tax Journal"
 
         GeneralJnlLine.SetRange("Document No.", GeneralJnlLine."Document No.");
         GeneralJnlLine.FindLast;
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine.TransferFields(GeneralJnlLine, false);
         GenJnlLine."Journal Template Name" := GeneralJnlLine."Journal Template Name";
         GenJnlLine."Journal Batch Name" := GeneralJnlLine."Journal Batch Name";
         GenJnlLine."Line No." := GeneralJnlLine."Line No." + 10000;
-        GenJnlLine.Insert;
+        GenJnlLine.Insert();
         GenJnlLine."System-Created Entry" := true;
         GenJnlLine.Validate("Account No.", BalanceAccNo);
         GenJnlLine.Validate(Amount, TotalAmount);
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
         GeneralJnlLine.FindSet;
     end;
 
@@ -45,39 +45,39 @@ codeunit 10102 "Manage Sales Tax Journal"
 
         GenJnlLine.SetRange("Document No.", GenJnlLine."Document No.");
 
-        TempGenJnlLine.DeleteAll;
+        TempGenJnlLine.DeleteAll();
 
         if GenJnlLine.FindSet then
             repeat
-                TempGenJnlLine.Init;
+                TempGenJnlLine.Init();
                 TempGenJnlLine.TransferFields(GenJnlLine, true);
-                TempGenJnlLine.Insert;
+                TempGenJnlLine.Insert();
                 TempGenJnlLine."Bal. Account No." := '';
-                TempGenJnlLine.Modify;
+                TempGenJnlLine.Modify();
             until GenJnlLine.Next = 0;
 
-        TempGenJnlLine.Init;
+        TempGenJnlLine.Init();
         TempGenJnlLine.TransferFields(GenJnlLine, false);
         TempGenJnlLine."Journal Template Name" := GenJnlLine."Journal Template Name";
         TempGenJnlLine."Journal Batch Name" := GenJnlLine."Journal Batch Name";
         TempGenJnlLine."Line No." := GenJnlLine."Line No." + 10000;
-        TempGenJnlLine.Insert;
+        TempGenJnlLine.Insert();
         TempGenJnlLine."System-Created Entry" := true;
         TempGenJnlLine.Validate("Account No.", BalanceAccNo);
         TempGenJnlLine.Validate(Amount, TotalAmount);
-        TempGenJnlLine.Modify;
+        TempGenJnlLine.Modify();
         TempGenJnlLine.FindSet;
     end;
 
     local procedure GetLastNosForVAT()
     begin
-        GLEntry.LockTable;
+        GLEntry.LockTable();
         if GLEntry.FindLast then
             NextTransactionNo := GLEntry."Transaction No." + 1
         else
             NextTransactionNo := 1;
 
-        VATEntry.LockTable;
+        VATEntry.LockTable();
         if VATEntry.FindLast then
             NextVATEntryNo := VATEntry."Entry No." + 1
         else
@@ -89,7 +89,7 @@ codeunit 10102 "Manage Sales Tax Journal"
         GetLastNosForVAT;
         CalculateTotalAmount(GenJournlLine);
 
-        VATEntry.Init;
+        VATEntry.Init();
         VATEntry."Entry No." := NextVATEntryNo;
         VATEntry."Posting Date" := GenJournlLine."Posting Date";
         VATEntry."Document No." := GenJournlLine."Document No.";
@@ -101,7 +101,7 @@ codeunit 10102 "Manage Sales Tax Journal"
         VATEntry."Tax Jurisdiction Code" := GenJournlLine."Tax Jurisdiction Code";
         VATEntry."Document Date" := GenJournlLine."Document Date";
         VATEntry."GST/HST" := GenJournlLine."GST/HST";
-        VATEntry.Insert;
+        VATEntry.Insert();
     end;
 
     local procedure CalculateTotalAmount(GenJournlLine: Record "Gen. Journal Line")

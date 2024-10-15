@@ -178,7 +178,7 @@ report 10061 "Ship-To Address Listing"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := Customer.GetFilters;
         FilterString2 := "Ship-to Address".GetFilters;
     end;

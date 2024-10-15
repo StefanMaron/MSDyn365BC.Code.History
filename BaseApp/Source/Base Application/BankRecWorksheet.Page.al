@@ -520,7 +520,7 @@ page 10120 "Bank Rec. Worksheet"
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
     begin
-        TempBankAccReconciliationDataset.DeleteAll;
+        TempBankAccReconciliationDataset.DeleteAll();
         BankAccReconciliation.GetTempCopyFromBankRecHeader(TempBankAccReconciliationDataset);
     end;
 }

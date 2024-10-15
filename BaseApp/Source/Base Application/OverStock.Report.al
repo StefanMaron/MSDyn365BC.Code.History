@@ -230,7 +230,7 @@ report 10150 "Over Stock"
                 begin
                     CalcFields(Description);
                     Item2 := Item;
-                    Item2.Reset;
+                    Item2.Reset();
                     if "Location Code" <> '' then
                         Item2.SetRange("Location Filter", "Location Code");
                     if "Variant Code" <> '' then
@@ -242,14 +242,14 @@ report 10150 "Over Stock"
                         QuantityOnHand := Item2."Net Change";
                         QuantityOver := QuantityOnHand - "Maximum Inventory";
                     end else
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     ValuedAmount := QuantityOver * AvgCost;
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not UseSKU then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     Clear(QuantityOnHand);
                     Clear(QuantityOver);
                     Clear(ValuedAmount);
@@ -264,7 +264,7 @@ report 10150 "Over Stock"
                         QuantityOnHand := "Net Change";
                         QuantityOver := QuantityOnHand - "Maximum Inventory";
                     end else
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     ItemCostMgmt.CalculateAverageCost(Item, AvgCost, AvgCostACY);
                     ValuedAmount := QuantityOver * AvgCost;
                 end;
@@ -310,7 +310,7 @@ report 10150 "Over Stock"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
     end;
 

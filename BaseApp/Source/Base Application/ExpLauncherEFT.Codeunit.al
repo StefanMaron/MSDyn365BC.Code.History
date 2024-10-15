@@ -101,7 +101,7 @@ codeunit 10320 "Exp. Launcher EFT"
         HdrCount: Integer;
     begin
         HdrCount := 0;
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Header);
         if DataExchLineDef.FindSet then begin
@@ -110,8 +110,8 @@ codeunit 10320 "Exp. Launcher EFT"
                 DataExch."Entry No." := 0;
                 DataExch."Data Exch. Def Code" := DataExchDefCode;
                 DataExch."Data Exch. Line Def Code" := DataExchLineDef.Code;
-                DataExch.Insert;
-                Commit;
+                DataExch.Insert();
+                Commit();
 
                 HdrCount := HdrCount + 1;
                 HeaderArray[HdrCount] := DataExch."Entry No.";
@@ -192,7 +192,7 @@ codeunit 10320 "Exp. Launcher EFT"
         ExpPreMappingDetEFTCA: Codeunit "Exp. Pre-Mapping Det EFT CA";
         ExpPreMappingDetEFTMX: Codeunit "Exp. Pre-Mapping Det EFT MX";
     begin
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
         if DataExchLineDef.FindSet then begin
@@ -254,7 +254,7 @@ codeunit 10320 "Exp. Launcher EFT"
         FooterCount: Integer;
     begin
         FooterCount := 0;
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Footer);
         if DataExchLineDef.FindSet then begin
@@ -263,8 +263,8 @@ codeunit 10320 "Exp. Launcher EFT"
                 DataExch."Entry No." := 0;
                 DataExch."Data Exch. Def Code" := DataExchDefCode;
                 DataExch."Data Exch. Line Def Code" := DataExchLineDef.Code;
-                DataExch.Insert;
-                Commit;
+                DataExch.Insert();
+                Commit();
 
                 FooterCount := FooterCount + 1;
                 FooterArray[FooterCount] := DataExch."Entry No.";
@@ -328,7 +328,7 @@ codeunit 10320 "Exp. Launcher EFT"
         with BankAccount do begin
             "Last E-Pay Export File Name" := IncStr("Last E-Pay Export File Name");
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -343,7 +343,7 @@ codeunit 10320 "Exp. Launcher EFT"
         DataExch: Record "Data Exch.";
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
         if DataExchLineDef.FindSet then
@@ -352,9 +352,9 @@ codeunit 10320 "Exp. Launcher EFT"
                 DataExch."Entry No." := 0;
                 DataExch."Data Exch. Def Code" := DataExchDefCode;
                 DataExch."Data Exch. Line Def Code" := DataExchLineDef.Code;
-                DataExch.Insert;
+                DataExch.Insert();
             until DataExchLineDef.Next = 0;
-        Commit;
+        Commit();
     end;
 }
 

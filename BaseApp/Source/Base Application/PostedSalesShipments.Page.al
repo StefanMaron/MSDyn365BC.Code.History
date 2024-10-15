@@ -1,4 +1,4 @@
-﻿page 142 "Posted Sales Shipments"
+page 142 "Posted Sales Shipments"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Posted Sales Shipments';

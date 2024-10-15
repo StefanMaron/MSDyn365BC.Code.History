@@ -122,42 +122,42 @@ table 99000758 "Machine Center"
                   Text006);
 
                 i := 0;
-                NoOfRecords := CalendarEntry.Count;
+                NoOfRecords := CalendarEntry.Count();
                 if CalendarEntry.Find('-') then
                     repeat
                         i := i + 1;
                         Window.Update(1, i);
                         Window.Update(2, Round(i / NoOfRecords * 10000, 1));
                         CalendarEntry.Validate("Work Center No.", "Work Center No.");
-                        CalendarEntry.Modify;
+                        CalendarEntry.Modify();
                     until CalendarEntry.Next = 0;
 
                 i := 0;
                 CalAbsentEntry.SetCurrentKey("Capacity Type", "No.");
                 CalAbsentEntry.SetRange("Capacity Type", CalendarEntry."Capacity Type"::"Machine Center");
                 CalAbsentEntry.SetRange("No.", "No.");
-                NoOfRecords := CalAbsentEntry.Count;
+                NoOfRecords := CalAbsentEntry.Count();
                 if CalAbsentEntry.Find('-') then
                     repeat
                         i := i + 1;
                         Window.Update(3, i);
                         Window.Update(4, Round(i / NoOfRecords * 10000, 1));
                         CalAbsentEntry.Validate("Work Center No.", "Work Center No.");
-                        CalAbsentEntry.Modify;
+                        CalAbsentEntry.Modify();
                     until CalAbsentEntry.Next = 0;
 
                 i := 0;
                 ProdOrderCapNeed.SetCurrentKey(Type, "No.");
                 ProdOrderCapNeed.SetRange(Type, ProdOrderCapNeed.Type::"Machine Center");
                 ProdOrderCapNeed.SetRange("No.", "No.");
-                NoOfRecords := ProdOrderCapNeed.Count;
+                NoOfRecords := ProdOrderCapNeed.Count();
                 if ProdOrderCapNeed.Find('-') then
                     repeat
                         i := i + 1;
                         Window.Update(7, i);
                         Window.Update(8, Round(i / NoOfRecords * 10000, 1));
                         ProdOrderCapNeed.Validate("Work Center No.", "Work Center No.");
-                        ProdOrderCapNeed.Modify;
+                        ProdOrderCapNeed.Modify();
                     until ProdOrderCapNeed.Next = 0;
 
                 OnValidateWorkCenterNoBeforeModify(Rec, xRec, CurrFieldNo);
@@ -169,7 +169,7 @@ table 99000758 "Machine Center"
                 if RtngLine.Find('-') then
                     repeat
                         RtngLine.Validate("Work Center No.", "Work Center No.");
-                        RtngLine.Modify;
+                        RtngLine.Modify();
                     until RtngLine.Next = 0;
 
                 PlanningRtngLine.SetCurrentKey(Type, "No.");
@@ -178,7 +178,7 @@ table 99000758 "Machine Center"
                 if PlanningRtngLine.Find('-') then
                     repeat
                         PlanningRtngLine.Validate("Work Center No.", "Work Center No.");
-                        PlanningRtngLine.Modify;
+                        PlanningRtngLine.Modify();
                     until PlanningRtngLine.Next = 0;
 
                 ProdOrderRtngLine.SetCurrentKey(Type, "No.");
@@ -187,7 +187,7 @@ table 99000758 "Machine Center"
                 if ProdOrderRtngLine.Find('-') then
                     repeat
                         ProdOrderRtngLine.Validate("Work Center No.", "Work Center No.");
-                        ProdOrderRtngLine.Modify;
+                        ProdOrderRtngLine.Modify();
                     until ProdOrderRtngLine.Next = 0;
 
                 Window.Close;
@@ -595,7 +595,7 @@ table 99000758 "Machine Center"
 
         RoutingLine.CheckCertifiedRouting(RoutingLine.Type::"Machine Center", "No.");
 
-        StdCostWksh.Reset;
+        StdCostWksh.Reset();
         StdCostWksh.SetRange(Type, StdCostWksh.Type::"Machine Center");
         StdCostWksh.SetRange("No.", "No.");
         if not StdCostWksh.IsEmpty then
@@ -603,15 +603,15 @@ table 99000758 "Machine Center"
 
         CalendarEntry.SetRange("Capacity Type", CalendarEntry."Capacity Type"::"Machine Center");
         CalendarEntry.SetRange("No.", "No.");
-        CalendarEntry.DeleteAll;
+        CalendarEntry.DeleteAll();
 
         CalAbsentEntry.SetRange("Capacity Type", CalendarEntry."Capacity Type"::"Machine Center");
         CalAbsentEntry.SetRange("No.", "No.");
-        CalAbsentEntry.DeleteAll;
+        CalAbsentEntry.DeleteAll();
 
         MfgCommentLine.SetRange("Table Name", MfgCommentLine."Table Name"::"Machine Center");
         MfgCommentLine.SetRange("No.", "No.");
-        MfgCommentLine.DeleteAll;
+        MfgCommentLine.DeleteAll();
 
         ProdOrderRtngLine.SetRange(Type, ProdOrderRtngLine.Type::"Machine Center");
         ProdOrderRtngLine.SetRange("No.", "No.");
@@ -621,7 +621,7 @@ table 99000758 "Machine Center"
 
     trigger OnInsert()
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
         if "No." = '' then begin
             MfgSetup.TestField("Machine Center Nos.");
             NoSeriesMgt.InitSeries(MfgSetup."Machine Center Nos.", xRec."No. Series", 0D, "No.", "No. Series");
@@ -673,7 +673,7 @@ table 99000758 "Machine Center"
 
         with MachineCenter do begin
             MachineCenter := Rec;
-            MfgSetup.Get;
+            MfgSetup.Get();
             MfgSetup.TestField("Machine Center Nos.");
             if NoSeriesMgt.SelectSeries(MfgSetup."Machine Center Nos.", OldMachineCenter."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
@@ -686,7 +686,7 @@ table 99000758 "Machine Center"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 

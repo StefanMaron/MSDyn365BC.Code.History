@@ -1,4 +1,4 @@
-﻿page 201 "Job Journal"
+page 201 "Job Journal"
 {
     AdditionalSearchTerms = 'project posting';
     ApplicationArea = Jobs;
@@ -91,6 +91,20 @@
                     begin
                         JobJnlManagement.GetNames(Rec, JobDescription, AccName);
                     end;
+                }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the method that will be used for price calculation in the item journal line.';
+                }
+                field("Cost Calculation Method"; "Cost Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the method that will be used for cost calculation in the item journal line.';
                 }
                 field("No."; "No.")
                 {
@@ -667,7 +681,8 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -696,7 +711,7 @@
     var
         ReserveJobJnlLine: Codeunit "Job Jnl. Line-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveJobJnlLine.DeleteLineConfirm(Rec) then
             exit(false);
         ReserveJobJnlLine.DeleteLine(Rec);
@@ -715,7 +730,7 @@
     begin
         OnBeforeOpenPage(Rec, CurrentJnlBatchName);
 
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -742,7 +757,7 @@
         NumberOfRecords: Integer;
         CurrentJnlBatchName: Code[10];
         ShortcutDimCode: array[8] of Code[20];
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

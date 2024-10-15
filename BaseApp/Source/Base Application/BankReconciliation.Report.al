@@ -610,7 +610,7 @@ report 10408 "Bank Reconciliation"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

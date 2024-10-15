@@ -108,7 +108,7 @@ page 99000771 "Work Ctr. Group Calendar"
         MATRIX_GenerateColumnCaptions(SetWanted::Initial);
         MATRIX_UseNameForCaption := false;
         MATRIX_CurrentSetLenght := ArrayLen(MATRIX_CaptionSet);
-        MfgSetup.Get;
+        MfgSetup.Get();
         MfgSetup.TestField("Show Capacity In");
         CapacityUoM := MfgSetup."Show Capacity In";
     end;

@@ -2,6 +2,9 @@ table 7012 "Purchase Price"
 {
     Caption = 'Purchase Price';
     LookupPageID = "Purchase Prices";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {
@@ -123,7 +126,7 @@ table 7012 "Purchase Price"
                 NewPurchasePrice := PurchPrice;
                 NewPurchasePrice."Vendor No." := VendNo;
                 OnBeforeNewPurchasePriceInsert(NewPurchasePrice, PurchPrice);
-                if NewPurchasePrice.Insert then;
+                if NewPurchasePrice.Insert() then;
             until PurchPrice.Next = 0;
     end;
 

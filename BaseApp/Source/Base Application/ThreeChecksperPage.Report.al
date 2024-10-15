@@ -29,10 +29,10 @@ report 10413 "Three Checks per Page"
                     Error(USText004Err);
 
                 if TestPrint then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if not ReprintChecks then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if (GetFilter("Line No.") <> '') or (GetFilter("Document No.") <> '') then
                     Error(
@@ -48,11 +48,11 @@ report 10413 "Three Checks per Page"
             trigger OnAfterGetRecord()
             begin
                 if Amount = 0 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TestField("Bal. Account Type", "Bal. Account Type"::"Bank Account");
                 if "Bal. Account No." <> BankAcc2."No." then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 case "Account Type" of
                     "Account Type"::"G/L Account":
                         begin
@@ -96,12 +96,12 @@ report 10413 "Three Checks per Page"
                 end;
 
                 if TestPrint then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 BankAcc2.Get(BankAcc2."No.");
                 BankCurrencyCode := BankAcc2."Currency Code";
 
                 if BankAcc2."Country/Region Code" <> 'CA' then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 BankAcc2.TestField(Blocked, false);
                 Copy(VoidGenJnlLine);
                 BankAcc2.Get(BankAcc2."No.");
@@ -204,7 +204,7 @@ report 10413 "Three Checks per Page"
                                     RemainingAmount := 0;
                                     PostingDesc := CheckToAddr[1];
                                 end else
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 case ApplyMethod of
                                     ApplyMethod::OneLineOneEntry:
@@ -267,7 +267,7 @@ report 10413 "Three Checks per Page"
                                                         end;
                                                     BalancingType::Customer:
                                                         begin
-                                                            CustLedgEntry.Reset;
+                                                            CustLedgEntry.Reset();
                                                             CustLedgEntry.SetCurrentKey("Document No.");
                                                             CustLedgEntry.SetRange("Document Type", GenJnlLine2."Applies-to Doc. Type");
                                                             CustLedgEntry.SetRange("Document No.", GenJnlLine2."Applies-to Doc. No.");
@@ -278,7 +278,7 @@ report 10413 "Three Checks per Page"
                                                         end;
                                                     BalancingType::Vendor:
                                                         begin
-                                                            VendLedgEntry.Reset;
+                                                            VendLedgEntry.Reset();
                                                             if GenJnlLine2."Source Line No." <> 0 then
                                                                 VendLedgEntry.SetRange("Entry No.", GenJnlLine2."Source Line No.")
                                                             else begin
@@ -301,7 +301,7 @@ report 10413 "Three Checks per Page"
                                                         end;
                                                     BalancingType::Employee:
                                                         begin
-                                                            EmployeeLedgerEntry.Reset;
+                                                            EmployeeLedgerEntry.Reset();
                                                             if GenJnlLine2."Source Line No." <> 0 then
                                                                 EmployeeLedgerEntry.SetRange("Entry No.", GenJnlLine2."Source Line No.")
                                                             else begin
@@ -324,7 +324,7 @@ report 10413 "Three Checks per Page"
                             TotalLineDiscount := TotalLineDiscount + LineDiscount;
                         end else begin
                             if FoundLast then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             FoundLast := true;
                             DocNo := Text010Lbl;
                             ExtDocNo := Text010Lbl;
@@ -510,7 +510,7 @@ report 10413 "Three Checks per Page"
                         CheckLedgEntryAmount: Decimal;
                     begin
                         if not TestPrint then begin
-                            CheckLedgEntry.Init;
+                            CheckLedgEntry.Init();
                             CheckLedgEntry."Bank Account No." := BankAcc2."No.";
                             CheckLedgEntry."Posting Date" := GenJnlLine."Posting Date";
                             CheckLedgEntry."Document Type" := GenJnlLine."Document Type";
@@ -570,7 +570,7 @@ report 10413 "Three Checks per Page"
                                 VoidText := Text022Lbl;
                             end;
                         end else begin
-                            CheckLedgEntry.Init;
+                            CheckLedgEntry.Init();
                             CheckLedgEntry."Bank Account No." := BankAcc2."No.";
                             CheckLedgEntry."Posting Date" := GenJnlLine."Posting Date";
                             CheckLedgEntry."Document No." := UseCheckNo;
@@ -644,7 +644,7 @@ report 10413 "Three Checks per Page"
                 trigger OnAfterGetRecord()
                 begin
                     if FoundLast and AddedRemainingAmount then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     UseCheckNo := IncStr(UseCheckNo);
                     if not TestPrint then
@@ -657,7 +657,7 @@ report 10413 "Three Checks per Page"
                 begin
                     if not TestPrint then begin
                         if UseCheckNo <> GenJnlLine."Document No." then begin
-                            GenJnlLine3.Reset;
+                            GenJnlLine3.Reset();
                             GenJnlLine3.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
                             GenJnlLine3.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                             GenJnlLine3.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
@@ -672,7 +672,7 @@ report 10413 "Three Checks per Page"
                             GenJnlLine3.TestField("Posting No. Series", '');
                             GenJnlLine3."Document No." := UseCheckNo;
                             GenJnlLine3."Check Printed" := true;
-                            GenJnlLine3.Modify;
+                            GenJnlLine3.Modify();
                         end else begin
                             TotalLineAmountDollar := 0;
                             if GenJnlLine2.Find('-') then begin
@@ -690,11 +690,11 @@ report 10413 "Three Checks per Page"
                                     GenJnlLine3."Check Printed" := true;
                                     GenJnlLine3.Validate(Amount);
                                     TotalLineAmountDollar := TotalLineAmountDollar + GenJnlLine3."Amount (LCY)";
-                                    GenJnlLine3.Modify;
+                                    GenJnlLine3.Modify();
                                 until GenJnlLine2.Next = 0;
                             end;
 
-                            GenJnlLine3.Reset;
+                            GenJnlLine3.Reset();
                             GenJnlLine3 := GenJnlLine;
                             GenJnlLine3.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                             GenJnlLine3.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
@@ -709,7 +709,7 @@ report 10413 "Three Checks per Page"
                                 end;
                                 GenJnlLine3."Line No." := (GenJnlLine3."Line No." + HighestLineNo) div 2;
                             end;
-                            GenJnlLine3.Init;
+                            GenJnlLine3.Init();
                             GenJnlLine3.Validate("Posting Date", GenJnlLine."Posting Date");
                             GenJnlLine3."Document Type" := GenJnlLine."Document Type";
                             GenJnlLine3."Document No." := UseCheckNo;
@@ -725,17 +725,17 @@ report 10413 "Three Checks per Page"
                             GenJnlLine3."Source Code" := GenJnlLine."Source Code";
                             GenJnlLine3."Reason Code" := GenJnlLine."Reason Code";
                             GenJnlLine3."Allow Zero-Amount Posting" := true;
-                            GenJnlLine3.Insert;
+                            GenJnlLine3.Insert();
                         end;
                     end;
 
                     if not TestPrint then begin
                         BankAcc2."Last Check No." := UseCheckNo;
-                        BankAcc2.Modify;
+                        BankAcc2.Modify();
                     end;
 
                     if CommitEachCheck then begin
-                        Commit;
+                        Commit();
                         Clear(CheckManagement);
                     end;
                 end;
@@ -771,11 +771,11 @@ report 10413 "Three Checks per Page"
 
                 if not TestPrint then begin
                     if Amount = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     TestField("Bal. Account Type", "Bal. Account Type"::"Bank Account");
                     if "Bal. Account No." <> BankAcc2."No." then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if ("Account No." <> '') and ("Bal. Account No." <> '') then begin
                         BalancingType := "Account Type";
@@ -783,7 +783,7 @@ report 10413 "Three Checks per Page"
                         RemainingAmount := Amount;
                         if OneCheckPrVendor then begin
                             ApplyMethod := ApplyMethod::MoreLinesOneEntry;
-                            GenJnlLine2.Reset;
+                            GenJnlLine2.Reset();
                             GenJnlLine2.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
                             GenJnlLine2.SetRange("Journal Template Name", "Journal Template Name");
                             GenJnlLine2.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -905,7 +905,7 @@ report 10413 "Three Checks per Page"
                       CheckTranslationManagement.FormatDate("Posting Date", CheckDateFormat, DateSeparator, CheckLanguage, DateIndicator);
                 end else begin
                     if ChecksPrinted > 2 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     CheckTranslationManagement.SetCheckPrintParams(
                       BankAcc2."Check Date Format",
                       BankAcc2."Check Date Separator",
@@ -933,7 +933,7 @@ report 10413 "Three Checks per Page"
             trigger OnPreDataItem()
             begin
                 Copy(VoidGenJnlLine);
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 if not TestPrint then begin
                     FormatAddr.Company(CompanyAddr, CompanyInfo);
                     BankAcc2.Get(BankAcc2."No.");
@@ -1176,7 +1176,7 @@ report 10413 "Three Checks per Page"
         if (ApplyMethod = ApplyMethod::OneLineOneEntry) or
            (ApplyMethod = ApplyMethod::MoreLinesOneEntry)
         then begin
-            GenJnlLine3.Reset;
+            GenJnlLine3.Reset();
             GenJnlLine3.SetCurrentKey("Account Type", "Account No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
             CheckGLEntriesForCustomers(CustLedgEntry2);
         end;
@@ -1229,7 +1229,7 @@ report 10413 "Three Checks per Page"
         if (ApplyMethod = ApplyMethod::OneLineOneEntry) or
            (ApplyMethod = ApplyMethod::MoreLinesOneEntry)
         then begin
-            GenJnlLine3.Reset;
+            GenJnlLine3.Reset();
             GenJnlLine3.SetCurrentKey("Account Type", "Account No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
             CheckGLEntiresForVendors(VendLedgEntry2);
         end;
@@ -1280,7 +1280,7 @@ report 10413 "Three Checks per Page"
         if (ApplyMethod = ApplyMethod::OneLineOneEntry) or
            (ApplyMethod = ApplyMethod::MoreLinesOneEntry)
         then begin
-            GenJnlLine3.Reset;
+            GenJnlLine3.Reset();
             GenJnlLine3.SetCurrentKey("Account Type", "Account No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
             CheckGLEntriesForEmployee(EmployeeLedgerEntry2);
         end;
@@ -1365,7 +1365,7 @@ report 10413 "Three Checks per Page"
 
     local procedure UpdateEmployeeLedgEntry(var EmployeeLedgerEntry1: Record "Employee Ledger Entry"; RemainingAmount1: Decimal)
     begin
-        EmployeeLedgerEntry1.Reset;
+        EmployeeLedgerEntry1.Reset();
         EmployeeLedgerEntry1.SetCurrentKey("Document No.");
         EmployeeLedgerEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         EmployeeLedgerEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
@@ -1391,7 +1391,7 @@ report 10413 "Three Checks per Page"
 
     local procedure UpdateCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; RemainingAmount: Decimal)
     begin
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         CustLedgEntry.SetCurrentKey("Document No.");
         CustLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         CustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
@@ -1402,7 +1402,7 @@ report 10413 "Three Checks per Page"
 
     local procedure UpdateVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; RemainingAmount: Decimal)
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Document No.");
         VendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");

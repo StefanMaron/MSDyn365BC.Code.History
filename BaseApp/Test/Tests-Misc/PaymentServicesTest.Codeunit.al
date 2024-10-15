@@ -46,15 +46,15 @@ codeunit 134425 "Payment Services Test"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Payment Services Test");
         BindActiveDirectoryMockEvents;
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo."Allow Blank Payment Info." := true;
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
         PaymentServiceExtensionMock.AssertQueuesEmpty;
 
         PaymentServiceExtensionMock.EmptyTempPaymentServiceTables;
         LibraryVariableStorage.AssertEmpty;
-        SalesInvoiceHeader.DeleteAll;
-        SalesHeader.DeleteAll;
+        SalesInvoiceHeader.DeleteAll();
+        SalesHeader.DeleteAll();
 
         Assert.IsTrue(PaymentServiceSetup.IsEmpty, 'Payment Service Setup table should be empty. It should be used as a temporary table');
         Assert.IsTrue(
@@ -72,7 +72,7 @@ codeunit 134425 "Payment Services Test"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
         SetupReportSelections;
-        Commit;
+        Commit();
 
         Initialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Payment Services Test");
@@ -188,11 +188,11 @@ codeunit 134425 "Payment Services Test"
 
         CreatePaymentService(TempPaymentServiceSetup, TempTemplatePaymentServiceSetup);
         TempPaymentServiceSetup.Description := FirstRowDescription;
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
 
         CreateDefaultPaymentService(TempPaymentServiceSetup, TempTemplatePaymentServiceSetup);
         TempPaymentServiceSetup.Name := SecondRowName;
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
@@ -237,8 +237,8 @@ codeunit 134425 "Payment Services Test"
         CreateDefaultTemplate(TempTemplatePaymentServiceSetup);
         PaymentServiceExtensionMock.SetPaymentServiceTemplates(TempTemplatePaymentServiceSetup);
 
-        TempPaymentServiceSetup.Init;
-        TempPaymentServiceSetup.Insert;
+        TempPaymentServiceSetup.Init();
+        TempPaymentServiceSetup.Insert();
         LibraryVariableStorage.Enqueue(AssignMockSetupPageAndRecord(TempPaymentServiceSetup));
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
@@ -263,9 +263,9 @@ codeunit 134425 "Payment Services Test"
         Initialize;
         CreateSalesInvoiceLCY(SalesHeader, DummyPaymentMethod);
 
-        TempPaymentServiceSetup.Init;
+        TempPaymentServiceSetup.Init();
         TempPaymentServiceSetup."Setup Record ID" := SalesHeader.RecordId;
-        TempPaymentServiceSetup.Insert;
+        TempPaymentServiceSetup.Insert();
 
         // Execute
         TempPaymentServiceSetup.AssignPrimaryKey(TempPaymentServiceSetup);
@@ -286,10 +286,10 @@ codeunit 134425 "Payment Services Test"
         Initialize;
         CreateSalesInvoiceLCY(SalesHeader, DummyPaymentMethod);
 
-        TempPaymentServiceSetup.Init;
+        TempPaymentServiceSetup.Init();
         TempPaymentServiceSetup."Setup Page ID" := PAGE::"Sales Order";
         TempPaymentServiceSetup."Setup Record ID" := SalesHeader.RecordId;
-        TempPaymentServiceSetup.Insert;
+        TempPaymentServiceSetup.Insert();
 
         // Execute
         TempPaymentServiceSetup.Delete(true);
@@ -601,7 +601,7 @@ codeunit 134425 "Payment Services Test"
         TempPaymentServiceSetup.Name := EnabledServiceName;
         TempPaymentServiceSetup.Description := EnabledServiceDescription;
         AssignMockSetupRecordID(TempPaymentServiceSetup);
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
 
         // Create Regular Payment Service
         CreatePaymentService(TempPaymentServiceSetup, TempTemplatePaymentServiceSetup);
@@ -647,7 +647,7 @@ codeunit 134425 "Payment Services Test"
         TempPaymentServiceSetup.Name := PaymentService1Name;
         TempPaymentServiceSetup.Description := PaymentService1Description;
         AssignMockSetupRecordID(TempPaymentServiceSetup);
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
 
         // Create Second Payment Service
         CreateEnabledPaymentService(TempPaymentServiceSetup, TempTemplatePaymentServiceSetup);
@@ -656,7 +656,7 @@ codeunit 134425 "Payment Services Test"
         TempPaymentServiceSetup.Name := PaymentService2Name;
         TempPaymentServiceSetup.Description := PaymentService2Description;
         AssignMockSetupRecordID2(TempPaymentServiceSetup);
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         CreateSalesInvoiceLCY(SalesHeader, DummyPaymentMethod);
@@ -739,7 +739,7 @@ codeunit 134425 "Payment Services Test"
 
         CreateTemplatesAndAccountsForSelectionTest(TempPaymentServiceSetup);
         AssignMockSetupRecordID(TempPaymentServiceSetup);
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
@@ -762,7 +762,7 @@ codeunit 134425 "Payment Services Test"
 
         CreateTemplatesAndAccountsForSelectionTest(TempPaymentServiceSetup);
         AssignMockSetupRecordID(TempPaymentServiceSetup);
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
@@ -785,7 +785,7 @@ codeunit 134425 "Payment Services Test"
 
         CreateTemplatesAndAccountsForSelectionTest(TempPaymentServiceSetup);
         AssignMockSetupRecordID(TempPaymentServiceSetup);
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
@@ -837,7 +837,7 @@ codeunit 134425 "Payment Services Test"
         CreateTemplatesAndAccountsForSelectionTest(TempPaymentServiceSetup);
         TempPaymentServiceSetup.Enabled := false;
         AssignMockSetupRecordID(TempPaymentServiceSetup);
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         CreateSalesInvoiceLCY(SalesHeader, DummyPaymentMethod);
@@ -988,7 +988,7 @@ codeunit 134425 "Payment Services Test"
 
         // Execute
         SalesHeader.Validate("Payment Method Code", PaymentMethodWithBalancingAccount.Code);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // Verify
         Assert.AreEqual(0, SalesHeader."Payment Service Set ID", 'SalesInvoice - Payment service should be blanked');
@@ -1027,7 +1027,7 @@ codeunit 134425 "Payment Services Test"
 
         // Execute
         SalesHeader.Validate("Payment Method Code", PaymentMethodWithBalancingAccount.Code);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // Verify
         Assert.AreEqual(0, SalesHeader."Payment Service Set ID", 'SalesOrder - Payment service should be blanked');
@@ -1066,7 +1066,7 @@ codeunit 134425 "Payment Services Test"
 
         // Execute
         SalesHeader.Validate("Payment Method Code", PaymentMethodWithBalancingAccount.Code);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // Verify
         Assert.AreEqual(0, SalesHeader."Payment Service Set ID", 'SalesQuote - Payment service should be blanked');
@@ -1191,15 +1191,15 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.SetPaymentServiceTemplates(TempTemplatePaymentServiceSetup);
         CreateDefaultPaymentService(TempPaymentServiceSetup, TempTemplatePaymentServiceSetup);
         TempPaymentServiceSetup."Setup Record ID" := SalesHeader.RecordId;
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         CreateAndPostSalesInvoice(SalesInvoiceHeader, PaymentMethod);
 
         // Execute
-        SalesHeader.Delete;
+        SalesHeader.Delete();
         Clear(TempPaymentServiceSetup."Setup Record ID");
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Verify
@@ -1227,7 +1227,7 @@ codeunit 134425 "Payment Services Test"
         CreateServiceWithAccounts(TempTemplatePaymentServiceSetup, TempPaymentServiceSetup, LibraryRandom.RandIntInRange(2, 10));
         CreateServiceWithAccounts(TempTemplatePaymentServiceSetup, TempPaymentServiceSetup, LibraryRandom.RandIntInRange(2, 10));
         TempPaymentServiceSetup."Setup Record ID" := SalesHeader.RecordId;
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
 
         PaymentServiceExtensionMock.SetPaymentServiceTemplates(TempTemplatePaymentServiceSetup);
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
@@ -1235,15 +1235,15 @@ codeunit 134425 "Payment Services Test"
         CreateAndPostSalesInvoice(SalesInvoiceHeader, PaymentMethod);
 
         // Execute
-        SalesHeader.Delete;
+        SalesHeader.Delete();
         Clear(TempPaymentServiceSetup."Setup Record ID");
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Verify
         PostedSalesInvoice.OpenEdit;
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
-        TempPaymentServiceSetup.Delete;
+        TempPaymentServiceSetup.Delete();
 
         Assert.AreEqual(
           GetExpectedName(TempPaymentServiceSetup), PostedSalesInvoice.SelectedPayments.Value, 'Non existing recods should not be shown');
@@ -1270,7 +1270,7 @@ codeunit 134425 "Payment Services Test"
         CreatePaymentMethod(PaymentMethod, false);
         CreateAndPostSalesInvoice(SalesInvoiceHeader, PaymentMethod);
         TempPaymentServiceSetup.Enabled := false;
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Execute
@@ -1562,13 +1562,13 @@ codeunit 134425 "Payment Services Test"
         CreateAndPostSalesInvoice(SalesInvoiceHeader, PaymentMethod);
 
         TempPaymentServiceSetup.Validate(Enabled, false);
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
 
         // Exercise
         TempPaymentServiceSetup.CreateReportingArgs(TempPaymentReportingArgument, SalesInvoiceHeader);
 
-        Commit;
+        Commit();
         SalesInvoiceHeader.SetRecFilter;
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvoiceHeader);
 
@@ -1591,7 +1591,7 @@ codeunit 134425 "Payment Services Test"
 
         CreateDefaultTemplate(TempTemplatePaymentServiceSetup);
         TempTemplatePaymentServiceSetup."Terms of Service" := TermsOfServiceURLTxt;
-        TempTemplatePaymentServiceSetup.Modify;
+        TempTemplatePaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceTemplates(TempTemplatePaymentServiceSetup);
 
         CreateDefaultPaymentService(TempPaymentServiceSetup, TempTemplatePaymentServiceSetup);
@@ -1705,7 +1705,7 @@ codeunit 134425 "Payment Services Test"
         CustomReportLayout: Record "Custom Report Layout";
         ReportSelections: Record "Report Selections";
     begin
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         CreateDefaultReportSelection;
 
         GetCustomBodyLayout(CustomReportLayout);
@@ -1722,11 +1722,11 @@ codeunit 134425 "Payment Services Test"
     var
         ReportSelections: Record "Report Selections";
     begin
-        ReportSelections.Init;
+        ReportSelections.Init();
         ReportSelections.Usage := ReportSelections.Usage::"S.Invoice";
         ReportSelections.Sequence := '1';
         ReportSelections."Report ID" := REPORT::"Standard Sales - Invoice";
-        ReportSelections.Insert;
+        ReportSelections.Insert();
     end;
 
     local procedure GetReportID(): Integer
@@ -1748,7 +1748,7 @@ codeunit 134425 "Payment Services Test"
     begin
         LibrarySales.CreateCustomer(Customer);
         TempPaymentServiceSetup."Setup Record ID" := Customer.RecordId;
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
     end;
 
     local procedure AssignMockSetupRecordID2(var TempPaymentServiceSetup: Record "Payment Service Setup" temporary)
@@ -1756,10 +1756,10 @@ codeunit 134425 "Payment Services Test"
         CompanyInformation: Record "Company Information";
     begin
         if not CompanyInformation.Get then
-            CompanyInformation.Insert;
+            CompanyInformation.Insert();
 
         TempPaymentServiceSetup."Setup Record ID" := CompanyInformation.RecordId;
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
     end;
 
     local procedure AssignMockSetupPageAndRecord(var TempPaymentServiceSetup: Record "Payment Service Setup" temporary): Code[20]
@@ -1771,7 +1771,7 @@ codeunit 134425 "Payment Services Test"
         Customer.Get(CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
         TempPaymentServiceSetup."Setup Record ID" := Customer.RecordId;
         TempPaymentServiceSetup."Setup Page ID" := PAGE::"Customer Card";
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
 
         exit(Customer."No.");
     end;
@@ -1788,7 +1788,7 @@ codeunit 134425 "Payment Services Test"
         Description := 'Default Service Description';
         TempPaymentServiceSetup.Description := Description;
         AssignMockSetupRecordID(TempPaymentServiceSetup);
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
     end;
 
@@ -1803,7 +1803,7 @@ codeunit 134425 "Payment Services Test"
             TempPaymentServiceSetup.Description := StrSubstNo('Default Service Description %1', I);
             TempPaymentServiceSetup.Name := StrSubstNo('%1 %2', TempPaymentServiceSetup.Name, I);
             AssignMockSetupRecordID(TempPaymentServiceSetup);
-            TempPaymentServiceSetup.Modify;
+            TempPaymentServiceSetup.Modify();
         end;
 
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
@@ -1814,17 +1814,17 @@ codeunit 134425 "Payment Services Test"
         CreateTemplate(TempPaymentServiceSetup);
         TempPaymentServiceSetup.Name := TestServiceNameTxt;
         TempPaymentServiceSetup.Description := TestServiceDescriptionTxt;
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
     end;
 
     local procedure CreateTemplate(var TempPaymentServiceSetup: Record "Payment Service Setup" temporary)
     begin
-        TempPaymentServiceSetup.Init;
+        TempPaymentServiceSetup.Init();
         TempPaymentServiceSetup."No." := LibraryUtility.GenerateGUID;
         TempPaymentServiceSetup.Name := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(10, 1), 1, 10);
         TempPaymentServiceSetup.Description := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(10, 1), 1, 10);
         TempPaymentServiceSetup."Management Codeunit ID" := PaymentServiceExtensionMock.GetCodeunitID;
-        TempPaymentServiceSetup.Insert;
+        TempPaymentServiceSetup.Insert();
 
         AssignMockSetupRecordID(TempPaymentServiceSetup);
     end;
@@ -1840,21 +1840,21 @@ codeunit 134425 "Payment Services Test"
         Clear(TempPaymentServiceSetup);
         TempPaymentServiceSetup.TransferFields(TempTemplatePaymentServiceSetup, false);
         TempPaymentServiceSetup."No." := CopyStr(NextKey, 1, 50);
-        TempPaymentServiceSetup.Insert;
+        TempPaymentServiceSetup.Insert();
     end;
 
     local procedure CreateEnabledPaymentService(var TempPaymentServiceSetup: Record "Payment Service Setup" temporary; var TempTemplatePaymentServiceSetup: Record "Payment Service Setup" temporary)
     begin
         CreatePaymentService(TempPaymentServiceSetup, TempTemplatePaymentServiceSetup);
         TempPaymentServiceSetup.Enabled := true;
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
     end;
 
     local procedure CreateDefaultPaymentService(var TempPaymentServiceSetup: Record "Payment Service Setup" temporary; var TempTemplatePaymentServiceSetup: Record "Payment Service Setup" temporary)
     begin
         CreateEnabledPaymentService(TempPaymentServiceSetup, TempTemplatePaymentServiceSetup);
         TempPaymentServiceSetup."Always Include on Documents" := true;
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
     end;
 
     local procedure CreateAndPostSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; PaymentMethod: Record "Payment Method")
@@ -2032,7 +2032,7 @@ codeunit 134425 "Payment Services Test"
     begin
         Assert.IsFalse(TempPaymentReportingArgument.IsEmpty, 'Temp Payment Reporting Argument was not generated');
         TargetURL := TempPaymentReportingArgument.GetTargetURL;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNotEqual('', TargetURL, 'Wrong setup data');
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         Assert.IsTrue(
@@ -2056,7 +2056,7 @@ codeunit 134425 "Payment Services Test"
         Assert.IsTrue(
           StrPos(BodyHTMLText, Format(SalesInvoiceHeader."Amount Including VAT", 0, 9)) > 0, 'Total amount was not set correctly');
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.IsTrue(
           StrPos(BodyHTMLText, GeneralLedgerSetup.GetCurrencyCode(SalesInvoiceHeader."Currency Code")) > 0,
           'Currency Code was not set correctly');
@@ -2183,7 +2183,7 @@ codeunit 134425 "Payment Services Test"
         PaymentServiceExtensionMock.GetPaymentServiceTemplates(TempPaymentServiceSetup);
         TempPaymentServiceSetup.FindFirst;
         TempPaymentServiceSetup.Enabled := true;
-        TempPaymentServiceSetup.Modify;
+        TempPaymentServiceSetup.Modify();
         PaymentServiceExtensionMock.SetPaymentServiceAccounts(TempPaymentServiceSetup);
     end;
 

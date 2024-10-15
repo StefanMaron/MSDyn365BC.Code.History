@@ -209,7 +209,7 @@ report 10091 "Item Statistics by Purchaser"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := "Salesperson/Purchaser".GetFilters;
         FilterString2 := "Value Entry".GetFilters;
     end;

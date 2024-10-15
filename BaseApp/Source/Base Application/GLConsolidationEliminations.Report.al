@@ -135,7 +135,7 @@ report 16 "G/L Consolidation Eliminations"
                     if ("G/L Account"."Account Type" <> "G/L Account"."Account Type"::Posting) and
                        ("G/L Account".Totaling <> '')
                     then begin
-                        GenJnlLine.Reset;
+                        GenJnlLine.Reset();
                         GenJnlLine := "Gen. Journal Line";
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -370,10 +370,10 @@ report 16 "G/L Consolidation Eliminations"
         GenJournalLine: Record "Gen. Journal Line";
         LineNo: Integer;
     begin
-        TempGenJournalLine.Reset;
-        TempGenJournalLine.DeleteAll;
+        TempGenJournalLine.Reset();
+        TempGenJournalLine.DeleteAll();
 
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
@@ -383,7 +383,7 @@ report 16 "G/L Consolidation Eliminations"
                 LineNo += 10000;
                 TempGenJournalLine := GenJournalLine;
                 TempGenJournalLine."Line No." := LineNo;
-                TempGenJournalLine.Insert;
+                TempGenJournalLine.Insert();
             until GenJournalLine.Next = 0;
 
         GenJournalLine.SetRange("Account Type");
@@ -398,7 +398,7 @@ report 16 "G/L Consolidation Eliminations"
                 TempGenJournalLine."Account No." := TempGenJournalLine."Bal. Account No.";
                 TempGenJournalLine.Description := GLAccount.Name;
                 TempGenJournalLine.Amount *= -1;
-                TempGenJournalLine.Insert;
+                TempGenJournalLine.Insert();
             until GenJournalLine.Next = 0;
     end;
 }

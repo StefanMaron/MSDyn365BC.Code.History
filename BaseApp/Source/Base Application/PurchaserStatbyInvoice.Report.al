@@ -315,7 +315,7 @@ report 10100 "Purchaser Stat. by Invoice"
         PeriodText := "Salesperson/Purchaser".GetFilter("Date Filter");
         "Salesperson/Purchaser".SetRange("Date Filter");  // so it won't show twice on header
         FilterString := "Salesperson/Purchaser".GetFilters;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

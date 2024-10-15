@@ -47,14 +47,17 @@ table 291 "Shipping Agent"
         ShippingAgentServices: Record "Shipping Agent Services";
     begin
         ShippingAgentServices.SetRange("Shipping Agent Code", Code);
-        ShippingAgentServices.DeleteAll;
+        ShippingAgentServices.DeleteAll();
 
         CalendarManagement.DeleteCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::"Shipping Agent", Code);
     end;
 
     trigger OnRename()
+    var
+        CRMSyncHelper: Codeunit "CRM Synch. Helper";
     begin
         CalendarManagement.RenameCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::"Shipping Agent", Code, xRec.Code);
+        CRMSyncHelper.UpdateCDSOptionMapping(xRec.RecordId(), RecordId());
     end;
 
     var

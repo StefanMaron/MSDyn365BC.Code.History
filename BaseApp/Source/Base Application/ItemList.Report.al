@@ -311,7 +311,7 @@ report 10143 "Item List"
                 trigger OnPreDataItem()
                 begin
                     if not MoreInfo or UseSKU then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Stockkeeping Unit"; "Stockkeeping Unit")
@@ -427,7 +427,7 @@ report 10143 "Item List"
                 trigger OnPreDataItem()
                 begin
                     if not MoreInfo or not UseSKU or not Item."Stockkeeping Unit Exists" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     Clear(TotalValue);
                 end;
             }
@@ -522,7 +522,7 @@ report 10143 "Item List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
     end;
 

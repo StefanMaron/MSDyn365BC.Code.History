@@ -103,6 +103,8 @@ table 1003 "Job Planning Line"
 
                 GetJob;
                 "Customer Price Group" := Job."Customer Price Group";
+                "Price Calculation Method" := Job.GetPriceCalculationMethod();
+                "Cost Calculation Method" := Job.GetCostCalculationMethod();
 
                 case Type of
                     Type::Resource:
@@ -205,7 +207,8 @@ table 1003 "Job Planning Line"
                             Error(MissingItemResourceGLErr, Type, GLAcc.FieldCaption("No."));
                 end;
 
-                "Quantity (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Quantity (Base)" :=
+                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
 
                 if "Usage Link" and (xRec."No." = "No.") then begin
                     Delta := Quantity - xRec.Quantity;
@@ -756,7 +759,8 @@ table 1003 "Job Planning Line"
 
             trigger OnValidate()
             begin
-                Validate("Remaining Qty. (Base)", UOMMgt.CalcBaseQty("Remaining Qty.", "Qty. per Unit of Measure"));
+                Validate("Remaining Qty. (Base)",
+                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Remaining Qty.", "Qty. per Unit of Measure"));
             end;
         }
         field(1061; "Remaining Qty. (Base)"; Decimal)
@@ -916,12 +920,10 @@ table 1003 "Job Planning Line"
                 UpdatePlanned;
             end;
         }
-        field(1102; Reserve; Option)
+        field(1102; Reserve; Enum "Reserve Method")
         {
             AccessByPermission = TableData Item = R;
             Caption = 'Reserve';
-            OptionCaption = 'Never,Optional,Always';
-            OptionMembers = Never,Optional,Always;
 
             trigger OnValidate()
             begin
@@ -1049,6 +1051,14 @@ table 1003 "Job Planning Line"
         {
             Caption = 'Service Order No.';
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
+        field(7001; "Cost Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Cost Calculation Method';
+        }
     }
 
     keys
@@ -1136,7 +1146,7 @@ table 1003 "Job Planning Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         GetJob;
         if Job.Blocked = Job.Blocked::All then
             Job.TestBlocked;
@@ -1174,7 +1184,6 @@ table 1003 "Job Planning Line"
         JobTask: Record "Job Task";
         ItemVariant: Record "Item Variant";
         Res: Record Resource;
-        ResCost: Record "Resource Cost";
         WorkType: Record "Work Type";
         Job: Record Job;
         ResourceUnitOfMeasure: Record "Resource Unit of Measure";
@@ -1337,6 +1346,8 @@ table 1003 "Job Planning Line"
         UpdateCurrencyFactor;
         if LastJobPlanningLine."Planning Date" <> 0D then
             Validate("Planning Date", LastJobPlanningLine."Planning Date");
+        "Price Calculation Method" := Job.GetPriceCalculationMethod();
+        "Cost Calculation Method" := Job.GetCostCalculationMethod();
 
         OnAfterSetupNewLine(Rec, LastJobPlanningLine);
     end;
@@ -1428,8 +1439,57 @@ table 1003 "Job Planning Line"
     begin
         if HasGotGLSetup then
             exit;
-        GLSetup.Get;
+        GLSetup.Get();
         HasGotGLSetup := true;
+    end;
+
+    procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        RemainingQty := "Remaining Qty." - Abs("Reserved Quantity");
+        RemainingQtyBase := "Remaining Qty. (Base)" - Abs("Reserved Qty. (Base)");
+    end;
+
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        QtyReserved := "Reserved Quantity";
+        QtyReservedBase := "Reserved Qty. (Base)";
+        QtyToReserve := "Remaining Qty.";
+        QtyToReserveBase := "Remaining Qty. (Base)";
+        exit("Qty. per Unit of Measure");
+    end;
+
+    procedure GetSourceCaption(): Text
+    begin
+        exit(StrSubstNo('%1 %2 %3', Status, "Job No.", "No."));
+    end;
+
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSource(DATABASE::"Job Planning Line", Status, "Job No.", "Job Contract Entry No.", '', 0);
+        ReservEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        if Type <> Type::Item then
+            ReservEntry."Item No." := '';
+        ReservEntry."Expected Receipt Date" := "Planning Date";
+        ReservEntry."Shipment Date" := "Planning Date";
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Job Planning Line", Status, "Job No.", "Job Contract Entry No.", false);
+        ReservEntry.SetSourceFilter('', 0);
+
+        OnAfterSetReservationFilters(ReservEntry, Rec);
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry);
+        exit(not ReservEntry.IsEmpty);
     end;
 
     local procedure UpdateAllAmounts()
@@ -1459,6 +1519,7 @@ table 1003 "Job Planning Line"
 
     local procedure UpdateUnitCost()
     var
+        ResCost: Record "Resource Cost";
         RetrievedCost: Decimal;
     begin
         GetJob;
@@ -1494,7 +1555,7 @@ table 1003 "Job Planning Line"
         else
             if (Type = Type::Resource) and Res.Get("No.") then begin
                 if RetrieveCostPrice then begin
-                    ResCost.Init;
+                    ResCost.Init();
                     ResCost.Code := "No.";
                     ResCost."Work Type Code" := "Work Type Code";
                     CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
@@ -1557,21 +1618,32 @@ table 1003 "Job Planning Line"
 
     local procedure FindPriceAndDiscount(var JobPlanningLine: Record "Job Planning Line"; CalledByFieldNo: Integer)
     var
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
-        PurchPriceCalcMgt: Codeunit "Purch. Price Calc. Mgt.";
+        PriceType: Enum "Price Type";
     begin
         if RetrieveCostPrice and ("No." <> '') then begin
-            SalesPriceCalcMgt.FindJobPlanningLinePrice(JobPlanningLine, CalledByFieldNo);
-
-            if Type <> Type::"G/L Account" then
-                PurchPriceCalcMgt.FindJobPlanningLinePrice(JobPlanningLine, CalledByFieldNo)
-            else begin
-                // Because the SalesPriceCalcMgt.FindJobJnlLinePrice function also retrieves costs for G/L Account,
-                // cost and total cost need to get updated again.
+            ApplyPrice(PriceType::Sale, CalledByFieldNo);
+            ApplyPrice(PriceType::Purchase, CalledByFieldNo);
+            if Type = Type::"G/L Account" then begin
                 UpdateUnitCost;
                 UpdateTotalCost;
             end;
         end;
+    end;
+
+    procedure ApplyPrice(PriceType: enum "Price Type"; CalledByFieldNo: Integer)
+    var
+        JobPlanningLinePrice: Codeunit "Job Planning Line - Price";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        PriceCalculation: Interface "Price Calculation";
+        Line: Variant;
+    begin
+        JobPlanningLinePrice.SetLine(PriceType, Rec);
+        PriceCalculationMgt.GetHandler(JobPlanningLinePrice, PriceCalculation);
+        PriceCalculation.ApplyPrice(CalledByFieldNo);
+        if PriceType = PriceType::Sale then
+            PriceCalculation.ApplyDiscount();
+        PriceCalculation.GetLine(Line);
+        Rec := Line;
     end;
 
     local procedure HandleCostFactor()
@@ -1874,19 +1946,18 @@ table 1003 "Job Planning Line"
         TestField("No.");
         TestField(Reserve);
         TestField("Usage Link");
-        Reservation.SetJobPlanningLine(Rec);
-        Reservation.RunModal;
+        Reservation.SetReservSource(Rec);
+        Reservation.RunModal();
     end;
 
     procedure ShowReservationEntries(Modal: Boolean)
     var
         ReservEntry: Record "Reservation Entry";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
     begin
         TestField(Type, Type::Item);
         TestField("No.");
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, true);
-        JobPlanningLineReserve.FilterReservFor(ReservEntry, Rec);
+        ReservEntry.InitSortingAndFilters(true);
+        SetReservationFilters(ReservEntry);
         if Modal then
             PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry)
         else
@@ -1906,12 +1977,12 @@ table 1003 "Job Planning Line"
             FieldError(Reserve);
         JobPlanningLineReserve.ReservQuantity(Rec, QtyToReserve, QtyToReserveBase);
         if QtyToReserveBase <> 0 then begin
-            ReservMgt.SetJobPlanningLine(Rec);
             TestField("Planning Date");
+            ReservMgt.SetReservSource(Rec);
             ReservMgt.AutoReserve(FullAutoReservation, '', "Planning Date", QtyToReserve, QtyToReserveBase);
             Find;
             if not FullAutoReservation then begin
-                Commit;
+                Commit();
                 if Confirm(AutoReserveQst, true) then begin
                     ShowReservation;
                     Find;
@@ -1970,6 +2041,22 @@ table 1003 "Job Planning Line"
     begin
         FilterLinesWithItemToPlan(Item);
         exit(not IsEmpty);
+    end;
+
+    procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; NewStatus: Option; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+        Reset;
+        SetCurrentKey(Status, Type, "No.", "Variant Code", "Location Code", "Planning Date");
+        SetRange(Status, NewStatus);
+        SetRange(Type, Type::Item);
+        SetRange("No.", ReservationEntry."Item No.");
+        SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Location Code", ReservationEntry."Location Code");
+        SetFilter("Planning Date", AvailabilityFilter);
+        if Positive then
+            SetFilter("Quantity (Base)", '<0')
+        else
+            SetFilter("Quantity (Base)", '>0');
     end;
 
     procedure DrillDownJobInvoices()
@@ -2032,7 +2119,7 @@ table 1003 "Job Planning Line"
     begin
         ToJobPlanningLine := Rec;
 
-        ToJobPlanningLine.Init;
+        ToJobPlanningLine.Init();
         ToJobPlanningLine.TransferFields(FromJobPlanningLine);
         ToJobPlanningLine."Line No." := GetNextJobLineNo(FromJobPlanningLine);
         ToJobPlanningLine.Validate("Line Type", "Line Type"::Billable);
@@ -2070,6 +2157,32 @@ table 1003 "Job Planning Line"
         exit(Item.IsNonInventoriableType);
     end;
 
+    procedure CopyTrackingFromJobJnlLine(JobJnlLine: Record "Job Journal Line")
+    begin
+        "Serial No." := JobJnlLine."Serial No.";
+        "Lot No." := JobJnlLine."Lot No.";
+
+        OnAfterCopyTrackingFromJobJnlLine(Rec, JobJnlLine);
+    end;
+
+    procedure CopyTrackingFromJobLedgEntry(JobLedgEntry: Record "Job Ledger Entry")
+    begin
+        "Serial No." := JobLedgEntry."Serial No.";
+        "Lot No." := JobLedgEntry."Lot No.";
+
+        OnAfterCopyTrackingFromJobLedgEntry(Rec, JobLedgEntry);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromJobJnlLine(var JobPlanningLine: Record "Job Planning Line"; JobJnlLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromJobLedgEntry(var JobPlanningLine: Record "Job Planning Line"; JobLedgEntry: Record "Job Ledger Entry")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteAmounts(var JobPlanningLine: Record "Job Planning Line")
     begin
@@ -2085,8 +2198,14 @@ table 1003 "Job Planning Line"
     begin
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobPlanningLine: Record "Job Planning Line"; var ResourceCost: Record "Resource Cost")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; JobPlanningLine: Record "Job Planning Line");
     begin
     end;
 

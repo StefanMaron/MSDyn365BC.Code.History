@@ -1,4 +1,4 @@
-﻿codeunit 9025 "Small Business Report Catalog"
+codeunit 9025 "Small Business Report Catalog"
 {
 
     trigger OnRun()

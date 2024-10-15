@@ -27,7 +27,7 @@ codeunit 10335 "Exp. Mapping Det EFT MX"
                     LineNo := LineNo + 1;
                 end;
             until ACHCecobanDetail.Next = 0;
-        ACHCecobanDetail.DeleteAll;
+        ACHCecobanDetail.DeleteAll();
     end;
 
     local procedure NoDataExchLineDef(DataExchDefCode: Code[20]): Boolean

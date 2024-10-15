@@ -211,7 +211,7 @@ page 9036 "Bookkeeper Activities"
     begin
         UseSharedTable := false;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         BankReconWithAutoMatch := GeneralLedgerSetup."Bank Recon. with Auto. Match";
     end;
 

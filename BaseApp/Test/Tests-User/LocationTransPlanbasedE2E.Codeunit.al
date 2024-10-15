@@ -115,7 +115,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         InitializePreExistingMasterDataForTeamMember(Item, Vendor, Customer);
         InitializePreExistingTransferOrderForTeamMemberToShipAndReceive(TransferHeader, ExtraLocationCode, Item."No.", Vendor.Name);
         GenerateRandomIdentifiersForTeamMemberToCreateNewData(AnyItemDescription, AnyVendorName, AnyLocationCode, AnyLocationName);
-        Commit;
+        Commit();
 
         // Exercise
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -193,7 +193,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         InitializePreExistingMasterDataForTeamMember(Item, Vendor, Customer);
         InitializePreExistingTransferOrderForTeamMemberToShipAndReceive(TransferHeader, ExtraLocationCode, Item."No.", Vendor.Name);
         GenerateRandomIdentifiersForTeamMemberToCreateNewData(AnyItemDescription, AnyVendorName, AnyLocationCode, AnyLocationName);
-        Commit;
+        Commit();
 
         // Exercise
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -300,7 +300,6 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
 
@@ -317,14 +316,25 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        InitializeAvailabilityCheckSettingsOnCompanyInformation;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
+    end;
 
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
+    local procedure InitializeAvailabilityCheckSettingsOnCompanyInformation()
+    var
+        CompanyInformation: Record "Company Information";
+        BlankDateFormula: DateFormula;
+    begin
+        with CompanyInformation do begin
+            Get;
+            Validate("Check-Avail. Period Calc.", BlankDateFormula);
+            Validate("Check-Avail. Time Bucket", "Check-Avail. Time Bucket"::Day);
+            Modify(true);
+        end;
     end;
 
     local procedure InitializePreExistingMasterDataForTeamMember(var Item: Record Item; var Vendor: Record Vendor; var Customer: Record Customer)
@@ -712,7 +722,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         Location: Record Location;
     begin
         Location.Get(Code);
-        Location.Delete;
+        Location.Delete();
     end;
 
     local procedure AssertPostedTransferShipmentExists(FromLocationCode: Code[10]; ToLocationCode: Code[10]; InTransitLocationCode: Code[10])

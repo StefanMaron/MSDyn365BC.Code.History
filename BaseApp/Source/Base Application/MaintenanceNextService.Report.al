@@ -52,12 +52,12 @@ report 5635 "Maintenance - Next Service"
             trigger OnAfterGetRecord()
             begin
                 if "Budgeted Asset" or Inactive or ("Next Service Date" = 0D) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if (StartingDate > 0D) or (EndingDate > 0D) then begin
                     if (StartingDate > 0D) and ("Next Service Date" < StartingDate) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if (EndingDate > 0D) and ("Next Service Date" > EndingDate) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             end;
         }

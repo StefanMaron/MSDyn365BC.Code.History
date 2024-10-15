@@ -45,7 +45,7 @@ page 10029 "Sales Order Invoice Subform"
                         // Item Cross Ref - start
                         if Type = Type::Item then begin
                             SalesHeader.Get("Document Type", "Document No.");
-                            ItemCrossReference.Reset;
+                            ItemCrossReference.Reset();
                             ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
                             ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Customer);
                             ItemCrossReference.SetRange("Cross-Reference Type No.", SalesHeader."Sell-to Customer No.");

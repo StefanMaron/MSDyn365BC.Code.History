@@ -273,7 +273,7 @@ report 10114 "Vendor Item Stat. by Purchaser"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := "Salesperson/Purchaser".GetFilters;
         FilterString2 := Vendor.GetFilters;
         FilterString3 := "Value Entry".GetFilters;

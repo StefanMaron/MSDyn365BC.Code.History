@@ -794,10 +794,10 @@ page 10038 "Sales Order Stats."
 
         ClearObjects(SalesLine, TotalSalesLine, TotalSalesLineLCY, BreakdownLabel, BreakdownAmt);
 
-        SalesLine.Reset;
+        SalesLine.Reset();
 
         for i := 1 to 3 do begin
-            TempSalesLine.DeleteAll;
+            TempSalesLine.DeleteAll();
             Clear(TempSalesLine);
             Clear(SalesPost);
             SalesPost.GetSalesLines(Rec, TempSalesLine, i - 1);
@@ -809,26 +809,26 @@ page 10038 "Sales Order Stats."
                 repeat
                     SalesTaxCalculate.AddSalesLine(TempSalesLine);
                 until TempSalesLine.Next = 0;
-            TempSalesLine.Reset;
+            TempSalesLine.Reset();
             OnBeforeCalculateSalesTaxSalesOrderStats(
               Rec, TempSalesLine, i, TempSalesTaxLine1, TempSalesTaxLine2, TempSalesTaxLine3, TempSalesTaxAmtLine, SalesTaxCalculationOverridden);
             if not SalesTaxCalculationOverridden then
                 case i of
                     1:
                         begin
-                            TempSalesTaxLine1.DeleteAll;
+                            TempSalesTaxLine1.DeleteAll();
                             SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
                             SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine1);
                         end;
                     2:
                         begin
-                            TempSalesTaxLine2.DeleteAll;
+                            TempSalesTaxLine2.DeleteAll();
                             SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
                             SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine2);
                         end;
                     3:
                         begin
-                            TempSalesTaxLine3.DeleteAll;
+                            TempSalesTaxLine3.DeleteAll();
                             SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
                             SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine3);
                         end;
@@ -872,7 +872,7 @@ page 10038 "Sales Order Stats."
                                 BrkIdx := BrkIdx - 1;
                                 BreakdownLabel[i, BrkIdx] := Text1020012;
                             end else
-                                BreakdownLabel[i, BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[i, BrkIdx]));
+                                BreakdownLabel[i, BrkIdx] := StrSubstNo("Print Description", "Tax %");
                         end;
                         BreakdownAmt[i, BrkIdx] := BreakdownAmt[i, BrkIdx] + "Tax Amount";
                         VATAmount[i] := VATAmount[i] + "Tax Amount";
@@ -880,7 +880,7 @@ page 10038 "Sales Order Stats."
                 TotalAmount2[i] := TotalAmount2[i] + VATAmount[i];
             end;
         end;
-        TempSalesLine.DeleteAll;
+        TempSalesLine.DeleteAll();
         Clear(TempSalesLine);
         FillPrepmtAmount;
 
@@ -908,7 +908,7 @@ page 10038 "Sales Order Stats."
 
     trigger OnOpenPage()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         NullTab := -1;
         AllowInvDisc := not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=
@@ -1205,7 +1205,7 @@ page 10038 "Sales Order Stats."
     begin
         GetVATSpecification(ActiveTab);
 
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         SalesLine.FindFirst;

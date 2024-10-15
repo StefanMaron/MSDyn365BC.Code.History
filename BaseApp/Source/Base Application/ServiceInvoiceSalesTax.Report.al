@@ -26,13 +26,13 @@ report 10474 "Service Invoice-Sales Tax"
                 trigger OnAfterGetRecord()
                 begin
                     TempServInvoiceLine := "Service Invoice Line";
-                    TempServInvoiceLine.Insert;
+                    TempServInvoiceLine.Insert();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempServInvoiceLine.Reset;
-                    TempServInvoiceLine.DeleteAll;
+                    TempServInvoiceLine.Reset();
+                    TempServInvoiceLine.DeleteAll();
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -423,7 +423,7 @@ report 10474 "Service Invoice-Sales Tax"
                         begin
                             Clear(TaxLiable);
                             Clear(AmountExclInvDisc);
-                            NumberOfLines := TempServInvoiceLine.Count;
+                            NumberOfLines := TempServInvoiceLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                             PrintFooter := false;
@@ -439,13 +439,13 @@ report 10474 "Service Invoice-Sales Tax"
                         trigger OnAfterGetRecord()
                         begin
                             if not DisplayAdditionalFeeNote then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             if Number = 1 then begin
                                 if not TempLineFeeNoteOnReportHist.FindSet then
                                     CurrReport.Break
                             end else
                                 if TempLineFeeNoteOnReportHist.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                         end;
                     }
                 }
@@ -455,7 +455,7 @@ report 10474 "Service Invoice-Sales Tax"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             ServiceInvCountPrinted.Run("Service Invoice Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -618,26 +618,26 @@ report 10474 "Service Invoice-Sales Tax"
     begin
         // ShipmentLine.SETCURRENTKEY("Order No.","Order Line No.");
 
-        GLSetup.Get;
-        CompanyInformation.Get;
-        ServiceSetup.Get;
+        GLSetup.Get();
+        CompanyInformation.Get();
+        ServiceSetup.Get();
 
         case ServiceSetup."Logo Position on Documents" of
             ServiceSetup."Logo Position on Documents"::"No Logo":
                 ;
             ServiceSetup."Logo Position on Documents"::Left:
                 begin
-                    CompanyInfo3.Get;
+                    CompanyInfo3.Get();
                     CompanyInfo3.CalcFields(Picture);
                 end;
             ServiceSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             ServiceSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -756,7 +756,7 @@ report 10474 "Service Invoice-Sales Tax"
                 exit(0D);
         end;
 
-        ServiceShipmentBuffer.Reset;
+        ServiceShipmentBuffer.Reset();
         ServiceShipmentBuffer.SetRange("Document No.", "Service Invoice Line"."Document No.");
         ServiceShipmentBuffer.SetRange("Line No.", "Service Invoice Line"."Line No.");
         if ServiceShipmentBuffer.Find('-') then begin
@@ -764,12 +764,12 @@ report 10474 "Service Invoice-Sales Tax"
             if ServiceShipmentBuffer.Next = 0 then begin
                 ServiceShipmentBuffer.Get(
                   ServiceShipmentBuffer2."Document No.", ServiceShipmentBuffer2."Line No.", ServiceShipmentBuffer2."Entry No.");
-                ServiceShipmentBuffer.Delete;
+                ServiceShipmentBuffer.Delete();
                 exit(ServiceShipmentBuffer2."Posting Date");
             end;
             ServiceShipmentBuffer.CalcSums(Quantity);
             if ServiceShipmentBuffer.Quantity <> "Service Invoice Line".Quantity then begin
-                ServiceShipmentBuffer.DeleteAll;
+                ServiceShipmentBuffer.DeleteAll();
                 exit("Service Invoice Header"."Posting Date");
             end;
         end else
@@ -870,7 +870,7 @@ report 10474 "Service Invoice-Sales Tax"
         ServiceShipmentBuffer.SetRange("Posting Date", PostingDate);
         if ServiceShipmentBuffer.Find('-') then begin
             ServiceShipmentBuffer.Quantity := ServiceShipmentBuffer.Quantity + QtyOnShipment;
-            ServiceShipmentBuffer.Modify;
+            ServiceShipmentBuffer.Modify();
             exit;
         end;
 
@@ -893,7 +893,7 @@ report 10474 "Service Invoice-Sales Tax"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Customer: Record Customer;
     begin
-        TempLineFeeNoteOnReportHist.DeleteAll;
+        TempLineFeeNoteOnReportHist.DeleteAll();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
         if not CustLedgerEntry.FindFirst then
@@ -906,17 +906,17 @@ report 10474 "Service Invoice-Sales Tax"
         LineFeeNoteOnReportHist.SetRange("Language Code", Customer."Language Code");
         if LineFeeNoteOnReportHist.FindSet then begin
             repeat
-                TempLineFeeNoteOnReportHist.Init;
+                TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
-                TempLineFeeNoteOnReportHist.Insert;
+                TempLineFeeNoteOnReportHist.Insert();
             until LineFeeNoteOnReportHist.Next = 0;
         end else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
             if LineFeeNoteOnReportHist.FindSet then
                 repeat
-                    TempLineFeeNoteOnReportHist.Init;
+                    TempLineFeeNoteOnReportHist.Init();
                     TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
-                    TempLineFeeNoteOnReportHist.Insert;
+                    TempLineFeeNoteOnReportHist.Insert();
                 until LineFeeNoteOnReportHist.Next = 0;
         end;
     end;

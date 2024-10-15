@@ -1,4 +1,4 @@
-﻿page 5933 "Service Invoice"
+page 5933 "Service Invoice"
 {
     Caption = 'Service Invoice';
     PageType = Document;
@@ -295,6 +295,11 @@
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                 }
+                field("Direct Debit Mandate ID"; "Direct Debit Mandate ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct debit collection of payments.';
+                }
                 field("Currency Code"; "Currency Code")
                 {
                     ApplicationArea = Service;
@@ -520,7 +525,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         if "Tax Area Code" = '' then
                             PAGE.RunModal(PAGE::"Service Statistics", Rec)
@@ -586,11 +591,11 @@
                     var
                         TempServDocLog: Record "Service Document Log" temporary;
                     begin
-                        TempServDocLog.Reset;
-                        TempServDocLog.DeleteAll;
+                        TempServDocLog.Reset();
+                        TempServDocLog.DeleteAll();
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Invoice, "No.");
 
-                        TempServDocLog.Reset;
+                        TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
                         TempServDocLog.Ascending(false);
 

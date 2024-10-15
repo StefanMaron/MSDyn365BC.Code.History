@@ -252,7 +252,7 @@ report 5754 "Create Pick"
         PickListReportID: Integer;
         IsHandled: Boolean;
     begin
-        PickWhseWkshLine.LockTable;
+        PickWhseWkshLine.LockTable();
         repeat
             if Location."Bin Mandatory" and
                (not Location."Always Create Pick Line")
@@ -329,7 +329,7 @@ report 5754 "Create Pick"
                 PickWhseWkshLine."Qty. to Handle" := 0;
                 PickWhseWkshLine."Qty. to Handle (Base)" := 0;
                 OnBeforePickWhseWkshLineModify(PickWhseWkshLine);
-                PickWhseWkshLine.Modify;
+                PickWhseWkshLine.Modify();
             end;
         until PickWhseWkshLine.Next = 0;
 
@@ -343,7 +343,7 @@ report 5754 "Create Pick"
             FirstPickNo := FirstSetPickNo;
         CreatePick.ReturnTempItemTrkgLines(TempWhseItemTrkgLine);
         ItemTrackingMgt.UpdateWhseItemTrkgLines(TempWhseItemTrkgLine);
-        Commit;
+        Commit();
 
         TempMaxNoOfSourceDoc := MaxNoOfSourceDoc;
         PickWhseActivHeader.SetRange(Type, PickWhseActivHeader.Type::Pick);
@@ -352,13 +352,15 @@ report 5754 "Create Pick"
         repeat
             if SortPick > 0 then
                 PickWhseActivHeader.SortWhseDoc;
-            Commit;
+            Commit();
             if PrintPick then begin
-                IsHandled := false;
                 PickListReportID := REPORT::"Picking List";
                 OnBeforePrintPickList(PickWhseActivHeader, PickListReportID, IsHandled);
-                if not IsHandled then
+                if not IsHandled then begin
+                    PickWhseActivHeaderToPrint := PickWhseActivHeader;
+                    PickWhseActivHeaderToPrint.SetRecFilter;
                     REPORT.Run(PickListReportID, false, false, PickWhseActivHeader);
+                end;
                 TempMaxNoOfSourceDoc -= 1;
             end;
         until ((PickWhseActivHeader.Next = 0) or (TempMaxNoOfSourceDoc = 0));

@@ -37,7 +37,7 @@ page 2100 "O365 Sales Year Summary"
                     GLSetup: Record "General Ledger Setup";
                     O365SalesStatistics: Codeunit "O365 Sales Statistics";
                 begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     O365SalesStatistics.GenerateMonthlyOverview(Rec);
                     O365SalesStatistics.GenerateChart(CurrPage.Chart, Rec, MonthTxt, StrSubstNo(AmountTxt, GLSetup.GetCurrencySymbol));
                 end;
@@ -47,8 +47,8 @@ page 2100 "O365 Sales Year Summary"
                     GLSetup: Record "General Ledger Setup";
                     O365SalesStatistics: Codeunit "O365 Sales Statistics";
                 begin
-                    GLSetup.Get;
-                    DeleteAll;
+                    GLSetup.Get();
+                    DeleteAll();
                     O365SalesStatistics.GenerateMonthlyOverview(Rec);
                     O365SalesStatistics.GenerateChart(CurrPage.Chart, Rec, MonthTxt, StrSubstNo(AmountTxt, GLSetup.GetCurrencySymbol));
                 end;

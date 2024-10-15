@@ -204,11 +204,11 @@ page 10043 "Purchase Stats."
         if PurchLine.Find('-') then
             repeat
                 TempPurchLine.Copy(PurchLine);
-                TempPurchLine.Insert;
+                TempPurchLine.Insert();
                 if not TaxArea."Use External Tax Engine" then
                     SalesTaxCalculate.AddPurchLine(TempPurchLine);
             until PurchLine.Next = 0;
-        TempSalesTaxLine.DeleteAll;
+        TempSalesTaxLine.DeleteAll();
         if TaxArea."Use External Tax Engine" then
             SalesTaxCalculate.CallExternalTaxEngineForPurch(Rec, true)
         else
@@ -243,7 +243,7 @@ page 10043 "Purchase Stats."
 
     trigger OnOpenPage()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         AllowInvDisc :=
           not (PurchSetup."Calc. Inv. Discount" and VendInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=
@@ -383,7 +383,7 @@ page 10043 "Purchase Stats."
     begin
         GetVATSpecification;
 
-        PurchLine.Reset;
+        PurchLine.Reset();
         PurchLine.SetRange("Document Type", "Document Type");
         PurchLine.SetRange("Document No.", "No.");
         PurchLine.FindFirst;
@@ -446,7 +446,7 @@ page 10043 "Purchase Stats."
                             BrkIdx := BrkIdx - 1;
                             BreakdownLabel[BrkIdx] := Text008;
                         end else
-                            BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
+                            BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
                     end;
                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
                     if UpdateTaxAmount then

@@ -190,7 +190,7 @@ report 10402 "Deposit Test Report"
                         if ShowDim then
                             SetRange(Number, 1, DimSetEntry.Count)
                         else
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(HeaderErrorLoop; "Integer")
@@ -495,7 +495,7 @@ report 10402 "Deposit Test Report"
                                ("Gen. Journal Line"."Account Type" <> "Gen. Journal Line"."Account Type"::Customer) or
                                ("Gen. Journal Line"."Applies-to ID" = '')
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             GetCurrencyRecord(Currency, "Deposit Header"."Currency Code");
                         end;
                     }
@@ -624,7 +624,7 @@ report 10402 "Deposit Test Report"
                                ("Gen. Journal Line"."Account Type" <> "Gen. Journal Line"."Account Type"::Vendor) or
                                ("Gen. Journal Line"."Applies-to ID" = '')
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             RemainingAmountToApply := -"Gen. Journal Line".Amount;
                             GetCurrencyRecord(Currency, "Deposit Header"."Currency Code");
                         end;
@@ -655,7 +655,7 @@ report 10402 "Deposit Test Report"
                         trigger OnPreDataItem()
                         begin
                             if isShow then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(DimensionLoop2; "Integer")
@@ -695,7 +695,7 @@ report 10402 "Deposit Test Report"
                             if ShowDim then
                                 SetRange(Number, 1, DimSetEntry2.Count)
                             else
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(LineErrorCounter; "Integer")
@@ -962,8 +962,8 @@ report 10402 "Deposit Test Report"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
     end;
 
     var

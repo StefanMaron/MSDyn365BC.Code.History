@@ -1,4 +1,4 @@
-﻿report 10139 "Inventory Valuation"
+report 10139 "Inventory Valuation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './InventoryValuation.rdlc';
@@ -91,7 +91,7 @@
                 begin
                     AdjustItemLedgEntryToAsOfDate("Item Ledger Entry");
                     UpdateBuffer("Item Ledger Entry");
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 trigger OnPostDataItem()
@@ -126,7 +126,7 @@
                 trigger OnAfterGetRecord()
                 begin
                     if TempEntryBuffer.Next <> 1 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
@@ -145,8 +145,8 @@
             begin
                 if not InvPostingGroup.Get("Inventory Posting Group") then
                     Clear(InvPostingGroup);
-                TempEntryBuffer.Reset;
-                TempEntryBuffer.DeleteAll;
+                TempEntryBuffer.Reset();
+                TempEntryBuffer.DeleteAll();
                 Progress.Update(1, Format("No."));
             end;
 
@@ -225,9 +225,9 @@
         if Item.GetFilter("Date Filter") <> '' then
             Error(Text002, Item.FieldCaption("Date Filter"), Item.TableCaption);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Additional Reporting Currency" = '' then
             ShowACY := false
         else begin
@@ -284,7 +284,7 @@
             // adjust remaining quantity
             "Remaining Quantity" := Quantity;
             if Positive then begin
-                ItemApplnEntry.Reset;
+                ItemApplnEntry.Reset();
                 ItemApplnEntry.SetCurrentKey(
                   "Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.", "Cost Application");
                 ItemApplnEntry.SetRange("Inbound Item Entry No.", "Entry No.");
@@ -294,7 +294,7 @@
                 ItemApplnEntry.CalcSums(Quantity);
                 "Remaining Quantity" += ItemApplnEntry.Quantity;
             end else begin
-                ItemApplnEntry.Reset;
+                ItemApplnEntry.Reset();
                 ItemApplnEntry.SetCurrentKey(
                   "Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application", "Transferred-from Entry No.");
                 ItemApplnEntry.SetRange("Item Ledger Entry No.", "Entry No.");
@@ -306,11 +306,11 @@
                            (ItemLedgEntry2."Posting Date" <= AsOfDate)
                         then
                             "Remaining Quantity" := "Remaining Quantity" - ItemApplnEntry.Quantity;
-                    until ItemApplnEntry.Next = 0;
+                    until ItemApplnEntry.Next() = 0;
             end;
 
             // calculate adjusted cost of entry
-            ValueEntry.Reset;
+            ValueEntry.Reset();
             ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
             ValueEntry.SetRange("Posting Date", 0D, AsOfDate);
             ValueEntry.CalcSums(
@@ -327,7 +327,7 @@
         NewRow: Boolean;
     begin
         if ItemLedgEntry."Item No." <> LastItemNo then begin
-            ClearLastEntry;
+            ClearLastEntry();
             LastItemNo := ItemLedgEntry."Item No.";
             NewRow := true
         end;
@@ -360,7 +360,7 @@
         end;
 
         if NewRow then
-            UpdateTempEntryBuffer;
+            UpdateTempEntryBuffer();
 
         TempEntryBuffer."Remaining Quantity" += ItemLedgEntry."Remaining Quantity";
         if ShowACY then
@@ -386,7 +386,7 @@
     procedure UpdateTempEntryBuffer()
     begin
         if IsCollecting and ((TempEntryBuffer."Remaining Quantity" <> 0) or (TempEntryBuffer.Value1 <> 0)) then
-            TempEntryBuffer.Insert;
+            TempEntryBuffer.Insert();
         IsCollecting := false;
         Clear(TempEntryBuffer);
     end;

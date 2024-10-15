@@ -203,7 +203,7 @@ report 10052 "Item Status by Salesperson"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := "Salesperson/Purchaser".GetFilters;
         FilterString2 := "Value Entry".GetFilters;
     end;

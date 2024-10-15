@@ -179,7 +179,7 @@ report 10044 "Customer Labels NA"
                 trigger OnAfterGetRecord()
                 begin
                     if NumOfBlanks <= 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     NumOfBlanks := NumOfBlanks - 1;
                 end;
             }

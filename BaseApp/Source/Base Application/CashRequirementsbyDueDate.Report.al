@@ -282,7 +282,7 @@ report 10088 "Cash Requirements by Due Date"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := "Vendor Ledger Entry".GetFilters;
     end;
 

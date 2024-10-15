@@ -63,7 +63,7 @@ codeunit 10145 "E-Invoice Mgt."
         Export := false;
         GetCompanyInfo;
         GetGLSetupOnce;
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         Selection := StrMenu(Text008, 3);
 
         ElectronicDocumentStatus := RecRef.Field(10030).Value;
@@ -83,7 +83,7 @@ codeunit 10145 "E-Invoice Mgt."
                 begin
                     EDocActionValidation(EDocAction::"Request Stamp", ElectronicDocumentStatus);
                     RequestStamp(RecRef, Prepayment, false);
-                    Commit;
+                    Commit();
                     ElectronicDocumentStatus := RecRef.Field(10030).Value;
                     EDocActionValidation(EDocAction::Send, ElectronicDocumentStatus);
                     Send(RecRef, false);
@@ -104,7 +104,7 @@ codeunit 10145 "E-Invoice Mgt."
         Export := false;
         GetCheckCompanyInfo;
         GetGLSetup;
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
 
         case RecRef.Number of
             DATABASE::"Sales Invoice Header":
@@ -329,12 +329,12 @@ codeunit 10145 "E-Invoice Mgt."
                         Modify;
                     end else begin
                         if not CFDIDocuments.Get("No.", DATABASE::"Sales Invoice Header", true, true) then begin
-                            CFDIDocuments.Init;
+                            CFDIDocuments.Init();
                             CFDIDocuments."No." := "No.";
                             CFDIDocuments."Document Table ID" := DATABASE::"Sales Invoice Header";
                             CFDIDocuments.Prepayment := true;
                             CFDIDocuments.Reversal := true;
-                            CFDIDocuments.Insert;
+                            CFDIDocuments.Insert();
                         end;
                         RecordRef.GetTable(CFDIDocuments);
                         TempBlobOriginalString.ToRecordRef(RecordRef, FieldNo("Original String"));
@@ -384,7 +384,7 @@ codeunit 10145 "E-Invoice Mgt."
                 end;
         end;
 
-        Commit;
+        Commit();
 
         Response := InvokeMethod(XMLDoc, MethodType::"Request Stamp");
 
@@ -406,25 +406,25 @@ codeunit 10145 "E-Invoice Mgt."
             DATABASE::"Sales Invoice Header":
                 begin
                     ProcessResponseESalesInvoice(SalesInvoiceHeader, EDocAction::"Request Stamp", Reverse);
-                    SalesInvoiceHeader.Modify;
+                    SalesInvoiceHeader.Modify();
                     DocumentHeaderRecordRef.GetTable(SalesInvoiceHeader);
                 end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
                     ProcessResponseESalesCrMemo(SalesCrMemoHeader, EDocAction::"Request Stamp");
-                    SalesCrMemoHeader.Modify;
+                    SalesCrMemoHeader.Modify();
                     DocumentHeaderRecordRef.GetTable(SalesCrMemoHeader);
                 end;
             DATABASE::"Service Invoice Header":
                 begin
                     ProcessResponseEServiceInvoice(ServiceInvoiceHeader, EDocAction::"Request Stamp", AmountInclVAT);
-                    ServiceInvoiceHeader.Modify;
+                    ServiceInvoiceHeader.Modify();
                     DocumentHeaderRecordRef.GetTable(ServiceInvoiceHeader);
                 end;
             DATABASE::"Service Cr.Memo Header":
                 begin
                     ProcessResponseEServiceCrMemo(ServiceCrMemoHeader, EDocAction::"Request Stamp", AmountInclVAT);
-                    ServiceCrMemoHeader.Modify;
+                    ServiceCrMemoHeader.Modify();
                     DocumentHeaderRecordRef.GetTable(ServiceCrMemoHeader);
                 end;
         end;
@@ -521,7 +521,7 @@ codeunit 10145 "E-Invoice Mgt."
         if not Reverse then begin
             SalesInvHeaderLoc.Get(SalesInvHeader."No.");
             SalesInvHeaderLoc."No. Printed" := SalesInvHeader."No. Printed";
-            SalesInvHeaderLoc.Modify;
+            SalesInvHeaderLoc.Modify();
         end;
 
         // Send Email with Attachments
@@ -536,7 +536,7 @@ codeunit 10145 "E-Invoice Mgt."
             SalesInvHeaderLoc."Electronic Document Status" := SalesInvHeaderLoc."Electronic Document Status"::Sent;
             SalesInvHeaderLoc."Date/Time Sent" :=
               FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesInvHeader)));
-            SalesInvHeaderLoc.Modify;
+            SalesInvHeaderLoc.Modify();
         end else begin
             CFDIDocumentsLoc.Get(SalesInvHeader."No.", DATABASE::"Sales Invoice Header", true, true);
             CFDIDocumentsLoc."No. of E-Documents Sent" := CFDIDocumentsLoc."No. of E-Documents Sent" + 1;
@@ -545,7 +545,7 @@ codeunit 10145 "E-Invoice Mgt."
             CFDIDocumentsLoc."Electronic Document Status" := CFDIDocumentsLoc."Electronic Document Status"::Sent;
             CFDIDocumentsLoc."Date/Time Sent" :=
               FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesInvHeader)));
-            CFDIDocumentsLoc.Modify;
+            CFDIDocumentsLoc.Modify();
         end;
         Message(Text001, SalesInvHeader."No.");
     end;
@@ -579,7 +579,7 @@ codeunit 10145 "E-Invoice Mgt."
         // Reset No. Printed
         SalesCrMemoHeaderLoc.Get(SalesCrMemoHeader."No.");
         SalesCrMemoHeaderLoc."No. Printed" := SalesCrMemoHeader."No. Printed";
-        SalesCrMemoHeaderLoc.Modify;
+        SalesCrMemoHeaderLoc.Modify();
 
         // Send Email with Attachments
         SendEmail(Customer."E-Mail", StrSubstNo(Text006, SalesCrMemoHeader."No."),
@@ -592,7 +592,7 @@ codeunit 10145 "E-Invoice Mgt."
         SalesCrMemoHeaderLoc."Electronic Document Status" := SalesCrMemoHeaderLoc."Electronic Document Status"::Sent;
         SalesCrMemoHeaderLoc."Date/Time Sent" :=
           FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(SalesCrMemoHeader)));
-        SalesCrMemoHeaderLoc.Modify;
+        SalesCrMemoHeaderLoc.Modify();
 
         Message(Text001, SalesCrMemoHeader."No.");
     end;
@@ -625,7 +625,7 @@ codeunit 10145 "E-Invoice Mgt."
         // Reset No. Printed
         ServiceInvoiceHeaderLoc.Get(ServiceInvoiceHeader."No.");
         ServiceInvoiceHeaderLoc."No. Printed" := ServiceInvoiceHeader."No. Printed";
-        ServiceInvoiceHeaderLoc.Modify;
+        ServiceInvoiceHeaderLoc.Modify();
 
         // Send Email with Attachments
         SendEmail(Customer."E-Mail", StrSubstNo(Text005, ServiceInvoiceHeader."No."),
@@ -638,7 +638,7 @@ codeunit 10145 "E-Invoice Mgt."
         ServiceInvoiceHeaderLoc."Electronic Document Status" := ServiceInvoiceHeaderLoc."Electronic Document Status"::Sent;
         ServiceInvoiceHeaderLoc."Date/Time Sent" :=
           FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(ServiceInvoiceHeader)));
-        ServiceInvoiceHeaderLoc.Modify;
+        ServiceInvoiceHeaderLoc.Modify();
 
         Message(Text001, ServiceInvoiceHeader."No.");
     end;
@@ -671,7 +671,7 @@ codeunit 10145 "E-Invoice Mgt."
         // Reset No. Printed
         ServiceCrMemoHeaderLoc.Get(ServiceCrMemoHeader."No.");
         ServiceCrMemoHeaderLoc."No. Printed" := ServiceCrMemoHeader."No. Printed";
-        ServiceCrMemoHeaderLoc.Modify;
+        ServiceCrMemoHeaderLoc.Modify();
 
         // Send Email with Attachments
         SendEmail(Customer."E-Mail", StrSubstNo(Text006, ServiceCrMemoHeader."No."),
@@ -684,7 +684,7 @@ codeunit 10145 "E-Invoice Mgt."
         ServiceCrMemoHeaderLoc."Electronic Document Status" := ServiceCrMemoHeaderLoc."Electronic Document Status"::Sent;
         ServiceCrMemoHeaderLoc."Date/Time Sent" :=
           FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromDocument(ServiceCrMemoHeader)));
-        ServiceCrMemoHeaderLoc.Modify;
+        ServiceCrMemoHeaderLoc.Modify();
 
         Message(Text001, ServiceCrMemoHeader."No.");
     end;
@@ -734,9 +734,9 @@ codeunit 10145 "E-Invoice Mgt."
             OutStr.WriteText(Response);
         end;
 
-        SalesInvHeader.Modify;
+        SalesInvHeader.Modify();
         ProcessResponseESalesInvoice(SalesInvHeader, EDocAction::Cancel, false);
-        SalesInvHeader.Modify;
+        SalesInvHeader.Modify();
     end;
 
     local procedure CancelESalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -784,9 +784,9 @@ codeunit 10145 "E-Invoice Mgt."
             OutStr.WriteText(Response);
         end;
 
-        SalesCrMemoHeader.Modify;
+        SalesCrMemoHeader.Modify();
         ProcessResponseESalesCrMemo(SalesCrMemoHeader, EDocAction::Cancel);
-        SalesCrMemoHeader.Modify;
+        SalesCrMemoHeader.Modify();
     end;
 
     local procedure CancelEServiceInvoice(var ServiceInvHeader: Record "Service Invoice Header")
@@ -834,9 +834,9 @@ codeunit 10145 "E-Invoice Mgt."
             OutStr.WriteText(Response);
         end;
 
-        ServiceInvHeader.Modify;
+        ServiceInvHeader.Modify();
         ProcessResponseEServiceInvoice(ServiceInvHeader, EDocAction::Cancel, 0);
-        ServiceInvHeader.Modify;
+        ServiceInvHeader.Modify();
     end;
 
     local procedure CancelEServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
@@ -884,9 +884,9 @@ codeunit 10145 "E-Invoice Mgt."
             OutStr.WriteText(Response);
         end;
 
-        ServiceCrMemoHeader.Modify;
+        ServiceCrMemoHeader.Modify();
         ProcessResponseEServiceCrMemo(ServiceCrMemoHeader, EDocAction::Cancel, 0);
-        ServiceCrMemoHeader.Modify;
+        ServiceCrMemoHeader.Modify();
     end;
 
     local procedure CancelEPayment(var CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -931,9 +931,9 @@ codeunit 10145 "E-Invoice Mgt."
             OutStr.WriteText(Response);
         end;
 
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
         ProcessResponseEPayment(CustLedgerEntry, EDocAction::Cancel);
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
     end;
 
     local procedure ProcessResponseESalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; "Action": Option; Reverse: Boolean)
@@ -1025,7 +1025,7 @@ codeunit 10145 "E-Invoice Mgt."
                     EDocAction::"Request Stamp":
                         CFDIDocuments."Electronic Document Status" := CFDIDocuments."Electronic Document Status"::"Stamp Request Error";
                 end;
-                CFDIDocuments.Modify;
+                CFDIDocuments.Modify();
             end;
             exit;
         end;
@@ -1044,7 +1044,7 @@ codeunit 10145 "E-Invoice Mgt."
 
         XMLCurrNode := XMLDocResult.SelectSingleNode('Resultado');
         XMLDOMNodeList := XMLCurrNode.ChildNodes;
-        NodeCount := XMLDOMNodeList.Count;
+        NodeCount := XMLDOMNodeList.Count();
 
         Clear(XMLDoc);
         XMLDoc := XMLDoc.XmlDocument;
@@ -1116,7 +1116,7 @@ codeunit 10145 "E-Invoice Mgt."
             CreateQRCode(QRCodeInput, TempBlob);
             RecordRef.GetTable(CFDIDocuments);
             TempBlob.ToRecordRef(RecordRef, CFDIDocuments.FieldNo("QR Code"));
-            RecordRef.Modify;
+            RecordRef.Modify();
         end;
     end;
 
@@ -1189,7 +1189,7 @@ codeunit 10145 "E-Invoice Mgt."
         end;
         XMLCurrNode := XMLDoc.SelectSingleNode('Resultado');
         XMLDOMNodeList := XMLCurrNode.ChildNodes;
-        NodeCount := XMLDOMNodeList.Count;
+        NodeCount := XMLDOMNodeList.Count();
         Clear(XMLDoc);
         XMLDoc := XMLDoc.XmlDocument;
 
@@ -1303,7 +1303,7 @@ codeunit 10145 "E-Invoice Mgt."
         end;
         XMLCurrNode := XMLDoc.SelectSingleNode('Resultado');
         XMLDOMNodeList := XMLCurrNode.ChildNodes;
-        NodeCount := XMLDOMNodeList.Count;
+        NodeCount := XMLDOMNodeList.Count();
         Clear(XMLDoc);
         XMLDoc := XMLDoc.XmlDocument;
 
@@ -1416,7 +1416,7 @@ codeunit 10145 "E-Invoice Mgt."
         end;
         XMLCurrNode := XMLDoc.SelectSingleNode('Resultado');
         XMLDOMNodeList := XMLCurrNode.ChildNodes;
-        NodeCount := XMLDOMNodeList.Count;
+        NodeCount := XMLDOMNodeList.Count();
         Clear(XMLDoc);
         XMLDoc := XMLDoc.XmlDocument;
 
@@ -1534,7 +1534,7 @@ codeunit 10145 "E-Invoice Mgt."
             // Conceptos->Concepto
             TotalDiscount := 0;
             LineTaxes := false;
-            TempDocumentLine.Reset;
+            TempDocumentLine.Reset();
             TempDocumentLine.SetRange("Document No.", "No.");
             TempDocumentLine.SetFilter(Type, '<>%1', TempDocumentLine.Type::" ");
             if TempDocumentLine.FindSet then
@@ -1606,7 +1606,7 @@ codeunit 10145 "E-Invoice Mgt."
                 AddElementCFDI(XMLCurrNode, 'Impuestos', '', DocNameSpace, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
 
-                TempDocumentLine.Reset;
+                TempDocumentLine.Reset();
                 TempDocumentLine.SetRange("Document No.", "No.");
                 TempDocumentLine.SetFilter(Type, '<>%1', TempDocumentLine.Type::" ");
                 if TempDocumentLine.FindSet then begin
@@ -1717,7 +1717,7 @@ codeunit 10145 "E-Invoice Mgt."
 
             // Conceptos->Concepto
             TotalDiscount := 0;
-            TempDocumentLine.Reset;
+            TempDocumentLine.Reset();
             TempDocumentLine.SetRange("Document No.", "No.");
             TempDocumentLine.SetFilter(Type, '<>%1', TempDocumentLine.Type::" ");
             if TempDocumentLine.FindSet then
@@ -1781,7 +1781,7 @@ codeunit 10145 "E-Invoice Mgt."
                 AddElementCFDI(XMLCurrNode, 'Impuestos', '', DocNameSpace, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
 
-                TempDocumentLine.Reset;
+                TempDocumentLine.Reset();
                 TempDocumentLine.SetRange("Document No.", "No.");
                 TempDocumentLine.SetFilter(Type, '<>%1', TempDocumentLine.Type::" ");
                 if TempDocumentLine.FindSet then begin
@@ -2132,7 +2132,7 @@ codeunit 10145 "E-Invoice Mgt."
                 until TempDocumentLine.Next = 0;
 
             if LineTaxes then begin
-                TempDocumentLine.Reset;
+                TempDocumentLine.Reset();
                 TempDocumentLine.SetRange("Document No.", "No.");
                 TempDocumentLine.SetFilter(Type, '<>%1', TempDocumentLine.Type::" ");
                 if TempDocumentLine.FindSet then begin
@@ -2257,7 +2257,7 @@ codeunit 10145 "E-Invoice Mgt."
                 until TempDocumentLine.Next = 0;
 
             if LineTaxes then begin
-                TempDocumentLine.Reset;
+                TempDocumentLine.Reset();
                 TempDocumentLine.SetRange("Document No.", "No.");
                 TempDocumentLine.SetFilter(Type, '<>%1', TempDocumentLine.Type::" ");
                 if TempDocumentLine.FindSet then begin
@@ -2575,10 +2575,7 @@ codeunit 10145 "E-Invoice Mgt."
             Error(ImportFailedErr);
     end;
 
-    local procedure WriteCompanyInfo33(var XMLDoc: DotNet XmlDocument;
-
-    var
-        XMLCurrNode: DotNet XmlNode)
+    local procedure WriteCompanyInfo33(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
     var
         XMLNewChild: DotNet XmlNode;
     begin
@@ -2592,10 +2589,7 @@ codeunit 10145 "E-Invoice Mgt."
         end;
     end;
 
-    local procedure InitXML33(var XMLDoc: DotNet XmlDocument;
-
-    var
-        XMLCurrNode: DotNet XmlNode)
+    local procedure InitXML33(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
     begin
@@ -2613,10 +2607,7 @@ codeunit 10145 "E-Invoice Mgt."
         XMLCurrNode := XMLDoc.DocumentElement;
     end;
 
-    local procedure InitXML33AdvancePayment(var XMLDoc: DotNet XmlDocument;
-
-    var
-        XMLCurrNode: DotNet XmlNode)
+    local procedure InitXML33AdvancePayment(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
     begin
@@ -2635,12 +2626,7 @@ codeunit 10145 "E-Invoice Mgt."
         XMLCurrNode := XMLDoc.DocumentElement;
     end;
 
-    local procedure AddElementCFDI(var XMLNode: DotNet XmlNode; NodeName: Text;
-                                                    NodeText: Text;
-                                                    NameSpace: Text;
-
-    var
-        CreatedXMLNode: DotNet XmlNode): Boolean
+    local procedure AddElementCFDI(var XMLNode: DotNet XmlNode; NodeName: Text; NodeText: Text; NameSpace: Text; var CreatedXMLNode: DotNet XmlNode): Boolean
     var
         NewChildNode: DotNet XmlNode;
     begin
@@ -2656,12 +2642,7 @@ codeunit 10145 "E-Invoice Mgt."
         exit(true);
     end;
 
-    local procedure AddElement(var XMLNode: DotNet XmlNode; NodeName: Text;
-                                                NodeText: Text;
-                                                NameSpace: Text;
-
-    var
-        CreatedXMLNode: DotNet XmlNode): Boolean
+    local procedure AddElement(var XMLNode: DotNet XmlNode; NodeName: Text; NodeText: Text; NameSpace: Text; var CreatedXMLNode: DotNet XmlNode): Boolean
     var
         NewChildNode: DotNet XmlNode;
     begin
@@ -2676,12 +2657,7 @@ codeunit 10145 "E-Invoice Mgt."
         exit(true);
     end;
 
-    local procedure AddAttribute(var XMLDomDocParam: DotNet XmlDocument;
-
-    var
-        XMLDomNode: DotNet XmlNode;
-        AttribName: Text;
-        AttribValue: Text): Boolean
+    local procedure AddAttribute(var XMLDomDocParam: DotNet XmlDocument; var XMLDomNode: DotNet XmlNode; AttribName: Text; AttribValue: Text): Boolean
     var
         XMLDomAttribute: DotNet XmlAttribute;
     begin
@@ -2774,13 +2750,13 @@ codeunit 10145 "E-Invoice Mgt."
         if GLSetupRead then
             exit;
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetupRead := true;
     end;
 
     local procedure GetCompanyInfo()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     local procedure GetCheckCompanyInfo()
@@ -2835,7 +2811,7 @@ codeunit 10145 "E-Invoice Mgt."
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        SalesInvoiceLine.Reset;
+        SalesInvoiceLine.Reset();
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
         if AdvanceSettle then
@@ -2852,7 +2828,7 @@ codeunit 10145 "E-Invoice Mgt."
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        SalesCrMemoLine.Reset;
+        SalesCrMemoLine.Reset();
         SalesCrMemoLine.SetRange("Document No.", DocumentNo);
         SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
         if SalesCrMemoLine.FindSet then
@@ -2867,7 +2843,7 @@ codeunit 10145 "E-Invoice Mgt."
     var
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
-        ServiceInvoiceLine.Reset;
+        ServiceInvoiceLine.Reset();
         ServiceInvoiceLine.SetRange("Document No.", DocumentNo);
         ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
         if ServiceInvoiceLine.FindSet then
@@ -2883,7 +2859,7 @@ codeunit 10145 "E-Invoice Mgt."
     var
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
-        ServiceCrMemoLine.Reset;
+        ServiceCrMemoLine.Reset();
         ServiceCrMemoLine.SetRange("Document No.", DocumentNo);
         ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
         if ServiceCrMemoLine.FindSet then
@@ -3104,9 +3080,9 @@ codeunit 10145 "E-Invoice Mgt."
                         TempDocumentHeader."Currency Code" := GLSetup."LCY Code";
                         TempDocumentHeader."Currency Factor" := 1.0;
                     end;
-                    TempDocumentHeader.Insert;
+                    TempDocumentHeader.Insert();
 
-                    SalesInvoiceLine.Reset;
+                    SalesInvoiceLine.Reset();
                     SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
                     SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
                     if AdvanceSettle then
@@ -3117,7 +3093,7 @@ codeunit 10145 "E-Invoice Mgt."
                             TempDocumentLine.TransferFields(SalesInvoiceLine);
                             TempDocumentLine."Line Discount Amount" :=
                               TempDocumentLine."Line Discount Amount" + SalesInvoiceLine."Inv. Discount Amount";
-                            TempDocumentLine.Insert;
+                            TempDocumentLine.Insert();
                         until SalesInvoiceLine.Next = 0;
                 end;
             DATABASE::"Sales Cr.Memo Header":
@@ -3128,9 +3104,9 @@ codeunit 10145 "E-Invoice Mgt."
                         TempDocumentHeader."Currency Code" := GLSetup."LCY Code";
                         TempDocumentHeader."Currency Factor" := 1.0;
                     end;
-                    TempDocumentHeader.Insert;
+                    TempDocumentHeader.Insert();
 
-                    SalesCrMemoLine.Reset;
+                    SalesCrMemoLine.Reset();
                     SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
                     SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
                     if SalesCrMemoLine.FindSet then
@@ -3138,7 +3114,7 @@ codeunit 10145 "E-Invoice Mgt."
                             TempDocumentLine.TransferFields(SalesCrMemoLine);
                             TempDocumentLine."Line Discount Amount" :=
                               TempDocumentLine."Line Discount Amount" + SalesCrMemoLine."Inv. Discount Amount";
-                            TempDocumentLine.Insert;
+                            TempDocumentLine.Insert();
                         until SalesCrMemoLine.Next = 0;
                 end;
             DATABASE::"Service Invoice Header":
@@ -3149,9 +3125,9 @@ codeunit 10145 "E-Invoice Mgt."
                         TempDocumentHeader."Currency Code" := GLSetup."LCY Code";
                         TempDocumentHeader."Currency Factor" := 1.0;
                     end;
-                    TempDocumentHeader.Insert;
+                    TempDocumentHeader.Insert();
 
-                    ServiceInvoiceLine.Reset;
+                    ServiceInvoiceLine.Reset();
                     ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
                     ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
                     if ServiceInvoiceLine.FindSet then
@@ -3163,7 +3139,7 @@ codeunit 10145 "E-Invoice Mgt."
                             TempDocumentLine."VAT %" := (LineVatPercent * 100);
                             TempDocumentLine."Line Discount Amount" :=
                               TempDocumentLine."Line Discount Amount" + ServiceInvoiceLine."Inv. Discount Amount";
-                            TempDocumentLine.Insert;
+                            TempDocumentLine.Insert();
                         until ServiceInvoiceLine.Next = 0;
                 end;
             DATABASE::"Service Cr.Memo Header":
@@ -3174,9 +3150,9 @@ codeunit 10145 "E-Invoice Mgt."
                         TempDocumentHeader."Currency Code" := GLSetup."LCY Code";
                         TempDocumentHeader."Currency Factor" := 1.0;
                     end;
-                    TempDocumentHeader.Insert;
+                    TempDocumentHeader.Insert();
 
-                    ServiceCrMemoLine.Reset;
+                    ServiceCrMemoLine.Reset();
                     ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
                     ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
                     if ServiceCrMemoLine.FindSet then
@@ -3188,7 +3164,7 @@ codeunit 10145 "E-Invoice Mgt."
                             TempDocumentLine."VAT %" := (LineVatPercent * 100);
                             TempDocumentLine."Line Discount Amount" :=
                               TempDocumentLine."Line Discount Amount" + ServiceCrMemoLine."Inv. Discount Amount";
-                            TempDocumentLine.Insert;
+                            TempDocumentLine.Insert();
                         until ServiceCrMemoLine.Next = 0;
                 end;
         end;
@@ -3241,7 +3217,7 @@ codeunit 10145 "E-Invoice Mgt."
         if SalesInvoiceHeader."CFDI Purpose" = '' then
             exit(Passed);
 
-        SalesInvoiceLine.Reset;
+        SalesInvoiceLine.Reset();
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
         SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
         if SalesInvoiceLine.FindSet then
@@ -3332,7 +3308,7 @@ codeunit 10145 "E-Invoice Mgt."
         Export := false;
         GetCompanyInfo;
         GetGLSetup;
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         Selection := StrMenu(Text008, 3);
 
         ElectronicDocumentStatus := CustLedgerEntry."Electronic Document Status";
@@ -3351,7 +3327,7 @@ codeunit 10145 "E-Invoice Mgt."
                 begin
                     EDocActionValidation(EDocAction::"Request Stamp", ElectronicDocumentStatus);
                     RequestPaymentStamp(CustLedgerEntry);
-                    Commit;
+                    Commit();
                     EDocActionValidation(EDocAction::Send, ElectronicDocumentStatus);
                     SendPayment(CustLedgerEntry);
                 end;
@@ -3394,7 +3370,7 @@ codeunit 10145 "E-Invoice Mgt."
             repeat
                 Clear(TempDetailedCustLedgEntry);
                 TempDetailedCustLedgEntry.TransferFields(DetailedCustLedgEntry, true);
-                TempDetailedCustLedgEntry.Insert;
+                TempDetailedCustLedgEntry.Insert();
             until DetailedCustLedgEntry.Next = 0;
         end;
         DateTimeFirstReqSent := GetDateTimeOfFirstReqPayment(CustLedgerEntry);
@@ -3428,7 +3404,7 @@ codeunit 10145 "E-Invoice Mgt."
             Modify;
         end;
 
-        Commit;
+        Commit();
 
         Response := InvokeMethod(XMLDoc, MethodType::"Request Stamp");
 
@@ -3439,7 +3415,7 @@ codeunit 10145 "E-Invoice Mgt."
         end;
 
         ProcessResponseEPayment(CustLedgerEntry, EDocAction::"Request Stamp");
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
     end;
 
     local procedure CheckPaymentStamp(CustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
@@ -3465,7 +3441,7 @@ codeunit 10145 "E-Invoice Mgt."
                             // Before we throw warning, check to see if this is a credit memo
                             if CustLedgerEntryLoc2."Document Type" = CustLedgerEntryLoc2."Document Type"::"Credit Memo" then begin
                                 // Find the corresponding record
-                                SourceCodeSetup.Get;
+                                SourceCodeSetup.Get();
                                 if SourceCodeSetup."Service Management" <> '' then
                                     ServiceSourceCode := SourceCodeSetup."Service Management";
                                 if CustLedgerEntryLoc2."Source Code" = ServiceSourceCode then
@@ -3493,7 +3469,7 @@ codeunit 10145 "E-Invoice Mgt."
         CustLedgerEntryLoc2: Record "Cust. Ledger Entry";
         StampedAmount: Decimal;
     begin
-        DetailedCustLedgEntry.Reset;
+        DetailedCustLedgEntry.Reset();
         DetailedCustLedgEntry.SetRange("Applied Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
         DetailedCustLedgEntry.SetRange("Initial Document Type", DetailedCustLedgEntry."Initial Document Type"::Invoice);
         if DetailedCustLedgEntry.FindFirst then begin
@@ -3551,7 +3527,7 @@ codeunit 10145 "E-Invoice Mgt."
         CustLedgerEntryLoc."Electronic Document Status" := CustLedgerEntryLoc."Electronic Document Status"::Sent;
         CustLedgerEntryLoc."Date/Time Sent" :=
           FormatDateTime(ConvertCurrentDateTimeToTimeZone(GetTimeZoneFromCustomer(CustLedgerEntry."Customer No.")));
-        CustLedgerEntryLoc.Modify;
+        CustLedgerEntryLoc.Modify();
 
         Message(Text001, CustLedgerEntry."Document No.");
     end;
@@ -3627,7 +3603,7 @@ codeunit 10145 "E-Invoice Mgt."
 
         XMLCurrNode := XMLDocResult.SelectSingleNode('Resultado');
         XMLDOMNodeList := XMLCurrNode.ChildNodes;
-        NodeCount := XMLDOMNodeList.Count;
+        NodeCount := XMLDOMNodeList.Count();
 
         Clear(XMLDoc);
         XMLDoc := XMLDoc.XmlDocument;
@@ -3777,7 +3753,7 @@ codeunit 10145 "E-Invoice Mgt."
                 if TempCustomer."Preferred Bank Account Code" <> '' then
                     AddAttribute(XMLDoc, XMLCurrNode, 'NomBancoOrdExt', TempCustomer."Preferred Bank Account Code")
                 else begin
-                    CustomerBankAccount.Reset;
+                    CustomerBankAccount.Reset();
                     CustomerBankAccount.SetRange("Customer No.", TempCustomer."No.");
                     if CustomerBankAccount.FindFirst then // Find the first one...
                         AddAttribute(XMLDoc, XMLCurrNode, 'NomBancoOrdExt', CustomerBankAccount."Bank Account No.")
@@ -3794,7 +3770,7 @@ codeunit 10145 "E-Invoice Mgt."
                     XMLCurrNode := XMLNewChild;
 
                     CustLedgerEntry2.Get(TempDetailedCustLedgEntry."Cust. Ledger Entry No.");
-                    SourceCodeSetup.Get;
+                    SourceCodeSetup.Get();
                     if SourceCodeSetup."Service Management" <> '' then
                         ServiceSourceCode := SourceCodeSetup."Service Management";
                     if CustLedgerEntry2."Source Code" = ServiceSourceCode then
@@ -3946,7 +3922,7 @@ codeunit 10145 "E-Invoice Mgt."
                 if TempCustomer."Preferred Bank Account Code" <> '' then
                     WriteOutStr(OutStream, TempCustomer."Preferred Bank Account Code" + '|')
                 else begin
-                    CustomerBankAccount.Reset;
+                    CustomerBankAccount.Reset();
                     CustomerBankAccount.SetRange("Customer No.", TempCustomer."No.");
                     if CustomerBankAccount.FindFirst then // Find the first one...
                         WriteOutStr(OutStream, CustomerBankAccount."Bank Account No." + '|')
@@ -3960,7 +3936,7 @@ codeunit 10145 "E-Invoice Mgt."
                     ServiceDoc := false;
                     InvoiceDoc := false;
                     CustLedgerEntry2.Get(TempDetailedCustLedgEntry."Cust. Ledger Entry No.");
-                    SourceCodeSetup.Get;
+                    SourceCodeSetup.Get();
                     if SourceCodeSetup."Service Management" <> '' then
                         ServiceSourceCode := SourceCodeSetup."Service Management";
                     if CustLedgerEntry2."Source Code" = ServiceSourceCode then
@@ -4029,10 +4005,7 @@ codeunit 10145 "E-Invoice Mgt."
         end;
     end;
 
-    local procedure InitPaymentXML33(var XMLDoc: DotNet XmlDocument;
-
-    var
-        XMLCurrNode: DotNet XmlNode)
+    local procedure InitPaymentXML33(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
     begin
@@ -4056,9 +4029,9 @@ codeunit 10145 "E-Invoice Mgt."
     begin
         if UUID = '' then
             exit;
-        TempCFDIRelationDocument.Init;
+        TempCFDIRelationDocument.Init();
         TempCFDIRelationDocument."Fiscal Invoice Number PAC" := UUID;
-        TempCFDIRelationDocument.Insert;
+        TempCFDIRelationDocument.Insert();
     end;
 
     local procedure GetPaymentInvoiceUUID(EntryNumber: Integer; InvoiceDoc: Boolean): Text[50]
@@ -4079,7 +4052,7 @@ codeunit 10145 "E-Invoice Mgt."
 
         if DetailedCustLedgEntry.FindFirst then begin
             CustLedgerEntry2.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.");
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             if SourceCodeSetup."Service Management" <> '' then
                 ServiceSourceCode := SourceCodeSetup."Service Management";
 
@@ -4112,7 +4085,7 @@ codeunit 10145 "E-Invoice Mgt."
         SalesInvoiceHeader2: Record "Sales Invoice Header";
     begin
         // First, get the common sales order number
-        SalesInvoiceHeader2.Reset;
+        SalesInvoiceHeader2.Reset();
         SalesInvoiceHeader2.SetFilter("Prepayment Order No.", '=%1', SalesInvoiceHeader."Order No.");
         if SalesInvoiceHeader2.FindFirst then begin // We have the prepayment invoice
             SalesInvoiceNumber := SalesInvoiceHeader2."No.";
@@ -4133,7 +4106,7 @@ codeunit 10145 "E-Invoice Mgt."
         if CFDIRelationDocumentFrom.FindSet then
             repeat
                 CFDIRelationDocument := CFDIRelationDocumentFrom;
-                CFDIRelationDocument.Insert;
+                CFDIRelationDocument.Insert();
             until CFDIRelationDocumentFrom.Next = 0;
     end;
 
@@ -4168,23 +4141,18 @@ codeunit 10145 "E-Invoice Mgt."
         with CFDIRelationDocument do begin
             SetRange("Fiscal Invoice Number PAC", FiscalInvoiceNumberPAC);
             if not FindFirst then begin
-                Init;
+                Init();
                 "Document No." := DocumentNo;
                 "Related Doc. Type" := "Related Doc. Type"::Invoice;
                 "Related Doc. No." := RelatedDocumentNo;
                 "Fiscal Invoice Number PAC" := FiscalInvoiceNumberPAC;
-                Insert;
+                Insert();
             end;
             SetRange("Fiscal Invoice Number PAC");
         end;
     end;
 
-    local procedure AddElementPago(var XMLNode: DotNet XmlNode; NodeName: Text;
-                                                    NodeText: Text;
-                                                    NameSpace: Text;
-
-    var
-        CreatedXMLNode: DotNet XmlNode): Boolean
+    local procedure AddElementPago(var XMLNode: DotNet XmlNode; NodeName: Text; NodeText: Text; NameSpace: Text; var CreatedXMLNode: DotNet XmlNode): Boolean
     var
         NewChildNode: DotNet XmlNode;
     begin
@@ -4200,17 +4168,7 @@ codeunit 10145 "E-Invoice Mgt."
         exit(true);
     end;
 
-    local procedure AddNodeRelacionado(var XMLDoc: DotNet XmlDocument;
-
-    var
-        XMLCurrNode: DotNet XmlNode;
-
-    var
-        XMLNewChild: DotNet XmlNode;
-
-    var
-        TempCFDIRelationDocument: Record "CFDI Relation Document" temporary;
-        CFDIRelacion: Code[10])
+    local procedure AddNodeRelacionado(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode; var XMLNewChild: DotNet XmlNode; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; CFDIRelacion: Code[10])
     begin
         if TempCFDIRelationDocument.IsEmpty then
             exit;
@@ -4244,7 +4202,7 @@ codeunit 10145 "E-Invoice Mgt."
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        SalesInvoiceLine.Reset;
+        SalesInvoiceLine.Reset();
         SalesInvoiceLine.SetFilter("Document No.", '=%1', InvoiceNumber);
         if SalesInvoiceLine.FindSet then
             repeat
@@ -4276,7 +4234,7 @@ codeunit 10145 "E-Invoice Mgt."
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        SalesInvoiceLine.Reset;
+        SalesInvoiceLine.Reset();
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
         SalesInvoiceLine.SetFilter("Prepayment Line", '=1');
         if SalesInvoiceLine.FindFirst then
@@ -4311,7 +4269,7 @@ codeunit 10145 "E-Invoice Mgt."
         MXElectronicInvoicingSetup: Record "MX Electronic Invoicing Setup";
         RecRef: RecordRef;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if CompanyInfo."Country/Region Code" <> 'MX' then
             exit;
         SetupService;
@@ -4342,7 +4300,7 @@ codeunit 10145 "E-Invoice Mgt."
     var
         MXElectronicInvoicingSetup: Record "MX Electronic Invoicing Setup";
     begin
-        MXElectronicInvoicingSetup.Init;
+        MXElectronicInvoicingSetup.Init();
         MXElectronicInvoicingSetup.Enabled := false;
         MXElectronicInvoicingSetup.Insert(true);
     end;
@@ -4403,7 +4361,7 @@ codeunit 10145 "E-Invoice Mgt."
         CFDIRelationDocument.SetRange("Document Type", SalesHeader."Document Type");
         CFDIRelationDocument.SetRange("Document No.", SalesHeader."No.");
         CFDIRelationDocument.SetRange("Customer No.", SalesHeader."Bill-to Customer No.");
-        CFDIRelationDocument.DeleteAll;
+        CFDIRelationDocument.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -4444,11 +4402,11 @@ codeunit 10145 "E-Invoice Mgt."
             CFDIRelationDocument."Document Table ID" := ToTableID;
             CFDIRelationDocument."Document Type" := 0;
             CFDIRelationDocument."Document No." := ToDocumentNo;
-            CFDIRelationDocument.Insert;
+            CFDIRelationDocument.Insert();
         until CFDIRelationDocumentFrom.Next = 0;
 
         if DeleteRelations then
-            CFDIRelationDocumentFrom.DeleteAll;
+            CFDIRelationDocumentFrom.DeleteAll();
     end;
 
     local procedure CheckSalesDocument(DocumentVariant: Variant; TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; SourceCode: Code[10])
@@ -4483,7 +4441,7 @@ codeunit 10145 "E-Invoice Mgt."
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         with TempErrorMessage do begin
             LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo(Name), "Message Type"::Error);
             LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo(Address), "Message Type"::Error);

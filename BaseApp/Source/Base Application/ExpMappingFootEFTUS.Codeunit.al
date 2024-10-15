@@ -13,7 +13,7 @@ codeunit 10330 "Exp. Mapping Foot EFT US"
     begin
         // Range through the Footer record
         LineNo := 1;
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Footer);
         if DataExchLineDef.FindFirst then begin

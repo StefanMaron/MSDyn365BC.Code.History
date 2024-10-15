@@ -60,7 +60,7 @@ codeunit 136110 "Service Management Setup"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Management Setup");
     end;
 
@@ -171,7 +171,7 @@ codeunit 136110 "Service Management Setup"
         // Exercise: Add starting fee to the Service Line by Insert Starting Fee function.
         ServiceLine.Validate("Document Type", ServiceHeader."Document Type");
         ServiceLine.Validate("Document No.", ServiceHeader."No.");
-        ServiceLine.Init;
+        ServiceLine.Init();
         ServOrderManagement.InsertServCost(ServiceLine, 1, false);
 
         // Verify: Check that values on the Service Line correspond to the values of the Service Cost entered in the Service Mgt. Setup.
@@ -201,7 +201,7 @@ codeunit 136110 "Service Management Setup"
         // Exercise: Add starting fee to the Service Line by Insert Starting Fee function.
         ServiceLine.Validate("Document Type", ServiceHeader."Document Type");
         ServiceLine.Validate("Document No.", ServiceHeader."No.");
-        ServiceLine.Init;
+        ServiceLine.Init();
         asserterror ServOrderManagement.InsertServCost(ServiceLine, 1, false);
 
         // Verify: Check that the application generates an error if Starting Fee has not been specified in Service Management Setup.
@@ -240,7 +240,7 @@ codeunit 136110 "Service Management Setup"
         LibraryResource.CreateResourceSkill(ResourceSkill, ResourceSkill.Type::"Service Item", ServiceItem."No.", SkillCode.Code);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         LibraryResource.FindResource(Resource);
-        Commit;
+        Commit();
 
         // Exercise: Allocate Resource to the Service Line.
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
@@ -433,7 +433,7 @@ codeunit 136110 "Service Management Setup"
         LibraryResource.CreateResourceSkill(ResourceSkill, ResourceSkill.Type::"Service Item", ServiceItem."No.", SkillCode.Code);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         LibraryResource.FindResource(Resource);
-        Commit;
+        Commit();
 
         // Exercise: Allocate Resource to the Service Line.
         ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type");
@@ -1308,7 +1308,7 @@ codeunit 136110 "Service Management Setup"
 
         // 1. Setup: Create Resolution Code, Fault Code, set Fault Reporting Level and create a Service Order.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryService.CreateResolutionCode(ResolutionCode);
         DefaultFaultReportingLevel := ServiceMgtSetup."Fault Reporting Level";
@@ -1348,7 +1348,7 @@ codeunit 136110 "Service Management Setup"
 
         // 1. Setup: Create Resolution Code, Fault Code, set Fault Reporting Level and create a Service Order.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryService.CreateSymptomCode(SymptomCode);
         LibraryService.CreateResolutionCode(ResolutionCode);
@@ -1390,7 +1390,7 @@ codeunit 136110 "Service Management Setup"
 
         // 1. Setup: Create Resolution Code, Fault Code, set Fault Reporting Level and create a Service Order.
         Initialize;
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryService.CreateFaultArea(FaultArea);
         LibraryService.CreateSymptomCode(SymptomCode);
@@ -1450,7 +1450,7 @@ codeunit 136110 "Service Management Setup"
         ContractChangeLog: Record "Contract Change Log";
         ServiceContractHeader: Record "Service Contract Header";
     begin
-        ServiceContractHeader.Init;
+        ServiceContractHeader.Init();
         Assert.IsTrue(
           MaxStrLen(ServiceContractHeader."E-Mail") <= MaxStrLen(ContractChangeLog."Old Value"),
           StrSubstNo(FieldLengthErr, ContractChangeLog.FieldCaption("Old Value"), MaxStrLen(ServiceContractHeader."E-Mail")));
@@ -1683,7 +1683,7 @@ codeunit 136110 "Service Management Setup"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         if ServiceMgtSetup."Next Service Calc. Method" <> ServiceMgtSetup."Next Service Calc. Method"::Planned then begin
             ServiceMgtSetup.Validate("Next Service Calc. Method", ServiceMgtSetup."Next Service Calc. Method"::Planned);
             ServiceMgtSetup.Modify(true);
@@ -1696,7 +1696,7 @@ codeunit 136110 "Service Management Setup"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         if ServiceMgtSetup."Next Service Calc. Method" <> ServiceMgtSetup."Next Service Calc. Method"::Actual then begin
             ServiceMgtSetup.Validate("Next Service Calc. Method", ServiceMgtSetup."Next Service Calc. Method"::Actual);
             ServiceMgtSetup.Modify(true);
@@ -1711,7 +1711,7 @@ codeunit 136110 "Service Management Setup"
     begin
         // If Service Order Starting Fee of Service Management Setup is blank or not of Cost Type as Travel then create a new Service Cost
         // and enter in the field.
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         if ServiceMgtSetup."Service Order Starting Fee" <> '' then begin
             ServiceCost.Get(ServiceMgtSetup."Service Order Starting Fee");
             if ServiceCost."Cost Type" = ServiceCost."Cost Type"::Travel then
@@ -1728,7 +1728,7 @@ codeunit 136110 "Service Management Setup"
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
         // If Service Order Starting Fee of Service Management Setup is blank then create a new Service Cost and enter in the field.
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         if ServiceMgtSetup."Service Order Starting Fee" <> '' then begin
             ServiceMgtSetup.Validate("Service Order Starting Fee", '');
             ServiceMgtSetup.Modify(true);
@@ -1740,7 +1740,7 @@ codeunit 136110 "Service Management Setup"
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
         // Setup Resource Skills Option and Service Zones Option of Service Management Setup as Code Shown.
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Resource Skills Option", ResourceSkillsOption);
         ServiceMgtSetup.Validate("Service Zones Option", ServiceZonesOption);
         ServiceMgtSetup.Modify(true);
@@ -1748,14 +1748,14 @@ codeunit 136110 "Service Management Setup"
 
     local procedure SetupServiceFaultReporting(var ServiceMgtSetup: Record "Service Mgt. Setup"; FaultReportingLevel: Option)
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Fault Reporting Level", FaultReportingLevel);
         ServiceMgtSetup.Modify(true);
     end;
 
     local procedure SetupServiceMgtBaseCalndrBlank(var ServiceMgtSetup: Record "Service Mgt. Setup") BaseCalendarCode: Code[10]
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         BaseCalendarCode := ServiceMgtSetup."Base Calendar Code";
         ServiceMgtSetup.Validate("Base Calendar Code", '');
         ServiceMgtSetup.Modify(true);
@@ -1763,7 +1763,7 @@ codeunit 136110 "Service Management Setup"
 
     local procedure SetupServiceMgtDefaultRespTime(var ServiceMgtSetup: Record "Service Mgt. Setup"; DefaultResponseTime: Decimal) DefaultResponseTimeOld: Decimal
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         DefaultResponseTimeOld := ServiceMgtSetup."Default Response Time (Hours)";
         ServiceMgtSetup.Validate("Default Response Time (Hours)", DefaultResponseTime);
         ServiceMgtSetup.Modify(true);
@@ -1771,7 +1771,7 @@ codeunit 136110 "Service Management Setup"
 
     local procedure SetupServiceMgtWarrantyDisc(var ServiceMgtSetup: Record "Service Mgt. Setup"; WarrantyDiscParts: Decimal; WarrantyDiscLabor: Decimal)
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Warranty Disc. % (Parts)", WarrantyDiscParts);
         ServiceMgtSetup.Validate("Warranty Disc. % (Labor)", WarrantyDiscLabor);
         ServiceMgtSetup.Modify(true);
@@ -1779,7 +1779,7 @@ codeunit 136110 "Service Management Setup"
 
     local procedure SetupServiceMgtDefaultWarrDur(var ServiceMgtSetup: Record "Service Mgt. Setup"; DefaultWarrantyDuration: DateFormula) DefaultWarrantyDurationOld: Text[30]
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         DefaultWarrantyDurationOld := Format(ServiceMgtSetup."Default Warranty Duration");
         ServiceMgtSetup.Validate("Default Warranty Duration", DefaultWarrantyDuration);
         ServiceMgtSetup.Modify(true);
@@ -1789,7 +1789,7 @@ codeunit 136110 "Service Management Setup"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Register Contract Changes", RegisterContractChanges);
         ServiceMgtSetup.Modify(true);
     end;
@@ -1798,14 +1798,14 @@ codeunit 136110 "Service Management Setup"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Use Contract Cancel Reason", UseContractCancelReason);
         ServiceMgtSetup.Modify(true);
     end;
 
     local procedure SetupServiceMgtServOrdMaxDays(var ServiceMgtSetup: Record "Service Mgt. Setup"; ContractServOrdMaxDays: Integer) ContractServOrdMaxDaysOld: Integer
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ContractServOrdMaxDaysOld := ServiceMgtSetup."Contract Serv. Ord.  Max. Days";
         ServiceMgtSetup.Validate("Contract Serv. Ord.  Max. Days", ContractServOrdMaxDays);
         ServiceMgtSetup.Modify(true);
@@ -1979,7 +1979,7 @@ codeunit 136110 "Service Management Setup"
     [Scope('OnPrem')]
     procedure FaultResolutionRelationHandler(var FaultResolCodRelationship: TestPage "Fault/Resol. Cod. Relationship")
     begin
-        FaultResolCodRelationship2.Init;
+        FaultResolCodRelationship2.Init();
         FaultResolCodRelationship2.Validate("Fault Area Code", FaultResolCodRelationship.FaultArea.Value);
         FaultResolCodRelationship2.Validate("Symptom Code", FaultResolCodRelationship.SymptomCode.Value);
     end;

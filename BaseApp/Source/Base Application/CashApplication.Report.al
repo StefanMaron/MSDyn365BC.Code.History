@@ -203,7 +203,7 @@ report 10086 "Cash Application"
                 begin
                     // Round One:  Payment Discounts
                     if not TakeDiscounts then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange("Pmt. Discount Date", PaymentDate, DiscountDate);
                     SetFilter("Original Pmt. Disc. Possible", '<0');
                 end;
@@ -260,7 +260,7 @@ report 10086 "Cash Application"
                        ("Pmt. Discount Date" >= PaymentDate) and
                        ("Original Pmt. Disc. Possible" < 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     AnyDetails := true;
                     CalcAmounts("Vendor Ledger Entry 2");
 
@@ -277,7 +277,7 @@ report 10086 "Cash Application"
                     SetRange("Pmt. Discount Date");        // remove old filters
                     SetRange("Original Pmt. Disc. Possible");
                     if LastDueDate = 0D then                  // do not include invoices
-                        CurrReport.Break; // just because they are
+                        CurrReport.Break(); // just because they are
 
                     SetRange("Due Date", 0D, LastDueDate);  // add new filter
                 end;
@@ -307,7 +307,7 @@ report 10086 "Cash Application"
                 trigger OnAfterGetRecord()
                 begin
                     if not AnyDetails then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
@@ -418,8 +418,8 @@ report 10086 "Cash Application"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         FilterString := Vendor.GetFilters;
     end;
 

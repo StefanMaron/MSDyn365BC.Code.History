@@ -12,6 +12,11 @@ codeunit 1813 "Assisted Setup Impl."
         BadPageErr: Label 'The page with ID %1 entered does not exist.', Comment = '%1 = The ID of the assisted setup guide page';
 
     procedure Add(ExtensionID: Guid; PageID: Integer; AssistantName: Text; GroupName: Enum "Assisted Setup Group"; VideoLink: Text[250]; VideoCategory: Enum "Video Category"; HelpLink: Text[250])
+    begin
+        Add(ExtensionID, PageID, AssistantName, GroupName, VideoLink, VideoCategory, HelpLink, '');
+    end;
+
+    procedure Add(ExtensionID: Guid; PageID: Integer; AssistantName: Text; GroupName: Enum "Assisted Setup Group"; VideoLink: Text[250]; VideoCategory: Enum "Video Category"; HelpLink: Text[250]; Description: Text[1024])
     var
         AssistedSetup: Record "Assisted Setup";
         Translation: Codeunit Translation;
@@ -32,11 +37,12 @@ codeunit 1813 "Assisted Setup Impl."
         end;
 
         if (AssistedSetup."Page ID" <> PageID) or
-        (Translation.Get(AssistedSetup, AssistedSetup.FieldNo(Name)) <> AssistantName) or
-        (AssistedSetup."Group Name" <> GroupName) or
-        (AssistedSetup."Video Url" <> VideoLink) or
-        (AssistedSetup."Video Category" <> VideoCategory) or
-        (AssistedSetup."Help Url" <> HelpLink)
+            (Translation.Get(AssistedSetup, AssistedSetup.FieldNo(Name)) <> AssistantName) or
+            (AssistedSetup."Group Name" <> GroupName) or
+            (AssistedSetup."Video Url" <> VideoLink) or
+            (AssistedSetup."Video Category" <> VideoCategory) or
+            (AssistedSetup."Help Url" <> HelpLink) or
+            (AssistedSetup.Description <> Description)
         then begin
             AssistedSetup."Page ID" := PageID;
             AssistedSetup.Name := CopyStr(AssistantName, 1, 2048);
@@ -44,6 +50,7 @@ codeunit 1813 "Assisted Setup Impl."
             AssistedSetup."Video Url" := VideoLink;
             AssistedSetup."Video Category" := VideoCategory;
             AssistedSetup."Help Url" := HelpLink;
+            AssistedSetup.Description := Description;
             AssistedSetup.Modify(true);
         end;
 
@@ -289,6 +296,19 @@ codeunit 1813 "Assisted Setup Impl."
             repeat
                 sender.Register(AssistedSetup."App ID", CopyStr(AssistedSetup.Name, 1, 250), AssistedSetup."Video Url", AssistedSetup."Video Category", Database::"Assisted Setup", AssistedSetup.SystemId);
             until AssistedSetup.Next() = 0;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Navigation Bar Subscribers", 'OnBeforeDefaultOpenRoleBasedSetupExperience', '', false, false)] // Assisted setup module
+    local procedure OpenRoleBasedSetupExperience(var Handled: Boolean)
+    var
+        AssistedSetup: Codeunit "Assisted Setup";
+        RoleBasedSetupExperienceID: Integer;
+    begin
+        RoleBasedSetupExperienceID := page::"Assisted Setup";
+        AssistedSetup.OnBeforeOpenRoleBasedSetupExperience(RoleBasedSetupExperienceID, Handled);
+        if not Handled then
+            PAGE.Run(RoleBasedSetupExperienceID);
+        Handled := true;
     end;
 }
 

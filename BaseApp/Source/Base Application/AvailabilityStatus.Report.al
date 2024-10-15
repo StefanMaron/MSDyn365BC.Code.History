@@ -159,7 +159,7 @@ report 10131 "Availability Status"
     trigger OnPreReport()
     begin
         ItemFilter := Item.GetFilters;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

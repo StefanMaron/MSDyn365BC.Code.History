@@ -1,4 +1,4 @@
-﻿page 6663 "Posted Return Receipt Lines"
+page 6663 "Posted Return Receipt Lines"
 {
     Caption = 'Posted Return Receipt Lines';
     Editable = false;

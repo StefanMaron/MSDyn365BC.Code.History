@@ -185,7 +185,7 @@ report 10108 "AP - Vendor Register"
     begin
         FilterString := "G/L Register".GetFilters;
         FilterString2 := "Vendor Ledger Entry".GetFilters;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

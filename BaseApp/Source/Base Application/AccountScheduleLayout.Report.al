@@ -147,7 +147,7 @@ report 10000 "Account Schedule Layout"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         AccSchedLineFilter := "Acc. Schedule Line".GetFilters;
     end;
 

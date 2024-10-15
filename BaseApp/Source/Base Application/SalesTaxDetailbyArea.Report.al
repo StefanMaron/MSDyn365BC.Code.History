@@ -140,7 +140,7 @@ report 10322 "Sales Tax Detail by Area"
                         trigger OnAfterGetRecord()
                         begin
                             if not TaxGroup.Get("Tax Group Code") then
-                                TaxGroup.Init;
+                                TaxGroup.Init();
                         end;
                     }
                 }
@@ -166,7 +166,7 @@ report 10322 "Sales Tax Detail by Area"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         AreaFilters := "Tax Area".GetFilters;
         DetailFilters := "Tax Detail".GetFilters;
     end;

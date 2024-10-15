@@ -163,7 +163,7 @@ report 322 "Aged Accounts Payable"
                             until VendorLedgEntry.Next = 0;
                     end;
 
-                    VendorLedgEntry.Reset;
+                    VendorLedgEntry.Reset();
                     VendorLedgEntry.SetRange("Entry No.", "Closed by Entry No.");
                     VendorLedgEntry.SetRange("Posting Date", 0D, EndingDate);
                     CopyDimFiltersFromVendor(VendorLedgEntry);
@@ -171,7 +171,7 @@ report 322 "Aged Accounts Payable"
                         repeat
                             InsertTemp(VendorLedgEntry);
                         until VendorLedgEntry.Next = 0;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
@@ -191,10 +191,10 @@ report 322 "Aged Accounts Payable"
                     if AgingBy = AgingBy::"Posting Date" then begin
                         CalcFields("Remaining Amt. (LCY)");
                         if "Remaining Amt. (LCY)" = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
                     InsertTemp(OpenVendorLedgEntry);
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
@@ -315,10 +315,10 @@ report 322 "Aged Accounts Payable"
                     begin
                         if Number = 1 then begin
                             if not TempVendorLedgEntry.FindSet(false, false) then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if TempVendorLedgEntry.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         VendorLedgEntryEndingDate := TempVendorLedgEntry;
                         DetailedVendorLedgerEntry.SetRange("Vendor Ledger Entry No.", VendorLedgEntryEndingDate."Entry No.");
@@ -381,7 +381,7 @@ report 322 "Aged Accounts Payable"
                             DocumentNo := VendorLedgEntryEndingDate."Document No.";
 
                         if VendorLedgEntryEndingDate."Remaining Amount" = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         case AgingBy of
                             AgingBy::"Due Date":
@@ -428,10 +428,10 @@ report 322 "Aged Accounts Payable"
 
                     if Number = 1 then begin
                         if not TempCurrency.FindSet(false, false) then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end else
                         if TempCurrency.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     if TempCurrency.Code <> '' then
                         CurrencyCode := TempCurrency.Code
@@ -452,10 +452,10 @@ report 322 "Aged Accounts Payable"
                 if NewPagePerVendor then
                     PageGroupNo := PageGroupNo + 1;
 
-                TempCurrency.Reset;
-                TempCurrency.DeleteAll;
-                TempVendorLedgEntry.Reset;
-                TempVendorLedgEntry.DeleteAll;
+                TempCurrency.Reset();
+                TempCurrency.DeleteAll();
+                TempVendorLedgEntry.Reset();
+                TempVendorLedgEntry.DeleteAll();
                 Clear(GrandTotalVLERemaingAmtLCY);
                 GrandTotalVLEAmtLCY := 0;
             end;
@@ -517,10 +517,10 @@ report 322 "Aged Accounts Payable"
             begin
                 if Number = 1 then begin
                     if not TempCurrency2.FindSet(false, false) then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if TempCurrency2.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 Clear(AgedVendorLedgEntry);
                 TempCurrencyAmount.SetRange("Currency Code", TempCurrency2.Code);
@@ -629,7 +629,7 @@ report 322 "Aged Accounts Payable"
     begin
         VendorFilter := FormatDocument.GetRecordFiltersWithCaptions(Vendor);
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         CalcDates;
         CreateHeadings;
@@ -765,7 +765,7 @@ report 322 "Aged Accounts Payable"
             if PrintAmountInLCY then begin
                 Clear(TempCurrency);
                 TempCurrency."Amount Rounding Precision" := GLSetup."Amount Rounding Precision";
-                if TempCurrency.Insert then;
+                if TempCurrency.Insert() then;
                 exit;
             end;
             if TempCurrency.Get("Currency Code") then
@@ -777,7 +777,7 @@ report 322 "Aged Accounts Payable"
                 Currency."Amount Rounding Precision" := GLSetup."Amount Rounding Precision";
             end;
             TempCurrency := Currency;
-            TempCurrency.Insert;
+            TempCurrency.Insert();
         end;
     end;
 
@@ -795,7 +795,7 @@ report 322 "Aged Accounts Payable"
         i: Integer;
     begin
         TempCurrency2.Code := CurrencyCode;
-        if TempCurrency2.Insert then;
+        if TempCurrency2.Insert() then;
         with TempCurrencyAmount do begin
             for i := 1 to ArrayLen(TotalVendorLedgEntry) do begin
                 "Currency Code" := CurrencyCode;

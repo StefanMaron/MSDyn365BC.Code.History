@@ -206,7 +206,7 @@ page 10045 "Purchase Invoice Stats."
         AmountInclVAT := VendAmount;
         TaxAmount := 0;
         SalesTaxCalculate.StartSalesTaxCalculation;
-        TempSalesTaxLine.DeleteAll;
+        TempSalesTaxLine.DeleteAll();
         if TaxArea."Use External Tax Engine" then
             SalesTaxCalculate.CallExternalTaxEngineForDoc(DATABASE::"Purch. Inv. Header", 0, "No.")
         else begin
@@ -233,7 +233,7 @@ page 10045 "Purchase Invoice Stats."
                             BrkIdx := BrkIdx - 1;
                             BreakdownLabel[BrkIdx] := Text008;
                         end else
-                            BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
+                            BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
                     end;
                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
                     TaxAmount := TaxAmount + "Tax Amount";

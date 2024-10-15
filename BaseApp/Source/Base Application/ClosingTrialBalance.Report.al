@@ -169,7 +169,7 @@ report 10003 "Closing Trial Balance"
                    (FiscalYearBalance = 0) and
                    (LastYearBalance = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
@@ -226,7 +226,7 @@ report 10003 "Closing Trial Balance"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         GLFilter := "G/L Account".GetFilters;
 
         if FiscalYearStartDate = 0D then
@@ -241,7 +241,7 @@ report 10003 "Closing Trial Balance"
         PeriodText := "G/L Account".GetFilter("Date Filter");
         SubTitle := StrSubstNo(Text001, PeriodText);
         if UseAddRptCurr then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Currency.Get(GLSetup."Additional Reporting Currency");
             SubTitle := SubTitle + '  ' + StrSubstNo(Text002, Currency.Description);
         end;

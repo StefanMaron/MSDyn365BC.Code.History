@@ -66,11 +66,11 @@ codeunit 10090 "Export Payments (ACH)"
         if FileIsInProcess then
             Error(ExportInProcessErr, FileName);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
         with BankAccount do begin
-            LockTable;
+            LockTable();
             Get(BankAccountNo);
             TestField("Export Format", "Export Format"::US);
             TestField("Transit No.");

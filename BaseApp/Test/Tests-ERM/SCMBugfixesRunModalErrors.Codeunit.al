@@ -219,7 +219,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", Item."No.", Item.Inventory);
 
         // Exercise: Update Sales Order line with Item Unit Price.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryInventory.UpdateSalesLine(SalesLine, SalesLine.FieldNo("Unit Price"), Customer."Credit Limit (LCY)" / Item.Inventory);
 
         // Verify : Check Customer Credit Limit without any warnings.
@@ -433,7 +433,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Bugfixes Run Modal Errors");
     end;
 
@@ -448,9 +448,9 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
     [Normal]
     local procedure UpdateSalesReceivablesSetup(var TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary; CreditWarnings: Option; StockoutWarning: Boolean)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         TempSalesReceivablesSetup := SalesReceivablesSetup;
-        TempSalesReceivablesSetup.Insert;
+        TempSalesReceivablesSetup.Insert();
 
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
@@ -502,7 +502,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
     end;
 
     local procedure CreateCustomerWithCreditLimit(var Customer: Record Customer; CreditLimit: Decimal)

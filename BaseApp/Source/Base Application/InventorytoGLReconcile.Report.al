@@ -213,7 +213,7 @@ report 10138 "Inventory to G/L Reconcile"
 
                 trigger OnPostDataItem()
                 begin
-                    TempBuffer.DeleteAll;
+                    TempBuffer.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
@@ -303,9 +303,9 @@ report 10138 "Inventory to G/L Reconcile"
         if Item.GetFilter("Date Filter") <> '' then
             Error(Text002, Item.FieldCaption("Date Filter"), Item.TableCaption);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Additional Reporting Currency" = '' then
             ShowACY := false
         else begin
@@ -416,7 +416,7 @@ report 10138 "Inventory to G/L Reconcile"
 
         with ItemLedgEntry do begin
             // calculate adjusted cost of entry
-            ValueEntry.Reset;
+            ValueEntry.Reset();
             ValueEntry.SetCurrentKey("Item Ledger Entry No.");
             ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
             ValueEntry.SetRange("Posting Date", 0D, AsOfDate);
@@ -555,7 +555,7 @@ report 10138 "Inventory to G/L Reconcile"
         AlreadyInsertedTempBuffer: Record "Item Location Variant Buffer" temporary;
     begin
         if IsCollecting then
-            if not TempBuffer.Insert then
+            if not TempBuffer.Insert() then
                 with AlreadyInsertedTempBuffer do begin
                     Copy(TempBuffer, true);
                     Get(TempBuffer."Item No.", TempBuffer."Variant Code", TempBuffer."Location Code");

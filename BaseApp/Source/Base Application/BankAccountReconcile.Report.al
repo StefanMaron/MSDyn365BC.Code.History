@@ -127,7 +127,7 @@ report 10409 "Bank Account - Reconcile"
                     trigger OnPreDataItem()
                     begin
                         if not ListChecks then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
                 }
 
@@ -314,7 +314,7 @@ report 10409 "Bank Account - Reconcile"
     begin
         BankAccFilter := "Bank Account".GetFilters;
         BankAccDateFilter := "Bank Account".GetFilter("Date Filter");
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

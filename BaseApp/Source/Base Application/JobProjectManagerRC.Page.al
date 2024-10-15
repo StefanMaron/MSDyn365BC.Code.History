@@ -23,19 +23,16 @@ page 9015 "Job Project Manager RC"
             {
                 ApplicationArea = Jobs;
                 Caption = 'Job Actual Price to Budget Price';
-                ToolTip = 'Compare the actual price of your jobs to the price that was budgeted. The report shows budget and actual amounts for each phase, task, and steps.';
             }
             part("Job Profitability"; "Job Profitability Chart")
             {
                 ApplicationArea = Jobs;
                 Caption = 'Job Profitability';
-                ToolTip = 'View profit figures for completed jobs.';
             }
             part("Job Actual Cost to Budget Cost"; "Job Act to Bud Cost Chart")
             {
                 ApplicationArea = Jobs;
                 Caption = 'Job Actual Cost to Budget Cost';
-                ToolTip = 'Comparison the actual cost of your jobs to the cost that was budgeted. The report shows budget and actual amounts for each phase, task and steps.';
             }
             part(Control1907692008; "My Customers")
             {

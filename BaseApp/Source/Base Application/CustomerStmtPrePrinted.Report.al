@@ -162,7 +162,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                     trigger OnPreDataItem()
                     begin
                         if (AgingMethod = AgingMethod::None) and (StatementStyle = StatementStyle::Balance) then
-                            CurrReport.Break;    // Optimization
+                            CurrReport.Break();    // Optimization
 
                         // Find ledger entries which are open and posted before the statement date.
                         SetRange("Posting Date", 0D, ToDate);
@@ -187,7 +187,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                     trigger OnPreDataItem()
                     begin
                         if (AgingMethod = AgingMethod::None) and (StatementStyle = StatementStyle::Balance) then
-                            CurrReport.Break;    // Optimization
+                            CurrReport.Break();    // Optimization
 
                         // Find ledger entries which are posted after the statement date and eliminate
                         // their application to ledger entries posted before the statement date.
@@ -210,7 +210,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                     trigger OnAfterGetRecord()
                     begin
                         if StatementStyle <> StatementStyle::Balance then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
 
                     trigger OnPreDataItem()
@@ -232,7 +232,6 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                     }
                     column(TempCustLedgEntryDocType; TempCustLedgEntry."Document Type")
                     {
-                        OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
                     }
                     column(TempCustLedgEntryRemainingAmount; TempCustLedgEntry."Remaining Amount")
                     {
@@ -362,7 +361,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                     trigger OnPreDataItem()
                     begin
                         if StatementStyle <> StatementStyle::Balance then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange("Posting Date", FromDate, ToDate);
                     end;
                 }
@@ -377,8 +376,8 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                     begin
                         StatementComplete := true;
                         if UpdateNumbers and (not CurrReport.Preview) then begin
-                            Customer.Modify; // just update the Last Statement No
-                            Commit;
+                            Customer.Modify(); // just update the Last Statement No
+                            Commit();
                         end;
                     end;
                 }
@@ -404,7 +403,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                     Print := "Net Change" <> 0;
                 end;
                 if (not Print) and AllHavingEntries then begin
-                    "Cust. Ledger Entry".Reset;
+                    "Cust. Ledger Entry".Reset();
                     if StatementStyle = StatementStyle::Balance then begin
                         "Cust. Ledger Entry".SetCurrentKey("Customer No.", "Posting Date");
                         "Cust. Ledger Entry".SetRange("Posting Date", FromDate, ToDate);
@@ -417,9 +416,9 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                     Print := "Cust. Ledger Entry".Find('-');
                 end;
                 if not Print then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
-                TempCustLedgEntry.DeleteAll;
+                TempCustLedgEntry.DeleteAll();
 
                 AgingDaysText := '';
                 if AgingMethod <> AgingMethod::None then begin
@@ -613,7 +612,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
             Evaluate(PeriodCalculation, '-' + Format(PeriodCalculation));
 
         if PrintCompany then begin
-            CompanyInformation.Get;
+            CompanyInformation.Get();
             FormatAddress.Company(CompanyAddress, CompanyInformation);
         end else
             Clear(CompanyAddress);

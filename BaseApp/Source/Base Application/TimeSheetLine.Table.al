@@ -34,7 +34,7 @@ table 951 "Time Sheet Line"
                     TimeSheetDetail.SetRange("Time Sheet No.", "Time Sheet No.");
                     TimeSheetDetail.SetRange("Time Sheet Line No.", "Line No.");
                     if not TimeSheetDetail.IsEmpty then
-                        TimeSheetDetail.DeleteAll;
+                        TimeSheetDetail.DeleteAll();
                     "Job No." := '';
                     Clear("Job Id");
                     "Job Task No." := '';
@@ -101,7 +101,7 @@ table 951 "Time Sheet Line"
                     Resource.Get(TimeSheetHeader."Resource No.");
                     Resource.TestField("Base Unit of Measure");
                     Resource.TestField(Type, Resource.Type::Person);
-                    Employee.Reset;
+                    Employee.Reset();
                     Employee.SetRange("Resource No.", TimeSheetHeader."Resource No.");
                     if Employee.IsEmpty then
                         Error(Text001, TimeSheetHeader."Resource No.");
@@ -183,12 +183,10 @@ table 951 "Time Sheet Line"
             Caption = 'Assembly Order Line No.';
             Editable = false;
         }
-        field(20; Status; Option)
+        field(20; Status; Enum "Time Sheet Status")
         {
             Caption = 'Status';
             Editable = false;
-            OptionCaption = 'Open,Submitted,Rejected,Approved';
-            OptionMembers = Open,Submitted,Rejected,Approved;
         }
         field(21; "Approved By"; Code[50])
         {
@@ -263,11 +261,11 @@ table 951 "Time Sheet Line"
 
         TimeSheetDetail.SetRange("Time Sheet No.", "Time Sheet No.");
         TimeSheetDetail.SetRange("Time Sheet Line No.", "Line No.");
-        TimeSheetDetail.DeleteAll;
+        TimeSheetDetail.DeleteAll();
 
         TimeSheetCommentLine.SetRange("No.", "Time Sheet No.");
         TimeSheetCommentLine.SetRange("Time Sheet Line No.", "Line No.");
-        TimeSheetCommentLine.DeleteAll;
+        TimeSheetCommentLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -306,7 +304,14 @@ table 951 "Time Sheet Line"
         PrivacyBlockedErr: Label 'You cannot use resource %1 because they are marked as blocked due to privacy.', Comment = '%1=resource no.';
 
     procedure TestStatus()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestStatus(IsHandled);
+        if IsHandled then
+            exit;
+
         if not (Status in [Status::Open, Status::Rejected]) then
             Error(
               Text002,
@@ -323,7 +328,7 @@ table 951 "Time Sheet Line"
         if TimeSheetDetail.FindSet(true) then
             repeat
                 TimeSheetDetail.CopyFromTimeSheetLine(Rec);
-                TimeSheetDetail.Modify;
+                TimeSheetDetail.Modify();
             until TimeSheetDetail.Next = 0;
     end;
 
@@ -348,7 +353,7 @@ table 951 "Time Sheet Line"
     var
         Resource: Record Resource;
     begin
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
         GetTimeSheetResource(Resource);
         if (Type = Type::Job) and ("Job No." <> '') and
            (((Resource.Type = Resource.Type::Person) and
@@ -420,12 +425,14 @@ table 951 "Time Sheet Line"
         Modify;
     end;
 
-    procedure GetAllowEdit(FldNo: Integer; ManagerRole: Boolean): Boolean
+    procedure GetAllowEdit(FldNo: Integer; ManagerRole: Boolean) AllowEdit: Boolean
     begin
         if ManagerRole then
-            exit((FldNo in [FieldNo("Work Type Code"), FieldNo(Chargeable)]) and (Status = Status::Submitted));
+            AllowEdit := (FldNo in [FieldNo("Work Type Code"), FieldNo(Chargeable)]) and (Status = Status::Submitted)
+        else
+            AllowEdit := Status in [Status::Open, Status::Rejected];
 
-        exit(Status in [Status::Open, Status::Rejected]);
+        OnAfterGetAllowEdit(FldNo, ManagerRole, AllowEdit);
     end;
 
     local procedure CheckResourcePrivacyBlocked(Resource: Record Resource)
@@ -448,6 +455,16 @@ table 951 "Time Sheet Line"
             exit;
 
         "Job Id" := Job.Id;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeTestStatus(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetAllowEdit(FldNo: Integer; ManagerRole: Boolean; var AllowEdit: Boolean)
+    begin
     end;
 }
 

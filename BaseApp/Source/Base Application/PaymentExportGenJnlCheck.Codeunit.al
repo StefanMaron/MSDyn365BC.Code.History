@@ -104,7 +104,7 @@ codeunit 1211 "Payment Export Gen. Jnl Check"
         BankAccount: Record "Bank Account";
     begin
         TempGenJournalBatch := GenJournalBatch;
-        TempGenJournalBatch.Insert;
+        TempGenJournalBatch.Insert();
 
         GenJournalBatch.OnCheckGenJournalLineExportRestrictions;
 

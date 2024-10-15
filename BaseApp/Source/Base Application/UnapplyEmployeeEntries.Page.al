@@ -179,7 +179,7 @@ page 625 "Unapply Employee Entries"
                     EmplEntryApplyPostedEntries.PostUnApplyEmployee(DtldEmplLedgEntry2, DocNo, PostingDate);
                     PostingDate := 0D;
                     DocNo := '';
-                    DeleteAll;
+                    DeleteAll();
                     Message(EntriesUnappliedMsg);
 
                     CurrPage.Close;
@@ -244,7 +244,7 @@ page 625 "Unapply Employee Entries"
             DtldEmplLedgEntry.SetRange("Transaction No.", DtldEmplLedgEntry2."Transaction No.");
         end;
         DtldEmplLedgEntry.SetRange("Employee No.", DtldEmplLedgEntry2."Employee No.");
-        DeleteAll;
+        DeleteAll();
         if DtldEmplLedgEntry.Find('-') then
             repeat
                 if (DtldEmplLedgEntry."Entry Type" <> DtldEmplLedgEntry."Entry Type"::"Initial Entry") and

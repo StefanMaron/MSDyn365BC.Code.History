@@ -147,7 +147,7 @@ report 10144 "Item Register"
                     ItemDescription := Description;
                     if ItemDescription = '' then begin
                         if not Item.Get("Item No.") then
-                            Item.Init;
+                            Item.Init();
                         ItemDescription := Item.Description;
                     end;
 
@@ -168,11 +168,11 @@ report 10144 "Item Register"
             begin
                 if "Source Code" = '' then begin
                     SourceCodeText := '';
-                    SourceCode.Init;
+                    SourceCode.Init();
                 end else begin
                     SourceCodeText := FieldCaption("Source Code") + ': ' + "Source Code";
                     if not SourceCode.Get("Source Code") then
-                        SourceCode.Init;
+                        SourceCode.Init();
                 end;
             end;
         }
@@ -209,7 +209,7 @@ report 10144 "Item Register"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemRegFilter := "Item Register".GetFilters;
         ItemEntryFilter := "Item Ledger Entry".GetFilters;
     end;

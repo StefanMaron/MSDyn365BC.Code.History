@@ -1,4 +1,4 @@
-﻿page 5164 "Purchase Quote Archive"
+page 5164 "Purchase Quote Archive"
 {
     Caption = 'Purchase Quote Archive';
     DeleteAllowed = false;

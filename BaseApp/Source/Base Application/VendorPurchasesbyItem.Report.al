@@ -241,16 +241,16 @@ report 10163 "Vendor Purchases by Item"
                 CalcFields("Purchases (Qty.)", "Purchases (LCY)");
                 if MinPurchases <> 0 then
                     if "Purchases (LCY)" <= MinPurchases then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if MaxPurchases <> 0 then
                     if "Purchases (LCY)" >= MaxPurchases then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if MinQty <> 0 then
                     if "Purchases (Qty.)" <= MinQty then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if MaxQty <> 0 then
                     if "Purchases (Qty.)" >= MaxQty then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
             end;
         }
     }
@@ -318,7 +318,7 @@ report 10163 "Vendor Purchases by Item"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
         PeriodText := "Item Ledger Entry".GetFilter("Posting Date");
         "Item Ledger Entry".SetRange("Posting Date");

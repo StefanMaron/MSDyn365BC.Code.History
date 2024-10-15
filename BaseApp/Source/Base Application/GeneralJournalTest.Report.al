@@ -184,10 +184,10 @@ report 2 "General Journal - Test"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             DimText := GetDimensionText(DimSetEntry);
                         end;
@@ -195,8 +195,8 @@ report 2 "General Journal - Test"
                         trigger OnPreDataItem()
                         begin
                             if not ShowDim then
-                                CurrReport.Break;
-                            DimSetEntry.Reset;
+                                CurrReport.Break();
+                            DimSetEntry.Reset();
                             DimSetEntry.SetRange("Dimension Set ID", "Gen. Journal Line"."Dimension Set ID")
                         end;
                     }
@@ -263,10 +263,10 @@ report 2 "General Journal - Test"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry.FindFirst then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 AllocationDimText := GetDimensionText(DimSetEntry);
                             end;
@@ -274,8 +274,8 @@ report 2 "General Journal - Test"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowDim then
-                                    CurrReport.Break;
-                                DimSetEntry.Reset;
+                                    CurrReport.Break();
+                                DimSetEntry.Reset();
                                 DimSetEntry.SetRange("Dimension Set ID", "Gen. Jnl. Allocation"."Dimension Set ID")
                             end;
                         }
@@ -685,14 +685,14 @@ report 2 "General Journal - Test"
                             LastEntrdDate := 0D;
                         end;
 
-                        TempGenJournalLineCustVendIC.Reset;
-                        TempGenJournalLineCustVendIC.DeleteAll;
+                        TempGenJournalLineCustVendIC.Reset();
+                        TempGenJournalLineCustVendIC.DeleteAll();
                         VATEntryCreated := false;
 
-                        GenJnlLine2.Reset;
+                        GenJnlLine2.Reset();
                         GenJnlLine2.CopyFilters("Gen. Journal Line");
 
-                        GLAccNetChange.DeleteAll;
+                        GLAccNetChange.DeleteAll();
                     end;
                 }
                 dataitem(ReconcileLoop; "Integer")
@@ -736,7 +736,7 @@ report 2 "General Journal - Test"
 
                     trigger OnPostDataItem()
                     begin
-                        GLAccNetChange.DeleteAll;
+                        GLAccNetChange.DeleteAll();
                     end;
 
                     trigger OnPreDataItem()
@@ -748,9 +748,9 @@ report 2 "General Journal - Test"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
-                SalesSetup.Get;
-                PurchSetup.Get;
+                GLSetup.Get();
+                SalesSetup.Get();
+                PurchSetup.Get();
                 AmountLCY := 0;
                 BalanceLCY := 0;
 
@@ -813,7 +813,7 @@ report 2 "General Journal - Test"
         Text020: Label '%1 must not be %2 when %3 = %4.';
         Text021: Label 'Allocations can only be used with recurring journals.';
         Text022: Label 'Specify %1 in the %2 allocation lines.';
-        Text023: Label '<Month Text>';
+        Text023: Label '<Month Text>', Locked = true;
         Text024: Label '%1 %2 posted on %3, must be separated by an empty line.', Comment = '%1 - document type, %2 - document number, %3 - posting date';
         Text025: Label '%1 %2 is out of balance by %3.';
         Text026: Label 'The reversing entries for %1 %2 are out of balance by %3.';
@@ -991,7 +991,7 @@ report 2 "General Journal - Test"
                ["Recurring Method"::"B  Balance",
                 "Recurring Method"::"RB Reversing Balance"]
             then begin
-                GenJnlAlloc.Reset;
+                GenJnlAlloc.Reset();
                 GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
                 GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                 GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
@@ -999,7 +999,7 @@ report 2 "General Journal - Test"
                     AddError(Text061);
             end;
 
-            GenJnlAlloc.Reset;
+            GenJnlAlloc.Reset();
             GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
             GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
@@ -1115,8 +1115,8 @@ report 2 "General Journal - Test"
                 if ("Posting Date" <> LastDate) or
                    ("Document Type" <> LastDocType) or ("Document No." <> LastDocNo)
                 then begin
-                    TempGenJournalLineCustVendIC.Reset;
-                    TempGenJournalLineCustVendIC.DeleteAll;
+                    TempGenJournalLineCustVendIC.Reset();
+                    TempGenJournalLineCustVendIC.DeleteAll();
                     VATEntryCreated := false;
                     CustPosting := false;
                     VendPosting := false;
@@ -1236,15 +1236,15 @@ report 2 "General Journal - Test"
         if not GLAccNetChange.Get(GLAccNo) then begin
             GLAcc.Get(GLAccNo);
             GLAcc.CalcFields("Balance at Date");
-            GLAccNetChange.Init;
+            GLAccNetChange.Init();
             GLAccNetChange."No." := GLAcc."No.";
             GLAccNetChange.Name := GLAcc.Name;
             GLAccNetChange."Balance after Posting" := GLAcc."Balance at Date";
-            GLAccNetChange.Insert;
+            GLAccNetChange.Insert();
         end;
         GLAccNetChange."Net Change in Jnl." := GLAccNetChange."Net Change in Jnl." + ReconcileAmount;
         GLAccNetChange."Balance after Posting" := GLAccNetChange."Balance after Posting" + ReconcileAmount;
-        GLAccNetChange.Modify;
+        GLAccNetChange.Modify();
     end;
 
     local procedure CheckGLAcc(var GenJnlLine: Record "Gen. Journal Line"; var AccName: Text[100])
@@ -1364,7 +1364,7 @@ report 2 "General Journal - Test"
                        ["Document Type"::Invoice, "Document Type"::"Credit Memo",
                         "Document Type"::"Finance Charge Memo", "Document Type"::Reminder]
                     then begin
-                        OldCustLedgEntry.Reset;
+                        OldCustLedgEntry.Reset();
                         OldCustLedgEntry.SetCurrentKey("Document No.");
                         OldCustLedgEntry.SetRange("Document Type", "Document Type");
                         OldCustLedgEntry.SetRange("Document No.", "Document No.");
@@ -1381,7 +1381,7 @@ report 2 "General Journal - Test"
                                   StrSubstNo(
                                     Text041, FieldCaption("External Document No.")));
 
-                            OldCustLedgEntry.Reset;
+                            OldCustLedgEntry.Reset();
                             OldCustLedgEntry.SetCurrentKey("External Document No.");
                             OldCustLedgEntry.SetRange("Document Type", "Document Type");
                             OldCustLedgEntry.SetRange("Customer No.", "Account No.");
@@ -1456,7 +1456,7 @@ report 2 "General Journal - Test"
                        ["Document Type"::Invoice, "Document Type"::"Credit Memo",
                         "Document Type"::"Finance Charge Memo", "Document Type"::Reminder]
                     then begin
-                        OldVendLedgEntry.Reset;
+                        OldVendLedgEntry.Reset();
                         OldVendLedgEntry.SetCurrentKey("Document No.");
                         OldVendLedgEntry.SetRange("Document Type", "Document Type");
                         OldVendLedgEntry.SetRange("Document No.", "Document No.");
@@ -1474,7 +1474,7 @@ report 2 "General Journal - Test"
                                   StrSubstNo(
                                     Text041, FieldCaption("External Document No.")));
 
-                            OldVendLedgEntry.Reset;
+                            OldVendLedgEntry.Reset();
                             OldVendLedgEntry.SetCurrentKey("External Document No.");
                             VendorMgt.SetFilterForExternalDocNo(
                               OldVendLedgEntry, "Document Type", "External Document No.", "Account No.", "Document Date");
@@ -1738,7 +1738,7 @@ report 2 "General Journal - Test"
                             AllowFAPostingTo := UserSetup."Allow FA Posting To";
                         end;
                     if (AllowFAPostingFrom = 0D) and (AllowFAPostingTo = 0D) then begin
-                        FASetup.Get;
+                        FASetup.Get();
                         AllowFAPostingFrom := FASetup."Allow FA Posting From";
                         AllowFAPostingTo := FASetup."Allow FA Posting To";
                     end;
@@ -1753,7 +1753,7 @@ report 2 "General Journal - Test"
                         Text053,
                         FieldCaption("FA Posting Date")));
             end;
-            FASetup.Get;
+            FASetup.Get();
             if ("FA Posting Type" = "FA Posting Type"::"Acquisition Cost") and
                ("Insurance No." <> '') and ("Depreciation Book Code" <> FASetup."Insurance Depr. Book")
             then
@@ -1925,7 +1925,7 @@ report 2 "General Journal - Test"
             AccNo := GenJnlLine."Bal. Account No.";
         end;
 
-        TempGenJnlLine.Reset;
+        TempGenJnlLine.Reset();
         TempGenJnlLine.SetRange("External Document No.", GenJnlLine."External Document No.");
 
         while (i < 2) and not ErrorFound do begin
@@ -1950,9 +1950,9 @@ report 2 "General Journal - Test"
             end;
         end;
 
-        TempGenJnlLine.Reset;
+        TempGenJnlLine.Reset();
         TempGenJnlLine := GenJnlLine;
-        TempGenJnlLine.Insert;
+        TempGenJnlLine.Insert();
     end;
 
     local procedure CheckICDocument()

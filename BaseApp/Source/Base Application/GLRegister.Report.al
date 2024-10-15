@@ -175,7 +175,7 @@ report 10019 "G/L Register"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDimensions then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 
@@ -183,7 +183,7 @@ report 10019 "G/L Register"
                 begin
                     if ShowAccountDescriptions then begin
                         if not GLAcc.Get("G/L Account No.") then
-                            GLAcc.Init;
+                            GLAcc.Init();
                         if ("Source Type" = "Source Type"::" ") and ("IC Partner Code" <> '') then
                             if "Bal. Account Type" <> "Bal. Account Type"::"IC Partner" then
                                 MapBalAccType("Bal. Account Type", "Bal. Account No.")
@@ -211,11 +211,11 @@ report 10019 "G/L Register"
                 if "Source Code" <> SourceCode.Code then
                     if "Source Code" = '' then begin
                         SourceCodeText := '';
-                        SourceCode.Init;
+                        SourceCode.Init();
                     end else begin
                         SourceCodeText := SourceCode.TableCaption + ': ' + "Source Code";
                         if not SourceCode.Get("Source Code") then
-                            SourceCode.Init;
+                            SourceCode.Init();
                     end;
             end;
         }
@@ -265,7 +265,7 @@ report 10019 "G/L Register"
     begin
         GLRegFilter := "G/L Register".GetFilters;
         GLEntryFilter := "G/L Entry".GetFilters;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

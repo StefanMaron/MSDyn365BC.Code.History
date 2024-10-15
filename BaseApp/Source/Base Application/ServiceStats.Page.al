@@ -564,7 +564,7 @@ page 10053 "Service Stats."
         ClearObjects(ServLine, TotalServLine, TotalServLineLCY, ServAmtsMgt, BreakdownLabel, BreakdownAmt);
 
         for i := 1 to 7 do begin
-            TempServLine.DeleteAll;
+            TempServLine.DeleteAll();
             Clear(TempServLine);
             ServAmtsMgt.GetServiceLines(Rec, TempServLine, i - 1);
             SalesTaxCalculate.StartSalesTaxCalculation;
@@ -582,7 +582,7 @@ page 10053 "Service Stats."
                 case i of
                     1:
                         begin
-                            TempSalesTaxLine1.DeleteAll;
+                            TempSalesTaxLine1.DeleteAll();
                             if TaxArea."Use External Tax Engine" then
                                 SalesTaxCalculate.CallExternalTaxEngineForServ(Rec, true)
                             else
@@ -591,7 +591,7 @@ page 10053 "Service Stats."
                         end;
                     2:
                         begin
-                            TempSalesTaxLine2.DeleteAll;
+                            TempSalesTaxLine2.DeleteAll();
                             if TaxArea."Use External Tax Engine" then
                                 SalesTaxCalculate.CallExternalTaxEngineForServ(Rec, true)
                             else
@@ -600,7 +600,7 @@ page 10053 "Service Stats."
                         end;
                     3:
                         begin
-                            TempSalesTaxLine3.DeleteAll;
+                            TempSalesTaxLine3.DeleteAll();
                             if TaxArea."Use External Tax Engine" then
                                 SalesTaxCalculate.CallExternalTaxEngineForServ(Rec, true)
                             else
@@ -651,7 +651,7 @@ page 10053 "Service Stats."
                                 BrkIdx := BrkIdx - 1;
                                 BreakdownLabel[i, BrkIdx] := Text1020012;
                             end else
-                                BreakdownLabel[i, BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[i, BrkIdx]));
+                                BreakdownLabel[i, BrkIdx] := StrSubstNo("Print Description", "Tax %");
                         end;
                         BreakdownAmt[i, BrkIdx] := BreakdownAmt[i, BrkIdx] + "Tax Amount";
                         VATAmount[i] := VATAmount[i] + "Tax Amount";
@@ -660,7 +660,7 @@ page 10053 "Service Stats."
             end;
             OnAfterCalculateSalesTaxValidate(i);
         end;
-        TempServLine.DeleteAll;
+        TempServLine.DeleteAll();
         Clear(TempServLine); // ?????
 
         if Cust.Get("Bill-to Customer No.") then
@@ -691,7 +691,7 @@ page 10053 "Service Stats."
 
     trigger OnOpenPage()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         NullTab := -1;
         AllowInvDisc := not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=
@@ -970,7 +970,7 @@ page 10053 "Service Stats."
     begin
         GetVATSpecification(ActiveTab);
 
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("No.", "No.");
         ServLine.FindFirst;
@@ -1048,7 +1048,7 @@ page 10053 "Service Stats."
 
         for i := 1 to 7 do
             if i in [1, 5, 6, 7] then begin
-                TempServLine.DeleteAll;
+                TempServLine.DeleteAll();
                 Clear(TempServLine);
                 ServAmtsMgt.GetServiceLines(Rec, TempServLine, i - 1);
 

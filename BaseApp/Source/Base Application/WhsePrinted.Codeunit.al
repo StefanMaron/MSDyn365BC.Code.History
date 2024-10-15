@@ -4,14 +4,14 @@ codeunit 5779 "Whse.-Printed"
 
     trigger OnRun()
     begin
-        LockTable;
+        LockTable();
         Find;
         "No. Printed" := "No. Printed" + 1;
         "Date of Last Printing" := Today;
         "Time of Last Printing" := Time;
         OnBeforeModify(Rec);
         Modify;
-        Commit;
+        Commit();
     end;
 
     [IntegrationEvent(false, false)]

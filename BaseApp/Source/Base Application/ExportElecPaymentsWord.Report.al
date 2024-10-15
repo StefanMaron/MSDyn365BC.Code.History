@@ -149,7 +149,6 @@ report 11383 "ExportElecPayments - Word"
                     }
                     column(VendLedgEntry__Document_Type_; VendLedgEntry."Document Type")
                     {
-                        OptionMembers = ,Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
                     }
                     column(AmountPaid_Control57; AmountPaid)
                     {
@@ -168,7 +167,6 @@ report 11383 "ExportElecPayments - Word"
                     }
                     column(CustLedgEntry__Document_Type_; CustLedgEntry."Document Type")
                     {
-                        OptionMembers = ,Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
                     }
                     column(PageLoop_Number; Number)
                     {
@@ -251,7 +249,7 @@ report 11383 "ExportElecPayments - Word"
 
                         trigger OnAfterGetRecord()
                         begin
-                            CompanyInfo.Get;
+                            CompanyInfo.Get();
                             CompanyInfo.CalcFields(Picture);
                             FormatAddress.Company(CompanyAddress, CompanyInfo);
                             if CompanyAddress[5] <> '' then
@@ -261,7 +259,7 @@ report 11383 "ExportElecPayments - Word"
                         trigger OnPreDataItem()
                         begin
                             if not PrintCompany then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
@@ -319,15 +317,15 @@ report 11383 "ExportElecPayments - Word"
                         trigger OnPreDataItem()
                         begin
                             if "Gen. Journal Line"."Applies-to ID" = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             if BankAccountIs = BankAccountIs::Acnt then begin
                                 if "Gen. Journal Line"."Bal. Account Type" <> "Gen. Journal Line"."Bal. Account Type"::Customer then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 SetRange("Customer No.", "Gen. Journal Line"."Bal. Account No.");
                             end else begin
                                 if "Gen. Journal Line"."Account Type" <> "Gen. Journal Line"."Account Type"::Customer then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 SetRange("Customer No.", "Gen. Journal Line"."Account No.");
                             end;
                         end;
@@ -386,15 +384,15 @@ report 11383 "ExportElecPayments - Word"
                         trigger OnPreDataItem()
                         begin
                             if "Gen. Journal Line"."Applies-to ID" = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             if BankAccountIs = BankAccountIs::Acnt then begin
                                 if "Gen. Journal Line"."Bal. Account Type" <> "Gen. Journal Line"."Bal. Account Type"::Vendor then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 SetRange("Vendor No.", "Gen. Journal Line"."Bal. Account No.");
                             end else begin
                                 if "Gen. Journal Line"."Account Type" <> "Gen. Journal Line"."Account Type"::Vendor then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 SetRange("Vendor No.", "Gen. Journal Line"."Account No.");
                             end;
                         end;
@@ -419,13 +417,12 @@ report 11383 "ExportElecPayments - Word"
                         }
                         column(Cust_Document_Type; CustLedgEntry."Document Type")
                         {
-                            OptionMembers = ,Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
                         }
 
                         trigger OnPreDataItem()
                         begin
                             if (PayeeType <> PayeeType::Customer) or IsSummary then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(VendorInfo; "Integer")
@@ -442,7 +439,6 @@ report 11383 "ExportElecPayments - Word"
                         }
                         column(Vend_Document_Type; VendLedgEntry."Document Type")
                         {
-                            OptionMembers = ,Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
                         }
                         column(AmountPaid_Vendor; AmountPaid)
                         {
@@ -454,7 +450,7 @@ report 11383 "ExportElecPayments - Word"
                         trigger OnPreDataItem()
                         begin
                             if (PayeeType <> PayeeType::Vendor) or IsSummary then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Unapplied; "Integer")
@@ -478,7 +474,7 @@ report 11383 "ExportElecPayments - Word"
                         trigger OnPreDataItem()
                         begin
                             if TotalAmountPaid >= -ExportAmount then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
 
@@ -513,14 +509,14 @@ report 11383 "ExportElecPayments - Word"
                 if "Account Type" = "Account Type"::"Bank Account" then begin
                     BankAccountIs := BankAccountIs::Acnt;
                     if "Account No." <> BankAccount."No." then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end else
                     if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then begin
                         BankAccountIs := BankAccountIs::BalAcnt;
                         if "Bal. Account No." <> BankAccount."No." then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end else
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if BankAccountIs = BankAccountIs::Acnt then begin
                     ExportAmount := "Amount (LCY)";
                     PayeeNo := "Bal. Account No.";
@@ -664,7 +660,7 @@ report 11383 "ExportElecPayments - Word"
     var
         "Filter": Text;
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Filter := "Gen. Journal Line".GetFilter("Journal Template Name");
         if Filter = '' then begin
             "Gen. Journal Line".FilterGroup(0); // head back to the default filter group and check there.
@@ -781,7 +777,7 @@ report 11383 "ExportElecPayments - Word"
         PayeeBankTransitNo := VendBankAccount."Transit No.";
         PayeeBankAccountNo := VendBankAccount."Bank Account No.";
         if GenJnlLine."Applies-to Doc. No." <> '' then begin
-            VendLedgEntry.Reset;
+            VendLedgEntry.Reset();
             VendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
             VendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
             VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
@@ -816,7 +812,7 @@ report 11383 "ExportElecPayments - Word"
         PayeeBankTransitNo := CustBankAccount."Transit No.";
         PayeeBankAccountNo := CustBankAccount."Bank Account No.";
         if GenJnlLine."Applies-to Doc. No." <> '' then begin
-            CustLedgEntry.Reset;
+            CustLedgEntry.Reset();
             CustLedgEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
             CustLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
             CustLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");

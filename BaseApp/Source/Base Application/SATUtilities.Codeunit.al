@@ -239,7 +239,7 @@ codeunit 27030 "SAT Utilities"
                     else
                         CountryRegion."SAT Country Code" := 'ZZZ';
                 end;
-                CountryRegion.Modify;
+                CountryRegion.Modify();
             until CountryRegion.Next = 0;
     end;
 
@@ -266,7 +266,7 @@ codeunit 27030 "SAT Utilities"
                     'PCS':
                         UnitOfMeasure."SAT UofM Classification" := 'EA';
                 end;
-                UnitOfMeasure.Modify;
+                UnitOfMeasure.Modify();
             until UnitOfMeasure.Next = 0;
     end;
 

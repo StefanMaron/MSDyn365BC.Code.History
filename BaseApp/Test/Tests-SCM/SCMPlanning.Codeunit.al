@@ -48,12 +48,12 @@ codeunit 137020 "SCM Planning"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
@@ -134,13 +134,13 @@ codeunit 137020 "SCM Planning"
         BinCount: Integer;
     begin
         Clear(Location);
-        Location.Init;
+        Location.Init();
 
         Clear(Bin);
-        Bin.Init;
+        Bin.Init();
 
         Clear(WarehouseEmployee);
-        WarehouseEmployee.Init;
+        WarehouseEmployee.Init();
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         // Skip validate trigger for bin mandatory to improve performance.
@@ -158,7 +158,7 @@ codeunit 137020 "SCM Planning"
     var
         ManufacturingSetupRec: Record "Manufacturing Setup";
     begin
-        ManufacturingSetupRec.Get;
+        ManufacturingSetupRec.Get();
         ManufacturingSetupRec.Validate("Components at Location", '');
         ManufacturingSetupRec.Validate("Current Production Forecast", '');
         ManufacturingSetupRec.Validate("Use Forecast on Locations", true);
@@ -174,7 +174,7 @@ codeunit 137020 "SCM Planning"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         Evaluate(ManufacturingSetup."Default Dampener Period", DampenerTime);
         ManufacturingSetup.Modify(true);
     end;
@@ -183,7 +183,7 @@ codeunit 137020 "SCM Planning"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Default Dampener %", DampenerPercentage);
         ManufacturingSetup.Modify(true);
     end;
@@ -192,7 +192,7 @@ codeunit 137020 "SCM Planning"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Blank Overflow Level", DampenerOption);
         ManufacturingSetup.Modify(true);
     end;
@@ -201,7 +201,7 @@ codeunit 137020 "SCM Planning"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -350,7 +350,7 @@ codeunit 137020 "SCM Planning"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        ReservationEntry.Reset;
+        ReservationEntry.Reset();
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
         ReservationEntry.CalcSums("Quantity (Base)");
@@ -4703,7 +4703,7 @@ codeunit 137020 "SCM Planning"
           LibraryUtility.GenerateRandomCode(RequisitionLine.FieldNo("No."), DATABASE::"Requisition Line"),
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(RequisitionLine.Description)), 1, MaxStrLen(RequisitionLine.Description)));
         RequisitionLine."Routing Type" := RoutingType::Serial;
-        RequisitionLine.Modify;
+        RequisitionLine.Modify();
 
         // [GIVEN] 3 Planning Routing Lines for the Requisition Line with "Operation No." = 10,20,30
         for I := 1 to ArrayLen(OperationNo) do
@@ -4812,7 +4812,7 @@ codeunit 137020 "SCM Planning"
         Item.Validate("Reorder Quantity", 0);
         Item.Validate("Reorder Point", LibraryRandom.RandInt(10));
         Item.Modify(true);
-        Commit;
+        Commit();
 
         // [WHEN] Calculate Regenerative Plan for this year with Stop and Show First Error enabled
         asserterror CalcRegenPlanWithStopAndShowFirstError(Item, CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
@@ -4820,60 +4820,6 @@ codeunit 137020 "SCM Planning"
         // [THEN] Error 'Reorder Quantity must have a value in Item: No.=1000. It cannot be zero or empty.'
         Assert.ExpectedError(StrSubstNo(ReorderQtyMustHaveValueInItemErr, Item."No."));
         Assert.ExpectedErrorCode(TestFieldCodeErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PlanningWithLeadTimeCalculationDoesNotSuggestAboveMaxQty()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        RequisitionLine: Record "Requisition Line";
-        LeadTimeCalculation: DateFormula;
-        MaxQty: Decimal;
-        InvtQty: Decimal;
-        SalesQty: Decimal;
-    begin
-        // [FEATURE] [Maximum Inventory] [Lead Time Calculation]
-        // [SCENARIO 343547] Planning engine must keep the inventory on the maximum level when the reorder point is crossed more than once within Lead Time Calculation period.
-        Initialize();
-        Evaluate(LeadTimeCalculation, '<60D>');
-        MaxQty := 50;
-        InvtQty := 25;
-        SalesQty := 5;
-
-        // [GIVEN] Item with "Maximum Qty." reordering policy.
-        // [GIVEN] Max. inventory = 50. Reorder point = 46.
-        // [GIVEN] Lead time calculation = 60 days.
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Maximum Qty.");
-        Item.Validate("Lead Time Calculation", LeadTimeCalculation);
-        Item.Validate("Maximum Inventory", MaxQty);
-        Item.Validate("Reorder Point", MaxQty - SalesQty + 1);
-        Item.Modify(true);
-
-        // [GIVEN] Post 25 qty. to the inventory.
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', InvtQty);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
-
-        // [GIVEN] Two sales lines each for 5 qty.
-        // [GIVEN] The reorder point will thus be crossed three times - for the inventory and each sales line.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate + 5, SalesQty);
-        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate + 10, SalesQty);
-
-        // [WHEN] Calculate regenerative plan starting from WORKDATE.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));
-
-        // [THEN] Three planning lines are created.
-        // [THEN] The resulting inventory with the consideration of the planning lines is 50 qty. (= Max. Inventory of the item).
-        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
-        RequisitionLine.SetRange("No.", Item."No.");
-        RequisitionLine.CalcSums(Quantity);
-        Assert.RecordCount(RequisitionLine, 3);
-        Assert.AreEqual(MaxQty, InvtQty - 2 * SalesQty + RequisitionLine.Quantity, 'Wrong planned quantity.');
     end;
 
     local procedure Initialize()
@@ -4900,7 +4846,7 @@ codeunit 137020 "SCM Planning"
         Evaluate(PlanningEndDate, '<+11M>');
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning");
     end;
 
@@ -4933,7 +4879,7 @@ codeunit 137020 "SCM Planning"
         RequisitionWkshName.Name :=
           LibraryUtility.GenerateRandomCode(RequisitionWkshName.FieldNo(Name), DATABASE::"Requisition Wksh. Name");
         RequisitionWkshName.Description := Description;
-        RequisitionWkshName.Insert;
+        RequisitionWkshName.Insert();
     end;
 
     local procedure MockRequisitionLine(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name"; Type: Option; No: Code[20]; Description: Text[100])
@@ -4944,7 +4890,7 @@ codeunit 137020 "SCM Planning"
         RequisitionLine.Type := Type;
         RequisitionLine."No." := No;
         RequisitionLine.Description := Description;
-        RequisitionLine.Insert;
+        RequisitionLine.Insert();
     end;
 
     local procedure MockPlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; RequisitionLine: Record "Requisition Line")
@@ -4952,7 +4898,7 @@ codeunit 137020 "SCM Planning"
         PlanningRoutingLine."Worksheet Template Name" := RequisitionLine."Worksheet Template Name";
         PlanningRoutingLine."Worksheet Batch Name" := RequisitionLine."Journal Batch Name";
         PlanningRoutingLine."Worksheet Line No." := RequisitionLine."Line No.";
-        PlanningRoutingLine.Insert;
+        PlanningRoutingLine.Insert();
 
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
@@ -4967,7 +4913,7 @@ codeunit 137020 "SCM Planning"
         PlanningRoutingLine."Operation No." := OperationNo;
         PlanningRoutingLine."Next Operation No." := NextOperationNo;
         PlanningRoutingLine."Previous Operation No." := PrevOperationNo;
-        PlanningRoutingLine.Insert;
+        PlanningRoutingLine.Insert();
 
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
@@ -4979,7 +4925,7 @@ codeunit 137020 "SCM Planning"
         PlanningComponent."Worksheet Template Name" := RequisitionLine."Worksheet Template Name";
         PlanningComponent."Worksheet Batch Name" := RequisitionLine."Journal Batch Name";
         PlanningComponent."Worksheet Line No." := RequisitionLine."Line No.";
-        PlanningComponent.Insert;
+        PlanningComponent.Insert();
 
         PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");

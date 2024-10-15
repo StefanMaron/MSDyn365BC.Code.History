@@ -21,13 +21,13 @@ report 10473 "Service Credit Memo-Sales Tax"
                 trigger OnAfterGetRecord()
                 begin
                     TempServCrMemoLine := "Service Cr.Memo Line";
-                    TempServCrMemoLine.Insert;
+                    TempServCrMemoLine.Insert();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempServCrMemoLine.Reset;
-                    TempServCrMemoLine.DeleteAll;
+                    TempServCrMemoLine.Reset();
+                    TempServCrMemoLine.DeleteAll();
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -375,7 +375,7 @@ report 10473 "Service Credit Memo-Sales Tax"
                         begin
                             Clear(TaxLiable);
                             Clear(AmountExclInvDisc);
-                            NumberOfLines := TempServCrMemoLine.Count;
+                            NumberOfLines := TempServCrMemoLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                             PrintFooter := false;
@@ -388,7 +388,7 @@ report 10473 "Service Credit Memo-Sales Tax"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             ServiceCrMemoPrinted.Run("Service Cr.Memo Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -529,25 +529,25 @@ report 10473 "Service Credit Memo-Sales Tax"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        SalesSetup.Get;
+        CompanyInformation.Get();
+        SalesSetup.Get();
 
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
                 ;
             SalesSetup."Logo Position on Documents"::Left:
                 begin
-                    CompanyInfo3.Get;
+                    CompanyInfo3.Get();
                     CompanyInfo3.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -647,7 +647,7 @@ report 10473 "Service Credit Memo-Sales Tax"
                 exit(0D);
         end;
 
-        ServiceShipmentBuffer.Reset;
+        ServiceShipmentBuffer.Reset();
         ServiceShipmentBuffer.SetRange("Document No.", "Service Cr.Memo Line"."Document No.");
         ServiceShipmentBuffer.SetRange("Line No.", "Service Cr.Memo Line"."Line No.");
 
@@ -656,12 +656,12 @@ report 10473 "Service Credit Memo-Sales Tax"
             if ServiceShipmentBuffer.Next = 0 then begin
                 ServiceShipmentBuffer.Get(ServiceShipmentBuffer2."Document No.", ServiceShipmentBuffer2."Line No.", ServiceShipmentBuffer2.
                   "Entry No.");
-                ServiceShipmentBuffer.Delete;
+                ServiceShipmentBuffer.Delete();
                 exit(ServiceShipmentBuffer2."Posting Date");
             end;
             ServiceShipmentBuffer.CalcSums(Quantity);
             if ServiceShipmentBuffer.Quantity <> "Service Cr.Memo Line".Quantity then begin
-                ServiceShipmentBuffer.DeleteAll;
+                ServiceShipmentBuffer.DeleteAll();
                 exit("Service Cr.Memo Header"."Posting Date");
             end;
         end else
@@ -705,7 +705,7 @@ report 10473 "Service Credit Memo-Sales Tax"
         ServiceShipmentBuffer.SetRange("Posting Date", PostingDate);
         if ServiceShipmentBuffer.Find('-') then begin
             ServiceShipmentBuffer.Quantity := ServiceShipmentBuffer.Quantity - QtyOnShipment;
-            ServiceShipmentBuffer.Modify;
+            ServiceShipmentBuffer.Modify();
             exit;
         end;
 

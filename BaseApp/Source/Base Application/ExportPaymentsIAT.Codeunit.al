@@ -80,11 +80,11 @@ codeunit 10093 "Export Payments (IAT)"
         if FileIsInProcess then
             Error(ExportInProcessErr, FileName);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
         with BankAccount do begin
-            LockTable;
+            LockTable();
             Get(BankAccountNo);
             TestField("Export Format", "Export Format"::US);
             TestField("Transit No.");
@@ -261,13 +261,13 @@ codeunit 10093 "Export Payments (IAT)"
         AddToPrnString(BatchHeaderRec, 'IAT', 51, 3, Justification::Left, ' ');
         AddToPrnString(BatchHeaderRec, GenJournalLine."Source Code", 54, 10, Justification::Left, ' ');
         if BankAccount."Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             AddToPrnString(BatchHeaderRec, GLSetup."LCY Code", 64, 3, Justification::Left, ' ');
         end else
             AddToPrnString(BatchHeaderRec, BankAccount."Currency Code", 64, 3, Justification::Left, ' ');
 
         if DestinationBankCurrencyCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             AddToPrnString(BatchHeaderRec, GLSetup."LCY Code", 67, 3, Justification::Left, ' ');
         end else
             AddToPrnString(BatchHeaderRec, DestinationBankCurrencyCode, 67, 3, Justification::Left, ' ');

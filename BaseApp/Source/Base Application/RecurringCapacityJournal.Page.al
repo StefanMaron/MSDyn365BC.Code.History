@@ -1,4 +1,4 @@
-﻿page 99000778 "Recurring Capacity Journal"
+page 99000778 "Recurring Capacity Journal"
 {
     ApplicationArea = Manufacturing;
     AutoSplitKey = true;
@@ -86,7 +86,6 @@
                 field(Type; Type)
                 {
                     ApplicationArea = Manufacturing;
-                    OptionCaption = 'Work Center,Machine Center';
                     ToolTip = 'Specifies the journal type, which is either Work Center or Machine Center.';
 
                     trigger OnValidate()
@@ -405,6 +404,7 @@
                     RunObject = Page "Capacity Ledger Entries";
                     RunPageLink = "Order Type" = CONST(Production),
                                   "Order No." = FIELD("Order No.");
+                    RunPageView = SORTING("Order Type", "Order No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }

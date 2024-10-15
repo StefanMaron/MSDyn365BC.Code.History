@@ -51,11 +51,11 @@ codeunit 10095 "Export EFT (RB)"
     begin
         ExportEFTACH.BuildIDModifier(DummyModifierValues);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
         with BankAccount do begin
-            LockTable;
+            LockTable();
             Get(BankAccountNo);
             TestField("Export Format", "Export Format"::CA);
             TestField("Transit No.");
@@ -104,7 +104,7 @@ codeunit 10095 "Export EFT (RB)"
             FedID := CompanyInformation."Federal ID No.";
 
             if TempEFTExportWorkset."Currency Code" = '' then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 CurrencyType := GLSetup."LCY Code";
             end else
                 CurrencyType := TempEFTExportWorkset."Currency Code";
@@ -130,7 +130,7 @@ codeunit 10095 "Export EFT (RB)"
             ACHRBHeader."Input Type" := '1';
             ACHRBHeader."Input Qualifier" := "Input Qualifier";
             OnBeforeACHRBHeaderModify(ACHRBHeader, BankAccount);
-            ACHRBHeader.Modify;
+            ACHRBHeader.Modify();
         end;
     end;
 
@@ -175,7 +175,7 @@ codeunit 10095 "Export EFT (RB)"
         ACHRBFooter."Zero Fill" := 0;
         ACHRBFooter."Number of Cust Info Records" := EFTValues.GetNoOfCustInfoRec;
         OnBeforeACHRBFooterModify(ACHRBFooter, BankAccount."No.");
-        ACHRBFooter.Modify;
+        ACHRBFooter.Modify();
 
         exit(true);
     end;
@@ -385,11 +385,11 @@ codeunit 10095 "Export EFT (RB)"
                 ACHRBDetail."RRPayment Related Info1" := "Payment Related Information 1";
                 ACHRBDetail."RRPayment Related Info2" := "Payment Related Information 2";
                 OnBeforeACHRBDetailModify(ACHRBDetail, TempEFTExportWorkset, BankAccount."No.", SettleDate);
-                ACHRBDetail.Modify;
+                ACHRBDetail.Modify();
                 EFTValues.SetNoOfCustInfoRec(EFTValues.GetNoOfCustInfoRec + 1);
             end else begin
                 OnBeforeACHRBDetailModify(ACHRBDetail, TempEFTExportWorkset, BankAccount."No.", SettleDate);
-                ACHRBDetail.Modify;
+                ACHRBDetail.Modify();
             end;
         end;
     end;

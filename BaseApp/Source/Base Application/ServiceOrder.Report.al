@@ -165,10 +165,10 @@ report 5900 "Service Order"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -193,7 +193,7 @@ report 5900 "Service Order"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Service Order Comment"; "Service Comment Line")
@@ -480,10 +480,10 @@ report 5900 "Service Order"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.Find('-') then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -508,7 +508,7 @@ report 5900 "Service Order"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Service Line"."Dimension Set ID");
                             end;
@@ -535,7 +535,7 @@ report 5900 "Service Order"
                                 GrossAmt := Amt + TempSalesTaxAmountLine.GetTotalTaxAmountFCY;
                             end else begin
                                 if "Quantity Invoiced" = 0 then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                                 Qty := "Quantity Invoiced";
 
                                 Amt := Round((Qty * "Unit Price") * (1 - "Line Discount %" / 100));
@@ -585,7 +585,7 @@ report 5900 "Service Order"
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -665,8 +665,8 @@ report 5900 "Service Order"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
-        ServiceSetup.Get;
+        CompanyInfo.Get();
+        ServiceSetup.Get();
 
         case ServiceSetup."Logo Position on Documents" of
             ServiceSetup."Logo Position on Documents"::"No Logo":
@@ -675,12 +675,12 @@ report 5900 "Service Order"
                 CompanyInfo.CalcFields(Picture);
             ServiceSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             ServiceSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;

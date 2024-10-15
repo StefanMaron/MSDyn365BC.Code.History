@@ -274,7 +274,7 @@ report 10048 "Customer/Item Statistics"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := Customer.GetFilters;
         FilterString2 := "Value Entry".GetFilters;
         if PrintToExcel then

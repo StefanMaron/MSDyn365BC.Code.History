@@ -110,7 +110,7 @@ report 10321 "Sales Tax Area List"
                 trigger OnPreDataItem()
                 begin
                     if not IncludeJurisdictions then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
         }
@@ -148,7 +148,7 @@ report 10321 "Sales Tax Area List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         AreaFilters := "Tax Area".GetFilters;
     end;
 

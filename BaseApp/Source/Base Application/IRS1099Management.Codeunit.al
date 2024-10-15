@@ -102,7 +102,7 @@ codeunit 10500 "IRS 1099 Management"
         if not Handled then
             CanCreateTask := TASKSCHEDULER.CanCreateTask;
         if CanCreateTask then begin
-            JobQueueEntry.Init;
+            JobQueueEntry.Init();
             JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
             JobQueueEntry."Earliest Start Date/Time" := CreateDateTime(Today, Time + 60000);
             JobQueueEntry."Object ID to Run" := CODEUNIT::"Upgrade IRS 1099 Form Boxes";

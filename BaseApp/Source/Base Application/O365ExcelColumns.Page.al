@@ -35,7 +35,7 @@ page 2182 "O365 Excel Columns"
     procedure SetStartRowCellBuffer(var TempStarRowCellNameValueBuffer: Record "Name/Value Buffer" temporary)
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
         Copy(TempStarRowCellNameValueBuffer, true);
     end;
 }

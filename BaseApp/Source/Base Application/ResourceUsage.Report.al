@@ -122,7 +122,7 @@ report 10200 "Resource Usage"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ResFilter := Resource.GetFilters;
     end;
 

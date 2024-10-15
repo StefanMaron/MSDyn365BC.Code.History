@@ -19,7 +19,6 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         IsInitialized: Boolean;
         CannotBeLessThanMsg: Label 'cannot be less than %1', Comment = '.';
         CannotBeMoreThanMsg: Label 'cannot be more than %1', Comment = '.';
-        DirectCostModifyMsg: Label 'must be %1 when the Prepayment Invoice has already been posted', Comment = 'starts with a field name; %1 - numeric value';
 
     [Test]
     [Scope('OnPrem')]
@@ -64,7 +63,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         // Magic numbers from original repro steps Bug 332246
         AddPurchOrderLine(PurchLine, PurchaseHeader, 19.625, 1192, 100, 0);
         PurchLine.Validate("Line Amount", 16559.33);
-        PurchLine.Modify;
+        PurchLine.Modify();
     end;
 
     [Test]
@@ -257,7 +256,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         PreparePurchOrder(PurchHeader);
         AddPurchOrderLine100PctPrepmt(PurchLine, PurchHeader, PositiveDiff);
         PurchLine.Validate("Line Discount %", GetSpecialLineDiscPct);
-        PurchLine.Modify;
+        PurchLine.Modify();
     end;
 
     [Test]
@@ -424,14 +423,13 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
     var
         PurchaseOrderHeader: Record "Purchase Header";
         PurchaseInvoiceHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [FEATURE] [Get Receipt Lines] [UI]
         // [SCENARIO 374897] Error when User tries to decrease PurchaseInvoiceLine."Direct Unit Cost" value with 100% Prepayment after Get Receipt Lines
         Initialize;
 
-        // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Direct Unit Cost" = "X". Post Prepayment. Post Receipt.
+        // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Line Amount" = "X". Post Prepayment. Post Receipt.
         PreparePOPostPrepmtAndReceipt(PurchaseOrderHeader);
 
         // [GIVEN] Create Purchase Invoice. Get Receipt Lines from posted Receipt.
@@ -442,10 +440,8 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         asserterror PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(
             PurchaseInvoice.PurchLines."Direct Unit Cost".AsDEcimal - 0.01);
 
-        // [THEN] Error occurs: "Direct Unit Cost must be X when the Prepayment Invoice has already been posted"
-        Assert.ExpectedErrorCode('Validation');
-        Assert.ExpectedError(PurchaseLine.FieldCaption("Direct Unit Cost"));
-        Assert.ExpectedError(StrSubstNo(DirectCostModifyMsg, PurchaseInvoice.PurchLines."Direct Unit Cost".AsDEcimal));
+        // [THEN] Error occurs: "Line Amount Excl. VAT cannot be less than X"
+        VerifyLineAmountExpectedError(CannotBeLessThanMsg, PurchaseInvoice.PurchLines."Line Amount".AsDEcimal);
     end;
 
     [Test]
@@ -454,14 +450,13 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
     var
         PurchaseOrderHeader: Record "Purchase Header";
         PurchaseInvoiceHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [FEATURE] [Get Receipt Lines] [UI]
         // [SCENARIO 374897] Error when User tries to increase PurchaseInvoiceLine."Direct Unit Cost" value with 100% Prepayment after Get Receipt Lines
         Initialize;
 
-        // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Direct Unit Cost" = "X". Post Prepayment. Post Receipt.
+        // [GIVEN] Purchase Order with 100% Prepayment, Line Discount and "Line Amount" = "X". Post Prepayment. Post Receipt.
         PreparePOPostPrepmtAndReceipt(PurchaseOrderHeader);
 
         // [GIVEN] Create Purchase Invoice. Get Receipt Lines from posted Receipt.
@@ -472,10 +467,8 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         asserterror PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(
             PurchaseInvoice.PurchLines."Direct Unit Cost".AsDEcimal + 0.01);
 
-        // [THEN] Error occurs: "Direct Unit Cost must be X when the Prepayment Invoice has already been posted"
-        Assert.ExpectedErrorCode('Validation');
-        Assert.ExpectedError(PurchaseLine.FieldCaption("Direct Unit Cost"));
-        Assert.ExpectedError(StrSubstNo(DirectCostModifyMsg, PurchaseInvoice.PurchLines."Direct Unit Cost".AsDEcimal));
+        // [THEN] Error occurs: "Line Amount Excl. VAT cannot be more than X"
+        VerifyLineAmountExpectedError(CannotBeMoreThanMsg, PurchaseInvoice.PurchLines."Line Amount".AsDEcimal);
     end;
 
     [Test]
@@ -739,10 +732,8 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");
-        LibraryApplicationArea.EnableFoundationSetup;
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");
@@ -750,9 +741,9 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateVATPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");
     end;
 
@@ -1006,7 +997,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         PurchLine.Find;
         PurchLine.Validate("Qty. to Receive", QtyToReceive);
         PurchLine.Validate("Qty. to Invoice", QtyToInvoice);
-        PurchLine.Modify;
+        PurchLine.Modify();
     end;
 
     local procedure UpdatePurchLine(var PurchaseLine: Record "Purchase Line"; NewDirectUnitCost: Decimal; NewDiscountPct: Decimal; NewPrepmtPct: Decimal)

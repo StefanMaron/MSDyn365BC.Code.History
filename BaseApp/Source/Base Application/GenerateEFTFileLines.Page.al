@@ -56,7 +56,7 @@ page 10811 "Generate EFT File Lines"
     var
         EFTExport: Record "EFT Export";
     begin
-        DeleteAll;
+        DeleteAll();
         EFTExport.SetCurrentKey("Bank Account No.", Transmitted);
         EFTExport.SetRange("Bank Account No.", BankAccountNumber);
         EFTExport.SetRange(Transmitted, false);
@@ -73,12 +73,12 @@ page 10811 "Generate EFT File Lines"
     [Scope('OnPrem')]
     procedure GetColumns(var TempEFTExportWorkset: Record "EFT Export Workset" temporary)
     begin
-        TempEFTExportWorkset.DeleteAll;
+        TempEFTExportWorkset.DeleteAll();
         SetRange(Include, true);
         if FindFirst then
             repeat
                 TempEFTExportWorkset.TransferFields(Rec);
-                TempEFTExportWorkset.Insert;
+                TempEFTExportWorkset.Insert();
             until Next = 0;
         Reset;
     end;

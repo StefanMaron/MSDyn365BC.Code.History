@@ -68,7 +68,7 @@ report 10312 "Reason Code List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ReasonFilter := "Reason Code".GetFilters;
     end;
 

@@ -1338,7 +1338,8 @@
                     <TextRun>
                       <Value>=Choose(21,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177)))</Value>
                       <Style>
-                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>IDAutomationCMC7</FontFamily>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
                     </TextRun>
                   </TextRuns>
@@ -1371,7 +1372,10 @@
                   <TextRuns>
                     <TextRun>
                       <Value>=Choose(7,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177)))</Value>
-                      <Style />
+                      <Style>
+                        <FontFamily>IDAutomationSec1B</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
                     </TextRun>
                   </TextRuns>
                   <Style />
@@ -1466,13 +1470,43 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.16523in</Top>
+              <Top>2.16522in</Top>
               <Height>0.16656in</Height>
               <Width>6.03543in</Width>
               <ZIndex>18</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(19,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177))) = 2, false, true)</Hidden>
               </Visibility>
+              <DataElementOutput>NoOutput</DataElementOutput>
+              <Style>
+                <Border />
+                <BackgroundColor>White</BackgroundColor>
+                <VerticalAlign>Middle</VerticalAlign>
+                <PaddingLeft>0.04134in</PaddingLeft>
+                <PaddingRight>0.04134in</PaddingRight>
+              </Style>
+            </Textbox>
+            <Textbox Name="BankTransitNo">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=First(Fields!BankTransitNo.Value, "DataSet_Result")</Value>
+                      <Style>
+                        <FontFamily>IDAutomationCMC7</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.67443in</Top>
+              <Left>8.54162cm</Left>
+              <Height>0.16656in</Height>
+              <Width>1.69687in</Width>
+              <ZIndex>19</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style>
                 <Border />
@@ -1499,7 +1533,7 @@
               <Left>0.48717in</Left>
               <Height>0.16656in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>19</ZIndex>
+              <ZIndex>20</ZIndex>
               <Style>
                 <Border />
                 <VerticalAlign>Middle</VerticalAlign>
@@ -1524,7 +1558,7 @@
               <Left>0.48717in</Left>
               <Height>0.16689in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>20</ZIndex>
+              <ZIndex>21</ZIndex>
               <Style>
                 <Border />
                 <VerticalAlign>Middle</VerticalAlign>
@@ -1549,7 +1583,7 @@
               <Left>0.48717in</Left>
               <Height>0.16678in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>21</ZIndex>
+              <ZIndex>22</ZIndex>
               <Style>
                 <Border />
                 <VerticalAlign>Middle</VerticalAlign>
@@ -1574,7 +1608,7 @@
               <Left>0.48717in</Left>
               <Height>0.16667in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>22</ZIndex>
+              <ZIndex>23</ZIndex>
               <Style>
                 <Border />
                 <VerticalAlign>Middle</VerticalAlign>
@@ -1599,7 +1633,7 @@
               <Left>0.48717in</Left>
               <Height>0.16656in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>23</ZIndex>
+              <ZIndex>24</ZIndex>
               <Style>
                 <Border />
                 <VerticalAlign>Middle</VerticalAlign>
@@ -1614,7 +1648,10 @@
                   <TextRuns>
                     <TextRun>
                       <Value>=Choose(14,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177)))</Value>
-                      <Style />
+                      <Style>
+                        <FontFamily>IDAutomationSec1B</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
                     </TextRun>
                   </TextRuns>
                   <Style>
@@ -1623,10 +1660,10 @@
                 </Paragraph>
               </Paragraphs>
               <Top>2.66489in</Top>
-              <Left>4.16391in</Left>
+              <Left>3.17433in</Left>
               <Height>0.16656in</Height>
-              <Width>1.49901in</Width>
-              <ZIndex>24</ZIndex>
+              <Width>2.07193in</Width>
+              <ZIndex>25</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(19,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177))) = 1, false, true)</Hidden>
               </Visibility>
@@ -1646,7 +1683,10 @@
                   <TextRuns>
                     <TextRun>
                       <Value>=Choose(15,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177)))</Value>
-                      <Style />
+                      <Style>
+                        <FontFamily>IDAutomationSec1B</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
                     </TextRun>
                   </TextRuns>
                   <Style>
@@ -1655,40 +1695,9 @@
                 </Paragraph>
               </Paragraphs>
               <Top>2.66489in</Top>
-              <Left>5.7253in</Left>
+              <Left>5.3157in</Left>
               <Height>0.16656in</Height>
-              <Width>1.27006in</Width>
-              <ZIndex>25</ZIndex>
-              <Visibility>
-                <Hidden>=iif(Choose(19,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177))) = 1, false, true)</Hidden>
-              </Visibility>
-              <DataElementOutput>NoOutput</DataElementOutput>
-              <Style>
-                <Border />
-                <BackgroundColor>White</BackgroundColor>
-                <PaddingLeft>2pt</PaddingLeft>
-                <PaddingRight>2pt</PaddingRight>
-              </Style>
-            </Textbox>
-            <Textbox Name="BankCurrencyCode1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Choose(16,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177)))</Value>
-                      <Style>
-                        <Format>******** #,##0.00</Format>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Top>2.66489in</Top>
-              <Left>7.10984in</Left>
-              <Height>0.16656in</Height>
-              <Width>0.71831in</Width>
+              <Width>2.33922in</Width>
               <ZIndex>26</ZIndex>
               <Visibility>
                 <Hidden>=iif(Choose(19,Split(Cstr(ReportItems!CompanyAddresses.Value),Chr(177))) = 1, false, true)</Hidden>
@@ -1697,8 +1706,7 @@
               <Style>
                 <Border />
                 <BackgroundColor>White</BackgroundColor>
-                <VerticalAlign>Middle</VerticalAlign>
-                <PaddingLeft>0.04134in</PaddingLeft>
+                <PaddingLeft>2pt</PaddingLeft>
                 <PaddingRight>2pt</PaddingRight>
               </Style>
             </Textbox>
@@ -1888,6 +1896,36 @@
                 <PaddingRight>0.04134in</PaddingRight>
               </Style>
             </Textbox>
+            <Textbox Name="BankAccountNo">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=First(Fields!BankAccountNo.Value, "DataSet_Result")</Value>
+                      <Style>
+                        <FontFamily>IDAutomationCMC7</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.67444in</Top>
+              <Left>13.02806cm</Left>
+              <Height>0.16656in</Height>
+              <Width>1.69687in</Width>
+              <ZIndex>33</ZIndex>
+              <DataElementOutput>NoOutput</DataElementOutput>
+              <Style>
+                <Border />
+                <BackgroundColor>White</BackgroundColor>
+                <VerticalAlign>Middle</VerticalAlign>
+                <PaddingLeft>0.04134in</PaddingLeft>
+                <PaddingRight>0.04134in</PaddingRight>
+              </Style>
+            </Textbox>
           </ReportItems>
           <Style>
             <BackgroundColor>White</BackgroundColor>
@@ -2017,6 +2055,12 @@ End Function
         </Field>
         <Field Name="PostingDescriptionCaption">
           <DataField>PostingDescriptionCaption</DataField>
+        </Field>
+        <Field Name="BankTransitNo">
+          <DataField>BankTransitNo</DataField>
+        </Field>
+        <Field Name="BankAccountNo">
+          <DataField>BankAccountNo</DataField>
         </Field>
         <Field Name="PrnChkCheckDateTextCheckStyleUS">
           <DataField>PrnChkCheckDateTextCheckStyleUS</DataField>

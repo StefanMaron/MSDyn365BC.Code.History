@@ -168,7 +168,7 @@ report 10136 "Item Transaction Detail"
                 trigger OnAfterGetRecord()
                 begin
                     Adjustment := 0;
-                    ValueEntry.Reset;
+                    ValueEntry.Reset();
                     ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
                     ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
                     ValueEntry.SetRange("Posting Date", FromDate, ToDate);
@@ -180,15 +180,15 @@ report 10136 "Item Transaction Detail"
                         if Adjustment <> 0 then
                             ValueOnHand := ValueOnHand + Adjustment
                         else
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end else
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if ItemLedgerFilter <> '' then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if not SetCurrentKey("Item No.", "Variant Code", "Global Dimension 1 Code",
                          "Global Dimension 2 Code", "Location Code", "Posting Date")
                     then
@@ -373,7 +373,7 @@ report 10136 "Item Transaction Detail"
                     SetRange("Date Filter", 0D, FromDate - 1);
                     CalcFields("Net Change");
                     QuantityOnHand := "Net Change";
-                    ValueEntry.Reset;
+                    ValueEntry.Reset();
                     ValueEntry.SetRange("Posting Date", 0D, FromDate - 1);
                     CopyFilter("Location Filter", ValueEntry."Location Code");
                     CopyFilter("Variant Filter", ValueEntry."Variant Code");
@@ -444,7 +444,7 @@ report 10136 "Item Transaction Detail"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
         ItemLedgerFilter := "Item Ledger Entry".GetFilters;
     end;

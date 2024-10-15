@@ -245,7 +245,7 @@ report 14022 "Declaration 347 Labels"
             begin
                 Counter := Counter + 2;
                 if Counter > NoOfLabels + 1 then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
 
             trigger OnPreDataItem()
@@ -355,7 +355,7 @@ report 14022 "Declaration 347 Labels"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if A = '' then
             A := '0000';
         B := '347';

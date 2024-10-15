@@ -45,7 +45,7 @@ codeunit 136906 "Job Reports"
         JobBatchJobs.SetJobNoSeries(JobsSetup, NoSeries);
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Reports");
     end;
 
@@ -234,7 +234,7 @@ codeunit 136906 "Job Reports"
         Job.SetRange("No.", Job."No.");
         Clear(JobWIPToGL);
         JobWIPToGL.SetTableView(Job);
-        Commit;
+        Commit();
         JobWIPToGL.Run;
     end;
 

@@ -592,8 +592,8 @@ report 10025 "Trial Balance, Spread G. Dim."
 
         trigger OnOpenPage()
         begin
-            GLSetup.Get;
-            Dimension.Reset;
+            GLSetup.Get();
+            Dimension.Reset();
             if DimCode <> '' then
                 if not Dimension.Get(DimCode) then;
             Dimension.FilterGroup(8);
@@ -625,8 +625,8 @@ report 10025 "Trial Balance, Spread G. Dim."
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         /* Set up format-dependent variables */
         case NumColumns of
             0, 1:
@@ -738,7 +738,7 @@ report 10025 "Trial Balance, Spread G. Dim."
                 PeriodText := 'As of ' + Format(PriorToDate, 0, 4);
         end;
         if UseAddRptCurr then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Currency.Get(GLSetup."Additional Reporting Currency");
             SubTitle := StrSubstNo(Text008, Currency.Description);
         end;

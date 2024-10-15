@@ -129,7 +129,7 @@ report 10147 "Items by Sales Tax Group"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
         TaxGrpFilter := "Tax Group".GetFilters;
     end;

@@ -42,21 +42,21 @@ codeunit 10120 "Bank Rec.-Post"
             Window.Update(1, "Bank Account No.");
             Window.Update(2, "Statement No.");
 
-            GLSetup.Get;
+            GLSetup.Get();
 
-            BankRecLine.LockTable;
-            PostedBankRecLine.LockTable;
+            BankRecLine.LockTable();
+            PostedBankRecLine.LockTable();
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
 
             SetRange("Date Filter", "Statement Date");
             CalcFields("G/L Balance (LCY)");
             CalculateBalance;
 
-            PostedBankRecHeader.Init;
+            PostedBankRecHeader.Init();
             PostedBankRecHeader.TransferFields(BankRecHeader, true);
             PostedBankRecHeader."G/L Balance (LCY)" := "G/L Balance (LCY)";
-            PostedBankRecHeader.Insert;
+            PostedBankRecHeader.Insert();
 
             BankRecCommentLine.SetCurrentKey("Table Name",
               "Bank Account No.",
@@ -68,14 +68,14 @@ codeunit 10120 "Bank Rec.-Post"
                 repeat
                     Window.Update(3, BankRecCommentLine."Line No.");
 
-                    PostedBankRecCommentLine.Init;
+                    PostedBankRecCommentLine.Init();
                     PostedBankRecCommentLine.TransferFields(BankRecCommentLine, true);
                     PostedBankRecCommentLine."Table Name" := PostedBankRecCommentLine."Table Name"::"Posted Bank Rec.";
-                    PostedBankRecCommentLine.Insert;
+                    PostedBankRecCommentLine.Insert();
                 until BankRecCommentLine.Next = 0;
-            BankRecCommentLine.DeleteAll;
+            BankRecCommentLine.DeleteAll();
 
-            BankRecLine.Reset;
+            BankRecLine.Reset();
             BankRecLine.SetCurrentKey("Bank Account No.",
               "Statement No.");
             BankRecLine.SetRange("Bank Account No.", "Bank Account No.");
@@ -98,24 +98,24 @@ codeunit 10120 "Bank Rec.-Post"
                         else
                             UpdateLedgers(BankRecLine, SetStatus::Open);
 
-                    PostedBankRecLine.Init;
+                    PostedBankRecLine.Init();
                     PostedBankRecLine.TransferFields(BankRecLine, true);
-                    PostedBankRecLine.Insert;
+                    PostedBankRecLine.Insert();
                 until BankRecLine.Next = 0;
-            BankRecLine.DeleteAll;
-            BankRecSubLine.Reset;
+            BankRecLine.DeleteAll();
+            BankRecSubLine.Reset();
             BankRecSubLine.SetRange("Bank Account No.", "Bank Account No.");
             BankRecSubLine.SetRange("Statement No.", "Statement No.");
-            BankRecSubLine.DeleteAll;
+            BankRecSubLine.DeleteAll();
 
             BankAccount.Get("Bank Account No.");
             BankAccount."Last Statement No." := "Statement No.";
             BankAccount."Balance Last Statement" := "Statement Balance";
-            BankAccount.Modify;
+            BankAccount.Modify();
 
             Delete;
 
-            Commit;
+            Commit();
             Window.Close;
         end;
         if GLSetup."Bank Rec. Adj. Doc. Nos." <> '' then
@@ -179,7 +179,7 @@ codeunit 10120 "Bank Rec.-Post"
                     CheckLedgerEntry."Statement No." := BankRecLine3."Statement No.";
                     CheckLedgerEntry."Statement Line No." := BankRecLine3."Line No.";
                 end;
-                CheckLedgerEntry.Modify;
+                CheckLedgerEntry.Modify();
                 if (CheckLedgerEntry."Check Type" = CheckLedgerEntry."Check Type"::"Total Check") or
                    (UseStatus <> UseStatus::Posted)
                 then
@@ -187,7 +187,7 @@ codeunit 10120 "Bank Rec.-Post"
                       BankRecLine3."Bank Ledger Entry No.", UseStatus,
                       BankRecLine3."Statement No.", BankRecLine3."Line No.")
                 else begin
-                    CheckLedgerEntry2.Reset;
+                    CheckLedgerEntry2.Reset();
                     CheckLedgerEntry2.SetCurrentKey("Bank Account Ledger Entry No.");
                     CheckLedgerEntry2.SetRange("Bank Account Ledger Entry No.", CheckLedgerEntry."Bank Account Ledger Entry No.");
                     CheckLedgerEntry2.SetFilter("Statement Status", '<>%1', CheckLedgerEntry."Statement Status"::Closed);
@@ -198,7 +198,7 @@ codeunit 10120 "Bank Rec.-Post"
                                 BankLedgerEntry."Remaining Amount" :=
                                   BankLedgerEntry."Remaining Amount" - CheckLedgerEntry2.Amount;
                             until CheckLedgerEntry2.Next = 0;
-                            BankLedgerEntry.Modify;
+                            BankLedgerEntry.Modify();
                         end;
                     end else
                         UpdateBankLedger(
@@ -244,7 +244,7 @@ codeunit 10120 "Bank Rec.-Post"
                 BankLedgerEntry."Statement Line No." := StatementLineNo;
             end;
             OnBeforeBankLedgerEntryModify(BankLedgerEntry, UseStatus, StatementNo, StatementLineNo);
-            BankLedgerEntry.Modify;
+            BankLedgerEntry.Modify();
         end;
     end;
 
@@ -255,7 +255,7 @@ codeunit 10120 "Bank Rec.-Post"
     begin
         with BankRecLine2 do
             if Amount <> 0 then begin
-                GenJnlLine.Init;
+                GenJnlLine.Init();
                 GenJnlLine."Posting Date" := "Posting Date";
                 GenJnlLine."Document Date" := "Posting Date";
                 GenJnlLine.Description := Description;
@@ -275,7 +275,7 @@ codeunit 10120 "Bank Rec.-Post"
                 else
                     GenJnlLine."Currency Factor" := "Currency Factor";
                 GenJnlLine.Validate(Amount, Amount);
-                GenJnlLine."Source Type" := "Account Type";
+                GenJnlLine."Source Type" := "Account Type".AsInteger();
                 GenJnlLine."Source No." := "Account No.";
                 GenJnlLine."Source Code" := SourceCodeSetup."Bank Rec. Adjustment";
                 GenJnlLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";

@@ -57,7 +57,7 @@
             OnBeforeSalesLineFind(SalesLine, SalesHeader);
             if not SalesLine.Find('-') then
                 Error(Text001, "Document Type", "No.");
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Location Mandatory" then begin
                 SalesLine.SetRange(Type, SalesLine.Type::Item);
                 if SalesLine.FindSet then
@@ -72,11 +72,11 @@
 
             SalesLine.SetRange("Drop Shipment", false);
             NotOnlyDropShipment := SalesLine.FindFirst;
-            SalesLine.Reset;
+            SalesLine.Reset();
 
             OnBeforeCalcInvDiscount(SalesHeader, PreviewMode);
 
-            SalesSetup.Get;
+            SalesSetup.Get();
             if SalesSetup."Calc. Inv. Discount" then begin
                 PostingDate := "Posting Date";
                 PrintPostedDocuments := "Print Posted Documents";
@@ -162,10 +162,10 @@
 
         with SalesHeader do
             if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestSalesPayment(SalesHeader) then begin
-                if Status <> Status::"Pending Prepayment" then begin
+                if TestStatusIsNotPendingPrepayment then begin
                     Status := Status::"Pending Prepayment";
                     Modify;
-                    Commit;
+                    Commit();
                 end;
                 Error(Text005, "Document Type", "No.");
             end;

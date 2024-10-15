@@ -352,7 +352,7 @@ report 10049 "Cust./Item Stat. by Salespers."
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := "Salesperson/Purchaser".GetFilters;
         FilterString2 := Customer.GetFilters;
         FilterString3 := "Value Entry".GetFilters;

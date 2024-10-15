@@ -1,4 +1,4 @@
-﻿page 922 "Posted Assembly Orders"
+page 922 "Posted Assembly Orders"
 {
     ApplicationArea = Assembly;
     Caption = 'Posted Assembly Orders';

@@ -327,7 +327,7 @@ report 10121 "Purchase Invoice NA"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             PurchaseInvPrinted.Run("Purch. Inv. Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -510,7 +510,7 @@ report 10121 "Purchase Invoice NA"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     trigger OnPreReport()

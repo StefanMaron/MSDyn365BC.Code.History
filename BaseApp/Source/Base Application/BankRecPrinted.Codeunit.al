@@ -8,7 +8,7 @@ codeunit 10124 "BankRec-Printed"
         Find;
         "No. Printed" := "No. Printed" + 1;
         Modify;
-        Commit;
+        Commit();
     end;
 }
 

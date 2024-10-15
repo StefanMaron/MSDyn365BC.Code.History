@@ -183,7 +183,7 @@ report 10142 "Item Cost and Price List"
                 trigger OnAfterGetRecord()
                 begin
                     Item2 := Item;
-                    Item2.Reset;
+                    Item2.Reset();
                     if "Location Code" <> '' then
                         Item2.SetRange("Location Filter", "Location Code");
                     if "Variant Code" <> '' then
@@ -198,7 +198,7 @@ report 10142 "Item Cost and Price List"
                 trigger OnPreDataItem()
                 begin
                     if not UseSKU then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -265,7 +265,7 @@ report 10142 "Item Cost and Price List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
 
         ExcelDataHeaderPrinted := false;

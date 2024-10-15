@@ -467,7 +467,7 @@ report 10057 "Projected Cash Receipts"
                         SubTitle := Text002
                     else
                         SubTitle := Text003;
-                    TempCurrency.DeleteAll;
+                    TempCurrency.DeleteAll();
                     with CustLedgEntry2 do begin
                         SetCurrentKey("Customer No.", Open, Positive, "Due Date", "Currency Code");
                         SetRange("Customer No.", Customer."No.");
@@ -475,20 +475,20 @@ report 10057 "Projected Cash Receipts"
                         SetFilter("On Hold", '');
                         SetFilter("Currency Code", '=%1', '');
                         if FindFirst then begin
-                            TempCurrency.Init;
+                            TempCurrency.Init();
                             TempCurrency.Code := '';
                             TempCurrency.Description := GLSetup."LCY Code";
-                            TempCurrency.Insert;
+                            TempCurrency.Insert();
                         end;
                     end;
                     with Currency do
                         repeat
                             CustLedgEntry2.SetRange("Currency Code", Code);
                             if CustLedgEntry2.FindFirst then begin
-                                TempCurrency.Init;
+                                TempCurrency.Init();
                                 TempCurrency.Code := Code;
                                 TempCurrency.Description := Description;
-                                TempCurrency.Insert;
+                                TempCurrency.Insert();
                             end;
                         until Next = 0;
                 end;
@@ -575,8 +575,8 @@ report 10057 "Projected Cash Receipts"
         for i := 3 to 5 do
             PeriodStartingDate[i] := CalcDate(PeriodCalculation, PeriodStartingDate[i - 1]);
         PeriodStartingDate[6] := 99991231D;
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         FilterString := Customer.GetFilters;
     end;
 

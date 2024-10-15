@@ -524,7 +524,7 @@ page 302 "Customer Entry Statistics"
         DateFilterCalc.CreateFiscalYearFilter(CustDateFilter[3], CustDateName[3], WorkDate, -1);
 
         for i := 1 to 3 do begin
-            CustLedgEntry2.Reset;
+            CustLedgEntry2.Reset();
             CustLedgEntry2.SetCurrentKey("Customer No.", "Posting Date");
             CustLedgEntry2.SetRange("Customer No.", "No.");
 

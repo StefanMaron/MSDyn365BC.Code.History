@@ -20,7 +20,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         TimeSheetMgt: Codeunit "Time Sheet Management";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         GenJnlLineDocNo: Code[20];
-        GenJnlLineExtDocNo: Code[20];
+        GenJnlLineExtDocNo: Code[35];
         SrcCode: Code[10];
         Consume: Boolean;
         Invoice: Boolean;
@@ -34,8 +34,8 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     begin
         ServiceHeader := TempServHeader;
         SetPostingOptions(TmpConsume, TmpInvoice);
-        SrcCodeSetup.Get;
-        SalesSetup.Get;
+        SrcCodeSetup.Get();
+        SalesSetup.Get();
         SrcCode := SrcCodeSetup."Service Management";
         Currency.Initialize(ServiceHeader."Currency Code");
         ItemJnlRollRndg := false;
@@ -62,7 +62,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         ItemJnlRollRndg := PassedItemJnlRollRndg;
     end;
 
-    procedure SetGenJnlLineDocNos(DocNo: Code[20]; ExtDocNo: Code[20])
+    procedure SetGenJnlLineDocNos(DocNo: Code[20]; ExtDocNo: Code[35])
     begin
         GenJnlLineDocNo := DocNo;
         GenJnlLineExtDocNo := ExtDocNo;
@@ -302,7 +302,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             until TempWhseJnlLine2.Next = 0;
     end;
 
-    procedure PostInvoicePostBufferLine(var InvoicePostBuffer: Record "Invoice Post. Buffer"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[20]; var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary; TaxOption: Option ,VAT,SalesTax; SalesTaxCountry: Option US,CA,,,,,,,,,,,,NoTax; var TotalServiceLineLCY: Record "Service Line")
+    procedure PostInvoicePostBufferLine(var InvoicePostBuffer: Record "Invoice Post. Buffer"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35]; var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary; TaxOption: Option ,VAT,SalesTax; SalesTaxCountry: Option US,CA,,,,,,,,,,,,NoTax; var TotalServiceLineLCY: Record "Service Line")
     var
         GenJnlLine: Record "Gen. Journal Line";
         TaxAmountDifference: Record "Sales Tax Amount Difference";
@@ -339,7 +339,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         end;
     end;
 
-    procedure PostCustomerEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[20])
+    procedure PostCustomerEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -373,7 +373,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         end;
     end;
 
-    procedure PostBalancingEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[20])
+    procedure PostBalancingEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         GenJnlLine: Record "Gen. Journal Line";
@@ -424,7 +424,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         end;
     end;
 
-    procedure PostResJnlLineShip(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[20])
+    procedure PostResJnlLineShip(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         ResJnlLine: Record "Res. Journal Line";
     begin
@@ -440,7 +440,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         TimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, GenJnlLineDocNo, true);
     end;
 
-    procedure PostResJnlLineUndoUsage(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[20])
+    procedure PostResJnlLineUndoUsage(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         ResJnlLine: Record "Res. Journal Line";
     begin
@@ -451,7 +451,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
           ServiceLine.Amount / ServiceLine."Qty. to Invoice", -ServiceLine.Amount);
     end;
 
-    procedure PostResJnlLineSale(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[20])
+    procedure PostResJnlLineSale(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         ResJnlLine: Record "Res. Journal Line";
     begin
@@ -557,17 +557,17 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 
     procedure CollectValueEntryRelation(var PassedValueEntryRelation: Record "Value Entry Relation"; RowId: Text[100])
     begin
-        TempValueEntryRelation.Reset;
-        PassedValueEntryRelation.Reset;
+        TempValueEntryRelation.Reset();
+        PassedValueEntryRelation.Reset();
 
         if TempValueEntryRelation.FindSet then
             repeat
                 PassedValueEntryRelation := TempValueEntryRelation;
                 PassedValueEntryRelation."Source RowId" := RowId;
-                PassedValueEntryRelation.Insert;
+                PassedValueEntryRelation.Insert();
             until TempValueEntryRelation.Next = 0;
 
-        TempValueEntryRelation.DeleteAll;
+        TempValueEntryRelation.DeleteAll();
     end;
 
     procedure PostJobJnlLine(var ServHeader: Record "Service Header"; ServLine: Record "Service Line"; QtyToBeConsumed: Decimal): Boolean
@@ -595,12 +595,12 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                 exit(false);
 
             TestField("Job Task No.");
-            Job.LockTable;
-            JobTask.LockTable;
+            Job.LockTable();
+            JobTask.LockTable();
             Job.Get("Job No.");
             JobTask.Get("Job No.", "Job Task No.");
 
-            JobJnlLine.Init;
+            JobJnlLine.Init();
             JobJnlLine.DontCheckStdCost;
             JobJnlLine.Validate("Job No.", "Job No.");
             JobJnlLine.Validate("Job Task No.", "Job Task No.");
@@ -673,7 +673,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             JobJnlLine."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
             JobJnlLine."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
             JobJnlLine."Customer Price Group" := "Customer Price Group";
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             JobJnlLine."Source Code" := SourceCodeSetup."Service Management";
             JobJnlLine."Work Type Code" := "Work Type Code";
             JobJnlLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
@@ -691,7 +691,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         ServiceLinePostingDate := PostingDate;
     end;
 
-    local procedure PostSalesTaxToGL(var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary; var TotalServiceLineLCY: Record "Service Line"; GenJnlLineDocType: Integer; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[20]; SalesTaxCountry: Option US,CA,,,,,,,,,,,,NoTax)
+    local procedure PostSalesTaxToGL(var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary; var TotalServiceLineLCY: Record "Service Line"; GenJnlLineDocType: Integer; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; SalesTaxCountry: Option US,CA,,,,,,,,,,,,NoTax)
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
         GenJnlLine: Record "Gen. Journal Line";
@@ -705,7 +705,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         TaxLineCount := 0;
         RemSalesTaxAmt := 0;
         RemSalesTaxSrcAmt := 0;
-        GLSetup.Get;
+        GLSetup.Get();
 
         if ServiceHeader."Currency Code" <> '' then
             TotalServiceLineLCY."Amount Including VAT" := TotalServiceLineLCY.Amount;
@@ -717,7 +717,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                    ((TempSalesTaxAmtLine.Quantity <> 0) and
                     (TempSalesTaxAmtLine."Tax Type" = TempSalesTaxAmtLine."Tax Type"::"Excise Tax"))
                 then begin
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine."Posting Date" := ServiceHeader."Posting Date";
                     GenJnlLine."Document Date" := ServiceHeader."Document Date";
                     GenJnlLine.Description := ServiceHeader."Posting Description";

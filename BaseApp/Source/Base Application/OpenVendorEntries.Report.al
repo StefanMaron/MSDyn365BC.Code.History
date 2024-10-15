@@ -311,8 +311,8 @@ report 10093 "Open Vendor Entries"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         FilterString := Vendor.GetFilters;
         FilterString2 := "Vendor Ledger Entry".GetFilters;
     end;

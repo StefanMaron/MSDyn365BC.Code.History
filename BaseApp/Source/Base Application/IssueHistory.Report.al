@@ -148,7 +148,7 @@ report 10140 "Issue History"
                 end;
 
                 if not PrintLine and OnlyItemsWithIssues then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
@@ -208,7 +208,7 @@ report 10140 "Issue History"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
     end;
 

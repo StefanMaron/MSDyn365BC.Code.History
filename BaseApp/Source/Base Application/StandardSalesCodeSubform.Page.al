@@ -1,4 +1,4 @@
-﻿page 171 "Standard Sales Code Subform"
+page 171 "Standard Sales Code Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

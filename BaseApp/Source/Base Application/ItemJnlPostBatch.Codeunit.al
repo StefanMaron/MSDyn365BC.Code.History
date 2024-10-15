@@ -19,7 +19,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
         Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
         Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
-        Text007: Label '<Month Text>';
+        Text007: Label '<Month Text>', Locked = true;
         Text008: Label 'There are new postings made in the period you want to revalue item no. %1.\';
         Text009: Label 'You must calculate the inventory value again.';
         Text010: Label 'One or more reservation entries exist for the item with %1 = %2, %3 = %4, %5 = %6 which may be disrupted if you post this negative adjustment. Do you want to continue?', Comment = 'One or more reservation entries exist for the item with Item No. = 1000, Location Code = BLUE, Variant Code = NEW which may be disrupted if you post this negative adjustment. Do you want to continue?';
@@ -72,7 +72,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         OnBeforeCode(ItemJnlLine);
 
         with ItemJnlLine do begin
-            LockTable;
+            LockTable();
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
 
@@ -89,7 +89,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             if not Find('=><') then begin
                 "Line No." := 0;
                 if not SuppressCommit then
-                    Commit;
+                    Commit();
                 exit;
             end;
 
@@ -112,26 +112,20 @@ codeunit 23 "Item Jnl.-Post Batch"
             CheckLines(ItemJnlLine);
 
             // Find next register no.
-            ItemLedgEntry.LockTable;
+            ItemLedgEntry.LockTable();
             if ItemLedgEntry.FindLast then;
             if WhseTransaction then begin
-                WhseEntry.LockTable;
+                WhseEntry.LockTable();
                 if WhseEntry.FindLast then;
             end;
 
-            ItemReg.LockTable;
-            if ItemReg.FindLast then
-                ItemRegNo := ItemReg."No." + 1
-            else
-                ItemRegNo := 1;
+            ItemReg.LockTable();
+            ItemRegNo := ItemReg.GetLastEntryNo() + 1;
 
-            WhseReg.LockTable;
-            if WhseReg.FindLast then
-                WhseRegNo := WhseReg."No." + 1
-            else
-                WhseRegNo := 1;
+            WhseReg.LockTable();
+            WhseRegNo := WhseReg.GetLastEntryNo() + 1;
 
-            GLSetup.Get;
+            GLSetup.Get();
             PhysInvtCount := false;
 
             // Post lines
@@ -153,7 +147,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             if "Line No." = 0 then
                 "Line No." := WhseRegNo;
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
                InvtSetup."Automatic Cost Adjustment"::Never
             then begin
@@ -184,7 +178,7 @@ codeunit 23 "Item Jnl.-Post Batch"
 
             Window.Close;
             if not SuppressCommit then
-                Commit;
+                Commit();
             Clear(ItemJnlCheckLine);
             Clear(ItemJnlPostLine);
             Clear(WhseJnlPostLine);
@@ -196,7 +190,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         OnAfterUpdateAnalysisViews(ItemReg);
 
         if not SuppressCommit then
-            Commit;
+            Commit();
     end;
 
     local procedure CheckLines(var ItemJnlLine: Record "Item Journal Line")
@@ -326,7 +320,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                 ItemJnlLine2.Amount := 0;
                 OnHandleRecurringLineOnBeforeModify(ItemJnlLine2);
             end;
-            ItemJnlLine2.Modify;
+            ItemJnlLine2.Modify();
         until ItemJnlLine2.Next = 0;
     end;
 
@@ -349,8 +343,8 @@ codeunit 23 "Item Jnl.-Post Batch"
             ItemJnlLine2."Entry Type" := OldEntryType;
 
             ItemJnlLine3.Copy(ItemJnlLine);
-            ItemJnlLine3.DeleteAll;
-            ItemJnlLine3.Reset;
+            ItemJnlLine3.DeleteAll();
+            ItemJnlLine3.Reset();
             ItemJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
             ItemJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
             if ItemJnlTemplate."Increment Batch Name" then
@@ -358,9 +352,9 @@ codeunit 23 "Item Jnl.-Post Batch"
                     IncrBatchName := IncStr("Journal Batch Name") <> '';
                     OnBeforeIncrBatchName(ItemJnlLine, IncrBatchName);
                     if IncrBatchName then begin
-                        ItemJnlBatch.Delete;
+                        ItemJnlBatch.Delete();
                         ItemJnlBatch.Name := IncStr("Journal Batch Name");
-                        if ItemJnlBatch.Insert then;
+                        if ItemJnlBatch.Insert() then;
                         "Journal Batch Name" := ItemJnlBatch.Name;
                     end;
                 end;
@@ -371,13 +365,13 @@ codeunit 23 "Item Jnl.-Post Batch"
             if (ItemJnlBatch."No. Series" = '') and not ItemJnlLine3.FindLast and
                not (ItemJnlLine2."Entry Type" in [ItemJnlLine2."Entry Type"::Consumption, ItemJnlLine2."Entry Type"::Output])
             then begin
-                ItemJnlLine3.Init;
+                ItemJnlLine3.Init();
                 ItemJnlLine3."Journal Template Name" := "Journal Template Name";
                 ItemJnlLine3."Journal Batch Name" := "Journal Batch Name";
                 ItemJnlLine3."Line No." := 10000;
-                ItemJnlLine3.Insert;
+                ItemJnlLine3.Insert();
                 ItemJnlLine3.SetUpNewLine(ItemJnlLine2);
-                ItemJnlLine3.Modify;
+                ItemJnlLine3.Modify();
             end;
         end;
     end;
@@ -400,7 +394,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                                   ArrayLen(NoSeriesMgt2));
                             NoSeries.Code := "Posting No. Series";
                             NoSeries.Description := Format(NoOfPostingNoSeries);
-                            NoSeries.Insert;
+                            NoSeries.Insert();
                         end;
                         LastDocNo := "Document No.";
                         Evaluate(PostingNoSeriesNo, NoSeries.Description);
@@ -601,13 +595,13 @@ codeunit 23 "Item Jnl.-Post Batch"
         InventorySetup: Record "Inventory Setup";
     begin
         with ItemJnlLine do begin
-            InventorySetup.Get;
+            InventorySetup.Get();
             if InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::Item then
                 UpdateItemStdCost
             else
                 if SKU.Get("Location Code", "Item No.", "Variant Code") then begin
                     SKU.Validate("Standard Cost", "Unit Cost (Revalued)");
-                    SKU.Modify;
+                    SKU.Modify();
                 end else
                     UpdateItemStdCost;
         end;
@@ -623,7 +617,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             SetItemSingleLevelCosts(Item, ItemJnlLine);
             SetItemRolledUpCosts(Item, ItemJnlLine);
             Item."Last Unit Cost Calc. Date" := "Posting Date";
-            Item.Modify;
+            Item.Modify();
         end;
     end;
 
@@ -745,6 +739,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         Item: Record Item;
         TempSKU: Record "Stockkeeping Unit" temporary;
         ItemJnlLine2: Record "Item Journal Line";
+        ConfirmManagement: Codeunit "Confirm Management";
         QtyinItemJnlLine: Decimal;
         AvailableQty: Decimal;
         IsHandled: Boolean;
@@ -773,9 +768,10 @@ codeunit 23 "Item Jnl.-Post Batch"
                     AvailableQty := Item."Net Change" - Item."Reserved Qty. on Inventory" + SelfReservedQty(TempSKU, ItemJnlLine2);
 
                     if (Item."Reserved Qty. on Inventory" > 0) and (AvailableQty < Abs(QtyinItemJnlLine)) then
-                        if not Confirm(
-                             Text010, false, TempSKU.FieldCaption("Item No."), TempSKU."Item No.", TempSKU.FieldCaption("Location Code"),
-                             TempSKU."Location Code", TempSKU.FieldCaption("Variant Code"), TempSKU."Variant Code")
+                        if not ConfirmManagement.GetResponseOrDefault(
+                            StrSubstNo(
+                                Text010, TempSKU.FieldCaption("Item No."), TempSKU."Item No.", TempSKU.FieldCaption("Location Code"),
+                                TempSKU."Location Code", TempSKU.FieldCaption("Variant Code"), TempSKU."Variant Code"), true)
                         then
                             Error('');
                 end;

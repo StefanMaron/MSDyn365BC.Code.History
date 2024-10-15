@@ -42,7 +42,7 @@ page 10100 "Account Identifiers"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        Company.Get;
+        Company.Get();
         "Business No." := Company."Federal ID No.";
     end;
 

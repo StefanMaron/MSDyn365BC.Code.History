@@ -48,14 +48,14 @@ report 10076 "Sales Quote NA"
                             TempSalesLine.Description := CopyStr(Comment, 1, SpacePointer - 1);
                             TempSalesLine."Description 2" := CopyStr(CopyStr(Comment, SpacePointer + 1), 1, MaxStrLen(TempSalesLine."Description 2"));
                         end;
-                        TempSalesLine.Insert;
+                        TempSalesLine.Insert();
                     end;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     TempSalesLine := "Sales Line";
-                    TempSalesLine.Insert;
+                    TempSalesLine.Insert();
                     HighestLineNo := "Line No.";
                     if ("Sales Header"."Tax Area Code" <> '') and not UseExternalTaxEngine then
                         SalesTaxCalc.AddSalesLine(TempSalesLine);
@@ -107,8 +107,8 @@ report 10076 "Sales Quote NA"
 
                 trigger OnPreDataItem()
                 begin
-                    TempSalesLine.Reset;
-                    TempSalesLine.DeleteAll;
+                    TempSalesLine.Reset();
+                    TempSalesLine.DeleteAll();
                 end;
             }
             dataitem("Sales Comment Line"; "Sales Comment Line")
@@ -137,7 +137,7 @@ report 10076 "Sales Quote NA"
                         TempSalesLine.Description := CopyStr(Comment, 1, SpacePointer - 1);
                         TempSalesLine."Description 2" := CopyStr(CopyStr(Comment, SpacePointer + 1), 1, MaxStrLen(TempSalesLine."Description 2"));
                     end;
-                    TempSalesLine.Insert;
+                    TempSalesLine.Insert();
                 end;
 
                 trigger OnPreDataItem()
@@ -149,7 +149,7 @@ report 10076 "Sales Quote NA"
                         "Line No." := HighestLineNo + 1000;
                         HighestLineNo := "Line No.";
                     end;
-                    TempSalesLine.Insert;
+                    TempSalesLine.Insert();
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -461,7 +461,7 @@ report 10076 "Sales Quote NA"
                             Clear(TaxLiable);
                             Clear(TaxAmount);
                             Clear(AmountExclInvDisc);
-                            NumberOfLines := TempSalesLine.Count;
+                            NumberOfLines := TempSalesLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                             PrintFooter := false;
@@ -474,7 +474,7 @@ report 10076 "Sales Quote NA"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             SalesPrinted.Run("Sales Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -638,8 +638,8 @@ report 10076 "Sales Quote NA"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
         FormatDocument.SetLogoPosition(SalesSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
     end;
 

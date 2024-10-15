@@ -19,7 +19,7 @@ report 1393 "Cancel Issued Reminders"
                 if CancelIssuedReminder.Run("Issued Reminder Header") then begin
                     if CancelIssuedReminder.GetErrorMessages(TempErrorMessage) then
                         AddIssuedReminderToErrorBuffer;
-                    Commit;
+                    Commit();
                 end else begin
                     if NoOfRecords > 1 then begin
                         TempErrorMessage.LogLastError;
@@ -129,7 +129,7 @@ report 1393 "Cancel Issued Reminders"
     local procedure AddIssuedReminderToErrorBuffer()
     begin
         TempIssuedReminderHeader := "Issued Reminder Header";
-        TempIssuedReminderHeader.Insert;
+        TempIssuedReminderHeader.Insert();
     end;
 }
 

@@ -12,29 +12,19 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         Text003: Label 'must not be filled in when a quantity is reserved';
         Text004: Label 'must not be changed when a quantity is reserved';
         Text005: Label 'Codeunit is not initialized correctly.';
+        FromTrackingSpecification: Record "Tracking Specification";
         ReservMgt: Codeunit "Reservation Management";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         Blocked: Boolean;
-        SetFromType: Option " ",Sales,"Requisition Line",Purchase,"Item Journal","BOM Journal","Item Ledger Entry",Service,Job;
-        SetFromSubtype: Integer;
-        SetFromID: Code[20];
-        SetFromBatchName: Code[10];
-        SetFromProdOrderLine: Integer;
-        SetFromRefNo: Integer;
-        SetFromVariantCode: Code[10];
-        SetFromLocationCode: Code[10];
-        SetFromSerialNo: Code[50];
-        SetFromLotNo: Code[50];
-        SetFromQtyPerUOM: Decimal;
         Text006: Label 'You cannot define item tracking on %1 %2';
         DeleteItemTracking: Boolean;
 
-    procedure CreateReservation(var ItemJnlLine: Record "Item Journal Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
+    procedure CreateReservation(var ItemJnlLine: Record "Item Journal Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
         ShipmentDate: Date;
     begin
-        if SetFromType = 0 then
+        if FromTrackingSpecification."Source Type" = 0 then
             Error(Text005);
 
         ItemJnlLine.TestField("Item No.");
@@ -47,8 +37,8 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
               Text000,
               Abs(ItemJnlLine."Quantity (Base)") - Abs(ItemJnlLine."Reserved Qty. (Base)"));
 
-        ItemJnlLine.TestField("Location Code", SetFromLocationCode);
-        ItemJnlLine.TestField("Variant Code", SetFromVariantCode);
+        ItemJnlLine.TestField("Location Code", FromTrackingSpecification."Location Code");
+        ItemJnlLine.TestField("Variant Code", FromTrackingSpecification."Variant Code");
 
         if QuantityBase > 0 then
             ShipmentDate := ItemJnlLine."Posting Date"
@@ -61,77 +51,60 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
           DATABASE::"Item Journal Line",
           ItemJnlLine."Entry Type", ItemJnlLine."Journal Template Name",
           ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.", ItemJnlLine."Qty. per Unit of Measure",
-          Quantity, QuantityBase, ForSerialNo, ForLotNo);
-        CreateReservEntry.CreateReservEntryFrom(
-          SetFromType, SetFromSubtype, SetFromID, SetFromBatchName, SetFromProdOrderLine, SetFromRefNo,
-          SetFromQtyPerUOM, SetFromSerialNo, SetFromLotNo);
+          Quantity, QuantityBase, ForReservEntry);
+        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
         CreateReservEntry.CreateReservEntry(
           ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Location Code",
-          Description, ExpectedReceiptDate, ShipmentDate);
+          Description, ExpectedReceiptDate, ShipmentDate, 0);
 
-        SetFromType := 0;
+        FromTrackingSpecification."Source Type" := 0;
     end;
 
-    procedure CreateReservationSetFrom(TrackingSpecificationFrom: Record "Tracking Specification")
+    [Obsolete('Replaced by CreateReservation(ItemJournalLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    procedure CreateReservation(var ItemJnlLine: Record "Item Journal Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
+    var
+        ForReservEntry: Record "Reservation Entry";
     begin
-        with TrackingSpecificationFrom do begin
-            SetFromType := "Source Type";
-            SetFromSubtype := "Source Subtype";
-            SetFromID := "Source ID";
-            SetFromBatchName := "Source Batch Name";
-            SetFromProdOrderLine := "Source Prod. Order Line";
-            SetFromRefNo := "Source Ref. No.";
-            SetFromVariantCode := "Variant Code";
-            SetFromLocationCode := "Location Code";
-            SetFromSerialNo := "Serial No.";
-            SetFromLotNo := "Lot No.";
-            SetFromQtyPerUOM := "Qty. per Unit of Measure";
-        end;
+        ForReservEntry."Serial No." := ForSerialNo;
+        ForReservEntry."Lot No." := ForLotNo;
+        CreateReservation(ItemJnlLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
 
+    procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
+    begin
+        FromTrackingSpecification := TrackingSpecification;
+    end;
+
+    [Obsolete('Replaced by ItemJnlLine.SetReservationFilters(FilterReservEntry)','16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line")
     begin
-        FilterReservEntry.SetSourceFilter(
-          DATABASE::"Item Journal Line", ItemJnlLine."Entry Type", ItemJnlLine."Journal Template Name", ItemJnlLine."Line No.", false);
-        FilterReservEntry.SetSourceFilter(ItemJnlLine."Journal Batch Name", 0);
-        FilterReservEntry.SetTrackingFilterFromItemJnlLine(ItemJnlLine);
+        ItemJnlLine.SetReservationFilters(FilterReservEntry);
     end;
 
     procedure Caption(ItemJnlLine: Record "Item Journal Line") CaptionText: Text
     begin
-        CaptionText :=
-          StrSubstNo(
-            '%1 %2 %3', ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name",
-            ItemJnlLine."Item No.");
+        CaptionText := ItemJnlLine.GetSourceCaption;
     end;
 
     procedure FindReservEntry(ItemJnlLine: Record "Item Journal Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        FilterReservFor(ReservEntry, ItemJnlLine);
-
+        ReservEntry.InitSortingAndFilters(false);
+        ItemJnlLine.SetReservationFilters(ReservEntry);
         exit(ReservEntry.FindLast);
     end;
 
     procedure ReservEntryExist(ItemJnlLine: Record "Item Journal Line"): Boolean
-    var
-        ReservEntry: Record "Reservation Entry";
     begin
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        FilterReservFor(ReservEntry, ItemJnlLine);
-        ReservEntry.ClearTrackingFilter;
-        exit(not ReservEntry.IsEmpty);
+        exit(ItemJnlLine.ReservEntryExist);
     end;
 
     procedure VerifyChange(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line")
     var
         ItemJnlLine: Record "Item Journal Line";
         TempReservEntry: Record "Reservation Entry";
-        ItemTrackManagement: Codeunit "Item Tracking Management";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
         ShowError: Boolean;
         HasError: Boolean;
-        SNRequired: Boolean;
-        LNRequired: Boolean;
         PointerChanged: Boolean;
     begin
         if Blocked then
@@ -180,8 +153,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                 else
                     HasError := true;
             if NewItemJnlLine."New Bin Code" <> OldItemJnlLine."Bin Code" then begin
-                ItemTrackManagement.CheckWhseItemTrkgSetup(NewItemJnlLine."Item No.", SNRequired, LNRequired, false);
-                if SNRequired or LNRequired then
+                if ItemTrackingMgt.GetWhseItemTrkgSetup(NewItemJnlLine."Item No.") then
                     if ShowError then
                         NewItemJnlLine.FieldError("New Bin Code", Text004)
                     else
@@ -227,11 +199,11 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                (not TempReservEntry.IsEmpty)
             then begin
                 if PointerChanged then begin
-                    ReservMgt.SetItemJnlLine(OldItemJnlLine);
+                    ReservMgt.SetReservSource(OldItemJnlLine);
                     ReservMgt.DeleteReservEntries(true, 0);
-                    ReservMgt.SetItemJnlLine(NewItemJnlLine);
+                    ReservMgt.SetReservSource(NewItemJnlLine);
                 end else begin
-                    ReservMgt.SetItemJnlLine(NewItemJnlLine);
+                    ReservMgt.SetReservSource(NewItemJnlLine);
                     ReservMgt.DeleteReservEntries(true, 0);
                 end;
                 ReservMgt.AutoTrack(NewItemJnlLine."Quantity (Base)");
@@ -255,7 +227,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
             if "Line No." = 0 then
                 if not ItemJnlLine.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
                     exit;
-            ReservMgt.SetItemJnlLine(NewItemJnlLine);
+            ReservMgt.SetReservSource(NewItemJnlLine);
             if "Qty. per Unit of Measure" <> OldItemJnlLine."Qty. per Unit of Measure" then
                 ReservMgt.ModifyUnitOfMeasure;
             if "Quantity (Base)" * OldItemJnlLine."Quantity (Base)" < 0 then
@@ -269,7 +241,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     var
         OldReservEntry: Record "Reservation Entry";
         OldReservEntry2: Record "Reservation Entry";
-        Status: Option Reservation,Tracking,Surplus,Prospect;
+        ReservStatus: Enum "Reservation Status";
         SkipThisRecord: Boolean;
         IsHandled: Boolean;
     begin
@@ -285,10 +257,10 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         end else
             ItemLedgEntry.TestField("Location Code", ItemJnlLine."Location Code");
 
-        for Status := Status::Reservation to Status::Prospect do begin
+        for ReservStatus := ReservStatus::Reservation to ReservStatus::Prospect do begin
             if TransferQty = 0 then
                 exit(true);
-            OldReservEntry.SetRange("Reservation Status", Status);
+            OldReservEntry.SetRange("Reservation Status", ReservStatus);
 
             if OldReservEntry.FindSet() then
                 repeat
@@ -297,7 +269,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                     OldReservEntry.TestField("Variant Code", ItemJnlLine."Variant Code");
 
                     if SkipInventory then
-                        if Status < Status::Surplus then begin
+                        if ReservStatus < ReservStatus::Surplus then begin
                             OldReservEntry2.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive);
                             SkipThisRecord := OldReservEntry2."Source Type" = DATABASE::"Item Ledger Entry";
                         end else
@@ -317,9 +289,9 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                             ItemLedgEntry."Entry No.", ItemLedgEntry."Qty. per Unit of Measure",
                             OldReservEntry, TransferQty);
                     end else
-                        if Status = Status::Tracking then begin
-                            OldReservEntry2.Delete;
-                            OldReservEntry.Delete;
+                        if ReservStatus = ReservStatus::Tracking then begin
+                            OldReservEntry2.Delete();
+                            OldReservEntry.Delete();
                             ReservMgt.ModifyActionMessage(OldReservEntry."Entry No.", 0, true);
                         end;
                 until (OldReservEntry.Next = 0) or (TransferQty = 0);
@@ -346,10 +318,10 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     procedure DeleteLineConfirm(var ItemJnlLine: Record "Item Journal Line"): Boolean
     begin
         with ItemJnlLine do begin
-            if not ReservEntryExist(ItemJnlLine) then
+            if not ReservEntryExist then
                 exit(true);
 
-            ReservMgt.SetItemJnlLine(ItemJnlLine);
+            ReservMgt.SetReservSource(ItemJnlLine);
             if ReservMgt.DeleteItemTrackingConfirm then
                 DeleteItemTracking := true;
         end;
@@ -363,7 +335,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
             exit;
 
         with ItemJnlLine do begin
-            ReservMgt.SetItemJnlLine(ItemJnlLine);
+            ReservMgt.SetReservSource(ItemJnlLine);
             if DeleteItemTracking then
                 ReservMgt.SetItemTrackingHandling(1); // Allow Deletion
             ReservMgt.DeleteReservEntries(true, 0);
@@ -396,8 +368,8 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     begin
         ItemJnlLine.TestField("Item No.");
         if not ItemJnlLine.ItemPosting then begin
-            ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-            FilterReservFor(ReservEntry, ItemJnlLine);
+            ReservEntry.InitSortingAndFilters(false);
+            ItemJnlLine.SetReservationFilters(ReservEntry);
             ReservEntry.ClearTrackingFilter;
             if ReservEntry.IsEmpty then
                 Error(Text006, ItemJnlLine.FieldCaption("Operation No."), ItemJnlLine."Operation No.");
@@ -424,6 +396,122 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         ItemTrackingLines.SetFormRunMode(FormRunMode::Reclass);
         ItemTrackingLines.RegisterItemTrackingLines(
           SourceTrackingSpecification, ItemJournalLine."Posting Date", TempTrackingSpecification);
+    end;
+
+    local procedure SetReservSourceFor(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var CaptionText: Text)
+    var
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        SourceRecRef.SetTable(ItemJnlLine);
+        ItemJnlLine.TestField("Drop Shipment", false);
+        ItemJnlLine.TestField("Posting Date");
+
+        ItemJnlLine.SetReservationEntry(ReservEntry);
+
+        CaptionText := ItemJnlLine.GetSourceCaption;
+    end;
+
+    local procedure EntryStartNo(): Integer
+    begin
+        exit(41);
+    end;
+
+    local procedure MatchThisEntry(EntryNo: Integer): Boolean
+    begin
+        exit(EntryNo in [41, 42, 43, 44, 45]);
+    end;
+
+    local procedure MatchThisTable(TableID: Integer): Boolean
+    begin
+        exit(TableID = 83); // DATABASE::"Item Journal Line"
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnSetReservSource', '', false, false)]
+    local procedure OnSetReservSource(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var CaptionText: Text)
+    begin
+        if MatchThisTable(SourceRecRef.Number) then
+            SetReservSourceFor(SourceRecRef, ReservEntry, CaptionText);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnFilterReservEntry', '', false, false)]
+    local procedure OnFilterReservEntry(var FilterReservEntry: Record "Reservation Entry"; ReservEntrySummary: Record "Entry Summary")
+    begin
+        if MatchThisEntry(ReservEntrySummary."Entry No.") then begin
+            FilterReservEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
+            FilterReservEntry.SetRange("Source Subtype", ReservEntrySummary."Entry No." - EntryStartNo());
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnAfterRelatesToSummEntry', '', false, false)]
+    local procedure OnRelatesToEntrySummary(var FilterReservEntry: Record "Reservation Entry"; FromEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
+    begin
+        if MatchThisEntry(FromEntrySummary."Entry No.") then
+            IsHandled :=
+                (FilterReservEntry."Source Type" = DATABASE::"Item Journal Line") and
+                (FilterReservEntry."Source Subtype" = FromEntrySummary."Entry No." - EntryStartNo());
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnCreateReservation', '', false, false)]
+    local procedure OnCreateReservation(SourceRecRef: RecordRef; TrackingSpecification: Record "Tracking Specification"; ForReservEntry: Record "Reservation Entry"; Description: Text[100]; ExpectedDate: Date; Quantity: Decimal; QuantityBase: Decimal)
+    var
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        if MatchThisTable(ForReservEntry."Source Type") then begin
+            CreateReservationSetFrom(TrackingSpecification);
+            SourceRecRef.SetTable(ItemJnlLine);
+            CreateReservation(ItemJnlLine, Description, ExpectedDate, Quantity, QuantityBase, ForReservEntry);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnLookupDocument', '', false, false)]
+    local procedure OnLookupDocument(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceRefNo: Integer)
+    var
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        if MatchThisTable(SourceType) then begin
+            ItemJnlLine.Reset();
+            ItemJnlLine.SetRange("Journal Template Name", SourceID);
+            ItemJnlLine.SetRange("Journal Batch Name", SourceBatchName);
+            ItemJnlLine.SetRange("Line No.", SourceRefNo);
+            ItemJnlLine.SetRange("Entry Type", SourceSubtype);
+            PAGE.RunModal(PAGE::"Item Journal Lines", ItemJnlLine);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnLookupLine', '', false, false)]
+    local procedure OnLookupLine(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceRefNo: Integer)
+    var
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        if MatchThisTable(SourceType) then begin
+            ItemJnlLine.Reset();
+            ItemJnlLine.SetRange("Journal Template Name", SourceID);
+            ItemJnlLine.SetRange("Journal Batch Name", SourceBatchName);
+            ItemJnlLine.SetRange("Line No.", SourceRefNo);
+            ItemJnlLine.SetRange("Entry Type", SourceSubtype);
+            PAGE.Run(PAGE::"Item Journal Lines", ItemJnlLine);
+        end;
+    end;
+
+    local procedure GetSourceValue(ReservEntry: Record "Reservation Entry"; var SourceRecRef: RecordRef; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)"): Decimal
+    var
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        ItemJnlLine.Get(ReservEntry."Source ID", ReservEntry."Source Batch Name", ReservEntry."Source Ref. No.");
+        SourceRecRef.GetTable(ItemJnlLine);
+        case ReturnOption of
+            ReturnOption::"Net Qty. (Base)":
+                exit(ItemJnlLine."Quantity (Base)");
+            ReturnOption::"Gross Qty. (Base)":
+                exit(ItemJnlLine."Quantity (Base)");
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnGetSourceRecordValue', '', false, false)]
+    local procedure OnGetSourceRecordValue(var ReservEntry: Record "Reservation Entry"; ReturnOption: Option; var ReturnQty: Decimal; var SourceRecRef: RecordRef)
+    begin
+        if MatchThisTable(ReservEntry."Source Type") then
+            ReturnQty := GetSourceValue(ReservEntry, SourceRecRef, ReturnOption);
     end;
 
     [IntegrationEvent(false, false)]

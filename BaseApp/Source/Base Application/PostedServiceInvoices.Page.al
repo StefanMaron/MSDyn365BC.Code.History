@@ -1,4 +1,4 @@
-﻿page 5977 "Posted Service Invoices"
+page 5977 "Posted Service Invoices"
 {
     ApplicationArea = Service;
     Caption = 'Posted Service Invoices';

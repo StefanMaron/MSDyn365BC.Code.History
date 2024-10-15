@@ -582,14 +582,14 @@ page 2142 "O365 First Invoice Wizard"
         if Customer."No." <> '' then
             exit;
 
-        Customer2.Init;
+        Customer2.Init();
         if MiniCustomerTemplate.NewCustomerFromTemplate(Customer2) then begin
             Customer2.Validate(Name, CustomerName);
             Customer2.Validate("E-Mail", CustomerEmail);
             Customer2.Validate("Tax Liable", true);
             Customer2.Modify(true);
             CustContUpdate.OnModify(Customer2);
-            Commit;
+            Commit();
         end;
 
         Customer := Customer2;
@@ -600,7 +600,7 @@ page 2142 "O365 First Invoice Wizard"
         ItemTemplate: Record "Item Template";
     begin
         if Item."No." = '' then begin
-            Item.Init;
+            Item.Init();
             if ItemTemplate.NewItemFromTemplate(Item) then begin
                 Item.Validate(Description, ItemDescription);
                 Item.Validate("Unit Price", ItemPrice);
@@ -609,7 +609,7 @@ page 2142 "O365 First Invoice Wizard"
                 if ItemBaseUnitOfMeasure <> '' then
                     Item.Validate("Base Unit of Measure", ItemBaseUnitOfMeasure);
                 Item.Modify(true);
-                Commit;
+                Commit();
             end;
         end;
     end;
@@ -623,13 +623,13 @@ page 2142 "O365 First Invoice Wizard"
 
         StoreSalesTaxSetup;
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Line No." := 10000;
@@ -642,7 +642,7 @@ page 2142 "O365 First Invoice Wizard"
         end;
         SalesLine.Validate("No.", Item."No.");
         SalesLine.Validate(Quantity, 1);
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure ValidateItem(): Boolean
@@ -736,8 +736,8 @@ page 2142 "O365 First Invoice Wizard"
     local procedure StoreSalesTaxSetup()
     begin
         if not SalesTaxSetupWizard.Get then begin
-            SalesTaxSetupWizard.Init;
-            SalesTaxSetupWizard.Insert;
+            SalesTaxSetupWizard.Init();
+            SalesTaxSetupWizard.Insert();
         end;
         if TaxSetup.Get then;
         if IsCanada then
@@ -780,11 +780,11 @@ page 2142 "O365 First Invoice Wizard"
         SalesTaxSetupWizard."State Rate" := StateTax;
         SalesTaxSetupWizard."City Rate" := CityTax;
         SalesTaxSetupWizard.StoreSalesTaxSetup;
-        SalesTaxSetupWizard.Modify;
-        Commit;
+        SalesTaxSetupWizard.Modify();
+        Commit();
 
         Customer.ModifyAll("Tax Area Code", TaxAreaCode);
-        Commit;
+        Commit();
 
         ConfigTemplateManagement.ReplaceDefaultValueForAllTemplates(
           DATABASE::Item, Item.FieldNo("Tax Group Code"), TaxGroup.Code);
@@ -812,7 +812,7 @@ page 2142 "O365 First Invoice Wizard"
         SalesTaxSetupWizard."Tax Account (Purchases)" := TaxSetup."Tax Account (Purchases)";
         SalesTaxSetupWizard.SetTaxGroup(TaxGroup);
         SalesTaxSetupWizard."Country/Region" := SalesTaxSetupWizard."Country/Region"::CA;
-        SalesTaxSetupWizard.Modify;
+        SalesTaxSetupWizard.Modify();
 
         ConfigTemplateManagement.ReplaceDefaultValueForAllTemplates(
           DATABASE::Item, Item.FieldNo("Tax Group Code"), TaxGroup.Code);

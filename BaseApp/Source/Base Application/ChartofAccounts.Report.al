@@ -65,7 +65,7 @@ report 10002 "Chart of Accounts"
                 trigger OnPreDataItem()
                 begin
                     SetRange(Number, 1, "G/L Account"."No. of Blank Lines");
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
             }
             dataitem("Integer"; "Integer")
@@ -165,7 +165,7 @@ report 10002 "Chart of Accounts"
     trigger OnPreReport()
     begin
         GLFilter := "G/L Account".GetFilters;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         GLAccPosting."Account Type" := GLAccPosting."Account Type"::Posting;
         GLAccHeading."Account Type" := GLAccHeading."Account Type"::Heading;
         GLAccBeginTotal."Account Type" := GLAccBeginTotal."Account Type"::"Begin-Total";

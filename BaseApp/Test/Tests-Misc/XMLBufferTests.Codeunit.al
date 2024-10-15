@@ -714,7 +714,7 @@ codeunit 139200 "XML Buffer Tests"
         // [FEATURE] [UT]
         // [SCENARIO 263386] When function GetParent of XML Buffer table invokes it is not fail if record does not exist
 
-        XMLBuffer.DeleteAll;
+        XMLBuffer.DeleteAll();
         XMLBuffer."Parent Entry No." := 1;
         XMLBuffer.GetParent;
         XMLBuffer.TestField("Entry No.", 0);

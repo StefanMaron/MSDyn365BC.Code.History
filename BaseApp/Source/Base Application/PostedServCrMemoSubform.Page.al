@@ -1,4 +1,4 @@
-﻿page 5973 "Posted Serv. Cr. Memo Subform"
+page 5973 "Posted Serv. Cr. Memo Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

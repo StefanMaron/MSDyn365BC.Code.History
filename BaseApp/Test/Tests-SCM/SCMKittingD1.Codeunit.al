@@ -44,7 +44,7 @@ codeunit 137090 "SCM Kitting - D1"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - D1");
     end;
 
@@ -443,7 +443,7 @@ codeunit 137090 "SCM Kitting - D1"
         LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, 2, 2, 1, 1, '', '');
         LibraryAssembly.DeleteAssemblyList(Item."No.");
         SetItemReplenishmentMethod(Item."No.", Item."Replenishment System"::Assembly);
-        Commit;
+        Commit();
 
         // Exercise.
         asserterror CalculateStandardCost.CalcItem(Item."No.", true);
@@ -699,7 +699,7 @@ codeunit 137090 "SCM Kitting - D1"
         Initialize;
         LibraryAssembly.CreateMultipleLvlTree(Item, Item1, ReplenishmentMethod, Item."Costing Method"::Standard, TreeDepth, 2);
         SetItemReplenishmentMethod(Item."No.", ReplenishmentMethod);
-        Commit;
+        Commit();
 
         // Exercise.
         Item.Get(Item."No.");
@@ -1092,7 +1092,7 @@ codeunit 137090 "SCM Kitting - D1"
         BOMComponent.Insert(true);
 
         // [WHEN] Commit transaction, read "I" from DB and delete "I"
-        Commit;
+        Commit();
         Item.Get(Item."No.");
         Item.Delete(true);
 

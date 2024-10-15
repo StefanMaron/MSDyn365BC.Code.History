@@ -35,7 +35,7 @@ codeunit 134049 "ERM Date Compression FA"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateLocalData;
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -414,7 +414,7 @@ codeunit 134049 "ERM Date Compression FA"
         FALedgerEntry: Record "FA Ledger Entry";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         FALedgerEntry.SetFilter("Entry No.", '>=%1', EntryNo);
         FALedgerEntry.SetRange("Source Code", SourceCodeSetup."Compress FA Ledger");
         FALedgerEntry.SetRange(Description, Description);

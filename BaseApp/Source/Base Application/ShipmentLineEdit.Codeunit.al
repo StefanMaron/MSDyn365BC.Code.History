@@ -6,10 +6,10 @@ codeunit 10001 "Shipment Line - Edit"
     trigger OnRun()
     begin
         SalesShipmentLine := Rec;
-        SalesShipmentLine.LockTable;
+        SalesShipmentLine.LockTable();
         SalesShipmentLine.Find;
         SalesShipmentLine."Package Tracking No." := "Package Tracking No.";
-        SalesShipmentLine.Modify;
+        SalesShipmentLine.Modify();
         Rec := SalesShipmentLine;
     end;
 

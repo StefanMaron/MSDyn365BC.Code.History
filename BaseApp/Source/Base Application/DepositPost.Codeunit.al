@@ -45,7 +45,7 @@ codeunit 10140 "Deposit-Post"
             Currency.TestField("Amount Rounding Precision");
         end;
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         GenJnlTemplate.Get("Journal Template Name");
 
         NextLineNo := 0;
@@ -59,14 +59,14 @@ codeunit 10140 "Deposit-Post"
 
         Window.Update(4, Text005);
 
-        PostedDepositHeader.LockTable;
-        PostedDepositLine.LockTable;
-        LockTable;
-        GenJnlLine.LockTable;
+        PostedDepositHeader.LockTable();
+        PostedDepositLine.LockTable();
+        LockTable();
+        GenJnlLine.LockTable();
 
         InsertPostedDepositHeader(Rec);
 
-        GenJnlLine.Reset;
+        GenJnlLine.Reset();
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
         if GenJnlLine.Find('-') then
@@ -87,7 +87,7 @@ codeunit 10140 "Deposit-Post"
 
         // Post to General, and other, Ledgers
         Window.Update(4, Text006);
-        GenJnlLine.Reset;
+        GenJnlLine.Reset();
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
         if GenJnlLine.Find('-') then
@@ -139,7 +139,7 @@ codeunit 10140 "Deposit-Post"
                         PostedDepositLine."Entry No." := PostedDepositLine."Entry No." - 1;
                 end;
                 OnBeforePostedDepositLineModify(PostedDepositLine, GenJnlLine);
-                PostedDepositLine.Modify;
+                PostedDepositLine.Modify();
             until GenJnlLine.Next = 0;
 
         Window.Update(4, Text007);
@@ -147,32 +147,32 @@ codeunit 10140 "Deposit-Post"
             PostBalancingEntry(Rec, TotalAmountLCY);
 
             BankAccountLedgerEntry.FindLast;
-            PostedDepositLine.Reset;
+            PostedDepositLine.Reset();
             PostedDepositLine.SetRange("Deposit No.", "No.");
             if PostedDepositLine.FindSet(true) then
                 repeat
                     PostedDepositLine."Bank Account Ledger Entry No." := BankAccountLedgerEntry."Entry No.";
-                    PostedDepositLine.Modify;
+                    PostedDepositLine.Modify();
                 until PostedDepositLine.Next = 0;
         end;
 
         Window.Update(4, Text008);
         DeleteBankComments(Rec);
 
-        GenJnlLine.Reset;
+        GenJnlLine.Reset();
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        GenJnlLine.DeleteAll;
+        GenJnlLine.DeleteAll();
         GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         if IncStr("Journal Batch Name") <> '' then begin
             GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            GenJnlBatch.Delete;
+            GenJnlBatch.Delete();
             GenJnlBatch.Name := IncStr("Journal Batch Name");
-            if GenJnlBatch.Insert then;
+            if GenJnlBatch.Insert() then;
         end;
 
         Delete;
-        Commit;
+        Commit();
 
         UpdateAnalysisView.UpdateAll(0, true);
 
@@ -210,7 +210,7 @@ codeunit 10140 "Deposit-Post"
         BankCommentLine: Record "Bank Comment Line";
         BankCommentLine2: Record "Bank Comment Line";
     begin
-        BankCommentLine.Reset;
+        BankCommentLine.Reset();
         BankCommentLine.SetRange("Table Name", BankCommentLine."Table Name"::Deposit);
         BankCommentLine.SetRange("Bank Account No.", DepositHeader."Bank Account No.");
         BankCommentLine.SetRange("No.", DepositHeader."No.");
@@ -218,7 +218,7 @@ codeunit 10140 "Deposit-Post"
             repeat
                 BankCommentLine2 := BankCommentLine;
                 BankCommentLine2."Table Name" := BankCommentLine2."Table Name"::"Posted Deposit";
-                BankCommentLine2.Insert;
+                BankCommentLine2.Insert();
             until BankCommentLine.Next = 0;
     end;
 
@@ -226,22 +226,22 @@ codeunit 10140 "Deposit-Post"
     var
         BankCommentLine: Record "Bank Comment Line";
     begin
-        BankCommentLine.Reset;
+        BankCommentLine.Reset();
         BankCommentLine.SetRange("Table Name", BankCommentLine."Table Name"::Deposit);
         BankCommentLine.SetRange("Bank Account No.", DepositHeader."Bank Account No.");
         BankCommentLine.SetRange("No.", DepositHeader."No.");
-        BankCommentLine.DeleteAll;
+        BankCommentLine.DeleteAll();
     end;
 
     local procedure InsertPostedDepositHeader(var DepositHeader: Record "Deposit Header")
     var
         RecordLinkManagement: Codeunit "Record Link Management";
     begin
-        PostedDepositHeader.Reset;
+        PostedDepositHeader.Reset();
         PostedDepositHeader.TransferFields(DepositHeader, true);
         PostedDepositHeader."No. Printed" := 0;
         OnBeforePostedDepositHeaderInsert(PostedDepositHeader, DepositHeader);
-        PostedDepositHeader.Insert;
+        PostedDepositHeader.Insert();
         RecordLinkManagement.CopyLinks(DepositHeader, PostedDepositHeader);
     end;
 

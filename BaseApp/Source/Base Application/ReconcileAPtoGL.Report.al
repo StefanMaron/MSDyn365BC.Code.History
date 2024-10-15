@@ -93,7 +93,7 @@ report 10101 "Reconcile AP to GL"
                 ItemDescription := '';
                 case Type of
                     0, 3:
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     Type::"G/L Account":
                         if GLAccount.Get("No.") then
                             ItemDescription := GLAccount.Name;
@@ -205,7 +205,7 @@ report 10101 "Reconcile AP to GL"
             trigger OnAfterGetRecord()
             begin
                 if TabPtr = TabMax then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 TabPtr := TabPtr + 1;
                 if not GLAccount.Get(AcntTab[TabPtr]) then
                     Clear(GLAccount);
@@ -241,7 +241,7 @@ report 10101 "Reconcile AP to GL"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := "Purchase Line".GetFilters;
     end;
 
@@ -334,7 +334,7 @@ report 10101 "Reconcile AP to GL"
         FAPostingGroup: Record "FA Posting Group";
     begin
         GLAccNo := Text000;
-        FADepBook.Reset;
+        FADepBook.Reset();
         FADepBook.SetRange("FA No.", FixedAsset."No.");
         FADepBook.SetFilter("Depreciation Book Code", '<>%1', '');
         FADepBook.SetFilter("FA Posting Group", '<>%1', '');

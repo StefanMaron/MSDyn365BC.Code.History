@@ -2,7 +2,6 @@ report 10095 "Outstanding Purch. Order Aging"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './OutstandingPurchOrderAging.rdlc';
-    ApplicationArea = Basic, Suite;
     Caption = 'Outstanding Purch. Order Aging';
     UsageCategory = ReportsAndAnalysis;
 
@@ -343,8 +342,8 @@ report 10095 "Outstanding Purch. Order Aging"
         for i := 1 to 3 do
             PeriodStartingDate[i + 1] := CalcDate('<1M>', PeriodStartingDate[i]);
         PeriodStartingDate[5] := 99991231D;
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         FilterString := Vendor.GetFilters;
     end;
 

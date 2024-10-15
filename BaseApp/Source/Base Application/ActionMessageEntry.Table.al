@@ -111,6 +111,13 @@ table 99000849 "Action Message Entry"
         FirstDate: Date;
         FirstTime: Time;
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     procedure SumUp(var ActionMessageEntry: Record "Action Message Entry")
     var
         ActionMessageEntry2: Record "Action Message Entry";

@@ -239,7 +239,7 @@ report 10157 "Sales History"
                 end;
 
                 if (not PrintLine) and OnlyItemsWithSales then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }
@@ -297,7 +297,7 @@ report 10157 "Sales History"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
         for i := 2 to ArrayLen(DateRange) do
             DateRange[i] := CalcDate(TimeDivision, DateRange[i - 1]);

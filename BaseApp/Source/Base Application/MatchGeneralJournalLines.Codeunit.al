@@ -152,7 +152,7 @@ codeunit 1250 "Match General Journal Lines"
         if TextToAccMapping.FindFirst then
             exit(true);
 
-        TextToAccMapping.Reset;
+        TextToAccMapping.Reset();
         MaxNearness := 0;
         if TextToAccMapping.FindSet then
             repeat
@@ -199,7 +199,7 @@ codeunit 1250 "Match General Journal Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetCurrentKey(Quality);
         TempBankStatementMatchingBuffer.Ascending(false);
 
@@ -300,7 +300,7 @@ codeunit 1250 "Match General Journal Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        TempGenJournalLine.DeleteAll;
+        TempGenJournalLine.DeleteAll();
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.SetRange("Applies-to ID", '');
@@ -312,7 +312,7 @@ codeunit 1250 "Match General Journal Lines"
         if GenJournalLine.FindSet then
             repeat
                 TempGenJournalLine := GenJournalLine;
-                TempGenJournalLine.Insert;
+                TempGenJournalLine.Insert();
             until GenJournalLine.Next = 0;
     end;
 
@@ -328,10 +328,10 @@ codeunit 1250 "Match General Journal Lines"
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.SetFilter("Document Type", '%1|%2|%3',
           GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund);
-        TotalCount := GenJournalLine.Count;
+        TotalCount := GenJournalLine.Count();
 
         GenJournalLine.SetRange("Applied Automatically", true);
-        MatchedCount := GenJournalLine.Count;
+        MatchedCount := GenJournalLine.Count();
 
         if MatchedCount < TotalCount then
             AdditionalText := StrSubstNo(MissingMatchMsg, Format(GetMatchLengthTreshold));

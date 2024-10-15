@@ -33,14 +33,14 @@ report 10070 "Sales Invoice (Pre-Printed)"
                 trigger OnAfterGetRecord()
                 begin
                     TempSalesInvoiceLine := "Sales Invoice Line";
-                    TempSalesInvoiceLine.Insert;
+                    TempSalesInvoiceLine.Insert();
                     HighestLineNo := "Line No.";
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempSalesInvoiceLine.Reset;
-                    TempSalesInvoiceLine.DeleteAll;
+                    TempSalesInvoiceLine.Reset();
+                    TempSalesInvoiceLine.DeleteAll();
                 end;
             }
             dataitem("Sales Comment Line"; "Sales Comment Line")
@@ -61,7 +61,7 @@ report 10070 "Sales Invoice (Pre-Printed)"
                         "Line No." := HighestLineNo + 1000;
                         HighestLineNo := "Line No.";
                     end;
-                    TempSalesInvoiceLine.Insert;
+                    TempSalesInvoiceLine.Insert();
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -353,7 +353,7 @@ report 10070 "Sales Invoice (Pre-Printed)"
                         begin
                             Clear(TaxLiable);
                             Clear(AmountExclInvDisc);
-                            NumberOfLines := TempSalesInvoiceLine.Count;
+                            NumberOfLines := TempSalesInvoiceLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                             PrintFooter := false;
@@ -366,7 +366,7 @@ report 10070 "Sales Invoice (Pre-Printed)"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             SalesInvPrinted.Run("Sales Invoice Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -541,8 +541,8 @@ report 10070 "Sales Invoice (Pre-Printed)"
         if not CurrReport.UseRequestPage then
             InitLogInteraction;
 
-        CompanyInformation.Get;
-        SalesSetup.Get;
+        CompanyInformation.Get();
+        SalesSetup.Get();
 
         if PrintCompany then
             FormatAddress.Company(CompanyAddress, CompanyInformation)
@@ -635,7 +635,7 @@ report 10070 "Sales Invoice (Pre-Printed)"
             HighestLineNo := "Line No.";
         end;
         FormatDocument.ParseComment(Comment, TempSalesInvoiceLine.Description, TempSalesInvoiceLine."Description 2");
-        TempSalesInvoiceLine.Insert;
+        TempSalesInvoiceLine.Insert();
     end;
 }
 

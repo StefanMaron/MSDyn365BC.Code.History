@@ -34,7 +34,7 @@ codeunit 138029 "O365 Trial Balance"
             LibraryFiscalYear.CreateFiscalYear;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Trial Balance");
     end;
 
@@ -55,8 +55,8 @@ codeunit 138029 "O365 Trial Balance"
         Initialize;
 
         // [GIVEN] No Accounting periods
-        TrialBalanceCacheInfo.DeleteAll;
-        TrialBalanceCache.DeleteAll;
+        TrialBalanceCacheInfo.DeleteAll();
+        TrialBalanceCache.DeleteAll();
 
         // [WHEN] Opening the Trial Balance page
         TrialBalance.OpenEdit;
@@ -164,6 +164,13 @@ codeunit 138029 "O365 Trial Balance"
 
         ExpectedAmount := TrialBalance.CurrentPeriodMinusOneValues8.AsDEcimal;
         TrialBalance.CurrentPeriodMinusOneValues8.DrillDown;
+
+        // Row 9
+        ExpectedAmount := -TrialBalance.CurrentPeriodValues9.AsDEcimal;
+        TrialBalance.CurrentPeriodValues9.DrillDown;
+
+        ExpectedAmount := -TrialBalance.CurrentPeriodMinusOneValues9.AsDEcimal;
+        TrialBalance.CurrentPeriodMinusOneValues9.DrillDown;
     end;
 
     [Test]
@@ -225,7 +232,7 @@ codeunit 138029 "O365 Trial Balance"
         Initialize;
 
         // [GIVEN] No Accounting periods
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
 
         // [WHEN] Opening the Trial Balance page
         TrialBalance.OpenEdit;
@@ -241,7 +248,7 @@ codeunit 138029 "O365 Trial Balance"
         AccountScheduleNames: TestPage "Account Schedule Names";
         TrialAccSchedName: Code[10];
     begin
-        TrialBalanceSetup.Get;
+        TrialBalanceSetup.Get();
         TrialAccSchedName := TrialBalanceSetup."Account Schedule Name";
 
         AccountScheduleNames.OpenEdit;

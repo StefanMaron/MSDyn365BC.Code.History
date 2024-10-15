@@ -136,7 +136,7 @@ report 14030 "Official journal ledger Summ."
                 begin
                     if GLFilterAccType = GLFilterAccType::Mayor then begin
                         if StrLen("No.") <> 3 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
                     CreditAmt := 0;
                     DebitAmt := 0;
@@ -159,7 +159,7 @@ report 14030 "Official journal ledger Summ."
                 trigger OnPreDataItem()
                 begin
                     if not PrintClose then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange("Date Filter", ClosingDate(ToDate));
                     if GLFilterAccType = GLFilterAccType::Mayor then
                         SetRange("Account Type", "Account Type"::Heading)
@@ -226,7 +226,7 @@ report 14030 "Official journal ledger Summ."
                 begin
                     if GLFilterAccType = GLFilterAccType::Mayor then begin
                         if StrLen("No.") <> 3 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     CreditAmt := 0;
@@ -334,7 +334,7 @@ report 14030 "Official journal ledger Summ."
                 SetRange(Number, 1, Num);
                 AccountingPeriod.SetRange("Starting Date", FromDate, ToDate + 1);
                 if AccountingPeriod.Find('-') then
-                    GLSetup.Get;
+                    GLSetup.Get();
                 if PrintAmountsInAddCurrency then
                     HeaderText := StrSubstNo('Importes en %1', GLSetup."Additional Reporting Currency")
                 else begin
@@ -550,7 +550,7 @@ report 14030 "Official journal ledger Summ."
                     AccPeriod.SetRange("New Fiscal Year", true);
                     if AccPeriod.FindFirst then begin
                         Error(Text000);
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                 end;
             5:

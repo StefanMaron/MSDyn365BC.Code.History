@@ -60,6 +60,9 @@ page 9800 Users
                     Caption = 'Windows User Name';
                     ToolTip = 'Specifies the user''s name on Windows.';
                     Visible = not IsSaaS;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Desktop client is not supported in versions 15 and higher.';
+                    ObsoleteTag = '15.3';
 
                     trigger OnValidate()
                     var
@@ -291,7 +294,7 @@ page 9800 Users
                 ToolTip = 'Set up journals, journal templates, and journal batches for fixed assets.';
             }
         }
-        area(creation)
+        area(processing)
         {
             action(AddMeAsSuper)
             {
@@ -318,12 +321,11 @@ page 9800 Users
                 ApplicationArea = Basic, Suite;
                 Caption = 'Get New Users from Office 365';
                 Image = Users;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Retrieve new users or new user information from the Office 365 portal. Note that existing, unchanged users will not be updated.';
                 Visible = IsSaaS;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Use the ''Update users from Office'' action instead.';
+                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var
@@ -355,11 +357,12 @@ page 9800 Users
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Update users from Office 365';
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
+                Image = Users;
                 ToolTip = 'Update the names, authentication email addresses, and contact email addresses from Office 365 for the selected users.';
                 Visible = IsSaaS;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Use the ''Update users from Office'' action instead.';
+                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var
@@ -368,12 +371,11 @@ page 9800 Users
                 begin
                     CurrPage.SetSelectionFilter(User);
 
-                    if Confirm(UpdateAllSelectedUsersQst) then begin
-                        if User.FindSet() then
+                    if User.FindSet() then
+                        if Confirm(UpdateAllSelectedUsersQst) then
                             repeat
                                 AzureADUserManagement.UpdateUserFromGraph(User);
                             until User.Next() = 0;
-                    end;
                 end;
             }
             action("Restore User Default User Groups")
@@ -382,12 +384,11 @@ page 9800 Users
                 Caption = 'Restore User''s Default User Groups';
                 Enabled = CurrentUserIsSuper and RestoreUserGroupsForAnotherUser and (not NoUserExists) and (not IsIntelligentCloud);
                 Image = UserInterface;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Restore the default user groups based on changes to the related plan.';
                 Visible = IsSaaS;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Use the ''Update users from Office'' action instead.';
+                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var
@@ -400,18 +401,29 @@ page 9800 Users
                     end;
                 end;
             }
+            action("Update users from Office")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Get user updates from Office 365';
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                Image = Users;
+                ToolTip = 'Update the names, authentication email addresses, contact email addresses, plans etc. from Office 365 for all users.';
+                Visible = IsSaaS and CanManageUsersOnTenant;
+                RunObject = page "Azure AD User Update Wizard";
+            }
             action("Refresh User Groups")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Refresh User Groups';
                 Enabled = CanManageUsers and (not NoUserExists);
                 Image = SKU;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Refresh selected users'' user groups with changes to the related plan.';
                 Visible = IsSaaS;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Use the ''Update users from Office'' action instead.';
+                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var
@@ -470,6 +482,7 @@ page 9800 Users
         IsSaaS := EnvironmentInfo.IsSaaS;
         CurrentUserIsSuper := UserPermissions.IsSuper(UserSecurityId);
         CanManageUsers := PermissionManager.CanCurrentUserManagePlansAndGroups;
+        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
         IsIntelligentCloud := PermissionManager.IsIntelligentCloud;
     end;
 
@@ -513,6 +526,7 @@ page 9800 Users
         RefreshAllSelectedUserPlansQst: Label 'Do you want to refresh plans for all selected users?';
         MixedSKUsWithoutBasicErr: Label 'You cannot mix plans of type Essential and Premium. Make sure all users are on the same plan.';
         CanManageUsers: Boolean;
+        CanManageUsersOnTenant: Boolean;
         MixedSKUsWithBasicErr: Label 'You cannot mix plans of type Basic, Essential, and Premium. Make sure all users are on the same plan.';
         IsIntelligentCloud: Boolean;
         IsSaaS: Boolean;

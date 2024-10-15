@@ -130,7 +130,7 @@ report 10219 "Job Cost Suggested Billing"
                 InvoicedPrice := 0;
                 SuggestedBilling := 0;
 
-                JobPlanningLine.Reset;
+                JobPlanningLine.Reset();
                 JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.", "Contract Line", "Planning Date");
                 JobPlanningLine.SetRange("Contract Line", true);
                 JobPlanningLine.SetRange("Job No.", "No.");
@@ -138,7 +138,7 @@ report 10219 "Job Cost Suggested Billing"
                 JobPlanningLine.CalcSums("Total Price (LCY)");
                 ContractPrice := JobPlanningLine."Total Price (LCY)";
 
-                JobLedgerEntry.Reset;
+                JobLedgerEntry.Reset();
                 JobLedgerEntry.SetCurrentKey("Job No.", "Job Task No.", "Entry Type", "Posting Date");
                 JobLedgerEntry.SetRange("Job No.", "No.");
                 CopyFilter("Posting Date Filter", JobLedgerEntry."Posting Date");
@@ -154,7 +154,7 @@ report 10219 "Job Cost Suggested Billing"
                     SuggestedBilling := UsagePrice - InvoicedPrice;
 
                 if not Customer.Get("Bill-to Customer No.") then
-                    Customer.Init;
+                    Customer.Init();
             end;
 
             trigger OnPreDataItem()
@@ -185,7 +185,7 @@ report 10219 "Job Cost Suggested Billing"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         JobFilter := Job.GetFilters;
     end;
 

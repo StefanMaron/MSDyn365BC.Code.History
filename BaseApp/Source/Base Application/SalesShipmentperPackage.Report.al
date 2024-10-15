@@ -36,14 +36,14 @@ report 10080 "Sales Shipment per Package"
                     trigger OnAfterGetRecord()
                     begin
                         TempSalesShipmentLine := "Sales Shipment Line";
-                        TempSalesShipmentLine.Insert;
+                        TempSalesShipmentLine.Insert();
                         HighestLineNo := "Line No.";
                     end;
 
                     trigger OnPreDataItem()
                     begin
-                        TempSalesShipmentLine.Reset;
-                        TempSalesShipmentLine.DeleteAll;
+                        TempSalesShipmentLine.Reset();
+                        TempSalesShipmentLine.DeleteAll();
                         SetRange("Package Tracking No.", TempPackageNo."Package Tracking No.");
                     end;
                 }
@@ -66,7 +66,7 @@ report 10080 "Sales Shipment per Package"
                             "Line No." := HighestLineNo + 1000;
                             HighestLineNo := "Line No.";
                         end;
-                        TempSalesShipmentLine.Insert;
+                        TempSalesShipmentLine.Insert();
                     end;
                 }
                 dataitem(CopyLoop; "Integer")
@@ -345,7 +345,7 @@ report 10080 "Sales Shipment per Package"
 
                             trigger OnPreDataItem()
                             begin
-                                NumberOfLines := TempSalesShipmentLine.Count;
+                                NumberOfLines := TempSalesShipmentLine.Count();
                                 SetRange(Number, 1, NumberOfLines);
                                 OnLineNumber := 0;
                                 PrintFooter := false;
@@ -358,7 +358,7 @@ report 10080 "Sales Shipment per Package"
                         if CopyNo = NoLoops then begin
                             if not CurrReport.Preview then
                                 SalesShipmentPrinted.Run("Sales Shipment Header");
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                         CopyNo := CopyNo + 1;
                         if CopyNo = 1 then // Original
@@ -390,8 +390,8 @@ report 10080 "Sales Shipment per Package"
                 trigger OnPreDataItem()
                 begin
                     // Clear it
-                    TempPackageNo.Reset;
-                    TempPackageNo.DeleteAll;
+                    TempPackageNo.Reset();
+                    TempPackageNo.DeleteAll();
                     TempPackageNo.SetCurrentKey("Document No.", "Package Tracking No.");
                     // Fill it
                     NextLineNo := 0;
@@ -399,7 +399,7 @@ report 10080 "Sales Shipment per Package"
                         TempPackageNo."Document No." := "Sales Shipment Header"."No.";
                         TempPackageNo."Package Tracking No." := "Sales Shipment Header"."Package Tracking No.";
                         TempPackageNo."Line No." := NextLineNo;
-                        TempPackageNo.Insert;
+                        TempPackageNo.Insert();
                     end;
                     TempPackageNo.SetRange("Document No.", "Sales Shipment Header"."No.");
                     with SalesShipmentLine2 do begin
@@ -414,14 +414,14 @@ report 10080 "Sales Shipment per Package"
                                     TempPackageNo."Document No." := "Document No.";
                                     TempPackageNo."Package Tracking No." := "Package Tracking No.";
                                     TempPackageNo."Line No." := NextLineNo;
-                                    TempPackageNo.Insert;
+                                    TempPackageNo.Insert();
                                 end;
                             until Next = 0;
                     end;
-                    TempPackageNo.Reset;
+                    TempPackageNo.Reset();
                     SetRange(Number, 1, TempPackageNo.Count);
                     if not TempPackageNo.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     GroupNo := 0;
                     LastPackageTrNo := '';
                 end;
@@ -540,8 +540,8 @@ report 10080 "Sales Shipment per Package"
         if not CurrReport.UseRequestPage then
             InitLogInteraction;
 
-        CompanyInformation.Get;
-        SalesSetup.Get;
+        CompanyInformation.Get();
+        SalesSetup.Get();
 
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
@@ -550,12 +550,12 @@ report 10080 "Sales Shipment per Package"
                 CompanyInformation.CalcFields(Picture);
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -647,7 +647,7 @@ report 10080 "Sales Shipment per Package"
             HighestLineNo := "Line No.";
         end;
         FormatDocument.ParseComment(Comment, TempSalesShipmentLine.Description, TempSalesShipmentLine."Description 2");
-        TempSalesShipmentLine.Insert;
+        TempSalesShipmentLine.Insert();
     end;
 }
 

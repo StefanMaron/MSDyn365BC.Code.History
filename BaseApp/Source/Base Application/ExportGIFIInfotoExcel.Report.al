@@ -91,7 +91,7 @@ report 10005 "Export GIFI Info. to Excel"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         GIFIFilterString := GIFICode.GetFilter(Code);
         if AsOfDate = 0D then
             Error(Text001);
@@ -115,7 +115,7 @@ report 10005 "Export GIFI Info. to Excel"
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; NumberFormat: Text[30]; Bold: Boolean)
     begin
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", ColumnNo);
         if NumberFormat <> '' then begin
@@ -127,7 +127,7 @@ report 10005 "Export GIFI Info. to Excel"
         TempExcelBuffer."Cell Value as Text" := CellValue;
 
         TempExcelBuffer.Bold := Bold;
-        TempExcelBuffer.Insert;
+        TempExcelBuffer.Insert();
     end;
 
     local procedure ExportBalance(var GIFICode: Record "GIFI Code")

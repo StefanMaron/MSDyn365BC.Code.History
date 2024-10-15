@@ -146,12 +146,12 @@ report 10210 "Job Actual to Budget (Cost)"
 
                             if JobDiffBuff.Find then begin
                                 JobDiffBuff."Budgeted Total Cost" := JobDiffBuff."Budgeted Total Cost" + "Total Cost (LCY)";
-                                JobDiffBuff.Modify;
+                                JobDiffBuff.Modify();
                             end else begin
                                 if "Job Task"."Job Task Type" = "Job Task"."Job Task Type"::Posting then
                                     JobDiffBuff.Description := GetItemDescription(Type, "No.");
                                 JobDiffBuff."Budgeted Total Cost" := "Total Cost (LCY)";
-                                JobDiffBuff.Insert;
+                                JobDiffBuff.Insert();
                             end;
                         end;
 
@@ -161,7 +161,7 @@ report 10210 "Job Actual to Budget (Cost)"
                                 "Job Task"."Job Task Type"::Posting:
                                     SetRange("Job Task No.", "Job Task"."Job Task No.");
                                 "Job Task"."Job Task Type"::Heading, "Job Task"."Job Task Type"::"Begin-Total":
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 "Job Task"."Job Task Type"::Total, "Job Task"."Job Task Type"::"End-Total":
                                     SetFilter("Job Task No.", "Job Task".Totaling);
                             end;
@@ -188,12 +188,12 @@ report 10210 "Job Actual to Budget (Cost)"
 
                             if JobDiffBuff.Find then begin
                                 JobDiffBuff."Total Cost" := JobDiffBuff."Total Cost" + "Total Cost (LCY)";
-                                JobDiffBuff.Modify;
+                                JobDiffBuff.Modify();
                             end else begin
                                 if "Job Task"."Job Task Type" = "Job Task"."Job Task Type"::Posting then
                                     JobDiffBuff.Description := GetItemDescription(Type, "No.");
                                 JobDiffBuff."Total Cost" := "Total Cost (LCY)";
-                                JobDiffBuff.Insert;
+                                JobDiffBuff.Insert();
                             end;
                         end;
 
@@ -203,7 +203,7 @@ report 10210 "Job Actual to Budget (Cost)"
                                 "Job Task"."Job Task Type"::Posting:
                                     SetRange("Job Task No.", "Job Task"."Job Task No.");
                                 "Job Task"."Job Task Type"::Heading, "Job Task"."Job Task Type"::"Begin-Total":
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 "Job Task"."Job Task Type"::Total, "Job Task"."Job Task Type"::"End-Total":
                                     SetFilter("Job Task No.", "Job Task".Totaling);
                             end;
@@ -326,7 +326,7 @@ report 10210 "Job Actual to Budget (Cost)"
 
                     trigger OnAfterGetRecord()
                     begin
-                        JobDiffBuff.Reset;
+                        JobDiffBuff.Reset();
 
                         PageGroupNo := NextPageGroupNo;
                         if "New Page" then
@@ -337,7 +337,7 @@ report 10210 "Job Actual to Budget (Cost)"
 
             trigger OnAfterGetRecord()
             begin
-                JobDiffBuff.DeleteAll;
+                JobDiffBuff.DeleteAll();
 
                 if PrintToExcel then
                     MakeExcelInfo;
@@ -396,7 +396,7 @@ report 10210 "Job Actual to Budget (Cost)"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         JobFilter := Job.GetFilters;
         JobTaskFilter := "Job Task".GetFilters;
         if BudgetAmountsPer = BudgetAmountsPer::Schedule then

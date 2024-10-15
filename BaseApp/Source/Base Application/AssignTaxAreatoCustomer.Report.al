@@ -59,7 +59,7 @@ report 10326 "Assign Tax Area to Customer"
     begin
         if not Customer.Find then
             CurrReport.Quit;
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     var

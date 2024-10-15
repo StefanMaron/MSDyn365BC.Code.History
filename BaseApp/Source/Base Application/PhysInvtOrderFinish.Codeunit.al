@@ -35,7 +35,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             TestField(Status, Status::Open);
             TestField("Posting Date");
 
-            PhysInvtRecordHeader.Reset;
+            PhysInvtRecordHeader.Reset();
             PhysInvtRecordHeader.SetRange("Order No.", "No.");
             if PhysInvtRecordHeader.Find('-') then
                 repeat
@@ -46,11 +46,11 @@ codeunit 5880 "Phys. Invt. Order-Finish"
               '#1#################################\\' + FinishingLinesMsg);
             Window.Update(1, StrSubstNo('%1 %2', TableCaption, "No."));
 
-            LockTable;
-            PhysInvtOrderLine.LockTable;
+            LockTable();
+            PhysInvtOrderLine.LockTable();
 
             LineCount := 0;
-            PhysInvtOrderLine.Reset;
+            PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "No.");
             if PhysInvtOrderLine.Find('-') then
                 repeat
@@ -76,8 +76,8 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                         then begin
                             PhysInvtOrderLine."Pos. Qty. (Base)" := 0;
                             PhysInvtOrderLine."Neg. Qty. (Base)" := 0;
-                            TempPhysInvtTrackingBuffer.Reset;
-                            TempPhysInvtTrackingBuffer.DeleteAll;
+                            TempPhysInvtTrackingBuffer.Reset();
+                            TempPhysInvtTrackingBuffer.DeleteAll();
                             CreateTrackingBufferLines(PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.");
                             CreateReservEntries(PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.", true, 0);
                         end else
@@ -89,7 +89,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                         PhysInvtOrderLine.CalcCosts;
 
                         OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine);
-                        PhysInvtOrderLine.Modify;
+                        PhysInvtOrderLine.Modify();
                     end;
                 until PhysInvtOrderLine.Next = 0;
 
@@ -97,7 +97,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             LastVariantCode := '';
             LastLocationCode := '';
 
-            PhysInvtOrderLine.Reset;
+            PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetCurrentKey("Document No.", "Item No.", "Variant Code", "Location Code");
             PhysInvtOrderLine.SetRange("Document No.", "No.");
             PhysInvtOrderLine.SetRange("Use Item Tracking", true);
@@ -113,12 +113,12 @@ codeunit 5880 "Phys. Invt. Order-Finish"
 
                         Item.Get(PhysInvtOrderLine."Item No.");
                         if IsBinMandatoryNoWhseTracking(Item, PhysInvtOrderLine."Location Code") then begin
-                            TempPhysInvtTrackingBuffer.Reset;
-                            TempPhysInvtTrackingBuffer.DeleteAll;
+                            TempPhysInvtTrackingBuffer.Reset();
+                            TempPhysInvtTrackingBuffer.DeleteAll();
 
                             UpdateBufferFromItemLedgerEntries(PhysInvtOrderLine);
 
-                            PhysInvtOrderLine2.Reset;
+                            PhysInvtOrderLine2.Reset();
                             PhysInvtOrderLine2.SetCurrentKey(
                               "Document No.", "Item No.", "Variant Code", "Location Code");
                             PhysInvtOrderLine2.SetRange("Document No.", PhysInvtOrderLine."Document No.");
@@ -127,7 +127,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                             PhysInvtOrderLine2.SetRange("Location Code", PhysInvtOrderLine."Location Code");
                             if PhysInvtOrderLine2.Find('-') then
                                 repeat
-                                    PhysInvtRecordLine.Reset;
+                                    PhysInvtRecordLine.Reset();
                                     PhysInvtRecordLine.SetCurrentKey("Order No.", "Order Line No.");
                                     PhysInvtRecordLine.SetRange("Order No.", PhysInvtOrderLine2."Document No.");
                                     PhysInvtRecordLine.SetRange("Order Line No.", PhysInvtOrderLine2."Line No.");
@@ -140,14 +140,14 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                                         until PhysInvtRecordLine.Next = 0;
                                 until PhysInvtOrderLine2.Next = 0;
 
-                            TempPhysInvtTrackingBuffer.Reset;
+                            TempPhysInvtTrackingBuffer.Reset();
                             if TempPhysInvtTrackingBuffer.Find('-') then
                                 repeat
                                     TempPhysInvtTrackingBuffer."Qty. To Transfer" :=
                                       TempPhysInvtTrackingBuffer."Qty. Recorded (Base)" - TempPhysInvtTrackingBuffer."Qty. Expected (Base)";
                                     TempPhysInvtTrackingBuffer."Outstanding Quantity" := TempPhysInvtTrackingBuffer."Qty. To Transfer";
                                     TempPhysInvtTrackingBuffer.Open := TempPhysInvtTrackingBuffer."Outstanding Quantity" <> 0;
-                                    TempPhysInvtTrackingBuffer.Modify;
+                                    TempPhysInvtTrackingBuffer.Modify();
                                 until TempPhysInvtTrackingBuffer.Next = 0;
 
                             if PhysInvtOrderLine2.Find('-') then
@@ -156,13 +156,13 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                                         PhysInvtOrderLine2."Pos. Qty. (Base)" := PhysInvtOrderLine2."Quantity (Base)"
                                     else
                                         PhysInvtOrderLine2."Neg. Qty. (Base)" := PhysInvtOrderLine2."Quantity (Base)";
-                                    PhysInvtOrderLine2.Modify;
+                                    PhysInvtOrderLine2.Modify();
                                     if PhysInvtOrderLine2."Quantity (Base)" <> 0 then
                                         CreateReservEntries(
                                           PhysInvtOrderLine2."Document No.", PhysInvtOrderLine2."Line No.", false,
                                           PhysInvtOrderLine2."Quantity (Base)");
                                     PhysInvtOrderLine2.CalcCosts;
-                                    PhysInvtOrderLine2.Modify;
+                                    PhysInvtOrderLine2.Modify();
                                 until PhysInvtOrderLine2.Next = 0;
                         end;
                     end;
@@ -196,7 +196,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     var
         ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking";
     begin
-        PhysInvtRecordLine.Reset;
+        PhysInvtRecordLine.Reset();
         PhysInvtRecordLine.SetCurrentKey("Order No.", "Order Line No.");
         PhysInvtRecordLine.SetRange("Order No.", DocNo);
         PhysInvtRecordLine.SetRange("Order Line No.", LineNo);
@@ -208,7 +208,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                 OnCreateTrackingBufferLinesFromPhysInvtRecordLine(TempPhysInvtTrackingBuffer, PhysInvtRecordLine);
             until PhysInvtRecordLine.Next = 0;
 
-        ExpPhysInvtTracking.Reset;
+        ExpPhysInvtTracking.Reset();
         ExpPhysInvtTracking.SetRange("Order No", DocNo);
         ExpPhysInvtTracking.SetRange("Order Line No.", LineNo);
         if ExpPhysInvtTracking.Find('-') then
@@ -218,14 +218,14 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                 OnCreateTrackingBufferLinesFromExpPhysInvtTracking(TempPhysInvtTrackingBuffer, ExpPhysInvtTracking);
             until ExpPhysInvtTracking.Next = 0;
 
-        TempPhysInvtTrackingBuffer.Reset;
+        TempPhysInvtTrackingBuffer.Reset();
         if TempPhysInvtTrackingBuffer.Find('-') then
             repeat
                 TempPhysInvtTrackingBuffer."Qty. To Transfer" :=
                   TempPhysInvtTrackingBuffer."Qty. Recorded (Base)" - TempPhysInvtTrackingBuffer."Qty. Expected (Base)";
                 TempPhysInvtTrackingBuffer."Outstanding Quantity" := TempPhysInvtTrackingBuffer."Qty. To Transfer";
                 TempPhysInvtTrackingBuffer.Open := TempPhysInvtTrackingBuffer."Outstanding Quantity" <> 0;
-                TempPhysInvtTrackingBuffer.Modify;
+                TempPhysInvtTrackingBuffer.Modify();
             until TempPhysInvtTrackingBuffer.Next = 0;
     end;
 
@@ -235,16 +235,13 @@ codeunit 5880 "Phys. Invt. Order-Finish"
         NextEntryNo: Integer;
         QtyToTransfer: Decimal;
     begin
-        TempPhysInvtTrackingBuffer.Reset;
+        TempPhysInvtTrackingBuffer.Reset();
         TempPhysInvtTrackingBuffer.SetCurrentKey(Open);
         TempPhysInvtTrackingBuffer.SetRange(Open, true);
         if TempPhysInvtTrackingBuffer.Find('-') then begin
-            ReservEntry.LockTable;
-            ReservEntry.Reset;
-            if ReservEntry.FindLast then
-                NextEntryNo := ReservEntry."Entry No." + 1
-            else
-                NextEntryNo := 1;
+            ReservEntry.LockTable();
+            ReservEntry.Reset();
+            NextEntryNo := ReservEntry.GetLastEntryNo() + 1;
             repeat
                 if AllBufferLines then
                     QtyToTransfer := TempPhysInvtTrackingBuffer."Outstanding Quantity"
@@ -261,7 +258,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                             QtyToTransfer := MaxQtyToTransfer;
 
                 if QtyToTransfer <> 0 then begin
-                    ReservEntry.Init;
+                    ReservEntry.Init();
                     ReservEntry."Entry No." := NextEntryNo;
                     ReservEntry.Positive := QtyToTransfer > 0;
                     ReservEntry.Validate("Item No.", PhysInvtOrderLine."Item No.");
@@ -288,12 +285,12 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                         PhysInvtOrderLine."Neg. Qty. (Base)" -= ReservEntry.Quantity;
                     end;
                     OnCreateReservEntriesOnBeforeInsert(ReservEntry, TempPhysInvtTrackingBuffer, PhysInvtOrderHeader, PhysInvtOrderLine);
-                    ReservEntry.Insert;
+                    ReservEntry.Insert();
                     NextEntryNo := NextEntryNo + 1;
                 end;
                 TempPhysInvtTrackingBuffer."Outstanding Quantity" -= QtyToTransfer;
                 TempPhysInvtTrackingBuffer.Open := TempPhysInvtTrackingBuffer."Outstanding Quantity" <> 0;
-                TempPhysInvtTrackingBuffer.Modify;
+                TempPhysInvtTrackingBuffer.Modify();
             until TempPhysInvtTrackingBuffer.Next = 0;
         end;
     end;

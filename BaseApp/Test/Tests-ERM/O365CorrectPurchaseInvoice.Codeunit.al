@@ -928,6 +928,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     [Scope('OnPrem')]
     procedure TestCorrectInvoiceUsingGLAccount()
     var
+        GLAcc: Record "G/L Account";
         Item: Record Item;
         Vend: Record Vendor;
         PurchHeader: Record "Purchase Header";
@@ -941,9 +942,11 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
         CreatePurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchHeader, PurchLine);
 
+        LibraryERM.FindGLAccount(GLAcc);
+
         LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
         PurchLine.Validate(Type, PurchLine.Type::"G/L Account");
-        PurchLine.Validate("No.", LibraryERM.CreateGLAccountWithPurchSetup);
+        PurchLine.Validate("No.", GLAcc."No.");
         PurchLine.Validate("Direct Unit Cost", 1);
         PurchLine.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
         PurchLine.Modify(true);

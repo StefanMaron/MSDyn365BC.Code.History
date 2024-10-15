@@ -355,7 +355,7 @@ report 10103 "Vendor Account Detail"
                         trigger OnPreDataItem()
                         begin
                             if not AdditionalInformation then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(AppliedEntries; "Integer")
@@ -386,7 +386,7 @@ report 10103 "Vendor Account Detail"
                         trigger OnPreDataItem()
                         begin
                             if not AdditionalInformation then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 2, TempAppliedVendLedgEntry.Count);
                         end;
                     }
@@ -463,7 +463,7 @@ report 10103 "Vendor Account Detail"
 
                     if PrintAmountsInLocal then
                         if Currency.ReadPermission then begin
-                            TempCurrency.DeleteAll;
+                            TempCurrency.DeleteAll();
 
                             with VendLedgerEntry2 do begin
                                 Reset;
@@ -471,9 +471,9 @@ report 10103 "Vendor Account Detail"
                                 SetRange("Vendor No.", Vendor."No.");
                                 SetFilter("Posting Date", '%1..%2', FromDate, ToDate);
                                 while FindFirst do begin
-                                    TempCurrency.Init;
+                                    TempCurrency.Init();
                                     TempCurrency.Code := "Currency Code";
-                                    TempCurrency.Insert;
+                                    TempCurrency.Insert();
                                     SetFilter("Currency Code", '>%1', "Currency Code");
                                 end;
                             end;
@@ -535,11 +535,11 @@ report 10103 "Vendor Account Detail"
                            (BalanceToPrint = 0) and
                            (EndingBalanceToPrint = 0)
                         then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                     if FilterString2 = '' then begin
                         TotalVendors := TotalVendors + 1;  // count if there are no ledger filters
-                        VendLedgerEntry2.Reset;
+                        VendLedgerEntry2.Reset();
                         VendLedgerEntry2.SetCurrentKey("Vendor No.", "Posting Date");
                         VendLedgerEntry2.SetRange("Vendor No.", "No.");
                         VendLedgerEntry2.SetRange("Posting Date", FromDate, ToDate);
@@ -627,8 +627,8 @@ report 10103 "Vendor Account Detail"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         FilterString := Vendor.GetFilters;
         FilterString2 := "Vendor Ledger Entry".GetFilters;
         DateFilter := Vendor.GetFilter("Date Filter");

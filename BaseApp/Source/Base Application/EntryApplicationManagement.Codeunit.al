@@ -16,8 +16,8 @@ codeunit 10202 "Entry Application Management"
         // Temporary Table, AppliedCustLedgEntry, to be filled in with everything that CustLedgEntry applied to.
         // Note that within AppliedCustLedgEntry, the "Amount to Apply" field will be filled in with the Amount Applied.
         // IF UseLCY is TRUE, Amount Applied will be in LCY, else it will be in the application currency
-        AppliedCustLedgEntry.Reset;
-        AppliedCustLedgEntry.DeleteAll;
+        AppliedCustLedgEntry.Reset();
+        AppliedCustLedgEntry.DeleteAll();
 
         DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.");
         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
@@ -40,7 +40,7 @@ codeunit 10202 "Entry Application Management"
                     AppliedCustLedgEntry := PmtCustLedgEntry;
                     if AppliedCustLedgEntry.Find then begin
                         AppliedCustLedgEntry."Amount to Apply" += AmountToApply;
-                        AppliedCustLedgEntry.Modify;
+                        AppliedCustLedgEntry.Modify();
                     end else begin
                         AppliedCustLedgEntry := PmtCustLedgEntry;
                         AppliedCustLedgEntry."Amount to Apply" := AmountToApply;
@@ -49,7 +49,7 @@ codeunit 10202 "Entry Application Management"
                             if ClosingCustLedgEntry."Closed by Entry No." <> AppliedCustLedgEntry."Entry No." then
                                 AppliedCustLedgEntry."Pmt. Disc. Given (LCY)" := 0;
                         end;
-                        AppliedCustLedgEntry.Insert;
+                        AppliedCustLedgEntry.Insert();
                     end;
                 until PmtDtldCustLedgEntry.Next = 0;
             until DtldCustLedgEntry.Next = 0;
@@ -67,8 +67,8 @@ codeunit 10202 "Entry Application Management"
         // Temporary Table, AppliedVendLedgEntry, to be filled in with everything that VendLedgEntry applied to.
         // Note that within AppliedVendLedgEntry, the "Amount to Apply" field will be filled in with the Amount Applied.
         // IF UseLCY is TRUE, Amount Applied will be in LCY, else it will be in the application currency
-        AppliedVendLedgEntry.Reset;
-        AppliedVendLedgEntry.DeleteAll;
+        AppliedVendLedgEntry.Reset();
+        AppliedVendLedgEntry.DeleteAll();
 
         DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.");
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
@@ -94,7 +94,7 @@ codeunit 10202 "Entry Application Management"
                     AppliedVendLedgEntry := PmtVendLedgEntry;
                     if AppliedVendLedgEntry.Find then begin
                         AppliedVendLedgEntry."Amount to Apply" += AmountToApply;
-                        AppliedVendLedgEntry.Modify;
+                        AppliedVendLedgEntry.Modify();
                     end else begin
                         AppliedVendLedgEntry := PmtVendLedgEntry;
                         AppliedVendLedgEntry."Amount to Apply" := AmountToApply;
@@ -103,7 +103,7 @@ codeunit 10202 "Entry Application Management"
                             if ClosingVendLedgEntry."Closed by Entry No." <> AppliedVendLedgEntry."Entry No." then
                                 AppliedVendLedgEntry."Pmt. Disc. Rcd.(LCY)" := 0;
                         end;
-                        AppliedVendLedgEntry.Insert;
+                        AppliedVendLedgEntry.Insert();
                     end;
                 until PmtDtldVendLedgEntry.Next = 0;
             until DtldVendLedgEntry.Next = 0;
@@ -120,8 +120,8 @@ codeunit 10202 "Entry Application Management"
         AmountToApply: Decimal;
         PaymentDiscount: Decimal;
     begin
-        TempAppliedVendLedgEntry.Reset;
-        TempAppliedVendLedgEntry.DeleteAll;
+        TempAppliedVendLedgEntry.Reset();
+        TempAppliedVendLedgEntry.DeleteAll();
 
         VendLedgEntry.SetCurrentKey("Document Type", "Vendor No.", "Posting Date");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
@@ -154,7 +154,7 @@ codeunit 10202 "Entry Application Management"
                                 TempAppliedVendLedgEntry := PmtVendLedgEntry;
                                 if TempAppliedVendLedgEntry.Find then begin
                                     TempAppliedVendLedgEntry."Amount to Apply" += AmountToApply;
-                                    TempAppliedVendLedgEntry.Modify;
+                                    TempAppliedVendLedgEntry.Modify();
                                 end else begin
                                     TempAppliedVendLedgEntry := PmtVendLedgEntry;
                                     TempAppliedVendLedgEntry."Amount to Apply" := AmountToApply;
@@ -164,7 +164,7 @@ codeunit 10202 "Entry Application Management"
                                         if ClosingVendLedgEntry."Closed by Entry No." <> TempAppliedVendLedgEntry."Entry No." then
                                             TempAppliedVendLedgEntry."Pmt. Disc. Rcd.(LCY)" := 0;
                                     end;
-                                    TempAppliedVendLedgEntry.Insert;
+                                    TempAppliedVendLedgEntry.Insert();
                                 end;
                             end;
                         until PmtDtldVendLedgEntry.Next = 0;

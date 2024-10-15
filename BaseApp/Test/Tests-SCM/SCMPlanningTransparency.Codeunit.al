@@ -491,7 +491,7 @@ codeunit 137058 "SCM Planning Transparency"
     begin
         // Setup: Create Item with re-order policy - Order, Create Blanket Sales Order, Planning Worksheet -> Calculate Regenerative plan.
         Initialize;
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         CreateLotForLotItem(
           Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(5) + 5, LibraryRandom.RandInt(5) + 20,
           LibraryRandom.RandInt(5) + 10, 0);  // Values required.
@@ -627,7 +627,7 @@ codeunit 137058 "SCM Planning Transparency"
         NoSeriesSetup;
         CreateLocationSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning Transparency");
     end;
 
@@ -636,9 +636,9 @@ codeunit 137058 "SCM Planning Transparency"
         ReservationEntry: Record "Reservation Entry";
         UntrackedPlanningElement: Record "Untracked Planning Element";
     begin
-        ReservationEntry.DeleteAll;
-        UntrackedPlanningElement.DeleteAll;
-        RequisitionLine.DeleteAll;
+        ReservationEntry.DeleteAll();
+        UntrackedPlanningElement.DeleteAll();
+        RequisitionLine.DeleteAll();
 
         Clear(UntrackedQuantity);
         Clear(TotalQuantity);
@@ -652,12 +652,12 @@ codeunit 137058 "SCM Planning Transparency"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -913,7 +913,7 @@ codeunit 137058 "SCM Planning Transparency"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
         ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
         ManufacturingSetup.Modify(true);
@@ -937,7 +937,7 @@ codeunit 137058 "SCM Planning Transparency"
         RequisitionWkshName: Record "Requisition Wksh. Name";
         PlanningWorksheet: TestPage "Planning Worksheet";
     begin
-        Commit;
+        Commit();
         RequisitionWkshName.FindFirst;
         PlanningWorksheet.OpenEdit;
         PlanningWorksheet.CurrentWkshBatchName.SetValue(RequisitionWkshName.Name);

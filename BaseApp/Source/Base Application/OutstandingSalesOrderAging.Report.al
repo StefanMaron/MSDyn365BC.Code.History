@@ -357,8 +357,8 @@ report 10055 "Outstanding Sales Order Aging"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         FilterString := Customer.GetFilters;
         for i := 1 to 3 do
             PeriodStartingDate[i + 1] := CalcDate('<1M>', PeriodStartingDate[i]);

@@ -275,7 +275,7 @@ page 2341 "BC O365 Sales Quote"
                             exit;
 
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         TempStandardAddress.CopyFromSalesHeaderSellTo(Rec);
                         if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
                             Find;
@@ -565,7 +565,7 @@ page 2341 "BC O365 Sales Quote"
                     DocumentPath: Text[250];
                 begin
                     SetRecFilter;
-                    LockTable;
+                    LockTable();
                     Find;
                     ReportSelections.GetPdfReport(DocumentPath, ReportSelections.Usage::"S.Quote", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
@@ -669,7 +669,7 @@ page 2341 "BC O365 Sales Quote"
         end;
 
         if CustInvoiceDisc.Get("Invoice Disc. Code", "Currency Code", 0) then
-            CustInvoiceDisc.Delete;
+            CustInvoiceDisc.Delete();
     end;
 
     trigger OnInit()

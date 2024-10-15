@@ -79,13 +79,13 @@ page 10810 "Generate EFT Files"
                         if Find('-') then begin
                             if DIALOG.Confirm(DeleteQst) then
                                 repeat
-                                    EFTExport.Reset;
+                                    EFTExport.Reset();
                                     EFTExport.SetRange("Journal Template Name", "Journal Template Name");
                                     EFTExport.SetRange("Journal Batch Name", "Journal Batch Name");
                                     EFTExport.SetRange("Line No.", "Line No.");
                                     EFTExport.SetRange("Sequence No.", "Sequence No.");
                                     if EFTExport.FindFirst then
-                                        EFTExport.Delete;
+                                        EFTExport.Delete();
                                 until Next = 0;
                             UpdateSubForm;
                         end else

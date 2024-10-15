@@ -34,7 +34,7 @@ codeunit 137461 "Phys. Invt. COD UT"
 
         PhysInvtOrderLine."Document No." := PhysInvtOrderHeader."No.";
         PhysInvtOrderLine."Line No." := 2;  // Required to create second Phys. Inventory Order Line.
-        PhysInvtOrderLine.Insert;
+        PhysInvtOrderLine.Insert();
 
         // Exercise & Verify: Show Duplicate Lines on Phys. Inventory Order. Verify the Duplicate Phys. Inventory Order Line in PhysInventoryOrderLinePageHandler.
         CODEUNIT.Run(CODEUNIT::"Phys. Invt.-Show Duplicates", PhysInvtOrderHeader);
@@ -146,7 +146,7 @@ codeunit 137461 "Phys. Invt. COD UT"
         ReservationEntry."Entry No." := NextEntryNo;
         ReservationEntry."Source Type" := DATABASE::"Phys. Invt. Order Line";
         ReservationEntry.Positive := true;
-        ReservationEntry.Insert;
+        ReservationEntry.Insert();
 
         // [WHEN] Invoke SignFactor function of Codeunit Create Reserv. Entry.
         SignFactor := CreateReservEntry.SignFactor(ReservationEntry);
@@ -165,31 +165,31 @@ codeunit 137461 "Phys. Invt. COD UT"
         Item: Record Item;
     begin
         Item."No." := LibraryUTUtility.GetNewCode;
-        Item.Insert;
+        Item.Insert();
         exit(Item."No.");
     end;
 
     local procedure CreatePhysInventoryOrder(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
         PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
-        PhysInvtOrderHeader.Insert;
+        PhysInvtOrderHeader.Insert();
 
         PhysInvtOrderLine."Document No." := PhysInvtOrderHeader."No.";
         PhysInvtOrderLine."Line No." := 1;
         PhysInvtOrderLine."Item No." := CreateItem;
         PhysInvtOrderLine."Quantity (Base)" := 1;
-        PhysInvtOrderLine.Insert;
+        PhysInvtOrderLine.Insert();
     end;
 
     local procedure CreatePostedPhysInventoryOrder(var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; var PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line")
     begin
         PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode;
-        PstdPhysInvtOrderHdr.Insert;
+        PstdPhysInvtOrderHdr.Insert();
 
         PstdPhysInvtOrderLine."Document No." := PstdPhysInvtOrderHdr."No.";
         PstdPhysInvtOrderLine."Line No." := 1;
         PstdPhysInvtOrderLine."Item No." := CreateItem;
-        PstdPhysInvtOrderLine.Insert;
+        PstdPhysInvtOrderLine.Insert();
     end;
 
     local procedure CreatePhysInventoryRecording(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; OrderNo: Code[20])
@@ -198,13 +198,13 @@ codeunit 137461 "Phys. Invt. COD UT"
     begin
         PhysInvtRecordHeader."Order No." := OrderNo;
         PhysInvtRecordHeader."Recording No." := 1;
-        PhysInvtRecordHeader.Insert;
+        PhysInvtRecordHeader.Insert();
 
         PhysInvtRecordLine."Order No." := OrderNo;
         PhysInvtRecordLine."Order Line No." := 1;
         PhysInvtRecordLine.Quantity := 1;
         PhysInvtRecordLine.Recorded := true;
-        PhysInvtRecordLine.Insert;
+        PhysInvtRecordLine.Insert();
     end;
 
     local procedure CreatePostedPhysInventoryRecording(var PstdPhysInvtRecordHdr: Record "Pstd. Phys. Invt. Record Hdr"; OrderNo: Code[20])
@@ -213,13 +213,13 @@ codeunit 137461 "Phys. Invt. COD UT"
     begin
         PstdPhysInvtRecordHdr."Order No." := OrderNo;
         PstdPhysInvtRecordHdr."Recording No." := 1;
-        PstdPhysInvtRecordHdr.Insert;
+        PstdPhysInvtRecordHdr.Insert();
 
         PstdPhysInvtRecordLine."Order No." := OrderNo;
         PstdPhysInvtRecordLine."Order Line No." := 1;
         PstdPhysInvtRecordLine.Quantity := 1;
         PstdPhysInvtRecordLine.Recorded := true;
-        PstdPhysInvtRecordLine.Insert;
+        PstdPhysInvtRecordLine.Insert();
     end;
 
     [RequestPageHandler]

@@ -173,7 +173,7 @@ report 10137 "Inventory Labels"
                 trigger OnPreDataItem()
                 begin
                     if PrintLinesPerLabel <= 4 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Number, 1, PrintLinesPerLabel - 4);
                 end;
             }

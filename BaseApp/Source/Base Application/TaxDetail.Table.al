@@ -90,7 +90,7 @@ table 322 "Tax Detail"
         if "Tax Type" <> "Tax Type"::"Excise Tax" then begin
             PrepareForCheckTaxType(Rec);
             if TaxDetailTemp.Get(xRec."Tax Jurisdiction Code", xRec."Tax Group Code", xRec."Tax Type", xRec."Effective Date") then
-                TaxDetailTemp.Delete;
+                TaxDetailTemp.Delete();
             if TaxDetailTemp.Count > 0 then
                 if not CheckTaxType(Rec) then
                     Error(Text001);
@@ -120,16 +120,16 @@ table 322 "Tax Detail"
     var
         TaxDetail: Record "Tax Detail";
     begin
-        TaxDetailTemp.Reset;
-        TaxDetailTemp.DeleteAll;
+        TaxDetailTemp.Reset();
+        TaxDetailTemp.DeleteAll();
         TaxDetail.SetRange("Tax Jurisdiction Code", TaxDetailRec."Tax Jurisdiction Code");
         TaxDetail.SetRange("Tax Group Code", TaxDetailRec."Tax Group Code");
         TaxDetail.SetRange("Effective Date", TaxDetailRec."Effective Date");
         if TaxDetail.FindSet then
             repeat
-                TaxDetailTemp.Init;
+                TaxDetailTemp.Init();
                 TaxDetailTemp := TaxDetail;
-                TaxDetailTemp.Insert;
+                TaxDetailTemp.Insert();
             until TaxDetail.Next = 0;
     end;
 
@@ -274,7 +274,7 @@ table 322 "Tax Detail"
     begin
         ApplyCommonFilters(TaxJurisdictionCode, TaxGroupCode, TaxType, EffectiveDate);
         SetRange("Effective Date", EffectiveDate);
-        LockTable;
+        LockTable();
         if not FindLast then begin
             Init;
             "Tax Jurisdiction Code" := TaxJurisdictionCode;

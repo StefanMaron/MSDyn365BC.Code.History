@@ -109,14 +109,13 @@ codeunit 7324 "Whse.-Activity-Post"
                     ItemTrackingRequired := CheckItemTracking(WhseActivLine);
                     InsertTempWhseActivLine(WhseActivLine, ItemTrackingRequired);
                 until WhseActivLine.Next = 0;
-                CheckWhseItemTrackingAgainstSource();
             end;
             NoOfRecords := LineCount;
 
             // Posting lines
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             LineCount := 0;
-            WhseActivLine.LockTable;
+            WhseActivLine.LockTable();
             if WhseActivLine.Find('-') then begin
                 LockPostedTables(WhseActivHeader);
 
@@ -126,7 +125,7 @@ codeunit 7324 "Whse.-Activity-Post"
             end;
 
             // Modify/delete activity header and activity lines
-            TempWhseActivLine.DeleteAll;
+            TempWhseActivLine.DeleteAll();
 
             WhseActivLine.SetCurrentKey(
               "Activity Type", "No.", "Whse. Document Type", "Whse. Document No.");
@@ -143,12 +142,12 @@ codeunit 7324 "Whse.-Activity-Post"
                             WhseActivLine.Validate("Qty. to Handle", 0);
                         WhseActivLine.Validate(
                           "Qty. Handled", WhseActivLine.Quantity - WhseActivLine."Qty. Outstanding");
-                        WhseActivLine.Modify;
+                        WhseActivLine.Modify();
                         OnAfterWhseActivLineModify(WhseActivLine);
                     end;
                 until WhseActivLine.Next = 0;
 
-            WhseActivLine.Reset;
+            WhseActivLine.Reset();
             WhseActivLine.SetRange("Activity Type", Type);
             WhseActivLine.SetRange("No.", "No.");
             WhseActivLine.SetFilter("Qty. Outstanding", '<>%1', 0);
@@ -192,12 +191,12 @@ codeunit 7324 "Whse.-Activity-Post"
                 TempWhseActivLine."Qty. to Handle" += "Qty. to Handle";
                 TempWhseActivLine."Qty. to Handle (Base)" += "Qty. to Handle (Base)";
                 OnBeforeTempWhseActivLineModify(TempWhseActivLine, WhseActivLine);
-                TempWhseActivLine.Modify;
+                TempWhseActivLine.Modify();
             end else begin
-                TempWhseActivLine.Init;
+                TempWhseActivLine.Init();
                 TempWhseActivLine := WhseActivLine;
                 OnBeforeTempWhseActivLineInsert(TempWhseActivLine, WhseActivLine);
-                TempWhseActivLine.Insert;
+                TempWhseActivLine.Insert();
                 if ItemTrackingRequired and
                    ("Activity Type" in ["Activity Type"::"Invt. Pick", "Activity Type"::"Invt. Put-away"])
                 then
@@ -229,7 +228,7 @@ codeunit 7324 "Whse.-Activity-Post"
                                 else
                                     PurchLine.Validate("Return Qty. to Ship", 0);
                                 PurchLine.Validate("Qty. to Invoice", 0);
-                                PurchLine.Modify;
+                                PurchLine.Modify();
                                 OnAfterPurchLineModify(PurchLine);
                             until PurchLine.Next = 0;
 
@@ -253,7 +252,7 @@ codeunit 7324 "Whse.-Activity-Post"
                             ModifyHeader := true;
                         end;
                         if ModifyHeader then
-                            PurchHeader.Modify;
+                            PurchHeader.Modify();
                     end;
                 DATABASE::"Sales Line":
                     begin
@@ -269,7 +268,7 @@ codeunit 7324 "Whse.-Activity-Post"
                                 else
                                     SalesLine.Validate("Return Qty. to Receive", 0);
                                 SalesLine.Validate("Qty. to Invoice", 0);
-                                SalesLine.Modify;
+                                SalesLine.Modify();
                                 OnAfterSalesLineModify(SalesLine);
                             until SalesLine.Next = 0;
 
@@ -286,7 +285,7 @@ codeunit 7324 "Whse.-Activity-Post"
                             ModifyHeader := true;
                         end;
                         if ModifyHeader then
-                            SalesHeader.Modify;
+                            SalesHeader.Modify();
                     end;
                 DATABASE::"Transfer Line":
                     begin
@@ -298,7 +297,7 @@ codeunit 7324 "Whse.-Activity-Post"
                             repeat
                                 TransLine.Validate("Qty. to Ship", 0);
                                 TransLine.Validate("Qty. to Receive", 0);
-                                TransLine.Modify;
+                                TransLine.Modify();
                                 OnAfterTransLineModify(TransLine);
                             until TransLine.Next = 0;
 
@@ -312,7 +311,7 @@ codeunit 7324 "Whse.-Activity-Post"
                             ModifyHeader := true;
                         end;
                         if ModifyHeader then
-                            TransHeader.Modify;
+                            TransHeader.Modify();
                     end;
             end;
 
@@ -348,7 +347,7 @@ codeunit 7324 "Whse.-Activity-Post"
                                 PurchLine.Validate("Qty. to Invoice", -"Qty. to Handle");
                         end;
                         PurchLine."Bin Code" := "Bin Code";
-                        PurchLine.Modify;
+                        PurchLine.Modify();
                         OnAfterPurchLineModify(PurchLine);
                         OnUpdateSourceDocumentOnAfterPurchLineModify(PurchLine, TempWhseActivLine);
                     end;
@@ -371,7 +370,7 @@ codeunit 7324 "Whse.-Activity-Post"
                                 SalesLine.Validate("Qty. to Invoice", "Qty. to Handle");
                         end;
                         SalesLine."Bin Code" := "Bin Code";
-                        SalesLine.Modify;
+                        SalesLine.Modify();
                         if "Assemble to Order" then begin
                             ATOLink.UpdateQtyToAsmFromInvtPickLine(TempWhseActivLine);
                             ATOLink.UpdateAsmBinCodeFromInvtPickLine(TempWhseActivLine);
@@ -391,7 +390,7 @@ codeunit 7324 "Whse.-Activity-Post"
                             TransLine.Validate("Qty. to Ship", "Qty. to Handle");
                             TransLine."Qty. to Ship (Base)" := "Qty. to Handle (Base)";
                         end;
-                        TransLine.Modify;
+                        TransLine.Modify();
                         OnUpdateSourceDocumentOnAfterTransLineModify(TransLine, TempWhseActivLine);
                     end;
             end;
@@ -578,7 +577,7 @@ codeunit 7324 "Whse.-Activity-Post"
         WMSMgt: Codeunit "WMS Management";
     begin
         with WhseActivLine do begin
-            WhseJnlLine.Init;
+            WhseJnlLine.Init();
             WhseJnlLine."Location Code" := "Location Code";
             WhseJnlLine."Item No." := "Item No.";
             WhseJnlLine."Registering Date" := WhseActivHeader."Posting Date";
@@ -651,8 +650,7 @@ codeunit 7324 "Whse.-Activity-Post"
             then
                 WhseJnlLine."Whse. Document Type" := WhseJnlLine."Whse. Document Type"::" ";
 
-            WhseJnlLine."Serial No." := "Serial No.";
-            WhseJnlLine."Lot No." := "Lot No.";
+            WhseJnlLine.CopyTrackingFromWhseActivityLine(WhseActivLine);
             WhseJnlLine."Warranty Date" := "Warranty Date";
             WhseJnlLine."Expiration Date" := "Expiration Date";
         end;
@@ -666,7 +664,7 @@ codeunit 7324 "Whse.-Activity-Post"
         WhseComment2: Record "Warehouse Comment Line";
     begin
         if WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Put-away" then begin
-            PostedInvtPutAwayHeader.Init;
+            PostedInvtPutAwayHeader.Init();
             PostedInvtPutAwayHeader.TransferFields(WhseActivHeader);
             PostedInvtPutAwayHeader."No." := '';
             PostedInvtPutAwayHeader."Invt. Put-away No." := WhseActivHeader."No.";
@@ -676,7 +674,7 @@ codeunit 7324 "Whse.-Activity-Post"
             PostedInvtPutAwayHeader.Insert(true);
             OnAfterPostedInvtPutAwayHeaderInsert(PostedInvtPutAwayHeader, WhseActivHeader);
         end else begin
-            PostedInvtPickHeader.Init;
+            PostedInvtPickHeader.Init();
             PostedInvtPickHeader.TransferFields(WhseActivHeader);
             PostedInvtPickHeader."No." := '';
             PostedInvtPickHeader."Invt Pick No." := WhseActivHeader."No.";
@@ -690,10 +688,10 @@ codeunit 7324 "Whse.-Activity-Post"
         WhseComment.SetRange("Table Name", WhseComment."Table Name"::"Whse. Activity Header");
         WhseComment.SetRange(Type, WhseActivHeader.Type);
         WhseComment.SetRange("No.", WhseActivHeader."No.");
-        WhseComment.LockTable;
+        WhseComment.LockTable();
         if WhseComment.Find('-') then
             repeat
-                WhseComment2.Init;
+                WhseComment2.Init();
                 WhseComment2 := WhseComment;
                 if WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Put-away" then begin
                     WhseComment2."Table Name" := WhseComment2."Table Name"::"Posted Invt. Put-Away";
@@ -703,7 +701,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     WhseComment2."No." := PostedInvtPickHeader."No.";
                 end;
                 WhseComment2.Type := WhseComment2.Type::" ";
-                WhseComment2.Insert;
+                WhseComment2.Insert();
             until WhseComment.Next = 0;
     end;
 
@@ -713,25 +711,25 @@ codeunit 7324 "Whse.-Activity-Post"
         PostedInvtPickLine: Record "Posted Invt. Pick Line";
     begin
         if WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Put-away" then begin
-            PostedInvtPutAwayLine.Init;
+            PostedInvtPutAwayLine.Init();
             PostedInvtPutAwayLine.TransferFields(WhseActivLine);
             PostedInvtPutAwayLine."No." := PostedInvtPutAwayHdr."No.";
             PostedInvtPutAwayLine.Validate(Quantity, WhseActivLine."Qty. to Handle");
             OnBeforePostedInvtPutAwayLineInsert(PostedInvtPutAwayLine, WhseActivLine);
-            PostedInvtPutAwayLine.Insert;
+            PostedInvtPutAwayLine.Insert();
         end else begin
-            PostedInvtPickLine.Init;
+            PostedInvtPickLine.Init();
             PostedInvtPickLine.TransferFields(WhseActivLine);
             PostedInvtPickLine."No." := PostedInvtPickHeader."No.";
             PostedInvtPickLine.Validate(Quantity, WhseActivLine."Qty. to Handle");
             OnBeforePostedInvtPickLineInsert(PostedInvtPickLine, WhseActivLine);
-            PostedInvtPickLine.Insert;
+            PostedInvtPickLine.Insert();
         end;
     end;
 
     local procedure PostSourceDoc()
     begin
-        TempWhseActivLine.Reset;
+        TempWhseActivLine.Reset();
         TempWhseActivLine.Find('-');
         InitSourceDocument;
         repeat
@@ -769,7 +767,7 @@ codeunit 7324 "Whse.-Activity-Post"
     begin
         with TempWhseActivLine do begin
             ProdOrderLine.Get("Source Subtype", "Source No.", "Source Line No.");
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
             ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Consumption);
             ItemJnlLine.Validate("Posting Date", WhseActivHeader."Posting Date");
             ItemJnlLine."Source No." := ProdOrderLine."Item No.";
@@ -829,7 +827,7 @@ codeunit 7324 "Whse.-Activity-Post"
         ReservProdOrderLine: Codeunit "Prod. Order Line-Reserve";
     begin
         with TempWhseActivLine do begin
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
             ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Output);
             ItemJnlLine.Validate("Posting Date", WhseActivHeader."Posting Date");
             ItemJnlLine."Document No." := ProdOrder."No.";
@@ -904,11 +902,11 @@ codeunit 7324 "Whse.-Activity-Post"
         PostedInvtPickLine: Record "Posted Invt. Pick Line";
     begin
         if WarehouseActivityHeader.Type = WarehouseActivityHeader.Type::"Invt. Put-away" then begin
-            PostedInvtPutAwayHeader.LockTable;
-            PostedInvtPutAwayLine.LockTable;
+            PostedInvtPutAwayHeader.LockTable();
+            PostedInvtPutAwayLine.LockTable();
         end else begin
-            PostedInvtPickHeader.LockTable;
-            PostedInvtPickLine.LockTable;
+            PostedInvtPickHeader.LockTable();
+            PostedInvtPickLine.LockTable();
         end;
     end;
 
@@ -929,8 +927,7 @@ codeunit 7324 "Whse.-Activity-Post"
 
     local procedure CheckItemTracking(WhseActivLine2: Record "Warehouse Activity Line"): Boolean
     var
-        SNRequired: Boolean;
-        LNRequired: Boolean;
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         Result: Boolean;
         IsHandled: Boolean;
     begin
@@ -939,37 +936,22 @@ codeunit 7324 "Whse.-Activity-Post"
             exit(Result);
 
         with WhseActivLine2 do begin
-            ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", SNRequired, LNRequired, false);
-            if SNRequired then
+            ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+            if WhseItemTrackingSetup."Serial No. Required" then
                 TestField("Serial No.");
-            if LNRequired then
+            if WhseItemTrackingSetup."Lot No. Required" then
                 TestField("Lot No.");
             if ("Expiration Date" <> 0D) and ItemTrackingMgt.StrictExpirationPosting("Item No.") then
                 if WhseActivHeader."Posting Date" > "Expiration Date" then
                     FieldError("Expiration Date", PostingDateErr);
         end;
 
-        exit(SNRequired or LNRequired);
+        exit(WhseItemTrackingSetup.TrackingRequired());
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
-    end;
-
-    local procedure CheckWhseItemTrackingAgainstSource()
-    var
-        TrackingSpecification: Record "Tracking Specification";
-    begin
-        with TempWhseActivLine do begin
-            Reset();
-            if FindSet() then
-                repeat
-                    TrackingSpecification.CheckItemTrackingQuantity(
-                      "Source Type", "Source Subtype", "Source No.", "Source Line No.",
-                      "Qty. to Handle", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
-                until Next() = 0;
-        end;
     end;
 
     [IntegrationEvent(false, false)]

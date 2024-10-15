@@ -2,11 +2,13 @@ page 36630 "Customer List - Credit Mgmt."
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Credit Management';
+    CardPageID = "Customer Card";
     DeleteAllowed = false;
     Editable = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = List;
+    PromotedActionCategories = 'Process';
     SourceTable = Customer;
     UsageCategory = Tasks;
 
@@ -243,6 +245,8 @@ page 36630 "Customer List - Credit Mgmt."
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger E&ntries';
                     Image = CustomerLedger;
+                    Promoted = true;
+                    PromotedCategory = Process;
                     RunObject = Page "Customer Ledger Entries";
                     RunPageLink = "Customer No." = FIELD("No."),
                                   "Posting Date" = FIELD(UPPERLIMIT("Date Filter")),
@@ -259,6 +263,8 @@ page 36630 "Customer List - Credit Mgmt."
                     {
                         Caption = 'Issued &Reminders';
                         Image = OrderReminder;
+                        Promoted = true;
+                        PromotedCategory = Process;
                         RunObject = Page "Issued Reminder List";
                         RunPageLink = "Customer No." = FIELD("No."),
                                       "Document Date" = FIELD("Date Filter");
@@ -269,6 +275,8 @@ page 36630 "Customer List - Credit Mgmt."
                     {
                         Caption = 'Issued &Finance Charge Memos';
                         Image = FinChargeMemo;
+                        Promoted = true;
+                        PromotedCategory = Process;
                         RunObject = Page "Issued Fin. Charge Memo List";
                         RunPageLink = "Customer No." = FIELD("No."),
                                       "Document Date" = FIELD("Date Filter");
@@ -280,6 +288,9 @@ page 36630 "Customer List - Credit Mgmt."
                 {
                     Caption = 'Co&mments';
                     Image = ViewComments;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     RunObject = Page "Comment Sheet";
                     RunPageLink = "Table Name" = CONST(Customer),
                                   "No." = FIELD("No.");
@@ -290,6 +301,9 @@ page 36630 "Customer List - Credit Mgmt."
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Accounts';
                     Image = BankAccount;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     RunObject = Page "Customer Bank Account List";
                     RunPageLink = "Customer No." = FIELD("No.");
                     ToolTip = 'View or set up the customer''s bank accounts. You can set up any number of bank accounts for each customer.';
@@ -299,6 +313,9 @@ page 36630 "Customer List - Credit Mgmt."
                     ApplicationArea = Basic, Suite;
                     Caption = 'C&ontact';
                     Image = ContactPerson;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     ToolTip = 'Open the card for the contact person at the customer.';
 
                     trigger OnAction()
@@ -314,6 +331,7 @@ page 36630 "Customer List - Credit Mgmt."
                     Caption = 'Statistics';
                     Image = Statistics;
                     Promoted = true;
+                    PromotedIsBig = true;
                     PromotedCategory = Process;
                     RunObject = Page "Customer Statistics";
                     RunPageLink = "No." = FIELD("No."),
@@ -328,6 +346,9 @@ page 36630 "Customer List - Credit Mgmt."
                     ApplicationArea = Suite;
                     Caption = 'Statistics by C&urrencies';
                     Image = Currencies;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     RunObject = Page "Cust. Stats. by Curr. Lines";
                     RunPageLink = "Customer Filter" = FIELD("No."),
                                   "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
@@ -340,6 +361,9 @@ page 36630 "Customer List - Credit Mgmt."
                     ApplicationArea = Basic, Suite;
                     Caption = 'Entry Statistics';
                     Image = EntryStatistics;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     RunObject = Page "Customer Entry Statistics";
                     RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -352,6 +376,9 @@ page 36630 "Customer List - Credit Mgmt."
                     ApplicationArea = Suite;
                     Caption = 'S&ales';
                     Image = Sales;
+                    Promoted = true;
+                    PromotedIsBig = true;
+                    PromotedCategory = Process;
                     RunObject = Page "Customer Sales";
                     RunPageLink = "No." = FIELD("No."),
                                   "Global Dimension 1 Filter" = FIELD("Global Dimension 1 Filter"),
@@ -378,7 +405,7 @@ page 36630 "Customer List - Credit Mgmt."
         More: Boolean;
     begin
         CurrPage.SetSelectionFilter(Cust);
-        CustCount := Cust.Count;
+        CustCount := Cust.Count();
         if CustCount > 0 then begin
             Cust.Find('-');
             while CustCount > 0 do begin

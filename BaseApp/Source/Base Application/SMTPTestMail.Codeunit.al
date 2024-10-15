@@ -10,7 +10,7 @@ codeunit 412 "SMTP Test Mail"
         Address: Text;
     begin
         Mail.CollectCurrentUserEmailAddresses(TempNameValueBuffer);
-        TempNameValueBuffer.Reset;
+        TempNameValueBuffer.Reset();
         if TempNameValueBuffer.FindSet then
             repeat
                 if AddressChoice <> '' then

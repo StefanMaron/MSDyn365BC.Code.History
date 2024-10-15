@@ -113,7 +113,7 @@ report 10308 "Currency List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CurrencyFilter := Currency.GetFilters;
     end;
 

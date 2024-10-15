@@ -1,4 +1,4 @@
-﻿page 22 "Customer List"
+page 22 "Customer List"
 {
     ApplicationArea = Basic, Suite, Service;
     Caption = 'Customers';
@@ -498,15 +498,15 @@
             }
             group(ActionGroupCRM)
             {
-                Caption = 'Dynamics 365 Sales';
+                Caption = 'Common Data Service';
                 Visible = CRMIntegrationEnabled;
                 action(CRMGotoAccount)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Account';
                     Image = CoupledCustomer;
-                    ToolTip = 'Open the coupled Dynamics 365 Sales account.';
-                    Visible = CRMIntegrationEnabled;
+                    ToolTip = 'Open the coupled Common Data Service account.';
+                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                     trigger OnAction()
                     var
@@ -523,8 +523,8 @@
                     Image = Refresh;
                     Promoted = true;
                     PromotedCategory = Category7;
-                    ToolTip = 'Send or get updated data to or from Dynamics 365 Sales.';
-                    Visible = CRMIntegrationEnabled;
+                    ToolTip = 'Send or get updated data to or from Common Data Service.';
+                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                     trigger OnAction()
                     var
@@ -549,7 +549,7 @@
                     Caption = 'Update Account Statistics';
                     Enabled = CRMIsCoupledToRecord;
                     Image = UpdateXML;
-                    ToolTip = 'Send customer statistics data to Dynamics 365 Sales to update the Account Statistics FactBox.';
+                    ToolTip = 'Send customer statistics data to Common Data Service to update the Account Statistics FactBox.';
                     Visible = CRMIntegrationEnabled;
 
                     trigger OnAction()
@@ -563,7 +563,7 @@
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Sales record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
@@ -572,8 +572,8 @@
                         Image = LinkAccount;
                         Promoted = true;
                         PromotedCategory = Category7;
-                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales account.';
-                        Visible = CRMIntegrationEnabled;
+                        ToolTip = 'Create or modify the coupling to a Common Data Service account.';
+                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                         trigger OnAction()
                         var
@@ -589,8 +589,8 @@
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Dynamics 365 Sales account.';
-                        Visible = CRMIntegrationEnabled;
+                        ToolTip = 'Delete the coupling to a Common Data Service account.';
+                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                         trigger OnAction()
                         var
@@ -607,10 +607,10 @@
                     action(CreateInCRM)
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Create Account in Dynamics 365 Sales';
+                        Caption = 'Create Account in Common Data Service';
                         Image = NewCustomer;
-                        ToolTip = 'Generate the account in the coupled Dynamics 365 Sales account.';
-                        Visible = CRMIntegrationEnabled;
+                        ToolTip = 'Generate the account in the coupled Common Data Service account.';
+                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                         trigger OnAction()
                         var
@@ -626,8 +626,8 @@
                         ApplicationArea = Suite;
                         Caption = 'Create Customer in Business Central';
                         Image = NewCustomer;
-                        ToolTip = 'Generate the customer in the coupled Dynamics 365 Sales account.';
-                        Visible = CRMIntegrationEnabled;
+                        ToolTip = 'Generate the customer in the coupled Common Data Service account.';
+                        Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                         trigger OnAction()
                         var
@@ -643,7 +643,7 @@
                     Caption = 'Synchronization Log';
                     Image = Log;
                     ToolTip = 'View integration synchronization jobs for the customer table.';
-                    Visible = CRMIntegrationEnabled;
+                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
                     trigger OnAction()
                     var
@@ -1218,6 +1218,9 @@
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = Process;
                 ToolTip = 'Apply a template to update one or more entities with your standard settings for a certain type of entity.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This functionality will be replaced by other templates.';
+                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var
@@ -1458,7 +1461,7 @@
         if SocialListeningSetupVisible then
             SocialListeningMgt.GetCustFactboxVisibility(Rec, SocialListeningSetupVisible, SocialListeningVisible);
 
-        if CRMIntegrationEnabled then
+        if CRMIntegrationEnabled or CDSIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
 
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
@@ -1490,6 +1493,7 @@
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
         with SocialListeningSetup do
             SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
         SetRange("Date Filter", 0D, WorkDate());
@@ -1500,6 +1504,7 @@
         SocialListeningSetupVisible: Boolean;
         SocialListeningVisible: Boolean;
         CRMIntegrationEnabled: Boolean;
+        CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;

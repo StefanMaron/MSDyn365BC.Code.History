@@ -529,10 +529,10 @@ report 202 "Sales Document - Test"
                     begin
                         if Number = 1 then begin
                             if not DimSetEntry1.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if not Continue then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         DimText := '';
                         Continue := false;
@@ -555,7 +555,7 @@ report 202 "Sales Document - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDim then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(HeaderErrorCounter; "Integer")
@@ -604,7 +604,7 @@ report 202 "Sales Document - Test"
                         begin
                             if Find('+') then
                                 OrigMaxLineNo := "Line No.";
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -796,10 +796,10 @@ report 202 "Sales Document - Test"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 DimText := '';
                                 Continue := false;
@@ -828,7 +828,7 @@ report 202 "Sales Document - Test"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowDim then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
                         dataitem(LineErrorCounter; "Integer")
@@ -1094,7 +1094,7 @@ report 202 "Sales Document - Test"
                             do
                                 MoreLines := TempSalesLine.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             TempSalesLine.SetRange("Line No.", 0, TempSalesLine."Line No.");
                             SetRange(Number, 1, TempSalesLine.Count);
 
@@ -1379,10 +1379,10 @@ report 202 "Sales Document - Test"
                         trigger OnPreDataItem()
                         begin
                             if not SalesTax then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, SalesTaxAmountLine.Count);
-                            SalesTaxAmountLine.Reset;
+                            SalesTaxAmountLine.Reset();
                             RemSalesTaxAmt := 0;
                         end;
                     }
@@ -1485,7 +1485,7 @@ report 202 "Sales Document - Test"
                         trigger OnPreDataItem()
                         begin
                             if not ShowCostAssignment then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
 
@@ -1493,8 +1493,8 @@ report 202 "Sales Document - Test"
                     begin
                         Clear(TempSalesLine);
                         Clear(SalesPost);
-                        VATAmountLine.DeleteAll;
-                        TempSalesLine.DeleteAll;
+                        VATAmountLine.DeleteAll();
+                        TempSalesLine.DeleteAll();
                         SalesPost.GetSalesLines("Sales Header", TempSalesLine, 1);
                         OnAfterSalesPostGetSalesLines("Sales Header", TempSalesLine);
                         TempSalesLine.CalcVATAmountLines(0, "Sales Header", TempSalesLine, VATAmountLine);
@@ -1504,7 +1504,7 @@ report 202 "Sales Document - Test"
                         VATDiscountAmount :=
                           VATAmountLine.GetTotalVATDiscount("Sales Header"."Currency Code", "Sales Header"."Prices Including VAT");
                         if SalesTax then begin
-                            SalesTaxAmountLine.DeleteAll;
+                            SalesTaxAmountLine.DeleteAll();
                             OnBeforeCalculateSalesTax("Sales Header", SalesTaxAmountLine, SalesTaxCalculationOverridden);
                             SalesTaxCalculate.StartSalesTaxCalculation;
                         end;
@@ -1549,7 +1549,7 @@ report 202 "Sales Document - Test"
                 VerifySellToCust("Sales Header");
                 VerifyBillToCust("Sales Header");
 
-                SalesSetup.Get;
+                SalesSetup.Get();
 
                 VerifyPostingDate("Sales Header");
 
@@ -1583,7 +1583,7 @@ report 202 "Sales Document - Test"
                         FieldCaption(Ship), FieldCaption(Invoice), FieldCaption(Receive)));
 
                 if Invoice then begin
-                    SalesLine.Reset;
+                    SalesLine.Reset();
                     SalesLine.SetRange("Document Type", "Document Type");
                     SalesLine.SetRange("Document No.", "No.");
                     SalesLine.SetFilter(Quantity, '<>0');
@@ -1605,7 +1605,7 @@ report 202 "Sales Document - Test"
                 end;
 
                 if Ship then begin
-                    SalesLine.Reset;
+                    SalesLine.Reset();
                     SalesLine.SetRange("Document Type", "Document Type");
                     SalesLine.SetRange("Document No.", "No.");
                     SalesLine.SetFilter(Quantity, '<>0');
@@ -1615,7 +1615,7 @@ report 202 "Sales Document - Test"
                     Ship := SalesLine.Find('-');
                 end;
                 if Receive then begin
-                    SalesLine.Reset;
+                    SalesLine.Reset();
                     SalesLine.SetRange("Document Type", "Document Type");
                     SalesLine.SetRange("Document No.", "No.");
                     SalesLine.SetFilter(Quantity, '<>0');
@@ -1661,7 +1661,7 @@ report 202 "Sales Document - Test"
                                 Text006,
                                 FieldCaption("Posting No. Series")));
 
-                SalesLine.Reset;
+                SalesLine.Reset();
                 SalesLine.SetRange("Document Type", "Document Type");
                 SalesLine.SetRange("Document No.", "No.");
                 SalesLine.SetFilter("Purch. Order Line No.", '<>0');
@@ -1703,7 +1703,7 @@ report 202 "Sales Document - Test"
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                     AddError(DimMgt.GetDimValuePostingErr);
 
-                SalesLine.Reset;
+                SalesLine.Reset();
                 SalesLine.SetRange("Document Type", "Document Type");
                 SalesLine.SetRange("Document No.", "No.");
                 InvoiceAmount := 0;
@@ -1824,7 +1824,7 @@ report 202 "Sales Document - Test"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     trigger OnPreReport()
@@ -2030,7 +2030,7 @@ report 202 "Sales Document - Test"
     begin
         with SalesLine2 do begin
             if Abs(RemQtyToBeInvoiced) > Abs("Qty. to Ship") then begin
-                SaleShptLine.Reset;
+                SaleShptLine.Reset();
                 case "Document Type" of
                     "Document Type"::Order:
                         begin
@@ -2125,7 +2125,7 @@ report 202 "Sales Document - Test"
     begin
         with SalesLine2 do begin
             if Abs(RemQtyToBeInvoiced) > Abs("Return Qty. to Receive") then begin
-                ReturnRcptLine.Reset;
+                ReturnRcptLine.Reset();
                 case "Document Type" of
                     "Document Type"::"Return Order":
                         begin
@@ -2247,7 +2247,7 @@ report 202 "Sales Document - Test"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
 
         with SalesLine do begin
             TableID[1] := DimMgt.TypeToTableID3(Type);

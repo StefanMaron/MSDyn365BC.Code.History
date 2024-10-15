@@ -179,7 +179,7 @@ report 10161 "Serial Number Status/Aging"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
     end;
 

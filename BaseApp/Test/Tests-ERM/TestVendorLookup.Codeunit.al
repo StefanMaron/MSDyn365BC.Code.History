@@ -39,12 +39,12 @@ codeunit 134836 "Test Vendor Lookup"
 
         LibraryERMCountryData.CreateVATData;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := false;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Vendor Lookup");
     end;
 

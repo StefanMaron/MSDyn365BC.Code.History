@@ -69,7 +69,7 @@ report 10324 "Sales Tax Group List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         TaxGroupFilters := "Tax Group".GetFilters;
     end;
 

@@ -324,13 +324,13 @@ report 10042 "Customer Account Detail"
                         if "Cust. Ledger Entry"."Original Pmt. Disc. Possible" = 0 then
                             "Cust. Ledger Entry"."Pmt. Discount Date" := 0D;
 
-                        TempAppliedCustLedgEntryCount := TempAppliedCustLedgEntry.Count;
+                        TempAppliedCustLedgEntryCount := TempAppliedCustLedgEntry.Count();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         if not AdditionalInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(AppliedEntries; "Integer")
@@ -357,7 +357,7 @@ report 10042 "Customer Account Detail"
                     trigger OnPreDataItem()
                     begin
                         if not AdditionalInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 2, TempAppliedCustLedgEntry.Count);
                     end;
                 }
@@ -368,7 +368,7 @@ report 10042 "Customer Account Detail"
                     trigger OnPreDataItem()
                     begin
                         if not AdditionalInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 
@@ -428,7 +428,7 @@ report 10042 "Customer Account Detail"
                     FromDateToPrint := 0D;
 
                 if Currency.ReadPermission then begin
-                    TempCurrency.DeleteAll;
+                    TempCurrency.DeleteAll();
                     with CustLedgerEntry2 do begin
                         Reset;
                         if not SetCurrentKey("Customer No.", "Currency Code", "Posting Date") then
@@ -436,10 +436,10 @@ report 10042 "Customer Account Detail"
                         SetRange("Customer No.", Customer."No.");
                         SetFilter("Currency Code", '=%1', '');
                         if FindFirst then begin
-                            TempCurrency.Init;
+                            TempCurrency.Init();
                             TempCurrency.Code := '';
                             TempCurrency.Description := GLSetup."LCY Code";
-                            TempCurrency.Insert;
+                            TempCurrency.Insert();
                         end;
                     end;
                     with Currency do
@@ -447,10 +447,10 @@ report 10042 "Customer Account Detail"
                             repeat
                                 CustLedgerEntry2.SetRange("Currency Code", Code);
                                 if CustLedgerEntry2.FindFirst then begin
-                                    TempCurrency.Init;
+                                    TempCurrency.Init();
                                     TempCurrency.Code := Code;
                                     TempCurrency.Description := Description;
-                                    TempCurrency.Insert;
+                                    TempCurrency.Insert();
                                 end;
                             until Next = 0;
                     GetCurrencyRecord(Currency, "Currency Code");
@@ -510,11 +510,11 @@ report 10042 "Customer Account Detail"
                        (BalanceToPrint = 0) and
                        (EndingBalanceToPrint = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                 if FilterString2 = '' then begin
                     TotalCustomers := TotalCustomers + 1;  // count if there are no ledger filters
-                    CustLedgerEntry2.Reset;
+                    CustLedgerEntry2.Reset();
                     CustLedgerEntry2.SetCurrentKey("Customer No.");
                     CustLedgerEntry2.SetRange("Posting Date", FromDate, ToDate);
                     CustLedgerEntry2.SetRange("Customer No.", "No.");
@@ -605,8 +605,8 @@ report 10042 "Customer Account Detail"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         FilterString := Customer.GetFilters;
         FilterString2 := "Cust. Ledger Entry".GetFilters;
         if (FilterString2 <> '') and AllHavingBalance then

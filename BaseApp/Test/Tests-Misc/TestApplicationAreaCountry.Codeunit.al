@@ -32,10 +32,10 @@ codeunit 139099 "Test ApplicationArea Country"
         // [WHEN] Get application area setup
         ApplicationAreaMgmtFacade.GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName);
 
-        // [THEN] Verify application area setup: "Basic EU" is 'No', VAT is 'No, "Sales Tax' is 'Yes'
-        Assert.IsFalse(ApplicationAreaSetup."Basic EU", 'Application Area #BasicEU should be FALSE.');
-        Assert.IsTrue(ApplicationAreaSetup."Sales Tax", 'Application Area #SalesTax should be TRUE.');
-        Assert.IsFalse(ApplicationAreaSetup.VAT, 'Application Area #VAT should be FALSE.');
+        // [THEN] Verify application area setup: "Basic EU" is 'Yes', VAT is 'Yes, "Sales Tax' is 'No'
+        Assert.IsTrue(ApplicationAreaSetup."Basic EU", 'Application Area #BasicEU should be TRUE.');
+        Assert.IsFalse(ApplicationAreaSetup."Sales Tax", 'Application Area #SalesTax should be FALSE.');
+        Assert.IsTrue(ApplicationAreaSetup.VAT, 'Application Area #VAT should be TRUE.');
     end;
 
     local procedure Initialize()
@@ -50,7 +50,7 @@ codeunit 139099 "Test ApplicationArea Country"
         if IsInitialized then
             exit;
 
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 

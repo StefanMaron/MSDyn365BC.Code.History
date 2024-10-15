@@ -147,12 +147,12 @@ report 10018 "General Ledger Worksheet"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         GLFilter := "G/L Account".GetFilters;
         TotalDebits := 0;
         TotalCredits := 0;
         if UseAddRptCurr then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Currency.Get(GLSetup."Additional Reporting Currency");
             SubTitle := StrSubstNo(Text000, Currency.Description);
         end;

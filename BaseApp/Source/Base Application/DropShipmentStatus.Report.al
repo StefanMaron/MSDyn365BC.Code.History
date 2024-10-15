@@ -457,7 +457,7 @@ report 10051 "Drop Shipment Status"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := "Sales Line".GetFilters;
         xCustomer := '';
         xItem := '';

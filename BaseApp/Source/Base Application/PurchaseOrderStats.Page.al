@@ -602,10 +602,10 @@ page 10039 "Purchase Order Stats."
         Clear(BreakdownLabel);
         Clear(BreakdownAmt);
 
-        PurchLine.Reset;
+        PurchLine.Reset();
 
         for i := 1 to 3 do begin
-            TempPurchLine.DeleteAll;
+            TempPurchLine.DeleteAll();
             Clear(TempPurchLine);
             Clear(PurchPost);
             PurchPost.GetPurchLines(Rec, TempPurchLine, i - 1);
@@ -617,23 +617,23 @@ page 10039 "Purchase Order Stats."
                 repeat
                     SalesTaxCalculate.AddPurchLine(TempPurchLine);
                 until TempPurchLine.Next = 0;
-            TempPurchLine.Reset;
+            TempPurchLine.Reset();
             case i of
                 1:
                     begin
-                        TempSalesTaxLine1.DeleteAll;
+                        TempSalesTaxLine1.DeleteAll();
                         SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
                         SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine1);
                     end;
                 2:
                     begin
-                        TempSalesTaxLine2.DeleteAll;
+                        TempSalesTaxLine2.DeleteAll();
                         SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
                         SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine2);
                     end;
                 3:
                     begin
-                        TempSalesTaxLine3.DeleteAll;
+                        TempSalesTaxLine3.DeleteAll();
                         SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
                         SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine3);
                     end;
@@ -670,7 +670,7 @@ page 10039 "Purchase Order Stats."
                                 BrkIdx := BrkIdx - 1;
                                 BreakdownLabel[i, BrkIdx] := Text1020012;
                             end else
-                                BreakdownLabel[i, BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[i, BrkIdx]));
+                                BreakdownLabel[i, BrkIdx] := StrSubstNo("Print Description", "Tax %");
                         end;
                         BreakdownAmt[i, BrkIdx] := BreakdownAmt[i, BrkIdx] + "Tax Amount";
                         VATAmount[i] := VATAmount[i] + "Tax Amount";
@@ -678,7 +678,7 @@ page 10039 "Purchase Order Stats."
                 TotalAmount2[i] := TotalAmount2[i] + VATAmount[i];
             end;
         end;
-        TempPurchLine.DeleteAll;
+        TempPurchLine.DeleteAll();
         Clear(TempPurchLine);
         PurchPostPrepmt.GetPurchLines(Rec, 0, TempPurchLine);
         PurchPostPrepmt.SumPrepmt(
@@ -707,7 +707,7 @@ page 10039 "Purchase Order Stats."
 
     trigger OnOpenPage()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         NullTab := -1;
         AllowInvDisc :=
           not (PurchSetup."Calc. Inv. Discount" and VendInvDiscRecExists("Invoice Disc. Code"));
@@ -977,7 +977,7 @@ page 10039 "Purchase Order Stats."
     begin
         GetVATSpecification(ActiveTab);
 
-        PurchLine.Reset;
+        PurchLine.Reset();
         PurchLine.SetRange("Document Type", "Document Type");
         PurchLine.SetRange("Document No.", "No.");
         PurchLine.FindFirst;

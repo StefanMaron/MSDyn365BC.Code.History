@@ -100,14 +100,14 @@ codeunit 134037 "ERM Date Compression GL Budget"
         DimensionTranslation: Record "Dimension Translation";
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
-        DimensionSelectionBuffer.DeleteAll;
+        DimensionSelectionBuffer.DeleteAll();
         DimensionTranslation.FindSet;
         if DimensionSelectionBuffer.IsEmpty then
             repeat
                 if not DimensionSelectionBuffer.Get(DimensionTranslation.Code) then begin
                     DimensionSelectionBuffer.Validate(Code, DimensionTranslation.Code);
                     DimensionSelectionBuffer.Validate(Selected, true);
-                    DimensionSelectionBuffer.Insert;
+                    DimensionSelectionBuffer.Insert();
                 end;
             until DimensionTranslation.Next = 0;
         DimensionSelectionBuffer.SetDimSelection(3, REPORT::"Date Compr. G/L Budget Entries", '', RetainDimText, DimensionSelectionBuffer);
@@ -189,7 +189,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
             BudgetDate := CalcDate('<1M>', BudgetDate);
             LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, BudgetDate, GLAccountNo, GLBudgetName.Name);
             GLBudgetEntry.Amount := BudgetAmount;
-            GLBudgetEntry.Modify;
+            GLBudgetEntry.Modify();
         end;
 
         // [WHEN] Copy G/L Budget to itself with time shift and adjustment factor of 1.5
@@ -225,12 +225,12 @@ codeunit 134037 "ERM Date Compression GL Budget"
         GLBudgetEntry.SetCurrentKey("Budget Name", "G/L Account No.", Date);
         GLBudgetEntry.SetRange("Budget Name", CopyFromBudgetName);
 
-        FromBudgetEntryCount := GLBudgetEntry.Count;
+        FromBudgetEntryCount := GLBudgetEntry.Count();
         GLBudgetEntry.CalcSums(Amount);
         FromBudgetEntryAmountSum := GLBudgetEntry.Amount;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Date Compression GL Budget");
     end;
 

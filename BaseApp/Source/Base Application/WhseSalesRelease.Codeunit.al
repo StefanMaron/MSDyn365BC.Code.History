@@ -61,7 +61,7 @@ codeunit 5771 "Whse.-Sales Release"
                 until SalesLine.Next = 0;
             end;
 
-            WhseRqst.Reset;
+            WhseRqst.Reset();
             WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
             WhseRqst.SetRange(Type, WhseRqst.Type);
             WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type", "No.");
@@ -84,13 +84,13 @@ codeunit 5771 "Whse.-Sales Release"
             IsHandled := false;
             OnBeforeReopenSetWhseRequestSourceDocument(SalesHeader, WhseRqst, IsHandled);
 
-            WhseRqst.Reset;
+            WhseRqst.Reset();
             WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
             if IsHandled then
                 WhseRqst.SetRange(Type, WhseRqst.Type);
             WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type", "No.");
             WhseRqst.SetRange("Document Status", Status::Released);
-            WhseRqst.LockTable;
+            WhseRqst.LockTable();
             if not WhseRqst.IsEmpty then
                 WhseRqst.ModifyAll("Document Status", WhseRqst."Document Status"::Open);
         end;
@@ -102,7 +102,7 @@ codeunit 5771 "Whse.-Sales Release"
     procedure UpdateExternalDocNoForReleasedOrder(SalesHeader: Record "Sales Header")
     begin
         with SalesHeader do begin
-            WhseRqst.Reset;
+            WhseRqst.Reset();
             WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
             WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type", "No.");
             WhseRqst.SetRange("Document Status", Status::Released);
@@ -148,8 +148,8 @@ codeunit 5771 "Whse.-Sales Release"
             SalesHeader.CalcFields("Completely Shipped");
             WhseRqst."Completely Handled" := SalesHeader."Completely Shipped";
             OnBeforeCreateWhseRequest(WhseRqst, SalesHeader, SalesLine, WhseType);
-            if not WhseRqst.Insert then
-                WhseRqst.Modify;
+            if not WhseRqst.Insert() then
+                WhseRqst.Modify();
             OnAfterCreateWhseRequest(WhseRqst, SalesHeader, SalesLine, WhseType);
         end;
     end;

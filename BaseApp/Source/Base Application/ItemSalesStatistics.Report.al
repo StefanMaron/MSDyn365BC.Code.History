@@ -275,7 +275,7 @@ report 10135 "Item Sales Statistics"
                     Item.SetRange("Variant Filter", Code);
                     Item.CalcFields("Sales (Qty.)", "Sales (LCY)", "COGS (LCY)");
                     if (Item."Sales (Qty.)" = 0) and PrintOnlyIfSales then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     Profit := Item."Sales (LCY)" - Item."COGS (LCY)";
                     if Item."Sales (LCY)" <> 0 then
                         ItemProfitPct := Round(Profit / Item."Sales (LCY)" * 100, 0.1)
@@ -294,7 +294,7 @@ report 10135 "Item Sales Statistics"
                     if (Item."Sales (Qty.)" = 0) and (QuantityReturned = 0) and
                        (Item."Sales (LCY)" = 0) and (Item."COGS (LCY)" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
@@ -302,9 +302,9 @@ report 10135 "Item Sales Statistics"
                     Clear(Profit);
                     Clear(QuantityReturned);
                     if not BreakdownByVariant then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if not AnyVariants then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     BlankVariant := true;
                 end;
@@ -323,7 +323,7 @@ report 10135 "Item Sales Statistics"
                 SetRange("Variant Filter");
                 CalcFields("Sales (Qty.)", "Sales (LCY)", "COGS (LCY)");
                 if ("Sales (Qty.)" = 0) and PrintOnlyIfSales then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 Profit := "Sales (LCY)" - "COGS (LCY)";
                 if "Sales (LCY)" <> 0 then
                     ItemProfitPct := Round(Profit / "Sales (LCY)" * 100, 0.1)
@@ -354,7 +354,7 @@ report 10135 "Item Sales Statistics"
 
                 if StrPos(CurrentKey, FieldCaption("Inventory Posting Group")) = 1 then begin
                     if not ItemPostingGr.Get("Inventory Posting Group") then
-                        ItemPostingGr.Init;
+                        ItemPostingGr.Init();
                     TLGroup := true;
                     GroupField := 2;
                     GroupName := ItemPostingGr.TableCaption;
@@ -363,7 +363,7 @@ report 10135 "Item Sales Statistics"
                 end;
                 if StrPos(CurrentKey, FieldCaption("Vendor No.")) = 1 then begin
                     if not Vendor.Get("Vendor No.") then
-                        Vendor.Init;
+                        Vendor.Init();
                     TLGroup := true;
                     GroupField := 3;
                     GroupName := Vendor.TableCaption;
@@ -427,7 +427,7 @@ report 10135 "Item Sales Statistics"
         if BreakdownByVariant then
             Title := Title + ' - ' + Text001;
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
         ItemDateFilterExsit := (Item.GetFilter("Date Filter") <> '');
     end;

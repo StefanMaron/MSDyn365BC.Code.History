@@ -63,7 +63,7 @@ report 10141 "Item Comment List"
             trigger OnAfterGetRecord()
             begin
                 if not Item.Get("No.") then begin
-                    Item.Init;
+                    Item.Init();
                     Item.Description := Text000;
                 end;
 
@@ -109,7 +109,7 @@ report 10141 "Item Comment List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CommentFilter := "Comment Line".GetFilters;
     end;
 

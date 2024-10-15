@@ -122,7 +122,7 @@ report 10199 "Resource Statistics"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ResFilter := Resource.GetFilters;
     end;
 

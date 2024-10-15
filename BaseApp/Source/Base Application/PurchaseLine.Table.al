@@ -6,11 +6,9 @@ table 39 "Purchase Line"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Purchase Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(2; "Buy-from Vendor No."; Code[20])
         {
@@ -27,11 +25,9 @@ table 39 "Purchase Line"
         {
             Caption = 'Line No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Purchase Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Item,,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,,"Fixed Asset","Charge (Item)";
 
             trigger OnValidate()
             var
@@ -116,7 +112,10 @@ table 39 "Purchase Line"
                                                                                                                                                                                        "Purchasing Blocked" = CONST(false))
             ELSE
             IF (Type = CONST(Item),
-                                                                                                                                                                                                "Document Type" = FILTER("Credit Memo" | "Return Order")) Item WHERE(Blocked = CONST(false));
+                                                                                                                                                                                                "Document Type" = FILTER("Credit Memo" | "Return Order")) Item WHERE(Blocked = CONST(false))
+            else
+            if (Type = const(Resource)) Resource;
+
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -193,8 +192,8 @@ table 39 "Purchase Line"
                         CopyFromGLAccount;
                     Type::Item:
                         CopyFromItem;
-                    3:
-                        Error(Text003);
+                    Type::Resource:
+                        CopyFromResource();
                     Type::"Fixed Asset":
                         CopyFromFixedAsset;
                     Type::"Charge (Item)":
@@ -214,6 +213,7 @@ table 39 "Purchase Line"
                 UpdatePrepmtSetupFields;
 
                 if HasTypeToFillMandatoryFields then begin
+                    PlanPriceCalcByField(FieldNo("No."));
                     Quantity := xRec.Quantity;
                     OnValidateNoOnAfterAssignQtyFromXRec(Rec, TempPurchLine);
                     Validate("Unit of Measure Code");
@@ -225,7 +225,6 @@ table 39 "Purchase Line"
                             InitQtyToReceive;
                     end;
                     UpdateWithWarehouseReceive;
-                    UpdateDirectUnitCost(FieldNo("No."));
                     if xRec."Job No." <> '' then
                         Validate("Job No.", xRec."Job No.");
                     "Job Line Type" := xRec."Job Line Type";
@@ -244,6 +243,7 @@ table 39 "Purchase Line"
 
                 GetPurchHeader;
                 UpdateItemReference;
+                UpdateDirectUnitCostByField(FieldNo("No."));
 
                 GetDefaultBin;
 
@@ -313,9 +313,10 @@ table 39 "Purchase Line"
                 "Bin Code" := '';
 
                 if Type = Type::Item then
-                    UpdateDirectUnitCost(FieldNo("Location Code"));
+                    if "Location Code" <> xRec."Location Code" then
+                        PlanPriceCalcByField(FieldNo("Location Code"));
 
-                PurchSetup.Get;
+                PurchSetup.Get();
                 if PurchSetup."Use Vendor's Tax Area Code" then begin
                     Vend.Get("Buy-from Vendor No.");
                     "Tax Area Code" := Vend."Tax Area Code";
@@ -372,6 +373,8 @@ table 39 "Purchase Line"
 
                 if "Document Type" = "Document Type"::"Return Order" then
                     ValidateReturnReasonCode(FieldNo("Location Code"));
+
+                UpdateDirectUnitCostByField(FieldNo("Location Code"));
             end;
         }
         field(8; "Posting Group"; Code[20])
@@ -428,7 +431,9 @@ table 39 "Purchase Line"
             ELSE
             IF (Type = CONST("Fixed Asset")) "Fixed Asset".Description
             ELSE
-            IF (Type = CONST("Charge (Item)")) "Item Charge".Description;
+            IF (Type = CONST("Charge (Item)")) "Item Charge".Description
+            else
+            if (Type = const(Resource)) Resource.Name;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -520,6 +525,7 @@ table 39 "Purchase Line"
             trigger OnValidate()
             var
                 IsHandled: Boolean;
+                WarehouseReceiptLine: Record "Warehouse Receipt Line";
             begin
                 TestStatusOpen;
                 IsHandled := false;
@@ -528,7 +534,10 @@ table 39 "Purchase Line"
                     if "Drop Shipment" and ("Document Type" <> "Document Type"::Invoice) then
                         Error(
                           Text001, FieldCaption(Quantity), "Sales Order No.");
-                "Quantity (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+
+                "Quantity (Base)" :=
+                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+
                 if IsCreditDocType then begin
                     if (Quantity * "Return Qty. Shipped" < 0) or
                        ((Abs(Quantity) < Abs("Return Qty. Shipped")) and ("Return Shipment No." = ''))
@@ -569,7 +578,7 @@ table 39 "Purchase Line"
                     if IsCreditDocType then
                         InitQtyToShip
                     else begin
-                        IsHandled := false;
+                        IsHandled := FALSE;
                         OnValidateQuantityOnBeforeInitQtyToReceive(Rec, CurrFieldNo, IsHandled);
                         if not IsHandled then
                             InitQtyToReceive;
@@ -578,9 +587,10 @@ table 39 "Purchase Line"
                 if (Quantity * xRec.Quantity < 0) or (Quantity = 0) then
                     InitItemAppl;
 
-                if Type = Type::Item then
-                    UpdateDirectUnitCost(FieldNo(Quantity))
-                else
+                if Type = Type::Item then begin
+                    if Quantity <> xRec.Quantity then
+                        PlanPriceCalcByField(FieldNo(Quantity));
+                end else
                     Validate("Line Discount %");
 
                 if Type = Type::"Charge (Item)" then
@@ -613,6 +623,8 @@ table 39 "Purchase Line"
                 end;
 
                 CheckWMS;
+
+                UpdateDirectUnitCostByField(FieldNo(Quantity))
             end;
         }
         field(16; "Outstanding Quantity"; Decimal)
@@ -631,7 +643,8 @@ table 39 "Purchase Line"
                 if "Qty. to Invoice" = MaxQtyToInvoice then
                     InitQtyToInvoice
                 else
-                    "Qty. to Invoice (Base)" := UOMMgt.CalcBaseQty("Qty. to Invoice", "Qty. per Unit of Measure");
+                    "Qty. to Invoice (Base)" :=
+                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Invoice", "Qty. per Unit of Measure");
                 if ("Qty. to Invoice" * Quantity < 0) or (Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice)) then
                     Error(
                       Text006,
@@ -672,24 +685,26 @@ table 39 "Purchase Line"
                     if not IsHandled then
                         InitQtyToReceive;
                 end else begin
-                    "Qty. to Receive (Base)" := UOMMgt.CalcBaseQty("Qty. to Receive", "Qty. per Unit of Measure");
+                    "Qty. to Receive (Base)" :=
+                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Receive", "Qty. per Unit of Measure");
                     InitQtyToInvoice;
                 end;
 
                 IsHandled := false;
                 OnValidateQtyToReceiveOnAfterInitQty(Rec, xRec, CurrFieldNo, IsHandled);
-                if not IsHandled then begin
-                    if ((("Qty. to Receive" < 0) xor (Quantity < 0)) and (Quantity <> 0) and ("Qty. to Receive" <> 0)) or
-                       (Abs("Qty. to Receive") > Abs("Outstanding Quantity")) or
-                       (((Quantity < 0) xor ("Outstanding Quantity" < 0)) and (Quantity <> 0) and ("Outstanding Quantity" <> 0))
-                    then
-                        Error(Text008, "Outstanding Quantity");
-                    if ((("Qty. to Receive (Base)" < 0) xor ("Quantity (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Qty. to Receive (Base)" <> 0)) or
-                       (Abs("Qty. to Receive (Base)") > Abs("Outstanding Qty. (Base)")) or
-                       ((("Quantity (Base)" < 0) xor ("Outstanding Qty. (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Outstanding Qty. (Base)" <> 0))
-                    then
-                        Error(Text009, "Outstanding Qty. (Base)");
-                end;
+                if not OverReceiptProcessing() then
+                    if not IsHandled then begin
+                        if ((("Qty. to Receive" < 0) xor (Quantity < 0)) and (Quantity <> 0) and ("Qty. to Receive" <> 0)) or
+                           (Abs("Qty. to Receive") > Abs("Outstanding Quantity")) or
+                           (((Quantity < 0) xor ("Outstanding Quantity" < 0)) and (Quantity <> 0) and ("Outstanding Quantity" <> 0))
+                        then
+                            Error(Text008, "Outstanding Quantity");
+                        if ((("Qty. to Receive (Base)" < 0) xor ("Quantity (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Qty. to Receive (Base)" <> 0)) or
+                           (Abs("Qty. to Receive (Base)") > Abs("Outstanding Qty. (Base)")) or
+                           ((("Quantity (Base)" < 0) xor ("Outstanding Qty. (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Outstanding Qty. (Base)" <> 0))
+                        then
+                            Error(Text009, "Outstanding Qty. (Base)");
+                    end;
 
                 if (CurrFieldNo <> 0) and (Type = Type::Item) and ("Qty. to Receive" < 0) then
                     CheckApplToItemLedgEntry;
@@ -1026,7 +1041,7 @@ table 39 "Purchase Line"
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
 
-                if ReservEntryExist then
+                if CheckReservationForJobNo then
                     TestField("Job No.", '');
 
                 if "Job No." <> xRec."Job No." then begin
@@ -1298,12 +1313,10 @@ table 39 "Purchase Line"
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
             end;
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -1456,7 +1469,7 @@ table 39 "Purchase Line"
                             end;
                     end;
 
-                if PurchHeader."Prices Including VAT" and (Type = Type::Item) then
+                if PurchHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
                     "Direct Unit Cost" :=
                       Round(
                         "Direct Unit Cost" * (100 + "VAT %") / (100 + xRec."VAT %"),
@@ -1613,12 +1626,10 @@ table 39 "Purchase Line"
             Caption = 'VAT Identifier';
             Editable = false;
         }
-        field(107; "IC Partner Ref. Type"; Option)
+        field(107; "IC Partner Ref. Type"; Enum "IC Partner Reference Type")
         {
             AccessByPermission = TableData "IC G/L Account" = R;
             Caption = 'IC Partner Ref. Type';
-            OptionCaption = ' ,G/L Account,Item,,,Charge (Item),Cross Reference,Common Item No.,Vendor Item No.';
-            OptionMembers = " ","G/L Account",Item,,,"Charge (Item)","Cross Reference","Common Item No.","Vendor Item No.";
 
             trigger OnValidate()
             var
@@ -1664,7 +1675,7 @@ table 39 "Purchase Line"
                         "IC Partner Ref. Type"::"Cross Reference":
                             begin
                                 GetPurchHeader;
-                                ItemCrossReference.Reset;
+                                ItemCrossReference.Reset();
                                 ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
                                 ItemCrossReference.SetFilter(
                                   "Cross-Reference Type", '%1|%2',
@@ -1758,12 +1769,10 @@ table 39 "Purchase Line"
             Editable = false;
             MinValue = 0;
         }
-        field(116; "Prepmt. VAT Calc. Type"; Option)
+        field(116; "Prepmt. VAT Calc. Type"; Enum "Tax Calculation Type")
         {
             Caption = 'Prepmt. VAT Calc. Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(117; "Prepayment VAT Identifier"; Code[20])
         {
@@ -2225,7 +2234,8 @@ table 39 "Purchase Line"
                             "Job Remaining Qty." := 0;
                     end;
                 end;
-                "Job Remaining Qty. (Base)" := UOMMgt.CalcBaseQty("Job Remaining Qty.", "Qty. per Unit of Measure");
+                "Job Remaining Qty. (Base)" :=
+                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Job Remaining Qty.", "Qty. per Unit of Measure");
             end;
         }
         field(1031; "Job Remaining Qty. (Base)"; Decimal)
@@ -2324,7 +2334,8 @@ table 39 "Purchase Line"
                 OnValidateVariantCodeOnAfterValidationChecks(Rec, xRec, CurrFieldNo);
 
                 if Type = Type::Item then
-                    UpdateDirectUnitCost(FieldNo("Variant Code"));
+                    if "Variant Code" <> xRec."Variant Code" then
+                        PlanPriceCalcByField(FieldNo("Variant Code"));
 
                 if (xRec."Variant Code" <> "Variant Code") and (Quantity <> 0) then begin
                     ReservePurchLine.VerifyChange(Rec, xRec);
@@ -2342,6 +2353,7 @@ table 39 "Purchase Line"
                     CreateTempJobJnlLine(true);
                     UpdateJobPrices;
                 end;
+                UpdateDirectUnitCostByField(FieldNo("Variant Code"));
             end;
         }
         field(5403; "Bin Code"; Code[20])
@@ -2412,12 +2424,15 @@ table 39 "Purchase Line"
             TableRelation = IF (Type = CONST(Item),
                                 "No." = FILTER(<> '')) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."))
             ELSE
+            if (Type = const(Resource), "No." = filter(<> '')) "Resource Unit of Measure".Code where("Resource No." = field("No."))
+            else
             "Unit of Measure";
 
             trigger OnValidate()
             var
                 Item: Record Item;
                 UnitOfMeasureTranslation: Record "Unit of Measure Translation";
+                Resource: Record Resource;
                 IsHandled: Boolean;
             begin
                 TestStatusOpen;
@@ -2437,9 +2452,10 @@ table 39 "Purchase Line"
                     if "Drop Shipment" then
                         Error(Text001, FieldCaption("Unit of Measure Code"), "Sales Order No.");
 
-                if (xRec."Unit of Measure Code" <> "Unit of Measure Code") and (Quantity <> 0) then
+                if (xRec."Unit of Measure Code" <> "Unit of Measure Code") and (Quantity <> 0) then begin
                     WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
-                UpdateDirectUnitCost(FieldNo("Unit of Measure Code"));
+                    PlanPriceCalcByField(FieldNo("Unit of Measure Code"));
+                end;
                 if "Unit of Measure Code" = '' then
                     "Unit of Measure" := ''
                 else begin
@@ -2455,24 +2471,40 @@ table 39 "Purchase Line"
                 end;
                 if Type = Type::Item then
                     UpdateItemReference;
-                if "Prod. Order No." = '' then begin
-                    if (Type = Type::Item) and ("No." <> '') then begin
-                        GetItem(Item);
-                        "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
-                        "Gross Weight" := Item."Gross Weight" * "Qty. per Unit of Measure";
-                        "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
-                        "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
-                        "Units per Parcel" := Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
-                        OnAfterAssignItemUOM(Rec, Item, CurrFieldNo);
-                        if "Qty. per Unit of Measure" > xRec."Qty. per Unit of Measure" then
-                            InitItemAppl;
-                        UpdateUOMQtyPerStockQty;
-                    end else
-                        "Qty. per Unit of Measure" := 1;
-                end else
+                if "Prod. Order No." = '' then
+                    case Type of
+                        Type::Item:
+                            begin
+                                GetItem(Item);
+                                "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                                "Gross Weight" := Item."Gross Weight" * "Qty. per Unit of Measure";
+                                "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
+                                "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
+                                "Units per Parcel" := Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                                OnAfterAssignItemUOM(Rec, Item, CurrFieldNo);
+                                if "Qty. per Unit of Measure" > xRec."Qty. per Unit of Measure" then
+                                    InitItemAppl;
+                                UpdateUOMQtyPerStockQty;
+                            end;
+                        Type::Resource:
+                            begin
+                                GetResource(Resource);
+                                "Qty. per Unit of Measure" := UoMMgt.GetResQtyPerUnitOfMeasure(Resource, "Unit of Measure Code");
+                                OnAfterAssignResourceUOM(Rec, Resource, CurrFieldNo);
+                                if "Unit of Measure Code" <> xRec."Unit of Measure Code" then
+                                    PlanPriceCalcByField(FieldNo("Unit of Measure Code"));
+                            end;
+                        Type::" ",
+                        Type::"Charge (Item)",
+                        Type::"Fixed Asset",
+                        Type::"G/L Account":
+                            "Qty. per Unit of Measure" := 1;
+                    end
+                else
                     "Qty. per Unit of Measure" := 0;
 
                 Validate(Quantity);
+                UpdateDirectUnitCostByField(FieldNo("Unit of Measure Code"));
             end;
         }
         field(5415; "Quantity (Base)"; Decimal)
@@ -2483,8 +2515,10 @@ table 39 "Purchase Line"
             trigger OnValidate()
             begin
                 TestField("Qty. per Unit of Measure", 1);
+                if "Quantity (Base)" <> xRec."Quantity (Base)" then
+                    PlanPriceCalcByField(FieldNo("Quantity (Base)"));
                 Validate(Quantity, "Quantity (Base)");
-                UpdateDirectUnitCost(FieldNo("Quantity (Base)"));
+                UpdateDirectUnitCostByField(FieldNo("Quantity (Base)"));
             end;
         }
         field(5416; "Outstanding Qty. (Base)"; Decimal)
@@ -2986,7 +3020,8 @@ table 39 "Purchase Line"
                 if "Return Qty. to Ship" = Quantity - "Return Qty. Shipped" then
                     InitQtyToShip
                 else begin
-                    "Return Qty. to Ship (Base)" := UOMMgt.CalcBaseQty("Return Qty. to Ship", "Qty. per Unit of Measure");
+                    "Return Qty. to Ship (Base)" :=
+                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Return Qty. to Ship", "Qty. per Unit of Measure");
                     InitQtyToInvoice;
                 end;
 
@@ -3106,6 +3141,10 @@ table 39 "Purchase Line"
         {
             Caption = 'Copied From Posted Doc.';
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(7010; "Attached Doc Count"; Integer)
         {
             BlankNumbers = DontBlank;
@@ -3116,6 +3155,64 @@ table 39 "Purchase Line"
             Caption = 'Attached Doc Count';
             FieldClass = FlowField;
             InitValue = 0;
+        }
+        field(8509; "Over-Receipt Quantity"; Decimal)
+        {
+            Caption = 'Over-Receipt Quantity';
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+
+            trigger OnValidate()
+            var
+                OverReceiptCode: Record "Over-Receipt Code";
+                PurchaseHeader: Record "Purchase Header";
+                OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
+                Handled: Boolean;
+            begin
+                OnValidateOverReceiptQuantity(Rec, xRec, CurrFieldNo, Handled);
+                if Handled then
+                    exit;
+                if not OverReceiptMgt.IsOverReceiptAllowed() then begin
+                    "Over-Receipt Quantity" := 0;
+                    "Over-Receipt Approval Status" := "Over-Receipt Approval Status"::" ";
+                    exit;
+                end;
+                if CurrFieldNo = FieldNo("Over-Receipt Quantity") then
+                    if xRec."Over-Receipt Quantity" = "Over-Receipt Quantity" then
+                        exit;
+                PurchaseHeader.Get("Document Type", "Document No.");
+                PurchaseHeader.TestField("Document Type", PurchHeader."Document Type"::Order);
+                PurchaseHeader.TestField(Status, PurchHeader.Status::Released);
+                TestField(Type, Type::Item);
+                TestField("No.");
+                if "Over-Receipt Code" = '' then
+                    "Over-Receipt Code" := OverReceiptMgt.GetDefaultOverReceiptCode(Rec);
+                TestField("Over-Receipt Code");
+                if (CurrFieldNo <> FieldNo("Over-Receipt Quantity")) and (CurrFieldNo <> 0) then
+                    "Over-Receipt Quantity" += xRec."Over-Receipt Quantity";
+                OverReceiptMgt.VerifyOverReceiptQuantity(Rec, xRec);
+                OverReceiptCode.Get("Over-Receipt Code");
+                if OverReceiptCode."Required Approval" then
+                    "Over-Receipt Approval Status" := "Over-Receipt Approval Status"::Pending;
+                SuspendStatusCheck(true);
+                if (CurrFieldNo = FieldNo("Over-Receipt Quantity")) or (CurrFieldNo = 0) or (CurrFieldNo = FieldNo("Qty. to Receive")) then
+                    Validate(Quantity, Quantity - xRec."Over-Receipt Quantity" + "Over-Receipt Quantity");
+                Validate("Direct Unit Cost");
+                if "Over-Receipt Quantity" = 0 then begin
+                    "Over-Receipt Approval Status" := "Over-Receipt Approval Status"::" ";
+                    OverReceiptMgt.RecallOverReceiptNotification(PurchaseHeader.RecordId());
+                end else
+                    OverReceiptMgt.ShowOverReceiptNotificationFromLine(PurchaseHeader."No.");
+            end;
+        }
+        field(8510; "Over-Receipt Code"; Code[20])
+        {
+            Caption = 'Over-Receipt Code';
+            TableRelation = "Over-Receipt Code";
+        }
+        field(8511; "Over-Receipt Approval Status"; Enum "Over-Receipt Approval Status")
+        {
+            Caption = 'Over-Receipt Approval Status';
         }
         field(10001; "Tax To Be Expensed"; Decimal)
         {
@@ -3135,7 +3232,7 @@ table 39 "Purchase Line"
                    (xRec."Provincial Tax Area Code" = '') and
                    ("Provincial Tax Area Code" <> '')
                 then begin
-                    PurchSetup.Get;
+                    PurchSetup.Get();
                     if PurchSetup."Use Vendor's Tax Area Code" then begin
                         if "Buy-from Vendor No." <> Vend."No." then
                             Vend.Get("Buy-from Vendor No.");
@@ -3264,11 +3361,9 @@ table 39 "Purchase Line"
         {
             Caption = 'MPS Order';
         }
-        field(99000757; "Planning Flexibility"; Option)
+        field(99000757; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';
-            OptionCaption = 'Unlimited,None';
-            OptionMembers = Unlimited,"None";
 
             trigger OnValidate()
             begin
@@ -3400,30 +3495,30 @@ table 39 "Purchase Line"
             TestField("Prepmt. Amt. Inv.", "Prepmt Amt Deducted");
 
         if "Sales Order Line No." <> 0 then begin
-            LockTable;
-            SalesOrderLine.LockTable;
+            LockTable();
+            SalesOrderLine.LockTable();
             SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, "Sales Order No.", "Sales Order Line No.");
             SalesOrderLine."Purchase Order No." := '';
             SalesOrderLine."Purch. Order Line No." := 0;
-            SalesOrderLine.Modify;
+            SalesOrderLine.Modify();
         end;
 
         if ("Special Order Sales Line No." <> 0) and ("Quantity Invoiced" = 0) then begin
-            LockTable;
-            SalesOrderLine.LockTable;
+            LockTable();
+            SalesOrderLine.LockTable();
             if SalesOrderLine.Get(
                  SalesOrderLine."Document Type"::Order, "Special Order Sales No.", "Special Order Sales Line No.")
             then begin
                 SalesOrderLine."Special Order Purchase No." := '';
                 SalesOrderLine."Special Order Purch. Line No." := 0;
-                SalesOrderLine.Modify;
+                SalesOrderLine.Modify();
             end;
         end;
 
         CatalogItemMgt.DelNonStockPurch(Rec);
 
         if "Document Type" = "Document Type"::"Blanket Order" then begin
-            PurchLine2.Reset;
+            PurchLine2.Reset();
             PurchLine2.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
             PurchLine2.SetRange("Blanket Order No.", "Document No.");
             PurchLine2.SetRange("Blanket Order Line No.", "Line No.");
@@ -3439,7 +3534,7 @@ table 39 "Purchase Line"
             DeleteChargeChargeAssgnt("Document Type", "Document No.", "Line No.");
 
         if "Line No." <> 0 then begin
-            PurchLine2.Reset;
+            PurchLine2.Reset();
             PurchLine2.SetRange("Document Type", "Document Type");
             PurchLine2.SetRange("Document No.", "Document No.");
             PurchLine2.SetRange("Attached to Line No.", "Line No.");
@@ -3451,7 +3546,7 @@ table 39 "Purchase Line"
         PurchCommentLine.SetRange("No.", "Document No.");
         PurchCommentLine.SetRange("Document Line No.", "Line No.");
         if not PurchCommentLine.IsEmpty then
-            PurchCommentLine.DeleteAll;
+            PurchCommentLine.DeleteAll();
 
         // In case we have roundings on VAT or Sales Tax, we should update some other line
         if (Type <> Type::" ") and ("Line No." <> 0) and ("Attached to Line No." = 0) and
@@ -3480,7 +3575,7 @@ table 39 "Purchase Line"
             OnBeforeVerifyReservedQty(Rec, xRec, 0);
             ReservePurchLine.VerifyQuantity(Rec, xRec);
         end;
-        LockTable;
+        LockTable();
         PurchHeader."No." := '';
         if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts;
@@ -3492,7 +3587,7 @@ table 39 "Purchase Line"
         if ("Document Type" = "Document Type"::"Blanket Order") and
            ((Type <> xRec.Type) or ("No." <> xRec."No."))
         then begin
-            PurchLine2.Reset;
+            PurchLine2.Reset();
             PurchLine2.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
             PurchLine2.SetRange("Blanket Order No.", "Document No.");
             PurchLine2.SetRange("Blanket Order Line No.", "Line No.");
@@ -3516,7 +3611,6 @@ table 39 "Purchase Line"
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'You cannot change %1 because the order line is associated with sales order %2.';
         Text002: Label 'Prices including VAT cannot be calculated when %1 is %2.';
-        Text003: Label 'You cannot purchase resources.';
         Text004: Label 'must not be less than %1';
         Text006: Label 'You cannot invoice more than %1 units.';
         Text007: Label 'You cannot invoice more than %1 base units.';
@@ -3566,7 +3660,6 @@ table 39 "Purchase Line"
         TaxArea: Record "Tax Area";
         PurchSetup: Record "Purchases & Payables Setup";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         ReservePurchLine: Codeunit "Purch. Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
@@ -3575,11 +3668,11 @@ table 39 "Purchase Line"
         CatalogItemMgt: Codeunit "Catalog Item Management";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
-        PurchPriceCalcMgt: Codeunit "Purch. Price Calc. Mgt.";
         CalendarMgmt: Codeunit "Calendar Management";
         CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
         DeferralUtilities: Codeunit "Deferral Utilities";
         PostingSetupMgt: Codeunit PostingSetupManagement;
+        FieldCausedPriceCalculation: Integer;
         TrackingBlocked: Boolean;
         StatusCheckSuspended: Boolean;
         GLSetupRead: Boolean;
@@ -3707,7 +3800,8 @@ table 39 "Purchase Line"
             "Qty. to Receive (Base)" := "Outstanding Qty. (Base)";
         end else
             if "Qty. to Receive" <> 0 then
-                "Qty. to Receive (Base)" := UOMMgt.CalcBaseQty("Qty. to Receive", "Qty. per Unit of Measure");
+                "Qty. to Receive (Base)" :=
+                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Receive", "Qty. per Unit of Measure");
 
         OnAfterInitQtyToReceive(Rec, CurrFieldNo);
 
@@ -3731,7 +3825,8 @@ table 39 "Purchase Line"
             "Return Qty. to Ship (Base)" := "Outstanding Qty. (Base)";
         end else
             if "Return Qty. to Ship" <> 0 then
-                "Return Qty. to Ship (Base)" := UOMMgt.CalcBaseQty("Return Qty. to Ship", "Qty. per Unit of Measure");
+                "Return Qty. to Ship (Base)" :=
+                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Return Qty. to Ship", "Qty. per Unit of Measure");
 
         OnAfterInitQtyToShip(Rec, CurrFieldNo);
 
@@ -3778,6 +3873,7 @@ table 39 "Purchase Line"
         "Transaction Type" := PurchHeader."Transaction Type";
         "Transport Method" := PurchHeader."Transport Method";
         "Pay-to Vendor No." := PurchHeader."Pay-to Vendor No.";
+        "Price Calculation Method" := PurchHeader."Price Calculation Method";
         "Gen. Bus. Posting Group" := PurchHeader."Gen. Bus. Posting Group";
         "VAT Bus. Posting Group" := PurchHeader."VAT Bus. Posting Group";
         "Entry Point" := PurchHeader."Entry Point";
@@ -3935,7 +4031,7 @@ table 39 "Purchase Line"
 
         if Item."Price Includes VAT" then begin
             if not VATPostingSetup.Get(Item."VAT Bus. Posting Gr. (Price)", Item."VAT Prod. Posting Group") then
-                VATPostingSetup.Init;
+                VATPostingSetup.Init();
             case VATPostingSetup."VAT Calculation Type" of
                 VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
                     VATPostingSetup."VAT %" := 0;
@@ -4050,10 +4146,91 @@ table 39 "Purchase Line"
         OnAfterGetItem(Item, Rec);
     end;
 
+    procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        RemainingQty := "Outstanding Quantity" - Abs("Reserved Quantity");
+        RemainingQtyBase := "Outstanding Qty. (Base)" - Abs("Reserved Qty. (Base)");
+    end;
+
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        if "Document Type" = "Document Type"::"Return Order" then begin
+            "Reserved Quantity" := -"Reserved Quantity";
+            "Reserved Qty. (Base)" := -"Reserved Qty. (Base)";
+        end;
+        QtyReserved := "Reserved Quantity";
+        QtyReservedBase := "Reserved Qty. (Base)";
+        QtyToReserve := "Outstanding Quantity";
+        QtyToReserveBase := "Outstanding Qty. (Base)";
+        exit("Qty. per Unit of Measure");
+    end;
+
+    procedure GetSourceCaption(): Text
+    begin
+        exit(StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "No."));
+    end;
+
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSource(DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.", '', 0);
+        ReservEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        if Type <> Type::Item then
+            ReservEntry."Item No." := '';
+        ReservEntry."Expected Receipt Date" := "Expected Receipt Date";
+        ReservEntry."Shipment Date" := "Expected Receipt Date";
+        ReservEntry."Planning Flexibility" := "Planning Flexibility";
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.", false);
+        ReservEntry.SetSourceFilter('', 0);
+
+        OnAfterSetReservationFilters(ReservEntry, Rec);
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry);
+        exit(not ReservEntry.IsEmpty);
+    end;
+
+    local procedure IsPriceCalcCalledByField(CurrPriceFieldNo: Integer): Boolean;
+    begin
+        exit(FieldCausedPriceCalculation = CurrPriceFieldNo);
+    end;
+
+    local procedure PlanPriceCalcByField(CurrPriceFieldNo: Integer)
+    begin
+        if FieldCausedPriceCalculation = 0 then
+            FieldCausedPriceCalculation := CurrPriceFieldNo;
+    end;
+
+    local procedure ClearFieldCausedPriceCalculation()
+    begin
+        FieldCausedPriceCalculation := 0;
+    end;
+
     procedure UpdateDirectUnitCost(CalledByFieldNo: Integer)
+    begin
+        ClearFieldCausedPriceCalculation();
+        PlanPriceCalcByField(CalledByFieldNo);
+        UpdateDirectUnitCostByField(CalledByFieldNo);
+    end;
+
+    local procedure UpdateDirectUnitCostByField(CalledByFieldNo: Integer)
     var
         IsHandled: Boolean;
+        PriceCalculation: Interface "Price Calculation";
     begin
+        if not IsPriceCalcCalledByField(CalledByFieldNo) then
+            exit;
+
         IsHandled := false;
         OnBeforeUpdateDirectUnitCost(Rec, xRec, CalledByFieldNo, CurrFieldNo, IsHandled);
         if IsHandled then
@@ -4067,22 +4244,96 @@ table 39 "Purchase Line"
         then
             exit;
 
-        if Type = Type::Item then begin
+        if Type in [Type::Item, Type::Resource] then begin
             GetPurchHeader;
             IsHandled := false;
             OnUpdateDirectUnitCostOnBeforeFindPrice(PurchHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled);
             if not IsHandled then begin
-                PurchPriceCalcMgt.FindPurchLinePrice(PurchHeader, Rec, CalledByFieldNo);
+                GetPriceCalculationHandler(PurchHeader, PriceCalculation);
+                PriceCalculation.ApplyPrice(CalledByFieldNo);
                 if not ("Copied From Posted Doc." and IsCreditDocType) then
-                    PurchPriceCalcMgt.FindPurchLineLineDisc(PurchHeader, Rec);
+                    PriceCalculation.ApplyDiscount();
+                GetLineWithPrice(PriceCalculation);
             end;
             Validate("Direct Unit Cost");
-
-            if CalledByFieldNo in [FieldNo("No."), FieldNo("Variant Code"), FieldNo("Location Code")] then
-                UpdateItemReference;
         end;
 
+        if Type = Type::Item then
+            if CalledByFieldNo in [FieldNo("No."), FieldNo("Variant Code"), FieldNo("Location Code")] then
+                UpdateItemReference;
+
+        ClearFieldCausedPriceCalculation();
         OnAfterUpdateDirectUnitCost(Rec, xRec, CalledByFieldNo, CurrFieldNo);
+    end;
+
+    local procedure GetLineWithPrice(var PriceCalculation: Interface "Price Calculation")
+    var
+        Line: Variant;
+    begin
+        PriceCalculation.GetLine(Line);
+        Rec := Line;
+    end;
+
+    local procedure GetPriceCalculationHandler(PurchaseHeader: Record "Purchase Header"; var PriceCalculation: Interface "Price Calculation")
+    var
+        PriceCalculationMgt: codeunit "Price Calculation Mgt.";
+        PurchaseLinePrice: Codeunit "Purchase Line - Price";
+        PriceType: Enum "Price Type";
+    begin
+        if (PurchaseHeader."No." = '') and ("Document No." <> '') then
+            PurchaseHeader.Get("Document Type", "Document No.");
+        PurchaseLinePrice.SetLine(PriceType::Purchase, PurchaseHeader, Rec);
+        PriceCalculationMgt.GetHandler(PurchaseLinePrice, PriceCalculation);
+    end;
+
+    procedure CountDiscount(ShowAll: Boolean): Integer;
+    var
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(PurchHeader, PriceCalculation);
+        exit(PriceCalculation.CountDiscount(ShowAll));
+    end;
+
+    procedure CountPrice(ShowAll: Boolean): Integer;
+    var
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(PurchHeader, PriceCalculation);
+        exit(PriceCalculation.CountPrice(ShowAll));
+    end;
+
+    procedure DiscountExists(ShowAll: Boolean): Boolean;
+    var
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(PurchHeader, PriceCalculation);
+        exit(PriceCalculation.IsDiscountExists(ShowAll));
+    end;
+
+    procedure PriceExists(ShowAll: Boolean): Boolean;
+    var
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(PurchHeader, PriceCalculation);
+        exit(PriceCalculation.IsPriceExists(ShowAll));
+    end;
+
+    procedure PickDiscount()
+    var
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(PurchHeader, PriceCalculation);
+        PriceCalculation.PickDiscount();
+        GetLineWithPrice(PriceCalculation);
+    end;
+
+    procedure PickPrice()
+    var
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(PurchHeader, PriceCalculation);
+        PriceCalculation.PickPrice();
+        GetLineWithPrice(PriceCalculation);
     end;
 
     procedure UpdateUnitCost()
@@ -4189,7 +4440,7 @@ table 39 "Purchase Line"
             if PurchHeader."Tax Area Code" = '' then
                 UpdateVATAmounts
             else
-                if CurrFieldNo <> 0 then
+                if (CurrFieldNo <> 0) and (("Over-Receipt Quantity" = 0) and (xRec."Over-Receipt Quantity" = 0)) then
                     Error(Text1020002);
         if (CurrFieldNo <> 0) and ("Tax Area Code" <> '') then
             CheckForTaxDifferences;
@@ -4264,7 +4515,7 @@ table 39 "Purchase Line"
                 PurchLine2.SetFilter(Amount, '<>0');
                 if PurchLine2.Find('<>') then begin
                     PurchLine2.ValidateLineDiscountPercent(false);
-                    PurchLine2.Modify;
+                    PurchLine2.Modify();
                 end;
             end;
         end else begin
@@ -4459,7 +4710,7 @@ table 39 "Purchase Line"
         SalesOrderLine."Unit Cost" := "Unit Cost" * SalesOrderLine."Qty. per Unit of Measure" / "Qty. per Unit of Measure";
         SalesOrderLine.Validate("Unit Cost (LCY)");
         if CurrFieldNo <> 0 then
-            SalesOrderLine.Modify;
+            SalesOrderLine.Modify();
 
         OnAfterUpdateSalesCost(Rec, SalesOrderLine);
     end;
@@ -4480,7 +4731,7 @@ table 39 "Purchase Line"
         if (Type <> Type::"Fixed Asset") or ("No." = '') then
             exit;
         if "Depreciation Book Code" = '' then begin
-            FASetup.Get;
+            FASetup.Get();
             "Depreciation Book Code" := FASetup."Default Depr. Book";
             if not FADeprBook.Get("No.", "Depreciation Book Code") then
                 "Depreciation Book Code" := '';
@@ -4501,8 +4752,8 @@ table 39 "Purchase Line"
                 LocalGLAcc.Get(FAPostingGr.GetMaintenanceExpenseAccount);
         end;
         LocalGLAcc.CheckGLAcc;
-        GLSetup.Get;
-        if GLSetup."VAT in Use"  then
+        GLSetup.Get();
+        if GLSetup."VAT in Use" then
             LocalGLAcc.TestField("Gen. Prod. Posting Group");
         "Posting Group" := FADeprBook."FA Posting Group";
         "Gen. Prod. Posting Group" := LocalGLAcc."Gen. Prod. Posting Group";
@@ -4527,7 +4778,9 @@ table 39 "Purchase Line"
                 "Unit Cost (LCY)", PurchHeader."Currency Factor")
         else
             "Unit Cost" := "Unit Cost (LCY)";
-        UpdateDirectUnitCost(FieldNo("Unit of Measure Code"));
+        if "Unit of Measure Code" <> xRec."Unit of Measure Code" then
+            PlanPriceCalcByField(FieldNo("Unit of Measure Code"));
+        UpdateDirectUnitCostByField(FieldNo("Unit of Measure Code"));
     end;
 
     procedure SelectMultipleItems()
@@ -4556,7 +4809,7 @@ table 39 "Purchase Line"
         Item.SetFilter("No.", SelectionFilter);
         if Item.FindSet then
             repeat
-                PurchLine.Init;
+                PurchLine.Init();
                 PurchLine."Line No." += 10000;
                 PurchLine.Validate(Type, Type::Item);
                 PurchLine.Validate("No.", Item."No.");
@@ -4596,8 +4849,8 @@ table 39 "Purchase Line"
         TestField("Prod. Order No.", '');
         TestField("No.");
         Clear(Reservation);
-        Reservation.SetPurchLine(Rec);
-        Reservation.RunModal;
+        Reservation.SetReservSource(Rec);
+        Reservation.RunModal();
     end;
 
     procedure ShowReservationEntries(Modal: Boolean)
@@ -4612,8 +4865,8 @@ table 39 "Purchase Line"
 
         TestField(Type, Type::Item);
         TestField("No.");
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, true);
-        ReservePurchLine.FilterReservFor(ReservEntry, Rec);
+        ReservEntry.InitSortingAndFilters(true);
+        SetReservationFilters(ReservEntry);
         if Modal then
             PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry)
         else
@@ -4651,7 +4904,7 @@ table 39 "Purchase Line"
         if IsHandled then
             exit;
 
-        PurchLine2.Reset;
+        PurchLine2.Reset();
         PurchLine2.SetCurrentKey("Document Type", Type, "No.");
         PurchLine2.SetRange("Document Type", "Document Type"::"Blanket Order");
         PurchLine2.SetRange(Type, Type);
@@ -4712,7 +4965,7 @@ table 39 "Purchase Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -4802,7 +5055,7 @@ table 39 "Purchase Line"
             else
                 ItemChargeAssgntLineAmt := CalcLineAmount;
 
-        ItemChargeAssgntPurch.Reset;
+        ItemChargeAssgntPurch.Reset();
         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
         ItemChargeAssgntPurch.SetRange("Document Line No.", "Line No.");
@@ -4829,7 +5082,7 @@ table 39 "Purchase Line"
         else
             AssignItemChargePurch.CreateDocChargeAssgnt(ItemChargeAssgntPurch, "Receipt No.");
         Clear(AssignItemChargePurch);
-        Commit;
+        Commit();
 
         ItemChargeAssgnts.Initialize(Rec, ItemChargeAssgntLineAmt);
         ItemChargeAssgnts.RunModal;
@@ -4891,7 +5144,7 @@ table 39 "Purchase Line"
                     TotalQtyToAssign -= ItemChargeAssgntPurch."Qty. to Assign";
                     TotalAmtToAssign -= ItemChargeAssgntPurch."Amount to Assign";
                 end;
-                ItemChargeAssgntPurch.Modify;
+                ItemChargeAssgntPurch.Modify();
             until ItemChargeAssgntPurch.Next = 0;
             CalcFields("Qty. to Assign");
         end;
@@ -4920,12 +5173,12 @@ table 39 "Purchase Line"
                 TestField("Qty. Assigned", "Quantity Invoiced");
             end;
 
-        ItemChargeAssgntPurch.Reset;
+        ItemChargeAssgntPurch.Reset();
         ItemChargeAssgntPurch.SetRange("Document Type", DocType);
         ItemChargeAssgntPurch.SetRange("Document No.", DocNo);
         ItemChargeAssgntPurch.SetRange("Document Line No.", DocLineNo);
         if not ItemChargeAssgntPurch.IsEmpty then
-            ItemChargeAssgntPurch.DeleteAll;
+            ItemChargeAssgntPurch.DeleteAll();
     end;
 
     procedure CheckItemChargeAssgnt()
@@ -5095,13 +5348,13 @@ table 39 "Purchase Line"
         else
             Currency.Get(PurchHeader."Currency Code");
 
-        TempVATAmountLineRemainder.DeleteAll;
+        TempVATAmountLineRemainder.DeleteAll();
 
         with PurchLine do begin
             SetRange("Document Type", PurchHeader."Document Type");
             SetRange("Document No.", PurchHeader."No.");
             OnUpdateVATOnLinesOnAfterSetFilters(PurchLine, PurchHeader);
-            LockTable;
+            LockTable();
             if FindSet then
                 repeat
                     if not ZeroAmountLine(QtyType) then begin
@@ -5112,8 +5365,8 @@ table 39 "Purchase Line"
                                  "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Tax Area Code", "Use Tax", "Line Amount" >= 0)
                             then begin
                                 TempVATAmountLineRemainder := VATAmountLine;
-                                TempVATAmountLineRemainder.Init;
-                                TempVATAmountLineRemainder.Insert;
+                                TempVATAmountLineRemainder.Init();
+                                TempVATAmountLineRemainder.Insert();
                             end;
 
                             if QtyType = QtyType::General then
@@ -5227,7 +5480,7 @@ table 39 "Purchase Line"
                               NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
                             TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
                             TempVATAmountLineRemainder."VAT Difference" := VATDifference - "VAT Difference";
-                            TempVATAmountLineRemainder.Modify;
+                            TempVATAmountLineRemainder.Modify();
                         end;
                     end;
                 until Next = 0;
@@ -5248,7 +5501,7 @@ table 39 "Purchase Line"
 
         Currency.Initialize(PurchHeader."Currency Code");
 
-        VATAmountLine.DeleteAll;
+        VATAmountLine.DeleteAll();
 
         with PurchLine do begin
             SetRange("Document Type", PurchHeader."Document Type");
@@ -5342,7 +5595,7 @@ table 39 "Purchase Line"
                 VATAmountLine."VAT Amount" += TotalVATAmount;
                 VATAmountLine."Amount Including VAT" += TotalVATAmount;
                 VATAmountLine."Calculated VAT Amount" += TotalVATAmount;
-                VATAmountLine.Modify;
+                VATAmountLine.Modify();
             end;
 
         OnAfterCalcVATAmountLines(PurchHeader, PurchLine, VATAmountLine, QtyType);
@@ -5433,7 +5686,7 @@ table 39 "Purchase Line"
 
         GetLocation("Location Code");
         if "Location Code" = '' then begin
-            WhseSetup.Get;
+            WhseSetup.Get();
             Location2."Require Shipment" := WhseSetup."Require Shipment";
             Location2."Require Pick" := WhseSetup."Require Pick";
             Location2."Require Receive" := WhseSetup."Require Receive";
@@ -5558,14 +5811,14 @@ table 39 "Purchase Line"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 
     local procedure GetPurchSetup()
     begin
         if not PurchSetupRead then
-            PurchSetup.Get;
+            PurchSetup.Get();
         PurchSetupRead := true;
 
         OnAfterGetPurchSetup(Rec, PurchSetup);
@@ -5645,10 +5898,11 @@ table 39 "Purchase Line"
     procedure CrossReferenceNoLookUp()
     var
         ItemCrossReference: Record "Item Cross Reference";
+        PriceCalculation: Interface "Price Calculation";
     begin
         if Type = Type::Item then begin
             GetPurchHeader;
-            ItemCrossReference.Reset;
+            ItemCrossReference.Reset();
             ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
             ItemCrossReference.SetFilter(
               "Cross-Reference Type", '%1|%2',
@@ -5660,8 +5914,12 @@ table 39 "Purchase Line"
                 "Cross-Reference No." := ItemCrossReference."Cross-Reference No.";
                 ValidateCrossReferenceNo(ItemCrossReference, false);
                 Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-                PurchPriceCalcMgt.FindPurchLinePrice(PurchHeader, Rec, FieldNo("Cross-Reference No."));
-                PurchPriceCalcMgt.FindPurchLineLineDisc(PurchHeader, Rec);
+
+                GetPriceCalculationHandler(PurchHeader, PriceCalculation);
+                PriceCalculation.ApplyPrice(FieldNo("Cross-Reference No."));
+                PriceCalculation.ApplyDiscount();
+                GetLineWithPrice(PriceCalculation);
+
                 OnCrossReferenceNoLookupOnBeforeValidateDirectUnitCost(PurchHeader, Rec);
                 Validate("Direct Unit Cost");
             end;
@@ -5672,7 +5930,7 @@ table 39 "Purchase Line"
     var
         ReturnedItemCrossReference: Record "Item Cross Reference";
     begin
-        ReturnedItemCrossReference.Init;
+        ReturnedItemCrossReference.Init();
         if "Cross-Reference No." <> '' then begin
             if SearchItem then
                 DistIntegration.ICRLookupPurchaseItem(Rec, ReturnedItemCrossReference, CurrFieldNo <> 0)
@@ -5681,13 +5939,14 @@ table 39 "Purchase Line"
 
             OnValidateCrossReferenceNoOnBeforeAssignNo(Rec, ReturnedItemCrossReference);
 
+            if "Cross-Reference No." <> xRec."Cross-Reference No." then
+                PlanPriceCalcByField(FieldNo("Cross-Reference No."));
             Validate("No.", ReturnedItemCrossReference."Item No.");
             SetVendorItemNo;
             if ReturnedItemCrossReference."Variant Code" <> '' then
                 Validate("Variant Code", ReturnedItemCrossReference."Variant Code");
             if ReturnedItemCrossReference."Unit of Measure" <> '' then
                 Validate("Unit of Measure Code", ReturnedItemCrossReference."Unit of Measure");
-            UpdateDirectUnitCost(FieldNo("Cross-Reference No."));
         end;
 
         "Unit of Measure (Cross Ref.)" := ReturnedItemCrossReference."Unit of Measure";
@@ -5700,7 +5959,7 @@ table 39 "Purchase Line"
             "Description 2" := ReturnedItemCrossReference."Description 2";
         end;
 
-        UpdateDirectUnitCost(FieldNo("Cross-Reference No."));
+        UpdateDirectUnitCostByField(FieldNo("Cross-Reference No."));
         UpdateICPartner;
 
         OnAfterValidateCrossReferenceNo(Rec, ItemCrossReference);
@@ -6112,7 +6371,7 @@ table 39 "Purchase Line"
         ItemVend: Record "Item Vendor";
     begin
         GetItem(Item);
-        ItemVend.Init;
+        ItemVend.Init();
         ItemVend."Vendor No." := "Buy-from Vendor No.";
         ItemVend."Variant Code" := "Variant Code";
         Item.FindItemVend(ItemVend, "Location Code");
@@ -6162,6 +6421,30 @@ table 39 "Purchase Line"
     begin
         FilterLinesWithItemToPlan(Item, DocumentType);
         exit(not IsEmpty);
+    end;
+
+    procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        Reset;
+        SetCurrentKey(
+          "Document Type", Type, "No.", "Variant Code", "Drop Shipment", "Location Code", "Expected Receipt Date");
+        SetRange("Document Type", DocumentType);
+        SetRange(Type, Type::Item);
+        SetRange("No.", ReservationEntry."Item No.");
+        IsHandled := false;
+        OnFilterLinesForReservationOnBeforeSetFilterVariantCode(Rec, ReservationEntry, Positive, IsHandled);
+        if not IsHandled then
+            SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Drop Shipment", false);
+        SetRange("Location Code", ReservationEntry."Location Code");
+        SetFilter("Expected Receipt Date", AvailabilityFilter);
+        if Positive and (DocumentType <> "Document Type"::"Return Order") then
+            SetFilter("Quantity (Base)", '>0')
+        else
+            SetFilter("Quantity (Base)", '<0');
+        SetRange("Job No.", ' ');
     end;
 
     procedure GetVPGInvRoundAcc(var PurchHeader: Record "Purchase Header"): Code[20]
@@ -6294,7 +6577,7 @@ table 39 "Purchase Line"
         TaxAreaLine.SetRange("Tax Area", "Tax Area Code");
         if TaxAreaLine.Find('-') then
             repeat
-                TaxDetail.Reset;
+                TaxDetail.Reset();
                 TaxDetail.SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
                 if "Tax Group Code" = '' then
                     TaxDetail.SetFilter("Tax Group Code", '%1', "Tax Group Code")
@@ -6392,15 +6675,14 @@ table 39 "Purchase Line"
         exit(Round(BaseAmount * (1 + "VAT %" / 100), Currency."Amount Rounding Precision"));
     end;
 
-    local procedure ReservEntryExist(): Boolean
+    local procedure CheckReservationForJobNo(): Boolean
     var
-        NewReservEntry: Record "Reservation Entry";
+        ReservEntry: Record "Reservation Entry";
     begin
-        ReservePurchLine.FilterReservFor(NewReservEntry, Rec);
-        NewReservEntry.SetRange("Reservation Status", NewReservEntry."Reservation Status"::Reservation,
-          NewReservEntry."Reservation Status"::Tracking);
-
-        exit(not NewReservEntry.IsEmpty);
+        SetReservationFilters(ReservEntry);
+        ReservEntry.SetRange(
+          "Reservation Status", ReservEntry."Reservation Status"::Reservation, ReservEntry."Reservation Status"::Tracking);
+        exit(not ReservEntry.IsEmpty);
     end;
 
     local procedure ValidateReturnReasonCode(CallingFieldNo: Integer)
@@ -6416,7 +6698,7 @@ table 39 "Purchase Line"
         if CallingFieldNo = 0 then
             exit;
         if "Return Reason Code" = '' then
-            UpdateDirectUnitCost(CallingFieldNo);
+            PlanPriceCalcByField(CallingFieldNo);
 
         if ReturnReason.Get("Return Reason Code") then begin
             if (CallingFieldNo <> FieldNo("Location Code")) and (ReturnReason."Default Location Code" <> '') then
@@ -6424,8 +6706,9 @@ table 39 "Purchase Line"
             if ReturnReason."Inventory Value Zero" then
                 Validate("Direct Unit Cost", 0)
             else
-                UpdateDirectUnitCost(CallingFieldNo);
+                PlanPriceCalcByField(CallingFieldNo);
         end;
+        UpdateDirectUnitCostByField(CallingFieldNo);
     end;
 
     [Scope('OnPrem')]
@@ -6457,7 +6740,7 @@ table 39 "Purchase Line"
         if (FieldNumber = FieldNo("Line Discount Amount")) and ("Line Discount Amount" = 0) then
             exit;
         DiscountNotificationMgt.NotifyAboutMissingSetup(
-          PurchSetup.RecordId, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
+          PurchSetup.RecordId, "Gen. Bus. Posting Group",
           PurchSetup."Discount Posting", PurchSetup."Discount Posting"::"Invoice Discounts");
     end;
 
@@ -6468,7 +6751,7 @@ table 39 "Purchase Line"
         DimValue1: Code[20];
         DimValue2: Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         DimSetArrID[1] := "Dimension Set ID";
         DimSetArrID[2] :=
           DimMgt.CreateDimSetFromJobTaskDim("Job No.",
@@ -6513,12 +6796,12 @@ table 39 "Purchase Line"
             case Type of
                 Type::" ", Type::"Charge (Item)":
                     begin
-                        "IC Partner Ref. Type" := Type;
+                        "IC Partner Ref. Type" := Type.AsInteger();
                         "IC Partner Reference" := "No.";
                     end;
                 Type::"G/L Account":
                     begin
-                        "IC Partner Ref. Type" := Type;
+                        "IC Partner Ref. Type" := Type.AsInteger();
                         "IC Partner Reference" := GLAcc."Default IC Partner G/L Acc. No";
                     end;
                 Type::Item:
@@ -6588,7 +6871,7 @@ table 39 "Purchase Line"
 
         if "Tax Liable" and ("Tax Area Code" <> '') and ("VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax") then begin
             TempPurchaseLine := Rec;
-            TempPurchaseLine.Insert;
+            TempPurchaseLine.Insert();
             CalcSalesTaxLines(PurchHeader, TempPurchaseLine);
             DeferralAmount := TempPurchaseLine.Amount + TempPurchaseLine."Tax To Be Expensed";
             OnAfterGetDeferralAmount(Rec, DeferralAmount);
@@ -6624,7 +6907,6 @@ table 39 "Purchase Line"
           GetDeferralAmount(), DeferralPostDate, Description, PurchHeader."Currency Code", AdjustStartDate);
     end;
 
-    [Scope('OnPrem')]
     procedure ShowDeferrals(PostingDate: Date; CurrencyCode: Code[10]): Boolean
     var
         IsHandled: Boolean;
@@ -6642,40 +6924,39 @@ table 39 "Purchase Line"
                 GetDeferralAmount(), PostingDate, Description, CurrencyCode));
     end;
 
-    local procedure InitDeferralCode()
+    [Scope('OnPrem')]
+    procedure InitDeferralCode()
     var
         Item: Record Item;
+        Resource: Record Resource;
+        GLAccount: Record "G/L Account";
     begin
         if "Document Type" in
            ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Credit Memo", "Document Type"::"Return Order"]
         then
             case Type of
                 Type::"G/L Account":
-                    Validate("Deferral Code", GLAcc."Default Deferral Template Code");
+                    begin
+                        GLAccount.Get("No.");
+                        Validate("Deferral Code", GLAccount."Default Deferral Template Code");
+                    end;
                 Type::Item:
                     begin
                         GetItem(Item);
                         Validate("Deferral Code", Item."Default Deferral Template Code");
                     end;
+                Type::Resource:
+                    begin
+                        GetResource(Resource);
+                        Validate("Deferral Code", Resource."Default Deferral Template Code");
+                    end;
             end;
     end;
 
     procedure DefaultDeferralCode()
-    var
-        Item: Record Item;
     begin
-        case Type of
-            Type::"G/L Account":
-                begin
-                    GLAcc.Get("No.");
-                    InitDeferralCode;
-                end;
-            Type::Item:
-                begin
-                    GetItem(Item);
-                    InitDeferralCode;
-                end;
-        end;
+        if Type in [Type::"G/L Account", Type::Item, Type::Resource] then
+            InitDeferralCode;
     end;
 
     procedure IsCreditDocType(): Boolean
@@ -6729,7 +7010,7 @@ table 39 "Purchase Line"
         PurchaseLine: Record "Purchase Line";
     begin
         GetPurchHeader;
-        PurchLine2.Reset;
+        PurchLine2.Reset();
         CalcSalesTaxLines(PurchHeader, PurchaseLine);
         UpdateAmounts;
         if Find then;
@@ -6867,6 +7148,44 @@ table 39 "Purchase Line"
         IsHandled := false;
         OnBeforeCalcVATAmountLines(PurchHeader, PurchLine, VATAmountLine, IsHandled);
         exit(IsHandled);
+    end;
+
+    local procedure OverReceiptProcessing(): Boolean
+    var
+        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
+    begin
+        if not OverReceiptMgt.IsOverReceiptAllowed() or (CurrFieldNo <> FieldNo("Qty. to Receive")) or (Abs("Qty. to Receive") <= Abs("Outstanding Quantity")) then
+            exit(false);
+
+        Validate("Over-Receipt Quantity", "Qty. to Receive" - xRec."Qty. to Receive");
+        exit(true);
+    end;
+
+    local procedure GetResource(var Resource: Record Resource)
+    begin
+        TestField("No.");
+        Resource.Get("No.")
+    end;
+
+    local procedure CopyFromResource()
+    var
+        Resource: Record Resource;
+    begin
+        GetResource(Resource);
+        Resource.CheckResourcePrivacyBlocked(false);
+        Resource.TestField(Blocked, false);
+        Resource.TestField("Gen. Prod. Posting Group");
+        Description := Resource.Name;
+        "Description 2" := Resource."Name 2";
+        "Unit of Measure Code" := Resource."Base Unit of Measure";
+        "Gen. Prod. Posting Group" := Resource."Gen. Prod. Posting Group";
+        "VAT Prod. Posting Group" := Resource."VAT Prod. Posting Group";
+        "Tax Group Code" := Resource."Tax Group Code";
+        "Allow Item Charge Assignment" := false;
+        "Direct Unit Cost" := Resource."Direct Unit Cost";
+        InitDeferralCode();
+
+        OnAfterAssignResourceValues(Rec, Resource);
     end;
 
     [IntegrationEvent(false, false)]
@@ -7066,6 +7385,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesTaxCalculateReverse(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -7390,6 +7714,11 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFilterLinesForReservationOnBeforeSetFilterVariantCode(var PurchaseLine: Record "Purchase Line"; var ReservationEntry: Record "Reservation Entry"; var Positive: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitQtyToReceive2OnBeforeCalcInvDiscToInvoice(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -7544,6 +7873,11 @@ table 39 "Purchase Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateOverReceiptQuantity(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CalledByFieldNo: Integer; var Handled: Boolean)
+    begin
+    end;
+
     procedure AssignedItemCharge(): Boolean
     begin
         exit((Type = Type::"Charge (Item)") and ("No." <> '') and ("Qty. to Assign" < Quantity));
@@ -7556,6 +7890,16 @@ table 39 "Purchase Line"
     begin
         PurchaseHeader.Get("Document Type", "Document No.");
         ShowDeferrals(PurchaseHeader."Posting Date", PurchaseHeader."Currency Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignResourceValues(var PurchaseLine: Record "Purchase Line"; Resource: Record Resource)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignResourceUOM(var PurchaseLine: Record "Purchase Line"; Resource: Record Resource; CurrentFieldNo: Integer)
+    begin
     end;
 }
 

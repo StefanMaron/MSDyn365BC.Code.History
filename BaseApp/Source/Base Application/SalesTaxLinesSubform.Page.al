@@ -135,7 +135,7 @@ page 10040 "Sales Tax Lines Subform"
 
     procedure SetTempTaxAmountLine(var NewSalesTaxLine: Record "Sales Tax Amount Line" temporary)
     begin
-        DeleteAll;
+        DeleteAll();
         if NewSalesTaxLine.FindFirst then
             repeat
                 Copy(NewSalesTaxLine);
@@ -146,11 +146,11 @@ page 10040 "Sales Tax Lines Subform"
 
     procedure GetTempTaxAmountLine(var NewSalesTaxLine: Record "Sales Tax Amount Line" temporary)
     begin
-        NewSalesTaxLine.DeleteAll;
+        NewSalesTaxLine.DeleteAll();
         if FindFirst then
             repeat
                 NewSalesTaxLine.Copy(Rec);
-                NewSalesTaxLine.Insert;
+                NewSalesTaxLine.Insert();
             until Next = 0;
     end;
 

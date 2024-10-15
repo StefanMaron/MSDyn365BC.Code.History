@@ -34,7 +34,7 @@ codeunit 134980 "ERM Insurance Reports"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Insurance Reports");
     end;
 
@@ -68,7 +68,7 @@ codeunit 134980 "ERM Insurance Reports"
         FixedAsset.SetFilter("No.", '%1|%2', FixedAsset."No.", FixedAsset2."No.");
         Clear(InsuranceUninsuredFAs);
         InsuranceUninsuredFAs.SetTableView(FixedAsset);
-        Commit;
+        Commit();
         InsuranceUninsuredFAs.Run;
 
         // 3.Verify: Verify values on Report.
@@ -114,7 +114,7 @@ codeunit 134980 "ERM Insurance Reports"
         Clear(InsuranceAnalysis);
         InsuranceAnalysis.InitializeRequest(true);
         InsuranceAnalysis.SetTableView(Insurance);
-        Commit;
+        Commit();
         InsuranceAnalysis.Run;
 
         // 3.Verify: Verify values on Report.
@@ -159,7 +159,7 @@ codeunit 134980 "ERM Insurance Reports"
         Clear(InsuranceAnalysis);
         InsuranceAnalysis.InitializeRequest(false);
         InsuranceAnalysis.SetTableView(Insurance);
-        Commit;
+        Commit();
         InsuranceAnalysis.Run;
 
         // 3.Verify: Verify values on Report.
@@ -188,7 +188,7 @@ codeunit 134980 "ERM Insurance Reports"
         Insurance.SetRange("No.", Insurance."No.");
         Clear(InsuranceList);
         InsuranceList.SetTableView(Insurance);
-        Commit;
+        Commit();
         InsuranceList.Run;
 
         // 3.Verify: Verify values on Report.
@@ -229,7 +229,7 @@ codeunit 134980 "ERM Insurance Reports"
         InsuranceRegister2.SetRange("Journal Batch Name", GenJournalBatch.Name);
         Clear(InsuranceRegister);
         InsuranceRegister.SetTableView(InsuranceRegister2);
-        Commit;
+        Commit();
         InsuranceRegister.Run;
 
         // 3.Verify: Verify values on Report.
@@ -269,7 +269,7 @@ codeunit 134980 "ERM Insurance Reports"
         Insurance.SetRange("No.", Insurance."No.");
         Clear(InsuranceCoverageDetails);
         InsuranceCoverageDetails.SetTableView(Insurance);
-        Commit;
+        Commit();
         InsuranceCoverageDetails.Run;
 
         // 3.Verify: Verify values on Report.
@@ -307,7 +307,7 @@ codeunit 134980 "ERM Insurance Reports"
         FixedAsset.SetRange("No.", FixedAsset."No.");
         Clear(InsuranceTotValueInsured);
         InsuranceTotValueInsured.SetTableView(FixedAsset);
-        Commit;
+        Commit();
         InsuranceTotValueInsured.Run;
 
         // 3.Verify: Verify values on Report.

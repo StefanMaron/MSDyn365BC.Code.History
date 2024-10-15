@@ -132,7 +132,7 @@ report 5604 "Fixed Asset - Details"
             trigger OnAfterGetRecord()
             begin
                 if Inactive then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }
@@ -178,7 +178,7 @@ report 5604 "Fixed Asset - Details"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
         end;

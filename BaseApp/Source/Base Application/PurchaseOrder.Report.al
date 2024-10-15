@@ -371,7 +371,7 @@ report 10122 "Purchase Order"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             PurchasePrinted.Run("Purchase Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original

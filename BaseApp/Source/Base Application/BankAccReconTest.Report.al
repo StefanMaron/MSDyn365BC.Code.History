@@ -465,8 +465,8 @@ report 1408 "Bank Acc. Recon. - Test"
             begin
                 SetupRecord;
                 ErrorLabel := 1;
-                OutstandingBankTransaction.DeleteAll;
-                OutstandingPayment.DeleteAll;
+                OutstandingBankTransaction.DeleteAll();
+                OutstandingPayment.DeleteAll();
                 CreateOutstandingBankTransactions("Bank Account No.");
                 case "Statement Type" of
                     "Statement Type"::"Bank Reconciliation":
@@ -741,7 +741,7 @@ report 1408 "Bank Acc. Recon. - Test"
 
     local procedure VerifyCheckLedgerEntry(BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
-        CheckLedgEntry.Reset;
+        CheckLedgEntry.Reset();
         CheckLedgEntry.SetCurrentKey("Bank Account Ledger Entry No.");
         CheckLedgEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
         CheckLedgEntry.SetRange(Open, true);

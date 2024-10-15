@@ -22,7 +22,7 @@ codeunit 10121 "Bank Rec.-Post (Yes/No)"
              BankRecHeader."Bank Account No.")
         then begin
             BankRecPost.Run(BankRecHeader);
-            Commit;
+            Commit();
             Message(PostedSuccessfullyMsg);
         end;
     end;

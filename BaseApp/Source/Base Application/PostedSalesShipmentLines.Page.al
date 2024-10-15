@@ -1,4 +1,4 @@
-﻿page 525 "Posted Sales Shipment Lines"
+page 525 "Posted Sales Shipment Lines"
 {
     Caption = 'Posted Sales Shipment Lines';
     Editable = false;

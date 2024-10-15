@@ -49,7 +49,7 @@ page 10351 "BC O365 Tax Settings List"
                 var
                     TempTaxArea: Record "Tax Area" temporary;
                 begin
-                    TempTaxArea.Insert;
+                    TempTaxArea.Insert();
                     PAGE.RunModal(PAGE::"BC O365 Tax Settings Card", TempTaxArea);
                     CurrPage.Update;
                 end;
@@ -70,7 +70,7 @@ page 10351 "BC O365 Tax Settings List"
                     TempTaxArea: Record "Tax Area" temporary;
                 begin
                     TempTaxArea := Rec;
-                    TempTaxArea.Insert;
+                    TempTaxArea.Insert();
                     PAGE.RunModal(PAGE::"BC O365 Tax Settings Card", TempTaxArea);
                 end;
             }

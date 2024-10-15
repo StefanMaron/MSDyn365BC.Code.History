@@ -1,4 +1,4 @@
-﻿page 7349 "Registered Movement"
+page 7349 "Registered Movement"
 {
     Caption = 'Registered Movement';
     InsertAllowed = false;
@@ -60,7 +60,6 @@
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
-                    OptionCaption = ' ,Item,,Bin Code,Due Date,,Bin Ranking,Action Type';
                     ToolTip = 'Specifies the method by which the lines were sorted on the warehouse header, such as by item, or bin code.';
                 }
                 field("No. Printed"; "No. Printed")

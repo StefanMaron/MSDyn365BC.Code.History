@@ -172,7 +172,7 @@ report 10102 "Top __ Vendor List"
                             "Top%" := Round(TopTotal / GrandTotal * 100, 0.1)
                         else
                             "Top%" := 0;
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     TopTotal := TopTotal + TopAmount[i];
                     TopTotalBalance := TopTotalBalance + TopBalance[i];
@@ -283,7 +283,7 @@ report 10102 "Top __ Vendor List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         if VendorsToRank = 0 then // default
             VendorsToRank := 20;

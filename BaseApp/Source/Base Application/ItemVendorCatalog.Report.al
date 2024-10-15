@@ -152,28 +152,28 @@ report 10164 "Item/Vendor Catalog"
 
             trigger OnAfterGetRecord()
             begin
-                PurchPrice.Init;
+                PurchPrice.Init();
                 case SortOrder of
                     SortOrder::"By Vendor":
                         if not Item.Get("Item No.") then begin
-                            Item.Init;
+                            Item.Init();
                             Item.Description := Text003;
                         end;
                     SortOrder::"By Item":
                         if not Vendor.Get("Vendor No.") then begin
-                            Vendor.Init;
+                            Vendor.Init();
                             Vendor.Name := Text004;
                         end;
                 end;
 
                 if Vendor."No." <> "Vendor No." then
                     if not Vendor.Get("Vendor No.") then begin
-                        Vendor.Init;
+                        Vendor.Init();
                         Vendor.Name := Text004;
                     end;
                 if Item."No." <> "Item No." then
                     if not Item.Get("Item No.") then begin
-                        Item.Init;
+                        Item.Init();
                         Item.Description := Text003;
                     end;
 
@@ -221,7 +221,7 @@ report 10164 "Item/Vendor Catalog"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         SortOrder := WhichOrder;
         case SortOrder of
             SortOrder::"By Vendor":

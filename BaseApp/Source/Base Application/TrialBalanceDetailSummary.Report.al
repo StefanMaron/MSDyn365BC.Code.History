@@ -354,12 +354,12 @@ report 10021 "Trial Balance Detail/Summary"
 
                 // Is there any reason to skip this account?
                 if (PrintType = PrintType::"Accounts with Activities") and not AnyEntries then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if (PrintType = PrintType::"Accounts with Balances") and
                    not AnyEntries and
                    (BeginningBalance = 0)
                 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 // Having determined that we are really going to print this account,
                 // we must not track beginning or ending balances if the user has
@@ -469,7 +469,7 @@ report 10021 "Trial Balance Detail/Summary"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FromDate := "G/L Account".GetRangeMin("Date Filter");
         ToDate := "G/L Account".GetRangeMax("Date Filter");
         PeriodText := StrSubstNo(Text000, Format(FromDate, 0, 4), Format(ToDate, 0, 4));
@@ -490,7 +490,7 @@ report 10021 "Trial Balance Detail/Summary"
         else
             MainTitle := Text004;
         if UseAddRptCurr then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Currency.Get(GLSetup."Additional Reporting Currency");
             SubTitle := StrSubstNo(Text001, Currency.Description);
         end;

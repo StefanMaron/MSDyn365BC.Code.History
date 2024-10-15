@@ -39,7 +39,7 @@ codeunit 10012 "Ship-Post + Print"
 
     local procedure PrintReport(ReportUsage: Integer)
     begin
-        ReportSelection.Reset;
+        ReportSelection.Reset();
         ReportSelection.SetRange(Usage, ReportUsage);
         ReportSelection.Find('-');
         repeat

@@ -29,7 +29,8 @@ codeunit 132220 "Library - Invoicing App"
         BCO365SalesInvoice."Sell-to Customer Name".Value(CreateCustomerWithEmail);
 
         BCO365SalesInvoice.Lines.Description.Value(CreateItem);
-        BCO365SalesInvoice.Lines."Unit Price".SetValue(ItemPrice);
+        BCO365SalesInvoice.Lines."Unit Price".SetValue(
+          ItemPrice + ItemPrice * FindVATPercentage(BCO365SalesInvoice.Lines.VATProductPostingGroupDescription.Value));
 
         SalesHeader.SetRange("Sell-to Customer Name", BCO365SalesInvoice."Sell-to Customer Name".Value);
         SalesHeader.FindFirst;
@@ -236,10 +237,10 @@ codeunit 132220 "Library - Invoicing App"
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.Init;
+        CountryRegion.Init();
         CountryRegion.Validate(Code, CountryRegionCode);
         CountryRegion.Validate(Name, CopyStr(LibraryUtility.GenerateRandomText(50), 1, MaxStrLen(CountryRegion.Name)));
-        CountryRegion.Insert;
+        CountryRegion.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -304,7 +305,7 @@ codeunit 132220 "Library - Invoicing App"
 
         // Manually upload the file
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", SalesHeader."Incoming Document Entry No.");
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment."Incoming Document Entry No." := SalesHeader."Incoming Document Entry No.";
         ImportAttachmentIncDoc.ImportAttachment(IncomingDocumentAttachment, FileName);
         IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID;
@@ -334,7 +335,7 @@ codeunit 132220 "Library - Invoicing App"
         // Manually upload the file
         IncomingDocumentAttachment.SetRange("Document No.", SalesInvoiceHeader."No.");
         IncomingDocumentAttachment.SetRange("Posting Date", SalesInvoiceHeader."Posting Date");
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment."Document No." := SalesInvoiceHeader."No.";
         IncomingDocumentAttachment."Posting Date" := SalesInvoiceHeader."Posting Date";
         ImportAttachmentIncDoc.ImportAttachment(IncomingDocumentAttachment, FileName);
@@ -421,7 +422,7 @@ codeunit 132220 "Library - Invoicing App"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -430,14 +431,14 @@ codeunit 132220 "Library - Invoicing App"
         SMTPMailSetup: Record "SMTP Mail Setup";
     begin
         if SMTPMailSetup.Get then
-            SMTPMailSetup.Delete;
+            SMTPMailSetup.Delete();
 
-        SMTPMailSetup.Init;
+        SMTPMailSetup.Init();
         SMTPMailSetup."SMTP Server" := 'smtp.office365.com';
         SMTPMailSetup."User ID" := 'testuser@domain.com';
         SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
         SMTPMailSetup.SetPassword('TestPasssword');
-        SMTPMailSetup.Insert;
+        SMTPMailSetup.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -527,6 +528,19 @@ codeunit 132220 "Library - Invoicing App"
         O365SalesQuote.Post.Invoke;
         if SalesInvoiceHeader.FindLast then
             exit(SalesInvoiceHeader."No.");
+    end;
+
+    [Scope('OnPrem')]
+    procedure FindVATPercentage(VATProductPostingGroupDescription: Text[50]): Decimal
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        VATProductPostingGroup.SetRange(Description, VATProductPostingGroupDescription);
+        VATProductPostingGroup.FindFirst;
+        VATPostingSetup.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        VATPostingSetup.FindFirst;
+        exit(VATPostingSetup."VAT %" / 100);
     end;
 }
 

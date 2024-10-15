@@ -145,11 +145,11 @@ page 36740 "Sales Tax Lines Subform Dyn"
 
     procedure GetTempTaxAmountLine(var NewSalesTaxLine: Record "Sales Tax Amount Line" temporary)
     begin
-        NewSalesTaxLine.DeleteAll;
+        NewSalesTaxLine.DeleteAll();
         if FindFirst then
             repeat
                 NewSalesTaxLine.Copy(Rec);
-                NewSalesTaxLine.Insert;
+                NewSalesTaxLine.Insert();
             until Next = 0;
     end;
 

@@ -14,16 +14,16 @@ report 10153 "Picking List by Order"
             trigger OnAfterGetRecord()
             begin
                 TempLocation := Location;
-                TempLocation.Insert;
+                TempLocation.Insert();
             end;
 
             trigger OnPreDataItem()
             begin
                 TempLocation.Code := '';
                 TempLocation.Name := Text000;
-                TempLocation.Insert;
+                TempLocation.Insert();
                 if not ReadPermission then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Sales Header"; "Sales Header")
@@ -336,7 +336,7 @@ report 10153 "Picking List by Order"
                         TempLocation.Next;
 
                     if not AnySalesLinesThisLocation(TempLocation.Code) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
@@ -401,24 +401,24 @@ report 10153 "Picking List by Order"
 
     trigger OnPreReport()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
 
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
                 ;
             SalesSetup."Logo Position on Documents"::Left:
                 begin
-                    CompanyInfo.Get;
+                    CompanyInfo.Get();
                     CompanyInfo.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;

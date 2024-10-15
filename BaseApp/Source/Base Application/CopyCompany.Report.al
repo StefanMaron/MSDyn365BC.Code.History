@@ -20,7 +20,7 @@ report 357 "Copy Company"
                 begin
                     ExperienceTierSetup := "Experience Tier Setup";
                     ExperienceTierSetup."Company Name" := NewCompanyName;
-                    if ExperienceTierSetup.Insert then;
+                    if ExperienceTierSetup.Insert() then;
                     ApplicationAreaMgmt.SetExperienceTierOtherCompany(ExperienceTierSetup, NewCompanyName);
                 end;
             }
@@ -36,7 +36,7 @@ report 357 "Copy Company"
                     ReportLayoutSelection := "Report Layout Selection";
                     ReportLayoutSelection."Report ID" := "Report ID";
                     ReportLayoutSelection."Company Name" := NewCompanyName;
-                    if ReportLayoutSelection.Insert then;
+                    if ReportLayoutSelection.Insert() then;
                 end;
             }
             dataitem("Custom Report Layout"; "Custom Report Layout")
@@ -60,7 +60,7 @@ report 357 "Copy Company"
                 ProgressWindow.Open(StrSubstNo(ProgressMsg, NewCompanyName));
 
                 if BreakReport then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 CopyCompany(Name, NewCompanyName);
                 BreakReport := true;
             end;
@@ -70,6 +70,7 @@ report 357 "Copy Company"
                 ProgressWindow.Close;
                 SetNewNameToNewCompanyInfo;
                 SetRecurringJobsOnHold;
+                OnAfterCreatedNewCompanyByCopyCompany(NewCompanyName);
                 RegisterUpgradeTags(NewCompanyName);
                 Message(CopySuccessMsg, Name);
             end;
@@ -99,13 +100,57 @@ report 357 "Copy Company"
                             NewCompanyName := DelChr(NewCompanyName, '<>');
                         end;
                     }
+
+                    label(CopyInformation)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'The new company will include all data, including transactions, from the selected company.';
+                    }
+
+                    label(BackupTip)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Visible = IsSaaS;
+                        Caption = 'Tip: If you just want to work with the data, there are other ways to do that. For example, you can create a sandbox environment based on production data, or do a data backup.';
+                    }
+
+                    field(ReadMoreSandboxLbl; ReadMoreSandboxLbl)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ShowCaption = false;
+                        Editable = false;
+                        Visible = IsSaaS;
+                        Style = StandardAccent;
+
+                        trigger OnDrillDown()
+                        begin
+                            Hyperlink('https://go.microsoft.com/fwlink/?linkid=2111002');
+                        end;
+                    }
+
+                    field(ReadMoreDataBackupLbl; ReadMoreDataBackupLbl)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ShowCaption = false;
+                        Editable = false;
+                        Visible = IsSaaS;
+                        Style = StandardAccent;
+
+                        trigger OnDrillDown()
+                        begin
+                            Hyperlink('https://go.microsoft.com/fwlink/?linkid=2111001');
+                        end;
+                    }
                 }
             }
         }
 
-        actions
-        {
-        }
+        trigger OnInit()
+        var
+            EnvironmentInformation: Codeunit "Environment Information";
+        begin
+            IsSaaS := EnvironmentInformation.IsSaaS();
+        end;
     }
 
     labels
@@ -115,9 +160,12 @@ report 357 "Copy Company"
     var
         ProgressWindow: Dialog;
         BreakReport: Boolean;
+        IsSaaS: Boolean;
         NewCompanyName: Text[30];
         ProgressMsg: Label 'Creating new company %1.', Comment = 'Creating new company Contoso Corporation.';
         CopySuccessMsg: Label 'Company %1 has been copied successfully.', Comment = 'Company CRONUS International Ltd. has been copied successfully.';
+        ReadMoreSandboxLbl: Label 'Read more about sandboxes';
+        ReadMoreDataBackupLbl: Label 'Read more about data backup';
 
     procedure GetCompanyName(): Text[30]
     begin
@@ -138,7 +186,7 @@ report 357 "Copy Company"
     begin
         if Company.Get(NewCompanyName) then;
         Company."Display Name" := NewCompanyName;
-        Company.Modify;
+        Company.Modify();
 
         if CompanyInformation.ChangeCompany(NewCompanyName) then
             if CompanyInformation.Get then begin
@@ -154,6 +202,11 @@ report 357 "Copy Company"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreatedNewCompanyByCopyCompany(NewCompanyName: Text[30])
+    begin
+    end;
+
     local procedure SetRecurringJobsOnHold()
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -165,8 +218,7 @@ report 357 "Copy Company"
         if JobQueueEntry.FindSet(true) then
             repeat
                 JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
-                JobQueueEntry.Modify;
+                JobQueueEntry.Modify();
             until JobQueueEntry.Next = 0;
     end;
 }
-

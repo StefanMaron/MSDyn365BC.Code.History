@@ -59,73 +59,73 @@ codeunit 1643 "Hyperlink Manifest"
 
     procedure GetNoSeriesForPurchaseCrMemo(): Code[20]
     begin
-        PurchasePayablesSetup.Get;
+        PurchasePayablesSetup.Get();
         exit(PurchasePayablesSetup."Credit Memo Nos.");
     end;
 
     procedure GetNoSeriesForPurchaseQuote(): Code[20]
     begin
-        PurchasePayablesSetup.Get;
+        PurchasePayablesSetup.Get();
         exit(PurchasePayablesSetup."Quote Nos.");
     end;
 
     procedure GetNoSeriesForPurchaseInvoice(): Code[20]
     begin
-        PurchasePayablesSetup.Get;
+        PurchasePayablesSetup.Get();
         exit(PurchasePayablesSetup."Invoice Nos.");
     end;
 
     procedure GetNoSeriesForPurchaseOrder(): Code[20]
     begin
-        PurchasePayablesSetup.Get;
+        PurchasePayablesSetup.Get();
         exit(PurchasePayablesSetup."Order Nos.");
     end;
 
     procedure GetNoSeriesForSalesCrMemo(): Code[20]
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         exit(SalesReceivablesSetup."Credit Memo Nos.");
     end;
 
     procedure GetNoSeriesForSalesInvoice(): Code[20]
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         exit(SalesReceivablesSetup."Invoice Nos.");
     end;
 
     procedure GetNoSeriesForSalesOrder(): Code[20]
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         exit(SalesReceivablesSetup."Order Nos.");
     end;
 
     procedure GetNoSeriesForSalesQuote(): Code[20]
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         exit(SalesReceivablesSetup."Quote Nos.");
     end;
 
     procedure GetNoSeriesForPostedSalesInvoice(): Code[20]
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         exit(SalesReceivablesSetup."Posted Invoice Nos.");
     end;
 
     procedure GetNoSeriesForPostedSalesCrMemo(): Code[20]
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         exit(SalesReceivablesSetup."Posted Credit Memo Nos.");
     end;
 
     procedure GetNoSeriesForPostedPurchInvoice(): Code[20]
     begin
-        PurchasePayablesSetup.Get;
+        PurchasePayablesSetup.Get();
         exit(PurchasePayablesSetup."Posted Invoice Nos.");
     end;
 
     procedure GetNoSeriesForPostedPurchCrMemo(): Code[20]
     begin
-        PurchasePayablesSetup.Get;
+        PurchasePayablesSetup.Get();
         exit(PurchasePayablesSetup."Posted Credit Memo Nos.");
     end;
 
@@ -303,7 +303,7 @@ codeunit 1643 "Hyperlink Manifest"
     local procedure OnCreateAddin(var OfficeAddin: Record "Office Add-in")
     begin
         if OfficeAddin.Get(AppIdTxt) then
-            OfficeAddin.Delete;
+            OfficeAddin.Delete();
 
         with AddInManifestManagement do
             CreateAddin(OfficeAddin, DefaultManifestText, AddinNameTxt, StrSubstNo(AddinDescriptionTxt, PRODUCTNAME.Full),

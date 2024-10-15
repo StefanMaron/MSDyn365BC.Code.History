@@ -287,16 +287,16 @@ report 10145 "Item Sales by Customer"
                 CalcFields("Sales (Qty.)", "Sales (LCY)");
                 if MinSales <> 0 then
                     if "Sales (LCY)" <= MinSales then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if MaxSales <> 0 then
                     if "Sales (LCY)" >= MaxSales then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if MinQty <> 0 then
                     if "Sales (Qty.)" <= MinQty then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if MaxQty <> 0 then
                     if "Sales (Qty.)" >= MaxQty then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
@@ -380,7 +380,7 @@ report 10145 "Item Sales by Customer"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         PeriodText := Item.GetFilter("Date Filter");
         Item.SetRange("Date Filter");
         ItemFilter := Item.GetFilters;

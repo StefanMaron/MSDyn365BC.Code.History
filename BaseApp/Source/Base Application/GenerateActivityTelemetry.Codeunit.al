@@ -99,8 +99,8 @@ codeunit 1354 "Generate Activity Telemetry"
         EmitTelemetryOnRecordCount(UserGroup.TableName(), '0000870');
         EmitTelemetryOnRecordCount(PermissionSetBuffer.TableName(), '0000871');
         EmitTelemetryOnRecordCount(BOMComponent.TableName(), '0000872');
-        EmitTelemetryOnRecordCount(VATEntry.TableName(), '0000BGB');		
-
+        EmitTelemetryOnRecordCount(VATEntry.TableName(), '0000BGB');
+			
         EmitTelemetryOnRecordCount(CheckLedgerEntry.TableName(), '0000AHO');
         EmitTelemetryOnRecordCount(PostedDepositHeader.TableName(), '0000AHP');
     end;

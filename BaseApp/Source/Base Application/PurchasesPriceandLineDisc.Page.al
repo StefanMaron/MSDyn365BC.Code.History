@@ -5,6 +5,9 @@ page 1346 "Purchases Price and Line Disc."
     PageType = ListPart;
     SourceTable = "Purch. Price Line Disc. Buff.";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {

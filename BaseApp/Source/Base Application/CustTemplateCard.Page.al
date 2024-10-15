@@ -1,4 +1,4 @@
-﻿page 1341 "Cust. Template Card"
+page 1341 "Cust. Template Card"
 {
     Caption = 'Customer Template';
     CardPageID = "Cust. Template Card";
@@ -8,6 +8,9 @@
     RefreshOnActivate = true;
     SourceTable = "Mini Customer Template";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be replaced by other templates.';
+    ObsoleteTag = '16.0';
 
     layout
     {

@@ -258,7 +258,7 @@ codeunit 27000 "Export Accounts"
         CompanyInformation: Record "Company Information";
         FullNameSpace: Text;
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         TempErrorMessage.LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("RFC No."), TempErrorMessage."Message Type"::Error);
         if (Month < 1) or (Month > 13) then
@@ -294,7 +294,7 @@ codeunit 27000 "Export Accounts"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLAccount.Get(GLEntry."G/L Account No.");
 
         TempErrorMessage.LogIfEmpty(GLAccount, GLAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
@@ -385,7 +385,7 @@ codeunit 27000 "Export Accounts"
                     if DetailedVendorLedgEntry1."Vendor Ledger Entry No." =
                        DetailedVendorLedgEntry1."Applied Vend. Ledger Entry No."
                     then begin
-                        DetailedVendorLedgEntry2.Init;
+                        DetailedVendorLedgEntry2.Init();
                         DetailedVendorLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
                         DetailedVendorLedgEntry2.SetRange(
                           "Applied Vend. Ledger Entry No.", DetailedVendorLedgEntry1."Applied Vend. Ledger Entry No.");
@@ -447,7 +447,7 @@ codeunit 27000 "Export Accounts"
             if DetailedCustLedgEntry1.Find('-') then
                 repeat
                     if DetailedCustLedgEntry1."Cust. Ledger Entry No." = DetailedCustLedgEntry1."Applied Cust. Ledger Entry No." then begin
-                        DetailedCustLedgEntry2.Init;
+                        DetailedCustLedgEntry2.Init();
                         DetailedCustLedgEntry2.SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
                         DetailedCustLedgEntry2.SetRange(
                           "Applied Cust. Ledger Entry No.", DetailedCustLedgEntry1."Applied Cust. Ledger Entry No.");
@@ -510,8 +510,8 @@ codeunit 27000 "Export Accounts"
         Amount: Decimal;
         AdjustedCurrencyFactor: Decimal;
     begin
-        SourceCodeSetup.Get;
-        CompanyInformation.Get;
+        SourceCodeSetup.Get();
+        CompanyInformation.Get();
 
         LedgerEntryRecordRef.GetTable(LedgerEntry);
         FindCustVendDetails(LedgerEntryRecordRef, CountryRegion, RFCNo, VATRegistrationNo, CustVendName);
@@ -644,7 +644,7 @@ codeunit 27000 "Export Accounts"
                 end;
             CheckLedgerEntry."Bal. Account Type"::"Bank Account":
                 begin
-                    CompanyInformation.Get;
+                    CompanyInformation.Get();
                     RecipientBankAccount.Get(CheckLedgerEntry."Bal. Account No.");
                     TempErrorMessage.LogIfEmpty(
                       RecipientBankAccount, RecipientBankAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
@@ -746,7 +746,7 @@ codeunit 27000 "Export Accounts"
                 begin
                     if not RecipientBankAccount.Get(BankAccountLedgerEntry."Bal. Account No.") then
                         exit(false);
-                    CompanyInformation.Get;
+                    CompanyInformation.Get();
 
                     TempErrorMessage.LogIfEmpty(
                       RecipientBankAccount, RecipientBankAccount.FieldNo("Bank Account No."), TempErrorMessage."Message Type"::Error);
@@ -862,7 +862,7 @@ codeunit 27000 "Export Accounts"
         DocumentNo: Code[20];
         SourceCode: Code[10];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         RecordRef.GetTable(CustVendLedgerEntry);
         DocumentType := RecordRef.Field(5).Value;
         DocumentNo := RecordRef.Field(6).Value;
@@ -946,7 +946,7 @@ codeunit 27000 "Export Accounts"
         if TestFileName <> '' then
             TempXMLBuffer.Save(TestFileName)
         else begin
-            CompanyInformation.Get;
+            CompanyInformation.Get();
             ClientFileName := CompanyInformation."RFC No." + Format(Year) +
               Format(Month, 2, '<Integer,2><Filler Character,0>') + Type;
             XMLBufferReader.SaveToTempBlob(XMLTempBlob, TempXMLBuffer);

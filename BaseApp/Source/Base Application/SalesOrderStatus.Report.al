@@ -241,7 +241,7 @@ report 10158 "Sales Order Status"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
         SalesLineFilter := "Sales Line".GetFilters;
     end;

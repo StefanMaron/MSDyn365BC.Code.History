@@ -232,7 +232,7 @@ report 10113 "Vendor/Item Statistics"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := Vendor.GetFilters;
         FilterString2 := "Value Entry".GetFilters;
     end;

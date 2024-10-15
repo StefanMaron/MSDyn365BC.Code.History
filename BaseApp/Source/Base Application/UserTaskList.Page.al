@@ -121,7 +121,7 @@ page 1170 "User Task List"
                     if UserTask.FindSet(true) then
                         repeat
                             UserTask.SetCompleted;
-                            UserTask.Modify;
+                            UserTask.Modify();
                         until UserTask.Next = 0;
                 end;
             }

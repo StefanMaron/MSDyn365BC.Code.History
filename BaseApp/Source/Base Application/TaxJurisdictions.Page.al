@@ -190,7 +190,7 @@ page 466 "Tax Jurisdictions"
     var
         TaxSetup: Record "Tax Setup";
     begin
-        TaxSetup.Get;
+        TaxSetup.Get();
         DefaultTax := 0;
         DefaultTaxIsEnabled := TaxSetup."Auto. Create Tax Details";
     end;
@@ -213,7 +213,7 @@ page 466 "Tax Jurisdictions"
     begin
         GetDefaultTaxDetail(TaxDetail);
         TaxDetail."Tax Below Maximum" := NewTaxBelowMaximum;
-        TaxDetail.Modify;
+        TaxDetail.Modify();
     end;
 
     local procedure GetDefaultTaxDetail(var TaxDetail: Record "Tax Detail")

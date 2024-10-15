@@ -180,7 +180,7 @@ report 10054 "Open Sales Invoices by Job"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := Job.GetFilters;
     end;
 

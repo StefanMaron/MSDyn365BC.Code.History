@@ -301,7 +301,7 @@ page 10026 "Sales Order Shipment"
 
                     trigger OnAction()
                     begin
-                        SalesSetup.Get;
+                        SalesSetup.Get();
                         if SalesSetup."Calc. Inv. Discount" then begin
                             CurrPage.SalesLines.PAGE.CalcInvDisc;
                             Commit

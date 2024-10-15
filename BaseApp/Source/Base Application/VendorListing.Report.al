@@ -170,7 +170,7 @@ report 10106 "Vendor - Listing"
                 else
                     VendBalance := "Balance (LCY)";
                 if (VendBalance = 0) and AllHavingBalance then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if Vendor."Payment Terms Code" <> '' then
                     PaymentTerms.Get("Payment Terms Code")
                 else
@@ -218,7 +218,7 @@ report 10106 "Vendor - Listing"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         VendFilter := Vendor.GetFilters;
     end;
 

@@ -119,7 +119,7 @@ report 505 "XBRL Export Instance - Spec. 2"
                 trigger OnPreDataItem()
                 begin
                     if not TempAmountBuf.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Number, 1, TempAmountBuf.Count);
                 end;
             }
@@ -159,12 +159,12 @@ report 505 "XBRL Export Instance - Spec. 2"
                 end;
 
                 if (NotApplLevel >= 0) and (Level > NotApplLevel) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 NotApplLevel := -1;
 
                 if "Source Type" = "Source Type"::"Not Applicable" then begin
                     NotApplLevel := Level;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 if XBRLSchema."Line No." <> "XBRL Schema Line No." then
@@ -178,7 +178,7 @@ report 505 "XBRL Export Instance - Spec. 2"
                 if Label = '' then
                     Label := Name;
                 LineDescription := XBRLManagement.ExpandString(Description);
-                TempAmountBuf.DeleteAll;
+                TempAmountBuf.DeleteAll();
                 NoOfLineNodes := 0;
 
                 case "Source Type" of
@@ -236,10 +236,10 @@ report 505 "XBRL Export Instance - Spec. 2"
                                     XBRLManagement.AddAttribute(LineNode[i], 'unitRef', 'currency');
                                 end;
                                 LineNode[i].InnerText := XBRLManagement.FormatAmount(LineAmount);
-                                TempAmountBuf.Init;
+                                TempAmountBuf.Init();
                                 TempAmountBuf."Entry No." := i;
                                 TempAmountBuf.Amount := LineAmount;
-                                TempAmountBuf.Insert;
+                                TempAmountBuf.Insert();
                             end;
                         end;
                 end;
@@ -655,8 +655,8 @@ report 505 "XBRL Export Instance - Spec. 2"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
 
         if CurrencyCode = '' then
             CurrencyCode := GLSetup."LCY Code";

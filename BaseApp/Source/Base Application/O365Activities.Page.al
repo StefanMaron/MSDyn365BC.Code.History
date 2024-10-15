@@ -238,18 +238,23 @@ page 1310 "O365 Activities"
                         ApplicationArea = Suite;
                         Caption = 'Create Incoming Doc. from Camera';
                         Image = TileCamera;
-                        ToolTip = 'Create an incoming document by taking a photo of the document with your mobile device camera. The photo will be attached to the new document.';
+                        ToolTip = 'Create an incoming document by taking a photo of the document with your device camera. The photo will be attached to the new document.';
 
                         trigger OnAction()
                         var
                             IncomingDocument: Record "Incoming Document";
                             InStr: InStream;
-                            PictureName: Text;
                         begin
-                            if not Camera.GetPicture(InStr, PictureName) then
+                            if not HasCamera then
                                 exit;
 
-                            IncomingDocument.CreateIncomingDocument(InStr, PictureName);
+                            Camera.SetQuality(100); // 100%
+                            Camera.RunModal();
+                            if Camera.HasPicture() then begin
+                                Camera.GetPicture(InStr);
+                                IncomingDocument.CreateIncomingDocument(InStr, 'Incoming Document');
+                            end;
+                            Clear(Camera);
                             CurrPage.Update;
                         end;
                     }
@@ -369,11 +374,11 @@ page 1310 "O365 Activities"
                         var
                             O365GettingStarted: Record "O365 Getting Started";
                         begin
-                            if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType) then begin
+                            if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType()) then begin
                                 O365GettingStarted."Tour in Progress" := false;
                                 O365GettingStarted."Current Page" := 1;
-                                O365GettingStarted.Modify;
-                                Commit;
+                                O365GettingStarted.Modify();
+                                Commit();
                             end;
 
                             O365GettingStartedMgt.LaunchWizard(true, false);
@@ -465,13 +470,14 @@ page 1310 "O365 Activities"
         OCRServiceMgt: Codeunit "OCR Service Mgt.";
         RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         NewRecord: Boolean;
     begin
         Reset;
         if not Get then begin
             Init;
             Insert;
-            Commit;
+            Commit();
             NewRecord := true;
         end;
 
@@ -484,10 +490,10 @@ page 1310 "O365 Activities"
         ShowAwaitingIncomingDoc := OCRServiceMgt.OcrServiceIsEnable;
         ShowIntercompanyActivities := false;
         ShowDocumentsPendingDocExchService := false;
-        ShowProductVideosActivities := ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Phone;
-        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
+        ShowProductVideosActivities := ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Phone;
+        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
-        ShowD365SIntegrationCues := CRMConnectionSetup.IsEnabled;
+        ShowD365SIntegrationCues := CRMConnectionSetup.IsEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
         ShowIntegrationErrorsCue := ShowDataIntegrationCues and (not ShowD365SIntegrationCues);
         RoleCenterNotificationMgt.ShowNotifications;
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent;
@@ -502,7 +508,7 @@ page 1310 "O365 Activities"
         ClientTypeManagement: Codeunit "Client Type Management";
         EnvironmentInfo: Codeunit "Environment Information";
         UserTaskManagement: Codeunit "User Task Management";
-        Camera: Codeunit Camera;
+        Camera: Page Camera;
         [RunOnClient]
         [WithEvents]
         UserTours: DotNet UserTours;
@@ -652,7 +658,7 @@ page 1310 "O365 Activities"
         if not HideWizardForDevices then
             if O365GettingStartedMgt.WizardShouldBeOpenedForDevices then begin
                 HideSatisfactionSurvey := true;
-                Commit;
+                Commit();
                 PAGE.RunModal(PAGE::"O365 Getting Started Device");
             end;
         CheckIfSurveyEnabled();

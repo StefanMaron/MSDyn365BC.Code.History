@@ -8,7 +8,7 @@ codeunit 10143 "Deposit-Printed"
         Find;
         "No. Printed" := "No. Printed" + 1;
         Modify;
-        Commit;
+        Commit();
     end;
 }
 

@@ -268,7 +268,7 @@ table 10120 "Bank Rec. Header"
         BankRecCommentLine.SetRange("Table Name", BankRecCommentLine."Table Name"::"Bank Rec.");
         BankRecCommentLine.SetRange("Bank Account No.", "Bank Account No.");
         BankRecCommentLine.SetRange("No.", "Statement No.");
-        BankRecCommentLine.DeleteAll;
+        BankRecCommentLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -324,7 +324,7 @@ table 10120 "Bank Rec. Header"
                 "G/L Balance" := 0
             else begin
                 "G/L Balance" := 0;
-                GLEntry.Reset;
+                GLEntry.Reset();
                 GLEntry.SetFilter("G/L Account No.", "G/L Bank Account No.");
                 GLEntry.SetFilter("Posting Date", '%1..%2', 0D, "Statement Date");
                 if GLEntry.FindSet then begin
@@ -375,7 +375,7 @@ table 10120 "Bank Rec. Header"
 
     procedure BankRecLineExist(): Boolean
     begin
-        BankRecLine.Reset;
+        BankRecLine.Reset();
         BankRecLine.SetRange("Bank Account No.", "Bank Account No.");
         BankRecLine.SetRange("Statement No.", "Statement No.");
         exit(BankRecLine.FindFirst);
@@ -392,10 +392,10 @@ table 10120 "Bank Rec. Header"
         if not Confirm(Text004) then
             exit;
 
-        BankRecLine.Reset;
+        BankRecLine.Reset();
         BankRecLine.SetRange("Bank Account No.", "Bank Account No.");
         BankRecLine.SetRange("Statement No.", "Statement No.");
-        BankRecLine.LockTable;
+        BankRecLine.LockTable();
         if BankRecLine.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(BankRecLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -403,7 +403,7 @@ table 10120 "Bank Rec. Header"
                     BankRecLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       BankRecLine."Dimension Set ID", BankRecLine."Shortcut Dimension 1 Code", BankRecLine."Shortcut Dimension 2 Code");
-                    BankRecLine.Modify;
+                    BankRecLine.Modify();
                 end;
             until BankRecLine.Next = 0;
     end;

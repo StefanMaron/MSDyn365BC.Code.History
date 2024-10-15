@@ -2,6 +2,9 @@ table 1303 "Mini Vendor Template"
 {
     Caption = 'Mini Vendor Template';
     ReplicateData = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be replaced by other templates.';
+    ObsoleteTag = '16.0';
 
     fields
     {

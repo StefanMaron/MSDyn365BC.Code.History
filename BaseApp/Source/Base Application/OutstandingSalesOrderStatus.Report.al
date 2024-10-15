@@ -356,8 +356,8 @@ report 10056 "Outstanding Sales Order Status"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         FilterString := Customer.GetFilters;
         PeriodText := "Sales Line".GetFilter("Shipment Date");
     end;

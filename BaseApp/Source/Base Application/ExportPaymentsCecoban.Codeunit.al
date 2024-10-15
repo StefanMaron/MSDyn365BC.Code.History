@@ -60,11 +60,11 @@ codeunit 10092 "Export Payments (Cecoban)"
         if FileIsInProcess then
             Error(Text000, FileName);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
         with BankAccount do begin
-            LockTable;
+            LockTable();
             Get(BankAccountNo);
             TestField("Export Format", "Export Format"::MX);
             TestField("Transit No.");

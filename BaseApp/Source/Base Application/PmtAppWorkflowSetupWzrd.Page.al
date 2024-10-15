@@ -180,11 +180,9 @@ page 1815 "Pmt. App. Workflow Setup Wzrd."
                 var
                     ApprovalWorkflowSetupMgt: Codeunit "Approval Workflow Setup Mgt.";
                     AssistedSetup: Codeunit "Assisted Setup";
-                    Info: ModuleInfo;
                 begin
                     ApprovalWorkflowSetupMgt.ApplyPaymantJrnlWizardUserInput(Rec);
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Complete(Info.Id(), PAGE::"Pmt. App. Workflow Setup Wzrd.");
+                    AssistedSetup.Complete(PAGE::"Pmt. App. Workflow Setup Wzrd.");
 
                     CurrPage.Close;
                 end;
@@ -216,14 +214,11 @@ page 1815 "Pmt. App. Workflow Setup Wzrd."
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if AssistedSetup.ExistsAndIsNotComplete(Info.Id(), PAGE::"Pmt. App. Workflow Setup Wzrd.") then
+        if CloseAction = ACTION::OK then 
+            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Pmt. App. Workflow Setup Wzrd.") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
-        end;
     end;
 
     var

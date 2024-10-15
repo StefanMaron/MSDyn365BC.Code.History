@@ -43,7 +43,7 @@ table 257 "VAT Statement Name"
     begin
         VATStmtLine.SetRange("Statement Template Name", "Statement Template Name");
         VATStmtLine.SetRange("Statement Name", Name);
-        VATStmtLine.DeleteAll;
+        VATStmtLine.DeleteAll();
     end;
 
     trigger OnRename()

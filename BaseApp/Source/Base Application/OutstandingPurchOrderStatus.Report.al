@@ -2,7 +2,6 @@ report 10096 "Outstanding Purch.Order Status"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './OutstandingPurchOrderStatus.rdlc';
-    ApplicationArea = Basic, Suite;
     Caption = 'Outstanding Purch.Order Status';
     UsageCategory = ReportsAndAnalysis;
 
@@ -338,8 +337,8 @@ report 10096 "Outstanding Purch.Order Status"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         FilterString := Vendor.GetFilters;
         PeriodText := "Purchase Line".GetFilter("Expected Receipt Date");
     end;

@@ -256,8 +256,7 @@ page 27010 "Mexican CFDI Wizard"
                     Info: ModuleInfo;
                 begin
                     Finished := true;
-					NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Complete(Info.Id(), PAGE::"Mexican CFDI Wizard");
+                    AssistedSetup.Complete(PAGE::"Mexican CFDI Wizard");
                     FinishAction;
                 end;
             }

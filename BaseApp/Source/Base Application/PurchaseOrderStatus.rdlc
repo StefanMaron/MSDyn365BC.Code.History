@@ -486,6 +486,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="textbox31">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -513,6 +514,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="textbox32">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -848,6 +850,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="textbox41">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>

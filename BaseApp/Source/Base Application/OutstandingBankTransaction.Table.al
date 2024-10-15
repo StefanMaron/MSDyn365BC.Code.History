@@ -97,12 +97,12 @@ table 1284 "Outstanding Bank Transaction"
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccNo);
         BankAccountLedgerEntry.SetRange(Open, true);
-        TempOutstandingBankTransactionCopy.DeleteAll;
+        TempOutstandingBankTransactionCopy.DeleteAll();
         if BankAccountLedgerEntry.FindSet then begin
             repeat
                 RemainingAmt := BankAccountLedgerEntry.Amount - GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
                 if RemainingAmt <> 0 then begin
-                    TempOutstandingBankTransaction.Init;
+                    TempOutstandingBankTransaction.Init();
                     CreateTheDepositHeaderLine(TempOutstandingBankTransaction, TempOutstandingBankTransactionCopy, BankAccountLedgerEntry);
                     TempOutstandingBankTransaction."Posting Date" := BankAccountLedgerEntry."Posting Date";
                     TempOutstandingBankTransaction."Document Type" := BankAccountLedgerEntry."Document Type";
@@ -118,7 +118,7 @@ table 1284 "Outstanding Bank Transaction"
                         TempOutstandingBankTransaction.Type := TempOutstandingBankTransaction.Type::"Check Ledger Entry"
                     else
                         TempOutstandingBankTransaction.Type := TempOutstandingBankTransaction.Type::"Bank Account Ledger Entry";
-                    TempOutstandingBankTransaction.Insert;
+                    TempOutstandingBankTransaction.Insert();
                 end;
             until BankAccountLedgerEntry.Next = 0;
         end;
@@ -133,7 +133,7 @@ table 1284 "Outstanding Bank Transaction"
         PostedDepositLine.SetRange("Document No.", BankAccountLedgerEntry."Document No.");
         if PostedDepositLine.FindFirst then begin
             PostedDepositHeader.Get(PostedDepositLine."Deposit No.");
-            TempOutstandingBankTransaction.Init;
+            TempOutstandingBankTransaction.Init();
             TempOutstandingBankTransactionCopy.SetRange("External Document No.", BankAccountLedgerEntry."External Document No.");
             if not TempOutstandingBankTransactionCopy.FindFirst then begin
                 TempOutstandingBankTransaction."Posting Date" := PostedDepositHeader."Posting Date";
@@ -145,9 +145,9 @@ table 1284 "Outstanding Bank Transaction"
                 TempOutstandingBankTransaction.Indentation := 0;
                 TempOutstandingBankTransaction."Entry No." := 0;
                 TempOutstandingBankTransaction."External Document No." := BankAccountLedgerEntry."External Document No.";
-                TempOutstandingBankTransaction.Insert;
+                TempOutstandingBankTransaction.Insert();
                 TempOutstandingBankTransactionCopy.Copy(TempOutstandingBankTransaction);
-                TempOutstandingBankTransactionCopy.Insert;
+                TempOutstandingBankTransactionCopy.Insert();
             end;
             TempOutstandingBankTransaction.Indentation := 1;
         end else
@@ -166,7 +166,7 @@ table 1284 "Outstanding Bank Transaction"
 
     local procedure SetOutstandingBankTrxFilter(var TempOutstandingBankTransaction: Record "Outstanding Bank Transaction" temporary; TransactionType: Option)
     begin
-        TempOutstandingBankTransaction.Reset;
+        TempOutstandingBankTransaction.Reset();
         TempOutstandingBankTransaction.FilterGroup := 2;
         TempOutstandingBankTransaction.SetRange(Type, TransactionType);
         TempOutstandingBankTransaction.SetRange(Applied, false);

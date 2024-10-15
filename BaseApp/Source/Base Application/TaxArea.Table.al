@@ -76,7 +76,7 @@ table 318 "Tax Area"
             Error(TaxAreaInUseErr);
 
         TaxAreaLine.SetRange("Tax Area", Code);
-        TaxAreaLine.DeleteAll;
+        TaxAreaLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -104,7 +104,7 @@ table 318 "Tax Area"
         Init;
         Code := NewTaxAreaCode;
         Description := NewTaxAreaCode;
-        if Insert then;
+        if Insert() then;
 
         if City <> '' then
             CreateTaxAreaLine(Code, CopyStr(City, 1, 10));
@@ -121,10 +121,10 @@ table 318 "Tax Area"
     begin
         if TaxAreaLine.Get(NewTaxArea, NewJurisdictionCode) then
             exit;
-        TaxAreaLine.Init;
+        TaxAreaLine.Init();
         TaxAreaLine."Tax Area" := NewTaxArea;
         TaxAreaLine."Tax Jurisdiction Code" := NewJurisdictionCode;
-        TaxAreaLine.Insert;
+        TaxAreaLine.Insert();
         TaxJurisdiction.CreateTaxJurisdiction(NewJurisdictionCode);
     end;
 

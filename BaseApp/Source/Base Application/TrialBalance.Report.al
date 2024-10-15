@@ -468,7 +468,7 @@ report 10022 "Trial Balance"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         /* Set up format-dependent variables */
         case NumColumns of
             0:
@@ -585,7 +585,7 @@ report 10022 "Trial Balance"
                               + Format(PriorToDate, 0, 4);
                     end;
         if UseAddRptCurr then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Currency.Get(GLSetup."Additional Reporting Currency");
             SubTitle := StrSubstNo(Text004, Currency.Description);
         end;

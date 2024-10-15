@@ -120,7 +120,7 @@ report 10159 "Sales Promotion"
                 trigger OnAfterGetRecord()
                 begin
                     if "Unit Price" = Item."Unit Price" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
         }
@@ -145,7 +145,7 @@ report 10159 "Sales Promotion"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
         SalesPriceFilter := "Sales Price".GetFilters;
     end;

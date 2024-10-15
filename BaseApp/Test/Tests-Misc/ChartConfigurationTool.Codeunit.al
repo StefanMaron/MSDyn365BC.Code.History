@@ -156,7 +156,7 @@ codeunit 136149 "Chart Configuration Tool"
         CreateDefaultChart(Chart, ChartCode);
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
         SetChartDimensions(TempGenericChartSetup, 1, XDimensionID, XDimensionName, XDimensionName, ShowXDimensionTitle);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // Add Measures
         for MeasureIndex := 1 to 4 do
@@ -175,18 +175,18 @@ codeunit 136149 "Chart Configuration Tool"
         TempGenericChartMemoBuf.SetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage, ExpectedDescription);
         GenericChartMgt.SaveChanges(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter,
           TempGenericChartCaptionsBuf, TempGenericChartMemoBuf);
-        Chart.Modify;
+        Chart.Modify();
 
-        TempGenericChartSetup.DeleteAll;
-        TempGenericChartYAxis.DeleteAll;
-        TempGenericChartFilter.DeleteAll;
+        TempGenericChartSetup.DeleteAll();
+        TempGenericChartYAxis.DeleteAll();
+        TempGenericChartFilter.DeleteAll();
 
         // Retrieve fields.
         CreateBuilderFromChart(Chart, ChartBuilder);
         FindChartByID(Chart, ChartCode);
 
         // [THEN] Retrieve fields using chart builder and verify.
-        TempGenericChartMemoBuf.DeleteAll;
+        TempGenericChartMemoBuf.DeleteAll();
         GenericChartMgt.RetrieveXML(
           Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartCaptionsBuf, TempGenericChartMemoBuf, TempGenericChartFilter);
         RetrievedDescription := TempGenericChartMemoBuf.GetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage);
@@ -303,7 +303,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         SetChartDimensions(TempGenericChartSetup, 1, XDimensionID, XDimensionName, XDimensionName, ShowXDimensionTitle);
         SetChartDimensions(TempGenericChartSetup, 2, ZDimensionID, ZDimensionName, ZDimensionName, ShowZDimensionTitle);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // Add Measures
         MeasureIndex := 1;
@@ -318,7 +318,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         // [WHEN] Save the Chart and retrieve fields using chart builder.
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
-        Chart.Modify;
+        Chart.Modify();
         CreateBuilderFromChart(Chart, ChartBuilder);
 
         // [THEN] Retrieve fields match the passed values.
@@ -406,7 +406,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         CreateDefaultChart(Chart, ChartCode);
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         SourceIDToSet := SourceID;
         DimensionNameToSet := GetFieldNameFromID(TempGenericChartSetup."Source ID", XDimensionID);
@@ -452,7 +452,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         // [WHEN] Save the Chart and retrieve fields using chart builder.
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
-        Chart.Modify;
+        Chart.Modify();
         CreateBuilderFromChart(Chart, ChartBuilder);
 
         // [THEN] Retrieve fields match the passed values.
@@ -553,7 +553,7 @@ codeunit 136149 "Chart Configuration Tool"
         Assert.AreEqual(DimensionNameToSet, TempGenericChartSetup."X-Axis Title", 'XDimension Title Matches');
 
         SetChartDimensions(TempGenericChartSetup, 1, XDimensionID, XDimensionName, XDimensionName, ShowXDimensionTitle);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // Add Measures
         MeasureIndex := 1;
@@ -566,7 +566,7 @@ codeunit 136149 "Chart Configuration Tool"
         AddFiltersToChart(TempGenericChartSetup, TempGenericChartFilter, FilterFieldId, FilterFieldName, FilterIndex, FilterFieldValue);
         // Save
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
-        Chart.Modify;
+        Chart.Modify();
 
         // [WHEN] Retrieve the properties from the query chart XML
         CreateBuilderFromChart(Chart, ChartBuilder);
@@ -644,7 +644,7 @@ codeunit 136149 "Chart Configuration Tool"
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
 
         SetChartDimensions(TempGenericChartSetup, 1, XDimensionID, XDimensionName, XDimensionName, ShowXDimensionTitle);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // Add Measures
         MeasureIndex := 1;
@@ -656,7 +656,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         // Save
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
-        Chart.Modify;
+        Chart.Modify();
 
         // [WHEN] Copy the source chart to the Target Chart by invoking copychart method.
         TargetChartCode := GenerateRandomChartCode;
@@ -772,7 +772,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         CreateDefaultChart(Chart, ChartCode);
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [WHEN] Save Chart with Measure set to Non-numeric field
         AddMeasureToChart(
@@ -832,7 +832,7 @@ codeunit 136149 "Chart Configuration Tool"
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
 
         // SetChartDimensions(TempGenericChartSetup,1,XDimensionID,XDimensionName,XDimensionName,ShowXDimensionTitle);
-        // TempGenericChartSetup.INSERT;
+        // TempGenericChartSetup.Insert();
 
         // Add Measures
         MeasureIndex := 1;
@@ -878,11 +878,11 @@ codeunit 136149 "Chart Configuration Tool"
         // [WHEN] Set Chart to have duplicate X dimensions
         SetChartDimensions(TempGenericChartSetup, 1, XDimensionID, XDimensionName, XDimensionName, ShowXDimensionTitle);
         SetChartDimensions(TempGenericChartSetup, 2, XDimensionID, XDimensionName, XDimensionName, ShowXDimensionTitle);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [THEN] Duplicate dimensions can be saved only checks are implemented in the page.
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
-        Chart.Modify;
+        Chart.Modify();
     end;
 
     [Test]
@@ -914,7 +914,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         CreateDefaultChart(Chart, ChartCode);
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [WHEN] Save Chart with Duplicate Measures
         MeasureIndex := 1;
@@ -971,7 +971,7 @@ codeunit 136149 "Chart Configuration Tool"
         // [WHEN] Create a Chart wit an invalid source id
         SourceID := -LibraryRandom.RandInt(100);
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [THEN] Error is displayed and save is not allowed.
         asserterror SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1016,7 +1016,7 @@ codeunit 136149 "Chart Configuration Tool"
         SetChartDimensions(TempGenericChartSetup, 1, XDimensionID, XDimensionName, XDimensionName, ShowXDimensionTitle);
         TempGenericChartSetup.Validate("X-Axis Field ID", -LibraryRandom.RandInt(100));
         TempGenericChartSetup.Validate("X-Axis Field Name", Chart.ID);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [THEN] Error is displayed when dimension X is saved
         asserterror SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1026,11 +1026,11 @@ codeunit 136149 "Chart Configuration Tool"
           'Error is returned when saving an X dimension field which is numeric');
 
         // [WHEN] Save Chart with Z dimensions set to negative field id
-        TempGenericChartSetup.DeleteAll;
+        TempGenericChartSetup.DeleteAll();
         SetChartDimensions(TempGenericChartSetup, 2, XDimensionID, XDimensionName, XDimensionName, ShowXDimensionTitle);
         TempGenericChartSetup.Validate("Z-Axis Field ID", -LibraryRandom.RandInt(100));
         TempGenericChartSetup.Validate("Z-Axis Field Name", Chart.ID);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [THEN] Error is displayed when dimension Z is saved
         asserterror SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1077,7 +1077,7 @@ codeunit 136149 "Chart Configuration Tool"
         // [WHEN] Save Chart with X dimensions set to negative field ID
         SetChartDimensions(TempGenericChartSetup, 1, XDimensionID, XDimensionName, XDimensionName, ShowXDimensionTitle);
         TempGenericChartSetup.Validate("X-Axis Field ID", -LibraryRandom.RandInt(100));
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [THEN] Error is not displayed and chart can be successfully saved
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1086,10 +1086,10 @@ codeunit 136149 "Chart Configuration Tool"
           XDimensionID, TempGenericChartSetup."X-Axis Field ID", 'X Axis Field ID Passed in Is overridden with the ID from Field Name');
 
         // [WHEN] Save Chart with Z dimensions set to negative field ID
-        TempGenericChartSetup.DeleteAll;
+        TempGenericChartSetup.DeleteAll();
         SetChartDimensions(TempGenericChartSetup, 2, XDimensionID, XDimensionName, XDimensionName, ShowXDimensionTitle);
         TempGenericChartSetup.Validate("Z-Axis Field ID", -LibraryRandom.RandInt(100));
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [THEN] Error is not displayed and chart can be successfully saved
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1128,7 +1128,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         CreateDefaultChart(Chart, ChartCode);
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [WHEN] Save Chart with Measure set to Non-Existent field name
         AddMeasureToChart(
@@ -1138,7 +1138,7 @@ codeunit 136149 "Chart Configuration Tool"
           DataAggregationType[MeasureIndex]);
 
         TempGenericChartYAxis.Validate("Y-Axis Measure Field Name", Chart.ID);
-        TempGenericChartYAxis.Modify;
+        TempGenericChartYAxis.Modify();
 
         // [THEN] Error is displayed when Measure is saved with a non existent field name
         asserterror SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1178,7 +1178,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         CreateDefaultChart(Chart, ChartCode);
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [WHEN] Save Chart with Measure set to Negative field ID
         AddMeasureToChart(
@@ -1188,7 +1188,7 @@ codeunit 136149 "Chart Configuration Tool"
           DataAggregationType[MeasureIndex]);
 
         TempGenericChartYAxis.Validate("Y-Axis Measure Field ID", -LibraryRandom.RandInt(100));
-        TempGenericChartYAxis.Modify;
+        TempGenericChartYAxis.Modify();
 
         // [THEN] Measure can be saved with a negative field id
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1226,12 +1226,12 @@ codeunit 136149 "Chart Configuration Tool"
 
         // [WHEN] Create a Chart with an filter containing and invalid field name
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // Add Filter
         AddFiltersToChart(TempGenericChartSetup, TempGenericChartFilter, FilterFieldId, FilterFieldName, FilterIndex, FilterFieldValue);
         TempGenericChartFilter.Validate("Filter Field Name", Chart.ID);
-        TempGenericChartFilter.Modify;
+        TempGenericChartFilter.Modify();
 
         // [THEN] Error is displayed and save is not allowed.
         asserterror SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1266,12 +1266,12 @@ codeunit 136149 "Chart Configuration Tool"
 
         // [WHEN] Create a Chart wit an invalid source id
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // Add Filter
         AddFiltersToChart(TempGenericChartSetup, TempGenericChartFilter, FilterFieldId, FilterFieldName, FilterIndex, FilterFieldValue);
         TempGenericChartFilter.Validate("Filter Field ID", -LibraryRandom.RandInt(100));
-        TempGenericChartFilter.Modify;
+        TempGenericChartFilter.Modify();
 
         // [THEN] Error is not displayed and save is allowed, since validation is done in the page.
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1309,12 +1309,12 @@ codeunit 136149 "Chart Configuration Tool"
 
         // [WHEN] Create a Chart with an filter containing and invalid field value
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // Add Filter
         AddFiltersToChart(TempGenericChartSetup, TempGenericChartFilter, FilterFieldId, FilterFieldName, FilterIndex, FilterFieldValue);
         TempGenericChartFilter.Validate("Filter Value", Chart.ID);
-        TempGenericChartFilter.Modify;
+        TempGenericChartFilter.Modify();
 
         // [THEN] Save is allowed.
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1348,12 +1348,12 @@ codeunit 136149 "Chart Configuration Tool"
 
         // [WHEN] Create a Chart with an filter containing and invalid field name
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // Add Filter
         AddFiltersToChart(TempGenericChartSetup, TempGenericChartFilter, FilterFieldId, FilterFieldName, FilterIndex, FilterFieldValue);
         TempGenericChartFilter.Validate("Filter Field Name", Chart.ID);
-        TempGenericChartFilter.Modify;
+        TempGenericChartFilter.Modify();
 
         // [THEN] Error is displayed and save is not allowed.
         asserterror SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1387,7 +1387,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         // [WHEN] Create a Chart with an filter containing and invalid field value
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         Description[1] := '';
         Description[2] := ' ' + DefaultChartDescription + ' ';
@@ -1398,11 +1398,11 @@ codeunit 136149 "Chart Configuration Tool"
             TempGenericChartMemoBuf.SetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage, Description[index]);
             GenericChartMgt.SaveChanges(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter,
               TempGenericChartCaptionsBuf, TempGenericChartMemoBuf);
-            Chart.Modify;
+            Chart.Modify();
 
-            TempGenericChartSetup.DeleteAll;
-            TempGenericChartYAxis.DeleteAll;
-            TempGenericChartFilter.DeleteAll;
+            TempGenericChartSetup.DeleteAll();
+            TempGenericChartYAxis.DeleteAll();
+            TempGenericChartFilter.DeleteAll();
 
             // Retrieve fields.
             CreateBuilderFromChart(Chart, ChartBuilder);
@@ -1457,7 +1457,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         CreateDefaultChart(Chart, ChartCode);
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // Add Measures
         for MeasureIndex := 1 to 4 do begin
@@ -1473,18 +1473,18 @@ codeunit 136149 "Chart Configuration Tool"
                 TempGenericChartYAxis."Y-Axis Measure Field ID" := MeasureID[MeasureIndex];
                 TempGenericChartYAxis."Y-Axis Measure Field Name" := MeasureName[MeasureIndex];
                 TempGenericChartYAxis.Aggregation := ConvertAggregationToOption(DataAggregationType[MeasureIndex]);
-                TempGenericChartYAxis.Modify;
+                TempGenericChartYAxis.Modify();
             end;
         end;
 
         // [WHEN] Save the Chart and retrieve fields using chart builder.
         // Save
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
-        Chart.Modify;
+        Chart.Modify();
 
-        TempGenericChartSetup.DeleteAll;
-        TempGenericChartYAxis.DeleteAll;
-        TempGenericChartFilter.DeleteAll;
+        TempGenericChartSetup.DeleteAll();
+        TempGenericChartYAxis.DeleteAll();
+        TempGenericChartFilter.DeleteAll();
 
         // Retrieve fields.
         CreateBuilderFromChart(Chart, ChartBuilder);
@@ -1549,7 +1549,7 @@ codeunit 136149 "Chart Configuration Tool"
         // [WHEN] Save Chart with X dimensions set to negative field ID
         SetChartDimensions(TempGenericChartSetup, 1, XDimensionID, XDimensionName, XDimensionName, ShowXDimensionTitle);
         TempGenericChartSetup.Validate("X-Axis Field Name", ZDimensionName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [THEN] Error is not displayed and chart can be successfully saved
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1559,10 +1559,10 @@ codeunit 136149 "Chart Configuration Tool"
           'X Axis Field Name Passed in Is overridden with the Name from Field ID');
 
         // [WHEN] Save Chart with Z dimensions set to negative field ID
-        TempGenericChartSetup.DeleteAll;
+        TempGenericChartSetup.DeleteAll();
         SetChartDimensions(TempGenericChartSetup, 2, XDimensionID, XDimensionName, XDimensionName, ShowXDimensionTitle);
         TempGenericChartSetup.Validate("Z-Axis Field Name", ZDimensionName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [THEN] Error is not displayed and chart can be successfully saved
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1602,7 +1602,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         CreateDefaultChart(Chart, ChartCode);
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // [WHEN] Save Chart with Measure set to Negative field ID
         AddMeasureToChart(
@@ -1613,7 +1613,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         TempGenericChartYAxis.Validate(
           "Y-Axis Measure Field Name", GetFieldNameFromID(TempGenericChartSetup."Source ID", MeasureID[MeasureIndex + 1]));
-        TempGenericChartYAxis.Modify;
+        TempGenericChartYAxis.Modify();
 
         // [THEN] Measure can be saved with a negative field id
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
@@ -1656,16 +1656,16 @@ codeunit 136149 "Chart Configuration Tool"
 
         // [WHEN] Create a Chart wit an invalid source id
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType, SourceID, SourceName);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         // Add Filter
         AddFiltersToChart(TempGenericChartSetup, TempGenericChartFilter, FilterFieldId, FilterFieldName, FilterIndex, FilterFieldValue);
         TempGenericChartFilter.Validate("Filter Field Name", CopyStr(XDimensionName, 1, 30));
-        TempGenericChartFilter.Modify;
+        TempGenericChartFilter.Modify();
 
         // [THEN] Error is not displayed and save is allowed, since validation is done in the page.
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
-        Chart.Modify;
+        Chart.Modify();
         RetrieveChartWithoutDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
         Assert.AreEqual(
           FilterFieldName, TempGenericChartFilter."Filter Field Name",
@@ -1753,7 +1753,7 @@ codeunit 136149 "Chart Configuration Tool"
     begin
         CreateDefaultChart(Chart, ChartCode);
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType::Table, DATABASE::"Sales Header", TableSalesheader);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
         ExpectedMsg := DefaultChartDescription;
         ActualMsg := GenericChartMgt.GetDescription(Chart);
@@ -1777,7 +1777,7 @@ codeunit 136149 "Chart Configuration Tool"
     begin
         CreateDefaultChart(Chart, ChartCode);
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType::Table, DATABASE::"Sales Header", TableSalesheader);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
         AddTooManyMeasuresToChart(Chart.ID, TempGenericChartYAxis);
         SaveChartWithDefaultDescription(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter);
         TempChart := Chart;
@@ -1797,7 +1797,7 @@ codeunit 136149 "Chart Configuration Tool"
     begin
         CreateDefaultChart(Chart, ChartCode);
         CreateGeneratorFromChart(Chart, TempGenericChartSetup, SourceType::Query, QUERY::"Acc. Sched. Line Desc. Count", TableSalesheader);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
         CountColumnName := GenericChartMgt.GetQueryCountColumnName(TempGenericChartSetup);
         Assert.AreEqual('Count_', CountColumnName, 'Retrieval of name of column with aggregation = Count');
     end;
@@ -1832,7 +1832,7 @@ codeunit 136149 "Chart Configuration Tool"
     var
         GenericChartSetup: Record "Generic Chart Setup";
     begin
-        GenericChartSetup.Init;
+        GenericChartSetup.Init();
         GenericChartSetup.Validate(Name, 'TestName');
     end;
 
@@ -1913,10 +1913,10 @@ codeunit 136149 "Chart Configuration Tool"
             TempGenericChartFilter."Filter Field ID" := i;
             TempGenericChartFilter."Filter Field Name" := Format(i);
             TempGenericChartFilter."Filter Value" := Format(i);
-            TempGenericChartFilter.Insert;
+            TempGenericChartFilter.Insert();
         end;
         GenericChartFilters.SetFilters(TempGenericChartFilter);
-        TempGenericChartFilter.DeleteAll;
+        TempGenericChartFilter.DeleteAll();
         GenericChartFilters.GetFilters(TempGenericChartFilter);
         Assert.AreEqual(j, TempGenericChartFilter.Count, 'Number of TempGenericChart filter records retrieved.');
         TempGenericChartFilter.FindSet;
@@ -1953,13 +1953,13 @@ codeunit 136149 "Chart Configuration Tool"
         TempGenericChartMemoBuf.Code := '';
         TempGenericChartMemoBuf."Language Code" := DANLanguageCodeTxt;
         TempGenericChartMemoBuf.SetMemoText(DANLanguageMemoTxt);
-        TempGenericChartMemoBuf.Insert;
+        TempGenericChartMemoBuf.Insert();
         TempGenericChartMemoBuf."Language Code" := ENULanguageCodeTxt;
         TempGenericChartMemoBuf.SetMemoText(ENULanguageMemoTxt);
-        TempGenericChartMemoBuf.Insert;
+        TempGenericChartMemoBuf.Insert();
         TempGenericChartMemoBuf."Language Code" := LTHLanguageCodeTxt;
         TempGenericChartMemoBuf.SetMemoText(LTHLanguageMemoTxt);
-        TempGenericChartMemoBuf.Insert;
+        TempGenericChartMemoBuf.Insert();
         TempGenericChartMemoBuf.Get('', ENULanguageCodeTxt);
         Assert.AreEqual(Format(ENULanguageMemoTxt), TempGenericChartMemoBuf.GetMemoText, MemoTxt);
 
@@ -2179,23 +2179,23 @@ codeunit 136149 "Chart Configuration Tool"
           Chart, TempGenericChartSetup, TempGenericChartSetup."Source Type"::Table, DATABASE::"G/L Account", GLAccount.TableName);
         TempGenericChartSetup."X-Axis Field ID" := GLAccount.FieldNo("No.");
         TempGenericChartSetup."X-Axis Show Title" := true;
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
 
         TempGenericChartMemoBuf.Code := GenericChartMgt.DescriptionCode;
         TempGenericChartMemoBuf."Language Code" := GenericChartMgt.GetUserLanguage;
         TempGenericChartMemoBuf.Memo1 := LibraryUtility.GenerateGUID;
-        TempGenericChartMemoBuf.Insert;
+        TempGenericChartMemoBuf.Insert();
 
         TempGenericChartCaptionsBuf.Code := GenericChartMgt.XAxisCaptionCode;
         TempGenericChartCaptionsBuf."Language Code" := GenericChartMgt.GetUserLanguage;
         TempGenericChartCaptionsBuf.Caption := LibraryUtility.GenerateGUID;
-        TempGenericChartCaptionsBuf.Insert;
+        TempGenericChartCaptionsBuf.Insert();
 
         GenericChartMgt.SaveChanges(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter,
           TempGenericChartCaptionsBuf, TempGenericChartMemoBuf);
-        Chart.Modify;
-        TempGenericChartCaptionsBuf.DeleteAll;
-        TempGenericChartMemoBuf.DeleteAll;
+        Chart.Modify();
+        TempGenericChartCaptionsBuf.DeleteAll();
+        TempGenericChartMemoBuf.DeleteAll();
 
         // [GIVEN] Update Xml schema with copy of lines with <ENU> language for xml elements: <Text ID="ENU">Translation</Text>
         UpdateXMLForChart(Chart);
@@ -2315,7 +2315,7 @@ codeunit 136149 "Chart Configuration Tool"
         GetFieldColumnNoName(
           TempGenericChartSetup."Source Type", TempGenericChartSetup."Source ID", TempGenericChartFilter."Filter Field ID",
           TempGenericChartFilter."Filter Field Name");
-        TempGenericChartFilter.Insert;
+        TempGenericChartFilter.Insert();
     end;
 
     local procedure AddMeasureToChart(var TempGenericChartSetup: Record "Generic Chart Setup" temporary; var TempGenericChartYAxis: Record "Generic Chart Y-Axis" temporary; var MeasureName: Text[50]; MeasureFieldID: Integer; MeasureIndex: Integer; DataMeasureType: DotNet DataMeasureType; DataAggregationType: DotNet DataAggregationType)
@@ -2328,7 +2328,7 @@ codeunit 136149 "Chart Configuration Tool"
         TempGenericChartYAxis.Validate("Y-Axis Measure Field Name", MeasureName);
         TempGenericChartYAxis.Validate(Aggregation, ConvertAggregationToOption(DataAggregationType));
         TempGenericChartYAxis.Validate("Chart Type", ConvertMeasureTypeToOption(DataMeasureType));
-        TempGenericChartYAxis.Insert;
+        TempGenericChartYAxis.Insert();
     end;
 
     local procedure ClearGlobals()
@@ -2478,12 +2478,12 @@ codeunit 136149 "Chart Configuration Tool"
 
     local procedure CreateDefaultChart(var Chart: Record Chart; var ChartCode: Code[20])
     begin
-        Chart.Init;
+        Chart.Init();
         if ChartCode = '' then
             ChartCode := GenerateRandomChartCode;
         Chart.Validate(ID, ChartCode);
         Chart.Validate(Name, Chart.ID);
-        Chart.Insert;
+        Chart.Insert();
     end;
 
     local procedure CreateGeneratorFromChart(var Chart: Record Chart; var TempGenericChartSetup: Record "Generic Chart Setup" temporary; SourceType: Option; SourceID: Integer; SourceName: Text[30])
@@ -2617,9 +2617,9 @@ codeunit 136149 "Chart Configuration Tool"
         TempGenericChartMemoBuf: Record "Generic Chart Memo Buffer" temporary;
         GenericChartMgt: Codeunit "Generic Chart Mgt";
     begin
-        TempGenericChartSetup.DeleteAll;
-        TempGenericChartYAxis.DeleteAll;
-        TempGenericChartFilter.DeleteAll;
+        TempGenericChartSetup.DeleteAll();
+        TempGenericChartYAxis.DeleteAll();
+        TempGenericChartFilter.DeleteAll();
         GenericChartMgt.RetrieveXML(
           Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartCaptionsBuf, TempGenericChartMemoBuf, TempGenericChartFilter);
     end;
@@ -2814,7 +2814,7 @@ codeunit 136149 "Chart Configuration Tool"
         Field.SetRange(TableNo, DATABASE::"Sales Header");
         Field.SetRange(Type, Field.Type::Decimal);
         Field.FindSet;
-        TempGenericChartYAxis.DeleteAll;
+        TempGenericChartYAxis.DeleteAll();
         repeat
             LineNo += 10000;
             Clear(TempGenericChartYAxis);
@@ -2822,7 +2822,7 @@ codeunit 136149 "Chart Configuration Tool"
             TempGenericChartYAxis."Line No." := LineNo;
             TempGenericChartYAxis."Y-Axis Measure Field ID" := Field."No.";
             TempGenericChartYAxis."Y-Axis Measure Field Name" := Field.FieldName;
-            TempGenericChartYAxis.Insert;
+            TempGenericChartYAxis.Insert();
         until Field.Next = 0;
     end;
 
@@ -2885,7 +2885,7 @@ codeunit 136149 "Chart Configuration Tool"
         Clear(Chart.BLOB);
         Chart.BLOB.CreateOutStream(OutStream);
         XMLDocOut.Save(OutStream);
-        Chart.Modify;
+        Chart.Modify();
     end;
 
     [ModalPageHandler]

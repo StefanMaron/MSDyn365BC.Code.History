@@ -1,4 +1,4 @@
-﻿page 9309 "Purchase Credit Memos"
+page 9309 "Purchase Credit Memos"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Purchase Credit Memos';
@@ -275,7 +275,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         if "Tax Area Code" = '' then
                             PAGE.RunModal(PAGE::"Purchase Statistics", Rec)
                         else

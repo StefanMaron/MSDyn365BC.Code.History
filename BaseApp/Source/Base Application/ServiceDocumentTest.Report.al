@@ -380,7 +380,7 @@ report 5915 "Service Document - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDim then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         FindDimTxt("Service Header"."Dimension Set ID");
                         SetRange(Number, 1, DimTxtArrLength);
                     end;
@@ -419,7 +419,7 @@ report 5915 "Service Document - Test"
                         begin
                             if Find('+') then
                                 OrigMaxLineNo := "Line No.";
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -610,7 +610,7 @@ report 5915 "Service Document - Test"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowDim then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 FindDimTxt("Service Line"."Dimension Set ID");
                                 SetRange(Number, 1, DimTxtArrLength);
                             end;
@@ -804,7 +804,7 @@ report 5915 "Service Document - Test"
                             do
                                 MoreLines := TempServiceLine.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             TempServiceLine.SetRange("Line No.", 0, TempServiceLine."Line No.");
                             SetRange(Number, 1, TempServiceLine.Count);
 
@@ -928,9 +928,9 @@ report 5915 "Service Document - Test"
                         trigger OnPreDataItem()
                         begin
                             if SalesTax then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             if VATAmount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, VATAmountLine.Count);
                         end;
                     }
@@ -1057,9 +1057,9 @@ report 5915 "Service Document - Test"
                         trigger OnPreDataItem()
                         begin
                             if not SalesTax then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, SalesTaxAmountLine.Count);
-                            SalesTaxAmountLine.Reset;
+                            SalesTaxAmountLine.Reset();
 
                             SumtotalVAT := 0;
                         end;
@@ -1069,8 +1069,8 @@ report 5915 "Service Document - Test"
                     begin
                         Clear(TempServiceLine);
                         Clear(ServAmountsMgt);
-                        VATAmountLine.DeleteAll;
-                        TempServiceLine.DeleteAll;
+                        VATAmountLine.DeleteAll();
+                        TempServiceLine.DeleteAll();
 
                         ServAmountsMgt.GetServiceLines("Service Header", TempServiceLine, 1);
 
@@ -1082,7 +1082,7 @@ report 5915 "Service Document - Test"
                         VATDiscountAmount :=
                           VATAmountLine.GetTotalVATDiscount("Service Header"."Currency Code", "Service Header"."Prices Including VAT");
                         if SalesTax then begin
-                            SalesTaxAmountLine.DeleteAll;
+                            SalesTaxAmountLine.DeleteAll();
                             OnBeforeCalculateSalesTax("Service Header", SalesTaxAmountLine, SalesTaxCalculationOverridden);
                             SalesTaxCalculate.StartSalesTaxCalculation;
                         end;
@@ -1121,7 +1121,7 @@ report 5915 "Service Document - Test"
                 VerifyCustomerNo("Service Header");
                 VerifyBilltoCustomerNo("Service Header");
 
-                ServiceSetup.Get;
+                ServiceSetup.Get();
 
                 VerifyPostingDate("Service Header");
 
@@ -1149,7 +1149,7 @@ report 5915 "Service Document - Test"
                         Text001, Text002));
 
                 if Invoice then begin
-                    ServiceLine.Reset;
+                    ServiceLine.Reset();
                     ServiceLine.SetRange("Document Type", "Document Type");
                     ServiceLine.SetRange("Document No.", "No.");
                     ServiceLine.SetFilter(Quantity, '<>0');
@@ -1165,7 +1165,7 @@ report 5915 "Service Document - Test"
                 end;
 
                 if Ship then begin
-                    ServiceLine.Reset;
+                    ServiceLine.Reset();
                     ServiceLine.SetRange("Document Type", "Document Type");
                     ServiceLine.SetRange("Document No.", "No.");
                     ServiceLine.SetFilter(Quantity, '<>0');
@@ -1201,7 +1201,7 @@ report 5915 "Service Document - Test"
                                 Text006,
                                 FieldCaption("Posting No. Series")));
 
-                ServiceLine.Reset;
+                ServiceLine.Reset();
                 ServiceLine.SetRange("Document Type", "Document Type");
                 ServiceLine.SetRange("Document No.", "No.");
                 if ServiceLine.FindFirst then;
@@ -1308,7 +1308,7 @@ report 5915 "Service Document - Test"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     trigger OnPreReport()
@@ -1467,7 +1467,7 @@ report 5915 "Service Document - Test"
     begin
         with ServiceLine2 do begin
             if Abs(RemQtyToBeInvoiced) > Abs("Qty. to Ship") then begin
-                ServiceShptLine.Reset;
+                ServiceShptLine.Reset();
                 case "Document Type" of
                     "Document Type"::Order:
                         begin

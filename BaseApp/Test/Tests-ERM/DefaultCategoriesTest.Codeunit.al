@@ -20,7 +20,7 @@ codeunit 134441 "Default Categories Test"
         GLAccountCategories: TestPage "G/L Account Categories";
     begin
         // Setup - Delete existing categories
-        GLAccountCategory.DeleteAll;
+        GLAccountCategory.DeleteAll();
 
         // Execute - Open G/L Categories page
         GLAccountCategories.OpenEdit;
@@ -37,7 +37,7 @@ codeunit 134441 "Default Categories Test"
         GLAccountCategories: TestPage "G/L Account Categories";
     begin
         // Setup - Delete existing categories and create one account category
-        GLAccountCategory.DeleteAll;
+        GLAccountCategory.DeleteAll();
         LibraryERM.CreateGLAccountCategory(GLAccountCategory);
 
         // Execute - Open G/L Categories page
@@ -58,7 +58,7 @@ codeunit 134441 "Default Categories Test"
     begin
         // Setup - Delete existing categories and mapping
         GLAccount.ModifyAll("Account Subcategory Entry No.", 0);
-        GLAccountCategory.DeleteAll;
+        GLAccountCategory.DeleteAll();
 
         // Execute - Simulate Initialize Company
         GLAccountCategoryMgt.InitializeAccountCategories;
@@ -76,7 +76,7 @@ codeunit 134441 "Default Categories Test"
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
     begin
         // Setup - Delete existing categories and create one account category and map it to an account
-        GLAccountCategory.DeleteAll;
+        GLAccountCategory.DeleteAll();
         LibraryERM.CreateGLAccountCategory(GLAccountCategory);
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Balance Sheet";
@@ -101,7 +101,7 @@ codeunit 134441 "Default Categories Test"
         GLAccountCategories: TestPage "G/L Account Categories";
     begin
         // Setup - Delete existing categories
-        GLAccountCategory.DeleteAll;
+        GLAccountCategory.DeleteAll();
 
         // Execute - Open G/L Categories page
         GLAccountCategories.OpenEdit;
@@ -123,7 +123,7 @@ codeunit 134441 "Default Categories Test"
         GLAccountCategories: TestPage "G/L Account Categories";
     begin
         // Setup - Delete existing categories
-        GLAccountCategory.DeleteAll;
+        GLAccountCategory.DeleteAll();
 
         // Execute - Open G/L Categories page
         GLAccountCategories.OpenEdit;

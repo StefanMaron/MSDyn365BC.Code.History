@@ -34,11 +34,9 @@ table 232 "Gen. Journal Batch"
                 end;
             end;
         }
-        field(5; "Bal. Account Type"; Option)
+        field(5; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
 
             trigger OnValidate()
             begin
@@ -134,14 +132,12 @@ table 232 "Gen. Journal Batch"
                     FieldError("Bank Statement Import Format", BankStmtImpFormatBalAccErr);
             end;
         }
-        field(21; "Template Type"; Option)
+        field(21; "Template Type"; Enum "Gen. Journal Template Type")
         {
             CalcFormula = Lookup ("Gen. Journal Template".Type WHERE(Name = FIELD("Journal Template Name")));
             Caption = 'Template Type';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = 'General,Sales,Purchases,Cash Receipts,Payments,Assets,Intercompany,Jobs';
-            OptionMembers = General,Sales,Purchases,"Cash Receipts",Payments,Assets,Intercompany,Jobs;
         }
         field(22; Recurring; Boolean)
         {
@@ -206,7 +202,7 @@ table 232 "Gen. Journal Batch"
 
         GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlAlloc.SetRange("Journal Batch Name", Name);
-        GenJnlAlloc.DeleteAll;
+        GenJnlAlloc.DeleteAll();
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", Name);
         GenJnlLine.DeleteAll(true);
@@ -218,7 +214,7 @@ table 232 "Gen. Journal Batch"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         GenJnlTemplate.Get("Journal Template Name");
         if not GenJnlTemplate."Copy VAT Setup to Jnl. Lines" then
             "Copy VAT Setup to Jnl. Lines" := false;
@@ -286,7 +282,7 @@ table 232 "Gen. Journal Batch"
 
     local procedure ModifyLines(i: Integer)
     begin
-        GenJnlLine.LockTable;
+        GenJnlLine.LockTable();
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", Name);
         if GenJnlLine.Find('-') then

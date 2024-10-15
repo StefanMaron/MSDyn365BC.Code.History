@@ -190,7 +190,7 @@ codeunit 138945 "BC Contact Lookup Tests"
 
     local procedure CreateContact(var Contact: Record Contact; Name: Text[50])
     begin
-        Contact.Init;
+        Contact.Init();
         Contact.Validate("No.", LibraryUtility.GenerateGUID);
         Contact.Validate(Type, Contact.Type::Person);
         Contact.Validate(Name, Name);
@@ -243,15 +243,13 @@ codeunit 138945 "BC Contact Lookup Tests"
         LibraryVariableStorage.AssertEmpty;
         EventSubscriberInvoicingApp.Clear;
         ApplicationArea('#Invoicing');
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
 
-        Customer.DeleteAll;
-        Contact.DeleteAll;
+        Customer.DeleteAll();
+        Contact.DeleteAll();
 
         if IsInitialized then
             exit;
-
-        CreateAndSetupDefaultTaxRateWithStateAndCity('SC', 6, 'CC', 4);
 
         LibraryInvoicingApp.SetupEmailTable;
         LibraryInvoicingApp.DisableC2Graph;
@@ -261,19 +259,6 @@ codeunit 138945 "BC Contact Lookup Tests"
 
         WorkDate(Today);
         IsInitialized := true;
-    end;
-
-    local procedure CreateAndSetupDefaultTaxRateWithStateAndCity(StateCode: Code[10]; StateRate: Decimal; CityCode: Code[10]; CityRate: Decimal)
-    var
-        O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
-    begin
-        O365TaxSettingsCard.OpenNew;
-        O365TaxSettingsCard.State.Value(StateCode);
-        O365TaxSettingsCard.StateRate.SetValue(StateRate);
-        O365TaxSettingsCard.City.Value(CityCode);
-        O365TaxSettingsCard.CityRate.SetValue(CityRate);
-        O365TaxSettingsCard.Default.DrillDown;
-        O365TaxSettingsCard.Close;
     end;
 
     [SendNotificationHandler(true)]

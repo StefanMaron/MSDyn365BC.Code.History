@@ -139,11 +139,11 @@ table 10010 "IRS 1099 Form-Box"
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
-        IRS1099FormBox.Init;
+        IRS1099FormBox.Init();
         IRS1099FormBox.Code := NewCode;
         IRS1099FormBox.Description := NewDescription;
         IRS1099FormBox."Minimum Reportable" := NewMinimum;
-        IRS1099FormBox.Insert;
+        IRS1099FormBox.Insert();
     end;
 }
 

@@ -14,12 +14,12 @@ codeunit 139350 "Bank Statement Provider Mock"
     [Scope('OnPrem')]
     procedure OnOnlineBankStatementExist(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
     begin
-        TempNameValueBuffer.DeleteAll;
+        TempNameValueBuffer.DeleteAll();
         if BankStatementProviderExist then begin
-            TempNameValueBuffer.Init;
+            TempNameValueBuffer.Init();
             TempNameValueBuffer.Name := 'TestStatementFeed';
             TempNameValueBuffer.Value := 'TestValue';
-            TempNameValueBuffer.Insert;
+            TempNameValueBuffer.Insert();
         end;
     end;
 
@@ -28,12 +28,12 @@ codeunit 139350 "Bank Statement Provider Mock"
     [Scope('OnPrem')]
     procedure OnSimpleLinkOnlineProvider(var OnlineBankAccLink: Record "Online Bank Acc. Link"; var StatementProvider: Text)
     begin
-        OnlineBankAccLink.DeleteAll;
+        OnlineBankAccLink.DeleteAll();
         if BankStatementProviderExist then begin
-            OnlineBankAccLink.Init;
+            OnlineBankAccLink.Init();
             OnlineBankAccLink.Name := 'Test Account Name';
             OnlineBankAccLink."Bank Account No." := '123-5456';
-            OnlineBankAccLink.Insert;
+            OnlineBankAccLink.Insert();
         end;
     end;
 

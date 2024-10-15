@@ -530,7 +530,7 @@ report 1304 "Standard Sales - Quote"
                     while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                         MoreLines := Next(-1) <> 0;
                     if not MoreLines then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange("Line No.", 0, "Line No.");
                     TransHeaderAmount := 0;
                     PrevLineAmount := 0;
@@ -551,7 +551,7 @@ report 1304 "Standard Sales - Quote"
                 trigger OnAfterGetRecord()
                 begin
                     if WorkDescriptionInstream.EOS then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     WorkDescriptionInstream.ReadText(WorkDescriptionLine);
                 end;
 
@@ -563,7 +563,7 @@ report 1304 "Standard Sales - Quote"
                 trigger OnPreDataItem()
                 begin
                     if not ShowWorkDescription then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     Header."Work Description".CreateInStream(WorkDescriptionInstream, TEXTENCODING::UTF8);
                 end;
@@ -813,8 +813,8 @@ report 1304 "Standard Sales - Quote"
                 FirstLineHasBeenOutput := false;
                 Clear(Line);
                 Clear(SalesPost);
-                Line.DeleteAll;
-                VATAmountLine.DeleteAll;
+                Line.DeleteAll();
+                VATAmountLine.DeleteAll();
                 SalesPost.GetSalesLines(Header, Line, 0);
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
@@ -926,10 +926,10 @@ report 1304 "Standard Sales - Quote"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         CompanyInfo.SetAutoCalcFields(Picture);
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
         CompanyInfo.VerifyAndSetPaymentInfo;
     end;
 
@@ -1113,7 +1113,7 @@ report 1304 "Standard Sales - Quote"
         TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary;
         TaxArea: Record "Tax Area";
     begin
-        ReportTotalsLine.DeleteAll;
+        ReportTotalsLine.DeleteAll();
         if Header."Tax Area Code" <> '' then
             if TaxArea.Get(Header."Tax Area Code") then;
         if (Header."Tax Area Code" = '') or (TaxArea."Country/Region" = TaxArea."Country/Region"::US) then begin
@@ -1141,7 +1141,7 @@ report 1304 "Standard Sales - Quote"
 
     local procedure CreateUSReportTotalLines()
     begin
-        ReportTotalsLine.DeleteAll;
+        ReportTotalsLine.DeleteAll();
         ReportTotalsLine.Add(SubtotalLbl, TotalSubTotal, true, false, false);
         if TotalInvDiscAmount <> 0 then
             ReportTotalsLine.Add(InvDiscountAmtLbl, TotalInvDiscAmount, false, false, false);
@@ -1155,7 +1155,7 @@ report 1304 "Standard Sales - Quote"
     begin
         if not TaxArea.Get(Header."Tax Area Code") then
             exit;
-        TempSalesTaxAmountLine.DeleteAll;
+        TempSalesTaxAmountLine.DeleteAll();
         SalesTaxCalculate.StartSalesTaxCalculation;
         Line.SetRange("Document Type", Header."Document Type");
         Line.SetRange("Document No.", Header."No.");

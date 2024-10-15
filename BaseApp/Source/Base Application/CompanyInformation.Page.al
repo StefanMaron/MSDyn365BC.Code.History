@@ -365,11 +365,6 @@ Page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your company in connection with electronic document exchange.';
                 }
-                field("Use GLN in Electronic Document"; "Use GLN in Electronic Document")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
-                }
                 field("Auto. Send Transactions"; "Auto. Send Transactions")
                 {
                     ApplicationArea = Intercompany;
@@ -777,7 +772,7 @@ Page 1 "Company Information"
     var
         SessionSetting: SessionSettings;
     begin
-        SessionSetting.Init;
+        SessionSetting.Init();
         SessionSetting.RequestSessionUpdate(false);
     end;
 }

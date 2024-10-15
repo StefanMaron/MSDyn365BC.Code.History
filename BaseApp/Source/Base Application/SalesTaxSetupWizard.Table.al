@@ -155,10 +155,10 @@ table 10807 "Sales Tax Setup Wizard"
     procedure SetTaxGroup(var TaxGroup: Record "Tax Group")
     begin
         if not TaxGroup.Get(TaxableCodeTxt) then begin
-            TaxGroup.Init;
+            TaxGroup.Init();
             TaxGroup.Validate(Code, TaxableCodeTxt);
             TaxGroup.Validate(Description, TaxableDescriptionTxt);
-            TaxGroup.Insert;
+            TaxGroup.Insert();
         end;
     end;
 
@@ -177,9 +177,9 @@ table 10807 "Sales Tax Setup Wizard"
             JurisdictionCode := GenerateTaxJurisdictionCode;
 
         if NewJurisdiction then begin
-            TaxJurisdiction.Init;
+            TaxJurisdiction.Init();
             TaxJurisdiction.Validate(Code, JurisdictionCode);
-            TaxJurisdiction.Insert;
+            TaxJurisdiction.Insert();
         end else
             TaxJurisdiction.Get(JurisdictionCode);
 
@@ -190,17 +190,17 @@ table 10807 "Sales Tax Setup Wizard"
         TaxJurisdiction.Validate("Tax Account (Sales)", "Tax Account (Sales)");
         TaxJurisdiction.Validate("Tax Account (Purchases)", "Tax Account (Purchases)");
         TaxJurisdiction.Validate("Country/Region", "Country/Region");
-        TaxJurisdiction.Modify;
+        TaxJurisdiction.Modify();
     end;
 
     procedure SetTaxArea(var TaxArea: Record "Tax Area")
     begin
         if not TaxArea.Get("Tax Area Code") then begin
-            TaxArea.Init;
+            TaxArea.Init();
             TaxArea.Validate(Code, "Tax Area Code");
             TaxArea.Validate(Description, "Tax Area Code");
             TaxArea.Validate("Country/Region", "Country/Region");
-            TaxArea.Insert;
+            TaxArea.Insert();
         end;
     end;
 
@@ -213,10 +213,10 @@ table 10807 "Sales Tax Setup Wizard"
 
         if JurisdictionCode <> '' then
             if not TaxAreaLine.Get(TaxArea.Code, JurisdictionCode) then begin
-                TaxAreaLine.Init;
+                TaxAreaLine.Init();
                 TaxAreaLine.Validate("Tax Area", TaxArea.Code);
                 TaxAreaLine.Validate("Tax Jurisdiction Code", JurisdictionCode);
-                TaxAreaLine.Insert;
+                TaxAreaLine.Insert();
             end;
     end;
 
@@ -231,8 +231,8 @@ table 10807 "Sales Tax Setup Wizard"
             TaxDetail.SetRange("Tax Jurisdiction Code", JurisdictionCode);
             TaxDetail.SetRange("Tax Group Code", Group);
             if not TaxDetail.IsEmpty then
-                TaxDetail.DeleteAll;
-            TaxDetail.Init;
+                TaxDetail.DeleteAll();
+            TaxDetail.Init();
             TaxDetail.Validate("Tax Jurisdiction Code", JurisdictionCode);
             TaxDetail.Validate("Tax Group Code", Group);
             TaxDetail.Validate("Tax Type", TaxDetail."Tax Type"::"Sales and Use Tax");
@@ -321,7 +321,7 @@ table 10807 "Sales Tax Setup Wizard"
 
         TaxAreaLine.SetRange("Tax Area", "Tax Area Code");
         if not TaxAreaLine.IsEmpty then
-            TaxAreaLine.DeleteAll;
+            TaxAreaLine.DeleteAll();
         SetTaxAreaLine(TaxArea, State);
         SetTaxAreaLine(TaxArea, County);
         SetTaxAreaLine(TaxArea, City);

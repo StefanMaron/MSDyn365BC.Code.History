@@ -1,4 +1,4 @@
-﻿page 5510 "Production Journal"
+page 5510 "Production Journal"
 {
     Caption = 'Production Journal';
     DataCaptionExpression = GetCaption;
@@ -694,7 +694,7 @@
     var
         ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveItemJnlLine.DeleteLineConfirm(Rec) then
             exit(false);
         ReserveItemJnlLine.DeleteLine(Rec);
@@ -911,7 +911,7 @@
 
     local procedure DeleteRecTemp()
     begin
-        TempItemJrnlLine.DeleteAll;
+        TempItemJrnlLine.DeleteAll();
 
         if Find('-') then
             repeat
@@ -919,7 +919,7 @@
                     "Entry Type"::Consumption:
                         if "Quantity (Base)" = 0 then begin
                             TempItemJrnlLine := Rec;
-                            TempItemJrnlLine.Insert;
+                            TempItemJrnlLine.Insert();
 
                             Delete;
                         end;
@@ -928,7 +928,7 @@
                            ("Output Quantity (Base)" = 0) and ("Scrap Quantity (Base)" = 0)
                         then begin
                             TempItemJrnlLine := Rec;
-                            TempItemJrnlLine.Insert;
+                            TempItemJrnlLine.Insert();
 
                             Delete;
                         end;
@@ -944,7 +944,7 @@
                 "Changed by User" := false;
                 Insert;
             until TempItemJrnlLine.Next = 0;
-        TempItemJrnlLine.DeleteAll;
+        TempItemJrnlLine.DeleteAll();
     end;
 
     procedure SetFilterGroup()

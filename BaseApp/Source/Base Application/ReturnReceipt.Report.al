@@ -33,14 +33,14 @@ report 10082 "Return Receipt"
                 trigger OnAfterGetRecord()
                 begin
                     TempReturnReceiptLine := "Return Receipt Line";
-                    TempReturnReceiptLine.Insert;
+                    TempReturnReceiptLine.Insert();
                     HighestLineNo := "Line No.";
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempReturnReceiptLine.Reset;
-                    TempReturnReceiptLine.DeleteAll;
+                    TempReturnReceiptLine.Reset();
+                    TempReturnReceiptLine.DeleteAll();
                 end;
             }
             dataitem("Sales Comment Line"; "Sales Comment Line")
@@ -61,7 +61,7 @@ report 10082 "Return Receipt"
                         "Line No." := HighestLineNo + 1000;
                         HighestLineNo := "Line No.";
                     end;
-                    TempReturnReceiptLine.Insert;
+                    TempReturnReceiptLine.Insert();
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -302,7 +302,7 @@ report 10082 "Return Receipt"
 
                         trigger OnPreDataItem()
                         begin
-                            NumberOfLines := TempReturnReceiptLine.Count;
+                            NumberOfLines := TempReturnReceiptLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                         end;
@@ -314,7 +314,7 @@ report 10082 "Return Receipt"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             ReturnReceiptPrinted.Run("Return Receipt Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -374,7 +374,7 @@ report 10082 "Return Receipt"
 
             trigger OnPreDataItem()
             begin
-                CompanyInformation.Get;
+                CompanyInformation.Get();
                 if PrintCompany then
                     FormatAddress.Company(CompanyAddress, CompanyInformation)
                 else
@@ -546,7 +546,7 @@ report 10082 "Return Receipt"
             TempReturnReceiptLine."Description 2" :=
               CopyStr(CopyStr(Comment, SpacePointer + 1), 1, MaxStrLen(TempReturnReceiptLine."Description 2"));
         end;
-        TempReturnReceiptLine.Insert;
+        TempReturnReceiptLine.Insert();
     end;
 }
 

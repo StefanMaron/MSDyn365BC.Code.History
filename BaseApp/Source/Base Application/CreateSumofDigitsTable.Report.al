@@ -72,8 +72,8 @@ report 5683 "Create Sum of Digits Table"
         DeprTableHeader."Period Length" := DeprTableHeader."Period Length"::Year;
         DeprTableHeader."Total No. of Units" := 0;
         DeprTableLine.SetRange("Depreciation Table Code", DeprTableCode);
-        DeprTableLine.DeleteAll;
-        DeprTableHeader.Modify;
+        DeprTableLine.DeleteAll();
+        DeprTableHeader.Modify();
 
         Clear(DeprTableLine);
         DeprTableLine."Depreciation Table Code" := DeprTableCode;
@@ -89,7 +89,7 @@ report 5683 "Create Sum of Digits Table"
             CurrentDigitSum := CurrentDigitSum + CurrentDigit;
             TotalPercentSum := TotalPercentSum + DeprTableLine."Period Depreciation %";
             DeprTableLine."Period No." := DeprTableLine."Period No." + 1;
-            DeprTableLine.Insert;
+            DeprTableLine.Insert();
         end;
     end;
 }

@@ -53,7 +53,7 @@ table 9059 "Administration Cue"
         field(25; "CDS Integration Errors"; Integer)
         {
             CalcFormula = Count ("Integration Synch. Job Errors");
-            Caption = 'CDS Integration Errors';
+            Caption = 'Common Data Service Integration Errors';
             FieldClass = FlowField;
         }
         field(26; "Coupled Data Synch Errors"; Integer)

@@ -1,16 +1,19 @@
 {
   "folders": [
     {
-      "path": "./HybridBaseDeployment/Test/HybridBaseDeploymentTest"
+      "path": "./HybridBaseDeployment/Test/Intelligent Cloud Base Tests"
     },
     {
-      "path": "./ImageAnalysis/Test/ImageAnalysisTest"
+      "path": "./AMCBanking365Fundamentals/Test/AMC Banking 365 Fundamentals Tests"
     },
     {
-      "path": "./HybridBC/Test/HybridBCTest"
+      "path": "./ImageAnalysis/Test/Image Analyzer Tests"
     },
     {
-      "path": "./QuickbooksPayrollFileImport/Test/QuickbooksPayrollFileImportTest"
+      "path": "./HybridBC/Test/Business Central Intelligent Cloud Tests"
+    },
+    {
+      "path": "./QuickbooksPayrollFileImport/Test/Quickbooks Payroll File Import Tests"
     },
     {
       "path": "./TestFramework/TestLibraries"
@@ -28,19 +31,19 @@
       "path": "./system application/test/System Application Test/Extension Management/testArtifacts"
     },
     {
-      "path": "./MX_DIOT/Test/MX_DIOTTest"
+      "path": "./MX_DIOT/Test/Tests for MX DIOT Extension"
     },
     {
-      "path": "./EssentialBusinessHeadlines/Test/EssentialBusinessHeadlinesTest"
+      "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
-      "path": "./PayPalPaymentsStandard/Test/PayPalPaymentsStandardTest"
+      "path": "./PayPalPaymentsStandard/Test/PayPal Payments Standard Tests"
     },
     {
-      "path": "./UKSendRemittanceAdvice/Test/UKSendRemittanceAdviceTest"
+      "path": "./UKSendRemittanceAdvice/Test/Send remittance advice by email Tests"
     },
     {
-      "path": "./EnvestnetYodleeBankFeeds/Test/EnvestnetYodleeBankFeedsTest"
+      "path": "./EnvestnetYodleeBankFeeds/Test/Envestnet Yodlee Bank Feeds Tests"
     },
     {
       "path": "./BaseApp/Test/Tests-Bank"
@@ -139,10 +142,13 @@
       "path": "./BaseApp/Test/Tests-Workflow"
     },
     {
-      "path": "./SalesAndInventoryForecast/Test/SalesAndInventoryForecastTest"
+      "path": "./SalesAndInventoryForecast/Test/Sales and Inventory Forecast Tests"
     },
     {
-      "path": "./APIV1/Test/APIV1Test"
+      "path": "./APIV1/Test/_Exclude_APIV1_ Tests"
+    },
+    {
+      "path": "./LatePaymentPredictor/Test/Late Payment Prediction Tests"
     }
   ],
   "settings": {

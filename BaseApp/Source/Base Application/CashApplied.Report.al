@@ -207,7 +207,7 @@ report 10041 "Cash Applied"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := "Cust. Ledger Entry".GetFilters;
         SalespersonFilterString := "Cust. Ledger Entry".GetFilter("Salesperson Code");
     end;

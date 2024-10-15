@@ -14,13 +14,11 @@ codeunit 138943 "BC O365 Customer List Tests"
         EventSubscriberInvoicingApp: Codeunit "EventSubscriber Invoicing App";
         Assert: Codeunit Assert;
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
-        TestProxyNotifMgtExt: Codeunit "Test Proxy Notif. Mgt. Ext.";
         IsInitialized: Boolean;
         UnblockCustomerQst: Label 'Are you sure you want to unblock the customer for further business?';
-        TaxSetupNeededTxt: Label 'You haven''t set up tax information for your business.';
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestNormalInvoice()
     var
@@ -215,11 +213,10 @@ codeunit 138943 "BC O365 Customer List Tests"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
-        BindSubscription(TestProxyNotifMgtExt);
 
         WorkDate(Today);
 
@@ -315,12 +312,11 @@ codeunit 138943 "BC O365 Customer List Tests"
         exit(ContBusRel."Contact No.");
     end;
 
-    [SendNotificationHandler]
+    [SendNotificationHandler(true)]
     [Scope('OnPrem')]
-    procedure TaxNotificationHandler(var TheNotification: Notification): Boolean
+    procedure VerifyNoNotificationsAreSend(var TheNotification: Notification): Boolean
     begin
-        Assert.IsTrue(StrPos(TheNotification.Message, TaxSetupNeededTxt) <> 0,
-          'An unexpected notification was sent.');
+        Assert.Fail('No notification should be thrown.');
     end;
 
     [RecallNotificationHandler]

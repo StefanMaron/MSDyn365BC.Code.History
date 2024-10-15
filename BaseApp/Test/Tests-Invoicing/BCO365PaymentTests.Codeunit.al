@@ -18,8 +18,6 @@ codeunit 138961 "BC O365 Payment Tests"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
-        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
-        TestProxyNotifMgtExt: Codeunit "Test Proxy Notif. Mgt. Ext.";
         EmailProvider: Option "Office 365",Other;
         IsInitialized: Boolean;
         MarkedPaidMsg: Label 'Invoice payment was registered.';
@@ -62,7 +60,25 @@ codeunit 138961 "BC O365 Payment Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,O365PaymentTermsListHandler,O365PaymentTermsCardHandler')]
+    [HandlerFunctions('O365PaymentTermsCardHandler')]
+    [Scope('OnPrem')]
+    procedure NewPaymentTermsHasDescription()
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        Initialize;
+        LibraryLowerPermissions.SetInvoiceApp;
+
+        // [WHEN] A new payment term is created
+        PAGE.RunModal(PAGE::"BC O365 Payment Terms Card");
+
+        // [THEN] That new payment term has a description equal to the code
+        PaymentTerms.Get(DefaultPaymentTermsCode);
+        Assert.AreEqual(DefaultPaymentTermsCode, PaymentTerms.GetDescriptionInCurrentLanguage, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,O365PaymentTermsListHandler,O365PaymentTermsCardHandler')]
     [Scope('OnPrem')]
     procedure DefaultPaymentTermsUsedOnNewInvoiceExistingCustomer()
     var
@@ -86,11 +102,10 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365SalesInvoice."Sell-to Customer Name".Value(CustomerName);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         Assert.AreEqual(DefaultPaymentTermsCode, BCO365SalesInvoice."Payment Terms Code".Value, '');
-        NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,O365PaymentTermsListHandler,O365PaymentTermsCardHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,O365PaymentTermsListHandler,O365PaymentTermsCardHandler')]
     [Scope('OnPrem')]
     procedure DefaultPaymentTermsUsedOnNewInvoiceNewCustomer()
     var
@@ -110,11 +125,10 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365SalesInvoice."Sell-to Customer Name".Value(LibraryInvoicingApp.CreateCustomer);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
         Assert.AreEqual(DefaultPaymentTermsCode, BCO365SalesInvoice."Payment Terms Code".Value, '');
-        NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,O365PaymentTermsCardHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,O365PaymentTermsCardHandler')]
     [Scope('OnPrem')]
     procedure ModifyCodeForAlreadyAppliedPaymentTermsAndSendInvoice()
     var
@@ -132,7 +146,7 @@ codeunit 138961 "BC O365 Payment Tests"
         BCO365SalesInvoice.OpenNew;
         BCO365SalesInvoice."Sell-to Customer Name".Value(LibraryInvoicingApp.CreateCustomer);
         BCO365SalesInvoice.Lines.Description.Value(LibraryInvoicingApp.CreateItem);
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         Assert.AreEqual(
           O365SalesInitialSetup."Default Payment Terms Code", BCO365SalesInvoice."Payment Terms Code".Value,
           'Default payment terms is not assigned correctly to the invoice');
@@ -158,11 +172,10 @@ codeunit 138961 "BC O365 Payment Tests"
         Assert.AreEqual(
           DefaultPaymentTermsCode, BCO365SalesInvoice."Payment Terms Code".Value,
           'Default payment terms is not updated correctly on the invoice');
-        NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,O365PaymentTermsListHandler,O365PaymentTermsCardHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,O365PaymentTermsListHandler,O365PaymentTermsCardHandler')]
     [Scope('OnPrem')]
     procedure ModifyPaymentTermsDaysCalculation()
     var
@@ -175,7 +188,7 @@ codeunit 138961 "BC O365 Payment Tests"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] Due date is changed for the default payment terms
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         PaymentTerms.Get(O365SalesInitialSetup."Default Payment Terms Code");
         BCO365PaymentTermsCard.SetPaymentTerms(PaymentTerms);
         BCO365PaymentTermsCard.RunModal;
@@ -196,7 +209,6 @@ codeunit 138961 "BC O365 Payment Tests"
           CalcDate(StrSubstNo('+%1D', PaymentTermsDays), WorkDate), BCO365SalesInvoice."Due Date".AsDate,
           'Due date is not updated correctly');
         BCO365SalesInvoice.Close;
-        NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     [Test]
@@ -222,7 +234,7 @@ codeunit 138961 "BC O365 Payment Tests"
         Initialize;
         LibraryLowerPermissions.SetInvoiceApp;
 
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         PreviousPaymentMethodCode := O365SalesInitialSetup."Default Payment Method Code";
 
         // [GIVEN] An existing customer
@@ -309,7 +321,7 @@ codeunit 138961 "BC O365 Payment Tests"
     begin
         Initialize;
         LibraryLowerPermissions.SetInvoiceApp;
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         PreviousPaymentMethodCode := O365SalesInitialSetup."Default Payment Method Code";
 
         // [GIVEN] An existing customer
@@ -325,7 +337,7 @@ codeunit 138961 "BC O365 Payment Tests"
         ExistingInvoiceNo := LibraryInvoicingApp.CreateInvoice;
 
         // [WHEN] The default payment term and payment method is renamed through the card but not selected
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
 
         OldDefaultPaymentMethodCode := O365SalesInitialSetup."Default Payment Method Code";
         OldDefaultPaymentTermsCode := O365SalesInitialSetup."Default Payment Terms Code";
@@ -391,7 +403,7 @@ codeunit 138961 "BC O365 Payment Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
     [Scope('OnPrem')]
     procedure CanSendInvoiceAfterDeletingPaymentTerms()
     var
@@ -402,13 +414,12 @@ codeunit 138961 "BC O365 Payment Tests"
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] All but the default payment term is deleted
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         PaymentTerms.SetFilter(Code, '<>%1', O365SalesInitialSetup."Default Payment Terms Code");
         PaymentTerms.DeleteAll(true);
 
         // [THEN] An invoice can be sent
         CreateAndSendInvoice;
-        NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     [Test]
@@ -424,11 +435,10 @@ codeunit 138961 "BC O365 Payment Tests"
 
         // [WHEN] Removing the default payment term
         // [THEN] An error is thrown
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         PaymentTerms.Get(O365SalesInitialSetup."Default Payment Terms Code");
         asserterror PaymentTerms.Delete(true);
         Assert.ExpectedError(CannotRemoveDefaultPaymentTermsErr);
-        NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     local procedure AddPaymentForInvoice(DocumentNo: Code[20])
@@ -474,10 +484,10 @@ codeunit 138961 "BC O365 Payment Tests"
         BindActiveDirectoryMockEvents;
 
         LibraryVariableStorage.AssertEmpty;
-        SMTPMailSetup.DeleteAll;
+        SMTPMailSetup.DeleteAll();
         EventSubscriberInvoicingApp.Clear;
         ApplicationArea('#Invoicing');
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         Clear(PreviousPaymentMethodCode);
         Clear(DefaultPaymentTermsCode);
         Clear(PaymentTermsDays);
@@ -492,11 +502,10 @@ codeunit 138961 "BC O365 Payment Tests"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
-        BindSubscription(TestProxyNotifMgtExt);
 
         WorkDate(Today);
         IsInitialized := true;
@@ -626,14 +635,6 @@ codeunit 138961 "BC O365 Payment Tests"
     procedure VerifyNoNotificationsAreSend(var TheNotification: Notification): Boolean
     begin
         Assert.Fail('No notification should be thrown.');
-    end;
-
-    [SendNotificationHandler]
-    [Scope('OnPrem')]
-    procedure TaxNotificationHandler(var TheNotification: Notification): Boolean
-    begin
-        Assert.IsTrue(StrPos(TheNotification.Message, TaxSetupNeededMsg) <> 0,
-          'An unexpected notification was sent.');
     end;
 }
 

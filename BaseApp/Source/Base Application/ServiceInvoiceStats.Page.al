@@ -294,7 +294,7 @@ page 10056 "Service Invoice Stats."
                     CreditLimitLCYExpendedPct := Round(Cust."Balance (LCY)" / Cust."Credit Limit (LCY)" * 10000, 1);
 
         SalesTaxCalculate.StartSalesTaxCalculation;
-        TempSalesTaxLine.DeleteAll;
+        TempSalesTaxLine.DeleteAll();
 
         OnAfterCalculateSalesTax(ServInvLine, TempSalesTaxLine, TempSalesTaxAmtLine, SalesTaxCalculationOverridden);
         if not SalesTaxCalculationOverridden then
@@ -327,7 +327,7 @@ page 10056 "Service Invoice Stats."
                             BrkIdx := BrkIdx - 1;
                             BreakdownLabel[BrkIdx] := Text008;
                         end else
-                            BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
+                            BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
                     end;
                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
                 until Next = 0;

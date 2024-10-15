@@ -39,7 +39,7 @@ page 10141 "Deposit Subform"
                     trigger OnValidate()
                     begin
                         // special case:  OnValidate for Account No. field changed the Currency code, now we must change it back.
-                        DepositHeader.Reset;
+                        DepositHeader.Reset();
                         DepositHeader.SetCurrentKey("Journal Template Name", "Journal Batch Name");
                         DepositHeader.SetRange("Journal Template Name", "Journal Template Name");
                         DepositHeader.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -62,8 +62,13 @@ page 10141 "Deposit Subform"
                 field("Document Type"; "Document Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    OptionCaption = ' ,Payment,,,,,Refund';
                     ToolTip = 'Specifies the type of the document that the deposit is related to.';
+
+                    trigger OnValidate()
+                    begin
+                        if not ("Document Type" in ["Document Type"::Payment, "Document Type"::Refund]) then
+                            error(DocumentTypeErr);
+                    end;
                 }
                 field("Document No."; "Document No.")
                 {
@@ -315,6 +320,7 @@ page 10141 "Deposit Subform"
         GenJnlShowEntries: Codeunit "Gen. Jnl.-Show Entries";
         GenJnlApply: Codeunit "Gen. Jnl.-Apply";
         ShortcutDimCode: array[8] of Code[20];
+        DocumentTypeErr: Label 'Document Type should be Payment or Refund.';
 
     local procedure CopyValuesFromHeader()
     var

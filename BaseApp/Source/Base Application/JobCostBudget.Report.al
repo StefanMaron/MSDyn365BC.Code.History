@@ -169,7 +169,7 @@ report 10215 "Job Cost Budget"
                                 "Job Task"."Job Task Type"::Posting:
                                     SetRange("Job Task No.", "Job Task"."Job Task No.");
                                 "Job Task"."Job Task Type"::Heading, "Job Task"."Job Task Type"::"Begin-Total":
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 "Job Task"."Job Task Type"::Total, "Job Task"."Job Task Type"::"End-Total":
                                     SetFilter("Job Task No.", "Job Task".Totaling);
                             end;
@@ -255,7 +255,7 @@ report 10215 "Job Cost Budget"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         JobFilter := Job.GetFilters;
         if BudgetAmountsPer = BudgetAmountsPer::Schedule then
             BudgetOptionText := Text003

@@ -135,7 +135,7 @@ report 10079 "UPS COD Tags"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FormatCompanyAddress;
     end;
 

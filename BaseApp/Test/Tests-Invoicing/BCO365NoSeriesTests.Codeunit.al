@@ -15,12 +15,10 @@ codeunit 138947 "BC O365 No. Series Tests"
         LibraryRandom: Codeunit "Library - Random";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         Assert: Codeunit Assert;
-        TestProxyNotifMgtExt: Codeunit "Test Proxy Notif. Mgt. Ext.";
         IsInitialized: Boolean;
-        TaxSetupNeededTxt: Label 'You haven''t set up tax information for your business.';
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,NumberSeriesModalPageHandler,NoSeriesConfirmationHandler,EmailDialogModalPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,NumberSeriesModalPageHandler,NoSeriesConfirmationHandler,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestChangingNextInvoiceNumber()
     var
@@ -64,7 +62,7 @@ codeunit 138947 "BC O365 No. Series Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,NumberSeriesModalPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,NumberSeriesModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestChangingNextEstimateNumber()
     var
@@ -108,7 +106,7 @@ codeunit 138947 "BC O365 No. Series Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,NumberSeriesModalPageHandler,NoSeriesConfirmationHandler,EmailDialogModalPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,NumberSeriesModalPageHandler,NoSeriesConfirmationHandler,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestChangingInvoiceNumbersTwice()
     var
@@ -188,12 +186,10 @@ codeunit 138947 "BC O365 No. Series Tests"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
-        BindSubscription(TestProxyNotifMgtExt);
-
         WorkDate(Today);
         IsInitialized := true;
     end;
@@ -253,14 +249,6 @@ codeunit 138947 "BC O365 No. Series Tests"
     procedure VerifyNoNotificationsAreSend(var TheNotification: Notification): Boolean
     begin
         Assert.Fail('No notification should be thrown.');
-    end;
-
-    [SendNotificationHandler]
-    [Scope('OnPrem')]
-    procedure TaxNotificationHandler(var TheNotification: Notification): Boolean
-    begin
-        Assert.IsTrue(StrPos(TheNotification.Message, TaxSetupNeededTxt) <> 0,
-          'An unexpected notification was sent.');
     end;
 }
 

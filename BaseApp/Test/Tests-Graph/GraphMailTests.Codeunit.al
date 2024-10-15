@@ -49,14 +49,14 @@ codeunit 138926 "Graph Mail Tests"
         Initialize;
         LibraryLowerPermissions.SetInvoiceApp;
 
-        GraphMailSetup.Insert;
+        GraphMailSetup.Insert();
 
         Assert.IsFalse(GraphMailSetup.IsEnabled, '');
 
         // Execute
         GraphMailSetup.Initialize(true);
         GraphMailSetup.Enabled := true;
-        GraphMailSetup.Modify;
+        GraphMailSetup.Modify();
 
         // Verify
         Assert.IsTrue(GraphMailSetup.IsEnabled, '');
@@ -251,7 +251,6 @@ codeunit 138926 "Graph Mail Tests"
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
         GraphMailSetup: Record "Graph Mail Setup";
-        O365TaxSettingsCard: TestPage "O365 Tax Settings Card";
         MockAzureKeyVaultSecretProvider: DotNet MockAzureKeyVaultSecretProvider;
         TestSecret: Text;
     begin
@@ -276,19 +275,10 @@ codeunit 138926 "Graph Mail Tests"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
-
-        O365TaxSettingsCard.OpenNew;
-        O365TaxSettingsCard.State.Value('AB');
-        O365TaxSettingsCard.StateRate.SetValue(6);
-        O365TaxSettingsCard.City.Value('TEST');
-        O365TaxSettingsCard.CityRate.SetValue(4);
-        O365TaxSettingsCard.Default.DrillDown;
-        O365TaxSettingsCard.Close;
-
         IsInitialized := true;
     end;
 

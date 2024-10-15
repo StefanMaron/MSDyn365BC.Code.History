@@ -207,7 +207,7 @@ page 10046 "Purch. Credit Memo Stats."
         TaxAmount := 0;
 
         SalesTaxCalculate.StartSalesTaxCalculation;
-        TempSalesTaxLine.DeleteAll;
+        TempSalesTaxLine.DeleteAll();
         if TaxArea."Use External Tax Engine" then
             SalesTaxCalculate.CallExternalTaxEngineForDoc(DATABASE::"Purch. Cr. Memo Hdr.", 0, "No.")
         else begin
@@ -234,7 +234,7 @@ page 10046 "Purch. Credit Memo Stats."
                             BrkIdx := BrkIdx - 1;
                             BreakdownLabel[BrkIdx] := Text008;
                         end else
-                            BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
+                            BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
                     end;
                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
                     TaxAmount := TaxAmount + "Tax Amount";

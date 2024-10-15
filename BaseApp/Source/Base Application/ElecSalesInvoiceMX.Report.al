@@ -49,25 +49,25 @@ report 10477 "Elec. Sales Invoice MX"
                             TempSalesInvoiceLine."Description 2" :=
                               CopyStr(CopyStr(Comment, SpacePointer + 1), 1, MaxStrLen(TempSalesInvoiceLine."Description 2"));
                         end;
-                        TempSalesInvoiceLine.Insert;
+                        TempSalesInvoiceLine.Insert();
                     end;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     TempSalesInvoiceLine := "Sales Invoice Line";
-                    TempSalesInvoiceLine.Insert;
+                    TempSalesInvoiceLine.Insert();
                     HighestLineNo := "Line No.";
                     TempSalesInvoiceLineAsm := "Sales Invoice Line";
-                    TempSalesInvoiceLineAsm.Insert;
+                    TempSalesInvoiceLineAsm.Insert();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempSalesInvoiceLine.Reset;
-                    TempSalesInvoiceLine.DeleteAll;
-                    TempSalesInvoiceLineAsm.Reset;
-                    TempSalesInvoiceLineAsm.DeleteAll;
+                    TempSalesInvoiceLine.Reset();
+                    TempSalesInvoiceLine.DeleteAll();
+                    TempSalesInvoiceLineAsm.Reset();
+                    TempSalesInvoiceLineAsm.DeleteAll();
                 end;
             }
             dataitem("Sales Comment Line"; "Sales Comment Line")
@@ -96,7 +96,7 @@ report 10477 "Elec. Sales Invoice MX"
                         TempSalesInvoiceLine."Description 2" :=
                           CopyStr(CopyStr(Comment, SpacePointer + 1), 1, MaxStrLen(TempSalesInvoiceLine."Description 2"));
                     end;
-                    TempSalesInvoiceLine.Insert;
+                    TempSalesInvoiceLine.Insert();
                 end;
 
                 trigger OnPreDataItem()
@@ -107,7 +107,7 @@ report 10477 "Elec. Sales Invoice MX"
                         "Line No." := HighestLineNo + 1000;
                         HighestLineNo := "Line No.";
                     end;
-                    TempSalesInvoiceLine.Insert;
+                    TempSalesInvoiceLine.Insert();
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -535,7 +535,7 @@ report 10477 "Elec. Sales Invoice MX"
                         trigger OnPreDataItem()
                         begin
                             Clear(AmountExclInvDisc);
-                            NumberOfLines := TempSalesInvoiceLine.Count;
+                            NumberOfLines := TempSalesInvoiceLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                             TotalAmountIncludingVAT := 0;
@@ -641,7 +641,7 @@ report 10477 "Elec. Sales Invoice MX"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             SalesInvPrinted.Run("Sales Invoice Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -803,9 +803,9 @@ report 10477 "Elec. Sales Invoice MX"
         if not CurrReport.UseRequestPage then
             InitLogInteraction;
 
-        CompanyInformation.Get;
-        SalesSetup.Get;
-        SourceCodeSetup.Get;
+        CompanyInformation.Get();
+        SalesSetup.Get();
+        SourceCodeSetup.Get();
         PrintCompany := true;
 
         case SalesSetup."Logo Position on Documents" of
@@ -815,12 +815,12 @@ report 10477 "Elec. Sales Invoice MX"
                 CompanyInformation.CalcFields(Picture);
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -962,7 +962,7 @@ report 10477 "Elec. Sales Invoice MX"
         SalesShipmentLine: Record "Sales Shipment Line";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        TempPostedAsmLine.DeleteAll;
+        TempPostedAsmLine.DeleteAll();
         if not DisplayAssemblyInformation then
             exit;
         if not TempSalesInvoiceLineAsm.Get(TempSalesInvoiceLine."Document No.", TempSalesInvoiceLine."Line No.") then
@@ -1003,11 +1003,11 @@ report 10477 "Elec. Sales Invoice MX"
         TempPostedAsmLine.SetRange("Unit of Measure Code", PostedAsmLine."Unit of Measure Code");
         if TempPostedAsmLine.FindFirst then begin
             TempPostedAsmLine.Quantity += PostedAsmLine.Quantity;
-            TempPostedAsmLine.Modify;
+            TempPostedAsmLine.Modify();
         end else begin
             Clear(TempPostedAsmLine);
             TempPostedAsmLine := PostedAsmLine;
-            TempPostedAsmLine.Insert;
+            TempPostedAsmLine.Insert();
         end;
     end;
 

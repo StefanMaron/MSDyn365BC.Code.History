@@ -410,14 +410,14 @@ table 302 "Finance Charge Memo Header"
         FinChrgMemoIssue.DeleteHeader(Rec, IssuedFinChrgMemoHdr);
 
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", "No.");
-        FinChrgMemoLine.DeleteAll;
+        FinChrgMemoLine.DeleteAll();
 
         FinChrgMemoCommentLine.SetRange(Type, FinChrgMemoCommentLine.Type::"Finance Charge Memo");
         FinChrgMemoCommentLine.SetRange("No.", "No.");
-        FinChrgMemoCommentLine.DeleteAll;
+        FinChrgMemoCommentLine.DeleteAll();
 
         if IssuedFinChrgMemoHdr."No." <> '' then begin
-            Commit;
+            Commit();
             if ConfirmManagement.GetResponse(
                  StrSubstNo(Text001, IssuedFinChrgMemoHdr."No."), true)
             then begin
@@ -429,7 +429,7 @@ table 302 "Finance Charge Memo Header"
 
     trigger OnInsert()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if "No." = '' then begin
             TestNoSeries;
             NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series");
@@ -503,7 +503,7 @@ table 302 "Finance Charge Memo Header"
     var
         IsHandled: Boolean;
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         IsHandled := false;
         OnBeforeTestNoSeries(Rec, IsHandled);
         if not IsHandled then begin
@@ -519,7 +519,7 @@ table 302 "Finance Charge Memo Header"
         NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         IsHandled := false;
         OnBeforeGetNoSeriesCode(Rec, SalesSetup, NoSeriesCode, IsHandled);
         if IsHandled then
@@ -535,7 +535,7 @@ table 302 "Finance Charge Memo Header"
     var
         IsHandled: Boolean;
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         IsHandled := false;
         OnBeforeGetIssuingNoSeriesCode(Rec, SalesSetup, IssuingNos, IsHandled);
         if IsHandled then
@@ -550,7 +550,7 @@ table 302 "Finance Charge Memo Header"
     begin
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", "No.");
         if FinChrgMemoLine.Find('-') then begin
-            Commit;
+            Commit();
             if not
                Confirm(
                  Text002 +
@@ -558,7 +558,7 @@ table 302 "Finance Charge Memo Header"
                  false)
             then
                 exit(true);
-            FinChrgMemoLine.DeleteAll;
+            FinChrgMemoLine.DeleteAll();
             Modify;
         end;
     end;
@@ -569,7 +569,7 @@ table 302 "Finance Charge Memo Header"
     begin
         TestField("Fin. Charge Terms Code");
         FinChrgTerms.Get("Fin. Charge Terms Code");
-        FinChrgMemoLine.Reset;
+        FinChrgMemoLine.Reset();
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", "No.");
         FinChrgMemoLine."Finance Charge Memo No." := "No.";
         if FinChrgMemoLine.Find('+') then
@@ -584,7 +584,7 @@ table 302 "Finance Charge Memo Header"
         end;
         if FinChrgTerms."Additional Fee (LCY)" <> 0 then begin
             NextLineNo := NextLineNo + 10000;
-            FinChrgMemoLine.Init;
+            FinChrgMemoLine.Init();
             FinChrgMemoLine."Line No." := NextLineNo;
             FinChrgMemoLine.Type := FinChrgMemoLine.Type::"G/L Account";
             TestField("Customer Posting Group");
@@ -607,7 +607,7 @@ table 302 "Finance Charge Memo Header"
                 FinChrgMemoLine.Validate(Amount, CurrForFinChrgTerms."Additional Fee");
             end;
             OnBeforeInsertFinChrgMemoLine(FinChrgMemoLine);
-            FinChrgMemoLine.Insert;
+            FinChrgMemoLine.Insert();
             if TransferExtendedText.FinChrgMemoCheckIfAnyExtText(FinChrgMemoLine, false) then
                 TransferExtendedText.InsertFinChrgMemoExtText(FinChrgMemoLine);
         end;
@@ -620,7 +620,7 @@ table 302 "Finance Charge Memo Header"
 
     procedure UpdateLines(FinChrgMemoHeader2: Record "Finance Charge Memo Header")
     begin
-        FinChrgMemoLine.Reset;
+        FinChrgMemoLine.Reset();
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", FinChrgMemoHeader2."No.");
         OK := FinChrgMemoLine.Find('-');
         while OK do begin
@@ -657,11 +657,11 @@ table 302 "Finance Charge Memo Header"
 
     local procedure InsertBeginTexts(FinChrgMemoHeader2: Record "Finance Charge Memo Header")
     begin
-        FinChrgText.Reset;
+        FinChrgText.Reset();
         FinChrgText.SetRange("Fin. Charge Terms Code", FinChrgMemoHeader2."Fin. Charge Terms Code");
         FinChrgText.SetRange(Position, FinChrgText.Position::Beginning);
 
-        FinChrgMemoLine.Reset;
+        FinChrgMemoLine.Reset();
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", FinChrgMemoHeader2."No.");
         FinChrgMemoLine."Finance Charge Memo No." := FinChrgMemoHeader2."No.";
         if FinChrgMemoLine.Find('-') then begin
@@ -676,11 +676,11 @@ table 302 "Finance Charge Memo Header"
 
     local procedure InsertEndTexts(FinChrgMemoHeader2: Record "Finance Charge Memo Header")
     begin
-        FinChrgText.Reset;
+        FinChrgText.Reset();
         FinChrgText.SetRange("Fin. Charge Terms Code", FinChrgMemoHeader2."Fin. Charge Terms Code");
         FinChrgText.SetRange(Position, FinChrgText.Position::Ending);
 
-        FinChrgMemoLine.Reset;
+        FinChrgMemoLine.Reset();
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", FinChrgMemoHeader2."No.");
         FinChrgMemoLine."Finance Charge Memo No." := FinChrgMemoHeader2."No.";
         if FinChrgMemoLine.Find('+') then
@@ -707,7 +707,7 @@ table 302 "Finance Charge Memo Header"
             if FinChrgText.Position = FinChrgText.Position::Ending then
                 InsertBlankLine(FinChrgMemoLine."Line Type"::"Ending Text");
             if not FinChrgTerms.Get(FinChrgMemoHeader2."Fin. Charge Terms Code") then
-                FinChrgTerms.Init;
+                FinChrgTerms.Init();
 
             FinChrgMemoHeader2.CalcFields(
               "Remaining Amount", "Interest Amount", "Additional Fee", "VAT Amount");
@@ -717,7 +717,7 @@ table 302 "Finance Charge Memo Header"
 
             repeat
                 NextLineNo := NextLineNo + LineSpacing;
-                FinChrgMemoLine.Init;
+                FinChrgMemoLine.Init();
                 FinChrgMemoLine."Line No." := NextLineNo;
                 FinChrgMemoLine.Description :=
                   CopyStr(
@@ -737,7 +737,7 @@ table 302 "Finance Charge Memo Header"
                     FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::"Beginning Text"
                 else
                     FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::"Ending Text";
-                FinChrgMemoLine.Insert;
+                FinChrgMemoLine.Insert();
             until FinChrgText.Next = 0;
             if FinChrgText.Position = FinChrgText.Position::Beginning then
                 InsertBlankLine(FinChrgMemoLine."Line Type"::"Beginning Text");
@@ -747,10 +747,10 @@ table 302 "Finance Charge Memo Header"
     local procedure InsertBlankLine(LineType: Integer)
     begin
         NextLineNo := NextLineNo + LineSpacing;
-        FinChrgMemoLine.Init;
+        FinChrgMemoLine.Init();
         FinChrgMemoLine."Line No." := NextLineNo;
         FinChrgMemoLine."Line Type" := LineType;
-        FinChrgMemoLine.Insert;
+        FinChrgMemoLine.Insert();
     end;
 
     procedure PrintRecords()
@@ -784,7 +784,7 @@ table 302 "Finance Charge Memo Header"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
@@ -865,7 +865,7 @@ table 302 "Finance Charge Memo Header"
     var
         OldLineNo: Integer;
     begin
-        FinChrgMemoLine.Reset;
+        FinChrgMemoLine.Reset();
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeHeader."No.");
         FinChrgMemoLine.SetRange("Line Type", FinChrgMemoLine."Line Type"::Rounding);
         if FinChrgMemoLine.FindFirst then

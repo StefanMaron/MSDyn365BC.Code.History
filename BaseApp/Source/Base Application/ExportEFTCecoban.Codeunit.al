@@ -30,11 +30,11 @@ codeunit 10096 "Export EFT (Cecoban)"
     [Scope('OnPrem')]
     procedure StartExportFile(BankAccountNo: Code[20])
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
         with BankAccount do begin
-            LockTable;
+            LockTable();
             Get(BankAccountNo);
             TestField("Export Format", "Export Format"::MX);
             TestField("Transit No.");
@@ -93,7 +93,7 @@ codeunit 10096 "Export EFT (Cecoban)"
         ACHCecobanHeader."Future Cecoban Use" := ' ';
         ACHCecobanHeader."Future Bank Use" := ' ';
         ACHCecobanHeader."Currency Code" := '01';
-        ACHCecobanHeader.Modify;
+        ACHCecobanHeader.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -229,7 +229,7 @@ codeunit 10096 "Export EFT (Cecoban)"
         ACHCecobanDetail."Tracking Code" := ExportEFTACH.GenerateTraceNoCode(EFTValues.GetTraceNo, BankAccount."Transit No.");
         ACHCecobanDetail."Return Reason" := 0;
         ACHCecobanDetail."Initial Presentation Date" := Today;
-        ACHCecobanDetail.Modify;
+        ACHCecobanDetail.Modify();
 
         exit(GenerateFullTraceNoCode(EFTValues.GetTraceNo));
     end;
@@ -250,7 +250,7 @@ codeunit 10096 "Export EFT (Cecoban)"
         ACHCecobanFooter."Batch Number sequence part" := EFTValues.GetBatchNo;
         ACHCecobanFooter."Operation Number" := EFTValues.GetSequenceNo;
         ACHCecobanFooter.TCO := EFTValues.GetBatchHashTotal;
-        ACHCecobanFooter.Modify;
+        ACHCecobanFooter.Modify();
 
         EFTValues.SetBatchCount(EFTValues.GetBatchCount + 1);
         IncrementHashTotal(FileHashTotal, EFTValues.GetBatchHashTotal);

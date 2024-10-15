@@ -844,7 +844,7 @@ codeunit 137007 "SCM Inventory Costing"
         // [FEATURE] [UT] [Adjust Cost Item Entries]
         // [SCENARIO 255365] Default value for "Average Cost Calc. Type" in inventory setup should be "Item & Location & Variant"
 
-        InventorySetup.Init;
+        InventorySetup.Init();
         InventorySetup.TestField("Average Cost Calc. Type", InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
     end;
 
@@ -869,7 +869,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Costing");
     end;
 
@@ -1148,7 +1148,7 @@ codeunit 137007 "SCM Inventory Costing"
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         CalculateInventoryValue.InitializeRequest(WorkDate, ItemJournalLine."Document No.", true,
           CalculatePer, ByLocation, ByVariant, true, CalculationBase, false);
-        Commit;
+        Commit();
         CalculateInventoryValue.UseRequestPage(false);
         CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);
         Item.SetRange("No.", Item."No.");
@@ -1210,7 +1210,7 @@ codeunit 137007 "SCM Inventory Costing"
         CreateRevalutionJournal(Item, ItemJournalLine, false, false, CalculatePerValues::Item, CalculationBaseValues::" ");
         CostAmount := LibraryRandom.RandInt(10);
         ItemJournalLine.Validate("Unit Cost (Revalued)", CostAmount);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
@@ -1239,7 +1239,7 @@ codeunit 137007 "SCM Inventory Costing"
           Item."Single-Level Subcontrd. Cost" +
           Item."Single-Level Cap. Ovhd Cost";
 
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure UpdatePurchaseHeader(PurchaseOrderNo: Code[20]; ItemNo: Code[20]; ItemNo2: Code[20]; ItemNo3: Code[20])
@@ -1297,7 +1297,7 @@ codeunit 137007 "SCM Inventory Costing"
         // Select Item Journal Template Name for General Journal Line.
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Revaluation);
         if not ItemJournalTemplate.FindFirst then begin
-            ItemJournalTemplate.Init;
+            ItemJournalTemplate.Init();
             ItemJournalTemplate.Validate(
               Name, CopyStr(LibraryUtility.GenerateRandomCode(ItemJournalTemplate.FieldNo(Name), DATABASE::"Item Journal Template"), 1,
                 MaxStrLen(ItemJournalTemplate.Name)));
@@ -1622,7 +1622,7 @@ codeunit 137007 "SCM Inventory Costing"
     var
         Item: Record Item;
     begin
-        Item.Init;
+        Item.Init();
         Item."No." := ItemNo;
         Item."Single-Level Material Cost" := StandardCost;
         Item."Rolled-up Material Cost" := StandardCost;

@@ -235,11 +235,11 @@ page 10042 "Sales Stats."
         if SalesLine.Find('-') then
             repeat
                 TempSalesLine.Copy(SalesLine);
-                TempSalesLine.Insert;
+                TempSalesLine.Insert();
                 if not TaxArea."Use External Tax Engine" then
                     SalesTaxCalculate.AddSalesLine(TempSalesLine);
             until SalesLine.Next = 0;
-        TempSalesTaxLine.DeleteAll;
+        TempSalesTaxLine.DeleteAll();
 
         OnBeforeCalculateSalesTaxSalesStats(Rec, TempSalesTaxLine, TempSalesTaxAmtLine, SalesTaxCalculationOverridden);
 
@@ -291,7 +291,7 @@ page 10042 "Sales Stats."
 
     trigger OnOpenPage()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         AllowInvDisc :=
           not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=
@@ -450,7 +450,7 @@ page 10042 "Sales Stats."
     begin
         GetVATSpecification;
 
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         SalesLine.FindFirst;
@@ -514,7 +514,7 @@ page 10042 "Sales Stats."
                             BrkIdx := BrkIdx - 1;
                             BreakdownLabel[BrkIdx] := Text008;
                         end else
-                            BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
+                            BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
                     end;
                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
                     if UpdateTaxAmount then

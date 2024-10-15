@@ -64,7 +64,7 @@ report 10110 "Vendor 1099 Information"
                 begin
                     i := i + 1;
                     if i > LastLineNo then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
@@ -100,7 +100,7 @@ report 10110 "Vendor 1099 Information"
                     Total := Total + Amounts[i];
 
                 if LastLineNo = 0 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
@@ -143,9 +143,9 @@ report 10110 "Vendor 1099 Information"
             begin
                 i := i + 1;
                 if i > LastFormType then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 if FormTypeTotal[i, 1] = 0 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 FormTypeCode := FormTypes[i];
                 FormTypeAmount := FormTypeTotal[i, 2];
                 FormTypeCount := FormTypeTotal[i, 1];

@@ -32,7 +32,6 @@ codeunit 137414 "SCM Item Categories"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Item Categories");
-        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Item Categories");
@@ -339,7 +338,7 @@ codeunit 137414 "SCM Item Categories"
 
         AssignItemAttributeValueToCategory(FirstItemCategory, FirstItemAttribute, FirstItemAttributeValue.Value);
         AssignItemAttributeValueToCategory(FirstItemCategory, LastItemAttribute, '');
-        FirstItemAttributeValue.Delete;
+        FirstItemAttributeValue.Delete();
 
         // [THEN] the item attribute should show in the card and in the factbox
         ItemCategories.OpenView;
@@ -724,7 +723,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCard.Close;
 
         FilterItemAttributeValueMapping(ItemAttributeValueMapping, DATABASE::"Item Category", FirstItemCategory.Code, 0);
-        ItemAttributeValueMapping.DeleteAll;
+        ItemAttributeValueMapping.DeleteAll();
         ItemAttributeManagement.DeleteCategoryItemsAttributeValueMapping(FirstItemAttributeValue, FirstItemCategory.Code);
 
         // [THEN] the inherited attributes should show in the card and in the factbox
@@ -1480,7 +1479,7 @@ codeunit 137414 "SCM Item Categories"
         // [SCENARIO 273705] Item Category with empty Code cannot be inserted.
         Initialize;
 
-        ItemCategory.Init;
+        ItemCategory.Init();
         asserterror ItemCategory.Insert(true);
         Assert.ExpectedError('Code must have a value in Item Category: Code=. It cannot be zero or empty.');
     end;
@@ -1579,7 +1578,7 @@ codeunit 137414 "SCM Item Categories"
         Assert.AreEqual(3, RestoredItemsQty, 'Expected items in ItemList lookup page (when the attribute filter is cleared) = 3');
 
         LibraryVariableStorage.AssertEmpty;
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
     end;
 
     [Test]
@@ -1593,14 +1592,14 @@ codeunit 137414 "SCM Item Categories"
         // [FEATURE] [Item]
         // [SCENARIO 314081] Item Attribute Value Mapping is not created for temporary items
         Initialize;
-        ItemAttributeValueMapping.DeleteAll;
+        ItemAttributeValueMapping.DeleteAll();
 
         // [GIVEN] Item Category 'CAT01' with Item Attribute Value Mapping
         ItemCategoryCode := CreateItemCategory('');
         CreateItemAttributeWithValueAndMapping(ItemCategoryCode);
 
         // [GIVEN] Temporary Item "TEMP"
-        TempItem.Init;
+        TempItem.Init();
 
         // [WHEN] Set "Item Category Code" = "CAT01" on "TEMP" Item
         TempItem.Validate("Item Category Code", ItemCategoryCode);
@@ -1680,432 +1679,6 @@ codeunit 137414 "SCM Item Categories"
         ItemCategory.TestField("Parent Category", ItemCategoryParent.Code);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure InsertingItemCategoryUpdatesIndentation()
-    var
-        ItemCategory: array[2] of Record "Item Category";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 341347] Update indentation on inserting item category.
-        Initialize();
-
-        CreateItemCategoryRec(ItemCategory[1], '');
-
-        ItemCategory[2].Init();
-        ItemCategory[2].Code := LibraryUtility.GenerateGUID();
-        ItemCategory[2]."Parent Category" := ItemCategory[1].Code;
-        ItemCategory[2].Insert(true);
-
-        ItemCategory[2].TestField(Indentation, 1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UpdatingItemCategoryUpdatesIndentation()
-    var
-        ItemCategory: array[3] of Record "Item Category";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 341347] Update indentation on updating parent item category.
-        Initialize();
-
-        CreateItemCategoryRec(ItemCategory[1], '');
-        CreateItemCategoryRec(ItemCategory[2], '');
-        CreateItemCategoryRec(ItemCategory[3], ItemCategory[2].Code);
-
-        ItemCategory[2]."Parent Category" := ItemCategory[1].Code;
-        ItemCategory[2].Modify(true);
-
-        ItemCategory[2].TestField(Indentation, 1);
-
-        ItemCategory[3].Find();
-        ItemCategory[3].TestField(Indentation, 2);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PresentationOrderOnInsertFirstItemCategory()
-    var
-        ItemCategory: Record "Item Category";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 341347] Presentation order on inserting very first item category.
-        Initialize();
-        ItemCategory.DeleteAll();
-
-        ItemCategory.Init();
-        ItemCategory.Code := LibraryUtility.GenerateGUID();
-
-        ItemCategory.Insert(true);
-
-        ItemCategory.Find();
-        ItemCategory.TestField("Presentation Order", 10000);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PresentationOrderOnInsertItemCatToTop()
-    var
-        ItemCategory: Record "Item Category";
-        NewCode: Code[20];
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 341347] Presentation order on inserting item category to the top of the list.
-        Initialize();
-        ItemCategory.DeleteAll();
-
-        NewCode := LibraryUtility.GenerateGUID();
-        CreateItemCategoryRec(ItemCategory, '');
-
-        ItemCategory.Init();
-        ItemCategory.Code := NewCode;
-        ItemCategory.Insert(true);
-
-        ItemCategory.Find();
-        ItemCategory.TestField("Presentation Order", 5000);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PresentationOrderOnInsertItemCatToBottom()
-    var
-        ItemCategory: Record "Item Category";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 341347] Presentation order on inserting item category to the bottom of the list.
-        Initialize();
-        ItemCategory.DeleteAll();
-
-        CreateItemCategoryRec(ItemCategory, '');
-        CreateItemCategoryRec(ItemCategory, '');
-
-        ItemCategory.Find();
-        ItemCategory.TestField("Presentation Order", 20000);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PresentationOrderOnInsertItemCatToMiddle()
-    var
-        ItemCategory: Record "Item Category";
-        NewCode: Code[20];
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 341347] Presentation order on inserting item category to the middle of the list.
-        Initialize();
-        ItemCategory.DeleteAll();
-
-        CreateItemCategoryRec(ItemCategory, '');
-        NewCode := LibraryUtility.GenerateGUID();
-        CreateItemCategoryRec(ItemCategory, '');
-
-        ItemCategory.Init();
-        ItemCategory.Code := NewCode;
-        ItemCategory.Insert(true);
-
-        ItemCategory.Find();
-        ItemCategory.TestField("Presentation Order", 15000);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PresentationOrderOnInsertFirstItemCatInGroup()
-    var
-        ItemCategoryParent: Record "Item Category";
-        ItemCategory: Record "Item Category";
-        NewCode: Code[20];
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 341347] Presentation order on inserting first item category in a child group.
-        Initialize();
-        ItemCategory.DeleteAll();
-
-        CreateItemCategoryRec(ItemCategoryParent, '');
-        CreateItemCategoryRec(ItemCategory, '');
-
-        NewCode := LibraryUtility.GenerateGUID();
-        CreateItemCategoryRec(ItemCategory, ItemCategoryParent.Code);
-
-        ItemCategory.Init();
-        ItemCategory.Code := NewCode;
-        ItemCategory."Parent Category" := ItemCategoryParent.Code;
-        ItemCategory.Insert(true);
-
-        ItemCategory.Find();
-        ItemCategory.TestField("Presentation Order", 12500);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PresentationOrderOnInsertLastItemCatInGroup()
-    var
-        ItemCategoryParent: Record "Item Category";
-        ItemCategory: Record "Item Category";
-        NewCode: Code[20];
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 341347] Presentation order on inserting last item category in a child group.
-        Initialize();
-        ItemCategory.DeleteAll();
-
-        CreateItemCategoryRec(ItemCategoryParent, '');
-        CreateItemCategoryRec(ItemCategory, ItemCategoryParent.Code);
-        NewCode := LibraryUtility.GenerateGUID();
-        CreateItemCategoryRec(ItemCategory, '');
-
-        ItemCategory.Init();
-        ItemCategory.Code := NewCode;
-        ItemCategory."Parent Category" := ItemCategoryParent.Code;
-        ItemCategory.Insert(true);
-
-        ItemCategory.Find();
-        ItemCategory.TestField("Presentation Order", 25000);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PresentationOrderOnInsertItemCatAfterTree()
-    var
-        ItemCategory: Record "Item Category";
-        NewCode: Code[20];
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 341347] Presentation order on inserting last item category in a child group.
-        Initialize();
-        ItemCategory.DeleteAll();
-
-        CreateItemCategoryRec(ItemCategory, '');
-        CreateItemCategoryRec(ItemCategory, ItemCategory.Code);
-        CreateItemCategoryRec(ItemCategory, ItemCategory.Code);
-        NewCode := LibraryUtility.GenerateGUID();
-        CreateItemCategoryRec(ItemCategory, '');
-
-        ItemCategory.Init();
-        ItemCategory.Code := NewCode;
-        ItemCategory.Insert(true);
-
-        ItemCategory.Find();
-        ItemCategory.TestField("Presentation Order", 35000);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PresentationOrderOnModifyingParentCategory()
-    var
-        ItemCategoryParent: Record "Item Category";
-        ItemCategory: Record "Item Category";
-        NewCode: Code[20];
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 341347] Presentation order after modifying parent category.
-        Initialize();
-        ItemCategory.DeleteAll();
-
-        CreateItemCategoryRec(ItemCategoryParent, '');
-        NewCode := LibraryUtility.GenerateGUID();
-        CreateItemCategoryRec(ItemCategory, ItemCategoryParent.Code);
-
-        ItemCategory.Init();
-        ItemCategory.Code := NewCode;
-        ItemCategory.Insert(true);
-
-        ItemCategory."Parent Category" := ItemCategoryParent.Code;
-        ItemCategory.Modify(true);
-
-        ItemCategory.Find();
-        ItemCategory.TestField("Presentation Order", 15000);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PresentationOrderRecalculatedWhenNoRoomForNewNo()
-    var
-        ItemCategory: Record "Item Category";
-        ItemCategories: TestPage "Item Categories";
-        NewCode: Code[20];
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 341347] Presentation order recalculated on trying to assign existing presentation order no. to a new category.
-        Initialize();
-        ItemCategory.DeleteAll();
-
-        NewCode := LibraryUtility.GenerateGUID();
-
-        CreateItemCategoryRec(ItemCategory, '');
-        ItemCategory."Presentation Order" := 1;
-        ItemCategory.Modify();
-
-        ItemCategory.Init();
-        ItemCategory.Code := NewCode;
-        ItemCategory.Insert(true);
-
-        ItemCategories.OpenView;
-        ItemCategories.First();
-        ItemCategories.Code.AssertEquals(NewCode);
-
-        ItemCategory.Find();
-        ItemCategory.TestField("Presentation Order", 10000);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure ChangeDefaultValueOnChangeItemCategoryDeleteConfirmed()
-    var
-        ItemAttribute: Record "Item Attribute";
-        Item: Record Item;
-        ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
-        ItemAttributeValueID: Integer;
-    begin
-        // [FEATURE] [Item Attribute]
-        // [SCENARIO 344524] Item's Attribute Values inherited from Item Categories are changed on Item Category change when attribute deletion confirmed
-        Initialize;
-
-        // [GIVEN] Created Item Attribute "A"
-        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Option, '');
-
-        // [GIVEN] Item Category "C1" with Default Value "V1" for the Item Attribute
-        // [GIVEN] Created Item with Item Category "C1"
-        LibraryInventory.CreateItem(Item);
-        SetItemCategoryWithAttributeDefaultValueOnItem(Item, ItemAttribute.ID);
-
-        // [GIVEN] Item Category "C2" with Default Value "V2" for the Item Attribute
-        // [WHEN] Set Item's Category to "C2" and confirm Yes on "Do you want to delete the attributes that are inherited from item category 'C1'?"
-        LibraryVariableStorage.Enqueue(
-          StrSubstNo(DeleteAttributesInheritedFromOldCategoryQst, Item."Item Category Code"));
-        LibraryVariableStorage.Enqueue(true);
-        ItemAttributeValueID := SetItemCategoryWithAttributeDefaultValueOnItem(Item, ItemAttribute.ID);
-
-        // [THEN] Item's Attribute "A" Value = "V2"
-        FilterItemAttributeValueMapping(ItemAttributeValueMapping, DATABASE::Item, Item."No.", ItemAttribute.ID);
-        ItemAttributeValueMapping.SetRange("Item Attribute Value ID", ItemAttributeValueID);
-        Assert.RecordIsNotEmpty(ItemAttributeValueMapping);
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure ChangeDefaultValueOnChangeItemCategoryDeleteNotConfirmed()
-    var
-        ItemAttribute: Record "Item Attribute";
-        Item: Record Item;
-        ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
-        ItemAttributeValueID: Integer;
-    begin
-        // [FEATURE] [Item Attribute]
-        // [SCENARIO 344524] Item's Attribute Values inherited from Item Categories are not changed on Item Category change when attribute deletion not confirmed
-        Initialize;
-
-        // [GIVEN] Created Item Attribute "A"
-        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Option, '');
-
-        // [GIVEN] Item Category "C1" with Default Value "V1" for the Item Attribute
-        // [GIVEN] Created Item with Item Category "C1"
-        LibraryInventory.CreateItem(Item);
-        ItemAttributeValueID := SetItemCategoryWithAttributeDefaultValueOnItem(Item, ItemAttribute.ID);
-
-        // [GIVEN] Item Category "C2" with Default Value "V2" for the Item Attribute
-        // [WHEN] Set Item's Category to "C2" and don't confirm "Do you want to delete the attributes that are inherited from item category 'C1'?"
-        LibraryVariableStorage.Enqueue(
-          StrSubstNo(DeleteAttributesInheritedFromOldCategoryQst, Item."Item Category Code"));
-        LibraryVariableStorage.Enqueue(false);
-        SetItemCategoryWithAttributeDefaultValueOnItem(Item, ItemAttribute.ID);
-
-        // [THEN] Item's Attribute "A" Value = "V1"
-        FilterItemAttributeValueMapping(ItemAttributeValueMapping, DATABASE::Item, Item."No.", ItemAttribute.ID);
-        ItemAttributeValueMapping.SetRange("Item Attribute Value ID", ItemAttributeValueID);
-        Assert.RecordIsNotEmpty(ItemAttributeValueMapping);
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure ChangeDefaultValueOnChangeParentItemCategoryDeleteConfirmed()
-    var
-        ItemAttribute: Record "Item Attribute";
-        Item: Record Item;
-        ItemCategory: Record "Item Category";
-        ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
-        ItemAttributeValueID: Integer;
-    begin
-        // [FEATURE] [Item Attribute]
-        // [SCENARIO 344524] Item's Attribute Values inherited from Parent Item Categories are changed on Item Category parent change when attribute deletion confirmed
-        Initialize;
-
-        // [GIVEN] Created Item Attribute "A"
-        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Option, '');
-
-        // [GIVEN] Item Category "P1" with Default Value "V1" for the Item Attribute
-        // [GIVEN] Item Category "CHILD" with "Parent Category" = "P1"
-        // [GIVEN] Created Item with Item Category "CHILD"
-        LibraryInventory.CreateItem(Item);
-        LibraryInventory.CreateItemCategory(ItemCategory);
-        Item.Validate("Item Category Code", ItemCategory.Code);
-        Item.Modify(true);
-        SetParentItemCategoryWithAttributeDefaultValue(ItemCategory, ItemAttribute.ID);
-
-        // [GIVEN] Item Category "P2" with Default Value "V2" for the Item Attribute
-        // [WHEN] Set "Parent Category" to "C2" on "CHILD" and confirm Yes on "Do you want to delete the inherited attributes...?"
-        LibraryVariableStorage.Enqueue(
-          StrSubstNo(DeleteItemInheritedParentCategoryAttributesQst, Item."Item Category Code", ItemCategory."Parent Category"));
-        LibraryVariableStorage.Enqueue(true);
-        ItemAttributeValueID := SetParentItemCategoryWithAttributeDefaultValue(ItemCategory, ItemAttribute.ID);
-
-        // [THEN] Item's Attribute "A" Value = "V2"
-        FilterItemAttributeValueMapping(ItemAttributeValueMapping, DATABASE::Item, Item."No.", ItemAttribute.ID);
-        ItemAttributeValueMapping.SetRange("Item Attribute Value ID", ItemAttributeValueID);
-        Assert.RecordIsNotEmpty(ItemAttributeValueMapping);
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure ChangeDefaultValueOnChangeParentItemCategoryDeleteNotConfirmed()
-    var
-        ItemAttribute: Record "Item Attribute";
-        Item: Record Item;
-        ItemCategory: Record "Item Category";
-        ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
-        ItemAttributeValueID: Integer;
-    begin
-        // [FEATURE] [Item Attribute]
-        // [SCENARIO 344524] Item's Attribute Values inherited from Parent Item Categories are not changed on Item Category parent change when attribute deletion not confirmed
-        Initialize;
-
-        // [GIVEN] Created Item Attribute "A"
-        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Option, '');
-
-        // [GIVEN] Item Category "P1" with Default Value "V1" for the Item Attribute
-        // [GIVEN] Item Category "CHILD" with "Parent Category" = "P1"
-        // [GIVEN] Created Item with Item Category "CHILD"
-        LibraryInventory.CreateItem(Item);
-        LibraryInventory.CreateItemCategory(ItemCategory);
-        Item.Validate("Item Category Code", ItemCategory.Code);
-        Item.Modify(true);
-        ItemAttributeValueID := SetParentItemCategoryWithAttributeDefaultValue(ItemCategory, ItemAttribute.ID);
-
-        // [GIVEN] Item Category "P2" with Default Value "V2" for the Item Attribute
-        // [WHEN] Set "Parent Category" to "C2" on "CHILD" and don't confirm on "Do you want to delete the inherited attributes...?"
-        LibraryVariableStorage.Enqueue(
-          StrSubstNo(DeleteItemInheritedParentCategoryAttributesQst, Item."Item Category Code", ItemCategory."Parent Category"));
-        LibraryVariableStorage.Enqueue(false);
-        SetParentItemCategoryWithAttributeDefaultValue(ItemCategory, ItemAttribute.ID);
-
-        // [THEN] Item's Attribute "A" Value = "V1"
-        FilterItemAttributeValueMapping(ItemAttributeValueMapping, DATABASE::Item, Item."No.", ItemAttribute.ID);
-        ItemAttributeValueMapping.SetRange("Item Attribute Value ID", ItemAttributeValueID);
-        Assert.RecordIsNotEmpty(ItemAttributeValueMapping);
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
     local procedure CreatePairOfItemAttributeValues(var Item: Record Item; var ItemAttributeValue: array[2] of Record "Item Attribute Value"; Type: Option)
     var
         ItemAttribute: Record "Item Attribute";
@@ -2136,35 +1709,13 @@ codeunit 137414 "SCM Item Categories"
         ItemCard.Attributes.Invoke;
     end;
 
-    local procedure SetItemCategoryWithAttributeDefaultValueOnItem(var Item: Record Item; ItemAttributeID: Integer): Integer
-    var
-        ItemCategory: Record "Item Category";
-        ItemAttributeValueID: Integer;
-    begin
-        ItemAttributeValueID := CreateItemCategoryWithItemAttributeValue(ItemCategory, ItemAttributeID);
-        Item.Validate("Item Category Code", ItemCategory.Code);
-        Item.Modify(true);
-        exit(ItemAttributeValueID);
-    end;
-
-    local procedure SetParentItemCategoryWithAttributeDefaultValue(var ItemCategory: Record "Item Category"; ItemAttributeID: Integer): Integer
-    var
-        ParentItemCategory: Record "Item Category";
-        ItemAttributeValueID: Integer;
-    begin
-        ItemAttributeValueID := CreateItemCategoryWithItemAttributeValue(ParentItemCategory, ItemAttributeID);
-        ItemCategory.Validate("Parent Category", CreateItemCategory(ParentItemCategory.Code));
-        ItemCategory.Modify(true);
-        exit(ItemAttributeValueID);
-    end;
-
     local procedure CreateItemCategoryHierarchy(LevelsNumber: Integer)
     var
         ItemCategory: Record "Item Category";
         CurrentLevel: Integer;
     begin
         // creating simple hierarchy of 2 parent categories and 2 children for each
-        ItemCategory.DeleteAll;
+        ItemCategory.DeleteAll();
 
         if LevelsNumber <= 0 then
             exit;
@@ -2192,14 +1743,6 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard.OK.Invoke;
     end;
 
-    local procedure CreateItemCategoryRec(var ItemCategory: Record "Item Category"; ParentCategoryCode: Code[20])
-    begin
-        ItemCategory.Init();
-        ItemCategory.Code := LibraryUtility.GenerateGUID();
-        ItemCategory."Parent Category" := ParentCategoryCode;
-        ItemCategory.Insert(true);
-    end;
-
     local procedure CreateItemCategoryWithItemAttributes(var ItemAttributeID: array[2] of Integer): Code[20]
     var
         ItemCategory: Record "Item Category";
@@ -2208,17 +1751,6 @@ codeunit 137414 "SCM Item Categories"
         ItemAttributeID[1] := CreateItemAttributeWithValueAndMapping(ItemCategory.Code);
         ItemAttributeID[2] := CreateItemAttributeWithValueAndMapping(ItemCategory.Code);
         exit(ItemCategory.Code);
-    end;
-
-    local procedure CreateItemCategoryWithItemAttributeValue(var ItemCategory: Record "Item Category"; ItemAttributeID: Integer): Integer
-    var
-        ItemAttributeValue: Record "Item Attribute Value";
-    begin
-        LibraryInventory.CreateItemCategory(ItemCategory);
-        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttributeID, LibraryUtility.GenerateGUID);
-        LibraryInventory.CreateItemAttributeValueMapping(
-          DATABASE::"Item Category", ItemCategory.Code, ItemAttributeID, ItemAttributeValue.ID);
-        exit(ItemAttributeValue.ID);
     end;
 
     local procedure CreateItemAttributeWithValueAndMapping(ItemCategoryCode: Code[20]): Integer
@@ -2268,7 +1800,7 @@ codeunit 137414 "SCM Item Categories"
         CreateItemAttributeWithValue(ItemAttribute, ItemAttributeValue);
         MockItemWithAttribute(ItemNoWithAttrib1, ItemAttributeValue);
         Item."No." := ItemNo;
-        Item.Insert;
+        Item.Insert();
         MockItemWithAttribute(ItemNoWithAttrib2, ItemAttributeValue);
     end;
 
@@ -2283,7 +1815,7 @@ codeunit 137414 "SCM Item Categories"
         CreateItemAttributeWithValue(ItemAttribute, ItemAttributeValue);
         MockItemWithAttribute(ItemNo[1], ItemAttributeValue);
         Item."No." := ItemNo[2];
-        Item.Insert;
+        Item.Insert();
         MockItemWithAttribute(ItemNo[3], ItemAttributeValue);
         MockItemWithAttribute(ItemNo[4], ItemAttributeValue);
         MockItemWithAttribute(ItemNo[5], ItemAttributeValue);
@@ -2301,7 +1833,7 @@ codeunit 137414 "SCM Item Categories"
         for i := 1 to ArrayLen(Item) do begin
             LibraryInventory.CreateItem(Item[i]);
             Item[i].Description := 'TEST' + SubString + Format(i);
-            Item[i].Modify;
+            Item[i].Modify();
         end;
 
         LibraryInventory.CreateItemAttributeWithValue(
@@ -2310,18 +1842,18 @@ codeunit 137414 "SCM Item Categories"
         for i := 1 to ArrayLen(Item) - 1 do
             LibraryInventory.CreateItemAttributeValueMapping(DATABASE::Item, Item[i]."No.", ItemAttribute.ID, ItemAttributeValue.ID);
 
-        NameValueBuffer.DeleteAll;
-        NameValueBuffer.Init;
+        NameValueBuffer.DeleteAll();
+        NameValueBuffer.Init();
         NameValueBuffer.Name := ItemAttribute.Name;
         NameValueBuffer.Value := ItemAttributeValue.Value;
-        NameValueBuffer.Insert;
+        NameValueBuffer.Insert();
     end;
 
     local procedure CreateTestItemAttributes()
     var
         ItemAttribute: Record "Item Attribute";
     begin
-        ItemAttribute.DeleteAll;
+        ItemAttribute.DeleteAll();
         CreateTestOptionItemAttribute;
         CreateNonOptionTestItemAttribute(ItemAttribute.Type::Text, '');
     end;
@@ -2412,7 +1944,7 @@ codeunit 137414 "SCM Item Categories"
         Item: Record Item;
     begin
         Item."No." := ItemNo;
-        Item.Insert;
+        Item.Insert();
         SetItemAttributeValue(Item, ItemAttributeValue);
     end;
 
@@ -2432,7 +1964,7 @@ codeunit 137414 "SCM Item Categories"
     var
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
     begin
-        ItemAttributeValueMapping.Init;
+        ItemAttributeValueMapping.Init();
         ItemAttributeValueMapping.Validate("No.", Item."No.");
         ItemAttributeValueMapping.Validate("Table ID", DATABASE::Item);
         ItemAttributeValueMapping.Validate("Item Attribute ID", ItemAttributeValue."Attribute ID");

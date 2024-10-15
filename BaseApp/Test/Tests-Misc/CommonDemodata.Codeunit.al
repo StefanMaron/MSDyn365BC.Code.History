@@ -11,7 +11,6 @@ codeunit 138500 "Common Demodata"
     var
         Assert: Codeunit Assert;
         DoNotChangeO365ProfileNameErr: Label 'Important!! DO NOT CHANGE THE NAME OF THE O365 Sales profile name!';
-        NONTAXABLETok: Label 'NonTAXABLE';
 
     [Test]
     [Scope('OnPrem')]
@@ -40,7 +39,7 @@ codeunit 138500 "Common Demodata"
         InteractionTemplateSetup: Record "Interaction Template Setup";
     begin
         // [SCENARIO] There are 4 fields filled in the Interaction Template Setup
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         InteractionTemplateSetup.TestField("E-Mails");
         InteractionTemplateSetup.TestField("Cover Sheets");
         InteractionTemplateSetup.TestField("Outg. Calls");
@@ -54,7 +53,7 @@ codeunit 138500 "Common Demodata"
         MarketingSetup: Record "Marketing Setup";
     begin
         // [SCENARIO] There Business Relation and Number Series fields are filled in the Marketing Setup
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.TestField("Contact Nos.");
         MarketingSetup.TestField("Segment Nos.");
         MarketingSetup.TestField("Campaign Nos.");
@@ -67,35 +66,12 @@ codeunit 138500 "Common Demodata"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TaxSetupShouldBeFilled()
-    var
-        TaxSetup: Record "Tax Setup";
-    begin
-        // [SCENARIO] Tax Setup should be filled
-        // [WHEN] Find "Tax Setup" record
-        TaxSetup.Get;
-        // [THEN] "Auto. Create Tax Details" is Yes
-        Assert.IsTrue(TaxSetup."Auto. Create Tax Details", TaxSetup.FieldName("Auto. Create Tax Details"));
-        // [THEN] "Non-Taxable Tax Group Code" is not blank and related to a Tax Group
-        TaxSetup.TestField("Non-Taxable Tax Group Code", NONTAXABLETok);
-        TaxSetup.Validate("Non-Taxable Tax Group Code");
-        // [THEN] "Tax Account (Sales)","Tax Account (Purchases)", "Reverse Charge (Purchases)" are not blank
-        TaxSetup.TestField("Tax Account (Sales)");
-        TaxSetup.TestField("Tax Account (Purchases)");
-        TaxSetup.TestField("Reverse Charge (Purchases)");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure VATPostingGroupsCount()
     var
         VATBusPostingGroup: Record "VAT Business Posting Group";
-        VATProdPostingGroup: Record "VAT Product Posting Group";
     begin
-        // [SCENARIO] VAT Bus./Prod. Posting groups do not exist
-        Assert.RecordCount(VATBusPostingGroup, 0);
-
-        Assert.RecordCount(VATProdPostingGroup, 0);
+        // [SCENARIO] There are 3 VAT Bus. Posting groups
+        Assert.RecordCount(VATBusPostingGroup, 3);
     end;
 
     [Test]
@@ -104,15 +80,17 @@ codeunit 138500 "Common Demodata"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        // [SCENARIO] There is one "Sales Tax" posting setup entry with "Tax Category" = 'E'
+        // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
         with VATPostingSetup do begin
+            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
+            Assert.RecordCount(VATPostingSetup, 2);
+
+            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Full VAT", "VAT Calculation Type"::"Sales Tax");
+            Assert.RecordCount(VATPostingSetup, 0);
+
+            Reset;
+            SetRange("EU Service", true);
             Assert.RecordCount(VATPostingSetup, 1);
-            FindFirst;
-            TestField("VAT Bus. Posting Group", '');
-            TestField("VAT Prod. Posting Group", '');
-            TestField("VAT Calculation Type", "VAT Calculation Type"::"Sales Tax");
-            TestField("VAT %", 0);
-            TestField("Tax Category", 'E');
         end;
     end;
 
@@ -123,7 +101,7 @@ codeunit 138500 "Common Demodata"
         HumanResourcesSetup: Record "Human Resources Setup";
     begin
         // [SCENARIO] Human Resources Setup contains a number series
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("Employee Nos.");
     end;
 
@@ -164,7 +142,7 @@ codeunit 138500 "Common Demodata"
         InteractionTemplateSetup: Record "Interaction Template Setup";
     begin
         // [SCENARIO 199993] Email Draft interaction template code should be defined in Interaction Template Setup
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         InteractionTemplateSetup.TestField("E-Mail Draft");
     end;
 
@@ -233,7 +211,7 @@ codeunit 138500 "Common Demodata"
         // [FEATURE] [Country/Region] [ISO Code]
         CountryRegion.SetRange("ISO Code", '');
         Assert.RecordIsEmpty(CountryRegion);
-        CountryRegion.Reset;
+        CountryRegion.Reset();
         CountryRegion.SetRange("ISO Numeric Code", '');
         Assert.RecordIsEmpty(CountryRegion);
     end;
@@ -247,9 +225,22 @@ codeunit 138500 "Common Demodata"
         // [FEATURE] [Currency] [ISO Code]
         Currency.SetRange("ISO Code", '');
         Assert.RecordIsEmpty(Currency);
-        Currency.Reset;
+        Currency.Reset();
         Currency.SetRange("ISO Numeric Code", '');
         Assert.RecordIsEmpty(Currency);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PriceCalculationSetupIsEmpty()
+    var
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
+    begin
+        // [FEATURE] [Price Calculation Setup]
+        // [THEN] "Price Calculation Setup" and "Dtld. Price Calculation Setup" tables are empty
+        Assert.RecordIsEmpty(PriceCalculationSetup);
+        Assert.RecordIsEmpty(DtldPriceCalculationSetup);
     end;
 
     [Test]

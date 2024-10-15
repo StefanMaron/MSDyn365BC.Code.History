@@ -14,8 +14,8 @@ codeunit 10150 "O365 Tax Settings Management"
         UpdateOtherAreasInstructionTxt: Label 'Updating a city or state tax rate will affect all customers using the rate.';
         CannotSetPSTRateErr: Label 'It is not possible to set the PST Rate on the %1 tax area.', Comment = '%1 - Code of tax area in Canada. E.g. NB,AB...';
         DefaultTxt: Label 'DEFAULT', Comment = 'Please translate all caps with max length 20 chars.';
-        TemplateTaxAreaDoesNotExistMsg: Label 'Customer template tax area %1 does not exist.', Comment = '{locked}';
-        TemplateInvoicingCategoryTxt: Label 'AL Inv template', Comment = '{locked}';
+        TemplateTaxAreaDoesNotExistMsg: Label 'Customer template tax area %1 does not exist.', Locked = true;
+        TemplateInvoicingCategoryTxt: Label 'AL Inv template', Locked = true;
         CannotRemoveDefaultTaxAreaErr: Label 'You cannot remove the default tax area.';
 
     procedure IsDefaultTaxAreaAPI(TaxAreaCode: Code[20]): Boolean
@@ -33,7 +33,7 @@ codeunit 10150 "O365 Tax Settings Management"
         SalesTaxSetupWizard: Record "Sales Tax Setup Wizard";
     begin
         if SalesTaxSetupWizard.Get then
-            SalesTaxSetupWizard.Delete;
+            SalesTaxSetupWizard.Delete();
 
         SalesTaxSetupWizard := TempSalesTaxSetupWizard;
         SalesTaxSetupWizard.Insert(true);
@@ -85,7 +85,7 @@ codeunit 10150 "O365 Tax Settings Management"
         if TaxDetail.FindLast then
             exit(true);
 
-        TaxDetail.Reset;
+        TaxDetail.Reset();
         exit(false);
     end;
 
@@ -133,7 +133,7 @@ codeunit 10150 "O365 Tax Settings Management"
         if TaxAreaLine.FindSet then
             repeat
                 if TaxArea.Get(TaxAreaLine."Tax Area") then begin
-                    TempSalesTaxSetupWizard2.Init;
+                    TempSalesTaxSetupWizard2.Init();
                     TempSalesTaxSetupWizard2."Tax Area Code" := TaxArea.Code;
                     InitializeTaxSetupFromTaxAreaLinesForUS(TempSalesTaxSetupWizard2);
 
@@ -217,7 +217,7 @@ codeunit 10150 "O365 Tax Settings Management"
         if not Customer.IsEmpty then
             Customer.ModifyAll("Tax Area Code", TaxAreaCode);
 
-        SalesLine.LockTable;
+        SalesLine.LockTable();
         SalesLine.SetRange("Tax Area Code", TaxAreaCode);
         SalesLine.SetFilter(Quantity, '<>%1', 0);
         SalesLine.SetFilter("Unit Price", '<>%1', 0);
@@ -228,7 +228,7 @@ codeunit 10150 "O365 Tax Settings Management"
                 if (OldSalesLine."Amount Including VAT" <> SalesLine."Amount Including VAT") or
                    (OldSalesLine.Amount <> SalesLine.Amount)
                 then
-                    SalesLine.Modify;
+                    SalesLine.Modify();
             until SalesLine.Next = 0;
     end;
 
@@ -263,7 +263,7 @@ codeunit 10150 "O365 Tax Settings Management"
             TempSalesTaxSetupWizard.StoreSalesTaxSetup;
             if TaxArea.Get(TempSalesTaxSetupWizard."Tax Area Code") then begin
                 TaxArea.Validate(Description, TaxRateDescription);
-                TaxArea.Modify;
+                TaxArea.Modify();
             end;
             AssignTaxAreaToCustomersAndSalesLines(TempSalesTaxSetupWizard."Tax Area Code");
         end;
@@ -284,7 +284,7 @@ codeunit 10150 "O365 Tax Settings Management"
         TempSalesTaxSetupWizard.SetTaxArea(TaxArea);
         TaxAreaLine.SetRange("Tax Area", TempSalesTaxSetupWizard."Tax Area Code");
         if not TaxAreaLine.IsEmpty then
-            TaxAreaLine.DeleteAll;
+            TaxAreaLine.DeleteAll();
 
         if TempNativeAPITaxSetup."GST or HST Code" <> '' then begin
             TempSalesTaxSetupWizard.SetTaxJurisdiction(
@@ -322,7 +322,7 @@ codeunit 10150 "O365 Tax Settings Management"
         IsCanada := CompanyInformation.IsCanada;
 
         repeat
-            NativeAPITaxSetup.Init;
+            NativeAPITaxSetup.Init();
             NativeAPITaxSetup.TransferFields(TempTaxAreaBuffer, true);
             LoadSalesTaxSettingsFromTaxArea(NativeAPITaxSetup, IsCanada);
             NativeAPITaxSetup.Insert(true);
@@ -383,7 +383,7 @@ codeunit 10150 "O365 Tax Settings Management"
           DATABASE::Customer, Customer.FieldNo("Tax Area Code"), NewTaxAreaCode);
 
         if MarketingSetup.Get then begin
-            CustomerTemplate.LockTable;
+            CustomerTemplate.LockTable();
             if CustomerTemplate.Get(MarketingSetup."Cust. Template Company Code") then begin
                 CustomerTemplate.Validate("Tax Area Code", NewTaxAreaCode);
                 CustomerTemplate.Modify(true);
@@ -395,11 +395,11 @@ codeunit 10150 "O365 Tax Settings Management"
             end;
         end;
 
-        CompanyInformation.LockTable;
+        CompanyInformation.LockTable();
         if CompanyInformation.Get then
             if CompanyInformation."Tax Area Code" <> NewTaxAreaCode then begin
                 CompanyInformation.Validate("Tax Area Code", NewTaxAreaCode);
-                CompanyInformation.Modify;
+                CompanyInformation.Modify();
             end;
     end;
 
@@ -515,7 +515,7 @@ codeunit 10150 "O365 Tax Settings Management"
 
         if ConfigTemplateHeader.FindSet then
             repeat
-                ConfigTemplateLine.LockTable;
+                ConfigTemplateLine.LockTable();
                 ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
                 ConfigTemplateLine.SetRange("Table ID", DATABASE::Customer);
                 ConfigTemplateLine.SetRange("Field ID", DummyCustomer.FieldNo("Tax Area Code"));

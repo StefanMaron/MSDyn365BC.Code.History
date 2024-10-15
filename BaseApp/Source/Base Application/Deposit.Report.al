@@ -159,7 +159,6 @@ report 10403 Deposit
                         }
                         column(AppliedCustLedgEntry__Document_Type_; AppliedCustLedgEntry."Document Type")
                         {
-                            OptionMembers = ,Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
                         }
                         column(AppliedCustLedgEntry__Document_No__; AppliedCustLedgEntry."Document No.")
                         {
@@ -217,7 +216,7 @@ report 10403 Deposit
                             if not PrintApplications or
                                ("Posted Deposit Line"."Account Type" <> "Posted Deposit Line"."Account Type"::Customer)
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, AppliedCustLedgEntry.Count);
                             AppliedCustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
                             TotalAmountApplied := 0;
@@ -231,7 +230,6 @@ report 10403 Deposit
                         }
                         column(AppliedVendLedgEntry__Document_Type_; AppliedVendLedgEntry."Document Type")
                         {
-                            OptionMembers = ,Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
                         }
                         column(AppliedVendLedgEntry__Document_No__; AppliedVendLedgEntry."Document No.")
                         {
@@ -289,7 +287,7 @@ report 10403 Deposit
                             if not PrintApplications or
                                ("Posted Deposit Line"."Account Type" <> "Posted Deposit Line"."Account Type"::Vendor)
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, AppliedVendLedgEntry.Count);
                             AppliedVendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
                             TotalAmountApplied := 0;
@@ -344,7 +342,7 @@ report 10403 Deposit
                             case "Account Type" of
                                 "Account Type"::Customer:
                                     begin
-                                        AppliedCustLedgEntry.DeleteAll;
+                                        AppliedCustLedgEntry.DeleteAll();
                                         FilterDepositCustLedgerEntry("Posted Deposit Line", CustLedgEntry);
                                         if CustLedgEntry.FindSet then
                                             repeat
@@ -352,13 +350,13 @@ report 10403 Deposit
                                                 if TempAppliedCustLedgEntry.FindSet then
                                                     repeat
                                                         AppliedCustLedgEntry := TempAppliedCustLedgEntry;
-                                                        AppliedCustLedgEntry.Insert;
+                                                        AppliedCustLedgEntry.Insert();
                                                     until TempAppliedCustLedgEntry.Next = 0;
                                             until CustLedgEntry.Next = 0;
                                     end;
                                 "Account Type"::Vendor:
                                     begin
-                                        AppliedVendLedgEntry.DeleteAll;
+                                        AppliedVendLedgEntry.DeleteAll();
                                         FilterDepositVendLedgerEntry("Posted Deposit Line", VendLedgEntry);
                                         if VendLedgEntry.FindSet then
                                             repeat
@@ -366,7 +364,7 @@ report 10403 Deposit
                                                 if TempAppliedVendLedgEntry.FindSet then
                                                     repeat
                                                         AppliedVendLedgEntry := TempAppliedVendLedgEntry;
-                                                        AppliedVendLedgEntry.Insert;
+                                                        AppliedVendLedgEntry.Insert();
                                                     until TempAppliedVendLedgEntry.Next = 0;
                                             until VendLedgEntry.Next = 0;
                                     end;
@@ -433,8 +431,8 @@ report 10403 Deposit
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
     end;
 
     var
@@ -516,7 +514,7 @@ report 10403 Deposit
         FromEntryNo: Integer;
         ToEntryNo: Integer;
     begin
-        PostedDepositLine.Reset;
+        PostedDepositLine.Reset();
         PostedDepositLine.SetCurrentKey("Deposit No.", "Line No.");
         PostedDepositLine.SetRange("Deposit No.", PostedDepositLine."Deposit No.");
         PostedDepositLine.SetRange("Line No.", PostedDepositLine."Line No.");
@@ -524,17 +522,17 @@ report 10403 Deposit
             FromEntryNo := PostedDepositLine."Entry No.";
 
         DepositCustLedgerEntry.Get(PostedDepositLine."Entry No.");
-        PostedDepositLine.Reset;
+        PostedDepositLine.Reset();
         PostedDepositLine.SetCurrentKey("Deposit No.", "Line No.");
         PostedDepositLine.SetRange("Deposit No.", PostedDepositLine."Deposit No.");
         PostedDepositLine.SetFilter("Line No.", '>%1', PostedDepositLine."Line No.");
         if PostedDepositLine.FindFirst then begin
-            DepositCustLedgerEntry.Reset;
+            DepositCustLedgerEntry.Reset();
             ToEntryNo := PostedDepositLine."Entry No.";
             DepositCustLedgerEntry.SetRange("Transaction No.", DepositCustLedgerEntry."Transaction No.");
             DepositCustLedgerEntry.SetFilter("Entry No.", '%1..%2', FromEntryNo, ToEntryNo - 1);
         end else begin
-            DepositCustLedgerEntry.Reset;
+            DepositCustLedgerEntry.Reset();
             DepositCustLedgerEntry.SetFilter("Entry No.", '>=%1', FromEntryNo);
             DepositCustLedgerEntry.SetRange("Transaction No.", DepositCustLedgerEntry."Transaction No.");
             DepositCustLedgerEntry.SetRange("External Document No.", PostedDepositLine."Deposit No.");
@@ -546,7 +544,7 @@ report 10403 Deposit
         FromEntryNo: Integer;
         ToEntryNo: Integer;
     begin
-        PostedDepositLine.Reset;
+        PostedDepositLine.Reset();
         PostedDepositLine.SetCurrentKey("Deposit No.", "Line No.");
         PostedDepositLine.SetRange("Deposit No.", PostedDepositLine."Deposit No.");
         PostedDepositLine.SetRange("Line No.", PostedDepositLine."Line No.");
@@ -554,17 +552,17 @@ report 10403 Deposit
             FromEntryNo := PostedDepositLine."Entry No.";
 
         DepositVendLedgerEntry.Get(PostedDepositLine."Entry No.");
-        PostedDepositLine.Reset;
+        PostedDepositLine.Reset();
         PostedDepositLine.SetCurrentKey("Deposit No.", "Line No.");
         PostedDepositLine.SetRange("Deposit No.", PostedDepositLine."Deposit No.");
         PostedDepositLine.SetFilter("Line No.", '>%1', PostedDepositLine."Line No.");
         if PostedDepositLine.FindFirst then begin
-            DepositVendLedgerEntry.Reset;
+            DepositVendLedgerEntry.Reset();
             ToEntryNo := PostedDepositLine."Entry No.";
             DepositVendLedgerEntry.SetRange("Transaction No.", DepositVendLedgerEntry."Transaction No.");
             DepositVendLedgerEntry.SetFilter("Entry No.", '%1..%2', FromEntryNo, ToEntryNo - 1);
         end else begin
-            DepositVendLedgerEntry.Reset;
+            DepositVendLedgerEntry.Reset();
             DepositVendLedgerEntry.SetFilter("Entry No.", '>=%1', FromEntryNo);
             DepositVendLedgerEntry.SetRange("Transaction No.", DepositVendLedgerEntry."Transaction No.");
             DepositVendLedgerEntry.SetRange("External Document No.", PostedDepositLine."Deposit No.");

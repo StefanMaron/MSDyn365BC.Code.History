@@ -31,7 +31,7 @@ codeunit 134555 "ERM CF Accounts"
     begin
         Initialize;
         // Clear existing cash flow account to make room for our test
-        CashFlowAccount.DeleteAll;
+        CashFlowAccount.DeleteAll();
 
         // Create new setup starting from account 0000, expected setup:
         // |0001
@@ -81,7 +81,7 @@ codeunit 134555 "ERM CF Accounts"
     begin
         Initialize;
         // Clear existing cash flow account to make room for our test
-        CashFlowAccount.DeleteAll;
+        CashFlowAccount.DeleteAll();
 
         // Create new setup starting from account 0000, expected setup:
         // |0001
@@ -135,7 +135,7 @@ codeunit 134555 "ERM CF Accounts"
     begin
         Initialize;
         Evaluate(FAPostingDateFormula, '<1M>');
-        FASetup.Get;
+        FASetup.Get();
         CFHelper.CreateFixedAssetForInvestment(
           FixedAsset, FASetup."Default Depr. Book", FAPostingDateFormula,
           LibraryRandom.RandDec(1000, 2));
@@ -160,7 +160,7 @@ codeunit 134555 "ERM CF Accounts"
         Evaluate(DeprecStartDateFormula, '<-2Y>');
         Evaluate(DeprecEndDateFormula, '<1M-D5>');
         Evaluate(ExpectedDisposalDateFormula, '<1M+1W-WD1>');
-        FASetup.Get;
+        FASetup.Get();
         CFHelper.CreateFixedAssetForDisposal(FixedAsset, FASetup."Default Depr. Book", DeprecStartDateFormula, DeprecEndDateFormula,
           ExpectedDisposalDateFormula, LibraryRandom.RandDec(1000, 2));
 
@@ -265,14 +265,14 @@ codeunit 134555 "ERM CF Accounts"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM CF Accounts");
     end;
 
     local procedure CreateCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; var AccountNo: Code[20]; AccountType: Option)
     begin
         AccountNo := IncStr(AccountNo);
-        CashFlowAccount.Init;
+        CashFlowAccount.Init();
         CashFlowAccount.Validate("No.", AccountNo);
         CashFlowAccount.Validate("Account Type", AccountType);
         CashFlowAccount.Validate(Name, CashFlowAccount."No.");
@@ -282,10 +282,10 @@ codeunit 134555 "ERM CF Accounts"
     [Normal]
     local procedure StoreAccount(var TempCashFlowAccount: Record "Cash Flow Account" temporary; No: Code[20]; ExpectedIndentation: Integer)
     begin
-        TempCashFlowAccount.Init;
+        TempCashFlowAccount.Init();
         TempCashFlowAccount."No." := No;
         TempCashFlowAccount.Indentation := ExpectedIndentation;
-        TempCashFlowAccount.Insert;
+        TempCashFlowAccount.Insert();
     end;
 
     [Normal]

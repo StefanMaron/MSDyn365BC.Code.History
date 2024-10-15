@@ -27,7 +27,7 @@ codeunit 10334 "Exp. Mapping Det EFT RB"
                     LineNo := LineNo + 1;
                 end;
             until ACHRBDetail.Next = 0;
-        ACHRBDetail.DeleteAll;
+        ACHRBDetail.DeleteAll();
     end;
 
     local procedure NoDataExchLineDef(DataExchDefCode: Code[20]): Boolean

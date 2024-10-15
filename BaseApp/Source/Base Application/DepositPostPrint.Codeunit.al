@@ -11,7 +11,7 @@ codeunit 10142 "Deposit-Post + Print"
 
         DepositPost.Run(DepositHeader);
         Rec := DepositHeader;
-        Commit;
+        Commit();
 
         if PostedDepositHeader.Get("No.") then begin
             PostedDepositHeader.SetRecFilter;

@@ -484,8 +484,8 @@ report 10023 "Trial Balance, per Global Dim."
 
         trigger OnOpenPage()
         begin
-            GLSetup.Get;
-            Dimension.Reset;
+            GLSetup.Get();
+            Dimension.Reset();
             if DimCode <> '' then
                 if not Dimension.Get(DimCode) then;
             Dimension.FilterGroup(8);
@@ -511,8 +511,8 @@ report 10023 "Trial Balance, per Global Dim."
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         /* Set up format-dependent variables */
         case NumColumns of
             0:

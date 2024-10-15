@@ -268,7 +268,7 @@ report 10008 "Consolidated Trial Balance (4)"
             trigger OnPreDataItem()
             begin
                 if NumBusUnits = 0 then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }
@@ -335,7 +335,7 @@ report 10008 "Consolidated Trial Balance (4)"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         GLFilter := "G/L Account".GetFilters;
         BusUnitFilter := "Business Unit".GetFilters;
         if ConsolidStartDate = 0D then
@@ -346,7 +346,7 @@ report 10008 "Consolidated Trial Balance (4)"
         PeriodText := "G/L Account".GetFilter("Date Filter");
         MainTitle := StrSubstNo(Text002, PeriodText);
         if UseAddRptCurr then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Currency.Get(GLSetup."Additional Reporting Currency");
             SubTitle := StrSubstNo(Text003, Currency.Description);
         end;

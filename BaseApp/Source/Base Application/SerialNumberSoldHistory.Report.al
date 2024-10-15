@@ -131,7 +131,7 @@ report 10160 "Serial Number Sold History"
                 trigger OnAfterGetRecord()
                 begin
                     if not Customer.Get("Source No.") then
-                        Customer.Init;
+                        Customer.Init();
                     CalcFields("Cost Amount (Actual)", "Sales Amount (Actual)");
                 end;
             }
@@ -156,7 +156,7 @@ report 10160 "Serial Number Sold History"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
     end;
 

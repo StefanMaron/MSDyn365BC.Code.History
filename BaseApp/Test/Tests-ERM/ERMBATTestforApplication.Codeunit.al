@@ -46,7 +46,7 @@ codeunit 134013 "ERM BAT Test for Application"
         Initialize;
         LibrarySales.CreateCustomer(Customer);
 
-        LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
 
         // Use LibraryRandom to select Random Amount.
@@ -139,7 +139,7 @@ codeunit 134013 "ERM BAT Test for Application"
         Initialize;
         LibrarySales.CreateCustomer(Customer);
 
-        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
 
         // Use LibraryRandom to select Random Amount.
@@ -170,7 +170,7 @@ codeunit 134013 "ERM BAT Test for Application"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM BAT Test for Application");
     end;
 
@@ -190,7 +190,7 @@ codeunit 134013 "ERM BAT Test for Application"
         // Apply Customer Entries.
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, AmountToApply);
-        CustLedgerEntry2.Reset;
+        CustLedgerEntry2.Reset();
         CustLedgerEntry2.SetRange("Document No.", DocumentNo);
         CustLedgerEntry2.SetRange("Customer No.", CustLedgerEntry."Customer No.");
         CustLedgerEntry2.FindSet;

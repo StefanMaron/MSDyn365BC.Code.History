@@ -227,7 +227,7 @@ report 10156 "Purchase Order Status"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         ItemFilter := Item.GetFilters;
         PurchLineFilter := "Purchase Line".GetFilters;
     end;

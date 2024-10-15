@@ -348,7 +348,7 @@ page 10150 "O365 Tax Settings Card"
         TempSalesTaxSetupWizard.SetTaxArea(TaxArea);
         TaxAreaLine.SetRange("Tax Area", TempSalesTaxSetupWizard."Tax Area Code");
         if not TaxAreaLine.IsEmpty then
-            TaxAreaLine.DeleteAll;
+            TaxAreaLine.DeleteAll();
         if GSTorHSTCode <> '' then begin
             TempSalesTaxSetupWizard.SetTaxJurisdiction(GSTorHSTCode, GSTorHST, CATxt);
             TempSalesTaxSetupWizard.SetTaxAreaLine(TaxArea, GSTorHSTCode);

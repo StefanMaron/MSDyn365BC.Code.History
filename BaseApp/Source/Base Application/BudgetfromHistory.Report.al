@@ -21,7 +21,7 @@ report 10031 "Budget from History"
                 begin
                     CurrentPeriod := CurrentPeriod + 1;
                     if CurrentPeriod > NoPeriods then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     "G/L Account".SetRange("Date Filter", RunHistoryDate, NextDate(RunHistoryDate) - 1);
                     "G/L Account".SetRange("Account Type", "G/L Account"."Account Type"::Posting);
@@ -29,7 +29,7 @@ report 10031 "Budget from History"
                     RunHistoryDate := NextDate(RunHistoryDate);
 
                     EntryNo := EntryNo + 10000;
-                    GLBudgetEntry.Init;
+                    GLBudgetEntry.Init();
                     GLBudgetEntry."Entry No." := EntryNo;
                     GLBudgetEntry."Budget Name" := "G/L Account".GetFilter("Budget Filter");
                     GLBudgetEntry."G/L Account No." := "G/L Account"."No.";
@@ -37,32 +37,32 @@ report 10031 "Budget from History"
                     if "G/L Account".GetFilter("Global Dimension 1 Filter") <> '' then begin
                         GLBudgetEntry."Global Dimension 1 Code" := "G/L Account".GetRangeMin("Global Dimension 1 Filter");
                         if DimensionValue.Get(GlobalDim1Code, GLBudgetEntry."Global Dimension 1 Code") then begin
-                            TempDimSetEntry.Init;
+                            TempDimSetEntry.Init();
                             TempDimSetEntry."Dimension Code" := DimensionValue."Dimension Code";
                             TempDimSetEntry."Dimension Value Code" := DimensionValue.Code;
                             TempDimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
-                            TempDimSetEntry.Insert;
+                            TempDimSetEntry.Insert();
                         end;
                     end;
                     if "G/L Account".GetFilter("Global Dimension 2 Filter") <> '' then begin
                         GLBudgetEntry."Global Dimension 2 Code" := "G/L Account".GetRangeMin("Global Dimension 2 Filter");
                         if DimensionValue.Get(GlobalDim2Code, GLBudgetEntry."Global Dimension 2 Code") then begin
-                            TempDimSetEntry.Init;
+                            TempDimSetEntry.Init();
                             TempDimSetEntry."Dimension Code" := DimensionValue."Dimension Code";
                             TempDimSetEntry."Dimension Value Code" := DimensionValue.Code;
                             TempDimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
-                            TempDimSetEntry.Insert;
+                            TempDimSetEntry.Insert();
                         end;
                     end;
                     GLBudgetEntry.Amount := Round("G/L Account"."Net Change" * PercentChg, Precision);
                     GLBudgetEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
-                    GLBudgetEntry.Insert;
+                    GLBudgetEntry.Insert();
                     RunBudgetDate := NextDate(RunBudgetDate);
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    GLBudgetEntry.Reset;
+                    GLBudgetEntry.Reset();
                     if GLBudgetEntry.FindLast then
                         EntryNo := GLBudgetEntry."Entry No.";
                     CurrentPeriod := 0;
@@ -173,7 +173,7 @@ report 10031 "Budget from History"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GlobalDim1Code := GLSetup."Global Dimension 1 Code";
         GlobalDim2Code := GLSetup."Global Dimension 2 Code";
     end;

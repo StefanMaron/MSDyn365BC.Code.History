@@ -122,6 +122,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType DelegatePermissionErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2841182953 - NamedType 49602008" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[must not contain letters]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Users - NamedType PhoneNoCannotContainLettersErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 800798923 - NamedType 188336940" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You are logged in as a Team Member role, so you cannot complete this task.]]></Val>
@@ -282,6 +291,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserAdministratorsIsNotAllowedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1482848178 - NamedType 1639088740" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[User001]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User List Tests - NamedType User001Tok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1482848178 - NamedType 3077602533" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[User002]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User List Tests - NamedType User002Tok)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

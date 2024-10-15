@@ -766,7 +766,7 @@ page 10052 "Service Order Stats."
         Clear(BreakdownAmt);
 
         for i := 1 to 7 do begin
-            TempServLine.DeleteAll;
+            TempServLine.DeleteAll();
             Clear(TempServLine);
             ServAmtsMgt.GetServiceLines(Rec, TempServLine, i - 1);
             SalesTaxCalculate.StartSalesTaxCalculation;
@@ -784,19 +784,19 @@ page 10052 "Service Order Stats."
                 case i of
                     1:
                         begin
-                            TempSalesTaxLine1.DeleteAll;
+                            TempSalesTaxLine1.DeleteAll();
                             TaxCalculation;
                             SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine1);
                         end;
                     2:
                         begin
-                            TempSalesTaxLine2.DeleteAll;
+                            TempSalesTaxLine2.DeleteAll();
                             TaxCalculation;
                             SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine2);
                         end;
                     3:
                         begin
-                            TempSalesTaxLine3.DeleteAll;
+                            TempSalesTaxLine3.DeleteAll();
                             TaxCalculation;
                             SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine3);
                         end;
@@ -844,7 +844,7 @@ page 10052 "Service Order Stats."
                                 BrkIdx := BrkIdx - 1;
                                 BreakdownLabel[i, BrkIdx] := Text1020012;
                             end else
-                                BreakdownLabel[i, BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[i, BrkIdx]));
+                                BreakdownLabel[i, BrkIdx] := StrSubstNo("Print Description", "Tax %");
                         end;
                         BreakdownAmt[i, BrkIdx] := BreakdownAmt[i, BrkIdx] + "Tax Amount";
                         VATAmount[i] := VATAmount[i] + "Tax Amount";
@@ -853,7 +853,7 @@ page 10052 "Service Order Stats."
             end;
             OnAfterCalculateSalesTaxValidate(i);
         end;
-        TempServLine.DeleteAll;
+        TempServLine.DeleteAll();
         Clear(TempServLine);
 
         if Cust.Get("Bill-to Customer No.") then
@@ -881,7 +881,7 @@ page 10052 "Service Order Stats."
 
     trigger OnOpenPage()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         NullTab := -1;
         AllowInvDisc := not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=
@@ -1127,7 +1127,7 @@ page 10052 "Service Order Stats."
     begin
         GetVATSpecification(ActiveTab);
 
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "No.");
         ServLine.SetFilter(Type, '>0');
@@ -1206,7 +1206,7 @@ page 10052 "Service Order Stats."
 
         for i := 1 to 7 do
             if i in [1, 5, 6, 7] then begin
-                TempServLine.DeleteAll;
+                TempServLine.DeleteAll();
                 Clear(TempServLine);
                 ServAmtsMgt.GetServiceLines(Rec, TempServLine, i - 1);
 

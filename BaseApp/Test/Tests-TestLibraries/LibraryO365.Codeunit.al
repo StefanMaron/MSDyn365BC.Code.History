@@ -8,10 +8,11 @@ codeunit 131922 "Library - O365"
     var
         CashTxt: Label 'CASH', Comment = 'Cash';
         PaymentTxt: Label 'PAYMENT', Comment = 'Payment';
-        DefaultCustomerTemplateDescriptionTxt: Label 'Business-to-Business Customer (Bank)';
+        DefaultCustomerTemplateDescriptionTxt: Label 'Cash-Payment / Retail Customer (Cash)';
         DefaultItemTemplateDescriptionTxt: Label 'Service';
         CHECKTxt: Label 'CHECK';
         X14DAYSTxt: Label '14 DAYS';
+        DomesticTxt: Label 'DOMESTIC';
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
 
@@ -33,6 +34,7 @@ codeunit 131922 "Library - O365"
             Validate("Default Payment Method Code", CHECKTxt);
             Validate("Default Payment Terms Code", X14DAYSTxt);
             Validate("Tax Type", "Tax Type"::VAT);
+            Validate("Default VAT Bus. Posting Group", DomesticTxt);
 
             if VATProductPostingGroup.FindSet then
                 Validate("Normal VAT Prod. Posting Gr.", VATProductPostingGroup.Code);
@@ -60,7 +62,7 @@ codeunit 131922 "Library - O365"
           LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header");
         ConfigTemplateHeader.Validate(Description, TemplateDescription);
         ConfigTemplateHeader.Validate("Table ID", DATABASE::Customer);
-        ConfigTemplateHeader.Insert;
+        ConfigTemplateHeader.Insert();
     end;
 }
 

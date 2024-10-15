@@ -2,8 +2,16 @@ codeunit 27031 "Update SAT Payment Catalogs"
 {
 
     trigger OnRun()
+    var
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetSATPaymentCatalogsSwapTag) then
+            exit;
+
         SwapSATPaymentCatalogs;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetSATPaymentCatalogsSwapTag);
     end;
 
     local procedure SwapSATPaymentCatalogs()
@@ -23,23 +31,23 @@ codeunit 27031 "Update SAT Payment Catalogs"
         if SATPaymentTerm.FindSet then
             repeat
                 TempSATPaymentTerm := SATPaymentTerm;
-                TempSATPaymentTerm.Insert;
+                TempSATPaymentTerm.Insert();
             until SATPaymentTerm.Next = 0;
-        SATPaymentTerm.DeleteAll;
+        SATPaymentTerm.DeleteAll();
 
         if SATPaymentMethod.FindSet then
             repeat
                 SATPaymentTerm.TransferFields(SATPaymentMethod);
-                SATPaymentTerm.Insert;
+                SATPaymentTerm.Insert();
             until SATPaymentMethod.Next = 0;
-        SATPaymentMethod.DeleteAll;
+        SATPaymentMethod.DeleteAll();
 
         if TempSATPaymentTerm.FindSet then
             repeat
                 SATPaymentMethod.TransferFields(TempSATPaymentTerm);
-                SATPaymentMethod.Insert;
+                SATPaymentMethod.Insert();
             until TempSATPaymentTerm.Next = 0;
-        TempSATPaymentTerm.DeleteAll;
+        TempSATPaymentTerm.DeleteAll();
     end;
 }
 

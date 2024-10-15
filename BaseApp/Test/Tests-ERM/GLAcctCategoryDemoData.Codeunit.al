@@ -181,7 +181,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
     begin
         // Setup
         Initialize;
-        GLAccount.Init;
+        GLAccount.Init();
 
         // Exercise and Verify
         SetAccountCategoryAndValidateIncomeBalanceField(GLAccount, GLAccount."Account Category"::Assets,
@@ -211,9 +211,9 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         // Setup
         Initialize;
         AccountNumber := LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account");
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount."No." := AccountNumber;
-        GLAccount.Insert;
+        GLAccount.Insert();
 
         GLAccountCard.OpenEdit;
         GLAccountCard.GotoRecord(GLAccount);
@@ -239,7 +239,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
     begin
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         AccScheduleLine.SetRange("Schedule Name", GeneralLedgerSetup."Acc. Sched. for Balance Sheet");
         AccScheduleLine.SetRange("Totaling Type", AccScheduleLine."Totaling Type"::Formula);
         AccScheduleLine.SetRange("Date Filter", Today);

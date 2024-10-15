@@ -6,7 +6,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     trigger OnRun()
     begin
         if PlanningResiliency then
-            LockTable;
+            LockTable();
 
         CarryOutReqLineAction(Rec);
     end;
@@ -19,7 +19,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         Text004: Label 'Updating worksheet lines           #5######';
         Text005: Label 'Deleting worksheet lines           #5######';
         Text006: Label '%1 on sales order %2 is already associated with purchase order %3.';
-        Text007: Label '<Month Text>';
+        Text007: Label '<Month Text>', Locked = true;
         Text008: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
         Text009: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
         ReservEntry: Record "Reservation Entry";
@@ -105,7 +105,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             SetRange("Worksheet Template Name", "Worksheet Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
             if not PlanningResiliency then
-                LockTable;
+                LockTable();
 
             if "Planning Line Origin" <> "Planning Line Origin"::"Order Planning" then
                 ReqTemplate.Get("Worksheet Template Name");
@@ -118,7 +118,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             if not Find('=><') then begin
                 "Line No." := 0;
                 if not SuppressCommit then
-                    Commit;
+                    Commit();
                 exit;
             end;
 
@@ -156,7 +156,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             OrderCounter := 0;
             OrderLineCounter := 0;
             Clear(PurchOrderHeader);
-            PurchSetup.Get;
+            PurchSetup.Get();
             SetPurchOrderHeader;
             SetReqLineSortingKey(ReqLine);
 
@@ -206,9 +206,9 @@ codeunit 333 "Req. Wksh.-Make Order"
                             NewReqWkshName := true;
                             OnCheckNewNameNeccessary(ReqWkshName, NewReqWkshName);
                             if NewReqWkshName then begin
-                                ReqWkshName.Delete;
+                                ReqWkshName.Delete();
                                 ReqWkshName.Name := IncStr("Journal Batch Name");
-                                if ReqWkshName.Insert then;
+                                if ReqWkshName.Insert() then;
                                 "Journal Batch Name" := ReqWkshName.Name;
                             end;
                         end;
@@ -379,7 +379,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                                      CheckInsertFinalizePurchaseOrderHeader(ReqLine, PurchOrderHeader, false, true)))
                                 then begin
                                     FinalizeOrderHeader(PurchOrderHeader, ReqLine);
-                                    PurchOrderLine.Reset;
+                                    PurchOrderLine.Reset();
                                     PurchOrderLine.SetRange("Document Type", PurchOrderHeader."Document Type");
                                     PurchOrderLine.SetRange("Document No.", PurchOrderHeader."No.");
                                     PurchOrderLine.SetFilter("Special Order Sales Line No.", '<> 0');
@@ -393,6 +393,8 @@ codeunit 333 "Req. Wksh.-Make Order"
                                 InsertPurchOrderLine(ReqLine, PurchOrderHeader);
                             end;
                     end;
+                else
+                    OnCarryOutReqLineActionOnCaseReplenishmentSystemElse(ReqLine);
             end;
 
         OnAfterCarryOutReqLineAction(ReqLine, PurchOrderHeader, SuppressCommit, OrderCounter);
@@ -437,7 +439,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     procedure InitPurchOrderLine(var PurchOrderLine: Record "Purchase Line"; PurchOrderHeader: Record "Purchase Header"; RequisitionLine: Record "Requisition Line")
     begin
         with RequisitionLine do begin
-            PurchOrderLine.Init;
+            PurchOrderLine.Init();
             PurchOrderLine.BlockDynamicTracking(true);
             PurchOrderLine."Document Type" := PurchOrderLine."Document Type"::Order;
             PurchOrderLine."Buy-from Vendor No." := "Vendor No.";
@@ -523,6 +525,8 @@ codeunit 333 "Req. Wksh.-Make Order"
             then
                 InsertHeader(ReqLine2);
 
+            OnInsertPurchOrderLineOnAfterCheckInsertFinalizePurchaseOrderHeader(ReqLine2, PurchOrderHeader, NextLineNo);
+
             LineCount := LineCount + 1;
             if not PlanningResiliency then
                 Window.Update(4, LineCount);
@@ -556,15 +560,15 @@ codeunit 333 "Req. Wksh.-Make Order"
                 DimensionSetIDArr, PurchOrderLine."Shortcut Dimension 1 Code", PurchOrderLine."Shortcut Dimension 2 Code");
 
             OnBeforePurchOrderLineInsert(PurchOrderHeader, PurchOrderLine, ReqLine2, SuppressCommit);
-            PurchOrderLine.Insert;
+            PurchOrderLine.Insert();
             OnAfterPurchOrderLineInsert(PurchOrderLine, ReqLine2, NextLineNo);
 
             if Reserve then
                 ReserveBindingOrderToPurch(PurchOrderLine, ReqLine2);
 
             if PurchOrderLine."Drop Shipment" or PurchOrderLine."Special Order" then begin
-                SalesOrderLine.LockTable;
-                SalesOrderHeader.LockTable;
+                SalesOrderLine.LockTable();
+                SalesOrderHeader.LockTable();
                 SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Sales Order No.");
                 if not PurchOrderLine."Special Order" then
                     TestField("Ship-to Code", SalesOrderHeader."Ship-to Code");
@@ -599,7 +603,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                     SalesOrderLine."Purchase Order No." := PurchOrderLine."Document No.";
                     SalesOrderLine."Purch. Order Line No." := PurchOrderLine."Line No.";
                 end;
-                SalesOrderLine.Modify;
+                SalesOrderLine.Modify();
             end;
 
             if TransferExtendedText.PurchCheckIfAnyExtText(PurchOrderLine, false) then begin
@@ -635,10 +639,10 @@ codeunit 333 "Req. Wksh.-Make Order"
             if not PlanningResiliency then
                 Window.Update(3, OrderCounter);
 
-            PurchSetup.Get;
+            PurchSetup.Get();
             PurchSetup.TestField("Order Nos.");
             Clear(PurchOrderHeader);
-            PurchOrderHeader.Init;
+            PurchOrderHeader.Init();
             PurchOrderHeader."Document Type" := PurchOrderHeader."Document Type"::Order;
             PurchOrderHeader."No." := '';
             PurchOrderHeader."Posting Date" := PostingDateReq;
@@ -687,14 +691,14 @@ codeunit 333 "Req. Wksh.-Make Order"
                 if Vendor.Get(PurchOrderHeader."Buy-from Vendor No.") then
                     PurchOrderHeader."Shipment Method Code" := Vendor."Shipment Method Code";
             OnAfterInsertPurchOrderHeader(ReqLine2, PurchOrderHeader, SuppressCommit);
-            PurchOrderHeader.Modify;
+            PurchOrderHeader.Modify();
             PurchOrderHeader.Mark(true);
-            TempDocumentEntry.Init;
+            TempDocumentEntry.Init();
             TempDocumentEntry."Table ID" := DATABASE::"Purchase Header";
             TempDocumentEntry."Document Type" := PurchOrderHeader."Document Type"::Order;
             TempDocumentEntry."Document No." := PurchOrderHeader."No.";
             TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
-            TempDocumentEntry.Insert;
+            TempDocumentEntry.Insert();
         end;
     end;
 
@@ -733,7 +737,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                         ReqLine2.Quantity := 0;
                         ReqLine2."Line Discount %" := 0;
                     end;
-                    ReqLine2.Modify;
+                    ReqLine2.Modify();
                 until ReqLine2.Next = 0;
             end;
         end else begin
@@ -760,7 +764,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                         if PurchaseOrderLineMatchReqLine(ReqLine2) then begin
                             TempFailedReqLine := ReqLine2;
                             if not TempFailedReqLine.Find then begin
-                                ReserveReqLine.FilterReservFor(ReservEntry, ReqLine2);
+                                ReqLine2.SetReservationFilters(ReservEntry);
                                 ReservEntry.DeleteAll(true);
                                 ReqLine2.Delete(true);
                             end;
@@ -770,7 +774,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         end;
         OnAfterFinalizeOrderHeader(PurchOrderHeader, ReqLine);
         if not SuppressCommit then
-            Commit;
+            Commit();
 
         CarryOutAction.SetPrintOrder(PrintPurchOrders);
         CarryOutAction.PrintPurchaseOrder(PurchOrderHeader);
@@ -851,7 +855,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                     SalesLineReserve.BindToPurchase(SalesLine, PurchLine, ReservQty, ReservQtyBase);
                     if SalesLine.Reserve = SalesLine.Reserve::Never then begin
                         SalesLine.Reserve := SalesLine.Reserve::Optional;
-                        SalesLine.Modify;
+                        SalesLine.Modify();
                     end;
                 end;
             DATABASE::"Service Line":
@@ -860,7 +864,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                     ServLineReserve.BindToPurchase(ServLine, PurchLine, ReservQty, ReservQtyBase);
                     if ServLine.Reserve = ServLine.Reserve::Never then begin
                         ServLine.Reserve := ServLine.Reserve::Optional;
-                        ServLine.Modify;
+                        ServLine.Modify();
                     end;
                 end;
             DATABASE::"Job Planning Line":
@@ -870,7 +874,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                     JobPlanningLineReserve.BindToPurchase(JobPlanningLine, PurchLine, ReservQty, ReservQtyBase);
                     if JobPlanningLine.Reserve = JobPlanningLine.Reserve::Never then begin
                         JobPlanningLine.Reserve := JobPlanningLine.Reserve::Optional;
-                        JobPlanningLine.Modify;
+                        JobPlanningLine.Modify();
                     end;
                 end;
             DATABASE::"Assembly Line":
@@ -879,11 +883,11 @@ codeunit 333 "Req. Wksh.-Make Order"
                     AsmLineReserve.BindToPurchase(AsmLine, PurchLine, ReservQty, ReservQtyBase);
                     if AsmLine.Reserve = AsmLine.Reserve::Never then begin
                         AsmLine.Reserve := AsmLine.Reserve::Optional;
-                        AsmLine.Modify;
+                        AsmLine.Modify();
                     end;
                 end;
         end;
-        PurchLine.Modify;
+        PurchLine.Modify();
 
         OnAfterReserveBindingOrderToPurch(PurchLine, ReqLine, ReservQty, ReservQtyBase, SuppressCommit);
     end;
@@ -903,7 +907,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         if TryFailedReqLine.Find('-') then
             repeat
                 TempFailedReqLine := TryFailedReqLine;
-                if TempFailedReqLine.Insert then;
+                if TempFailedReqLine.Insert() then;
             until TryFailedReqLine.Next = 0;
     end;
 
@@ -922,7 +926,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     procedure SetFailedReqLine(var TryFailedReqLine: Record "Requisition Line")
     begin
         TempFailedReqLine := TryFailedReqLine;
-        TempFailedReqLine.Insert;
+        TempFailedReqLine.Insert();
     end;
 
     procedure SetPlanningResiliency()
@@ -1041,7 +1045,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         if InventorySetup."Location Mandatory" then
             RequisitionLine.TestField("Location Code");
     end;
@@ -1098,7 +1102,7 @@ codeunit 333 "Req. Wksh.-Make Order"
               Location."Post Code" + Location.City +
               Location.Contact
         else begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             SpecOrderNameAddressDetails :=
               CompanyInfo."Ship-to Name" + CompanyInfo."Ship-to Name 2" +
               CompanyInfo."Ship-to Address" + CompanyInfo."Ship-to Address 2" +
@@ -1269,6 +1273,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPurchOrderLineValidateNo(var PurchOrderLine: Record "Purchase Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCarryOutReqLineActionOnCaseReplenishmentSystemElse(var ReqLine: Record "Requisition Line");
     begin
     end;
 

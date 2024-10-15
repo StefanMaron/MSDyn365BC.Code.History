@@ -23,6 +23,13 @@ page 7 "Customer Price Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the customer price group.';
                 }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    Caption = 'Price Calculation Method';
+                    ToolTip = 'Specifies the price calculation method that will override the method set in the sales setup for customers in this group.';
+                }
                 field("Allow Line Disc."; "Allow Line Disc.")
                 {
                     ApplicationArea = Basic, Suite;

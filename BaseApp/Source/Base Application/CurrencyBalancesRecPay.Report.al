@@ -140,7 +140,7 @@ report 10017 "Currency Balances - Rec./Pay."
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CurFilter := Currency.GetFilters;
 
         if Currency.GetFilter("Date Filter") = '' then

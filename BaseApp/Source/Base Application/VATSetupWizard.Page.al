@@ -244,14 +244,11 @@ page 1877 "VAT Setup Wizard"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if WizardIsAllowed and AssistedSetup.ExistsAndIsNotComplete(Info.Id(), PAGE::"VAT Setup Wizard") then
+        if CloseAction = ACTION::OK then 
+            if WizardIsAllowed and AssistedSetup.ExistsAndIsNotComplete(PAGE::"VAT Setup Wizard") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
-        end;
     end;
 
     var
@@ -319,7 +316,6 @@ page 1877 "VAT Setup Wizard"
         VATAssistedSetupBusGrp: Record "VAT Assisted Setup Bus. Grp.";
         VATSetupPostingGroups: Record "VAT Setup Posting Groups";
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
         if not AutoVATSetupIsAllowed then
             exit;
@@ -351,8 +347,7 @@ page 1877 "VAT Setup Wizard"
         ClearGenBusPostingGrpInvalidDefaults;
         ClearGenProdPostingGrpInvalidDefaults;
 
-        NavApp.GetCurrentModuleInfo(Info);
-        AssistedSetup.Complete(Info.Id(), PAGE::"VAT Setup Wizard");
+        AssistedSetup.Complete(PAGE::"VAT Setup Wizard");
         CurrPage.Close;
     end;
 
@@ -473,8 +468,8 @@ page 1877 "VAT Setup Wizard"
         VATClause: Record "VAT Clause";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        VATClause.DeleteAll;
-        VATPostingSetup.DeleteAll;
+        VATClause.DeleteAll();
+        VATPostingSetup.DeleteAll();
     end;
 
     local procedure AddVATProdPostingGroups(GroupCode: Code[20]; GroupDesc: Text[100])
@@ -483,7 +478,7 @@ page 1877 "VAT Setup Wizard"
     begin
         if VATProductPostingGroup.Get(GroupCode) then
             exit;
-        VATProductPostingGroup.Init;
+        VATProductPostingGroup.Init();
         VATProductPostingGroup.Validate(Code, GroupCode);
         VATProductPostingGroup.Validate(Description, GroupDesc);
         VATProductPostingGroup.Insert(true);
@@ -508,7 +503,7 @@ page 1877 "VAT Setup Wizard"
         if VATClause.Get(ClauseCode) then
             exit;
 
-        VATClause.Init;
+        VATClause.Init();
         VATClause.Validate(Code, ClauseCode);
         VATClause.Validate(Description, ClauseDescription);
         VATClause.Insert(true);
@@ -525,12 +520,12 @@ page 1877 "VAT Setup Wizard"
         VATPostingSetup.Validate("VAT Prod. Posting Group", VATSetupPostingGroups."VAT Prod. Posting Group");
         if VATSetupPostingGroups."VAT %" = 100 then
             VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Full VAT");
-        VATPostingSetup.Insert;
+        VATPostingSetup.Insert();
     end;
 
     local procedure InitVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATSetupPostingGroups: Record "VAT Setup Posting Groups"; VATBusPostingGrpCode: Code[20])
     begin
-        VATPostingSetup.Init;
+        VATPostingSetup.Init();
         VATPostingSetup.TransferFields(VATSetupPostingGroups);
         VATPostingSetup.Validate("VAT Bus. Posting Group", VATBusPostingGrpCode);
         if VATSetupPostingGroups."VAT Clause Desc" <> '' then
@@ -605,7 +600,7 @@ page 1877 "VAT Setup Wizard"
         Customer: Record Customer;
         Item: Record Item;
     begin
-        VATAssistedSetupTemplates.Reset;
+        VATAssistedSetupTemplates.Reset();
         if not VATAssistedSetupTemplates.FindSet then
             exit;
 
@@ -632,11 +627,11 @@ page 1877 "VAT Setup Wizard"
     begin
         if ConfigTemplateLine.GetLine(ConfigTemplateLine, TemplateCode, FieldID) then begin
             if DefaultValue = '' then begin
-                ConfigTemplateLine.Delete;
+                ConfigTemplateLine.Delete();
                 exit;
             end;
             ConfigTemplateLine."Default Value" := DefaultValue;
-            ConfigTemplateLine.Modify;
+            ConfigTemplateLine.Modify();
         end else
             if DefaultValue <> '' then
                 ConfigTemplateManagement.InsertConfigTemplateLine(TemplateCode, FieldID, DefaultValue, TableId);
@@ -690,7 +685,7 @@ page 1877 "VAT Setup Wizard"
             Item.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
             ServiceLine.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
             if (not Item.FindFirst) and (not ServiceLine.FindFirst) then
-                VATProductPostingGroup.Delete;
+                VATProductPostingGroup.Delete();
         until VATProductPostingGroup.Next = 0;
     end;
 
@@ -707,7 +702,7 @@ page 1877 "VAT Setup Wizard"
             Customer.SetRange("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
             Vendor.SetRange("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
             if (not Vendor.FindFirst) and (not Customer.FindFirst) then
-                VATBusinessPostingGroup.Delete;
+                VATBusinessPostingGroup.Delete();
         until VATBusinessPostingGroup.Next = 0;
     end;
 
@@ -723,7 +718,7 @@ page 1877 "VAT Setup Wizard"
         repeat
             if not VATBusinessPostingGroup.Get(GenBusinessPostingGroup."Def. VAT Bus. Posting Group") then begin
                 GenBusinessPostingGroup.Validate("Def. VAT Bus. Posting Group", '');
-                GenBusinessPostingGroup.Modify;
+                GenBusinessPostingGroup.Modify();
             end;
         until GenBusinessPostingGroup.Next = 0;
     end;
@@ -740,7 +735,7 @@ page 1877 "VAT Setup Wizard"
         repeat
             if not VATProductPostingGroup.Get(GenProductPostingGroup."Def. VAT Prod. Posting Group") then begin
                 GenProductPostingGroup.Validate("Def. VAT Prod. Posting Group", '');
-                GenProductPostingGroup.Modify;
+                GenProductPostingGroup.Modify();
             end;
         until GenProductPostingGroup.Next = 0;
     end;

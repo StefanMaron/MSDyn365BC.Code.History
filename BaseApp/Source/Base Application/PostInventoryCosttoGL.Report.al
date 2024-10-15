@@ -221,19 +221,19 @@ report 1002 "Post Inventory Cost to G/L"
                                 TempCapValueEntry."Entry No." := "Entry No.";
                                 TempCapValueEntry."Order Type" := "Order Type";
                                 TempCapValueEntry."Order No." := "Order No.";
-                                TempCapValueEntry.Insert;
+                                TempCapValueEntry.Insert();
                             end;
 
                             if ("Item Ledger Entry No." = 0) or not Inventoriable or
                                (("Cost Amount (Actual)" = 0) and ("Cost Amount (Expected)" = 0) and
                                 ("Cost Amount (Actual) (ACY)" = 0) and ("Cost Amount (Expected) (ACY)" = 0))
                             then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
 
                         if not InvtPost.BufferInvtPosting(ItemValueEntry) then begin
                             InsertValueEntryNoBuf(ItemValueEntry);
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         end;
 
                         UpdateAmounts;
@@ -250,7 +250,7 @@ report 1002 "Post Inventory Cost to G/L"
                     begin
                         if Post then begin
                             MarkedOnly(true);
-                            DeleteAll;
+                            DeleteAll();
                         end;
                         Window.Close;
                     end;
@@ -261,7 +261,7 @@ report 1002 "Post Inventory Cost to G/L"
                     begin
                         Window.Open(Text003);
                         if Post then begin
-                            GLEntry.LockTable;
+                            GLEntry.LockTable();
                             if GLEntry.FindLast then;
                         end;
 
@@ -339,7 +339,7 @@ report 1002 "Post Inventory Cost to G/L"
                         if TempCapValueEntry.Next = 0 then;
                         if not InvtPost.BufferInvtPosting(CapValueEntry) then begin
                             InsertValueEntryNoBuf(CapValueEntry);
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         end;
 
                         UpdateAmounts;
@@ -351,10 +351,10 @@ report 1002 "Post Inventory Cost to G/L"
 
                     trigger OnPostDataItem()
                     begin
-                        TempCapValueEntry.DeleteAll;
+                        TempCapValueEntry.DeleteAll();
                         if Post then begin
                             PostValueEntryToGL.MarkedOnly(true);
-                            PostValueEntryToGL.DeleteAll;
+                            PostValueEntryToGL.DeleteAll();
                         end;
                     end;
 
@@ -379,7 +379,7 @@ report 1002 "Post Inventory Cost to G/L"
                                 Error(
                                   Text001, ItemValueEntry.FieldCaption("Document No."), SelectStr(PostMethod + 1, Text012));
                     end;
-                    GLSetup.Get;
+                    GLSetup.Get();
                 end;
             }
             dataitem(InvtPostingBufferLoop; "Integer")
@@ -422,10 +422,10 @@ report 1002 "Post Inventory Cost to G/L"
                 begin
                     if Number = 1 then begin
                         if not InvtPostBuf.FindSet then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end else
                         if InvtPostBuf.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     DimSetEntry.SetRange("Dimension Set ID", InvtPostBuf."Dimension Set ID");
                     GetDimText(DimSetEntry);
@@ -452,7 +452,7 @@ report 1002 "Post Inventory Cost to G/L"
                 begin
                     if PostMethod = PostMethod::"per Posting Group" then
                         InvtPost.GetInvtPostBuf(InvtPostBuf);
-                    InvtPostBuf.Reset;
+                    InvtPostBuf.Reset();
                 end;
             }
             dataitem(SkippedValueEntry; "Value Entry")
@@ -535,7 +535,7 @@ report 1002 "Post Inventory Cost to G/L"
                 begin
                     TempValueEntry.SetCurrentKey("Item No.");
                     if not TempValueEntry.FindSet then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange("Item No.", TempValueEntry."Item No.");
                     SetRange("Entry No.", TempValueEntry."Entry No.");
@@ -611,7 +611,7 @@ report 1002 "Post Inventory Cost to G/L"
         OnBeforePreReport(Item, ItemValueEntry, PostValueEntryToGL);
 
         ValueEntryFilter := PostValueEntryToGL.GetFilters;
-        InvtSetup.Get;
+        InvtSetup.Get();
     end;
 
     var
@@ -742,9 +742,9 @@ report 1002 "Post Inventory Cost to G/L"
 
     local procedure InsertValueEntryNoBuf(ValueEntry: Record "Value Entry")
     begin
-        TempValueEntry.Init;
+        TempValueEntry.Init();
         TempValueEntry := ValueEntry;
-        TempValueEntry.Insert;
+        TempValueEntry.Insert();
     end;
 
     local procedure DisplayStatistics(NotSimulation: Boolean)

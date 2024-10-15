@@ -137,7 +137,7 @@ report 10109 "Vendor 1099 Div"
                         "No." := PadStr('x', MaxStrLen("No."), 'X');
                         "Federal ID No." := PadStr('x', MaxStrLen("Federal ID No."), 'X');
                     end else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else begin
                     PrintThis := false;
                     // Check through all payments during calendar year
@@ -158,7 +158,7 @@ report 10109 "Vendor 1099 Div"
                             end;
 
                     if not PrintThis then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     // Format City/State/ZIP address line
                     if StrLen(City + ', ' + County + '  ' + "Post Code") > MaxStrLen("Address 3") then

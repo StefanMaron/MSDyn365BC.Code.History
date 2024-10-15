@@ -11,7 +11,7 @@ codeunit 10122 "Bank Rec.-Post + Print"
 
         BankRecPost.Run(BankRecHeader);
         Rec := BankRecHeader;
-        Commit;
+        Commit();
 
         if PostedBankRecHeader.Get("Bank Account No.", "Statement No.") then
             DocPrint.PrintBankRecStmt(PostedBankRecHeader);

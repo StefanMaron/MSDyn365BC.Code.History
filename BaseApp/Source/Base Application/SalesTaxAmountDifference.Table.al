@@ -100,19 +100,19 @@ table 10012 "Sales Tax Amount Difference"
     var
         TaxAmountDifference: Record "Sales Tax Amount Difference";
     begin
-        TaxAmountDifference.Reset;
+        TaxAmountDifference.Reset();
         TaxAmountDifference.SetRange("Document Product Area", ProductArea);
         TaxAmountDifference.SetRange("Document Type", DocType);
         TaxAmountDifference.SetRange("Document No.", DocNo);
         if TaxAmountDifference.FindFirst then
-            TaxAmountDifference.DeleteAll;
+            TaxAmountDifference.DeleteAll();
     end;
 
     procedure AnyTaxDifferenceRecords(ProductArea: Option Sales,Purchase; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]): Boolean
     var
         TaxAmountDifference: Record "Sales Tax Amount Difference";
     begin
-        TaxAmountDifference.Reset;
+        TaxAmountDifference.Reset();
         TaxAmountDifference.SetRange("Document Product Area", ProductArea);
         TaxAmountDifference.SetRange("Document Type", DocType);
         TaxAmountDifference.SetRange("Document No.", DocNo);
@@ -124,12 +124,12 @@ table 10012 "Sales Tax Amount Difference"
         FromTaxAmountDifference: Record "Sales Tax Amount Difference";
         ToTaxAmountDifference: Record "Sales Tax Amount Difference";
     begin
-        FromTaxAmountDifference.Reset;
+        FromTaxAmountDifference.Reset();
         FromTaxAmountDifference.SetRange("Document Product Area", FromProductArea);
         FromTaxAmountDifference.SetRange("Document Type", FromDocType);
         FromTaxAmountDifference.SetRange("Document No.", FromDocNo);
         if FromTaxAmountDifference.Find('-') then begin
-            ToTaxAmountDifference.Init;
+            ToTaxAmountDifference.Init();
             ToTaxAmountDifference."Document Product Area" := ToProductArea;
             ToTaxAmountDifference."Document Type" := ToDocType;
             ToTaxAmountDifference."Document No." := ToDocNo;
@@ -142,7 +142,7 @@ table 10012 "Sales Tax Amount Difference"
                 ToTaxAmountDifference."Tax Type" := FromTaxAmountDifference."Tax Type";
                 ToTaxAmountDifference."Use Tax" := FromTaxAmountDifference."Use Tax";
                 ToTaxAmountDifference."Tax Difference" := FromTaxAmountDifference."Tax Difference";
-                ToTaxAmountDifference.Insert;
+                ToTaxAmountDifference.Insert();
             until FromTaxAmountDifference.Next = 0;
         end;
     end;

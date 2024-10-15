@@ -181,7 +181,7 @@ report 10220 "Job Cost Transaction Detail"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         JobFilter := Job.GetFilters;
     end;
 

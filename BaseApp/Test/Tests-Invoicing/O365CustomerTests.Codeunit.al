@@ -8,7 +8,6 @@ codeunit 138909 "O365 Customer Tests"
     end;
 
     var
-        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryInvoicingApp: Codeunit "Library - Invoicing App";
         LibraryUtility: Codeunit "Library - Utility";
@@ -21,12 +20,47 @@ codeunit 138909 "O365 Customer Tests"
         CountryRegion: Record "Country/Region";
     begin
         CountryRegion.SetFilter(Code, '*WAY');
-        CountryRegion.DeleteAll;
+        CountryRegion.DeleteAll();
 
         if IsInitialized then
             exit;
 
         IsInitialized := true;
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyNoNotificationsAreSend')]
+    [Scope('OnPrem')]
+    procedure TestCustomerContactType()
+    var
+        Customer: Record Customer;
+        O365SalesCustomerCard: TestPage "O365 Sales Customer Card";
+        CustomerName: Text[30];
+    begin
+        Initialize;
+
+        // Exercise create new customer
+        LibraryLowerPermissions.SetInvoiceApp;
+        O365SalesCustomerCard.OpenNew;
+        CustomerName := CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(Customer.Name));
+        O365SalesCustomerCard.Name.SetValue(CustomerName);
+
+        // Verify default customer type is person and is prices inclusing VAT
+        O365SalesCustomerCard."Contact Type".AssertEquals(Customer."Contact Type"::Person);
+        O365SalesCustomerCard.Close;
+        Customer.SetRange(Name, CustomerName);
+        Customer.FindFirst;
+        Customer.TestField("Prices Including VAT", true);
+
+        // Exercise change customer to company
+        O365SalesCustomerCard.OpenEdit;
+        O365SalesCustomerCard.GotoRecord(Customer);
+        O365SalesCustomerCard."Contact Type".SetValue(Customer."Contact Type"::Company);
+        O365SalesCustomerCard.Close;
+
+        // Verify that the customer changed to prices excluding VAT
+        Customer.Get(Customer."No.");
+        Customer.TestField("Prices Including VAT", false);
     end;
 
     [Test]
@@ -177,7 +211,7 @@ codeunit 138909 "O365 Customer Tests"
     end;
 
     [Test]
-    [HandlerFunctions('EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler,BCEmailSetupPageHandler')]
     [Scope('OnPrem')]
     procedure TestChangeCustomerNameAfterPostingInvoice()
     var
@@ -218,7 +252,6 @@ codeunit 138909 "O365 Customer Tests"
         Assert.RecordCount(Customer, 1);
         Customer.FindFirst;
 
-        NotificationLifecycleMgt.RecallAllNotifications;
         EventSubscriberInvoicingApp.Clear();
         UnbindSubscription(EventSubscriberInvoicingApp);
     end;

@@ -37,11 +37,11 @@ codeunit 137208 "SCM Delete Sales Docs"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Bank Account No." := 'A';
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Delete Sales Docs");
     end;
 
@@ -196,7 +196,7 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure SalesShipReportHandler(var SalesShipment: Report "Sales Shipment NA")
+    procedure SalesShipReportHandler(var SalesShipment: Report "Sales - Shipment")
     begin
         SalesShipment.SetTableView(SalesShipmentHeader);
         SalesShipment.SaveAsPdf(FilePath);
@@ -204,7 +204,7 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure RetRcptReportHandler(var SalesReturnReceipt: Report "Return Receipt")
+    procedure RetRcptReportHandler(var SalesReturnReceipt: Report "Sales - Return Receipt")
     begin
         SalesReturnReceipt.SetTableView(ReturnReceiptHeader);
         SalesReturnReceipt.SaveAsPdf(FilePath);

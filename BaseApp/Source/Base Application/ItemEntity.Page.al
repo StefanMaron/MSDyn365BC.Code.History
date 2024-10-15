@@ -190,7 +190,7 @@ page 5470 "Item Entity"
                     var
                         GeneralLedgerSetup: Record "General Ledger Setup";
                     begin
-                        GeneralLedgerSetup.Get;
+                        GeneralLedgerSetup.Get();
                         if not GeneralLedgerSetup."VAT in Use" and "Price Includes VAT" then
                             Error(CannotSetPriceIncludesTaxErr);
 
@@ -384,7 +384,7 @@ page 5470 "Item Entity"
         Clear(BaseUnitOfMeasureCode);
         Clear(BaseUnitOfMeasureJSONText);
         Clear(InventoryValue);
-        TempFieldSet.DeleteAll;
+        TempFieldSet.DeleteAll();
     end;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -392,7 +392,7 @@ page 5470 "Item Entity"
         if TempFieldSet.Get(DATABASE::Item, FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::Item;
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

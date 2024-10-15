@@ -44,7 +44,7 @@ codeunit 5309 "Outlook Synch. Process Links"
         if not OResponseXMLTextReader.LoadXml(XMLMessage) then
             Error(Text001);
 
-        OSynchUserSetup.Reset;
+        OSynchUserSetup.Reset();
         OSynchUserSetup.SetRange("User ID", UserID);
         if not OSynchUserSetup.FindFirst then
             exit;
@@ -94,7 +94,7 @@ codeunit 5309 "Outlook Synch. Process Links"
                             OResponseXMLTextReader.MoveNext(EntityIterator);
                             TagName := OResponseXMLTextReader.GetName(EntityIterator);
                             NewOEntryIDHash := GetEntryIDHash(NewEntryIDContainer, EntityIterator);
-                            OSynchLink.Reset;
+                            OSynchLink.Reset();
                             OSynchLink.SetRange("User ID", UserID);
                             OSynchLink.SetRange("Outlook Entry ID Hash", OEntryIDHash);
                             if OSynchLink.FindFirst then begin

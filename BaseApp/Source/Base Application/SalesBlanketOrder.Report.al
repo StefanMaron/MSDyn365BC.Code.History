@@ -33,7 +33,7 @@ report 10069 "Sales Blanket Order"
                 trigger OnAfterGetRecord()
                 begin
                     TempSalesLine := "Sales Line";
-                    TempSalesLine.Insert;
+                    TempSalesLine.Insert();
                     HighestLineNo := "Line No.";
                     if ("Sales Header"."Tax Area Code" <> '') and not UseExternalTaxEngine then
                         SalesTaxCalc.AddSalesLine(TempSalesLine);
@@ -85,8 +85,8 @@ report 10069 "Sales Blanket Order"
 
                 trigger OnPreDataItem()
                 begin
-                    TempSalesLine.Reset;
-                    TempSalesLine.DeleteAll;
+                    TempSalesLine.Reset();
+                    TempSalesLine.DeleteAll();
                 end;
             }
             dataitem("Sales Comment Line"; "Sales Comment Line")
@@ -108,7 +108,7 @@ report 10069 "Sales Blanket Order"
                         "Line No." := HighestLineNo + 1000;
                         HighestLineNo := "Line No.";
                     end;
-                    TempSalesLine.Insert;
+                    TempSalesLine.Insert();
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -435,8 +435,8 @@ report 10069 "Sales Blanket Order"
                             Clear(TaxAmount);
                             Clear(AmountExclInvDisc);
 
-                            TempSalesLine.Reset;
-                            NumberOfLines := TempSalesLine.Count;
+                            TempSalesLine.Reset();
+                            NumberOfLines := TempSalesLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                             PrintFooter := false;
@@ -449,7 +449,7 @@ report 10069 "Sales Blanket Order"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             SalesPrinted.Run("Sales Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -579,8 +579,8 @@ report 10069 "Sales Blanket Order"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
         FormatDocument.SetLogoPosition(SalesSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
     end;
 
@@ -694,7 +694,7 @@ report 10069 "Sales Blanket Order"
             HighestLineNo := "Line No.";
         end;
         FormatDocument.ParseComment(Comment, TempSalesLine.Description, TempSalesLine."Description 2");
-        TempSalesLine.Insert;
+        TempSalesLine.Insert();
     end;
 
     [IntegrationEvent(false, false)]

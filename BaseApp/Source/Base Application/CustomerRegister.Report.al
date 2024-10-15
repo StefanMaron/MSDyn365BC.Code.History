@@ -182,7 +182,7 @@ report 10046 "Customer Register"
                 GLSETUP: Record "General Ledger Setup";
                 Dimension: Record Dimension;
             begin
-                GLSETUP.Get;
+                GLSETUP.Get();
 
                 Dimension.Get(GLSETUP."Global Dimension 1 Code");
                 GlobalDim1Code := Dimension."Code Caption";
@@ -214,7 +214,7 @@ report 10046 "Customer Register"
     begin
         FilterString := "G/L Register".GetFilters;
         FilterString2 := "Cust. Ledger Entry".GetFilters;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

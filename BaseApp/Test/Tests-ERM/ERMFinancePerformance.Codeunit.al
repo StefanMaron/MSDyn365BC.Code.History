@@ -26,8 +26,8 @@ codeunit 134923 "ERM Finance Performance"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         Assert: Codeunit Assert;
-        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         DimensionValueNotEqualERR: Label 'X-Axis Dimension value for interval no. %1 differs from expected value.';
         AmountNotEqualERR: Label 'Amount does not match expected value for measure %1, X-axis dimension %2.';
         CostAccUpdateMSG: Label 'has been updated in Cost Accounting';
@@ -52,7 +52,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestChart(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, AccountSchedulesChartSetup."Period Length"::Day,
@@ -67,7 +67,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestChart(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, AccountSchedulesChartSetup."Period Length"::Week,
@@ -82,7 +82,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestChart(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, AccountSchedulesChartSetup."Period Length"::Month,
@@ -97,7 +97,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestChart(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, AccountSchedulesChartSetup."Period Length"::Quarter,
@@ -112,7 +112,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestChart(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, AccountSchedulesChartSetup."Period Length"::Year,
@@ -127,7 +127,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestChart(AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0);
     end;
@@ -140,7 +140,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestChart(AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column", AccountSchedulesChartSetup."Period Length", 0);
     end;
@@ -153,7 +153,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, AccountSchedulesChartSetup."Period Length"::Month,
@@ -168,7 +168,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, AccountSchedulesChartSetup."Period Length"::Quarter,
@@ -183,7 +183,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, AccountSchedulesChartSetup."Period Length"::Day,
@@ -198,7 +198,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, AccountSchedulesChartSetup."Period Length"::Week,
@@ -213,7 +213,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", AccountSchedulesChartSetup."Period Length"::Month, 0,
@@ -228,7 +228,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", AccountSchedulesChartSetup."Period Length"::Quarter, 0,
@@ -243,7 +243,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column", AccountSchedulesChartSetup."Period Length"::Day, 0,
@@ -258,7 +258,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_ChangePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column", AccountSchedulesChartSetup."Period Length"::Week, 0,
@@ -274,7 +274,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_MovePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -290,7 +290,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_MovePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -306,7 +306,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_MovePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -322,7 +322,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_MovePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -338,7 +338,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_MovePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -354,7 +354,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestAction_MovePeriod(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -371,7 +371,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -388,7 +388,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -405,7 +405,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -422,7 +422,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -439,7 +439,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -456,7 +456,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -473,7 +473,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -490,7 +490,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -507,7 +507,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -524,7 +524,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -542,7 +542,7 @@ codeunit 134923 "ERM Finance Performance"
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
 
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -559,7 +559,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -576,7 +576,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -593,7 +593,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -610,7 +610,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDown(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -627,7 +627,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDownWithAnalysisView(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -644,7 +644,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDownWithAnalysisView(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -661,7 +661,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDownWithAnalysisView(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -678,7 +678,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDownWithAnalysisView(
           AccountSchedulesChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5) - 1,
@@ -695,7 +695,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDownWithAnalysisView(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -712,7 +712,7 @@ codeunit 134923 "ERM Finance Performance"
     begin
         // [FEATURE] [Account Schedule] [Chart]
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
 
         TestDrillDownWithAnalysisView(
           AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line", LibraryRandom.RandIntInRange(1, 5) - 1, 0,
@@ -762,7 +762,7 @@ codeunit 134923 "ERM Finance Performance"
 
         // Setup: Create Analysis View Budget Entry with Column Layout.
         Initialize;
-        AccountSchedulesChartSetup.Init;
+        AccountSchedulesChartSetup.Init();
         SetupStartAndEndDates(
           StartDate, EndDate, AccountSchedulesChartSetup."Base X-Axis on"::Period, LibraryRandom.RandIntInRange(1, 5), 0);
         SetupAccountScheduleWithAnalysisView2Cols(AccScheduleLine, ColumnLayout, AnalysisView, GLAccountNo, AnalysisViewType::GLAccount);
@@ -786,7 +786,7 @@ codeunit 134923 "ERM Finance Performance"
         // [FEATURE] [Sales] [My Notifications]
         // [SCENARIO 220587] Code Coverage for the Page function MyNotification.IsEnabledForRecord has only 1 hits execution profile without cycling and the dependance on Customer count.
         Initialize;
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
 
         // [GIVEN] Customer.
         LibrarySales.CreateCustomer(Customer);
@@ -814,7 +814,7 @@ codeunit 134923 "ERM Finance Performance"
         // [FEATURE] [Sales] [My Notifications]
         // [SCENARIO 220587] Code Coverage for the Page function MyNotification.IsEnabledForRecord has only 1 hits execution profile without cycling and the dependance on Customer count when filter is applied.
         Initialize;
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
 
         // [GIVEN] Customer.
         LibrarySales.CreateCustomer(Customer);
@@ -823,7 +823,7 @@ codeunit 134923 "ERM Finance Performance"
         SetupMyNotificationsForCredirLimitCheck(MyNotifications);
         MyNotifications."Apply to Table Filter".CreateOutStream(FiltersOutStream);
         FiltersOutStream.Write(StrSubstNo(MyNotificationFilterTxt, Customer."No."));
-        MyNotifications.Modify;
+        MyNotifications.Modify();
 
         // [WHEN] Public function MyNotifications.IsEnabledForRecord is invoked for Customer.
         CodeCoverageMgt.StartApplicationCoverage;
@@ -879,9 +879,9 @@ codeunit 134923 "ERM Finance Performance"
 
         CustFilter := LibraryUtility.GenerateGUID;
         for i := 1 to 2 do begin
-            Customer.Init;
+            Customer.Init();
             Customer."No." := Format(i) + CustFilter;
-            Customer.Insert;
+            Customer.Insert();
         end;
 
         CodeCoverageMgt.StartApplicationCoverage;
@@ -944,9 +944,9 @@ codeunit 134923 "ERM Finance Performance"
 
         VendFilter := LibraryUtility.GenerateGUID;
         for i := 1 to 2 do begin
-            Vendor.Init;
+            Vendor.Init();
             Vendor."No." := Format(i) + VendFilter;
-            Vendor.Insert;
+            Vendor.Insert();
         end;
 
         CodeCoverageMgt.StartApplicationCoverage;
@@ -1064,9 +1064,9 @@ codeunit 134923 "ERM Finance Performance"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Finance Performance");
         CodeCoverageMgt.StopApplicationCoverage;
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         CostAccSetup."Align G/L Account" := CostAccSetup."Align G/L Account"::"No Alignment";
-        CostAccSetup.Modify;
+        CostAccSetup.Modify();
         LibraryVariableStorage.Clear;
 
         // Lazy Setup.
@@ -1074,7 +1074,7 @@ codeunit 134923 "ERM Finance Performance"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Finance Performance");
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Finance Performance");
         LibraryERMCountryData.CreateVATData();
     end;
@@ -1095,7 +1095,7 @@ codeunit 134923 "ERM Finance Performance"
             AccountSchedulesChartSetup."No. of Periods" := NoOfPeriods
         else
             AccountSchedulesChartSetup."End Date" := EndDate;
-        AccountSchedulesChartSetup.Insert;
+        AccountSchedulesChartSetup.Insert();
 
         CreatePerfIndSetupLines(AccountSchedulesChartSetup, AccScheduleLine, ColumnLayout);
     end;
@@ -1193,7 +1193,7 @@ codeunit 134923 "ERM Finance Performance"
         GLEntry.Amount := Amount;
         if LastGLEntry.FindLast then;
         GLEntry."Entry No." := LastGLEntry."Entry No." + 1;
-        GLEntry.Insert;
+        GLEntry.Insert();
     end;
 
     local procedure SetupCostEntries(var CostEntry: Record "Cost Entry"; CostTypeNo: Code[20]; StartingDate: Date; EndingDate: Date; PeriodLength: Option)
@@ -1218,7 +1218,7 @@ codeunit 134923 "ERM Finance Performance"
         CostEntry.Amount := Amount;
         if LastCostEntry.FindLast then;
         CostEntry."Entry No." := LastCostEntry."Entry No." + 1;
-        CostEntry.Insert;
+        CostEntry.Insert();
     end;
 
     local procedure SetupCashFlowEntries(var CashFlowForecastEntry: Record "Cash Flow Forecast Entry"; CFAccountNo: Code[20]; StartingDate: Date; EndingDate: Date; PeriodLength: Option)
@@ -1244,7 +1244,7 @@ codeunit 134923 "ERM Finance Performance"
         CashFlowForecastEntry."Amount (LCY)" := Amount;
         if LastCashFlowForecastEntry.FindLast then;
         CashFlowForecastEntry."Entry No." := LastCashFlowForecastEntry."Entry No." + 1;
-        CashFlowForecastEntry.Insert;
+        CashFlowForecastEntry.Insert();
     end;
 
     local procedure SetupAnalysisViewEntries(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisViewCode: Code[10]; GLAccountNo: Code[20]; StartingDate: Date; EndingDate: Date; PeriodLength: Option; AnalysisViewType: Option GLAccount,CashFlow)
@@ -1274,7 +1274,7 @@ codeunit 134923 "ERM Finance Performance"
         AnalysisViewEntry."Posting Date" := PostingDate;
         AnalysisViewEntry.Amount := Amount;
         AnalysisViewEntry."Entry No." := EntryNo;
-        AnalysisViewEntry.Insert;
+        AnalysisViewEntry.Insert();
     end;
 
     local procedure CreateAnalysisViewBudgetEntry(var AnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; PostingDate: Date; AnalysisViewCode: Code[10]; GLAccountNo: Code[20])
@@ -1346,8 +1346,8 @@ codeunit 134923 "ERM Finance Performance"
         // This function assumes the last account schedule line and the last column layout records are of type formula
         ClearDrillDownGlobalParams;
 
-        NoOfLines := AccScheduleLine.Count;
-        NoOfColumns := ColumnLayout.Count;
+        NoOfLines := AccScheduleLine.Count();
+        NoOfColumns := ColumnLayout.Count();
 
         case AccountSchedulesChartSetup."Base X-Axis on" of
             AccountSchedulesChartSetup."Base X-Axis on"::Period:
@@ -1446,13 +1446,13 @@ codeunit 134923 "ERM Finance Performance"
                 begin
                     ColumnLayout.FindLast;
                     DrillDownColumnLayout := ColumnLayout;
-                    DrillDownAccScheduleLine.Init;
+                    DrillDownAccScheduleLine.Init();
                 end;
             TestDrillDownType::RowFormula:
                 begin
                     AccScheduleLine.FindLast;
                     DrillDownAccScheduleLine := AccScheduleLine;
-                    DrillDownColumnLayout.Init;
+                    DrillDownColumnLayout.Init();
                 end;
             TestDrillDownType::GLAccount:
                 begin
@@ -1565,7 +1565,7 @@ codeunit 134923 "ERM Finance Performance"
           LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID,
           DATABASE::Customer);
         MyNotifications.Enabled := true;
-        MyNotifications.Modify;
+        MyNotifications.Modify();
     end;
 
     local procedure TestChart(ShowPer: Option; PeriodLength: Option; NoOfPeriods: Integer)
@@ -1604,7 +1604,7 @@ codeunit 134923 "ERM Finance Performance"
         VerifyChart(AccountSchedulesChartSetup, BusinessChartBuffer, AccScheduleLine, ColumnLayout, StartDate, EndDate);
 
         AccountSchedulesChartSetup."Period Length" := NewPeriodLength;
-        AccountSchedulesChartSetup.Modify;
+        AccountSchedulesChartSetup.Modify();
         if ShowPer = AccountSchedulesChartSetup."Base X-Axis on"::Period then
             EndDate :=
               CalculatePeriodEndDate(
@@ -1910,12 +1910,12 @@ codeunit 134923 "ERM Finance Performance"
             AnalysisView."Account Filter" := CashFlowAccount."No.";
             AccountNo := CashFlowAccount."No.";
         end;
-        AnalysisView.Modify;
+        AnalysisView.Modify();
 
         CreateColumnLayoutWithNameAndDesc(ColumnLayout);
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         AccScheduleName."Analysis View Name" := CopyStr(AnalysisView.Name, 1, 10);
-        AccScheduleName.Modify;
+        AccScheduleName.Modify();
 
         if AnalysisViewType = AnalysisViewType::GLAccount then
             CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name, AccountNo, AccScheduleLine."Totaling Type"::"Posting Accounts")

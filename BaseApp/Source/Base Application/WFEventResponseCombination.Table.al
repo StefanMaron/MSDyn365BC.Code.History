@@ -64,7 +64,7 @@ table 1509 "WF Event/Response Combination"
             WFEventResponseCombination.SetRange(Type, Type);
             WFEventResponseCombination.SetRange("Function Name", FunctionName);
             if not WFEventResponseCombination.IsEmpty then
-                WFEventResponseCombination.DeleteAll;
+                WFEventResponseCombination.DeleteAll();
         end;
     end;
 }

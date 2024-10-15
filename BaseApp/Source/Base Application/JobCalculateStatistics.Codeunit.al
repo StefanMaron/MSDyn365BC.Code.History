@@ -305,7 +305,7 @@ codeunit 1008 "Job Calculate Statistics"
         Txt: Text[30];
     begin
         Clear(HeadLineText);
-        GLSetup.Get;
+        GLSetup.Get();
 
         for I := 1 to 8 do begin
             Txt := '';

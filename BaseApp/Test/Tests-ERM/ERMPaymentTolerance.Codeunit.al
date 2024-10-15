@@ -988,7 +988,6 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         GenJournalLine: Record "Gen. Journal Line";
         PaymentTerms: Record "Payment Terms";
-        GeneralJournal: TestPage "General Journal";
         Amount: Decimal;
     begin
         // [FEATURE] [Sales]
@@ -1004,9 +1003,8 @@ codeunit 134022 "ERM Payment Tolerance"
           0, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), GenJournalLine."Document No.");
 
         // Update Amount. And calls the Payment Discount Tolerance Warning.
-        GeneralJournal.OpenEdit;
-        GeneralJournal.Amount.SetValue(-Amount);
-        GeneralJournal.Next;
+        GenJournalLine.Validate(Amount, -Amount);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify the payment can be posted successfully and the Amount on G/L Entry.
@@ -1021,7 +1019,6 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         GenJournalLine: Record "Gen. Journal Line";
         PaymentTerms: Record "Payment Terms";
-        GeneralJournal: TestPage "General Journal";
         PostedDocNo: Code[20];
         Amount: Decimal;
     begin
@@ -1042,15 +1039,12 @@ codeunit 134022 "ERM Payment Tolerance"
           GenJournalLine."Document No.", Amount);
         GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
-        GenJournalLine.Modify(true);
 
         // [WHEN] Update Amount to "A1".
-        GeneralJournal.OpenEdit;
-        GeneralJournal.Amount.SetValue(-Amount);
-        GeneralJournal.Next;
+        GenJournalLine.Validate(Amount, -Amount);
+        GenJournalLine.Modify(true);
 
         // [THEN] Payment Discount Tolerance Warning is shown, Amount is changed to "A1".
-        GenJournalLine.Find;
         GenJournalLine.TestField("Applies-to ID", GenJournalLine."Document No.");
         GenJournalLine.TestField(Amount, -Amount);
     end;
@@ -1259,7 +1253,6 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         GenJournalLine: Record "Gen. Journal Line";
         PaymentTerms: Record "Payment Terms";
-        GeneralJournal: TestPage "General Journal";
         Amount: Decimal;
     begin
         // [FEATURE] [Purchase]
@@ -1275,9 +1268,8 @@ codeunit 134022 "ERM Payment Tolerance"
           CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), GenJournalLine."Document No.");
 
         // Update Amount. Post the payment.
-        GeneralJournal.OpenEdit;
-        GeneralJournal.Amount.SetValue(Amount);
-        GeneralJournal.Next;
+        GenJournalLine.Validate(Amount, Amount);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify the payment can be posted successfully and the Amount on G/L Entry.
@@ -1292,7 +1284,6 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         GenJournalLine: Record "Gen. Journal Line";
         PaymentTerms: Record "Payment Terms";
-        GeneralJournal: TestPage "General Journal";
         PostedDocNo: Code[20];
         Amount: Decimal;
     begin
@@ -1313,15 +1304,12 @@ codeunit 134022 "ERM Payment Tolerance"
           GenJournalLine."Document No.", -Amount);
         GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
-        GenJournalLine.Modify(true);
 
         // [WHEN] Update Amount to "A1".
-        GeneralJournal.OpenEdit;
-        GeneralJournal.Amount.SetValue(Amount);
-        GeneralJournal.Next;
+        GenJournalLine.Validate(Amount, Amount);
+        GenJournalLine.Modify(true);
 
         // [THEN] Payment Discount Tolerance Warning is shown, Amount is changed to "A1".
-        GenJournalLine.Find;
         GenJournalLine.TestField("Applies-to ID", GenJournalLine."Document No.");
         GenJournalLine.TestField(Amount, Amount);
     end;
@@ -1550,7 +1538,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         Initialize;
         // [GIVEN] "Payment Tolerance Warning" = Yes
-        GLSetup.Get;
+        GLSetup.Get();
         TolerancePct := LibraryRandom.RandDec(100, 2);
         SetPmtTolerance(true, false, TolerancePct);
         LibraryPmtDiscSetup.SetPmtDiscToleranceWarning(false);
@@ -1602,7 +1590,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         Initialize;
         // [GIVEN] "Payment Tolerance Warning" = Yes
-        GLSetup.Get;
+        GLSetup.Get();
         TolerancePct := LibraryRandom.RandDec(100, 2);
         SetPmtTolerance(true, false, TolerancePct);
         LibraryPmtDiscSetup.SetPmtDiscToleranceWarning(false);
@@ -3169,7 +3157,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // Enqueue value for GeneralJournalTemplateListModalPageHandler
         LibraryVariableStorage.Enqueue(GenJournalLine[2]."Journal Template Name");
 
-        Commit;
+        Commit();
 
         // [GIVEN] Cash Receipt Page was open for Payment Gen. Journal Line
         CashReceiptJournal.OpenEdit;
@@ -3188,10 +3176,8 @@ codeunit 134022 "ERM Payment Tolerance"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Tolerance");
-        LibraryApplicationArea.EnableFoundationSetup;
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
         // Setup demo data.
@@ -3207,7 +3193,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.RemoveBlankGenJournalTemplate;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Payment Tolerance");
     end;
@@ -3238,7 +3224,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // Delete the generated Journal Batch
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
-        GenJournalBatch.Delete;
+        GenJournalBatch.Delete();
     end;
 
     local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal)
@@ -3428,7 +3414,6 @@ codeunit 134022 "ERM Payment Tolerance"
     local procedure CreatePostPaymentWithAppliesToDoc(GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; AccountType: Option; DocumentNo: Code[20]; PostingDate: Date; PmtAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
-        GeneralJournal: TestPage "General Journal";
     begin
         GenJournalLine."Journal Template Name" := GenJnlTemplateName;
         GenJournalLine."Journal Batch Name" := GenJnlBatchName;
@@ -3437,13 +3422,8 @@ codeunit 134022 "ERM Payment Tolerance"
           GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
           0, PostingDate, '');
         GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+        GenJournalLine.Validate(Amount, -PmtAmount);
         GenJournalLine.Modify(true);
-
-        GeneralJournal.OpenEdit;
-        GeneralJournal.Amount.SetValue(-PmtAmount);
-        GeneralJournal.Next;
-
-        GenJournalLine.Find;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -3469,7 +3449,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         SelectGenJournalBatch(GenJournalBatch);
         with GenJournalLine do begin
-            DeleteAll;
+            DeleteAll();
             LibraryERM.CreateGeneralJnlLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::Invoice,
               AccountType, AccountNo, LineAmount);
@@ -3782,7 +3762,7 @@ codeunit 134022 "ERM Payment Tolerance"
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo,
           (GenJournalLine.Amount - ToleranceAmount));
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePaymentTermsWithDiscOnCreditMemo(): Code[10]
@@ -3898,7 +3878,7 @@ codeunit 134022 "ERM Payment Tolerance"
             Validate("Posting Date", PostingDate);
             Modify(true);
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateAndPostGenJnlLineWithPaymentTerms(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; AccountType: Option; AccountNo: Code[20]; PaymentTermsCode: Code[10]; InvAmount: Decimal)
@@ -4190,7 +4170,7 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.Validate("Appln. Rounding Precision", NewApplnRoundingPrecision);
         GLSetup.Modify(true);
     end;
@@ -4660,7 +4640,7 @@ codeunit 134022 "ERM Payment Tolerance"
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         ApplyCustomerEntries.Next;
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        Commit;
+        Commit();
         ApplyCustomerEntries."Post Application".Invoke;
     end;
 
@@ -4672,7 +4652,7 @@ codeunit 134022 "ERM Payment Tolerance"
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         ApplyVendorEntries.Next;
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        Commit;
+        Commit();
         ApplyVendorEntries.ActionPostApplication.Invoke;
     end;
 

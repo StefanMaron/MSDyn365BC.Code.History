@@ -1,4 +1,4 @@
-﻿page 5759 "Posted Transfer Receipt Lines"
+page 5759 "Posted Transfer Receipt Lines"
 {
     Caption = 'Posted Transfer Receipt Lines';
     Editable = false;
@@ -136,7 +136,7 @@
     var
         TransRcptLine: Record "Transfer Receipt Line";
     begin
-        TempTransRcptLine.Reset;
+        TempTransRcptLine.Reset();
         TempTransRcptLine.CopyFilters(Rec);
         TempTransRcptLine.SetRange("Document No.", DocNo);
         if not TempTransRcptLine.FindFirst then begin
@@ -144,7 +144,7 @@
             TransRcptLine.SetRange("Document No.", DocNo);
             TransRcptLine.FindFirst;
             TempTransRcptLine := TransRcptLine;
-            TempTransRcptLine.Insert;
+            TempTransRcptLine.Insert();
         end;
         if TempTransRcptLine."Line No." = LineNo then
             exit(true);

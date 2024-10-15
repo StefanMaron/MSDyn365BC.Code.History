@@ -136,7 +136,7 @@ codeunit 10130 "Bank Reconciliation Mgt."
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Bank Recon. with Auto. Match");
     end;
 }

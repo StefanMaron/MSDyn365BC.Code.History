@@ -218,9 +218,9 @@ page 8905 "Purchasing Manager Role Center"
                     }
                     action("Vendor - Summary Aging")
                     {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Aged Accounts Payable';
-                        RunObject = Report "Aged Accounts Payable NA";
+                    	ApplicationArea = Basic,Suite;
+                    	Caption = 'Aged Accounts Payable';
+                    	RunObject = Report "Aged Accounts Payable NA";
                     }
                     action("Vendor/Item Purchases")
                     {
@@ -455,9 +455,9 @@ page 8905 "Purchasing Manager Role Center"
                         }
                         action("Vendor - Summary Aging1")
                         {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Aged Accounts Payable';
-                            RunObject = Report "Aged Accounts Payable NA";
+                        	ApplicationArea = Basic,Suite;
+                        	Caption = 'Aged Accounts Payable';
+                        	RunObject = Report "Aged Accounts Payable NA";
                         }
                         action("Purchase Statistics1")
                         {

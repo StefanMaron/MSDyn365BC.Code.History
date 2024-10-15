@@ -27,7 +27,7 @@ codeunit 10328 "Exp. Mapping Det EFT US"
                     LineNo := LineNo + 1;
                 end;
             until ACHUSDetail.Next = 0;
-        ACHUSDetail.DeleteAll;
+        ACHUSDetail.DeleteAll();
     end;
 
     local procedure NoDataExchLineDef(DataExchDefCode: Code[20]): Boolean

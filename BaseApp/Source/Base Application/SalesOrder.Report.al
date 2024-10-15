@@ -33,9 +33,9 @@ report 10075 "Sales Order"
                 trigger OnAfterGetRecord()
                 begin
                     TempSalesLine := "Sales Line";
-                    TempSalesLine.Insert;
+                    TempSalesLine.Insert();
                     TempSalesLineAsm := "Sales Line";
-                    TempSalesLineAsm.Insert;
+                    TempSalesLineAsm.Insert();
 
                     HighestLineNo := "Line No.";
                     if ("Sales Header"."Tax Area Code" <> '') and not UseExternalTaxEngine then
@@ -88,10 +88,10 @@ report 10075 "Sales Order"
 
                 trigger OnPreDataItem()
                 begin
-                    TempSalesLine.Reset;
-                    TempSalesLine.DeleteAll;
-                    TempSalesLineAsm.Reset;
-                    TempSalesLineAsm.DeleteAll;
+                    TempSalesLine.Reset();
+                    TempSalesLine.DeleteAll();
+                    TempSalesLineAsm.Reset();
+                    TempSalesLineAsm.DeleteAll();
                 end;
             }
             dataitem("Sales Comment Line"; "Sales Comment Line")
@@ -113,7 +113,7 @@ report 10075 "Sales Order"
                         "Line No." := HighestLineNo + 1000;
                         HighestLineNo := "Line No.";
                     end;
-                    TempSalesLine.Insert;
+                    TempSalesLine.Insert();
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -430,9 +430,9 @@ report 10075 "Sales Order"
                             trigger OnPreDataItem()
                             begin
                                 if not DisplayAssemblyInformation then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 if not AsmInfoExistsForLine then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                                 AsmLine.SetRange("Document Type", AsmHeader."Document Type");
                                 AsmLine.SetRange("Document No.", AsmHeader."No.");
                                 SetRange(Number, 1, AsmLine.Count);
@@ -495,8 +495,8 @@ report 10075 "Sales Order"
                             Clear(TaxAmount);
                             Clear(AmountExclInvDisc);
 
-                            TempSalesLine.Reset;
-                            NumberOfLines := TempSalesLine.Count;
+                            TempSalesLine.Reset();
+                            NumberOfLines := TempSalesLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                         end;
@@ -508,7 +508,7 @@ report 10075 "Sales Order"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             SalesPrinted.Run("Sales Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -679,8 +679,8 @@ report 10075 "Sales Order"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        SalesSetup.Get;
+        CompanyInformation.Get();
+        SalesSetup.Get();
         FormatDocument.SetLogoPosition(SalesSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
 
         if PrintCompany then
@@ -815,7 +815,7 @@ report 10075 "Sales Order"
             HighestLineNo := "Line No.";
         end;
         FormatDocument.ParseComment(Comment, TempSalesLine.Description, TempSalesLine."Description 2");
-        TempSalesLine.Insert;
+        TempSalesLine.Insert();
     end;
 
     [IntegrationEvent(false, false)]

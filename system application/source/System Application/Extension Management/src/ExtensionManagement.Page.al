@@ -18,12 +18,12 @@ page 2500 "Extension Management"
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Details,Manage';
     RefreshOnActivate = true;
-    SourceTable = "NAV App";
+    SourceTable = "Published Application";
     SourceTableView = SORTING(Name)
                       ORDER(Ascending)
                       WHERE(Name = FILTER(<> '_Exclude_*'),
-                            "Tenant Visible" = CONST(true),
-                            "Package Type" = FILTER(= 0 | 2));
+                            "Package Type" = FILTER(= Extension | Designer),
+                            "Tenant Visible" = CONST(true));
     UsageCategory = Administration;
     ContextSensitiveHelpPage = 'ui-extensions';
 
@@ -81,8 +81,7 @@ page 2500 "Extension Management"
         {
             group(ActionGroup13)
             {
-                Enabled = false;
-                Visible = false;
+                Caption = 'Process';
                 action(Install)
                 {
                     ApplicationArea = All;
@@ -90,6 +89,7 @@ page 2500 "Extension Management"
                     Enabled = ActionsEnabled AND (NOT IsInstalled);
                     Image = NewRow;
                     Promoted = true;
+                    PromotedOnly = true;
                     PromotedCategory = Category5;
                     Scope = Repeater;
                     ToolTip = 'Install the extension for the current tenant.';
@@ -108,6 +108,7 @@ page 2500 "Extension Management"
                     Enabled = ActionsEnabled AND IsInstalled;
                     Image = RemoveLine;
                     Promoted = true;
+                    PromotedOnly = true;
                     PromotedCategory = Category5;
                     Scope = Repeater;
                     ToolTip = 'Remove the extension from the current tenant.';
@@ -125,6 +126,7 @@ page 2500 "Extension Management"
                     Enabled = ActionsEnabled;
                     Image = RemoveLine;
                     Promoted = true;
+                    PromotedOnly = true;
                     PromotedCategory = Category5;
                     Scope = Repeater;
                     ToolTip = 'Unpublish the extension from the tenant.';
@@ -146,6 +148,7 @@ page 2500 "Extension Management"
                     Caption = 'Configure';
                     Image = Setup;
                     Promoted = true;
+                    PromotedOnly = true;
                     PromotedCategory = Category5;
                     RunObject = Page "Extension Settings";
                     RunPageLink = "App ID" = FIELD(ID);
@@ -159,6 +162,7 @@ page 2500 "Extension Management"
                     Enabled = IsTenantExtension AND "Show My Code";
                     Image = ExportFile;
                     Promoted = true;
+                    PromotedOnly = true;
                     PromotedCategory = Category5;
                     Scope = Repeater;
                     ToolTip = 'Download the source code for the extension.';
@@ -176,6 +180,7 @@ page 2500 "Extension Management"
                     Enabled = ActionsEnabled;
                     Image = Info;
                     Promoted = true;
+                    PromotedOnly = true;
                     PromotedCategory = Category5;
                     Scope = Repeater;
                     ToolTip = 'View information from the extension provider.';
@@ -207,6 +212,7 @@ page 2500 "Extension Management"
                     Enabled = IsSaaS;
                     Image = NewItem;
                     Promoted = true;
+                    PromotedOnly = true;
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
                     ToolTip = 'Browse the extension marketplace for new extensions to install.';
@@ -226,6 +232,7 @@ page 2500 "Extension Management"
                     Caption = 'Upload Extension';
                     Image = Import;
                     Promoted = true;
+                    PromotedOnly = true;
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
                     RunObject = Page "Upload And Deploy Extension";
@@ -238,6 +245,7 @@ page 2500 "Extension Management"
                     Caption = 'Deployment Status';
                     Image = View;
                     Promoted = true;
+                    PromotedOnly = true;
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
                     RunObject = Page "Extension Deployment Status";
@@ -251,6 +259,7 @@ page 2500 "Extension Management"
                     Enabled = ActionsEnabled;
                     Image = View;
                     Promoted = true;
+                    PromotedOnly = true;
                     PromotedCategory = Category4;
                     ShortCutKey = 'Return';
                     ToolTip = 'View extension details.';
@@ -324,7 +333,6 @@ page 2500 "Extension Management"
         FilterGroup(2);
         if not IsInstallAllowed then
             SetRange("PerTenant Or Installed", true);
-
         FilterGroup(0);
     end;
 
@@ -337,6 +345,7 @@ page 2500 "Extension Management"
     begin
         IsSaaS := EnvironmentInfo.IsSaaS();
         IsSaaSInstallAllowed := ServerSetting.GetEnableSaaSExtensionInstallSetting();
+
         IsMarketplaceEnabled := ExtensionMarketplace.IsMarketplaceEnabled();
 
         // Composed configurations for the simplicity of representation
@@ -350,10 +359,10 @@ page 2500 "Extension Management"
         IsInstalled := ExtensionInstallationImpl.IsInstalledByPackageId("Package ID");
         InstalledStatus := ExtensionInstallationImpl.GetExtensionInstalledDisplayString("Package ID");
         // Currently using the "Tenant ID" field to identify development extensions
-        if Scope = 1 then
-            IsTenantExtension := true
+        if "Published As" = "Published As"::Global then
+            IsTenantExtension := false
         else
-            IsTenantExtension := false;
+            IsTenantExtension := true;
     end;
 
     local procedure GetVersionDisplayText(): Text

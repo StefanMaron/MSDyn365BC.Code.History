@@ -162,7 +162,7 @@ report 10148 "List Price Sheet"
                         SetRange("Starting Date", "Starting Date");
                         SetRange("Ending Date");
                     end else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(NoSalesPrice; "Integer")
@@ -192,7 +192,7 @@ report 10148 "List Price Sheet"
                 trigger OnPreDataItem()
                 begin
                     if AnySalesPriceFound then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -335,7 +335,7 @@ report 10148 "List Price Sheet"
     trigger OnPreReport()
     begin
         MainTitle := StrSubstNo(Text000, DateReq);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         SubTitle := StrSubstNo(Text001, CompanyInformation."Phone No.");
         if CustPriceGr.Code <> '' then
             CustPriceGr.Find;

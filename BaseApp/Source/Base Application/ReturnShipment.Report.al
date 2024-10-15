@@ -256,7 +256,7 @@ report 10127 "Return Shipment"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             PurchaseShptPrinted.Run("Return Shipment Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original

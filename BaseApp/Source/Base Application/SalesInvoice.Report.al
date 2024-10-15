@@ -227,10 +227,10 @@ report 206 "Sales - Invoice"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -254,7 +254,7 @@ report 206 "Sales - Invoice"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Sales Invoice Line"; "Sales Invoice Line")
@@ -447,10 +447,10 @@ report 206 "Sales - Invoice"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -474,7 +474,7 @@ report 206 "Sales - Invoice"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Sales Invoice Line"."Dimension Set ID");
                             end;
@@ -516,16 +516,11 @@ report 206 "Sales - Invoice"
                             end;
 
                             trigger OnPreDataItem()
-                            var
-                                PostedAssemblyLine: Record "Posted Assembly Line";
-                                DummyValueEntry: Record "Value Entry";
                             begin
                                 Clear(TempPostedAsmLine);
                                 if not DisplayAssemblyInformation then
-                                    CurrReport.Break;
-                                PostedAssemblyLine.GetAssemblyLinesForDocument(
-                                  TempPostedAsmLine, DummyValueEntry."Document Type"::"Sales Invoice",
-                                  "Sales Invoice Line"."Document No.", "Sales Invoice Line"."Line No.");
+                                    CurrReport.Break();
+                                CollectAsmInformation;
                                 Clear(TempPostedAsmLine);
                                 SetRange(Number, 1, TempPostedAsmLine.Count);
                             end;
@@ -537,7 +532,7 @@ report 206 "Sales - Invoice"
                             if (Type = Type::"G/L Account") and (not ShowInternalInfo) then
                                 "No." := '';
 
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -564,18 +559,18 @@ report 206 "Sales - Invoice"
 
                         trigger OnPreDataItem()
                         begin
-                            VATAmountLine.DeleteAll;
-                            TempVATAmountLineLCY.DeleteAll;
+                            VATAmountLine.DeleteAll();
+                            TempVATAmountLineLCY.DeleteAll();
                             VATBaseRemainderAfterRoundingLCY := 0;
                             AmtInclVATRemainderAfterRoundingLCY := 0;
-                            SalesShipmentBuffer.Reset;
-                            SalesShipmentBuffer.DeleteAll;
+                            SalesShipmentBuffer.Reset();
+                            SalesShipmentBuffer.DeleteAll();
                             FirstValueEntryNo := 0;
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             LineNoWithTotal := "Line No.";
                             SetRange("Line No.", 0, "Line No.");
                         end;
@@ -690,7 +685,7 @@ report 206 "Sales - Invoice"
                             if (not GLSetup."Print VAT specification in LCY") or
                                ("Sales Invoice Header"."Currency Code" = '')
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, VATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -726,7 +721,7 @@ report 206 "Sales - Invoice"
                         begin
                             PaymentServiceSetup.CreateReportingArgs(PaymentReportingArgument, "Sales Invoice Header");
                             if IsEmpty then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total; "Integer")
@@ -773,7 +768,7 @@ report 206 "Sales - Invoice"
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(LineFee; "Integer")
@@ -786,14 +781,14 @@ report 206 "Sales - Invoice"
                         trigger OnAfterGetRecord()
                         begin
                             if not DisplayAdditionalFeeNote then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             if Number = 1 then begin
                                 if not TempLineFeeNoteOnReportHist.FindSet then
                                     CurrReport.Break
                             end else
                                 if TempLineFeeNoteOnReportHist.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                         end;
                     }
                 }
@@ -925,9 +920,9 @@ report 206 "Sales - Invoice"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        SalesSetup.Get;
-        CompanyInfo.Get;
+        GLSetup.Get();
+        SalesSetup.Get();
+        CompanyInfo.Get();
         CompanyInfo.VerifyAndSetPaymentInfo;
         FormatDocument.SetLogoPosition(SalesSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
 
@@ -1096,7 +1091,7 @@ report 206 "Sales - Invoice"
                 GenerateBufferFromShipment("Sales Invoice Line");
         end;
 
-        SalesShipmentBuffer.Reset;
+        SalesShipmentBuffer.Reset();
         SalesShipmentBuffer.SetRange("Document No.", "Sales Invoice Line"."Document No.");
         SalesShipmentBuffer.SetRange("Line No.", "Sales Invoice Line"."Line No.");
         if SalesShipmentBuffer.Find('-') then begin
@@ -1104,12 +1099,12 @@ report 206 "Sales - Invoice"
             if SalesShipmentBuffer.Next = 0 then begin
                 SalesShipmentBuffer.Get(
                   TempSalesShipmentBuffer."Document No.", TempSalesShipmentBuffer."Line No.", TempSalesShipmentBuffer."Entry No.");
-                SalesShipmentBuffer.Delete;
+                SalesShipmentBuffer.Delete();
                 exit;
             end;
             SalesShipmentBuffer.CalcSums(Quantity);
             if SalesShipmentBuffer.Quantity <> "Sales Invoice Line".Quantity then begin
-                SalesShipmentBuffer.DeleteAll;
+                SalesShipmentBuffer.DeleteAll();
                 exit;
             end;
         end;
@@ -1224,7 +1219,7 @@ report 206 "Sales - Invoice"
         SalesShipmentBuffer.SetRange("Posting Date", PostingDate);
         if SalesShipmentBuffer.Find('-') then begin
             SalesShipmentBuffer.Quantity := SalesShipmentBuffer.Quantity + QtyOnShipment;
-            SalesShipmentBuffer.Modify;
+            SalesShipmentBuffer.Modify();
             exit;
         end;
 
@@ -1290,7 +1285,7 @@ report 206 "Sales - Invoice"
         PostedAsmLine: Record "Posted Assembly Line";
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
-        TempPostedAsmLine.DeleteAll;
+        TempPostedAsmLine.DeleteAll();
         if "Sales Invoice Line".Type <> "Sales Invoice Line".Type::Item then
             exit;
         with ValueEntry do begin
@@ -1327,11 +1322,11 @@ report 206 "Sales - Invoice"
         TempPostedAsmLine.SetRange("Unit of Measure Code", PostedAsmLine."Unit of Measure Code");
         if TempPostedAsmLine.FindFirst then begin
             TempPostedAsmLine.Quantity += PostedAsmLine.Quantity;
-            TempPostedAsmLine.Modify;
+            TempPostedAsmLine.Modify();
         end else begin
             Clear(TempPostedAsmLine);
             TempPostedAsmLine := PostedAsmLine;
-            TempPostedAsmLine.Insert;
+            TempPostedAsmLine.Insert();
         end;
     end;
 
@@ -1355,7 +1350,7 @@ report 206 "Sales - Invoice"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Customer: Record Customer;
     begin
-        TempLineFeeNoteOnReportHist.DeleteAll;
+        TempLineFeeNoteOnReportHist.DeleteAll();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
         if not CustLedgerEntry.FindFirst then
@@ -1389,7 +1384,7 @@ report 206 "Sales - Invoice"
         then
             exit;
 
-        TempVATAmountLineLCY2.Init;
+        TempVATAmountLineLCY2.Init();
         TempVATAmountLineLCY2 := TempVATAmountLine2;
         with SalesInvoiceHeader do begin
             VATBaseLCY :=
@@ -1412,9 +1407,9 @@ report 206 "Sales - Invoice"
     local procedure InsertTempLineFeeNoteOnReportHist(var LineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist."; var TempLineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist." temporary)
     begin
         repeat
-            TempLineFeeNoteOnReportHist.Init;
+            TempLineFeeNoteOnReportHist.Init();
             TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
-            TempLineFeeNoteOnReportHist.Insert;
+            TempLineFeeNoteOnReportHist.Insert();
         until TempLineFeeNoteOnReportHist.Next = 0;
     end;
 

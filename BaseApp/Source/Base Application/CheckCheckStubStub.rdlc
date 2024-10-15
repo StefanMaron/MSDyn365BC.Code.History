@@ -756,7 +756,8 @@
                     <TextRun>
                       <Value>=Cstr(Choose(75,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
                       <Style>
-                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>IDAutomationMICR</FontFamily>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
                     </TextRun>
                   </TextRuns>
@@ -772,7 +773,11 @@
                 <Hidden>=iif(ReportItems!CheckStyle.Value = 0, true, false)</Hidden>
               </Visibility>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Textbox>
             <Textbox Name="textbox81">
               <KeepTogether>true</KeepTogether>
@@ -835,7 +840,10 @@
                   <TextRuns>
                     <TextRun>
                       <Value>=Cstr(Choose(80,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
-                      <Style />
+                      <Style>
+                        <FontFamily>IDAutomationSec1B</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
                     </TextRun>
                   </TextRuns>
                   <Style>
@@ -844,12 +852,16 @@
                 </Paragraph>
               </Paragraphs>
               <Top>1.61326in</Top>
-              <Left>4.56538in</Left>
+              <Left>3.64717in</Left>
               <Height>0.16654in</Height>
-              <Width>1.40551in</Width>
+              <Width>1.89509in</Width>
               <ZIndex>3</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Textbox>
             <Textbox Name="textbox86">
               <KeepTogether>true</KeepTogether>
@@ -858,7 +870,10 @@
                   <TextRuns>
                     <TextRun>
                       <Value>=Cstr(Choose(81,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
-                      <Style />
+                      <Style>
+                        <FontFamily>IDAutomationSec1B</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
                     </TextRun>
                   </TextRuns>
                   <Style>
@@ -867,35 +882,16 @@
                 </Paragraph>
               </Paragraphs>
               <Top>1.61326in</Top>
-              <Left>6.05356in</Left>
+              <Left>5.61171in</Left>
               <Height>0.16654in</Height>
-              <Width>1.0748in</Width>
+              <Width>1.97374in</Width>
               <ZIndex>4</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
-            </Textbox>
-            <Textbox Name="textbox87">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Cstr(Choose(82,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
-                      <Style />
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Left</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>1.61326in</Top>
-              <Left>7.21104in</Left>
-              <Height>0.16654in</Height>
-              <Width>0.59921in</Width>
-              <ZIndex>5</ZIndex>
-              <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Textbox>
             <Textbox Name="textbox88">
               <KeepTogether>true</KeepTogether>
@@ -916,7 +912,7 @@
               <Left>4.93998in</Left>
               <Height>0.16654in</Height>
               <Width>1.8189in</Width>
-              <ZIndex>6</ZIndex>
+              <ZIndex>5</ZIndex>
               <Visibility>
                 <Hidden>=iif(ReportItems!CheckStyle.Value = 0, false, true)</Hidden>
               </Visibility>
@@ -930,7 +926,10 @@
                   <TextRuns>
                     <TextRun>
                       <Value>=Cstr(Choose(97,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
-                      <Style />
+                      <Style>
+                        <FontFamily>IDAutomationSec1B</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
                     </TextRun>
                   </TextRuns>
                   <Style>
@@ -942,9 +941,13 @@
               <Left>0.27699in</Left>
               <Height>0.16654in</Height>
               <Width>6.77953in</Width>
-              <ZIndex>7</ZIndex>
+              <ZIndex>6</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Textbox>
             <Textbox Name="textbox98">
               <KeepTogether>true</KeepTogether>
@@ -965,7 +968,7 @@
               <Left>0.61006in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>8</ZIndex>
+              <ZIndex>7</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox99">
@@ -987,7 +990,7 @@
               <Left>0.61006in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>9</ZIndex>
+              <ZIndex>8</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox100">
@@ -1009,7 +1012,7 @@
               <Left>0.61006in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>10</ZIndex>
+              <ZIndex>9</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox101">
@@ -1031,7 +1034,7 @@
               <Left>0.61006in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>11</ZIndex>
+              <ZIndex>10</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox102">
@@ -1053,7 +1056,7 @@
               <Left>0.61006in</Left>
               <Height>0.16353in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>12</ZIndex>
+              <ZIndex>11</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="textbox89">
@@ -1075,7 +1078,7 @@
               <Left>4.93998in</Left>
               <Height>0.16353in</Height>
               <Width>1.8189in</Width>
-              <ZIndex>13</ZIndex>
+              <ZIndex>12</ZIndex>
               <Visibility>
                 <Hidden>=iif(ReportItems!CheckStyle.Value = 0, true, false)</Hidden>
               </Visibility>
@@ -1101,7 +1104,7 @@
               <Left>0.31852in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>14</ZIndex>
+              <ZIndex>13</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style>
                 <BackgroundColor>White</BackgroundColor>
@@ -1126,7 +1129,7 @@
               <Left>0.31852in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>15</ZIndex>
+              <ZIndex>14</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style />
             </Textbox>
@@ -1149,7 +1152,7 @@
               <Left>0.31852in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>16</ZIndex>
+              <ZIndex>15</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style />
             </Textbox>
@@ -1172,7 +1175,7 @@
               <Left>0.31852in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>17</ZIndex>
+              <ZIndex>16</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style />
             </Textbox>
@@ -1195,7 +1198,7 @@
               <Left>0.31852in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
-              <ZIndex>18</ZIndex>
+              <ZIndex>17</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style />
             </Textbox>
@@ -1218,35 +1221,9 @@
               <Left>0.27806in</Left>
               <Height>0.16654in</Height>
               <Width>6.77953in</Width>
-              <ZIndex>19</ZIndex>
+              <ZIndex>18</ZIndex>
               <DataElementOutput>NoOutput</DataElementOutput>
               <Style />
-            </Textbox>
-            <Textbox Name="textbox11">
-              <CanGrow>true</CanGrow>
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value />
-                      <Style />
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <rd:DefaultName>textbox11</rd:DefaultName>
-              <Left>0.11045in</Left>
-              <Height>0.16667in</Height>
-              <Width>6.83333in</Width>
-              <ZIndex>20</ZIndex>
-              <Style>
-                <PaddingLeft>2pt</PaddingLeft>
-                <PaddingRight>2pt</PaddingRight>
-                <PaddingTop>2pt</PaddingTop>
-                <PaddingBottom>2pt</PaddingBottom>
-              </Style>
             </Textbox>
             <Textbox Name="textbox107">
               <KeepTogether>true</KeepTogether>
@@ -1269,7 +1246,7 @@
               <Left>0.01065in</Left>
               <Height>0.16656in</Height>
               <Width>3.087in</Width>
-              <ZIndex>21</ZIndex>
+              <ZIndex>19</ZIndex>
               <Style>
                 <BackgroundColor>White</BackgroundColor>
                 <VerticalAlign>Bottom</VerticalAlign>
@@ -1298,7 +1275,7 @@
               <Left>3.06075in</Left>
               <Height>0.16656in</Height>
               <Width>2.54335in</Width>
-              <ZIndex>22</ZIndex>
+              <ZIndex>20</ZIndex>
               <Style>
                 <BackgroundColor>White</BackgroundColor>
                 <VerticalAlign>Bottom</VerticalAlign>
@@ -1327,7 +1304,7 @@
               <Left>5.62148in</Left>
               <Height>0.16656in</Height>
               <Width>1.02544in</Width>
-              <ZIndex>23</ZIndex>
+              <ZIndex>21</ZIndex>
               <Style>
                 <BackgroundColor>White</BackgroundColor>
                 <VerticalAlign>Bottom</VerticalAlign>
@@ -1355,12 +1332,76 @@
               <Left>6.6729in</Left>
               <Height>0.16656in</Height>
               <Width>1.02835in</Width>
-              <ZIndex>24</ZIndex>
+              <ZIndex>22</ZIndex>
               <Style>
                 <BackgroundColor>White</BackgroundColor>
                 <VerticalAlign>Bottom</VerticalAlign>
                 <PaddingLeft>0.04134in</PaddingLeft>
                 <PaddingRight>0.6pt</PaddingRight>
+              </Style>
+            </Textbox>
+            <Textbox Name="textbox83">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=First(Fields!BankAccountNo.Value, "DataSet_Result")</Value>
+                      <Style>
+                        <FontFamily>IDAutomationMICR</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Left>5.20952in</Left>
+              <Height>0.16654in</Height>
+              <Width>1.65945in</Width>
+              <ZIndex>23</ZIndex>
+              <Visibility>
+                <Hidden>=iif(ReportItems!CheckStyle.Value = 0, True, False)</Hidden>
+              </Visibility>
+              <DataElementOutput>NoOutput</DataElementOutput>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
+            </Textbox>
+            <Textbox Name="textbox84">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=First(Fields!BankTransitNo.Value, "DataSet_Result")</Value>
+                      <Style>
+                        <FontFamily>IDAutomationMICR</FontFamily>
+                        <FontWeight>Normal</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Left>3.55007in</Left>
+              <Height>0.16654in</Height>
+              <Width>1.65945in</Width>
+              <ZIndex>24</ZIndex>
+              <Visibility>
+                <Hidden>=iif(ReportItems!CheckStyle.Value = 0, True, False)</Hidden>
+              </Visibility>
+              <DataElementOutput>NoOutput</DataElementOutput>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
               </Style>
             </Textbox>
           </ReportItems>
@@ -3354,6 +3395,12 @@ End Function
         </Field>
         <Field Name="AmountCaption">
           <DataField>AmountCaption</DataField>
+        </Field>
+        <Field Name="BankTransitNo">
+          <DataField>BankTransitNo</DataField>
+        </Field>
+        <Field Name="BankAccountNo">
+          <DataField>BankAccountNo</DataField>
         </Field>
         <Field Name="PrnChkCheckToAddr_CheckStyle__CA_5_">
           <DataField>PrnChkCheckToAddr_CheckStyle__CA_5_</DataField>

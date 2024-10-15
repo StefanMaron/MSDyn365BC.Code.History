@@ -46,7 +46,7 @@ table 84 "Acc. Schedule Name"
     trigger OnDelete()
     begin
         AccSchedLine.SetRange("Schedule Name", Name);
-        AccSchedLine.DeleteAll;
+        AccSchedLine.DeleteAll();
     end;
 
     var

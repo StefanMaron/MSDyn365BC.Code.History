@@ -293,7 +293,7 @@ page 10041 "Sales Invoice Stats."
                     CreditLimitLCYExpendedPct := Round(Cust."Balance (LCY)" / Cust."Credit Limit (LCY)" * 10000, 1);
 
         SalesTaxCalculate.StartSalesTaxCalculation;
-        TempSalesTaxLine.DeleteAll;
+        TempSalesTaxLine.DeleteAll();
         OnAfterCalculateSalesTax(SalesInvLine, TempSalesTaxLine, TempSalesTaxAmtLine, SalesTaxCalculationOverridden);
         if not SalesTaxCalculationOverridden then
             if TaxArea."Use External Tax Engine" then
@@ -327,7 +327,7 @@ page 10041 "Sales Invoice Stats."
                             BrkIdx := BrkIdx - 1;
                             BreakdownLabel[BrkIdx] := Text008;
                         end else
-                            BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
+                            BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
                     end;
                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
                 until Next = 0;

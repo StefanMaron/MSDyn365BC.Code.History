@@ -48,7 +48,7 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
 
         // Verify - ShipToOptions is set to default
         PurchaseOrder.ShippingOptionWithLocation.AssertEquals(Format(ShipToOptions::"Default (Company Address)"));
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         VerifyShipToAddressValues(
           PurchaseOrder,
@@ -62,7 +62,7 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ShipToAddressIsUpdatedWhenLocationIsSelected()
     var
@@ -227,7 +227,7 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ShipToAddressFieldsAreNotEditableWhenLocationIsSelected()
     var
@@ -471,7 +471,7 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
         // [SCENARIO 255272] ShipToOption = "Default (Company Address)" when create a new Purchase Order from a Vendor card
         // [SCENARIO 255272] in case of blanked Location and Purchase Order Nos Series "Manual Nos." = FALSE (forces DocNoVisible = FALSE)
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // [GIVEN] Purchase Order Nos Series "Manual Nos." = FALSE
         // [GIVEN] Vendor card with blanked Location
@@ -533,7 +533,7 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
         // [SCENARIO 255272] ShipToOption = "Default (Company Address)" when create a new Purchase Order from a Vendor card
         // [SCENARIO 255272] in case of blanked Location and Purchase Order Nos Series "Manual Nos." = TRUE (forces DocNoVisible = TRUE)
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // [GIVEN] Purchase Order Nos Series "Manual Nos." = FALSE
         // [GIVEN] Vendor card with blanked Location
@@ -597,7 +597,7 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure PrepareVendor(var Vendor: Record Vendor; LocationCode: Code[10]; ManualNosSeries: Boolean)
@@ -625,7 +625,7 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdateNoSeries(PurchasesPayablesSetup."Order Nos.", ManualNos);
     end;
 
@@ -690,13 +690,6 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
     end;
 }
 

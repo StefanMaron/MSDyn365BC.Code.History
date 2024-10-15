@@ -11,7 +11,6 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
 
     var
         Assert: Codeunit Assert;
-        LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
@@ -118,62 +117,6 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
         GlobalLanguage(SAVED_ID);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure CopySalesDocCopiesPaymentTermCodeToSalesCreditMemo()
-    var
-        FromSalesHeader: Record "Sales Header";
-        ToSalesHeader: Record "Sales Header";
-        PaymentTerms: Record "Payment Terms";
-        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
-    begin
-        // [FEATURE] [Sales] [Credit Memo]
-        // [SCENARIO 342193] CopyDocumentMgt.CopySalesDoc copies Payment Terms to Sales Credit Memo.
-
-        // [GIVEN] Sales Invoice with Payment Term Code and Sales Credit memo.
-        LibrarySales.CreateSalesHeader(FromSalesHeader, FromSalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        LibraryERM.CreatePaymentTerms(PaymentTerms);
-        FromSalesHeader.Validate("Payment Terms Code", PaymentTerms.Code);
-        FromSalesHeader.Modify(true);
-        LibrarySales.CreateSalesHeader(
-          ToSalesHeader, ToSalesHeader."Document Type"::"Credit Memo", FromSalesHeader."Sell-to Customer No.");
-
-        // [WHEN] CopySalesDoc is used to copy Sales Invoice to Sales Credit memo.
-        CopyDocumentMgt.SetProperties(true, false, false, false, true, false, false);
-        CopyDocumentMgt.CopySalesDoc(SalesDocType::Invoice, FromSalesHeader."No.", ToSalesHeader);
-
-        // [THEN] Sales Credit Memo has the same Payment Term Code as Sales Invoice.
-        Assert.AreEqual(PaymentTerms.Code, ToSalesHeader."Payment Terms Code", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CopySalesDocCopiesPaymentTermCodeToPurchaseCreditMemo()
-    var
-        FromPurchHeader: Record "Purchase Header";
-        ToPurchHeader: Record "Purchase Header";
-        PaymentTerms: Record "Payment Terms";
-        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
-    begin
-        // [FEATURE] [Purchase] [Credit Memo]
-        // [SCENARIO 342193] CopyDocumentMgt.CopyPurchDoc copies Payment Terms to Purchase Credit Memo.
-
-        // [GIVEN] Purchase Invoice with Payment Term Code and Purchase Credit memo.
-        LibraryPurchase.CreatePurchHeader(FromPurchHeader, FromPurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
-        LibraryERM.CreatePaymentTerms(PaymentTerms);
-        FromPurchHeader.Validate("Payment Terms Code", PaymentTerms.Code);
-        FromPurchHeader.Modify(true);
-        LibraryPurchase.CreatePurchHeader(
-          ToPurchHeader, ToPurchHeader."Document Type"::"Credit Memo", FromPurchHeader."Sell-to Customer No.");
-
-        // [WHEN] CopyPurchDoc is used to copy Purchase Invoice to Purchase Credit memo.
-        CopyDocumentMgt.SetProperties(true, false, false, false, true, false, false);
-        CopyDocumentMgt.CopyPurchDoc(PurchDocType::Invoice, FromPurchHeader."No.", ToPurchHeader);
-
-        // [THEN] Purchase Credit Memo has the same Payment Term Code as Purchase Invoice.
-        Assert.AreEqual(PaymentTerms.Code, ToPurchHeader."Payment Terms Code", '');
-    end;
-
     local procedure CreateNewSalesHeader(CustomerNo: Code[20]; var SalesHeader: Record "Sales Header")
     begin
         with SalesHeader do begin
@@ -188,7 +131,6 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
     begin
         with PurchaseHeader do begin
             Init;
-            "Document Type" := "Document Type"::Order; // US and CA has not initialized Quote Nos. in Purch. Setup
             Insert(true);
             Validate("Buy-from Vendor No.", VendorNo);
             Modify(true);

@@ -37,14 +37,14 @@ codeunit 5950 "Service-Calc. Discount"
     begin
         OnBeforeCalcServDiscount(ServHeader);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         with ServiceLine do begin
-            LockTable;
+            LockTable();
             ServHeader.TestField("Customer Posting Group");
             CustPostingGr.Get(ServHeader."Customer Posting Group");
 
             if not IsServiceChargeUpdated(ServiceLine) then begin
-                ServiceLine2.Reset;
+                ServiceLine2.Reset();
                 ServiceLine2.SetRange("Document Type", "Document Type");
                 ServiceLine2.SetRange("Document No.", "Document No.");
                 ServiceLine2.SetRange("System-Created Entry", true);
@@ -53,12 +53,12 @@ codeunit 5950 "Service-Calc. Discount"
                 if ServiceLine2.Find('+') then begin
                     ServiceChargeLineNo := ServiceLine2."Line No.";
                     ServiceLine2.Validate("Unit Price", 0);
-                    ServiceLine2.Modify;
+                    ServiceLine2.Modify();
                 end;
                 ApplyServiceCharge := true;
             end;
 
-            ServiceLine2.Reset;
+            ServiceLine2.Reset();
             ServiceLine2.SetRange("Document Type", "Document Type");
             ServiceLine2.SetRange("Document No.", "Document No.");
             ServiceLine2.SetFilter(Type, '<>0');
@@ -72,7 +72,7 @@ codeunit 5950 "Service-Calc. Discount"
                 ServHeader."Prices Including VAT", ServHeader."Currency Code");
 
             if not TemporaryHeader then
-                ServHeader.Modify;
+                ServHeader.Modify();
 
             if ("Document Type" in ["Document Type"::Quote]) and
                (ServHeader."Posting Date" = 0D)
@@ -99,13 +99,13 @@ codeunit 5950 "Service-Calc. Discount"
                                 Currency."Unit-Amount Rounding Precision"))
                         else
                             ServiceLine2.Validate("Unit Price", CustInvDisc."Service Charge");
-                        ServiceLine2.Modify;
+                        ServiceLine2.Modify();
                     end else begin
-                        ServiceLine2.Reset;
+                        ServiceLine2.Reset();
                         ServiceLine2.SetRange("Document Type", "Document Type");
                         ServiceLine2.SetRange("Document No.", "Document No.");
                         ServiceLine2.Find('+');
-                        ServiceLine2.Init;
+                        ServiceLine2.Init();
                         if TemporaryHeader then
                             ServiceLine2.SetServHeader(ServHeader);
                         ServiceLine2."Line No." := ServiceLine2."Line No." + GetNewServiceLineNoBias(ServiceLine2);
@@ -122,7 +122,7 @@ codeunit 5950 "Service-Calc. Discount"
                         else
                             ServiceLine2.Validate("Unit Price", CustInvDisc."Service Charge");
                         ServiceLine2."System-Created Entry" := true;
-                        ServiceLine2.Insert;
+                        ServiceLine2.Insert();
                     end;
                     ServiceLine2.CalcVATAmountLines(0, ServHeader, ServiceLine2, TempVATAmountLine, false);
                 end else
@@ -143,7 +143,7 @@ codeunit 5950 "Service-Calc. Discount"
                 ServHeader."Invoice Discount Calculation" := ServHeader."Invoice Discount Calculation"::"%";
                 ServHeader."Invoice Discount Value" := CustInvDisc."Discount %";
                 if not TemporaryHeader then
-                    ServHeader.Modify;
+                    ServHeader.Modify();
 
                 TempVATAmountLine.SetInvoiceDiscountPercent(
                   CustInvDisc."Discount %", ServHeader."Currency Code",
@@ -179,7 +179,7 @@ codeunit 5950 "Service-Calc. Discount"
         ServiceLine: Record "Service Line";
         ServiceLine2: Record "Service Line";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if not SalesSetup."Calc. Inv. Discount" then
             exit;
         with TempServiceHeader do begin
@@ -208,7 +208,7 @@ codeunit 5950 "Service-Calc. Discount"
         ServiceLine1: Record "Service Line";
     begin
         with ServiceLine do begin
-            ServiceLine1.Reset;
+            ServiceLine1.Reset();
             ServiceLine1.SetRange("Document Type", "Document Type");
             ServiceLine1.SetRange("Document No.", "Document No.");
             ServiceLine1.SetRange("System-Created Entry", true);

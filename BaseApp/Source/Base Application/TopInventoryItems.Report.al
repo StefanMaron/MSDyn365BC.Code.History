@@ -97,7 +97,7 @@ report 10162 "Top __ Inventory Items"
                         TopAmount[NextTopLineNo] := TopValue[NextTopLineNo];
                 end;
                 if (TopAmount[NextTopLineNo] = 0) and not PrintAlsoIfZero then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 GrandTotal := GrandTotal + TopAmount[NextTopLineNo];
                 GrandTotalSale := GrandTotalSale + TopSale[NextTopLineNo];
                 GrandTotalQty := GrandTotalQty + TopQty[NextTopLineNo];
@@ -361,7 +361,7 @@ report 10162 "Top __ Inventory Items"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         /* temporarily remove date filter, since it will show in the header anyway */
         Item.SetRange("Date Filter");
         ItemFilter := Item.GetFilters;

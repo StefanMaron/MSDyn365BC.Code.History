@@ -49,14 +49,14 @@ codeunit 139312 "Excel Data Migration Test"
         ConfigPackageTable.FindFirst;
         Assert.RecordIsNotEmpty(ConfigPackageTable);
 
-        ConfigPackageTable.Reset;
+        ConfigPackageTable.Reset();
         ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
         ConfigPackageTable.SetRange("Table ID", DATABASE::Item);
         ConfigPackageTable.FindFirst;
         Assert.RecordIsNotEmpty(ConfigPackageTable);
 
         // [THEN] The Customer Package Table does not contain all fields
-        ConfigPackageTable.Reset;
+        ConfigPackageTable.Reset();
         ConfigPackageTable.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
         ConfigPackageTable.SetRange("Table ID", DATABASE::Customer);
         ConfigPackageTable.FindFirst;
@@ -78,7 +78,7 @@ codeunit 139312 "Excel Data Migration Test"
         ConfigPackageRecord.FindFirst;
         Assert.RecordIsNotEmpty(ConfigPackageRecord);
 
-        ConfigPackageRecord.Reset;
+        ConfigPackageRecord.Reset();
         ConfigPackageRecord.SetRange("Package Code", ExcelDataMigrator.GetPackageCode);
         ConfigPackageRecord.SetRange("Table ID", DATABASE::Item);
         ConfigPackageRecord.FindFirst;
@@ -527,13 +527,13 @@ codeunit 139312 "Excel Data Migration Test"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         CODEUNIT.Run(CODEUNIT::"Data Migration Del G/L Account");
-        VATPostingSetup.Reset;
+        VATPostingSetup.Reset();
         VATPostingSetup.SetRange("Sales VAT Account", '<>''''');
         Assert.IsTrue(VATPostingSetup.IsEmpty, 'Sales accounts should be cleared from VAT posting setup');
-        VATPostingSetup.Reset;
+        VATPostingSetup.Reset();
         VATPostingSetup.SetRange("Purchase VAT Account", '<>''''');
         Assert.IsTrue(VATPostingSetup.IsEmpty, 'Purchase accounts should be cleared from VAT posting setup');
-        VATPostingSetup.Reset;
+        VATPostingSetup.Reset();
         VATPostingSetup.SetRange("Reverse Chrg. VAT Acc.", '<>''''');
         Assert.IsTrue(VATPostingSetup.IsEmpty, 'Reverse accounts should be cleared from VAT posting group');
     end;
@@ -560,25 +560,25 @@ codeunit 139312 "Excel Data Migration Test"
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
 
-        ConfigPackage.Init;
+        ConfigPackage.Init();
         ConfigPackage.SetRange(Code, ExcelDataMigrator.GetPackageCode);
         ConfigPackage.DeleteAll(true);
 
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
 
-        ContactBusinessRelation.DeleteAll;
-        Contact.DeleteAll;
-        Customer.DeleteAll;
-        Item.DeleteAll;
-        ItemLedgerEntry.DeleteAll;
-        Vendor.DeleteAll;
+        ContactBusinessRelation.DeleteAll();
+        Contact.DeleteAll();
+        Customer.DeleteAll();
+        Item.DeleteAll();
+        ItemLedgerEntry.DeleteAll();
+        Vendor.DeleteAll();
 
-        GLEntry.DeleteAll;
-        GenJournalLine.DeleteAll;
-        CustLedgerEntry.DeleteAll;
-        VendLedgerEntry.DeleteAll;
-        ItemJournalLine.DeleteAll;
+        GLEntry.DeleteAll();
+        GenJournalLine.DeleteAll();
+        CustLedgerEntry.DeleteAll();
+        VendLedgerEntry.DeleteAll();
+        ItemJournalLine.DeleteAll();
 
         SetupDataMigration;
     end;
@@ -627,8 +627,8 @@ codeunit 139312 "Excel Data Migration Test"
 
         ColumnHeaderRow := 3;
 
-        TempExcelBuffer.Reset;
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.Reset();
+        TempExcelBuffer.DeleteAll();
         TempExcelBuffer.OpenBook(FileName, ConfigPackageTable."Table Name");
         TempExcelBuffer.ReadSheet;
         TempExcelBuffer.SetRange("Row No.", ColumnHeaderRow);
@@ -712,7 +712,7 @@ codeunit 139312 "Excel Data Migration Test"
         ConfigPackage: Record "Config. Package";
     begin
         ImportExcelFile;
-        ConfigPackage.Init;
+        ConfigPackage.Init();
         ConfigPackage.Code := ExcelDataMigrator.GetPackageCode;
         LibraryRapidStart.ApplyPackage(ConfigPackage, false);
     end;
@@ -723,9 +723,9 @@ codeunit 139312 "Excel Data Migration Test"
         ItemTemplateCode: Code[10];
     begin
         ItemTemplateCode := CreateItemTemplate;
-        DataMigrationSetup.Get;
+        DataMigrationSetup.Get();
         DataMigrationSetup."Default Item Template" := ItemTemplateCode;
-        DataMigrationSetup.Modify;
+        DataMigrationSetup.Modify();
     end;
 
     local procedure CreateItemTemplate(): Code[10]
@@ -736,7 +736,7 @@ codeunit 139312 "Excel Data Migration Test"
     begin
         LibraryInventory.CreateItem(Item);
         TempItemTemplate.CreateConfigTemplateFromExistingItem(Item, TempItemTemplate);
-        Item.Delete;
+        Item.Delete();
         exit(TempItemTemplate.Code);
     end;
 

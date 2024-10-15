@@ -116,7 +116,7 @@ report 10213 "Customer Jobs (Cost)"
                 ScheduledCost := 0;
                 UsageCost := 0;
 
-                JobPlanningLine.Reset;
+                JobPlanningLine.Reset();
                 JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.", "Schedule Line", "Planning Date");
                 JobPlanningLine.SetRange("Job No.", "No.");
                 CopyFilter("Planning Date Filter", JobPlanningLine."Planning Date");
@@ -124,7 +124,7 @@ report 10213 "Customer Jobs (Cost)"
                 JobPlanningLine.CalcSums("Total Cost (LCY)");
                 ScheduledCost := JobPlanningLine."Total Cost (LCY)";
 
-                JobLedgerEntry.Reset;
+                JobLedgerEntry.Reset();
                 JobLedgerEntry.SetCurrentKey("Job No.", "Job Task No.", "Entry Type", "Posting Date");
                 JobLedgerEntry.SetRange("Job No.", "No.");
                 CopyFilter("Posting Date Filter", JobLedgerEntry."Posting Date");
@@ -132,7 +132,7 @@ report 10213 "Customer Jobs (Cost)"
                 JobLedgerEntry.CalcSums("Total Cost (LCY)");
                 UsageCost := JobLedgerEntry."Total Cost (LCY)";
                 if not Customer.Get("Bill-to Customer No.") then
-                    Customer.Init;
+                    Customer.Init();
             end;
 
             trigger OnPreDataItem()
@@ -161,7 +161,7 @@ report 10213 "Customer Jobs (Cost)"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         JobFilter := Job.GetFilters;
     end;
 

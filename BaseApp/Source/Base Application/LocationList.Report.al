@@ -93,7 +93,7 @@ report 10149 "Location List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         LocationFilter := Location.GetFilters;
     end;
 

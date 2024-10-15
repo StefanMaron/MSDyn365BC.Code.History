@@ -91,7 +91,7 @@ table 27006 "CFDI Relation Document"
             CFDIRelationDocument."Related Doc. Type" := CFDIRelationDocument."Related Doc. Type"::"Credit Memo";
             CFDIRelationDocument."Related Doc. No." := SalesCrMemoHeader."No.";
             CFDIRelationDocument."Fiscal Invoice Number PAC" := SalesCrMemoHeader."Fiscal Invoice Number PAC";
-            if CFDIRelationDocument.Insert then;
+            if CFDIRelationDocument.Insert() then;
         until SalesCrMemoHeader.Next = 0;
     end;
 
@@ -114,7 +114,7 @@ table 27006 "CFDI Relation Document"
             CFDIRelationDocument."Related Doc. Type" := CFDIRelationDocument."Related Doc. Type"::"Credit Memo";
             CFDIRelationDocument."Related Doc. No." := ServiceCrMemoHeader."No.";
             CFDIRelationDocument."Fiscal Invoice Number PAC" := ServiceCrMemoHeader."Fiscal Invoice Number PAC";
-            if CFDIRelationDocument.Insert then;
+            if CFDIRelationDocument.Insert() then;
         until ServiceCrMemoHeader.Next = 0;
     end;
 

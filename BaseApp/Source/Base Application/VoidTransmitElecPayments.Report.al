@@ -13,13 +13,13 @@ report 10084 "Void/Transmit Elec. Payments"
             begin
                 if "Account Type" = "Account Type"::"Bank Account" then begin
                     if "Account No." <> BankAccount."No." then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end else
                     if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then begin
                         if "Bal. Account No." <> BankAccount."No." then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end else
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                 if FirstTime then begin
                     case UsageType of
@@ -161,7 +161,7 @@ report 10084 "Void/Transmit Elec. Payments"
         EFTExport.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         EFTExport.SetRange("Line No.", GenJournalLine."Line No.");
         if EFTExport.FindLast then
-            EFTExport.Delete;
+            EFTExport.Delete();
     end;
 }
 

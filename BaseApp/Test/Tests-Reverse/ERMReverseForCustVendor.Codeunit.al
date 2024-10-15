@@ -24,7 +24,8 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         ReverseSignErr: Label 'Reversed Sign must be TRUE.';
         CustUnapplyErr: Label 'You cannot unapply Cust. Ledger Entry No. %1 because the entry';
         VendUnapplyErr: Label 'You cannot unapply Vendor Ledger Entry No. %1 because the entry';
-        UnrealizedVATReverseErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.', Comment = '%1 is VAT Entry table caption,%2 is VAT Entry No';
+        ErrorsMustMatchTxt: Label 'Errors must match.';
+        UnrealizedVATReverseErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.';
 
     [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
@@ -137,7 +138,9 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         asserterror ReversalEntry.ReverseTransaction(TransactionNo);
 
         // Verify: Verify User gets error message about associated unrealized VAT entry
-        Assert.ExpectedError(StrSubstNo(UnrealizedVATReverseErr, VATEntry.TableCaption, VATEntry."Entry No."));
+        Assert.AreEqual(
+          StrSubstNo(UnrealizedVATReverseErr, VATEntry.TableCaption, VATEntry."Entry No."),
+          GetLastErrorText, ErrorsMustMatchTxt);
 
         ResetUnrealizedVATType;
     end;
@@ -166,7 +169,9 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         asserterror ReversalEntry.ReverseTransaction(TransactionNo);
 
         // Verify: Verify User gets error message about associated unrealized VAT entry
-        Assert.ExpectedError(StrSubstNo(UnrealizedVATReverseErr, VATEntry.TableCaption, VATEntry."Entry No."));
+        Assert.AreEqual(
+          StrSubstNo(UnrealizedVATReverseErr, VATEntry.TableCaption, VATEntry."Entry No."),
+          GetLastErrorText, ErrorsMustMatchTxt);
 
         ResetUnrealizedVATType;
     end;
@@ -336,7 +341,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");

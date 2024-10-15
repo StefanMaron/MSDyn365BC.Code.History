@@ -51,7 +51,7 @@ codeunit 10098 "Generate EFT"
 
         EFTValues.SetParentDefCode('');
 
-        TempEFTExportWorkset.Reset;
+        TempEFTExportWorkset.Reset();
         TempEFTExportWorkset.SetRange("Bank Payment Type", 4, 4);
         if TempEFTExportWorkset.FindFirst then
             StartEFTProcess(SettlementDate, TempEFTExportWorkset, EFTValues);
@@ -73,7 +73,7 @@ codeunit 10098 "Generate EFT"
             exit;
 
         with BankAccount do begin
-            LockTable;
+            LockTable();
             Get(BankAccountNo);
             TestField(Blocked, false);
             TestField("Currency Code", '');  // local currency only
@@ -108,7 +108,7 @@ codeunit 10098 "Generate EFT"
         GenJournalLine.SetRange("Line No.", LineNo);
         if GenJournalLine.FindFirst then begin
             GenJournalLine."Check Transmitted" := true;
-            GenJournalLine.Modify;
+            GenJournalLine.Modify();
         end;
     end;
 
@@ -138,7 +138,7 @@ codeunit 10098 "Generate EFT"
         EFTExport."Check Exported" := true;
         EFTExport."Exported to Payment File" := true;
         EFTExport.Transmitted := true;
-        EFTExport.Modify;
+        EFTExport.Modify();
         SetGenJrnlCheckTransmitted(TempEFTExportWorkset."Journal Template Name",
           TempEFTExportWorkset."Journal Batch Name", TempEFTExportWorkset."Line No.");
     end;
@@ -187,7 +187,7 @@ codeunit 10098 "Generate EFT"
                 Modify;
             end;
         until TempEFTExportWorkset.Next = 0;
-        Commit;
+        Commit();
 
         if TempEFTExportWorkset.FindFirst then begin
             repeat

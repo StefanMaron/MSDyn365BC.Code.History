@@ -198,10 +198,10 @@ report 407 "Purchase - Credit Memo"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -226,7 +226,7 @@ report 407 "Purchase - Credit Memo"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purch. Cr. Memo Line"; "Purch. Cr. Memo Line")
@@ -400,10 +400,10 @@ report 407 "Purchase - Credit Memo"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.Find('-') then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -428,7 +428,7 @@ report 407 "Purchase - Credit Memo"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Purch. Cr. Memo Line"."Dimension Set ID");
                             end;
@@ -439,7 +439,7 @@ report 407 "Purchase - Credit Memo"
                             if (Type = Type::"G/L Account") and (not ShowInternalInfo) then
                                 "No." := '';
 
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "Purch. Cr. Memo Line"."VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -469,12 +469,12 @@ report 407 "Purchase - Credit Memo"
                             PurchCrMemoLine: Record "Purch. Cr. Memo Line";
                             VATIdentifier: Code[20];
                         begin
-                            VATAmountLine.DeleteAll;
+                            VATAmountLine.DeleteAll();
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
 
                             PurchCrMemoLine.SetRange("Document No.", "Purch. Cr. Memo Hdr."."No.");
@@ -604,7 +604,7 @@ report 407 "Purchase - Credit Memo"
                             if (not GLSetup."Print VAT specification in LCY") or
                                ("Purch. Cr. Memo Hdr."."Currency Code" = '')
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, VATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -627,7 +627,7 @@ report 407 "Purchase - Credit Memo"
                         trigger OnPreDataItem()
                         begin
                             if "Purch. Cr. Memo Hdr."."Buy-from Vendor No." = "Purch. Cr. Memo Hdr."."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total2; "Integer")
@@ -664,7 +664,7 @@ report 407 "Purchase - Credit Memo"
                         trigger OnPreDataItem()
                         begin
                             if ShipToAddr[1] = '' then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -778,8 +778,8 @@ report 407 "Purchase - Credit Memo"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
 
         OnAfterInitReport;
     end;

@@ -112,7 +112,7 @@ report 10009 "Cross Reference by Account No."
                     LastGLAccountNo := "G/L Account No.";
                     TotalEntriesByGroup := 1;
                     if not GLAccount.Get("G/L Account No.") then
-                        GLAccount.Init;
+                        GLAccount.Init();
                 end else
                     TotalEntriesByGroup := TotalEntriesByGroup + 1;
                 TotalEntries := TotalEntries + 1;
@@ -144,7 +144,7 @@ report 10009 "Cross Reference by Account No."
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         GLEntryFilter := "G/L Entry".GetFilters;
     end;
 

@@ -587,8 +587,6 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
     [Test]
     [Scope('OnPrem')]
     procedure Initialize()
-    var
-        CompanyInformation: Record "Company Information";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Invoice Disc. Distribution");
         if IsInitialized then
@@ -603,10 +601,6 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateFAPostingType();
-        if CompanyInformation.IsCanada then begin
-            CompanyInformation."Tax Area Code" := '';
-            CompanyInformation.Modify;
-        end;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Invoice Disc. Distribution");
     end;
 

@@ -85,8 +85,12 @@ table 1518 "My Notifications"
     end;
 
     local procedure IsFilterEnabled(): Boolean
+    var
+        AllObj: Record AllObj;
     begin
-        exit(("Apply to Table Id" <> 0) and Enabled);
+        AllObj.SETRANGE("Object Type", AllObj."Object Type"::Table);
+        AllObj.SETRANGE("Object ID", "Apply to Table Id");
+        exit(("Apply to Table Id" <> 0) and Enabled and (not AllObj.IsEmpty()));
     end;
 
     local procedure InitRecord(NotificationId: Guid; NotificationName: Text[128]; DescriptionText: Text) Result: Boolean

@@ -73,7 +73,7 @@ codeunit 770 "Analysis Report Chart Mgt."
         PeriodCounter: Integer;
         XCounter: Integer;
     begin
-        Commit;
+        Commit();
         CheckDuplicateAnalysisLineDescription(
           AnalysisReportChartSetup."Analysis Area", AnalysisReportChartSetup."Analysis Line Template Name");
         CheckDuplicateAnalysisColumnHeader(

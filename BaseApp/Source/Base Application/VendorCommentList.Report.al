@@ -130,7 +130,7 @@ report 10104 "Vendor Comment List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := "Comment Line".GetFilters;
     end;
 

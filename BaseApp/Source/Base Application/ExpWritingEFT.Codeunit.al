@@ -35,7 +35,7 @@ codeunit 10322 "Exp. Writing EFT"
             ExportFile.CreateInStream(InStream);
             DataExchDetail."File Content".CreateOutStream(OutStream);
             CopyStream(OutStream, InStream);
-            DataExchDetail.Modify;
+            DataExchDetail.Modify();
         end;
         ExportFile.Close;
 
@@ -55,7 +55,7 @@ codeunit 10322 "Exp. Writing EFT"
                 DataExchFooter."Entry No." := DataExchEntryCodeFooterArray[RecordCount];
                 DataExchFooter."File Name" := '';
                 Clear(DataExchFooter."File Content");
-                DataExchFooter.Modify;
+                DataExchFooter.Modify();
                 RecordCount := RecordCount + 1;
             end;
         end;
@@ -79,7 +79,7 @@ codeunit 10322 "Exp. Writing EFT"
         RecordCount := 1;
         while (DataExchEntryCodeHeaderArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin
             ACHUSHeader.SetRange("Data Exch. Entry No.", DataExchEntryCodeHeaderArray[RecordCount]);
-            ACHUSHeader.DeleteAll;
+            ACHUSHeader.DeleteAll();
             RecordCount := RecordCount + 1;
         end;
 
@@ -87,7 +87,7 @@ codeunit 10322 "Exp. Writing EFT"
         RecordCount := 1;
         while (DataExchEntryCodeDetailArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin
             ACHUSDetail.SetRange("Data Exch. Entry No.", DataExchEntryCodeDetailArray[RecordCount]);
-            ACHUSDetail.DeleteAll;
+            ACHUSDetail.DeleteAll();
             RecordCount := RecordCount + 1;
         end;
 
@@ -95,7 +95,7 @@ codeunit 10322 "Exp. Writing EFT"
         RecordCount := 1;
         while (DataExchEntryCodeFooterArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin
             ACHUSFooter.SetRange("Data Exch. Entry No.", DataExchEntryCodeFooterArray[RecordCount]);
-            ACHUSFooter.DeleteAll;
+            ACHUSFooter.DeleteAll();
             RecordCount := RecordCount + 1;
         end;
 
@@ -103,7 +103,7 @@ codeunit 10322 "Exp. Writing EFT"
         RecordCount := 1;
         while (DataExchEntryCodeHeaderArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin
             ACHRBHeader.SetRange("Data Exch. Entry No.", DataExchEntryCodeHeaderArray[RecordCount]);
-            ACHRBHeader.DeleteAll;
+            ACHRBHeader.DeleteAll();
             RecordCount := RecordCount + 1;
         end;
 
@@ -111,7 +111,7 @@ codeunit 10322 "Exp. Writing EFT"
         RecordCount := 1;
         while (DataExchEntryCodeDetailArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin
             ACHRBDetail.SetRange("Data Exch. Entry No.", DataExchEntryCodeDetailArray[RecordCount]);
-            ACHRBDetail.DeleteAll;
+            ACHRBDetail.DeleteAll();
             RecordCount := RecordCount + 1;
         end;
 
@@ -119,7 +119,7 @@ codeunit 10322 "Exp. Writing EFT"
         RecordCount := 1;
         while (DataExchEntryCodeFooterArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin
             ACHRBFooter.SetRange("Data Exch. Entry No.", DataExchEntryCodeFooterArray[RecordCount]);
-            ACHRBFooter.DeleteAll;
+            ACHRBFooter.DeleteAll();
             RecordCount := RecordCount + 1;
         end;
 
@@ -127,7 +127,7 @@ codeunit 10322 "Exp. Writing EFT"
         RecordCount := 1;
         while (DataExchEntryCodeHeaderArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin
             ACHCecobanHeader.SetRange("Data Exch. Entry No.", DataExchEntryCodeHeaderArray[RecordCount]);
-            ACHCecobanHeader.DeleteAll;
+            ACHCecobanHeader.DeleteAll();
             RecordCount := RecordCount + 1;
         end;
 
@@ -135,7 +135,7 @@ codeunit 10322 "Exp. Writing EFT"
         RecordCount := 1;
         while (DataExchEntryCodeDetailArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin
             ACHCecobanDetail.SetRange("Data Exch. Entry No.", DataExchEntryCodeDetailArray[RecordCount]);
-            ACHCecobanDetail.DeleteAll;
+            ACHCecobanDetail.DeleteAll();
             RecordCount := RecordCount + 1;
         end;
 
@@ -143,7 +143,7 @@ codeunit 10322 "Exp. Writing EFT"
         RecordCount := 1;
         while (DataExchEntryCodeFooterArray[RecordCount] > 0) and (RecordCount < ArrayLength) do begin
             ACHCecobanFooter.SetRange("Data Exch. Entry No.", DataExchEntryCodeFooterArray[RecordCount]);
-            ACHCecobanFooter.DeleteAll;
+            ACHCecobanFooter.DeleteAll();
             RecordCount := RecordCount + 1;
         end;
     end;
@@ -155,10 +155,10 @@ codeunit 10322 "Exp. Writing EFT"
         ACHUSDetail: Record "ACH US Detail";
         ACHUSFooter: Record "ACH US Footer";
     begin
-        ACHUSHeader.DeleteAll;
-        ACHUSDetail.DeleteAll;
-        ACHUSFooter.DeleteAll;
-        Commit;
+        ACHUSHeader.DeleteAll();
+        ACHUSDetail.DeleteAll();
+        ACHUSFooter.DeleteAll();
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -168,10 +168,10 @@ codeunit 10322 "Exp. Writing EFT"
         ACHRBDetail: Record "ACH RB Detail";
         ACHRBFooter: Record "ACH RB Footer";
     begin
-        ACHRBHeader.DeleteAll;
-        ACHRBDetail.DeleteAll;
-        ACHRBFooter.DeleteAll;
-        Commit;
+        ACHRBHeader.DeleteAll();
+        ACHRBDetail.DeleteAll();
+        ACHRBFooter.DeleteAll();
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -181,10 +181,10 @@ codeunit 10322 "Exp. Writing EFT"
         ACHCecobanDetail: Record "ACH Cecoban Detail";
         ACHCecobanFooter: Record "ACH Cecoban Footer";
     begin
-        ACHCecobanHeader.DeleteAll;
-        ACHCecobanDetail.DeleteAll;
-        ACHCecobanFooter.DeleteAll;
-        Commit;
+        ACHCecobanHeader.DeleteAll();
+        ACHCecobanDetail.DeleteAll();
+        ACHCecobanFooter.DeleteAll();
+        Commit();
     end;
 }
 

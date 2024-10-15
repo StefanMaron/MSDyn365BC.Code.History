@@ -735,7 +735,7 @@ report 10315 "Data Dictionary"
             FileName := FileMgt.UploadFile('', '*.txt');
 
         if DataDictionary.FindFirst then
-            DataDictionary.DeleteAll;
+            DataDictionary.DeleteAll();
 
         ParseFile(FileName);
     end;
@@ -901,11 +901,11 @@ report 10315 "Data Dictionary"
         Pos2 := StrPos(Input, ' ') - 1;
 
         Clear(DataDictionary);
-        DataDictionary.Init;
+        DataDictionary.Init();
         Evaluate(DataDictionary."Table No.", GetInfo(Input, Pos1, Pos2));
         DataDictionary.Type := DataDictionary.Type::Table;
         DataDictionary.Name := CopyStr(Input, 1, MaxStrLen(DataDictionary.Name));
-        if DataDictionary.Insert then begin
+        if DataDictionary.Insert() then begin
             CurrentTableNo := DataDictionary."Table No.";
             CurrentFieldNo := 0
         end;
@@ -942,7 +942,7 @@ report 10315 "Data Dictionary"
 
         if StrPos(InputText, PropertiesTag) <> 0 then begin
             DataDictionary.Description := DelChr(DataDictionary.Description, '<>', ' ');
-            DataDictionary.Modify;
+            DataDictionary.Modify();
         end;
     end;
 
@@ -954,7 +954,7 @@ report 10315 "Data Dictionary"
             InputText := ReadData;
 
             if StrPos(InputText, StartOfField) <> 0 then begin
-                DataDictionary.Init;
+                DataDictionary.Init();
                 DataDictionary."Table No." := CurrentTableNo;
                 DataDictionary.Type := DataDictionary.Type::Field;
                 DataDictionary."Field Class" := 'Normal';
@@ -971,7 +971,7 @@ report 10315 "Data Dictionary"
 
         InputText := CopyStr(InputText, StrPos(InputText, StartOfField) + StrLen(StartOfField) + 1);
         Evaluate(InDataDictionary."Field No.", ParseFieldLine(InputText));
-        if InDataDictionary.Insert then
+        if InDataDictionary.Insert() then
             CurrentFieldNo := InDataDictionary."Field No.";
 
         InDataDictionary.Enabled := CopyStr(ParseFieldLine(InputText), 1, MaxStrLen(InDataDictionary.Enabled));
@@ -1075,7 +1075,7 @@ report 10315 "Data Dictionary"
                 if StrLen(TempDataType) <> StrLen(DataTypes[ICount]) then
                     InDataDictionary.Length := CopyStr(TempDataType, StrLen(DataTypes[ICount]) + 1);
 
-                InDataDictionary.Modify;
+                InDataDictionary.Modify();
                 exit
             end;
     end;
@@ -1090,7 +1090,7 @@ report 10315 "Data Dictionary"
         SetPositions(Pos1, Pos2, InputText, FieldClassTag);
         InDataDictionary."Field Class" :=
           CopyStr(GetInfo(InputText, Pos1, Pos2), 1, MaxStrLen(InDataDictionary."Field Class"));
-        InDataDictionary.Modify;
+        InDataDictionary.Modify();
     end;
 
     procedure GetFieldDescription(var InputText: Text[1024]; var InDataDictionary: Record "Data Dictionary Info")
@@ -1103,7 +1103,7 @@ report 10315 "Data Dictionary"
         SetPositions(Pos1, Pos2, InputText, DescriptionTag);
         InDataDictionary.Description :=
           CopyStr(GetInfo(InputText, Pos1, Pos2), 1, MaxStrLen(InDataDictionary.Description));
-        InDataDictionary.Modify;
+        InDataDictionary.Modify();
     end;
 
     procedure GetFieldDecimalPlaces(var InputText: Text[1024]; var InDataDictionary: Record "Data Dictionary Info")
@@ -1116,7 +1116,7 @@ report 10315 "Data Dictionary"
         SetPositions(Pos1, Pos2, InputText, DecimalPlacesTag);
         InDataDictionary.Length :=
           CopyStr(GetInfo(InputText, Pos1, Pos2), 1, MaxStrLen(InDataDictionary.Length));
-        InDataDictionary.Modify;
+        InDataDictionary.Modify();
     end;
 
     procedure GetFieldCaptionML(var InputText: Text[1024])
@@ -1127,7 +1127,7 @@ report 10315 "Data Dictionary"
     begin
         Status.Update(6, 'Getting Field Caption ML ...');
 
-        DataDictionary.Init;
+        DataDictionary.Init();
         DataDictionary."Table No." := CurrentTableNo;
         DataDictionary.Type := DataDictionary.Type::Caption;
         DataDictionary."Field No." := CurrentFieldNo;
@@ -1165,7 +1165,7 @@ report 10315 "Data Dictionary"
             MultipleCaptionML := false
         end;
 
-        DataDictionary.Insert;
+        DataDictionary.Insert();
     end;
 
     procedure GetFieldOptionString(var InputText: Text[1024])
@@ -1176,7 +1176,7 @@ report 10315 "Data Dictionary"
     begin
         Status.Update(6, 'Getting Field Option String ...');
 
-        DataDictionary.Init;
+        DataDictionary.Init();
         DataDictionary."Table No." := CurrentTableNo;
         DataDictionary.Type := DataDictionary.Type::Option;
         DataDictionary."Field No." := CurrentFieldNo;
@@ -1201,7 +1201,7 @@ report 10315 "Data Dictionary"
         if StrPos(DataDictionary.Value, EndOfList) <> 0 then
             DataDictionary.Value := CopyStr(DataDictionary.Value, 1, StrPos(DataDictionary.Value, EndOfList) - 1);
 
-        DataDictionary.Insert;
+        DataDictionary.Insert();
     end;
 
     procedure GetFieldTableRelation(var InputText: Text[1024])
@@ -1212,7 +1212,7 @@ report 10315 "Data Dictionary"
     begin
         Status.Update(6, 'Getting Table Relations ...');
 
-        DataDictionary.Init;
+        DataDictionary.Init();
         DataDictionary."Table No." := CurrentTableNo;
         DataDictionary.Type := DataDictionary.Type::Relation;
         DataDictionary."Field No." := CurrentFieldNo;
@@ -1236,7 +1236,7 @@ report 10315 "Data Dictionary"
                 end else
                     DataDictionary.Value := CopyStr(InputText, 1, MaxStrLen(DataDictionary.Value));
 
-                DataDictionary.Insert;
+                DataDictionary.Insert();
 
                 InputText := ReadData;
                 InputText := DelChr(InputText, '<', ' ');
@@ -1257,7 +1257,7 @@ report 10315 "Data Dictionary"
             DataDictionary.Value := CopyStr(InputText, 1, Pos2 - Pos1);
         end;
 
-        DataDictionary.Insert;
+        DataDictionary.Insert();
     end;
 
     procedure GetFieldCalcFormula(var InputText: Text[1024])
@@ -1268,7 +1268,7 @@ report 10315 "Data Dictionary"
     begin
         Status.Update(6, 'Getting Field CalcFormula ...');
 
-        DataDictionary.Init;
+        DataDictionary.Init();
         DataDictionary."Table No." := CurrentTableNo;
         DataDictionary.Type := DataDictionary.Type::CalcFormula;
         DataDictionary."Field No." := CurrentFieldNo;
@@ -1287,7 +1287,7 @@ report 10315 "Data Dictionary"
             end else
                 DataDictionary.Value := CopyStr(InputText, 1, MaxStrLen(DataDictionary.Value));
 
-            DataDictionary.Insert;
+            DataDictionary.Insert();
 
             InputText := ReadData;
             DataDictionary."Line No." := DataDictionary."Line No." + 1000;
@@ -1303,7 +1303,7 @@ report 10315 "Data Dictionary"
         DataDictionary.Value := CopyStr(InputText, 1, Pos2 - Pos1);
         DataDictionary.Value := DelChr(DataDictionary.Value, '>', ';');
 
-        DataDictionary.Insert;
+        DataDictionary.Insert();
     end;
 
     procedure GetOnValidate(var InputText: Text[1024])
@@ -1315,7 +1315,7 @@ report 10315 "Data Dictionary"
         DataDictionary.SetRange("Field No.", CurrentFieldNo);
         if DataDictionary.FindFirst then begin
             DataDictionary.OnValidate := true;
-            DataDictionary.Modify;
+            DataDictionary.Modify();
         end;
 
         MatchBeginEnd(InputText);
@@ -1330,7 +1330,7 @@ report 10315 "Data Dictionary"
         DataDictionary.SetRange("Field No.", CurrentFieldNo);
         if DataDictionary.FindFirst then begin
             DataDictionary.OnLookup := true;
-            DataDictionary.Modify;
+            DataDictionary.Modify();
         end;
 
         MatchBeginEnd(InputText);
@@ -1346,7 +1346,7 @@ report 10315 "Data Dictionary"
             InputText := ReadData;
 
             if StrPos(InputText, StartOfField) <> 0 then begin
-                DataDictionary.Init;
+                DataDictionary.Init();
                 DataDictionary."Table No." := CurrentTableNo;
                 DataDictionary.Type := DataDictionary.Type::Key;
                 DataDictionary."Field No." := 0;
@@ -1387,7 +1387,7 @@ report 10315 "Data Dictionary"
         end else
             InDataDictionary.Value := CopyStr(KeyText, 1, MaxStrLen(InDataDictionary.Value));
 
-        InDataDictionary.Insert;
+        InDataDictionary.Insert();
     end;
 
     procedure GetKeyProperties(var InputText: Text[1024]; InDataDictionary: Record "Data Dictionary Info")
@@ -1419,7 +1419,7 @@ report 10315 "Data Dictionary"
 
         MultipleLines(SumIndexFieldsText, InDataDictionary, EndOfSubValue, true);
 
-        InDataDictionary.Insert;
+        InDataDictionary.Insert();
     end;
 
     procedure GetKeyGroups(var InputText: Text[1024]; InDataDictionary: Record "Data Dictionary Info")
@@ -1434,7 +1434,7 @@ report 10315 "Data Dictionary"
         SetPositions(Pos1, Pos2, InputText, KeyGroupsTag);
         InDataDictionary.Value := CopyStr(GetInfo(InputText, Pos1, Pos2), 1, MaxStrLen(InDataDictionary.Value));
 
-        InDataDictionary.Insert;
+        InDataDictionary.Insert();
     end;
 
     procedure GetSIFTLevelsToMaintain(var InputText: Text[1024]; ListUsed: Boolean)
@@ -1479,7 +1479,7 @@ report 10315 "Data Dictionary"
         if InsertPermission then
             BuildPermission(PermissionRange, 'Access to all fields.', ICount)
         else begin
-            PermissionRange.Reset;
+            PermissionRange.Reset();
             PermissionRange.SetRange("Object Type", PermissionRange."Object Type"::FieldNumber);
             PermissionRange.SetRange("Insert Permission", PermissionRange."Insert Permission"::Yes);
             if PermissionRange.Find('-') then
@@ -1495,7 +1495,7 @@ report 10315 "Data Dictionary"
     var
         DataDictionary: Record "Data Dictionary Info";
     begin
-        DataDictionary.Init;
+        DataDictionary.Init();
         DataDictionary."Table No." := CurrentTableNo;
         DataDictionary.Type := DataDictionary.Type::Permission;
         DataDictionary."Field No." := PermissionCount;
@@ -1506,7 +1506,7 @@ report 10315 "Data Dictionary"
         DataDictionary."Delete Permission" := (PermissionRange."Delete Permission" <> PermissionRange."Delete Permission"::" ");
         DataDictionary."Execute Permission" := (PermissionRange."Execute Permission" <> PermissionRange."Execute Permission"::" ");
         DataDictionary.Description := CopyStr(PermissionDescription, 1, MaxStrLen(DataDictionary.Description));
-        DataDictionary.Insert;
+        DataDictionary.Insert();
     end;
 
     procedure MultipleLines(var InputText: Text[1024]; var InDataDictionary: Record "Data Dictionary Info"; Delimiter: Text[30]; Indent: Boolean)
@@ -1525,7 +1525,7 @@ report 10315 "Data Dictionary"
                 Pos2 := StrLen(InputText);
 
             if (StrLen(InDataDictionary.Value) + Pos2) > MaxStrLen(InDataDictionary.Value) then begin
-                InDataDictionary.Insert;
+                InDataDictionary.Insert();
                 InDataDictionary."Line No." := InDataDictionary."Line No." + 1000;
                 InDataDictionary.Value := '';
                 if Indent then

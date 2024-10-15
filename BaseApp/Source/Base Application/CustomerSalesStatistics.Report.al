@@ -446,7 +446,7 @@ report 10047 "Customer Sales Statistics"
         for i := 2 to 4 do
             PeriodStartingDate[i + 1] := CalcDate(PeriodLength, PeriodStartingDate[i]);
         PeriodStartingDate[6] := 99991231D;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := Customer.GetFilters;
     end;
 

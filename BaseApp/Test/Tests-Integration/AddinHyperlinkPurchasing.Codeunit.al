@@ -665,7 +665,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         LibraryUtility: Codeunit "Library - Utility";
     begin
         PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     [Normal]
@@ -786,7 +786,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         case DocType of
             DocType::"Credit Memo":
                 begin
-                    PurchasesPayablesSetup.Get;
+                    PurchasesPayablesSetup.Get();
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'PCRM0000', 'PCRM9999');
                     LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
@@ -796,11 +796,11 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'PPCRM0000', 'PPCRM9999');
                     LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     PurchasesPayablesSetup."Posted Credit Memo Nos." := NoSeries.Code;
-                    PurchasesPayablesSetup.Modify;
+                    PurchasesPayablesSetup.Modify();
                 end;
             DocType::Invoice:
                 begin
-                    PurchasesPayablesSetup.Get;
+                    PurchasesPayablesSetup.Get();
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'PINV0000', 'PINV9999');
                     LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
@@ -810,10 +810,10 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'PPINV0000', 'PPINV9999');
                     LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     PurchasesPayablesSetup."Posted Invoice Nos." := NoSeries.Code;
-                    PurchasesPayablesSetup.Modify;
+                    PurchasesPayablesSetup.Modify();
                 end;
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure SetOfficeAddinContextFilter(var OfficeAddinContext: Record "Office Add-in Context")
@@ -879,9 +879,9 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Add-in Hyperlink Purchasing");
 
         AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
-        SalesHeader.DeleteAll;
-        SalesInvoiceHeader.DeleteAll;
-        SalesCrMemoHeader.DeleteAll;
+        SalesHeader.DeleteAll();
+        SalesInvoiceHeader.DeleteAll();
+        SalesCrMemoHeader.DeleteAll();
 
         SetNoSeries(DocType::Invoice);
         SetNoSeries(DocType::"Credit Memo");
@@ -905,7 +905,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         OfficeManagement: Codeunit "Office Management";
         OfficeHost: DotNet OfficeHost;
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeHostUnAvailable;
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
@@ -919,8 +919,8 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
         if NameValueBuffer.Get(SessionId) then begin
-            NameValueBuffer.Delete;
-            Commit;
+            NameValueBuffer.Delete();
+            Commit();
         end;
     end;
 
@@ -928,15 +928,15 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        OfficeAddinSetup.Get;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
-        OfficeAddinSetup.Modify;
+        OfficeAddinSetup.Modify();
     end;
 
     [Normal]
     local procedure SetupDocumentNoMatch(var OfficeAddinContext: Record "Office Add-in Context"; DocumentNo: Code[20])
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeAddinContextFilter(OfficeAddinContext);
         OfficeAddinContext.SetFilter("Document No.", '=%1', DocumentNo);
     end;
@@ -944,7 +944,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     [Normal]
     local procedure SetupRegExMatch(var OfficeAddinContext: Record "Office Add-in Context"; RegularExpressionText: Text)
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeAddinContextFilter(OfficeAddinContext);
         OfficeAddinContext.SetFilter("Regular Expression Match", '=%1', RegularExpressionText);
     end;
@@ -959,7 +959,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
             SalesHeader.Modify(true);
         end else begin
             SalesHeader."Due Date" := PostingDate;
-            SalesHeader.Modify;
+            SalesHeader.Modify();
         end;
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, No, 2);
     end;

@@ -588,7 +588,7 @@ report 1322 "Standard Purchase - Order"
                             PrevTaxPercent := 0;
                             TaxAmount := 0;
 
-                            TempSalesTaxAmtLine.Reset;
+                            TempSalesTaxAmtLine.Reset();
                             TempSalesTaxAmtLine.SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
                             if TempSalesTaxAmtLine.Find('-') then
                                 repeat
@@ -686,8 +686,8 @@ report 1322 "Standard Purchase - Order"
                 begin
                     Clear(TempPurchLine);
                     Clear(PurchPost);
-                    TempPurchLine.DeleteAll;
-                    TempVATAmountLine.DeleteAll;
+                    TempPurchLine.DeleteAll();
+                    TempVATAmountLine.DeleteAll();
                     PurchPost.GetPurchLines("Purchase Header", TempPurchLine, 0);
                     TempPurchLine.CalcVATAmountLines(0, "Purchase Header", TempPurchLine, TempVATAmountLine);
                     TempPurchLine.UpdateVATOnLines(0, "Purchase Header", TempPurchLine, TempVATAmountLine);
@@ -697,7 +697,7 @@ report 1322 "Standard Purchase - Order"
                       TempVATAmountLine.GetTotalVATDiscount("Purchase Header"."Currency Code", "Purchase Header"."Prices Including VAT");
                     TotalAmountInclVAT := TempVATAmountLine.GetTotalAmountInclVAT;
 
-                    TempPrepaymentInvLineBuffer.DeleteAll;
+                    TempPrepaymentInvLineBuffer.DeleteAll();
                     PurchasePostPrepayments.GetPurchLines("Purchase Header", 0, TempPrepmtPurchLine);
                     if not TempPrepmtPurchLine.IsEmpty then begin
                         PurchasePostPrepayments.GetPurchLinesToDeduct("Purchase Header", TempPurchLine);
@@ -790,7 +790,7 @@ report 1322 "Standard Purchase - Order"
                 trigger OnPreDataItem()
                 begin
                     if VATAmount = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange(Number, 1, TempVATAmountLine.Count);
                 end;
             }
@@ -829,7 +829,7 @@ report 1322 "Standard Purchase - Order"
                        ("Purchase Header"."Currency Code" = '') or
                        (TempVATAmountLine.GetTotalVATAmount = 0)
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Number, 1, TempVATAmountLine.Count);
 
@@ -899,10 +899,10 @@ report 1322 "Standard Purchase - Order"
                 begin
                     if Number = 1 then begin
                         if not TempPrepaymentInvLineBuffer.Find('-') then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end else
                         if TempPrepaymentInvLineBuffer.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     if "Purchase Header"."Prices Including VAT" then
                         PrepmtLineAmount := TempPrepaymentInvLineBuffer."Amount Incl. VAT"
@@ -1054,9 +1054,9 @@ report 1322 "Standard Purchase - Order"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
-        PurchSetup.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
+        PurchSetup.Get();
         CompanyInfo.CalcFields(Picture);
     end;
 

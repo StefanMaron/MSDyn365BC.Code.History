@@ -348,7 +348,7 @@ report 10026 "Trial Balance, Spread Periods"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         /* set up the date ranges */
         FromDate := "G/L Account".GetRangeMin("Date Filter");
         ToDate := "G/L Account".GetRangeMax("Date Filter");
@@ -472,7 +472,7 @@ report 10026 "Trial Balance, Spread Periods"
                 AmountText := Text007;
         end;
         if UseAddRptCurr then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Currency.Get(GLSetup."Additional Reporting Currency");
             SubTitle := StrSubstNo(Text008, Currency.Description);
         end;

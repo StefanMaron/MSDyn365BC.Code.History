@@ -129,7 +129,7 @@ report 10010 "Cross Reference by Source"
                 begin
                     if PrintAccountNames and ("G/L Account No." <> GLAccount."No.") then begin
                         if not GLAccount.Get("G/L Account No.") then
-                            GLAccount.Init;
+                            GLAccount.Init();
                     end;
                     Credits := "Credit Amount";
                     Debits := "Debit Amount";
@@ -155,7 +155,7 @@ report 10010 "Cross Reference by Source"
             begin
                 if "Source Code" <> LastSourceCode then begin
                     if not Source.Get("Source Code") then
-                        Source.Init;
+                        Source.Init();
                 end
             end;
 
@@ -200,7 +200,7 @@ report 10010 "Cross Reference by Source"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         GLRegFilter := "G/L Register".GetFilters;
     end;
 

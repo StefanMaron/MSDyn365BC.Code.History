@@ -113,7 +113,7 @@ page 10000 "Import Budget Information"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Global Dimension 1 Code" = '' then begin
             GlobDim1Enable := false;
             GlobDim1Code := '';

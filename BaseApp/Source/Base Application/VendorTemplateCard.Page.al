@@ -1,4 +1,4 @@
-﻿page 1344 "Vendor Template Card"
+page 1344 "Vendor Template Card"
 {
     Caption = 'Vendor Template';
     CardPageID = "Vendor Template Card";
@@ -8,6 +8,9 @@
     RefreshOnActivate = true;
     SourceTable = "Mini Vendor Template";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be replaced by other templates.';
+    ObsoleteTag = '16.0';
 
     layout
     {

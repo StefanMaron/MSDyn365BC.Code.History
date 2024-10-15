@@ -478,7 +478,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         // Setup
         CustLedgerEntry1."Closed by Entry No." := CustLedgerEntry2."Entry No.";
-        CustLedgerEntry1.Modify;
+        CustLedgerEntry1.Modify();
 
         // Exercise
         PmtExportMgtCustLedgEntry.ExportCustPaymentFileYN(CustLedgerEntry2);
@@ -507,7 +507,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         // Setup
         CustLedgerEntry1."Closed by Entry No." := CustLedgerEntry2."Entry No.";
-        CustLedgerEntry1.Modify;
+        CustLedgerEntry1.Modify();
 
         // Pre-Exercise
         CustLedgerEntry.SetRange("Entry No.", CustLedgerEntry1."Entry No.", CustLedgerEntry2."Entry No.");
@@ -520,6 +520,56 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         Assert.ExpectedError(
           StrSubstNo(WrongFieldValueErr, CustLedgerEntry.FieldCaption("Document Type"),
             CustLedgerEntry.TableCaption, CustLedgerEntry."Document Type"::Refund));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FilterByHasPaymentExportError()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine1: Record "Gen. Journal Line";
+        GenJnlLine2: Record "Gen. Journal Line";
+        GenJnlLine3: Record "Gen. Journal Line";
+        PaymentJournal: TestPage "Payment Journal";
+        BankAccountNo: Code[20];
+    begin
+        Initialize;
+
+        // Pre-Setup
+        DeleteExtraPaymentJnlTemplates;
+        BankAccountNo := CreateSimpleBankAccount;
+        CreateGenJournalBatch(GenJnlBatch, BankAccountNo);
+
+        // Setup
+        LibraryERM.CreateGeneralJnlLine(GenJnlLine1, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
+          GenJnlLine1."Document Type"::Payment, GenJnlLine1."Account Type"::Vendor, '', LibraryRandom.RandDec(1000, 2));
+        GenJnlLine1.Description := Format(1);
+        GenJnlLine1.Modify();
+        LibraryERM.CreateGeneralJnlLine(GenJnlLine2, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
+          GenJnlLine2."Document Type"::Payment, GenJnlLine2."Account Type"::Vendor, '', LibraryRandom.RandDec(1000, 2));
+        LibraryERM.CreateGeneralJnlLine(GenJnlLine3, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
+          GenJnlLine3."Document Type"::Payment, GenJnlLine3."Account Type"::Vendor, '', LibraryRandom.RandDec(1000, 2));
+        GenJnlLine3.Description := Format(3);
+        GenJnlLine3.Modify();
+
+        CreateErrorsForGenJnlLine(GenJnlLine1);
+        CreateErrorsForGenJnlLine(GenJnlLine3);
+
+        // Exercise
+        Commit();
+        PaymentJournal.OpenEdit;
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJnlBatch.Name);
+        PaymentJournal.FILTER.SetFilter("Has Payment Export Error", Format(true));
+
+        // Verify
+        Assert.IsFalse(PaymentJournal."Has Payment Export Error".Editable, GenJnlLine.FieldCaption("Has Payment Export Error"));
+        PaymentJournal.First;
+        Assert.AreEqual('1', PaymentJournal.Description.Value, GenJnlLine1.FieldName(Description));
+        PaymentJournal.Next;
+        Assert.AreEqual('3', PaymentJournal.Description.Value, GenJnlLine3.FieldName(Description));
+        PaymentJournal.Next;
+        Assert.AreEqual('', PaymentJournal.Description.Value, GenJnlLine.FieldName(Description));
     end;
 
     [Test]
@@ -1223,7 +1273,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         // Setup
         VendLedgerEntry1."Closed by Entry No." := VendLedgerEntry2."Entry No.";
-        VendLedgerEntry1.Modify;
+        VendLedgerEntry1.Modify();
 
         // Exercise
         PmtExportMgtVendLedgEntry.ExportVendorPaymentFileYN(VendLedgerEntry2);
@@ -1252,7 +1302,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         // Setup
         VendLedgerEntry1."Closed by Entry No." := VendLedgerEntry2."Entry No.";
-        VendLedgerEntry1.Modify;
+        VendLedgerEntry1.Modify();
 
         // Pre-Exercise
         VendLedgerEntry.SetRange("Entry No.", VendLedgerEntry1."Entry No.", VendLedgerEntry2."Entry No.");
@@ -1286,7 +1336,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         LibraryERM.CreateBankAccount(BankAccount);
         CreateGenJournalBatch(GenJnlBatch, LibraryUtility.GenerateGUID);
         GenJnlBatch."Bal. Account No." := BankAccount."No.";
-        GenJnlBatch.Modify;
+        GenJnlBatch.Modify();
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJnlBatch."Journal Template Name",
           GenJnlBatch.Name, GenJournalLine."Document Type"::Payment,
@@ -1297,8 +1347,8 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         VendLedgerEntry."Bal. Account No." := BankAccount."No.";
         VendLedgerEntry."Applies-to Doc. Type" := GenJournalLine."Document Type";
         VendLedgerEntry."Applies-to Doc. No." := GenJournalLine."Document No.";
-        VendLedgerEntry.Modify;
-        Commit;
+        VendLedgerEntry.Modify();
+        Commit();
 
         // Exercise
         PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJournalLine);
@@ -2021,7 +2071,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         // [GIVEN] 3 Gen. Journal Batches with some 4 lines per each batch
         GenJournalTemplateName := CreateGenJnlBatchWithLines(BatchCount);
-        Commit;
+        Commit();
         BindSubscription(PaymentExportMgtUnitTest);
         PaymentExportMgtUnitTest.InitializeEventHitsCounter;
 
@@ -2063,7 +2113,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     local procedure ApplyToOpenLedgerEntriesWithAppliesToID(var GenJnlLine: Record "Gen. Journal Line"; var VendLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])
     begin
         VendLedgerEntry."Applies-to ID" := AppliesToID;
-        VendLedgerEntry.Modify;
+        VendLedgerEntry.Modify();
 
         with GenJnlLine do begin
             Validate("Applies-to ID", AppliesToID);
@@ -2076,7 +2126,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         Vendor: Record Vendor;
         SuggestVendorPayments: Report "Suggest Vendor Payments";
     begin
-        GenJnlLine.Init;  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
+        GenJnlLine.Init();  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
         GenJnlLine.Validate("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.Validate("Journal Batch Name", GenJnlBatch.Name);
         SuggestVendorPayments.SetGenJnlLine(GenJnlLine);
@@ -2385,7 +2435,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
         if DefaultValue <> '' then begin
             DataExchFieldMapping.Validate("Default Value", DefaultValue);
-            DataExchFieldMapping.Modify;
+            DataExchFieldMapping.Modify();
         end;
     end;
 
@@ -2398,7 +2448,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
 
     local procedure CreatePaymentExportData(var PaymentExportData: Record "Payment Export Data"; BankAccCode: Code[20]; LineNo: Integer; Amount: Decimal; TransferDate: Date; ShortAdvice: Text[20]; DataExchEntryNo: Integer; DataExchLineDefCode: Code[20])
     begin
-        PaymentExportData.Init;
+        PaymentExportData.Init();
         PaymentExportData."Data Exch. Line Def Code" := DataExchLineDefCode;
         PaymentExportData."Sender Bank Account Code" := BankAccCode;
         PaymentExportData."Data Exch Entry No." := DataExchEntryNo;
@@ -2407,7 +2457,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         PaymentExportData.Amount := Amount;
         PaymentExportData."Transfer Date" := TransferDate;
         PaymentExportData."Short Advice" := ShortAdvice;
-        PaymentExportData.Insert;
+        PaymentExportData.Insert();
     end;
 
     local procedure CreatePaymentExportDataSingleValue(var PaymentExportData: Record "Payment Export Data"; BankAccCode: Code[20]; DataExchEntryNo: Integer; DataExchLineDefCode: Code[20]; FieldNo: Integer; Value: Variant)
@@ -2415,7 +2465,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         RecRef: RecordRef;
         FieldRef: FieldRef;
     begin
-        PaymentExportData.Init;
+        PaymentExportData.Init();
         PaymentExportData."Data Exch. Line Def Code" := DataExchLineDefCode;
         PaymentExportData."Sender Bank Account Code" := BankAccCode;
         PaymentExportData."Data Exch Entry No." := DataExchEntryNo;
@@ -2425,7 +2475,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         RecRef.GetTable(PaymentExportData);
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.Value := Value;
-        RecRef.Insert;
+        RecRef.Insert();
         RecRef.SetTable(PaymentExportData);
     end;
 
@@ -2509,7 +2559,15 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     local procedure SetGenJournalLineExported(var GenJournalLine: Record "Gen. Journal Line"; Exported: Boolean)
     begin
         GenJournalLine."Exported to Payment File" := Exported;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
+    end;
+
+    local procedure CreateSimpleBankAccount(): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        CreateBankAccount(BankAccount, '', '');
+        exit(BankAccount."No.");
     end;
 
     local procedure DefinePaymentExportFormat(var DataExchMapping: Record "Data Exch. Mapping")
@@ -2538,6 +2596,23 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         PaymentMethod.Get(PaymentMethodCode);
         PaymentMethod.Validate("Pmt. Export Line Definition", DataExchLineDefCode);
         PaymentMethod.Modify(true);
+    end;
+
+    local procedure CreateErrorsForGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
+    var
+        PmtJnlExportErrorText: Record "Payment Jnl. Export Error Text";
+    begin
+        PmtJnlExportErrorText.CreateNew(GenJnlLine, '', '', '');
+    end;
+
+    local procedure DeleteExtraPaymentJnlTemplates()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.SetFilter(Name, '<>%1', LibraryPurchase.SelectPmtJnlTemplate);
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
+        GenJournalTemplate.SetRange("Page ID", PAGE::"Payment Journal");
+        GenJournalTemplate.DeleteAll(true);
     end;
 }
 

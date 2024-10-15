@@ -149,7 +149,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
         // [GIVEN] Closed Inventoty Period with "Posting Date" = 31.01
         CreateInvtPeriod(InventoryPeriod);
-        Commit;
+        Commit();
         LibraryLowerPermissions.SetSalesDocsPost;
 
         // [WHEN] Cancel Posted Credit Memo
@@ -160,7 +160,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
         // Tear down
         LibraryLowerPermissions.SetO365Setup;
-        InventoryPeriod.Delete;
+        InventoryPeriod.Delete();
     end;
 
     [Test]
@@ -235,7 +235,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         TurnoffStockoutWarning; // In order to post additional invoices to credit memo
         PostApplyUnapplyInvoiceToCrMemoWithSpecificAmount(
           SalesCrMemoHeader, Round(SalesCrMemoHeader."Amount Including VAT" / LibraryRandom.RandIntInRange(3, 5)), false);
-        Commit;
+        Commit();
         LibraryLowerPermissions.SetSalesDocsPost;
 
         // [WHEN] Cancel Posted Credi Memo "B" with corrective Invoice "D"
@@ -261,7 +261,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         LibraryLowerPermissions.SetSalesDocsPost;
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", SalesCrMemoHeader."No.");
         MockDtldCustLedgEntry(CustLedgerEntry."Entry No.", DetailedCustLedgEntry."Entry Type"::"Realized Gain");
-        Commit;
+        Commit();
         asserterror CancelCrMemo(SalesCrMemoHeader);
         Assert.ExpectedError(NotAppliedCorrectlyErr);
     end;
@@ -323,7 +323,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
         // [GIVEN] Posted Invoice "A" and Posted Credit Memo "B" are unapplied
         UnapplyDocument(CustLedgerEntry."Document Type"::"Credit Memo", SalesCrMemoHeader."No.");
-        Commit;
+        Commit();
         LibraryLowerPermissions.SetSalesDocsPost;
         LibraryLowerPermissions.AddJobs;
 
@@ -360,7 +360,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         TurnoffStockoutWarning; // In order to post additional invoice for credit memo
         PostApplyUnapplyInvoiceToCrMemo(SalesCrMemoHeader);
         FindLastSalesInvHeader(SalesInvHeader, SalesCrMemoHeader."Bill-to Customer No.");
-        Commit;
+        Commit();
         LibraryLowerPermissions.SetSalesDocsPost;
         LibraryLowerPermissions.AddJobs;
 
@@ -436,7 +436,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         PostApplyUnapplyInvoiceToCrMemoWithSpecificAmount(SalesCrMemoHeader, PartialAmount, true);
         PostApplyUnapplyInvoiceToCrMemoWithSpecificAmount(
           SalesCrMemoHeader, SalesCrMemoHeader."Amount Including VAT" - PartialAmount, true);
-        Commit;
+        Commit();
         LibraryLowerPermissions.SetSalesDocsPost;
         LibraryLowerPermissions.AddJobs;
 
@@ -657,8 +657,8 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [GIVEN] GLAccount 'A' is not allowed for direct posting
         GLAccount.Get(SalesLine."No.");
         GLAccount.Validate("Direct Posting", false);
-        GLAccount.Modify;
-        Commit;
+        GLAccount.Modify();
+        Commit();
 
         // [WHEN] Cancel Invoice
         asserterror CancelInvoice(SalesCrMemoHeader, SalesInvHeader);
@@ -919,7 +919,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
         CancelInvoiceByCreditMemoWithItemType(SalesCrMemoHeader, Item.Type::Service, GeneralPostingSetup);
         CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
-        Commit;
+        Commit();
 
         CancelPostedSalesCrMemo.TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
 
@@ -941,7 +941,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
         CancelInvoiceByCreditMemoWithItemType(SalesCrMemoHeader, Item.Type::"Non-Inventory", GeneralPostingSetup);
         CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
-        Commit;
+        Commit();
 
         CancelPostedSalesCrMemo.TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
 
@@ -963,7 +963,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
         CancelInvoiceByCreditMemoWithItemType(SalesCrMemoHeader, Item.Type::Inventory, GeneralPostingSetup);
         CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
-        Commit;
+        Commit();
 
         asserterror CancelPostedSalesCrMemo.TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
         Assert.ExpectedErrorCode('TestField');
@@ -994,7 +994,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales Correct Cr. Memo");
     end;
 
@@ -1130,7 +1130,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         LibraryInventory.CreateItem(Item);
         Item."Unit Price" := LibraryRandom.RandDec(100, 2);
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
@@ -1140,16 +1140,16 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         Item.Get(CreateItemNo);
         Item.Validate("Costing Method", Item."Costing Method"::FIFO);
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
     local procedure CreateInvtPeriod(var InventoryPeriod: Record "Inventory Period")
     begin
-        InventoryPeriod.Init;
+        InventoryPeriod.Init();
         InventoryPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
         InventoryPeriod.Closed := true;
-        InventoryPeriod.Insert;
+        InventoryPeriod.Insert();
     end;
 
     local procedure CreateFixedAsset(): Code[20]
@@ -1159,7 +1159,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         FASetup: Record "FA Setup";
         FADepreciationBook: Record "FA Depreciation Book";
     begin
-        FASetup.Get;
+        FASetup.Get();
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book");
@@ -1276,14 +1276,14 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         GeneralPostingSetup.Get(OldGeneralPostingSetup."Gen. Bus. Posting Group", OldGeneralPostingSetup."Gen. Prod. Posting Group");
         GeneralPostingSetup."COGS Account" := OldGeneralPostingSetup."COGS Account";
-        GeneralPostingSetup.Modify;
+        GeneralPostingSetup.Modify();
     end;
 
     local procedure TurnoffStockoutWarning()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Modify(true);
     end;

@@ -87,7 +87,7 @@ report 10216 "Job List"
             trigger OnAfterGetRecord()
             begin
                 if not Customer.Get("Bill-to Customer No.") then
-                    Customer.Init;
+                    Customer.Init();
                 JobPlanningLine.SetRange("Job No.", "No.");
                 JobPlanningLine.CalcSums("Total Cost (LCY)", "Total Price (LCY)");
             end;
@@ -146,7 +146,7 @@ report 10216 "Job List"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         JobFilter := Job.GetFilters;
         if BudgetAmountsPer = BudgetAmountsPer::Schedule then
             BudgetOptionText := Text001

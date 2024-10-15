@@ -15,16 +15,16 @@ report 10050 "Daily Invoicing Report"
             trigger OnAfterGetRecord()
             begin
                 TempCurrency := Currency;
-                TempCurrency.Insert;
+                TempCurrency.Insert();
             end;
 
             trigger OnPreDataItem()
             begin
                 if UseCurrency then begin
                     Clear(TempCurrency);
-                    TempCurrency.Insert;
+                    TempCurrency.Insert();
                 end else
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Integer"; "Integer")
@@ -157,13 +157,13 @@ report 10050 "Daily Invoicing Report"
                         TotalSalesTax := TotalSalesTax + SalesTax;
                         TotalAmtInclTax := TotalAmtInclTax + "Amount Including VAT";
                     end else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not IncludeInvoices then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if UseCurrency then
                         SetRange("Currency Code", TempCurrency.Code);
@@ -266,7 +266,7 @@ report 10050 "Daily Invoicing Report"
                         TotalSalesTax := TotalSalesTax - SalesTax;
                         TotalAmtInclTax := TotalAmtInclTax - "Amount Including VAT";
                     end else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
@@ -285,7 +285,7 @@ report 10050 "Daily Invoicing Report"
                         "Sales Invoice Header".CopyFilter("Tax Area Code", "Tax Area Code");
                         "Sales Invoice Header".CopyFilter("Responsibility Center", "Responsibility Center");
                     end else
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -362,7 +362,7 @@ report 10050 "Daily Invoicing Report"
         if not (IncludeInvoices or IncludeCreditMemos) then
             Error(Text000);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FilterString := "Sales Invoice Header".GetFilters;
         UseCurrency := Currency.Find('-');
     end;

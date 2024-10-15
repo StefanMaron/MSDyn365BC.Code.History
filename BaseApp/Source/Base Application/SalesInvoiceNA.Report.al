@@ -45,26 +45,26 @@ report 10074 "Sales Invoice NA"
                             TempSalesInvoiceLine."Description 2" :=
                               CopyStr(CopyStr(Comment, SpacePointer + 1), 1, MaxStrLen(TempSalesInvoiceLine."Description 2"));
                         end;
-                        TempSalesInvoiceLine.Insert;
+                        TempSalesInvoiceLine.Insert();
                     end;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
                     TempSalesInvoiceLine := "Sales Invoice Line";
-                    TempSalesInvoiceLine.Insert;
+                    TempSalesInvoiceLine.Insert();
                     TempSalesInvoiceLineAsm := "Sales Invoice Line";
-                    TempSalesInvoiceLineAsm.Insert;
+                    TempSalesInvoiceLineAsm.Insert();
 
                     HighestLineNo := "Line No.";
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempSalesInvoiceLine.Reset;
-                    TempSalesInvoiceLine.DeleteAll;
-                    TempSalesInvoiceLineAsm.Reset;
-                    TempSalesInvoiceLineAsm.DeleteAll;
+                    TempSalesInvoiceLine.Reset();
+                    TempSalesInvoiceLine.DeleteAll();
+                    TempSalesInvoiceLineAsm.Reset();
+                    TempSalesInvoiceLineAsm.DeleteAll();
                 end;
             }
             dataitem("Sales Comment Line"; "Sales Comment Line")
@@ -96,7 +96,7 @@ report 10074 "Sales Invoice NA"
                         TempSalesInvoiceLine."Description 2" :=
                           CopyStr(CopyStr(Comment, SpacePointer + 1), 1, MaxStrLen(TempSalesInvoiceLine."Description 2"));
                     end;
-                    TempSalesInvoiceLine.Insert;
+                    TempSalesInvoiceLine.Insert();
                 end;
 
                 trigger OnPreDataItem()
@@ -107,7 +107,7 @@ report 10074 "Sales Invoice NA"
                         "Line No." := HighestLineNo + 1000;
                         HighestLineNo := "Line No.";
                     end;
-                    TempSalesInvoiceLine.Insert;
+                    TempSalesInvoiceLine.Insert();
                 end;
             }
             dataitem(CopyLoop; "Integer")
@@ -509,7 +509,7 @@ report 10074 "Sales Invoice NA"
                         begin
                             Clear(TaxLiable);
                             Clear(AmountExclInvDisc);
-                            NumberOfLines := TempSalesInvoiceLine.Count;
+                            NumberOfLines := TempSalesInvoiceLine.Count();
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;
                         end;
@@ -524,14 +524,14 @@ report 10074 "Sales Invoice NA"
                         trigger OnAfterGetRecord()
                         begin
                             if not DisplayAdditionalFeeNote then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             if Number = 1 then begin
                                 if not TempLineFeeNoteOnReportHist.FindSet then
                                     CurrReport.Break
                             end else
                                 if TempLineFeeNoteOnReportHist.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                         end;
                     }
                 }
@@ -541,7 +541,7 @@ report 10074 "Sales Invoice NA"
                     if CopyNo = NoLoops then begin
                         if not CurrReport.Preview then
                             SalesInvPrinted.Run("Sales Invoice Header");
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     CopyNo := CopyNo + 1;
                     if CopyNo = 1 then // Original
@@ -752,7 +752,7 @@ report 10074 "Sales Invoice NA"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     trigger OnPreReport()
@@ -761,25 +761,25 @@ report 10074 "Sales Invoice NA"
         if not CurrReport.UseRequestPage then
             InitLogInteraction;
 
-        CompanyInformation.Get;
-        SalesSetup.Get;
+        CompanyInformation.Get();
+        SalesSetup.Get();
 
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
                 ;
             SalesSetup."Logo Position on Documents"::Left:
                 begin
-                    CompanyInfo3.Get;
+                    CompanyInfo3.Get();
                     CompanyInfo3.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -905,7 +905,7 @@ report 10074 "Sales Invoice NA"
         SalesShipmentLine: Record "Sales Shipment Line";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        TempPostedAsmLine.DeleteAll;
+        TempPostedAsmLine.DeleteAll();
         if not DisplayAssemblyInformation then
             exit;
         if not TempSalesInvoiceLineAsm.Get(TempSalesInvoiceLine."Document No.", TempSalesInvoiceLine."Line No.") then
@@ -947,11 +947,11 @@ report 10074 "Sales Invoice NA"
         TempPostedAsmLine.SetRange("Unit of Measure Code", PostedAsmLine."Unit of Measure Code");
         if TempPostedAsmLine.FindFirst then begin
             TempPostedAsmLine.Quantity += PostedAsmLine.Quantity;
-            TempPostedAsmLine.Modify;
+            TempPostedAsmLine.Modify();
         end else begin
             Clear(TempPostedAsmLine);
             TempPostedAsmLine := PostedAsmLine;
-            TempPostedAsmLine.Insert;
+            TempPostedAsmLine.Insert();
         end;
     end;
 
@@ -975,7 +975,7 @@ report 10074 "Sales Invoice NA"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Customer: Record Customer;
     begin
-        TempLineFeeNoteOnReportHist.DeleteAll;
+        TempLineFeeNoteOnReportHist.DeleteAll();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
         if not CustLedgerEntry.FindFirst then
@@ -988,17 +988,17 @@ report 10074 "Sales Invoice NA"
         LineFeeNoteOnReportHist.SetRange("Language Code", Customer."Language Code");
         if LineFeeNoteOnReportHist.FindSet then begin
             repeat
-                TempLineFeeNoteOnReportHist.Init;
+                TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
-                TempLineFeeNoteOnReportHist.Insert;
+                TempLineFeeNoteOnReportHist.Insert();
             until LineFeeNoteOnReportHist.Next = 0;
         end else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
             if LineFeeNoteOnReportHist.FindSet then
                 repeat
-                    TempLineFeeNoteOnReportHist.Init;
+                    TempLineFeeNoteOnReportHist.Init();
                     TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
-                    TempLineFeeNoteOnReportHist.Insert;
+                    TempLineFeeNoteOnReportHist.Insert();
                 until LineFeeNoteOnReportHist.Next = 0;
         end;
     end;

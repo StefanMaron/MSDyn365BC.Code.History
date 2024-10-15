@@ -19,7 +19,6 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         IsInitialized: Boolean;
         CannotBeLessThanMsg: Label 'cannot be less than %1', Comment = '.';
         CannotBeMoreThanMsg: Label 'cannot be more than %1', Comment = '.';
-        UnitPriceModifyMsg: Label 'must be %1 when the Prepayment Invoice has already been posted', Comment = 'starts with a field name; %1 - numeric value';
 
     [Test]
     [Scope('OnPrem')]
@@ -64,7 +63,7 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         // Magic numbers from original repro steps Bug 332246
         AddSalesOrderLine(SalesLine, SalesHeader, 19.625, 1192, 100, 0);
         SalesLine.Validate("Line Amount", 16559.33);
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     [Test]
@@ -257,7 +256,7 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         PrepareSalesOrder(SalesHeader);
         AddSalesOrderLine100PctPrepmt(SalesLine, SalesHeader, PositiveDiff);
         SalesLine.Validate("Line Discount %", GetSpecialLineDiscPct);
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     [Test]
@@ -429,14 +428,13 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
     var
         SalesOrderHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [FEATURE] [Get Shipment Lines] [UI]
         // [SCENARIO 374897] Error when User tries to decrease SalesInvoiceLine."Unit Price" value with 100% Prepayment after Get Shipment Lines
         Initialize;
 
-        // [GIVEN] Sales Order with 100% Prepayment, Line Discount and Unit Price = "X". Post Prepayment. Post Shipment.
+        // [GIVEN] Sales Order with 100% Prepayment, Line Discount and Line Amount = "X". Post Prepayment. Post Shipment.
         PrepareSOPostPrepmtAndShip(SalesOrderHeader);
 
         // [GIVEN] Create Sales Invoice. Get Shipment Lines from posted Shipment.
@@ -446,10 +444,8 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         OpenSalesInvoicePage(SalesInvoice, SalesInvoiceHeader);
         asserterror SalesInvoice.SalesLines."Unit Price".SetValue(SalesInvoice.SalesLines."Unit Price".AsDEcimal - 0.01);
 
-        // [THEN] Error occurs: "Unit Price must be X when the Prepayment Invoice has already been posted"
-        Assert.ExpectedErrorCode('Validation');
-        Assert.ExpectedError(SalesLine.FieldCaption("Unit Price"));
-        Assert.ExpectedError(StrSubstNo(UnitPriceModifyMsg, SalesInvoice.SalesLines."Unit Price".AsDEcimal));
+        // [THEN] Error occurs: "Line Amount Excl. VAT cannot be less than X"
+        VerifyLineAmountExpectedError(CannotBeLessThanMsg, SalesInvoice.SalesLines."Line Amount".AsDEcimal);
     end;
 
     [Test]
@@ -458,14 +454,13 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
     var
         SalesOrderHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // [FEATURE] [Get Shipment Lines] [UI]
         // [SCENARIO 374897] Error when User tries to increase SalesInvoiceLine."Unit Price" value with 100% Prepayment after Get Shipment Lines
         Initialize;
 
-        // [GIVEN] Sales Order with 100% Prepayment, Line Discount and Unit Price = "X". Post Prepayment. Post Shipment.
+        // [GIVEN] Sales Order with 100% Prepayment, Line Discount and Line Amount = "X". Post Prepayment. Post Shipment.
         PrepareSOPostPrepmtAndShip(SalesOrderHeader);
 
         // [GIVEN] Create Sales Invoice. Get Shipment Lines from posted Shipment.
@@ -475,10 +470,8 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         OpenSalesInvoicePage(SalesInvoice, SalesInvoiceHeader);
         asserterror SalesInvoice.SalesLines."Unit Price".SetValue(SalesInvoice.SalesLines."Unit Price".AsDEcimal + 0.01);
 
-        // [THEN] Error occurs: "Unit Price must be X when the Prepayment Invoice has already been posted"
-        Assert.ExpectedErrorCode('Validation');
-        Assert.ExpectedError(SalesLine.FieldCaption("Unit Price"));
-        Assert.ExpectedError(StrSubstNo(UnitPriceModifyMsg, SalesInvoice.SalesLines."Unit Price".AsDEcimal));
+        // [THEN] Error occurs: "Line Amount Excl. VAT cannot be more than X"
+        VerifyLineAmountExpectedError(CannotBeMoreThanMsg, SalesInvoice.SalesLines."Line Amount".AsDEcimal);
     end;
 
     [Test]
@@ -750,9 +743,9 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateVATPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Full Prepmt Rounding");
     end;
 
@@ -1011,7 +1004,7 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         SalesLine.Find;
         SalesLine.Validate("Qty. to Ship", QtyToShip);
         SalesLine.Validate("Qty. to Invoice", QtyToInvoice);
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure UpdateSalesLine(var SalesLine: Record "Sales Line"; NewUnitPrice: Decimal; NewDiscountPct: Decimal; NewPrepmtPct: Decimal)

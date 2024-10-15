@@ -201,7 +201,7 @@ page 388 "Bank Acc. Reconciliation List"
     var
         BankReconciliationMgt: Codeunit "Bank Reconciliation Mgt.";
     begin
-        DeleteAll;
+        DeleteAll();
         BankReconciliationMgt.Refresh(Rec);
     end;
 }

@@ -20,7 +20,7 @@ codeunit 5352 "CRM Order Status Update Job"
         CRMConnectionSetup: Record "CRM Connection Setup";
         ConnectionName: Text;
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         if not CRMConnectionSetup."Is Enabled" then
             Error(ConnectionNotEnabledErr, CRMProductName.FULL);
 
@@ -88,7 +88,7 @@ codeunit 5352 "CRM Order Status Update Job"
         CRMPost.RegardingObjectId := CRMSalesorder.SalesOrderId;
         CRMPost.RegardingObjectTypeCode := CRMPost.RegardingObjectTypeCode::salesorder;
         CRMPost.Text := CopyStr(Message, 1, MaxStrLen(CRMPost.Text));
-        CRMPost.Insert;
+        CRMPost.Insert();
     end;
 
     local procedure FindCoupledCRMSalesOrder(var CRMSalesorder: Record "CRM Salesorder"; SalesHeader: Record "Sales Header"): Boolean
@@ -120,7 +120,7 @@ codeunit 5352 "CRM Order Status Update Job"
 
         repeat
             TempCRMPostBuffer.TransferFields(CRMPostBuffer);
-            TempCRMPostBuffer.Insert;
+            TempCRMPostBuffer.Insert();
         until CRMPostBuffer.Next = 0;
 
         if TempCRMPostBuffer.FindSet then
@@ -168,7 +168,7 @@ codeunit 5352 "CRM Order Status Update Job"
         CRMPostBuffer: Record "CRM Post Buffer";
     begin
         if CRMPostBuffer.Get(TempCRMPostBuffer.ID) then
-            CRMPostBuffer.Delete;
+            CRMPostBuffer.Delete();
     end;
 }
 

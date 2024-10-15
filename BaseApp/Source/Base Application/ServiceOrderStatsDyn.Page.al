@@ -584,7 +584,7 @@ page 10452 "Service Order Stats. Dyn"
         Clear(BreakdownAmt);
 
         for i := 1 to 7 do begin
-            TempServLine.DeleteAll;
+            TempServLine.DeleteAll();
             Clear(TempServLine);
             ServAmtsMgt.GetServiceLines(Rec, TempServLine, i - 1);
             SalesTaxCalculate.StartSalesTaxCalculation;
@@ -597,19 +597,19 @@ page 10452 "Service Order Stats. Dyn"
             case i of
                 1:
                     begin
-                        TempSalesTaxLine1.DeleteAll;
+                        TempSalesTaxLine1.DeleteAll();
                         SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
                         SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine1);
                     end;
                 2:
                     begin
-                        TempSalesTaxLine2.DeleteAll;
+                        TempSalesTaxLine2.DeleteAll();
                         SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
                         SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine2);
                     end;
                 3:
                     begin
-                        TempSalesTaxLine3.DeleteAll;
+                        TempSalesTaxLine3.DeleteAll();
                         SalesTaxCalculate.EndSalesTaxCalculation("Posting Date");
                         SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxLine3);
                     end;
@@ -659,7 +659,7 @@ page 10452 "Service Order Stats. Dyn"
                 TotalAmount2[i] := TotalAmount2[i] + VATAmount[i];
             end;
         end;
-        TempServLine.DeleteAll;
+        TempServLine.DeleteAll();
         Clear(TempServLine);
 
         if Cust.Get("Bill-to Customer No.") then
@@ -686,7 +686,7 @@ page 10452 "Service Order Stats. Dyn"
 
     trigger OnOpenPage()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         NullTab := -1;
         AllowInvDisc := not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=
@@ -928,7 +928,7 @@ page 10452 "Service Order Stats. Dyn"
     begin
         GetVATSpecification(ActiveTab);
 
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("No.", "No.");
         ServLine.FindFirst;
@@ -1006,7 +1006,7 @@ page 10452 "Service Order Stats. Dyn"
 
         for i := 1 to 7 do
             if i in [1, 5, 6, 7] then begin
-                TempServLine.DeleteAll;
+                TempServLine.DeleteAll();
                 Clear(TempServLine);
                 ServAmtsMgt.GetServiceLines(Rec, TempServLine, i - 1);
 

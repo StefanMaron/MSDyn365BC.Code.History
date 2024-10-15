@@ -177,7 +177,7 @@ report 10406 "Bank Rec. Process Lines"
             if RecordTypeToProcess <> RecordTypeToProcess::Both then
                 BankRecLine.SetRange("Record Type", RecordTypeToProcess);
             BankRecLine.DeleteAll(true);
-            BankRecLine.Reset;
+            BankRecLine.Reset();
         end;
 
         with BankLedger do begin
@@ -278,7 +278,7 @@ report 10406 "Bank Rec. Process Lines"
         if BankRecLine.Find('-') then
             repeat
                 BankRecLine.Validate(Cleared, MarkCleared);
-                BankRecLine.Modify;
+                BankRecLine.Modify();
                 Window.Update(3, BankRecLine."Line No.");
             until BankRecLine.Next = 0;
 
@@ -294,7 +294,7 @@ report 10406 "Bank Rec. Process Lines"
         Window.Update(1, "Bank Rec. Header"."Bank Account No.");
         Window.Update(2, "Bank Rec. Header"."Statement No.");
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         with BankRecLine do begin
             Reset;
@@ -373,9 +373,9 @@ report 10406 "Bank Rec. Process Lines"
                     LastLineNo := BankRecLine2."Line No."
                 else
                     LastLineNo := 0;
-                BankRecLine2.Reset;
+                BankRecLine2.Reset();
 
-                BankRecLine2.Init;
+                BankRecLine2.Init();
                 BankRecLine2."Bank Account No." := "Bank Account No.";
                 BankRecLine2."Statement No." := "Statement No.";
                 BankRecLine2."Record Type" := UseRecordType;
@@ -412,7 +412,7 @@ report 10406 "Bank Rec. Process Lines"
                         BankRecLine2.Description := UseDescription;
                         BankRecLine2.Amount := UseAmount;
                         BankRecLine2.Validate("Currency Code", "Currency Code");
-                        BankRecLine2.Modify;
+                        BankRecLine2.Modify();
                     end else
                         InsertLine(BankRecLine2);
                 end;
@@ -445,7 +445,7 @@ report 10406 "Bank Rec. Process Lines"
             NoSeriesMgmnt.InitSeries(GLSetup."Bank Rec. Adj. Doc. Nos.", '', "Statement Date", WorkDocumentNo,
               BankRecLine2."Adj. No. Series");
 
-            BankRecLine2.Init;
+            BankRecLine2.Init();
             BankRecLine2."Bank Account No." := "Bank Account No.";
             BankRecLine2."Statement No." := "Statement No.";
             BankRecLine2."Record Type" := UseRecordType;
@@ -467,7 +467,7 @@ report 10406 "Bank Rec. Process Lines"
             repeat
                 LastLineNo := LastLineNo + 10000;
                 BankRecLine2."Line No." := LastLineNo;
-                Ok := BankRecLine2.Insert;
+                Ok := BankRecLine2.Insert();
             until Ok
         end;
     end;

@@ -159,7 +159,7 @@ report 10500 "GST/HST Internet File Transfer"
         SalesOtherRevenue := Abs(SalesOtherRevenue);
         TotalGSTHSTAdjstmnt := Abs(TotalGSTHSTAdjstmnt);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if AccountIdentifier.Get(CompanyInfo."Federal ID No.", AccountIdentifier."Program Identifier"::RT) then begin
             VATFile.Write(
               'SFT*' + CompanyInfo."Software Identification Code" + '~TRS*GST34' + '~ACN*' +

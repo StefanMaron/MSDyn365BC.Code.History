@@ -229,7 +229,7 @@ report 10072 "Customer Statements"
                     trigger OnPreDataItem()
                     begin
                         if (AgingMethod = AgingMethod::None) and (StatementStyle = StatementStyle::Balance) then
-                            CurrReport.Break;    // Optimization
+                            CurrReport.Break();    // Optimization
 
                         // Find ledger entries which are open and posted before the statement date.
                         SetRange("Posting Date", 0D, ToDate);
@@ -254,7 +254,7 @@ report 10072 "Customer Statements"
                     trigger OnPreDataItem()
                     begin
                         if (AgingMethod = AgingMethod::None) and (StatementStyle = StatementStyle::Balance) then
-                            CurrReport.Break;    // Optimization
+                            CurrReport.Break();    // Optimization
 
                         // Find ledger entries which are posted after the statement date and eliminate
                         // their application to ledger entries posted before the statement date.
@@ -283,7 +283,7 @@ report 10072 "Customer Statements"
                     trigger OnAfterGetRecord()
                     begin
                         if StatementStyle <> StatementStyle::Balance then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
 
                     trigger OnPreDataItem()
@@ -305,7 +305,6 @@ report 10072 "Customer Statements"
                     }
                     column(TempCustLedgEntry__Document_Type_; TempCustLedgEntry."Document Type")
                     {
-                        OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
                     }
                     column(TempCustLedgEntry__Remaining_Amount_; TempCustLedgEntry."Remaining Amount")
                     {
@@ -436,7 +435,7 @@ report 10072 "Customer Statements"
                     trigger OnPreDataItem()
                     begin
                         if StatementStyle <> StatementStyle::Balance then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange("Posting Date", FromDate, ToDate);
                     end;
                 }
@@ -454,8 +453,8 @@ report 10072 "Customer Statements"
                     begin
                         StatementComplete := true;
                         if UpdateNumbers and (not CurrReport.Preview) then begin
-                            Customer.Modify; // just update the Last Statement No
-                            Commit;
+                            Customer.Modify(); // just update the Last Statement No
+                            Commit();
                         end;
                     end;
                 }
@@ -481,7 +480,7 @@ report 10072 "Customer Statements"
                     Print := "Net Change" <> 0;
                 end;
                 if (not Print) and AllHavingEntries then begin
-                    "Cust. Ledger Entry".Reset;
+                    "Cust. Ledger Entry".Reset();
                     if StatementStyle = StatementStyle::Balance then begin
                         "Cust. Ledger Entry".SetCurrentKey("Customer No.", "Posting Date");
                         "Cust. Ledger Entry".SetRange("Posting Date", FromDate, ToDate);
@@ -494,9 +493,9 @@ report 10072 "Customer Statements"
                     Print := "Cust. Ledger Entry".Find('-');
                 end;
                 if not Print then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
-                TempCustLedgEntry.DeleteAll;
+                TempCustLedgEntry.DeleteAll();
 
                 AgingDaysText := '';
                 if AgingMethod <> AgingMethod::None then begin
@@ -711,12 +710,12 @@ report 10072 "Customer Statements"
             Evaluate(PeriodCalculation, StrSubstNo(PeriodCalcTxt, PeriodCalculation));
 
         if PrintCompany then begin
-            CompanyInformation.Get;
+            CompanyInformation.Get();
             FormatAddress.Company(CompanyAddress, CompanyInformation);
         end else
             Clear(CompanyAddress);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
 
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
@@ -725,12 +724,12 @@ report 10072 "Customer Statements"
                 CompanyInformation.CalcFields(Picture);
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;

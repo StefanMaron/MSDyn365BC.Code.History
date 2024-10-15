@@ -39,13 +39,13 @@ codeunit 136144 "Service Order Warehouse Pick"
         DeleteExistingWhsWorksheetPickLines;
         CreatePickWorksheet(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 1);
         ReceiveItemStockInWarehouse(ServiceLine, GetWhiteLocation);
-        Commit;
+        Commit();
         GetLatestWhseWorksheetLines(WarehouseShipmentHeader, WhseWorksheetLine);
         repeat
             WhseWorksheetLine.Validate("Qty. to Handle", WhseWorksheetLine.Quantity);
             WhseWorksheetLine.Modify(true);
         until WhseWorksheetLine.Next <= 0;
-        Commit;
+        Commit();
         CODEUNIT.Run(CODEUNIT::"Whse. Create Pick", WhseWorksheetLine);
     end;
 
@@ -238,7 +238,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         Assert.AreEqual(1, WhseWorksheetTemplate.Count, StrSubstNo(ERR_MultipleWhseWorksheetTemplate, PickWorksheetPage));
         if WhseWorksheetTemplate.FindFirst then begin
             WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetTemplate.Name);
-            WhseWorksheetLine.DeleteAll;
+            WhseWorksheetLine.DeleteAll();
         end;
     end;
 
@@ -303,7 +303,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, GetWhiteLocation, true);
-        Commit;
+        Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Warehouse Pick");
     end;

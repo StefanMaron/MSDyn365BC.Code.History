@@ -123,7 +123,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         LibraryInventory.CreateItem(Item);
 
         OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt
@@ -184,7 +184,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [THEN] the line should be changed in the table and the response JSON text should contain our changed field
         Assert.AreNotEqual('', ResponseText, 'Response JSON should not be blank');
 
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Line No.", LineNo);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
@@ -213,7 +213,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         SalesLine.FindFirst;
         LineNo := SalesLine."Line No.";
 
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the first line of that order
         TargetURL := LibraryGraphMgt
@@ -225,7 +225,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] the line should no longer exist in the database
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesLine.SetRange("Line No.", LineNo);
@@ -265,7 +265,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         OrderId := SalesHeader.Id;
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         OrderLineJSON := CreateOrderLineJSON(Item.Id, ItemQuantity);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service and when we create an order through the client UI
         TargetURL := LibraryGraphMgt
@@ -330,7 +330,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
         OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
-        Commit;
+        Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
@@ -375,7 +375,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         FindFirstSalesLine(SalesHeader, SalesLine);
         SalesQuantity := SalesLine.Quantity * 2;
 
-        Commit;
+        Commit();
 
         OrderLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
 
@@ -428,7 +428,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
         SalesHeader.Find;
         Assert.AreEqual(SalesHeader."Invoice Discount Value", DiscountPct2, 'Discount Pct was not assigned');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
@@ -471,7 +471,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
         SalesHeader.Find;
         Assert.AreEqual(SalesHeader."Invoice Discount Value", DiscountPct, 'Discount Pct was not assigned');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
@@ -504,7 +504,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
 
-        Commit;
+        Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
@@ -541,7 +541,7 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         SalesQuantity := 0;
         OrderLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
-        Commit;
+        Commit();
 
         FindFirstSalesLine(SalesHeader, SalesLine);
 
@@ -575,7 +575,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [GIVEN] An  order for customer with order discount pct
         Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
-        Commit;
+        Commit();
 
         FindFirstSalesLine(SalesHeader, SalesLine);
 
@@ -590,6 +590,44 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         // [THEN] Lower order discount is applied
         VerifyTotals(SalesHeader, DiscountAmount, SalesHeader."Invoice Discount Calculation"::Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGettingLinesWithDifferentTypes()
+    var
+        SalesHeader: Record "Sales Header";
+        JSONManagement: Codeunit "JSON Management";
+        LinesJSONManagement: Codeunit "JSON Management";
+        JsonObject: DotNet JObject;
+        ExpectedNumberOfLines: Integer;
+        TargetURL: Text;
+        ResponseText: Text;
+        LinesJSON: Text;
+    begin
+        // [SCENARIO] Getting a line through API lists all possible types
+        // [GIVEN] An invoice with lines of different types
+        Initialize();
+        CreateOrderWithAllPossibleLineTypes(SalesHeader, ExpectedNumberOfLines);
+
+        Commit();
+
+        // [WHEN] we GET the lines
+        TargetURL := LibraryGraphMgt
+          .CreateTargetURLWithSubpage(SalesHeader.Id,
+            PAGE::"Sales Order Entity",
+            OrderServiceNameTxt,
+            OrderServiceLinesNameTxt);
+        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
+
+        // [THEN] All lines are shown in the response
+        JSONManagement.InitializeObject(ResponseText);
+        JSONManagement.GetJSONObject(JsonObject);
+        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, 'value', LinesJSON);
+        LinesJSONManagement.InitializeCollection(LinesJSON);
+
+        Assert.AreEqual(ExpectedNumberOfLines, LinesJSONManagement.GetCollectionCount, 'Four lines should be returned');
+        VerifySalesOrderLinesForSalesHeader(SalesHeader, LinesJSONManagement);
     end;
 
     [Test]
@@ -609,7 +647,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         Initialize();
         CreateSalesOrderWithLines(SalesHeader);
 
-        Commit;
+        Commit();
 
         OrderLineJSON := '{"description":"test"}';
 
@@ -653,7 +691,7 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         OrderLineJSON := '{"' + LineTypeFieldNameTxt + '":"Comment","description":"test"}';
 
-        Commit;
+        Commit();
 
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
@@ -674,6 +712,109 @@ codeunit 135514 "Sales Order Line E2E Test"
         JSONManagement.GetJSONObject(JsonObject);
         LibraryGraphDocumentTools.VerifySalesObjectDescription(SalesLine, JsonObject);
         VerifyIdsAreBlank(JsonObject);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPatchingTheIdToAccountChangesLineType()
+    var
+        SalesHeader: Record "Sales Header";
+        GLAccount: Record "G/L Account";
+        SalesLine: Record "Sales Line";
+        JSONManagement: Codeunit "JSON Management";
+        IntegrationManagement: Codeunit "Integration Management";
+        JsonObject: DotNet JObject;
+        TargetURL: Text;
+        ResponseText: Text;
+        OrderLineJSON: Text;
+        OrderLineID: Text;
+        LineNo: Integer;
+    begin
+        // [SCENARIO] PATCH a Type on a line of an unposted Order
+        // [GIVEN] An unposted Order with lines and a valid JSON describing the fields that we want to change
+        Initialize();
+        OrderLineID := CreateSalesOrderWithLines(SalesHeader);
+        Assert.AreNotEqual('', OrderLineID, 'ID should not be empty');
+        FindFirstSalesLine(SalesHeader, SalesLine);
+        LineNo := SalesLine."Line No.";
+
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
+        GLAccount.SetRange("Direct Posting", true);
+        GLAccount.FindFirst;
+
+        OrderLineJSON := StrSubstNo('{"accountId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(GLAccount.Id));
+
+        // [WHEN] we PATCH the line
+        TargetURL := LibraryGraphMgt
+          .CreateTargetURLWithSubpage(
+            OrderLineID,
+            PAGE::"Sales Order Entity",
+            OrderServiceNameTxt,
+            GetLineSubURL(OrderLineID, LineNo));
+        LibraryGraphMgt.PatchToWebService(TargetURL, OrderLineJSON, ResponseText);
+
+        // [THEN] Line type is changed to Account
+        FindFirstSalesLine(SalesHeader, SalesLine);
+        Assert.AreEqual(SalesLine.Type::"G/L Account", SalesLine.Type, 'Type was not changed');
+        Assert.AreEqual(GLAccount."No.", SalesLine."No.", 'G/L Account No was not set');
+
+        JSONManagement.InitializeObject(ResponseText);
+        JSONManagement.GetJSONObject(JsonObject);
+        VerifySalesLineResponseWithSalesLine(SalesLine, JsonObject);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPatchingTheIdToItemChangesLineType()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        JSONManagement: Codeunit "JSON Management";
+        IntegrationManagement: Codeunit "Integration Management";
+        JsonObject: DotNet JObject;
+        ExpectedNumberOfLines: Integer;
+        TargetURL: Text;
+        ResponseText: Text;
+        OrderLineJSON: Text;
+        OrderLineID: Text;
+        LineNo: Integer;
+    begin
+        // [SCENARIO] PATCH a Type on a line of an unposted Order
+        // [GIVEN] An unposted Order with lines and a valid JSON describing the fields that we want to change
+        Initialize();
+        CreateOrderWithAllPossibleLineTypes(SalesHeader, ExpectedNumberOfLines);
+        OrderLineID := IntegrationManagement.GetIdWithoutBrackets(SalesHeader.Id);
+        SalesLine.SetRange(Type, SalesLine.Type::"G/L Account");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.FindFirst;
+        SalesLine.SetRange(Type);
+
+        Assert.AreNotEqual('', OrderLineID, 'ID should not be empty');
+        LineNo := SalesLine."Line No.";
+        LibraryInventory.CreateItem(Item);
+
+        OrderLineJSON := StrSubstNo('{"itemId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(Item.Id));
+        Commit();
+
+        // [WHEN] we PATCH the line
+        TargetURL := LibraryGraphMgt
+          .CreateTargetURLWithSubpage(
+            SalesHeader.Id,
+            PAGE::"Sales Order Entity",
+            OrderServiceNameTxt,
+            GetLineSubURL(SalesHeader.Id, LineNo));
+        LibraryGraphMgt.PatchToWebService(TargetURL, OrderLineJSON, ResponseText);
+
+        // [THEN] Line type is changed to Item and other fields are updated
+        SalesLine.Find;
+        Assert.AreEqual(SalesLine.Type::Item, SalesLine.Type, 'Type was not changed');
+        Assert.AreEqual(Item."No.", SalesLine."No.", 'Item No was not set');
+
+        JSONManagement.InitializeObject(ResponseText);
+        JSONManagement.GetJSONObject(JsonObject);
+        VerifySalesLineResponseWithSalesLine(SalesLine, JsonObject);
     end;
 
     [Test]
@@ -720,6 +861,20 @@ codeunit 135514 "Sales Order Line E2E Test"
         VerifyIdsAreBlank(JsonObject);
     end;
 
+    local procedure CreateOrderWithAllPossibleLineTypes(var SalesHeader: Record "Sales Header"; var ExpectedNumberOfLines: Integer)
+    var
+        SalesLine: Record "Sales Line";
+        LibraryGraphDocumentTools: Codeunit "Library - Graph Document Tools";
+    begin
+        CreateSalesOrderWithLines(SalesHeader);
+
+        LibraryGraphDocumentTools.CreateSalesLinesWithAllPossibleTypes(SalesHeader);
+
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        ExpectedNumberOfLines := SalesLine.Count();
+    end;
+
     local procedure CreateSalesOrderWithLines(var SalesHeader: Record "Sales Header"): Text
     var
         SalesLine: Record "Sales Line";
@@ -728,7 +883,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         LibrarySales.CreateSalesOrder(SalesHeader);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
-        Commit;
+        Commit();
         exit(SalesHeader.Id);
     end;
 
@@ -757,7 +912,7 @@ codeunit 135514 "Sales Order Line E2E Test"
 
         SalesOrder.SalesLines.Last;
         SalesOrder.SalesLines.Next;
-        SalesOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesOrder.SalesLines.FilteredTypeField.SETVALUE(SalesLine.Type::Item);
         SalesOrder.SalesLines."No.".SetValue(ItemNo);
 
         SalesOrder.SalesLines.Quantity.SetValue(ItemQuantity);
@@ -790,6 +945,32 @@ codeunit 135514 "Sales Order Line E2E Test"
         LibraryGraphMgt.GetObjectIDFromJSON(LineJSON1, 'itemId', ItemId1);
         LibraryGraphMgt.GetObjectIDFromJSON(LineJSON2, 'itemId', ItemId2);
         Assert.AreNotEqual(ItemId1, ItemId2, 'Item Ids should be different for different items');
+    end;
+
+    local procedure VerifySalesOrderLinesForSalesHeader(var SalesHeader: Record "Sales Header"; var JSONManagement: Codeunit "JSON Management")
+    var
+        SalesLine: Record "Sales Line";
+        JObject: DotNet JObject;
+        CurrentIndex: Integer;
+    begin
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.FindSet;
+        CurrentIndex := 0;
+
+        repeat
+            Assert.IsTrue(
+              JSONManagement.GetJObjectFromCollectionByIndex(JObject, CurrentIndex),
+              StrSubstNo('Could not find line %1.', SalesLine."Line No."));
+            VerifySalesLineResponseWithSalesLine(SalesLine, JObject);
+            CurrentIndex += 1;
+        until SalesLine.Next = 0;
+    end;
+
+    local procedure VerifySalesLineResponseWithSalesLine(var SalesLine: Record "Sales Line"; var JObject: DotNet JObject)
+    begin
+        LibraryGraphDocumentTools.VerifySalesObjectDescription(SalesLine, JObject);
+        LibraryGraphDocumentTools.VerifySalesIdsSet(SalesLine, JObject);
     end;
 
     local procedure VerifyIdsAreBlank(var JObject: DotNet JObject)

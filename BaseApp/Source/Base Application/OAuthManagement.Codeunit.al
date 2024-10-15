@@ -1,5 +1,8 @@
 codeunit 1298 "OAuth Management"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Functionality has been moved to <<OAuth>> System module';
+    ObsoleteTag = '16.0';
 
     trigger OnRun()
     begin

@@ -141,7 +141,7 @@ table 10143 "Posted Deposit Header"
         BankCommentLine.SetRange("Table Name", DATABASE::"Posted Deposit Header");
         BankCommentLine.SetRange("Bank Account No.", "Bank Account No.");
         BankCommentLine.SetRange("No.", "No.");
-        BankCommentLine.DeleteAll;
+        BankCommentLine.DeleteAll();
 
         PostedDepositDelete.Run(Rec);
         exit;

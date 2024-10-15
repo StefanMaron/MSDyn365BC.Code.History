@@ -454,7 +454,7 @@ report 10098 "Projected Cash Payments"
                         SetRange(Number, 1, TempCurrency.Count);
                         case TempCurrency.Count of
                             0:
-                                CurrReport.Break;
+                                CurrReport.Break();
                             1:
                                 begin
                                     TempCurrency.Find('-');
@@ -479,7 +479,7 @@ report 10098 "Projected Cash Payments"
             trigger OnAfterGetRecord()
             begin
                 if Currency.ReadPermission then begin
-                    TempCurrency.DeleteAll;
+                    TempCurrency.DeleteAll();
                     with VendLedgEntry2 do begin
                         SetCurrentKey("Vendor No.", Open, Positive, "Due Date", "Currency Code");
                         SetRange("Vendor No.", Vendor."No.");
@@ -487,10 +487,10 @@ report 10098 "Projected Cash Payments"
                         SetFilter("On Hold", '');
                         SetFilter("Currency Code", '=%1', '');
                         if FindFirst then begin
-                            TempCurrency.Init;
+                            TempCurrency.Init();
                             TempCurrency.Code := '';
                             TempCurrency.Description := GLSetup."LCY Code";
-                            TempCurrency.Insert;
+                            TempCurrency.Insert();
                         end;
                     end;
                     with Currency do
@@ -498,10 +498,10 @@ report 10098 "Projected Cash Payments"
                             repeat
                                 VendLedgEntry2.SetRange("Currency Code", Code);
                                 if VendLedgEntry2.FindFirst then begin
-                                    TempCurrency.Init;
+                                    TempCurrency.Init();
                                     TempCurrency.Code := Code;
                                     TempCurrency.Description := Description;
-                                    TempCurrency.Insert;
+                                    TempCurrency.Insert();
                                 end;
                             until Next = 0;
                 end;
@@ -594,8 +594,8 @@ report 10098 "Projected Cash Payments"
         for i := 3 to 5 do
             PeriodStartingDate[i] := CalcDate(PeriodCalculation, PeriodStartingDate[i - 1]);
         PeriodStartingDate[6] := 99991231D;
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         FilterString := Vendor.GetFilters;
     end;
 

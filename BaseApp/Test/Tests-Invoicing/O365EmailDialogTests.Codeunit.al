@@ -19,7 +19,6 @@ codeunit 138925 "O365 Email Dialog Tests"
         Assert: Codeunit Assert;
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
-        TestProxyNotifMgtExt: Codeunit "Test Proxy Notif. Mgt. Ext.";
         IsInitialized: Boolean;
         EstimateSentMsg: Label 'Your estimate is being sent.';
         InvoiceEmailSubjectTxt: Label 'Invoice from %1';
@@ -33,7 +32,7 @@ codeunit 138925 "O365 Email Dialog Tests"
         TestInvoiceSendingMsg: Label 'Your test invoice is being sent.';
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestDraftInvoiceDefaultEmailSubject()
     var
@@ -82,7 +81,7 @@ codeunit 138925 "O365 Email Dialog Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,EmailDialogModalPageHandler,MessageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,EmailDialogModalPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure TestEstimateDefaultEmailSubject()
     var
@@ -103,7 +102,7 @@ codeunit 138925 "O365 Email Dialog Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,SubjectChangeEmailDialogModalPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,SubjectChangeEmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestDraftInvoiceModifiedEmailSubjectOnSendEmail()
     var
@@ -151,7 +150,7 @@ codeunit 138925 "O365 Email Dialog Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,SubjectChangeEmailDialogModalPageHandler,MessageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,SubjectChangeEmailDialogModalPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure TestEstimateModifiedEmailSubjectOnSendEmail()
     var
@@ -171,7 +170,7 @@ codeunit 138925 "O365 Email Dialog Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,SubjectChangeEmailDialogModalPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,SubjectChangeEmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestDraftInvoiceEmailSubjectChangedOnCancelSendEmail()
     var
@@ -232,7 +231,7 @@ codeunit 138925 "O365 Email Dialog Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,SubjectChangeEmailDialogModalPageHandler,MessageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,SubjectChangeEmailDialogModalPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure TestEstimateEmailSubjectChangedOnCancelSendEmail()
     var
@@ -400,7 +399,7 @@ codeunit 138925 "O365 Email Dialog Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,AddressChangeEmailDialogModalPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,AddressChangeEmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestDraftInvoiceModifiedEmailAddressOnSendEmail()
     var
@@ -448,7 +447,7 @@ codeunit 138925 "O365 Email Dialog Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,AddressChangeEmailDialogModalPageHandler,MessageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,AddressChangeEmailDialogModalPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure TestEstimateModifiedEmailAddressOnSendEmail()
     var
@@ -468,7 +467,7 @@ codeunit 138925 "O365 Email Dialog Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,AddressChangeEmailDialogModalPageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,AddressChangeEmailDialogModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestDraftInvoiceEmailAddressChangedOnCancelSendEmail()
     var
@@ -530,7 +529,7 @@ codeunit 138925 "O365 Email Dialog Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxNotificationHandler,AddressChangeEmailDialogModalPageHandler,MessageHandler')]
+    [HandlerFunctions('VerifyNoNotificationsAreSend,AddressChangeEmailDialogModalPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure TestEstimateEmailAddressChangedOnCancelSendEmail()
     var
@@ -680,21 +679,20 @@ codeunit 138925 "O365 Email Dialog Tests"
         EventSubscriberInvoicingApp.Clear;
         LibraryVariableStorage.AssertEmpty;
         Clear(CancelEmail);
-        O365DocumentSentHistory.DeleteAll;
+        O365DocumentSentHistory.DeleteAll();
         ModifyEmailParameter := true;
 
         if not O365C2GraphEventSettings.Get then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         if IsInitialized then
             exit;
 
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
-        BindSubscription(TestProxyNotifMgtExt);
 
         IsInitialized := true;
     end;
@@ -749,7 +747,7 @@ codeunit 138925 "O365 Email Dialog Tests"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate(Name, LibraryUtility.GenerateGUID);
         CompanyInformation.Modify(true);
         exit(CompanyInformation.Name);
@@ -836,12 +834,11 @@ codeunit 138925 "O365 Email Dialog Tests"
           );
     end;
 
-    [SendNotificationHandler]
+    [SendNotificationHandler(true)]
     [Scope('OnPrem')]
-    procedure TaxNotificationHandler(var TheNotification: Notification): Boolean
+    procedure VerifyNoNotificationsAreSend(var TheNotification: Notification): Boolean
     begin
-        Assert.IsTrue(StrPos(TheNotification.Message, TaxSetupNeededTxt) <> 0,
-          'An unexpected notification was sent.');
+        Assert.Fail('No notification should be thrown.');
     end;
 
     [PageHandler]
@@ -880,13 +877,6 @@ codeunit 138925 "O365 Email Dialog Tests"
           O365SalesEmailDialog.Subject.Value, 'Subject for test invoice is incorrect in Email Dialog');
 
         O365SalesEmailDialog.OK.Invoke;
-    end;
-
-    [SendNotificationHandler(true)]
-    [Scope('OnPrem')]
-    procedure VerifyNoNotificationsAreSend(var TheNotification: Notification): Boolean
-    begin
-        Assert.Fail('No notification should be thrown.');
     end;
 }
 

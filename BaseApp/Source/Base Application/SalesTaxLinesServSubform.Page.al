@@ -145,22 +145,22 @@ page 10060 "Sales Tax Lines Serv. Subform"
 
     procedure SetTempTaxAmountLine(var NewSalesTaxLine: Record "Sales Tax Amount Line" temporary)
     begin
-        TempSalesTaxLine.DeleteAll;
+        TempSalesTaxLine.DeleteAll();
         if NewSalesTaxLine.Find('-') then
             repeat
                 TempSalesTaxLine.Copy(NewSalesTaxLine);
-                TempSalesTaxLine.Insert;
+                TempSalesTaxLine.Insert();
             until NewSalesTaxLine.Next = 0;
         CurrPage.Update;
     end;
 
     procedure GetTempTaxAmountLine(var NewSalesTaxLine: Record "Sales Tax Amount Line" temporary)
     begin
-        NewSalesTaxLine.DeleteAll;
+        NewSalesTaxLine.DeleteAll();
         if TempSalesTaxLine.Find('-') then
             repeat
                 NewSalesTaxLine.Copy(TempSalesTaxLine);
-                NewSalesTaxLine.Insert;
+                NewSalesTaxLine.Insert();
             until TempSalesTaxLine.Next = 0;
     end;
 
@@ -203,7 +203,7 @@ page 10060 "Sales Tax Lines Serv. Subform"
     begin
         TempSalesTaxLine := Rec;
         TempSalesTaxLine.Modified := true;
-        TempSalesTaxLine.Modify;
+        TempSalesTaxLine.Modify();
     end;
 }
 

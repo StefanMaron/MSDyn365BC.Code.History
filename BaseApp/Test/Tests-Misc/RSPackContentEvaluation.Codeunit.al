@@ -10,11 +10,10 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
     var
         Assert: Codeunit Assert;
-        LibraryDemoData: Codeunit "Library - Demo Data";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
-        XOUTGOINGTxt: Label 'OUTGOING';
         PostingOutsideFYIsOnErr: Label 'Posting Outside Fiscal Year option is on';
+        XOUTGOINGTxt: Label 'OUTGOING';
         NonStockNoSeriesTok: Label 'NS-ITEM';
         TransShipmentNoSeriesTok: Label 'T-SHPT';
         TransReceiptNoSeriesTok: Label 'T-RCPT';
@@ -23,11 +22,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryExtensionPerm: Codeunit "Library - Extension Perm.";
         SalesReturnReceiptTok: Label 'S-RCPT';
-        NOTAXTok: Label 'NO TAX';
-        NONTAXABLETok: Label 'NonTAXABLE';
-        xBANKTxt: Label 'BANK';
-        XSALESTok: Label 'SALES';
-        XPURCHASESTok: Label 'PURCHASES';
         IsInitialized: Boolean;
 
     [Test]
@@ -37,7 +31,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO] The current Company is a Demo Company
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Assert.IsTrue(CompanyInformation."Demo Company", CompanyInformation.FieldName("Demo Company"));
     end;
 
@@ -48,7 +42,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO] The ship-to name and display name equals the company name
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField(Name, CompanyName);
         CompanyInformation.TestField("Ship-to Name", CompanyName);
     end;
@@ -62,48 +56,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [SCENARIO 169269] "Posting Outside Fiscal Year Not Allowed" is on in "My Settings"
 
         Assert.IsTrue(InstructionMgt.IsEnabled(InstructionMgt.PostingAfterCurrentCalendarDateNotAllowedCode), PostingOutsideFYIsOnErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GenPostingGroupCount()
-    var
-        GenBusPostingGroup: Record "Gen. Business Posting Group";
-        GenProdPostingGroup: Record "Gen. Product Posting Group";
-    begin
-        // [SCENARIO] There is 1 Gen Bus. Posting group and 3 Prod. Posting groups
-        Assert.RecordCount(GenBusPostingGroup, 1);
-
-        Assert.RecordCount(GenProdPostingGroup, 3);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GenPostingSetupAccounts()
-    begin
-        // [SCENARIO] Inventory accounts filled for all groups, Sales/Purchase - for not blank Bus. Group.
-        LibraryDemoData.VerifyGenPostingSetupAccounts;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure NontaxableInGenPostingSetup()
-    var
-        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
-        GeneralPostingSetup: Record "General Posting Setup";
-    begin
-        // [SCENARIO] There are 2 Gen. Posting groups, where Product Group code is 'NO TAX'
-        // [WHEN] Find "Gen. Posting Setup" records
-        // [THEN] There are 2 groups, where "Gen. Prod. Posting Group" = 'NOTAX'
-        GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", NOTAXTok);
-        Assert.RecordCount(GeneralPostingSetup, 2);
-        // [THEN] first, where "Gen. Bus. Posting Group" is blank
-        GeneralPostingSetup.FindFirst;
-        GeneralPostingSetup.TestField("Gen. Bus. Posting Group", '');
-        // [THEN] second, where "Gen. Bus. Posting Group" is filled
-        GeneralPostingSetup.FindLast;
-        GenBusinessPostingGroup.FindFirst;
-        GeneralPostingSetup.TestField("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
     end;
 
     [Test]
@@ -217,55 +169,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure HistoricalSalesDataForAllItems()
-    var
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        Item: Record Item;
-        Date: Record Date;
-        FirstDay: Date;
-        LastDay: Date;
-    begin
-        // [FEATURE] [Item sales forecast]
-        // [SCENARIO] There are historical sales data all items and for 15 periods
-        Item.SetRange("Assembly BOM", false);
-        Item.FindSet;
-        repeat
-            ItemLedgerEntry.SetCurrentKey("Posting Date");
-            ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
-            ItemLedgerEntry.SetRange(Positive, false);
-            ItemLedgerEntry.SetRange("Item No.", Item."No.");
-            ItemLedgerEntry.FindFirst;
-
-            FirstDay := ItemLedgerEntry."Posting Date";
-            ItemLedgerEntry.FindLast;
-            LastDay := ItemLedgerEntry."Posting Date";
-            Date.SetRange("Period Type", Date."Period Type"::Month);
-            Date.SetRange("Period Start", FirstDay, LastDay);
-            Assert.IsTrue(Date.Count + 1 >= 15,
-              StrSubstNo('Item %1 does not have sales data for at least 15 months', Item."No."));
-
-        until Item.Next = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CountItemLedgerEntries()
-    var
-        ItemLedgerEntry: Record "Item Ledger Entry";
-    begin
-        // [FEATURE] [Item sales forecast]
-        // [SCENARIO] There are 634 in total item ledger entries 405 sales 241 purchases.
-        Assert.RecordCount(ItemLedgerEntry, 650);
-
-        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
-        Assert.RecordCount(ItemLedgerEntry, 241);
-
-        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
-        Assert.RecordCount(ItemLedgerEntry, 405);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure PostSalesInvoices()
     var
         SalesHeader: Record "Sales Header";
@@ -302,7 +205,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
             Assert.RecordCount(PurchHeader, 3);
 
             SetRange("Document Type", "Document Type"::Order);
-            Assert.RecordCount(PurchHeader, 4);
+            Assert.RecordCount(PurchHeader, 5);
 
             SetFilter("Document Type", '<>%1&<>%2', "Document Type"::Order, "Document Type"::Invoice);
             Assert.RecordCount(PurchHeader, 0);
@@ -333,7 +236,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Cash Flow] [Forecast] [Azure AI]
         // [SCENARIO] Monthly purchases must be between 15.000 and 45.000
-        PurchaseHeader.Reset;
+        PurchaseHeader.Reset();
         PurchaseHeader.SetCurrentKey("Due Date");
         PurchaseHeader.FindFirst;
         PeriodStart := PurchaseHeader."Due Date";
@@ -344,7 +247,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         PeriodEnd := CalcDate('<CM>', PeriodStart);
         while PeriodEnd < LastOrderDate do begin
             Total := 0;
-            PurchaseHeader.Reset;
+            PurchaseHeader.Reset();
             PurchaseHeader.SetRange("Due Date", PeriodStart, PeriodEnd);
             PurchaseHeader.FindSet;
             repeat
@@ -440,68 +343,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ContactsHaveSalutationCode()
-    var
-        Contact: Record Contact;
-    begin
-        // [FEATURE] [Contact]
-        // [SCENARIO 171741] All contacts have Saluation Code
-        Contact.SetRange("Salutation Code", '');
-        Assert.RecordIsEmpty(Contact);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ContactsHaveBlankTerritiryCode()
-    var
-        Contact: Record Contact;
-    begin
-        // [FEATURE] [Contact]
-        // [SCENARIO 171741] All contacts have blank Territory Code
-        Contact.SetFilter("Territory Code", '<>%1', '');
-        Assert.RecordIsEmpty(Contact);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CustomersAreTaxLiableAndUseBankTransfer()
-    var
-        Customer: Record Customer;
-    begin
-        // [FEATURE] [Customers]
-        // [SCENARIO] All customers are marked as Tax Liable and use "Bank" Payment Method
-        Customer.Reset;
-        Assert.IsFalse(Customer.IsEmpty, 'There should be demo customers.');
-
-        Customer.SetRange("Tax Liable", false);
-        Assert.IsTrue(Customer.IsEmpty, 'All demo customers should be marked as Tax Liable.');
-
-        Customer.Reset;
-        Customer.SetFilter("Payment Method Code", StrSubstNo('<>%1', xBANKTxt));
-        Assert.IsTrue(Customer.IsEmpty, StrSubstNo('All demo customers should have Payment Method Code set to %1.', xBANKTxt));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorsAreTaxLiableAndUseBankTransfer()
-    var
-        Vendor: Record Vendor;
-    begin
-        // [FEATURE] [Vendors]
-        // [SCENARIO] All vendor are marked as Tax Liable and use "Bank" Payment Method
-        Vendor.Reset;
-        Assert.IsFalse(Vendor.IsEmpty, 'There should be demo vendors.');
-
-        Vendor.SetRange("Tax Liable", false);
-        Assert.IsTrue(Vendor.IsEmpty, 'All demo vendors should be marked as Tax Liable.');
-
-        Vendor.Reset;
-        Vendor.SetFilter("Payment Method Code", StrSubstNo('<>%1', xBANKTxt));
-        Assert.IsTrue(Vendor.IsEmpty, StrSubstNo('All demo vendors should have Payment Method Code set to %1.', xBANKTxt));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ShippingAgentRelatedTablesAreNotEmpty()
     begin
         // [SCENARIO] Shipping Agent related tables should not be empty
@@ -568,7 +409,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         InteractionTemplate: Record "Interaction Template";
     begin
         // [FEATURE] [CRM] [Interaction Template]
-        // [SCENARIO 176595] Interaction Template OUTGOING should have Ignore Contact Corres. Type = TRUE
+        // [SCENARIO 159181] Interaction Template OUTGOING should have Ignore Contact Corres. Type = TRUE
         InteractionTemplate.Get(XOUTGOINGTxt);
         InteractionTemplate.TestField("Ignore Contact Corres. Type", true);
     end;
@@ -648,119 +489,17 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TaxGroupNonTaxable()
-    var
-        TaxGroup: Record "Tax Group";
-    begin
-        // [SCENARIO] Tax Group NONTAXABLE should be one of 5 groups
-        TaxGroup.Get(NONTAXABLETok);
-        Assert.RecordCount(TaxGroup, 5);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure InteractionTemplateSetup()
-    var
-        InteractionTemplate: Record "Interaction Template";
-        InteractionTemplateSetup: Record "Interaction Template Setup";
-    begin
-        // [FEATURE] [CRM] [Interaction]
-        // [SCENARIO 171761] Interaction Template Setup should have 8 Purchase, 11 Sales, 4 General fields filled.
-        InteractionTemplate.SetRange("Interaction Group Code", XSALESTok);
-        Assert.RecordCount(InteractionTemplate, 11);
-        InteractionTemplate.SetRange("Interaction Group Code", XPURCHASESTok);
-        Assert.RecordCount(InteractionTemplate, 8);
-
-        InteractionTemplateSetup.Get;
-        InteractionTemplateSetup.TestField("E-Mails");
-        InteractionTemplateSetup.TestField("Cover Sheets");
-        InteractionTemplateSetup.TestField("Outg. Calls");
-        InteractionTemplateSetup.TestField("Meeting Invitation");
-
-        InteractionTemplateSetup.TestField("Purch Invoices");
-
-        InteractionTemplateSetup.TestField("Sales Cr. Memo");
-        InteractionTemplateSetup.TestField("Sales Invoices");
-        InteractionTemplateSetup.TestField("Sales Ord. Cnfrmn.");
-        InteractionTemplateSetup.TestField("Sales Shpt. Note");
-        InteractionTemplateSetup.TestField("Sales Quotes");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure OpportunityChartShowsData()
-    var
-        BusinessChartBuffer: Record "Business Chart Buffer";
-        Opportunity: Record Opportunity;
-        Period: Record Date;
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-        OpportunityChartMgt: Codeunit "Opportunity Chart Mgt.";
-        SalesPersonName: Variant;
-        I: Integer;
-    begin
-        // [FEATURE] [CRM] [Opportunity]
-        // [SCENARIO 171440] Opportunity Chart shows opportunities "In Progress" for two sales persons
-        OpportunityChartMgt.SetDefaultPeriod(Period);
-        OpportunityChartMgt.SetDefaultOppStatus(Opportunity);
-        OpportunityChartMgt.UpdateData(BusinessChartBuffer, Period, Opportunity.Status);
-        for I := 0 to 1 do begin
-            BusinessChartBuffer.GetXValue(I, SalesPersonName);
-            SalespersonPurchaser.SetRange(Name, SalesPersonName);
-            Assert.RecordIsNotEmpty(SalespersonPurchaser);
-        end;
-        Opportunity.TestField(Status, Opportunity.Status::"In Progress");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ShipToAddressIsNotEmpty()
-    begin
-        // [SCENARIO 173171] Cassie/Annie can select an existing alternative ship-to address on Sales Invoice
-        Assert.TableIsNotEmpty(DATABASE::"Ship-to Address");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ShipToAddressIsInTheCorrectRegionCountry()
-    var
-        ShipToAddress: Record "Ship-to Address";
-    begin
-        with ShipToAddress do begin
-            // [WHEN] Selecting an address from ship-to
-            Reset;
-            FindSet;
-            // [THEN] The address is in the current Region/Country
-            repeat
-                TestField("Country/Region Code", 'US');
-                VerifyPostCodeRegionCountry("Post Code", 'US');
-            until Next = 0;
-        end;
-    end;
-
-    local procedure VerifyPostCodeRegionCountry("Code": Code[20]; CountryRegionCode: Code[10])
-    var
-        PostCode: Record "Post Code";
-    begin
-        PostCode.SetRange(Code, Code);
-        Assert.RecordCount(PostCode, 1);
-        PostCode.FindFirst;
-        PostCode.TestField("Country/Region Code", CountryRegionCode);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure MarketingSetupDefaultFields()
     var
         MarketingSetup: Record "Marketing Setup";
     begin
         // [SCENARIO 175276] Marketing Setup Default fields filled
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.TestField("Default Language Code");
         MarketingSetup.TestField("Default Correspondence Type", MarketingSetup."Default Correspondence Type"::Email);
         MarketingSetup.TestField("Default Sales Cycle Code");
         MarketingSetup.TestField("Mergefield Language ID");
         MarketingSetup.TestField("Autosearch for Duplicates", true);
-        MarketingSetup.TestField("Default Country/Region Code");
     end;
 
     [Test]
@@ -781,20 +520,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
         GLAccount: Record "G/L Account";
     begin
         // [FEATURE] [G/L Account]
-        // [SCENARIO] Demo DB should have at least one G/L Account.
+        // [SCENARIO] Demo DB should have at least one G/L Account
         Assert.RecordIsNotEmpty(GLAccount);
-
-        // [THEN] Account 40000 must have Account Type = Heading
-        GLAccount.Get('40000');
-        GLAccount.TestField("Account Type", GLAccount."Account Type"::Heading);
-
-        // [THEN] Account 40001 must have Account Type = Begin-Total
-        GLAccount.Get('40001');
-        GLAccount.TestField("Account Type", GLAccount."Account Type"::"Begin-Total");
-
-        // [THEN] Account 40990 must have Account Type = End-Total
-        GLAccount.Get('40990');
-        GLAccount.TestField("Account Type", GLAccount."Account Type"::"End-Total");
     end;
 
     [Test]
@@ -833,7 +560,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Automatic Cost Posting", true);
         InventorySetup.TestField("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Always);
     end;
@@ -844,7 +571,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Item Nos.", ItemNoSeriesTok);
         ValidateNoSeriesExists(ItemNoSeriesTok);
         InventorySetup.TestField("Nonstock Item Nos.", NonStockNoSeriesTok);
@@ -862,8 +589,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     procedure ReportLayoutSelections()
     begin
         // [SCENARIO 215679] There should be BLUESIMPLE custom layouts defined for report layout selections
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'MS-1304-BLUE');
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUE');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'MS-1304-BLUESIMPLE');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUESIMPLE');
     end;
 
     local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutCode: Code[20])
@@ -888,79 +615,12 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CountItemConfigTemplates()
+    procedure VATPostingGroupsCount()
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] There should be 6 Item Config. Templates
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        Assert.RecordCount(ConfigTemplateHeader, 6);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ServiceItemTemplatesCostingMethodFIFO()
-    var
-        TypeConfigTemplateLine: Record "Config. Template Line";
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-    begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] All service Item Config. templates have 'FIFO' "Costing Method"
-        TypeConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
-        TypeConfigTemplateLine.SetRange("Field ID", Item.FieldNo(Type));
-        TypeConfigTemplateLine.SetRange("Default Value", Format(Item.Type::Service));
-        TypeConfigTemplateLine.FindSet;
-        repeat
-            ConfigTemplateLine.SetRange("Data Template Code", TypeConfigTemplateLine."Data Template Code");
-            ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Costing Method"));
-            ConfigTemplateLine.SetRange("Default Value", Format(Item."Costing Method"::FIFO));
-            Assert.RecordIsNotEmpty(ConfigTemplateLine);
-        until TypeConfigTemplateLine.Next = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure InventoryItemTemplatesNoCostingMethod()
-    var
-        TypeConfigTemplateLine: Record "Config. Template Line";
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-    begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] No Item Config. templates for inventory items have "Costing Method"
-        TypeConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
-        TypeConfigTemplateLine.SetRange("Field ID", Item.FieldNo(Type));
-        TypeConfigTemplateLine.SetRange("Default Value", Format(Item.Type::Inventory));
-        TypeConfigTemplateLine.FindSet;
-        repeat
-            ConfigTemplateLine.SetRange("Data Template Code", TypeConfigTemplateLine."Data Template Code");
-            ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Costing Method"));
-            Assert.RecordIsEmpty(ConfigTemplateLine);
-        until TypeConfigTemplateLine.Next = 0;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemConfigTemplatesHaveNotBlankBaseUoM()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateLine: Record "Config. Template Line";
-        Item: Record Item;
-    begin
-        // [FEATURE] [Item] [Config. Template]
-        // [SCENARIO] All Config. Templates for Item table, where "Base Unit of Measure" is not <blank>
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        ConfigTemplateHeader.FindSet;
-        repeat
-            ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-            ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Base Unit of Measure"));
-            ConfigTemplateLine.FindSet;
-            repeat
-                ConfigTemplateLine.TestField("Default Value");
-            until ConfigTemplateLine.Next = 0;
-        until ConfigTemplateHeader.Next = 0;
+        // [SCENARIO] There are 7 VAT Prod. Posting groups
+        Assert.RecordCount(VATProductPostingGroup, 7);
     end;
 
     [Test]
@@ -1050,7 +710,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [FEATURE] [Sales] [No. Series] [UT]
         // [SCENARIO 291743] Posted Sales Return Receipt No. Series is populated
         ValidateNoSeriesExists(SalesReturnReceiptTok);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Posted Return Receipt Nos.");
     end;
 

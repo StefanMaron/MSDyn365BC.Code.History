@@ -1,4 +1,4 @@
-﻿page 5935 "Service Credit Memo"
+page 5935 "Service Credit Memo"
 {
     Caption = 'Service Credit Memo';
     PageType = Document;
@@ -508,7 +508,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         if "Tax Area Code" = '' then
                             PAGE.RunModal(PAGE::"Service Statistics", Rec)
@@ -565,11 +565,11 @@
                     var
                         TempServDocLog: Record "Service Document Log" temporary;
                     begin
-                        TempServDocLog.Reset;
-                        TempServDocLog.DeleteAll;
+                        TempServDocLog.Reset();
+                        TempServDocLog.DeleteAll();
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo", "No.");
 
-                        TempServDocLog.Reset;
+                        TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
                         TempServDocLog.Ascending(false);
 

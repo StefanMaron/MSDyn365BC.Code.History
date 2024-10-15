@@ -176,7 +176,7 @@ table 2850 "Native - API Tax Setup"
             Type::"Sales Tax":
                 begin
                     Clear(Rec);
-                    DeleteAll;
+                    DeleteAll();
 
                     if not TempTaxAreaBuffer.LoadRecords then
                         exit;
@@ -191,7 +191,7 @@ table 2850 "Native - API Tax Setup"
             Type::VAT:
                 begin
                     Clear(Rec);
-                    DeleteAll;
+                    DeleteAll();
 
                     if not TempTaxGroupBuffer.LoadRecords then
                         exit;
@@ -278,9 +278,9 @@ table 2850 "Native - API Tax Setup"
 
         // VAT Regulation Reference = Vat clause
         if not VATClause.Get(VATPostingSetup."VAT Clause Code") then begin
-            VATClause.Init;
+            VATClause.Init();
             VATClause.Code := Code;
-            VATClause.Insert;
+            VATClause.Insert();
             VATPostingSetup.Validate("VAT Clause Code", Code);
             VATPostingSetup.Modify(true);
         end;

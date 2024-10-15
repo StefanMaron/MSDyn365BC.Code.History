@@ -1,0 +1,26 @@
+/// <summary>
+/// Specifies the type of license.
+/// </summary>
+enum 5557 Licenses
+{
+    Extensible = false;
+
+    value(0; Basic)
+    { }
+    value(1; "Team Member")
+    { }
+    value(2; Essential)
+    { }
+    value(3; Premium)
+    { }
+    value(4; Device)
+    { }
+    value(5; "External Accountant")
+    { }
+    value(6; "Internal Admin")
+    { }
+    value(7; "Delegated Admin")
+    { }
+    value(8; HelpDesk)
+    { }
+}

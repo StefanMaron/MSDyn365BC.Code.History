@@ -1,4 +1,4 @@
-﻿page 6056 "Service Contract Template List"
+page 6056 "Service Contract Template List"
 {
     ApplicationArea = Service;
     Caption = 'Service Contract Templates';

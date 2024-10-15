@@ -30,11 +30,9 @@ table 10121 "Bank Rec. Line"
         {
             Caption = 'Posting Date';
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(7; "Document No."; Code[20])
         {
@@ -46,11 +44,9 @@ table 10121 "Bank Rec. Line"
                     GenerateDocNo;
             end;
         }
-        field(8; "Account Type"; Option)
+        field(8; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(9; "Account No."; Code[20])
         {
@@ -191,11 +187,9 @@ table 10121 "Bank Rec. Line"
         {
             Caption = 'Cleared Amount';
         }
-        field(14; "Bal. Account Type"; Option)
+        field(14; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(15; "Bal. Account No."; Code[20])
         {
@@ -467,14 +461,14 @@ table 10121 "Bank Rec. Line"
         BankRecCommentLine.SetRange("Bank Account No.", "Bank Account No.");
         BankRecCommentLine.SetRange("No.", "Statement No.");
         BankRecCommentLine.SetRange("Line No.", "Line No.");
-        BankRecCommentLine.DeleteAll;
+        BankRecCommentLine.DeleteAll();
         BankRecPost.UpdateLedgers(Rec, SetStatus::Open);
 
         if "Record Type" = "Record Type"::Deposit then begin
             BankRecSubLine.SetRange("Bank Account No.", "Bank Account No.");
             BankRecSubLine.SetRange("Statement No.", "Statement No.");
             BankRecSubLine.SetRange("Bank Rec. Line No.", "Line No.");
-            BankRecSubLine.DeleteAll;
+            BankRecSubLine.DeleteAll();
         end;
     end;
 
@@ -521,7 +515,7 @@ table 10121 "Bank Rec. Line"
 
     procedure SetUpNewLine(LastBankRecLine: Record "Bank Rec. Line"; Balance: Decimal; BottomLine: Boolean)
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         BankRecLine.SetRange("Bank Account No.", "Bank Account No.");
         BankRecLine.SetRange("Statement No.", "Statement No.");
         BankRecLine.SetRange("Record Type", "Record Type");
@@ -559,7 +553,7 @@ table 10121 "Bank Rec. Line"
     begin
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate;
-        GLSetup.Get;
+        GLSetup.Get();
         Clear(NoSeriesMgt);
         "Document No." := NoSeriesMgt.TryGetNextNo(GLSetup."Bank Rec. Adj. Doc. Nos.", "Posting Date");
     end;
@@ -653,19 +647,19 @@ table 10121 "Bank Rec. Line"
             BankRecLine.SetRange("Bank Account No.", "Bank Account No.");
             BankRecLine.SetRange("Statement No.", "Statement No.");
             BankRecLine.SetRange("Record Type", "Record Type");
-            BankRecLine.LockTable;
+            BankRecLine.LockTable();
             if BankRecLine.FindLast then
                 NextBankRecLineNo := BankRecLine."Line No." + 10000
             else
                 NextBankRecLineNo := 10000;
-            BankRecLine.Reset;
+            BankRecLine.Reset();
 
             BankRecSubLine.SetRange("Bank Account No.", "Bank Account No.");
             BankRecSubLine.SetRange("Statement No.", "Statement No.");
             BankRecSubLine.SetRange("Bank Rec. Line No.", "Line No.");
             BankRecSubLine.Find('-');
             repeat
-                BankRecLine.Init;
+                BankRecLine.Init();
                 BankRecLine."Bank Account No." := "Bank Account No.";
                 BankRecLine."Statement No." := "Statement No.";
                 BankRecLine."Record Type" := "Record Type"::Deposit;
@@ -685,7 +679,7 @@ table 10121 "Bank Rec. Line"
                 BankRecLine."Dimension Set ID" := BankLedgerEntry."Dimension Set ID";
                 BankRecLine.Validate(Cleared, Cleared);
                 BankRecLine.Insert(true);
-                BankRecSubLine.Delete;
+                BankRecSubLine.Delete();
                 NextBankRecLineNo := NextBankRecLineNo + 10000;
             until BankRecSubLine.Next = 0;
         end;
@@ -724,25 +718,25 @@ table 10121 "Bank Rec. Line"
                 repeat
                     BankRecSubLine.SetRange("Bank Rec. Line No.", BankRecLine."Line No.");
                     if not BankRecSubLine.FindSet then begin
-                        BankRecSubLine.Init;
+                        BankRecSubLine.Init();
                         BankRecSubLine.TransferFields(BankRecLine, false);
                         BankRecSubLine."Bank Account No." := "Bank Account No.";
                         BankRecSubLine."Statement No." := "Statement No.";
                         BankRecSubLine."Bank Rec. Line No." := "Line No.";
                         BankRecSubLine."Line No." := NextSubLineNo;
-                        BankRecSubLine.Insert;
+                        BankRecSubLine.Insert();
                         NextSubLineNo += 1;
                         CopyBankRecSubLineToTemp(TempBankRecSubLine, BankRecSubLine);
-                        BankRecSubLine.Delete;
+                        BankRecSubLine.Delete();
                     end else
                         repeat
                             CopyBankRecSubLineToTemp(TempBankRecSubLine, BankRecSubLine);
                         until BankRecSubLine.Next = 0;
-                    BankRecSubLine.DeleteAll;
+                    BankRecSubLine.DeleteAll();
                     if not BankRecLine.Cleared then
                         CollapsedCleared := false;
                     TotalDepositAmount := TotalDepositAmount + BankRecLine.Amount;
-                    BankRecLine.Delete;
+                    BankRecLine.Delete();
                 until BankRecLine.Next = 0;
                 CopyBankRecSubLineFromTemp(TempBankRecSubLine, "Line No.");
 
@@ -785,7 +779,7 @@ table 10121 "Bank Rec. Line"
     local procedure CopyBankRecSubLineToTemp(var TempBankRecSubLine: Record "Bank Rec. Sub-line" temporary; BankRecSubLine: Record "Bank Rec. Sub-line")
     begin
         TempBankRecSubLine := BankRecSubLine;
-        TempBankRecSubLine.Insert;
+        TempBankRecSubLine.Insert();
     end;
 
     local procedure CopyBankRecSubLineFromTemp(var TempBankRecSubLine: Record "Bank Rec. Sub-line" temporary; LineNo: Integer)
@@ -799,9 +793,9 @@ table 10121 "Bank Rec. Line"
                 BankRecSubLine := TempBankRecSubLine;
                 BankRecSubLine."Bank Rec. Line No." := LineNo;
                 BankRecSubLine."Line No." := NextSubLineNo;
-                BankRecSubLine.Insert;
+                BankRecSubLine.Insert();
             until TempBankRecSubLine.Next = 0;
-            TempBankRecSubLine.DeleteAll;
+            TempBankRecSubLine.DeleteAll();
         end;
     end;
 }

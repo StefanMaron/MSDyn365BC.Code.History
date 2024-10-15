@@ -1,4 +1,4 @@
-﻿page 256 "Payment Journal"
+page 256 "Payment Journal"
 {
     AdditionalSearchTerms = 'print check,payment file export,electronic payment';
     ApplicationArea = Basic, Suite;
@@ -603,6 +603,10 @@
                 fixed(Control80)
                 {
                     ShowCaption = false;
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This control is no longer consider needed';
+                    ObsoleteTag = '16.0';
                     group(Control82)
                     {
                         ShowCaption = false;
@@ -874,7 +878,7 @@
 
                     trigger OnAction()
                     begin
-                        GenJnlLine.Reset;
+                        GenJnlLine.Reset();
                         GenJnlLine.Copy(Rec);
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -921,9 +925,9 @@
                                 GenJnlLine.FindFirst;
                                 GenJnlLine.ExportPaymentFile;
                             end else begin
-                                CompanyInformation.Get;
+                                CompanyInformation.Get();
                                 CompanyInformation.TestField("Federal ID No.");
-                                GenJnlLine.Reset;
+                                GenJnlLine.Reset();
                                 GenJnlLine.Copy(Rec);
                                 GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                                 GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -956,7 +960,7 @@
                                     InsertPaymentFileError(LastRemittanceErr);
 
                                 if GenJnlLine.HasPaymentFileErrorsInBatch then begin
-                                    Commit;
+                                    Commit();
                                     Error(HasErrorsErr);
                                 end;
 
@@ -1009,7 +1013,7 @@
                                 if GenJnlLine.FindFirst then
                                     GenJnlLine.VoidPaymentFile;
                             end else begin
-                                GenJnlLine.Reset;
+                                GenJnlLine.Reset();
                                 GenJnlLine := Rec;
                                 GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                                 GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -1088,7 +1092,7 @@
                         ConfirmManagement: Codeunit "Confirm Management";
                     begin
                         if ConfirmManagement.GetResponseOrDefault(Text001, true) then begin
-                            GenJnlLine.Reset;
+                            GenJnlLine.Reset();
                             GenJnlLine.Copy(Rec);
                             GenJnlLine.SetRange("Bank Payment Type", "Bank Payment Type"::"Computer Check");
                             GenJnlLine.SetRange("Check Printed", true);
@@ -1266,7 +1270,7 @@
                     var
                         GenJournalBatch: Record "Gen. Journal Batch";
                     begin
-                        GenJournalBatch.Init;
+                        GenJournalBatch.Init();
                         GenJournalBatch.SetRange("Journal Template Name", "Journal Template Name");
                         GenJournalBatch.SetRange(Name, "Journal Batch Name");
                         REPORT.Run(REPORT::"Vendor Pre-Payment Journal", true, false, GenJournalBatch);
@@ -1484,7 +1488,7 @@
                         TempApprovalWorkflowWizard."Journal Batch Name" := "Journal Batch Name";
                         TempApprovalWorkflowWizard."Journal Template Name" := "Journal Template Name";
                         TempApprovalWorkflowWizard."For All Batches" := false;
-                        TempApprovalWorkflowWizard.Insert;
+                        TempApprovalWorkflowWizard.Insert();
 
                         PAGE.RunModal(PAGE::"Pmt. App. Workflow Setup Wzrd.", TempApprovalWorkflowWizard);
                     end;
@@ -1602,7 +1606,8 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -1692,7 +1697,7 @@
         EnvironmentInfo: Codeunit "Environment Information";
         JnlSelected: Boolean;
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         IsSaaS := EnvironmentInfo.IsSaaS;
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
@@ -1741,7 +1746,6 @@
         VoidWarningDisplayed: Boolean;
         HasPmtFileErr: Boolean;
         ShortcutDimCode: array[8] of Code[20];
-        ApplyEntriesActionEnabled: Boolean;
         [InDataSet]
         BalanceVisible: Boolean;
         [InDataSet]
@@ -1769,7 +1773,7 @@
         NoExportNegativeErr: Label 'You cannot export journal entries with negative amounts.';
         UseForElecPaymentCheckedErr: Label 'The Use for Electronic Payments check box must be selected on the vendor or customer bank account card.';
         IsAllowPaymentExport: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         RecipientBankAccountMandatory: Boolean;
         CanRequestFlowApprovalForBatch: Boolean;
         CanRequestFlowApprovalForBatchAndAllLines: Boolean;
@@ -1791,6 +1795,9 @@
         DimVisible8: Boolean;
         NoExportDiffCurrencyErr: Label 'You cannot export journal entries if Currency Code is different in Gen. Journal Line and Bank Account.';
         RecipientBankAccountEmptyErr: Label 'Recipient Bank Account must be filled.';
+
+    protected var
+        ApplyEntriesActionEnabled: Boolean;
 
     local procedure CheckForPmtJnlErrors()
     var
@@ -1892,7 +1899,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;

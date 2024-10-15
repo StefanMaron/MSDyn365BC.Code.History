@@ -66,11 +66,11 @@ codeunit 10091 "Export Payments (RB)"
         if FileIsInProcess then
             Error(ExportInProcessErr, FileName);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
         with BankAccount do begin
-            LockTable;
+            LockTable();
             Get(BankAccountNo);
             TestField("Export Format", "Export Format"::CA);
             TestField("Transit No.");
@@ -142,7 +142,7 @@ codeunit 10091 "Export Payments (RB)"
             AddNumToPrnString(FileHeaderRec, "Last E-Pay File Creation No.", 51, 4);      // File Creation Number
             AddNumToPrnString(FileHeaderRec, JulianDate(FileDate), 55, 7);                // File Creation Date
             if GenJnlLine."Currency Code" = '' then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 CurrencyType := GLSetup."LCY Code";
             end else
                 CurrencyType := GenJnlLine."Currency Code";

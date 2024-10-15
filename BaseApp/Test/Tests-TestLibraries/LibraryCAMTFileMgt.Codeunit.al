@@ -160,12 +160,12 @@ codeunit 131921 "Library - CAMT File Mgt."
 
         DataExchDef.Get(DataExchDefCode);
         DataExchDef."Ext. Data Handling Codeunit" := CODEUNIT::"ERM PE Source Test Mock";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.FindFirst;
         DataExchLineDef.Namespace := CopyStr(NamespaceTxt, 1, MaxStrLen(DataExchLineDef.Namespace));
-        DataExchLineDef.Modify;
+        DataExchLineDef.Modify();
     end;
 
     local procedure WriteLine(OutStream: OutStream; Text: Text)

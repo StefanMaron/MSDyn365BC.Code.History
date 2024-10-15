@@ -38,7 +38,7 @@ report 10115 "Vendor 1099 Magnetic Media"
                     WriteThis := MagMediaManagement.AnyAmount(FormType, EndLine);
 
                     if not WriteThis then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     PayeeNum := PayeeNum + 1;
                     PayeeTotal := PayeeTotal + 1;
 
@@ -76,7 +76,7 @@ report 10115 "Vendor 1099 Magnetic Media"
                 trigger OnAfterGetRecord()
                 begin
                     if not AnyRecs[FormType] then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     case FormType of
                         1:
@@ -100,7 +100,7 @@ report 10115 "Vendor 1099 Magnetic Media"
 
                 Clear(PayeeNum);
                 FormType := FormType + 1;
-                InvoiceEntry.Reset;
+                InvoiceEntry.Reset();
                 case FormType of
                     1:
                         begin // MISC
@@ -142,7 +142,7 @@ report 10115 "Vendor 1099 Magnetic Media"
                     WriteARec;
                     ARecNum := ARecNum + 1;
                 end else
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
         dataitem("F Record"; "Integer")
@@ -170,7 +170,7 @@ report 10115 "Vendor 1099 Magnetic Media"
             trigger OnPreDataItem()
             begin
                 if not AnyRecs[FormType] then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }
@@ -409,7 +409,7 @@ report 10115 "Vendor 1099 Magnetic Media"
         trigger OnOpenPage()
         begin
             Year := Date2DMY(WorkDate, 3);   /*default to current working year*/
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             MagMediaManagement.EditCompanyInfo(CompanyInfo);
             TransmitterInfo := CompanyInfo;
             MagMediaManagement.EditCompanyInfo(CompanyInfo);

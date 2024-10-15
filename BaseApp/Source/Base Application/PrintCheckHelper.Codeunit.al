@@ -17,7 +17,7 @@ codeunit 10401 "Print Check Helper"
                         case BalancingType of
                             BalancingType::Customer:
                                 begin
-                                    CustLedgEntry.Reset;
+                                    CustLedgEntry.Reset();
                                     CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
                                     CustLedgEntry.SetRange("Customer No.", BalancingNo);
                                     CustLedgEntry.SetRange(Open, true);
@@ -33,7 +33,7 @@ codeunit 10401 "Print Check Helper"
                                 end;
                             BalancingType::Vendor:
                                 begin
-                                    VendLedgEntry.Reset;
+                                    VendLedgEntry.Reset();
                                     VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
                                     VendLedgEntry.SetRange("Vendor No.", BalancingNo);
                                     VendLedgEntry.SetRange(Open, true);

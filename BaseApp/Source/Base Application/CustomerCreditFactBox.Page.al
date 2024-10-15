@@ -149,11 +149,11 @@ page 36642 "Customer Credit FactBox"
         // Default the Aging Period to 30D
         Evaluate(AgingPeriod, '<30D>');
         // Initialize Record Variables
-        LatestCustLedgerEntry.Reset;
+        LatestCustLedgerEntry.Reset();
         LatestCustLedgerEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date");
         LatestCustLedgerEntry.SetRange("Document Type", LatestCustLedgerEntry."Document Type"::Payment);
         for I := 1 to ArrayLen(CustLedgerEntry) do begin
-            CustLedgerEntry[I].Reset;
+            CustLedgerEntry[I].Reset();
             CustLedgerEntry[I].SetCurrentKey("Customer No.", Open, Positive, "Due Date");
             CustLedgerEntry[I].SetRange(Open, true);
         end;
@@ -235,7 +235,7 @@ page 36642 "Customer Credit FactBox"
         if LatestCustLedgerEntry.FindLast then
             LatestCustLedgerEntry.CalcFields("Amount (LCY)")
         else
-            LatestCustLedgerEntry.Init;
+            LatestCustLedgerEntry.Init();
     end;
 
     procedure ChangeCustomer()

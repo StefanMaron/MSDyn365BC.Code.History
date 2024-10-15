@@ -298,8 +298,8 @@ report 10053 "Open Customer Entries"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
-        GLSetup.Get;
+        CompanyInformation.Get();
+        GLSetup.Get();
         FilterString := Customer.GetFilters;
         FilterString2 := "Cust. Ledger Entry".GetFilters;
     end;

@@ -183,7 +183,7 @@ report 10105 "Vendor Labels"
                 trigger OnAfterGetRecord()
                 begin
                     if NumOfBlanks <= 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     NumOfBlanks := NumOfBlanks - 1;
                 end;
             }

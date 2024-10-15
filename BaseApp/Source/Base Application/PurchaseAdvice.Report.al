@@ -234,7 +234,7 @@ report 10155 "Purchase Advice"
                 trigger OnAfterGetRecord()
                 begin
                     Item2 := Item;
-                    Item2.Reset;
+                    Item2.Reset();
                     if "Location Code" <> '' then
                         Item2.SetRange("Location Filter", "Location Code");
                     if "Variant Code" <> '' then
@@ -273,13 +273,13 @@ report 10155 "Purchase Advice"
                        (ReorderAmount1 = 0) and
                        (ReorderAmount2 = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not UseSKU then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -322,7 +322,7 @@ report 10155 "Purchase Advice"
                        (ReorderAmount1 = 0) and
                        (ReorderAmount2 = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 GroupHeading := '';
@@ -401,7 +401,7 @@ report 10155 "Purchase Advice"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // Calculate the average daily usage of the product over the past 3 months or
         // for the period the user specifies.

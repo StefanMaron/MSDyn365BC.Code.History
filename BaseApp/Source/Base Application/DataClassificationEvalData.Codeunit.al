@@ -25,7 +25,7 @@ codeunit 1751 "Data Classification Eval. Data"
                 DataSensitivity."Table No" := Field.TableNo;
                 DataSensitivity."Field No" := Field."No.";
                 DataSensitivity."Data Sensitivity" := DataSensitivity."Data Sensitivity"::Unclassified;
-                if DataSensitivity.Insert then;
+                if DataSensitivity.Insert() then;
             until Field.Next = 0;
 
         ClassifyTablesPart1;
@@ -56,9 +56,9 @@ codeunit 1751 "Data Classification Eval. Data"
         TableMetadata.SetRange(ObsoleteState, TableMetadata.ObsoleteState::Removed);
         if TableMetadata.FindSet then
             repeat
-                DataSensitivity.Reset;
+                DataSensitivity.Reset();
                 DataSensitivity.SetRange("Table No", TableMetadata.ID);
-                DataSensitivity.DeleteAll;
+                DataSensitivity.DeleteAll();
             until TableMetadata.Next = 0;
     end;
 
@@ -820,6 +820,9 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"CRM Incident");
         SetTableFieldsToNormal(DATABASE::"CRM Incidentresolution");
         SetTableFieldsToNormal(DATABASE::"CRM Quote");
+        SetTableFieldsToNormal(DATABASE::"CDS Company");
+        SetTableFieldsToNormal(DATABASE::"CDS Solution");
+        SetTableFieldsToNormal(DATABASE::"CDS Teamroles");
     end;
 
     local procedure ClassifyTablesToNormalPart6()
@@ -996,6 +999,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Azure AD App Setup");
         SetTableFieldsToNormal(DATABASE::"Azure AD Mgt. Setup");
         SetTableFieldsToNormal(DATABASE::"Item Tracking Code");
+        SetTableFieldsToNormal(DATABASE::"Item Tracking Setup");
         SetTableFieldsToNormal(DATABASE::"Serial No. Information");
         SetTableFieldsToNormal(DATABASE::"Lot No. Information");
         SetTableFieldsToNormal(DATABASE::"Item Tracking Comment");
@@ -1012,6 +1016,11 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Tenant Web Service Columns");
         SetTableFieldsToNormal(DATABASE::"Tenant Web Service Filter");
         SetTableFieldsToNormal(DATABASE::"Booking Mgr. Setup");
+        SetTableFieldsToNormal(DATABASE::"Price Calculation Buffer");
+        SetTableFieldsToNormal(DATABASE::"Price Calculation Setup");
+        SetTableFieldsToNormal(DATABASE::"Dtld. Price Calculation Setup");
+        SetTableFieldsToNormal(DATABASE::"Price List Line");
+        SetTableFieldsToNormal(DATABASE::"Price Source");
         SetTableFieldsToNormal(DATABASE::"Sales Price");
         SetTableFieldsToNormal(DATABASE::"Sales Line Discount");
         SetTableFieldsToNormal(DATABASE::"Purchase Price");
@@ -1308,6 +1317,9 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Power BI Customer Reports");
         SetTableFieldsToNormal(DATABASE::"Power BI Blob");
         SetTableFieldsToNormal(DATABASE::"Power BI Default Selection");
+        SetTableFieldsToNormal(DATABASE::"Profile Designer Diagnostic");
+        SetTableFieldsToNormal(DATABASE::"Designer Diagnostic");
+        SetTableFieldsToNormal(DATABASE::"Profile Import");
         SetTableFieldsToNormal(DATABASE::"Item Entry Relation");
         SetTableFieldsToNormal(DATABASE::"Value Entry Relation");
         SetTableFieldsToNormal(DATABASE::"Whse. Item Entry Relation");
@@ -1322,6 +1334,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"ADCS User");
         SetTableFieldsToNormal(9004); // Plan
         SetTableFieldsToNormal(9008); // User Login
+        SetTableFieldsToNormal(9010); // "Azure AD User Update"
         SetTableFieldsToNormal(DATABASE::"Calendar Entry");
         SetTableFieldsToNormal(DATABASE::"Calendar Absence Entry");
         SetTableFieldsToNormal(DATABASE::"Production Matrix  BOM Entry");
@@ -1343,6 +1356,16 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Trial Balance Cache");
         SetTableFieldsToNormal(3712); // Translation
         SetTableFieldsToNormal(DATABASE::"CRM Synch Status");
+        SetTableFieldsToNormal(Database::"Over-Receipt Code");
+        SetTableFieldsToNormal(DATABASE::"Designed Query");
+        SetTableFieldsToNormal(DATABASE::"Designed Query Caption");
+        SetTableFieldsToNormal(DATABASE::"Designed Query Category");
+        SetTableFieldsToNormal(DATABASE::"Designed Query Column Filter");
+        SetTableFieldsToNormal(DATABASE::"Designed Query Column");
+        SetTableFieldsToNormal(DATABASE::"Designed Query Data Item");
+        SetTableFieldsToNormal(DATABASE::"Designed Query Filter");
+        SetTableFieldsToNormal(DATABASE::"Designed Query Join");
+        SetTableFieldsToNormal(DATABASE::"Designed Query Order By");
     end;
 
     procedure SetTableFieldsToNormal(TableNo: Integer)

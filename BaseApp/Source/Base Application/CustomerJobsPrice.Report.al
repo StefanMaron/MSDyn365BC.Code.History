@@ -143,7 +143,7 @@ report 10214 "Customer Jobs (Price)"
                 UsagePrice := 0;
                 InvoicedPrice := 0;
 
-                JobPlanningLine.Reset;
+                JobPlanningLine.Reset();
                 if BudgetAmountsPer = BudgetAmountsPer::Contract then begin
                     JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.", "Contract Line", "Planning Date");
                     JobPlanningLine.SetRange("Contract Line", true);
@@ -156,7 +156,7 @@ report 10214 "Customer Jobs (Price)"
                 JobPlanningLine.CalcSums("Total Price (LCY)");
                 BudgetedPrice := JobPlanningLine."Total Price (LCY)";
 
-                JobLedgerEntry.Reset;
+                JobLedgerEntry.Reset();
                 JobLedgerEntry.SetCurrentKey("Job No.", "Job Task No.", "Entry Type", "Posting Date");
                 JobLedgerEntry.SetRange("Job No.", "No.");
                 CopyFilter("Posting Date Filter", JobLedgerEntry."Posting Date");
@@ -168,7 +168,7 @@ report 10214 "Customer Jobs (Price)"
                             UsagePrice := UsagePrice + JobLedgerEntry."Total Price (LCY)";
                     until JobLedgerEntry.Next = 0;
                 if not Customer.Get("Bill-to Customer No.") then
-                    Customer.Init;
+                    Customer.Init();
             end;
         }
     }
@@ -206,7 +206,7 @@ report 10214 "Customer Jobs (Price)"
 
     trigger OnPreReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         JobFilter := Job.GetFilters;
         if BudgetAmountsPer = BudgetAmountsPer::Schedule then
             BudgetOptionText := Text001

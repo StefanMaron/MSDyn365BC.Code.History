@@ -241,8 +241,6 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
         LibraryVariableStorage.Enqueue(true); // Replace Buy-from Vendor
         LibraryVariableStorage.Enqueue(true); // Replace Pay-to Vendor
         LibraryVariableStorage.Enqueue(true); // Recreate Purchase Lines
-        LibraryVariableStorage.Enqueue(true);
-        LibraryVariableStorage.Enqueue(true);
 
         ReplacePurchaseInvoiceBuyFromVendor(OriginalVendor."No.", ReplacementVendor.Name);
 
@@ -884,7 +882,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
             LibraryFiscalYear.CreateFiscalYear;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Simple UI: Vend. Address Sync");
     end;
 
@@ -1020,7 +1018,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         PurchaseHeader.TestField("Ship-to Address", CompanyInformation."Ship-to Address");
         PurchaseHeader.TestField("Ship-to Address 2", CompanyInformation."Ship-to Address 2");

@@ -10,7 +10,7 @@ codeunit 132214 "Library - Permissions"
     begin
         if PlanPermissionSet.Get(PlanID, PermissionSetCode) then
             exit;
-        PlanPermissionSet.Init;
+        PlanPermissionSet.Init();
         PlanPermissionSet."Permission Set ID" := PermissionSetCode;
         PlanPermissionSet."Plan ID" := PlanID;
         PlanPermissionSet.Insert(true);
@@ -24,7 +24,7 @@ codeunit 132214 "Library - Permissions"
         UserGroupPermissionSet.SetRange("User Group Code", UserGroupCode);
         if UserGroupPermissionSet.FindFirst then
             exit;
-        UserGroupPermissionSet.Init;
+        UserGroupPermissionSet.Init();
         UserGroupPermissionSet."User Group Code" := UserGroupCode;
         UserGroupPermissionSet."User Group Name" := UserGroupCode;
         UserGroupPermissionSet."Role ID" := PermissionSetRoleID;
@@ -50,7 +50,7 @@ codeunit 132214 "Library - Permissions"
         AccessControl.SetRange("Company Name", CompanyName);
         if AccessControl.Count > 0 then
             AccessControl.DeleteAll(true);
-        AccessControl.Init;
+        AccessControl.Init();
         AccessControl."Role ID" := PermissionSetName;
         if PermissionSet.Get(PermissionSetName) then
             AccessControl.Scope := AccessControl.Scope::System
@@ -65,7 +65,7 @@ codeunit 132214 "Library - Permissions"
     var
         Permission: Record Permission;
     begin
-        Permission.Init;
+        Permission.Init();
         Permission."Role ID" := RoleID;
         Permission."Object Type" := ObjectType;
         Permission."Object ID" := ObjectID;
@@ -83,7 +83,7 @@ codeunit 132214 "Library - Permissions"
     var
         TenantPermission: Record "Tenant Permission";
     begin
-        TenantPermission.Init;
+        TenantPermission.Init();
         TenantPermission."App ID" := AppID;
         TenantPermission."Role ID" := RoleID;
         TenantPermission."Object Type" := ObjectType;
@@ -102,7 +102,7 @@ codeunit 132214 "Library - Permissions"
     var
         UserGroupPlan: Record "User Group Plan";
     begin
-        UserGroupPlan.Init;
+        UserGroupPlan.Init();
         UserGroupPlan."Plan ID" := PlanID;
         UserGroupPlan."User Group Code" := UserGroupCode;
         UserGroupPlan.Insert(true);
@@ -130,7 +130,7 @@ codeunit 132214 "Library - Permissions"
     var
         UserGroupMember: Record "User Group Member";
     begin
-        UserGroupMember.Init;
+        UserGroupMember.Init();
         UserGroupMember."User Group Code" := UserGroup.Code;
         UserGroupMember."User Security ID" := User."User Security ID";
         UserGroupMember."Company Name" := NewCompanyName;
@@ -143,7 +143,7 @@ codeunit 132214 "Library - Permissions"
     begin
         if UserGroupMember.Get(UserGroupCode, UserID, CompanyName) then
             exit;
-        UserGroupMember.Init;
+        UserGroupMember.Init();
         UserGroupMember."User Group Code" := UserGroupCode;
         UserGroupMember."User Security ID" := UserID;
         UserGroupMember."Company Name" := CompanyName;
@@ -163,7 +163,7 @@ codeunit 132214 "Library - Permissions"
 
     procedure CreateUser(var User: Record User; NewUserName: Text[50]; IsWindowsUser: Boolean)
     begin
-        User.Init;
+        User.Init();
         User."User Security ID" := CreateGuid;
         if NewUserName = '' then
             User."User Name" := CopyStr(GetGuidString, 1, MaxStrLen(User."User Name"))
@@ -204,10 +204,10 @@ codeunit 132214 "Library - Permissions"
             UserProperty."Authentication Object ID" := CreateGuid;
             UserProperty.Modify(true);
         end else begin
-            UserProperty.Init;
+            UserProperty.Init();
             UserProperty."Authentication Object ID" := CreateGuid;
             UserProperty."User Security ID" := User."User Security ID";
-            UserProperty.Insert;
+            UserProperty.Insert();
         end;
         exit(UserProperty."Authentication Object ID");
     end;
@@ -230,7 +230,7 @@ codeunit 132214 "Library - Permissions"
     begin
         if UserGroup.Get(NewCode) then
             exit;
-        UserGroup.Init;
+        UserGroup.Init();
         if NewCode = '' then
             UserGroup.Code := CopyStr(GetGuidString, 1, MaxStrLen(UserGroup.Code))
         else
@@ -257,10 +257,10 @@ codeunit 132214 "Library - Permissions"
         User: Record User;
     begin
         GetMyUser(User);
-        UserGroupMember.Init;
+        UserGroupMember.Init();
         UserGroupMember."User Group Code" := UserGroup.Code;
         UserGroupMember."User Security ID" := User."User Security ID";
-        if UserGroupMember.Insert then;
+        if UserGroupMember.Insert() then;
     end;
 
     procedure GetNonExistingUserID(): Text[65]
