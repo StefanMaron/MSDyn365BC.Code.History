@@ -435,10 +435,10 @@ codeunit 138400 "RS Pack Content - Evaluation"
         InteractionTemplate: Record "Interaction Template";
     begin
         // [FEATURE] [CRM] [Interaction Template]
-        // [SCENARIO 174769] Interaction Template should have 30 templates.
+        // [SCENARIO 174769] Interaction Template should have 31 templates.
         Initialize();
 
-        Assert.RecordCount(InteractionTemplate, 30);
+        Assert.RecordCount(InteractionTemplate, 31);
     end;
 
     [Test]

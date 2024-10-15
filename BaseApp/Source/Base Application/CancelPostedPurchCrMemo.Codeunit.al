@@ -316,12 +316,16 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
 
         with GenPostingSetup do begin
             Get(PurchCrMemoLine."Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group");
-            TestField("Purch. Account");
-            CheckGLAccount("Purch. Account", PurchCrMemoLine);
-            TestField("Purch. Credit Memo Account");
-            CheckGLAccount("Purch. Credit Memo Account", PurchCrMemoLine);
-            TestField("Purch. Line Disc. Account");
-            CheckGLAccount("Purch. Line Disc. Account", PurchCrMemoLine);
+            if PurchCrMemoLine.Type <> PurchCrMemoLine.Type::"G/L Account" then begin
+                TestField("Purch. Account");
+                CheckGLAccount("Purch. Account", PurchCrMemoLine);
+                TestField("Purch. Credit Memo Account");
+                CheckGLAccount("Purch. Credit Memo Account", PurchCrMemoLine);
+            end;
+            if PurchCrMemoLine."Line Discount Amount" <> 0 then begin
+                TestField("Purch. Line Disc. Account");
+                CheckGLAccount("Purch. Line Disc. Account", PurchCrMemoLine);
+            end;
             if PurchCrMemoLine.Type = PurchCrMemoLine.Type::Item then begin
                 Item.Get(PurchCrMemoLine."No.");
                 if Item.IsInventoriableType then
