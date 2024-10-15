@@ -86,5 +86,8 @@ table 31283 "Detailed G/L Entry CZA"
         {
             SumIndexFields = Amount;
         }
+        key(key4; "Transaction No.")
+        {
+        }
     }
 }
