@@ -98,6 +98,8 @@
                   tabledata "VAT Entry" = Rimd,
                   tabledata "VAT Posting Setup" = R,
                   tabledata "VAT Product Posting Group" = R,
+                  tabledata "VAT Setup" = R,
+                  tabledata "VAT Posting Parameters" = R,
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,

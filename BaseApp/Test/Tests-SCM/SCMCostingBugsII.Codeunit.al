@@ -19,6 +19,7 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPatterns: Codeunit "Library - Patterns";
@@ -2329,6 +2330,87 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemLedgerEntry.TestField("Cost Amount (Actual)", ItemLedgerEntry.Quantity * UnitAmount);
     end;
 
+    [Test]
+    procedure RoundingInExpectedCostAmountAfterPostingWithAlternateUoM()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReservationEntry: Record "Reservation Entry";
+        ValueEntry: Record "Value Entry";
+        LotNos: array[20] of Code[50];
+        i: Integer;
+    begin
+        // [FEATURE] [Expected Cost] [Rounding] [Unit of Measure]
+        // [SCENARIO 466852] Correct rounding in Cost Amount (Expected) after posting purchase receipt for alternate unit of measure.
+        Initialize();
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Unit-Amount Rounding Precision" := 0.001;
+        GeneralLedgerSetup.Modify();
+
+        LibraryItemTracking.CreateLotItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 0.10273);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 4000, '', WorkDate());
+        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        PurchaseLine.Validate("Direct Unit Cost", 6);
+        PurchaseLine.Modify(true);
+
+        for i := 1 to ArrayLen(LotNos) do begin
+            LotNos[i] := LibraryUtility.GenerateGUID();
+            LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine, '', LotNos[i], 20.546);
+        end;
+
+        // [WHEN]
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN]
+        ValueEntry.SetRange("Item No.", Item."No.");
+        ValueEntry.CalcSums("Cost Amount (Expected)");
+        ValueEntry.TestField("Cost Amount (Expected)", 24000);
+    end;
+
+    [Test]
+    procedure RoundingInActualCostForRevaluationForAvgCostItem()
+    var
+        InventorySetup: Record "Inventory Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Item: Record Item;
+        ValueEntry: Record "Value Entry";
+    begin
+        // [FEATURE] [Revaluation]
+        // [SCENARIO 466595] Correct rounding in Cost Amount (Actual) after posting one revaluation line for two item entries.
+        Initialize();
+
+        LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Amount Rounding Precision" := 1;
+        GeneralLedgerSetup."Unit-Amount Rounding Precision" := 0.01;
+        GeneralLedgerSetup.Modify();
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::Average);
+        Item.Modify(true);
+
+        CreateAndPostItemJournalLineWithPostingDate(Item."No.", '', 2000, WorkDate());
+        CreateAndPostItemJournalLineWithPostingDate(Item."No.", '', 244, WorkDate());
+
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [WHEN]
+        PostRevaluationJournalLineForDefinedAmount(Item, WorkDate(), 1376775);
+
+        // [THEN]
+        ValueEntry.SetRange("Item No.", Item."No.");
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        ValueEntry.TestField("Cost Amount (Actual)", 1376775);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3154,6 +3236,25 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemJournalLine.SetRange("Item No.", Item."No.");
         ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", RevaluedUnitCost);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    local procedure PostRevaluationJournalLineForDefinedAmount(var Item: Record Item; PostingDate: Date; InvtValueRevalued: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        CalculatePer: Option "Item Ledger Entry",Item;
+    begin
+        MakeItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
+        LibraryPatterns.MAKERevaluationJournalLine(ItemJournalBatch, Item, PostingDate, CalculatePer::Item, false, false, true, 0);
+
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Item No.", Item."No.");
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.Validate("Inventory Value (Revalued)", InvtValueRevalued);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;

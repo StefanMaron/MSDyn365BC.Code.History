@@ -507,6 +507,7 @@ table 6650 "Return Shipment Header"
         CertificateOfSupply: Record "Certificate of Supply";
         PostPurchDelete: Codeunit "PostPurch-Delete";
     begin
+        PostPurchDelete.IsDocumentDeletionAllowed("Posting Date");
         LockTable();
         PostPurchDelete.DeletePurchShptLines(Rec);
 

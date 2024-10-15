@@ -380,7 +380,7 @@
                     "Invoiced Quantity" := 0
                 else
                     "Invoiced Quantity" := Quantity;
-                "Invoiced Qty. (Base)" := CalcBaseQty("Invoiced Quantity", FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
+                "Invoiced Qty. (Base)" := CalcBaseQty("Invoiced Quantity", FieldCaption("Invoiced Quantity"), FieldCaption("Invoiced Qty. (Base)"));
 
                 CheckSerialNoQty();
 
@@ -2758,21 +2758,22 @@
         OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
-    procedure Signed(Value: Decimal): Decimal
+    procedure Signed(Value: Decimal) Result: Decimal
     begin
         case "Entry Type" of
             "Entry Type"::Purchase,
           "Entry Type"::"Positive Adjmt.",
           "Entry Type"::Output,
           "Entry Type"::"Assembly Output":
-                exit(Value);
+                Result := Value;
             "Entry Type"::Sale,
           "Entry Type"::"Negative Adjmt.",
           "Entry Type"::Consumption,
           "Entry Type"::Transfer,
           "Entry Type"::"Assembly Consumption":
-                exit(-Value);
+                Result := -Value;
         end;
+        OnAfterSigned(Rec, Value, Result);
     end;
 
     procedure IsInbound(): Boolean
@@ -4887,6 +4888,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var ItemJournalLine: Record "Item Journal Line"; var LastItemJournalLine: Record "Item Journal Line"; ItemJournalTemplate: Record "Item Journal Template"; ItemJnlBatch: Record "Item Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSigned(ItemJournalLine: Record "Item Journal Line"; Value: Decimal; Result: Decimal)
     begin
     end;
 

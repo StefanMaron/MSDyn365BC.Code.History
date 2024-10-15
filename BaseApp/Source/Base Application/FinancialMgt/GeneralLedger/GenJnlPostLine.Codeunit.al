@@ -55,6 +55,8 @@
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         PrepmtDiffMgt: Codeunit PrepmtDiffManagement;
         DeferralUtilities: Codeunit "Deferral Utilities";
+        RecordLinkMgt: Codeunit "Record Link Management";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         DeferralDocType: Enum "Deferral Document Type";
         LastDocType: Enum "Gen. Journal Document Type";
         AddCurrencyCode: Code[10];
@@ -519,6 +521,7 @@
                         if "Gen. Posting Type" <> "Gen. Posting Type"::Settlement then begin
                             GLEntry.CopyPostingGroupsFromGenJnlLine(GenJnlLine);
                             GLEntry."VAT Amount" := "VAT Amount (LCY)";
+                            NonDeductibleVAT.CopyNonDedVATAmountFromGenJnlLineToGLEntry(GLEntry, GenJnlLine);
                             if "Source Currency Code" = AddCurrencyCode then
                                 AddCurrGLEntryVATAmt := "Source Curr. VAT Amount"
                             else
@@ -682,6 +685,7 @@
     procedure InsertVAT(GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; GLEntryAmount: Decimal; GLEntryVATAmount: Decimal; GLEntryBaseAmount: Decimal; SrcCurrCode: Code[10]; SrcCurrGLEntryAmt: Decimal; SrcCurrGLEntryVATAmt: Decimal; SrcCurrGLEntryBaseAmt: Decimal)
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
+        VATPostingParameters: Record "VAT Posting Parameters";
         FA: Record "Fixed Asset";
         VATAmount: Decimal;
         VATBase: Decimal;
@@ -689,6 +693,7 @@
         SrcCurrVATBase: Decimal;
         VATDifferenceLCY: Decimal;
         SrcCurrVATDifference: Decimal;
+        NonDedVATDiffACY: Decimal;
         UnrealizedVAT: Boolean;
         IsHandled: Boolean;
     begin
@@ -761,8 +766,11 @@
                     SrcCurrGLEntryVATAmt := ExchangeAmtLCYToFCY2(GLEntryVATAmount);
                     SrcCurrGLEntryBaseAmt := ExchangeAmtLCYToFCY2(GLEntryBaseAmount);
                     SrcCurrVATDifference := ExchangeAmtLCYToFCY2(VATDifferenceLCY);
-                end else
+                    NonDedVATDiffACY := ExchangeAmtLCYToFCY2("Non-Deductible VAT Diff.");
+                end else begin
                     SrcCurrVATDifference := "VAT Difference";
+                    NonDedVATDiffACY := "Non-Deductible VAT Diff.";
+                end;
 
             UnrealizedVAT := SetUnrealizedVAT(GenJnlLine, VATPostingSetup, TaxJurisdiction);
 
@@ -784,6 +792,8 @@
                             VATBase := GLEntryBaseAmount;
                             SrcCurrVATAmount := SrcCurrGLEntryVATAmt;
                             SrcCurrVATBase := SrcCurrGLEntryBaseAmt;
+                            NonDeductibleVAT.AdjustVATAmountsFromGenJnlLine(
+                                VATAmount, VATBase, SrcCurrVATAmount, SrcCurrVATBase, GenJnlLine);
                             if GLSetup."Enable Russian Accounting" then
                                 if ("Gen. Posting Type" = "Gen. Posting Type"::Sale) and
                                    (VATPostingSetup."Trans. VAT Type" = VATPostingSetup."Trans. VAT Type"::"Amount + Tax") and
@@ -805,6 +815,9 @@
                             end;
                             VATBase := GLEntryBaseAmount;
                             SrcCurrVATBase := SrcCurrGLEntryBaseAmt;
+                            if "Gen. Posting Type" <> "Gen. Posting Type"::Settlement then
+                                NonDeductibleVAT.AdjustVATAmountsFromGenJnlLine(
+                                    VATAmount, VATBase, SrcCurrVATAmount, SrcCurrVATBase, GenJnlLine);
                         end;
                 end;
 
@@ -825,12 +838,14 @@
                     VATEntry."Remaining Unrealized Amount" := 0;
                     VATEntry."Remaining Unrealized Base" := 0;
                 end;
+                NonDeductibleVAT.SetNonDedVATInVATEntry(VATEntry, "Non-Deductible VAT Base", "Non-Deductible VAT Amount", "Non-Deductible VAT Base ACY", "Non-Deductible VAT Amount ACY", "Non-Deductible VAT Diff.", NonDedVATDiffACY);
 
                 if AddCurrencyCode = '' then begin
                     VATEntry."Additional-Currency Base" := 0;
                     VATEntry."Additional-Currency Amount" := 0;
                     VATEntry."Add.-Currency Unrealized Amt." := 0;
                     VATEntry."Add.-Currency Unrealized Base" := 0;
+                    NonDeductibleVAT.ClearNonDedVATACYInVATEntry(VATEntry);
                 end else
                     if UnrealizedVAT then begin
                         VATEntry."Additional-Currency Base" := 0;
@@ -878,9 +893,11 @@
                 PostPrepmtDiffRealizedVAT(GenJnlLine, VATEntry);
 
             // VAT for G/L entry/entries
+            VATPostingParameters.InsertRecord(
+                GenJnlLine, VATPostingSetup, GLEntryVATAmount, SrcCurrGLEntryVATAmt, SrcCurrCode, UnrealizedVAT, VATAmount, SrcCurrVATAmount, GenJnlLine."Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
             InsertVATForGLEntry(
                 GenJnlLine, VATPostingSetup, TaxJurisdiction,
-                GLEntryVATAmount, SrcCurrGLEntryVATAmt, SrcCurrCode, UnrealizedVAT);
+                VATPostingParameters);
         end;
 
         OnAfterInsertVAT(
@@ -909,7 +926,7 @@
         OnAfterSetUnrealizedVAT(GenJnlLine, VATPostingSetup, UnrealizedVAT);
     end;
 
-    local procedure InsertVATForGLEntry(var GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; TaxJurisdiction: Record "Tax Jurisdiction"; GLEntryVATAmount: Decimal; SrcCurrGLEntryVATAmt: Decimal; SrcCurrCode: Code[10]; UnrealizedVAT: Boolean)
+    local procedure InsertVATForGLEntry(var GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; TaxJurisdiction: Record "Tax Jurisdiction"; VATPostingParameters: Record "VAT Posting Parameters")
     var
         GLEntry: Record "G/L Entry";
         SavGLAccountNo: Code[20];
@@ -917,15 +934,18 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertVATForGLEntry(GenJnlLine, VATPostingSetup, GLEntryVATAmount, SrcCurrGLEntryVATAmt, UnrealizedVAT, IsHandled, VATEntry, TaxJurisdiction, SrcCurrCode, AddCurrencyCode);
+#if not CLEAN23        
+        OnBeforeInsertVATForGLEntry(GenJnlLine, VATPostingSetup, VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", VATPostingParameters."Unrealized VAT", IsHandled, VATEntry, TaxJurisdiction, VATPostingParameters."Source Currency Code", AddCurrencyCode);
+#endif
+        OnBeforeInsertVATForGLEntryFromBuffer(GenJnlLine, VATPostingSetup, VATPostingParameters, IsHandled, VATEntry, TaxJurisdiction, AddCurrencyCode);
         if IsHandled then
             exit;
 
         with GenJnlLine do begin
-            GLEntryVATAmountNotEmpty := GLEntryVATAmount <> 0;
+            GLEntryVATAmountNotEmpty := (VATPostingParameters."Full VAT Amount" <> 0) or (NonDeductibleVAT.GetNonDeductibleVATAmount(GenJnlLine) <> 0);
             OnInsertVATOnBeforeVATForGLEntry(GenJnlLine, GLEntryVATAmountNotEmpty);
             if GLEntryVATAmountNotEmpty or
-               ((SrcCurrGLEntryVATAmt <> 0) and (SrcCurrCode = AddCurrencyCode))
+               ((VATPostingParameters."Full VAT Amount ACY" <> 0) and (VATPostingParameters."Source Currency Code" = AddCurrencyCode))
             then
                 case "Gen. Posting Type" of
                     "Gen. Posting Type"::Purchase:
@@ -933,70 +953,66 @@
                             VATPostingSetup."VAT Calculation Type"::"Normal VAT",
                             VATPostingSetup."VAT Calculation Type"::"Full VAT":
                                 if not GLSetup."Enable Russian Accounting" then
-                                    CreateGLEntry(GenJnlLine, VATPostingSetup.GetPurchAccount(UnrealizedVAT),
-                                      GLEntryVATAmount, SrcCurrGLEntryVATAmt, true)
+                                    CreateNormalVATGLEntries(GenJnlLine, VATPostingSetup, VATPostingParameters)
                                 else
-                                    if UnrealizedVAT then begin
+                                    if VATPostingParameters."Unrealized VAT" then begin
                                         VATPostingSetup.TestField("Purch. VAT Unreal. Account");
                                         if VATAgentVATPayment then begin
                                             InitGLEntry(GenJnlLine, GLEntry,
                                               VATPostingSetup."Purch. VAT Unreal. Account",
-                                              GLEntryVATAmount, SrcCurrGLEntryVATAmt, true, true);
+                                              VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true, true);
                                             InsertRUGLEntry(GenJnlLine, GLEntry,
                                               VATPostingSetup."Purchase VAT Account", true, true, false);
                                         end else
-                                            CreateGLEntry(GenJnlLine, VATPostingSetup.GetPurchAccount(UnrealizedVAT),
-                                              GLEntryVATAmount, SrcCurrGLEntryVATAmt, true);
+                                            CreateGLEntry(GenJnlLine, VATPostingSetup.GetPurchAccount(VATPostingParameters."Unrealized VAT"),
+                                              VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
                                     end else begin
                                         if VATPostingSetup."Trans. VAT Account" <> '' then begin
                                             CreateGLEntry(GenJnlLine, VATPostingSetup."Trans. VAT Account",
-                                              GLEntryVATAmount, SrcCurrGLEntryVATAmt, true);
+                                              VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
                                             CreateGLEntryBalAcc(GenJnlLine, VATPostingSetup."Trans. VAT Account",
-                                              -GLEntryVATAmount, -SrcCurrGLEntryVATAmt, "Gen. Journal Account Type"::"G/L Account",
+                                              -VATPostingParameters."Full VAT Amount", -VATPostingParameters."Full VAT Amount ACY", "Gen. Journal Account Type"::"G/L Account",
                                               VATPostingSetup."Purchase VAT Account");
                                         end;
                                         VATPostingSetup.TestField("Purchase VAT Account");
                                         InitGLEntry(GenJnlLine, GLEntry,
                                           VATPostingSetup."Purchase VAT Account",
-                                          GLEntryVATAmount, SrcCurrGLEntryVATAmt, true, true);
+                                          VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true, true);
                                         if VATPostingSetup."Trans. VAT Account" <> '' then
                                             GLEntry."Bal. Account No." := VATPostingSetup."Trans. VAT Account";
                                         if VATAgentVATPayment then begin
                                             InitGLEntry(GenJnlLine, GLEntry,
                                               GetPayablesAccountNo(GenJnlLine),
-                                              GLEntryVATAmount, SrcCurrGLEntryVATAmt, true, true);
+                                              VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true, true);
                                             InsertRUGLEntry(GenJnlLine, GLEntry,
                                               VATPostingSetup."Purchase VAT Account", true, true, false);
                                         end else
                                             InsertGLEntry(GenJnlLine, GLEntry, true);
                                     end;
                             VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
-                                if not GLSetup."Enable Russian Accounting" then begin
-                                    CreateGLEntry(GenJnlLine, VATPostingSetup.GetPurchAccount(UnrealizedVAT),
-                                      GLEntryVATAmount, SrcCurrGLEntryVATAmt, true);
-                                    CreateGLEntry(GenJnlLine, VATPostingSetup.GetRevChargeAccount(UnrealizedVAT),
-                                      -GLEntryVATAmount, -SrcCurrGLEntryVATAmt, true);
-                                end else begin
+                                if not GLSetup."Enable Russian Accounting" then
+                                    CreateReverseChargeVATGLEntries(GenJnlLine, VATPostingSetup, VATPostingParameters)
+                                else begin
                                     OnInsertVATOnBeforeCreateGLEntryForReverseChargeVATToPurchAcc(
-                                      GenJnlLine, VATPostingSetup, UnrealizedVAT, GLEntryVATAmount, SrcCurrGLEntryVATAmt, true);
+                                      GenJnlLine, VATPostingSetup, VATPostingParameters."Unrealized VAT", VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
                                     CreateGLEntry(
-                                      GenJnlLine, VATPostingSetup.GetPurchAccount(UnrealizedVAT), GLEntryVATAmount, SrcCurrGLEntryVATAmt, true);
+                                      GenJnlLine, VATPostingSetup.GetPurchAccount(VATPostingParameters."Unrealized VAT"), VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
                                     OnInsertVATOnBeforeCreateGLEntryForReverseChargeVATToRevChargeAcc(
-                                      GenJnlLine, VATPostingSetup, UnrealizedVAT, GLEntryVATAmount, SrcCurrGLEntryVATAmt, true);
+                                      GenJnlLine, VATPostingSetup, VATPostingParameters."Unrealized VAT", VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
                                     CreateGLEntry(
-                                      GenJnlLine, VATPostingSetup.GetRevChargeAccount(UnrealizedVAT), -GLEntryVATAmount, -SrcCurrGLEntryVATAmt, true);
+                                      GenJnlLine, VATPostingSetup.GetRevChargeAccount(VATPostingParameters."Unrealized VAT"), -VATPostingParameters."Full VAT Amount", -VATPostingParameters."Full VAT Amount ACY", true);
                                 end;
                             VATPostingSetup."VAT Calculation Type"::"Sales Tax":
                                 if "Use Tax" then begin
-                                    InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetPurchAccount(UnrealizedVAT), '',
-                                      GLEntryVATAmount, SrcCurrGLEntryVATAmt, true,
+                                    InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetPurchAccount(VATPostingParameters."Unrealized VAT"), '',
+                                      VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true,
                                       VATPostingSetup."Trans. VAT Type" = VATPostingSetup."Trans. VAT Type"::"Amount + Tax");
-                                    InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetRevChargeAccount(UnrealizedVAT), '',
-                                      -GLEntryVATAmount, -SrcCurrGLEntryVATAmt, true,
+                                    InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetRevChargeAccount(VATPostingParameters."Unrealized VAT"), '',
+                                      -VATPostingParameters."Full VAT Amount", -VATPostingParameters."Full VAT Amount ACY", true,
                                       VATPostingSetup."Trans. VAT Type" = VATPostingSetup."Trans. VAT Type"::"Amount + Tax");
                                 end else
-                                    InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetPurchAccount(UnrealizedVAT), '',
-                                      GLEntryVATAmount, SrcCurrGLEntryVATAmt, true,
+                                    InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetPurchAccount(VATPostingParameters."Unrealized VAT"), '',
+                                      VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true,
                                       VATPostingSetup."Trans. VAT Type" = VATPostingSetup."Trans. VAT Type"::"Amount + Tax");
                         end;
                     "Gen. Posting Type"::Sale:
@@ -1004,22 +1020,22 @@
                             VATPostingSetup."VAT Calculation Type"::"Normal VAT",
                           VATPostingSetup."VAT Calculation Type"::"Full VAT":
                                 if not GLSetup."Enable Russian Accounting" then
-                                    CreateGLEntry(GenJnlLine, VATPostingSetup.GetSalesAccount(UnrealizedVAT),
-                                      GLEntryVATAmount, SrcCurrGLEntryVATAmt, true)
+                                    CreateGLEntry(GenJnlLine, VATPostingSetup.GetSalesAccount(VATPostingParameters."Unrealized VAT"),
+                                    VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true)
                                 else begin
                                     if VATPostingSetup."Trans. VAT Type" = VATPostingSetup."Trans. VAT Type"::"Amount & Tax" then
                                         CreateGLEntry(GenJnlLine, TransVATAccNo,
-                                          GLEntryVATAmount, SrcCurrGLEntryVATAmt, true);
-                                    if UnrealizedVAT then begin
+                                          VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
+                                    if VATPostingParameters."Unrealized VAT" then begin
                                         VATPostingSetup.TestField("Sales VAT Unreal. Account");
                                         InitGLEntry(GenJnlLine, GLEntry,
                                           VATPostingSetup."Sales VAT Unreal. Account",
-                                          GLEntryVATAmount, SrcCurrGLEntryVATAmt, true, true);
+                                          VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true, true);
                                     end else begin
                                         VATPostingSetup.TestField("Sales VAT Account");
                                         InitGLEntry(GenJnlLine, GLEntry,
                                           VATPostingSetup."Sales VAT Account",
-                                          GLEntryVATAmount, SrcCurrGLEntryVATAmt, true, true);
+                                          VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true, true);
                                     end;
                                     InsertRUGLEntry(GenJnlLine, GLEntry,
                                       TransVATAccNo, TransVATAccNo <> '', true, false);
@@ -1028,24 +1044,24 @@
                                 ;
                             VATPostingSetup."VAT Calculation Type"::"Sales Tax":
                                 if not GLSetup."Enable Russian Accounting" then
-                                    InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetSalesAccount(UnrealizedVAT), '',
-                                      GLEntryVATAmount, SrcCurrGLEntryVATAmt, true, false)
+                                    InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetSalesAccount(VATPostingParameters."Unrealized VAT"), '',
+                                        VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true, false)
                                 else begin
                                     if TaxJurisdiction."Trans. VAT Type" = TaxJurisdiction."Trans. VAT Type"::"Amount & Tax" then begin
                                         InitGLEntry(GenJnlLine, GLEntry,
-                                          TransVATAccNo, GLEntryVATAmount, SrcCurrGLEntryVATAmt, true, true);
+                                          TransVATAccNo, VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true, true);
                                         SummarizeVAT(GLSetup."Summarize G/L Entries", GLEntry, false);
                                     end;
-                                    if UnrealizedVAT then begin
+                                    if VATPostingParameters."Unrealized VAT" then begin
                                         TaxJurisdiction.TestField("Unreal. Tax Acc. (Sales)");
                                         InitGLEntry(GenJnlLine, GLEntry,
                                           TaxJurisdiction."Unreal. Tax Acc. (Sales)",
-                                          GLEntryVATAmount, SrcCurrGLEntryVATAmt, true, true);
+                                          VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true, true);
                                     end else begin
                                         TaxJurisdiction.TestField("Tax Account (Sales)");
                                         InitGLEntry(GenJnlLine, GLEntry,
                                           TaxJurisdiction."Tax Account (Sales)",
-                                          GLEntryVATAmount, SrcCurrGLEntryVATAmt, true, true);
+                                          VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true, true);
                                     end;
                                     GLEntry."Bal. Account No." := TransVATAccNo;
                                     if VATPostingSetup."Trans. VAT Type" = VATPostingSetup."Trans. VAT Type"::"Amount & Tax" then begin
@@ -1061,6 +1077,98 @@
                                 end;
                         end;
                 end;
+        end;
+    end;
+
+    local procedure CreateNormalVATGLEntries(GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; VATPostingParameters: Record "VAT Posting Parameters")
+    var
+        LastNextEntryNo: Integer;
+    begin
+        if VATPostingParameters."Unrealized VAT" or (VATPostingParameters."Non-Deductible VAT %" <> 100) then
+            CreateGLEntry(
+                GenJnlLine, VATPostingSetup.GetPurchAccount(VATPostingParameters."Unrealized VAT"),
+                VATPostingParameters."Deductible VAT Amount", VATPostingParameters."Deductible VAT Amount ACY", true);
+        if VATPostingParameters."Non-Deductible VAT %" <> 0 then
+            if VATPostingParameters."Non-Ded. Purchase VAT Account" = '' then begin
+                if GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Fixed Asset" then begin
+                    LastNextEntryNo := NextEntryNo;
+                    CreateGLEntry(
+                        GenJnlLine, GenJnlLine."FA G/L Account No.",
+                        VATPostingParameters."Non-Deductible VAT Amount", VATPostingParameters."Non-Deductible VAT Amount ACY", true);
+                    PostFAJnlLineWithGLEntryBufUpdate(GenJnlLine, VATPostingParameters, LastNextEntryNo);
+                end else
+                    CreateGLEntry(
+                        GenJnlLine, GenJnlLine."Account No.",
+                        VATPostingParameters."Non-Deductible VAT Amount", VATPostingParameters."Non-Deductible VAT Amount ACY", true);
+            end else begin
+                LastNextEntryNo := NextEntryNo;
+                CreateGLEntry(
+                    GenJnlLine, VATPostingParameters."Non-Ded. Purchase VAT Account",
+                    VATPostingParameters."Non-Deductible VAT Amount", VATPostingParameters."Non-Deductible VAT Amount ACY", true);
+                if GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Fixed Asset" then
+                    PostFAJnlLineWithGLEntryBufUpdate(GenJnlLine, VATPostingParameters, LastNextEntryNo);
+            end;
+    end;
+
+    local procedure CreateReverseChargeVATGLEntries(GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; VATPostingParameters: Record "VAT Posting Parameters")
+    var
+        LastNextEntryNo: Integer;
+    begin
+        if VATPostingParameters."Unrealized VAT" or not (NonDeductibleVAT.IsNonDeductibleVATEnabled()) then begin
+            OnInsertVATOnBeforeCreateGLEntryForReverseChargeVATToPurchAcc(
+                GenJnlLine, VATPostingSetup, VATPostingParameters."Unrealized VAT", VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
+            CreateGLEntry(GenJnlLine, VATPostingSetup.GetPurchAccount(VATPostingParameters."Unrealized VAT"), VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
+            OnInsertVATOnBeforeCreateGLEntryForReverseChargeVATToRevChargeAcc(
+                GenJnlLine, VATPostingSetup, VATPostingParameters."Unrealized VAT", VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
+            CreateGLEntry(GenJnlLine, VATPostingSetup.GetRevChargeAccount(VATPostingParameters."Unrealized VAT"), -VATPostingParameters."Full VAT Amount", -VATPostingParameters."Full VAT Amount ACY", true);
+            exit;
+        end;
+        if VATPostingParameters."Non-Deductible VAT %" <> 100 then begin
+            CreateGLEntry(
+                GenJnlLine, VATPostingSetup.GetPurchAccount(VATPostingParameters."Unrealized VAT"), VATPostingParameters."Deductible VAT Amount", VATPostingParameters."Deductible VAT Amount ACY", true);
+            CreateGLEntry(
+                GenJnlLine, VATPostingSetup.GetRevChargeAccount(VATPostingParameters."Unrealized VAT"), -VATPostingParameters."Deductible VAT Amount", -VATPostingParameters."Deductible VAT Amount ACY", true);
+        end;
+        if VATPostingParameters."Non-Deductible VAT %" = 0 then
+            exit;
+        if VATPostingParameters."Non-Ded. Purchase VAT Account" = '' then begin
+            if GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Fixed Asset" then begin
+                LastNextEntryNo := NextEntryNo;
+                CreateGLEntry(
+                    GenJnlLine, GenJnlLine."FA G/L Account No.", VATPostingParameters."Non-Deductible VAT Amount", VATPostingParameters."Non-Deductible VAT Amount ACY", true);
+                if GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Fixed Asset" then
+                    PostFAJnlLineWithGLEntryBufUpdate(GenJnlLine, VATPostingParameters, LastNextEntryNo);
+                CreateGLEntry(
+                    GenJnlLine, VATPostingSetup.GetRevChargeAccount(VATPostingParameters."Unrealized VAT"), -VATPostingParameters."Non-Deductible VAT Amount", -VATPostingParameters."Non-Deductible VAT Amount ACY", true);
+            end else begin
+                CreateGLEntry(
+                    GenJnlLine, VATPostingSetup.GetRevChargeAccount(VATPostingParameters."Unrealized VAT"), -VATPostingParameters."Non-Deductible VAT Amount", -VATPostingParameters."Non-Deductible VAT Amount ACY", true);
+                CreateGLEntry(
+                    GenJnlLine, GenJnlLine."Account No.", VATPostingParameters."Non-Deductible VAT Amount", VATPostingParameters."Non-Deductible VAT Amount ACY", true);
+            end;
+        end else begin
+            LastNextEntryNo := NextEntryNo;
+            CreateGLEntry(
+                GenJnlLine, VATPostingParameters."Non-Ded. Purchase VAT Account", VATPostingParameters."Non-Deductible VAT Amount", VATPostingParameters."Non-Deductible VAT Amount ACY", true);
+            if GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Fixed Asset" then
+                PostFAJnlLineWithGLEntryBufUpdate(GenJnlLine, VATPostingParameters, LastNextEntryNo);
+            CreateGLEntry(
+                GenJnlLine, VATPostingSetup.GetRevChargeAccount(VATPostingParameters."Unrealized VAT"), -VATPostingParameters."Non-Deductible VAT Amount", -VATPostingParameters."Non-Deductible VAT Amount ACY", true);
+        end;
+    end;
+
+    local procedure PostFAJnlLineWithGLEntryBufUpdate(GenJnlLine: Record "Gen. Journal Line"; VATPostingParameters: Record "VAT Posting Parameters"; LastNextEntryNo: Integer)
+    var
+        TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary;
+        FAJnlPostLine: Codeunit "FA Jnl.-Post Line";
+    begin
+        if not NonDeductibleVAT.UseNonDeductibleVATAmountForFixedAssetCost() then
+            exit;
+        FAJnlPostLine.GenJnlPostLine(GenJnlLine, VATPostingParameters."Non-Deductible VAT Amount", 0, NextTransactionNo, LastNextEntryNo, GLReg."No.");
+        if FAJnlPostLine.FindFirstGLAcc(TempFAGLPostingBuffer) then begin
+            TempGLEntryBuf."FA Entry Type" := TempFAGLPostingBuffer."FA Entry Type";
+            TempGLEntryBuf."FA Entry No." := TempFAGLPostingBuffer."FA Entry No.";
+            TempGLEntryBuf.Modify();
         end;
     end;
 
@@ -1285,6 +1393,8 @@
         else
             CustLedgEntry.Insert(true);
 
+        RecordLinkMgt.CopyLinks(GenJournalLine, CustLedgEntry);
+
         // Post detailed customer entries
         DtldLedgEntryInserted := PostDtldCustLedgEntries(GenJournalLine, TempDtldCVLedgEntryBuf, CustPostingGr, true);
 
@@ -1409,6 +1519,8 @@
             if not VendPostingGr."Skip Posting" then
                 VendLedgEntry.Insert(true);
 
+        RecordLinkMgt.CopyLinks(GenJournalLine, VendLedgEntry);
+
         // Post detailed vendor entries
         OnPostVendOnBeforePostDtldVendLedgEntries(VendLedgEntry, GenJournalLine, TempDtldCVLedgEntryBuf, NextEntryNo);
         DtldLedgEntryInserted := PostDtldVendLedgEntries(GenJournalLine, TempDtldCVLedgEntryBuf, VendPostingGr, true);
@@ -1491,6 +1603,8 @@
             OnPostEmployeeOnBeforeEmployeeLedgerEntryInsert(GenJnlLine, EmployeeLedgerEntry);
             EmployeeLedgerEntry.Insert(true);
 
+            RecordLinkMgt.CopyLinks(GenJnlLine, EmployeeLedgerEntry);
+
             // Post detailed employee entries
             DtldLedgEntryInserted := PostDtldEmplLedgEntries(GenJnlLine, TempDtldCVLedgEntryBuf, EmployeePostingGr, true);
             OnPostEmployeeOnAfterPostDtldEmplLedgEntries(GenJnlLine, EmployeeLedgerEntry, DtldLedgEntryInserted);
@@ -1558,8 +1672,9 @@
             BankAccLedgEntry.Insert(true);
             OnPostBankAccOnAfterBankAccLedgEntryInsert(BankAccLedgEntry, GenJnlLine, BankAcc);
 
-            if CheckLedgerEntryIsNeeded(BankAcc, GenJnlLine)
-            then begin
+            RecordLinkMgt.CopyLinks(GenJnlLine, BankAccLedgEntry);
+
+            if CheckLedgerEntryIsNeeded(BankAcc, GenJnlLine) then begin
                 if BankAcc."Currency Code" <> "Currency Code" then
                     Error(BankPaymentTypeMustNotBeFilledErr);
                 case "Bank Payment Type" of
@@ -1792,6 +1907,7 @@
             OnPostFixedAssetOnAfterSetGenJnlLineShortcutDimCodes(GenJnlLine);
             GenJnlLine."Dimension Set ID" := DimensionSetID;
             GenJnlLine.Correction := Correction2;
+            GenJnlLine."FA G/L Account No." := GLEntry."G/L Account No.";
             OnPostFixedAssetOnBeforeAssignGLEntry(GenJnlLine, GLEntry, GLEntry2);
             GLEntry := GLEntry2;
             if VATEntryGLEntryNo = 0 then
@@ -2008,6 +2124,7 @@
                     if (FirstGLEntryNo = 0) or (FirstGLEntryNo > GlobalGLEntry."Entry No.") then
                         FirstGLEntryNo := GlobalGLEntry."Entry No.";
                 OnAfterInsertGlobalGLEntry(GlobalGLEntry, TempGLEntryBuf, NextEntryNo, GenJnlLine);
+                RecordLinkMgt.CopyLinks(GenJnlLine, GlobalGLEntry);
             until TempGLEntryBuf.Next() = 0;
 
             GLReg."To VAT Entry No." := NextVATEntryNo - 1;
@@ -5203,7 +5320,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostDtldCVLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, AccNo, Unapply, AdjAmount, IsHandled);
+        OnBeforePostDtldCVLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, AccNo, Unapply, AdjAmount, IsHandled, AddCurrencyCode);
         if IsHandled then
             exit;
 
@@ -8990,6 +9107,12 @@
     var
         DeferralPostingBuffer: Record "Deferral Posting Buffer";
         GLEntry: Record "G/L Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DeferralTemplate: Record "Deferral Template";
+        NonDeductibleVATPct: Decimal;
+        VATAmountRounding: Decimal;
+        PositiveNDVATAmountRounding: Decimal;
+        NegativeNDVATAmountRounding: Decimal;
         PostDate: Date;
         IsHandled: Boolean;
         DeferralSourceCode: Code[10];
@@ -9001,7 +9124,7 @@
                 if "Source Type" = "Source Type"::Customer then begin
                     DeferralDocType := DeferralDocType::Sales;
                     DeferralSourceCode := GetSalesDeferralSourceCode();
-                end else begin 
+                end else begin
                     DeferralDocType := DeferralDocType::Purchase;
                     DeferralSourceCode := GetPurchaseDeferralSourceCode();
                 end;
@@ -9009,8 +9132,10 @@
                 DeferralPostingBuffer.SetRange("Document No.", "Document No.");
                 DeferralPostingBuffer.SetRange("Deferral Line No.", "Deferral Line No.");
                 OnPostDeferralPostBufferOnAfterSetFilters(DeferralPostingBuffer, GenJournalLine);
-
+                VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
+                NonDeductibleVATPct := NonDeductibleVAT.GetNonDeductibleVATPct("VAT Bus. Posting Group", "VAT Prod. Posting Group", DeferralDocType);
                 if DeferralPostingBuffer.FindSet() then begin
+                    DeferralTemplate.Get(DeferralPostingBuffer."Deferral Code");
                     repeat
                         PostDate := DeferralPostingBuffer."Posting Date";
                         IsHandled := false;
@@ -9043,6 +9168,9 @@
                             InsertGLEntry(GenJournalLine, GLEntry, true);
                             OnPostDeferralPostBufferOnAfterInsertGLEntry(GenJournalLine, DeferralPostingBuffer);
                         end;
+                        InsertDeferralNonDeductibleVATGLEntries(
+                            NonDeductibleVATPct, DeferralPostingBuffer, VATPostingSetup, GenJournalLine, DeferralTemplate,
+                            VATAmountRounding, PositiveNDVATAmountRounding, NegativeNDVATAmountRounding);
                     until DeferralPostingBuffer.Next() = 0;
                     OnPostDeferralPosBufferOnBeforeDeleteDeferralPostBuffer(GenJournalLine, DeferralPostingBuffer);
                     DeferralPostingBuffer.DeleteAll();
@@ -9061,6 +9189,62 @@
             DeferralUtilities.DeferralCodeOnDelete(
               "Deferral Document Type"::"G/L".AsInteger(),
               "Journal Template Name", "Journal Batch Name", 0, '', "Line No.");
+    end;
+
+    local procedure InsertDeferralNonDeductibleVATGLEntries(NonDeductibleVATPct: Decimal; DeferralPostingBuffer: Record "Deferral Posting Buffer"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLine: Record "Gen. Journal Line"; DeferralTemplate: Record "Deferral Template"; var VATAmountRounding: Decimal; var PositiveNDVATAmountRounding: Decimal; var NegativeNDVATAmountRounding: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+        NonDeductibleVATAmount: Decimal;
+        VATAmount: Decimal;
+        UnroundedVATAmount: Decimal;
+        DeferralVATAmountRounding: Decimal;
+        PostingGLAccountNo: Code[20];
+        DeferralGLAccountNo: Code[20];
+        Sign: Decimal;
+    begin
+        if NonDeductibleVATPct = 0 then
+            exit;
+
+        if DeferralTemplate."Deferral Account" <> DeferralPostingBuffer."Deferral Account" then begin
+            DeferralGLAccountNo := DeferralPostingBuffer."G/L Account";
+            PostingGLAccountNo := DeferralPostingBuffer."Deferral Account";
+            DeferralVATAmountRounding := PositiveNDVATAmountRounding;
+            Sign := 1;
+        end else begin
+            DeferralGLAccountNo := DeferralPostingBuffer."Deferral Account";
+            PostingGLAccountNo := DeferralPostingBuffer."G/L Account";
+            DeferralVATAmountRounding := NegativeNDVATAmountRounding;
+            Sign := -1;
+        end;
+
+        UnroundedVATAmount := VATAmountRounding + DeferralPostingBuffer.Amount * VATPostingSetup."VAT %" / 100;
+        VATAmount := Round(UnroundedVATAmount, GLSetup."Amount Rounding Precision");
+        VATAmountRounding := UnroundedVATAmount - VATAmount;
+
+        NonDeductibleVATAmount :=
+          Sign * NonDeductibleVAT.GetNonDeductibleAmount(
+            VATAmount,
+            NonDeductibleVATPct,
+            GLSetup."Amount Rounding Precision", DeferralVATAmountRounding);
+
+        if Sign = 1 then
+            PositiveNDVATAmountRounding := DeferralVATAmountRounding
+        else
+            NegativeNDVATAmountRounding := DeferralVATAmountRounding;
+
+        InitGLEntry(GenJournalLine, GLEntry, DeferralGLAccountNo, NonDeductibleVATAmount, NonDeductibleVATAmount, true, true);
+        GLEntry."Posting Date" := DeferralPostingBuffer."Posting Date";
+        GLEntry.Description := DeferralPostingBuffer.Description;
+        GLEntry.CopyFromDeferralPostBuffer(DeferralPostingBuffer);
+        InsertGLEntry(GenJournalLine, GLEntry, true);
+
+        InitGLEntry(
+          GenJournalLine, GLEntry, NonDeductibleVAT.GetNonDeductibleVATAccForDeferrals(DeferralDocType, PostingGLAccountNo, VATPostingSetup),
+          -NonDeductibleVATAmount, NonDeductibleVATAmount, true, true);
+        GLEntry."Posting Date" := DeferralPostingBuffer."Posting Date";
+        GLEntry.Description := DeferralPostingBuffer.Description;
+        GLEntry.CopyFromDeferralPostBuffer(DeferralPostingBuffer);
+        InsertGLEntry(GenJournalLine, GLEntry, true);
     end;
 
     local procedure GetGLSourceCode()
@@ -9633,8 +9817,16 @@
     begin
     end;
 
+#if not CLEAN23
+    [Obsolete('Replaced with OnBeforeInsertVATForGLEntryFromBuffer', '23.0')]
     [IntegrationEvent(true, false)]
     local procedure OnBeforeInsertVATForGLEntry(var GenJnlLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; GLEntryVATAmount: Decimal; SrcCurrGLEntryVATAmt: Decimal; UnrealizedVAT: Boolean; var IsHandled: Boolean; var VATEntry: Record "VAT Entry"; TaxJurisdiction: Record "Tax Jurisdiction"; SrcCurrCode: Code[10]; AddCurrencyCode: Code[10])
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeInsertVATForGLEntryFromBuffer(var GenJnlLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; VATPostingParameters: Record "VAT Posting Parameters"; var IsHandled: Boolean; var VATEntry: Record "VAT Entry"; TaxJurisdiction: Record "Tax Jurisdiction"; AddCurrencyCode: Code[10])
     begin
     end;
 
@@ -9739,7 +9931,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforePostDtldCVLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var AccNo: Code[20]; var Unapply: Boolean; var AdjAmount: array[4] of Decimal; var IsHandled: Boolean)
+    local procedure OnBeforePostDtldCVLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var AccNo: Code[20]; var Unapply: Boolean; var AdjAmount: array[4] of Decimal; var IsHandled: Boolean; AddCurrencyCode: Code[10])
     begin
     end;
 

@@ -4237,6 +4237,50 @@ codeunit 134386 "ERM Sales Documents II"
         ItemLedgerEntries.TestField("Country/Region Code", CountryRegion.Code);
     end;
 
+    [Test]
+    procedure VerifyInvoiceDiscountValueOnSalesHeaderAfterUpdatingPostingDateOnSalesOrderWithLineDiscount()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 468735] Verify Invoice Discount Value on Sales Header after updating Posting Date on Sales Order with Line Discount 
+        Initialize();
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create Sales Lines
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1, 1000);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1, 250);
+
+        // [GIVEN] Open Sales Order
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [GIVEN] Set Invoice Discount Amount
+        SalesOrder.SalesLines."Invoice Discount Amount".SetValue(100);
+        SalesOrder.Close();
+
+        // [GIVEN] Set Line Discount on first Sales Line        
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 10000);
+        SalesLine.SetSalesHeader(SalesHeader);
+        SalesLine.Validate("Line Discount %", 10);
+        SalesLine.Modify(true);
+
+        // [WHEN] Set Posting Date
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        SalesHeader.Validate("Posting Date", SalesHeader."Posting Date" + 1);
+        SalesHeader.Modify(true);
+
+        // [THEN] Verify results
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(SalesHeader."Invoice Discount Value");
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";

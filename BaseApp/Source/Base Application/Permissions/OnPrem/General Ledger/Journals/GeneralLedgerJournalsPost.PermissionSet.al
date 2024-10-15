@@ -65,6 +65,8 @@ permissionset 2118 "General Ledger Journals - Post"
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
                   tabledata "VAT Setup Posting Groups" = R,
+                  tabledata "VAT Setup" = R,
+                  tabledata "VAT Posting Parameters" = R,
                   tabledata "Workflow - Record Change" = Rimd,
                   tabledata "Workflow - Table Relation" = R,
                   tabledata Workflow = R,

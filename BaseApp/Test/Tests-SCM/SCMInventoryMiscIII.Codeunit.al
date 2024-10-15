@@ -51,6 +51,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         ProductionOrderCreatedMsg: Label 'Released Prod. Order';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
         UsageNotLinkedToBlankLineTypeMsg: Label 'Usage will not be linked to the job planning line because the Line Type field is empty';
+        ReasonCodeErr: Label 'Reason Code not matched.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -1659,6 +1660,108 @@ codeunit 137295 "SCM Inventory Misc. III"
         ItemLedgerEntry.TestField(Quantity, -JobJournalLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PostedItemShipmentWithReasonCode()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Location: Record Location;
+        Item: Record Item;
+        ReasonCode: Record "Reason Code";
+        GLEntry: Record "G/L Entry";
+        InventorySetup: Record "Inventory Setup";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [SCENARIO 464704] Dealing with field reason code, behavior is different and not consistent comparing item journal with inventory shipment  where reason code is not kept.
+        Initialize();
+
+        // [GIVEN] Update Inventory Setup with "Automatic Cost Posting" = true and "Automatic Cost Adjustment" = Always
+        UpdateInventorySetupWithAutomaticCostPosting(InventorySetup."Automatic Cost Adjustment"::Always);
+
+        // [GIVEN] Create Location, Item  and Reason Code
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryInventory.CreateItem(Item);
+        LibraryERM.CreateReasonCode(ReasonCode);
+
+        // [GIVEN] Create  Inventory Shipment with Shipment Line
+        CreateInvtDocumentWithLine(
+          InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Shipment, Location.Code, '');
+
+        // [GIVEN] Assign Posting No. on Inventory Document Header
+        InvtDocumentHeader."Posting No." := LibraryUtility.GenerateGUID();
+        InvtDocumentHeader.Modify();
+
+        // [GIVEN] Update Reason code and Unit Cost on Inventory Document Line
+        InvtDocumentLine.Validate("Reason Code", ReasonCode.Code);
+        InvtDocumentLine.Validate("Unit Cost", LibraryRandom.RandInt(10));
+        InvtDocumentLine.Modify();
+
+        // [WHEN] Post the Invt. Shipment document.
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [VERIFY] Verify "G/L Entry" has Reason Code same as on  Inventory Document Line
+        GLEntry.FindLast();
+        Assert.AreEqual(ReasonCode.Code, GLEntry."Reason Code", ReasonCodeErr);
+
+        // [VERIFY] Verify "Value Entry" has Reason Code same as on  Inventory Document Line
+        ValueEntry.FindLast();
+        Assert.AreEqual(ReasonCode.Code, ValueEntry."Reason Code", ReasonCodeErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PostedItemReceiptWithReasonCode()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Location: Record Location;
+        Item: Record Item;
+        ReasonCode: Record "Reason Code";
+        GLEntry: Record "G/L Entry";
+        InventorySetup: Record "Inventory Setup";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [SCENARIO 464704] Dealing with field reason code, behavior is different and not consistent comparing item journal with inventory shipment  where reason code is not kept.
+        Initialize();
+
+        // [GIVEN] Update Inventory Setup with "Automatic Cost Posting" = true and "Automatic Cost Adjustment" = Always
+        InventorySetup.Get();
+        UpdateInventorySetupWithAutomaticCostPosting(InventorySetup."Automatic Cost Adjustment"::Always);
+
+
+        // [GIVEN] Create Location, Item  and Reason Code
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryInventory.CreateItem(Item);
+        LibraryERM.CreateReasonCode(ReasonCode);
+
+        // [GIVEN] Create  Inventory Shipment with Shipment Line
+        CreateInvtDocumentWithLine(
+          InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Receipt, Location.Code, '');
+
+        // [GIVEN] Assign Posting No. on Inventory Document Header
+        InvtDocumentHeader."Posting No." := LibraryUtility.GenerateGUID();
+        InvtDocumentHeader.Modify();
+
+        // [GIVEN] Update Reason code and Unit Cost on Inventory Document Line
+        InvtDocumentLine.Validate("Reason Code", ReasonCode.Code);
+        InvtDocumentLine.Validate("Unit Cost", LibraryRandom.RandInt(10));
+        InvtDocumentLine.Modify();
+
+        // [WHEN] Post the Invt. Shipment document.
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [VERIFY] Verify "G/L Entry" has Reason Code same as on  Inventory Document Line
+        GLEntry.FindLast();
+        Assert.AreEqual(ReasonCode.Code, GLEntry."Reason Code", ReasonCodeErr);
+
+        // [VERIFY] Verify "Value Entry" has Reason Code same as on  Inventory Document Line
+        ValueEntry.FindLast();
+        Assert.AreEqual(ReasonCode.Code, ValueEntry."Reason Code", ReasonCodeErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2980,6 +3083,32 @@ codeunit 137295 "SCM Inventory Misc. III"
         InventorySetup.Validate("Automatic Cost Posting", false);
         InventorySetup.Modify(true);
     end;
+
+    local procedure CreateInvtDocumentWithLine(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; Item: Record Item; DocumentType: Enum "Invt. Doc. Document Type"; LocationCode: Code[10]; SalespersonPurchaserCode: Code[20])
+    begin
+        CreateInvtDocumentWithLine(InvtDocumentHeader, InvtDocumentLine, Item, DocumentType, LocationCode, SalespersonPurchaserCode, LibraryRandom.RandDec(10, 2));
+    end;
+
+    local procedure CreateInvtDocumentWithLine(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; Item: Record Item; DocumentType: Enum "Invt. Doc. Document Type"; LocationCode: Code[10]; SalespersonPurchaserCode: Code[20]; Qty: Decimal)
+    begin
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, DocumentType, LocationCode);
+        InvtDocumentHeader.Validate("Salesperson/Purchaser Code", SalespersonPurchaserCode);
+        InvtDocumentHeader.Modify(true);
+        LibraryInventory.CreateInvtDocumentLine(
+          InvtDocumentHeader, InvtDocumentLine, Item."No.", Item."Unit Cost", Qty);
+    end;
+
+    local procedure UpdateInventorySetupWithAutomaticCostPosting(AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        LibraryVariableStorage.Enqueue(UnadjustedValueEntriesMessage);
+        InventorySetup.Get();
+        InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
+        InventorySetup.Validate("Automatic Cost Posting", true);
+        InventorySetup.Modify(true);
+    end;
+
 
     [RequestPageHandler]
     [Scope('OnPrem')]

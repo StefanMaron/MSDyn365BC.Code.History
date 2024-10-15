@@ -409,6 +409,13 @@
         end;
     end;
 
+    procedure CopyRecordLinksToFALedgEntry(GenJnlLine: Record "Gen. Journal Line")
+    var
+        RecordLinkMgt: Codeunit "Record Link Management";
+    begin
+        RecordLinkMgt.CopyLinks(GenJnlLine, FALedgEntry);
+    end;
+
     local procedure InitRegister(CalledFrom: Enum "FA Register Called From"; GLEntryNo: Integer; SourceCode: Code[10]; BatchName: Code[10])
     begin
         if (CalledFrom = "FA Register Called From"::"Fixed Asset") and (NextMaintenanceEntryNo <> 0) then

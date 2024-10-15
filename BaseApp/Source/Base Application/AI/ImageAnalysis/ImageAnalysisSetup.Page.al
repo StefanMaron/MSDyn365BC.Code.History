@@ -10,6 +10,7 @@ page 2020 "Image Analysis Setup"
     ShowFilter = false;
     SourceTable = "Image Analysis Setup";
     UsageCategory = Administration;
+    AdditionalSearchTerms = 'Item from picture,Azure Cognitive Services,Computer Vision';
 
     layout
     {
@@ -21,7 +22,7 @@ page 2020 "Image Analysis Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'API URI';
-                    ToolTip = 'Specifies the API URI for the Computer Vision account to use with Microsoft Cognitive Services.';
+                    ToolTip = 'Specifies the API URI for the Computer Vision account to use with Azure Cognitive Services.';
 
                     trigger OnValidate()
                     begin
@@ -34,7 +35,7 @@ page 2020 "Image Analysis Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'API Key';
                     ExtendedDatatype = Masked;
-                    ToolTip = 'Specifies the API key for the Computer Vision account to use with Microsoft Cognitive Services.';
+                    ToolTip = 'Specifies the API key for the Computer Vision account to use with Azure Cognitive Services.';
 
                     trigger OnValidate()
                     begin
@@ -84,7 +85,7 @@ page 2020 "Image Analysis Setup"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Computer Vision API Documentation';
                 Image = LinkWeb;
-                ToolTip = 'Set up a Computer Vision account with Microsoft Cognitive Services to do image analysis with Dynamics 365.';
+                ToolTip = 'Set up a Computer Vision account with Azure Cognitive Services to do image analysis with Dynamics 365.';
 
                 trigger OnAction()
                 begin

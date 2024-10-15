@@ -1110,7 +1110,7 @@ table 113 "Sales Invoice Line"
 
     procedure SetSecurityFilterOnRespCenter()
     var
-        UserSetupMgt: Codeunit "User Setup Management";
+        UserSetupManagement: Codeunit "User Setup Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1118,9 +1118,9 @@ table 113 "Sales Invoice Line"
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetSalesFilter() <> '' then begin
+        if UserSetupManagement.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
+            SetRange("Responsibility Center", UserSetupManagement.GetSalesFilter());
             FilterGroup(0);
         end;
     end;

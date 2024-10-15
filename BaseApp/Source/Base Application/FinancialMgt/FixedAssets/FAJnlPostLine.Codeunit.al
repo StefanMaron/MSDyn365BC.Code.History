@@ -165,6 +165,8 @@ codeunit 5632 "FA Jnl.-Post Line"
                 end;
                 UnmarkDeprBonusBaseEntries("Depr. Bonus", "FA Posting Date");
             end;
+            
+            FAInsertLedgEntry.CopyRecordLinksToFALedgEntry(GenJnlLine);
         end;
 
         OnAfterGenJnlPostLine(GenJnlLine);

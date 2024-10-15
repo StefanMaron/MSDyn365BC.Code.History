@@ -617,6 +617,24 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Item Reference Type No.';
         }
+        field(6200; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %"';
+            DecimalPlaces = 0 : 5;
+        }
+        field(6201; "Non-Deductible VAT Base"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Base';
+        }
+        field(6202; "Non-Deductible VAT Amount"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Amount';
+        }
+        field(6203; "Non-Deductible VAT Diff."; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Difference';
+            Editable = false;
+        }
         field(6608; "Return Reason Code"; Code[10])
         {
             Caption = 'Return Reason Code';

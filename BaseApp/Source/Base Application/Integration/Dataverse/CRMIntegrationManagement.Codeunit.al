@@ -130,6 +130,7 @@ codeunit 5330 "CRM Integration Management"
         CurrencySymbolMappingFeatureIdTok: Label 'CurrencySymbolMapping', Locked = true;
         OptionMappingFeatureIdTok: Label 'OptionMapping', Locked = true;
 #endif
+#if not CLEAN23
         SuccessfullyScheduledMarkingOfInvoiceAsCoupledTxt: Label 'Successfully scheduled marking of invoice %1 as coupled to Dynamics 365 Sales invoice.', Locked = true;
         UnableToMarkRecordAsCoupledTableID0Txt: Label 'Unable to mark record as coupled, Table ID is 0 on CRM Integration Record %1.', Locked = true;
         UnableToMarkRecordAsCoupledOpenTableFailsTxt: Label 'Unable to mark record as coupled, unable to open Table ID %1 from CRM Integration Record %2.', Locked = true;
@@ -138,6 +139,7 @@ codeunit 5330 "CRM Integration Management"
         NoNeedToChangeCoupledFlagTxt: Label 'Record with systemid %1 already has Coupled to CRM set to %2, from CRM Integration Record %3.', Locked = true;
         SetCouplingFlagJQEDescriptionTxt: Label 'Marking %1 %2 as coupled to Dataverse.', Comment = '%1 - Business Central table name (e.g. Customer, Vendor, Posted Sales Invoice); %2 - a Guid, record identifier; Dataverse is a name of a Microsoft service and must not be translated.';
         JobQueueCategoryLbl: Label 'BCI CPLFLG', Locked = true;
+#endif
         AccountRelationshipTypeNotSupportedErr: Label 'Dynamics 365 Sales account should have relationship type of Customer or Vendor.';
         ProductTypeNotSupportedErr: Label 'Dynamics 365 Sales product should have type of Sales Inventory or Services.';
         UpdateUnitGroupMappingJQEDescriptionTxt: Label 'Updating CRM Unit Group Mapping';
@@ -1107,15 +1109,18 @@ codeunit 5330 "CRM Integration Management"
         BlankGuid: Guid;
     begin
         CRMIntegrationRecord.SetRange("Table ID", 0);
-        CRMIntegrationRecord.SetFilter("Integration ID", '<>%1', BlankGuid);
+        if CRMIntegrationRecord.IsEmpty() then
+            exit;
+
         if CRMIntegrationRecord.FindSet() then
             repeat
-                if not CRMIntegrationRecord.RepairTableIdByLocalRecord() then
-                    if not UseLocalRecordsOnly then
-                        if not CRMIntegrationRecord.RepairTableIdByCRMRecord() then begin
-                            CRMIntegrationRecord.Delete();
-                            Session.LogMessage('0000DQD', StrSubstNo(DeletedRecordWithZeroTableIdTxt, CRMIntegrationRecord."Integration ID", CRMIntegrationRecord."CRM ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                        end;
+                if CRMIntegrationRecord."Integration ID" <> BlankGuid then
+                    if not CRMIntegrationRecord.RepairTableIdByLocalRecord() then
+                        if not UseLocalRecordsOnly then
+                            if not CRMIntegrationRecord.RepairTableIdByCRMRecord() then begin
+                                CRMIntegrationRecord.Delete();
+                                Session.LogMessage('0000DQD', StrSubstNo(DeletedRecordWithZeroTableIdTxt, CRMIntegrationRecord."Integration ID", CRMIntegrationRecord."CRM ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                            end;
             until CRMIntegrationRecord.Next() = 0;
     end;
 
@@ -3459,6 +3464,16 @@ codeunit 5330 "CRM Integration Management"
         end;
     end;
 
+    internal procedure InitializeCRMSynchStatus(var CRMSynchStatus: Record "CRM Synch Status")
+    begin
+        if CRMSynchStatus.IsEmpty() then begin
+            CRMSynchStatus."Last Update Invoice Entry No." := 0;
+            CRMSynchStatus.Insert();
+        end;
+
+        CRMSynchStatus.Get();
+    end;
+
     procedure HasUncoupledSelectedUsers(var SelectedCRMSystemuser: Record "CRM Systemuser"): Boolean
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -3634,6 +3649,7 @@ codeunit 5330 "CRM Integration Management"
         NewEarliestStartDateTime: DateTime;
         Enabled: Boolean;
         IsCRMIntRec: Boolean;
+        RescheduleOffsetInMs: Integer;
     begin
         if CDSConnectionSetup.Get() then
             Enabled := CDSConnectionSetup."Is Enabled";
@@ -3680,13 +3696,17 @@ codeunit 5330 "CRM Integration Management"
             exit;
         if not JobQueueEntry.FindSet() then
             exit;
+
+        // reschedule the synch job in 30 seconds from now, to give time to the user to make further changes
+        RescheduleOffSetInMs := 30000;
         ScheduledTask.ReadIsolation := IsolationLevel::ReadUncommitted;
         repeat
             // The rescheduled task might start while the current transaction is not committed yet.
             // Therefore the task will restart with a delay to lower a risk of use of "old" data.
-            NewEarliestStartDateTime := CurrentDateTime() + 2000;
+            // If the task is scheduled to run soon (in 60 seconds from now) we don't reschedule
+            NewEarliestStartDateTime := CurrentDateTime() + RescheduleOffsetInMs;
             if ScheduledTask.Get(JobQueueEntry."System Task ID") then
-                if (NewEarliestStartDateTime + 5000) < ScheduledTask."Not Before" then
+                if (NewEarliestStartDateTime + RescheduleOffSetInMs) < ScheduledTask."Not Before" then
                     if DoesJobActOnTable(JobQueueEntry, TableNo) then
                         if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", NewEarliestStartDateTime) then
                             if JobQueueEntry.Find() then
@@ -3738,17 +3758,20 @@ codeunit 5330 "CRM Integration Management"
         exit(true);
     end;
 
+#if not CLEAN23
     [TryFunction]
     local procedure TryOpen(var RecRef: RecordRef; TableId: Integer)
     begin
         RecRef.Open(TableId);
     end;
 
+    [Obsolete('This functionality is replaced with flow fields Coupled to Dataverse.', '23.0')]
     procedure SetCoupledFlag(CRMIntegrationRecord: Record "CRM Integration Record"; NewValue: Boolean): Boolean
     begin
         SetCoupledFlag(CRMIntegrationRecord, NewValue, true);
     end;
 
+    [Obsolete('This functionality is replaced with flow fields Coupled to Dataverse.', '23.0')]
     procedure SetCoupledFlag(CRMIntegrationRecord: Record "CRM Integration Record"; NewValue: Boolean; ScheduleTask: Boolean): Boolean
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -3806,10 +3829,12 @@ codeunit 5330 "CRM Integration Management"
             exit(false);
         end;
 
-        CoupledToCRMFieldRef.Value := NewValue;
+        RecRef.GetBySystemId(RecRef.Field(RecRef.SystemIdNo).Value);
+        RecRef.Field(CoupledToCRMFieldNo).Value := NewValue;
         exit(RecRef.Modify());
     end;
 
+    [Obsolete('This functionality is replaced with flow fields Coupled to Dataverse.', '23.0')]
     procedure SetCoupledFlag(CRMOptionMapping: Record "CRM Option Mapping"; NewValue: Boolean): Boolean
     var
         RecRef: RecordRef;
@@ -3829,7 +3854,7 @@ codeunit 5330 "CRM Integration Management"
         CoupledToCRMFieldRef.Value := NewValue;
         exit(RecRef.Modify());
     end;
-
+#endif
     internal procedure FindCoupledToCRMField(var RecRef: RecordRef; var CoupledToCRMFldRef: FieldRef): Boolean
     var
         Field: Record "Field";
@@ -3843,7 +3868,7 @@ codeunit 5330 "CRM Integration Management"
         else begin
             Field.SetRange(TableNo, TableNo);
             Field.SetRange(Type, Field.Type::Boolean);
-            Field.SetRange(FieldName, Customer.FieldName("Coupled to CRM"));
+            Field.SetRange(FieldName, Customer.FieldName("Coupled to Dataverse"));
             if Field.FindFirst() then
                 FieldNo := Field."No."
             else
@@ -4097,42 +4122,6 @@ codeunit 5330 "CRM Integration Management"
             exit(FieldRef);
         FieldRef := RecRef.FieldIndex(1);
         exit(FieldRef);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"CRM Integration Record", 'OnBeforeInsertEvent', '', false, false)]
-    local procedure SetCoupledFlagOnBeforeInsert(var Rec: Record "CRM Integration Record"; RunTrigger: Boolean)
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        SetCoupledFlag(Rec, true);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"CRM Integration Record", 'OnAfterDeleteEvent', '', false, false)]
-    local procedure SetCoupledFlagOnAfterDelete(var Rec: Record "CRM Integration Record"; RunTrigger: Boolean)
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        SetCoupledFlag(Rec, false);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"CRM Option Mapping", 'OnBeforeInsertEvent', '', false, false)]
-    local procedure SetOptionCoupledFlagOnBeforeInsert(var Rec: Record "CRM Option Mapping"; RunTrigger: Boolean)
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        SetCoupledFlag(Rec, true);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"CRM Option Mapping", 'OnAfterDeleteEvent', '', false, false)]
-    local procedure SetOptionCoupledFlagOnAfterDelete(var Rec: Record "CRM Option Mapping"; RunTrigger: Boolean)
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        SetCoupledFlag(Rec, false);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Int. Option Synch. Invoke", 'OnDeletionConflictDetected', '', false, false)]

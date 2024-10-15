@@ -578,6 +578,15 @@ table 12403 "Gen. Journal Line Archive"
         {
             Caption = 'IC Partner G/L Acc. No.';
             TableRelation = "IC G/L Account";
+#if not CLEAN22
+            ObsoleteReason = 'This field will be replaced by IC Account No.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#else
+            ObsoleteReason = 'Replaced by IC Account No.';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#endif
         }
         field(117; "IC Partner Transaction No."; Integer)
         {
@@ -612,6 +621,28 @@ table 12403 "Gen. Journal Line Archive"
         {
             Caption = 'Financial Void';
             Editable = false;
+        }
+        field(130; "IC Account Type"; Enum "IC Journal Account Type")
+        {
+            Caption = 'IC Account Type';
+        }
+        field(131; "IC Account No."; Code[20])
+        {
+            Caption = 'IC Account No.';
+            TableRelation =
+            IF ("IC Account Type" = const("G/L Account")) "IC G/L Account" where("Account Type" = const(Posting), Blocked = const(false))
+            ELSE
+            IF ("Account Type" = const(Customer), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            ELSE
+            IF ("Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            ELSE
+            IF ("Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Account No."), Blocked = const(false))
+            ELSE
+            IF ("Bal. Account Type" = const(Customer), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            ELSE
+            IF ("Bal. Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            ELSE
+            IF ("Bal. Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Bal. Account No."), Blocked = const(false));
         }
         field(480; "Dimension Set ID"; Integer)
         {

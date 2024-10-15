@@ -156,6 +156,8 @@ permissionset 8322 "Service Documents - Post"
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
                   tabledata "VAT Setup Posting Groups" = R,
+				  tabledata "VAT Setup" = R,
+                  tabledata "VAT Posting Parameters" = R,
                   tabledata "Warehouse Activity Line" = R,
                   tabledata "Warehouse Entry" = R,
                   tabledata "Warehouse Receipt Line" = R,

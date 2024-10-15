@@ -373,12 +373,12 @@ page 6564 "Invt. Shipment"
 
     local procedure ShortcutDimension1CodeOnAfterValidate()
     begin
-        CurrPage.ShipmentLines.PAGE.UpdateForm(true);
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension2CodeOnAfterValidate()
     begin
-        CurrPage.ShipmentLines.PAGE.UpdateForm(true);
+        CurrPage.Update();
     end;
 
     local procedure ShowPreview()

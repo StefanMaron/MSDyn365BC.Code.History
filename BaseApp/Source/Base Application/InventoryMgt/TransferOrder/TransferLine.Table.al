@@ -147,6 +147,8 @@
 
                 if ("In-Transit Code" = '') and ("Quantity Shipped" = "Quantity Received") then
                     Validate("Qty. to Receive", "Qty. to Ship");
+
+                CheckDirectTransferQtyToShip();
             end;
         }
         field(7; "Qty. to Receive"; Decimal)
@@ -430,7 +432,7 @@
                 "Units per Parcel" := Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                 "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
                 "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
-
+                OnValidateUnitofMeasureCodeOnBeforeValidateQuantity(Rec, Item);
                 Validate(Quantity);
             end;
         }
@@ -1391,6 +1393,20 @@
                 Error(Text006);
     end;
 
+    procedure CheckDirectTransferQtyToShip()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        if InventorySetup."Direct Transfer Posting" = InventorySetup."Direct Transfer Posting"::"Direct Transfer" then begin
+            GetTransferHeaderNoVerification();
+            if TransHeader."Direct Transfer" and ("Qty. to Ship" <> 0) then begin
+                TestField("Qty. to Ship", Quantity);
+                TestField("Qty. to Ship (Base)", "Quantity (Base)");
+            end;
+        end;
+    end;
+
     procedure OpenItemTrackingLines(Direction: Enum "Transfer Direction")
     var
         IsHandled: Boolean;
@@ -1592,6 +1608,8 @@
 
     local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     begin
+        OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName);
+
         exit(UOMMgt.CalcBaseQty(
             "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
@@ -2173,6 +2191,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitofMeasureCodeOnBeforeValidateQuantity(var TransferLine: Record "Transfer Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetItemLedgerEntryFilters(var ItemLedgEntry: Record "Item Ledger Entry"; TransferLine: Record "Transfer Line")
     begin
     end;
@@ -2234,6 +2257,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddItem(var TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBaseQty(var TransferLine: Record "Transfer Line"; var Qty: Decimal; FromFieldName: Text; ToFieldName: Text)
     begin
     end;
 }

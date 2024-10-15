@@ -326,20 +326,18 @@ codeunit 418 "User Management"
     procedure BasicAuthDepricationNotificationDefault(Enabled: Boolean)
     var
         MyNotifications: Record "My Notifications";
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
         MyNotifications.InsertDefault(
-          BasicAuthDepricationNotificationId(), BasicAuthDescriptionNameTok, BasicAuthDepricationTok, EnvironmentInfo.IsSaaS());
+          BasicAuthDepricationNotificationId(), BasicAuthDescriptionNameTok, BasicAuthDepricationTok, Enabled);
     end;
 
     [Scope('OnPrem')]
     procedure BasicAuthUsedNotificationDefault(Enabled: Boolean)
     var
         MyNotifications: Record "My Notifications";
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
         MyNotifications.InsertDefault(
-          BasicAuthDepricationNotificationId(), BasicAuthUsedNameTok, BasicAuthUsedTok, EnvironmentInfo.IsSaaS());
+          BasicAuthDepricationNotificationId(), BasicAuthUsedNameTok, BasicAuthUsedTok, Enabled);
     end;
 
     [Scope('OnPrem')]

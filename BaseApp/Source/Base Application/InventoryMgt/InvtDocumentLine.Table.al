@@ -154,13 +154,14 @@
             trigger OnValidate()
             begin
                 UpdateAmount();
-                if ("Item No." <> '') and ("Document Type" = "Document Type"::Receipt) then begin
-                    ReadGLSetup();
-                    "Unit Cost" :=
-                      Round(
-                        "Unit Amount" * (1 + "Indirect Cost %" / 100), GLSetup."Unit-Amount Rounding Precision");
-                    Validate("Unit Cost");
-                end;
+                if ("Item No." <> '') and ("Document Type" = "Document Type"::Receipt) then
+                    if "Indirect Cost %" <> 0 then begin
+                        ReadGLSetup();
+                        "Unit Cost" :=
+                          Round(
+                            "Unit Amount" * (1 + "Indirect Cost %" / 100), GLSetup."Unit-Amount Rounding Precision");
+                        Validate("Unit Cost");
+                    end;
             end;
         }
         field(17; "Unit Cost"; Decimal)
@@ -467,7 +468,8 @@
                 "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
 
                 ReadGLSetup();
-                "Unit Cost" := Round(UnitCost * "Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
+                RetrieveCosts();
+                "Unit Cost" := UnitCost;
 
                 Validate(Quantity);
                 Validate("Unit Amount");
@@ -939,7 +941,7 @@
         if GetSKU() then
             UnitCost := SKU."Unit Cost"
         else
-            UnitCost := Item."Unit Cost";
+            UnitCost := Item."Unit Cost" * "Qty. per Unit of Measure";
 
         if Item."Costing Method" <> Item."Costing Method"::Standard then
             UnitCost := Round(UnitCost, GLSetup."Unit-Amount Rounding Precision");

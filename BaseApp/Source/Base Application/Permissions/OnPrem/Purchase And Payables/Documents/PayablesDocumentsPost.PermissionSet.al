@@ -106,6 +106,8 @@
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
                   tabledata "VAT Setup Posting Groups" = R,
+				  tabledata "VAT Setup" = R,
+                  tabledata "VAT Posting Parameters" = R,
                   tabledata Vendor = r,
                   tabledata "Vendor Agreement" = R,
                   tabledata "Vendor Bank Account" = R,

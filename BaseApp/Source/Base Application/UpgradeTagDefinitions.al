@@ -24,9 +24,11 @@
         PerCompanyUpgradeTags.Add(GetNewSalesQuoteEntityBufferUpgradeTag());
         PerCompanyUpgradeTags.Add(GetNewSalesCrMemoEntityBufferUpgradeTag());
         PerCompanyUpgradeTags.Add(GetNewSalesShipmentLineUpgradeTag());
+#if not CLEAN23
         PerCompanyUpgradeTags.Add(GetSetCoupledFlagsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetRepeatedSetCoupledFlagsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSetOptionMappingCoupledFlagsUpgradeTag());
+#endif
         PerCompanyUpgradeTags.Add(GetDataverseAuthenticationUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCleanupDataExchUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDefaultDimensionAPIUpgradeTag());
@@ -124,6 +126,7 @@
         PerCompanyUpgradeTags.Add(GetAccountSchedulesToFinancialReportsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCRMUnitGroupMappingUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCRMSDK90UpgradeTag());
+        PerCompanyUpgradeTags.Add(GetCRMSDK91UpgradeTag());
         PerCompanyUpgradeTags.Add(GetVATDateFieldGLEntriesUpgrade());
         PerCompanyUpgradeTags.Add(GetVATDateFieldVATEntriesUpgrade());
         PerCompanyUpgradeTags.Add(GetVATDateFieldSalesPurchUpgrade());
@@ -139,6 +142,7 @@
         PerCompanyUpgradeTags.Add(GetMapCurrencySymbolUpgradeTag());
         PerCompanyUpgradeTags.Add(GetOptionMappingUpgradeTag());
         PerCompanyUpgradeTags.Add(GetProductionSourceCodeUpdateTag());
+        PerCompanyUpgradeTags.Add(GetPurchaseCreditMemoUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -306,6 +310,7 @@
         exit('MS-383010-SalesShipmentLineDocumentId-20201210');
     end;
 
+#if not CLEAN23
     [Obsolete('Function will be removed or moved to internal', '19.0')]
     procedure GetSetCoupledFlagsUpgradeTag(): Code[250]
     begin
@@ -316,7 +321,7 @@
     begin
         exit('MS-437085-RepeatSetCoupledFlags-20220617');
     end;
-
+#endif
     internal procedure GetNewISVPlansUpgradeTag(): Code[250]
     begin
         exit('MS-287563-NewISVPlansAdded-20181105');
@@ -688,12 +693,13 @@
         exit('MS-385481-UserTaskDescriptionToUTF8-20210112');
     end;
 
+#if not CLEAN23
     [Obsolete('Function will be removed or moved to internal', '20.0')]
     procedure GetRestartSetCoupledFlagJQEsUpgradeTag(): Code[250]
     begin
         exit('MS-417920-RestartSetCoupledFlagJQEs-20211207');
     end;
-
+#endif
     [Obsolete('Function will be removed or moved to internal', '20.0')]
     procedure GetUpgradeNativeAPIWebServiceUpgradeTag(): Code[250]
     begin
@@ -942,12 +948,13 @@
         exit('MS-290460-IntercompanySetup-20211110');
     end;
 
+#if not CLEAN23
     [Obsolete('Function will be removed or moved to internal', '20.0')]
     procedure GetSetOptionMappingCoupledFlagsUpgradeTag(): Code[250]
     begin
         exit('MS-413173-GetSetOptionMappingCoupledFlagsUpgradeTag-20211120');
     end;
-
+#endif
     internal procedure GetItemCrossReferenceInPEPPOLUpgradeTag(): Code[250]
     begin
         exit('MS-422103-GetItemCrossReferenceInPEPPOLUpgradeTag-20220114');
@@ -1001,6 +1008,11 @@
     internal procedure GetCRMSDK90UpgradeTag(): Code[250]
     begin
         exit('MS-444855-GetCRMSDK90UpgradeTag-20220805');
+    end;
+
+    internal procedure GetCRMSDK91UpgradeTag(): Code[250]
+    begin
+        exit('MS-470055-GetCRMSDK91UpgradeTag-20230415');
     end;
 
     procedure GetVATDateFieldGLEntriesUpgrade(): Code[250]
@@ -1065,7 +1077,7 @@
 
     internal procedure GetSendCloudMigrationUpgradeTelemetryBaseAppTag(): Text[250]
     begin
-        exit('MS-456494-CloudMigrationUptakeBaseApp-20220130');
+        exit('MS-456494-CloudMigrationUptakeBaseApp-20230425');
     end;
 
     internal procedure GetICPartnerGLAccountNoUpgradeTag(): Code[250]
@@ -1096,6 +1108,11 @@
     internal procedure GetProductionSourceCodeUpdateTag(): Code[250]
     begin
         exit('MS-462109-GetProductionSourceCodeUpdateTag-20230209');
+    end;
+
+    procedure GetPurchaseCreditMemoUpgradeTag(): Code[250]
+    begin
+        exit('MS-466523-PurchaseCreditMemoUpgradeTag-20230323');
     end;
 }
 

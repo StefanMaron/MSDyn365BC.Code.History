@@ -828,6 +828,7 @@ table 15 "G/L Account"
         AnalysisViewEntry: Record "Analysis View Entry";
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
         MyAccount: Record "My Account";
+        ICGLAccount: Record "IC G/L Account";
         MoveEntries: Codeunit MoveEntries;
         GLCorrespondence: Record "G/L Correspondence";
     begin
@@ -864,6 +865,10 @@ table 15 "G/L Account"
 
         MyAccount.SetRange("Account No.", "No.");
         MyAccount.DeleteAll();
+
+        ICGLAccount.SetRange("Map-to G/L Acc. No.", Rec."No.");
+        if not ICGLAccount.IsEmpty() then
+            ICGLAccount.ModifyAll("Map-to G/L Acc. No.", '');
 
         DimMgt.DeleteDefaultDim(DATABASE::"G/L Account", "No.");
     end;

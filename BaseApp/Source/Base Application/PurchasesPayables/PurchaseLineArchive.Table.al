@@ -1055,21 +1055,21 @@
 
     trigger OnDelete()
     var
-        PurchCommentLineArch: Record "Purch. Comment Line Archive";
+        PurchCommentLineArchive: Record "Purch. Comment Line Archive";
         DeferralHeaderArchive: Record "Deferral Header Archive";
     begin
-        PurchCommentLineArch.SetRange("Document Type", "Document Type");
-        PurchCommentLineArch.SetRange("No.", "No.");
-        PurchCommentLineArch.SetRange("Document Line No.", "Line No.");
-        PurchCommentLineArch.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-        PurchCommentLineArch.SetRange("Version No.", "Version No.");
-        if not PurchCommentLineArch.IsEmpty() then
-            PurchCommentLineArch.DeleteAll();
+        PurchCommentLineArchive.SetRange("Document Type", Rec."Document Type");
+        PurchCommentLineArchive.SetRange("No.", Rec."Document No.");
+        PurchCommentLineArchive.SetRange("Document Line No.", Rec."Line No.");
+        PurchCommentLineArchive.SetRange("Doc. No. Occurrence", Rec."Doc. No. Occurrence");
+        PurchCommentLineArchive.SetRange("Version No.", Rec."Version No.");
+        if not PurchCommentLineArchive.IsEmpty() then
+            PurchCommentLineArchive.DeleteAll();
 
-        if "Deferral Code" <> '' then
+        if Rec."Deferral Code" <> '' then
             DeferralHeaderArchive.DeleteHeader(
                 "Deferral Document Type"::Purchase.AsInteger(),
-                "Document Type".AsInteger(), "Document No.", "Doc. No. Occurrence", "Version No.", "Line No.");
+                Rec."Document Type".AsInteger(), Rec."Document No.", Rec."Doc. No. Occurrence", Rec."Version No.", Rec."Line No.");
     end;
 
     var
@@ -1085,9 +1085,9 @@
             PurchaseHeaderArchive.Init();
         end;
         if PurchaseHeaderArchive."Prices Including VAT" then
-            exit('2,1,' + GetFieldCaption(FieldNumber));
+            exit(CopyStr('2,1,' + GetFieldCaption(FieldNumber), 1, 80));
 
-        exit('2,0,' + GetFieldCaption(FieldNumber));
+        exit(CopyStr('2,0,' + GetFieldCaption(FieldNumber), 1, 80));
     end;
 
     local procedure GetFieldCaption(FieldNumber: Integer): Text[100]

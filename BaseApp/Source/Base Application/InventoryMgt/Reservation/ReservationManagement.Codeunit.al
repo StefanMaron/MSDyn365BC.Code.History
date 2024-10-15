@@ -415,7 +415,7 @@
                         else
                             QtyOnOutBound := 0;
 
-                    if Location."Bin Mandatory" or Location."Require Pick" then begin
+                    if Location."Bin Mandatory" and Location."Require Pick" then begin
                         if TotalAvailQty + QtyOnOutBound < TempEntrySummary."Total Available Quantity" then
                             TempEntrySummary."Total Available Quantity" := TotalAvailQty + QtyOnOutBound;
                         TempEntrySummary."Qty. Alloc. in Warehouse" := QtyAllocInWhse;
@@ -593,7 +593,7 @@
 
         ReservSummaryType := "Reservation Summary Type".FromInteger(ReservSummEntryNo);
 
-        OnAutoReserveOneLineOnAfterUpdateSearchNextStep(Item, Positive, Search, NextStep, InvSearch, InvNextStep);
+        OnAutoReserveOneLineOnAfterUpdateSearchNextStep(Item, Positive, Search, NextStep, InvSearch, InvNextStep, RemainingQtyToReserve);
 
         case ReservSummaryType of
             "Reservation Summary Type"::"Item Ledger Entry":
@@ -2360,6 +2360,7 @@
             WhseActivLine.CalcSums("Qty. Outstanding (Base)");
 
             if Location."Require Pick" then begin
+                WhseItemTrackingSetup.CopyTrackingFromItemTrackingCodeSpecificTracking(ItemTrackingCode);
                 WhseItemTrackingSetup.CopyTrackingFromReservEntry(CalcReservEntry);
 
                 if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" and
@@ -2998,7 +2999,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAutoReserveOneLineOnAfterUpdateSearchNextStep(var Item: Record Item; var Positive: Boolean; var Search: Text[1]; var NextStep: Integer; var InvSearch: Text[1]; InvNextStep: Integer)
+    local procedure OnAutoReserveOneLineOnAfterUpdateSearchNextStep(var Item: Record Item; var Positive: Boolean; var Search: Text[1]; var NextStep: Integer; var InvSearch: Text[1]; InvNextStep: Integer; var RemainingQtyToReserve: Decimal)
     begin
     end;
 

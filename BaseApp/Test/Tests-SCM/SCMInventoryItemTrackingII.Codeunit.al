@@ -1988,6 +1988,70 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,PostedSalesDocumentLinesPageHandler')]
+    procedure VerifyRegisterPickWithMandatorySerialNoAndNonEssentialLotNo()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        PurchaseLine: Record "Purchase Line";
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+        LotNo, SerialNo : Code[50];
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 469609] Verify that you can register a pick for an item that has mandatory serial number and non-essential lot number 
+        Initialize();
+
+        Quantity := 1;
+
+        // [GIVEN] Create SN specific Item Tracking Code
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
+
+        // [GIVEN] Create Item with SN specific Item Tracking Code        
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+
+        // [GIVEN] Generate Lot No and Serial No
+        LotNo := LibraryUtility.GenerateGUID();
+        SerialNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create Full Warehouse Location
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create Purchase Order with Item and assign SN and Lot No.
+        CreatePurchaseOrderWithLocationAndTrackingData(PurchaseLine, Item."No.", Location.Code, LotNo, SerialNo, Quantity);
+
+        // [GIVEN] Create and Post Warehouse Receipt and Put-away
+        CreateAndPostWarehouseReceiptFromPO(PurchaseLine);
+
+        // [GIVEN] Create and Register Put-away
+        CreateAndRegisterPutAwayFromPurchaseOrder(PurchaseLine."Document No.", Item."No.", Location.Code);
+
+        // [GIVEN] Create Sales Order and Warehouse Shipment
+        CreateSalesOrderAndWareshouseShipment(SalesHeader, Item."No.", Location.Code, Quantity);
+
+        // [GIVEN] Create and Register Warehouse Pick
+        CreateAndRegisterPickFromWareshouseShipment(SalesHeader."No.", LotNo, SerialNo, Quantity);
+
+        // [GIVEN] Post Warehouse Shipment
+        PostWarehouseShipmentFromSalesOrder(SalesHeader);
+
+        // [GIVEN] Create Sales Return Order
+        CreateSalesRetOrderGetPstdDocLineToRev(SalesHeader, Item."No.");
+
+        // [GIVEN] Create and Post Warehouse Receipt and Put-away
+        CreateAndPostWhseRcptFromSalesReturn(SalesHeader, Item."No.");
+
+        // [WHEN] Create Sales Order and Warehouse Shipment
+        CreateSalesOrderAndWareshouseShipment(SalesHeader, Item."No.", Location.Code, Quantity);
+
+        // [THEN] Create and Register Warehouse Pick
+        CreateAndRegisterPickFromWareshouseShipment(SalesHeader."No.", LotNo, SerialNo, Quantity);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2962,6 +3026,232 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         end;
     end;
 
+    local procedure CreateSalesRetOrderGetPstdDocLineToRev(var SalesHeader: Record "Sales Header"; ItemNo: Code[20])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", SalesHeader."Sell-to Customer No.");
+        LibraryVariableStorage.Enqueue(ItemNo); // Enqueue value for PostedSalesDocumentLinesPageHandler
+        GetPostedDocToReverseOnSalesReturnOrder(SalesHeader."No.");
+    end;
+
+    local procedure GetPostedDocToReverseOnSalesReturnOrder(No: Code[20])
+    var
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.Filter.SetFilter("No.", No);
+        SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
+    end;
+
+    local procedure PostWarehouseShipmentFromSalesOrder(var SalesHeader: Record "Sales Header")
+    var
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", SalesHeader."Document Type");
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, true);
+    end;
+
+    local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
+        WarehouseShipmentLine.SetRange("Source No.", SourceNo);
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+    end;
+
+    local procedure CreateAndRegisterPickFromWareshouseShipment(SalesHeaderNo: Code[20]; LotNo: Code[50]; SerialNo: Code[50]; QtyToHandle: Decimal)
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        CreatePickFromWarehouseShipment(WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeaderNo);
+        UpdateWarehouseActivityLineWithLotNoAndSerialNo(SalesHeaderNo, LotNo, SerialNo, QtyToHandle);
+        RegisterWarehouseActivity(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeaderNo,
+          WarehouseActivityLine."Activity Type"::Pick);
+    end;
+
+    local procedure UpdateWarehouseActivityLineWithLotNoAndSerialNo(SalesHeaderNo: Code[20]; LotNo: Code[50]; SerialNo: Code[50]; QtyToHandle: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Sales Order");
+        WarehouseActivityLine.SetRange("Source No.", SalesHeaderNo);
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Lot No.", LotNo);
+            WarehouseActivityLine.Validate("Serial No.", SerialNo);
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+            WarehouseActivityLine.Modify();
+        until WarehouseActivityLine.Next() = 0;
+    end;
+
+    local procedure CreatePickFromWarehouseShipment(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
+    var
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        FindWarehouseShipmentLine(WarehouseShipmentLine, SourceDocument, SourceNo);
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+    end;
+
+    local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
+    begin
+        WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
+        WarehouseShipmentLine.SetRange("Source No.", SourceNo);
+        WarehouseShipmentLine.FindFirst();
+    end;
+
+    local procedure CreateSalesOrderAndWareshouseShipment(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[20]; Quantity: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+    end;
+
+    local procedure CreateAndRegisterPutAwayFromPurchaseOrder(SourceNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10])
+    var
+        Bin: Record Bin;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindPickBin(Bin, LocationCode);
+        UpdateBinCodeOnPutAwayLine(Bin, SourceNo);
+        RegisterWarehouseActivity(
+          WarehouseActivityLine."Source Document"::"Purchase Order", SourceNo, WarehouseActivityLine."Activity Type"::"Put-away");
+    end;
+
+    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure RegisterWarehouseActivity(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure UpdateBinCodeOnPutAwayLine(Bin: Record Bin; SourceNo: Code[20])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", SourceNo,
+          WarehouseActivityLine."Activity Type"::"Put-away");
+        WarehouseActivityLine.Validate("Zone Code", Bin."Zone Code");
+        WarehouseActivityLine.Validate("Bin Code", Bin.Code);
+        WarehouseActivityLine.Modify(true);
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindFirst();
+    end;
+
+    local procedure FindPickBin(var Bin: Record Bin; LocationCode: Code[10])
+    var
+        Zone: Record Zone;
+    begin
+        FindPickZone(Zone, LocationCode);
+        Bin.SetRange("Location Code", LocationCode);
+        Bin.SetRange("Zone Code", Zone.Code);
+        LibraryWarehouse.FindBin(Bin, LocationCode, Zone.Code, LibraryRandom.RandInt(Bin.Count));  // Find Random Bin.
+    end;
+
+    local procedure FindPickZone(var Zone: Record Zone; LocationCode: Code[10])
+    begin
+        Zone.SetRange("Location Code", LocationCode);
+        Zone.SetRange("Bin Type Code", LibraryWarehouse.SelectBinType(false, false, true, true));  // TRUE for Put-away and Pick.
+        Zone.SetRange("Cross-Dock Bin Zone", false);
+        Zone.FindFirst();
+    end;
+
+    local procedure CreateAndPostWhseRcptFromSalesReturn(SalesHeader: Record "Sales Header"; ItemNo: Code[20])
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseReceiptFromSalesReturnOrder(SalesHeader);
+        FindWarehouseReceiptLine(WarehouseReceiptLine, SalesHeader."No.", WarehouseReceiptLine."Source Document"::"Sales Return Order");
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // Register Put-away
+        RegisterWarehouseActivity(
+          WarehouseActivityLine."Source Document"::"Sales Return Order", SalesHeader."No.",
+          ItemNo, WarehouseActivityLine."Activity Type"::"Put-away");
+    end;
+
+    local procedure CreateAndPostWarehouseReceiptFromPO(PurchaseLine: Record "Purchase Line")
+    var
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        FindWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.", WarehouseReceiptLine."Source Document"::"Purchase Order");
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+    end;
+
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
+    begin
+        WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
+        WarehouseReceiptLine.SetRange("Source No.", SourceNo);
+        WarehouseReceiptLine.FindFirst();
+    end;
+
+    local procedure CreatePurchaseOrderWithLocationAndTrackingData(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]; Quantity: Decimal)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Modify(true);
+
+        LibraryVariableStorage.Enqueue(TrackingOption::SetLotAndSerial);  // Enqueue value for ItemTrackingLinesPageHandler.
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(Quantity);
+        PurchaseLine.OpenItemTrackingLines();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -3246,6 +3536,16 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     begin
         Reservation."Reserve from Current Line".Invoke;
         Reservation.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure PostedSalesDocumentLinesPageHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
+    var
+        ItemNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ItemNo);
+        PostedSalesDocumentLines.PostedInvoices.FILTER.SetFilter("No.", ItemNo);
+        PostedSalesDocumentLines.OK.Invoke;
     end;
 
     [MessageHandler]

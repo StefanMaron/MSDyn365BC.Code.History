@@ -174,6 +174,7 @@
         TypeHelper: Codeunit "Type Helper";
         ErrorContextElement: Codeunit "Error Context Element";
         ErrorMessageMgt: Codeunit "Error Message Management";
+        ICFeedback: Codeunit "IC Feedback";
         RecRef: RecordRef;
         ICLastDocNo: Code[20];
         CurrentICPartner: Code[20];
@@ -182,6 +183,7 @@
         ICTransactionNo: Integer;
         TransNo: Integer;
         LineNo: Integer;
+        ICProccessedLines: Integer;
         ICLastDocType: Enum "Gen. Journal Document Type";
         ICLastDate: Date;
         VATInfoSourceLineIsInserted: Boolean;
@@ -252,9 +254,10 @@
             NoOfReversingRecords := 0;
             FindSet(true, false);
             FirstLine := true;
+            ICProccessedLines := 0;
             repeat
                 ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, PostingLinesMsg);
-                ProcessICLines(CurrentICPartner, ICTransactionNo, ICLastDocNo, ICLastDate, ICLastDocType, GenJnlLine, TempGenJnlLine);
+                ProcessICLines(CurrentICPartner, ICTransactionNo, ICLastDocNo, ICLastDate, ICLastDocType, GenJnlLine, TempGenJnlLine, ICProccessedLines);
                 ProcessICTransaction(LastICTransactionNo, ICTransactionNo);
                 GenJnlLine3 := GenJnlLine;
                 if not PostGenJournalLine(GenJnlLine3, GenJnlLine, CurrentICPartner, ICTransactionNo, LineNo, TransNo) then
@@ -322,7 +325,10 @@
         if SkippedLine and GuiAllowed then
             Message(SkippedLineMsg);
 
-        OnAfterProcessLines(TempGenJnlLine);
+        OnAfterProcessLines(TempGenJnlLine, GenJnlLine, SuppressCommit, PreviewMode);
+        
+        if LastICTransactionNo > 0 then
+            ICFeedback.ShowIntercompanyMessage(TempGenJnlLine, ICLastDocNo, ICProccessedLines);
     end;
 
     local procedure ProcessBalanceOfLines(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlLineVATInfoSource: Record "Gen. Journal Line"; var VATInfoSourceLineIsInserted: Boolean; var LastLineNo: Integer; CurrentICPartner: Code[20])
@@ -452,7 +458,7 @@
         OnAfterProcessBalanceOfLines(GenJnlLine);
     end;
 
-    local procedure ProcessICLines(var CurrentICPartner: Code[20]; var ICTransactionNo: Integer; var ICLastDocNo: Code[20]; var ICLastDate: Date; var ICLastDocType: Enum "Gen. Journal Document Type"; var GenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    local procedure ProcessICLines(var CurrentICPartner: Code[20]; var ICTransactionNo: Integer; var ICLastDocNo: Code[20]; var ICLastDate: Date; var ICLastDocType: Enum "Gen. Journal Document Type"; var GenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; var ICProccessedLines: Integer)
     var
         HandledICInboxTrans: Record "Handled IC Inbox Trans.";
     begin
@@ -472,6 +478,7 @@
                 TempGenJnlLine.SetRange("Document No.", "Document No.");
                 TempGenJnlLine.SetFilter("IC Partner Code", '<>%1', '');
                 if TempGenJnlLine.FindFirst() and (TempGenJnlLine."IC Partner Code" <> '') then begin
+                    ICProccessedLines := ICProccessedLines + 1;
                     CurrentICPartner := TempGenJnlLine."IC Partner Code";
                     if TempGenJnlLine."IC Direction" = TempGenJnlLine."IC Direction"::Outgoing then
                         ICTransactionNo := ICOutboxMgt.CreateOutboxJnlTransaction(TempGenJnlLine, false)
@@ -2180,7 +2187,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterProcessLines(var TempGenJournalLine: Record "Gen. Journal Line" temporary)
+    local procedure OnAfterProcessLines(var TempGenJournalLine: Record "Gen. Journal Line" temporary; var GenJournalLine: Record "Gen. Journal Line"; SuppressCommit: Boolean; PreviewMode: Boolean)
     begin
     end;
 

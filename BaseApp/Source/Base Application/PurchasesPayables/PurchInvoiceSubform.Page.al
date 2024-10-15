@@ -430,6 +430,18 @@
                         DeltaUpdateTotals();
                     end;
                 }
+                field(NonDeductibleVATBase; Rec."Non-Deductible VAT Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
+                    Visible = ShowNonDedVATInLines;
+                }
+                field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                    Visible = ShowNonDedVATInLines;
+                }
                 field("Allow Item Charge Assignment"; Rec."Allow Item Charge Assignment")
                 {
                     ApplicationArea = ItemCharges;
@@ -1291,6 +1303,7 @@
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
+        ShowNonDedVATInLines: Boolean;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
         SuppressTotals: Boolean;
@@ -1323,12 +1336,14 @@
     var
         ServerSetting: Codeunit "Server Setting";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         OnBeforeSetOpenPage();
 
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         SuppressTotals := CurrentClientType() = ClientType::ODataV4;
         BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
+        ShowNonDedVATInLines := NonDeductibleVAT.ShowNonDeductibleVATInLines();
     end;
 
     procedure ApproveCalcInvDisc()

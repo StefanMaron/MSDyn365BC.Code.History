@@ -30,6 +30,7 @@ codeunit 5972 "Service Info-Pane Management"
             Item.SetRange("Drop Shipment Filter", false);
             OnCalcAvailabilityOnAfterSetItemFilters(Item, ServLine);
 
+            Evaluate(LookaheadDateformula, '<0D>');
             Result :=
               AvailableToPromise.CalcQtyAvailabletoPromise(
                 Item,
@@ -177,7 +178,13 @@ codeunit 5972 "Service Info-Pane Management"
         ServItem: Record "Service Item";
         ResourceSkill: Record "Resource Skill";
         SkilledResourceList: Page "Skilled Resource List";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowSkilledResources(ServItemLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServItem.Get(ServItemLine."Service Item No.") then begin
             Clear(SkilledResourceList);
             SkilledResourceList.Initialize(ResourceSkill.Type::"Service Item", ServItem."No.", ServItem.Description);
@@ -202,6 +209,11 @@ codeunit 5972 "Service Info-Pane Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcNoOfSkilledResources(ServItemLine: Record "Service Item Line"; var ResultValue: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowSkilledResources(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
 

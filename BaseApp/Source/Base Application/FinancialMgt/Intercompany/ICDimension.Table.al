@@ -54,11 +54,38 @@ table 411 "IC Dimension"
     var
         ICDimValue: Record "IC Dimension Value";
     begin
+        RemoveDimensionMappings();
         ICDimValue.SetRange("Dimension Code", Code);
         ICDimValue.DeleteAll();
     end;
 
     var
         ICDimensionValue: Record "IC Dimension Value";
+
+    local procedure RemoveDimensionMappings()
+    var
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+    begin
+        Dimension.SetRange("Map-to IC Dimension Code", Rec."Code");
+        if not Dimension.IsEmpty() then begin
+            Dimension.FindSet();
+            repeat
+                DimensionValue.SetRange("Dimension Code", Dimension.Code);
+                if not DimensionValue.IsEmpty() then begin
+                    DimensionValue.FindSet();
+                    repeat
+                        if DimensionValue."Map-to IC Dimension Code" <> '' then begin
+                            DimensionValue."Map-to IC Dimension Code" := '';
+                            DimensionValue."Map-to IC Dimension Value Code" := '';
+                            DimensionValue.Modify();
+                        end;
+                    until DimensionValue.Next() = 0;
+                end;
+                Dimension."Map-to IC Dimension Code" := '';
+                Dimension.Modify();
+            until Dimension.Next() = 0;
+        end;
+    end;
 }
 

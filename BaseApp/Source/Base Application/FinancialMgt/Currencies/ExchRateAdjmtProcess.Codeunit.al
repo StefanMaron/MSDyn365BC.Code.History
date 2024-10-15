@@ -1526,7 +1526,7 @@
         GenJnlLine."Shortcut Dimension 1 Code" := GetGlobalDimVal(GLSetup."Global Dimension 1 Code", DimSetEntry);
         GenJnlLine."Shortcut Dimension 2 Code" := GetGlobalDimVal(GLSetup."Global Dimension 2 Code", DimSetEntry);
         GenJnlLine."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJnlLine);
+        OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJnlLine, ExchRateAdjmtParameters);
         GenJnlPostLine.Run(GenJnlLine);
         OnPostGenJnlLineOnAfterGenJnlPostLineRun(GenJnlLine, GenJnlPostLine);
         exit(GenJnlPostLine.GetNextTransactionNo());
@@ -2749,7 +2749,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line"; var ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters")
     begin
     end;
 

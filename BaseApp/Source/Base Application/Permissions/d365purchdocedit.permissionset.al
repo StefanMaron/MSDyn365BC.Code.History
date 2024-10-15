@@ -75,6 +75,8 @@
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
+                  tabledata "VAT Setup" = R,
+                  tabledata "VAT Posting Parameters" = R,
                   tabledata Vendor = RM,
                   tabledata "Vendor Bank Account" = R,
                   tabledata "Vendor Invoice Disc." = R,

@@ -167,6 +167,7 @@
         ValueEntry: Record "Value Entry";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         VATAllocationPost: Codeunit "VAT Allocation-Post";
     begin
         with GLEntry2 do
@@ -187,6 +188,7 @@
                     GLEntry.Amount := -Amount;
                     GLEntry.Quantity := -Quantity;
                     GLEntry."VAT Amount" := -"VAT Amount";
+                    NonDeductibleVAT.Reverse(GLEntry, GLEntry2);
                     GLEntry."Debit Amount" := -"Debit Amount";
                     GLEntry."Credit Amount" := -"Credit Amount";
                     GLEntry."Additional-Currency Amount" := -"Additional-Currency Amount";

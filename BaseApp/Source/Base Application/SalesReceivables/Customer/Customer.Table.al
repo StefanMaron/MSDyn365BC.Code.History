@@ -1251,6 +1251,21 @@
         {
             Caption = 'Coupled to Dataverse';
             Editable = false;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
+        }
+        field(721; "Coupled to Dataverse"; Boolean)
+        {
+            FieldClass = FlowField;
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+            CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Customer)));
         }
         field(840; "Cash Flow Payment Terms Code"; Code[10])
         {
@@ -1903,9 +1918,14 @@
         key(Key20; "Partner Type", "Country/Region Code")
         {
         }
+#if not CLEAN23
         key(Key21; "Coupled to CRM")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+            ObsoleteTag = '23.0';
         }
+#endif
         key(Key22; "IC Partner Code")
         {
         }
@@ -3592,7 +3612,10 @@
         OnBeforeCheckAllowMultiplePostingGroups(IsHandled);
         if IsHandled then
             exit;
-        TestField("Allow Multiple Posting Groups");
+
+        SalesSetup.Get();
+        if SalesSetup."Allow Multiple Posting Groups" then
+            TestField("Allow Multiple Posting Groups");
     end;
 
     [IntegrationEvent(false, false)]

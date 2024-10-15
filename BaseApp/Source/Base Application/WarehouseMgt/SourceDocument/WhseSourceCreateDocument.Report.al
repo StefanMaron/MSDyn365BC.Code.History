@@ -530,6 +530,7 @@ report 7305 "Whse.-Source - Create Document"
 
     requestpage
     {
+        SaveValues = true;
 
         layout
         {
