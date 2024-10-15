@@ -186,7 +186,7 @@ page 345 Reconciliation
         OnBeforeGLAccountNetChange(Rec, GLAcc);
         Insert;
 
-        OnAfterInsertGLAccNetChange(Rec);
+        OnAfterInsertGLAccNetChange(Rec, GLAcc);
     end;
 
     procedure ReturnGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
@@ -209,12 +209,12 @@ page 345 Reconciliation
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertGLAccNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInsertGLAccNetChange(var GLAccountNetChange: Record "G/L Account Net Change"; GLAccount: Record "G/L Account")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change"; GLAccount: Record "G/L Account")
     begin
     end;
@@ -224,7 +224,7 @@ page 345 Reconciliation
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnSaveNetChangeOnBeforeModify(var GLAccountNetChange: Record "G/L Account Net Change"; GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; NetChange: Decimal)
     begin
     end;

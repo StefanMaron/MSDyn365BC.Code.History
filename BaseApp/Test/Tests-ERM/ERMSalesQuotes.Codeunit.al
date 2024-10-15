@@ -2,6 +2,7 @@ codeunit 134379 "ERM Sales Quotes"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -1724,6 +1725,46 @@ codeunit 134379 "ERM Sales Quotes"
             until SalesCommentLine.Next() = 0;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesQuotePageIsCommentLineIsBlankLineResetOnChangeLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+        ERMSalesQuotes: Codeunit "ERM Sales Quotes";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [SCENARIO 432859] Drill-down on field value should not be shown on Sales Quote line with Item when returned from comment line
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+
+        // [GIVEN] Sales Quote with 2 lines: Item - Qty = 1, Qty. to Assemble to Order = 1; Empty Line with Description
+        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, 1);
+        SalesLine.Validate(Quantity, 1);
+        SalesLine.Validate("Qty. to Assemble to Order", 1);
+        SalesLine.Modify();
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::" ", '', 0);
+        SalesLine.Validate(Description, 'Description');
+        SalesLine.Modify();
+
+        // [GIVEN] Sales Quote page opened
+        SalesQuote.OpenEdit();
+        SalesQuote.GoToRecord(SalesHeader);
+
+        // [GIVEN] User navigates to second 'Comment' line and invoke DrillDown on Qty. to Assemble to Order
+        LibraryVariableStorage.Enqueue(True);
+        ERMSalesQuotes.SetVariableStorage(LibraryVariableStorage);
+        BindSubscription(ERMSalesQuotes);
+        SalesQuote.SalesLines.Last();
+
+        // [WHEN] User returns on first line with Item
+        LibraryVariableStorage.Enqueue(False);
+        ERMSalesQuotes.SetVariableStorage(LibraryVariableStorage);
+        SalesQuote.SalesLines.Previous();
+        // [THEN] The field Qty. to Assemble to Order is editable (Drill-down not invoke), Checked in CheckIsCommentLineIsBlankNumber.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2108,6 +2149,24 @@ codeunit 134379 "ERM Sales Quotes"
     procedure ConvertToSalesOrderConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Sales Quote Subform", 'OnAfterUpdateEditableOnRow', '', false, false)]
+    local procedure CheckIsCommentLineIsBlankNumber(SalesLine: Record "Sales Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean)
+    var
+        BooleanValue: Boolean;
+    begin
+        if LibraryVariableStorage.Length = 0 then
+            exit;
+        BooleanValue := LibraryVariableStorage.DequeueBoolean();
+        Assert.AreEqual(BooleanValue, IsCommentLine, '');
+        Assert.AreEqual(BooleanValue, IsBlankNumber, '');
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetVariableStorage(var NewLibraryVariableStorage: Codeunit "Library - Variable Storage")
+    begin
+        LibraryVariableStorage := NewLibraryVariableStorage;
     end;
 }
 

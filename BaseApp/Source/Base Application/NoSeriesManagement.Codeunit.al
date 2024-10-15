@@ -1,4 +1,4 @@
-codeunit 396 NoSeriesManagement
+﻿codeunit 396 NoSeriesManagement
 {
     Permissions = TableData "No. Series Line" = rimd;
 
@@ -146,7 +146,13 @@ codeunit 396 NoSeriesManagement
     local procedure FilterSeries()
     var
         NoSeriesRelationship: Record "No. Series Relationship";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFilterSeries(NoSeries, NoSeriesCode, IsHandled);
+        if IsHandled then
+            exit;
+
         NoSeries.Reset();
         NoSeriesRelationship.SetRange(Code, NoSeriesCode);
         if NoSeriesRelationship.FindSet() then
@@ -321,6 +327,7 @@ codeunit 396 NoSeriesManagement
     begin
         TryNoSeriesCode := NoSeriesCode;
         TrySeriesDate := SeriesDate;
+        OnAfterSetParametersBeforeRun(TryNoSeriesCode, TrySeriesDate, WarningNoSeriesCode);
     end;
 
     procedure GetNextNo2(): Code[20]
@@ -561,6 +568,11 @@ codeunit 396 NoSeriesManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetParametersBeforeRun(var TryNoSeriesCode: Code[20]; var TrySeriesDate: Date; var WarningNoSeriesCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTestManual(DefaultNoSeriesCode: Code[20])
     begin
     end;
@@ -608,6 +620,11 @@ codeunit 396 NoSeriesManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitSeries(var NoSeries: Record "No. Series"; DefaultNoSeriesCode: Code[20]; NewDate: Date; var NewNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFilterSeries(var NoSeries: Record "No. Series"; NoSeriesCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

@@ -134,13 +134,13 @@ codeunit 31111 "Workflow Response Handling CZ"
     [Scope('OnPrem')]
     procedure SetStatusToApprovedCode(): Code[128]
     begin
-        exit(UpperCase('SetStatusToApproved'));
+        exit('SETSTATUSTOAPPROVED');
     end;
 
     [Scope('OnPrem')]
     procedure CheckReleaseDocumentCode(): Code[128]
     begin
-        exit(UpperCase('CheckReleaseDocument'));
+        exit('CHECKRELEASEDOCUMENT');
     end;
 
     local procedure SetStatusToApproved(var Variant: Variant)

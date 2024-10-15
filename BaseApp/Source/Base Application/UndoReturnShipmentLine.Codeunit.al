@@ -1,4 +1,4 @@
-codeunit 5814 "Undo Return Shipment Line"
+﻿codeunit 5814 "Undo Return Shipment Line"
 {
     Permissions = TableData "Purchase Line" = imd,
                   TableData "Item Entry Relation" = ri,
@@ -107,9 +107,9 @@ codeunit 5814 "Undo Return Shipment Line"
                 "Return Qty. Shipped Not Invd." := 0;
                 Correction := true;
 
-                OnBeforeReturnShptLineModify(ReturnShptLine);
-                Modify;
-                OnAfterReturnShptLineModify(ReturnShptLine);
+                OnBeforeReturnShptLineModify(ReturnShptLine, TempWhseJnlLine);
+                Modify();
+                OnAfterReturnShptLineModify(ReturnShptLine, TempWhseJnlLine, DocLineNo);
 
                 if not JobItem then
                     JobItem := (Type = Type::Item) and ("Job No." <> '');
@@ -350,7 +350,7 @@ codeunit 5814 "Undo Return Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterReturnShptLineModify(var ReturnShptLine: Record "Return Shipment Line")
+    local procedure OnAfterReturnShptLineModify(var ReturnShptLine: Record "Return Shipment Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; DocLineNo: Integer)
     begin
     end;
 
@@ -380,7 +380,7 @@ codeunit 5814 "Undo Return Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReturnShptLineModify(var ReturnShptLine: Record "Return Shipment Line")
+    local procedure OnBeforeReturnShptLineModify(var ReturnShptLine: Record "Return Shipment Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
     begin
     end;
 

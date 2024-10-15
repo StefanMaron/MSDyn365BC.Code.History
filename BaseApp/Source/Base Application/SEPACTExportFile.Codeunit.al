@@ -24,7 +24,7 @@ codeunit 1220 "SEPA CT-Export File"
 
     [Obsolete('Merge to W1.', '19.0')]
     [Scope('OnPrem')]
-    procedure Export(var GenJnlLine: Record "Gen. Journal Line"; XMLPortID: Integer; FileType: Text[10]): Boolean
+    procedure Export(var GenJnlLine: Record "Gen. Journal Line"; XMLPortID: Integer; FileType: Text[10]) Result: Boolean
     var
         CreditTransferRegister: Record "Credit Transfer Register";
         TempBlob: Codeunit "Temp Blob";
@@ -34,6 +34,11 @@ codeunit 1220 "SEPA CT-Export File"
         FileCreated: Boolean;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExtport(GenJnlLine, XMLPortID, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         TempBlob.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPortID, OutStr, GenJnlLine);
 
@@ -71,6 +76,11 @@ codeunit 1220 "SEPA CT-Export File"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBLOBExport(var TempBlob: Codeunit "Temp Blob"; CreditTransferRegister: Record "Credit Transfer Register"; UseComonDialog: Boolean; var FieldCreated: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExtport(var GenJnlLine: Record "Gen. Journal Line"; XMLPortID: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

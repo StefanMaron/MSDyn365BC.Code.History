@@ -27,10 +27,7 @@ table 5718 "Nonstock Item"
 
             trigger OnValidate()
             begin
-                if ("Manufacturer Code" <> xRec."Manufacturer Code") and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo("Manufacturer Code"));
             end;
         }
         field(3; "Vendor No."; Code[20])
@@ -46,10 +43,7 @@ table 5718 "Nonstock Item"
                 if IsHandled then
                     exit;
 
-                if ("Vendor No." <> xRec."Vendor No.") and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo("Vendor No."));
 
                 if "Vendor No." <> xRec."Vendor No." then
                     if CheckVendorItemNo("Vendor No.", "Vendor Item No.") then
@@ -62,10 +56,7 @@ table 5718 "Nonstock Item"
 
             trigger OnValidate()
             begin
-                if ("Vendor Item No." <> xRec."Vendor Item No.") and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo("Vendor Item No."));
 
                 if "Vendor Item No." <> xRec."Vendor Item No." then
                     if CheckVendorItemNo("Vendor No.", "Vendor Item No.") then
@@ -79,10 +70,7 @@ table 5718 "Nonstock Item"
 
             trigger OnValidate()
             begin
-                if (Description <> xRec.Description) and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo(Description));
             end;
         }
         field(6; "Unit of Measure"; Code[10])
@@ -92,10 +80,7 @@ table 5718 "Nonstock Item"
 
             trigger OnValidate()
             begin
-                if ("Unit of Measure" <> xRec."Unit of Measure") and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo("Unit of Measure"));
             end;
         }
         field(7; "Published Cost"; Decimal)
@@ -105,10 +90,7 @@ table 5718 "Nonstock Item"
 
             trigger OnValidate()
             begin
-                if ("Published Cost" <> xRec."Published Cost") and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo("Published Cost"));
             end;
         }
         field(8; "Negotiated Cost"; Decimal)
@@ -118,10 +100,7 @@ table 5718 "Nonstock Item"
 
             trigger OnValidate()
             begin
-                if ("Negotiated Cost" <> xRec."Negotiated Cost") and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo("Negotiated Cost"));
             end;
         }
         field(9; "Unit Price"; Decimal)
@@ -131,10 +110,7 @@ table 5718 "Nonstock Item"
 
             trigger OnValidate()
             begin
-                if ("Unit Price" <> xRec."Unit Price") and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo("Unit Price"));
             end;
         }
         field(10; "Gross Weight"; Decimal)
@@ -144,10 +120,7 @@ table 5718 "Nonstock Item"
 
             trigger OnValidate()
             begin
-                if ("Gross Weight" <> xRec."Gross Weight") and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo("Gross Weight"));
             end;
         }
         field(11; "Net Weight"; Decimal)
@@ -157,10 +130,7 @@ table 5718 "Nonstock Item"
 
             trigger OnValidate()
             begin
-                if ("Net Weight" <> xRec."Net Weight") and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo("Net Weight"));
             end;
         }
         field(12; "Item Template Code"; Code[10])
@@ -204,10 +174,7 @@ table 5718 "Nonstock Item"
 
             trigger OnValidate()
             begin
-                if ("Bar Code" <> xRec."Bar Code") and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo("Bar Code"));
             end;
         }
         field(16; "Item No."; Code[20])
@@ -218,10 +185,7 @@ table 5718 "Nonstock Item"
 
             trigger OnValidate()
             begin
-                if ("Item No." <> xRec."Item No.") and
-                   ("Item No." <> '')
-                then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo("Item No."));
             end;
         }
         field(53; Comment; Boolean)
@@ -245,8 +209,7 @@ table 5718 "Nonstock Item"
 
             trigger OnValidate()
             begin
-                if ("Item Templ. Code" <> xRec."Item Templ. Code") and ("Item No." <> '') then
-                    Error(Text001);
+                ValidateField(Rec.FieldNo("Item Templ. Code"));
             end;
         }
         field(11792; "Full Description"; Text[250])
@@ -403,6 +366,58 @@ table 5718 "Nonstock Item"
             InvtSetup.Get();
             HasInvtSetup := true;
         end;
+    end;
+
+    local procedure ValidateField(CalledByFieldNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateField(Rec, xRec, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ("Item No." <> '') and CalledByFieldNoChanged(CalledByFieldNo) then
+            Error(Text001);
+    end;
+
+    local procedure CalledByFieldNoChanged(CalledByFieldNo: Integer): Boolean
+    begin
+        case CalledByFieldNo of
+            Rec.FieldNo("Manufacturer Code"):
+                exit(Rec."Manufacturer Code" <> xRec."Manufacturer Code");
+            Rec.FieldNo("Vendor No."):
+                exit(Rec."Vendor No." <> xRec."Vendor No.");
+            Rec.FieldNo("Vendor Item No."):
+                exit(Rec."Vendor Item No." <> xRec."Vendor Item No.");
+            Rec.FieldNo(Description):
+                exit(Rec.Description <> xRec.Description);
+            Rec.FieldNo("Unit of Measure"):
+                exit(Rec."Unit of Measure" <> xRec."Unit of Measure");
+            Rec.FieldNo("Published Cost"):
+                exit(Rec."Published Cost" <> xRec."Published Cost");
+            Rec.FieldNo("Negotiated Cost"):
+                exit(Rec."Negotiated Cost" <> xRec."Negotiated Cost");
+            Rec.FieldNo("Unit Price"):
+                exit(Rec."Unit Price" <> xRec."Unit Price");
+            Rec.FieldNo("Gross Weight"):
+                exit(Rec."Gross Weight" <> xRec."Gross Weight");
+            Rec.FieldNo("Net Weight"):
+                exit(Rec."Net Weight" <> xRec."Net Weight");
+            Rec.FieldNo("Bar Code"):
+                exit(Rec."Bar Code" <> xRec."Bar Code");
+            Rec.FieldNo("Item No."):
+                exit(Rec."Item No." <> xRec."Item No.");
+            Rec.FieldNo("Item Templ. Code"):
+                exit(Rec."Item Templ. Code" <> xRec."Item Templ. Code");
+        end;
+
+        exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateField(var NonstockItem: Record "Nonstock Item"; xNonstockItem: Record "Nonstock Item"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

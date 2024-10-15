@@ -40,6 +40,15 @@ codeunit 134202 "Document Approval - Users"
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
 
     [Test]
+    [Scope('OnPrem')]
+    procedure VerifyRelatedRecordsForSalesInvoiceEmail()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        VerifyRelatedRecordsForEmail(SalesHeader)
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -2390,7 +2399,8 @@ codeunit 134202 "Document Approval - Users"
     procedure NotificationEmailUrlIsBasedOnRecipientNotificationSetup()
     var
         User: Record User;
-        NotificationSetup: array[2] of Record "Notification Setup";
+        NotificationSetup: Record "Notification Setup";
+        NotificationSetupArray: array[2] of Record "Notification Setup";
         NotificationEntry: Record "Notification Entry";
         FileManagement: Codeunit "File Management";
         BodyTextXML: Text;
@@ -2399,6 +2409,7 @@ codeunit 134202 "Document Approval - Users"
         // [FEATURE] [Notification Setup] [UT]
         // [SCENARIO 284134] URL created in Approval Entry
         Initialize();
+        NotificationSetup.DeleteAll();
         NotificationEntry.DeleteAll();
 
         // [GIVEN] Notification Recipient has User table entry, where Recipient <> USERID
@@ -2407,13 +2418,13 @@ codeunit 134202 "Document Approval - Users"
 
         // [GIVEN] Notification Setup with Approval type, Email method, for all users, DisplayTarget = Windows
         CreateNotificationSetupWithDisplayTarget(
-          NotificationSetup[1], '', NotificationSetup[1]."Notification Type"::Approval,
-          NotificationSetup[1]."Notification Method"::Email);
+          NotificationSetupArray[1], '', NotificationSetupArray[1]."Notification Type"::Approval,
+          NotificationSetupArray[1]."Notification Method"::Email);
 
         // [GIVEN] Notification Setup with Approval type, Email method, for Recipient, DisplayTarget = Web
         CreateNotificationSetupWithDisplayTarget(
-          NotificationSetup[2], RecipientUser, NotificationSetup[2]."Notification Type"::Approval,
-          NotificationSetup[2]."Notification Method"::Email);
+          NotificationSetupArray[2], RecipientUser, NotificationSetupArray[2]."Notification Type"::Approval,
+          NotificationSetupArray[2]."Notification Method"::Email);
 
         // [GIVEN] Sales Invoice "SI" and Approval Entry created for "SI" for the Recipient
         // [GIVEN] Notification Entry created for USER based on created Approval Entry
@@ -2452,6 +2463,72 @@ codeunit 134202 "Document Approval - Users"
         GetOpenApprovalEntries(ApprovalEntry, TableID, DocumentType, DocumentNo);
         ApprovalEntry.SetRecFilter;
         ApprovalsMgmt.ApproveApprovalRequests(ApprovalEntry);
+    end;
+
+    local procedure VerifyRelatedRecordsForEmail(SalesHeader: Record "Sales Header")
+    var
+        ConnectorMock: Codeunit "Connector Mock";
+        EmailScenarioMock: Codeunit "Email Scenario Mock";
+        TempAccount: Record "Email Account" temporary;
+        UserSetup: Record "User Setup";
+        SentEmail: Record "Sent Email";
+        ApprovalEntry: Record "Approval Entry";
+        NotificationEntry: Record "Notification Entry";
+        RecRef: RecordRef;
+        MessageIdFieldRef: FieldRef;
+        RecordTypeOccurences: Array[2] of Integer;
+        RecRefTableId: Integer;
+        Index: Integer;
+    begin
+        // [Scenario] User has set up an email account, a document approval workflow for Sales Invoices, and requests approval for a Sales Invoice.
+        Initialize();
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(TempAccount);
+        EmailScenarioMock.DeleteAllMappings();
+        EmailScenarioMock.AddMapping(Enum::"Email Scenario"::Default, TempAccount."Account Id", TempAccount.Connector);
+
+        SentEmail.DeleteAll();
+        ApprovalEntry.DeleteAll();
+        NotificationEntry.DeleteAll();
+
+        SetupDocumentApprovals(UserSetup, DATABASE::"Sales Header", "Sales Document Type"::Invoice, '');
+
+        // [Given] A Sales Invoice, Approval Entry and Notification Entry
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        LibraryDocumentApprovals.CreateApprovalEntryBasic(
+            ApprovalEntry, DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
+            ApprovalEntry.Status::Open, ApprovalEntry."Limit Type"::"Approval Limits",
+            SalesHeader.RecordId, ApprovalEntry."Approval Type"::Approver, 0D, 0);
+        NotificationEntry.CreateNotificationEntry(NotificationEntry.Type::Approval, UserSetup."Approver ID", ApprovalEntry, 1, '', UserSetup."User ID");
+
+        // [When] Requesting approval of invoice
+        Codeunit.run(Codeunit::"Notification Entry Dispatcher");
+
+        // [Then] Approval request email is sent
+        Assert.AreEqual(1, SentEmail.Count, 'A single email should be in sent');
+
+        // [Then] The email has Related Records
+        SentEmail.FindFirst();
+        RecRef.Open(8909); // Related Record
+        MessageIdFieldRef := RecRef.Field(1); // Message ID
+        MessageIdFieldRef.SetRange(SentEmail.GetMessageId());
+        RecRef.FindSet();
+
+        // [Then] The Related Records should contain one Notification Entry and one Sales Header
+        repeat
+            RecRefTableId := RecRef.Field(2).Value; // Table ID
+            if RecRefTableId = NotificationEntry.RecordId.TableNo then
+                RecordTypeOccurences[1] += 1;
+
+            if RecRefTableId = SalesHeader.RecordId.TableNo then
+                RecordTypeOccurences[2] += 1;
+        until RecRef.Next() = 0;
+
+        for Index := 1 to 2 do
+            Assert.AreEqual(1, RecordTypeOccurences[Index], 'There should be exactly one occurence of each type of Related Record');
+
+        // Teardown
+        TestCleanup;
     end;
 
     local procedure ApproveRequestForPurchDocument(DocumentType: Enum "Purchase Document Type")

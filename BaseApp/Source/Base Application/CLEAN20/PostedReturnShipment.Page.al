@@ -593,7 +593,14 @@ page 6650 "Posted Return Shipment"
     }
 
     trigger OnOpenPage()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnOpenPage(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SetSecurityFilterOnRespCenter;
 
         ActivateFields;
@@ -624,6 +631,11 @@ page 6650 "Posted Return Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ReturnShipmentHeaderRec: Record "Return Shipment Header"; var ReturnShipmentHeaderToPrint: Record "Return Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage(var ReturnShipmentHeader: Record "Return Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 }

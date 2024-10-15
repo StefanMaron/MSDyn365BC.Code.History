@@ -1251,7 +1251,7 @@
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'QV123' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", GetDefaultPartnerID);
     end;
 
@@ -1649,7 +1649,7 @@
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'QV123' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", GetDefaultPartnerID);
     end;
 
@@ -1682,7 +1682,7 @@
         IntrastatJnlLine."Source Type" := IntrastatJnlLine."Source Type"::"Item Entry";
         IntrastatJnlLine."Source Entry No." := ItemLedgerEntry."Entry No.";
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'QV123' in Intrastat Journal Line
         Assert.AreEqual(GetDefaultPartnerID, IntrastatJnlLine.GetPartnerID, '');
     end;
 
@@ -1705,7 +1705,7 @@
 
         // [GIVEN] Purchase credit memo for vendor of Partner Type = Person
         Vendor.Get(CreateVendorWithVATRegNo(true));
-        Vendor."Partner Type" := Vendor."Partner Type"::Person;
+        Vendor."Intrastat Partner Type" := "Partner Type"::Person;
         Vendor.Modify;
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", WorkDate, Vendor."No.");
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, CreateItem);
@@ -1747,7 +1747,7 @@
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'QV123' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, ItemLedgerEntry."Item No.", GetDefaultPartnerID);
     end;
 
@@ -1773,7 +1773,7 @@
         IntrastatJnlLine."Source Type" := IntrastatJnlLine."Source Type"::"Item Entry";
         IntrastatJnlLine."Source Entry No." := ItemLedgerEntry."Entry No.";
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'QV123' in Intrastat Journal Line
         Assert.AreEqual(GetDefaultPartnerID, IntrastatJnlLine.GetPartnerID, '');
     end;
 
@@ -1808,7 +1808,7 @@
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'QV123' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", GetDefaultPartnerID);
     end;
 
@@ -1843,7 +1843,7 @@
         IntrastatJnlLine."Source Type" := IntrastatJnlLine."Source Type"::"Item Entry";
         IntrastatJnlLine."Source Entry No." := ItemLedgerEntry."Entry No.";
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'QV123' in Intrastat Journal Line
         Assert.AreEqual(GetDefaultPartnerID, IntrastatJnlLine.GetPartnerID, '');
     end;
 
@@ -1879,7 +1879,7 @@
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'QV123' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, ItemLedgerEntry."Item No.", GetDefaultPartnerID);
     end;
 
@@ -1911,7 +1911,7 @@
         IntrastatJnlLine."Source Type" := IntrastatJnlLine."Source Type"::"Item Entry";
         IntrastatJnlLine."Source Entry No." := ItemLedgerEntry."Entry No.";
 
-        // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
+        // [THEN] Partner VAT ID  = 'QV123' in Intrastat Journal Line
         Assert.AreEqual(GetDefaultPartnerID, IntrastatJnlLine.GetPartnerID, '');
     end;
 
@@ -2643,7 +2643,7 @@
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Country/Region Code", CreateCountryRegionWithIntrastatCode(IsEUCountry));
         Customer.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code"));
-        Customer.Validate("Partner Type", Customer."Partner Type"::Person);
+        Customer.Validate("Intrastat Partner Type", "Partner Type"::Person);
         Customer.Modify(true);
         EXIT(Customer."No.");
     end;
@@ -2737,7 +2737,7 @@
 
     local procedure GetDefaultPartnerID(): Text[50]
     begin
-        exit('QV999999999999');
+        exit('QV123');
     end;
 
     local procedure GetEntriesAndVerifyNoItemLine(DocumentNo: Code[20]; ItemNo: Code[20])

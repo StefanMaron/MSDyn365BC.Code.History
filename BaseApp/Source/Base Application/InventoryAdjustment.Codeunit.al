@@ -1,4 +1,4 @@
-﻿﻿#if not CLEAN18
+#if not CLEAN18
 codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 {
     Permissions = TableData Item = rm,
@@ -816,7 +816,11 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         InbndItemLedgEntry: Record "Item Ledger Entry";
         QtyNotInvoiced: Decimal;
         ShareOfTotalCost: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcInbndEntryAdjustedCost(AdjustedCostElementBuf, ItemApplnEntry, OutbndItemLedgEntryNo, InbndItemLedgEntryNo, ExactCostReversing, Recursion, CompletelyInvoiced, IsHandled);
+        if not IsHandled then begin
         AdjustedCostElementBuf.DeleteAll();
         with InbndValueEntry do begin
             InbndItemLedgEntry.Get(InbndItemLedgEntryNo);
@@ -881,6 +885,8 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
                   ItemApplnEntry."Output Completely Invd. Date" <> 0D);
         end;
         CompletelyInvoiced := InbndItemLedgEntry."Completely Invoiced";
+        end;
+
         OnAfterCalcInbndEntryAdjustedCost(AdjustedCostElementBuf, InbndValueEntry, InbndItemLedgEntry, ItemApplnEntry, OutbndItemLedgEntryNo, CompletelyInvoiced);
     end;
 
@@ -1632,6 +1638,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         ItemJnlLine: Record "Item Journal Line";
         OrigItemLedgEntry: Record "Item Ledger Entry";
         OrigValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
     begin
         OrigValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         OrigValueEntry.SetRange("Item Ledger Entry No.", TempInvtAdjmtBuf."Item Ledger Entry No.");
@@ -1651,7 +1658,9 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
             OrigItemLedgEntry.Get("Item Ledger Entry No.");
             ItemJnlLine.Adjustment := ("Order Type" = "Order Type"::Assembly) and (OrigItemLedgEntry."Invoiced Quantity" <> 0);
 
-            OnPostOutputOnBeforePostItemJnlLine(ItemJnlLine, OrigValueEntry, InvtAdjmtBuf);
+            IsHandled := false;
+            OnPostOutputOnBeforePostItemJnlLine(ItemJnlLine, OrigValueEntry, InvtAdjmtBuf, GLSetup, IsHandled);
+            if not IsHandled then
             PostItemJnlLine(ItemJnlLine, OrigValueEntry, InvtAdjmtBuf."Cost Amount (Actual)", InvtAdjmtBuf."Cost Amount (Actual) (ACY)");
 
             OrigItemLedgEntry.Get("Item Ledger Entry No.");
@@ -1889,7 +1898,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
             // NAVCZ
 
-            OnPostItemJnlLineOnAfterSetPostingDate(ItemJnlLine, OrigValueEntry);
+            OnPostItemJnlLineOnAfterSetPostingDate(ItemJnlLine, OrigValueEntry, PostingDateForClosedPeriod);
 
             ItemJnlLine."Entry Type" := "Item Ledger Entry Type";
             ItemJnlLine."Document No." := "Document No.";
@@ -2884,6 +2893,11 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcInbndEntryAdjustedCost(var AdjustedCostElementBuf: Record "Cost Element Buffer"; ItemApplnEntry: Record "Item Application Entry"; OutbndItemLedgEntryNo: Integer; InbndItemLedgEntryNo: Integer; ExactCostReversing: Boolean; Recursion: Boolean; var CompletelyInvoiced: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyILEToILE(var Item: Record Item; ItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -2989,7 +3003,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnAfterSetPostingDate(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry")
+    local procedure OnPostItemJnlLineOnAfterSetPostingDate(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry"; PostingDateForClosedPeriod: Date)
     begin
     end;
 
@@ -3034,7 +3048,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostOutputOnBeforePostItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; InvtAdjmtBuf: Record "Inventory Adjustment Buffer")
+    local procedure OnPostOutputOnBeforePostItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; var InvtAdjmtBuf: Record "Inventory Adjustment Buffer"; var GLSetup: Record "General Ledger Setup"; var IsHandled: Boolean)
     begin
     end;
 

@@ -172,7 +172,6 @@ codeunit 5616 "Depreciation Calculation"
         FALedgEntry: Record "FA Ledger Entry";
         EntryDates: array[4] of Date;
         LocalDate: Date;
-        i: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -195,11 +194,24 @@ codeunit 5616 "Depreciation Calculation"
                 if ToMorrow("FA Posting Date", Year365Days) > LocalDate then
                     LocalDate := ToMorrow("FA Posting Date", Year365Days);
             GetLastEntryDates(FANo, DeprBookCode, EntryDates);
-            for i := 1 to 4 do
-                if EntryDates[i] > LocalDate then
-                    LocalDate := EntryDates[i];
+            FindMaxDate(FALedgEntry, EntryDates, LocalDate, Year365Days);
         end;
         exit(LocalDate);
+    end;
+
+    local procedure FindMaxDate(var FALedgEntry: Record "FA Ledger Entry"; EntryDates: array[4] of Date; var MaxDate: Date; Year365Days: Boolean)
+    var
+        i: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindMaxDate(FALedgEntry, EntryDates, Year365Days, MaxDate, IsHandled);
+        if IsHandled then
+            exit;
+
+        for i := 1 to 4 do
+            if EntryDates[i] > MaxDate then
+                MaxDate := EntryDates[i];
     end;
 
     procedure GetMinusBookValue(FANo: Code[20]; DeprBookCode: Code[10]; StartingDate: Date; EndingDate: Date): Decimal
@@ -627,6 +639,11 @@ codeunit 5616 "Depreciation Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcRounding(DeprBook: Record "Depreciation Book"; var DeprAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindMaxDate(var FALedgEntry: Record "FA Ledger Entry"; EntryDates: array[4] of Date; Year365Days: Boolean; var MaxDate: Date; var IsHandled: Boolean)
     begin
     end;
 

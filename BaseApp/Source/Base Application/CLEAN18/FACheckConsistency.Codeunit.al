@@ -327,7 +327,7 @@ codeunit 5606 "FA Check Consistency"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateDisposerError(FixedAsset, DeprBookCode, IsHandled);
+        OnBeforeCreateDisposerError(FixedAsset, DeprBookCode, IsHandled, FALedgEntry);
         if not IsHandled then
             Error(Text001, DepreciationCalc.FAName(FixedAsset, DeprBookCode));
     end;
@@ -411,7 +411,7 @@ codeunit 5606 "FA Check Consistency"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDisposerError(FixedAsset: Record "Fixed Asset"; DeprBookCode: code[10]; var IsHandled: Boolean)
+    local procedure OnBeforeCreateDisposerError(FixedAsset: Record "Fixed Asset"; DeprBookCode: code[10]; var IsHandled: Boolean; FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 

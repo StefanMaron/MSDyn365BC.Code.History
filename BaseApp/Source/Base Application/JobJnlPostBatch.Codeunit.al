@@ -1,4 +1,4 @@
-codeunit 1013 "Job Jnl.-Post Batch"
+﻿codeunit 1013 "Job Jnl.-Post Batch"
 {
     Permissions = TableData "Job Journal Batch" = imd;
     TableNo = "Job Journal Line";
@@ -163,6 +163,8 @@ codeunit 1013 "Job Jnl.-Post Batch"
             InvtSetup.Get();
             if InvtSetup.AutomaticCostAdjmtRequired() then
                 InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+
+            OnCodeOnAfterMakeMultiLevelAdjmt(JobJnlLine);
 
             // Copy register no. and current journal batch name to the job journal
             if not JobReg.FindLast or (JobReg."No." <> JobRegNo) then
@@ -331,6 +333,11 @@ codeunit 1013 "Job Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeCheckLines(var JobJournalLine: Record "Job Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterMakeMultiLevelAdjmt(var JobJournalLine: Record "Job Journal Line");
     begin
     end;
 

@@ -26,13 +26,16 @@ codeunit 5708 "Release Transfer Document"
                 Error(Text001, Rec."No.", Rec.FieldCaption("Transfer-from Code"), Rec.FieldCaption("Transfer-to Code"));
 
         InvtSetup.Get();
-        if not Rec."Direct Transfer" then
-            Rec.TestField("In-Transit Code")
-        else
-            if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Receipt and Shipment" then begin
-                Rec.VerifyNoOutboundWhseHandlingOnLocation(Rec."Transfer-from Code");
-                Rec.VerifyNoInboundWhseHandlingOnLocation(Rec."Transfer-to Code");
-            end;
+        IsHandled := false;
+        OnBeforeCheckTransitLocations(Rec, IsHandled);
+        if not IsHandled then
+            if not Rec."Direct Transfer" then
+                Rec.TestField("In-Transit Code")
+            else
+                if InvtSetup."Direct Transfer Posting" = InvtSetup."Direct Transfer Posting"::"Receipt and Shipment" then begin
+                    Rec.VerifyNoOutboundWhseHandlingOnLocation(Rec."Transfer-from Code");
+                    Rec.VerifyNoInboundWhseHandlingOnLocation(Rec."Transfer-to Code");
+                end;
 
         Rec.TestField(Status, Rec.Status::Open);
 
@@ -139,6 +142,11 @@ codeunit 5708 "Release Transfer Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTransferCode(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTransitLocations(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 

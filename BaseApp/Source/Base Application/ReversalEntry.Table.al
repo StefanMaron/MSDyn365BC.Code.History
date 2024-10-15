@@ -253,7 +253,7 @@ table 179 "Reversal Entry"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeReverseEntries(Number, RevType, IsHandled, HideDialog);
+        OnBeforeReverseEntries(Number, RevType, IsHandled, HideDialog, Rec);
         if IsHandled then
             exit;
 
@@ -1630,7 +1630,7 @@ ReverseAdvPaymErr, TableCaption, "Entry No.");
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReverseEntries(Number: Integer; RevType: Integer; var IsHandled: Boolean; HideDialog: Boolean)
+    local procedure OnBeforeReverseEntries(Number: Integer; RevType: Integer; var IsHandled: Boolean; HideDialog: Boolean; var ReversalEntry: Record "Reversal Entry")
     begin
     end;
 

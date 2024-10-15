@@ -24,6 +24,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySales: Codeunit "Library - Sales";
         Assert: Codeunit Assert;
@@ -52,7 +53,8 @@ codeunit 137390 "SCM Kitting -  Reports"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting -  Reports");
         // Initialize setup.
         LibraryVariableStorage.Clear();
-        ClearLastError;
+        LibrarySetupStorage.Restore();
+        ClearLastError();
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card",
           LibraryUtility.GetGlobalNoSeriesCode);
         LibraryAssembly.UpdateInventorySetup(InventorySetup, false, true, InventorySetup."Automatic Cost Adjustment"::Never,
@@ -63,15 +65,23 @@ codeunit 137390 "SCM Kitting -  Reports"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting -  Reports");
 
         // Setup Demonstration data.
-        isInitialized := true;
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateInventoryPostingSetup();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
         SalesReceivablesSetup.Get();
         SourceCodeSetup.Get();
         MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
         LibraryERM.SetClosedPeriodEntryPosDate(WorkDate2); // NAVCZ
+
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+
+        isInitialized := true;
         Commit();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting -  Reports");
     end;
 

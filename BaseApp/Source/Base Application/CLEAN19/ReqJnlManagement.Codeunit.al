@@ -48,7 +48,7 @@ codeunit 330 ReqJnlManagement
                     ReqWkshTemplate.Recurring := RecurringJnl;
                     ReqWkshTemplate.Type := TemplateType;
                     if not RecurringJnl then begin
-                        ReqWkshTemplate.Name := Format(TemplateType);
+                        ReqWkshTemplate.Name := CopyStr(Format(TemplateType), 1, MaxStrLen(ReqWkshTemplate.Name));
                         ReqWkshTemplate.Description := StrSubstNo(Text99000000, Format(TemplateType));
                     end else begin
                         ReqWkshTemplate.Name := Text002;

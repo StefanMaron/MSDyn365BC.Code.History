@@ -22,7 +22,7 @@ report 502 "Intrastat - Checklist"
             dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
             {
                 DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method");
+                DataItemTableView = SORTING ("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Country/Region of Origin Code", "Partner VAT ID");
                 RequestFilterFields = Type;
                 column(TodayFormatted; Format(Today, 0, 4))
                 {
@@ -136,6 +136,12 @@ report 502 "Intrastat - Checklist"
                 column(TotalCaption; TotalCaptionLbl)
                 {
                 }
+                column(CountryRegionofOriginCode; "Country/Region of Origin Code")
+                {
+                }
+                column(PartnerVATID; "Partner VAT ID")
+                {
+                }
 
                 trigger OnAfterGetRecord()
                 var
@@ -184,6 +190,8 @@ report 502 "Intrastat - Checklist"
                     IntrastatJnlLineTemp.SetRange("Country/Region Code", "Country/Region Code");
                     IntrastatJnlLineTemp.SetRange("Transaction Type", "Transaction Type");
                     IntrastatJnlLineTemp.SetRange("Transport Method", "Transport Method");
+                    IntrastatJnlLineTemp.SetRange("Country/Region of Origin Code", "Country/Region of Origin Code");
+                    IntrastatJnlLineTemp.SetRange("Partner VAT ID", "Partner VAT ID");
                     if not IntrastatJnlLineTemp.FindFirst() then begin
                         IntrastatJnlLineTemp := "Intrastat Jnl. Line";
                         IntrastatJnlLineTemp.Insert();
@@ -193,15 +201,21 @@ report 502 "Intrastat - Checklist"
                        (PrevIntrastatJnlLine."Tariff No." <> "Tariff No.") or
                        (PrevIntrastatJnlLine."Country/Region Code" <> "Country/Region Code") or
                        (PrevIntrastatJnlLine."Transaction Type" <> "Transaction Type") or
-                       (PrevIntrastatJnlLine."Transport Method" <> "Transport Method")
+                       (PrevIntrastatJnlLine."Transport Method" <> "Transport Method") or
+                       (PrevIntrastatJnlLine."Country/Region of Origin Code" <> "Country/Region of Origin Code") or
+                       (PrevIntrastatJnlLine."Partner VAT ID" <> "Partner VAT ID")
                     then begin
                         SubTotalWeight := 0;
-                        PrevIntrastatJnlLine.SetCurrentKey(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method");
+                        PrevIntrastatJnlLine.SetCurrentKey(
+                          "Journal Template Name", "Journal Batch Name", Type, "Country/Region Code",
+                          "Tariff No.", "Transaction Type", "Transport Method", "Country/Region of Origin Code", "Partner VAT ID");
                         PrevIntrastatJnlLine.SetRange(Type, Type);
                         PrevIntrastatJnlLine.SetRange("Country/Region Code", "Country/Region Code");
                         PrevIntrastatJnlLine.SetRange("Tariff No.", "Tariff No.");
                         PrevIntrastatJnlLine.SetRange("Transaction Type", "Transaction Type");
                         PrevIntrastatJnlLine.SetRange("Transport Method", "Transport Method");
+                        PrevIntrastatJnlLine.SetRange("Country/Region of Origin Code", "Country/Region of Origin Code");
+                        PrevIntrastatJnlLine.SetRange("Partner VAT ID", "Partner VAT ID");
                         PrevIntrastatJnlLine.FindFirst();
                     end;
 
@@ -317,7 +331,7 @@ report 502 "Intrastat - Checklist"
         CountryRegionCodeCaptionLbl: Label 'Country/Region Code';
         TransactionTypeCaptionLbl: Label 'Transaction Type';
         TransactionMethodCaptionLbl: Label 'Transport Method';
-        NoOfEntriesCaptionLbl: Label 'No. of Entries';
+        NoOfEntriesCaptionLbl: Label 'No. of Combined Entries';
         TotalCaptionLbl: Label 'Total';
         StatReportingSetup: Record "Stat. Reporting Setup";
         CountryOfOrigin: Record "Country/Region";

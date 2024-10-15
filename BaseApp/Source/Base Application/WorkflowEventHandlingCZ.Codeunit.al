@@ -187,21 +187,21 @@ codeunit 31110 "Workflow Event Handling CZ"
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendPaymentOrderForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendPaymentOrderForApproval'));
+        exit('RUNWORKFLOWONSENDPAYMENTORDERFORAPPROVAL');
     end;
 
     [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelPaymentOrderApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCancelPaymentOrderApprovalRequest'));
+        exit('RUNWORKFLOWONCANCELPAYMENTORDERAPPROVALREQUEST');
     end;
 
     [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure RunWorkflowOnAfterIssuePaymentOrderCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterIssuePaymentOrder'));
+        exit('RUNWORKFLOWONAFTERISSUEPAYMENTORDER');
     end;
 
 #endif
@@ -210,58 +210,58 @@ codeunit 31110 "Workflow Event Handling CZ"
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendCreditDocForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendCreditDocForApproval'));
+        exit('RUNWORKFLOWONSENDCREDITDOCFORAPPROVAL');
     end;
 
     [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelCreditApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCancelCreditApprovalRequest'));
+        exit('RUNWORKFLOWONCANCELCREDITAPPROVALREQUEST');
     end;
 
     [Obsolete('Moved to Compensation Localization Pack for Czech.', '18.1')]
     [Scope('OnPrem')]
     procedure RunWorkflowOnAfterReleaseCreditDocCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterReleaseCreditDoc'));
+        exit('RUNWORKFLOWONAFTERRELEASECREDITDOC');
     end;
 
 #endif
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendSalesAdvanceLetterForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendSalesAdvanceLetterForApproval'));
+        exit('RUNWORKFLOWONSENDSALESADVANCELETTERFORAPPROVAL');
     end;
 
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelSalesAdvanceLetterApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCancelSalesAdvanceLetterApprovalRequest'));
+        exit('RUNWORKFLOWONCANCELSALESADVANCELETTERAPPROVALREQUEST');
     end;
 
     [Scope('OnPrem')]
     procedure RunWorkflowOnAfterReleaseSalesAdvanceLetterCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterReleaseSalesAdvanceLetter'));
+        exit('RUNWORKFLOWONAFTERRELEASESALESADVANCELETTER');
     end;
 
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendPurchaseAdvanceLetterForApprovalCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnSendPurchaseAdvanceLetterForApproval'));
+        exit('RUNWORKFLOWONSENDPURCHASEADVANCELETTERFORAPPROVAL');
     end;
 
     [Scope('OnPrem')]
     procedure RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequestCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnCancelPurchaseAdvanceLetterApprovalRequest'));
+        exit('RUNWORKFLOWONCANCELPURCHASEADVANCELETTERAPPROVALREQUEST');
     end;
 
     [Scope('OnPrem')]
     procedure RunWorkflowOnAfterReleasePurchaseAdvanceLetterCode(): Code[128]
     begin
-        exit(UpperCase('RunWorkflowOnAfterReleasePurchaseAdvanceLetter'));
+        exit('RUNWORKFLOWONAFTERRELEASEPURCHASEADVANCELETTER');
     end;
 
 #if not CLEAN19

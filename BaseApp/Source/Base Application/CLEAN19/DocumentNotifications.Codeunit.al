@@ -58,6 +58,7 @@ codeunit 1390 "Document Notifications"
                 Customer.SetAddress(SalesHeader."Bill-to Address", SalesHeader."Bill-to Address 2",
                   SalesHeader."Bill-to Post Code", SalesHeader."Bill-to City", SalesHeader."Bill-to County",
                   SalesHeader."Bill-to Country/Region Code", SalesHeader."Bill-to Contact");
+                OnCopyBillToCustomerAddressFieldsFromSalesDocumentOnBeforeModify(Customer, SalesHeader);
                 Customer.Modify(true);
             end;
         end;
@@ -354,6 +355,11 @@ codeunit 1390 "Document Notifications"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyPayToVendorAddressFieldsFromSalesDocument(var ModifyVendorAddressNotification: Notification; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyBillToCustomerAddressFieldsFromSalesDocumentOnBeforeModify(var Customer: Record Customer; SalesHeader: Record "Sales Header")
     begin
     end;
 

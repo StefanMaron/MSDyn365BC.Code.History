@@ -526,6 +526,7 @@ codeunit 1535 "Approvals Mgmt."
                 OldStatus := ApprovalEntry.Status;
                 ApprovalEntryToUpdate := ApprovalEntry;
                 ApprovalEntryToUpdate.Validate(Status, ApprovalEntry.Status::Rejected);
+                OnRejectApprovalRequestsForRecordOnBeforeApprovalEntryToUpdateModify(ApprovalEntryToUpdate);
                 ApprovalEntryToUpdate.Modify(true);
                 if OldStatus in [ApprovalEntry.Status::Open] then
                     CreateApprovalEntryNotification(ApprovalEntryToUpdate, WorkflowStepInstance);
@@ -2478,6 +2479,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRejectApprovalRequestsForRecordOnBeforeApprovalEntryToUpdateModify(var ApprovalEntry: Record "Approval Entry")
     begin
     end;
 

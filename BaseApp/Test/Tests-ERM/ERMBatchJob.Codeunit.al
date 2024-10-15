@@ -842,82 +842,6 @@ codeunit 134900 "ERM Batch Job"
     end;
 
     [Test]
-    [HandlerFunctions('BatchPostSalesOrderRequestPageHandler,SentNotificationHandler')]
-    [Scope('OnPrem')]
-    procedure RunSalesBatchJob()
-    var
-        LineGLAccount: Record "G/L Account";
-        SalesHeader: Record "Sales Header";
-        ErrorMessagesPage: TestPage "Error Messages";
-        SalesHeaderNo: Code[20];
-        OrderCounter: Integer;
-    begin
-        // [FEATURE] [Batch Post] [Order] [Sales]
-        // [SCENARIO] Verify Message Populated after running Batch Sales Order.
-
-        // [GIVEN] Create and Post Sales Orders.
-        Initialize();
-        LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        SetCheckPrepmtWhenPostingSales(true);
-        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
-        for OrderCounter := 1 to LibraryRandom.RandIntInRange(2, 5) do
-            SalesHeaderNo := CreateAndPostSalesOrderWithPrepayment(LineGLAccount);
-
-        // [WHEN] Post Sales Batch.
-        ErrorMessagesPage.Trap;
-        RunPostBatchSalesOrder(SalesHeaderNo);
-
-        // [THEN] Notification: 'An error occured during operation: batch processing of Sales Header records.'
-        Assert.ExpectedMessage(
-          StrSubstNo(NotificationMsg, SalesHeader.TableCaption), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
-        LibraryVariableStorage.AssertEmpty;
-        Clear(SalesHeader);
-        LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
-        // [THEN] On "Details" action - Error Messages page is open, where Description is 'NotPaidPrepaymentErr'
-        ErrorMessagesPage.Description.AssertEquals(StrSubstNo(NotPaidPrepaymentErr, SalesHeaderNo));
-
-        // TearDown.
-        RemovePrepmtVATSetup(LineGLAccount);
-    end;
-
-    [Test]
-    [HandlerFunctions('SentNotificationHandler')]
-    [Scope('OnPrem')]
-    procedure RunPurchaseBatchJob()
-    var
-        LineGLAccount: Record "G/L Account";
-        PurchaseHeader: Record "Purchase Header";
-        ErrorMessagesPage: TestPage "Error Messages";
-        PurchaseHeaderNo: Code[20];
-        OrderCounter: Integer;
-    begin
-        // [FEATURE] [Batch Post] [Order] [Purchase]
-        // [GIVEN] Create and Post Purchase Orders.
-        Initialize();
-        LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        SetCheckPrepmtWhenPostingPurchase(true);
-        LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
-        for OrderCounter := 1 to LibraryRandom.RandIntInRange(2, 5) do
-            PurchaseHeaderNo := CreateAndPostPurchaseOrderWithPrepayment(LineGLAccount);
-
-        // [WHEN] Post Purchase Batch.
-        ErrorMessagesPage.Trap;
-        RunBatchPostPurchaseOrders(PurchaseHeaderNo, true, true, WorkDate, false, false, false);
-
-        // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
-        Assert.ExpectedMessage(
-          StrSubstNo(NotificationMsg, PurchaseHeader.TableCaption), LibraryVariableStorage.DequeueText); // from SentNotificationHandler
-        LibraryVariableStorage.AssertEmpty;
-        Clear(PurchaseHeader);
-        LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseHeader);
-        // [THEN] On "Details" action - Error Messages page is open, where Description is 'NotPaidPrepaymentErr'
-        ErrorMessagesPage.Description.AssertEquals(StrSubstNo(NotPaidPurchPrepaymentErr, PurchaseHeaderNo));
-
-        // TearDown.
-        RemovePrepmtVATSetup(LineGLAccount);
-    end;
-
-    [Test]
     [HandlerFunctions('SalesListPageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseLineWithSalesPurchasingCode()
@@ -1745,41 +1669,6 @@ codeunit 134900 "ERM Batch Job"
 
     [Test]
     [Scope('OnPrem')]
-    procedure InventoryPickNotCreatedWhenPrepaymentUnpaid()
-    var
-        LineGLAccount: Record "G/L Account";
-        VATPostingSetup: Record "VAT Posting Setup";
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        LocationCode: Code[10];
-        Qty: Decimal;
-    begin
-        // [FEATURE] [Sales] [Prepayment] [Inventory Pick]
-        // [SCENARIO 379696] Invt. Pick should not be created when "Check Prepmt. when Posting" is marked and Prepayment is unpaid.
-        Initialize();
-
-        // [GIVEN] "Check Prepmt. when Posting" is marked.
-        Qty := LibraryRandom.RandInt(100);
-        SetCheckPrepmtWhenPostingSales(true);
-        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        // [GIVEN] Location with "Require Pick".
-        LocationCode := CreateLocationRequirePick;
-        // [GIVEN] Item with "VAT Prod. Posting Group".
-        LibraryInventory.CreateItemWithPostingSetup(
-          Item, LineGLAccount."Gen. Prod. Posting Group", LineGLAccount."VAT Prod. Posting Group");
-        // [GIVEN] Create Sales Order for Item with unpaid Prepayment.
-        CreateSalesOrderWithUnpaidPrepayment(SalesHeader, LineGLAccount, LocationCode, Item."No.", Qty);
-
-        // [WHEN] Create Inventory Pick
-        asserterror SalesHeader.CreateInvtPutAwayPick;
-
-        // [THEN] Error message "There are unpaid prepayment invoices related to the document..." is appeared.
-        Assert.ExpectedError(UnpaidPrepaymentErr);
-        RemovePrepmtVATSetup(LineGLAccount);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure WhseShipmentCreatedWhenPrepaymentPaid()
     var
         LineGLAccount: Record "G/L Account";
@@ -1813,41 +1702,6 @@ codeunit 134900 "ERM Batch Job"
 
         // [THEN] Warehouse Shipment Line with Item is created.
         VerifyWarehouseShipmentLine(SalesHeader."No.", Item."No.", Qty);
-        RemovePrepmtVATSetup(LineGLAccount);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure WhseShipmentNotCreatedWhenPrepaymentUnpaid()
-    var
-        LineGLAccount: Record "G/L Account";
-        VATPostingSetup: Record "VAT Posting Setup";
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        LocationCode: Code[10];
-        Qty: Decimal;
-    begin
-        // [FEATURE] [Sales] [Prepayment] [Warehouse Shipment]
-        // [SCENARIO 379696] Whse. Shipment should not be created when "Check Prepmt. when Posting" is marked and Prepayment is unpaid.
-        Initialize();
-
-        // [GIVEN] "Check Prepmt. when Posting" is marked.
-        Qty := LibraryRandom.RandInt(100);
-        SetCheckPrepmtWhenPostingSales(true);
-        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        // [GIVEN] Location with "Require Pick".
-        LocationCode := CreateLocationRequireShipment;
-        // [GIVEN] Item with "VAT Prod. Posting Group".
-        LibraryInventory.CreateItemWithPostingSetup(
-          Item, LineGLAccount."Gen. Prod. Posting Group", LineGLAccount."VAT Prod. Posting Group");
-        // [GIVEN] Create Sales Order for Item with unpaid Prepayment.
-        CreateSalesOrderWithUnpaidPrepayment(SalesHeader, LineGLAccount, LocationCode, Item."No.", Qty);
-
-        // [WHEN] Create Warehouse Shipment
-        asserterror LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
-
-        // [THEN] Error message "There are unpaid prepayment invoices related to the document..." is appeared.
-        Assert.ExpectedError(UnpaidPrepaymentErr);
         RemovePrepmtVATSetup(LineGLAccount);
     end;
 

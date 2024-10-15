@@ -1643,7 +1643,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryReportDataset.SetRange('LineDisc_SalesLineDisc', LineDiscount);
         Assert.AreEqual(1, LibraryReportDataset.RowCount, '');
     end;
-    
+
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PriceListReportForCustomerAndAllCustomerPrice()
@@ -1703,8 +1703,11 @@ codeunit 137302 "SCM Inventory Reports - II"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateGeneralLedgerSetup(); // NAVCZ
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         isInitialized := true;
         Commit();

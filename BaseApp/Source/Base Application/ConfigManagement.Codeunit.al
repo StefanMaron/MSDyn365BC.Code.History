@@ -26,7 +26,13 @@ codeunit 8616 "Config. Management"
         ConfirmTableText: Text[250];
         MessageTableText: Text[250];
         SingleTable: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyDataDialog(ConfigLine, NewCompanyName, IsHandled);
+        if IsHandled then
+            exit;
+
         with ConfigLine do begin
             if NewCompanyName = '' then
                 Error(Text000);
@@ -782,15 +788,16 @@ codeunit 8616 "Config. Management"
           (ConfigValidateMgt.GetRelationTableID(TableID, FieldID) = DATABASE::"Dimension Value"));
     end;
 
-    local procedure TableIsInAllowedRange(TableID: Integer): Boolean
+    local procedure TableIsInAllowedRange(TableID: Integer) Result: Boolean
     begin
         // This condition duplicates table relation of ConfigLine."Table ID" field to prevent runtime errors
-        exit(TableID in [1 .. 99000999,
-                         DATABASE::"Permission Set",
-                         DATABASE::Permission,
-                         DATABASE::"Tenant Permission Set Rel.",
-                         DATABASE::"Tenant Permission Set",
-                         DATABASE::"Tenant Permission"]);
+        Result := TableID in [1 .. 99000999,
+                              DATABASE::"Permission Set",
+                              DATABASE::Permission,
+                              DATABASE::"Tenant Permission Set Rel.",
+                              DATABASE::"Tenant Permission Set",
+                              DATABASE::"Tenant Permission"];
+        OnAfterTableIsInAllowedRange(TableID, Result);
     end;
 
     local procedure IsNormalTable(TableID: Integer): Boolean
@@ -801,17 +808,14 @@ codeunit 8616 "Config. Management"
             exit(TableMetadata.TableType = TableMetadata.TableType::Normal);
     end;
 
-    procedure IsSystemTable(TableID: Integer): Boolean
+    procedure IsSystemTable(TableID: Integer) Result: Boolean
     begin
-        if (TableID > 2000000000) and not (TableID in [DATABASE::"Permission Set",
-                                                       DATABASE::Permission,
-                                                       DATABASE::"Tenant Permission Set Rel.",
-                                                       DATABASE::"Tenant Permission Set",
-                                                       DATABASE::"Tenant Permission"])
-        then
-            exit(true);
-
-        exit(false);
+        Result := (TableID > 2000000000) and not (TableID in [DATABASE::"Permission Set",
+                                                              DATABASE::Permission,
+                                                              DATABASE::"Tenant Permission Set Rel.",
+                                                              DATABASE::"Tenant Permission Set",
+                                                              DATABASE::"Tenant Permission"]);
+        OnAfterIsSystemTable(TableID, Result);
     end;
 
     procedure AssignParentLineNos()
@@ -914,6 +918,21 @@ codeunit 8616 "Config. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsDefaultDimTable(TableID: Integer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTableIsInAllowedRange(TableID: Integer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsSystemTable(TableID: Integer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyDataDialog(var ConfigLine: Record "Config. Line"; NewCompanyName: Text[30]; var IsHandled: Boolean)
     begin
     end;
 }

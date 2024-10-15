@@ -1,4 +1,4 @@
-﻿#if CLEAN20
+#if CLEAN20
 page 6510 "Item Tracking Lines"
 {
     Caption = 'Item Tracking Lines';
@@ -581,15 +581,14 @@ page 6510 "Item Tracking Lines"
                     Image = LotInfo;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    RunObject = Page "Package No. Information List";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Package No." = FIELD("Package No.");
                     ToolTip = 'View or edit detailed information about the package number.';
 
                     trigger OnAction()
+                    var
+                        PackageNoInformation: Record "Package No. Information";
                     begin
                         Rec.TestField("Package No.");
+                        PackageNoInformation.ShowCard(Rec."Package No.", Rec);
                     end;
                 }
             }
@@ -2750,6 +2749,7 @@ page 6510 "Item Tracking Lines"
                     Rec."Qty. to Invoice (Base)" += TempTrackingSpecification."Qty. to Invoice (Base)";
                 end else
                     Rec.Validate("Quantity (Base)", "Quantity (Base)" + TempTrackingSpecification."Quantity (Base)");
+                OnRegisterItemTrackingLinesOnBeforeModify(Rec, TempTrackingSpecification);
                 Rec.Modify();
             end else begin
                 Rec.TransferFields(SourceTrackingSpecification);
@@ -3567,6 +3567,11 @@ page 6510 "Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnRegisterItemTrackingLinesOnAfterReclass(var TrackingSpecification: Record "Tracking Specification"; TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterItemTrackingLinesOnBeforeModify(var TrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 

@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 codeunit 8 AccSchedManagement
 {
     TableNo = "Acc. Schedule Line";
@@ -97,6 +97,7 @@ codeunit 8 AccSchedManagement
         AccSchedLine.FilterGroup(2);
         AccSchedLine.SetRange("Schedule Name", CurrentSchedName);
         AccSchedLine.FilterGroup(0);
+        OnAfterCheckTemplateAndSetFilter(CurrentSchedName, AccSchedLine);
     end;
 
     local procedure CheckTemplateName(var CurrentSchedName: Code[10])
@@ -120,6 +121,7 @@ codeunit 8 AccSchedManagement
         AccSchedName: Record "Acc. Schedule Name";
     begin
         AccSchedName.Get(CurrentSchedName);
+        OnAfterCheckName(CurrentSchedName);
     end;
 
     procedure SetName(CurrentSchedName: Code[10]; var AccSchedLine: Record "Acc. Schedule Line")
@@ -148,6 +150,7 @@ codeunit 8 AccSchedManagement
         ColumnLayout.FilterGroup(2);
         ColumnLayout.SetRange("Column Layout Name", CurrentColumnName);
         ColumnLayout.FilterGroup(0);
+        OnAfterOpenColumns(CurrentColumnName, ColumnLayout);
     end;
 
     local procedure CheckColumnTemplateName(var CurrentColumnName: Code[10])
@@ -171,6 +174,7 @@ codeunit 8 AccSchedManagement
         ColumnLayoutName: Record "Column Layout Name";
     begin
         ColumnLayoutName.Get(CurrentColumnName);
+        OnAfterCheckColumnName(CurrentColumnName);
     end;
 
     procedure SetColumnName(CurrentColumnName: Code[10]; var ColumnLayout: Record "Column Layout")
@@ -184,7 +188,13 @@ codeunit 8 AccSchedManagement
     procedure CopyColumnsToTemp(NewColumnName: Code[10]; var TempColumnLayout: Record "Column Layout")
     var
         ColumnLayout: Record "Column Layout";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyColumnsToTemp(NewColumnName, TempColumnLayout, IsHandled);
+        if IsHandled then
+            exit;
+
         TempColumnLayout.DeleteAll();
         ColumnLayout.SetRange("Column Layout Name", NewColumnName);
         if ColumnLayout.Find('-') then
@@ -333,45 +343,46 @@ codeunit 8 AccSchedManagement
         GLSetupRead := true;
     end;
 
-    procedure CalcCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean): Decimal
+    procedure CalcCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean) Result: Decimal
     var
         AccScheduleResult: Record "Acc. Schedule Result Value";
-        Result: Decimal;
+        IsHandled: Boolean;
     begin
-        OnBeforeCalcCell(AccSchedLine, ColumnLayout, CalcAddCurr);
+        IsHandled := false;
+        OnBeforeCalcCell(AccSchedLine, ColumnLayout, CalcAddCurr, Result, IsHandled);
+        if not IsHandled then begin
+            AccountScheduleLine.CopyFilters(AccSchedLine);
+            StartDate := AccountScheduleLine.GetRangeMin("Date Filter");
+            if EndDate <> AccountScheduleLine.GetRangeMax("Date Filter") then begin
+                EndDate := AccountScheduleLine.GetRangeMax("Date Filter");
+                FiscalStartDate := AccountingPeriodMgt.FindFiscalYear(EndDate);
+            end;
+            DivisionError := false;
+            PeriodError := false;
+            CallLevel := 0;
+            CallingAccSchedLineID := AccSchedLine."Line No.";
+            CallingColumnLayoutID := ColumnLayout."Line No.";
 
-        AccountScheduleLine.CopyFilters(AccSchedLine);
-        StartDate := AccountScheduleLine.GetRangeMin("Date Filter");
-        if EndDate <> AccountScheduleLine.GetRangeMax("Date Filter") then begin
-            EndDate := AccountScheduleLine.GetRangeMax("Date Filter");
-            FiscalStartDate := AccountingPeriodMgt.FindFiscalYear(EndDate);
+            if (OldAccSchedLineFilters <> AccSchedLine.GetFilters) or
+               (OldColumnLayoutFilters <> ColumnLayout.GetFilters) or
+               (OldAccSchedLineName <> AccSchedLine."Schedule Name") or
+               (OldColumnLayoutName <> ColumnLayout."Column Layout Name") or
+               (OldCalcAddCurr <> CalcAddCurr) or
+               Recalculate
+            then begin
+                AccSchedCellValue.Reset();
+                AccSchedCellValue.DeleteAll();
+                Clear(BasePercentLine);
+                OldAccSchedLineFilters := AccSchedLine.GetFilters;
+                OldColumnLayoutFilters := ColumnLayout.GetFilters;
+                OldAccSchedLineName := AccSchedLine."Schedule Name";
+                OldColumnLayoutName := ColumnLayout."Column Layout Name";
+                OldCalcAddCurr := CalcAddCurr;
+            end;
+
+            Result := CalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr);
+            FormatCellResult(AccSchedLine, ColumnLayout, CalcAddCurr, Result);
         end;
-        DivisionError := false;
-        PeriodError := false;
-        CallLevel := 0;
-        CallingAccSchedLineID := AccSchedLine."Line No.";
-        CallingColumnLayoutID := ColumnLayout."Line No.";
-
-        if (OldAccSchedLineFilters <> AccSchedLine.GetFilters) or
-           (OldColumnLayoutFilters <> ColumnLayout.GetFilters) or
-           (OldAccSchedLineName <> AccSchedLine."Schedule Name") or
-           (OldColumnLayoutName <> ColumnLayout."Column Layout Name") or
-           (OldCalcAddCurr <> CalcAddCurr) or
-           Recalculate
-        then begin
-            AccSchedCellValue.Reset();
-            AccSchedCellValue.DeleteAll();
-            Clear(BasePercentLine);
-            OldAccSchedLineFilters := AccSchedLine.GetFilters;
-            OldColumnLayoutFilters := ColumnLayout.GetFilters;
-            OldAccSchedLineName := AccSchedLine."Schedule Name";
-            OldColumnLayoutName := ColumnLayout."Column Layout Name";
-            OldCalcAddCurr := CalcAddCurr;
-        end;
-
-        Result := CalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr);
-        FormatCellResult(AccSchedLine, ColumnLayout, CalcAddCurr, Result);
-
         OnBeforeCalcCellExit(AccSchedLine, ColumnLayout, CalcAddCurr, Result);
         // NAVCZ
         if SaveResults then begin
@@ -382,7 +393,6 @@ codeunit 8 AccSchedManagement
             AccScheduleResult.Insert();
         end;
         // NAVCZ
-        exit(Result);
     end;
 
     local procedure FormatCellResult(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal)
@@ -419,7 +429,7 @@ codeunit 8 AccSchedManagement
             Result := -Result;
     end;
 
-    procedure CalcCellValue(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean): Decimal
+    procedure CalcCellValue(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean) Result: Decimal
     var
         GLAcc: Record "G/L Account";
         GLAccountCategory: Record "G/L Account Category";
@@ -427,146 +437,146 @@ codeunit 8 AccSchedManagement
         CFAccount: Record "Cash Flow Account";
         GLAccCategoriesToVisit: Record "G/L Acc. Cat. Buffer";
         GLAccCategoriesVisited: Record "G/L Acc. Cat. Buffer";
-        Result: Decimal;
         GLAccCatCode: Integer;
+        IsHandled: Boolean;
     begin
-        Result := 0;
-        OnBeforeCalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr, Result);
-
-        if AccSchedLine.Totaling = '' then
-            exit(Result);
+        IsHandled := false;
+        OnBeforeCalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr, Result, IsHandled);
+        if not IsHandled then begin
+            if AccSchedLine.Totaling = '' then
+                exit(Result);
 
         if AccSchedCellValue.Get(AccSchedLine."Schedule Name", AccSchedLine."Line No.", ColumnLayout."Line No.") then begin // NAVCZ
-            Result := AccSchedCellValue.Value;
-            DivisionError := DivisionError or AccSchedCellValue."Has Error";
-            PeriodError := PeriodError or AccSchedCellValue."Period Error";
-        end else begin
-            if ColumnLayout."Column Type" = ColumnLayout."Column Type"::Formula then
-                Result :=
-                  EvaluateExpression(
-                    false, ColumnLayout.Formula, AccSchedLine, ColumnLayout, CalcAddCurr)
-            else
-                if AccSchedLine."Totaling Type" in
-                   [AccSchedLine."Totaling Type"::Formula, AccSchedLine."Totaling Type"::"Set Base For Percent"]
-                then
+                Result := AccSchedCellValue.Value;
+                DivisionError := DivisionError or AccSchedCellValue."Has Error";
+                PeriodError := PeriodError or AccSchedCellValue."Period Error";
+            end else begin
+                if ColumnLayout."Column Type" = ColumnLayout."Column Type"::Formula then
                     Result :=
                       EvaluateExpression(
-                        true, AccSchedLine.Totaling, AccSchedLine, ColumnLayout, CalcAddCurr)
+                        false, ColumnLayout.Formula, AccSchedLine, ColumnLayout, CalcAddCurr)
                 else
-                    if (StartDate = 0D) or (EndDate = 0D) or (EndDate = DMY2Date(31, 12, 9999)) then begin
-                        Result := 0;
-                        PeriodError := true;
-                    end else
-                        case AccSchedLine."Totaling Type" of
-                            AccSchedLine."Totaling Type"::"Posting Accounts",
-                            AccSchedLine."Totaling Type"::"Total Accounts":
-                                begin
-                                    AccSchedLine.CopyFilters(AccountScheduleLine);
-                                    SetGLAccRowFilters(GLAcc, AccSchedLine);
-                                    SetGLAccColumnFilters(GLAcc, AccSchedLine, ColumnLayout);
-                                    if (AccSchedLine."Totaling Type" = AccSchedLine."Totaling Type"::"Posting Accounts") and
-                                       (StrLen(AccSchedLine.Totaling) <= MaxStrLen(GLAcc.Totaling)) and (StrPos(AccSchedLine.Totaling, '*') = 0)
-                                    then begin
-                                        GLAcc."Account Type" := GLAcc."Account Type"::Total;
-                                        GLAcc.Totaling := AccSchedLine.Totaling;
-                                        Result := Result + CalcGLAcc(GLAcc, AccSchedLine, ColumnLayout, CalcAddCurr);
-                                    end else
-                                        if GLAcc.Find('-') then
-                                            repeat
-                                                Result := Result + CalcGLAcc(GLAcc, AccSchedLine, ColumnLayout, CalcAddCurr);
-                                            until GLAcc.Next() = 0;
-                                end;
-                            AccSchedLine."Totaling Type"::"Cost Type",
-                            AccSchedLine."Totaling Type"::"Cost Type Total":
-                                begin
-                                    AccSchedLine.CopyFilters(AccountScheduleLine);
-                                    SetCostTypeRowFilters(CostType, AccSchedLine, ColumnLayout);
-                                    SetCostTypeColumnFilters(CostType, AccSchedLine, ColumnLayout);
-                                    if (AccSchedLine."Totaling Type" = AccSchedLine."Totaling Type"::"Cost Type") and
-                                       (StrLen(AccSchedLine.Totaling) <= MaxStrLen(GLAcc.Totaling)) and (StrPos(AccSchedLine.Totaling, '*') = 0)
-                                    then begin
-                                        CostType.Type := CostType.Type::Total;
-                                        CostType.Totaling := AccSchedLine.Totaling;
-                                        Result := Result + CalcCostType(CostType, AccSchedLine, ColumnLayout, CalcAddCurr);
-                                    end else
-                                        if CostType.Find('-') then
-                                            repeat
-                                                Result := Result + CalcCostType(CostType, AccSchedLine, ColumnLayout, CalcAddCurr);
-                                            until CostType.Next() = 0;
-                                end;
-                            AccSchedLine."Totaling Type"::"Cash Flow Entry Accounts",
-                            AccSchedLine."Totaling Type"::"Cash Flow Total Accounts":
-                                begin
-                                    AccSchedLine.CopyFilters(AccountScheduleLine);
-                                    SetCFAccRowFilter(CFAccount, AccSchedLine);
-                                    SetCFAccColumnFilter(CFAccount, AccSchedLine, ColumnLayout);
-                                    if (AccSchedLine."Totaling Type" = AccSchedLine."Totaling Type"::"Cash Flow Entry Accounts") and
-                                       (StrLen(AccSchedLine.Totaling) <= 30)
-                                    then begin
-                                        CFAccount."Account Type" := CFAccount."Account Type"::Total;
-                                        CFAccount.Totaling := AccSchedLine.Totaling;
-                                        Result := Result + CalcCFAccount(CFAccount, AccSchedLine, ColumnLayout);
-                                    end else
-                                        if CFAccount.Find('-') then
-                                            repeat
-                                                Result := Result + CalcCFAccount(CFAccount, AccSchedLine, ColumnLayout);
-                                            until CFAccount.Next() = 0;
-                                end;
-                            // NAVCZ
-                            AccSchedLine."Totaling Type"::Constant:
-                                if not Evaluate(Result, AccSchedLine.Totaling) then
-                                    ;
-                            AccSchedLine."Totaling Type"::Custom:
-                                begin
-                                    AccSchedLine.CopyFilters(AccountScheduleLine);
-                                    Result := AccSchedExtensionManagement.CalcCustomFunc(AccSchedLine, ColumnLayout, StartDate, EndDate);
-                                end;
-                        // NAVCZ
-                            AccSchedLine."Totaling Type"::"Account Category":
-                                begin
-                                    AccSchedLine.CopyFilters(AccountScheduleLine);
-
-                                    GLAccountCategory.Reset();
-                                    GLAccountCategory.SetFilter("Entry No.", AccSchedLine.Totaling);
-                                    if GLAccountCategory.FindSet() then
-                                        repeat
-                                            GLAccCategoriesToVisit."Entry No." := GLAccountCategory."Entry No.";
-                                            GLAccCategoriesToVisit.Insert();
-                                        until GLAccountCategory.Next() = 0;
-
-                                    while GLAccCategoriesToVisit.Count() > 0 do begin
-                                        GLAccCategoriesToVisit.FindFirst();
-                                        GLAccCatCode := GLAccCategoriesToVisit."Entry No.";
-
-                                        GLAcc.Reset();
-                                        GlAcc.SetRange("Account Type", GlAcc."Account Type"::Posting);
-                                        GlAcc.SetRange("Account Subcategory Entry No.", GLAccCatCode);
+                    if AccSchedLine."Totaling Type" in
+                       [AccSchedLine."Totaling Type"::Formula, AccSchedLine."Totaling Type"::"Set Base For Percent"]
+                    then
+                        Result :=
+                          EvaluateExpression(
+                            true, AccSchedLine.Totaling, AccSchedLine, ColumnLayout, CalcAddCurr)
+                    else
+                        if (StartDate = 0D) or (EndDate = 0D) or (EndDate = DMY2Date(31, 12, 9999)) then begin
+                            Result := 0;
+                            PeriodError := true;
+                        end else
+                            case AccSchedLine."Totaling Type" of
+                                AccSchedLine."Totaling Type"::"Posting Accounts",
+                                AccSchedLine."Totaling Type"::"Total Accounts":
+                                    begin
+                                        AccSchedLine.CopyFilters(AccountScheduleLine);
+                                        SetGLAccRowFilters(GLAcc, AccSchedLine);
                                         SetGLAccColumnFilters(GLAcc, AccSchedLine, ColumnLayout);
-                                        if GLAcc.FindSet() then
-                                            repeat
-                                                GLAcc.CalcFields(Balance);
-                                                Result := Result + CalcGLAcc(GLAcc, AccSchedLine, ColumnLayout, CalcAddCurr);
-                                            until GLAcc.Next() = 0;
-                                        GLAccCategoriesVisited."Entry No." := GLAccCatCode;
-                                        GLAccCategoriesVisited.Insert();
+                                        if (AccSchedLine."Totaling Type" = AccSchedLine."Totaling Type"::"Posting Accounts") and
+                                           (StrLen(AccSchedLine.Totaling) <= MaxStrLen(GLAcc.Totaling)) and (StrPos(AccSchedLine.Totaling, '*') = 0)
+                                        then begin
+                                            GLAcc."Account Type" := GLAcc."Account Type"::Total;
+                                            GLAcc.Totaling := AccSchedLine.Totaling;
+                                            Result := Result + CalcGLAcc(GLAcc, AccSchedLine, ColumnLayout, CalcAddCurr);
+                                        end else
+                                            if GLAcc.Find('-') then
+                                                repeat
+                                                    Result := Result + CalcGLAcc(GLAcc, AccSchedLine, ColumnLayout, CalcAddCurr);
+                                                until GLAcc.Next() = 0;
+                                    end;
+                                AccSchedLine."Totaling Type"::"Cost Type",
+                                AccSchedLine."Totaling Type"::"Cost Type Total":
+                                    begin
+                                        AccSchedLine.CopyFilters(AccountScheduleLine);
+                                        SetCostTypeRowFilters(CostType, AccSchedLine, ColumnLayout);
+                                        SetCostTypeColumnFilters(CostType, AccSchedLine, ColumnLayout);
+                                        if (AccSchedLine."Totaling Type" = AccSchedLine."Totaling Type"::"Cost Type") and
+                                           (StrLen(AccSchedLine.Totaling) <= MaxStrLen(GLAcc.Totaling)) and (StrPos(AccSchedLine.Totaling, '*') = 0)
+                                        then begin
+                                            CostType.Type := CostType.Type::Total;
+                                            CostType.Totaling := AccSchedLine.Totaling;
+                                            Result := Result + CalcCostType(CostType, AccSchedLine, ColumnLayout, CalcAddCurr);
+                                        end else
+                                            if CostType.Find('-') then
+                                                repeat
+                                                    Result := Result + CalcCostType(CostType, AccSchedLine, ColumnLayout, CalcAddCurr);
+                                                until CostType.Next() = 0;
+                                    end;
+                                AccSchedLine."Totaling Type"::"Cash Flow Entry Accounts",
+                                AccSchedLine."Totaling Type"::"Cash Flow Total Accounts":
+                                    begin
+                                        AccSchedLine.CopyFilters(AccountScheduleLine);
+                                        SetCFAccRowFilter(CFAccount, AccSchedLine);
+                                        SetCFAccColumnFilter(CFAccount, AccSchedLine, ColumnLayout);
+                                        if (AccSchedLine."Totaling Type" = AccSchedLine."Totaling Type"::"Cash Flow Entry Accounts") and
+                                           (StrLen(AccSchedLine.Totaling) <= 30)
+                                        then begin
+                                            CFAccount."Account Type" := CFAccount."Account Type"::Total;
+                                            CFAccount.Totaling := AccSchedLine.Totaling;
+                                            Result := Result + CalcCFAccount(CFAccount, AccSchedLine, ColumnLayout);
+                                        end else
+                                            if CFAccount.Find('-') then
+                                                repeat
+                                                    Result := Result + CalcCFAccount(CFAccount, AccSchedLine, ColumnLayout);
+                                                until CFAccount.Next() = 0;
+                                    end;
+                                // NAVCZ
+                                AccSchedLine."Totaling Type"::Constant:
+                                    if not Evaluate(Result, AccSchedLine.Totaling) then
+                                        ;
+                                AccSchedLine."Totaling Type"::Custom:
+                                    begin
+                                        AccSchedLine.CopyFilters(AccountScheduleLine);
+                                        Result := AccSchedExtensionManagement.CalcCustomFunc(AccSchedLine, ColumnLayout, StartDate, EndDate);
+                                    end;
+                                // NAVCZ
+                                AccSchedLine."Totaling Type"::"Account Category":
+                                    begin
+                                        AccSchedLine.CopyFilters(AccountScheduleLine);
+
                                         GLAccountCategory.Reset();
-                                        GLAccountCategory.SetRange("Parent Entry No.", GLAccCatCode);
+                                        GLAccountCategory.SetFilter("Entry No.", AccSchedLine.Totaling);
                                         if GLAccountCategory.FindSet() then
                                             repeat
-                                                if (not GLAccCategoriesVisited.Get(GLAccountCategory."Entry No.")) and (not GLAccCategoriesToVisit.Get(GLAccountCategory."Entry No.")) then begin
-                                                    GLAccCategoriesToVisit."Entry No." := GLAccountCategory."Entry No.";
-                                                    GLAccCategoriesToVisit.Insert();
-                                                end;
+                                                GLAccCategoriesToVisit."Entry No." := GLAccountCategory."Entry No.";
+                                                GLAccCategoriesToVisit.Insert();
                                             until GLAccountCategory.Next() = 0;
 
-                                        GLAccCategoriesToVisit."Entry No." := GLAccCatCode;
-                                        GLAccCategoriesToVisit.Delete();
+                                        while GLAccCategoriesToVisit.Count() > 0 do begin
+                                            GLAccCategoriesToVisit.FindFirst();
+                                            GLAccCatCode := GLAccCategoriesToVisit."Entry No.";
+
+                                            GLAcc.Reset();
+                                            GlAcc.SetRange("Account Type", GlAcc."Account Type"::Posting);
+                                            GlAcc.SetRange("Account Subcategory Entry No.", GLAccCatCode);
+                                            SetGLAccColumnFilters(GLAcc, AccSchedLine, ColumnLayout);
+                                            if GLAcc.FindSet() then
+                                                repeat
+                                                    GLAcc.CalcFields(Balance);
+                                                    Result := Result + CalcGLAcc(GLAcc, AccSchedLine, ColumnLayout, CalcAddCurr);
+                                                until GLAcc.Next() = 0;
+                                            GLAccCategoriesVisited."Entry No." := GLAccCatCode;
+                                            GLAccCategoriesVisited.Insert();
+                                            GLAccountCategory.Reset();
+                                            GLAccountCategory.SetRange("Parent Entry No.", GLAccCatCode);
+                                            if GLAccountCategory.FindSet() then
+                                                repeat
+                                                    if (not GLAccCategoriesVisited.Get(GLAccountCategory."Entry No.")) and (not GLAccCategoriesToVisit.Get(GLAccountCategory."Entry No.")) then begin
+                                                        GLAccCategoriesToVisit."Entry No." := GLAccountCategory."Entry No.";
+                                                        GLAccCategoriesToVisit.Insert();
+                                                    end;
+                                                until GLAccountCategory.Next() = 0;
+
+                                            GLAccCategoriesToVisit."Entry No." := GLAccCatCode;
+                                            GLAccCategoriesToVisit.Delete();
+                                        end;
                                     end;
-                                end;
 
-                        end;
+                            end;
 
-            OnAfterCalcCellValue(AccSchedLine, ColumnLayout, Result, AccountScheduleLine, GLAcc);
+                OnAfterCalcCellValue(AccSchedLine, ColumnLayout, Result, AccountScheduleLine, GLAcc);
 
             AccSchedCellValue."Row No." := AccSchedLine."Line No.";
             AccSchedCellValue."Column No." := ColumnLayout."Line No.";
@@ -575,10 +585,9 @@ codeunit 8 AccSchedManagement
             AccSchedCellValue."Period Error" := PeriodError;
             AccSchedCellValue."Schedule Name" := AccSchedLine."Schedule Name"; // NAVCZ
             AccSchedCellValue.Insert();
+            end;
         end;
-
         OnCalcCellValueOnBeforeExit(AccSchedLine, ColumnLayout, CalcAddCurr, StartDate, EndDate, Result);
-        exit(Result);
     end;
 
     local procedure CalcGLAcc(var GLAcc: Record "G/L Account"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean) ColValue: Decimal
@@ -936,7 +945,7 @@ codeunit 8 AccSchedManagement
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetGLAccGLEntryFilters(GLAcc, AccSchedLine, ColumnLayout, UseBusUnitFilter, UseDimFilter, IsHandled);
+        OnBeforeSetGLAccGLEntryFilters(GLAcc, AccSchedLine, ColumnLayout, UseBusUnitFilter, UseDimFilter, IsHandled, GLEntry);
         if IsHandled then
             exit;
 
@@ -1448,7 +1457,7 @@ codeunit 8 AccSchedManagement
         then
             ValueAsText := ValueAsText + '%';
 
-        OnAfterFormatCellAsText(ColumnLayout2, ValueAsText);
+        OnAfterFormatCellAsText(ColumnLayout2, ValueAsText, Value);
     end;
 
     procedure GetDivisionError(): Boolean
@@ -1980,22 +1989,24 @@ codeunit 8 AccSchedManagement
         OnAfterSetCostTypeColumnFilters(CostType, AccSchedLine2, ColumnLayout);
     end;
 
-    procedure HasDimFilter(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"): Boolean
+    procedure HasDimFilter(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout") Result: Boolean
     begin
-        exit((AccSchedLine."Dimension 1 Totaling" <> '') or
-          (AccSchedLine."Dimension 2 Totaling" <> '') or
-          (AccSchedLine."Dimension 3 Totaling" <> '') or
-          (AccSchedLine."Dimension 4 Totaling" <> '') or
-          (AccSchedLine.GetFilter("Dimension 1 Filter") <> '') or
-          (AccSchedLine.GetFilter("Dimension 2 Filter") <> '') or
-          (AccSchedLine.GetFilter("Dimension 3 Filter") <> '') or
-          (AccSchedLine.GetFilter("Dimension 4 Filter") <> '') or
-          (ColumnLayout."Dimension 1 Totaling" <> '') or
-          (ColumnLayout."Dimension 2 Totaling" <> '') or
-          (ColumnLayout."Dimension 3 Totaling" <> '') or
-          (ColumnLayout."Dimension 4 Totaling" <> '') or
-          (ColumnLayout."Cost Center Totaling" <> '') or
-          (ColumnLayout."Cost Object Totaling" <> ''));
+
+        Result := (AccSchedLine."Dimension 1 Totaling" <> '') or
+                  (AccSchedLine."Dimension 2 Totaling" <> '') or
+                  (AccSchedLine."Dimension 3 Totaling" <> '') or
+                  (AccSchedLine."Dimension 4 Totaling" <> '') or
+                  (AccSchedLine.GetFilter("Dimension 1 Filter") <> '') or
+                  (AccSchedLine.GetFilter("Dimension 2 Filter") <> '') or
+                  (AccSchedLine.GetFilter("Dimension 3 Filter") <> '') or
+                  (AccSchedLine.GetFilter("Dimension 4 Filter") <> '') or
+                  (ColumnLayout."Dimension 1 Totaling" <> '') or
+                  (ColumnLayout."Dimension 2 Totaling" <> '') or
+                  (ColumnLayout."Dimension 3 Totaling" <> '') or
+                  (ColumnLayout."Dimension 4 Totaling" <> '') or
+                  (ColumnLayout."Cost Center Totaling" <> '') or
+                  (ColumnLayout."Cost Object Totaling" <> '');
+        OnAfterHasDimFilter(AccSchedLine, ColumnLayout, Result);
     end;
 
     local procedure HasCostDimFilter(var AccSchedLine: Record "Acc. Schedule Line"): Boolean
@@ -2819,12 +2830,37 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFormatCellAsText(var ColumnLayout2: Record "Column Layout"; var ValueAsText: Text[30])
+    local procedure OnAfterCheckName(CurrentScheduleName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckColumnName(CurrentColumnName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTemplateAndSetFilter(var CurrentScheduleName: Code[10]; var AccScheduleLine: Record "Acc. Schedule Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasDimFilter(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFormatCellAsText(var ColumnLayout2: Record "Column Layout"; var ValueAsText: Text[30]; Value: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertGLAccounts(var AccScheduleLine: Record "Acc. Schedule Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenColumns(var CurrentColumnName: Code[10]; var ColumnLayout: Record "Column Layout")
     begin
     end;
 
@@ -2889,7 +2925,7 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean)
+    local procedure OnBeforeCalcCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -2904,7 +2940,7 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCalcCellValue(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal)
+    local procedure OnBeforeCalcCellValue(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -2920,6 +2956,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeCalcCostType(var CostType: Record "Cost Type"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var ColValue: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyColumnsToTemp(NewColumnName: Code[10]; var TempColumnLayout: Record "Column Layout"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2983,8 +3024,8 @@ codeunit 8 AccSchedManagement
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetGLAccGLEntryFilters(var GLAcc: Record "G/L Account"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; UseBusUnitFilter: Boolean; UseDimFilter: Boolean; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetGLAccGLEntryFilters(var GLAcc: Record "G/L Account"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; UseBusUnitFilter: Boolean; UseDimFilter: Boolean; var IsHandled: Boolean; var GLEntry: Record "G/L Entry")
     begin
     end;
 

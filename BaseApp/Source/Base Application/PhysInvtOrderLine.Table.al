@@ -458,6 +458,7 @@
 
         TestStatusOpen();
 
+        OnCalcQtyAndTrackLinesExpectedOnBeforeCalcQtyAndLastItemLedgExpected(Rec, PhysInvtOrderHeader);
         CalcQtyAndLastItemLedgExpected("Qty. Expected (Base)", "Last Item Ledger Entry No.");
 
         // Create Expected Phys. Invt. Tracking Lines:
@@ -1130,6 +1131,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndTrackLinesExpectedOnPhysInvtTrackingNotGet(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyAndTrackLinesExpectedOnBeforeCalcQtyAndLastItemLedgExpected(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
     end;
 

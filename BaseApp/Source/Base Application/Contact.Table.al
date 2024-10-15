@@ -863,9 +863,17 @@
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         IntrastatSetup: Record "Intrastat Setup";
+        Customer: Record Customer;
+        Vendor: Record Vendor;
         CampaignTargetGrMgt: Codeunit "Campaign Target Group Mgt";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         Task.SetCurrentKey("Contact Company No.", "Contact No.", Closed, Date);
         Task.SetRange("Contact Company No.", "Company No.");
         Task.SetRange("Contact No.", "No.");
@@ -990,6 +998,18 @@
         VATRegistrationLogMgt.DeleteContactLog(Rec);
 
         IntrastatSetup.CheckDeleteIntrastatContact(IntrastatSetup."Intrastat Contact Type"::Contact, "No.");
+
+        Customer.SetRange("Primary Contact No.", "No.");
+        if not Customer.IsEmpty() then begin
+            Customer.ModifyAll(Contact, '');
+            Customer.ModifyAll("Primary Contact No.", '');
+        end;
+
+        Vendor.SetRange("Primary Contact No.", "No.");
+        if not Vendor.IsEmpty() then begin
+            Vendor.ModifyAll(Contact, '');
+            Vendor.ModifyAll("Primary Contact No.", '');
+        end;
     end;
 
     trigger OnInsert()
@@ -1297,14 +1317,8 @@
                     OnTypeChangeOnAfterContSetFilters(Cont, Rec);
                     if Cont.FindFirst() then
                         Error(Text007, FieldCaption(Type));
-                    if Type <> xRec.Type then begin
-                        CalcFields("No. of Business Relations", "No. of Industry Groups");
-                        TestField("No. of Business Relations", 0);
-                        TestField("No. of Industry Groups", 0);
-                        TestField("Currency Code", '');
-                        TestField("VAT Registration No.", '');
-                        OnTypeChangeOnAfterTypePersonTestFields(Rec);
-                    end;
+                    CheckIfTypeChangePossibleForPerson();
+
                     if "Company No." = "No." then begin
                         "Company No." := '';
                         "Company Name" := '';
@@ -1346,6 +1360,25 @@
                 Rec := Cont;
                 exit(true);
             end;
+        end;
+    end;
+
+    local procedure CheckIfTypeChangePossibleForPerson()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIfTypeChangePossibleForPerson(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Type <> xRec.Type then begin
+            CalcFields("No. of Business Relations", "No. of Industry Groups");
+            TestField("No. of Business Relations", 0);
+            TestField("No. of Industry Groups", 0);
+            TestField("Currency Code", '');
+            TestField("VAT Registration No.", '');
+            OnTypeChangeOnAfterTypePersonTestFields(Rec);
         end;
     end;
 
@@ -1443,7 +1476,6 @@
         Cust: Record Customer;
         CustTemplate: Record "Customer Templ.";
         ContBusRel: Record "Contact Business Relation";
-        OfficeMgt: Codeunit "Office Management";
         CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
         IsHandled: Boolean;
     begin
@@ -1494,13 +1526,27 @@
 
         UpdateQuotesFromTemplate(Cust, CustomerTemplateCode);
         CampaignMgt.ConverttoCustomer(Rec, Cust);
-        if OfficeMgt.IsAvailable() then
-            PAGE.Run(PAGE::"Customer Card", Cust)
-        else
-            if not HideValidationDialog then
-                Message(RelatedRecordIsCreatedMsg, Cust.TableCaption);
+
+        ShowResultForCustomer(Cust);
 
         OnAfterCreateCustomer(Rec, Cust);
+    end;
+
+    local procedure ShowResultForCustomer(var Customer: Record Customer);
+    var
+        OfficeManagement: Codeunit "Office Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowResultForCustomer(Customer, Rec, HideValidationDialog, IsHandled);
+        if IsHandled then
+            exit;
+
+        if OfficeManagement.IsAvailable() then
+            PAGE.Run(PAGE::"Customer Card", Customer)
+        else
+            if not HideValidationDialog then
+                Message(RelatedRecordIsCreatedMsg, Customer.TableCaption());
     end;
 
 #if not CLEAN18
@@ -1572,7 +1618,6 @@
 #if not CLEAN18
         TempVendorTemplate: Record "Vendor Template" temporary;
 #endif
-        OfficeMgt: Codeunit "Office Management";
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
         IsHandled: Boolean;
     begin
@@ -1629,13 +1674,26 @@
 #endif
         OnCreateVendorOnAfterUpdateVendor(Vend, Rec, ContBusRel);
 
-        if OfficeMgt.IsAvailable then
-            PAGE.Run(PAGE::"Vendor Card", Vend)
-        else
-            if not HideValidationDialog then
-                Message(RelatedRecordIsCreatedMsg, Vend.TableCaption);
+        ShowResultForVendor(Vend);
 
         OnAfterCreateVendor(Rec, Vend);
+    end;
+
+    local procedure ShowResultForVendor(var Vendor: Record Vendor);
+    var
+        OfficeManagement: Codeunit "Office Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowResultForVendor(Vendor, Rec, HideValidationDialog, IsHandled);
+        if IsHandled then
+            exit;
+
+        if OfficeManagement.IsAvailable() then
+            PAGE.Run(PAGE::"Vendor Card", Vendor)
+        else
+            if not HideValidationDialog then
+                Message(RelatedRecordIsCreatedMsg, Vendor.TableCaption());
     end;
 
     local procedure CreateCompanyContactVendor(var VendorNo: Code[20]; VendorTemplateCode: Code[20]) VendorCreated: Boolean
@@ -1721,6 +1779,7 @@
           PAGE::"Customer Link",
           RMSetup."Bus. Rel. Code for Customers",
           ContBusRel."Link to Table"::Customer);
+        OnCreateCustomerLinkOnAfterCreateLink(Rec, xRec, ContBusRel);
 
         ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
@@ -1754,6 +1813,7 @@
               RMSetup."Bus. Rel. Code for Vendors",
               ContBusRel."Link to Table"::Vendor);
         end;
+        OnAfterCreateVendorLink(Rec, xRec);
     end;
 
     procedure CreateBankAccountLink()
@@ -1781,6 +1841,7 @@
         TempContBusRel.Insert();
         if PAGE.RunModal(CreateForm, TempContBusRel) = ACTION::LookupOK then; // enforce look up mode dialog
         TempContBusRel.DeleteAll();
+        OnAfterCreateLink(Rec, xRec, CreateForm);
     end;
 
     procedure CreateInteraction()
@@ -3422,6 +3483,11 @@
 #endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfTypeChangePossibleForPerson(var Contact: Record Contact; xContact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeChooseNewCustomerTemplate(var Contact: Record Contact; var CustTemplateCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -3494,6 +3560,11 @@
 
 #endif
     [IntegrationEvent(false, false)]
+    local procedure OnCreateCustomerLinkOnAfterCreateLink(var Contact: Record Contact; xContact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalculatedName(var Contact: Record Contact; var NewName92: Text[92])
     begin
     end;
@@ -3510,6 +3581,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateCustomerLink(var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateLink(var Contact: Record Contact; xContact: Record Contact; CreateFrom: Integer)
     begin
     end;
 
@@ -3720,6 +3796,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var Contact: Record Contact; xContact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOnInsert(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
@@ -3867,7 +3948,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowResultForCustomer(var Customer: Record Customer; var Contact: Record Contact; var HideValidationDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowResultForVendor(var Vendor: Record Vendor; var Contact: Record Contact; var HideValidationDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateVendorFromTemplateOnBeforeCommit(Contact: Record Contact; Vend: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateVendorLink(var Contact: Record Contact; xContact: Record Contact)
     begin
     end;
 

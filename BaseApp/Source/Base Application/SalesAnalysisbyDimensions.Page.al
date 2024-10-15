@@ -560,6 +560,8 @@ page 7158 "Sales Analysis by Dimensions"
                  ItemAnalysisView."Analysis Area", ItemAnalysisView.Code, ItemAnalysisView."Dimension 3 Code")
             then
                 Dim3Filter := ItemAnalysisViewFilter."Dimension Value Filter";
+
+        OnAfterUpdateFilterFields(ItemAnalysisView, Dim1Filter, Dim2Filter, Dim3Filter);
     end;
 
     local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
@@ -766,6 +768,11 @@ page 7158 "Sales Analysis by Dimensions"
     local procedure ShowColumnNameOnAfterValidate()
     begin
         GenerateColumnCaptions("Matrix Page Step Type"::Same);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateFilterFields(ItemAnalysisView: Record "Item Analysis View"; var Dim1Filter: Code[250]; var Dim2Filter: Code[250]; var Dim3Filter: Code[250])
+    begin
     end;
 }
 

@@ -434,6 +434,12 @@ page 26 "Vendor Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the vendor is a person or a company.';
                 }
+                field("Intrastat Partner Type"; Rec."Intrastat Partner Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies for Intrastat reporting if the vendor is a person or a company.';
+                }
                 field("Cash Flow Payment Terms Code"; "Cash Flow Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1884,7 +1890,8 @@ page 26 "Vendor Card"
             CurrPage.Update();
         end else
             if VendorTemplMgt.TemplatesAreNotEmpty() then
-                CurrPage.Close;
+                if not VendorTemplMgt.IsOpenBlankCardConfirmed() then
+                    CurrPage.Close;
     end;
 
     local procedure SetNoFieldVisible()

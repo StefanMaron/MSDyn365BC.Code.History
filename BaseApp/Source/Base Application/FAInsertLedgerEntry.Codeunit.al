@@ -158,6 +158,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         MaintenanceLedgEntry := MaintenanceLedgEntry2;
         with MaintenanceLedgEntry do begin
             DeprBook.Get("Depreciation Book Code");
+            OnInsertMaintenanceOnAfterDeprBookGet(DeprBook);
             FA.Get("FA No.");
             CheckMainAsset;
             "Entry No." := NextMaintenanceEntryNo;
@@ -728,6 +729,11 @@ codeunit 5600 "FA Insert Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertFAOnBeforeCheckFALedgEntry(var FALedgEntry: Record "FA Ledger Entry"; FALedgEntry2: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertMaintenanceOnAfterDeprBookGet(var DeprBook: Record "Depreciation Book")
     begin
     end;
 }

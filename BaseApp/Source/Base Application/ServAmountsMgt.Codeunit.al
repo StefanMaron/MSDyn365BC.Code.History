@@ -240,6 +240,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                 end;
 
                 LineAmountExpected := Round(ChargeableQty * "Unit Price", Currency."Amount Rounding Precision");
+                OnDivideAmountOnAfterCalcLineAmountExpected(ServiceLine, ChargeableQty, LineAmountExpected);
                 if AmountsDifferByMoreThanRoundingPrecision(LineAmountExpected, "Line Amount", Currency."Amount Rounding Precision") then
                     "Line Amount" := LineAmountExpected;
 
@@ -837,6 +838,11 @@ codeunit 5986 "Serv-Amounts Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDivideAmountOnAfterCalcLineAmountExpected(var ServiceLine: Record "Service Line"; var ChargeableQty: Decimal; var LineAmountExpected: Decimal)
     begin
     end;
 

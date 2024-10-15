@@ -433,7 +433,7 @@ codeunit 134203 "Document Approval - Documents"
 
         // [THEN] The Purchase Order status is changed to "Pending Prepayment"
         PurchaseHeader.Find;
-        PurchaseHeader.TestField(Status, PurchaseHeader.Status::"Pending Prepayment");
+        asserterror PurchaseHeader.TestField(Status, PurchaseHeader.Status::"Pending Prepayment"); // Pending Prepayment status is not supported in CZ
     end;
 
     [Test]
@@ -467,7 +467,7 @@ codeunit 134203 "Document Approval - Documents"
 
         // [THEN] The Sales Order status is changed to "Pending Prepayment"
         SalesHeader.Find;
-        SalesHeader.TestField(Status, SalesHeader.Status::"Pending Prepayment");
+        asserterror SalesHeader.TestField(Status, SalesHeader.Status::"Pending Prepayment"); // Pending Prepayment status is not supported in CZ
 
         DeleteSalesVATSetup(SalesHeader."No.");
     end;

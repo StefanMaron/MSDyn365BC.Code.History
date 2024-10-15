@@ -168,6 +168,7 @@ codeunit 5632 "FA Jnl.-Post Line"
             if PostBudget then
                 SetBudgetAssetNo;
             if not DeprLine then begin
+                OnPostFixedAssetOnBeforeInsertEntry(FALedgEntry);
                 FAInsertLedgEntry.SetOrgGenJnlLine(true);
                 FAInsertLedgEntry.InsertFA(FALedgEntry);
                 FAInsertLedgEntry.SetOrgGenJnlLine(false);
@@ -199,6 +200,7 @@ codeunit 5632 "FA Jnl.-Post Line"
             end;
         if PostBudget then
             SetBudgetAssetNo;
+        OnPostMaintenanceOnBeforeInsertEntry(MaintenanceLedgEntry);
         FAInsertLedgEntry.SetOrgGenJnlLine(true);
         FAInsertLedgEntry.InsertMaintenance(MaintenanceLedgEntry);
         FAInsertLedgEntry.SetOrgGenJnlLine(false);
@@ -459,6 +461,7 @@ codeunit 5632 "FA Jnl.-Post Line"
             "Automatic Entry" := true;
             Amount := SalvageValue;
             "FA Posting Type" := "FA Posting Type"::"Salvage Value";
+            OnPostSalvageValueOnBeforeInsertEntry(FALedgEntry);
             FAInsertLedgEntry.InsertFA(FALedgEntry);
         end;
     end;
@@ -497,6 +500,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                 "FA No./Budgeted FA No." := "FA No.";
                 "FA No." := BudgetNo;
                 Amount := -Amount2;
+                OnPostBudgetAssetOnBeforeInsertMaintenanceLedgEntry(MaintenanceLedgEntry);
                 FAInsertLedgEntry.InsertMaintenance(MaintenanceLedgEntry);
             end;
         end else
@@ -513,6 +517,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                     "FA Posting Type" := FAPostingType2;
                 end;
                 Amount := -Amount2;
+                OnPostBudgetAssetOnBeforeInsertFAEntry(FALedgEntry);
                 FAInsertLedgEntry.InsertFA(FALedgEntry);
             end;
     end;
@@ -522,6 +527,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         EntryAmounts: array[4] of Decimal;
         i: Integer;
     begin
+        OnBeforePostReverseType(FALedgEntry);
         CalculateDisposal.CalcReverseAmounts(FANo, DeprBookCode, EntryAmounts);
         FALedgEntry."FA Posting Category" := FALedgEntry."FA Posting Category"::" ";
         FALedgEntry."Automatic Entry" := true;
@@ -740,6 +746,11 @@ codeunit 5632 "FA Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostReverseType(var FALedgEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostDeprUntilDate(var FALedgEntry: Record "FA Ledger Entry"; var FAPostingDate: Date)
     begin
     end;
@@ -751,6 +762,31 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostFixedAssetFromGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var FALedgerEntry: Record "FA Ledger Entry"; FAAmount: Decimal; VATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostFixedAssetOnBeforeInsertEntry(var FALedgEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSalvageValueOnBeforeInsertEntry(var FALedgEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostMaintenanceOnBeforeInsertEntry(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostBudgetAssetOnBeforeInsertMaintenanceLedgEntry(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostBudgetAssetOnBeforeInsertFAEntry(var FALedgEntry: Record "FA Ledger Entry")
     begin
     end;
 }
