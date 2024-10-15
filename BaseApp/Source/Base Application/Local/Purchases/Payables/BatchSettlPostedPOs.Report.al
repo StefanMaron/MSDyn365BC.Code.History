@@ -10,6 +10,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.Dimension;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
@@ -190,6 +191,8 @@ report 7000087 "Batch Settl. Posted POs"
                 trigger OnPostDataItem()
                 var
                     VendLedgEntry2: Record "Vendor Ledger Entry";
+                    DimensionManagement: Codeunit DimensionManagement;
+                    DimesionSetIds: array[10] of Integer;
                 begin
                     if (DocCount = 0) or (GroupAmount = 0) then
                         CurrReport.Skip();
@@ -210,9 +213,11 @@ report 7000087 "Batch Settl. Posted POs"
                         Validate(Amount, -GroupAmount);
                         "Source Code" := SourceCode;
                         "System-Created Entry" := true;
+                        DimesionSetIds[1] := GenJnlLine."Dimension Set ID";
+                        DimesionSetIds[2] := VendLedgEntry."Dimension Set ID";
                         "Shortcut Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
                         "Shortcut Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
-                        "Dimension Set ID" := VendLedgEntry."Dimension Set ID";
+                        Validate("Dimension Set ID", DimensionManagement.GetCombinedDimensionSetID(DimesionSetIds, VendLedgEntry."Global Dimension 1 Code", VendLedgEntry."Global Dimension 2 Code"));
                         OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, VendLedgEntry2, PostedPmtOrd);
                         Insert();
                         SumLCYAmt := SumLCYAmt + "Amount (LCY)";
@@ -242,9 +247,11 @@ report 7000087 "Batch Settl. Posted POs"
                                 Description := Text1100010;
                                 Validate("Currency Code", '');
                                 Validate(Amount, -SumLCYAmt);
+                                DimesionSetIds[1] := GenJnlLine."Dimension Set ID";
+                                DimesionSetIds[2] := VendLedgEntry."Dimension Set ID";
                                 "Shortcut Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
                                 "Shortcut Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
-                                "Dimension Set ID" := VendLedgEntry."Dimension Set ID";
+                                GenJnlLine.Validate("Dimension Set ID", DimensionManagement.GetCombinedDimensionSetID(DimesionSetIds, VendLedgEntry."Global Dimension 1 Code", VendLedgEntry."Global Dimension 2 Code"));
                                 "Source Code" := SourceCode;
                                 "System-Created Entry" := true;
                                 OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, VendLedgEntry2, PostedPmtOrd);

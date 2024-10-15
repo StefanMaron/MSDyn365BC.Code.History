@@ -25,6 +25,8 @@ codeunit 144075 "ERM No Taxable VAT"
         VATBufferBaseAmountCap: Label 'VATBuffer2_Base_VATBuffer2_Amount';
         VATBufferBaseCap: Label 'VATBuffer2_Base';
         VATEntryMustNotExistMsg: Label 'VAT Entry must not exist.';
+        EUCountryCodeTxt: Label 'DE';
+        NoTaxableEntryErr: Label 'Entries count must matched with expected value.';
 
     [Test]
     [Scope('OnPrem')]
@@ -370,6 +372,52 @@ codeunit 144075 "ERM No Taxable VAT"
         Assert.IsTrue(NoTaxableEntries.Closed.Enabled(), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchaseInvoiceWithMultipleNoTaxableEntries()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        ItemNo1: Code[20];
+        ItemNo2: Code[20];
+        VendorNo: Code[20];
+        PostingDate: Date;
+    begin
+        // [SCENARIO 527243] Stan Post multiple No Taxabale Entries when Purchase Invoice posted With Same 
+        // "VAT Bus. Posting Group" and different "VAT Product Posting Group"
+        Initialize();
+
+        // [GIVEN] Two different VAT Posting Setup with "VAT Calculation Type" = "No Taxable VAT"
+        CreateNoTaxableVATPostingSetup(VATPostingSetup, false);
+        CreateVATPostingSetupForBusGroup(VATPostingSetup2, VATPostingSetup."VAT Bus. Posting Group");
+        VATPostingSetup2.Validate("VAT Calculation Type", VATPostingSetup2."VAT Calculation Type"::"No Taxable VAT");
+        VATPostingSetup2.Modify(true);
+
+        // [GIVEN] Create Vendor with VAT Registration No.
+        VendorNo := CreateVendor(EUCountryCodeTxt, VATPostingSetup."VAT Bus. Posting Group", LibraryERM.GenerateVATRegistrationNo(EUCountryCodeTxt));
+
+        // [GIVEN] Set Posting Date
+        PostingDate := GetNewWorkDate();
+
+        // [GIVEN] Create Item with Unit Cost
+        ItemNo1 := CreateItemWithUnitCost(VATPostingSetup."VAT Prod. Posting Group");
+        ItemNo2 := CreateItemWithUnitCost(VATPostingSetup2."VAT Prod. Posting Group");
+
+        // [GIVEN] Create Purchase Invoice has two lines with "No Taxable VAT"
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo, PostingDate);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo1, LibraryRandom.RandIntInRange(10, 20));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::Item, ItemNo2, LibraryRandom.RandIntInRange(10, 20));
+
+        // [WHEN] Post the Purchase Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify the multiple No Taxable Entries has been created.
+        VerifyMultipleNoTaxableEntriesCreated(VendorNo, 2);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -636,6 +684,84 @@ codeunit 144075 "ERM No Taxable VAT"
         LibraryReportDataset.AssertElementWithValueNotExist('DocumentNo_NoTaxableEntry', DocumentNo);
         LibraryReportDataset.AssertElementWithValueNotExist('Base_NoTaxableEntry', NoTaxAmount);
     end;
+
+    local procedure VerifyMultipleNoTaxableEntriesCreated(SourceNo: Code[20]; ExpectedValue: Integer)
+    var
+        NoTaxableEntry: Record "No Taxable Entry";
+    begin
+        NoTaxableEntry.SetRange("Source No.", SourceNo);
+        NoTaxableEntry.FindSet();
+        Assert.AreEqual(ExpectedValue, NoTaxableEntry.Count, NoTaxableEntryErr);
+    end;
+
+    local procedure CreateNoTaxableVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; EUService: Boolean)
+    begin
+        CreateVATPostingSetup(VATPostingSetup, EUService);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; EUService: Boolean)
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("EU Service", EUService);
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateVATPostingSetupForBusGroup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusGroupCode: Code[20])
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusGroupCode, VATProductPostingGroup.Code);
+    end;
+
+    local procedure CreateVendor(CountryRegionCode: Code[10]; VATBusPostingGroup: Code[20]; VATRegistrationNo: Text): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Vendor.Validate("Country/Region Code", CountryRegionCode);
+        Vendor.Validate("VAT Registration No.", VATRegistrationNo);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreateItemWithUnitCost(VATProdPostingGroup: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        Item.Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2));
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure GetNewWorkDate(): Date
+    var
+        GLRegister: Record "G/L Register";
+    begin
+        GLRegister.SetCurrentKey("Posting Date");
+        GLRegister.FindLast();
+        exit(CalcDate('<1Y>', GLRegister."Posting Date"));
+    end;
+
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PostingDate: Date)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+    end;
+
 
     [ModalPageHandler]
     [Scope('OnPrem')]

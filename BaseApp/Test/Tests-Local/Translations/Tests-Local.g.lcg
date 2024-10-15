@@ -2741,6 +2741,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Miscellaneous ES - NamedType VATRegistrationNoCap)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2056835225 - NamedType 3679910911" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DE]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No Taxable VAT - NamedType EUCountryCodeTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2056835225 - NamedType 931919561" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Entries count must matched with expected value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM No Taxable VAT - NamedType NoTaxableEntryErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2056835225 - NamedType 232213638" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[<>%1.]]></Val>
@@ -3956,6 +3974,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType CertificateUsedInSIISetupQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3173997497 - NamedType 1229675165" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected Value are different than the actual value.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType DifferentValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3173997497 - NamedType 3025232406" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must have a value in SII VAT Setup]]></Val>
@@ -4008,6 +4035,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType SoapenvUrlTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3173997497 - NamedType 3152294443" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Valor o tipo incorrecto del campo: IDType]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType StatusErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3173997497 - NamedType 3521925554" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

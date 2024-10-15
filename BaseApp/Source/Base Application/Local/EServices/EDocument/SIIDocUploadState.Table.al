@@ -499,7 +499,6 @@ table 10752 "SII Doc. Upload State"
                                     SalesInvoiceHeader.FieldError("Invoice Type");
                             if SalesInvoiceHeader."No." = '' then begin
                                 // Get Service Header instead of Service Invoice Header because it's not inserted yet
-                                ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
                                 ServiceHeader.SetRange("Posting No.", DocumentNo);
                                 if ServiceHeader.FindFirst() then begin
                                     if not SIIManagement.IsAllowedServInvType(ServiceHeader."Invoice Type".AsInteger()) then
@@ -543,7 +542,6 @@ table 10752 "SII Doc. Upload State"
                             TempSIIDocUploadState."First Summary Doc. No." := CopyStr(SalesCrMemoHeader.GetSIIFirstSummaryDocNo(), 1, 35);
                             TempSIIDocUploadState."Last Summary Doc. No." := CopyStr(SalesCrMemoHeader.GetSIILastSummaryDocNo(), 1, 35);
                         end else begin
-                            ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::"Credit Memo");
                             ServiceHeader.SetRange("Posting No.", DocumentNo);
                             if ServiceHeader.FindFirst() then begin
                                 TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(

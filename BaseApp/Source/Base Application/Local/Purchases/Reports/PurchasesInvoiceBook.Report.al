@@ -117,6 +117,15 @@ report 10705 "Purchases Invoice Book"
             column(Epedition_DateCaption; Epedition_DateCaptionLbl)
             {
             }
+            column(NonDeductibleVAT_Caption; NonDeductibleVATCaptionLbl)
+            {
+            }
+            column(NonDeductibleVATBase_Caption; NonDeductibleVATBaseCaptionLbl)
+            {
+            }
+            column(NonDeductibleVATAmt_Caption; NonDeductibleVATAmtCaptionLbl)
+            {
+            }
             dataitem(VATEntry; "VAT Entry")
             {
                 DataItemTableView = sorting("No. Series", "VAT Reporting Date") where(Type = const(Purchase));
@@ -470,6 +479,15 @@ report 10705 "Purchases Invoice Book"
                         column(Integer4__Number; Number)
                         {
                         }
+                        column(VATEntry7_NonDeductibleVAT; VATEntry7."Non-Deductible VAT %")
+                        {
+                        }
+                        column(VATEntry7_NonDeductibleVATBase; VATEntry7."Non-Deductible VAT Base")
+                        {
+                        }
+                        column(VATEntry7_NonDeductibleVATAmt; VATEntry7."Non-Deductible VAT Amount")
+                        {
+                        }
 
                         trigger OnAfterGetRecord()
                         begin
@@ -720,6 +738,15 @@ report 10705 "Purchases Invoice Book"
                     {
                     }
                     column(TotalCaption_Control26; TotalCaption_Control26Lbl)
+                    {
+                    }
+                    column(VATEntry2_NonDeductibleVAT; VATEntry2."Non-Deductible VAT %")
+                    {
+                    }
+                    column(VATEntry2_NonDeductibleVATBase; VATEntry2."Non-Deductible VAT Base")
+                    {
+                    }
+                    column(VATEntry2_NonDeductibleVATAmt; VATEntry2."Non-Deductible VAT Amount")
                     {
                     }
 
@@ -1023,6 +1050,15 @@ report 10705 "Purchases Invoice Book"
                     column(TotalCaption_Control21; TotalCaption_Control21Lbl)
                     {
                     }
+                    column(VATEntry4_NonDeductibleVAT; VATEntry4."Non-Deductible VAT %")
+                    {
+                    }
+                    column(VATEntry4_NonDeductibleVATBase; VATEntry4."Non-Deductible VAT Base")
+                    {
+                    }
+                    column(VATEntry4_NonDeductibleVATAmt; VATEntry4."Non-Deductible VAT Amount")
+                    {
+                    }
 
                     trigger OnAfterGetRecord()
                     begin
@@ -1314,6 +1350,9 @@ report 10705 "Purchases Invoice Book"
         No_SerieCaption_Control97Lbl: Label 'No. Series';
         ContinuedCaption_Control119Lbl: Label 'Continued';
         TotalCaption_Control21Lbl: Label 'Total';
+        NonDeductibleVATCaptionLbl: Label 'Non-Ded. VAT%';
+        NonDeductibleVATBaseCaptionLbl: Label 'Non-Ded. VAT Base';
+        NonDeductibleVATAmtCaptionLbl: Label 'Non-Ded. VAT Amount';
         TempVATEntry: Record "VAT Entry" temporary;
         NoTaxableAmount: Decimal;
         NoTaxableVATTxt: Label 'No Taxable VAT';
