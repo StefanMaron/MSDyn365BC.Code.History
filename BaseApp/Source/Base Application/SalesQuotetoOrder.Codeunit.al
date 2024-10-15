@@ -127,6 +127,10 @@ codeunit 86 "Sales-Quote to Order"
             SalesOrderHeader."Prepayment %" := PrepmtPercent;
             if SalesOrderHeader."Posting Date" = 0D then
                 SalesOrderHeader."Posting Date" := WorkDate;
+
+            CalcFields("Work Description");
+            SalesOrderHeader."Work Description" := "Work Description";
+
             OnBeforeModifySalesOrderHeader(SalesOrderHeader, SalesHeader);
             SalesOrderHeader.Modify();
         end;

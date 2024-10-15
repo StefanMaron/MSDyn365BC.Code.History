@@ -1180,11 +1180,12 @@ codeunit 137408 "SCM Warehouse VI"
         ReservEntry: Record "Reservation Entry";
         Bin: Record Bin;
         WhseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
         Quantity: Decimal;
+        PickQty: Decimal;
     begin
         // [FEATURE] [Item Tracking] [Planning Worksheet] [Warehouse] [Pick]
         // [SCENARIO 375665] Planning worksheet does not change quantity to handle in item tracking entries when no planning suggestion is generated
-        // [SCENARIO 313975] Tracking entry for Sales remaining qty has <zero> Qty. to Handle
         Initialize;
 
         // [GIVEN] Item "I" with Lot No. tracking and lot warehouse tracking
@@ -1198,32 +1199,41 @@ codeunit 137408 "SCM Warehouse VI"
         CreateFullWarehouseSetup(Location);
         FindBin(Bin, Location.Code);
 
-        // [GIVEN] Receive and put away 20 psc of item "I" with lot no. = "L"
+        // [GIVEN] Receive and put away 200 pcs of item "I" with lot no. = "L"
         Quantity := LibraryRandom.RandDecInRange(100, 200, 2);
+        PickQty := LibraryRandom.RandInt(10);
         PostWhseJournalPositiveAdjmtWithItemTracking(Bin, Item, Quantity * 2);
 
-        // [GIVEN] Create sales order for 10 pcs of item "I", assign lot no. = "L"
+        // [GIVEN] Create sales order for 100 pcs of item "I", assign lot no. = "L"
         CreateAndReleaseSalesOrderWithItemTracking(SalesHeader, Item."No.", Quantity, Item."Base Unit of Measure", Location.Code);
         CreatePickFromSalesHeader(SalesHeader);
 
         // [GIVEN] Pick 7 pcs
-        UpdateQuantityToHandleInWarehouseActivityLine(SalesHeader."No.", Quantity / 2);
+        UpdateQuantityToHandleInWarehouseActivityLine(SalesHeader."No.", PickQty);
         RegisterWarehouseActivityHeader(Location.Code, WhseActivityLine."Activity Type"::Pick);
 
         // [WHEN] Calculate regenerative plan from planning worksheet
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
 
-        // [THEN] Reservation for the Sales Order has "Qty (Base)" = "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = - 7
+        // [THEN] Reservation for the Sales Order has "Qty (Base)" = "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = -7
         ReservEntry.SetRange("Source Type", DATABASE::"Sales Line");
         ReservEntry.SetRange("Source ID", SalesHeader."No.");
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         ReservEntry.FindFirst;
-        VerifyReservationEntryQty(ReservEntry, -Quantity / 2, -Quantity / 2, -Quantity / 2);
+        VerifyReservationEntryQty(ReservEntry, -PickQty, -PickQty, -PickQty);
 
-        // [THEN] Tracking for the Sales Order has "Qty (Base)" = - 3; "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = 0
+        // [THEN] Tracking for the Sales Order has "Qty (Base)" = -93; "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = -7
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Tracking);
         ReservEntry.FindFirst;
-        VerifyReservationEntryQty(ReservEntry, -Quantity / 2, 0, 0);
+        VerifyReservationEntryQty(ReservEntry, -(Quantity - PickQty), -PickQty, -PickQty);
+
+        // [WHEN] Post the warehouse shipment.
+        PostWarehouseShipment(WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
+
+        // [THEN] Item tracking for the sales order line has "Qty (Base) = "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = -93.
+        ReservEntry.SetRange("Reservation Status");
+        ReservEntry.CalcSums("Quantity (Base)", "Qty. to Handle (Base)", "Qty. to Invoice (Base)");
+        VerifyReservationEntryQty(ReservEntry, -(Quantity - PickQty), -(Quantity - PickQty), -(Quantity - PickQty));
     end;
 
     [Test]
@@ -2012,6 +2022,7 @@ codeunit 137408 "SCM Warehouse VI"
         ReservationEntry: Record "Reservation Entry";
         Bin: Record Bin;
         WhseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
         Quantity: Decimal;
         QtyToPick1: Decimal;
         QtyToPick2: Decimal;
@@ -2020,6 +2031,7 @@ codeunit 137408 "SCM Warehouse VI"
         // [FEATURE] [Item Tracking] [Planning Worksheet] [Warehouse] [Pick]
         // [SCENARIO 313975] Calc. Regenerative Plan correctly updates quantity to handle in Reservation Entries when no planning suggestion is generated
         // [SCENARIO 313975] and Transfer is partially picked twice with same Lot
+        // [SCENARIO 368044] Sum of "Qty. to Handle" on item tracking is equal to the picked quantity.
         Initialize;
         Quantity := LibraryRandom.RandDecInRange(100, 200, 2);
         QtyToPick1 := Quantity / 2;
@@ -2043,7 +2055,7 @@ codeunit 137408 "SCM Warehouse VI"
         ItemLedgerEntry.FindFirst;
 
         // [GIVEN] Released Transfer from SILVER to BLUE with 10 pcs of item "I" and Created Warehouse Shipment
-        LibraryWarehouse.CreateLocation(ToLocation);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
         LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
         LibraryInventory.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Quantity);
@@ -2088,6 +2100,16 @@ codeunit 137408 "SCM Warehouse VI"
             Next;
             VerifyReservationEntryQty(ReservationEntry, QtyRemainingToPick, 0, 0);
         end;
+
+        // [WHEN] Post the warehouse shipment.
+        PostWarehouseShipment(WarehouseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.");
+
+        // [THEN] Item tracking for the outbound transfer line has "Qty (Base) = "Qty. to Handle (Base)" = "Qty. to Invoice (Base)" = -2.
+        ReservationEntry.Reset();
+        ReservationEntry.SetSourceFilter(DATABASE::"Transfer Line", 0, TransferHeader."No.", -1, false);
+        ReservationEntry.SetRange("Location Code", FromLocation.Code);
+        ReservationEntry.CalcSums("Quantity (Base)", "Qty. to Handle (Base)", "Qty. to Invoice (Base)");
+        VerifyReservationEntryQty(ReservationEntry, -QtyRemainingToPick, -QtyRemainingToPick, -QtyRemainingToPick);
     end;
 
     [Test]

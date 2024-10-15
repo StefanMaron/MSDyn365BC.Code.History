@@ -74,6 +74,9 @@ report 846 "Cash Flow Date List"
                 column(GLBudget; Values[CFForecastEntry."Source Type"::"G/L Budget"])
                 {
                 }
+                column(PurchaseAdvances; Values[CFForecastEntry."Source Type"::"Purchase Advance Letters"])
+                {
+                }
                 column(EditionPeriod_Number; Number)
                 {
                 }
@@ -251,6 +254,7 @@ report 846 "Cash Flow Date List"
     {
         GLBudget_Caption = 'G/L Budget';
         Liquidity_Caption = 'Liquidity';
+        PurchaseAdvances_CaptionLbl = 'Purchase Advances';
     }
 
     var

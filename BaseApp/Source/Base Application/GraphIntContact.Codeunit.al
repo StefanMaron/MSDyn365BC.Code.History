@@ -219,11 +219,14 @@ codeunit 5461 "Graph Int. - Contact"
 
     procedure FindGraphContactIdFromCustomer(var GraphContactId: Text[250]; var Customer: Record Customer; var Contact: Record Contact): Boolean
     var
-        GraphIntegrationRecord: Record "Graph Integration Record";
         ContactBusinessRelation: Record "Contact Business Relation";
         MarketingSetup: Record "Marketing Setup";
         ContactNo: Code[20];
     begin
+        Clear(GraphContactId);
+        if not IsUpdateContactIdEnabled() then
+            exit(false);
+
         // Use primary contact if specified
         if Customer."Primary Contact No." <> '' then
             ContactNo := Customer."Primary Contact No."
@@ -240,10 +243,15 @@ codeunit 5461 "Graph Int. - Contact"
             ContactNo := ContactBusinessRelation."Contact No.";
         end;
 
-        if not Contact.Get(ContactNo) then
-            exit(false);
+        exit(Contact.Get(ContactNo));
+    end;
 
-        exit(GraphIntegrationRecord.FindIDFromRecordID(Contact.RecordId, GraphContactId));
+    procedure IsUpdateContactIdEnabled(): Boolean
+    var
+        DisableUpdateContact: Boolean;
+    begin
+        OnGetUpdateContactEnabled(DisableUpdateContact);
+        exit(not DisableUpdateContact);
     end;
 
     procedure FindGraphContactIdFromCustomerNo(var GraphContactID: Text[250]; CustomerNo: Code[20]): Boolean
@@ -676,6 +684,11 @@ codeunit 5461 "Graph Int. - Contact"
                 GraphIntegrationRecord.Modify();
             end;
         until GraphIntegrationRecord.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetUpdateContactEnabled(var DisableUpdateContact: Boolean)
+    begin
     end;
 
     [TryFunction]

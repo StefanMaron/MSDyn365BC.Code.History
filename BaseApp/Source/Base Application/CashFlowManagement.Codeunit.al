@@ -706,6 +706,7 @@ codeunit 841 "Cash Flow Management"
         StartDate: Date;
         EndDate: Date;
     begin
+        DummyDate := 0D; // NAVCZ
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetFilter("Document Date", '<>%1', DummyDate);
         if TaxPaymentDueDate <> DummyDate then begin
@@ -722,6 +723,7 @@ codeunit 841 "Cash Flow Management"
         StartDate: Date;
         EndDate: Date;
     begin
+        DummyDate := 0D; // NAVCZ
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetFilter("Document Date", '<>%1', DummyDate);
         if TaxPaymentDueDate <> DummyDate then begin
@@ -735,17 +737,32 @@ codeunit 841 "Cash Flow Management"
     procedure SetViewOnVATEntryForTaxCalc(var VATEntry: Record "VAT Entry"; TaxPaymentDueDate: Date)
     var
         CashFlowSetup: Record "Cash Flow Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         StartDate: Date;
         EndDate: Date;
     begin
+        // NAVCZ
+        DummyDate := 0D;
+        GeneralLedgerSetup.Get();
+        // NAVCZ
         VATEntry.SetFilter(Type, StrSubstNo('%1|%2', VATEntry.Type::Purchase, VATEntry.Type::Sale));
         VATEntry.SetFilter("VAT Calculation Type", StrSubstNo('<>%1', VATEntry."VAT Calculation Type"::"Reverse Charge VAT"));
         VATEntry.SetRange(Closed, false);
         VATEntry.SetFilter(Amount, '<>%1', 0);
-        VATEntry.SetFilter("Document Date", '<>%1', DummyDate);
+        // NAVCZ
+        if GeneralLedgerSetup."Use VAT Date" THEN
+            VATEntry.SetFilter("VAT Date", '<>%1', DummyDate)
+        else
+            // NAVCZ
+            VATEntry.SetFilter("Document Date", '<>%1', DummyDate);
         if TaxPaymentDueDate <> DummyDate then begin
             CashFlowSetup.GetTaxPeriodStartEndDates(TaxPaymentDueDate, StartDate, EndDate);
-            VATEntry.SetFilter("Document Date", StrSubstNo('%1..%2', StartDate, EndDate));
+            // NAVCZ
+            if GeneralLedgerSetup."Use VAT Date" then
+                VATEntry.SetFilter("VAT Date", StrSubstNo('%1..%2', StartDate, EndDate))
+            else
+                // NAVCZ
+                VATEntry.SetFilter("Document Date", StrSubstNo('%1..%2', StartDate, EndDate));
         end;
         VATEntry.SetCurrentKey("Document Date");
         VATEntry.SetAscending("Document Date", true);

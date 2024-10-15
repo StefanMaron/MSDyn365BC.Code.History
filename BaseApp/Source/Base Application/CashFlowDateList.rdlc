@@ -28,7 +28,7 @@
                   <Width>1.875cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>2.09999cm</Width>
+                  <Width>1.64999cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>1.84634cm</Width>
@@ -58,13 +58,16 @@
                   <Width>1.25645cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>1.75961cm</Width>
+                  <Width>1.62732cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.45478cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>1.70625cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>1.90477cm</Width>
+                  <Width>1.74602cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -315,9 +318,10 @@
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
-                        <ColSpan>9</ColSpan>
+                        <ColSpan>10</ColSpan>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell />
                     <TablixCell />
                     <TablixCell />
                     <TablixCell />
@@ -384,9 +388,10 @@
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
-                        <ColSpan>15</ColSpan>
+                        <ColSpan>16</ColSpan>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell />
                     <TablixCell />
                     <TablixCell />
                     <TablixCell />
@@ -459,9 +464,10 @@
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
-                        <ColSpan>15</ColSpan>
+                        <ColSpan>16</ColSpan>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell />
                     <TablixCell />
                     <TablixCell />
                     <TablixCell />
@@ -904,6 +910,38 @@
                             </Paragraph>
                           </Paragraphs>
                           <rd:DefaultName>Textbox4</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>8pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox19">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Parameters!PurchaseAdvances_CaptionLbl.Value</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox19</rd:DefaultName>
                           <Style>
                             <VerticalAlign>Bottom</VerticalAlign>
                             <PaddingLeft>0.075cm</PaddingLeft>
@@ -1392,6 +1430,36 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
+                        <Textbox Name="Textbox20">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Code.BlankZero(Fields!PurchaseAdvances.Value)</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                    <Format>=Fields!PurchaseAdvancesFormat.Value</Format>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox20</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
                         <Textbox Name="Textbox16">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
@@ -1823,6 +1891,36 @@
                             </Paragraph>
                           </Paragraphs>
                           <rd:DefaultName>Textbox13</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox23">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Code.BlankZero(Fields!PurchaseAdvances.Value)</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                    <Format>=Fields!PurchaseAdvancesFormat.Value</Format>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox20</rd:DefaultName>
                           <Style>
                             <VerticalAlign>Middle</VerticalAlign>
                             <PaddingLeft>0.075cm</PaddingLeft>
@@ -2282,6 +2380,36 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
+                        <Textbox Name="Textbox21">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Code.BlankZero(Fields!PurchaseAdvances.Value)</Value>
+                                  <Style>
+                                    <FontSize>7pt</FontSize>
+                                    <Format>=Fields!PurchaseAdvancesFormat.Value</Format>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox20</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>0.075cm</PaddingLeft>
+                            <PaddingRight>0.075cm</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
                         <Textbox Name="Textbox18">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
@@ -2307,6 +2435,7 @@
                             <PaddingBottom>2pt</PaddingBottom>
                           </Style>
                         </Textbox>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
@@ -2343,6 +2472,7 @@
             </TablixBody>
             <TablixColumnHierarchy>
               <TablixMembers>
+                <TablixMember />
                 <TablixMember />
                 <TablixMember />
                 <TablixMember />
@@ -2421,7 +2551,7 @@
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
             <Height>4.00705cm</Height>
-            <Width>26.10782cm</Width>
+            <Width>26.82155cm</Width>
             <Style />
           </Tablix>
         </ReportItems>
@@ -2472,8 +2602,8 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0.52938cm</Top>
-              <Left>24.90782cm</Left>
+              <Top>0.42355cm</Top>
+              <Left>25.61259cm</Left>
               <Height>0.423cm</Height>
               <Width>0.75cm</Width>
               <ZIndex>1</ZIndex>
@@ -2522,8 +2652,8 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.10638cm</Top>
-              <Left>22.95782cm</Left>
+              <Top>0.00055cm</Top>
+              <Left>23.66259cm</Left>
               <Height>0.423cm</Height>
               <Width>3.15cm</Width>
               <ZIndex>3</ZIndex>
@@ -2549,8 +2679,8 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.95238cm</Top>
-              <Left>22.85782cm</Left>
+              <Top>0.84655cm</Top>
+              <Left>23.56259cm</Left>
               <Height>0.42301cm</Height>
               <Width>3.25cm</Width>
               <ZIndex>4</ZIndex>
@@ -2575,8 +2705,8 @@
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.52938cm</Top>
-              <Left>25.65782cm</Left>
+              <Top>0.42355cm</Top>
+              <Left>26.36259cm</Left>
               <Height>0.423cm</Height>
               <Width>0.45cm</Width>
               <ZIndex>5</ZIndex>
@@ -2592,7 +2722,7 @@
         <InteractiveHeight>11in</InteractiveHeight>
         <InteractiveWidth>8.5in</InteractiveWidth>
         <LeftMargin>1cm</LeftMargin>
-        <RightMargin>2cm</RightMargin>
+        <RightMargin>1.5cm</RightMargin>
         <TopMargin>1.5cm</TopMargin>
         <BottomMargin>0cm</BottomMargin>
         <Style />
@@ -2618,11 +2748,20 @@
       </DefaultValue>
       <Prompt>Liquidity_Caption</Prompt>
     </ReportParameter>
+    <ReportParameter Name="PurchaseAdvances_CaptionLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PurchaseAdvances_CaptionLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PurchaseAdvances_CaptionLbl</Prompt>
+    </ReportParameter>
   </ReportParameters>
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>2</NumberOfRows>
+      <NumberOfRows>3</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
@@ -2633,6 +2772,11 @@
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>1</RowIndex>
           <ParameterName>Liquidity_Caption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>2</RowIndex>
+          <ParameterName>PurchaseAdvances_CaptionLbl</ParameterName>
         </CellDefinition>
       </CellDefinitions>
     </GridLayoutDefinition>
@@ -2777,6 +2921,12 @@ End Function
         </Field>
         <Field Name="GLBudgetFormat">
           <DataField>GLBudgetFormat</DataField>
+        </Field>
+        <Field Name="PurchaseAdvances">
+          <DataField>PurchaseAdvances</DataField>
+        </Field>
+        <Field Name="PurchaseAdvancesFormat">
+          <DataField>PurchaseAdvancesFormat</DataField>
         </Field>
         <Field Name="EditionPeriod_Number">
           <DataField>EditionPeriod_Number</DataField>
