@@ -713,10 +713,14 @@ page 9309 "Purchase Credit Memos"
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        PreAssignedNo: Code[20];
+        xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
         LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+        PreAssignedNo := Rec."No.";
+        xLastPostingNo := Rec."Last Posting No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -735,20 +739,26 @@ page 9309 "Purchase Credit Memos"
             exit;
 
         if IsOfficeAddin then begin
-            PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
+            if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+                PurchCrMemoHdr.SetRange("No.", Rec."Last Posting No.")
+            else
+                PurchCrMemoHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
             if PurchCrMemoHdr.FindFirst() then
                 PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
         end else
             if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
-                ShowPostedConfirmationMessage();
+                ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
     end;
 
-    local procedure ShowPostedConfirmationMessage()
+    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20]; xLastPostingNo: Code[20])
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
+        if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+            PurchCrMemoHdr.SetRange("No.", Rec."Last Posting No.")
+        else
+            PurchCrMemoHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
         if PurchCrMemoHdr.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchCrMemoQst, PurchCrMemoHdr."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())

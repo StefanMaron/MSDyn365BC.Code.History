@@ -38,6 +38,9 @@ codeunit 137007 "SCM Inventory Costing"
         UnexpectedCostAmtErr: Label '%1 does not match %2 posted by Revaluation Journal.', Comment = '%1: Field(Cost Amount (Actual)), %2: Field(Inventory Value (Revalued))';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
         TotalRecordCountErr: Label 'Total record count must be equal to %1';
+        RolledUpCapacityDoNotMatchErr: Label 'Rolled-Up Capacity values must match.';
+        MinutesLbl: Label 'MINUTES';
+        PCSLbl: Label 'PCS';
 
     [Test]
     [Scope('OnPrem')]
@@ -1319,6 +1322,154 @@ codeunit 137007 "SCM Inventory Costing"
         Assert.AreEqual(ItemLedgerEntry.Count(), ValueEntry.Count(), StrSubstNo(TotalRecordCountErr, ItemLedgerEntry.Count()));
     end;
 
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SetupTimeShouldNotBeCountedTwiceForRolledUpCapacityInCostShares()
+    var
+        Item1: Record Item;
+        Item2: Record Item;
+        Item3: Record Item;
+        Item4: Record Item;
+        Item5: Record Item;
+        WorkCenter: Record "Work Center";
+        WorkCenter2: Record "Work Center";
+        RoutingHeader1: Record "Routing Header";
+        RoutingHeader2: Record "Routing Header";
+        RoutingLine1: Record "Routing Line";
+        RoutingLine2: Record "Routing Line";
+        RoutingLine3: Record "Routing Line";
+        ProductionBOMHeader1: Record "Production BOM Header";
+        ProductionBOMHeader2: Record "Production BOM Header";
+        ProductionBOMHeader3: Record "Production BOM Header";
+        ProductionBOMLine1: Record "Production BOM Line";
+        ProductionBOMLine2: Record "Production BOM Line";
+        ProductionBOMLine3: Record "Production BOM Line";
+        ProductionBOMLine4: Record "Production BOM Line";
+        BOMBuffer: Record "BOM Buffer";
+        GLSetup: Record "General Ledger Setup";
+        BOMCostShares: TestPage "BOM Cost Shares";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        RolledUpCapacity: Decimal;
+        QtyPerBOMLine1: Decimal;
+        QtyPerBOMLine2: Decimal;
+        QtyPerBOMLine3: Decimal;
+        QtyPerBOMLine4: Decimal;
+        ExpectedValue: Decimal;
+        ActualValue: Decimal;
+    begin
+        // [SCENARIO 472832] Rolled-up Capacity Cost is incorrect in BOM Cost Share
+        Initialize();
+        // [GIVEN] Set "Unit-Amount Rounding Precision" in General ledger Setup. 
+        GLSetup.Get();
+        GLSetup."Unit-Amount Rounding Precision" := 0.00001;
+        GLSetup.Modify(True);
+        // [GIVEN] Create Two WorkCenters with Cost Values.
+        CreateWorkCentersWithCost(WorkCenter, WorkCenter2);
+        // [GIVEN] Create Routing 1 with two Routings Lines having different WorkCenters in them. 
+        CreateRoutingwithTwoLinesAndUpdateStatus(RoutingHeader1, RoutingLine1, RoutingLine2, WorkCenter, WorkCenter2);
+        // [GIVEN] Create Routing 2 with one Routing Line having a WorkCenter.
+        CreateRoutingWithOneLineAndUpdateStatus(RoutingHeader2, RoutingLine3, WorkCenter);
+        // [GIVEN] Create Item5 with Standard "Costing Method", "Unit of Measure", "Replenishment System" as Purchase.
+        CreateItemWithStandardCostingAndReplenishmentSystem(
+            Item5,
+            Item5."Costing Method"::Standard,
+            Item5."Replenishment System"::Purchase);
+        // [GIVEN] Create Item4 with Standard "Costing Method", "Unit of Measure" & "Replenishment System" as Purchase.
+        CreateItemWithStandardCostingAndReplenishmentSystem(
+            Item4,
+            Item4."Costing Method"::Standard,
+            Item4."Replenishment System"::Purchase);
+        // [GIVEN] Create Item2 with Standard "Costing Method", "Unit of Measure" & "Replenishment System" as Prod. Order.
+        CreateItemWithCostingMethodAndReplenishmentSystem(
+            Item2,
+            Item2."Costing Method"::Standard,
+            Item2."Replenishment System"::"Prod. Order");
+        // [GIVEN] Create Item3 with Standard "Costing Method", "Unit of Measure" & "Replenishment System" as Prod. Order.
+        CreateItemWithCostingMethodAndReplenishmentSystem(
+            Item3,
+            Item3."Costing Method"::Standard,
+            Item3."Replenishment System"::"Prod. Order");
+        // [GIVEN] Create Item1 with Standard "Costing Method", "Unit of Measure" & "Replenishment System" as Prod. Order.
+        CreateItemWithCostingMethodAndReplenishmentSystem(
+            Item1,
+            Item1."Costing Method"::Standard,
+            Item1."Replenishment System"::"Prod. Order");
+        // [GIVEN] Create and save four Qty Per values in four different Variables.
+        QtyPerBOMLine1 := LibraryRandom.RandDec(0, 0);
+        QtyPerBOMLine2 := LibraryRandom.RandDec(2, 0);
+        QtyPerBOMLine3 := LibraryRandom.RandDec(1, 3);
+        QtyPerBOMLine4 := LibraryRandom.RandDec(1, 4);
+        // [GIVEN] Create Production BOM 1 with two BOM Lines of Item2 & Item3 & Update Status as Certified.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader1, Item1."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader1,
+            ProductionBOMLine1,
+            '',
+            ProductionBOMLine1.Type::Item,
+            Item2."No.",
+            QtyPerBOMLine1);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader1,
+            ProductionBOMLine2,
+            '',
+            ProductionBOMLine2.Type::Item,
+            Item3."No.",
+            QtyPerBOMLine2);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader1, ProductionBOMHeader1.Status::Certified);
+        // [GIVEN] Create Production BOM 2 with one BOM Line of Item4 & Update Status as Certified.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader2, Item1."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader2,
+            ProductionBOMLine3,
+            '',
+            ProductionBOMLine3.Type::Item,
+            Item4."No.",
+            QtyPerBOMLine3);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader2, ProductionBOMHeader2.Status::Certified);
+        // [GIVEN] Create Production BOM 3 with one BOM Line of Item5 & Update Status as Certified.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader3, Item1."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader3,
+            ProductionBOMLine4,
+            '',
+            ProductionBOMLine4.Type::Item,
+            Item5."No.",
+            QtyPerBOMLine4);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader3, ProductionBOMHeader3.Status::Certified);
+        // [GIVEN] Validate Production BOM 3 & Routing 1 to Item3.
+        Item3.Find();
+        Item3.Validate("Production BOM No.", ProductionBOMHeader3."No.");
+        Item3.Validate("Routing No.", RoutingHeader1."No.");
+        Item3.Modify(true);
+        // [GIVEN] Validate Production BOM 2 & Routing 1 to Item2.
+        Item2.Find();
+        Item2.Validate("Production BOM No.", ProductionBOMHeader2."No.");
+        Item2.Validate("Routing No.", RoutingHeader1."No.");
+        Item2.Modify(true);
+        // [GIVEN] Validate Production BOM 1 & Routing 2 to Item1.
+        Item1.Find();
+        Item1.Validate("Production BOM No.", ProductionBOMHeader1."No.");
+        Item1.Validate("Routing No.", RoutingHeader2."No.");
+        Item1.Modify(true);
+        // [GIVEN] Run 'Calc. Production BOM' action from Item1.
+        Clear(CalculateStdCost);
+        CalculateStdCost.CalcItem(Item1."No.", false);
+        // [GIVEN] Run 'Cost Shares' action from Item1.
+        BOMCostShares.Trap();
+        RunBOMCostSharesPage(Item1);
+        // [WHEN] Find BOMCostShares & Evaluate & Save Rolled-Up Capacity Value in a Varible.
+        BOMCostShares.Expand(True);
+        BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::"Work Center"));
+        BOMCostShares.FILTER.SetFilter("No.", WorkCenter."No.");
+        BOMCostShares.FILTER.SetFilter("Qty. per Top Item", Format(RoutingLine1."Setup Time" + RoutingLine1."Run Time" * QtyPerBOMLine2 + RoutingLine1."Wait Time" + RoutingLine1."Move Time"));
+        Evaluate(RolledUpCapacity, Format(BOMCostShares."Rolled-up Capacity Cost"));
+        // [VERIFY] Verify Rolled-Up Capacity prints the expected value.
+        ExpectedValue := Round(((RoutingLine1."Setup Time" + (RoutingLine1."Run Time" * QtyPerBOMLine2)) * WorkCenter."Direct Unit Cost"), 0.001, '>');
+        ActualValue := Round(RolledUpCapacity, 0.001, '>');
+        Assert.AreEqual(ExpectedValue, ActualValue, RolledUpCapacityDoNotMatchErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2159,6 +2310,113 @@ codeunit 137007 "SCM Inventory Costing"
               StrSubstNo(
                 UnexpectedCostAmtErr, FieldCaption("Cost Amount (Actual)"), ItemJournalLine.FieldCaption("Inventory Value (Revalued)")));
         end;
+    end;
+
+    local procedure RunBOMCostSharesPage(var Item: Record Item)
+    var
+        BOMCostShares: Page "BOM Cost Shares";
+    begin
+        BOMCostShares.InitItem(Item);
+        BOMCostShares.Run();
+    end;
+
+    local procedure CreateWorkCentersWithCost(var WorkCenter: Record "Work Center"; var Workcenter2: Record "Work Center")
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Direct Unit Cost", LibraryRandom.RandDec(1, 5));
+        WorkCenter.Validate("Indirect Cost %", LibraryRandom.RandDec(45, 0));
+        WorkCenter.Validate("Overhead Rate", LibraryRandom.RandDec(2, 1));
+        WorkCenter.Validate("Unit Cost Calculation", WorkCenter."Unit Cost Calculation"::Time);
+        WorkCenter.Validate("Unit of Measure Code", MinutesLbl);
+        WorkCenter.Validate(Capacity, LibraryRandom.RandDec(0, 0));
+        WorkCenter.Modify(True);
+
+        LibraryManufacturing.CreateWorkCenter(WorkCenter2);
+    end;
+
+    local procedure CreateRoutingwithTwoLinesAndUpdateStatus(
+        var RoutingHeader: Record "Routing Header";
+        var RoutingLine: record "Routing Line";
+        var RoutingLine2: Record "Routing Line";
+        var WorkCenter: Record "Work Center";
+        var Workcenter2: Record "Work Center")
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+            RoutingHeader,
+            RoutingLine,
+            '',
+            Format(1),
+            RoutingLine.Type::"Work Center",
+            WorkCenter."No.");
+
+        RoutingLine.Validate("Setup Time", LibraryRandom.RandDec(10, 0));
+        RoutingLine.Validate("Run Time", LibraryRandom.RandDecInRange(1, 1, 1));
+        RoutingLine.Validate("Lot Size", LibraryRandom.RandDec(0, 0));
+        RoutingLine.Modify(True);
+
+        LibraryManufacturing.CreateRoutingLine(
+            RoutingHeader,
+             RoutingLine2,
+             '',
+             Format(99),
+             RoutingLine2.Type::"Work Center",
+             WorkCenter2."No.");
+
+        RoutingLine2.Validate("Setup Time", LibraryRandom.RandDec(10, 0));
+        RoutingLine2.Validate("Move Time", LibraryRandom.RandDec(2, 0));
+        RoutingLine2.Modify(True);
+
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+    end;
+
+    local procedure CreateRoutingWithOneLineAndUpdateStatus(
+        var RoutingHeader: Record "Routing Header";
+        var RoutingLine: Record "Routing Line";
+        var WorkCenter: Record "Work Center")
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+            RoutingHeader,
+            RoutingLine,
+            '',
+            Format(1),
+            RoutingLine.Type::"Work Center",
+            WorkCenter."No.");
+
+        RoutingLine.Validate("Setup Time", LibraryRandom.RandDec(10, 0));
+        RoutingLine.Validate("Run Time", LibraryRandom.RandDecInRange(1, 1, 2));
+        RoutingLine.Validate("Lot Size", LibraryRandom.RandDec(0, 0));
+        RoutingLine.Modify(True);
+
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+    end;
+
+    local procedure CreateItemWithStandardCostingAndReplenishmentSystem(
+        var Item: Record Item;
+        CostingMethod: Enum "Costing Method";
+        ReplenishmentSystem: Enum "Replenishment System")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Base Unit of Measure", PCSLbl);
+        Item.Validate("Purch. Unit of Measure", PCSLbl);
+        Item.Validate("Costing Method", CostingMethod);
+        Item.Validate("Standard Cost", LibraryRandom.RandDec(40, 0));
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Modify(True);
+    end;
+
+    local procedure CreateItemWithCostingMethodAndReplenishmentSystem(
+        var Item: Record Item;
+        CostingMethod: Enum "Costing Method";
+        ReplenishmentSystem: Enum "Replenishment System")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Base Unit of Measure", PCSLbl);
+        Item.Validate("Purch. Unit of Measure", PCSLbl);
+        Item.Validate("Costing Method", CostingMethod);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Modify(True);
     end;
 
     [StrMenuHandler]
