@@ -23,7 +23,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         IsInitialized: Boolean;
         FullPathErr: Label 'File full path ''%1'' exceeds length (%3) of field ''%2'' ', Comment = '.';
-        SEPAXmlDocNamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09', Locked = true;
+        SEPAXmlDocNamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02', Locked = true;
 
     [Test]
     [HandlerFunctions('RPHSuggestBankPayments,MessageHandler')]
@@ -95,7 +95,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         // [THEN] The report runs with no errors
         SEPABankPaymentExport.GetBlobWithXmlDocContent(TempBlob);
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, SEPAXmlDocNamespaceTxt);
-        LibraryXPathXMLReader.VerifyNodeValueByXPath('/Document/pain.001.001.09/PmtInf/DbtrAcct/Id/IBAN', ValidIBANCode);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('/Document/pain.001.001.02/PmtInf/DbtrAcct/Id/IBAN', ValidIBANCode);
 
         // [THEN] The exported XML file does not contain UTF-8 BOM characters.
         BOMFirstByte := 239;    // 0xEF
