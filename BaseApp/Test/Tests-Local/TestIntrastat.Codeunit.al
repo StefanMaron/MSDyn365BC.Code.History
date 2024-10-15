@@ -214,8 +214,8 @@ codeunit 134153 "Test Intrastat"
         // [WHEN] Run Intrastat "Get Item Ledger Entries" report
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
 
-        // [THEN] Known failure. Expected: Intrastat Journal Line Amount = "X". Actual: no Intrastat Journal Line
-        asserterror VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Round(Item."Last Direct Cost", 1));
+        // [THEN] Intrastat Journal Line Amount = "X"
+        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Round(Item."Last Direct Cost", 1));
     end;
 
     [Test]
@@ -241,8 +241,8 @@ codeunit 134153 "Test Intrastat"
         // [WHEN] Run Intrastat "Get Item Ledger Entries" report
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
 
-        // [THEN] Known failure. Expected: Intrastat Journal Line Amount = "X". Actual: no Intrastat Journal Line
-        asserterror VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Round(Item."Last Direct Cost", 1));
+        // [THEN] Intrastat Journal Line Amount = "X".
+        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Round(Item."Last Direct Cost", 1));
     end;
 
     [Test]
@@ -579,7 +579,7 @@ codeunit 134153 "Test Intrastat"
         ErrorMessage.SetContext(IntrastatJnlBatch);
         Assert.AreEqual(1, ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Error), '');
         ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(FieldName, ErrorMessage.Description);
+        Assert.ExpectedMessage(FieldName, ErrorMessage."Message");
     end;
 
     [RequestPageHandler]

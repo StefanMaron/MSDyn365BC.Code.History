@@ -41,6 +41,8 @@ codeunit 5342 "CRM Synch. Helper"
         CRMUnitGroupNotFoundErr: Label 'CRM Unit Group %1 does not exist.', Comment = '%1 - unit group name';
         BaseUnitOfMeasureCannotBeEmptyErr: Label 'Base Unit of Measure must have a value in %1. It cannot be zero or empty.', Comment = '%1 - record';
         RecordMustBeCoupledExtErr: Label '%1 %2 must be coupled to a %3 row.', Comment = '%1 = BC table caption, %2 = primary key value, %3 - Dataverse table caption';
+        CannotUseSameUnitGroupErr: Label 'Unit group %1 is assigned to multiple products. You cannot use the same unit group for multiple products.', Comment = '%1 - Unit group name';
+        UnitOfMeasureDoesNotExistErr: Label 'Unit of measure %1 does not exist.', Comment = '%1 - unit of measure code';
 
     procedure ClearCache()
     begin
@@ -139,10 +141,15 @@ codeunit 5342 "CRM Synch. Helper"
     end;
 
     procedure CreateCRMProductpriceIfAbsent(CRMInvoicedetail: Record "CRM Invoicedetail")
+    var
+        CRMInvoice: Record "CRM Invoice";
     begin
-        if not IsNullGuid(CRMInvoicedetail.ProductId) then
-            if not FindCRMProductPriceFromCRMInvoicedetail(CRMInvoicedetail) then
-                CreateCRMProductpriceFromCRMInvoiceDetail(CRMInvoicedetail);
+        if not IsNullGuid(CRMInvoicedetail.ProductId) then begin
+            CRMInvoice.Get(CRMInvoicedetail.InvoiceId);
+            if not IsNullGuid(CRMInvoice.PriceLevelId) then
+                if not FindCRMProductPriceFromCRMInvoicedetailAndCRMInvoice(CRMInvoicedetail, CRMInvoice) then
+                    CreateCRMProductpriceFromCRMInvoiceDetail(CRMInvoicedetail);
+        end;
     end;
 
     local procedure CreateCRMProductpriceFromCRMInvoiceDetail(CRMInvoicedetail: Record "CRM Invoicedetail")
@@ -223,6 +230,16 @@ codeunit 5342 "CRM Synch. Helper"
         CRMProductpricelevel: Record "CRM Productpricelevel";
     begin
         CRMInvoice.Get(CRMInvoicedetail.InvoiceId);
+        CRMProductpricelevel.SetRange(PriceLevelId, CRMInvoice.PriceLevelId);
+        CRMProductpricelevel.SetRange(ProductId, CRMInvoicedetail.ProductId);
+        CRMProductpricelevel.SetRange(UoMId, CRMInvoicedetail.UoMId);
+        exit(not CRMProductpricelevel.IsEmpty());
+    end;
+
+    local procedure FindCRMProductPriceFromCRMInvoicedetailAndCRMInvoice(CRMInvoicedetail: Record "CRM Invoicedetail"; CRMInvoice: Record "CRM Invoice"): Boolean
+    var
+        CRMProductpricelevel: Record "CRM Productpricelevel";
+    begin
         CRMProductpricelevel.SetRange(PriceLevelId, CRMInvoice.PriceLevelId);
         CRMProductpricelevel.SetRange(ProductId, CRMInvoicedetail.ProductId);
         CRMProductpricelevel.SetRange(UoMId, CRMInvoicedetail.UoMId);
@@ -1559,7 +1576,14 @@ codeunit 5342 "CRM Synch. Helper"
         CRMIntegrationRecord: Record "CRM Integration Record";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        Item: Record Item;
+        Resource: Record Resource;
+        CRMProduct: Record "CRM Product";
+        UnitOfMeasure: Record "Unit of Measure";
+        CRMUom: Record "CRM Uom";
         RecId: RecordId;
+        DefaultUoMCode: Code[10];
         CRMId: Guid;
     begin
         CRMID := SourceFieldRef.Value();
@@ -1573,12 +1597,60 @@ codeunit 5342 "CRM Synch. Helper"
                         ItemUnitOfMeasure.Get(RecId);
                         NewValue := ItemUnitOfMeasure.Code;
                         exit;
+                    end else begin
+                        DestinationFieldRef.Record().SetTable(Item);
+                        if IsNullGuid(Item.SystemId) then begin // Item is not created
+                            IntegrationTableMapping.SetRange("Table ID", Database::"Unit Group");
+                            IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Uomschedule");
+                            if IntegrationTableMapping.FindFirst() then
+                                if not IntegrationTableMapping."Synch. Only Coupled Records" then begin
+                                    IntegrationTableMapping.SetRange("Table ID", Database::"Item Unit of Measure");
+                                    IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Uom");
+                                    if IntegrationTableMapping.FindFirst() then
+                                        if not IntegrationTableMapping."Synch. Only Coupled Records" then begin
+                                            CRMProduct.SetRange(DefaultUoMScheduleId, SourceFieldRef.Record().Field(CRMProduct.FieldNo(DefaultUoMScheduleId)).Value);
+                                            if CRMProduct.Count > 1 then
+                                                Error(CannotUseSameUnitGroupErr, SourceFieldRef.Value);
+
+                                            CRMUom.Get(CRMID);
+                                            Evaluate(DefaultUoMCode, CRMUom.Name);
+                                            if not UnitOfMeasure.Get(DefaultUoMCode) then
+                                                Error(UnitOfMeasureDoesNotExistErr, CRMProduct.DefaultUoMIdName);
+                                            NewValue := UnitOfMeasure.Code;
+                                            exit;
+                                        end;
+                                end;
+                        end;
                     end;
                 Database::Resource:
                     if CRMIntegrationRecord.FindRecordIDFromID(CRMId, Database::"Resource Unit of Measure", RecId) then begin
                         ResourceUnitOfMeasure.Get(RecId);
                         NewValue := ResourceUnitOfMeasure.Code;
                         exit;
+                    end else begin
+                        DestinationFieldRef.Record().SetTable(Resource);
+                        if IsNullGuid(Resource.SystemId) then begin // Resource is not created
+                            IntegrationTableMapping.SetRange("Table ID", Database::"Unit Group");
+                            IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Uomschedule");
+                            if IntegrationTableMapping.FindFirst() then
+                                if not IntegrationTableMapping."Synch. Only Coupled Records" then begin
+                                    IntegrationTableMapping.SetRange("Table ID", Database::"Resource Unit of Measure");
+                                    IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Uom");
+                                    if IntegrationTableMapping.FindFirst() then
+                                        if not IntegrationTableMapping."Synch. Only Coupled Records" then begin
+                                            CRMProduct.SetRange(DefaultUoMScheduleId, SourceFieldRef.Record().Field(CRMProduct.FieldNo(DefaultUoMScheduleId)).Value);
+                                            if CRMProduct.Count > 1 then
+                                                Error(CannotUseSameUnitGroupErr, SourceFieldRef.Value);
+
+                                            CRMUom.Get(CRMID);
+                                            Evaluate(DefaultUoMCode, CRMUom.Name);
+                                            if not UnitOfMeasure.Get(DefaultUoMCode) then
+                                                Error(UnitOfMeasureDoesNotExistErr, CRMProduct.DefaultUoMIdName);
+                                            NewValue := UnitOfMeasure.Code;
+                                            exit;
+                                        end;
+                                end;
+                        end;
                     end;
             end;
 
@@ -1589,7 +1661,6 @@ codeunit 5342 "CRM Synch. Helper"
     procedure PrefixUnitGroupCode(SourceFieldRef: FieldRef; var NewValue: Variant)
     var
         UnitGroup: Record "Unit Group";
-        SourceRecordRef: RecordRef;
     begin
         SourceFieldRef.Record().SetTable(UnitGroup);
         NewValue := UnitGroup.GetCode();

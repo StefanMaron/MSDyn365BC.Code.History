@@ -18,6 +18,7 @@ codeunit 413 AnalysisViewEntryToGLEntries
         StartDate: Date;
         EndDate: Date;
         GlobalDimValue: Code[20];
+        IsHandled: Boolean;
     begin
         AnalysisView.Get(AnalysisViewEntry."Analysis View Code");
 
@@ -26,6 +27,7 @@ codeunit 413 AnalysisViewEntryToGLEntries
                 TempGLEntry := GLEntry;
                 TempGLEntry.Insert();
             end;
+            OnAfterGetGLEntryIfDateCompressionNone(AnalysisViewEntry, TempGLEntry);
             exit;
         end;
 
@@ -43,40 +45,45 @@ codeunit 413 AnalysisViewEntryToGLEntries
                 then
                     EndDate := CalculateEndDate("Date Compression", AnalysisViewEntry);
 
-        with GLEntry do begin
-            SetCurrentKey("G/L Account No.", "Posting Date");
-            SetRange("G/L Account No.", AnalysisViewEntry."Account No.");
-            SetRange("Posting Date", StartDate, EndDate);
-            SetRange("Entry No.", 0, AnalysisView."Last Entry No.");
+        IsHandled := false;
+        OnGetGLEntriesOnBeforeCopyGLEntries(AnalysisViewEntry, IsHandled);
+        if not IsHandled then
+            with GLEntry do begin
+                SetCurrentKey("G/L Account No.", "Posting Date");
+                SetRange("G/L Account No.", AnalysisViewEntry."Account No.");
+                SetRange("Posting Date", StartDate, EndDate);
+                SetRange("Entry No.", 0, AnalysisView."Last Entry No.");
 
-            if GetGlobalDimValue(GLSetup."Global Dimension 1 Code", AnalysisViewEntry, GlobalDimValue) then
-                SetRange("Global Dimension 1 Code", GlobalDimValue)
-            else
-                if AnalysisViewFilter.Get(AnalysisViewEntry."Analysis View Code", GLSetup."Global Dimension 1 Code")
-                then
-                    SetFilter("Global Dimension 1 Code", AnalysisViewFilter."Dimension Value Filter");
+                if GetGlobalDimValue(GLSetup."Global Dimension 1 Code", AnalysisViewEntry, GlobalDimValue) then
+                    SetRange("Global Dimension 1 Code", GlobalDimValue)
+                else
+                    if AnalysisViewFilter.Get(AnalysisViewEntry."Analysis View Code", GLSetup."Global Dimension 1 Code")
+                    then
+                        SetFilter("Global Dimension 1 Code", AnalysisViewFilter."Dimension Value Filter");
 
-            if GetGlobalDimValue(GLSetup."Global Dimension 2 Code", AnalysisViewEntry, GlobalDimValue) then
-                SetRange("Global Dimension 2 Code", GlobalDimValue)
-            else
-                if AnalysisViewFilter.Get(AnalysisViewEntry."Analysis View Code", GLSetup."Global Dimension 2 Code")
-                then
-                    SetFilter("Global Dimension 2 Code", AnalysisViewFilter."Dimension Value Filter");
+                if GetGlobalDimValue(GLSetup."Global Dimension 2 Code", AnalysisViewEntry, GlobalDimValue) then
+                    SetRange("Global Dimension 2 Code", GlobalDimValue)
+                else
+                    if AnalysisViewFilter.Get(AnalysisViewEntry."Analysis View Code", GLSetup."Global Dimension 2 Code")
+                    then
+                        SetFilter("Global Dimension 2 Code", AnalysisViewFilter."Dimension Value Filter");
 
-            OnGetGLEntriesOnAfterGLEntrySetFilters(GLEntry);
-            if Find('-') then
-                repeat
-                    if DimEntryOK("Dimension Set ID", AnalysisView."Dimension 1 Code", AnalysisViewEntry."Dimension 1 Value Code") and
-                       DimEntryOK("Dimension Set ID", AnalysisView."Dimension 2 Code", AnalysisViewEntry."Dimension 2 Value Code") and
-                       DimEntryOK("Dimension Set ID", AnalysisView."Dimension 3 Code", AnalysisViewEntry."Dimension 3 Value Code") and
-                       DimEntryOK("Dimension Set ID", AnalysisView."Dimension 4 Code", AnalysisViewEntry."Dimension 4 Value Code") and
-                       UpdateAnalysisView.DimSetIDInFilter("Dimension Set ID", AnalysisView)
-                    then begin
-                        TempGLEntry := GLEntry;
-                        if TempGLEntry.Insert() then;
-                    end;
-                until Next() = 0;
-        end;
+                OnGetGLEntriesOnAfterGLEntrySetFilters(GLEntry, AnalysisView, AnalysisViewEntry);
+                if Find('-') then
+                    repeat
+                        if DimEntryOK("Dimension Set ID", AnalysisView."Dimension 1 Code", AnalysisViewEntry."Dimension 1 Value Code") and
+                        DimEntryOK("Dimension Set ID", AnalysisView."Dimension 2 Code", AnalysisViewEntry."Dimension 2 Value Code") and
+                        DimEntryOK("Dimension Set ID", AnalysisView."Dimension 3 Code", AnalysisViewEntry."Dimension 3 Value Code") and
+                        DimEntryOK("Dimension Set ID", AnalysisView."Dimension 4 Code", AnalysisViewEntry."Dimension 4 Value Code") and
+                        UpdateAnalysisView.DimSetIDInFilter("Dimension Set ID", AnalysisView)
+                        then begin
+                            TempGLEntry := GLEntry;
+                            if TempGLEntry.Insert() then;
+                        end;
+                    until Next() = 0;
+            end;
+
+        OnAfterGetGLEntries(AnalysisViewEntry, TempGLEntry);
     end;
 
     procedure GetCFLedgEntries(var AnalysisViewEntry: Record "Analysis View Entry"; var CFForecastEntry: Record "Cash Flow Forecast Entry")
@@ -213,7 +220,22 @@ codeunit 413 AnalysisViewEntryToGLEntries
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetGLEntriesOnAfterGLEntrySetFilters(var GLEntry: Record "G/L Entry")
+    local procedure OnGetGLEntriesOnAfterGLEntrySetFilters(var GLEntry: Record "G/L Entry"; var AnalysisView: Record "Analysis View"; var AnalysisViewEntry: Record "Analysis View Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetGLEntryIfDateCompressionNone(var AnalysisViewEntry: Record "Analysis View Entry"; var TempGLEntry: Record "G/L Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetGLEntries(var AnalysisViewEntry: Record "Analysis View Entry"; var TempGLEntry: Record "G/L Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetGLEntriesOnBeforeCopyGLEntries(var AnalysisViewEntry: Record "Analysis View Entry"; var IsHandled: Boolean)
     begin
     end;
 }

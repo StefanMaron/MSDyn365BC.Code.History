@@ -1751,6 +1751,90 @@ codeunit 134476 "ERM Dimension Purchase"
         VerifyDimensionOnPurchaseOrderLine(PurchaseHeader."Document Type", PurchaseHeader."No.", DimensionValue2."Dimension Code");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure VerifyManuallyEnteredDimensionIsKeptOnChangeShipToOptionToLocationOnPurchaseOrderWithoutLines()
+    var
+        Location: Record Location;
+        Vendor: Record Vendor;
+        DimensionValue: Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        PurchaseOrder: TestPage "Purchase Order";
+        ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
+    begin
+        // [SCENARIO 461370] Verify Dimension is kept on change Ship-to option on Purchase Order
+        Initialize();
+
+        // [GIVEN] Create Vendor with default global dimension value
+        CreateVendorWithDefaultGlobalDimValue(Vendor, DimensionValue);
+
+        // [GIVEN] Create Location
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Purchase Order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Update global dimension 1 on Purchase Line
+        UpdateGlobalDimensionOnPurchaseHeader(PurchaseHeader, DimensionValue);
+
+        // [WHEN] Open Purchase Order page and set "Ship to" as location
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder.ShippingOptionWithLocation.SetValue(ShipToOptions::Location);
+        PurchaseOrder."Location Code".SetValue(Location.Code);
+        PurchaseOrder.Close();
+
+        // [THEN] Verify Header Dimension is kept
+        DimensionSetEntry.SetRange("Dimension Set ID", PurchaseHeader."Dimension Set ID");
+        DimensionSetEntry.FindFirst();
+        Assert.AreEqual(PurchaseHeader."Dimension Set ID", DimensionSetEntry."Dimension Set ID", DimensionSetIDErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure VerifyManuallyEnteredDimensionIsKeptOnChangeShipToOptionToCustomerOnPurchaseOrderWithoutLines()
+    var
+        Customer: Record Customer;
+        Location: Record Location;
+        Vendor: Record Vendor;
+        DimensionValue: Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        PurchaseOrder: TestPage "Purchase Order";
+        ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
+    begin
+        // [SCENARIO 461370] Verify Dimension is kept on change Ship-to option on Purchase Order
+        Initialize();
+
+        // [GIVEN] Create Vendor with default global dimension value
+        CreateVendorWithDefaultGlobalDimValue(Vendor, DimensionValue);
+
+        // [GIVEN] Create Location
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomerWithLocationCode(Customer, Location.Code);
+
+        // [GIVEN] Create Purchase Order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Update global dimension 1 on Purchase Line
+        UpdateGlobalDimensionOnPurchaseHeader(PurchaseHeader, DimensionValue);
+
+        // [WHEN] Open Purchase Order page and set "Ship to" as location
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder.ShippingOptionWithLocation.SetValue(ShipToOptions::"Customer Address");
+        PurchaseOrder."Sell-to Customer No.".SetValue(Customer."No.");
+        PurchaseOrder.Close();
+
+        // [THEN] Verify Header Dimension is kept
+        DimensionSetEntry.SetRange("Dimension Set ID", PurchaseHeader."Dimension Set ID");
+        DimensionSetEntry.FindFirst();
+        Assert.AreEqual(PurchaseHeader."Dimension Set ID", DimensionSetEntry."Dimension Set ID", DimensionSetIDErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2618,6 +2702,13 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
         PurchaseLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure UpdateGlobalDimensionOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var DimensionValue: Record "Dimension Value")
+    begin
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        PurchaseHeader.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; ItemNo: Code[20])

@@ -58,8 +58,10 @@ page 531 "Pmt. Rec. Reversal Finalize"
         BankAccountNo: Code[20];
         StatementNo: Code[20];
         ActionSelected: Option Nothing,Back,Finalize;
-        FinalizeMsg: Label 'After finalizing, the bank statement will be undone, %1 entries will be unapplied and %2 entries will be reversed. After finalizing you can only unapply and revert the entries manually.', Comment = '%1 - Number of entries to unapply, %2 - Number of entries to reverse';
+        FinalizeMsg: Label 'After finalizing, the bank statement will be undone, %1 entries will be unapplied and %2 entries will be reversed. You can only unapply and revert the entries manually after this.', Comment = '%1 - Number of entries to unapply, %2 - Number of entries to reverse';
+        FinalizeNoStatementMsg: Label 'After finalizing, %1 entries will be unapplied and %2 entries will be reversed. You can only unapply and revert the entries manually after this.', Comment = '%1 - Number of entries to unapply, %2 - Number of entries to reverse';
         FinalizeTxt: Text;
+        ShowingNoStatementMsg: Boolean;
 
     trigger OnOpenPage()
     var
@@ -77,7 +79,15 @@ page 531 "Pmt. Rec. Reversal Finalize"
         PaymentRecRelatedEntry.SetRange(ToUnapply);
         PaymentRecRelatedEntry.SetRange(ToReverse, true);
         ToReverse := PaymentRecRelatedEntry.Count();
-        FinalizeTxt := Text.StrSubstNo(FinalizeMsg, ToUnapply, ToReverse);
+        if not ShowingNoStatementMsg then
+            FinalizeTxt := Text.StrSubstNo(FinalizeMsg, ToUnapply, ToReverse)
+        else
+            FinalizeTxt := Text.StrSubstNo(FinalizeNoStatementMsg, ToUnapply, ToReverse);
+    end;
+
+    procedure SetNoStatementMsg()
+    begin
+        ShowingNoStatementMsg := true;
     end;
 
     procedure BackSelected(): Boolean

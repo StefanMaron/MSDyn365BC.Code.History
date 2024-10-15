@@ -35,7 +35,7 @@ page 701 "Error Messages Part"
                     ToolTip = 'Specifies the field where the error occurred.';
                     Width = 10;
                 }
-                field(Description; Description)
+                field(Description; Rec."Message")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
