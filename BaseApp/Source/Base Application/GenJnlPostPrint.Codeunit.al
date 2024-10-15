@@ -53,6 +53,11 @@ codeunit 232 "Gen. Jnl.-Post+Print"
 
             TempJnlBatchName := "Journal Batch Name";
 
+            IsHandled := false;
+            OnAfterConfirmPostJournalBatch(GenJnlLine, IsHandled);
+            if IsHandled then
+                exit;
+
             GeneralLedgerSetup.Get();
             if GeneralLedgerSetup."Post & Print with Job Queue" then begin
                 // Add job queue entry for each document no.
@@ -118,6 +123,11 @@ codeunit 232 "Gen. Jnl.-Post+Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostJournalBatch(var GenJournalLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterConfirmPostJournalBatch(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

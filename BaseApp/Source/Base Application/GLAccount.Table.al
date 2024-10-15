@@ -651,6 +651,7 @@ table 15 "G/L Account"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(10700; "Income Stmt. Bal. Acc."; Code[20])
         {

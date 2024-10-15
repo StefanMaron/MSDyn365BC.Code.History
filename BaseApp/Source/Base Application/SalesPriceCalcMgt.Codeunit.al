@@ -1021,7 +1021,15 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     local procedure SalesHeaderStartDate(var SalesHeader: Record "Sales Header"; var DateCaption: Text[30]): Date
+    var
+        StartDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesHeaderStartDate(SalesHeader, DateCaption, StartDate, IsHandled);
+        if IsHandled then
+            exit(StartDate);
+
         with SalesHeader do
             if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then begin
                 DateCaption := FieldCaption("Posting Date");
@@ -1775,6 +1783,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeJobPlanningLineFindJTPrice(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderStartDate(var SalesHeader: Record "Sales Header"; var DateCaption: Text[30]; var StartDate: Date; var IsHandled: Boolean)
     begin
     end;
 

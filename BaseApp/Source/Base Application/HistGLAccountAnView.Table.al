@@ -4,6 +4,7 @@ table 10725 "Hist. G/L Account (An. View)"
     DataCaptionFields = "No.", Name;
     ObsoleteReason = 'Obsolete feature';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

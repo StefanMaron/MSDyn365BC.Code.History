@@ -3,6 +3,7 @@ table 10724 "History of Equivalences COA"
     Caption = 'History of Equivalences COA';
     ObsoleteReason = 'Obsolete feature';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

@@ -217,11 +217,14 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                CustLedgEntry: Record "Cust. Ledger Entry";
             begin
                 CustLedgEntry.SetCurrentKey("Document No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                 CustLedgEntry.SetRange("Bill No.", "Applies-to Bill No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(CustLedgEntry, Rec);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -602,6 +605,7 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Draft Cr. Memo SystemId"; Guid)
         {
@@ -780,7 +784,6 @@ table 114 "Sales Cr.Memo Header"
 
     var
         SalesCommentLine: Record "Sales Comment Line";
-        CustLedgEntry: Record "Cust. Ledger Entry";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
@@ -1002,6 +1005,11 @@ table 114 "Sales Cr.Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendRecords(var ReportSelections: Record "Report Selections"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 }

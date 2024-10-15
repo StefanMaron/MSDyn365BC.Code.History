@@ -49,7 +49,7 @@ codeunit 5342 "CRM Synch. Helper"
         Clear(TempCRMUomschedule);
     end;
     
-    [Obsolete('Use GetDefaultPriceListName instead')]
+    [Obsolete('Use GetDefaultPriceListName instead','15.2')]
     procedure GetDefaultNAVPriceListName(): Text[50]
     begin
         exit(StrSubstNo(DefaultNAVPriceListNameTxt, PRODUCTNAME.Short));

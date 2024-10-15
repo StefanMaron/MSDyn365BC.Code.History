@@ -19,21 +19,27 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         LibrarySales: Codeunit "Library - Sales";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         CreditMemoServiceLinesNameTxt: Label 'salesCreditMemoLines';
         LineTypeFieldNameTxt: Label 'lineType';
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Sales Cr. Memo Line E2E Test");
+
         if IsInitialized then
             exit;
 
-        LibrarySales.SetStockoutWarning(false);
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Sales Cr. Memo Line E2E Test");
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibrarySales.SetStockoutWarning(false);
+        LibraryApplicationArea.EnableFoundationSetup();
 
         IsInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Sales Cr. Memo Line E2E Test");
     end;
 
     [Test]

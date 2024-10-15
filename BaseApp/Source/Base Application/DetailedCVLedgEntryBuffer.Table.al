@@ -376,7 +376,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
         DtldCVLedgEntryBuf.SetRange("Document Status", NewDtldCVLedgEntryBuf."Document Status");
 
         IsHandled := false;
-        OnBeforeCreateDtldCVLedgEntryBuf(DtldCVLedgEntryBuf, NewDtldCVLedgEntryBuf, NextDtldBufferEntryNo, IsHandled);
+        OnBeforeCreateDtldCVLedgEntryBuf(DtldCVLedgEntryBuf, NewDtldCVLedgEntryBuf, NextDtldBufferEntryNo, IsHandled, CVLedgEntryBuf);
         if IsHandled then
             exit;
 
@@ -522,7 +522,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDtldCVLedgEntryBuf(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var NewDtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var NextDtldBufferEntryNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeCreateDtldCVLedgEntryBuf(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var NewDtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var NextDtldBufferEntryNo: Integer; var IsHandled: Boolean; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer")
     begin
     end;
 

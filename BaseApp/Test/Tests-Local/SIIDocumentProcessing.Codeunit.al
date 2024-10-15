@@ -19,6 +19,7 @@ codeunit 147522 "SII Document Processing"
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         TagMustNotExistErr: Label '%1 must not exist';
         FieldMustNotBeErr: Label '%1 must not be %2', Locked = true;
@@ -31,6 +32,7 @@ codeunit 147522 "SII Document Processing"
         XPathPurchFacturaRecibidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/';
         MarkAsNotAcceptedErr: Label 'Marked as not accepted';
         MarkAsAcceptedErr: Label 'Marked as accepted';
+        FieldMustHaveValueInSIISetupErr: Label '%1 must have a value in SII VAT Setup', Comment = '%1 = field caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -1285,8 +1287,52 @@ codeunit 147522 "SII Document Processing"
         ValidateElementByName(XMLDoc, 'sii:IDVersionSii', '1.0');
     end;
 
+    [Test]
+    [Scope('Internal')]
+    procedure NotPossibleToProcessDocumentWithoutSchemeReference()
+    var
+        SIISetup: Record "SII Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 341899] Stan cannot submit the document to SII if the SuministroInformacion Schema or SuministroLR Schema is not specified
+
+        Initialize;
+
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandIntInRange(100, 200));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
+
+        SIISetup.Get;
+        SIISetup."SuministroInformacion Schema" := '';
+        SIISetup.Modify;
+
+        asserterror SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false);
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(
+          StrSubstNo(FieldMustHaveValueInSIISetupErr, SIISetup.FieldCaption("SuministroInformacion Schema")));
+
+        SIISetup."SuministroInformacion Schema" := SIISetup."SuministroLR Schema";
+        SIISetup."SuministroLR Schema" := '';
+        SIISetup.Modify;
+
+        asserterror SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false);
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(
+          StrSubstNo(FieldMustHaveValueInSIISetupErr, SIISetup.FieldCaption("SuministroLR Schema")));
+    end;
+
     local procedure Initialize()
     begin
+        LibrarySetupStorage.Restore;
         if IsInitialized then
             exit;
 
@@ -1294,6 +1340,7 @@ codeunit 147522 "SII Document Processing"
 
         LibrarySII.InitSetup(true, false);
         LibrarySII.BindSubscriptionJobQueue;
+        LibrarySetupStorage.Save(DATABASE::"SII Setup");
     end;
 
     local procedure CreateSalesInvoiceWithType(var SalesHeader: Record "Sales Header"; SIIDocType: Option)

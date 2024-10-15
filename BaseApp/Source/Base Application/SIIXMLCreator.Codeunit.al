@@ -11,8 +11,6 @@ codeunit 10750 "SII XML Creator"
         SIIManagement: Codeunit "SII Management";
         XMLDOMManagement: Codeunit "XML DOM Management";
         SoapenvTxt: Label 'http://schemas.xmlsoap.org/soap/envelope/', Locked = true;
-        SiiTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd', Locked = true;
-        SiiLRTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd', Locked = true;
         CompanyInformationMissingErr: Label 'Your company is not properly set up. Go to company information and complete your setup.';
         DataTypeManagement: Codeunit "Data Type Management";
         LastXMLNode: DotNet XmlNode;
@@ -25,6 +23,8 @@ codeunit 10750 "SII XML Creator"
         UploadTypeGlb: Option Regular,Intracommunity,RetryAccepted,"Collection In Cash";
         LCLbl: Label 'LC', Locked = true;
         SIIVersion: Option "1.1","1.0";
+        SiiTxt: Text;
+        SiiLRTxt: Text;
 
     [Scope('OnPrem')]
     procedure GenerateXml(LedgerEntry: Variant; var XMLDocOut: DotNet XmlDocument; UploadType: Option; IsCreditMemoRemoval: Boolean): Boolean
@@ -43,6 +43,8 @@ codeunit 10750 "SII XML Creator"
             EXIT(ResultValue);
 
         GetSIISetup;
+        SiiTxt := SIISetup."SuministroInformacion Schema";
+        SiiLRTxt := SIISetup."SuministroLR Schema";
         if not IsInitialized then
             XMLDocOut := XMLDocOut.XmlDocument;
 
@@ -1767,6 +1769,8 @@ codeunit 10750 "SII XML Creator"
 
         SIISetup.Get;
         SIISetup.TestField("Invoice Amount Threshold");
+        SIISetup.TestField("SuministroInformacion Schema");
+        SIISetup.TestField("SuministroLR Schema");
         SIISetupInitialized := true;
     end;
 

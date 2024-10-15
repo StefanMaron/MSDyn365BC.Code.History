@@ -220,6 +220,7 @@ table 263 "Intrastat Jnl. Line"
             ObsoleteReason = 'Merge to W1';
             ObsoleteState = Pending;
             TableRelation = "Shipment Method";
+            ObsoleteTag = '15.0';
         }
         field(10702; "Shipment Method Code #2"; Option)
         {

@@ -1088,7 +1088,7 @@ report 5911 "Service - Invoice"
         until DimSetEntry.Next = 0;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure GetCarteraInvoice(): Boolean
     var
         CustLedgEntry: Record "Cust. Ledger Entry";

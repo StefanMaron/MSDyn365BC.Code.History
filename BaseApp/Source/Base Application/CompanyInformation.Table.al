@@ -462,6 +462,7 @@ table 79 "Company Information"
             Caption = 'Show Chart On RoleCenter';
             ObsoleteState = Pending;
             ObsoleteReason = 'Only the Help and Chart Wrapper pages used this. The page has been changed to assume that this field is always set.';
+            ObsoleteTag = '15.0';
         }
         field(7603; "Sync with O365 Bus. profile"; Boolean)
         {
@@ -486,6 +487,7 @@ table 79 "Company Information"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(10701; "CNAE Description"; Text[80])
         {

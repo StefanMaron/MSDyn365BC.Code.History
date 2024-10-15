@@ -10,6 +10,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
     begin
         PerCompanyUpgradeTags.Add(GetUpdateEmployeeNewNamesTag);
         PerCompanyUpgradeTags.Add(GetUpdateNoTaxableEntriesTag);
+        PerCompanyUpgradeTags.Add(GetUpdateSIISetupSchemasTag());
     end;
 
     procedure GetUpdateEmployeeNewNamesTag(): Code[250]
@@ -20,6 +21,11 @@ codeunit 9997 "Upgrade Tag Def - Country"
     procedure GetUpdateNoTaxableEntriesTag(): Code[250]
     begin
         exit('MS-293795-ES-GetUpdateNoTaxableEntriesTag-20190220');
+    end;
+
+    procedure GetUpdateSIISetupSchemasTag(): Code[250]
+    begin
+        exit('MS-341500-ES-GetUpdateSIISetupSchemasTag-20200207');
     end;
 }
 

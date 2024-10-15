@@ -16,6 +16,7 @@ table 1307 "O365 Device Setup Instructions"
             ExtendedDatatype = URL;
             ObsoleteReason = 'This field is obsolete after refactoring.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(11; "QR Code"; BLOB)
         {

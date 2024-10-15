@@ -311,7 +311,7 @@ page 6304 "Power BI Report Selection"
                 PowerBiReportConfiguration."User Security ID" := UserSecurityId;
                 PowerBiReportConfiguration."Report ID" := TempPowerBiReportBuffer.ReportID;
                 PowerBiReportConfiguration.Context := Context;
-                PowerBiReportConfiguration.EmbedUrl := TempPowerBiReportBuffer.EmbedUrl;
+                PowerBiReportConfiguration.Validate(ReportEmbedUrl, TempPowerBiReportBuffer.ReportEmbedUrl);
                 PowerBiReportConfiguration.Insert;
             until TempPowerBiReportBuffer.Next = 0;
 

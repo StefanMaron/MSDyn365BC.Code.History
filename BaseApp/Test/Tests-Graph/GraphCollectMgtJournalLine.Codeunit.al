@@ -17,6 +17,8 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GraphMgtJournal: Codeunit "Graph Mgt - Journal";
         GraphMgtCustomerPayments: Codeunit "Graph Mgt - Customer Payments";
         LibraryAPIGeneralJournal: Codeunit "Library API - General Journal";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        isInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -32,10 +34,11 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     begin
         // [SCENARIO] Initialize a Journal Line with an External Doc No, at the bottom of a journal with 2 lines
         // [GIVEN] 2 lines with total balance of 0
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal lines journal batch name
-        JournalName := CreateJournalLinesJournal;
+        JournalName := CreateJournalLinesJournal();
 
         Amount := LibraryRandom.RandDec(200, 0);
         DocumentNo := LibraryUtility.GenerateGUID;
@@ -54,7 +57,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.Reset;
         GenJournalLine.SetRange("Line No.", LineNo[2]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreNotEqual(GenJournalLine."Document No.", NewGenJournalLine."Document No.", 'The Document No should be increased');
     end;
 
@@ -72,10 +75,11 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     begin
         // [FEATURE] [Account] [ID]
         // [SCENARIO] Initialize lines with and without AccountNo and AccountId to check if they sync correctly
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal lines journal batch name
-        JournalName := CreateJournalLinesJournal;
+        JournalName := CreateJournalLinesJournal();
 
         // [GIVEN] a G/L Account with Direct Posting enabled
         AccountNo := LibraryGraphJournalLines.CreateAccount;
@@ -83,7 +87,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         // [WHEN] we create the lines with and without AccountNo and AccountId
         GLAccount.Reset;
         GLAccount.SetFilter("No.", AccountNo);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         AccountGUID := GLAccount.Id;
         Assert.AreNotEqual(BlankGUID, AccountGUID, 'The AccountGUID should not be blank');
         LineNo[1] := LibraryGraphJournalLines.CreateJournalLine(JournalName, AccountNo, BlankGUID, 0, '');
@@ -96,21 +100,21 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo[1]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(AccountNo, GenJournalLine."Account No.", 'The AccountNo is wrong');
         Assert.AreEqual(AccountGUID, GenJournalLine."Account Id", 'The AccountId is wrong');
         GenJournalLine.Reset;
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo[2]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(AccountNo, GenJournalLine."Account No.", 'The AccountNo is wrong');
         Assert.AreEqual(AccountGUID, GenJournalLine."Account Id", 'The AccountId is wrong');
         GenJournalLine.Reset;
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo[3]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(AccountNo, GenJournalLine."Account No.", 'The AccountNo is wrong');
         Assert.AreEqual(AccountGUID, GenJournalLine."Account Id", 'The AccountId is wrong');
     end;
@@ -127,10 +131,11 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     begin
         // [FEATURE] [Account] [ID]
         // [SCENARIO] Initialize lines with AccountNo and AccountId that no longer exist
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal lines journal batch name
-        JournalName := CreateJournalLinesJournal;
+        JournalName := CreateJournalLinesJournal();
 
         // [GIVEN] an AccountNo and AccountId of a deleted G/L Account
         AccountNo := LibraryGraphJournalLines.CreateAccount;
@@ -138,7 +143,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         // [WHEN] we create the lines with AccountNo and AccountId that do not match
         GLAccount.Reset;
         GLAccount.SetFilter("No.", AccountNo);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         AccountGUID := GLAccount.Id;
         GLAccount.Delete;
         Commit;
@@ -163,10 +168,11 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     begin
         // [FEATURE] [Account] [ID]
         // [SCENARIO] Setting the Account No to blank should also blank the Account Id
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal batch name
-        JournalName := CreateJournalLinesJournal;
+        JournalName := CreateJournalLinesJournal();
 
         // [GIVEN] a G/L Account
         AccountNo := LibraryGraphJournalLines.CreateAccount;
@@ -174,14 +180,14 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         // [WHEN] we create the line with AccountNo and then blank it
         GLAccount.Reset;
         GLAccount.SetFilter("No.", AccountNo);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         AccountGUID := GLAccount.Id;
         LineNo := LibraryGraphJournalLines.CreateJournalLine(JournalName, AccountNo, BlankGUID, 0, '');
         GenJournalLine.Reset;
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.Validate("Account No.", '');
         GenJournalLine.Modify;
         Commit;
@@ -191,7 +197,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(BlankGUID, GenJournalLine."Account Id", 'Blanking the Account No should blank the Account Id too.');
     end;
 
@@ -209,18 +215,19 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     begin
         // [FEATURE] [Customer] [ID]
         // [SCENARIO] Initialize lines with and without CustomerNo and CustomerId to check if they sync correctly
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a customer payments journal batch name
-        JournalName := CreateCustomerPaymentsJournal;
+        JournalName := CreateCustomerPaymentsJournal();
 
         // [GIVEN] a Customer
-        CustomerNo := LibraryGraphJournalLines.CreateCustomer;
+        CustomerNo := LibraryGraphJournalLines.CreateCustomer();
 
         // [WHEN] we create the lines with and without CustomerNo and CustomerId
         Customer.Reset;
         Customer.SetFilter("No.", CustomerNo);
-        Customer.FindFirst;
+        Customer.FindFirst();
         CustomerGUID := Customer.Id;
         Assert.AreNotEqual(BlankGUID, CustomerGUID, 'The CustomerGUID should not be blank');
         LineNo[1] := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, CustomerNo, BlankGUID, '', BlankGUID, 0, '');
@@ -238,14 +245,14 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GenJournalLine.Reset;
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[2]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.IsTrue(GenJournalLine.FindFirst, 'The customer payment should exist');
         Assert.AreEqual(CustomerNo, GenJournalLine."Account No.", 'The CustomerNo is wrong');
         Assert.AreEqual(CustomerGUID, GenJournalLine."Customer Id", 'The CustomerId is wrong');
         GenJournalLine.Reset;
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[3]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.IsTrue(GenJournalLine.FindFirst, 'The customer payment should exist');
         Assert.AreEqual(CustomerNo, GenJournalLine."Account No.", 'The CustomerNo is wrong');
         Assert.AreEqual(CustomerGUID, GenJournalLine."Customer Id", 'The CustomerId is wrong');
@@ -263,18 +270,19 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     begin
         // [FEATURE] [Customer] [ID]
         // [SCENARIO] Initialize lines with CustomerNo and CustomerId that no longer exist
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a customer payments journal batch name
-        JournalName := CreateCustomerPaymentsJournal;
+        JournalName := CreateCustomerPaymentsJournal();
 
         // [GIVEN] an CustomerNo and CustomerId of a deleted Customer
-        CustomerNo := LibraryGraphJournalLines.CreateCustomer;
+        CustomerNo := LibraryGraphJournalLines.CreateCustomer();
 
         // [WHEN] we create the lines with CustomerNo and CustomerId that do not match
         Customer.Reset;
         Customer.SetFilter("No.", CustomerNo);
-        Customer.FindFirst;
+        Customer.FindFirst();
         CustomerGUID := Customer.Id;
         Customer.Delete;
         Commit;
@@ -299,24 +307,25 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     begin
         // [FEATURE] [Customer] [ID]
         // [SCENARIO] Setting the Customer No to blank should also blank the Customer Id
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a customer payments journal batch name
-        JournalName := CreateCustomerPaymentsJournal;
+        JournalName := CreateCustomerPaymentsJournal();
 
         // [GIVEN] a Customer
-        CustomerNo := LibraryGraphJournalLines.CreateCustomer;
+        CustomerNo := LibraryGraphJournalLines.CreateCustomer();
 
         // [WHEN] we create the line with CustomerNo and then blank it
         Customer.Reset;
         Customer.SetFilter("No.", CustomerNo);
-        Customer.FindFirst;
+        Customer.FindFirst();
         CustomerGUID := Customer.Id;
         LineNo := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, CustomerNo, BlankGUID, '', BlankGUID, 0, '');
         GenJournalLine.Reset;
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.Validate("Account No.", '');
         GenJournalLine.Modify;
         Commit;
@@ -325,7 +334,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GenJournalLine.Reset;
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(BlankGUID, GenJournalLine."Customer Id", 'Blanking the Customer No should blank the Customer Id too.');
     end;
 
@@ -344,13 +353,14 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     begin
         // [FEATURE] [Applies-To]
         // [SCENARIO] Initialize lines with and without AppliesToDocNo and AppliesToDocId to check if they sync correctly
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a customer payments journal batch name
-        JournalName := CreateCustomerPaymentsJournal;
+        JournalName := CreateCustomerPaymentsJournal();
 
         // [GIVEN] a Customer
-        CustomerNo := LibraryGraphJournalLines.CreateCustomer;
+        CustomerNo := LibraryGraphJournalLines.CreateCustomer();
 
         // [GIVEN] a posted sales invoice
         InvoiceNo := LibraryGraphJournalLines.CreatePostedSalesInvoice(CustomerNo);
@@ -358,7 +368,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         // [WHEN] we create the lines with and without AppliesToDocNo and AppliesToDocId
         SalesInvoiceHeader.Reset;
         SalesInvoiceHeader.SetFilter("No.", InvoiceNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         InvoiceGUID := SalesInvoiceHeader.Id;
         Assert.AreNotEqual(BlankGUID, InvoiceGUID, 'The InvoiceGUID should not be blank');
         LineNo[1] := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, CustomerNo, BlankGUID, InvoiceNo, BlankGUID, 0, '');
@@ -370,19 +380,19 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GenJournalLine.Reset;
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[1]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(InvoiceNo, GenJournalLine."Applies-to Doc. No.", 'The InvoiceNo is wrong');
         Assert.AreEqual(InvoiceGUID, GenJournalLine."Applies-to Invoice Id", 'The InvoiceId is wrong');
         GenJournalLine.Reset;
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[2]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(InvoiceNo, GenJournalLine."Applies-to Doc. No.", 'The InvoiceNo is wrong');
         Assert.AreEqual(InvoiceGUID, GenJournalLine."Applies-to Invoice Id", 'The InvoiceId is wrong');
         GenJournalLine.Reset;
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[3]);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(InvoiceNo, GenJournalLine."Applies-to Doc. No.", 'The InvoiceNo is wrong');
         Assert.AreEqual(InvoiceGUID, GenJournalLine."Applies-to Invoice Id", 'The InvoiceId is wrong');
     end;
@@ -400,13 +410,14 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     begin
         // [FEATURE] [Applies-To]
         // [SCENARIO] Initialize line with AppliesToDocId that no longer exist
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a customer payments journal batch name
-        JournalName := CreateCustomerPaymentsJournal;
+        JournalName := CreateCustomerPaymentsJournal();
 
         // [GIVEN] a Customer
-        CustomerNo := LibraryGraphJournalLines.CreateCustomer;
+        CustomerNo := LibraryGraphJournalLines.CreateCustomer();
 
         // [GIVEN] a posted sales invoice
         InvoiceNo := LibraryGraphJournalLines.CreatePostedSalesInvoice(CustomerNo);
@@ -414,7 +425,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         // [WHEN] we create the line with AppliesToDocId that does not match to an invoice
         SalesInvoiceHeader.Reset;
         SalesInvoiceHeader.SetFilter("No.", InvoiceNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         InvoiceGUID := SalesInvoiceHeader.Id;
         SalesInvoiceHeader.Delete;
         Commit;
@@ -438,13 +449,14 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     begin
         // [FEATURE] [Applies-To]
         // [SCENARIO] Initialize line with AppliesToDocNo that no longer exist
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a customer payments journal batch name
-        JournalName := CreateCustomerPaymentsJournal;
+        JournalName := CreateCustomerPaymentsJournal();
 
         // [GIVEN] a Customer
-        CustomerNo := LibraryGraphJournalLines.CreateCustomer;
+        CustomerNo := LibraryGraphJournalLines.CreateCustomer();
 
         // [GIVEN] a posted sales invoice
         InvoiceNo := LibraryGraphJournalLines.CreatePostedSalesInvoice(CustomerNo);
@@ -452,7 +464,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         // [WHEN] we create the line with AppliesToDocNo that does not match to an invoice
         SalesInvoiceHeader.Reset;
         SalesInvoiceHeader.SetFilter("No.", InvoiceNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         InvoiceGUID := SalesInvoiceHeader.Id;
         SalesInvoiceHeader.Delete;
         Commit;
@@ -463,7 +475,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GenJournalLine.Reset;
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(InvoiceNo, GenJournalLine."Applies-to Doc. No.", 'The InvoiceNo is wrong');
         Assert.AreEqual(BlankGUID, GenJournalLine."Applies-to Invoice Id", 'The InvoiceId should be empty');
     end;
@@ -483,13 +495,14 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     begin
         // [FEATURE] [Applies-To]
         // [SCENARIO] Setting the AppliesToDoc No to blank should also blank the AppliesToDoc Id
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a customer payments journal batch name
-        JournalName := CreateCustomerPaymentsJournal;
+        JournalName := CreateCustomerPaymentsJournal();
 
         // [GIVEN] a Customer
-        CustomerNo := LibraryGraphJournalLines.CreateCustomer;
+        CustomerNo := LibraryGraphJournalLines.CreateCustomer();
 
         // [GIVEN] a posted sales invoice
         InvoiceNo := LibraryGraphJournalLines.CreatePostedSalesInvoice(CustomerNo);
@@ -497,13 +510,13 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         // [WHEN] we create the line with AppliesToDocNo and then blank it
         SalesInvoiceHeader.Reset;
         SalesInvoiceHeader.SetFilter("No.", InvoiceNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         InvoiceGUID := SalesInvoiceHeader.Id;
         LineNo := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, CustomerNo, BlankGUID, InvoiceNo, BlankGUID, 0, '');
         GenJournalLine.Reset;
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.Validate("Applies-to Doc. No.", '');
         GenJournalLine.Modify;
 
@@ -511,7 +524,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GenJournalLine.Reset;
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(
           BlankGUID, GenJournalLine."Applies-to Invoice Id", 'Blanking the AppliesToDocNo should blank the AppliesToDocId too.');
     end;
@@ -528,10 +541,11 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
     begin
         // [FEATURE] [Web Service]
         // [SCENARIO] When the web service is enabled the HandleApiSetup function should setup the required fields
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal lines journal batch name
-        JournalName := CreateJournalLinesJournal;
+        JournalName := CreateJournalLinesJournal();
 
         // [GIVEN] a G/L Account with Direct Posting enabled
         AccountNo := LibraryGraphJournalLines.CreateAccount;
@@ -542,7 +556,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.Modify(false);
 
         // [WHEN] we run the functions of HandleApiSetup
@@ -553,8 +567,20 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(false, IsNullGuid(GenJournalLine."Account Id"), 'The Account Id should not be empty');
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Graph Collect Mgt Journal Line");
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Graph Collect Mgt Journal Line");
+
+        if not isInitialized then
+            isInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Graph Collect Mgt Journal Line");
     end;
 
     local procedure CreateJournalLinesJournal(): Code[10]

@@ -333,6 +333,7 @@ table 17 "G/L Entry"
             Caption = 'New G/L Account No.';
             ObsoleteReason = 'Obsolete feature';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10721; "Old G/L Account No."; Code[20])
         {
@@ -340,12 +341,14 @@ table 17 "G/L Entry"
             ObsoleteReason = 'Obsolete feature';
             ObsoleteState = Removed;
             TableRelation = "Historic G/L Account";
+            ObsoleteTag = '15.0';
         }
         field(10722; Updated; Boolean)
         {
             Caption = 'Updated';
             ObsoleteReason = 'Obsolete feature';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10723; "Period Trans. No."; Integer)
         {

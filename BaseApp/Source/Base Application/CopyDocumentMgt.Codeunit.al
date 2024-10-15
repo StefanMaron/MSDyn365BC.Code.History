@@ -478,6 +478,7 @@ codeunit 6620 "Copy Document Mgt."
     local procedure CopySalesDocUpdateHeader(FromDocType: Option; FromDocNo: Code[20]; var ToSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header"; FromSalesShptHeader: Record "Sales Shipment Header"; FromSalesInvHeader: Record "Sales Invoice Header"; FromReturnRcptHeader: Record "Return Receipt Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; FromSalesHeaderArchive: Record "Sales Header Archive"; var ReleaseDocument: Boolean);
     var
         OldSalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
         with ToSalesHeader do begin
             CheckCustomer(FromSalesHeader, ToSalesHeader);
@@ -515,8 +516,13 @@ codeunit 6620 "Copy Document Mgt."
                 Status := Status::Open;
                 ReleaseDocument := true;
             end;
-            if MoveNegLines or IncludeHeader then
-                Validate("Location Code");
+
+            IsHandled := false;
+            OnCopySalesDocUpdateHeaderOnBeforeValidateLocationCode(ToSalesHeader, IsHandled);
+            if not IsHandled then
+                if MoveNegLines or IncludeHeader then
+                    Validate("Location Code");
+
             CopyShiptoCodeFromInvToCrMemo(ToSalesHeader, FromSalesInvHeader, FromDocType);
             CopyFieldsFromOldSalesHeader(ToSalesHeader, OldSalesHeader);
             OnAfterCopyFieldsFromOldSalesHeader(ToSalesHeader, OldSalesHeader, MoveNegLines, IncludeHeader);
@@ -1186,7 +1192,13 @@ codeunit 6620 "Copy Document Mgt."
     local procedure DeleteSalesLinesWithNegQty(FromSalesHeader: Record "Sales Header"; OnlyTest: Boolean)
     var
         FromSalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteSalesLinesWithNegQty(FromSalesHeader, OnlyTest, IsHandled);
+        if IsHandled then
+            exit;
+
         with FromSalesLine do begin
             SetRange("Document Type", FromSalesHeader."Document Type");
             SetRange("Document No.", FromSalesHeader."No.");
@@ -1753,6 +1765,8 @@ codeunit 6620 "Copy Document Mgt."
     var
         GLAcc: Record "G/L Account";
     begin
+        OnBeforeRecalculatePurchLine(ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, CopyThisLine);
+
         ToPurchLine.Validate(Type, FromPurchLine.Type);
         ToPurchLine.Description := FromPurchLine.Description;
         ToPurchLine.Validate("Description 2", FromPurchLine."Description 2");
@@ -4811,8 +4825,9 @@ codeunit 6620 "Copy Document Mgt."
                 JobPlanningLineInvoice."Transferred Date" := SalesHeader."Posting Date";
                 JobPlanningLineInvoice.Insert;
 
-                JobPlanningLine.UpdateQtyToTransfer;
-                JobPlanningLine.Modify;
+                JobPlanningLine.UpdateQtyToTransfer();
+                JobPlanningLine.Modify();
+                OnLinkJobPlanningLineOnAfterJobPlanningLineModify(JobPlanningLineInvoice, JobPlanningLine);
             end;
         until SalesLine.Next = 0;
     end;
@@ -5640,7 +5655,14 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     local procedure CheckCreditLimit(FromSalesHeader: Record "Sales Header"; ToSalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCreditLimit(FromSalesHeader, ToSalesHeader, SkipTestCreditLimit, IsHandled);
+        if IsHandled then
+            exit;
+
         if SkipTestCreditLimit then
             exit;
 
@@ -7849,6 +7871,16 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCreditLimit(FromSalesHeader: Record "Sales Header"; ToSalesHeader: record "Sales Header"; var SkipTestCreditLimit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecalculatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckCopyFromSalesHeaderAvailOnAfterCheckItemAvailability(ToSalesHeader: Record "Sales Header"; ToSalesLine: Record "Sales Line"; FromSalesHeader: Record "Sales Header"; IncludeHeader: Boolean)
     begin
     end;
@@ -7935,6 +7967,11 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchCrMemoLinesToDocOnAfterTransferFields(var FromPurchaseLine: Record "Purchase Line"; var FromPurchaseHeader: Record "Purchase Header"; var ToPurchaseHeader: Record "Purchase Header"; var FromPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteSalesLinesWithNegQty(FromSalesHeader: Record "Sales Header"; OnlyTest: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -8104,6 +8141,11 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopySalesDocUpdateHeaderOnBeforevalidateLocationCode(var ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocWithoutHeader(var ToSalesHeader: Record "Sales Header"; FromDocType: Option; FromDocNo: Code[20]; FromOccurenceNo: Integer; FromVersionNo: Integer)
     begin
     end;
@@ -8199,12 +8241,17 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyFromSalesLineItemChargeAssignOnAfterValueEntryLoop(FromSalesHeader: Record "Sales Header"; ToSalesLine: Record "Sales Line"; ValueEntry: Record "Value Entry"; var TempToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; var ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; var ItemChargeAssgntNextLineNo : Integer)
+    local procedure OnCopyFromSalesLineItemChargeAssignOnAfterValueEntryLoop(FromSalesHeader: Record "Sales Header"; ToSalesLine: Record "Sales Line"; ValueEntry: Record "Value Entry"; var TempToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; var ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; var ItemChargeAssgntNextLineNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyFromPurchLineItemChargeAssignOnAfterValueEntryLoop(FromPurchHeader: Record "Purchase Header"; ToPurchLine: Record "Purchase Line"; ValueEntry: Record "Value Entry"; var TempToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var ToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var ItemChargeAssgntNextLineNo : Integer)
+    local procedure OnCopyFromPurchLineItemChargeAssignOnAfterValueEntryLoop(FromPurchHeader: Record "Purchase Header"; ToPurchLine: Record "Purchase Line"; ValueEntry: Record "Value Entry"; var TempToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var ToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var ItemChargeAssgntNextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLinkJobPlanningLineOnAfterJobPlanningLineModify(var JobPlanningLineInvoice: Record "Job Planning Line Invoice"; var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

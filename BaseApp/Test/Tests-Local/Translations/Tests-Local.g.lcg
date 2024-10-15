@@ -3785,6 +3785,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType MarkAsAcceptedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3173997497 - NamedType 3025232406" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must have a value in SII VAT Setup]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = field caption]D;]A;(LookupHint=Codeunit SII Document Processing - NamedType FieldMustHaveValueInSIISetupErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2553791146 - NamedType 3088887303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The XML document was not generated properly.]]></Val>

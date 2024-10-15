@@ -78,6 +78,7 @@ table 45 "G/L Register"
             Caption = 'Period Trans. No.';
             ObsoleteReason = 'Feature redesign';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 
@@ -100,6 +101,7 @@ table 45 "G/L Register"
         {
             ObsoleteReason = 'Feature redesign';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

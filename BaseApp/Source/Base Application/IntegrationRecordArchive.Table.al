@@ -3,6 +3,7 @@ table 5152 "Integration Record Archive"
     Caption = 'Integration Record Archive';
     ObsoleteState = Pending;
     ObsoleteReason = 'This functionality will be replaced by the systemID field';
+    ObsoleteTag = '15.0';
 
     fields
     {

@@ -44,6 +44,7 @@ table 3 "Payment Terms"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(10710; "Max. No. of Days till Due Date"; Integer)
         {

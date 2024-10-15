@@ -9,6 +9,7 @@ codeunit 104100 "UPG SII"
     trigger OnUpgradePerCompany()
     begin
         UpdateEmployeeNewNames;
+        UpdateSchemasInSIISetup();
     end;
 
     local procedure UpdateEmployeeNewNames()
@@ -30,5 +31,21 @@ codeunit 104100 "UPG SII"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateEmployeeNewNamesTag);
     end;
+
+    local procedure UpdateSchemasInSIISetup()
+    var
+        SIISetup: Record "SII Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+    begin
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateSIISetupSchemasTag()) THEN
+            EXIT;
+
+        if SIISetup.Get() then
+            SIISetup.SetDefaults();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpdateSIISetupSchemasTag());
+    end;
+
 }
 

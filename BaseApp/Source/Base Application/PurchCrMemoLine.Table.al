@@ -576,6 +576,7 @@ table 125 "Purch. Cr. Memo Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(6600; "Return Shipment No."; Code[20])
         {
@@ -600,6 +601,7 @@ table 125 "Purch. Cr. Memo Line"
             Editable = false;
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10701; "EC %"; Decimal)
         {

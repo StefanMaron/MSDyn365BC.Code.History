@@ -8,6 +8,7 @@ report 206 "Sales - Invoice"
     PreviewMode = PrintLayout;
     ObsoleteReason = 'Replaced with report 1306 Standard Sales - Invoice';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.2';
 
     dataset
     {
@@ -1357,7 +1358,7 @@ report 206 "Sales - Invoice"
         exit(Text004);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure GetCarteraInvoice(): Boolean
     var
         CustLedgEntry: Record "Cust. Ledger Entry";

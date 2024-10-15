@@ -294,6 +294,8 @@ codeunit 10752 "SII Doc. Upload Management"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
+        OnBeforeTryGenerateXml(SIIDocUploadState, SIIHistory);
+
         SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No.");
         SIIXMLCreator.SetIsRetryAccepted(SIIDocUploadState."Retry Accepted");
         case SIIDocUploadState."Document Source" of
@@ -619,6 +621,11 @@ codeunit 10752 "SII Doc. Upload Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDocStateFilters(var SIIDocUploadState: Record "SII Doc. Upload State")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTryGenerateXml(var SIIDocUploadState: Record "SII Doc. Upload State"; SIIHistory: Record "SII History")
     begin
     end;
 

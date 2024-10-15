@@ -214,9 +214,14 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     local procedure CalcBestDirectUnitCost(var PurchPrice: Record "Purchase Price")
     var
         BestPurchPrice: Record "Purchase Price";
-        IsHandled: Boolean;
         BestPurchPriceFound: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcBestDirectUnitCost(PurchPrice, BestPurchPrice, BestPurchPriceFound, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchPrice do begin
             FoundPurchPrice := Find('-');
             if FoundPurchPrice then
@@ -774,6 +779,11 @@ codeunit 7010 "Purch. Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPurchLinePriceExists(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBestDirectUnitCost(var PurchPrice: Record "Purchase Price"; var BestPurchPrice: Record "Purchase Price"; var BestPurchPriceFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 

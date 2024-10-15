@@ -71,6 +71,7 @@ page 10751 "SII Setup"
                     Editable = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Will be replaced by the Certificate Code in the next version.';
+                    ObsoleteTag = '15.3';
                 }
                 field(Password; Password)
                 {
@@ -80,6 +81,7 @@ page 10751 "SII Setup"
                     ToolTip = 'Specifies the password to the SII service.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Will be replaced by the Certificate Code in the next version.';
+                    ObsoleteTag = '15.3';
                 }
             }
             group(Endpoints)
@@ -118,6 +120,16 @@ page 10751 "SII Setup"
                     Caption = 'Collection In Cash Endpoint';
                     ToolTip = 'Specifies the target URL for the collections in cash.';
                 }
+                field("SuministroInformacion Schema"; "SuministroInformacion Schema")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the target URL to the SuministroInformacion XSD schema.';
+                }
+                field("SuministroLR Schema"; "SuministroLR Schema")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the target URL to the SuministroLR XSD schema.';
+                }
             }
         }
     }
@@ -138,6 +150,7 @@ page 10751 "SII Setup"
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Choose your digital certificate file, and import it. You will need it to send the SII document.';
+                ObsoleteTag = '15.3';
 
                 trigger OnAction()
                 begin
@@ -156,6 +169,7 @@ page 10751 "SII Setup"
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Delete your digital certificate file. SII will be disabled.';
+                ObsoleteTag = '15.3';
 
                 trigger OnAction()
                 begin
@@ -207,6 +221,7 @@ page 10751 "SII Setup"
             Init;
             Insert(true);
         end;
+        SetDefaults();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

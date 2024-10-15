@@ -153,6 +153,7 @@ table 290 "VAT Amount Line"
             Caption = 'Pmt. Disc. Given Amount (Old)';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(10703; "Line Discount Amount"; Decimal)
         {

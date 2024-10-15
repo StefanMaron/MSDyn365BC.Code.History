@@ -36,6 +36,8 @@ codeunit 10753 "SII Job Upload Pending Docs."
     var
         SIISetup: Record "SII Setup";
     begin
+        OnBeforeOnAfterPostSalesDoc(SalesHeader);
+
         if not SIISetup.IsEnabled then
             exit;
 
@@ -50,6 +52,8 @@ codeunit 10753 "SII Job Upload Pending Docs."
     var
         SIISetup: Record "SII Setup";
     begin
+        OnBeforeOnAfterPostPurchDoc(PurchaseHeader);
+
         if not SIISetup.IsEnabled then
             exit;
 
@@ -64,6 +68,8 @@ codeunit 10753 "SII Job Upload Pending Docs."
     var
         SIISetup: Record "SII Setup";
     begin
+        OnBeforeOnAfterPostServiceDoc(ServiceHeader);
+
         if not SIISetup.IsEnabled then
             exit;
 
@@ -78,6 +84,8 @@ codeunit 10753 "SII Job Upload Pending Docs."
     var
         SIISetup: Record "SII Setup";
     begin
+        OnBeforeOnAfterGLLinesPost(GenJnlLine);
+
         if not SIISetup.IsEnabled then
             exit;
 
@@ -299,6 +307,26 @@ codeunit 10753 "SII Job Upload Pending Docs."
     begin
         DataTypeManagement.GetRecordRef(DetailedCustLedgEntry, DetailedCustomerLedgerRecRef);
         exit(SIIManagement.IsDetailedLedgerCashFlowBased(DetailedCustomerLedgerRecRef));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterPostSalesDoc(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterPostPurchDoc(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterPostServiceDoc(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterGLLinesPost(var GenJnlLine: Record "Gen. Journal Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

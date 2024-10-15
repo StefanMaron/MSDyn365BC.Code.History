@@ -173,7 +173,7 @@ codeunit 7314 "Warehouse Availability Mgt."
 
             SubTotal :=
               Inventory - QtyReceivedNotAvail - QtyAssgndtoPick -
-              Abs(ReservedQtyOnInventory) - "Qty. Picked" + QtyShipped - QtyOnDedicatedBins;
+              Abs(ReservedQtyOnInventory) - "Qty. Picked" + QtyShipped;
 
             exit(SubTotal);
         end;

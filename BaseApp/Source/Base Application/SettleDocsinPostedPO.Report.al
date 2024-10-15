@@ -500,7 +500,7 @@ report 7000082 "Settle Docs. in Posted PO"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostedDocOnPreDataItem(var PostedCarteraDoc: Record "Posted Cartera Doc."; PostingDate: Date)
+    local procedure OnBeforePostedDocOnPreDataItem(var PostedCarteraDoc: Record "Posted Cartera Doc."; var PostingDate: Date)
     begin
     end;
 

@@ -24,12 +24,14 @@ table 10751 "SII Setup"
             ObsoleteReason = 'Will be replaced with the Certificate Code field in next version.';
             ObsoleteState = Pending;
             Caption = 'Certificate';
+            ObsoleteTag = '15.3';
         }
         field(4; Password; Text[250])
         {
             ObsoleteReason = 'Will be replaced with the Certificate Code field in next version.';
             ObsoleteState = Pending;
             Caption = 'Password';
+            ObsoleteTag = '15.3';
 
             trigger OnValidate()
             begin
@@ -67,6 +69,7 @@ table 10751 "SII Setup"
             NotBlank = true;
             ObsoleteReason = 'Intracommunity feature was removed in scope of 222210';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(10; "Enable Batch Submissions"; Boolean)
         {
@@ -114,6 +117,14 @@ table 10751 "SII Setup"
                 SIIJobManagement.RestartJobQueueEntryForMissingEntryCheck("Auto Missing Entries Check");
             end;
         }
+        field(40; "SuministroInformacion Schema"; Text[2048])
+        {
+            InitValue = 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd';
+        }
+        field(41; "SuministroLR Schema"; Text[2048])
+        {
+            InitValue = 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd';
+        }
     }
 
     keys
@@ -140,6 +151,8 @@ table 10751 "SII Setup"
         CerFileFilterExtensionTxt: Label 'All Files (*.*)|*.*';
         CerFileFilterTxt: Label 'cer p12 crt pfx', Locked = true;
         ImportFileTxt: Label 'Select a file to import';
+        SiiTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd', Locked = true;
+        SiiLRTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd', Locked = true;
 
     [Scope('OnPrem')]
     procedure ImportCertificate()
@@ -204,5 +217,15 @@ table 10751 "SII Setup"
             exit(false);
         exit(Enabled);
     end;
+
+    procedure SetDefaults()
+    begin
+        if ("SuministroInformacion Schema" <> '') and ("SuministroLR Schema" <> '') then
+            exit;
+        "SuministroInformacion Schema" := SiiTxt;
+        "SuministroLR Schema" := SiiLRTxt;
+        Modify(true);
+    end;
+
 }
 

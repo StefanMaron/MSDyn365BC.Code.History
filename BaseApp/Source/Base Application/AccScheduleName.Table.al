@@ -34,6 +34,7 @@ table 84 "Acc. Schedule Name"
             Caption = 'Acc. No. Referred to old Acc.';
             ObsoleteReason = 'Obsolete features';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

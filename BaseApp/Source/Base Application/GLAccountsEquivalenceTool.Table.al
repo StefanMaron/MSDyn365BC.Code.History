@@ -4,6 +4,7 @@ table 10720 "G/L Accounts Equivalence Tool"
     ObsoleteReason = 'Obsolete feature';
     ObsoleteState = Pending;
     Permissions = TableData "G/L Entry" = rimd;
+    ObsoleteTag = '15.0';
 
     fields
     {
